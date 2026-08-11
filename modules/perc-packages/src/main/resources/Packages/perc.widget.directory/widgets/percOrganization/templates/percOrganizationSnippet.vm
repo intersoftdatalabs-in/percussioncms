@@ -1,0 +1,68 @@
+<div class="$!rootclass">
+#if( ! $perc.widgetContents.isEmpty() )
+            <div>
+#set($addlHead = $perc.page.getAdditionalHeadContent())##
+## Check for existing Schema if using multiple instances of widget on same page
+#if( !($addlHead.contains($scriptSchemaId)) )##
+$perc.page.setAdditionalHeadContent("$!{addlHead}<script async id='$!{scriptSchemaId}' type='application/ld+json'>$!{orgSchema}</script>")##
+#end##
+## Display Organization Name with selected formatting HTML tags
+#if( !($percHideFieldOrgName) )##
+#if( !($percHideFieldOrgPage) && "$!{orgPage_path}" != ""  && "$!{orgPage_path}" != "#")##
+                        <div class="perc-org-name">
+                            <a href="$orgPage_path" title="$orgPage_title">
+                            $!{orgNameFormatStartTag}${orgName}$!{orgNameFormatEndTag}
+                            </a>
+                        </div>
+#else##
+#if( "$!{orgName}" != "" && "$!{orgName}" != "" )##
+                            <div class="perc-org-name">
+                                $!{orgNameFormatStartTag}$!{orgName}$!{orgNameFormatEndTag}
+                            </div>
+#end##
+#end##
+#end## --( !($percHideFieldOrgName) )--
+##
+#if( !($percHideFieldOrgAddress) )##
+                    <div class="perc-org-address">
+#if( "$!{orgAddress1}" != "" && "$!{orgAddress1}" != "#" )##
+                            <div class="perc-org-address-1"><p>$!{orgAddress1}</p></div>
+#end##
+#if( "$!{orgAddress2}" != "" && "$!{orgAddress2}" != "#" )##
+                            <div class="perc-org-address-2"><p>$!{orgAddress2}</p></div>
+#end##
+#if( "$!{orgAddress3}" != "" && "$!{orgAddress3}" != "#" )##
+                            <div class="perc-org-address-city-state-post"><p>$!{orgAddress3}</p></div>
+#end##
+#if( "$!{orgCountry}" != "" && "$!{orgCountry}" != "#" )##
+                            <div class="perc-org-address-country"><p>$!{orgCountry}</p></div>
+#end##
+                    </div>
+#end##
+#if( !($percHideFieldOrgPhone) && "$!{orgPhone}" != "" && "$!{orgPhone}" != "#" )##
+                    <div class="perc-org-phone"><p>$!{orgPhone}</p></div>
+#end##
+#if( !($percHideFieldOrgFax) && "$!{orgFax}" != "" && "$!{orgFax}" != "#" )##
+                    <div class="perc-org-fax"><p>$!{orgFax}</p></div>
+#end##
+#if( !($percHideFieldOrgEmail) && "$!{orgEmail}" != "" && "$!{orgEmail}" != "#" )##
+                    <div class="perc-org-email"><p>$!{orgEmail}</p></div>
+#end##
+#if( !($percHideFieldOrgLogo) )##
+                    <div class="perc-org-logo">
+#if( !($percHideFieldOrgPage) && "$!{orgPage_path}" != ""  && "$!{orgPage_path}" != "#" && "$!{orgLogo_path}" != "" && "$!{orgLogo_path}" != "#")##
+                            <a href="$orgPage_path" title="$orgPage_title">
+                                <img src="$orgLogo_path" title="$orgLogo_title" alt="$orgLogo_alt_text" />
+                            </a>
+#else##
+#if( "$!{orgLogo_path}" != "" && "$!{orgLogo_path}" != "#" )##
+                                <img src="$orgLogo_path" title="$orgLogo_title" alt="$orgLogo_alt_text" />
+#end##
+#end##
+                    </div>
+#end##
+            </div>
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("percOrganization-empty-style", "This widget is showing sample content")
+#end
+       </div>

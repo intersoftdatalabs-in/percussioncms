@@ -1,0 +1,54 @@
+#if( ! $perc.widgetContents.isEmpty())
+			<div class = "perc-polls $!{rootclass}" data-poll='{"pollName":"$pollName","restrictionType":"$restrictionType","deliveryurl":"$dsUrl"}'>
+				#if($perc.isEditMode())
+					<div class="perc-poll-render-container">
+				#else
+					<div class="perc-poll-render-container" style="display:none">
+				#end
+					<div class="perc-poll-title">$!{pollTitle}</div>
+					<div class="perc-poll-question">$!{question}</div>
+					#foreach($ans in $ansArray)
+						<div class="perc-poll-answer-container"><input type="$inputType" name="perc-poll-answer"/><span class="perc-poll-answer">$ans</span></div>
+					#end
+					#if($perc.isEditMode() || $perc.isPreviewMode() )
+						#set($subspanclass = "perc-poll-submit-button-span")
+					#else
+						#set($subspanclass = "perc-poll-submit-button-span perc-poll-submit-button-span-action")
+					#end
+					<div class="poll-submit-button"><input type="button" value="$pollSubmitLabel" name="perc-poll-submit-button"/><span class="$subspanclass" >$pollSubmitLabel</span></div>
+					#if($viewResultsLink)
+						#if($perc.isEditMode() || $perc.isPreviewMode() )
+							#set($rlclass = "view-results-link")
+						#else
+							#set($rlclass = "view-results-link view-results-link-action")
+						#end
+						<div class="$rlclass"><a href="javascript:void(0)">$viewResultsLinkText</a></div>
+					#else
+						#set($rlclass = "view-results-link view-results-link-action")
+						<div class="$rlclass"></div>
+					#end
+					<div class="poll-validation-text" style="display:none;">$validationText</div>
+				</div>
+				<div class="perc-poll-results-container" style="display:none">
+					<div class="perc-poll-title">$!{pollTitle}</div>
+					<div class="perc-poll-question">$!{question}</div>
+					#foreach($ans in $ansArray)
+						<div class="perc-poll-answer-container"><span class="perc-poll-answer">$ans</span><span class="perc-poll-result-percent"></span><span class="perc-poll-result-count"></span></div>
+						<div class="perc-poll-result-container"><span class="perc-poll-result-fill"></span><span class="perc-poll-result-empty"></span></div>
+					#end
+					<div class="perc-poll-total-votes">$totalVotesText:<span></span></div>
+					<div class="perc-poll-backto-poll"><a href="javascript:void(0)">$backToPollText</a></div>
+				</div>
+
+			</div>
+		#elseif ($perc.isEditMode())
+            #createEmptyWidgetContent("poll-sample-content", "This polls widget is showing sample content.")
+		#end
+		#if($perc.isPreviewMode())
+				<script>
+				window.addEventListener('DOMContentLoaded', function() {
+					jQuery("input[name = 'perc-poll-submit-button']").attr('disabled', 'disabled');
+					jQuery(".perc-poll-render-container").show();
+				});
+				</script>
+		#end

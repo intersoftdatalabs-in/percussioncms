@@ -1,0 +1,1040 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percBlogPost",
+  "name": "Blog Post",
+  "version": "1.1.7",
+  "description": "Blog Post for your site",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.6.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.widget.title",
+      "version": "1.0.0",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Blog Post",
+    "category": "blog",
+    "description": "Blog Post for your site",
+    "thumbnail": "resources/WidgetIconBlog.png",
+    "icon": "resources/WidgetIconBlog.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 723,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percBlogPostAsset",
+      "ref": "contentTypes/percBlogPostAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percBlogPostSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percBlogPostSnippet.vm",
+      "contentType": "percBlogPostAsset",
+      "bindings": [
+        {
+          "variable": "rootClass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "isEditMode",
+          "expression": "$perc.isEditMode() || $perc.isPreviewMode()"
+        },
+        {
+          "variable": "titleFormat",
+          "expression": "$perc.widget.item.properties.get('titleFormat')"
+        },
+        {
+          "variable": "blogPostNextPost",
+          "expression": "$perc.widget.item.properties.get('blogPostNextPost')"
+        },
+        {
+          "variable": "blogPostPrePost",
+          "expression": "$perc.widget.item.properties.get('blogPostPrePost')"
+        },
+        {
+          "variable": "blogPostDateTimeFormat",
+          "expression": "$perc.widget.item.properties.get('blogPostDateTimeFormat')"
+        },
+        {
+          "variable": "newerText",
+          "expression": "$blogPostNextPost"
+        },
+        {
+          "variable": "olderText",
+          "expression": "$blogPostPrePost"
+        },
+        {
+          "variable": "newerPostClass",
+          "expression": "'perc-newer-post'"
+        },
+        {
+          "variable": "olderPostClass",
+          "expression": "'perc-older-post'"
+        },
+        {
+          "variable": "blogPostBylineText",
+          "expression": "$perc.widget.item.properties.get('blogPostBylineText')"
+        },
+        {
+          "variable": "locale",
+          "expression": "$perc.widget.item.properties.get('locale')"
+        },
+        {
+          "variable": "locale",
+          "expression": "\"en-US\""
+        },
+        {
+          "variable": "blogNavigationContext",
+          "expression": "$perc.widget.item.properties.get('blogNavigationContext')"
+        },
+        {
+          "variable": "newerText",
+          "expression": "'Newer Post Title'"
+        },
+        {
+          "variable": "olderText",
+          "expression": "'Older Post Title'"
+        },
+        {
+          "variable": "olderPostClass",
+          "expression": "'perc-older-post-title'"
+        },
+        {
+          "variable": "newerPostClass",
+          "expression": "'perc-newer-post-title'"
+        },
+        {
+          "variable": "blogNavigationLocation",
+          "expression": "$perc.widget.item.properties.get('blogNavigationLocation')"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "titleFormatStartTag",
+          "expression": "'<' + $titleFormat + ' class=\"perc-blog-title\">'"
+        },
+        {
+          "variable": "titleFormatEndTag",
+          "expression": "'</' + $titleFormat + '>'"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assets.get(0)"
+        },
+        {
+          "variable": "blogAuthorName",
+          "expression": "$assetItem.Node.getProperty('authorname').getString()"
+        },
+        {
+          "variable": "bylineStart",
+          "expression": "'<div class=\"perc-blog-byline\"><span class=\"perc-blog-author-label\">' + $blogPostBylineText + ' </span><span class=\"perc-blog-author-name\">'"
+        },
+        {
+          "variable": "bylineEnd",
+          "expression": "'</span></div>'"
+        },
+        {
+          "variable": "percHidefieldByline",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_byline')"
+        },
+        {
+          "variable": "percHidefieldBlogDate",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_blog_date')"
+        },
+        {
+          "variable": "percHidefieldTags",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_tags')"
+        },
+        {
+          "variable": "percTagsLabel",
+          "expression": "$perc.widget.item.properties.get('perc_tags_label')"
+        },
+        {
+          "variable": "percHidefieldCategories",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_categories')"
+        },
+        {
+          "variable": "percCategoriesLabel",
+          "expression": "$perc.widget.item.properties.get('perc_categories_label')"
+        },
+        {
+          "variable": "trackBlogPost",
+          "expression": "$perc.widget.item.properties.get('trackBlogPost')"
+        },
+        {
+          "variable": "blogPostFullPath",
+          "expression": "$rx.pageutils.itemLink($perc.linkContext, $perc.getPage()).toString()"
+        },
+        {
+          "variable": "navFinder",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\""
+        },
+        {
+          "variable": "navContainer",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $navFinder, null, true)"
+        },
+        {
+          "variable": "navLoc",
+          "expression": "\"\""
+        },
+        {
+          "variable": "navSelf",
+          "expression": "\"\""
+        },
+        {
+          "variable": "blogIndexName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "blogPostTempId",
+          "expression": "null"
+        },
+        {
+          "variable": "navLoc",
+          "expression": "$navContainer.get(0).getFolderPath()"
+        },
+        {
+          "variable": "landingPage",
+          "expression": "$navContainer.get(0).getNode().getProperty(\"nav:landingPage\")"
+        },
+        {
+          "variable": "navSelf",
+          "expression": "$navContainer.get(0).getNode().getProperty(\"nav:landingPage\").getNode()"
+        },
+        {
+          "variable": "blogIndexName",
+          "expression": "$navSelf.getName()"
+        },
+        {
+          "variable": "blogPostTempId",
+          "expression": "$rx.pageutils.getBlogPostTemplateId($navLoc)"
+        },
+        {
+          "variable": "siteName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "pagePath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "\"[\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"&quot;type = 'page'&quot;\""
+        },
+        {
+          "variable": "criteriaSep",
+          "expression": "\", \""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$navLoc.replace(\"//Sites/\", \"\")"
+        },
+        {
+          "variable": "pagePath",
+          "expression": "$navLoc.replace(\"//Sites\", \"\")"
+        },
+        {
+          "variable": "temppaths",
+          "expression": "$temppath.split(\"/\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\""
+        },
+        {
+          "variable": "siteName",
+          "expression": "$temppaths[0]"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "counter",
+          "expression": "1"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$folderpath + \"/\" + $temppaths[$counter]"
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\""
+        },
+        {
+          "variable": "siteName",
+          "expression": "$temppath"
+        },
+        {
+          "variable": "templateNameList",
+          "expression": "$rx.pageutils.templateNames($blogPostTempId)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\""
+        },
+        {
+          "variable": "tagValues",
+          "expression": "\"\""
+        },
+        {
+          "variable": "categoryValues",
+          "expression": "\"\""
+        },
+        {
+          "variable": "tagValues",
+          "expression": "$sys.item.getProperty('page_tags').getValues()"
+        },
+        {
+          "variable": "categoryValues",
+          "expression": "$sys.item.getProperty('page_categories_tree').getValues()"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"]\""
+        },
+        {
+          "variable": "orderby",
+          "expression": "\"dcterms:created desc\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;criteria&quot;:\" + $criteria"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;navType&quot;:&quot;\" + $blogNavigationContext + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostNextPost&quot;:&quot;\" + $blogPostNextPost + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostPrePost&quot;:&quot;\" + $blogPostPrePost + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogPostFullPath&quot;:&quot;/\" + $siteName + $blogPostFullPath + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;folderPath&quot;:&quot;\" + $pagePath + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;siteName&quot;:&quot;\" +  $siteName + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;trackBlogPost&quot;:\" +  $trackBlogPost"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot; : &quot;\" + $dsUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;blogIndexName&quot; : &quot;\" + $blogIndexName + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$rootClass = $perc.widget.item.cssProperties.get('rootclass');\n    $isEditMode = $perc.isEditMode() || $perc.isPreviewMode();\n    $titleFormat = $perc.widget.item.properties.get('titleFormat');\n    $blogPostNextPost = $perc.widget.item.properties.get('blogPostNextPost');\n    $blogPostPrePost = $perc.widget.item.properties.get('blogPostPrePost');\n    $blogPostDateTimeFormat = $perc.widget.item.properties.get('blogPostDateTimeFormat');\n    $newerText = $blogPostNextPost;\n    $olderText = $blogPostPrePost;\n    $newerPostClass = 'perc-newer-post';\n    $olderPostClass = 'perc-older-post';\n    $blogPostBylineText = $perc.widget.item.properties.get('blogPostBylineText');\n    $locale = $perc.widget.item.properties.get('locale');\n    if($locale == null)\n       $locale = \"en-US\";\n    $blogNavigationContext = $perc.widget.item.properties.get('blogNavigationContext');\n    if($blogNavigationContext == 'blogTitle')\n    {\n        $newerText = 'Newer Post Title';\n        $olderText = 'Older Post Title';\n        $olderPostClass = 'perc-older-post-title';\n        $newerPostClass = 'perc-newer-post-title';\n    }\n\n\n\n    $blogNavigationLocation = $perc.widget.item.properties.get('blogNavigationLocation');\n    $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assets);\n    if (!empty($titleFormat))\n    {\n        $titleFormatStartTag = '<' + $titleFormat + ' class=\"perc-blog-title\">';\n        $titleFormatEndTag = '</' + $titleFormat + '>';\n    }\n    if (! $assets.isEmpty())\n    {\n        $assetItem = $assets.get(0);\n        $blogAuthorName = $assetItem.Node.getProperty('authorname').getString();\n        $bylineStart = '<div class=\"perc-blog-byline\"><span class=\"perc-blog-author-label\">' + $blogPostBylineText + ' </span><span class=\"perc-blog-author-name\">';\n        $bylineEnd = '</span></div>';\n        $percHidefieldByline = $perc.widget.item.properties.get('perc_hidefield_byline');\n        $percHidefieldBlogDate = $perc.widget.item.properties.get('perc_hidefield_blog_date');\n        $percHidefieldTags = $perc.widget.item.properties.get('perc_hidefield_tags');\n        $percTagsLabel = $perc.widget.item.properties.get('perc_tags_label');\n        $percHidefieldCategories = $perc.widget.item.properties.get('perc_hidefield_categories');\n        $percCategoriesLabel = $perc.widget.item.properties.get('perc_categories_label');\n        $trackBlogPost = $perc.widget.item.properties.get('trackBlogPost');\n        $blogPostFullPath = $rx.pageutils.itemLink($perc.linkContext, $perc.getPage()).toString();\n\n\n        ## Get navigation.  If we can't find it, we're probably in a template.\n        $navFinder=\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\";\n        $navContainer = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $navFinder, null, true);\n        $navLoc = \"\";\n        $navSelf = \"\";\n        $blogIndexName = \"\";\n        $blogPostTempId = null;\n        if ($navContainer != null && ! $navContainer.isEmpty() ) {\n            $navLoc = $navContainer.get(0).getFolderPath();\n            $landingPage = $navContainer.get(0).getNode().getProperty(\"nav:landingPage\");\n            if($landingPage != null){\n                $navSelf = $navContainer.get(0).getNode().getProperty(\"nav:landingPage\").getNode();\n                $blogIndexName = $navSelf.getName();\n                $blogPostTempId = $rx.pageutils.getBlogPostTemplateId($navLoc);\n            }\n        }\n        $siteName = \"\";\n        $pagePath = \"\";\n        $criteria = \"[\";\n        if ($navLoc != null && $navLoc != \"\" && $navLoc != \"//Sites\")\n        {\n            $criteria = $criteria + \"&quot;type = 'page'&quot;\";\n            $criteriaSep = \", \";\n            $temppath = $navLoc.replace(\"//Sites/\", \"\");\n            $pagePath = $navLoc.replace(\"//Sites\", \"\");\n            if($temppath.indexOf(\"/\") > 0)\n            {\n                $temppaths = $temppath.split(\"/\");\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\";\n                $siteName = $temppaths[0];\n                $folderpath = \"\";\n                $counter = 1;\n                while($counter < $temppaths.size())\n                {\n                    $folderpath = $folderpath + \"/\" + $temppaths[$counter];\n                    $counter = $counter + 1;\n                }\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\";\n            }\n            else\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\";\n                $siteName = $temppath;\n            }\n\n            if ($blogPostTempId != null)\n            {\n               $templateNameList = $rx.pageutils.templateNames($blogPostTempId);\n               if($templateNameList.size() > 0)\n               {\n                   $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\";\n               }\n            }\n\n            ## Get tags and category values only if one of the conditions below is matched\n            $tagValues = \"\";\n            $categoryValues = \"\";\n            if(($blogPostTempId == null) || (! $perc.widgetContents.isEmpty() && $pagePath != \"\"))\n            {\n               ## Get tag and categories values, only when we are not in a template.\n               $tagValues = $sys.item.getProperty('page_tags').getValues();\n               $rx.pageutils.alphaOrderTag($tagValues);\n\n               $categoryValues = $sys.item.getProperty('page_categories_tree').getValues();\n               $rx.pageutils.alphaOrderCategory($categoryValues);\n           }\n\n        }\n\n\t\t$pageId = $perc.page.id;\n        if(!empty($pageId))\n        {\n           $finderPath = $rx.pageutils.getItemPath($pageId);\n           $pathParts  = $finderPath.split(\"\\/\");\n           $siteName   = $pathParts[2];\n        }\n        $criteria = $criteria + \"]\";\n\n        ##Builds the criteria\n\n        ##builds the order by clause\n        $orderby = \"dcterms:created desc\";\n\n        ##Build the query string for the delivery side\n\n        $dynamicListData = \"{\" + \"&quot;criteria&quot;:\" + $criteria;\n        $dynamicListData = $dynamicListData + \", &quot;navType&quot;:&quot;\" + $blogNavigationContext + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;orderBy&quot;:&quot;\" + $orderby + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;blogPostNextPost&quot;:&quot;\" + $blogPostNextPost + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;blogPostPrePost&quot;:&quot;\" + $blogPostPrePost + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;blogPostFullPath&quot;:&quot;/\" + $siteName + $blogPostFullPath + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;folderPath&quot;:&quot;\" + $pagePath + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;siteName&quot;:&quot;\" +  $siteName + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;trackBlogPost&quot;:\" +  $trackBlogPost;\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot; : &quot;\" + $dsUrl + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\";\n\n        $dynamicListData = $dynamicListData + \", &quot;blogIndexName&quot; : &quot;\" + $blogIndexName + \"&quot;\";\n        $dynamicListData = $dynamicListData + \"}\";\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percBlogPostContent",
+      "allowedContentTypes": [
+        "percBlogPostAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/WidgetIconBlog.png",
+      "target": "rx_resources/widgets/blogPost/images/WidgetIconBlog.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "titleFormat",
+      "displayName": "Format of blog post title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "h1",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "blogPostDateTimeFormat",
+      "displayName": "Format of blog post date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "EEE MMM d, yyyy 'at' hh:mm a",
+      "enumValues": []
+    },
+    {
+      "name": "locale",
+      "displayName": "Date Format Locale",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "en-US",
+      "enumValues": [
+        {
+          "value": "sq-AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar-DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar-BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar-EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar-IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar-JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar-KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar-LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar-LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar-MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar-QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar-SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar-SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar-TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar-AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar-YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be-BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg-BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca-ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh-CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh-HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh-TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr-HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs-CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da-DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl-BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl-NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en-AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en-IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en-NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en-PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en-SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en-ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en-GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et-EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi-FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr-CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr-LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr-CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de-AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de-DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de-LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de-CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el-CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el-GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw-IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu-HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is-IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in-ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga-IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it-IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it-CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja-JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko-KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv-LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt-LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk-MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms-MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt-MT",
+          "displayValue": "Maltese (mt) Malta (MT)"
+        },
+        {
+          "value": "no-NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb-NO",
+          "displayValue": "Norwegian Bokmal Norway (NO)"
+        },
+        {
+          "value": "nn-NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl-PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt-PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro-RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru-RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr-BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr-ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr-RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk-SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl-SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es-AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es-BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es-CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es-CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es-CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es-DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es-EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es-SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es-GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es-HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es-MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es-NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es-PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es-PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es-PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es-PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es-ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es-US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es-UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es-VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv-SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th-TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr-TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk-UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi-VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    },
+    {
+      "name": "perc_hidefield_blog_date",
+      "displayName": "Hide date and time",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostBylineText",
+      "displayName": "Text to use for \"Author Byline\"",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "by",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_byline",
+      "displayName": "Hide byline",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_tags",
+      "displayName": "Hide tags",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_tags_label",
+      "displayName": "Text to use for \"tags\" label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Tags:",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_categories",
+      "displayName": "Hide categories",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_categories_label",
+      "displayName": "Text to use for \"categories\" label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Categories:",
+      "enumValues": []
+    },
+    {
+      "name": "blogNavigationLocation",
+      "displayName": "Location of blog navigation",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "none",
+      "enumValues": [
+        {
+          "value": "none",
+          "displayValue": "None"
+        },
+        {
+          "value": "above",
+          "displayValue": "Above blog post"
+        },
+        {
+          "value": "beneath",
+          "displayValue": "Beneath blog post"
+        },
+        {
+          "value": "aboveBeneath",
+          "displayValue": "Above and beneath blog posting"
+        }
+      ]
+    },
+    {
+      "name": "blogNavigationContext",
+      "displayName": "Blog navigation context",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "preNext",
+      "enumValues": [
+        {
+          "value": "preNext",
+          "displayValue": "User defined"
+        },
+        {
+          "value": "blogTitle",
+          "displayValue": "Use blog title"
+        }
+      ]
+    },
+    {
+      "name": "blogPostNextPost",
+      "displayName": "Text to navigate to newer post",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Newer Post",
+      "enumValues": []
+    },
+    {
+      "name": "blogPostPrePost",
+      "displayName": "Text to navigate to older post",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Older Post",
+      "enumValues": []
+    },
+    {
+      "name": "trackBlogPost",
+      "displayName": "Track blog post",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

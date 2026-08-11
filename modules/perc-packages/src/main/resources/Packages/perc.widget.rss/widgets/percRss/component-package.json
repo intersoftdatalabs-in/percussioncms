@@ -1,0 +1,550 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percRss",
+  "name": "RSS",
+  "version": "1.1.8",
+  "description": "Display a list of external RSS feeds",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.2.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "RSS",
+    "category": "blog,social",
+    "description": "Display a list of external RSS feeds",
+    "thumbnail": "resources/widgetIconRss.gif",
+    "icon": "resources/widgetIconRss.gif",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 275,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percRssAsset",
+      "ref": "contentTypes/percRssAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percRssSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percRssSnippet.vm",
+      "contentType": "percRssAsset",
+      "bindings": [
+        {
+          "variable": "percFeedItemLimit",
+          "expression": "$perc.widget.item.properties.get('perc-feed-item-limit')"
+        },
+        {
+          "variable": "percFeedShowTitle",
+          "expression": "$perc.widget.item.properties.get('perc-feed-show-title')"
+        },
+        {
+          "variable": "percFeedShowItemTitle",
+          "expression": "$perc.widget.item.properties.get('perc-feed-show-item-title')"
+        },
+        {
+          "variable": "percFeedShowItemDate",
+          "expression": "$perc.widget.item.properties.get('perc-feed-show-item-date')"
+        },
+        {
+          "variable": "percFeedShowItemDescription",
+          "expression": "$perc.widget.item.properties.get('perc-feed-show-item-description')"
+        },
+        {
+          "variable": "percFeedRemoveHtml",
+          "expression": "$perc.widget.item.properties.get('perc-feed-remove-html')"
+        },
+        {
+          "variable": "percFeedDescriptionLength",
+          "expression": "$perc.widget.item.properties.get('perc-feed-description-length')"
+        },
+        {
+          "variable": "percFeedDescriptionEmpty",
+          "expression": "$perc.widget.item.properties.get('perc-feed-description-length').toString().isEmpty()"
+        },
+        {
+          "variable": "percFeedItemDateFormat",
+          "expression": "$perc.widget.item.properties.get('perc-feed-item-date-format')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "wrappingElement",
+          "expression": "$perc.widget.item.properties.get('wrappingElement')"
+        },
+        {
+          "variable": "itemElement",
+          "expression": "\"li\""
+        },
+        {
+          "variable": "itemElement",
+          "expression": "\"div\""
+        },
+        {
+          "variable": "titleElement",
+          "expression": "$perc.widget.item.properties.get('titleElement')"
+        },
+        {
+          "variable": "itemTitleElement",
+          "expression": "$perc.widget.item.properties.get('itemTitleElement')"
+        },
+        {
+          "variable": "itemDateElement",
+          "expression": "$perc.widget.item.properties.get('itemDateElement')"
+        },
+        {
+          "variable": "itemDescriptionElement",
+          "expression": "$perc.widget.item.properties.get('itemDescriptionElement')"
+        },
+        {
+          "variable": "titleElement",
+          "expression": "'div'"
+        },
+        {
+          "variable": "itemTitleElement",
+          "expression": "'div'"
+        },
+        {
+          "variable": "itemDateElement",
+          "expression": "'div'"
+        },
+        {
+          "variable": "itemDescriptionElement",
+          "expression": "'div'"
+        },
+        {
+          "variable": "feedId",
+          "expression": "$perc.widget.item.properties.get('feedId')"
+        },
+        {
+          "variable": "feedId",
+          "expression": "$perc.widget.item.id + \"_feed\""
+        },
+        {
+          "variable": "wrappingElemAriaLabel",
+          "expression": "$perc.widget.item.properties.get('wrappingElemAriaLabel')"
+        },
+        {
+          "variable": "ariaRole",
+          "expression": "$perc.widget.item.properties.get('ariaRole')"
+        },
+        {
+          "variable": "ariaRole",
+          "expression": "' role = \"' + $ariaRole + '\"'"
+        },
+        {
+          "variable": "q",
+          "expression": "$tools.esc.q"
+        },
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "percUrlFeed",
+          "expression": "$rx.pageutils.html($assetItem, 'rss_url')"
+        },
+        {
+          "variable": "percUrlFeed",
+          "expression": "\"\""
+        },
+        {
+          "variable": "percFeedDescriptionLength",
+          "expression": "-1"
+        },
+        {
+          "variable": "dLdata",
+          "expression": "$rx.string.getJSONObject()"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.xml($dLdata)"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$percFeedItemLimit = $perc.widget.item.properties.get('perc-feed-item-limit');\n        $percFeedShowTitle = $perc.widget.item.properties.get('perc-feed-show-title');\n        $percFeedShowItemTitle = $perc.widget.item.properties.get('perc-feed-show-item-title');\n        $percFeedShowItemDate = $perc.widget.item.properties.get('perc-feed-show-item-date');\n        $percFeedShowItemDescription = $perc.widget.item.properties.get('perc-feed-show-item-description');\n        $percFeedRemoveHtml = $perc.widget.item.properties.get('perc-feed-remove-html');\n        $percFeedDescriptionLength = $perc.widget.item.properties.get('perc-feed-description-length');\n        $percFeedDescriptionEmpty = $perc.widget.item.properties.get('perc-feed-description-length').toString().isEmpty();\n        $percFeedItemDateFormat = $perc.widget.item.properties.get('perc-feed-item-date-format');\n        $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        $wrappingElement = $perc.widget.item.properties.get('wrappingElement');\n        if ($wrappingElement.equals('ol') || $wrappingElement.equals('ul') )\n        {\n        $itemElement = \"li\";\n        } else {\n        $itemElement = \"div\";\n        }\n\n        $titleElement = $perc.widget.item.properties.get('titleElement');\n        $itemTitleElement = $perc.widget.item.properties.get('itemTitleElement');\n        $itemDateElement = $perc.widget.item.properties.get('itemDateElement');\n        $itemDescriptionElement = $perc.widget.item.properties.get('itemDescriptionElement');\n\n        if ($titleElement == '' || $titleElement == null) {\n            $titleElement = 'div';\n        }\n        if ($itemTitleElement == '' || $itemTitleElement == null) {\n            $itemTitleElement = 'div';\n        }\n        if ($itemDateElement == '' || $itemDateElement == null) {\n            $itemDateElement = 'div';\n        }\n        if ($itemDescriptionElement == '' || $itemDescriptionElement == null) {\n          $itemDescriptionElement = 'div';\n        }\n\n        $feedId = $perc.widget.item.properties.get('feedId');\n        if ($feedId == '' || $feedId == null) {\n          $feedId = $perc.widget.item.id + \"_feed\";\n        }\n\n        $wrappingElemAriaLabel = $perc.widget.item.properties.get('wrappingElemAriaLabel');\n\n        $ariaRole = $perc.widget.item.properties.get('ariaRole');\n        if ($ariaRole != '' && $ariaRole != null) {\n          $ariaRole = ' role = \"' + $ariaRole + '\"';\n        }\n\n        $q = $tools.esc.q;\n\n        $linkContext = $perc.linkContext;\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n        if ( ! $assetItems.isEmpty() ) {\n            $assetItem = $assetItems.get(0);\n            $percUrlFeed = $rx.pageutils.html($assetItem, 'rss_url');\n        } else {\n            $percUrlFeed = \"\";\n        }\n\n        if($percFeedDescriptionLength == ''){\n            $percFeedDescriptionLength = -1;\n        }\n\n        $dLdata = $rx.string.getJSONObject();\n        $dLdata.put(\"urlFeed\",$rx.pageutils.encryptString($percUrlFeed));\n        $dLdata.put(\"itemLimit\",$percFeedItemLimit);\n        $dLdata.put(\"showTitle\",$percFeedShowTitle);\n        $dLdata.put(\"showItemTitle\",$percFeedShowItemTitle);\n        $dLdata.put(\"showItemDate\",$percFeedShowItemDate);\n        $dLdata.put(\"showItemDescription\",$percFeedShowItemDescription);\n        $dLdata.put(\"itemRemoveHtml\",$percFeedRemoveHtml);\n        $dLdata.put(\"itemDescriptionLength\",$percFeedDescriptionLength);\n        $dLdata.put(\"itemDescriptionEmpty\",$percFeedDescriptionEmpty);\n        $dLdata.put(\"itemDateFormat\",$percFeedItemDateFormat);\n        $dLdata.put(\"wrappingElement\",$wrappingElement);\n        $dLdata.put(\"titleElement\",$titleElement);\n        $dLdata.put(\"itemElement\",$itemElement);\n        $dLdata.put(\"itemTitleElement\",$itemTitleElement);\n        $dLdata.put(\"itemDateElement\",$itemDateElement);\n        $dLdata.put(\"itemDescriptionElement\",$itemDescriptionElement);\n        $dLdata.put(\"feedId\",$feedId);\n        $dLdata.put(\"wrappingElemAriaLabel\",$wrappingElemAriaLabel);\n\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n        $dLdata.put(\"deliveryurl\",$dsUrl);\n        $dynamicListData = $tools.esc.xml($dLdata);"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percRssContent",
+      "allowedContentTypes": [
+        "percRssAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconRss.gif",
+      "target": "rx_resources/widgets/rss/images/widgetIconRss.gif",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc-feed-item-limit",
+      "displayName": "Feed item limit",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "1",
+      "enumValues": [
+        {
+          "value": "limit_1",
+          "displayValue": "1"
+        },
+        {
+          "value": "limit_5",
+          "displayValue": "5"
+        },
+        {
+          "value": "limit_10",
+          "displayValue": "10"
+        },
+        {
+          "value": "limit_15",
+          "displayValue": "15"
+        },
+        {
+          "value": "limit_20",
+          "displayValue": "20"
+        },
+        {
+          "value": "limit_25",
+          "displayValue": "25"
+        },
+        {
+          "value": "limit_50",
+          "displayValue": "50"
+        },
+        {
+          "value": "limit_100",
+          "displayValue": "100"
+        },
+        {
+          "value": "limit_-1",
+          "displayValue": "Unlimited"
+        }
+      ]
+    },
+    {
+      "name": "perc-feed-show-title",
+      "displayName": "Show feed title",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-show-item-title",
+      "displayName": "Show item title",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-show-item-date",
+      "displayName": "Show date",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-show-item-description",
+      "displayName": "Show description",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-remove-html",
+      "displayName": "Remove HTML from fields before displaying",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-description-length",
+      "displayName": "Maximum characters in description",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "100",
+      "enumValues": []
+    },
+    {
+      "name": "perc-feed-item-date-format",
+      "displayName": "Published date format",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "D M d, yy 'at' hh:nn",
+      "enumValues": []
+    },
+    {
+      "name": "wrappingElement",
+      "displayName": "HTML element to wrap feed items",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "none",
+      "enumValues": [
+        {
+          "value": "ul",
+          "displayValue": "Unordered List (ul)"
+        },
+        {
+          "value": "ol",
+          "displayValue": "Ordered List (ol)"
+        },
+        {
+          "value": "div",
+          "displayValue": "Block (div)"
+        },
+        {
+          "value": "none",
+          "displayValue": "None - Items are unwrapped"
+        }
+      ]
+    },
+    {
+      "name": "wrappingElemAriaLabel",
+      "displayName": "Wrapped feed items aria label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "titleElement",
+      "displayName": "HTML Format to use for feed title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "div",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "span",
+          "displayValue": "Span"
+        }
+      ]
+    },
+    {
+      "name": "itemTitleElement",
+      "displayName": "HTML Format to use for feed Item Titles",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "div",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "span",
+          "displayValue": "Span"
+        }
+      ]
+    },
+    {
+      "name": "itemDateElement",
+      "displayName": "HTML Format to use for feed Item Dates",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "div",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "span",
+          "displayValue": "Span"
+        }
+      ]
+    },
+    {
+      "name": "itemDescriptionElement",
+      "displayName": "HTML Format to use for feed item Descriptions",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "div",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "span",
+          "displayValue": "Span"
+        }
+      ]
+    },
+    {
+      "name": "feedId",
+      "displayName": "id attribute for feed",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "ariaRole",
+      "displayName": "RSS Feed aria-role",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "region",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

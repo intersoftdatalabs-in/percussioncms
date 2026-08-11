@@ -34,7 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Dual-ship bridge for product Widget packages (ADR-004 / issue #2831 batch A, parent #2630).
+ * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
+ * parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
@@ -47,6 +48,10 @@ import java.util.Objects;
  *
  * <p>Batch A (#2831): {@code perc.baseWidgets}, {@code perc.defaultLanguage}, {@code
  * perc.eventWidget}, {@code perc.openGraphWidget}, {@code perc.twitterSummaryCards} (8 widgets).
+ *
+ * <p>Batch B (#2832): high-traffic (#2772) + residual long-tail (#2789) product packages —
+ * title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe (20
+ * widgets / 14 packages).
  *
  * @see PSWidgetXmlCompiler
  * @see PSWidgetXmlPackageCompiler
@@ -80,6 +85,56 @@ public final class PSWidgetXmlDualShip {
           "percOpenGraph",
           "percTwitterSummaryCards");
 
+  /**
+   * Batch B dual-ship exit package directory names under {@code Packages/} (issue #2832). High-traffic
+   * product packages (#2772) plus residual long-tail (#2789): auto-list companions live in a later
+   * residual after this batch.
+   */
+  public static final List<String> BATCH_B_PACKAGE_DIRS =
+      List.of(
+          // high-traffic (#2772)
+          "perc.widget.title",
+          "perc.widgets.lists",
+          "perc.widgets.nav",
+          "perc.FileAssetWidget",
+          "perc.widgets.image",
+          // residual long-tail (#2789)
+          "perc.widgets.blog",
+          "perc.widget.calendar",
+          "perc.widget.directory",
+          "perc.widget.socialButtons",
+          "perc.widget.form",
+          "perc.widget.poll",
+          "perc.widget.login",
+          "perc.widget.rss",
+          "perc.widget.iframe");
+
+  /** Expected modern widget stems for batch B (stable for tests / residual counting). */
+  public static final List<String> BATCH_B_WIDGET_STEMS =
+      List.of(
+          // high-traffic
+          "percTitle",
+          "simplePageAutoList",
+          "simpleTextAutoList",
+          "percNavBar",
+          "percNavBreadcrumb",
+          "percFile",
+          "percImage",
+          // residual long-tail
+          "percBlogPost",
+          "percCalendar",
+          "percCalendarTwo",
+          "percDepartment",
+          "percDirectory",
+          "percOrganization",
+          "percPerson",
+          "percSocialButtons",
+          "percForm",
+          "percPoll",
+          "percLogin",
+          "percRss",
+          "percIframe");
+
   private PSWidgetXmlDualShip() {
     // utility
   }
@@ -92,11 +147,12 @@ public final class PSWidgetXmlDualShip {
    * <ul>
    *   <li>{@code materialize-modern &lt;packageDir&gt;} — Widget XML → {@code widgets/}
    *   <li>{@code materialize-modern-batch-a &lt;packagesRoot&gt;} — batch A packages only
+   *   <li>{@code materialize-modern-batch-b &lt;packagesRoot&gt;} — batch B packages only
    * </ul>
    */
   public static void main(String[] args) throws Exception {
     final String usage =
-        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a <path>";
+        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b <path>";
     if (args.length < 2) {
       System.err.println(usage);
       System.exit(1);
@@ -107,6 +163,7 @@ public final class PSWidgetXmlDualShip {
     switch (cmd) {
       case "materialize-modern" -> n = materializeModernWidgetSources(path);
       case "materialize-modern-batch-a" -> n = materializeModernBatchA(path);
+      case "materialize-modern-batch-b" -> n = materializeModernBatchB(path);
       default -> {
         System.err.println("Unknown command: " + args[0]);
         System.err.println(usage);
@@ -170,12 +227,39 @@ public final class PSWidgetXmlDualShip {
    */
   public static int materializeModernBatchA(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
+    return materializeModernNamedPackages(packagesRoot, BATCH_A_PACKAGE_DIRS);
+  }
+
+  /**
+   * Materialize modern widget sources for every batch B package under {@code packagesRoot}. Missing
+   * package directories are soft-skipped.
+   *
+   * @param packagesRoot {@code Packages/} directory
+   * @return total modern widget packages written across batch B
+   */
+  public static int materializeModernBatchB(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return materializeModernNamedPackages(packagesRoot, BATCH_B_PACKAGE_DIRS);
+  }
+
+  /**
+   * Materialize modern widget sources for each named package under {@code packagesRoot}. Missing
+   * package directories are soft-skipped.
+   *
+   * @param packagesRoot {@code Packages/} directory
+   * @param packageDirNames ordered package directory names
+   * @return total modern widget packages written
+   */
+  public static int materializeModernNamedPackages(
+      Path packagesRoot, List<String> packageDirNames)
+      throws PSWidgetXmlException, IOException {
     Objects.requireNonNull(packagesRoot, "packagesRoot");
+    Objects.requireNonNull(packageDirNames, "packageDirNames");
     if (!Files.isDirectory(packagesRoot)) {
       throw new PSWidgetXmlException("Packages root does not exist: " + packagesRoot);
     }
     int total = 0;
-    for (String dirName : BATCH_A_PACKAGE_DIRS) {
+    for (String dirName : packageDirNames) {
       Path packageDir = packagesRoot.resolve(dirName);
       if (!Files.isDirectory(packageDir)) {
         continue;

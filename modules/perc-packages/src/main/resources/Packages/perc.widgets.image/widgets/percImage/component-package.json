@@ -1,0 +1,295 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percImage",
+  "name": "Image",
+  "version": "1.1.8",
+  "description": "Display an image on a page",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.1",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.3",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Image",
+    "category": "content,rich media",
+    "description": "Display an image on a page",
+    "thumbnail": "resources/widgetIconImage.png",
+    "icon": "resources/widgetIconImage.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 965,
+    "preferredEditorHeight": 680,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percImageAsset",
+      "ref": "contentTypes/percImageAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percImageSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percImageSnippet.vm",
+      "contentType": "percImageAsset",
+      "bindings": [
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "props",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "referalPolicy",
+          "expression": "$props.get(\"referalPolicy\")"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "classAttribute",
+          "expression": "'class=\"' + $rootclass + '\"'"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "link",
+          "expression": "$rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.imageThumbBinary\")"
+        },
+        {
+          "variable": "biglink",
+          "expression": "$rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.imageMainBinary\")"
+        },
+        {
+          "variable": "img_alt",
+          "expression": "$rx.pageutils.html($assetItem,'alttext')"
+        },
+        {
+          "variable": "img_alt",
+          "expression": "$rx.pageutils.html($props, 'altText')"
+        },
+        {
+          "variable": "img_title",
+          "expression": "$rx.pageutils.html($assetItem,'displaytitle')"
+        },
+        {
+          "variable": "img_title",
+          "expression": "$rx.pageutils.html($props, 'title')"
+        },
+        {
+          "variable": "img_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "img_title_attr",
+          "expression": "''"
+        },
+        {
+          "variable": "img_title_attr",
+          "expression": "'title=\"' + $img_title + '\"'"
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "$props.get(\"ariaLabel\")"
+        },
+        {
+          "variable": "longdesc",
+          "expression": "$props.get(\"longdesc\")"
+        },
+        {
+          "variable": "rendering",
+          "expression": "$props.get('rendering')"
+        },
+        {
+          "variable": "img_height",
+          "expression": "$assetItem.Node.getProperty('img_height').String"
+        },
+        {
+          "variable": "img_width",
+          "expression": "$assetItem.Node.getProperty('img_width').String"
+        },
+        {
+          "variable": "img_height",
+          "expression": "$assetItem.Node.getProperty('img2_height').String"
+        },
+        {
+          "variable": "img_width",
+          "expression": "$assetItem.Node.getProperty('img2_width').String"
+        },
+        {
+          "variable": "link",
+          "expression": "$tools.esc.html($link)"
+        },
+        {
+          "variable": "biglink",
+          "expression": "$tools.esc.html($biglink)"
+        },
+        {
+          "variable": "biglink",
+          "expression": "$biglink.replace(\"(\", \"%28\")"
+        },
+        {
+          "variable": "biglink",
+          "expression": "$biglink.replace(\")\", \"%29\")"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$linkContext = $perc.linkContext;\n      $props = $perc.widget.item.properties;\n      $referalPolicy = $props.get(\"referalPolicy\");\n      $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n      $perc.setWidgetContents($assetItems);\n      $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n      if ( ! empty($rootclass))\n         $classAttribute = 'class=\"' + $rootclass + '\"';\n      if ( ! $assetItems.isEmpty() ) {\n\n         $assetItem = $assetItems.get(0);\n\n         $link = $rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.imageThumbBinary\");\n         $biglink = $rx.pageutils.itemLink($linkContext, $assetItem, \"percSystem.imageMainBinary\");\n         if(empty($props.altText)){\n            $img_alt = $rx.pageutils.html($assetItem,'alttext');\n         } else {\n            $img_alt = $rx.pageutils.html($props, 'altText');\n         }\n         if( ! $perc.isEditMode()) {\n            if(empty($props.title)) {\n               $img_title = $rx.pageutils.html($assetItem,'displaytitle');\n            } else {\n               $img_title = $rx.pageutils.html($props, 'title');\n            }\n         } else {\n            $img_title=\"\";\n         }\n\n         if( $perc.isEditMode() && $img_title == \"\") {\n            $img_title_attr = '';\n         } else {\n            $img_title_attr = 'title=\"' + $img_title + '\"';\n         }\n\n\t\t$ariaLabel = $props.get(\"ariaLabel\");\n\t\t$longdesc = $props.get(\"longdesc\");\n\n         $rendering = $props.get('rendering');\n         if( $rendering == 'image') {\n            $img_height = $assetItem.Node.getProperty('img_height').String;\n            $img_width = $assetItem.Node.getProperty('img_width').String;\n         } else {\n            $img_height = $assetItem.Node.getProperty('img2_height').String;\n            $img_width = $assetItem.Node.getProperty('img2_width').String;\n         }\n\n         $link = $tools.esc.html($link);\n         $biglink = $tools.esc.html($biglink);\n         $biglink = $biglink.replace(\"(\", \"%28\");\n         $biglink = $biglink.replace(\")\", \"%29\");\n\n      } else {\n        ;\n      }\n\n\t  $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n      if ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t      $dsUrl = \"\";\n      $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percImageContent",
+      "allowedContentTypes": [
+        "percImageAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconImage.png",
+      "target": "rx_resources/widgets/image/images/widgetIconImage.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/style.css",
+      "target": "rx_resources/widgets/image/css/style.css",
+      "type": "css",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "rendering",
+      "displayName": "Rendering format",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "image",
+      "enumValues": [
+        {
+          "value": "image",
+          "displayValue": "Normal image"
+        },
+        {
+          "value": "lightbox",
+          "displayValue": "Thumbnail and light box"
+        }
+      ]
+    },
+    {
+      "name": "altText",
+      "displayName": "Alt text override",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "title",
+      "displayName": "Title override",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "longdesc",
+      "displayName": "Long Description",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "ariaLabel",
+      "displayName": "Aria Label",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "referalPolicy",
+      "displayName": "Referrer-Policy",
+      "datatype": "enum",
+      "required": false,
+      "enumValues": [
+        {
+          "value": "no-referrer",
+          "displayValue": "no-referrer"
+        },
+        {
+          "value": "no-referrer-when-downgrade",
+          "displayValue": "no-referrer-when-downgrade"
+        },
+        {
+          "value": "origin",
+          "displayValue": "origin"
+        },
+        {
+          "value": "origin-when-cross-origin",
+          "displayValue": "origin-when-cross-origin"
+        },
+        {
+          "value": "same-origin",
+          "displayValue": "same-origin"
+        },
+        {
+          "value": "strict-origin",
+          "displayValue": "strict-origin"
+        },
+        {
+          "value": "strict-origin-when-cross-origin",
+          "displayValue": "strict-origin-when-cross-origin"
+        },
+        {
+          "value": "unsafe-url",
+          "displayValue": "unsafe-url"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

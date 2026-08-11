@@ -1,0 +1,280 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percCalendar",
+  "name": "Calendar",
+  "version": "2.4.8",
+  "description": "Promote date driven events by displaying a calendar",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.5.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Calendar",
+    "category": "Other",
+    "description": "Promote date driven events by displaying a calendar",
+    "thumbnail": "resources/calendarIcon.png",
+    "icon": "resources/calendarIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 425,
+    "responsive": false,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percCalendarAsset",
+      "ref": "contentTypes/percCalendarAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percCalendarSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percCalendarSnippet.vm",
+      "contentType": "percCalendarAsset",
+      "bindings": [
+        {
+          "variable": "widgetProps",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "perc_calendar_view",
+          "expression": "$widgetProps.get(\"perc_calendar_view\")"
+        },
+        {
+          "variable": "perc_calendar_type",
+          "expression": "$widgetProps.get(\"perc_calendar_type\")"
+        },
+        {
+          "variable": "perc_show_page_summary",
+          "expression": "$widgetProps.get(\"perc_show_page_summary\")"
+        },
+        {
+          "variable": "perc_start_day_number",
+          "expression": "$widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\")"
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "$widgetProps.get(\"perc_time_format\")"
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "\"hh:mmt\""
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "\"HH:mm\""
+        },
+        {
+          "variable": "pagesInCal",
+          "expression": "\"[]\""
+        },
+        {
+          "variable": "calTitle",
+          "expression": "\"\""
+        },
+        {
+          "variable": "calStartDate",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "id",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "id",
+          "expression": "$assetItem.id"
+        },
+        {
+          "variable": "calTitle",
+          "expression": "$assetItem.getNode().getProperty(\"calendar_title\").String"
+        },
+        {
+          "variable": "calName",
+          "expression": "$assetItem.getNode().getProperty(\"sys_title\").String"
+        },
+        {
+          "variable": "fullCalendarPage",
+          "expression": "$assetItem.getNode().getProperty(\"full_calendar_page\").String"
+        },
+        {
+          "variable": "calStartDate",
+          "expression": "$assetItem.getNode().getProperty(\"calendar_start_date\").String"
+        },
+        {
+          "variable": "pagesInCal",
+          "expression": "$rx.pageutils.getPagesForCalendar($calName).toString()"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer()"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "##Widget properties\n        $widgetProps = $perc.widget.item.properties;\n        $perc_calendar_view = $widgetProps.get(\"perc_calendar_view\");\n        $perc_calendar_type = $widgetProps.get(\"perc_calendar_type\");\n        $perc_show_page_summary = $widgetProps.get(\"perc_show_page_summary\");\n        $perc_start_day_number = $widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\");\n\n        $perc_time_format = $widgetProps.get(\"perc_time_format\");\n        if($perc_time_format == \"ampm\")\n            $perc_time_format = \"hh:mmt\";\n        else\n            $perc_time_format = \"HH:mm\";\n\n        $pagesInCal = \"[]\";\n        $calTitle = \"\";\n        $calStartDate = \"\";\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n        $id = \"\";\n        $perc.setWidgetContents($assetItems);\n        if ( ! $assetItems.isEmpty() ) {\n            $assetItem = $assetItems.get(0);\n            $id = $assetItem.id;\n            $calTitle = $assetItem.getNode().getProperty(\"calendar_title\").String;\n            $calName = $assetItem.getNode().getProperty(\"sys_title\").String;\n            $fullCalendarPage = $assetItem.getNode().getProperty(\"full_calendar_page\").String;\n            $calStartDate = $assetItem.getNode().getProperty(\"calendar_start_date\").String;\n            $pagesInCal = $rx.pageutils.getPagesForCalendar($calName).toString();\n        }\n       $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n       if(empty($rootclass)){\n            $rootclass = \"\";\n       }\n\n\t    $dsUrl = $rx.pageutils.getDeliveryServer();\n\n        $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percCalendarContent",
+      "allowedContentTypes": [
+        "percCalendarAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/calendarIcon.png",
+      "target": "rx_resources/widgets/calendar/images/calendarIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_calendar_view",
+      "displayName": "Choose calendar view",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "full",
+      "enumValues": [
+        {
+          "value": "full",
+          "displayValue": "Full calendar"
+        },
+        {
+          "value": "mini",
+          "displayValue": "Mini calendar"
+        }
+      ]
+    },
+    {
+      "name": "perc_calendar_type",
+      "displayName": "Calendar type",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "month",
+      "enumValues": [
+        {
+          "value": "agendaDay",
+          "displayValue": "Day"
+        },
+        {
+          "value": "agendaWeek",
+          "displayValue": "Week"
+        },
+        {
+          "value": "month",
+          "displayValue": "Month"
+        }
+      ]
+    },
+    {
+      "name": "perc_show_page_summary",
+      "displayName": "Show summary",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_start_day",
+      "displayName": "Start week with",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "Day_0",
+      "enumValues": [
+        {
+          "value": "Day_0",
+          "displayValue": "Sunday"
+        },
+        {
+          "value": "Day_1",
+          "displayValue": "Monday"
+        },
+        {
+          "value": "Day_2",
+          "displayValue": "Tuesday"
+        },
+        {
+          "value": "Day_3",
+          "displayValue": "Wednesday"
+        },
+        {
+          "value": "Day_4",
+          "displayValue": "Thursday"
+        },
+        {
+          "value": "Day_5",
+          "displayValue": "Friday"
+        },
+        {
+          "value": "Day_6",
+          "displayValue": "Saturday"
+        }
+      ]
+    },
+    {
+      "name": "perc_time_format",
+      "displayName": "Time format",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "ampm",
+      "enumValues": [
+        {
+          "value": "ampm",
+          "displayValue": "12 hour"
+        },
+        {
+          "value": "military",
+          "displayValue": "24 hour"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

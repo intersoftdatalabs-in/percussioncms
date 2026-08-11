@@ -1,0 +1,57 @@
+#loadRelatedWidgetContents()
+        <div class="$!{rootclass} percLogin" data="{&quot;notLoggedInMessage&quot;:&quot;$notLoggedInMessage&quot;
+                                                    ,&quot;loggedInMessage&quot;:&quot;$loggedInMessage&quot;
+													,&quot;deliveryurl&quot;:&quot;$dsUrl&quot;
+                                                    ,&quot;showUsername&quot;:&quot;$!showUsername&quot;}">
+        #if( ! $perc.widgetContents.isEmpty() )
+            <div class="login-contents-box">
+            ###############################################################################
+            ## Render the login form only if render preference is set as show_login_form.
+            ###############################################################################
+            #if( $renderMode == "show_login_form" )
+                <form name="perc-login-form" class="perc-login-form" id="perc-login-form" method="post" action="#">
+                    <div class="field-row">
+                        <div class="field-label-container $percLabelLayout fixed-width">
+                            <span class="perc-form-error-asterisk">*</span>
+                            <label for="perc-login-email-field">$percEmailLabel</label>
+                        </div>
+                        <div class="field-input-container">
+                            <input value="" name="perc-login-email-field" id="perc-login-email-field" type="text"/>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-label-container $percLabelLayout fixed-width">
+                            <span class="perc-form-error-asterisk">*</span>
+                            <label for="perc-login-password-field">$percPasswordLabel</label>
+                        </div>
+                        <div class="field-input-container">
+                            <input value="" name="perc-login-password-field" id="perc-login-password-field" type="password" />
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <a href="$pwresetPage">Forgot password?</a>
+                    </div>
+                    <div class="field-row">
+                        <input value="$percSubmitLabel" type="submit" />
+                    </div>
+                </form>
+                <div class="perc-login-error-message form-error-msg" style="display:none"></div>
+            #################################################################################################
+            ## If the render preference is set to show_link, then show a link to the site's global login page.
+            #################################################################################################
+            #else
+                <a class="perc-login-page-link" href="$!loginPage">$!notLoggedInMessage</a>
+            #end
+            </div>
+        #elseif ($perc.isEditMode())
+            #createEmptyWidgetContent("login-sample-content", "This login widget is showing sample content.")
+        #end
+        #if($perc.isPreviewMode())
+            <script>
+            window.addEventListener('DOMContentLoaded', function() {
+                jQuery(".perc-login-form").on("submit", function(){return false;});
+                jQuery(".perc-login-form").find("input[type = 'submit']").prop("disabled", true);
+                });
+            </script>
+        #end
+        </div>

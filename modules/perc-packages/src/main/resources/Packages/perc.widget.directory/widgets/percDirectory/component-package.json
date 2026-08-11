@@ -1,0 +1,418 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percDirectory",
+  "name": "Directory",
+  "version": "2.1.0",
+  "description": "This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "Percussion Software Inc."
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.7",
+      "implied": false
+    },
+    {
+      "name": "perc.SystemObjects",
+      "version": "1.0.0",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Directory",
+    "description": "This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list.",
+    "thumbnail": "resources/percDirectoryIcon.png",
+    "icon": "resources/percDirectoryIcon.png",
+    "author": "Percussion Software Inc.",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percDirectory",
+      "ref": "contentTypes/percDirectory"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percDirectorySnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percDirectorySnippet.vm",
+      "contentType": "percDirectory",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percDirectory'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetContentId",
+          "expression": "$assetItem.getNode().getProperty('sys_contentid').String"
+        },
+        {
+          "variable": "dirTitleFormat",
+          "expression": "$perc.widget.item.properties.get('dirTitleFormat')"
+        },
+        {
+          "variable": "dirTitleFormatStartTag",
+          "expression": "'<' + $dirTitleFormat + ' class=\"perc-directory-title\">'"
+        },
+        {
+          "variable": "dirTitleFormatEndTag",
+          "expression": "'</' + $dirTitleFormat + '>'"
+        },
+        {
+          "variable": "directoryLayoutFormat",
+          "expression": "$perc.widget.item.properties.get('directoryLayoutFormat')"
+        },
+        {
+          "variable": "percHideFieldTextSearch",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_textSearch')"
+        },
+        {
+          "variable": "percHideFieldFilterDropdown",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_filter_dropdown')"
+        },
+        {
+          "variable": "percHideFieldFilterByDpt",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_filter_by_dpt')"
+        },
+        {
+          "variable": "percHideFieldPersonOrganization",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personOrganization')"
+        },
+        {
+          "variable": "percHideFieldPersonDepartment",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personDepartment')"
+        },
+        {
+          "variable": "percHideFieldPersonTitle",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personTitle')"
+        },
+        {
+          "variable": "percHideFieldPersonPhone",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personPhoneField')"
+        },
+        {
+          "variable": "percHideFieldPersonOfficeLocation",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personOfficeLocation')"
+        },
+        {
+          "variable": "percHideFieldPersonEmail",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personEmailField')"
+        },
+        {
+          "variable": "percHideFieldPersonImage",
+          "expression": "$perc.widget.item.properties.get('perc_hidefield_personImageField')"
+        },
+        {
+          "variable": "percDisplayFullDir",
+          "expression": "$perc.widget.item.properties.get('perc_display_full_dir')"
+        },
+        {
+          "variable": "directoryTitle",
+          "expression": "$assetItem.getNode().getProperty('directoryTitle').String"
+        },
+        {
+          "variable": "customPlaceholderImg_linkId",
+          "expression": "$assetItem.getNode().getProperty('customPlaceholderImg_linkId').String"
+        },
+        {
+          "variable": "customPlaceholderImg_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $customPlaceholderImg_linkId, $sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "customPlaceholderImg_alt_text",
+          "expression": "\"\""
+        },
+        {
+          "variable": "customPlaceholderImg_title",
+          "expression": "\"\""
+        },
+        {
+          "variable": "customPlaceholderImg_sys_contentId",
+          "expression": "$rx.pageutils.getManagedLinkDependentId($customPlaceholderImg_linkId)"
+        },
+        {
+          "variable": "customPlaceholderImg_assetMap",
+          "expression": "$rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $customPlaceholderImg_sys_contentId)"
+        },
+        {
+          "variable": "customPlaceholderImg_alt_text",
+          "expression": "$customPlaceholderImg_assetMap.get('alttext')"
+        },
+        {
+          "variable": "customPlaceholderImg_title",
+          "expression": "$customPlaceholderImg_assetMap.get('displaytitle')"
+        },
+        {
+          "variable": "organizationSearch",
+          "expression": "$assetItem.getNode().getProperty('organizationSearch').String"
+        },
+        {
+          "variable": "departmentId",
+          "expression": "$assetItem.getNode().getProperty('departmentID').String"
+        },
+        {
+          "variable": "deptId",
+          "expression": "$tools.math.toInteger($departmentId)"
+        },
+        {
+          "variable": "orgSearchId",
+          "expression": "$tools.math.toInteger($organizationSearch)"
+        },
+        {
+          "variable": "orgName",
+          "expression": "\"\""
+        },
+        {
+          "variable": "doNotShowDeptFilter",
+          "expression": "'data-show-dpt-filter=\"false\"'"
+        },
+        {
+          "variable": "doNotShowDeptFilter",
+          "expression": "'data-show-dpt-filter=\"true\"'"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "directoryResults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:orgName from rx:percOrganization where rx:sys_contentid = :orgSearchId'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder'"
+        },
+        {
+          "variable": "orgResult",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "orgName",
+          "expression": "$orgResult.get(0).getNode().getProperty('orgName').String"
+        },
+        {
+          "variable": "orgFiltersArray",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:sys_contentid, rx:sys_folderid from rx:percOrganization order by rx:orgName asc'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder'"
+        },
+        {
+          "variable": "orgResults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "orgFilter",
+          "expression": "$org.getNode().getProperty('orgName').String"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = 'percDirectory';\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n       if (! $assets.isEmpty())\n       {\n            $assetItem = $assets.get(0); ## Get first item (which may be only item)\n            $assetContentId = $assetItem.getNode().getProperty('sys_contentid').String;\n\n            ## Get Widget Layout Properties\n            ##\n            $dirTitleFormat = $perc.widget.item.properties.get('dirTitleFormat');\n            if (!empty($dirTitleFormat))\n            {\n                $dirTitleFormatStartTag = '<' + $dirTitleFormat + ' class=\"perc-directory-title\">';\n                $dirTitleFormatEndTag = '</' + $dirTitleFormat + '>';\n            }\n            $directoryLayoutFormat = $perc.widget.item.properties.get('directoryLayoutFormat');\n            $percHideFieldTextSearch = $perc.widget.item.properties.get('perc_hidefield_textSearch');\n            $percHideFieldFilterDropdown = $perc.widget.item.properties.get('perc_hidefield_filter_dropdown');\n            $percHideFieldFilterByDpt = $perc.widget.item.properties.get('perc_hidefield_filter_by_dpt');\n            $percHideFieldPersonOrganization = $perc.widget.item.properties.get('perc_hidefield_personOrganization');\n            $percHideFieldPersonDepartment = $perc.widget.item.properties.get('perc_hidefield_personDepartment');\n            $percHideFieldPersonTitle = $perc.widget.item.properties.get('perc_hidefield_personTitle');\n            $percHideFieldPersonPhone = $perc.widget.item.properties.get('perc_hidefield_personPhoneField');\n            $percHideFieldPersonOfficeLocation= $perc.widget.item.properties.get('perc_hidefield_personOfficeLocation');\n\n            $percHideFieldPersonEmail = $perc.widget.item.properties.get('perc_hidefield_personEmailField');\n            $percHideFieldPersonImage = $perc.widget.item.properties.get('perc_hidefield_personImageField');\n            $percDisplayFullDir = $perc.widget.item.properties.get('perc_display_full_dir');\n\n            ##\n            ## Get Widget Content Properties\n            ##\n            $directoryTitle = $assetItem.getNode().getProperty('directoryTitle').String;\n\n            ##\n            ## Get custom placeholder image\n            ##\n            $customPlaceholderImg_linkId = $assetItem.getNode().getProperty('customPlaceholderImg_linkId').String;\n            $customPlaceholderImg_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $customPlaceholderImg_linkId, $sys.assemblyItem.PubServerId);\n            $customPlaceholderImg_alt_text = \"\";\n            $customPlaceholderImg_title = \"\";\n            $customPlaceholderImg_sys_contentId = $rx.pageutils.getManagedLinkDependentId($customPlaceholderImg_linkId);\n            if ($customPlaceholderImg_sys_contentId != \"\")\n            {\n                $customPlaceholderImg_assetMap = $rx.pageutils.findItemFieldValues('percImageAsset', 'displaytitle,alttext', $customPlaceholderImg_sys_contentId);\n                $customPlaceholderImg_alt_text = $customPlaceholderImg_assetMap.get('alttext');\n                $customPlaceholderImg_title = $customPlaceholderImg_assetMap.get('displaytitle');\n            }\n\n            $organizationSearch = $assetItem.getNode().getProperty('organizationSearch').String;\n            $departmentId = $assetItem.getNode().getProperty('departmentID').String;\n            $deptId = $tools.math.toInteger($departmentId);\n            $orgSearchId = $tools.math.toInteger($organizationSearch);\n            $orgName = \"\";\n\n            ##\n            ## If a department filter has been selected, we want to hide the department filter/selector\n            ##\n            if ($deptId != -1) {\n                $doNotShowDeptFilter = 'data-show-dpt-filter=\"false\"';\n            }\n            else {\n                $doNotShowDeptFilter = 'data-show-dpt-filter=\"true\"';\n            }\n\n            if ($orgSearchId != 0)\n            {\n                ##\n                ## Retreive List of People tagged to this Organization\n                ##\n                $params = $rx.string.stringToMap(null);\n                if ($orgSearchId > 0)\n                {\n                    $params.put('orgSearchId', $orgSearchId);\n                    if ($deptId == -1)\n                    {\n                        $params.put('query', \"select rx:sys_contentid, rx:sys_folderid from rx:percPerson where rx:personOrganization = :orgSearchId and rx:sys_contentstateid != 7 order by rx:personLastName\");\n                    }\n                    else if ($deptId > 0)\n                    {\n                        $params.put('deptSearchId', $deptId);\n                        $params.put('query', \"select rx:sys_contentid, rx:sys_folderid from rx:percPerson where rx:personOrganization = :orgSearchId and rx:personDepartment = :deptSearchId and rx:sys_contentstateid != 7 order by rx:personLastName\");\n                    }\n                }\n                else if ($orgSearchId == -1)\n                {\n                    if ($deptId == -1) {\n                        $params.put('query', \"select rx:sys_contentid, rx:sys_folderid from rx:percPerson where rx:personOrganization != '#' and rx:sys_contentstateid != 7 order by rx:personLastName\");\n                    }\n                    else if ($deptId > 0)\n                    {\n                        $params.put('deptSearchId', $deptId);\n                        $params.put('query', \"select rx:sys_contentid, rx:sys_folderid from rx:percPerson where rx:personOrganization != '#' and rx:personDepartment = :deptSearchId and rx:sys_contentstateid != 7 order by rx:personLastName\");\n                    }\n                }\n                $params.put('max_results', 5000);\n                $finderName =\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n                $directoryResults =  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n\n                if ($orgSearchId > 0)\n                {\n                    ##\n                    ## Get Label Name for selected Organization\n                    ##\n                    ##\n                    $params = $rx.string.stringToMap(null);\n                    $params.put('orgSearchId', $orgSearchId);\n                    $query = 'select rx:orgName from rx:percOrganization where rx:sys_contentid = :orgSearchId';\n                    $params.put('query', $query);\n                    $params.put('max_results', 1);\n                    $finderName = 'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder';\n                    $orgResult = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n\n                    if( $orgResult.size() > 0 )\n                    {\n                        $orgName = $orgResult.get(0).getNode().getProperty('orgName').String;\n                    }\n                }\n            }\n            if ($orgSearchId == -1)\n            {\n                $orgFiltersArray = $rx.string.stringToMap(null);\n\n                $params = $rx.string.stringToMap(null);\n                $query = 'select rx:sys_contentid, rx:sys_folderid from rx:percOrganization order by rx:orgName asc';\n                $params.put('query', $query);\n                $params.put('max_results', 2000);\n                $finderName = 'Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder';\n                $orgResults = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n                if( $orgResults.size() > 0 )\n                {\n                    for ($org : $orgResults)\n                    {\n                        $orgFilter = $org.getNode().getProperty('orgName').String;\n                        $orgFiltersArray.put($orgFilter, $orgFilter);\n                    }\n                }\n            }\n       }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percDirectoryContent",
+      "allowedContentTypes": [
+        "percDirectory"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percDirectoryIcon.png",
+      "target": "rx_resources/widgets/percDirectory/images/percDirectoryIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "dirTitleFormat",
+      "displayName": "Format of directory title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "h2",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        },
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "directoryLayoutFormat",
+      "displayName": "Layout format: Table or Card",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "table",
+      "enumValues": [
+        {
+          "value": "table",
+          "displayValue": "Table"
+        },
+        {
+          "value": "card",
+          "displayValue": "Card"
+        }
+      ]
+    },
+    {
+      "name": "perc_hidefield_textSearch",
+      "displayName": "Hide text search box",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_filter_dropdown",
+      "displayName": "Hide dropdown filter menu",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personOrganization",
+      "displayName": "Hide organization",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personDepartment",
+      "displayName": "Hide department",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personTitle",
+      "displayName": "Hide position/title",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personPhoneField",
+      "displayName": "Hide phone number",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personOfficeLocation",
+      "displayName": "Hide Office Location",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personEmailField",
+      "displayName": "Hide 'Send Email' link",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_hidefield_personImageField",
+      "displayName": "Hide image",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_display_full_dir",
+      "displayName": "Display full directory",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": []
+}
