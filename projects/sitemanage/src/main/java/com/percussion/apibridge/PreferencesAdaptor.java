@@ -69,6 +69,9 @@ public class PreferencesAdaptor implements IPreferenceAdaptor {
     var session = getSession();
     var userPrefs =
         objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
+    // convertPSPersistentProperty (via convertUserProperty) must copy PROPERTYVALUE —
+    // omitting value made GET /preferences/{name} return empty payloads and dropped
+    // Developer default ACL RUNTIME_VISIBLE on reload (#2948).
     return userPrefs.stream()
         .filter(p -> p.getName().equalsIgnoreCase(preference))
         .findFirst()

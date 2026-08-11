@@ -62,6 +62,34 @@ describe("defaultAclTemplate helpers", () => {
     expect(defaultAclTemplatesEqual(parsed!, sys)).toBe(true);
   });
 
+  /**
+   * #2948 — Runtime visibility on Default must survive serialize → parse
+   * (preference store round-trip). Client helpers already preserve the token;
+   * this guards against accidental allowlist filtering of RUNTIME_VISIBLE.
+   */
+  it("round-trips RUNTIME_VISIBLE on Default USER entry (#2948)", () => {
+    const template = cloneDefaultAclTemplate(systemDefaultAclTemplate());
+    expect(template.entries[0].permissions).not.toContain("RUNTIME_VISIBLE");
+    template.entries[0].permissions.push("RUNTIME_VISIBLE");
+
+    const raw = serializeDefaultAclTemplate(template);
+    expect(raw).toContain("RUNTIME_VISIBLE");
+
+    const parsed = parseDefaultAclTemplate(raw);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.entries[0].name).toBe("Default");
+    expect(parsed!.entries[0].permissions).toEqual(
+      expect.arrayContaining([
+        "READ",
+        "UPDATE",
+        "DELETE",
+        "OWNER",
+        "RUNTIME_VISIBLE",
+      ]),
+    );
+    expect(defaultAclTemplatesEqual(parsed!, template)).toBe(true);
+  });
+
   it("parse returns null for empty or invalid payloads", () => {
     expect(parseDefaultAclTemplate(null)).toBeNull();
     expect(parseDefaultAclTemplate("")).toBeNull();
