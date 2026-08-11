@@ -85,6 +85,7 @@ import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.UtilErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -135,6 +136,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 4101, ctx, "prop"); // catalog des
 LegacyErrorCodeRegistry.logIfAuditable(audit, 10001, ctx); // util Base64 — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 6001, ctx); // system XML dump — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 18252, ctx); // site manage bad site — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML null — non-auditable skip
 ```
 
 | Catalog | Ranges | Notes |
@@ -177,6 +179,7 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 18252, ctx); // site manage bad si
 | `TableFactoryErrorCodes` | package-local 1001–1310 (no flat register) | Server range collision; prefer enum |
 | `JBossErrorCodes` | package-local 1 (no flat register) | Legacy JBoss container; WF owns bare 1 |
 | `SiteManageErrorCodes` | 18252 (`IPSSiteManageErrors`) | All non-auditable site-service noise |
+| `ObjectStoreErrorCodes` | batch A: 2011–2021, 2101–2103, 2200, 2209–2260 (skip Design ACL) | All non-auditable; Design owns ACL ints |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
