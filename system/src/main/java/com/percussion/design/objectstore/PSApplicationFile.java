@@ -182,7 +182,7 @@ public class PSApplicationFile extends PSFile {
    *     supported by the class.
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     String isFolderStr = sourceNode.getAttribute(ATTR_IS_FOLDER);
     setIsFolder(isFolderStr != null && isFolderStr.equals("true"));

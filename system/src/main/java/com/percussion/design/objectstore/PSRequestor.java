@@ -55,7 +55,7 @@ public final class PSRequestor extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSRequestor(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRequestor(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -458,7 +458,7 @@ public final class PSRequestor extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRequestor
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

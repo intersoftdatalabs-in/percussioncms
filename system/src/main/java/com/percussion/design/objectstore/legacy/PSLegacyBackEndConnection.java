@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore.legacy;
 
+import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.IPSValidationContext;
@@ -56,7 +57,7 @@ public class PSLegacyBackEndConnection extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacyBackEndConnection(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -435,7 +436,7 @@ public class PSLegacyBackEndConnection extends PSComponent {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

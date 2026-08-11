@@ -99,7 +99,7 @@ public class PSDependency extends PSComponent {
   }
 
   // see interface for method description; see toXml for XML format
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);

@@ -39,7 +39,7 @@ public class PSUserContext extends PSNamedReplacementValue {
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSUserContext(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSUserContext(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(sourceNode, parentDoc, parentComponents);
   }

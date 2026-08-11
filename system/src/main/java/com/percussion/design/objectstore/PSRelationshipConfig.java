@@ -55,7 +55,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * @param parentComponents the parent objects of this object, it may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSRelationshipConfig(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRelationshipConfig(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // Private path avoids virtual fromXml dispatch during construction (this-escape).
     fromXmlBase(sourceNode, parentDoc, parentComponents);
@@ -840,7 +840,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * @see IPSComponent
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }

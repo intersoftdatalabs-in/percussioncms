@@ -255,7 +255,7 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
    *     elements each with (#PCDATA) as their value.
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(

@@ -73,7 +73,7 @@ public final class PSRole extends PSDatabaseComponent implements Comparable, IPS
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSRole(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRole(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -363,7 +363,7 @@ public final class PSRole extends PSDatabaseComponent implements Comparable, IPS
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

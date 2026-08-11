@@ -72,7 +72,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCommandHandlerStylesheets(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -282,7 +282,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

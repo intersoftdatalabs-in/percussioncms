@@ -64,7 +64,7 @@ public class PSCloneOverrideField extends PSComponent {
    * @param parentComponents the parent objects of this object.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
-  public PSCloneOverrideField(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSCloneOverrideField(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -97,7 +97,7 @@ public class PSCloneOverrideField extends PSComponent {
   /* (non-Javadoc)
    * @see IPSComponent#fromXml(Element, IPSDocument, ArrayList)
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null.");
 

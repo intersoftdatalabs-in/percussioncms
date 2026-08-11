@@ -54,7 +54,7 @@ public final class PSDataMapping extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSDataMapping(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSDataMapping(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -383,7 +383,7 @@ public final class PSDataMapping extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapping
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
@@ -626,7 +626,7 @@ public final class PSDataMapping extends PSComponent {
   }
 
   private IPSComponent createMappingObject(
-      Element mappingNode, String nodeSource, IPSDocument parentDoc, List parentComponents)
+      Element mappingNode, String nodeSource, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     return (IPSComponent)
         PSReplacementValueFactory.getReplacementValueFromXml(

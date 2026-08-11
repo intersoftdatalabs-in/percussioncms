@@ -56,7 +56,7 @@ public final class PSControlParameter extends PSComponent {
    * @param parentComponents ignored.
    * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);

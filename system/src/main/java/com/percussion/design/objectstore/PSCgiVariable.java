@@ -41,7 +41,7 @@ public class PSCgiVariable extends PSNamedReplacementValue {
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSCgiVariable(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSCgiVariable(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(sourceNode, parentDoc, parentComponents);
   }

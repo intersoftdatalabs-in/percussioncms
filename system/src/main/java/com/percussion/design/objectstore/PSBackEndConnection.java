@@ -51,7 +51,7 @@ public class PSBackEndConnection extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndConnection(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -430,7 +430,7 @@ public class PSBackEndConnection extends PSComponent {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

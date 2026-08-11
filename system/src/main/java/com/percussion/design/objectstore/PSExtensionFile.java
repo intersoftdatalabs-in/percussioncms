@@ -153,7 +153,7 @@ public class PSExtensionFile extends PSFile {
    * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
    *     supported by the class.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super.fromXml(sourceNode, parentDoc, parentComponents, ms_nodeType);
   }

@@ -140,7 +140,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
    *     supported by the class.
    */
-  public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException;
 
   /**
@@ -176,7 +176,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @param parentComponents the parent list
    * @return the new parent list (in case parentComponents was null)
    */
-  protected final List updateParentList(List parentComponents) {
+  protected final List<IPSComponent> updateParentList(List<IPSComponent> parentComponents) {
     if (parentComponents == null) parentComponents = new ArrayList<>();
 
     parentComponents.add(this);
@@ -191,7 +191,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @param parentComponents the parent list
    * @param size the size to set the list to
    */
-  protected final void resetParentList(List parentComponents, int size) {
+  protected final void resetParentList(List<?> parentComponents, int size) {
     if (parentComponents == null) return;
 
     if (size == 0) parentComponents.clear();

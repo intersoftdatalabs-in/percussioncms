@@ -51,7 +51,7 @@ public class PSMacroDefinitionSet extends PSCollectionComponent {
    *
    * @see IPSComponent
    */
-  public void fromXml(Element source, IPSDocument parent, List parentComponents)
+  public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

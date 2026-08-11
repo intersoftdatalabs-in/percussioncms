@@ -46,7 +46,7 @@ public class PSUpdateColumn extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUpdateColumn(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -193,7 +193,7 @@ public class PSUpdateColumn extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXUpdateColumn
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

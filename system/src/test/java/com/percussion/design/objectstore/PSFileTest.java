@@ -51,7 +51,8 @@ public class PSFileTest {
     }
 
     @Override
-    public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+    public void fromXml(
+        Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
         throws PSUnknownNodeTypeException {
       throw new AssertionError();
     }
