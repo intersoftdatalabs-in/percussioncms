@@ -17,6 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
+import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -267,7 +268,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   public void fromXml(
       Element source,
       @SuppressWarnings("unused") IPSDocument parentDoc,
-      @SuppressWarnings("unused") List parentComponents)
+      @SuppressWarnings("unused") List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlLoad(source);
   }

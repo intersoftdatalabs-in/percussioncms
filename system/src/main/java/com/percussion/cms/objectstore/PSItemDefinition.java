@@ -590,7 +590,7 @@ public final class PSItemDefinition extends PSItemDefSummary implements IPSCompo
    * @see IPSComponent
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlLoad(sourceNode, parentDoc, parentComponents, false);
   }
@@ -615,7 +615,7 @@ public final class PSItemDefinition extends PSItemDefSummary implements IPSCompo
    *     by the class.
    */
   private void fromXmlLoad(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean isCopy)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents, boolean isCopy)
       throws PSUnknownNodeTypeException {
     // validate the root element
     PSXMLDomUtil.checkNode(sourceNode, "ItemDefData");
