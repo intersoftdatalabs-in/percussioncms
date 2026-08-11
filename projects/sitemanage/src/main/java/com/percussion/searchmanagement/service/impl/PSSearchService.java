@@ -121,7 +121,7 @@ public class PSSearchService implements IPSSearchService {
 
   private List<Integer> getContentIdsForSearchByStatus(PSSearchCriteria criteria) {
     if (criteria.getFormatId() == null) {
-      throw new IllegalArgumentException("format Id cannot be blank.");
+      criteria.setFormatId(DEFAULT_SEARCH_FORMAT_ID);
     }
     try {
       var searchHandler = new PSSearchHandler();
@@ -201,7 +201,7 @@ public class PSSearchService implements IPSSearchService {
           PSNotFoundException,
           IPSDataService.DataServiceLoadException {
     if (criteria.getFormatId() == null) {
-      throw new IllegalArgumentException("format Id cannot be blank.");
+      criteria.setFormatId(DEFAULT_SEARCH_FORMAT_ID);
     }
     var allItemEntries = getSortedEntries(criteria, contentIdList);
     return formatResults(criteria, allItemEntries);
@@ -214,7 +214,7 @@ public class PSSearchService implements IPSSearchService {
           PSNotFoundException,
           IPSDataService.DataServiceLoadException {
     if (criteria.getFormatId() == null) {
-      throw new IllegalArgumentException("format Id cannot be blank.");
+      criteria.setFormatId(DEFAULT_SEARCH_FORMAT_ID);
     }
     // ensure we have a List since helper may return a generic Collection
     List<Integer> finalContentIdList =
@@ -224,8 +224,9 @@ public class PSSearchService implements IPSSearchService {
   }
 
   private List<Integer> searchForIds(PSSearchCriteria criteria) {
+    // GH-2950: minimal free-text criteria is valid; default format instead of 400.
     if (criteria.getFormatId() == null) {
-      throw new IllegalArgumentException("format Id cannot be blank.");
+      criteria.setFormatId(DEFAULT_SEARCH_FORMAT_ID);
     }
     try {
       var searchHandler = new PSSearchHandler();
@@ -244,7 +245,10 @@ public class PSSearchService implements IPSSearchService {
       }
 
       // Decode the URL-encoded query, workaround for jQuery bug http://bugs.jquery.com/ticket/8417
-      // Then escape it for Lucene
+      // Then escape it for Lucene. Null/blank query is not a valid FTS request.
+      if (criteria.getQuery() == null) {
+        throw new IllegalArgumentException("query cannot be blank.");
+      }
       var urlDecodedQuery = URLDecoder.decode(criteria.getQuery(), "UTF-8");
       var query = escapeLuceneQuery(urlDecodedQuery);
 
@@ -471,6 +475,13 @@ public class PSSearchService implements IPSSearchService {
   private static final String WORKFLOW_NAME = "sys_workflow";
   private static final String WORKFLOW_ID = "sys_workflowid";
   private static final String EXCLUDE_WORKFLOW = " NOT " + WORKFLOW_ID + ":";
+
+  /**
+   * Classic system list display format id (same as finder Home default / GH-2950). Used when
+   * callers omit formatId; extended-results path does not use the format for row projection but
+   * historically required a non-null id.
+   */
+  static final int DEFAULT_SEARCH_FORMAT_ID = 9;
 
   @Override
   public PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria) {

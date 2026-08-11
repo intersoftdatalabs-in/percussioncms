@@ -67,6 +67,48 @@ class PSSearchRestServiceTest {
   }
 
   /**
+   * GH-2950: Explorer free-text search posts minimal criteria (query + paging). Server must accept
+   * that shape by defaulting {@code formatId} / {@code startIndex} so {@code searchForIds} does not
+   * throw IllegalArgumentException → HTTP 400.
+   */
+  @Test
+  void sanitizeCriteriaDefaultsFormatIdAndStartIndexForMinimalQuery() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("a");
+    criteria.setMaxResults(25);
+    restService.sanitizeCriteria(criteria);
+    assertEquals(Integer.valueOf(PSSearchRestService.DEFAULT_SEARCH_FORMAT_ID), criteria.getFormatId());
+    assertEquals(Integer.valueOf(1), criteria.getStartIndex());
+    assertEquals("a", criteria.getQuery());
+  }
+
+  @Test
+  void sanitizeCriteriaPreservesExplicitFormatIdAndStartIndex() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("hello");
+    criteria.setFormatId(12);
+    criteria.setStartIndex(10);
+    restService.sanitizeCriteria(criteria);
+    assertEquals(Integer.valueOf(12), criteria.getFormatId());
+    assertEquals(Integer.valueOf(10), criteria.getStartIndex());
+  }
+
+  @Test
+  void sanitizeCriteriaCoercesNonPositiveStartIndexToOne() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("x");
+    criteria.setStartIndex(0);
+    restService.sanitizeCriteria(criteria);
+    assertEquals(Integer.valueOf(1), criteria.getStartIndex());
+    criteria.setStartIndex(-3);
+    restService.sanitizeCriteria(criteria);
+    assertEquals(Integer.valueOf(1), criteria.getStartIndex());
+  }
+
+  /**
    * Exercises {@link PSLuceneQueryEscaper#escape(String)} mid-query slash escaping used on the
    * urlDecodedQuery search path in {@code PSSearchService} (GH-878 / #889 / #914).
    */
