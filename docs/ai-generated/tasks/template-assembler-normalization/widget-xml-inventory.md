@@ -1,6 +1,6 @@
 # Product widget XML inventory
 
-**Generated:** 2026-08-09  
+**Generated:** 2026-08-11  
 **Source:** `modules/perc-packages/src/main/resources/Packages/**/rxconfig/Widgets/*.xml`  
 **Machine-readable:** [widget-xml-inventory.csv](./widget-xml-inventory.csv)
 
@@ -15,11 +15,12 @@
 | Golden parity (remaining #2802) | **percImageAutoList**, **percComments**, **percEvent** | Plus package compile of auto-lists, blog companions, social/comments/cards, event/slider/cookie/jquery, login variants, Result/Redirect, defaultLanguage (**24** widgets / 23 packages) |
 | Golden parity (perc.Test #2830) | **PSWidget_TestProperties** | Final product residual; package compile via `TEST_PRODUCT_PACKAGE_DIRS` / `compileTestProductPackages` |
 | Compiler extensions (#2772) | `<Resource href/type/placement>`, chrome slots without CT, layout UserPref → slot.layout | CSS/JS resources + nav chrome (no asset CT); residual batches needed no new shapes |
-| **Product packages still ship Widget XML** | Yes (dual-run install) | Compiler produces modern artifacts; install still uses `sys__UserDependency--rxconfig/Widgets/*.xml`; does **not** yet remove product `rxconfig/Widgets/*.xml` from source trees |
+| **Product packages still ship Widget XML** | Partial (ship-exit in progress) | Batch C (#2885) no longer commits install Widget XML (materialized at package-build); batch A/B + waived `perc.Test` still dual-ship committed XML (**29** remain of 48) |
 | **Dual-ship modern authoring roots (batch A #2831)** | **Landed for 8 widgets / 5 packages** | `widgets/<stem>/component-package.json` under baseWidgets, defaultLanguage, event, openGraph, twitter; see [dual-ship-widget-xml-exit.md](./dual-ship-widget-xml-exit.md) |
 | **Dual-ship modern authoring roots (batch B #2832)** | **Landed for 20 widgets / 14 packages** | high-traffic (#2772) + residual long-tail (#2789): title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe |
 | **Dual-ship modern authoring roots (batch C #2844)** | **Landed for 19 widgets / 19 packages** | remaining product residual after A/B: auto-lists, blog companions, comments/liked/commentForm, imageSlider, cookieConsent, jquery*, registration/secureLogin, Result/Redirect |
-| Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Product modern dual-ship roots complete excl. Test (47 widgets). Native install + XML delete remain residual / Phase 5 (#2632 / parent #2630) |
+| **Ship-exit install XML (batch C #2885)** | **Committed install Widget XML removed (−19)** | Product inventory **48 → 29**; `PSWidgetXmlInstallEmitter` materializes install XML at package-build; M1 still FAIL until A+B ship-exit + waived Test |
+| Residual product packages (after #2830) | **None** (full product inventory on modern compile path) | Product modern dual-ship roots complete excl. Test (47 widgets). Batch C committed install XML removed (#2885); A/B ship-exit #2883/#2884; shim Phase 5 (#2632 / #2852) |
 | Runtime legacy XML shim | Landed (cluster #2766); prefers `widgets/` modern (#2831 / #2832 / #2844) | #2752 |
 
 ### High-traffic batch covered by #2772
@@ -94,7 +95,7 @@ Ship format: [component-package-manifest.md](./component-package-manifest.md). A
 
 | Metric | Value |
 |--------|-------|
-| Widget definition files | **48** |
+| Widget definition files (committed product source) | **29** (was **48** before batch C ship-exit #2885; −19 residual product) |
 | Code language | **jexl** (100%) |
 | Content markup | **velocity** (100%) |
 | With `contenttype_name` | 39 |

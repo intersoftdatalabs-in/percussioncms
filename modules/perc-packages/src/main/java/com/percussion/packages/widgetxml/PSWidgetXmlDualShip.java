@@ -35,30 +35,44 @@ import java.util.Objects;
 
 /**
  * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
- * #2844 batch C, parent #2630).
+ * #2844 batch C, #2885 batch C ship-exit, parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
  *
- * <p><strong>Install path (dual-run):</strong> product packages still ship legacy {@code
- * sys__UserDependency--rxconfig/Widgets/*.xml} so deployer / {@code PSWidgetDao} install is
- * unchanged. Modern roots are committed so selection prefers Component Package Manifest when both
- * exist ({@code PSLegacyDefinitionXmlShim}). Do not mass-delete remaining Widget XML until a native
- * install path exists (Phase 5 / #2632).
+ * <p><strong>Install path:</strong>
  *
- * <p>Batch A (#2831): {@code perc.baseWidgets}, {@code perc.defaultLanguage}, {@code
+ * <ul>
+ *   <li><strong>Batch C ship-exit (#2885):</strong> remaining product residual packages no longer
+ *       commit {@code sys__UserDependency--rxconfig/Widgets/*.xml}. Package build materializes
+ *       install Widget XML from modern roots via {@link
+ *       PSWidgetXmlInstallEmitter#materializeInstallWidgetXml(Path)} so deployer / {@code
+ *       PSWidgetDao} wire format stays intact.
+ *   <li><strong>Batches A/B ship-exit peers (#2883 / #2884):</strong> same materialize path when
+ *       committed XML is removed for base/core and high-traffic packages (sibling residuals; may
+ *       land via separate PRs).
+ *   <li><strong>Waived test package:</strong> {@code perc.Test} may still dual-ship install XML.
+ * </ul>
+ *
+ * <p>Modern roots are committed so selection prefers Component Package Manifest when both exist
+ * ({@code PSLegacyDefinitionXmlShim}). Keep the runtime shim until Phase 5 criteria (#2852 / #2632)
+ * are met — do <em>not</em> delete the shim in ship-exit batches.
+ *
+ * <p>Batch A (#2831 modern roots): {@code perc.baseWidgets}, {@code perc.defaultLanguage}, {@code
  * perc.eventWidget}, {@code perc.openGraphWidget}, {@code perc.twitterSummaryCards} (8 widgets).
  *
  * <p>Batch B (#2832): high-traffic (#2772) + residual long-tail (#2789) product packages —
  * title/lists/nav/file/image + blog/calendar/directory/social/form/poll/login/rss/iframe (20
  * widgets / 14 packages).
  *
- * <p>Batch C (#2844): remaining product residual (#2802) after A/B — auto-lists, blog companions,
- * comments/liked/commentForm, imageSlider, cookieConsent, jquery/jqueryUI, registration/secureLogin,
- * Result/Redirect (19 widgets / 19 packages). Excludes {@code perc.Test} (#2830).
+ * <p>Batch C (#2844 modern roots / #2885 stop shipping XML): remaining product residual (#2802)
+ * after A/B — auto-lists, blog companions, comments/liked/commentForm, imageSlider, cookieConsent,
+ * jquery/jqueryUI, registration/secureLogin, Result/Redirect (19 widgets / 19 packages). Excludes
+ * {@code perc.Test} (#2830).
  *
  * @see PSWidgetXmlCompiler
  * @see PSWidgetXmlPackageCompiler
+ * @see PSWidgetXmlInstallEmitter
  */
 public final class PSWidgetXmlDualShip {
 
@@ -213,11 +227,13 @@ public final class PSWidgetXmlDualShip {
    *   <li>{@code materialize-modern-batch-a &lt;packagesRoot&gt;} — batch A packages only
    *   <li>{@code materialize-modern-batch-b &lt;packagesRoot&gt;} — batch B packages only
    *   <li>{@code materialize-modern-batch-c &lt;packagesRoot&gt;} — batch C packages only
+   *   <li>{@code materialize-install &lt;packageDir&gt;} — modern {@code widgets/} → install Widget
+   *       XML when package is modern-only (no committed XML)
    * </ul>
    */
   public static void main(String[] args) throws Exception {
     final String usage =
-        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b|materialize-modern-batch-c <path>";
+        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b|materialize-modern-batch-c|materialize-install <path>";
     if (args.length < 2) {
       System.err.println(usage);
       System.exit(1);
@@ -230,6 +246,7 @@ public final class PSWidgetXmlDualShip {
       case "materialize-modern-batch-a" -> n = materializeModernBatchA(path);
       case "materialize-modern-batch-b" -> n = materializeModernBatchB(path);
       case "materialize-modern-batch-c" -> n = materializeModernBatchC(path);
+      case "materialize-install" -> n = materializeInstallWidgetXml(path);
       default -> {
         System.err.println("Unknown command: " + args[0]);
         System.err.println(usage);
@@ -237,7 +254,19 @@ public final class PSWidgetXmlDualShip {
         return;
       }
     }
-    System.out.println(cmd + " wrote " + n + " modern widget package(s) under " + path);
+    System.out.println(cmd + " wrote " + n + " artifact(s) under " + path);
+  }
+
+  /**
+   * Materialize install Widget XML from modern roots for modern-only packages. Delegates to {@link
+   * PSWidgetXmlInstallEmitter#materializeInstallWidgetXml(Path)}.
+   *
+   * @param packageDir product package source or staging copy
+   * @return number of Widget XML files written
+   */
+  public static int materializeInstallWidgetXml(Path packageDir)
+      throws PSWidgetXmlException, IOException {
+    return PSWidgetXmlInstallEmitter.materializeInstallWidgetXml(packageDir);
   }
 
   /**

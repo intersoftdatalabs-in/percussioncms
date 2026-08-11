@@ -2,35 +2,37 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Active — batch A + B + C modern authoring roots landed (#2831 / #2832 / #2844) |
+| **Status** | Active — batch A + B + C modern authoring roots landed; **batch C ship-exit** (#2885) stops committing install Widget XML for remaining product residual |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) · Grandparent [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
-| **Related** | Compiler #2751 / #2772 / #2789 / #2802 · Shim #2752 · Phase 5 #2632 · Page dual-ship #2786 / native #2806 |
-| **Code** | `PSWidgetXmlDualShip`, `PSWidgetXmlCompiler`, `PSLegacyDefinitionXmlShim` |
+| **Related** | Compiler #2751 / #2772 / #2789 / #2802 · Shim #2752 · Phase 5 #2632 · Page dual-ship #2786 / native #2806 · ship-exit #2883 / #2884 / #2885 |
+| **Code** | `PSWidgetXmlDualShip`, `PSWidgetXmlInstallEmitter`, `PSWidgetXmlCompiler`, `PSLegacyDefinitionXmlShim` |
 
 ## Purpose
 
-Product widget packages still ship legacy `sys__UserDependency--rxconfig/Widgets/*.xml` so deployer / `PSWidgetDao` install is unchanged. Batches A/B/C **author** modern `widgets/<stem>/component-package.json` + template sources (ADR-004) so dual-run selection prefers the Component Package Manifest when both exist.
+Batches A/B/C **author** modern `widgets/<stem>/component-package.json` + template sources (ADR-004) so dual-run selection prefers the Component Package Manifest when both exist.
 
-This document is the **operator / engineering checklist** for exiting dual-ship Widget XML package-by-package. **Do not** mass-delete remaining product Widget XML until a native install path exists (or a dual-ship install emitter regenerates install XML from modern).
+**Batch C ship-exit (#2885):** product source trees for remaining residual packages **no longer commit** `sys__UserDependency--rxconfig/Widgets/*.xml`. Package build materializes install Widget XML from modern roots via `PSWidgetXmlInstallEmitter` / `PSPackageBuilder` so deployer / `PSWidgetDao` still receive the legacy wire format. Runtime shim remains until Phase 5 criteria.
+
+**Batches A/B:** sibling ship-exit residuals (#2883 / #2884) remove their committed install XML when merged; same materialize path. **Waived:** `perc.Test` may keep dual-ship install XML.
 
 ## Authoring vs install
 
-| Layer | Batch A + B + C (after #2831 / #2832 / #2844) | Other product widgets |
-|-------|-----------------------------------------------|------------------------|
-| **Authoring truth** | `widgets/<stem>/component-package.json` + `templates/*.vm` | `perc.Test` residual (#2830) |
-| **Install wire format** | Still `sys__UserDependency--rxconfig/Widgets/*.xml` dual-ship | Same |
-| **Selection** | `PSLegacyDefinitionXmlShim` prefers modern `widgets/` (or root) over legacy XML | Legacy Widget XML until modern roots land |
+| Layer | Batch C (after #2885) | Batch A + B (until ship-exit) | Other |
+|-------|------------------------|-------------------------------|--------|
+| **Authoring truth** | `widgets/<stem>/` modern only | modern roots + dual-ship XML | `perc.Test` residual (#2830) |
+| **Install wire format** | Materialized at package-build from modern | Committed dual-ship XML | Dual-ship XML |
+| **Selection** | `PSLegacyDefinitionXmlShim` prefers modern `widgets/` | Same | Legacy Widget XML until modern roots land |
 
 ### Configuration / APIs
 
 | Knob / API | Notes |
 |------------|--------|
 | `PSWidgetXmlDualShip.materializeModernWidgetSources(packageDir)` | Widget XML → `widgets/` (migration / refresh) |
-| `PSWidgetXmlDualShip.materializeModernBatchA(packagesRoot)` | Batch A packages only |
-| `PSWidgetXmlDualShip.materializeModernBatchB(packagesRoot)` | Batch B packages only |
-| `PSWidgetXmlDualShip.materializeModernBatchC(packagesRoot)` | Batch C packages only |
+| `PSWidgetXmlDualShip.materializeModernBatchA/B/C(packagesRoot)` | Named batch materialize modern |
+| `PSWidgetXmlInstallEmitter.materializeInstallWidgetXml(packageDir)` | Modern-only → install Widget XML (no-op if committed XML present) |
+| `PSWidgetXmlDualShip.materializeInstallWidgetXml` | Delegates to install emitter (#2885 / #2883 / #2884) |
 | `PSWidgetXmlDualShip.hasModernWidgetSources` / `compileModernWidgets` | Product parity tests |
-| CLI | `PSWidgetXmlDualShip materialize-modern\|materialize-modern-batch-a\|materialize-modern-batch-b\|materialize-modern-batch-c <path>` |
+| CLI | `PSWidgetXmlDualShip materialize-modern\|…-batch-a/b/c\|materialize-install <path>` |
 
 Policy alignment: modern preferred in `PSLegacyDefinitionXmlShim` (root `component-package.json` **or** `widgets/<stem>/component-package.json`).
 
@@ -93,7 +95,9 @@ Policy alignment: modern preferred in `PSLegacyDefinitionXmlShim` (root `compone
 
 **Batch C total:** 19 packages · **19** widgets with modern roots.
 
-**Cumulative modern dual-ship authoring roots:** **47** widgets / **38** packages (batch A + B + C). Product inventory remains **48** Widget XML files (including `perc.Test`); modern dual-ship does **not** delete install XML. Product modern-root gap excl. Test is **0**.
+**Batch C ship-exit (#2885):** committed install Widget XML **removed** from product source (before **48** → after **29** product Widget def XML files; −19). Install XML is regenerated at package-build time only. Sibling #2883 / #2884 remove 8 + 20 more when merged (leaving waived `perc.Test` only for M1 product non-waived zero).
+
+**Cumulative modern dual-ship authoring roots:** **47** widgets / **38** packages (batch A + B + C). Product modern-root gap excl. Test is **0**.
 
 ## Retirement checklist (per package)
 
@@ -101,19 +105,22 @@ Policy alignment: modern preferred in `PSLegacyDefinitionXmlShim` (root `compone
 2. **Materialize modern** — `widgets/<stem>/component-package.json` + templates committed (or refresh via `materializeModernWidgetSources`).
 3. **Parity test** — modern manifest/template equals compile-from-XML (`PSWidgetXmlDualShipTest` pattern).
 4. **Shim** — `selectForPackageRoot` / `selectDefinition` prefer modern when XML co-located.
-5. **Keep install XML** until native widget install (or reverse emitter) exists.
-6. **Later residual** — optional native install mode (page peer: `PSPageXmlNativeInstall` / #2806); then remove dual-ship XML for converted packages only.
+5. **Ship-exit install XML** — delete committed Widget XML only when modern roots exist **and** package-build materializes install XML (`PSWidgetXmlInstallEmitter`). Batch C done (#2885); A/B residuals #2883 / #2884.
+6. **Shim** remains until Phase 5 criteria (#2852 / #2632) — do not delete runtime dual-run selection.
 
-## Residual after batch C
+## Residual after batch C ship-exit
 
 | Residual | Scope | Guidance |
 |----------|-------|----------|
 | Product modern-root gap | **0** (excl. `perc.Test`) | Batch A+B+C complete product dual-ship authoring |
-| `perc.Test` | Test package modern roots | #2830 / PR #2840 compile residual |
-| Native widget install | Package build stages install Widget XML (or new wire format) from modern | Peer of #2806; required before mass XML delete |
-| Global shim removal | #2632 | Metrics + zero required legacy loads |
+| Batch C install XML (committed) | **0** (19 removed #2885) | Install materialize at package-build |
+| Committed product Widget def XML | **29** remaining (was 48) | Batch A dual-ship + batch B dual-ship + waived `perc.Test` |
+| Batch A ship-exit | base/core dual-ship XML | #2883 |
+| Batch B ship-exit | high-traffic + long-tail dual-ship XML | #2884 |
+| `perc.Test` (waived) | Test package install XML | #2830; exclude from M1 product zero |
+| Global shim removal | #2632 / #2852 | Metrics + zero required legacy loads |
 
-Approximate residual Widget XML still dual-shipped as **install** source of truth (not authoring): **all 48** product + test XML files remain on disk until native widget install. Authoring without modern `widgets/` roots: **`perc.Test` only** among product/test packages in inventory.
+**Before/after (#2885 batch C):** product Widget def XML **48 → 29** (−19 batch C stems).
 
 ## Dual-run / dual-ship relationship
 
@@ -122,7 +129,7 @@ Approximate residual Widget XML still dual-shipped as **install** source of trut
 | Dual-run **definition XML shim** | Runtime selection modern vs Widget XML | Time-boxed; Phase 5 #2632 |
 | Dual-ship **widget modern roots** | Package **authoring** under `widgets/` | Batch A (#2831) + B (#2832) + C (#2844); product complete excl. Test |
 | Dual-ship **page templateDef** | Package-build install bridge | Optional; native preferred for base/responsive (#2806) |
-| Native **widget install** | Package-build stages install artifacts from modern | **Not landed** — do not delete product Widget XML |
+| Widget install materialize | Package-build stages install Widget XML from modern | **Landed for modern-only packages** (#2885 / #2883 / #2884 `PSWidgetXmlInstallEmitter`) |
 
 ## See also
 
@@ -130,3 +137,4 @@ Approximate residual Widget XML still dual-shipped as **install** source of trut
 - [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md)
 - [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)
 - [adr/004-no-definition-xml-packaging.md](./adr/004-no-definition-xml-packaging.md)
+- [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md)

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Criteria **not met** (snapshot 2026-08-10) — shim **must remain** |
+| **Status** | Criteria **not met** (snapshot 2026-08-11) — shim **must remain** |
 | **Issue** | [#2835](https://github.com/intersoftdatalabs-in/percussioncms/issues/2835) (slice 3 of [#2632](https://github.com/intersoftdatalabs-in/percussioncms/issues/2632)) |
 | **Parent** | [#2632](https://github.com/intersoftdatalabs-in/percussioncms/issues/2632) Phase 5 · Grandparent [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
 | **Depends on** | Phase 3 [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) product off definition XML; dual-run policy [#2752](https://github.com/intersoftdatalabs-in/percussioncms/issues/2752) |
@@ -23,7 +23,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 
 ## Decision (this slice)
 
-| Question | Answer (2026-08-10) |
+| Question | Answer (2026-08-11) |
 |----------|---------------------|
 | Are removal criteria met? | **No** |
 | May agents delete `PSLegacyDefinitionXmlShim` / related dual-run loaders now? | **No** — leave shim |
@@ -43,7 +43,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 | Product Gadget definition XML | **0** product per-gadget OpenSocial-style definition XML required at runtime | [gadget-definition-inventory.md](./gadget-definition-inventory.md) |
 | ADR-004 ship bar | Product packages author **only** modern `component-package.json` (+ CT / template / slot / catalog artifacts) | Package tree review + package-compile CI |
 
-**Snapshot 2026-08-10:** **FAIL M1** — **48** Widget definition XML files still under `Packages/**/sys__UserDependency--rxconfig/Widgets/` across **39** product package trees; modern `component-package.json` present primarily under page layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`, `perc.Baseline` pages) — **30** manifests total, not a full widget replacement set.
+**Snapshot 2026-08-11 (#2885 batch C ship-exit):** **FAIL M1** — **29** Widget definition XML files still under `Packages/**/sys__UserDependency--rxconfig/Widgets/` (was **48**). Batch C removed **19** committed install XMLs for packages with modern `widgets/<stem>/` roots; install wire format is materialized at package-build via `PSWidgetXmlInstallEmitter`. Remaining committed XML: batch A (**8**) + batch B (**20**) + waived `perc.Test` (**1**) = **29**. Modern widget `component-package.json` roots: **47** (full product excl. Test). M1 product non-waived zero still requires sibling ship-exit #2883 / #2884 (and keep `perc.Test` on explicit waiver list).
 
 ### M2 — Zero (or waived) runtime legacy definition-XML loads
 
@@ -54,7 +54,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 | Widget DAO path | Production widget load no longer depends solely on `${rxdeploydir}/rxconfig/Widgets/*.xml` for product widgets | Code + install smoke |
 | Gadget registry dual-load | WebUI `GadgetRegistry` last load source is modern catalog in product installs (legacy XML only for waived customer cases) | `GadgetRegistry.getLastLoadSource()` / tests |
 
-**Snapshot 2026-08-10:** **FAIL M2** — selection API exists and is unit-tested, but **no production caller** outside `modules/perc-packages` shim package + javadoc cross-refs wires `PSLegacyDefinitionXmlShim` into live load paths. `PSWidgetDao` still binds `@Value("${rxdeploydir}/rxconfig/Widgets")`. `GadgetRegistry` dual-load (modern catalog preferred, legacy `GadgetRegistry.xml` fallback) is still active.
+**Snapshot 2026-08-11:** **FAIL M2** — selection API exists and is unit-tested, but **no production caller** outside `modules/perc-packages` shim package + javadoc cross-refs wires `PSLegacyDefinitionXmlShim` into live load paths. `PSWidgetDao` still binds `@Value("${rxdeploydir}/rxconfig/Widgets")`. `GadgetRegistry` dual-load (modern catalog preferred, legacy `GadgetRegistry.xml` fallback) is still active.
 
 ### M3 — Customer upgrade window closed (or accepted residual)
 
@@ -64,7 +64,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 | Support inventory | Support / field inventory shows no **required** customer dependence on definition XML, **or** residual customers are listed with waiver + migration plan | Support ticket sample or customer list (operator process; not committed secrets) |
 | Upgrade docs | Operators have a documented convert → deploy modern → remove XML path | Dual-run checklist in [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) + product-docs when operator-facing steps freeze |
 
-**Snapshot 2026-08-10:** **FAIL M3** — compilers and dual-run operator checklist exist; customer upgrade window is **still open** by design for 8.2 dual-run. No production metric stream yet to prove “zero loads.”
+**Snapshot 2026-08-11:** **FAIL M3** — compilers and dual-run operator checklist exist; customer upgrade window is **still open** by design for 8.2 dual-run. No production metric stream yet to prove “zero loads.”
 
 ---
 
@@ -79,7 +79,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 | **G5** | Reverse-dep / known runtime consumers still green: at minimum `projects/sitemanage` widget load tests and WebUI `GadgetRegistry` tests if those surfaces change |
 | **G6** | Cross-platform: no Unix-only path assumptions in any replacement load path (`Path` / `Files` only) |
 
-**Snapshot 2026-08-10:** G2 partially satisfied for the **selection API** (`PSLegacyDefinitionXmlShimTest`). G1/G3–G6 for **deletion** are N/A until M1–M3 pass.
+**Snapshot 2026-08-11:** G2 partially satisfied for the **selection API** (`PSLegacyDefinitionXmlShimTest`). G1/G3–G6 for **deletion** are N/A until M1–M3 pass.
 
 ---
 
@@ -101,7 +101,7 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 
 ---
 
-## 4. Inventory snapshot (grep / tree) — 2026-08-10
+## 4. Inventory snapshot (grep / tree) — 2026-08-11
 
 ### 4.1 Selection API package (`modules/perc-packages`)
 
@@ -124,7 +124,7 @@ Javadoc-only alignment references:
 | Surface | Path / class | Status in snapshot | Removal coupled to shim? |
 |---------|--------------|--------------------|---------------------------|
 | Widget install load | `projects/sitemanage/.../dao/impl/PSWidgetDao` → `${rxdeploydir}/rxconfig/Widgets` | **Live** legacy XML directory load | **Yes** for product modern-only; must rewire before shim delete |
-| Product Widget package XML | `modules/perc-packages/.../Packages/**/sys__UserDependency--rxconfig/Widgets/*.xml` | **48** files / **39** package trees still present | Product XML deletion is Phase 3 residual / Phase 5 M1 — **not** this criteria-only PR |
+| Product Widget package XML | `modules/perc-packages/.../Packages/**/sys__UserDependency--rxconfig/Widgets/*.xml` | **29** files remaining after batch C ship-exit #2885 (was **48**); install materialize for modern-only | Product XML deletion continues via ship-exit #2883 / #2884; waived `perc.Test`; M1 still FAIL |
 | Widget XML compilers | `…/widgetxml/PSWidgetXml*` | Upgrade-input compilers; keep after runtime shim exit | **No** (upgrade input OK) |
 | Page dual-ship / native | `…/pagexml/PSPageXmlDualShip`, `PSPageXmlNativeInstall`, `PSPageXmlInstallPolicy` | Native for base/responsive; dual-ship default elsewhere | Separate checklist ([dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)) |
 | Gadget catalog ship | `modules/perc-packages/.../catalogs/gadgets/gadget-catalog.json` | Modern catalog present | Preferred path |
