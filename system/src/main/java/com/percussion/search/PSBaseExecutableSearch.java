@@ -87,7 +87,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * @throws SAXException if there are any parsing errors.
    * @throws IOException if there are any other errors.
    */
-  protected abstract Document getSearchResults(Document searchDoc, Map params)
+  protected abstract Document getSearchResults(Document searchDoc, Map<String, String> params)
       throws IOException, SAXException;
 
   /**
@@ -121,7 +121,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * @return the search document conforming to the sys_SearchParameters.xsd, never <code>null</code>
    * @throws PSSearchException if an error happens executing search.
    */
-  public Document executeSearch(Map extraParams) throws PSSearchException {
+  public Document executeSearch(Map<String, String> extraParams) throws PSSearchException {
     return executeSearch(extraParams, null);
   }
 
@@ -130,18 +130,19 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    *
    * @return the current type id collection, may be <code>null</code>.
    */
-  public Collection getContentTypeIdList() {
+  public Collection<?> getContentTypeIdList() {
     return m_contentTypeIdList;
   }
 
   /**
    * Set a new content type id collection. This collection is used when formulating a new web
    * service search request, and causes the resulting search to be limited to the given content
-   * types. The elements are {@link Integer}s.
+   * types. Elements are typically {@link Integer} or {@link String} content type ids (callers use
+   * {@link Object#toString()} when building the query).
    *
    * @param list A new value, may be <code>null</code>.
    */
-  public void setContentTypeIdList(Collection list) {
+  public void setContentTypeIdList(Collection<?> list) {
     m_contentTypeIdList = list;
   }
 
@@ -156,11 +157,12 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * @return the search document conforming to the sys_SearchParameters.xsd, never <code>null</code>
    * @throws PSSearchException if an error happens executing search.
    */
-  protected Document executeSearch(Map extraParams, List contentIdList) throws PSSearchException {
+  protected Document executeSearch(Map<String, String> extraParams, List contentIdList)
+      throws PSSearchException {
     try {
       Map<String, String> params;
-      if (extraParams != null) params = new HashMap(extraParams);
-      else params = new HashMap();
+      if (extraParams != null) params = new HashMap<>(extraParams);
+      else params = new HashMap<>();
 
       if (contentIdList == null) contentIdList = m_contentIdList;
 
@@ -255,11 +257,9 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
 
     // restrict search to certain content types if these have been set
     if (m_contentTypeIdList != null && !m_contentTypeIdList.isEmpty()) {
-      List searchFields = new ArrayList(searchParams.getSearchFields());
+      List<PSWSSearchField> searchFields = new ArrayList<>(searchParams.getSearchFields());
       StringBuilder list = new StringBuilder(80);
-      Iterator iter = m_contentTypeIdList.iterator();
-      while (iter.hasNext()) {
-        Object type = iter.next();
+      for (Object type : m_contentTypeIdList) {
         if (list.length() > 0) {
           list.append(',');
         }
@@ -289,9 +289,9 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * @param search The search, assumed not <code>null</code>.
    */
   private void addSearchFields(PSWSSearchParams searchParams, PSSearch search) {
-    Iterator searchFieldIter = search.getFields();
+    Iterator<PSSearchField> searchFieldIter = search.getFields();
 
-    List searchFields = new ArrayList(searchParams.getSearchFields());
+    List<PSWSSearchField> searchFields = new ArrayList<>(searchParams.getSearchFields());
 
     // check mode, default to advanced if property is not found for backward
     // compatibility
@@ -299,7 +299,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
         !PSSearch.SEARCH_MODE_SIMPLE.equals(search.getProperty(PSSearch.PROP_SEARCH_MODE));
     boolean foundObjectType = false;
     while (searchFieldIter.hasNext()) {
-      PSSearchField sf = (PSSearchField) searchFieldIter.next();
+      PSSearchField sf = searchFieldIter.next();
 
       String fieldName = sf.getFieldName();
       boolean addField = false;
@@ -320,23 +320,22 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
 
         // handle these types differently, since they may contain
         // more than 1 value
-        List vals = sf.getFieldValues();
+        List<String> vals = sf.getFieldValues();
         if (sf.usesExternalOperator()) {
           // concat all values delimited with " OR "
           // TODO: someday possibly get the delimiter from the server so
           // this code is generic with regards to external search engines
           String val = "";
           String delim = "";
-          Iterator i = vals.iterator();
-          while (i.hasNext()) {
-            String tmp = resolveDynamicValue((String) i.next());
+          for (String raw : vals) {
+            String tmp = resolveDynamicValue(raw);
 
             val += delim + tmp;
             delim = " OR ";
           }
           value = val.trim();
         } else if (operator.equals(PSSearchField.OP_BETWEEN)) {
-          String val1 = (String) vals.get(0);
+          String val1 = vals.get(0);
           if (val1.length() > 0) {
             PSWSSearchField field =
                 new PSWSSearchField(
@@ -347,21 +346,20 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
             searchFields.add(field);
           }
 
-          value = resolveDynamicValue((String) vals.get(1));
+          value = resolveDynamicValue(vals.get(1));
           operator = PSSearchField.OP_LESSTHANEQUAL;
         } else if (operator.equals(PSSearchField.OP_IN)
             || operator.equals(PSSearchField.OP_NOTIN)) {
           String val = "";
-          Iterator i = vals.iterator();
-          while (i.hasNext()) {
-            String tmp = resolveDynamicValue((String) i.next());
+          for (String raw : vals) {
+            String tmp = resolveDynamicValue(raw);
             // be sure to escape any "," within the value
             val += "," + PSStringOperation.replace(tmp, ",", ",,");
           }
 
           if (val.length() > 0) value = val.substring(1);
         } else {
-          value = vals.size() > 0 ? resolveDynamicValue((String) vals.get(0)) : "";
+          value = vals.size() > 0 ? resolveDynamicValue(vals.get(0)) : "";
         }
 
         /* if value is empty, don't even include in selection criteria
@@ -438,7 +436,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
         list += "," + id;
       }
 
-      List fields = new ArrayList(searchParams.getSearchFields());
+      List<PSWSSearchField> fields = new ArrayList<>(searchParams.getSearchFields());
       fields.add(
           new PSWSSearchField(
               PROPERTY_CONTENTID,
@@ -475,15 +473,15 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * @param search The search, assumed not <code>null</code>.
    */
   private void addSearchProperties(PSWSSearchParams searchParams, PSSearch search) {
-    Map propMap = new HashMap();
-    Set intProps = new HashSet(search.getInternalPropertyNames());
-    Iterator props = search.getProperties();
+    Map<String, String> propMap = new HashMap<>();
+    Set<String> intProps = new HashSet<>(search.getInternalPropertyNames());
+    Iterator<PSSearchMultiProperty> props = search.getProperties();
     while (props.hasNext()) {
-      PSSearchMultiProperty prop = (PSSearchMultiProperty) props.next();
+      PSSearchMultiProperty prop = props.next();
       String name = prop.getName();
       if (!intProps.contains(name)) {
         // just get the first value
-        Iterator values = prop.iterator();
+        Iterator<String> values = prop.iterator();
         if (values.hasNext()) propMap.put(name, values.next());
       }
     }
@@ -509,6 +507,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    *
    * @return A list over zero or more <code>String</code> objects, never <code>null</code>.
    */
+  @SuppressWarnings("unchecked")
   protected List<String> getColumnNames() {
     return m_columnNames;
   }
@@ -518,15 +517,18 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    *
    * @return The list of content ids as <code>Integer</code> objects, may be <code>null</code>.
    */
+  @SuppressWarnings("unchecked")
   protected List getContentIdList() {
     return m_contentIdList == null ? null : Collections.unmodifiableList(m_contentIdList);
   }
 
   /**
    * List of columns names to include in the search results, initialized by the ctor, never null or
-   * modified after that.
+   * modified after that. Element type is {@link String}; raw {@link List} retained for legacy
+   * subclass constructors that still pass untyped lists.
    */
-  protected List<String> m_columnNames;
+  @SuppressWarnings("rawtypes")
+  protected List m_columnNames;
 
   /**
    * Indicating applying restriction for the searched items for a specified community. <code>true
@@ -550,13 +552,14 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * The list of content ids used to filter the search results, initialized during construction,
    * modified by calls to <code>setContentIdList</code>, may be <code>null</code>, never empty.
    */
+  @SuppressWarnings("rawtypes")
   protected List m_contentIdList;
 
   /**
    * A collection of {@link Integer} content type ids used to filter the search query. This is
    * initialized in the setter, but may be <code>null</code>.
    */
-  private Collection m_contentTypeIdList = null;
+  private Collection<?> m_contentTypeIdList = null;
 
   /**
    * The name of the search field / result field that contains the content id. The value of the
@@ -581,18 +584,18 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
    * </code> or modified after that. Contains prop names as <code>String</code> objects. Every
    * search result is guaranteed to contain at least this set of columns.
    */
-  public static Set ms_cxPropSet;
+  public static Set<String> ms_cxPropSet;
 
   /**
    * Set of properties returned by a related content search, intialized by static intializer, never
    * <code>null</code> or modified after that. Contains prop names as <code>String</code> objects.
    * Every search result is guaranteed to contain at least this set of columns.
    */
-  public static Set ms_cxRCPropSet;
+  public static Set<String> ms_cxRCPropSet;
 
   static {
     // init prop sets
-    ms_cxPropSet = new HashSet();
+    ms_cxPropSet = new HashSet<>();
     ms_cxPropSet.add("sys_checkoutstatus");
     ms_cxPropSet.add("sys_contentid");
     ms_cxPropSet.add("sys_contenttypeid");
@@ -603,7 +606,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
     ms_cxPropSet.add("sys_publishabletype");
     ms_cxPropSet.add("sys_assignmenttypeid");
 
-    ms_cxRCPropSet = new HashSet();
+    ms_cxRCPropSet = new HashSet<>();
     ms_cxRCPropSet.add("sys_contentid");
     ms_cxRCPropSet.add("sys_revision");
     ms_cxRCPropSet.add("sys_tiprevision");

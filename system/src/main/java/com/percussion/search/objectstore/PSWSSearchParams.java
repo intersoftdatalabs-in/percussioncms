@@ -147,10 +147,8 @@ public class PSWSSearchParams {
    *     emtpy. The caller takes ownership of the list.
    */
   public List<PSWSSearchField> getSearchFieldsByType(boolean external) {
-    List<PSWSSearchField> fieldList = new ArrayList<PSWSSearchField>();
-    Iterator fields = m_searchFields.iterator();
-    while (fields.hasNext()) {
-      PSWSSearchField field = (PSWSSearchField) fields.next();
+    List<PSWSSearchField> fieldList = new ArrayList<>();
+    for (PSWSSearchField field : m_searchFields) {
       if (external ^ !field.isExternal()) fieldList.add(field);
     }
 
@@ -179,18 +177,18 @@ public class PSWSSearchParams {
    * @param searchFields A list of {@link PSWSSearchField} objects, never <code>null</code>, may be
    *     empty. A shallow copy of the list is stored in this object.
    */
-  public void setSearchFields(List searchFields) {
+  public void setSearchFields(List<PSWSSearchField> searchFields) {
     if (searchFields == null) throw new IllegalArgumentException("searchFields may not be null");
 
     m_searchFields.clear();
-    Iterator fields = searchFields.iterator();
-    while (fields.hasNext()) {
-      Object obj = fields.next();
-      if (!(obj instanceof PSWSSearchField))
+    // Object iteration preserves IllegalArgumentException for raw-list non-PSWSSearchField
+    // elements (pre-generics defensive contract; avoids ClassCastException at for-each).
+    for (Object field : searchFields) {
+      if (!(field instanceof PSWSSearchField))
         throw new IllegalArgumentException(
             "searchFields must contian " + "only PSWSSearchField objects");
 
-      m_searchFields.add((PSWSSearchField) obj);
+      m_searchFields.add((PSWSSearchField) field);
     }
   }
 
@@ -210,17 +208,17 @@ public class PSWSSearchParams {
    * @param resultFields A collection of field names as <code>String</code> objects, never <code>
    *     null</code>, may be empty. A copy of the collection is stored in this object.
    */
-  public void setResultFields(Collection resultFields) {
+  public void setResultFields(Collection<String> resultFields) {
     if (resultFields == null) throw new IllegalArgumentException("resultFields may not be null");
 
     m_resultFields.clear();
-    Iterator fields = resultFields.iterator();
-    while (fields.hasNext()) {
-      Object obj = fields.next();
-      if (!(obj instanceof String))
+    // Object iteration preserves IllegalArgumentException for raw-collection non-String
+    // elements (pre-generics defensive contract).
+    for (Object field : resultFields) {
+      if (!(field instanceof String))
         throw new IllegalArgumentException("searchFields must contian " + "only String objects");
 
-      m_resultFields.add((String) obj);
+      m_resultFields.add((String) field);
     }
   }
 
@@ -245,9 +243,9 @@ public class PSWSSearchParams {
     if (props == null) throw new IllegalArgumentException("props may not be null");
 
     m_props.clear();
-    Iterator entries = props.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Entry) entries.next();
+    // Raw Map may carry non-String keys/values; restore instanceof guards so callers
+    // get IllegalArgumentException rather than silent bad types or CCE later.
+    for (Entry<?, ?> entry : ((Map<?, ?>) props).entrySet()) {
       if (!(entry.getKey() instanceof String && entry.getValue() instanceof String)) {
         throw new IllegalArgumentException(
             "props must have" + "only String objects for keys and values");
@@ -411,9 +409,7 @@ public class PSWSSearchParams {
     // search fields
     if (!m_searchFields.isEmpty()) {
       Element elParam = PSXmlDocumentBuilder.addEmptyElement(doc, root, EL_PARAMETER);
-      Iterator searchFields = m_searchFields.iterator();
-      while (searchFields.hasNext()) {
-        PSWSSearchField searchField = (PSWSSearchField) searchFields.next();
+      for (PSWSSearchField searchField : m_searchFields) {
         elParam.appendChild(searchField.toXml(doc));
       }
     }
@@ -433,23 +429,20 @@ public class PSWSSearchParams {
     if (!m_resultFields.isEmpty()) {
       if (elSearchResults == null)
         elSearchResults = PSXmlDocumentBuilder.addEmptyElement(doc, root, EL_SEARCH_RESULTS);
-      Iterator resultFields = m_resultFields.iterator();
-      while (resultFields.hasNext()) {
+      for (String resultField : m_resultFields) {
         Element elResultField =
             PSXmlDocumentBuilder.addEmptyElement(doc, elSearchResults, EL_RESULT_FIELD);
-        elResultField.setAttribute(ATTR_NAME, (String) resultFields.next());
+        elResultField.setAttribute(ATTR_NAME, resultField);
       }
     }
 
     // props
     if (!m_props.isEmpty()) {
       Element elProps = PSXmlDocumentBuilder.addEmptyElement(doc, root, EL_PROPERTIES);
-      Iterator props = m_props.entrySet().iterator();
-      while (props.hasNext()) {
-        Entry entry = (Entry) props.next();
+      for (Entry<String, String> entry : m_props.entrySet()) {
         Element elProp =
-            PSXmlDocumentBuilder.addElement(doc, elProps, EL_PROPERTY, (String) entry.getValue());
-        elProp.setAttribute(ATTR_NAME, (String) entry.getKey());
+            PSXmlDocumentBuilder.addElement(doc, elProps, EL_PROPERTY, entry.getValue());
+        elProp.setAttribute(ATTR_NAME, entry.getKey());
       }
     }
 
@@ -681,19 +674,19 @@ public class PSWSSearchParams {
    * List of <code>PSWSSearchField</code> objects. Never <code>null</code>, may be empty. See {@link
    * #setSearchFields(List)} for more info.
    */
-  private List<PSWSSearchField> m_searchFields = new ArrayList<PSWSSearchField>();
+  private List<PSWSSearchField> m_searchFields = new ArrayList<>();
 
   /**
    * List of result field names as <code>String</code> objects. Never <code>null</code>, may be
    * empty. See {@link #setResultFields(Collection)} for more info.
    */
-  private Collection<String> m_resultFields = new HashSet<String>();
+  private Collection<String> m_resultFields = new HashSet<>();
 
   /**
    * Map of properties to pass thru to the search engine. See {@link #setProperties(Map)} for more
    * info.
    */
-  private Map<String, String> m_props = new HashMap<String, String>();
+  private Map<String, String> m_props = new HashMap<>();
 
   /** See {@link #setStartIndex(int)} for more info. */
   private int m_startIndex = 1;

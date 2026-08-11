@@ -18,7 +18,6 @@ package com.percussion.search;
 
 import com.percussion.design.objectstore.PSEntry;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public class PSSearchFieldFilter {
    *     SEARCH_FILTER_TYPE_INTERSECTION, take the union of the new list and source list
    *     SEARCH_FILTER_TYPE_UNION.
    */
-  public PSSearchFieldFilter(String searchFieldName, List keywords, String filterType) {
+  public PSSearchFieldFilter(String searchFieldName, List<PSEntry> keywords, String filterType) {
     setKeywords(keywords);
     setSearchFieldName(searchFieldName);
     setFilterType(filterType);
@@ -50,7 +49,7 @@ public class PSSearchFieldFilter {
    * @return list of keywords consisting of <code>PSEntry</code> objects. May be empty but never
    *     <code>null</code>.
    */
-  public List getKeywords() {
+  public List<PSEntry> getKeywords() {
     return m_keywords;
   }
 
@@ -62,14 +61,14 @@ public class PSSearchFieldFilter {
    * @throws IllegalArgumentException if keywords is null or if the objects in the list are not of
    *     type <code>PSEntry</code>.
    */
-  public void setKeywords(List keywords) {
+  public void setKeywords(List<PSEntry> keywords) {
     if (keywords == null) {
       throw new IllegalArgumentException("keywords must not be null");
     }
-    Iterator kiter = keywords.iterator();
-    while (kiter.hasNext()) {
-      Object obj = kiter.next();
-      if (!(obj instanceof PSEntry)) {
+    // Iterate as Object so raw-list callers still get IllegalArgumentException (not CCE)
+    // when a non-PSEntry element is present — preserves pre-generics defensive contract.
+    for (Object entry : keywords) {
+      if (!(entry instanceof PSEntry)) {
         throw new IllegalArgumentException("keywords list should contain PSEntry objects only");
       }
     }
@@ -133,25 +132,22 @@ public class PSSearchFieldFilter {
    *     never <code>null</code>
    * @throws IllegalArgumentException if sourceList is <code>null</code>.
    */
-  public List getFilteredList(List sourceList) {
-    List keywords = new ArrayList();
+  public List<PSEntry> getFilteredList(List<PSEntry> sourceList) {
+    List<PSEntry> keywords = new ArrayList<>();
     if (sourceList == null) {
       throw new IllegalArgumentException("source keywords list must not be null");
     }
-    Iterator iter = sourceList.iterator();
     if (m_filterType == SEARCH_FILTER_TYPE_INTERSECTION) {
-      while (iter.hasNext()) {
-        Object obj = iter.next();
-        if (m_keywords.contains(((PSEntry) obj))) {
-          keywords.add(obj);
+      for (PSEntry entry : sourceList) {
+        if (m_keywords.contains(entry)) {
+          keywords.add(entry);
         }
       }
     } else if (m_filterType == SEARCH_FILTER_TYPE_UNION) {
       keywords.addAll(m_keywords);
-      while (iter.hasNext()) {
-        Object obj = iter.next();
-        if (!m_keywords.contains(((PSEntry) obj))) {
-          keywords.add(obj);
+      for (PSEntry entry : sourceList) {
+        if (!m_keywords.contains(entry)) {
+          keywords.add(entry);
         }
       }
     } else keywords.addAll(m_keywords);
@@ -160,7 +156,7 @@ public class PSSearchFieldFilter {
   }
 
   /** List of the keywords that need to be used for filtering */
-  private List m_keywords = new ArrayList();
+  private final List<PSEntry> m_keywords = new ArrayList<>();
 
   /** Name of the search field for which the filtering is need to be done */
   private String m_searchFieldName;
