@@ -29,8 +29,15 @@
 |              Surface               |                     Path                     |
 |------------------------------------|----------------------------------------------|
 | List keywords (+ optional choices) | `GET /services/keywords?includeChoices=true` |
+| Get one keyword (+ choices)        | `GET /services/keywords/{idOrValue}`         |
+| Create keyword                     | `POST /services/keywords`                             |
+| Update keyword                     | `PUT /services/keywords/{id}`                         |
+| Delete keyword                     | `DELETE /services/keywords/{id}`                      |
 
-Write (create/edit/delete keyword) not exposed yet.
+**CD-17 Keyword write shipped** (PR #1612 SPA+REST; design-WS path PR #1701; product-docs #2919).
+Adaptor: `IKeywordsAdaptor` → `KeywordsAdaptor` via `IPSContentDesignWs` (create/save/delete with
+design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
+`KeywordsAdaptorDesignWsTest`, Spring `TestKeywordsAdaptor` stub.
 
 ## Explicit gaps vs Workbench Content Type editor
 
@@ -46,13 +53,13 @@ Write (create/edit/delete keyword) not exposed yet.
 | Create / rename / delete / lock                      | CD-01, §5.2  | SOAP design only                                  |
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
-| Keyword write                                        | CD-17        | List only                                         |
+| ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
 
 ## Recommended next API work
 
 1. ~~Optional JSON projection of field rules (read-only)~~ **Done P0.2c (flags only)**
 2. Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`
-3. Keyword create/update/delete
+3. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
 4. Full rule-expression serialization + control property catalogs
 5. Templates/slots design editors
 
