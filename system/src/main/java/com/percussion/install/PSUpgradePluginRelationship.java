@@ -16,6 +16,7 @@
  */
 package com.percussion.install;
 
+import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSCloneOverrideField;
@@ -111,7 +112,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
      * @param parentComponents the parent objects of this object, it may be <code>null</code>.
      * @throws PSUnknownNodeTypeException if malformed XML in 'src'.
      */
-    RelationshipConfig(Element src, IPSDocument parentDoc, List parentComponents)
+    RelationshipConfig(Element src, IPSDocument parentDoc, List<IPSComponent> parentComponents)
         throws PSUnknownNodeTypeException {
       super(src, parentDoc, parentComponents);
     }
@@ -151,7 +152,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
     // Override super.createMemberObject(...)
     protected PSRelationshipConfig createMemberObject(
-        Element sourceNode, IPSDocument parentDoc, List parentComponents)
+        Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
         throws PSUnknownNodeTypeException {
       return new RelationshipConfig(sourceNode, parentDoc, parentComponents);
     }
