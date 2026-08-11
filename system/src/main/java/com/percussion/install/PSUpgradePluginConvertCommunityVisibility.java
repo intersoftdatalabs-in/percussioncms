@@ -46,10 +46,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
@@ -70,10 +68,10 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * The known community ids. Used for cases where we are returning the shown communities from the
    * hidden
    */
-  private List m_communityIds = new ArrayList();
+  private List<Long> m_communityIds = new ArrayList<>();
 
   /** A map of community ids to names. */
-  private Map m_communityIdToName = new HashMap();
+  private Map<Long, String> m_communityIdToName = new HashMap<>();
 
   /** The connection details, used to qualify the table name */
   private PSConnectionDetail m_details;
@@ -90,12 +88,10 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     fixCommunityNames();
 
     // Record all community ids
-    final List communities = getRoleMgr().findCommunitiesByName(null);
-    Iterator citer = communities.iterator();
-    while (citer.hasNext()) {
-      PSCommunity community = (PSCommunity) citer.next();
-      m_communityIds.add(new Long(community.getId()));
-      m_communityIdToName.put(new Long(community.getId()), community.getName());
+    final List<PSCommunity> communities = getRoleMgr().findCommunitiesByName(null);
+    for (PSCommunity community : communities) {
+      m_communityIds.add(Long.valueOf(community.getId()));
+      m_communityIdToName.put(Long.valueOf(community.getId()), community.getName());
     }
 
     log("Performing Community Visibility Conversion");
@@ -116,7 +112,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     StringBuilder problems = new StringBuilder();
 
     IPSAclService asvc = PSAclServiceLocator.getAclService();
-    List acls = new ArrayList();
+    List<IPSAcl> acls = new ArrayList<>();
 
     try {
       for (int i = 0; i < count; i++) {
@@ -143,7 +139,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @param limit if the list has at least the number of elements in the limit, then save.
    * @throws Exception if there's an error saving the acls
    */
-  private void saveAcls(IPSAclService asvc, List acls, int limit) throws Exception {
+  private void saveAcls(IPSAclService asvc, List<IPSAcl> acls, int limit) throws Exception {
     if (acls.size() >= limit) {
       asvc.saveAcls(acls);
       acls.clear();
@@ -152,12 +148,12 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
 
   /** Replaces spaces with underscores in community names. */
   private void fixCommunityNames() {
-    final List communities = getRoleMgr().findCommunitiesByName(null);
-    final List communitiesToFixNames = findCommunitiesToFixNames(communities);
-    final Set communityNames = getCommunityNames(communities);
+    final List<PSCommunity> communities = getRoleMgr().findCommunitiesByName(null);
+    final List<PSCommunity> communitiesToFixNames =
+        findCommunitiesToFixNames(communities);
+    final Set<String> communityNames = getCommunityNames(communities);
 
-    for (Iterator i = communitiesToFixNames.iterator(); i.hasNext(); ) {
-      final PSCommunity community = (PSCommunity) i.next();
+    for (final PSCommunity community : communitiesToFixNames) {
       community.setName(
           PSNameSpacesUtil.removeWhitespacesFromName(community.getName(), communityNames));
       communityNames.add(community.getName());
@@ -165,11 +161,13 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     }
   }
 
-  /** Selects communities from the list which need their names to be fixed. */
-  private List findCommunitiesToFixNames(final List communities) {
-    final List communitiesToFixNames = new ArrayList();
-    for (Iterator i = communities.iterator(); i.hasNext(); ) {
-      final PSCommunity community = (PSCommunity) i.next();
+  /**
+   * Selects communities from the list which need their names to be fixed. Package-visible static
+   * for unit tests (no Spring context required).
+   */
+  static List<PSCommunity> findCommunitiesToFixNames(final List<PSCommunity> communities) {
+    final List<PSCommunity> communitiesToFixNames = new ArrayList<>();
+    for (final PSCommunity community : communities) {
       final String name = community.getName();
       if (!name.equals(StringUtils.deleteWhitespace(name))) {
         communitiesToFixNames.add(community);
@@ -178,11 +176,13 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     return communitiesToFixNames;
   }
 
-  /** Set of community names extracted from the provided communities. */
-  private Set getCommunityNames(final List communities) {
-    final Set names = new HashSet();
-    for (Iterator i = communities.iterator(); i.hasNext(); ) {
-      final PSCommunity community = (PSCommunity) i.next();
+  /**
+   * Set of community names extracted from the provided communities. Package-visible static for unit
+   * tests (no Spring context required).
+   */
+  static Set<String> getCommunityNames(final List<PSCommunity> communities) {
+    final Set<String> names = new HashSet<>();
+    for (final PSCommunity community : communities) {
       names.add(community.getName());
     }
     return names;
@@ -197,7 +197,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @return <code>null</code> if there are no errors, otherwise a description of the problem(s)
    *     found
    */
-  private String processEntry(Node el, List acls) {
+  private String processEntry(Node el, List<IPSAcl> acls) {
     if (el == null) {
       throw new IllegalArgumentException("el may not be null");
     }
@@ -206,25 +206,22 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     short ordinal = Short.parseShort(type);
 
     try {
-      Map data = getData(element);
+      Map<Long, List<Long>> data = getData(element);
 
       IPSAclService asvc = PSAclServiceLocator.getAclService();
-      Iterator iter = data.keySet().iterator();
-      Map guidToAcl = new HashMap();
+      Map<PSGuid, IPSAcl> guidToAcl = new HashMap<>();
 
       log("Beginning community visibility conversion for data");
 
-      while (iter.hasNext()) {
-        Long oid = (Long) iter.next();
-        List communities = (List) data.get(oid);
-        Iterator citer = communities.iterator();
-        while (citer.hasNext()) {
-          Long c = (Long) citer.next();
+      for (Map.Entry<Long, List<Long>> dataEntry : data.entrySet()) {
+        Long oid = dataEntry.getKey();
+        List<Long> communities = dataEntry.getValue();
+        for (Long c : communities) {
 
           String community_name;
 
           if (c.longValue() > 0) {
-            community_name = (String) m_communityIdToName.get(c);
+            community_name = m_communityIdToName.get(c);
             if (community_name == null) {
               log("Warning - community not present for id: " + c);
               continue;
@@ -237,7 +234,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
           guid.setType(ordinal);
           guid.setUUID(oid.intValue());
 
-          IPSAcl object_acl = (IPSAcl) guidToAcl.get(guid);
+          IPSAcl object_acl = guidToAcl.get(guid);
           if (object_acl == null) {
             object_acl = asvc.loadAclForObject(guid);
             if (object_acl != null) continue;
@@ -287,7 +284,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @throws SQLException
    * @throws NamingException
    */
-  private Map getData(Element element) throws SQLException, NamingException {
+  private Map<Long, List<Long>> getData(Element element) throws SQLException, NamingException {
     String style = element.getAttribute("style");
 
     if (style != null && style.equals("join")) {
@@ -355,7 +352,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @throws SQLException
    * @throws NamingException
    */
-  private Map getPropertyData(Element element) throws SQLException, NamingException {
+  private Map<Long, List<Long>> getPropertyData(Element element) throws SQLException, NamingException {
     // Get parameters
     String objectIdColumn = element.getAttribute("objectid").toUpperCase();
     String propertyColumn = element.getAttribute("property-column").toUpperCase();
@@ -396,7 +393,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @throws SQLException
    * @throws NamingException
    */
-  private Map getJoinData(Element element) throws SQLException, NamingException {
+  private Map<Long, List<Long>> getJoinData(Element element) throws SQLException, NamingException {
     // Get parameters
     String objectIdColumn = element.getAttribute("objectid").toUpperCase();
     String community = element.getAttribute("community").toUpperCase();
@@ -426,10 +423,10 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * @throws SQLException
    * @throws NamingException
    */
-  private Map getQueryResults(StringBuilder query, boolean hide)
+  private Map<Long, List<Long>> getQueryResults(StringBuilder query, boolean hide)
       throws SQLException, NamingException {
     Connection c = null;
-    Map rval = new HashMap();
+    Map<Long, List<Long>> rval = new HashMap<>();
 
     try {
       c = m_dbm.getDbConnection(m_info);
@@ -443,25 +440,21 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
         Long objectid, communityid;
         objectid = convertToLong(rs.getObject(1));
         communityid = convertToLong(rs.getObject(2));
-        List communities = (List) rval.get(objectid);
+        List<Long> communities = rval.get(objectid);
         if (communities == null) {
-          communities = new ArrayList();
+          communities = new ArrayList<>();
           rval.put(objectid, communities);
         }
         communities.add(communityid);
       }
 
       if (hide) {
-        Iterator eiter = rval.entrySet().iterator();
-        while (eiter.hasNext()) {
-          Map.Entry entry = (Entry) eiter.next();
-          List communities = (List) entry.getValue();
+        for (Map.Entry<Long, List<Long>> entry : rval.entrySet()) {
+          List<Long> communities = entry.getValue();
           // Invert the collections to include those communities that
           // are *not* listed
-          List newclist = new ArrayList();
-          Iterator iter = m_communityIds.iterator();
-          while (iter.hasNext()) {
-            Long cid = (Long) iter.next();
+          List<Long> newclist = new ArrayList<>();
+          for (Long cid : m_communityIds) {
             if (!communities.contains(cid)) {
               newclist.add(cid);
             }
@@ -486,9 +479,9 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    */
   private Long convertToLong(Object object) {
     if (object instanceof String) {
-      return new Long((String) object);
+      return Long.valueOf((String) object);
     } else if (object instanceof Number) {
-      return new Long(((Number) object).longValue());
+      return Long.valueOf(((Number) object).longValue());
     } else {
       throw new RuntimeException("Unknown type found " + object.getClass());
     }

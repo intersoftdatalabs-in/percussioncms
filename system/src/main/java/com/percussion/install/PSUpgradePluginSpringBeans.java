@@ -138,9 +138,9 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
       PSSpringConfiguration reqbeans = new PSSpringConfiguration(source);
 
       // Check each bean and add if missing
-      Iterator iditer = reqbeans.getBeanIds();
+      Iterator<String> iditer = reqbeans.getBeanIds();
       while (iditer.hasNext()) {
-        String name = (String) iditer.next();
+        String name = iditer.next();
         Element sourceel = reqbeans.getBeanXml(name);
         Element destel = config.getBeanXml(name);
         if (destel == null) {
@@ -179,12 +179,12 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
     String microVersion = versionProps.getProperty("microVersion");
 
     if (majorVersion.equals("6") && minorVersion.equals("0") && microVersion.equals("0")) {
-      List cfgids = new ArrayList();
-      Iterator cfgiter = config.getBeanIds();
-      while (cfgiter.hasNext()) cfgids.add((String) cfgiter.next());
+      List<String> cfgids = new ArrayList<>();
+      Iterator<String> cfgiter = config.getBeanIds();
+      while (cfgiter.hasNext()) cfgids.add(cfgiter.next());
 
       for (int i = 0; i < cfgids.size(); i++) {
-        String id = (String) cfgids.get(i);
+        String id = cfgids.get(i);
         if (ms_systemSpringBeans60Set.contains(id)) {
           Element origel = config.getBeanXml(id);
           config.removeBean(id);
@@ -196,12 +196,12 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
     }
 
     // Remove all unsupported attributes from each bean
-    List configIds = new ArrayList();
-    Iterator cfgit = config.getBeanIds();
-    while (cfgit.hasNext()) configIds.add((String) cfgit.next());
+    List<String> configIds = new ArrayList<>();
+    Iterator<String> cfgit = config.getBeanIds();
+    while (cfgit.hasNext()) configIds.add(cfgit.next());
 
     for (int j = 0; j < configIds.size(); j++) {
-      String id = (String) configIds.get(j);
+      String id = configIds.get(j);
       Element el = config.getBeanXml(id);
 
       // Remove unsupported attributes from datasource resolver sub-bean
