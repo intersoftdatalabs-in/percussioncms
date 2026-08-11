@@ -63,6 +63,36 @@ Path-filtered CI / local **smoke** around `build-cms-docs` (issue #2704).
   `tmp/product-docs-site/` always has a path and at least one file (partial build
   output is preserved when the builder emits anything before failing).
 
+### Widget definition XML inventory gate (G4 / #3026)
+
+**Not a Python script.** Phase 5 criteria **G4** for product Widget definition XML under
+`Packages/**/sys__UserDependency--rxconfig/Widgets/` is enforced in Maven Surefire for
+`modules/perc-packages`:
+
+- Class: `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory`
+- Tests: `PSWidgetDefinitionXmlInventoryTest` (green on product tree; fails if a dummy
+  non-waived fixture XML is introduced under a non-waived package)
+- Explicit waiver: **`perc.Test` only**
+- Cross-platform: `Path` / `Files` only (no hardcoded separators)
+
+Optional CLI (after compiling the module):
+
+```bat
+cd modules\perc-packages
+..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
+  -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory ^
+  -Dexec.args="src\main\resources\Packages"
+```
+
+```bash
+cd modules/perc-packages
+../../mvnw -q exec:java -Dexec.classpathScope=compile \
+  -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory \
+  -Dexec.args="src/main/resources/Packages"
+```
+
+Criteria doc: `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
+
 ### Third-party license inventory (Maven + npm merge)
 
 **Not a Python script.** Merged inventory generation for issue #1689 lives in
