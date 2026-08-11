@@ -80,10 +80,10 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   private void updateExtensions(
       IPSExtensionManager mgr, String ifPattern, Set<String> extSet, String ifName)
       throws PSExtensionException {
-    @SuppressWarnings("rawtypes")
-    Iterator refs = mgr.getExtensionNames("Java", null, ifPattern, null);
+    @SuppressWarnings("unchecked")
+    Iterator<PSExtensionRef> refs = mgr.getExtensionNames("Java", null, ifPattern, null);
     while (refs.hasNext()) {
-      PSExtensionRef ref = (PSExtensionRef) refs.next();
+      PSExtensionRef ref = refs.next();
       try {
         IPSExtensionDef def = null;
         if (extSet.contains(ref.getExtensionName())) {

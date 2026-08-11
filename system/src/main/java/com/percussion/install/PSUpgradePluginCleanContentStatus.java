@@ -30,9 +30,7 @@ import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -140,7 +138,6 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
 
     Iterator<PSJdbcRowData> rows = csData.getRows();
     PSJdbcRowData tRow = null;
-    Map<String, PSJdbcRowData> nullntRows = new HashMap<>();
     String title = "";
     String newTitle = "title_";
     String contentid = "0";
