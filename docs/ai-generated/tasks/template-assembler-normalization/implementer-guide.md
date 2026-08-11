@@ -41,7 +41,7 @@ Product packages ship **without** Page / Widget / Gadget **XML definition files*
 | Widget `Code` (JEXL) | Template binding rows (still JEXL) |
 | Widget `Content` (Velocity/HTML) | Snippet template source + assembler |
 | Widget definition XML | Content type + snippet template(s) + catalog in modern package |
-| CM1 region | Slot (unified hole); see [region-slot-mapping.md](./region-slot-mapping.md) |
+| CM1 region | Slot (unified **placement hole** — intentional “hole,” not “whole”; regions collapse into the slot composition model); see [region-slot-mapping.md](./region-slot-mapping.md) |
 | Widget `CssPref` / layout-ish prefs | `slot_layout` / `slot_styles` (definition + instance overrides) |
 | `pageAssembler` | Page context + text assembler — **not** a separate template language |
 | Gadget definition / registry XML | Gadget catalog + per-gadget packages (`catalog.kind = "gadget"`) |
