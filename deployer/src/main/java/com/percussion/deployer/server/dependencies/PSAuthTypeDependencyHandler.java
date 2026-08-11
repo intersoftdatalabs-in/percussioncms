@@ -19,6 +19,7 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSChoiceBuilder;
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
@@ -135,7 +136,7 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
     Properties props = getAuthTypesProps();
     String propKey = getPropKey(id);
     if (props.containsKey(propKey)) {
-      String name = (String) getAuthtypeNames().get(id);
+      String name = getAuthtypeNames().get(id);
       dep = createDependency(m_def, id, (name != null ? name : id));
       PSDependency appDep = getAppDep(tok, props.getProperty(propKey));
       if (appDep != null) dep.setDependencyType(appDep.getDependencyType());
@@ -154,7 +155,7 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   private Map<String, String> getAuthtypeNames() throws PSDeployException {
     try {
       Map<String, String> result = new HashMap<>();
-      Iterator entries =
+      Iterator<?> entries =
           PSChoiceBuilder.getGlobalLookupEntries(
               AUTH_TYPE_LOOKUP_ID, PSRequest.getContextForRequest());
       while (entries.hasNext()) {
@@ -249,23 +250,27 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
+  @Override
   public boolean doesDependencyExist(PSSecurityToken tok, String id)
       throws PSDeployException, PSNotFoundException {
     return (getDependency(tok, id) != null);
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -300,7 +305,7 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   private static final String AUTH_TYPE_LOOKUP_ID = "10";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static final List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSKeywordDependencyHandler.DEPENDENCY_TYPE);

@@ -196,12 +196,12 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getDependencyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
-      throws PSDeployException {
+  protected Iterator<PSDependencyFile> getDependencyFilesFromArchive(
+      PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -281,7 +281,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
     var deps = new ArrayList<PSDependency>();
     var propIter = prop.iterator();
     while (propIter.hasNext()) {
-      var dep = handler.getDependency(tok, (String) propIter.next());
+      var dep = handler.getDependency(tok, propIter.next());
       Optional.ofNullable(dep).ifPresent(deps::add);
     }
     return deps;
@@ -307,10 +307,10 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
     boolean isMapped = true;
 
     // get each value and transform it.
-    List newIds = new ArrayList();
-    Iterator vals = prop.iterator();
+    List<String> newIds = new ArrayList<>();
+    Iterator<String> vals = prop.iterator();
     while (vals.hasNext() && isMapped) {
-      String val = (String) vals.next();
+      String val = vals.next();
       PSIdMapping idMapping = getIdMapping(ctx, val, type);
       if (idMapping != null) newIds.add(idMapping.getTargetId());
       else isMapped = false;
@@ -318,7 +318,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
 
     if (isMapped) {
       prop.clear();
-      prop.add((String[]) newIds.toArray(new String[newIds.size()]));
+      prop.add(newIds.toArray(new String[0]));
     }
   }
 
@@ -384,10 +384,12 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
    * @throws IllegalArgumentException if <code>tok</code> is <code>null</code>.
    * @throws PSDeployException if the processor cannot be created.
    */
-  protected PSRelationshipProcessor getRelationshipProcessor(PSSecurityToken tok, Map params)
-      throws PSDeployException {
+  protected PSRelationshipProcessor getRelationshipProcessor(
+      PSSecurityToken tok, Map<String, ?> params) throws PSDeployException {
     PSRequest req = new PSRequest(tok);
-    if (params != null) req.setParameters(new HashMap(params));
+    if (params != null) {
+      req.setParameters(new HashMap<String, Object>(params));
+    }
 
     return getRelationshipProcessor(req);
   }

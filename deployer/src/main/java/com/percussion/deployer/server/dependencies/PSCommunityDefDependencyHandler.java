@@ -209,8 +209,8 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
     // get the community data first
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
     PSDependencyData depData = getDepDataFromFile(archive, file);
 
     Integer version = null;
@@ -249,12 +249,12 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
 
     // retrieve the files and install them
     while (files.hasNext()) {
-      file = (PSDependencyFile) files.next();
+      file = files.next();
       depData = getDepDataFromFile(archive, file);
       PSJdbcTableData data = depData.getData();
       String table = data.getName();
       if (table.equalsIgnoreCase(COMM_RL_TABLE)) data = transferIdsForRLData(data, dep, ctx, tok);
-      else data = transferIdsForChildData(data, (String) columnMap.get(table), dep, ctx, tok);
+      else data = transferIdsForChildData(data, columnMap.get(table), dep, ctx, tok);
 
       installDependencyData(
           depData.getSchema(), data, dep, ctx, PSTransactionSummary.ACTION_CREATED, null);
@@ -351,20 +351,20 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
 
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
       throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the COMM_RL_ID to its
       // corresponding ROLE_NAME in ROLE_TABLE
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(COMM_RL_ID)) {
           // query the database based on the role id, colume value
@@ -375,8 +375,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
           pdata = getDepDataFromTable(ROLE_TABLE, filter, true);
 
           // get the role name from the result set
-          PSJdbcRowData row;
-          row = (PSJdbcRowData) pdata.getData().getRows().next();
+          PSJdbcRowData row = pdata.getData().getRows().next();
           String roleName = PSDbmsHelper.getInstance().getColumnString(ROLE_TABLE, ROLE_NAME, row);
 
           col.setValue(roleName);
@@ -417,20 +416,20 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
 
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
       throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the id for
       // COMMUNITY_ID, convert role-name to role-id for COMM_RL_ID
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(COMMUNITY_ID)) {
           if (commMapping != null) col.setValue(commMapping.getTargetId());
@@ -447,8 +446,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
           pdata = getDepDataFromTable(ROLE_TABLE, filter, true);
 
           // get the role id from the result set
-          PSJdbcRowData row;
-          row = (PSJdbcRowData) pdata.getData().getRows().next();
+          PSJdbcRowData row = pdata.getData().getRows().next();
           String roleId = PSDbmsHelper.getInstance().getColumnString(ROLE_TABLE, ROLE_ID, row);
 
           col.setValue(roleId);
@@ -489,21 +487,21 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
 
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
       throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for COMMUNITY_ID, COMM_CP_ID, COMM_CT_ID,
       // COMM_ST_ID, COMM_VR_ID and COMM_WF_ID
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(COMMUNITY_ID)) {
           if (commMapping != null) col.setValue(commMapping.getTargetId());

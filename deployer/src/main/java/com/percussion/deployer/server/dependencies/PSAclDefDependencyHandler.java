@@ -256,12 +256,12 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected static Iterator getAclDependencyFilesFromArchive(
+  protected static Iterator<PSDependencyFile> getAclDependencyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -375,9 +375,9 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve datas, acl data
-    Iterator files = getAclDependencyFilesFromArchive(archive, dep);
+    Iterator<PSDependencyFile> files = getAclDependencyFilesFromArchive(archive, dep);
     while (files.hasNext()) {
-      PSDependencyFile depFile = (PSDependencyFile) files.next();
+      PSDependencyFile depFile = files.next();
       PSAclImpl tmp = generateAclFromFile(archive, depFile);
       doTransforms(tok, archive, dep, ctx, tmp);
 

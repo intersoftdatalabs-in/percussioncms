@@ -196,7 +196,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     PSDependencyHandler handler = getDependencyHandler(dependencyType);
     String id;
     while (ids.hasNext()) {
-      id = (String) ids.next();
+      id = ids.next();
       PSDependency dep = handler.getDependency(tok, id);
       if (dep != null) {
         if (depType != -1) dep.setDependencyType(depType);
@@ -258,8 +258,8 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
-  protected Iterator getAppNamesFromTableData(PSJdbcTableData data, String table, String col)
-      throws PSDeployException {
+  protected Iterator<String> getAppNamesFromTableData(
+      PSJdbcTableData data, String table, String col) throws PSDeployException {
     if (table == null || table.trim().length() == 0)
       throw new IllegalArgumentException("table may not be null or empty");
 
@@ -270,11 +270,11 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     Set<String> appNames = new HashSet<>();
 
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
+      Iterator<PSJdbcRowData> rows = data.getRows();
       PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
 
       while (rows.hasNext()) {
-        PSJdbcRowData row = (PSJdbcRowData) rows.next();
+        PSJdbcRowData row = rows.next();
         String url = getColumnValueNullable(table, col, row);
         if (url != null && url.trim().length() != 0) {
           String appName = dbmsHelper.getColumnAppName(table, col, row);
@@ -893,16 +893,16 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
       PSJdbcTableData data, String tableName, String idColumn, PSIdMapping mapping)
       throws PSDeployException {
     // get the source row
-    List tgtRowList = new ArrayList();
-    Iterator rows = data.getRows();
+    List<PSJdbcRowData> tgtRowList = new ArrayList<>();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     if (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the id as we go
-      List tgtColList = new ArrayList();
-      Iterator srcCols = srcRow.getColumns();
+      List<PSJdbcColumnData> tgtColList = new ArrayList<>();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         if (mapping == null) {
           tgtColList.add(col);
         } else {
@@ -936,12 +936,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getDependecyDataFiles(PSArchiveHandler archive, PSDependency dep)
-      throws PSDeployException {
+  protected Iterator<PSDependencyFile> getDependecyDataFiles(
+      PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -1211,15 +1211,14 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     if (childDepType == null || childDepType.trim().length() == 0)
       throw new IllegalArgumentException("childDepType may not be null or empty");
 
-    Iterator childIDs = getChildPairIdsFromTable(table, childIdCol, parentIdCol, parentId);
+    Iterator<String> childIDs =
+        getChildPairIdsFromTable(table, childIdCol, parentIdCol, parentId);
 
     List<PSDependency> childDeps = getDepsFromIds(childIDs, childDepType, tok);
 
     // set dependency scope if needed
     if (childDepScope != -1) {
-      Iterator deps = childDeps.iterator();
-      while (deps.hasNext()) {
-        PSDependency dep = (PSDependency) deps.next();
+      for (PSDependency dep : childDeps) {
         dep.setDependencyType(childDepScope);
       }
     }
@@ -1242,7 +1241,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    *     null</code>, but may be empty.
    * @throws PSDeployException if any error occurs.
    */
-  protected Iterator getChildPairIdsFromTable(
+  protected Iterator<String> getChildPairIdsFromTable(
       String table, String childIdCol, String parentIdCol, String parentId)
       throws PSDeployException {
     if (table == null || table.trim().length() == 0)
@@ -1265,12 +1264,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     Set<String> ids = new HashSet<>();
 
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
+      Iterator<PSJdbcRowData> rows = data.getRows();
       String childId;
       String depId;
       PSJdbcRowData row;
       while (rows.hasNext()) {
-        row = (PSJdbcRowData) rows.next();
+        row = rows.next();
         childId = dbmsHelper.getColumnString(table, childIdCol, row);
         parentId = dbmsHelper.getColumnString(table, parentIdCol, row);
         depId = PSPairDependencyId.getPairDependencyId(parentId, childId);

@@ -103,16 +103,16 @@ public class PSDependencyValidator {
     // validate local dependencies of any referenced elements at the end to
     // ensure that if the same dependency occurs elsewhere in the tree, it
     // is properly validated first.
-    Iterator deps = m_depElem.getDependencies();
+    Iterator<PSDependency> deps = m_depElem.getDependencies();
     if (deps != null) {
       while (deps.hasNext() && !m_ctx.getJobHandle().isCancelled()) {
-        validateDependency((PSDependency) deps.next());
+        validateDependency(deps.next());
       }
     }
 
-    Iterator locals = m_localDeps.iterator();
+    Iterator<PSDependency> locals = m_localDeps.iterator();
     while (locals.hasNext() && !m_ctx.getJobHandle().isCancelled()) {
-      validateDependency((PSDependency) locals.next());
+      validateDependency(locals.next());
     }
 
     return m_results;
@@ -220,10 +220,10 @@ public class PSDependencyValidator {
    */
   private void validateChildDependencies(PSDependency dep)
       throws PSDeployException, PSNotFoundException {
-    Iterator deps = dep.getDependencies();
+    Iterator<PSDependency> deps = dep.getDependencies();
     if (deps != null) {
       while (deps.hasNext() && !m_ctx.getJobHandle().isCancelled()) {
-        validateDependency((PSDependency) deps.next());
+        validateDependency(deps.next());
       }
     }
   }
