@@ -66,7 +66,8 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
 
   // see base class method for details
   public PSProcessRequestResult executeProcess(
-      String procName, Map extraParams, int wait, boolean terminate) throws PSProcessException {
+      String procName, Map<String, String> extraParams, int wait, boolean terminate)
+      throws PSProcessException {
     Document request = null;
     Document resultDoc = null;
     try {
@@ -75,7 +76,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
           request, new PSProcessRequest(procName, wait, terminate, extraParams).toXml(request));
 
       StringBuilder result = new StringBuilder();
-      List params = new ArrayList();
+      List<Object> params = new ArrayList<>();
       params.add(PSXmlDocumentBuilder.toString(request));
       PSProcessDaemon.sendCommand(
           m_server, m_port, PSProcessDaemon.CMD_EXEC_PROCESS, params, result);
@@ -96,7 +97,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
     Document resultDoc = null;
     try {
       StringBuilder result = new StringBuilder();
-      List params = new ArrayList();
+      List<Object> params = new ArrayList<>();
       params.add(String.valueOf(handle));
       params.add(String.valueOf(wait));
       PSProcessDaemon.sendCommand(
@@ -119,7 +120,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
     }
     try {
       StringBuilder result = new StringBuilder();
-      List params = new ArrayList();
+      List<Object> params = new ArrayList<>();
       String virtualPath = convertPath(path);
       params.add(virtualPath);
       int resultCode =
@@ -139,7 +140,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
     }
     try {
       StringBuilder result = new StringBuilder();
-      List params = new ArrayList();
+      List<Object> params = new ArrayList<>();
       String virtualPath = convertPath(path);
       params.add(virtualPath);
       int resultCode =
@@ -158,7 +159,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
     }
     try {
       StringBuilder result = new StringBuilder();
-      List params = new ArrayList();
+      List<Object> params = new ArrayList<>();
       String virtualPath = convertPath(path);
       params.add(virtualPath);
       int resultCode =
@@ -176,7 +177,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
       throw new IllegalArgumentException("path cannot be null");
     }
     StringBuilder result = new StringBuilder();
-    List params = new ArrayList();
+    List<Object> params = new ArrayList<>();
     String virtualPath = convertPath(path);
     params.add(virtualPath);
     if (content == null) content = "";
@@ -193,7 +194,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
       throw new IllegalArgumentException("path cannot be null");
     }
     StringBuilder result = new StringBuilder();
-    List params = new ArrayList();
+    List<Object> params = new ArrayList<>();
     String virtualPath = convertPath(path);
     params.add(virtualPath);
     if (src == null) src = new ByteArrayInputStream(new byte[0]);
@@ -210,7 +211,7 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
       throw new IllegalArgumentException("path cannot be null");
     }
     StringBuilder result = new StringBuilder();
-    List params = new ArrayList();
+    List<Object> params = new ArrayList<>();
     String virtualPath = convertPath(path);
     params.add(virtualPath);
     int resultCode =

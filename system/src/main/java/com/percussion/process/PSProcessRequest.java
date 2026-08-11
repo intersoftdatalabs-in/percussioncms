@@ -20,7 +20,6 @@ import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,7 +40,7 @@ public class PSProcessRequest {
    * @param terminate Whether to terminate.
    * @param processEnv The process environment variables.
    */
-  public PSProcessRequest(String name, int wait, boolean terminate, Map processEnv) {
+  public PSProcessRequest(String name, int wait, boolean terminate, Map<?, ?> processEnv) {
     if (null == name || name.trim().length() == 0) {
       throw new IllegalArgumentException("name cannot be null or empty");
     }
@@ -127,7 +126,7 @@ public class PSProcessRequest {
    * @return Each entry has a key as <code>String</code> and a value as <code>String</code>. Never
    *     <code>null</code>, may be empty. No <code>null</code> or empty keys or values.
    */
-  public Map getParams() {
+  public Map<String, String> getParams() {
     return m_params;
   }
 
@@ -146,12 +145,10 @@ public class PSProcessRequest {
     root.setAttribute(TERMINATE_ATTR, String.valueOf(m_terminate));
     if (m_params.size() > 0) {
       Element paramsEl = PSXmlDocumentBuilder.addElement(doc, root, PARAMS_ELEM, null);
-      Iterator params = m_params.keySet().iterator();
-      while (params.hasNext()) {
-        String name = (String) params.next();
+      for (Map.Entry<String, String> entry : m_params.entrySet()) {
         Element paramEl =
-            PSXmlDocumentBuilder.addElement(doc, paramsEl, PARAM_ELEM, (String) m_params.get(name));
-        paramEl.setAttribute(PARAM_NAME_ATTR, name);
+            PSXmlDocumentBuilder.addElement(doc, paramsEl, PARAM_ELEM, entry.getValue());
+        paramEl.setAttribute(PARAM_NAME_ATTR, entry.getKey());
       }
     }
     return root;
@@ -185,17 +182,14 @@ public class PSProcessRequest {
    * </code> on each key and value and validates that they are not empty. <code>null</code> keys and
    *     values are skipped.
    */
-  private void setParams(Map params) {
-    if (null == params || params.size() == 0) return;
-    Iterator paramsIt = params.keySet().iterator();
-    while (paramsIt.hasNext()) {
-      Object o = paramsIt.next();
-      if (null != o) {
-        String name = o.toString();
-        o = params.get(name);
-        if (null != o) {
-          m_params.put(name, o.toString());
-        }
+  private void setParams(Map<?, ?> params) {
+    if (null == params || params.isEmpty()) return;
+    for (Map.Entry<?, ?> entry : params.entrySet()) {
+      Object key = entry.getKey();
+      Object value = entry.getValue();
+      if (null != key && null != value) {
+        // Match historic behavior: toString both sides; skip only nulls.
+        m_params.put(key.toString(), value.toString());
       }
     }
   }
@@ -216,7 +210,7 @@ public class PSProcessRequest {
    * Container for parameter defs. Each entry is a non-<code>null</code>, non- empty <code>String
    * </code>, <code>String</code>. Entries added in ctor then never modified.
    */
-  private Map m_params = new HashMap();
+  private final Map<String, String> m_params = new HashMap<>();
 
   // xml element/attribute constants
   static final String XML_NODE_NAME = "PSXProcessRequest";

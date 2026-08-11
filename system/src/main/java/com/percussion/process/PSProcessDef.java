@@ -20,7 +20,6 @@ package com.percussion.process;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -71,15 +70,13 @@ public class PSProcessDef {
     if (tmp.trim().length() < 1)
       throw new PSProcessException("supported OS may not be null or empty");
 
-    List list = new ArrayList();
+    List<String> list = new ArrayList<>();
     StringTokenizer st = new StringTokenizer(tmp.trim(), ",", false);
     while (st.hasMoreTokens()) list.add(st.nextToken().trim());
 
     m_supportedOS = new int[list.size()];
-    Iterator it = list.iterator();
     int index = 0;
-    while (it.hasNext()) {
-      String strOS = (String) it.next();
+    for (String strOS : list) {
       int iOS = PSProcessManager.getOSType(strOS);
       m_supportedOS[index] = iOS;
       index++;
@@ -121,7 +118,7 @@ public class PSProcessDef {
    * @throws PSResolveException if any error occurs resolving the working directory
    * @throws PSProcessException if the resolver cannot be obtained
    */
-  public File getWorkingDir(Map ctx) throws PSResolveException, PSProcessException {
+  public File getWorkingDir(Map<String, ?> ctx) throws PSResolveException, PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
 
     File dir = null;
@@ -142,7 +139,7 @@ public class PSProcessDef {
    * @throws PSResolveException if any error occurs resolving the executable
    * @throws PSProcessException if the resolver cannot be obtained
    */
-  public String getExecutable(Map ctx) throws PSResolveException, PSProcessException {
+  public String getExecutable(Map<String, ?> ctx) throws PSResolveException, PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
 
     return getResolvedValue(m_execValue, ctx);
@@ -157,12 +154,13 @@ public class PSProcessDef {
    * @throws PSResolveException if any error occurs resolving the command parameters
    * @throws PSProcessException if the resolver cannot be obtained
    */
-  public String[] getCommandParams(Map ctx) throws PSResolveException, PSProcessException {
+  public String[] getCommandParams(Map<String, ?> ctx)
+      throws PSResolveException, PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
 
     if (m_cmdParams == null) return null;
 
-    List cmdList = new ArrayList();
+    List<String> cmdList = new ArrayList<>();
     String param = "";
     boolean isGroup = false;
     for (int i = 0; i < m_cmdParams.length; i++) {
@@ -224,9 +222,7 @@ public class PSProcessDef {
     }
 
     // Create return array and fill it
-    String[] rval = (String[]) cmdList.toArray(new String[cmdList.size()]);
-
-    return rval;
+    return cmdList.toArray(new String[0]);
   }
 
   /**
@@ -240,10 +236,10 @@ public class PSProcessDef {
    * @throws PSResolveException if any error occurs resolving the environment parameters
    * @throws PSProcessException if a resolver cannot be obtained.
    */
-  public String[] getEnvParams(Map ctx) throws PSResolveException, PSProcessException {
+  public String[] getEnvParams(Map<String, ?> ctx) throws PSResolveException, PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
 
-    List cmdList = new ArrayList();
+    List<String> cmdList = new ArrayList<>();
     String[] cmdArray = null;
     if (m_envParams != null) {
       for (int i = 0; i < m_envParams.length; i++) {
@@ -254,7 +250,7 @@ public class PSProcessDef {
               m_envParams[i].getName() + "=" + getResolvedValue(m_envParams[i].getValue(), ctx));
         }
       }
-      cmdArray = (String[]) cmdList.toArray(new String[cmdList.size()]);
+      cmdArray = cmdList.toArray(new String[0]);
     }
 
     return cmdArray;
@@ -269,7 +265,8 @@ public class PSProcessDef {
    * @throws PSResolveException If there is an error resolving the value.
    * @throws PSProcessException If there is an error creating the resolver.
    */
-  private String getResolvedValue(PSResolvableValue val, Map ctx) throws PSProcessException {
+  private String getResolvedValue(PSResolvableValue val, Map<String, ?> ctx)
+      throws PSProcessException {
     IPSVariableResolver resolver = createResolver(val);
     return resolver.getValue(val.getValue(), ctx);
   }
@@ -287,20 +284,23 @@ public class PSProcessDef {
     if (resolverClass == null) resolverClass = DEFAULT_RESOLVER;
 
     try {
-
-      IPSVariableResolver varResolver = (IPSVariableResolver) ms_resolvers.get(resolverClass);
+      IPSVariableResolver varResolver = ms_resolvers.get(resolverClass);
       if (varResolver == null) {
-        varResolver = (IPSVariableResolver) Class.forName(resolverClass).newInstance();
+        varResolver =
+            (IPSVariableResolver)
+                Class.forName(resolverClass).getDeclaredConstructor().newInstance();
         ms_resolvers.put(resolverClass, varResolver);
       }
 
       return varResolver;
     } catch (ClassNotFoundException cls) {
       throw new PSProcessException("Class not found exception: " + cls.getLocalizedMessage());
-    } catch (IllegalAccessException iae) {
-      throw new PSProcessException("Illegal access exception: " + iae.getLocalizedMessage());
-    } catch (InstantiationException ins) {
-      throw new PSProcessException("Class not found exception: " + ins.getLocalizedMessage());
+    } catch (ReflectiveOperationException roe) {
+      throw new PSProcessException(
+          "Unable to instantiate resolver "
+              + resolverClass
+              + ": "
+              + roe.getLocalizedMessage());
     }
   }
 
@@ -313,10 +313,9 @@ public class PSProcessDef {
    * @throws PSProcessException if the element is invalid
    */
   private PSParamDef[] createParams(Element childEl) throws PSProcessException {
-    List list = new ArrayList();
+    List<PSParamDef> list = new ArrayList<>();
     NodeList nl = childEl.getChildNodes();
     int length = nl.getLength();
-    ;
     for (int i = 0; i < length; i++) {
       Node node = nl.item(i);
       if (node instanceof Element) {
@@ -339,7 +338,7 @@ public class PSProcessDef {
       }
     }
 
-    return (PSParamDef[]) list.toArray(new PSParamDef[list.size()]);
+    return list.toArray(new PSParamDef[0]);
   }
 
   /**
@@ -388,7 +387,7 @@ public class PSProcessDef {
    * IPSVariableResolver</code>. Never <code>null</code>, entries are added by calls to {@link
    * #createResolver(PSResolvableValue)}.
    */
-  private static Map ms_resolvers = new ConcurrentHashMap();
+  private static final Map<String, IPSVariableResolver> ms_resolvers = new ConcurrentHashMap<>();
 
   /** Constant for the default resolver class. */
   public static final String DEFAULT_RESOLVER = "com.percussion.process.PSLiteralResolver";

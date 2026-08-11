@@ -30,7 +30,7 @@ public class PSEnvironmentResolver extends PSBasicResolver {
    *
    * @param ctx Unused.
    */
-  public String resolve(String var, Map ctx) throws PSResolveException {
+  public String resolve(String var, Map<String, ?> ctx) throws PSResolveException {
     // suppress eclipse warning
     if (null == ctx)
       ;

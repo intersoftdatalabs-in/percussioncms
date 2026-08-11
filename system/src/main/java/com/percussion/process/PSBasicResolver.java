@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PSBasicResolver implements IPSVariableResolver {
   // see interface
-  public String getValue(String value, Map ctx) throws PSResolveException {
+  public String getValue(String value, Map<String, ?> ctx) throws PSResolveException {
     if (null == value) value = "";
 
     if (null == ctx) {
@@ -46,7 +46,7 @@ public class PSBasicResolver implements IPSVariableResolver {
    *     </code>. Each entry has <code>String</code> keys which are case-sensitive to template
    *     variabled and values are <code>toString</code>'d.
    */
-  protected String resolve(String template, Map ctx) throws PSResolveException {
+  protected String resolve(String template, Map<String, ?> ctx) throws PSResolveException {
     if (null == ctx) {
       throw new IllegalArgumentException("context cannot be null");
     }

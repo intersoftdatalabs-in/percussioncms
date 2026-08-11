@@ -57,7 +57,8 @@ public interface IPSCommandHandler {
    *     If the return code is not 0, the exception text includes the console output.
    */
   public PSProcessRequestResult executeProcess(
-      String procName, Map extraParams, int wait, boolean terminate) throws PSProcessException;
+      String procName, Map<String, String> extraParams, int wait, boolean terminate)
+      throws PSProcessException;
 
   /**
    * Method will not return until the process associated with the supplied handle has finished.

@@ -117,7 +117,7 @@ public class PSProcessManager {
       throw new IllegalArgumentException("process name may not be null or empty");
     }
 
-    return (IPSProcess) m_processMap.get(processName);
+    return m_processMap.get(processName);
   }
 
   /**
@@ -210,7 +210,7 @@ public class PSProcessManager {
    * Stores the process definitions, initialized in the ctor, never <code>null</code> or modified
    * after that.
    */
-  private Map m_processMap = new HashMap();
+  private final Map<String, IPSProcess> m_processMap = new HashMap<>();
 
   /**
    * Stores the current Operating System, initialized in the static initializer, never modified

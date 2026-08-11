@@ -43,5 +43,5 @@ public interface IPSVariableResolver {
    * @return the resolved string, may be empty, never <code>null</code>
    * @throws PSResolveException if any error occurs resolving the specified string
    */
-  public String getValue(String value, Map ctx) throws PSResolveException;
+  public String getValue(String value, Map<String, ?> ctx) throws PSResolveException;
 }
