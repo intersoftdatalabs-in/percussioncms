@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -313,7 +313,7 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
       field = (PSItemField) m_fieldNameFieldMap.get(attrName);
       if (field == null) {
         Object[] args = {PSItemFieldMeta.EL_FIELD_META, attrName, PSItemFieldMeta.ATTR_NAME};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
       field.loadXmlData(el);
 

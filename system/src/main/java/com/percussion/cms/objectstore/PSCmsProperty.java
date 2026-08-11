@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -283,7 +283,7 @@ public abstract class PSCmsProperty extends PSDbComponent {
     if (values.isEmpty()) {
       // Class-derived node name during construction (no virtual getNodeName / this-escape).
       String[] args = {nodeNameFor(getClass()), "Value", "missing node"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // Direct single-value assign — avoid overridable setValues during construction (this-escape).

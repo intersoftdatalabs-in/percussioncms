@@ -26,7 +26,7 @@ import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSInternalRequestCallException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSObjectException;
 import com.percussion.design.objectstore.PSProcessCheck;
@@ -153,7 +153,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
 
         if (!canClone(data)) {
           // the current object does not allow cloning
-          throw new PSObjectException(IPSObjectStoreErrors.OBJECT_CLONING_NOT_ALLOWED, "item");
+          throw new PSObjectException(ObjectStoreErrorCodes.OBJECT_CLONING_NOT_ALLOWED, "item");
         }
 
         /*

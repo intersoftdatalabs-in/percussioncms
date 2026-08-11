@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSException;
@@ -135,11 +135,11 @@ public final class PSSite extends PSComponent {
   public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(source.getNodeName())) {
       Object[] args = {XML_NODE_NAME, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     super.fromXml(source);
@@ -147,7 +147,7 @@ public final class PSSite extends PSComponent {
     m_name = source.getAttribute(NAME_ATTR);
     if (m_name == null || m_name.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, NAME_ATTR, m_name};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     // FB: RV_RETURN_VALUE_IGNORED NC 1-17-16
     m_name = m_name.trim();
@@ -174,7 +174,7 @@ public final class PSSite extends PSComponent {
     }
     if (!isValid(test, VALID_STATES)) {
       Object[] args = {XML_NODE_NAME, STATE_ATTR, m_state};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_folderRoot = source.getAttribute(FOLDERROOT_ATTR);

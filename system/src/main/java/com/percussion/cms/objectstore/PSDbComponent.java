@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
@@ -366,7 +366,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
     }
     if (!found) {
       String[] args = {nodeName, XML_ATTR_STATE, strState};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     setStateInternal(i - 1);
   }

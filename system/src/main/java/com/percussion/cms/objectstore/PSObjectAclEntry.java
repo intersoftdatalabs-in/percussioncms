@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -320,7 +320,7 @@ public final class PSObjectAclEntry extends PSDbComponent {
       m_type = Integer.parseInt(temp);
     } catch (Exception ex) {
       Object[] args = {XML_NODE_NAME, XML_ATTR_TYPE, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     validateType(m_type);
@@ -331,7 +331,7 @@ public final class PSObjectAclEntry extends PSDbComponent {
       m_permissions = Integer.parseInt(temp);
     } catch (Exception ex) {
       Object[] args = {XML_NODE_NAME, XML_ATTR_PERMISSIONS, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // child elements
@@ -340,7 +340,7 @@ public final class PSObjectAclEntry extends PSDbComponent {
     temp = PSXmlTreeWalker.getElementData(el);
     if ((temp == null) || (temp.trim().length() < 1)) {
       Object[] args = {el.getTagName(), "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_name = temp.trim();
   }

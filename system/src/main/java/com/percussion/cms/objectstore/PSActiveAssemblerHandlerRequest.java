@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -181,7 +181,7 @@ public final class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
     // make sure we got the correct root node tag
     if (!getNodeName().equals(source.getNodeName())) {
       Object[] args = {getNodeName(), source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(source);

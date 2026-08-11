@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -141,11 +141,11 @@ public final class PSRelationshipInfo implements IPSCmsComponent {
   // See IPSCmsComponent interface
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     int firstFlags =
@@ -159,19 +159,19 @@ public final class PSRelationshipInfo implements IPSCmsComponent {
     m_name = tree.getElementData(NAME_ATTR);
     if (m_name == null || m_name.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, NAME_ATTR, "null or empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_label = tree.getElementData(LABEL_ATTR);
     if (m_label == null || m_label.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, LABEL_ATTR, "null or empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_category = tree.getElementData(CATEGORY_ATTR);
     if (m_category == null || m_category.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, CATEGORY_ATTR, "null or empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // OPTIONAL: Description element

@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -136,7 +136,7 @@ public class PSFolderAcl extends PSObjectAcl {
       return Integer.parseInt(temp);
     } catch (Exception ex) {
       Object[] args = {src.getNodeName(), attrName, temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
   }
 

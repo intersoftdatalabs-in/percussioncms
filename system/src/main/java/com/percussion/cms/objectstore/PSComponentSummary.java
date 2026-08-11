@@ -16,6 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
@@ -971,7 +972,7 @@ public final class PSComponentSummary extends PSDbComponent implements Serializa
     if (!found) {
       String[] args = {"PSXComponentSummary", XML_ATTR_STATE, strState};
       throw new PSUnknownNodeTypeException(
-          com.percussion.design.objectstore.IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     setState(i - 1);
   }

@@ -30,7 +30,7 @@ import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.data.PSMimeContentResult;
 import com.percussion.design.objectstore.IPSBackEndMapping;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSApplicationFlow;
@@ -801,7 +801,7 @@ public class PSContentEditorHandler
         if (locator == null) {
           // throw validation error!
           throw new PSSystemValidationException(
-              IPSObjectStoreErrors.CE_MISSING_FIELD_ELEMENT,
+              ObjectStoreErrorCodes.CE_MISSING_FIELD_ELEMENT,
               new Object[] {field.getSubmitName(), PSField.DATA_LOCATOR_ELEM});
         }
 

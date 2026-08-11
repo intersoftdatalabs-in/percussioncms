@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -395,7 +395,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
 
     if (elDis == null) {
       Object[] args = {getNodeName(), XML_NODE_DISPLAYNAME, "missing"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strDisplayName = PSXmlTreeWalker.getElementData(elDis);
@@ -405,7 +405,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
 
     if (elInternal == null) {
       Object[] args = {getNodeName(), XML_NODE_INTERNALNAME, "missing"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strInternalName = PSXmlTreeWalker.getElementData(elInternal);
@@ -415,7 +415,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
 
     if (elParentCat == null) {
       Object[] args = {getNodeName(), XML_NODE_PARENTCATEGORY, "missing"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     try {
@@ -423,7 +423,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
       setParentCategory(Integer.parseInt(strVal), false);
     } catch (NumberFormatException ex) {
       Object[] args = {getNodeName(), XML_NODE_PARENTCATEGORY, ex.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Element elDisplayFormat = tree.getNextElement(XML_NODE_DF);
@@ -431,7 +431,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
 
     if (elDisplayFormat == null) {
       Object[] args = {getNodeName(), XML_NODE_DF, "missing"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     m_strDisplayId = PSXmlTreeWalker.getElementData(elDisplayFormat);
@@ -487,7 +487,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
 
     if (elVersion == null) {
       Object[] args = {getNodeName(), XML_NODE_VERSION, "missing"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     try {
@@ -495,7 +495,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
       setVersion(Integer.parseInt(strVal));
     } catch (NumberFormatException ex) {
       Object[] args = {getNodeName(), XML_NODE_VERSION, ex.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // Load the columns (optional)
@@ -508,7 +508,7 @@ public final class PSSearch extends PSVersionableDbComponent implements IPSCatal
         m_fields = new PSSFields();
       } catch (PSCmsException ex) {
         Object[] args = {getNodeName(), PSSFields.XML_NODE_NAME, ex.getLocalizedMessage()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 

@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -387,11 +387,11 @@ public final class PSCloningOptions extends PSComponent {
   public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(source.getNodeName())) {
       Object[] args = {XML_NODE_NAME, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_type = toInteger(source.getAttribute(TYPE_ATTR), ms_typeNames, TYPE_ATTR);
@@ -402,7 +402,7 @@ public final class PSCloningOptions extends PSComponent {
     String folderName = source.getAttribute(FOLDER_NAME_ATTR);
     if (folderName == null || folderName.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, FOLDER_NAME_ATTR, folderName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_folderName = folderName;
 
@@ -429,7 +429,7 @@ public final class PSCloningOptions extends PSComponent {
           sourceId = Integer.parseInt(src);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, SOURCEID_ATTR, src};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         int targetId = 0;
@@ -438,7 +438,7 @@ public final class PSCloningOptions extends PSComponent {
           targetId = Integer.parseInt(tgt);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, TARGETID_ATTR, tgt};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         m_communityMappings.put(Integer.valueOf(sourceId), Integer.valueOf(targetId));
@@ -459,7 +459,7 @@ public final class PSCloningOptions extends PSComponent {
           sourceId = Integer.parseInt(src);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, SOURCEID_ATTR, src};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         int targetId = 0;
@@ -468,7 +468,7 @@ public final class PSCloningOptions extends PSComponent {
           targetId = Integer.parseInt(tgt);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, TARGETID_ATTR, tgt};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         m_siteMappings.put(Integer.valueOf(sourceId), Integer.valueOf(targetId));
@@ -552,7 +552,7 @@ public final class PSCloningOptions extends PSComponent {
     }
 
     Object[] args = {XML_NODE_NAME, attrName, value};
-    throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+    throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
   }
 
   /**

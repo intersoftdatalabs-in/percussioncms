@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -36,6 +37,16 @@ public class PSObjectException extends PSException {
   }
 
   /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSObjectException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
    * Pass-through constructor to super class.
    *
    * @see PSException#PSException(int,Object[])
@@ -45,11 +56,30 @@ public class PSObjectException extends PSException {
   }
 
   /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSObjectException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * Pass-through constructor to super class.
    *
    * @see PSException#PSException(int)
    */
   public PSObjectException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSObjectException(IPSErrorCode code) {
+    super(code);
   }
 }
