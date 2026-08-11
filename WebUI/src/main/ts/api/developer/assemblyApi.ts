@@ -30,6 +30,99 @@ import type {
   TemplateSummary,
 } from "./types";
 
+/**
+ * Jackson {@code @JsonRootName} / WRAP_ROOT_VALUE root for {@code TemplateDetail}.
+ * REST {@code JacksonContextResolver} wraps single-object responses and requires
+ * the same envelope on PUT (UNWRAP_ROOT_VALUE). Without client unwrap, the SPA
+ * reads {@code d.templateSource} on the outer object and the Source editor is
+ * always empty (#3039).
+ */
+export const TEMPLATE_DETAIL_ROOT = "TemplateDetail";
+
+/** Jackson root for {@code SlotDetail} (same WRAP/UNWRAP contract as templates). */
+export const SLOT_DETAIL_ROOT = "SlotDetail";
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/**
+ * Normalize a templates GET/PUT response to a flat {@link TemplateDetail}.
+ *
+ * <p>Prefers {@code { "TemplateDetail": { … } }}; also accepts a flat body
+ * (unit tests / proxies that already unwrapped).
+ */
+export function unwrapTemplateDetail(payload: unknown): TemplateDetail {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[TEMPLATE_DETAIL_ROOT] ?? root.templateDetail);
+  if (nested) {
+    return nested as TemplateDetail;
+  }
+  // Flat body: only treat as detail when it looks like one (has template identity
+  // or source/bindings fields). Bare error envelopes stay empty.
+  if (
+    "name" in root ||
+    "templateId" in root ||
+    "templateSource" in root ||
+    "label" in root ||
+    "bindings" in root
+  ) {
+    return root as TemplateDetail;
+  }
+  return {};
+}
+
+/**
+ * Build the wire JSON body for TemplatesResource PUT under
+ * {@link TEMPLATE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE
+ * (same class as UserPreference #2708).
+ */
+export function wrapTemplateDetailForWire(
+  body: Partial<
+    Pick<
+      TemplateDetail,
+      "label" | "description" | "templateSource" | "assembler" | "bindings" | "slots"
+    >
+  >,
+): Record<string, typeof body> {
+  return { [TEMPLATE_DETAIL_ROOT]: body };
+}
+
+/**
+ * Normalize a slots GET/PUT response to a flat {@link SlotDetail}.
+ */
+export function unwrapSlotDetail(payload: unknown): SlotDetail {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[SLOT_DETAIL_ROOT] ?? root.slotDetail);
+  if (nested) {
+    return nested as SlotDetail;
+  }
+  if ("name" in root || "label" in root || "associations" in root || "slotLayout" in root) {
+    return root as SlotDetail;
+  }
+  return {};
+}
+
+/**
+ * Wire JSON body for SlotsResource PUT under {@link SLOT_DETAIL_ROOT}.
+ */
+export function wrapSlotDetailForWire(
+  body: Partial<
+    Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">
+  >,
+): Record<string, typeof body> {
+  return { [SLOT_DETAIL_ROOT]: body };
+}
+
 function asArray<T>(payload: unknown, keys: string[]): T[] {
   if (payload == null) return [];
   if (Array.isArray(payload)) return payload as T[];
@@ -58,19 +151,22 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
  * GET /services/templates/{idOrName}
  *
  * <p>Throws {@link ApiError} / {@link SessionRedirectError} on non-2xx (including 404).
- * Callers should not treat a successful response as nullable.
+ * Unwraps Jackson {@link TEMPLATE_DETAIL_ROOT} so callers bind {@code templateSource}
+ * and meta fields from a flat object (#3039).
  */
 export async function getTemplateDetail(
   idOrName: string,
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);
-  return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
+  const payload = await get<unknown>(`${PATHS.TEMPLATES}/${key}`);
+  return unwrapTemplateDetail(payload);
 }
 
 /**
  * PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots.
  * Omitted fields are left unchanged server-side; {@code bindings}/{@code slots} when present
- * fully replace the collection (including empty list).
+ * fully replace the collection (including empty list). Request body is root-wrapped for
+ * server UNWRAP_ROOT_VALUE; response is unwrapped the same way as GET.
  */
 export async function updateTemplateDetail(
   idOrName: string,
@@ -82,7 +178,11 @@ export async function updateTemplateDetail(
   >,
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);
-  return put<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`, body);
+  const payload = await put<unknown>(
+    `${PATHS.TEMPLATES}/${key}`,
+    wrapTemplateDetailForWire(body),
+  );
+  return unwrapTemplateDetail(payload);
 }
 
 /** GET /services/slots */
@@ -91,19 +191,27 @@ export async function listSlots(): Promise<SlotSummary[]> {
   return asArray<SlotSummary>(payload, ["Slot", "slot", "SlotList"]);
 }
 
-/** GET /services/slots/{idOrName} */
+/** GET /services/slots/{idOrName} — unwraps {@link SLOT_DETAIL_ROOT}. */
 export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
-  return get<SlotDetail>(`${PATHS.SLOTS}/${key}`);
+  const payload = await get<unknown>(`${PATHS.SLOTS}/${key}`);
+  return unwrapSlotDetail(payload);
 }
 
-/** PUT /services/slots/{idOrName} — label, description, optional associations replace */
+/**
+ * PUT /services/slots/{idOrName} — label, description, optional associations replace.
+ * Root-wraps request body; unwraps response.
+ */
 export async function updateSlotDetail(
   idOrName: string,
   body: Partial<Pick<SlotDetail, "label" | "description" | "associations" | "slotLayout" | "slotStyles">>,
 ): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
-  return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);
+  const payload = await put<unknown>(
+    `${PATHS.SLOTS}/${key}`,
+    wrapSlotDetailForWire(body),
+  );
+  return unwrapSlotDetail(payload);
 }
 
 /** GET /services/communities/find?name=* */

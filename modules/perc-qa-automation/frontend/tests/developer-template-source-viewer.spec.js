@@ -15,16 +15,17 @@
  */
 
 /**
- * Developer template detail — source viewer (UI-SRC-01 / #2088).
+ * Developer template detail — source viewer (UI-SRC-01 / #2088) + load binding (#3039).
  *
- * Asserts line-number gutter, copy control, and edit/preview chrome on the
- * template detail panel after opening the first catalog row.
+ * Asserts line-number gutter, copy control, edit/preview chrome, and that
+ * non-empty server templateSource is bound into the Source editor (Jackson
+ * WRAP_ROOT_VALUE unwrap — #3039).
  *
- * Live run requires a CMS with at least one template. Blocked on H2 qa-up
- * (#2065) / related stack issues until automation env is available.
+ * Live run requires a CMS with at least one template. Prefer QA mode:
+ *   perc-devctl qa-up → TEST_CMS_URL → npm run test:surface -- --path tests/developer-template-source-viewer.spec.js
  *
  * Entry: spa.jsp?entry=developer&section=templates
- * Refs #2088, #1690.
+ * Refs #2088, #1690, #3039.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -88,7 +89,37 @@ test.describe("Developer template source viewer (#2088 UI-SRC-01)", () => {
       openBtn,
       "first template row should expose Open control when selectionKey is set",
     ).toBeVisible({ timeout: 5_000 });
+
+    // Capture detail GET (idOrName path segment) to assert UI binds templateSource (#3039).
+    const detailResponsePromise = page.waitForResponse(
+      (r) => {
+        if (r.request().method() !== "GET" || !r.ok()) return false;
+        try {
+          const u = new URL(r.url());
+          // /services/templates/{idOrName} — not the list endpoint
+          return /\/services\/templates\/[^/]+$/.test(u.pathname);
+        } catch {
+          return false;
+        }
+      },
+      { timeout: 30_000 },
+    );
+
     await openBtn.click();
+
+    let serverSource = "";
+    try {
+      const detailResp = await detailResponsePromise;
+      const raw = await detailResp.json();
+      const body =
+        raw && typeof raw === "object"
+          ? raw.TemplateDetail || raw.templateDetail || raw
+          : {};
+      serverSource =
+        typeof body.templateSource === "string" ? body.templateSource : "";
+    } catch {
+      // Non-JSON or aborted — fall through; chrome assertions still run
+    }
 
     await expect(
       page.locator('[data-testid="developer-tpl-detail"]'),
@@ -107,10 +138,17 @@ test.describe("Developer template source viewer (#2088 UI-SRC-01)", () => {
       page.locator('[data-testid="developer-tpl-source-ln-1"]'),
     ).toBeVisible();
 
-    // Edit surface by default
-    await expect(
-      page.locator('[data-testid="developer-tpl-source-edit"]'),
-    ).toBeVisible();
+    // Edit surface by default — must mirror server source when non-empty (#3039)
+    const sourceEdit = page.locator(
+      '[data-testid="developer-tpl-source-edit"]',
+    );
+    await expect(sourceEdit).toBeVisible();
+    if (serverSource.length > 0) {
+      await expect(
+        sourceEdit,
+        "Source editor must load non-empty templateSource from GET (#3039)",
+      ).toHaveValue(serverSource);
+    }
 
     // Copy control present; grant clipboard permissions when possible
     const copyBtn = page.locator('[data-testid="developer-tpl-source-copy"]');

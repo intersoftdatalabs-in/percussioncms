@@ -18,6 +18,7 @@
 package com.percussion.rest.templates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,11 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only assembly template design summary for the Developer module.
+ * Assembly template design detail for the Developer / Design modules.
  *
- * <p>Does not support create/update/delete/lock or full source editing.
+ * <p>Jackson {@code WRAP_ROOT_VALUE}/{@code UNWRAP_ROOT_VALUE} (see {@code
+ * JacksonContextResolver}) emits and expects wire shape {@code {"TemplateDetail":{…}}}. SPA
+ * clients must unwrap GET responses and wrap PUT bodies or {@code templateSource} / meta fields
+ * appear empty (issue #3039).
  */
 @XmlRootElement(name = "TemplateDetail")
+@JsonRootName("TemplateDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Template detail with bindings, slots, and partial write support")
 public class TemplateDetail {
