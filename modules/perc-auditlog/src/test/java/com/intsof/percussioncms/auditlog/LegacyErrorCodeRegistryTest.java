@@ -72,6 +72,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
+
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
@@ -1594,5 +1595,154 @@ class LegacyErrorCodeRegistryTest {
     // SystemService not flat-registered:
     assertSame(
         WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchCCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2321));
+    assertSame(
+        ObjectStoreErrorCodes.COND_VALUE_NULL, LegacyErrorCodeRegistry.find(2321).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2350));
+    assertSame(
+        ObjectStoreErrorCodes.SRV_ROOT_TOO_BIG, LegacyErrorCodeRegistry.find(2350).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2377));
+    assertSame(
+        ObjectStoreErrorCodes.NO_JNDI_DATASOURCE, LegacyErrorCodeRegistry.find(2377).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2380));
+    assertSame(
+        ObjectStoreErrorCodes.APP_LOGIN_PAGE_NOT_SUPPORTED,
+        LegacyErrorCodeRegistry.find(2380).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchCNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.NO_DATASOURCE_CONNECTION.numericCode(),
+            AuditContext.empty(),
+            "jndi",
+            "db",
+            "origin");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void objectStoreBatchDCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2401));
+    assertSame(
+        ObjectStoreErrorCodes.FIELD_NAME_NOT_UNIQUE,
+        LegacyErrorCodeRegistry.find(2401).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2450));
+    assertSame(
+        ObjectStoreErrorCodes.SYSTEM_TABLE_NOT_FOUND,
+        LegacyErrorCodeRegistry.find(2450).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2466));
+    assertSame(
+        ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME,
+        LegacyErrorCodeRegistry.find(2466).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2475));
+    assertSame(
+        ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR,
+        LegacyErrorCodeRegistry.find(2475).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchDNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME.numericCode(),
+            AuditContext.empty(),
+            "fieldName");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void registryCoversObjectStoreBatchAThroughC() {
+    // Prior catalogs (~380+) plus ObjectStore A+B+C (157 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 530);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2261).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2320).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2321).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2350).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2357).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2380).isPresent());
+    // Design still owns 2327 / 2351-2356
+    assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
+  }
+
+@Test
+  void registryCoversObjectStoreBatchAThroughD() {
+    // Prior catalogs (~380+) plus ObjectStore A+B+C+D (232 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 600);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2380).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2401).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2450).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2475).isPresent());
+    // Design still owns ACL ints
+    assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchECodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2801));
+    assertSame(
+        ObjectStoreErrorCodes.METHOD_NOT_SUPPORTED,
+        LegacyErrorCodeRegistry.find(2801).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2812));
+    assertSame(
+        ObjectStoreErrorCodes.LOCK_ALREADY_HELD, LegacyErrorCodeRegistry.find(2812).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2826));
+    assertSame(
+        ObjectStoreErrorCodes.HANDLER_IO_ERROR, LegacyErrorCodeRegistry.find(2826).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2848));
+    assertSame(
+        ObjectStoreErrorCodes.LOOKUP_TABLE_INFO_NULL,
+        LegacyErrorCodeRegistry.find(2848).orElseThrow());
+  }
+
+@Test
+  void objectStoreBatchENonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.HANDLER_UNEXPECTED_EXCEPTION.numericCode(),
+            AuditContext.empty(),
+            "detail");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+@Test
+  void registryCoversObjectStoreBatchAThroughE() {
+    // Prior catalogs (~380+) plus ObjectStore A+B+C+D+E (280 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 650);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2475).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2801).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2812).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2848).isPresent());
+    // Design still owns ACL ints
+    assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
   }
 }

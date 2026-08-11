@@ -141,6 +141,10 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 10001, ctx); // util Base64 — no
 LegacyErrorCodeRegistry.logIfAuditable(audit, 6001, ctx); // system XML dump — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 18252, ctx); // site manage bad site — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 2011, ctx); // objectstore XML null — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2380, ctx); // objectstore app login page — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2475, ctx); // objectstore CE choice filter — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2801, ctx); // objectstore handler method not supported — non-auditable skip
+LegacyErrorCodeRegistry.logIfAuditable(audit, 2848, ctx); // objectstore lookup table info null — non-auditable skip
 ```
 
 | Catalog | Ranges | Notes |

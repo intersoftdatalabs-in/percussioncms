@@ -25,7 +25,7 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
 /**
  * Object-store error catalog bridging legacy {@code
  * com.percussion.design.objectstore.IPSObjectStoreErrors} general + PSObjectStore + object-store
- * structure / validation ints (batches A–B).
+ * structure / validation / handler ints (batches A–E; complete residual catalog).
  *
  * <p><strong>Batch A scope</strong> (issue #2898):
  *
@@ -45,6 +45,36 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       backend conn / login webpage / logger / notifier recipients / update-pipe sync (60 codes)
  * </ul>
  *
+ * <p><strong>Batch C scope</strong> (issue #2912):
+ *
+ * <ul>
+ *   <li>{@code 2321–2330} (skip Design {@code 2327}) — conditionals / UDF / tank joins / data mapping
+ *       / cache age / sync columns / XML param / relationship / macro (9 codes)
+ *   <li>{@code 2350} — server request root length
+ *   <li>{@code 2357–2380} (skip Design {@code 2351–2356}) — app version / Java exit / datasets /
+ *       request roots / extension call / query pipe / custom error URL / subject type / app roles /
+ *       database functions / JDBC-JNDI datasource / legacy app login/creds (24 codes)
+ * </ul>
+ *
+ * <p><strong>Batch D scope</strong> (issue #2917):
+ *
+ * <ul>
+ *   <li>{@code 2401–2475} — content-editor structure cluster: field/fieldset uniqueness and
+ *       types, choices/sort, shared def, application flow / command-handler stylesheets and
+ *       redirects, mapper/pipe/control refs, display mapping, table locator/set, UI definition,
+ *       form action links, CE merge/override/shared-group validation, choice-filter dependents
+ *       (75 codes; no Design collisions)
+ * </ul>
+ *
+ * <p><strong>Batch E scope</strong> (issue #2918):
+ *
+ * <ul>
+ *   <li>{@code 2801–2848} — object-store handler residual: app load/find, server/user config,
+ *       app files/dirs/streams/IO, exclusive locks, request handler IO/properties, validation
+ *       unexpected, character/feature-set load, role cfg, DB components, CE choice validation
+ *       warnings, lookup table info (48 codes; max legacy {@code IPSObjectStoreErrors} constant)
+ * </ul>
+ *
  * <p><strong>Collision / ownership notes:</strong>
  *
  * <ul>
@@ -54,9 +84,8 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       ints so Design keeps flat-registry ownership.
  *   <li>{@link ContentErrorCodes} lifecycle ints {@code 2001–2006} are intentionally outside
  *       objectstore general range (objectstore starts at {@code 2011}).
- *   <li>Remaining objectstore ranges after batch B: {@code 2321–2330} (skip Design {@code 2327}),
- *       {@code 2350}, {@code 2357–2380+}, content-editor {@code 2401–2500}, handlers {@code 2801–3000}
- *       → residual batch C+.
+ *   <li>After batch E there is <strong>zero</strong> remaining {@code IPSObjectStoreErrors}
+ *       residual: 280 ObjectStore + 18 Design-owned ACL = 298 legacy constants.
  * </ul>
  *
  * <p>Every constant in this catalog sets {@link #isAuditable()} to {@code false}: XML parse /
@@ -1048,7 +1077,1263 @@ public enum ObjectStoreErrorCodes implements SystemErrorCode {
       null,
       AuditOutcome.UNKNOWN,
       "Updatepipe No Sync Types",
-      "Updatepipe No Sync Types");
+      "Updatepipe No Sync Types"),
+
+  COND_VALUE_NULL(
+      2321,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Cond Value Null",
+      "Cond Value Null"),
+
+  UDFCALL_EXIT_UNDEFINED(
+      2322,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Udfcall Exit Undefined",
+      "Udfcall Exit Undefined"),
+
+  BE_TANK_JOINS_REQUIRED(
+      2323,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Be Tank Joins Required",
+      "Be Tank Joins Required"),
+
+  DATAMAPPING_GROUP_ID_INVALID(
+      2324,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Datamapping Group Id Invalid",
+      "Datamapping Group Id Invalid"),
+
+  DATASEL_CACHE_AGE_TIME_REQUIRED(
+      2325,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Datasel Cache Age Time Required",
+      "Datasel Cache Age Time Required"),
+
+  SYNC_NO_UPDATE_COLUMNS(
+      2326,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Sync No Update Columns",
+      "Sync No Update Columns"),
+
+  XML_PARAM_INVALID(
+      2328,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Xml Param Invalid",
+      "Xml Param Invalid"),
+
+  RELATIONSHIP_PROPERTY_NAME_EMPTY(
+      2329,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Relationship Property Name Empty",
+      "Relationship Property Name Empty"),
+
+  MACRO_NAME_EMPTY(
+      2330,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Macro Name Empty",
+      "Macro Name Empty"),
+
+  SRV_ROOT_TOO_BIG(
+      2350,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Srv Root Too Big",
+      "Srv Root Too Big"),
+
+  APP_VERSION_INVALID(
+      2357,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Version Invalid",
+      "App Version Invalid"),
+
+  JAVA_EXIT_HANDLER_NULL(
+      2358,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Java Exit Handler Null",
+      "Java Exit Handler Null"),
+
+  JAVA_EXIT_HANDLER_NULL_PARAM_DEF(
+      2359,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Java Exit Handler Null Param Def",
+      "Java Exit Handler Null Param Def"),
+
+  APP_NO_DATASETS(
+      2360,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App No Datasets",
+      "App No Datasets"),
+
+  APP_REQUEST_ROOTS_DUP(
+      2361,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Request Roots Dup",
+      "App Request Roots Dup"),
+
+  APP_DATASET_NAMES_DUP(
+      2362,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Dataset Names Dup",
+      "App Dataset Names Dup"),
+
+  EXT_CALL_PARAM_VALUE_NULL(
+      2363,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ext Call Param Value Null",
+      "Ext Call Param Value Null"),
+
+  HETERO_NATIVE_SELECT_NOT_SUPPORTED(
+      2364,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Hetero Native Select Not Supported",
+      "Hetero Native Select Not Supported"),
+
+  QPIPE_DATA_SELECTOR_NULL(
+      2365,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Qpipe Data Selector Null",
+      "Qpipe Data Selector Null"),
+
+  CUSTOM_ERROR_URL_INVALID(
+      2366,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Custom Error Url Invalid",
+      "Custom Error Url Invalid"),
+
+  DATASET_XMLFIELD_MULTI_LINK_ERROR(
+      2367,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Dataset Xmlfield Multi Link Error",
+      "Dataset Xmlfield Multi Link Error"),
+
+  SUBJECT_TYPE_INVALID(
+      2368,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Subject Type Invalid",
+      "Subject Type Invalid"),
+
+  APP_ROLES_NOT_SUPPORTED(
+      2369,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Roles Not Supported",
+      "App Roles Not Supported"),
+
+  DATABASE_FUNCTION_CALL_PARAM_COUNT_MISMATCH(
+      2370,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Call Param Count Mismatch",
+      "Database Function Call Param Count Mismatch"),
+
+  DATABASE_FUNCTION_PARAM_VALUE_NULL(
+      2371,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Param Value Null",
+      "Database Function Param Value Null"),
+
+  DATABASE_FUNCTION_DEFINITION_NOT_FOUND(
+      2372,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Definition Not Found",
+      "Database Function Definition Not Found"),
+
+  UNSUPPORTED_DATABASE_FUNCTION_PARAMETER_TYPE(
+      2373,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Database Function Parameter Type",
+      "Unsupported Database Function Parameter Type"),
+
+  DATABASE_FUNCTION_PARSE_ERROR(
+      2374,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Database Function Parse Error",
+      "Database Function Parse Error"),
+
+  REQUEST_NAME_DUP(
+      2375,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Request Name Dup",
+      "Request Name Dup"),
+
+  NO_JDBC_DRIVER_CONFIG(
+      2376,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Jdbc Driver Config",
+      "No Jdbc Driver Config"),
+
+  NO_JNDI_DATASOURCE(
+      2377,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Jndi Datasource",
+      "No Jndi Datasource"),
+
+  NO_DATASOURCE_CONNECTION(
+      2378,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "No Datasource Connection",
+      "No Datasource Connection"),
+
+  APP_BACKEND_CREDS_NOT_SUPPORTED(
+      2379,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Backend Creds Not Supported",
+      "App Backend Creds Not Supported"),
+
+  APP_LOGIN_PAGE_NOT_SUPPORTED(
+      2380,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Login Page Not Supported",
+      "App Login Page Not Supported"),
+
+  FIELD_NAME_NOT_UNIQUE(
+      2401,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Field Name Not Unique",
+      "Field Name Not Unique"),
+
+  UNSUPPORTED_FIELD_TYPE(
+      2402,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Type",
+      "Unsupported Field Type"),
+
+  UNSUPPORTED_OCCURRENCE_DIMENSION(
+      2403,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Occurrence Dimension",
+      "Unsupported Occurrence Dimension"),
+
+  UNSUPPORTED_OCCURRENCE_MULTI_VALUED_TYPE(
+      2404,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Occurrence Multi Valued Type",
+      "Unsupported Occurrence Multi Valued Type"),
+
+  INVALID_CONTENT_TYPE(
+      2405,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Type",
+      "Invalid Content Type"),
+
+  INVALID_WORKFLOW_ID(
+      2406,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Workflow Id",
+      "Invalid Workflow Id"),
+
+  INVALID_CONTENT_EDITOR_SHARED_DEF(
+      2407,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Shared Def",
+      "Invalid Content Editor Shared Def"),
+
+  UNSUPPORTED_CHOICE_TYPE(
+      2408,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Choice Type",
+      "Unsupported Choice Type"),
+
+  UNSUPPORTED_SORT_ORDER(
+      2409,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Sort Order",
+      "Unsupported Sort Order"),
+
+  INVALID_GLOBAL_TABLE_ID(
+      2410,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Global Table Id",
+      "Invalid Global Table Id"),
+
+  LOCAL_CHOICES_NULL_OR_EMPTY(
+      2411,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Local Choices Null Or Empty",
+      "Local Choices Null Or Empty"),
+
+  LOOKUP_CHOICES_NULL(
+      2412,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lookup Choices Null",
+      "Lookup Choices Null"),
+
+  INVALID_APPLICATION_FLOW(
+      2413,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Application Flow",
+      "Invalid Application Flow"),
+
+  INVALID_COMMAND_HANDLER_STYLESHEETS(
+      2414,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Command Handler Stylesheets",
+      "Invalid Command Handler Stylesheets"),
+
+  INVALID_CONDITIONAL_EXIT(
+      2415,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Exit",
+      "Invalid Conditional Exit"),
+
+  INVALID_CONDITIONAL_REQUEST(
+      2416,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Request",
+      "Invalid Conditional Request"),
+
+  INVALID_CONDITIONAL_STYLESHEET(
+      2417,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Conditional Stylesheet",
+      "Invalid Conditional Stylesheet"),
+
+  INVALID_CONTAINER_LOCATOR(
+      2418,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Container Locator",
+      "Invalid Container Locator"),
+
+  INVALD_COMMAND_HANDLER_REFERENCE(
+      2419,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invald Command Handler Reference",
+      "Invald Command Handler Reference"),
+
+  INVALD_REDIRECT(
+      2420,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invald Redirect",
+      "Invald Redirect"),
+
+  INVALID_COMMAND_HANDLER_REDIRECTS(
+      2421,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Command Handler Redirects",
+      "Invalid Command Handler Redirects"),
+
+  INVALID_URL_REQUEST(
+      2422,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Url Request",
+      "Invalid Url Request"),
+
+  INVALID_CONTENT_EDITOR_MAPPER(
+      2423,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Mapper",
+      "Invalid Content Editor Mapper"),
+
+  INVALID_CONTENT_EDITOR_PIPE(
+      2424,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Content Editor Pipe",
+      "Invalid Content Editor Pipe"),
+
+  INVALID_CONTROL_REF(
+      2425,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Control Ref",
+      "Invalid Control Ref"),
+
+  UNSUPPORTED_DEFAULT_SELECTED_TYPE(
+      2426,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Default Selected Type",
+      "Unsupported Default Selected Type"),
+
+  INVALID_DEFAULT_SELECTED(
+      2427,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Default Selected",
+      "Invalid Default Selected"),
+
+  UNSUPPORTED_FIELD_SET_TYPE(
+      2428,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Set Type",
+      "Unsupported Field Set Type"),
+
+  UNSUPPORTED_FIELD_SET_REPEATABILITY(
+      2429,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Field Set Repeatability",
+      "Unsupported Field Set Repeatability"),
+
+  INVALID_FIELD_SET_NAME(
+      2430,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field Set Name",
+      "Invalid Field Set Name"),
+
+  INVALID_DISPLAY_MAPPER(
+      2431,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Mapper",
+      "Invalid Display Mapper"),
+
+  INVALID_DISPLAY_MAPPING(
+      2432,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Mapping",
+      "Invalid Display Mapping"),
+
+  INVALID_DISPLAY_TEXT(
+      2433,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Display Text",
+      "Invalid Display Text"),
+
+  INVALID_ENTRY(
+      2434,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Entry",
+      "Invalid Entry"),
+
+  INVALID_FIELD(
+      2435,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field",
+      "Invalid Field"),
+
+  INVALID_FIELD_TRANSLATION(
+      2436,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Field Translation",
+      "Invalid Field Translation"),
+
+  UNSUPPORTED_INCLUDE_WHEN(
+      2437,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Include When",
+      "Unsupported Include When"),
+
+  INVALID_PARAM(
+      2438,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Param",
+      "Invalid Param"),
+
+  INVALID_SHARED_FIELD_GROUP(
+      2439,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Shared Field Group",
+      "Invalid Shared Field Group"),
+
+  INVALID_STYLESHEET(
+      2440,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Stylesheet",
+      "Invalid Stylesheet"),
+
+  INVALID_TABLE_LOCATOR(
+      2441,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Locator",
+      "Invalid Table Locator"),
+
+  INVALID_TABLE_REF(
+      2442,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Ref",
+      "Invalid Table Ref"),
+
+  INVALID_TABLE_SET(
+      2443,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Table Set",
+      "Invalid Table Set"),
+
+  INVALID_UI_DEFINITION(
+      2444,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Ui Definition",
+      "Invalid Ui Definition"),
+
+  UNSUPPORTED_DATA_HIDING(
+      2445,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Unsupported Data Hiding",
+      "Unsupported Data Hiding"),
+
+  INVALID_FORM_ACTION(
+      2446,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Form Action",
+      "Invalid Form Action"),
+
+  INVALID_ACTION_LINK(
+      2447,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Action Link",
+      "Invalid Action Link"),
+
+  INVALID_LOCATION(
+      2448,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Location",
+      "Invalid Location"),
+
+  INVALID_CUSTOM_ACTION_GROUP(
+      2449,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Custom Action Group",
+      "Invalid Custom Action Group"),
+
+  SYSTEM_TABLE_NOT_FOUND(
+      2450,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "System Table Not Found",
+      "System Table Not Found"),
+
+  CE_INCORRECT_FIELD_COUNT(
+      2451,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Incorrect Field Count",
+      "Ce Incorrect Field Count"),
+
+  CE_CANNOT_HAVE_FIELDSETS(
+      2452,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Cannot Have Fieldsets",
+      "Ce Cannot Have Fieldsets"),
+
+  CE_NOT_EXIST_TABLES(
+      2453,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Not Exist Tables",
+      "Ce Not Exist Tables"),
+
+  CREATE_TABLE_EXISTS(
+      2454,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Create Table Exists",
+      "Create Table Exists"),
+
+  CE_SYSTEM_DEF_NOT_FOUND(
+      2455,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce System Def Not Found",
+      "Ce System Def Not Found"),
+
+  CE_SHARED_DEF_NOT_FOUND(
+      2456,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Def Not Found",
+      "Ce Shared Def Not Found"),
+
+  CE_MISSING_FIELD_ELEMENT(
+      2457,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Field Element",
+      "Ce Missing Field Element"),
+
+  CE_INCLUDED_GROUP_INVALID(
+      2458,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Included Group Invalid",
+      "Ce Included Group Invalid"),
+
+  CE_SHARED_GROUP_NO_DEF(
+      2459,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Group No Def",
+      "Ce Shared Group No Def"),
+
+  CE_SHARED_EXCLUDE_INVALID(
+      2460,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Shared Exclude Invalid",
+      "Ce Shared Exclude Invalid"),
+
+  CE_SYSTEM_EXCLUDE_INVALID(
+      2461,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce System Exclude Invalid",
+      "Ce System Exclude Invalid"),
+
+  CE_EXCLUDED_FIELD_MISSING(
+      2462,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Excluded Field Missing",
+      "Ce Excluded Field Missing"),
+
+  CE_MAPPING_INVALID_CHILD(
+      2463,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Child",
+      "Ce Mapping Invalid Child"),
+
+  CE_MAPPING_INVALID_CHILD_FIELDS(
+      2464,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Child Fields",
+      "Ce Mapping Invalid Child Fields"),
+
+  CE_MAPPING_INVALID_DEFAULT_UISET(
+      2465,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Mapping Invalid Default Uiset",
+      "Ce Mapping Invalid Default Uiset"),
+
+  CE_DUPLICATE_MERGED_FIELD_NAME(
+      2466,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Duplicate Merged Field Name",
+      "Ce Duplicate Merged Field Name"),
+
+  CE_INVALID_FIELD_OVERRIDE(
+      2467,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Invalid Field Override",
+      "Ce Invalid Field Override"),
+
+  CE_UNUSED_MAPPER(
+      2468,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Unused Mapper",
+      "Ce Unused Mapper"),
+
+  CE_INVALID_SHARED_FIELDSET_TYPE(
+      2469,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Invalid Shared Fieldset Type",
+      "Ce Invalid Shared Fieldset Type"),
+
+  CE_MISSING_OR_INVALID_CHILD_DISPLAY_MAPPING(
+      2470,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Or Invalid Child Display Mapping",
+      "Ce Missing Or Invalid Child Display Mapping"),
+
+  CE_GROUPNAME_AND_FIELDSETNAME_MUST_MATCH(
+      2471,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Groupname And Fieldsetname Must Match",
+      "Ce Groupname And Fieldsetname Must Match"),
+
+  CE_FIELDSETNAME_AND_FIELDSETREF_MUST_MATCH(
+      2472,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Fieldsetname And Fieldsetref Must Match",
+      "Ce Fieldsetname And Fieldsetref Must Match"),
+
+  CE_MISSING_CHILD_DISPLAY_MAPPING(
+      2473,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Ce Missing Child Display Mapping",
+      "Ce Missing Child Display Mapping"),
+
+  CHOICE_FILTER_MISSING_REQUIRED_CHILD(
+      2474,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Choice Filter Missing Required Child",
+      "Choice Filter Missing Required Child"),
+
+  CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR(
+      2475,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Choice Filter Dependent Field Missing Attr",
+      "Choice Filter Dependent Field Missing Attr"),
+
+  METHOD_NOT_SUPPORTED(
+      2801,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Method Not Supported",
+      "Method Not Supported"),
+
+  APP_NOT_FOUND(
+      2802,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Not Found",
+      "App Not Found"),
+
+  APP_NAME_ALREADY_EXISTS(
+      2803,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Name Already Exists",
+      "App Name Already Exists"),
+
+  APP_LOAD_EXCEPTION(
+      2804,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Load Exception",
+      "App Load Exception"),
+
+  SERVER_CFG_NOT_FOUND(
+      2805,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Server Cfg Not Found",
+      "Server Cfg Not Found"),
+
+  SERVER_CFG_LOAD_EXCEPTION(
+      2806,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Server Cfg Load Exception",
+      "Server Cfg Load Exception"),
+
+  USER_CFG_NOT_FOUND(
+      2807,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "User Cfg Not Found",
+      "User Cfg Not Found"),
+
+  USER_CFG_LOAD_EXCEPTION(
+      2808,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "User Cfg Load Exception",
+      "User Cfg Load Exception"),
+
+  APP_FILE_NOT_FOUND(
+      2809,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Not Found",
+      "App File Not Found"),
+
+  APP_DIR_NOT_FOUND(
+      2810,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Dir Not Found",
+      "App Dir Not Found"),
+
+  APP_FILE_MKSUBDIR_ERROR(
+      2811,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Mksubdir Error",
+      "App File Mksubdir Error"),
+
+  LOCK_ALREADY_HELD(
+      2812,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Already Held",
+      "Lock Already Held"),
+
+  LOCK_WAIT_INTERRUPTED(
+      2813,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Wait Interrupted",
+      "Lock Wait Interrupted"),
+
+  LOCK_BAD_KEY(
+      2814,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Key",
+      "Lock Bad Key"),
+
+  LOCK_BAD_LOCKER_ID(
+      2815,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Locker Id",
+      "Lock Bad Locker Id"),
+
+  LOCK_BAD_EXPIRATION(
+      2816,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Expiration",
+      "Lock Bad Expiration"),
+
+  LOCK_BAD_OBJECT(
+      2817,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Object",
+      "Lock Bad Object"),
+
+  LOCK_BAD_TYPE(
+      2818,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Type",
+      "Lock Bad Type"),
+
+  APP_FILE_NAME_NULL(
+      2819,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Name Null",
+      "App File Name Null"),
+
+  APP_FILE_STREAM_NULL(
+      2820,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Stream Null",
+      "App File Stream Null"),
+
+  APP_FILE_STREAM_EXHAUSTED(
+      2821,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Stream Exhausted",
+      "App File Stream Exhausted"),
+
+  APP_FILE_IO_ERROR(
+      2822,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Io Error",
+      "App File Io Error"),
+
+  REQ_UNKNOWN_TYPE(
+      2823,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Req Unknown Type",
+      "Req Unknown Type"),
+
+  REQ_DOCUMENT_NULL(
+      2824,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Req Document Null",
+      "Req Document Null"),
+
+  APP_ROOT_RENAME_FAILED(
+      2825,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Root Rename Failed",
+      "App Root Rename Failed"),
+
+  HANDLER_IO_ERROR(
+      2826,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Io Error",
+      "Handler Io Error"),
+
+  APP_FILE_ROOT_MISMATCH(
+      2827,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Root Mismatch",
+      "App File Root Mismatch"),
+
+  HANDLER_PROPERTIES_NULL(
+      2828,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Properties Null",
+      "Handler Properties Null"),
+
+  HANDLER_OBJECTDIR_INVALID(
+      2829,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Objectdir Invalid",
+      "Handler Objectdir Invalid"),
+
+  HANDLER_UNEXPECTED_EXCEPTION(
+      2830,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Unexpected Exception",
+      "Handler Unexpected Exception"),
+
+  VALIDATION_UNEXPECTED_EXCEPTION(
+      2831,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Validation Unexpected Exception",
+      "Validation Unexpected Exception"),
+
+  LOCK_CORRUPT_LOCKFILE(
+      2832,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Corrupt Lockfile",
+      "Lock Corrupt Lockfile"),
+
+  LOCK_IO_EXCEPTION(
+      2833,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Io Exception",
+      "Lock Io Exception"),
+
+  LOCK_ALREADY_HELD_SAME_USER(
+      2834,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Already Held Same User",
+      "Lock Already Held Same User"),
+
+  DOC_CONVERSION_FAILED(
+      2835,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Doc Conversion Failed",
+      "Doc Conversion Failed"),
+
+  APP_MAPPER_EMPTY(
+      2836,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Mapper Empty",
+      "App Mapper Empty"),
+
+  CHARACTER_SET_MAP_NOT_FOUND(
+      2837,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Character Set Map Not Found",
+      "Character Set Map Not Found"),
+
+  CHARACTER_SET_LOAD_EXCEPTION(
+      2838,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Character Set Load Exception",
+      "Character Set Load Exception"),
+
+  FEATURE_SET_LOAD_EXCEPTION(
+      2839,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Feature Set Load Exception",
+      "Feature Set Load Exception"),
+
+  LOCK_NOT_HELD(
+      2840,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Not Held",
+      "Lock Not Held"),
+
+  ROLE_CFG_LOAD_EXCEPTION(
+      2841,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Role Cfg Load Exception",
+      "Role Cfg Load Exception"),
+
+  DB_COMPONENT_NEW_ID(
+      2842,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Db Component New Id",
+      "Db Component New Id"),
+
+  DB_COMPONENT_LOAD_EXCEPTION(
+      2843,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Db Component Load Exception",
+      "Db Component Load Exception"),
+
+  RELATED_DB_COMPONENT_LOAD_EXCEPTION(
+      2844,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Related Db Component Load Exception",
+      "Related Db Component Load Exception"),
+
+  DUPLICATE_SHARED_FIELD_VALIDATION_WARNING(
+      2845,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Duplicate Shared Field Validation Warning",
+      "Duplicate Shared Field Validation Warning"),
+
+  INVALID_CE_FIELD_CHOICES_ERROR(
+      2846,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Ce Field Choices Error",
+      "Invalid Ce Field Choices Error"),
+
+  APP_FILE_EXISTS_RENAME_ERROR(
+      2847,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Exists Rename Error",
+      "App File Exists Rename Error"),
+
+  LOOKUP_TABLE_INFO_NULL(
+      2848,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lookup Table Info Null",
+      "Lookup Table Info Null");
 
   private final int numericCode;
   private final boolean auditable;

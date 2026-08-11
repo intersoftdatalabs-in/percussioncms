@@ -35,14 +35,14 @@ class ObjectStoreErrorCodesTest {
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertEquals(AuditModule.DESN, code.module());
       assertTrue(code.numericCode() >= 2011, code.name());
-      assertTrue(code.numericCode() <= 2320, code.name());
+      assertTrue(code.numericCode() <= 2848, code.name());
       assertTrue(seen.add(code.numericCode()), "duplicate numeric: " + code.numericCode());
       assertNotNull(code.userMessageTemplate());
       assertNotNull(code.logMessageTemplate());
       assertTrue(code.qualifiedCode().startsWith("DESN-"));
     }
-    // Batch A (63) + batch B (60) = 123 non-colliding IPSObjectStoreErrors ints.
-    assertEquals(123, ObjectStoreErrorCodes.values().length);
+    // Batch A (63) + B (60) + C (34) + D (75) + E (48) = 280 non-colliding IPSObjectStoreErrors ints.
+    assertEquals(280, ObjectStoreErrorCodes.values().length);
   }
 
   @Test
@@ -71,6 +71,30 @@ class ObjectStoreErrorCodesTest {
     assertEquals(2294, ObjectStoreErrorCodes.LITERAL_DATE_INVALID.numericCode());
     assertEquals(2309, ObjectStoreErrorCodes.JDBC_DRIVER_CLASS_LOAD_ERROR.numericCode());
     assertEquals(2320, ObjectStoreErrorCodes.UPDATEPIPE_NO_SYNC_TYPES.numericCode());
+    // Batch C anchors
+    assertEquals(2321, ObjectStoreErrorCodes.COND_VALUE_NULL.numericCode());
+    assertEquals(2328, ObjectStoreErrorCodes.XML_PARAM_INVALID.numericCode());
+    assertEquals(2330, ObjectStoreErrorCodes.MACRO_NAME_EMPTY.numericCode());
+    assertEquals(2350, ObjectStoreErrorCodes.SRV_ROOT_TOO_BIG.numericCode());
+    assertEquals(2357, ObjectStoreErrorCodes.APP_VERSION_INVALID.numericCode());
+    assertEquals(2369, ObjectStoreErrorCodes.APP_ROLES_NOT_SUPPORTED.numericCode());
+    assertEquals(2376, ObjectStoreErrorCodes.NO_JDBC_DRIVER_CONFIG.numericCode());
+    assertEquals(2380, ObjectStoreErrorCodes.APP_LOGIN_PAGE_NOT_SUPPORTED.numericCode());
+    // Batch D anchors (content-editor)
+    assertEquals(2401, ObjectStoreErrorCodes.FIELD_NAME_NOT_UNIQUE.numericCode());
+    assertEquals(2410, ObjectStoreErrorCodes.INVALID_GLOBAL_TABLE_ID.numericCode());
+    assertEquals(2425, ObjectStoreErrorCodes.INVALID_CONTROL_REF.numericCode());
+    assertEquals(2450, ObjectStoreErrorCodes.SYSTEM_TABLE_NOT_FOUND.numericCode());
+    assertEquals(2466, ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME.numericCode());
+    assertEquals(2475, ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR.numericCode());
+    // Batch E anchors (handlers)
+    assertEquals(2801, ObjectStoreErrorCodes.METHOD_NOT_SUPPORTED.numericCode());
+    assertEquals(2802, ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode());
+    assertEquals(2812, ObjectStoreErrorCodes.LOCK_ALREADY_HELD.numericCode());
+    assertEquals(2826, ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode());
+    assertEquals(2835, ObjectStoreErrorCodes.DOC_CONVERSION_FAILED.numericCode());
+    assertEquals(2840, ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode());
+    assertEquals(2848, ObjectStoreErrorCodes.LOOKUP_TABLE_INFO_NULL.numericCode());
   }
 
   @Test
@@ -85,6 +109,65 @@ class ObjectStoreErrorCodesTest {
     assertEquals(60, batchB.size());
     for (int expected = 2261; expected <= 2320; expected++) {
       assertTrue(batchB.contains(expected), "missing batch B int " + expected);
+    }
+  }
+
+
+  @Test
+  void batchCMidRangeCodesArePresentAndSkipDesignOwned() {
+    Set<Integer> batchC = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if ((n >= 2321 && n <= 2330) || n == 2350 || (n >= 2357 && n <= 2380)) {
+        batchC.add(n);
+      }
+    }
+    // 9 (2321-2330 skip 2327) + 1 (2350) + 24 (2357-2380) = 34
+    assertEquals(34, batchC.size());
+    for (int expected = 2321; expected <= 2330; expected++) {
+      if (expected == 2327) {
+        assertFalse(batchC.contains(expected), "Design-owned 2327 must not be in ObjectStore");
+        continue;
+      }
+      assertTrue(batchC.contains(expected), "missing batch C int " + expected);
+    }
+    assertTrue(batchC.contains(2350));
+    for (int expected = 2357; expected <= 2380; expected++) {
+      assertTrue(batchC.contains(expected), "missing batch C int " + expected);
+    }
+    for (int designOwned = 2351; designOwned <= 2356; designOwned++) {
+      assertFalse(batchC.contains(designOwned), "Design-owned " + designOwned);
+    }
+  }
+
+  @Test
+  void batchDContentEditorCodesAreContiguousFrom2401Through2475() {
+    Set<Integer> batchD = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if (n >= 2401 && n <= 2475) {
+        batchD.add(n);
+      }
+    }
+    assertEquals(75, batchD.size());
+    for (int expected = 2401; expected <= 2475; expected++) {
+      assertTrue(batchD.contains(expected), "missing batch D int " + expected);
+    }
+  }
+
+
+  @Test
+  void batchEHandlerCodesAreContiguousFrom2801Through2848() {
+    Set<Integer> batchE = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if (n >= 2801 && n <= 2848) {
+        batchE.add(n);
+      }
+    }
+    assertEquals(48, batchE.size());
+    for (int expected = 2801; expected <= 2848; expected++) {
+      assertTrue(batchE.contains(expected), "missing batch E int " + expected);
     }
   }
 
