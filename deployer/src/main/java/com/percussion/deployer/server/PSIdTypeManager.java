@@ -361,9 +361,9 @@ public class PSIdTypeManager {
       if (typeList == null) {
         // not cached, look it up
         typeList = new ArrayList<>();
-        Iterator types = depMgr.getPossibleIdTypes(tok, id);
+        Iterator<PSDependencyDef> types = depMgr.getPossibleIdTypes(tok, id);
         while (types.hasNext()) {
-          PSDependencyDef def = (PSDependencyDef) types.next();
+          PSDependencyDef def = types.next();
           typeList.add(def.getObjectType());
         }
 
@@ -392,11 +392,11 @@ public class PSIdTypeManager {
       PSApplicationIDTypes idTypes, Map<String, IPSExtensionDef> extensionCache) {
     Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getAllMappings(false);
     while (mappings.hasNext()) {
-      PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+      PSApplicationIDTypeMapping mapping = mappings.next();
 
       Iterator<PSApplicationIdContext> contexts = mapping.getContext().getAllContexts();
       while (contexts.hasNext()) {
-        PSApplicationIdContext ctx = (PSApplicationIdContext) contexts.next();
+        PSApplicationIdContext ctx = contexts.next();
         if (!(ctx instanceof PSAppExtensionParamIdContext)) continue;
 
         PSAppExtensionParamIdContext extParamCtx = (PSAppExtensionParamIdContext) ctx;
@@ -424,7 +424,7 @@ public class PSIdTypeManager {
           }
 
           // get the name and set on the ctx
-          Iterator paramNames = def.getRuntimeParameterNames();
+          Iterator<?> paramNames = def.getRuntimeParameterNames();
           int i = 0;
           while (paramNames.hasNext() && i <= index) {
             String name = paramNames.next().toString();
@@ -470,7 +470,7 @@ public class PSIdTypeManager {
     if (usedMappings == null) throw new IllegalArgumentException("usedMappings may not be null");
 
     while (mappings.hasNext()) {
-      PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+      PSApplicationIDTypeMapping mapping = mappings.next();
       PSApplicationIdContext ctx = mapping.getContext();
       PSApplicationIDTypeMapping cur = idTypes.getMapping(resourceName, elementName, ctx);
 
@@ -510,7 +510,7 @@ public class PSIdTypeManager {
         Iterator<PSApplicationIDTypeMapping> mappings =
             idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
           if (usedMappings.getMapping(resource, element, mapping.getContext()) == null) {
             idTypes.removeMapping(resource, element, mapping.getContext());
           }

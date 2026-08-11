@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Dependency class that represents a top-level cms element that may be deployed stand-alone. */
-public class PSDeployableElement extends PSDependency {
+public final class PSDeployableElement extends PSDependency {
 
   /**
    * Convenience ctor that calls <code>this(dependencyType, dependencyId,
@@ -118,7 +118,8 @@ public class PSDeployableElement extends PSDependency {
   public PSDeployableElement(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
 
-    fromXml(src);
+    // final class + direct load; keep private helper for clarity with peer hierarchy
+    readFromXml(src);
   }
 
   /**
@@ -176,6 +177,14 @@ public class PSDeployableElement extends PSDependency {
    */
   @Override
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    readFromXml(sourceNode);
+  }
+
+  /**
+   * Restores state from XML. Private so the Element constructor can call it without a this-escape
+   * via the overridable {@link #fromXml(Element)}.
+   */
+  private void readFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new IllegalArgumentException("sourceNode may not be null");
     }
@@ -191,7 +200,8 @@ public class PSDeployableElement extends PSDependency {
       throw new PSUnknownNodeTypeException(
           IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
     }
-    super.fromXml(dep);
+    // final helper — avoid overridable super.fromXml this-escape from Element ctor
+    restoreDependencyFromXml(dep);
     m_description =
         Optional.ofNullable(tree.getElementData(XML_EL_DESC))
             .orElseThrow(

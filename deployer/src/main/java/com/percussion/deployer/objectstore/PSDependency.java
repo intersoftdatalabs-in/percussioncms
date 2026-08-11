@@ -93,7 +93,8 @@ public abstract class PSDependency
     if (displayName == null || displayName.trim().length() == 0)
       throw new IllegalArgumentException("displayName may not be null or empty");
 
-    setDependencyType(dependencyType);
+    // private helper avoids overridable setDependencyType this-escape
+    applyDependencyType(dependencyType);
     m_dependencyId = dependencyId;
     m_displayName = displayName;
     m_objectType = objectType;
@@ -115,7 +116,8 @@ public abstract class PSDependency
   public PSDependency(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
 
-    fromXml(src);
+    // private helper avoids overridable fromXml this-escape
+    readFromXml(src);
   }
 
   /** Parameterless ctor for use by derived classes only. */
@@ -445,6 +447,16 @@ public abstract class PSDependency
    * @param type One of the <code>TYPE_XXX</code> types.
    */
   public void setDependencyType(int type) {
+    applyDependencyType(type);
+  }
+
+  /**
+   * Applies the dependency type and inclusion side-effects. Private so constructors can call it
+   * without a this-escape via the overridable {@link #setDependencyType(int)}.
+   *
+   * @param type One of the <code>TYPE_XXX</code> types.
+   */
+  private void applyDependencyType(int type) {
     if (!validateType(type)) throw new IllegalArgumentException("invalid type");
 
     m_dependencyType = type;
@@ -1135,6 +1147,29 @@ public abstract class PSDependency
    *     by the class.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    readFromXml(sourceNode);
+  }
+
+  /**
+   * Restores base dependency state from XML. Final so subclass Element constructors can load the
+   * nested {@code PSXDependency} element without a this-escape through overridable {@link
+   * #fromXml(Element)}.
+   *
+   * @param sourceNode the PSXDependency element, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML is malformed.
+   */
+  final void restoreDependencyFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    readFromXml(sourceNode);
+  }
+
+  /**
+   * Restores state from XML. Private so constructors can call it without a this-escape via the
+   * overridable {@link #fromXml(Element)}.
+   *
+   * @param sourceNode the XML element node to populate from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML is malformed.
+   */
+  private void readFromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
@@ -1142,7 +1177,9 @@ public abstract class PSDependency
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
     }
 
-    String sTemp = getRequiredAttribute(sourceNode, XML_ATT_DEPENDENCY_TYPE);
+    // static helper — avoid overridable getRequiredAttribute this-escape from Element ctor
+    String sTemp =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATT_DEPENDENCY_TYPE);
     m_dependencyType = -1;
     for (int i = 0; i < TYPE_ENUM.length && m_dependencyType == -1; i++) {
       if (TYPE_ENUM[i].equals(sTemp)) m_dependencyType = i;
@@ -1152,10 +1189,14 @@ public abstract class PSDependency
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
     }
 
-    m_dependencyId = getRequiredAttribute(sourceNode, XML_ATT_DEPENDENCY_ID);
-    m_displayName = getRequiredAttribute(sourceNode, XML_ATT_DISPLAY_NAME);
-    m_objectType = getRequiredAttribute(sourceNode, XML_ATT_OBJECT_TYPE);
-    m_objectTypeName = getRequiredAttribute(sourceNode, XML_ATT_OBJECT_TYPE_NAME);
+    m_dependencyId =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATT_DEPENDENCY_ID);
+    m_displayName =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATT_DISPLAY_NAME);
+    m_objectType =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATT_OBJECT_TYPE);
+    m_objectTypeName =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATT_OBJECT_TYPE_NAME);
     m_supportsIdTypes = XML_ATT_VAL_TRUE.equals(sourceNode.getAttribute(XML_ATT_SUPPORTS_ID_TYPES));
     m_supportsIdMapping =
         XML_ATT_VAL_TRUE.equals(sourceNode.getAttribute(XML_ATT_SUPPORTS_ID_MAPPING));

@@ -63,7 +63,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   protected PSDescriptor(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
 
-    fromXml(src);
+    // private helper avoids overridable fromXml this-escape
+    readFromXml(src);
   }
 
   /** Parameterless ctor for use by derived classes only. */
@@ -186,6 +187,14 @@ public abstract class PSDescriptor implements IPSDeployComponent {
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
+    readFromXml(sourceNode);
+  }
+
+  /**
+   * Restores descriptor fields from XML. Private so constructors can call it without a this-escape
+   * via the overridable {@link #fromXml(Element)}.
+   */
+  private void readFromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
     if (sourceNode == null) {
       throw new IllegalArgumentException("sourceNode may not be null");
     }
