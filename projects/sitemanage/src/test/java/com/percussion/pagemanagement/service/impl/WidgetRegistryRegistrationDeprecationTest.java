@@ -76,18 +76,20 @@ class WidgetRegistryRegistrationDeprecationTest {
         root.resolve(
             "modules/perc-packages/src/main/resources/Packages/perc.widget.registration"
                 + "/percRegistrationAsset.nodeDef.contentType");
-    Path widget =
+    // After #2897 dual-ship stop-ship: widget labels live in modern component-package.json.
+    Path manifest =
         root.resolve(
             "modules/perc-packages/src/main/resources/Packages/perc.widget.registration"
-                + "/sys__UserDependency--rxconfig/Widgets/percRegistration.xml");
+                + "/widgets/percRegistration/component-package.json");
 
     assertTrue(Files.isRegularFile(itemDef), "expected itemDef at " + itemDef.toAbsolutePath());
     assertTrue(Files.isRegularFile(nodeDef), "expected nodeDef at " + nodeDef.toAbsolutePath());
-    assertTrue(Files.isRegularFile(widget), "expected widget xml at " + widget.toAbsolutePath());
+    assertTrue(
+        Files.isRegularFile(manifest), "expected modern package at " + manifest.toAbsolutePath());
 
     String itemText = Files.readString(itemDef, StandardCharsets.UTF_8);
     String nodeText = Files.readString(nodeDef, StandardCharsets.UTF_8);
-    String widgetText = Files.readString(widget, StandardCharsets.UTF_8);
+    String packageJson = Files.readString(manifest, StandardCharsets.UTF_8);
 
     assertTrue(
         itemText.contains("label=\"Registration Asset (Deprecated)\""),
@@ -96,12 +98,13 @@ class WidgetRegistryRegistrationDeprecationTest {
         nodeText.contains("<label>Registration Asset (Deprecated)</label>"),
         "nodeDef label must be Registration Asset (Deprecated)");
     assertTrue(
-        widgetText.contains("title=\"Registration (Deprecated)\""),
+        packageJson.contains("\"title\": \"Registration (Deprecated)\"")
+            || packageJson.contains("\"title\":\"Registration (Deprecated)\""),
         "widget title must be Registration (Deprecated)");
     assertTrue(
-        widgetText.contains(
-                "description=\"Widget to build and render a registration form. (Deprecated)\"")
-            || widgetText.contains("registration form. (Deprecated)"),
+        packageJson.contains(
+                "\"description\": \"Widget to build and render a registration form. (Deprecated)\"")
+            || packageJson.contains("registration form. (Deprecated)"),
         "widget description must include form. (Deprecated) suffix, not only title");
   }
 

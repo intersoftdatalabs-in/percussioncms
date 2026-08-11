@@ -34,22 +34,23 @@ import org.junit.jupiter.api.Test;
  */
 class TwitterSiteTagEmitOnceTest {
 
-  private static final Path WIDGET =
+  private static final Path MANIFEST =
       Path.of(
           "modules/perc-packages/src/main/resources/Packages/perc.twitterSummaryCards"
-              + "/sys__UserDependency--rxconfig/Widgets/percTwitterSummaryCards.xml");
+              + "/widgets/percTwitterSummaryCards/component-package.json");
 
   @Test
   void twitterSiteAppendedExactlyOnce() throws Exception {
     Path root = resolveRepoRoot();
-    Path widget = root.resolve(WIDGET);
-    if (!Files.isRegularFile(widget)) {
-      fail("expected " + widget.toAbsolutePath());
+    Path manifest = root.resolve(MANIFEST);
+    if (!Files.isRegularFile(manifest)) {
+      fail("expected " + manifest.toAbsolutePath());
     }
-    String xml = Files.readString(widget, StandardCharsets.UTF_8);
+    // After #2897 dual-ship stop-ship: assembly Jexl lives in modern component-package.json.
+    String json = Files.readString(manifest, StandardCharsets.UTF_8);
     Pattern append =
         Pattern.compile("setAdditionalHeadContent\\([^)]*meta_sitename", Pattern.MULTILINE);
-    Matcher m = append.matcher(xml);
+    Matcher m = append.matcher(json);
     int count = 0;
     while (m.find()) {
       count++;
@@ -57,8 +58,8 @@ class TwitterSiteTagEmitOnceTest {
     assertEquals(
         1, count, "twitter:site (meta_sitename) must be setAdditionalHeadContent exactly once");
     assertTrue(
-        xml.contains("if(!empty($use_twitter_site))")
-            || xml.contains("if (!empty($use_twitter_site))"),
+        json.contains("if(!empty($use_twitter_site))")
+            || json.contains("if (!empty($use_twitter_site))"),
         "append must be guarded by use_twitter_site");
   }
 
