@@ -237,7 +237,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
     try {
       List<PSSearchResult> searchResultList =
           searchQuery.performSearch(
-              new ArrayList(), searchParams.getFTSQuery(), fieldQueries, props);
+              new ArrayList<>(), searchParams.getFTSQuery(), fieldQueries, props);
 
       Iterator<PSSearchResult> searchResults = searchResultList.iterator();
 

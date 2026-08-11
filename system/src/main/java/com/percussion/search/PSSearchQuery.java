@@ -17,6 +17,7 @@
 
 package com.percussion.search;
 
+import com.percussion.cms.objectstore.PSKey;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,8 @@ public abstract class PSSearchQuery {
    * Convenience method that calls {@link #performSearch(Collection, String, Map, Map)
    * performSearch(ctypeIds, globalQuery, fieldQueries, null)}.
    */
-  public List performSearch(Collection ctypeIds, String globalQuery, Map fieldQueries)
+  public List<PSSearchResult> performSearch(
+      Collection<? extends PSKey> ctypeIds, String globalQuery, Map<String, String> fieldQueries)
       throws PSSearchException {
     return performSearch(ctypeIds, globalQuery, fieldQueries, null);
   }
@@ -94,7 +96,10 @@ public abstract class PSSearchQuery {
    *     -1.
    * @throws PSSearchException If the query cannot be successfully completed for any reason.
    */
-  public abstract List performSearch(
-      Collection ctypeIds, String globalQuery, Map fieldQueries, Map controlProps)
+  public abstract List<PSSearchResult> performSearch(
+      Collection<? extends PSKey> ctypeIds,
+      String globalQuery,
+      Map<String, String> fieldQueries,
+      Map<String, String> controlProps)
       throws PSSearchException;
 }

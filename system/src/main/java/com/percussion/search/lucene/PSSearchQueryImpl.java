@@ -35,7 +35,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -82,28 +81,31 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   @Override
-  public List performSearch(
-      Collection ctypeIds, String globalQuery, Map fieldQueries, Map controlProps)
+  public List<PSSearchResult> performSearch(
+      Collection<? extends PSKey> ctypeIds,
+      String globalQuery,
+      Map<String, String> fieldQueries,
+      Map<String, String> controlProps)
       throws PSSearchException {
     List<PSSearchResult> searchResults = new ArrayList<>();
     // Return empty results if we do not have any thing to search for.
-    if (StringUtils.isBlank(globalQuery) && fieldQueries == null) return searchResults;
+    if (StringUtils.isBlank(globalQuery) && fieldQueries == null) {
+      return searchResults;
+    }
 
     // normalize the param names of the control props
     Map<String, String> props = normalizeMap(controlProps);
-    // set to null to catch incorrect (future) uses below
-    controlProps = null;
 
     // remove our max results prop so it doesn't get set below
-    // default to no limit
-    int maxResults = getIntProp(props, QUERYPROP_MAXRESULTS, -1, 1, Integer.MAX_VALUE);
+    // default to no limit (parsed for API/compat; result capping is caller-side today)
+    getIntProp(props, QUERYPROP_MAXRESULTS, -1, 1, Integer.MAX_VALUE);
 
     List<String> processedIds = new ArrayList<>();
 
     try (MultiReader mr = prepareMultiSearcher(ctypeIds)) {
       if (mr == null) {
         String msg = "Failed to create the index searcher";
-        if (!ctypeIds.isEmpty()) {
+        if (ctypeIds != null && !ctypeIds.isEmpty()) {
           msg += " for the given content types " + ctypeIds;
         }
         msg += ". The content might not have been indexed yet." + " Returning empty results.";
@@ -150,19 +152,19 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   /**
    * Prepares the search query object combining global query with field queries.
    *
-   * @param globalQuery assumed not <code>null</code>.
-   * @param fieldQueries assumed not <code>null</code>.
+   * @param globalQuery may be blank.
+   * @param fieldQueries may be <code>null</code> or empty.
    * @param props assumed not <code>null</code>.
    * @return Combined query of global and field queries.
    * @throws ParseException in case any of the query is not parsable.
    */
-  private Query prepareSearchQuery(String globalQuery, Map fieldQueries, Map props)
+  private Query prepareSearchQuery(
+      String globalQuery, Map<String, String> fieldQueries, Map<String, String> props)
       throws ParseException {
     boolean addGlobalBooleanQR = false;
-    boolean addFullBooleanQR = false;
     Query qr = null;
 
-    String langString = (String) props.get(PSSearchQuery.QUERYPROP_LANGUAGE);
+    String langString = props.get(PSSearchQuery.QUERYPROP_LANGUAGE);
     Analyzer an = PSLuceneAnalyzerFactory.getInstance().getAnalyzer(langString);
 
     if (StringUtils.isNotBlank(globalQuery)) {
@@ -181,18 +183,18 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
       if (qr != null) addGlobalBooleanQR = true;
     }
 
-    Iterator iter = fieldQueries.keySet().iterator();
     BooleanQuery.Builder builder = new BooleanQuery.Builder();
-    while (iter.hasNext()) {
-      String fn = (String) iter.next();
-      String fq = (String) fieldQueries.get(fn);
-      if (StringUtils.isNotBlank(fq)) {
-        QueryParser fqp = new QueryParser(fn, an);
-        // CMS-7921 : The multiple search parameters were overwritten. Only last one was considered
-        // by lucene search query.
-        // The changes in this file in this commit is to fix that.
-        Query query = fqp.parse(fq);
-        builder.add(query, Occur.MUST);
+    if (fieldQueries != null) {
+      for (Map.Entry<String, String> entry : fieldQueries.entrySet()) {
+        String fn = entry.getKey();
+        String fq = entry.getValue();
+        if (StringUtils.isNotBlank(fq)) {
+          QueryParser fqp = new QueryParser(fn, an);
+          // CMS-7921 : The multiple search parameters were overwritten. Only last one was
+          // considered by lucene search query.
+          Query query = fqp.parse(fq);
+          builder.add(query, Occur.MUST);
+        }
       }
     }
 
@@ -209,20 +211,22 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
    *     content types
    * @throws PSSearchException
    */
-  private MultiReader prepareMultiSearcher(Collection<PSKey> ctypeIds) throws PSSearchException {
+  private MultiReader prepareMultiSearcher(Collection<? extends PSKey> ctypeIds)
+      throws PSSearchException {
     MultiReader searcher = null;
     List<IndexReader> isList = new ArrayList<>();
     try {
-      Collection<PSKey> cTypeKeys = ctypeIds;
+      Collection<? extends PSKey> cTypeKeys = ctypeIds;
 
       if (cTypeKeys == null || cTypeKeys.isEmpty()) {
         PSItemDefManager itemMgr = PSItemDefManager.getInstance();
         long[] allCtypeIds = itemMgr.getAllContentTypeIds(PSItemDefManager.COMMUNITY_ANY);
-        cTypeKeys = new ArrayList<>();
+        List<PSKey> allKeys = new ArrayList<>();
         for (long ctypeId : allCtypeIds) {
           PSKey cTypeKey = PSContentType.createKey((int) ctypeId);
-          cTypeKeys.add(cTypeKey);
+          allKeys.add(cTypeKey);
         }
+        cTypeKeys = allKeys;
       }
 
       for (PSKey ctype : cTypeKeys) {
@@ -244,9 +248,9 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
       }
 
       if (!isList.isEmpty())
-        searcher = new MultiReader(isList.toArray(new IndexReader[isList.size()]));
+        searcher = new MultiReader(isList.toArray(new IndexReader[0]));
     } catch (IOException e) {
-      Object[] args = {ctypeIds.toString()};
+      Object[] args = {String.valueOf(ctypeIds)};
       throw new PSSearchException(IPSLuceneErrors.INDEX_IO_EXCEPTION_SEARCHING, e, args);
     }
     return searcher;
@@ -292,8 +296,11 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   private Map<String, String> normalizeMap(Map<String, String> src) {
     Map<String, String> map = new HashMap<>();
     if (null != src) {
-      for (String o : src.keySet()) {
-        map.put((o).toLowerCase(), src.get(o));
+      for (Map.Entry<String, String> entry : src.entrySet()) {
+        String key = entry.getKey();
+        if (key != null) {
+          map.put(key.toLowerCase(), entry.getValue());
+        }
       }
     }
     return map;
@@ -316,19 +323,17 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
    * @return If <code>rangleLow</code> != <code>rangeHi</code>, a value between the two, inclusive,
    *     or the defaultValue. If the ranges are equal, any value is possible.
    */
-  private int getIntProp(Map props, String keyName, int defaultValue, int rangeLow, int rangeHi) {
+  private int getIntProp(
+      Map<String, String> props, String keyName, int defaultValue, int rangeLow, int rangeHi) {
     int result = defaultValue;
-    Object o = props.remove(keyName.toLowerCase());
-    if (null != o) {
-      if (o instanceof Integer) result = ((Integer) o).intValue();
-      else {
-        String val = o.toString().trim();
-        if (val.length() > 0) {
-          try {
-            result = Integer.parseInt(val);
-          } catch (NumberFormatException nfe) {
-            /* ignore, use default */
-          }
+    String val = props.remove(keyName.toLowerCase());
+    if (null != val) {
+      String trimmed = val.trim();
+      if (trimmed.length() > 0) {
+        try {
+          result = Integer.parseInt(trimmed);
+        } catch (NumberFormatException nfe) {
+          /* ignore, use default */
         }
       }
       if (rangeLow != rangeHi && (result < rangeLow || result > rangeHi)) {
@@ -351,19 +356,20 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
    * </code> or empty.
    * @return The found value, if interpretable as a bool, otherwise the defaultValue.
    */
-  private boolean getBoolProp(Map props, String keyName, boolean defaultValue) {
+  private boolean getBoolProp(Map<String, String> props, String keyName, boolean defaultValue) {
     boolean result = defaultValue;
-    Object o = props.remove(keyName.toLowerCase());
+    String o = props.remove(keyName.toLowerCase());
     if (null != o) {
-      String val = o.toString().trim().toLowerCase();
+      String val = o.trim().toLowerCase();
       if (val.length() > 0) {
         // try numeric: i.e. non-zero is true, 0 is false
         try {
-          int numberVal;
-          numberVal = Integer.parseInt(val);
+          int numberVal = Integer.parseInt(val);
           if (numberVal != 0) {
             result = true;
-          } else result = false;
+          } else {
+            result = false;
+          }
         } catch (NumberFormatException nfe) {
           /* ignore, try other formats */
         }
