@@ -337,12 +337,11 @@ public class SitesAdaptor implements ISiteAdaptor {
     Path outputRoot = requireSafeOutputRoot(resolveOutputRoot(request, siteKey));
 
     try {
-      // codeql[java/path-injection] reason: outputRoot passed requireSafeOutputRoot /
-      // PSVirtualSiteHelper.isSafeRootPath (no empty path / remaining '..' after normalize);
-      // Admin-only. Model: SitesAdaptor.requireSafeOutputRoot barrier.
-      Files.createDirectories(outputRoot);
+      // Barrier already applied: requireSafeOutputRoot → isSafeRootPath (no empty / '..').
+      // Admin-only. Model: SitesAdaptor.requireSafeOutputRoot. See suppressions.md #1961.
+      Files.createDirectories(outputRoot); // codeql[java/path-injection]
       Path metaDir = outputRoot.resolve("_meta"); // codeql[java/path-injection]
-      Files.createDirectories(metaDir);
+      Files.createDirectories(metaDir); // codeql[java/path-injection]
 
       VirtualSiteConfig config = VirtualSiteConfigLoader.load(siteRoot, configFile, siteKey);
       PSVirtualSiteBuildResult built = runBuild(config, outputRoot, metaDir);
