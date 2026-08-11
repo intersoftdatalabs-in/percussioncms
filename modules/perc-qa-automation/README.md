@@ -179,6 +179,33 @@ Full context: `docker/README.md` → *Docker `Health.Status` (in-image
 HEALTHCHECK)* and `docs/developer-module/workbench-rest-and-qa-modes.md`
 § *H2 Docker one-shot*.
 
+### Explorer Sites list + Create Site (#3003 / parent #2989)
+
+Surface for Explorer **Sites** listing and **Content → Create Site** (traditional site).
+Peers of `bug-1750` (sample seed) and `explorer-site-copy` (Content menu wizards).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-sites-list-create.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-sites-list-create.js`, `tests/unit/explorer-sites-list-create.test.js` |
+| Tags | `@explorer-sites-list-create` `@explorer` `@sites` `@smoke` |
+| Soft skip (list) | Empty Sites soft-skips list assertions only (create path still covered); set `EXPECT_DEMO_SITES=1` to hard-fail empty |
+| Soft skip (create) | Pre-#3002 image without Create Site menu → `test.skip` with BUG + issue URL |
+
+```bash
+cd modules/perc-qa-automation/frontend
+# After perc-devctl qa-up (use printed TEST_CMS_URL):
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  npm run test:surface -- --path tests/explorer-sites-list-create.spec.js
+
+npm run test:surface:list -- --path tests/explorer-sites-list-create.spec.js
+npm run test:surface -- --tag explorer-sites-list-create
+```
+
+Product UI slices: #3001 (demo seed / Sites list), #3002 (Create Site wizard),
+#3003 (this Playwright + product-docs).
+
 ### Demo-sites Sample Site residual (#1750 / #2194)
 
 Regression coverage that **Corporate Investments** and **Enterprise Investments**
