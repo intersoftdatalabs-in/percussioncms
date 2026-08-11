@@ -198,7 +198,7 @@ public class SiteFolderFinderImplTest {
       when(mySite.getFolderRoot()).thenReturn("//Sites/foo");
       when(mySite.getName()).thenReturn("foo");
       when(mySite.getGUID()).thenReturn(new PSLegacyGuid(300, 1));
-      when(secws.filterByRuntimeVisibility(any(List.class)))
+      when(secws.filterByRuntimeVisibility(anyList()))
           .thenReturn(Collections.singletonList(new PSLegacyGuid(300, 1)));
 
       List<SiteFolderLocation> locs = cut.findSiteFolderLocations("1", "2", null);
@@ -209,7 +209,7 @@ public class SiteFolderFinderImplTest {
       SiteFolderLocation rloc = locs.get(0);
       assertEquals("//Sites/foo/bar/baz/foo", rloc.getFolderPath());
       verify(gmgr).makeGuid(any(PSLocator.class));
-      verify(secws).filterByRuntimeVisibility(any(List.class));
+      verify(secws).filterByRuntimeVisibility(anyList());
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception caught");

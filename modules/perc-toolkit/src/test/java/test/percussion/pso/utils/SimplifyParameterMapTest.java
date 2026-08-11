@@ -93,7 +93,7 @@ public class SimplifyParameterMapTest {
     assertEquals("fee", result.get(0));
     assertEquals("fum", result.get(2));
 
-    List in = Arrays.asList(arr);
+    List<String> in = Arrays.asList(arr);
     result = SimplifyParameters.getValueAsList(in);
     assertEquals(3, result.size());
     assertEquals("fee", result.get(0));

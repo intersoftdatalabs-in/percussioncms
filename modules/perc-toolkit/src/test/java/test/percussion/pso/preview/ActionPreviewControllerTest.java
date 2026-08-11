@@ -118,7 +118,7 @@ public class ActionPreviewControllerTest {
       Mockito.when(
               urlbuilder.buildUrl(
                   Mockito.any(IPSAssemblyTemplate.class),
-                  Mockito.any(Map.class),
+                  Mockito.<Map<String, Object>>any(),
                   Mockito.any(SiteFolderLocation.class),
                   Mockito.any(Boolean.class)))
           .thenReturn("http://localhost/foo/bar/baz");
