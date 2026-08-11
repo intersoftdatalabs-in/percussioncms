@@ -28,7 +28,9 @@ A **Virtual Site** is a Site whose content originates **outside** the traditiona
 assembled without ingesting them as ordinary CMS content items.
 
 Operators configure Virtual Sites through **Site properties** (not new database columns in Phase 1).
-Authors of Virtual content use Git and Markdown tooling, not the classic page editor.
+Integrators can set the same properties over public Site REST
+(`GET`/`PUT /sites/{nameOrId}/virtual`) without Workbench. Authors of Virtual content use Git
+and Markdown tooling, not the classic page editor.
 
 ### Property keys operators set
 

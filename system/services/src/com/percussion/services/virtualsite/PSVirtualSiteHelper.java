@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
+import com.percussion.utils.guid.IPSGuid;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -246,6 +247,79 @@ public final class PSVirtualSiteHelper {
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * Context id of the first property matching {@code name}, if any.
+   *
+   * @param site may be null
+   * @param name property name
+   * @return context guid when the property exists
+   */
+  public static Optional<IPSGuid> findPropertyContext(IPSSite site, String name) {
+    Objects.requireNonNull(name, "name");
+    if (!(site instanceof PSSite ps)) {
+      return Optional.empty();
+    }
+    Set<PSSiteProperty> props = ps.getProperties();
+    if (props == null || props.isEmpty()) {
+      return Optional.empty();
+    }
+    for (PSSiteProperty p : props) {
+      if (p != null && name.equals(p.getName()) && p.getContextId() != null) {
+        return Optional.of(p.getContextId());
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Set or clear a named property on a concrete {@link PSSite}.
+   *
+   * <p>Blank {@code value} removes the first property with that name (any context). Non-blank
+   * values update an existing property in place when present; otherwise a new {@link
+   * PSSiteProperty} is added for {@code contextId}. Does not call {@link
+   * PSSite#setProperty(String, IPSGuid, String)} (avoids GuidManager for unit-testability).
+   *
+   * @param site concrete site entity, not null
+   * @param contextId publishing context used when creating a new property, not null when creating
+   * @param name property name, not blank
+   * @param value value to store; blank clears
+   */
+  public static void putProperty(PSSite site, IPSGuid contextId, String name, String value) {
+    Objects.requireNonNull(site, "site");
+    Objects.requireNonNull(name, "name");
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name may not be blank");
+    }
+    if (StringUtils.isBlank(value)) {
+      // getProperties() returns emptySet when field is null (unmodifiable) — only mutate live set
+      Set<PSSiteProperty> existing = site.getProperties();
+      if (!existing.isEmpty()) {
+        existing.removeIf(p -> p != null && name.equals(p.getName()));
+      }
+      return;
+    }
+    Set<PSSiteProperty> props = site.getProperties();
+    if (!props.isEmpty()) {
+      for (PSSiteProperty p : props) {
+        if (p != null && name.equals(p.getName())) {
+          p.setValue(value.trim());
+          return;
+        }
+      }
+    }
+    Objects.requireNonNull(contextId, "contextId");
+    PSSiteProperty prop = new PSSiteProperty();
+    // Stable-enough id without GuidManager (persistence layer reassigns if needed on save)
+    prop.setPropertyId(
+        Math.floorMod((long) name.hashCode() * 31L + contextId.longValue(), Integer.MAX_VALUE - 1L)
+            + 1L);
+    prop.setContextId(contextId);
+    prop.setName(name);
+    prop.setValue(value.trim());
+    prop.setSite(site);
+    site.addProperty(prop);
   }
 
   private static void validateConfigFileName(String configFile) throws VirtualSiteException {

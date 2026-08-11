@@ -225,6 +225,27 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void putPropertySetsUpdatesAndClears() {
+    com.percussion.services.guidmgr.data.PSGuid ctx =
+        new com.percussion.services.guidmgr.data.PSGuid(
+            com.percussion.services.catalog.PSTypeEnum.CONTEXT, 1L);
+    PSSite site = new PSSite();
+    PSVirtualSiteHelper.putProperty(site, ctx, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    assertEquals(
+        "git-filesystem",
+        PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_SOURCE_KIND).orElse(null));
+
+    PSVirtualSiteHelper.putProperty(site, ctx, PSVirtualSiteHelper.PROP_SOURCE_KIND, "repository");
+    assertEquals(
+        "repository",
+        PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_SOURCE_KIND).orElse(null));
+
+    PSVirtualSiteHelper.putProperty(site, ctx, PSVirtualSiteHelper.PROP_SOURCE_KIND, null);
+    assertTrue(
+        PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_SOURCE_KIND).isEmpty());
+  }
+
+  @Test
   void isSafeRootPathRejectsEmptyAndDotAndParent() {
     assertFalse(PSVirtualSiteHelper.isSafeRootPath(null));
     assertFalse(PSVirtualSiteHelper.isSafeRootPath(Path.of("").normalize()));

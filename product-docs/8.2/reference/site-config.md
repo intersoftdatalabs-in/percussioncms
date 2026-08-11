@@ -62,6 +62,18 @@ Cross-platform notes: prefer absolute paths (`C:\…` on Windows, `/opt/…` on 
 should not hardcode OS path separators in scripts — use the repo `scripts/build-cms-docs.*` wrappers
 or NIO/`Path` APIs.
 
+
+### REST
+
+Integrators can read and write these keys via public Site REST:
+
+- `GET /sites/{nameOrId}/virtual`
+- `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
+
+Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
+enforced server-side (allow-listed source kinds, required root path when virtual, portable
+path safety).
+
 ## Related
 
 - [Frontmatter contract](id:reference-frontmatter)
