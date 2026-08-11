@@ -74,10 +74,6 @@ public class PSWebdavConfigValidator
       "A warning was raised while validating the WebDAV configuration";
 
    /**
-    * List of String exception msgs generated during the 
-    * validation routines
-    */
-   /**
     * Validation errors: resource strings and/or {@link PSWebdavException}
     * instances captured from config parsing.
     */

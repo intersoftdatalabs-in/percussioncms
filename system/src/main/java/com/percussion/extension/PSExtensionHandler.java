@@ -640,9 +640,13 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
 
     while (resources.hasNext()) {
       Object next = resources.next();
+      // Loud failure for contract violations (iterator must yield IPSMimeContent only).
       if (!(next instanceof IPSMimeContent)) {
-        // Legacy call sites may pass empty/non-mime iterators; skip non-mime entries.
-        continue;
+        throw new ClassCastException(
+            "Expected IPSMimeContent in extension resources iterator for "
+                + def.getRef()
+                + ", got: "
+                + (next == null ? "null" : next.getClass().getName()));
       }
       IPSMimeContent resource = (IPSMimeContent) next;
       String resName = resource.getName();

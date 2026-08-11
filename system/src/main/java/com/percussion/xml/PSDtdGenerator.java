@@ -545,9 +545,12 @@ public class PSDtdGenerator {
     }
 
     /**
-     * @author unascribed
-     * @version 1.0 1999/6/1
-     * @return Iterator An iterator over the possible values that this attribute can have.
+     * Possible attribute values stored as map keys ({@code Boolean.TRUE} placeholders as map
+     * values). Returns the keys — the actual allowed value strings — matching the method name and
+     * historical intent. (Previously iterated map values, i.e. {@code Boolean} flags; no in-tree
+     * callers depend on that.)
+     *
+     * @return iterator over the possible attribute value strings
      */
     public Iterator<String> getValuesIterator() {
       return m_values.keySet().iterator();
