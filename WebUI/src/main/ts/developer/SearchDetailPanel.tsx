@@ -41,7 +41,13 @@ export function SearchDetailPanel({
 
   return (
     <div data-testid="developer-sr-detail">
-      <button type="button" onClick={onBack} data-testid="developer-sr-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-sr-back"
+        aria-label={DEV_MSG.SR_BACK}
+        style={backButton}
+      >
         ← {DEV_MSG.SR_BACK}
       </button>
 

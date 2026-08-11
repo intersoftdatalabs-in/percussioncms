@@ -64,6 +64,7 @@ export function ItemFilterDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-if-back"
+        aria-label={DEV_MSG.IF_BACK}
         style={backButton}
       >
         ← {DEV_MSG.IF_BACK}

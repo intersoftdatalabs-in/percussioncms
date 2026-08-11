@@ -23,7 +23,13 @@ export function SiteDetailPanel({
 
   return (
     <div data-testid="developer-site-detail">
-      <button type="button" onClick={onBack} data-testid="developer-site-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-site-back"
+        aria-label={DEV_MSG.SITE_BACK}
+        style={backButton}
+      >
         ← {DEV_MSG.SITE_BACK}
       </button>
 

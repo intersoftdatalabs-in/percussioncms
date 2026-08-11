@@ -46,7 +46,13 @@ export function ExtensionDetailPanel({
 
   return (
     <div data-testid="developer-ex-detail">
-      <button type="button" onClick={onBack} data-testid="developer-ex-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-ex-back"
+        aria-label={DEV_MSG.EX_BACK}
+        style={backButton}
+      >
         ← {DEV_MSG.EX_BACK}
       </button>
 

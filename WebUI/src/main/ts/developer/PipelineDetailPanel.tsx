@@ -54,6 +54,7 @@ export function PipelineDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-pipe-back"
+        aria-label={DEV_MSG.PIPE_BACK}
         style={backButton}
       >
         ← {DEV_MSG.PIPE_BACK}

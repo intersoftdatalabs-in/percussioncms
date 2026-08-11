@@ -128,7 +128,9 @@ export function KeywordsPanel(): React.ReactElement {
                 <button
                   key="open"
                   type="button"
+                  data-testid="developer-kw-open"
                   style={openButtonStyle}
+                  aria-label={DEV_MSG.KW_OPEN.replace("{0}", kw.label || key)}
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditing(kw);

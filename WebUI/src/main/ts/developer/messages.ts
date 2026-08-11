@@ -186,6 +186,8 @@ export const DEV_MSG_KEYS = {
   KW_DELETE: "perc.ui.developer@Delete",
   KW_EDIT: "perc.ui.developer@Edit",
   KW_BACK: "perc.ui.developer@Back to list",
+  /** Catalog open action; `{0}` is the row label / key. */
+  KW_OPEN: "perc.ui.developer@Open {0}",
   KW_FORM_LABEL: "perc.ui.developer@Label",
   KW_FORM_DESCRIPTION: "perc.ui.developer@Description",
   KW_FORM_SEQUENCE: "perc.ui.developer@Sequence",

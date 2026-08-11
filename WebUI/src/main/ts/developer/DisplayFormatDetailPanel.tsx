@@ -61,6 +61,7 @@ export function DisplayFormatDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-df-back"
+        aria-label={DEV_MSG.DF_BACK}
         style={backButton}
       >
         ← {DEV_MSG.DF_BACK}

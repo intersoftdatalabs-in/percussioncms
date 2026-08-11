@@ -44,7 +44,13 @@ export function ControlDetailPanel({
 
   return (
     <div data-testid="developer-ctl-detail">
-      <button type="button" onClick={onBack} data-testid="developer-ctl-back" style={backButton}>
+      <button
+        type="button"
+        onClick={onBack}
+        data-testid="developer-ctl-back"
+        aria-label={DEV_MSG.CTL_BACK}
+        style={backButton}
+      >
         ← {DEV_MSG.CTL_BACK}
       </button>
 
