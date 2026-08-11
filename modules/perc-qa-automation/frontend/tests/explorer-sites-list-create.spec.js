@@ -58,7 +58,7 @@ const {
   sitesFolderUrl,
   openContentMenu,
   sitesTreeRootLocator,
-  sitesTreeChildLocator,
+  sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
@@ -175,8 +175,8 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await expect(sitesRoot.first()).toBeVisible({ timeout: 20_000 });
       await sitesRoot.first().click();
 
-      const children = sitesTreeChildLocator(page);
-      await expect(children.first()).toBeVisible({ timeout: 20_000 });
+      const descendants = sitesTreeDescendantsLocator(page);
+      await expect(descendants.first()).toBeVisible({ timeout: 20_000 });
 
       const nodeTestIds = await tree
         .locator('[data-testid^="tree-node-"]')

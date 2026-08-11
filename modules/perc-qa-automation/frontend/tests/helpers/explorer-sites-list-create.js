@@ -95,10 +95,15 @@ function sitesTreeRootLocator(page) {
 }
 
 /**
- * Tree nodes that are immediate children of /Sites (not the root itself).
+ * Tree nodes under /Sites (all descendants currently rendered, not only
+ * immediate children). Selector matches any {@code tree-node-/Sites/...}
+ * except the exact root {@code tree-node-/Sites/}. Name extraction for
+ * immediate site folders is handled separately by
+ * {@link siteChildNamesFromTreeTestIds}.
+ *
  * @param {import('@playwright/test').Page} page
  */
-function sitesTreeChildLocator(page) {
+function sitesTreeDescendantsLocator(page) {
   return page.locator(
     `[data-testid="${TEST_IDS.tree}"] [data-testid^="tree-node-/Sites/"]:not([data-testid="tree-node-/Sites/"])`,
   );
@@ -106,7 +111,9 @@ function sitesTreeChildLocator(page) {
 
 /**
  * Extract site folder name segments from explorer tree data-testid values.
- * Immediate children of /Sites only: tree-node-/Sites/<name>[/...]
+ * Captures the first path segment under /Sites for each id
+ * ({@code tree-node-/Sites/<name>[/...]}), including deeper descendants
+ * (callers should treat the list as a multiset of site folder names).
  *
  * @param {readonly string[]} nodeTestIds
  * @returns {string[]}
@@ -168,7 +175,7 @@ module.exports = {
   sitesFolderUrl,
   openContentMenu,
   sitesTreeRootLocator,
-  sitesTreeChildLocator,
+  sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,

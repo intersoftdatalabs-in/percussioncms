@@ -68,7 +68,7 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     );
   });
 
-  it("extracts immediate /Sites children from tree test ids", () => {
+  it("extracts /Sites site-name segments (including deeper descendants)", () => {
     const names = siteChildNamesFromTreeTestIds([
       "tree-node-/",
       "tree-node-/Sites/",
@@ -77,6 +77,7 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
       "tree-node-/Sites/Corporate Investments/folder",
       "tree-node-/Assets/",
     ]);
+    // Deeper nodes re-emit the first segment (multiset of site folder names).
     assert.deepEqual(names, [
       "Corporate Investments",
       "Enterprise Investments",
