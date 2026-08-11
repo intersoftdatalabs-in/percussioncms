@@ -119,11 +119,11 @@ public class PSSearchDialog extends PSDialog {
       PSSearchViewActionManager mgr,
       PSRemoteCataloger cataloger,
       PSNode searchNode,
-      Map filterMap,
+      Map<?, ?> filterMap,
       boolean isNewSearch,
       boolean isRcSearch,
       PSSearchConfig searchConfig,
-      Map searchableFieldsCache,
+      Map<String, PSContentEditorFieldCataloger> searchableFieldsCache,
       URL codeBase)
       throws PSCmsException {
     super(parent, mgr.getApplet().getResourceString(PSSearchDialog.class, "Content Search"));
@@ -224,11 +224,12 @@ public class PSSearchDialog extends PSDialog {
    * @throws PSCmsException if an error occurs.
    */
   private void initFieldCatalog(
-      int controlflags, PSRemoteCataloger cataloger, Map searchableFieldsCache, URL codeBase)
+      int controlflags,
+      PSRemoteCataloger cataloger,
+      Map<String, PSContentEditorFieldCataloger> searchableFieldsCache,
+      URL codeBase)
       throws PSCmsException {
-    Set<String> fieldNames = new HashSet<String>();
-    Iterator fields = m_search.getFields();
-    while (fields.hasNext()) fieldNames.add(((PSSearchField) (fields.next())).getFieldName());
+    Set<String> fieldNames = collectSearchFieldNames(m_search.getFields());
 
     if (searchableFieldsCache == null) {
       if (m_applet.isDebug()) log.debug("Load searchableFields no cache");
@@ -238,7 +239,7 @@ public class PSSearchDialog extends PSDialog {
       // key is the combination of "code base" and the "control flags"
       String key = codeBase.toString() + "@" + controlflags;
 
-      m_fieldCatalog = (PSContentEditorFieldCataloger) searchableFieldsCache.get(key);
+      m_fieldCatalog = searchableFieldsCache.get(key);
       if (m_fieldCatalog == null) {
         if (m_applet.isDebug()) log.debug("Load searchableFields for key = " + key);
 
@@ -246,6 +247,66 @@ public class PSSearchDialog extends PSDialog {
         searchableFieldsCache.put(key, m_fieldCatalog);
       }
     }
+  }
+
+  /**
+   * Collects field names from a search field iterator. Package-private for unit tests.
+   *
+   * @param fields may be {@code null}; treated as empty
+   * @return never {@code null}; may be empty
+   */
+  static Set<String> collectSearchFieldNames(Iterator<PSSearchField> fields) {
+    Set<String> fieldNames = new HashSet<>();
+    if (fields == null) {
+      return fieldNames;
+    }
+    while (fields.hasNext()) {
+      fieldNames.add(fields.next().getFieldName());
+    }
+    return fieldNames;
+  }
+
+  /**
+   * Builds display-format id → name map for {@link PSSearchSimplePanel}. Package-private for unit
+   * tests.
+   *
+   * @param formats may be {@code null}; treated as empty
+   * @return never {@code null}; may be empty
+   */
+  static Map<String, String> buildDisplayFormatIdNameMap(Iterator<PSDisplayFormat> formats) {
+    Map<String, String> map = new HashMap<>();
+    if (formats == null) {
+      return map;
+    }
+    while (formats.hasNext()) {
+      PSDisplayFormat format = formats.next();
+      map.put(Integer.toString(format.getDisplayId()), format.getDisplayName());
+    }
+    return map;
+  }
+
+  /**
+   * Finds Lucene special characters in a full-text query that are disallowed when synonym
+   * expansion is enabled. Package-private for unit tests.
+   *
+   * @param ftQueryText may be {@code null}
+   * @return comma-separated special characters found, or {@code null} if none
+   */
+  static String findDisallowedSynonymExpansionChars(String ftQueryText) {
+    if (ftQueryText == null) {
+      return null;
+    }
+    String spChars = null;
+    for (String specialChar : ms_specialChars) {
+      if (ftQueryText.indexOf(specialChar) != -1) {
+        if (spChars == null) {
+          spChars = specialChar;
+        } else {
+          spChars += ", " + specialChar;
+        }
+      }
+    }
+    return spChars;
   }
 
   /*
@@ -282,12 +343,7 @@ public class PSSearchDialog extends PSDialog {
             m_fieldCatalog);
     setFieldEditorSize();
 
-    Map map = new HashMap();
-    Iterator iter = m_mgr.getDisplayFormats();
-    while (iter.hasNext()) {
-      PSDisplayFormat format = (PSDisplayFormat) iter.next();
-      map.put(Integer.toString(format.getDisplayId()), format.getDisplayName());
-    }
+    Map<String, String> map = buildDisplayFormatIdNameMap(m_mgr.getDisplayFormats());
     m_searchSimplePanel =
         new PSSearchSimplePanel(m_isEngineAvailable, map, m_searchConfig.getMaxSearchResult());
     m_ftQuery = m_searchSimplePanel.getQueryText();
@@ -663,15 +719,15 @@ public class PSSearchDialog extends PSDialog {
     // updates the data objects.
     if (!m_fieldEditorCtrl.save()) return;
 
-    Iterator iter = m_fieldEditorCtrl.getFields();
+    Iterator<PSSearchField> iter = m_fieldEditorCtrl.getFields();
     String missingFieldNames = "";
     /*If isRestrictToUserCommunity is true then check whether all fields
     belongs to user community or not. If not warn the user about it.
     */
     if (isRestrictToUserCommunity()) {
-      List<PSSearchField> missingFields = new ArrayList<PSSearchField>();
+      List<PSSearchField> missingFields = new ArrayList<>();
       while (iter.hasNext()) {
-        PSSearchField field = (PSSearchField) iter.next();
+        PSSearchField field = iter.next();
         /**
          * @todo The field need to be checked in m_fieldCatalog.getAll(), but some reason it is not
          *     working that need to be fixed.
@@ -786,13 +842,7 @@ public class PSSearchDialog extends PSDialog {
    *     false</code> otherwise.
    */
   private boolean validateForSynonymExp(String ftQueryText) {
-    String spChars = null;
-    for (String specialChar : ms_specialChars) {
-      if (ftQueryText.indexOf(specialChar) != -1) {
-        if (spChars == null) spChars = specialChar;
-        else spChars += ", " + specialChar;
-      }
-    }
+    String spChars = findDisallowedSynonymExpansionChars(ftQueryText);
 
     if (spChars != null) {
       String message =
@@ -804,7 +854,7 @@ public class PSSearchDialog extends PSDialog {
               + " "
               + spChars;
 
-      int selection = showErrorDialog(message);
+      showErrorDialog(message);
       return false;
     }
 
@@ -901,10 +951,10 @@ public class PSSearchDialog extends PSDialog {
   private PSNode m_searchNode = null;
 
   /**
-   * The Content Explorer search node, Never <code>null</code> after initailization of the dialog
-   * box.
+   * Search field filter map (field name → filter), may be {@code null} when no filters apply.
+   * Never modified after initialization of the dialog box.
    */
-  private Map m_searchFieldFilterMap = null;
+  private Map<?, ?> m_searchFieldFilterMap = null;
 
   /** This dynamic fields panel */
   private PSSearchFieldEditor m_fieldEditorCtrl = null;
@@ -1022,7 +1072,7 @@ public class PSSearchDialog extends PSDialog {
    * Synonym expansion may not be used if any of these characters are included in a full text search
    * query.
    */
-  private static final List<String> ms_specialChars = new ArrayList<String>();
+  private static final List<String> ms_specialChars = new ArrayList<>();
 
   static {
     ms_specialChars.add("+");
