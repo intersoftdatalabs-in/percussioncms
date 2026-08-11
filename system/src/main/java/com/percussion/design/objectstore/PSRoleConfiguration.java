@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import com.percussion.error.PSDatabaseComponentException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -106,16 +107,16 @@ public final class PSRoleConfiguration implements IPSDocument {
   public final void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the correct root node tag
     if (false == ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // Read PSXRoleConfiguration object attributes
@@ -131,14 +132,14 @@ public final class PSRoleConfiguration implements IPSDocument {
     e = tree.getNextElement(m_subjects.ms_NodeType, firstFlags);
     if (null == e) {
       Object[] args = {m_subjects.ms_NodeType, "null", "''"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_subjects.fromXml(e, null, null);
 
     e = tree.getNextElement(m_roles.ms_NodeType, nextFlags);
     if (null == e) {
       Object[] args = {m_roles.ms_NodeType, "null", "''"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     m_roles.fromXml(e, null, null);
   }

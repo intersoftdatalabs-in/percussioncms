@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
 import java.util.Objects;
@@ -184,7 +185,7 @@ public class PSServerCacheSettings extends PSComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -201,14 +202,14 @@ public class PSServerCacheSettings extends PSComponent {
         m_id = Integer.parseInt(data);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // REQUIRED: get the fieldSetRef attribute
       data = tree.getElementData(ENABLED_ATTR);
       if (data == null) {
         Object[] args = {XML_NODE_NAME, ENABLED_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       if (data.equalsIgnoreCase("yes")) setEnabled(true);
@@ -219,7 +220,7 @@ public class PSServerCacheSettings extends PSComponent {
         setMaxMemoryUsage(Long.parseLong(data));
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, MAX_MEMORY_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       try {
@@ -227,7 +228,7 @@ public class PSServerCacheSettings extends PSComponent {
         setMaxDiskUsage(Long.parseLong(data));
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, MAX_DISK_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       try {
@@ -235,7 +236,7 @@ public class PSServerCacheSettings extends PSComponent {
         setMaxPageSize(Long.parseLong(data));
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, MAX_PAGE_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       try {
@@ -243,7 +244,7 @@ public class PSServerCacheSettings extends PSComponent {
         setAgingTime(Long.parseLong(data));
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, AGING_TIME_ATTR, ((data == null) ? "null" : data)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       data = tree.getElementData(FOLDER_CACHE_ENABLED_ATTR);

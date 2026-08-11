@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.debug.IPSTraceStateListener;
 import com.percussion.debug.PSTraceFlag;
 import com.percussion.debug.PSTraceMessageFactory;
@@ -291,13 +292,13 @@ public class PSTraceInfo extends PSComponent {
       throws PSUnknownNodeTypeException {
 
     if (sourceNode == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
     }
 
     // make sure we got the correct type node
     if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -307,14 +308,14 @@ public class PSTraceInfo extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // get the main trace enabled setting
     sTemp = tree.getElementData("traceEnabled");
     if ((sTemp == null) || !(sTemp.equals("yes") || sTemp.equals("no"))) {
       Object[] args = {ms_NodeType, "traceEnabled", ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else {
       m_enabled = (sTemp.equals("yes") ? true : false);
     }
@@ -325,7 +326,7 @@ public class PSTraceInfo extends PSComponent {
       m_columnWidth = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, "traceOutputColumnWidth", ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get the Timestamp Only setting
@@ -334,7 +335,7 @@ public class PSTraceInfo extends PSComponent {
       Object[] args = {
         ms_NodeType, "traceTimestampOnlyenabled", ((sTemp == null) ? "null" : sTemp)
       };
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else {
       m_timeStampOnly = (sTemp.equals("yes") ? true : false);
     }
@@ -349,7 +350,7 @@ public class PSTraceInfo extends PSComponent {
         if (sTemp.equals("yes")) m_traceFlag.setBit(o.getFlag());
         else if (!sTemp.equals("no")) {
           Object[] args = {ms_NodeType, o.getName(), sTemp};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
     }

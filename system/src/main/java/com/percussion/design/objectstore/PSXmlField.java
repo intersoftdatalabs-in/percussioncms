@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -55,7 +56,7 @@ public class PSXmlField extends PSNamedReplacementValue {
 
   // see base class for description
   protected int getErrorCode() {
-    return IPSObjectStoreErrors.XML_FIELD_NAME_EMPTY;
+    return ObjectStoreErrorCodes.XML_FIELD_NAME_EMPTY.numericCode();
   }
 
   // see base class for description

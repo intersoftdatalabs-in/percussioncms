@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -317,11 +318,11 @@ public final class PSUIDefinition extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -349,7 +350,7 @@ public final class PSUIDefinition extends PSComponent {
         if (node == null) {
           Object[] args = {XML_NODE_NAME, DEFAULT_UI_ELEM, "empty"};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         m_defaultUI = new PSCollection(new PSUISet().getClass());
         while (node != null) {
@@ -367,7 +368,7 @@ public final class PSUIDefinition extends PSComponent {
         m_displayMapper = new PSDisplayMapper(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSDisplayMapper.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } finally {
       resetParentList(parentComponents, parentSize);
@@ -405,7 +406,7 @@ public final class PSUIDefinition extends PSComponent {
     context.pushParent(this);
     try {
       if (m_displayMapper != null) m_displayMapper.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_UI_DEFINITION, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_UI_DEFINITION, null);
 
       Iterator it = getDefaultUI();
       while (it.hasNext()) ((IPSComponent) it.next()).validate(context);

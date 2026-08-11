@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -350,11 +351,11 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -385,7 +386,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
             XML_NODE_NAME, PSExtensionCall.ms_NodeType + " and " + HREF_ELEM, "null"
           };
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         applyHref(PSXmlTreeWalker.getElementData(node));
 
@@ -436,7 +437,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
       if (m_converter == null) {
         // we must have the parts
         if (m_href == null)
-          context.validationError(this, IPSObjectStoreErrors.INVALID_URL_REQUEST, null);
+          context.validationError(this, ObjectStoreErrorCodes.INVALID_URL_REQUEST, null);
         Iterator it = getQueryParameters();
         while (it.hasNext()) ((IPSComponent) it.next()).validate(context);
       } else m_converter.validate(context);

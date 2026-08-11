@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore.server;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSLockedException;
@@ -213,7 +214,7 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
         throw new PSLockAcquisitionException(LOCK_CORRUPT_LOCKFILE, ioe.getMessage());
       } catch (InterruptedException inte) {
         if (lockedResults != null) {
-          lockedResults.setArgs(IPSObjectStoreErrors.LOCK_WAIT_INTERRUPTED, null);
+          lockedResults.setArgs(ObjectStoreErrorCodes.LOCK_WAIT_INTERRUPTED, null);
         }
         Thread.currentThread().interrupt();
       }

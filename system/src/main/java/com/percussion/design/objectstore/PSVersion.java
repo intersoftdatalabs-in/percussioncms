@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.text.ParseException;
 import java.util.Date;
@@ -56,13 +57,13 @@ public class PSVersion {
    */
   public PSVersion(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_nodeName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_nodeName);
     }
 
     // make sure we got the correct type node
     if (false == ms_nodeName.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_nodeName, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -73,7 +74,7 @@ public class PSVersion {
       m_versionNumber = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_nodeName, "Number", ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     sTemp = tree.getElementData("Introduced");
@@ -82,7 +83,7 @@ public class PSVersion {
       m_dateIntroduced = m_formatter.parse(sTemp.trim());
     } catch (Exception e) {
       Object[] args = {ms_nodeName, "Introduced", ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
   }
 

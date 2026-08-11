@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -210,11 +211,11 @@ public final class PSTableSet extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -240,14 +241,14 @@ public final class PSTableSet extends PSComponent {
         m_tableLocation = new PSTableLocator(node, parentDoc, parentComponents);
       } else {
         Object[] args = {XML_NODE_NAME, PSTableLocator.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // REQUIRED: get the table refs
       node = tree.getNextElement(PSTableRef.XML_NODE_NAME, nextFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSTableRef.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       while (node != null) {
         m_tableRefs.add(new PSTableRef(node, parentDoc, parentComponents));
@@ -284,11 +285,11 @@ public final class PSTableSet extends PSComponent {
     context.pushParent(this);
     try {
       if (m_tableLocation != null) m_tableLocation.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_TABLE_SET, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_TABLE_SET, null);
 
       Iterator it = getTableRefs();
       if (!it.hasNext())
-        context.validationError(this, IPSObjectStoreErrors.INVALID_TABLE_SET, null);
+        context.validationError(this, ObjectStoreErrorCodes.INVALID_TABLE_SET, null);
       while (it.hasNext()) ((IPSComponent) it.next()).validate(context);
     } finally {
       context.popParent();

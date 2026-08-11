@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSEncryptionException;
@@ -134,7 +136,7 @@ public class PSSecurityProviderInstance extends PSComponent {
   private static PSIllegalArgumentException validateType(int type) {
     if (!PSSecurityProvider.isSupportedType(type)) {
       return new PSIllegalArgumentException(
-          IPSObjectStoreErrors.SPINST_TYPE_INVALID, String.valueOf(type));
+          DesignErrorCodes.SPINST_TYPE_INVALID.numericCode(), String.valueOf(type));
     }
     return null;
   }
@@ -192,7 +194,7 @@ public class PSSecurityProviderInstance extends PSComponent {
   private static PSIllegalArgumentException validateName(String name) {
     if ((null != name) && (name.length() > MAX_NAME_LEN)) {
       Object[] args = {Integer.valueOf(MAX_NAME_LEN), Integer.valueOf(name.length())};
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.SPINST_NAME_TOO_BIG, args);
+      return new PSIllegalArgumentException(DesignErrorCodes.SPINST_NAME_TOO_BIG.numericCode(), args);
     }
     return null;
   }
@@ -321,11 +323,11 @@ public class PSSecurityProviderInstance extends PSComponent {
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -335,19 +337,19 @@ public class PSSecurityProviderInstance extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     sTemp = tree.getElementData("type");
     if ((sTemp == null) || (sTemp.length() == 0)) {
       Object[] args = {ms_NodeType, "type", ""};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     int providerType = PSSecurityProvider.getSecurityProviderTypeFromXmlFlag(sTemp);
     if (providerType != 0) m_providerType = providerType;
     else {
       Object[] args = {ms_NodeType, "type", sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // get the instance name

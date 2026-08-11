@@ -17,7 +17,7 @@
 
 package com.percussion.design.objectstore.server;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSLockedException;
 import java.util.Properties;
 
@@ -114,13 +114,13 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
       else {
         if (ex != null) {
           // same user, different session
-          ex.setErrorCode(IPSObjectStoreErrors.LOCK_ALREADY_HELD_SAME_USER);
+          ex.setErrorCode(ObjectStoreErrorCodes.LOCK_ALREADY_HELD_SAME_USER.numericCode());
         }
       }
     } else {
       if (ex != null) {
         // different user
-        ex.setErrorCode(IPSObjectStoreErrors.LOCK_ALREADY_HELD);
+        ex.setErrorCode(ObjectStoreErrorCodes.LOCK_ALREADY_HELD.numericCode());
       }
     }
 

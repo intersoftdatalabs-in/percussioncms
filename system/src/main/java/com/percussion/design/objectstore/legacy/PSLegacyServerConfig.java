@@ -17,7 +17,7 @@
 
 package com.percussion.design.objectstore.legacy;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAcl;
 import com.percussion.design.objectstore.PSAuthentication;
 import com.percussion.design.objectstore.PSDataEncryptor;
@@ -86,16 +86,16 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the correct root node tag
     if (false == ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // get the server type
@@ -111,7 +111,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // Get requestRoot from XML
@@ -172,7 +172,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_maxThreadsPerApp = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxThreadsPerApp", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -184,7 +184,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_minThreadsOnServer = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "minThreadsOnServer", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -196,7 +196,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_maxThreadsOnServer = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxThreadsOnServer", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -208,7 +208,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_idleThreadTimeout = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "idleThreadTimeout", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -220,7 +220,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_maxRequestsInQueuePerApp = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxRequestsInQueuePerApp", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -232,7 +232,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_maxRequestsInQueueOnServer = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxRequestsInQueueOnServer", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -244,7 +244,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_maxRequestTime = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxRequestTime", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -260,7 +260,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_sessionTimeout = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "userSessionTimeout", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -272,7 +272,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           setMaxOpenUserSessions(Integer.parseInt(sTemp));
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxOpenUserSessions", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
     }
@@ -297,7 +297,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
         if (sTemp != null) m_runningLogDays = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "runningLogDays", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -361,7 +361,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           m_beLoginTimeoutSeconds = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, "backEndLoginTimeout", ((sTemp == null) ? "" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -391,7 +391,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
           if (groupProvider == null) {
             Object[] args = {XML_GROUP_PROVIDERS_ELEMENT, curNodeType, "null"};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
           while (groupProvider != null) {
             m_groupProviders.add(PSGroupProviderInstance.newInstance(groupProvider));

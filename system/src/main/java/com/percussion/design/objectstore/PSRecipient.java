@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -97,10 +98,10 @@ public class PSRecipient extends PSComponent {
 
   private static PSIllegalArgumentException validateName(String name) {
     if (null == name || name.length() == 0)
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.RECIPIENT_NAME_EMPTY);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.RECIPIENT_NAME_EMPTY.numericCode());
     else if (name.length() > MAX_RECIPIENT_NAME_LEN) {
       Object[] args = {MAX_RECIPIENT_NAME_LEN, name.length()};
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.RECIPIENT_NAME_TOO_BIG, args);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.RECIPIENT_NAME_TOO_BIG.numericCode(), args);
     }
 
     return null;
@@ -963,11 +964,11 @@ public class PSRecipient extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -978,7 +979,7 @@ public class PSRecipient extends PSComponent {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     m_options = 0;
@@ -1014,11 +1015,11 @@ public class PSRecipient extends PSComponent {
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "Threshold/count", sTemp};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       } else if (isErrorThresholdByCount()) {
         Object[] args = {ms_NodeType, "Threshold/count", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // private          int         m_errorThresholdInterval = 0;
@@ -1029,11 +1030,11 @@ public class PSRecipient extends PSComponent {
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "Threshold/interval", sTemp};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       } else if (isErrorThresholdByInterval()) {
         Object[] args = {ms_NodeType, "Threshold/interval", ""};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -1052,7 +1053,7 @@ public class PSRecipient extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "ApplicationEvents/authorizationFailure", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -1093,7 +1094,7 @@ public class PSRecipient extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "ApplicationEvents/poorResponseTime", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -1110,7 +1111,7 @@ public class PSRecipient extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "ApplicationEvents/largeRequestQueue", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -1131,7 +1132,7 @@ public class PSRecipient extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "BackEndEvents/authorizationFailure", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
@@ -1175,7 +1176,7 @@ public class PSRecipient extends PSComponent {
           } catch (NumberFormatException e) {
             Object[] args = {ms_NodeType, "BackEndEvents/largeRequestQueue", sTemp};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         }
       }
