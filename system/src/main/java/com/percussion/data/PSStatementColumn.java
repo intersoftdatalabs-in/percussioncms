@@ -137,7 +137,7 @@ public class PSStatementColumn {
     if (m_dataType == Types.ARRAY) {
       value = m_dataExtractor.extract(data);
       if (value == null) {
-        value = new ArrayList();
+        value = new ArrayList<>();
       } else if (!(value instanceof Collection)) {
         Collection<Object> coll = new ArrayList<>();
         coll.add(value);
@@ -214,7 +214,7 @@ public class PSStatementColumn {
       {
         PSSqlHelper.setDataFromNumber(stmt, bindStart, (Number) value, dt);
       } else if ((value instanceof Collection) && (m_dataType == Types.ARRAY)) {
-        OracleTools.setDataFromCollection(stmt, bindStart, (Collection) value, dt);
+        OracleTools.setDataFromCollection(stmt, bindStart, (Collection<?>) value, dt);
       } else // hope JDBC can figure it out
       stmt.setObject(bindStart, value, dt);
     }

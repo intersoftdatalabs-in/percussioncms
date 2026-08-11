@@ -97,7 +97,7 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
       Document doc,
       OutputStream out,
       URL styleFile,
-      Iterator params,
+      Iterator<? extends Map.Entry<?, ?>> params,
       String encoding)
       throws PSConversionException {
     if (doc == null)
@@ -233,7 +233,7 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
       // add any params supplied
       if (hasParams) {
         while (params.hasNext()) {
-          Map.Entry param = (Map.Entry) params.next();
+          Map.Entry<?, ?> param = params.next();
           transformer.setParameter(param.getKey().toString(), param.getValue().toString());
         }
       }
@@ -363,12 +363,13 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
    * @return error message, never <code>null</code>, may be empty.
    * @throws IOException reading source file in which error occurred.
    */
-  private static String getErrorMessages(Iterator errors) throws IOException {
+  private static String getErrorMessages(Iterator<? extends TransformerException> errors)
+      throws IOException {
     if (errors == null) throw new IllegalArgumentException("errors may not be null");
 
     StringBuilder errorMsg = new StringBuilder();
     while (errors.hasNext()) {
-      TransformerException e = (TransformerException) errors.next();
+      TransformerException e = errors.next();
       errorMsg.append(e.getMessageAndLocation());
       errorMsg.append(" ");
       errorMsg.append(getExceptionContextData(e));

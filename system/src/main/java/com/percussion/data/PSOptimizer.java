@@ -87,7 +87,8 @@ public abstract class PSOptimizer {
    * @param colList the column list to check
    * @param meta the database meta data to use for the check
    */
-  public static boolean isQueryIndexAvailable(java.util.ArrayList colList, PSTableMetaData meta)
+  public static boolean isQueryIndexAvailable(
+      java.util.List<? extends PSBackEndColumn> colList, PSTableMetaData meta)
       throws java.sql.SQLException {
     if ((colList == null) || (colList.size() == 0))
       return true; // no index required if no queryable columns exist
@@ -96,9 +97,9 @@ public abstract class PSOptimizer {
     if (indexStats == null || indexStats.length == 0) return false;
 
     // add the columns to a hash map for faster/simplified lookup
-    java.util.HashMap colNameMap = new java.util.HashMap();
+    java.util.HashMap<String, PSBackEndColumn> colNameMap = new java.util.HashMap<>();
     for (int i = 0; i < colList.size(); i++) {
-      PSBackEndColumn col = (PSBackEndColumn) colList.get(i);
+      PSBackEndColumn col = colList.get(i);
       colNameMap.put(col.getColumn().toLowerCase(), col);
     }
 

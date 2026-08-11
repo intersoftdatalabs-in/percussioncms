@@ -83,7 +83,7 @@ public class PSSetStyleSheetEvaluator extends PSConditionalEvaluator {
    *     extensions (from the requestor)
    */
   public boolean hasExplicitExtensionList() {
-    Collection c = m_resultPage.getExtensions();
+    Collection<?> c = m_resultPage.getExtensions();
 
     return ((c != null) && (!c.isEmpty()));
   }

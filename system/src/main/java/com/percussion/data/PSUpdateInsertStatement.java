@@ -66,8 +66,8 @@ public class PSUpdateInsertStatement extends PSUpdateStatement {
    *
    * @return the list of replacement values
    */
-  public java.util.List getReplacementValueExtractors() {
-    java.util.ArrayList retList = new java.util.ArrayList();
+  public java.util.List<IPSDataExtractor> getReplacementValueExtractors() {
+    java.util.ArrayList<IPSDataExtractor> retList = new java.util.ArrayList<>();
 
     retList.addAll(super.getReplacementValueExtractors());
     retList.addAll(m_insertStatement.getReplacementValueExtractors());

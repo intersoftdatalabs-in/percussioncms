@@ -87,8 +87,8 @@ public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
    *
    * @return the list of replacement values
    */
-  public List getReplacementValueExtractors() {
-    ArrayList retList = new ArrayList();
+  public List<IPSDataExtractor> getReplacementValueExtractors() {
+    ArrayList<IPSDataExtractor> retList = new ArrayList<>();
 
     retList.addAll(super.getReplacementValueExtractors());
     retList.addAll(m_insertStatement.getReplacementValueExtractors());

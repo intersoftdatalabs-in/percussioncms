@@ -73,7 +73,7 @@ public class PSHibernateEvictionTableUpdateHandler extends PSTableUpdateHandlerB
     m_classes = persistenceClasses;
   }
 
-  public Iterator getColumns(String tableName, int actionType) {
+  public Iterator<String> getColumns(String tableName, int actionType) {
     int i = m_tables.indexOf(tableName.toLowerCase());
 
     if (i < 0) return null;

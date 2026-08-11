@@ -344,8 +344,14 @@ public class PSExtensionRunner {
    * @throws PSExtensionProcessingException if thrown by the extension implementation.
    * @see IPSSearchResultsProcessor#processRows(Object[], List, IPSRequestContext)
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public List runSearchResultProcessor(PSExecutionData data, List searchResultRows)
+  /**
+   * Runs the search-results processor. Parameter/return typing uses {@link
+   * com.percussion.search.IPSSearchResultRow} to match callers; the processor SPI still takes {@code
+   * List&lt;Object&gt;} so a boundary cast is applied.
+   */
+  @SuppressWarnings("unchecked")
+  public List<com.percussion.search.IPSSearchResultRow> runSearchResultProcessor(
+      PSExecutionData data, List<? extends com.percussion.search.IPSSearchResultRow> searchResultRows)
       throws PSDataExtractionException, PSExtensionProcessingException {
     if (data == null) throw new IllegalArgumentException("data must not be null");
 
@@ -356,7 +362,9 @@ public class PSExtensionRunner {
 
     PSRequestContext request = new PSRequestContext(data.getRequest());
 
-    List rows = m_searchResultsProcessor.processRows(args, searchResultRows, request);
+    List<Object> asObjectRows = (List<Object>) (List<?>) searchResultRows;
+    List<Object> processed =
+        m_searchResultsProcessor.processRows(args, asObjectRows, request);
 
     // Trace processing message
     PSLogHandler lh = data.getLogHandler();
@@ -369,7 +377,7 @@ public class PSExtensionRunner {
         dh.printTrace(PSTraceMessageFactory.EXIT_PROC_FLAG, traceArgs);
       }
     }
-    return rows;
+    return (List<com.percussion.search.IPSSearchResultRow>) (List<?>) processed;
   }
 
   /**
