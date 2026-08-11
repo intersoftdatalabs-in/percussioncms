@@ -6,25 +6,33 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
     await loginAsAdmin(page);
   });
 
-  test("navigate to workflow admin and verify shell and list render", async ({
-    page,
-  }) => {
-    await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
+  test(
+    "navigate to workflow admin and verify shell and list render",
+    { tag: ["@workflow-admin", "@administration", "@smoke"] },
+    async ({ page }) => {
+      await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
-    // Verify WorkflowAdminShell container is present
-    const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
-    await expect(shell).toBeVisible();
+      // Verify WorkflowAdminShell container is present
+      const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
+      await expect(shell).toBeVisible({ timeout: 30_000 });
 
-    // Verify Workflow section table is visible
-    const wfSection = page.locator("[data-testid='perc-workflow-section']");
-    await expect(wfSection).toBeVisible();
+      // #2959: wrapper payload must not trip RouteErrorBoundary (e.map is not a function)
+      await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
+      await expect(
+        page.getByText(/Unable to load Administration/i),
+      ).toHaveCount(0);
 
-    // Verify tabs are present
-    await expect(page.locator("[data-testid='tab-workflow']")).toBeVisible();
-    await expect(page.locator("[data-testid='tab-roles']")).toBeVisible();
-    await expect(page.locator("[data-testid='tab-users']")).toBeVisible();
-    await expect(page.locator("[data-testid='tab-categories']")).toBeVisible();
-  });
+      // Verify Workflow section table is visible
+      const wfSection = page.locator("[data-testid='perc-workflow-section']");
+      await expect(wfSection).toBeVisible({ timeout: 30_000 });
+
+      // Verify tabs are present
+      await expect(page.locator("[data-testid='tab-workflow']")).toBeVisible();
+      await expect(page.locator("[data-testid='tab-roles']")).toBeVisible();
+      await expect(page.locator("[data-testid='tab-users']")).toBeVisible();
+      await expect(page.locator("[data-testid='tab-categories']")).toBeVisible();
+    },
+  );
 
   test("open create workflow form", async ({ page }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);

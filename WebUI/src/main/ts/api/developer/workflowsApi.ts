@@ -26,8 +26,12 @@ const LIST_WRAPPER_KEYS = [
  * Parse workflowmanagement metadata list.
  * Accepts a bare JSON array or a known list wrapper object. Unknown object shapes throw
  * so the UI surfaces an error instead of a silent empty catalog.
+ *
+ * <p>Shared by Developer catalog and Admin WorkflowSection — Jackson WRAP_ROOT often
+ * returns {@code { "Workflow": [ ... ] }} (PSUiWorkflowList @JsonRootName), and treating
+ * that object as an array causes {@code TypeError: e.map is not a function} (#2959).
  */
-function parseWorkflowList(payload: unknown): WorkflowDef[] {
+export function parseWorkflowList(payload: unknown): WorkflowDef[] {
   if (payload == null) {
     return [];
   }
