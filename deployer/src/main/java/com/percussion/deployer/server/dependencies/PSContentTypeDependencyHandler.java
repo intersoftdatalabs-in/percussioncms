@@ -141,11 +141,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
     PSCollection dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
-      Iterator datasets = dataSetColl.iterator();
       PSDependencyHandler wfHandler =
           getDependencyHandler(PSWorkflowDependencyHandler.DEPENDENCY_TYPE);
-      while (datasets.hasNext()) {
-        PSDataSet ds = (PSDataSet) datasets.next();
+      for (Object rawDs : dataSetColl) {
+        PSDataSet ds = (PSDataSet) rawDs;
         if (ds instanceof PSContentEditor) {
           PSContentEditor ce = (PSContentEditor) ds;
           // add system def if haven't already
@@ -190,7 +189,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
           PSDependencyHandler sharedHandler =
               getDependencyHandler(PSSharedGroupDependencyHandler.DEPENDENCY_TYPE);
-          Iterator sharedIncludes = ceMapper.getSharedFieldIncludes();
+          Iterator<?> sharedIncludes = ceMapper.getSharedFieldIncludes();
           while (sharedIncludes.hasNext()) {
             String groupName = (String) sharedIncludes.next();
             PSDependency sharedGrpDep = sharedHandler.getDependency(tok, groupName);
@@ -266,7 +265,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
       throw new IllegalArgumentException("Invalid arguments provided");
@@ -363,12 +362,12 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @throws PSDeployException if there are any errors. if there is no dependency file in the
    *     archive for the specified dependency object, or any other error occurs.
    */
-  protected static Iterator getItemDefFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
-      throws PSDeployException {
+  protected static Iterator<PSDependencyFile> getItemDefFilesFromArchive(
+      PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -384,7 +383,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
       throw new IllegalArgumentException("Invalid arguments provided");
@@ -687,9 +686,9 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     PSDependencyFile nodeFile = null;
     Set<PSContentTemplateDesc> tmpRel = null;
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     while (files.hasNext()) {
-      PSDependencyFile depFile = (PSDependencyFile) files.next();
+      PSDependencyFile depFile = files.next();
       if (depFile.getType() == PSDependencyFile.TYPE_NODE_DEFINITION) {
         nodeFile = depFile;
         break;
@@ -896,7 +895,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
             PSExceptionUtils.getMessageForLog(e));
       }
     }
-    return new PSPair(item, curVer);
+    return new PSPair<>(item, curVer);
   }
 
   /**
@@ -988,11 +987,13 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         Integer defaultWfId = getDefaultWorkflowId(wfInfo);
         if (defaultWfId != -1) {
           if (wfInfo == null) {
-            wfInfo = new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, new ArrayList());
+            wfInfo =
+                new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, new ArrayList<Integer>());
             ce.setWorkflowInfo(wfInfo);
           }
 
-          List wfIds = wfInfo.getWorkflowIds();
+          @SuppressWarnings("unchecked")
+          List<Integer> wfIds = wfInfo.getWorkflowIds();
           if (!wfIds.contains(defaultWfId)) {
             wfIds.add(defaultWfId);
           }
@@ -1188,7 +1189,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -1232,10 +1233,9 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
       if (dataSetColl == null) return idTypes;
 
-      Iterator datasets = dataSetColl.iterator();
-      while (datasets.hasNext()) {
-        List mappings = new ArrayList();
-        PSDataSet ds = (PSDataSet) datasets.next();
+      for (Object rawDs : dataSetColl) {
+        List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
+        PSDataSet ds = (PSDataSet) rawDs;
         String reqName = PSApplicationDependencyHandler.getResourceName(ds);
 
         // check page selection/validation properties
@@ -1272,7 +1272,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
           idTypes.addMappings(
               reqName, IPSDeployConstants.ID_TYPE_ELEMENT_CE_UI_DEF, mappings.iterator());
 
-          // walk all other possiblities
+          // walk all other possibilities
           PSApplicationFlow appFlow = ce.getApplicationFlow();
           if (appFlow != null) {
             mappings.clear();
@@ -1301,7 +1301,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
               mappings.iterator());
 
           mappings.clear();
-          Iterator links = ce.getSectionLinkList();
+          Iterator<?> links = ce.getSectionLinkList();
           while (links.hasNext()) {
             PSAppTransformer.checkUrlRequest(mappings, (PSUrlRequest) links.next(), null);
           }
@@ -1412,7 +1412,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CE_OUTPUT_TRANSLATIONS)) {
             PSAppTransformer.transformConditionalExits(ce.getOutputTranslations(), mapping, idMap);
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CE_SECTION_LINK_LIST)) {
-            Iterator links = ce.getSectionLinkList();
+            Iterator<?> links = ce.getSectionLinkList();
             while (links.hasNext()) {
               PSAppTransformer.transformUrlRequest((PSUrlRequest) links.next(), mapping, idMap);
             }
