@@ -36,12 +36,11 @@ public class PSRegionCssList extends PSAbstractDataObject {
     return regions;
   }
 
+  @SuppressWarnings("unchecked")
   public void setRegions(List<PSRegionCSS> regionList) {
     notNull(regionList);
-    if (regionList == null) {
-      regions = null;
-    } else if (regionList instanceof ArrayList) {
-      regions = (ArrayList) regionList;
+    if (regionList instanceof ArrayList) {
+      regions = (ArrayList<PSRegionCSS>) regionList;
     } else {
       regions = new ArrayList<>(regionList);
     }

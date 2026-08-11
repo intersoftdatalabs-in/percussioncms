@@ -162,6 +162,59 @@ public class PSSerializableListWrappersTest {
     section.setChildIds(null);
     assertNotNull(section.getChildIds());
     assertTrue(section.getChildIds().isEmpty());
+
+    // PSSectionNode: null → empty; share ArrayList; copy non-ArrayList
+    var sectionNode = new com.percussion.sitemanage.data.PSSectionNode();
+    sectionNode.setChildNodes(null);
+    assertNotNull(sectionNode.getChildNodes());
+    assertTrue(sectionNode.getChildNodes().isEmpty());
+    var sharedChildren = new ArrayList<com.percussion.sitemanage.data.PSSectionNode>();
+    sectionNode.setChildNodes(sharedChildren);
+    assertTrue(
+        sectionNode.getChildNodes() == sharedChildren,
+        "setChildNodes should share concrete ArrayList");
+    List<com.percussion.sitemanage.data.PSSectionNode> linkedChildren = new LinkedList<>();
+    sectionNode.setChildNodes(linkedChildren);
+    assertTrue(sectionNode.getChildNodes() instanceof ArrayList);
+    assertTrue(sectionNode.getChildNodes() != linkedChildren);
+
+    // notNull-guarded setters: share HashMap; copy non-HashMap (no dead null branch)
+    var contentItem = new com.percussion.share.dao.impl.PSContentItem();
+    Map<String, Object> sharedMap = new HashMap<>();
+    sharedMap.put("k", "v");
+    contentItem.setFields(sharedMap);
+    assertTrue(contentItem.getFields() == sharedMap, "setFields should share concrete HashMap");
+    Map<String, Object> treeMap = new java.util.TreeMap<>();
+    treeMap.put("k", "v");
+    contentItem.setFields(treeMap);
+    assertTrue(contentItem.getFields() instanceof HashMap);
+    assertTrue(contentItem.getFields() != treeMap);
+    assertEquals("v", contentItem.getFields().get("k"));
+    treeMap.put("k2", "v2");
+    assertEquals(1, contentItem.getFields().size());
+
+    var regionCss = new com.percussion.theme.data.PSRegionCSS();
+    List<com.percussion.theme.data.PSRegionCSS.Property> props =
+        new LinkedList<>();
+    regionCss.setProperties(props);
+    assertTrue(regionCss.getProperties() instanceof ArrayList);
+    assertTrue(regionCss.getProperties() != props);
+
+    var regionList = new com.percussion.theme.data.PSRegionCssList();
+    List<com.percussion.theme.data.PSRegionCSS> regions = new LinkedList<>();
+    regionList.setRegions(regions);
+    assertTrue(regionList.getRegions() instanceof ArrayList);
+
+    var fieldsList = new com.percussion.widgetbuilder.data.PSWidgetBuilderFieldsListData();
+    List<com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData> fields =
+        new LinkedList<>();
+    fieldsList.setFields(fields);
+    assertTrue(fieldsList.getFields() instanceof ArrayList);
+
+    var resourceList = new com.percussion.widgetbuilder.data.PSWidgetBuilderResourceListData();
+    List<String> resources = new LinkedList<>();
+    resourceList.setResourceList(resources);
+    assertTrue(resourceList.getResourceList() instanceof ArrayList);
   }
 
   private static void assertSerialVersionUid(Class<?> type) throws Exception {

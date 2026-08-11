@@ -39,12 +39,11 @@ public class PSContentItem extends PSDataItemSummary implements IPSContentItem {
 
   /** {@inheritDoc} */
   @Override
+  @SuppressWarnings("unchecked")
   public void setFields(Map<String, Object> fields) {
     notNull(fields, "fields");
-    if (fields == null) {
-      this.fields = null;
-    } else if (fields instanceof HashMap) {
-      this.fields = (HashMap) fields;
+    if (fields instanceof HashMap) {
+      this.fields = (HashMap<String, Object>) fields;
     } else {
       this.fields = new HashMap<>(fields);
     }

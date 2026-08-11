@@ -56,12 +56,11 @@ public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
    *
    * @param resourceList The list, not {@code null}, may be empty.
    */
+  @SuppressWarnings("unchecked")
   public void setResourceList(List<String> resourceList) {
     Objects.requireNonNull(resourceList, "resourceList must not be null");
-    if (resourceList == null) {
-      this.resourceList = null;
-    } else if (resourceList instanceof ArrayList) {
-      this.resourceList = (ArrayList) resourceList;
+    if (resourceList instanceof ArrayList) {
+      this.resourceList = (ArrayList<String>) resourceList;
     } else {
       this.resourceList = new ArrayList<>(resourceList);
     }

@@ -60,12 +60,11 @@ public class PSWidgetBuilderFieldsListData extends PSAbstractDataObject {
    *
    * @param fields The fields, not {@code null}, may be empty.
    */
+  @SuppressWarnings("unchecked")
   public void setFields(List<PSWidgetBuilderFieldData> fields) {
     Objects.requireNonNull(fields, "fields must not be null");
-    if (fields == null) {
-      this.fields = null;
-    } else if (fields instanceof ArrayList) {
-      this.fields = (ArrayList) fields;
+    if (fields instanceof ArrayList) {
+      this.fields = (ArrayList<PSWidgetBuilderFieldData>) fields;
     } else {
       this.fields = new ArrayList<>(fields);
     }

@@ -144,12 +144,11 @@ public class PSRegionCSS extends PSAbstractDataObject
     return properties;
   }
 
+  @SuppressWarnings("unchecked")
   public void setProperties(List<Property> props) {
     notNull(props);
-    if (props == null) {
-      properties = null;
-    } else if (props instanceof ArrayList) {
-      properties = (ArrayList) props;
+    if (props instanceof ArrayList) {
+      properties = (ArrayList<Property>) props;
     } else {
       properties = new ArrayList<>(props);
     }
