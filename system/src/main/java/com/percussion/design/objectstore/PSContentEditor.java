@@ -122,7 +122,7 @@ public class PSContentEditor extends PSDataSet {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSContentEditor(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSContentEditor(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this(sourceNode, parentDoc, parentComponents, true);
   }
@@ -138,7 +138,7 @@ public class PSContentEditor extends PSDataSet {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditor(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean runUpdater)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents, boolean runUpdater)
       throws PSUnknownNodeTypeException {
     /*
      * This constructor has been created as kind of hack to resolve the
@@ -627,7 +627,7 @@ public class PSContentEditor extends PSDataSet {
    *      com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
    */
   @Override
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

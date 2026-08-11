@@ -45,7 +45,7 @@ public class PSExtensionCallSet extends PSCollectionComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSExtensionCallSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSExtensionCallSet(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -106,7 +106,7 @@ public class PSExtensionCallSet extends PSCollectionComponent {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXExtensionCallSet
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

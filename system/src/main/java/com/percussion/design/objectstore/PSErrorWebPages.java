@@ -57,7 +57,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSErrorWebPages(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -191,7 +191,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXErrorWebPages
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

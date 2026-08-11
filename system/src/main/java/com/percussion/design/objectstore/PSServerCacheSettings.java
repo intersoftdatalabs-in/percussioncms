@@ -91,7 +91,7 @@ public class PSServerCacheSettings extends PSComponent {
    * null</code>.
    * @throws PSUnknownNodeTypeException if <code>source</code> is not in the expected format.
    */
-  public PSServerCacheSettings(Element source, IPSDocument parentDoc, List parentComponents)
+  public PSServerCacheSettings(Element source, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
 
@@ -178,7 +178,7 @@ public class PSServerCacheSettings extends PSComponent {
    *     this component. May be <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in the expected format.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 

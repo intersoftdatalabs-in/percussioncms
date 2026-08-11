@@ -47,7 +47,7 @@ public class PSResultPageSet extends PSComponent implements IPSResults {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSResultPageSet(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -158,7 +158,7 @@ public class PSResultPageSet extends PSComponent implements IPSResults {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResults
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

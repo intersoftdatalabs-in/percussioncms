@@ -46,7 +46,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSTextLiteral(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSTextLiteral(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -156,7 +156,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXTextLiteral
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

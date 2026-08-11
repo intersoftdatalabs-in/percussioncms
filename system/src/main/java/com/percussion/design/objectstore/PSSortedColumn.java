@@ -45,7 +45,7 @@ public class PSSortedColumn extends PSBackEndColumn {
    * @throws PSUnknownNodeTypeException if the XML element node is <code>null
    * </code> or not of the appropriate type.
    */
-  public PSSortedColumn(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSSortedColumn(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     /*
        Use super's empty constructor, rather than its Element constructor,
@@ -146,7 +146,7 @@ public class PSSortedColumn extends PSBackEndColumn {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXSortedColumn
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

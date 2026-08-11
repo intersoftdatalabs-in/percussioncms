@@ -37,7 +37,7 @@ public class PSRelationshipProperty extends PSNamedReplacementValue {
    * @throws IllegalArgumentException if source is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
-  public PSRelationshipProperty(Element source, IPSDocument parent, List parentComponents)
+  public PSRelationshipProperty(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(source, parent, parentComponents);
   }

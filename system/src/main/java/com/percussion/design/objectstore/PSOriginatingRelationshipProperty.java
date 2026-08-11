@@ -38,7 +38,7 @@ public class PSOriginatingRelationshipProperty extends PSNamedReplacementValue {
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public PSOriginatingRelationshipProperty(
-      Element source, IPSDocument parent, List parentComponents) throws PSUnknownNodeTypeException {
+      Element source, IPSDocument parent, List<IPSComponent> parentComponents) throws PSUnknownNodeTypeException {
     super(source, parent, parentComponents);
   }
 

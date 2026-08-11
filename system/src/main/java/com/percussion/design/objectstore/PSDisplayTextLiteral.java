@@ -61,7 +61,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type or if
    *     sourceNode is <code>null</code>
    */
-  public PSDisplayTextLiteral(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSDisplayTextLiteral(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -85,7 +85,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
   }
 
   // see interface for description; see toXml() for the format
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
     m_displayValue = sourceNode.getAttribute("displayText");

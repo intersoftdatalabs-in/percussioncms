@@ -71,7 +71,7 @@ public class PSControlRef extends PSComponent {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSControlRef(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSControlRef(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -154,7 +154,7 @@ public class PSControlRef extends PSComponent {
   }
 
   // see interface for description
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
 

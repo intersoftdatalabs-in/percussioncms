@@ -149,7 +149,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    */
-  public PSSubject(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSSubject(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -374,7 +374,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXSubject
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -384,7 +384,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
    * virtual {@code fromXml} dispatch so subclasses ({@link PSGlobalSubject}, {@link
    * PSRelativeSubject}) can initialize safely.
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

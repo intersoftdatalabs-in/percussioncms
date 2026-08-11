@@ -275,7 +275,7 @@ public class PSSearchProperties extends PSComponent {
    * Expects a node that conforms to the dtd specified for PSXSearchProperties in
    * sys_basicObjects.dtd. See base class for description of params.
    */
-  public final void fromXml(Element source, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element source, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

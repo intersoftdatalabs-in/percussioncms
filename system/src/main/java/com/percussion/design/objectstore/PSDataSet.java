@@ -54,7 +54,7 @@ public class PSDataSet extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSDataSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSDataSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     // Private path avoids virtual fromXml (e.g. PSContentEditor) during super construction.
@@ -641,7 +641,7 @@ public class PSDataSet extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataSet
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -650,7 +650,7 @@ public class PSDataSet extends PSComponent {
    * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
    * (e.g. {@link PSContentEditor}) before subclass fields are initialized.
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

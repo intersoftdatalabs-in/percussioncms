@@ -149,7 +149,7 @@ public class PSConditional extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSConditional(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSConditional(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -421,7 +421,7 @@ public class PSConditional extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXConditional
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

@@ -55,7 +55,7 @@ public class PSTableLocator extends PSComponent {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSTableLocator(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSTableLocator(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // check for a converter
     IPSComponentConverter converter = getComponentConverter(this.getClass());
@@ -215,7 +215,7 @@ public class PSTableLocator extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

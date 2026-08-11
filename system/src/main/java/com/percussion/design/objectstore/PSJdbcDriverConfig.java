@@ -120,7 +120,7 @@ public class PSJdbcDriverConfig extends PSComponent {
   public void fromXml(
       Element sourceNode,
       @SuppressWarnings("unused") IPSDocument parentDoc,
-      @SuppressWarnings("unused") List parentComponents)
+      @SuppressWarnings("unused") List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 

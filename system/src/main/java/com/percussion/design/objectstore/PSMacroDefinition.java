@@ -37,7 +37,7 @@ public class PSMacroDefinition extends PSComponent {
    * @param parentComponents the parent objects of this object, may be <code>null</code> or empty.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
-  public PSMacroDefinition(Element source, IPSDocument parent, List parentComponents)
+  public PSMacroDefinition(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(source, parent, parentComponents);
   }
@@ -141,7 +141,7 @@ public class PSMacroDefinition extends PSComponent {
    * @param parentComponents may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
-  public void fromXml(Element source, IPSDocument parent, List parentComponents)
+  public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(source);
 

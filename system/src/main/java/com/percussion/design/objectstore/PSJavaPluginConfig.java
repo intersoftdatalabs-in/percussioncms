@@ -117,7 +117,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   // Implementation of the method defined in the intreface
   // Implementation of the interface method
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (!sourceNode.getTagName().equals(XML_NODE_NAME)) {
       String[] args = {XML_NODE_NAME, sourceNode.getTagName()};

@@ -59,7 +59,7 @@ public class PSSecurityProviderInstance extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSSecurityProviderInstance(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     // Private path avoids virtual fromXml dispatch before subclass fields initialize.
@@ -308,7 +308,7 @@ public class PSSecurityProviderInstance extends PSComponent {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -318,7 +318,7 @@ public class PSSecurityProviderInstance extends PSComponent {
    * virtual {@code fromXml} dispatch so subclasses (e.g. legacy security provider instances) can
    * initialize safely while still overriding public {@code fromXml}.
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

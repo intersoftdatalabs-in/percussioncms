@@ -46,7 +46,7 @@ public class PSLogger extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSLogger(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSLogger(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -480,7 +480,7 @@ public class PSLogger extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXLogger
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

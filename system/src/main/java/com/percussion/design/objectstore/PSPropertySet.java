@@ -52,7 +52,7 @@ public class PSPropertySet extends PSCollectionComponent {
    */
   @Override
   public void fromXml(
-      Element sourceNode, @SuppressWarnings("unused") IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, @SuppressWarnings("unused") IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

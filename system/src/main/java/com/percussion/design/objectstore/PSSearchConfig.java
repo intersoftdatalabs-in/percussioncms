@@ -114,7 +114,7 @@ public class PSSearchConfig extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node does not conform to the required
    *     dtd.
    */
-  public PSSearchConfig(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSSearchConfig(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this(); // Setup defaults
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -233,7 +233,7 @@ public class PSSearchConfig extends PSComponent {
    *     method.
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
     String searchEnabled = sourceNode.getAttribute(SEARCH_ENABLED_ATTR);

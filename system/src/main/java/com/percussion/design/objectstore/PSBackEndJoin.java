@@ -78,7 +78,7 @@ public class PSBackEndJoin extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSBackEndJoin(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSBackEndJoin(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -379,7 +379,7 @@ public class PSBackEndJoin extends PSComponent {
    * @param parentComponents all the parent objects of this object, may be <code>null</code>
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

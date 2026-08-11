@@ -95,7 +95,8 @@ public class PSCollectionComponentSerializationTest {
     }
 
     @Override
-    public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents) {
+    public void fromXml(
+        Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents) {
       throw new UnsupportedOperationException("not used in serialization test");
     }
   }

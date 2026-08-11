@@ -60,7 +60,7 @@ public class PSConfig extends PSComponent {
    * @param parentComponents the parent objects of this object, may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSConfig(Element source, IPSDocument parent, List parentComponents)
+  public PSConfig(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(source, parent, parentComponents);
   }
@@ -200,7 +200,7 @@ public class PSConfig extends PSComponent {
    * @param parentComponents the parent objects of this object, may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public void fromXml(Element source, IPSDocument parent, List parentComponents)
+  public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

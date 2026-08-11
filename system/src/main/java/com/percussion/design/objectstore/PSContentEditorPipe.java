@@ -58,7 +58,7 @@ public class PSContentEditorPipe extends PSPipe {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSContentEditorPipe(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSContentEditorPipe(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -226,7 +226,7 @@ public class PSContentEditorPipe extends PSPipe {
   /**
    * @see IPSComponent
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

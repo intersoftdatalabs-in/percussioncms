@@ -47,7 +47,7 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSLiteralSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSLiteralSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this(PSLiteral.class);
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -101,7 +101,7 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
     return buf.toString();
   }
 
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
 
     if (sourceNode == null)
