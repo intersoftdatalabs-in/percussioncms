@@ -25,14 +25,12 @@ import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.utils.xml.PSXmlUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -158,12 +156,49 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, METADATA);
   }
 
-  @SuppressWarnings("this-escape")
+  /**
+   * Copy constructor. Copies interface properties and, when {@code ds} is a {@link
+   * PSJBossJndiDatasource}, all JBoss-specific round-trip fields. Uses the multi-arg super
+   * constructor (driver-specific defaults) plus direct field assignment so construction does not
+   * leak {@code this} through BeanUtils / overridable setters ({@code this-escape}).
+   *
+   * @param ds source datasource, may not be {@code null}
+   */
   public PSJBossJndiDatasource(IPSJndiDatasource ds) {
-    try {
-      BeanUtils.copyProperties(this, ds);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
+    super(
+        Objects.requireNonNull(ds, "ds").getName(),
+        ds.getDriverName(),
+        ds.getDriverClassName(),
+        ds.getServer(),
+        ds.getUserId(),
+        ds.getPassword());
+    // Overlay remaining IPSJndiDatasource properties via protected fields only (no setters / this-escape)
+    this.securityDomain = ds.getSecurityDomain();
+    this.minConnections = ds.getMinConnections();
+    this.maxConnections = ds.getMaxConnections();
+    this.idleTimeout = ds.getIdleTimeout();
+    this.connectionTestQuery = ds.getConnectionTestQuery();
+    this.isEncrypted = ds.isEncrypted();
+    this.id = ds.getId();
+
+    if (ds instanceof PSJBossJndiDatasource src) {
+      this.m_useJavaContext = src.m_useJavaContext;
+      this.m_transactionIsolation = src.m_transactionIsolation;
+      this.m_connectionPropMap = new LinkedHashMap<>(src.m_connectionPropMap);
+      this.m_applicationManagedSecurity = src.m_applicationManagedSecurity;
+      this.m_securityDomainApp = src.m_securityDomainApp;
+      this.m_blockingTimeoutMillis = src.m_blockingTimeoutMillis;
+      this.m_noTxSeparatePools = src.m_noTxSeparatePools;
+      this.m_newConnectionSql = src.m_newConnectionSql;
+      this.m_checkValidConnectionSql = src.m_checkValidConnectionSql;
+      this.m_trackStatements = src.m_trackStatements;
+      this.m_preparedStatementCacheSize = src.m_preparedStatementCacheSize;
+      this.m_depends = new ArrayList<>(src.m_depends);
+      this.m_connectionCheckerClass = src.m_connectionCheckerClass;
+      this.m_backgroundValidation = src.m_backgroundValidation;
+      this.m_backgroundValidationMillis = src.m_backgroundValidationMillis;
+      this.m_validateOnMatch = src.m_validateOnMatch;
+      this.m_exceptionSorterClass = src.m_exceptionSorterClass;
     }
   }
 

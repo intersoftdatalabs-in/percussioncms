@@ -71,7 +71,6 @@ import org.apache.commons.lang3.StringUtils;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings("this-escape")
 public class PSException extends java.lang.Exception implements IPSException {
 
   private static transient IPSErrorManager errorManager = new PSErrorManagerDefaultImpl();
@@ -223,7 +222,8 @@ public class PSException extends java.lang.Exception implements IPSException {
     if (e == null) {
       throw new IllegalArgumentException("e must never be null");
     }
-    setErrorCode(0);
+    // Direct field assign — avoid overridable setErrorCode during construction (this-escape)
+    m_code = 0;
   }
 
   /**
@@ -325,8 +325,11 @@ public class PSException extends java.lang.Exception implements IPSException {
     return this.getClass().getName() + ": " + getLocalizedMessage();
   }
 
-  /** Set the parsing error code associated with this exception. */
-  public void setErrorCode(int code) {
+  /**
+   * Set the parsing error code associated with this exception. Final so subclasses cannot override
+   * and constructors can safely document that this mutator is not a this-escape vector.
+   */
+  public final void setErrorCode(int code) {
     m_code = code;
   }
 

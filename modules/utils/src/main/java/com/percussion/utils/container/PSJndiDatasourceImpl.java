@@ -34,7 +34,8 @@ public class PSJndiDatasourceImpl implements IPSJndiDatasource {
   protected int idleTimeout = 59000;
   protected String connectionTestQuery;
   protected boolean isEncrypted;
-  private int id;
+  /** Package/subclass-visible so copy constructors may assign without calling setId (this-escape). */
+  protected int id;
 
   public PSJndiDatasourceImpl() {}
 
@@ -185,8 +186,12 @@ public class PSJndiDatasourceImpl implements IPSJndiDatasource {
     return id;
   }
 
+  /**
+   * Final so copy / multi-arg constructors may assign id without {@code this-escape} when a
+   * subclass is still under construction.
+   */
   @Override
-  public void setId(int id) {
+  public final void setId(int id) {
     this.id = id;
   }
 
