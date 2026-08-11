@@ -53,20 +53,23 @@ import java.util.Optional;
  * Dual-run policy and exit criteria: {@code
  * docs/ai-generated/tasks/template-assembler-normalization/dual-run-legacy-definition-xml-shim.md}.
  *
- * <h2>Runtime entry points (document only — wiring is incremental)</h2>
+ * <h2>Runtime entry points</h2>
  *
  * <ul>
- *   <li>Widgets: {@code projects/sitemanage/.../dao/impl/PSWidgetDao} — repository {@code
- *       ${rxdeploydir}/rxconfig/Widgets} (legacy XML files named by definition id).
+ *   <li>Widgets: {@code projects/sitemanage/.../dao/impl/PSWidgetDao} — production dual-run wire
+ *       (#3024). Repository {@code ${rxdeploydir}/rxconfig/Widgets} loads install Widget XML;
+ *       optional {@code widgetDao.modernPackageRoots} feeds this API so modern manifests win when
+ *       present. Selection kinds are test-visible on the DAO. Do <strong>not</strong> delete this
+ *       shim (#2852).
  *   <li>Package source trees: {@code modules/perc-packages/.../Packages/<id>/} with either {@code
  *       component-package.json} (modern) or {@code sys__UserDependency--rxconfig/Widgets/*.xml}
  *       (legacy).
  *   <li>Gadget registry / page meta: see dual-run operator doc for remaining load surfaces.
  * </ul>
  *
- * <p>This class owns <strong>selection logic</strong> only. Full product conversion and DAO
- * rewrites are sibling / residual slices; callers pass paths and act on the returned {@link
- * PSDefinitionSourceSelection}.
+ * <p>This class owns <strong>selection logic</strong>. Callers pass paths and act on the returned
+ * {@link PSDefinitionSourceSelection}. Content loaders may still read install Widget XML while
+ * reporting modern as the preferred dual-run kind when a Component Package Manifest is present.
  *
  * <p>Filesystem APIs use {@link Path} / {@link Files} (portable Windows / Linux / macOS).
  */
