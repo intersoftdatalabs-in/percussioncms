@@ -1,0 +1,5 @@
+#if ($perc.isEditMode())##
+        #createEmptyWidgetContent("most-read-sample-content", "This most read blog post widget is showing sample content.")##
+    #elseif ( ! $perc.isEditMode())##
+        <div class="$!{rootclass} perc-most-read-blog-posts-view" data-query="$!{data}"$!{ariaLabel}$!{ariaRole}></div>
+    #end##

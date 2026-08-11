@@ -1,0 +1,5 @@
+#if ($perc.isEditMode())##
+        #createEmptyWidgetContent("result-sample-content", "This result widget is showing sample content.")##
+    #else##
+        <div class="$!{rootclass} perc-result-view" data-query="$!{data}"></div>
+    #end##

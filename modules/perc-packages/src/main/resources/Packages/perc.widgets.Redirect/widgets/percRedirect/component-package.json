@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percRedirect",
+  "name": "Redirect",
+  "version": "1.1.5",
+  "description": "Adds a client side redirect to a Page.",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.SystemObjects",
+      "version": "1.0.0",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Redirect",
+    "description": "Adds a client side redirect to a Page.",
+    "thumbnail": "resources/redirect-widget-icon-tray.png",
+    "icon": "resources/redirect-widget-icon-tray.png",
+    "author": "www.percussion.com",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percRedirect",
+      "ref": "contentTypes/percRedirect"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percRedirectSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percRedirectSnippet.vm",
+      "contentType": "percRedirect",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percRedirect'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "targetUrl",
+          "expression": "$assetItem.getNode().getProperty('targetUrl').String"
+        },
+        {
+          "variable": "enabled",
+          "expression": "$assetItem.getNode().getProperty('enabled').String"
+        },
+        {
+          "variable": "delayInSeconds",
+          "expression": "$assetItem.getNode().getProperty('delayInSeconds').String"
+        },
+        {
+          "variable": "enabled",
+          "expression": "\"yes\""
+        },
+        {
+          "variable": "delayInSeconds",
+          "expression": "0"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = 'percRedirect';\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n       if (! $assets.isEmpty())\n       {\n           $assetItem = $assets.get(0); ## Get first item (which may be only item)\n           $targetUrl = $assetItem.getNode().getProperty('targetUrl').String;\n\t   $enabled = $assetItem.getNode().getProperty('enabled').String;\n\t   $delayInSeconds = $assetItem.getNode().getProperty('delayInSeconds').String;\n\n\t   if($enabled == null)\n\t\t$enabled = \"yes\";\n\n\t   if($delayInSeconds == null || $delayInSeconds < 0)\n\t\t$delayInSeconds = 0;\n       }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percRedirectContent",
+      "allowedContentTypes": [
+        "percRedirect"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/redirect-widget-icon-tray.png",
+      "target": "rx_resources/widgets/percRedirect/images/redirect-widget-icon-tray.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": []
+}

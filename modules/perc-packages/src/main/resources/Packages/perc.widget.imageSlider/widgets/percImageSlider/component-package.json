@@ -1,0 +1,636 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percImageSlider",
+  "name": "Image Slider",
+  "version": "1.4.4",
+  "description": " ",
+  "publisher": {
+    "name": "https://www.percussion.com",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Image Slider",
+    "category": "content,rich media",
+    "description": " ",
+    "thumbnail": "resources/percImageSliderIcon.png",
+    "icon": "resources/percImageSliderIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 1200,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percImageSlider",
+      "ref": "contentTypes/percImageSlider"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percImageSliderSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percImageSliderSnippet.vm",
+      "contentType": "percImageSlider",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percImageSlider'"
+        },
+        {
+          "variable": "captionclass",
+          "expression": "$perc.widget.item.cssProperties.get('captionclass')"
+        },
+        {
+          "variable": "captionclass",
+          "expression": "$captionclass.trim()"
+        },
+        {
+          "variable": "captionclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "widgetProps",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "perc_slide_show_number_desktop",
+          "expression": "$widgetProps.get(\"perc_slide_show_number_desktop\")"
+        },
+        {
+          "variable": "perc_slide_show_number_tablet",
+          "expression": "$widgetProps.get(\"perc_slide_show_number_tablet\")"
+        },
+        {
+          "variable": "perc_slide_show_number_mobile",
+          "expression": "$widgetProps.get(\"perc_slide_show_number_mobile\")"
+        },
+        {
+          "variable": "perc_slides_to_scroll",
+          "expression": "$widgetProps.get(\"perc_slide_scroll_number\")"
+        },
+        {
+          "variable": "perc_autoplay_speed",
+          "expression": "$widgetProps.get(\"perc_autoplay_speed\")"
+        },
+        {
+          "variable": "perc_scroll_speed",
+          "expression": "$widgetProps.get(\"perc_scroll_speed\")"
+        },
+        {
+          "variable": "perc_slide_image_height",
+          "expression": "$widgetProps.get(\"perc_slide_image_height\")"
+        },
+        {
+          "variable": "perc_slide_caption_location",
+          "expression": "$widgetProps.get(\"perc_slide_caption_location\")"
+        },
+        {
+          "variable": "perc_slide_caption_alignment",
+          "expression": "$widgetProps.get(\"perc_slide_caption_alignment\")"
+        },
+        {
+          "variable": "perc_slide_caption_vertical_alignment",
+          "expression": "$widgetProps.get(\"perc_slide_caption_vertical_alignment\")"
+        },
+        {
+          "variable": "perc_slide_fade",
+          "expression": "$widgetProps.get(\"perc_slide_fade\")"
+        },
+        {
+          "variable": "perc_show_dots",
+          "expression": "$widgetProps.get(\"perc_show_dots\")"
+        },
+        {
+          "variable": "perc_show_arrows",
+          "expression": "$widgetProps.get(\"perc_show_arrows\")"
+        },
+        {
+          "variable": "perc_slider_tablet_breakpoint",
+          "expression": "$widgetProps.get(\"perc_slider_tablet_breakpoint\")"
+        },
+        {
+          "variable": "perc_slider_mobile_breakpoint",
+          "expression": "$widgetProps.get(\"perc_slider_mobile_breakpoint\")"
+        },
+        {
+          "variable": "perc_slide_layout",
+          "expression": "$widgetProps.get(\"perc_slide_layout\")"
+        },
+        {
+          "variable": "perc_slide_thumbnail_height",
+          "expression": "$widgetProps.get(\"perc_slide_thumbnail_height\")"
+        },
+        {
+          "variable": "perc_slide_theme",
+          "expression": "$widgetProps.get(\"perc_slide_theme\")"
+        },
+        {
+          "variable": "perc_enable_custom_arrows",
+          "expression": "$widgetProps.get(\"perc_enable_custom_arrows\")"
+        },
+        {
+          "variable": "perc_prev_arrow_class",
+          "expression": "$widgetProps.get(\"perc_prev_arrow_class\")"
+        },
+        {
+          "variable": "perc_next_arrow_class",
+          "expression": "$widgetProps.get(\"perc_next_arrow_class\")"
+        },
+        {
+          "variable": "perc_slide_autoplay",
+          "expression": "$widgetProps.get(\"perc_slide_autoplay\")"
+        },
+        {
+          "variable": "perc_thumbnail_height",
+          "expression": "$widgetProps.get(\"perc_thumbnail_height\")"
+        },
+        {
+          "variable": "perc_slide_caption_tag_type",
+          "expression": "$widgetProps.get(\"perc_slide_caption_tag_type\")"
+        },
+        {
+          "variable": "perc_slide_caption_2_tag_type",
+          "expression": "$widgetProps.get(\"perc_slide_caption_2_tag_type\")"
+        },
+        {
+          "variable": "perc_slide_caption_alignment",
+          "expression": "$widgetProps.get(\"perc_slide_caption_alignment\")"
+        },
+        {
+          "variable": "perc_slide_targetblank",
+          "expression": "$widgetProps.get(\"perc_slide_targetblank\")"
+        },
+        {
+          "variable": "perc_slide_image_link",
+          "expression": "$widgetProps.get(\"perc_slide_image_link\")"
+        },
+        {
+          "variable": "perc_slide_fade",
+          "expression": "'true'"
+        },
+        {
+          "variable": "perc_slide_show_number_desktop",
+          "expression": "1"
+        },
+        {
+          "variable": "perc_slide_show_number_tablet",
+          "expression": "1"
+        },
+        {
+          "variable": "perc_slide_show_number_mobile",
+          "expression": "1"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "friendlySliderName",
+          "expression": "$assetItem.getNode().getProperty('sliderName').String"
+        },
+        {
+          "variable": "data",
+          "expression": "$assetItem.Node.getProperty('rx:sliderImageJSON').getString()"
+        },
+        {
+          "variable": "json",
+          "expression": "$rx.pageutils.createJsonObject($data)"
+        },
+        {
+          "variable": "sliderJsonData",
+          "expression": "$json.toString()"
+        },
+        {
+          "variable": "sliderJsonData",
+          "expression": "$json.toString().replace('config','percJSONConfig')"
+        },
+        {
+          "variable": "updatedData",
+          "expression": "$rx.pageutils.updateManagedLinksInJSON($perc.linkContext, $sliderJsonData)"
+        },
+        {
+          "variable": "json",
+          "expression": "$rx.pageutils.createJsonObject($updatedData)"
+        },
+        {
+          "variable": "sliderId",
+          "expression": "$assetItem.Node.getProperty('rx:sys_contentid').getString()"
+        },
+        {
+          "variable": "sliderName",
+          "expression": "$json.sliderName"
+        },
+        {
+          "variable": "imageSliderArray",
+          "expression": "$rx.pageutils.createJsonArray($json, \"percJSONConfig\")"
+        },
+        {
+          "variable": "validNumbers",
+          "expression": "'true'"
+        },
+        {
+          "variable": "validNumbers",
+          "expression": "'false'"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    if (!empty($rootclass)) {\n       $rootclass = $rootclass;\n    }\n    else {\n      $rootclass = 'percImageSlider';\n    }\n    $captionclass = $perc.widget.item.cssProperties.get('captionclass');\n    if (!empty($captionclass)) {\n       $captionclass = $captionclass.trim();\n    }\n    else {\n       $captionclass= \"\";\n    }\n\n       $pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $widgetProps = $perc.widget.item.properties;\n       $perc_slide_show_number_desktop = $widgetProps.get(\"perc_slide_show_number_desktop\");\n       $perc_slide_show_number_tablet = $widgetProps.get(\"perc_slide_show_number_tablet\");\n       $perc_slide_show_number_mobile = $widgetProps.get(\"perc_slide_show_number_mobile\");\n       $perc_slides_to_scroll = $widgetProps.get(\"perc_slide_scroll_number\");\n       $perc_autoplay_speed = $widgetProps.get(\"perc_autoplay_speed\");\n       $perc_scroll_speed = $widgetProps.get(\"perc_scroll_speed\");\n       $perc_slide_image_height = $widgetProps.get(\"perc_slide_image_height\");\n       $perc_slide_caption_location = $widgetProps.get(\"perc_slide_caption_location\");\n       $perc_slide_caption_alignment = $widgetProps.get(\"perc_slide_caption_alignment\");\n       $perc_slide_caption_vertical_alignment = $widgetProps.get(\"perc_slide_caption_vertical_alignment\");\n       $perc_slide_fade = $widgetProps.get(\"perc_slide_fade\");\n       $perc_show_dots = $widgetProps.get(\"perc_show_dots\");\n       $perc_show_arrows = $widgetProps.get(\"perc_show_arrows\");\n       $perc_slider_tablet_breakpoint = $widgetProps.get(\"perc_slider_tablet_breakpoint\");\n       $perc_slider_mobile_breakpoint = $widgetProps.get(\"perc_slider_mobile_breakpoint\");\n       $perc_slide_layout = $widgetProps.get(\"perc_slide_layout\");\n       $perc_slide_thumbnail_height = $widgetProps.get(\"perc_slide_thumbnail_height\");\n       $perc_slide_theme = $widgetProps.get(\"perc_slide_theme\");\n       $perc_enable_custom_arrows = $widgetProps.get(\"perc_enable_custom_arrows\");\n       $perc_prev_arrow_class = $widgetProps.get(\"perc_prev_arrow_class\");\n       $perc_next_arrow_class = $widgetProps.get(\"perc_next_arrow_class\");\n       $perc_slide_autoplay = $widgetProps.get(\"perc_slide_autoplay\");\n       $perc_thumbnail_height = $widgetProps.get(\"perc_thumbnail_height\");\n       $perc_slide_caption_tag_type = $widgetProps.get(\"perc_slide_caption_tag_type\");\n       $perc_slide_caption_2_tag_type = $widgetProps.get(\"perc_slide_caption_2_tag_type\");\n\t   $perc_slide_caption_alignment = $widgetProps.get(\"perc_slide_caption_alignment\");\n\t   $perc_slide_targetblank = $widgetProps.get(\"perc_slide_targetblank\");\n\t   $perc_slide_image_link = $widgetProps.get(\"perc_slide_image_link\");\n\n       ## sets the required default values if the navigation layout is selected ##\n       if (  $perc_slide_layout == 'navigation') {\n        $perc_slide_fade = 'true';\n        $perc_slide_show_number_desktop = 1;\n        $perc_slide_show_number_tablet = 1;\n        $perc_slide_show_number_mobile = 1;\n       }\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n       if (! $assets.isEmpty())\n       {\n          $assetItem = $assets.get(0); ## Get first item (which may be only item)\n          ## Friendly slider name is error for displaying errors\n          $friendlySliderName = $assetItem.getNode().getProperty('sliderName').String;\n          $data = $assetItem.Node.getProperty('rx:sliderImageJSON').getString();\n          $json = $rx.pageutils.createJsonObject($data);\n          $sliderJsonData = $json.toString();\n          ##$isPresent=false;\n\t      if($json.has('config')){\n            ##$isPresent=true;\n            $sliderJsonData = $json.toString().replace('config','percJSONConfig');\n\t      }\n\n          $updatedData = $rx.pageutils.updateManagedLinksInJSON($perc.linkContext, $sliderJsonData);\n          $json = $rx.pageutils.createJsonObject($updatedData);\n          $sliderId = $assetItem.Node.getProperty('rx:sys_contentid').getString();\n          $sliderName = $json.sliderName;\n          ##$debug = $json.toString();\n          $imageSliderArray = $rx.pageutils.createJsonArray($json, \"percJSONConfig\");\n\n          ## this logic is needed to prevent a slider crash if slide show or scroll values are set to zero ##\n          if( $perc_slide_show_number_desktop != 0 && $perc_slide_show_number_tablet != 0 && $perc_slide_show_number_mobile !=0 && $perc_slides_to_scroll != 0) {\n            $validNumbers = 'true';\n          }\n          else {\n            $validNumbers = 'false';\n          }\n\n        }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percImageSliderContent",
+      "allowedContentTypes": [
+        "percImageSlider"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": "",
+        "captionclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percImageSliderIcon.png",
+      "target": "rx_resources/widgets/percImageSlider/images/percImageSliderIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_slide_autoplay",
+      "displayName": "Autoplay",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_show_dots",
+      "displayName": "Show dots",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_show_arrows",
+      "displayName": "Show arrows",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "perc_enable_custom_arrows",
+      "displayName": "Enable custom arrows",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_prev_arrow_class",
+      "displayName": "External class for previous arrow (ex: fa fa-chevron-left)",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "perc_next_arrow_class",
+      "displayName": "External class for next arrow (ex: fa fa-chevron-right)",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_fade",
+      "displayName": "Fade effect (1 slide at a time must be selected)",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_theme",
+      "displayName": "Theme",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "dark",
+      "enumValues": [
+        {
+          "value": "dark",
+          "displayValue": "Dark"
+        },
+        {
+          "value": "light",
+          "displayValue": "Light"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_layout",
+      "displayName": "Slider Layout (will override \"slides to show\" values)",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "standard",
+      "enumValues": [
+        {
+          "value": "standard",
+          "displayValue": "Standard"
+        },
+        {
+          "value": "navigation",
+          "displayValue": "Navigation"
+        }
+      ]
+    },
+    {
+      "name": "perc_thumbnail_height",
+      "displayName": "Thumbnail height (Navigation layout only)",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "8vw",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_caption_tag_type",
+      "displayName": "Format for slide text field 1",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "p",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_caption_2_tag_type",
+      "displayName": "Format for slide text field 2",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "p",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_caption_location",
+      "displayName": "Slide text location",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "above",
+      "enumValues": [
+        {
+          "value": "above",
+          "displayValue": "Above"
+        },
+        {
+          "value": "over",
+          "displayValue": "Over"
+        },
+        {
+          "value": "below",
+          "displayValue": "Below"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_caption_alignment",
+      "displayName": "Slide text horizontal alignment",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "left",
+      "enumValues": [
+        {
+          "value": "left",
+          "displayValue": "Left"
+        },
+        {
+          "value": "center",
+          "displayValue": "Center"
+        },
+        {
+          "value": "right",
+          "displayValue": "Right"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_caption_vertical_alignment",
+      "displayName": "Slide text vertical alignment (overlay)",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "top",
+      "enumValues": [
+        {
+          "value": "top",
+          "displayValue": "Top"
+        },
+        {
+          "value": "middle",
+          "displayValue": "Middle"
+        },
+        {
+          "value": "bottom",
+          "displayValue": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_image_height",
+      "displayName": "Slide Height",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "250px",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_show_number_desktop",
+      "displayName": "Number of slides to show at a time on desktop",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_show_number_tablet",
+      "displayName": "Number of slides to show at a time on tablet",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_show_number_mobile",
+      "displayName": "Number of slides to show at a time on mobile",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_scroll_number",
+      "displayName": "Number of slides to scroll at a time",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1",
+      "enumValues": []
+    },
+    {
+      "name": "perc_autoplay_speed",
+      "displayName": "Autoplay speed (milliseconds)",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "2000",
+      "enumValues": []
+    },
+    {
+      "name": "perc_scroll_speed",
+      "displayName": "Scroll speed (milliseconds)",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "500",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slider_tablet_breakpoint",
+      "displayName": "<span style=\"font-size:125%;\"><br><br><b>Responsive Breakpoints</b></span><br><br>Tablet",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1024",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slider_mobile_breakpoint",
+      "displayName": "Mobile",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "480",
+      "enumValues": []
+    },
+    {
+      "name": "perc_slide_targetblank",
+      "displayName": "Link Target",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "_blank",
+      "enumValues": [
+        {
+          "value": "_blank",
+          "displayValue": "Blank"
+        },
+        {
+          "value": "_self",
+          "displayValue": "Self"
+        },
+        {
+          "value": "_parent",
+          "displayValue": "Parent"
+        },
+        {
+          "value": "_top",
+          "displayValue": "Top"
+        }
+      ]
+    },
+    {
+      "name": "perc_slide_image_link",
+      "displayName": "Images are links",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    },
+    {
+      "name": "captionclass",
+      "displayName": "CSS image text class",
+      "datatype": "string"
+    }
+  ]
+}

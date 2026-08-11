@@ -1,0 +1,3 @@
+#if ($perc.isEditMode())##
+        #createEmptyWidgetContent("jquery-ui-widget-sample-content", "This jQuery UI widget is showing sample content.","height: 32px;background: transparent url(/Rhythmyx/rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiempty.png) no-repeat scroll center center;filter: alpha(opacity=50);opacity: .50;")##
+    #end##

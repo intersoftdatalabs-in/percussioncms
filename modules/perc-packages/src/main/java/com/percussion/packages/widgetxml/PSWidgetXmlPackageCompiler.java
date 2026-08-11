@@ -58,6 +58,13 @@ public final class PSWidgetXmlPackageCompiler {
       PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS;
 
   /**
+   * Dual-ship Widget XML exit batch C package dirs (issue #2844). See {@link
+   * PSWidgetXmlDualShip#BATCH_C_PACKAGE_DIRS}.
+   */
+  public static final List<String> DUAL_SHIP_BATCH_C_PACKAGE_DIRS =
+      PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS;
+
+  /**
    * Named high-traffic product package directory names under {@code Packages/} covered by the
    * residual batch in issue #2772 (beyond {@code perc.baseWidgets}).
    */

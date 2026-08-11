@@ -1,0 +1,64 @@
+<div class="$!{rootclass} perc-tag-list" data-query="$!{dynamicListData}">
+##This is a hidden div that holds the structure of the list when the tag list output structure changes this hidden div and delivery side view
+##should be modified to match the new structure.
+<div style="display:none" class="perc-tag-list-structure">
+#if($rendering == "ordered")##
+<ol class="perc-list-main">##
+#else##
+<ul class="perc-list-main">##
+#end##
+<li class="perc-list-element">
+<a href="#"></a>
+</li>
+#if($rendering == "ordered")##
+</ol>##
+#else##
+</ul>##
+#end##
+</div>
+#if( ! $perc.widgetContents.isEmpty() )##
+#if ($title && $title.length() > 0)##
+<div class="perc-tag-title">$title</div>
+#end##
+#if($processedTags && $processedTags.size() > 0)##
+#if($rendering == "ordered")##
+<ol class="perc-list-main">##
+#else##
+#end##
+#if($tagRenderOption == "list")##
+<ul class="perc-list-main-container">##
+#foreach ($tag in $processedTags)##
+<li class="perc-tag-element $rowtag  perc-list-element">
+<a href="#">$tag.getFirst() ($tag.getSecond())</a>
+</li>
+#end##
+</ul>
+#else##
+<ul class="perc-comma-separated-main-container">##
+<li class="perc-comma-separated perc-tag-element $rowtag perc-list-element">
+#set($flag = false)##
+#set($separator = ",")##
+#foreach ($tag in $processedTags)##
+#if ($velocityCount == $processedTags.size())##
+#set($separator = "")##
+#end##
+#if($flag == false)##
+<a href="#">$tag.getFirst() ($tag.getSecond())$separator</a>
+#set($flag = true)##
+#else##
+<a href="#">$tag.getFirst() ($tag.getSecond())$separator</a>
+#end##
+#end##
+</li>
+</ul>
+#end##
+#if($rendering == "ordered")##
+</ol>##
+#else##
+</ul>##
+#end##
+#end##
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("taglist-sample-content", "This tag list widget is showing sample content.")##
+#end##
+</div>

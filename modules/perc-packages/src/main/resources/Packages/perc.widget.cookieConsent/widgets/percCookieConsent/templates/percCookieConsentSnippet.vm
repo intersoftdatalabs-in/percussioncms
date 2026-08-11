@@ -1,0 +1,33 @@
+#if ($assetItem)##
+    ## If the asset has been populated, we don't want to display the overlay as it will overlay widgets. ##
+    ## For this reason, only show in preview mode. ##
+    #if ($perc.isEditMode())##
+       #createEmptyWidgetContent("cookie-consent-preview-content", "This page should be previewed to display the cookie-consent dialog.")##
+    #elseif( $perc.isPreviewMode() && $hideInPreview)##
+        ## do nothing
+    #else##
+    <div id="perc-cookie-consent" $!{ariaRoleHtml} aria-live="polite" $!{ariaLabelHtml} class="perc-consent-window perc-consent-banner $!{overlayPosClass}" data-query="$!{dynamicListData}">
+        <div id="perc-cookieconsent" class="perc-consent-msg">$!{consentText}</div>
+
+        <div class="perc-policy-links">
+            #if ($privacypolicy_path != '#')##
+                <a href="$!{privacypolicy_path}">$!{privacyPolicyLinkText}</a>
+            #end##
+            #if ($cookiepolicy_path != '#')##
+                <a href="$!{cookiepolicy_path}">$!{cookiePolicyLinkText}</a>
+            #end##
+        </div>
+
+        #if ( $perc.isEditMode() || $perc.isPreviewMode() )##
+            <button id="accept-btn-preview" class="perc-consent-btn">Accept</button>
+        #else##
+            <div>
+				<button id="accept-btn" class="perc-consent-btn">Accept</button>
+				<button id="deny-btn" class="perc-consent-btn">Deny</button>
+			</div>
+        #end##
+    </div>
+    #end##
+#elseif ($perc.isEditMode())##
+   #createEmptyWidgetContent("cookie-consent-sample-content", "This cookie consent widget is showing sample content.")##
+#end

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percLiked",
+  "name": "Like",
+  "version": "1.1.4",
+  "description": "Allow site visitors to indicate they like a page",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.7.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Like",
+    "category": "social",
+    "description": "Allow site visitors to indicate they like a page",
+    "thumbnail": "resources/widgetIconLiked.png",
+    "icon": "resources/widgetIconLiked.png",
+    "author": "Percussion Software Inc",
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percLikedSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percLikedSnippet.vm",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "finder",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finder, null, true)"
+        },
+        {
+          "variable": "sampleTooltip",
+          "expression": "''"
+        },
+        {
+          "variable": "tooltip",
+          "expression": "$rx.pageutils.getWidgetTooltip($perc, $perc.widget, \"This liked widget is showing sample content.\")"
+        },
+        {
+          "variable": "sampleTooltip",
+          "expression": "'title=\"' + $tooltip + '\"'"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        if (!empty($rootclass)) {\n            $rootclass = $rootclass + \" \";\n        }\n        $pageId = $perc.page.id;\n        if(!empty($pageId))\n        {\n           $finderPath = $rx.pageutils.getItemPath($pageId);\n           $pathParts  = $finderPath.split(\"\\/\");\n           $siteName   = $pathParts[2];\n        }\n        $finder=\"Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder\";\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finder, null, true);\n        if ( ! $assetItems.isEmpty() ) {\n            $sampleTooltip = '';\n        }\n        else if ($perc.isEditMode()){\n            $tooltip = $rx.pageutils.getWidgetTooltip($perc, $perc.widget, \"This liked widget is showing sample content.\");\n            $sampleTooltip = 'title=\"' + $tooltip + '\"';\n        }\n\n\t\t$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n       \tif ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t$dsUrl = \"\";\n        $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percLikedChrome",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconLiked.png",
+      "target": "rx_resources/widgets/liked/images/widgetIconLiked.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

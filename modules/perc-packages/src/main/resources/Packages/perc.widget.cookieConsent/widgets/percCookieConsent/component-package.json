@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percCookieConsent",
+  "name": "Cookie Consent",
+  "version": "1.1.8",
+  "description": "This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list.",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Cookie Consent",
+    "description": "This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list.",
+    "thumbnail": "resources/percCookieConsentIcon.png",
+    "icon": "resources/percCookieConsentIcon.png",
+    "author": "Percussion Software Inc.",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percCookieConsent",
+      "ref": "contentTypes/percCookieConsent"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percCookieConsentSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percCookieConsentSnippet.vm",
+      "contentType": "percCookieConsent",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percCookieConsent'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "overlayPosition",
+          "expression": "$perc.widget.item.properties.get('overlayPosition')"
+        },
+        {
+          "variable": "privacyPolicyLinkText",
+          "expression": "$perc.widget.item.properties.get('privacyPolicyLinkText')"
+        },
+        {
+          "variable": "cookiePolicyLinkText",
+          "expression": "$perc.widget.item.properties.get('cookiePolicyLinkText')"
+        },
+        {
+          "variable": "ariaLabel",
+          "expression": "$perc.widget.item.properties.get('ariaLabel')"
+        },
+        {
+          "variable": "ariaRole",
+          "expression": "$perc.widget.item.properties.get('ariaRole')"
+        },
+        {
+          "variable": "hideInPreview",
+          "expression": "$perc.widget.item.properties.get('hideInPreview')"
+        },
+        {
+          "variable": "overlayPosClass",
+          "expression": "'perc-consent-bottom'"
+        },
+        {
+          "variable": "overlayPosClass",
+          "expression": "'perc-consent-top'"
+        },
+        {
+          "variable": "privacyPolicyLinkText",
+          "expression": "'Privacy Policy'"
+        },
+        {
+          "variable": "cookiePolicyLinkText",
+          "expression": "'Cookie Policy'"
+        },
+        {
+          "variable": "ariaLabelHtml",
+          "expression": "'aria-label=\"' + $ariaLabel + '\"'"
+        },
+        {
+          "variable": "ariaRoleHtml",
+          "expression": "'role=\"' + $ariaRole + '\"'"
+        },
+        {
+          "variable": "assetContentId",
+          "expression": "$assetItem.getNode().getProperty('sys_contentid').String"
+        },
+        {
+          "variable": "consentText",
+          "expression": "$rx.pageutils.html($assetItem, 'consenttext')"
+        },
+        {
+          "variable": "privacypolicy_linkId",
+          "expression": "$assetItem.getNode().getProperty('privacypolicy_linkId').String"
+        },
+        {
+          "variable": "privacypolicy_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $privacypolicy_linkId)"
+        },
+        {
+          "variable": "cookiepolicy_linkId",
+          "expression": "$assetItem.getNode().getProperty('cookiepolicy_linkId').String"
+        },
+        {
+          "variable": "cookiepolicy_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $cookiepolicy_linkId)"
+        },
+        {
+          "variable": "baseUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "siteName",
+          "expression": "$pathParts[2]"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;siteName&quot;:&quot;\" + $siteName + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $baseUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n        $widgetId = $perc.widget.item.id;\n        $rootclass = 'percCookieConsent';\n\n        ## Get asset item(s)\n        $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n        $perc.setWidgetContents($assets);\n\n        $overlayPosition = $perc.widget.item.properties.get('overlayPosition');\n        $privacyPolicyLinkText = $perc.widget.item.properties.get('privacyPolicyLinkText');\n        $cookiePolicyLinkText = $perc.widget.item.properties.get('cookiePolicyLinkText');\n        $ariaLabel = $perc.widget.item.properties.get('ariaLabel');\n        $ariaRole = $perc.widget.item.properties.get('ariaRole');\n        $hideInPreview = $perc.widget.item.properties.get('hideInPreview');\n\n        if ($overlayPosition == 'bottom') {\n            $overlayPosClass = 'perc-consent-bottom';\n        }\n        else if ($overlayPosition == 'top') {\n            $overlayPosClass = 'perc-consent-top';\n        }\n\n        if ($privacyPolicyLinkText == '' || $privacyPolicyLinkText == null) {\n            $privacyPolicyLinkText = 'Privacy Policy';\n        }\n\n        if ($cookiePolicyLinkText == '' || $cookiePolicyLinkText == null) {\n            $cookiePolicyLinkText = 'Cookie Policy';\n        }\n\n        if ($ariaLabel != '' || $ariaLabel != null) {\n            $ariaLabelHtml = 'aria-label=\"' + $ariaLabel + '\"';\n        }\n\n        if ($ariaRole != '' || $ariaRole != null) {\n            $ariaRoleHtml = 'role=\"' + $ariaRole + '\"';\n        }\n\n        if ( ! $assets.isEmpty() )\n        {\n            $assetItem = $assets.get(0); ## Get first item (which may be only item)\n            $assetContentId = $assetItem.getNode().getProperty('sys_contentid').String;\n\n            $consentText = $rx.pageutils.html($assetItem, 'consenttext');\n\n            $privacypolicy_linkId = $assetItem.getNode().getProperty('privacypolicy_linkId').String;\n            $privacypolicy_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $privacypolicy_linkId);\n\n            $cookiepolicy_linkId = $assetItem.getNode().getProperty('cookiepolicy_linkId').String;\n            $cookiepolicy_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $cookiepolicy_linkId);\n\n            $baseUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n            if( ! empty($pageId))\n            {\n                $finderPath = $rx.pageutils.getItemPath($pageId);\n                $pathParts = $finderPath.split(\"\\/\");\n                $siteName = $pathParts[2];\n            }\n\n            ##Build the query string for the delivery side auto list\n            $dynamicListData = \"{\" + \"&quot;siteName&quot;:&quot;\" + $siteName + \"&quot;\";\n            $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $baseUrl + \"&quot;\";\n            $dynamicListData = $dynamicListData + \"}\";\n        }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percCookieConsentContent",
+      "allowedContentTypes": [
+        "percCookieConsent"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percCookieConsentIcon.png",
+      "target": "rx_resources/widgets/percCookieConsent/images/percCookieConsentIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "overlayPosition",
+      "displayName": "Position of the dialog on the screen",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "bottom",
+      "enumValues": [
+        {
+          "value": "top",
+          "displayValue": "Top"
+        },
+        {
+          "value": "bottom",
+          "displayValue": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "privacyPolicyLinkText",
+      "displayName": "Text to use for privacy policy link text",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Privacy Policy",
+      "enumValues": []
+    },
+    {
+      "name": "cookiePolicyLinkText",
+      "displayName": "Text to use for cookie policy link text",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Cookie Policy",
+      "enumValues": []
+    },
+    {
+      "name": "ariaLabel",
+      "displayName": "Text to use for 'aria-label' attribute. E.g 'cookie consent'",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "ariaRole",
+      "displayName": "Text to use for 'role' attribute. E.g 'dialog'",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "hideInPreview",
+      "displayName": "Hide cookie consent dialog in preview mode",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": []
+}

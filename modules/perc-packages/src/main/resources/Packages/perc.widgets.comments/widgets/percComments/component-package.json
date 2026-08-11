@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percComments",
+  "name": "Comments",
+  "version": "1.1.4",
+  "description": "Display a list of comments submitted to the page",
+  "publisher": {
+    "name": "Percussion Software Inc",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.7.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Comments",
+    "category": "blog,social",
+    "description": "Display a list of comments submitted to the page",
+    "thumbnail": "resources/WidgetIconComment.png",
+    "icon": "resources/WidgetIconComment.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 965,
+    "preferredEditorHeight": 680,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "percCommentsSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percCommentsSnippet.vm",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "titleFormat",
+          "expression": "$perc.widget.item.properties.get('titleFormat')"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "dUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$dUrl + \"/perc-comments-services/comment/jsonp\""
+        },
+        {
+          "variable": "dUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{&quot;serviceurl&quot;: &quot;\" + $dsUrl +\"&quot;, &quot;finderpath&quot;: &quot;\" + $rx.pageutils.getItemPath($pageId) + \"&quot;, &quot;deliveryurl&quot;: &quot;\" + $dUrl + \"&quot;, &quot;titleFormat&quot;: &quot;\" + $titleFormat + \"&quot;}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "if(! $perc.isPreviewMode())\n      {\n          $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n          if (empty($rootclass)) {\n            $rootclass = \"\";\n          }\n\n          $titleFormat = $perc.widget.item.properties.get('titleFormat');\n\n          $pageId = $perc.page.id;\n          $widgetId = $perc.widget.item.id;\n\n          $dUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n          $dsUrl = $dUrl + \"/perc-comments-services/comment/jsonp\";\n          if ($dUrl.indexOf(\"http://localhost\") != -1 )\n          $dUrl = \"\";\n           $dynamicListData =\"{&quot;serviceurl&quot;: &quot;\" + $dsUrl +\"&quot;, &quot;finderpath&quot;: &quot;\" + $rx.pageutils.getItemPath($pageId) + \"&quot;, &quot;deliveryurl&quot;: &quot;\" + $dUrl + \"&quot;, &quot;titleFormat&quot;: &quot;\" + $titleFormat + \"&quot;}\";\n      }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percCommentsChrome",
+      "allowedContentTypes": [],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/WidgetIconComment.png",
+      "target": "rx_resources/widgets/comments/images/WidgetIconComment.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "titleFormat",
+      "displayName": "Heading format for Title field",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "h3",
+      "enumValues": [
+        {
+          "value": "h1",
+          "displayValue": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        },
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "div",
+          "displayValue": "Div"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

@@ -17,6 +17,7 @@
 
 package com.percussion.packages.shim;
 
+import com.percussion.packages.widgetxml.PSWidgetXmlDualShip;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -230,7 +231,10 @@ public final class PSLegacyDefinitionXmlShim {
       }
       // Dual-ship multi-widget package root: widgets/<definitionId>/component-package.json (#2831)
       Path nested =
-          normalized.resolve("widgets").resolve(definitionId).resolve(MODERN_MANIFEST_FILE_NAME);
+          normalized
+              .resolve(PSWidgetXmlDualShip.WIDGETS_DIR_NAME)
+              .resolve(definitionId)
+              .resolve(MODERN_MANIFEST_FILE_NAME);
       if (Files.isRegularFile(nested)) {
         return new PSDefinitionSourceSelection(
             PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, definitionId, nested);
@@ -311,7 +315,7 @@ public final class PSLegacyDefinitionXmlShim {
    * (stable order by folder name). Empty when no modern widget authoring tree is present.
    */
   static Optional<Path> findFirstModernWidgetManifest(Path packageRoot) throws IOException {
-    Path widgets = packageRoot.resolve("widgets");
+    Path widgets = packageRoot.resolve(PSWidgetXmlDualShip.WIDGETS_DIR_NAME);
     if (!Files.isDirectory(widgets)) {
       return Optional.empty();
     }
