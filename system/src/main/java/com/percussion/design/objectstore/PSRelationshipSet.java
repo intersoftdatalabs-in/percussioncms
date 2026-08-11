@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** A collection of PSRelationship objects. See PSXRelationshipSet.dtd. */
-public class PSRelationshipSet extends PSCollectionComponent {
+public final class PSRelationshipSet extends PSCollectionComponent {
   /** Constucts an empty relationship set. */
   public PSRelationshipSet() {
     super(PSRelationship.class);

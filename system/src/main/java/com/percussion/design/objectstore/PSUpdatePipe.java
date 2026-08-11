@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * @version 1.0
  * @since 1.0
  */
-public class PSUpdatePipe extends PSPipe {
+public final class PSUpdatePipe extends PSPipe {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSDataMapper extends PSCollectionComponent {
+public final class PSDataMapper extends PSCollectionComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

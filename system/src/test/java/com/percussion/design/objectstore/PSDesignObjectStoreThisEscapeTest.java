@@ -131,6 +131,95 @@ public class PSDesignObjectStoreThisEscapeTest {
   }
 
   @Test
+  public void fieldSetWithFieldElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSField field = new PSField("sys_title", null);
+    field.setType(PSField.TYPE_SYSTEM);
+    PSFieldSet original = new PSFieldSet("body", field);
+    Element elem = original.toXml(doc);
+
+    PSFieldSet restored = new PSFieldSet(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getType(), restored.getType());
+    assertNotNull(restored.get("sys_title"));
+  }
+
+  @Test
+  public void contentEditorValueCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSContentEditor original = new PSContentEditor("ceArticle", 101L, 5);
+    Element elem = original.toXml(doc);
+
+    PSContentEditor restored = new PSContentEditor(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getContentType(), restored.getContentType());
+    assertEquals(original.getWorkflowId(), restored.getWorkflowId());
+  }
+
+  @Test
+  public void roleProviderDirectoryCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRoleProvider original =
+        new PSRoleProvider("ldapRoles", PSRoleProvider.TYPE_DIRECTORY, "dirSet1");
+    Element elem = original.toXml(doc);
+
+    PSRoleProvider restored = new PSRoleProvider(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertTrue(restored.isDirectoryRoleProvider());
+    assertNotNull(restored.getDirectoryRef());
+    assertEquals("dirSet1", restored.getDirectoryRef().getName());
+  }
+
+  @Test
+  public void directoryValueCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSDirectory original =
+        new PSDirectory(
+            "corpLdap",
+            PSDirectory.CATALOG_SHALLOW,
+            "com.sun.jndi.ldap.LdapCtxFactory",
+            "auth1",
+            "ldap://ldap.example.intsof:389/dc=example,dc=intsof",
+            null);
+    Element elem = original.toXml(doc);
+
+    PSDirectory restored = new PSDirectory(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getProviderUrl(), restored.getProviderUrl());
+    assertTrue(restored.isShallowCatalogOption());
+    assertEquals(original.getFactory(), restored.getFactory());
+  }
+
+  @Test
+  public void directorySetNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSDirectorySet original = new PSDirectorySet("dirSet1", "uid");
+    Element elem = original.toXml(doc);
+
+    PSDirectorySet restored = new PSDirectorySet(elem);
+    assertEquals(original.getName(), restored.getName());
+  }
+
+  @Test
+  public void authenticationNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // name, scheme, user, userAttr, pw, filterExtension
+    PSAuthentication original =
+        new PSAuthentication(
+            "auth1",
+            PSAuthentication.SCHEME_SIMPLE,
+            "cn=admin",
+            "uid",
+            "password",
+            null);
+    Element elem = original.toXml(doc);
+
+    PSAuthentication restored = new PSAuthentication(elem, null, null, true);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getScheme(), restored.getScheme());
+  }
+
+  @Test
   public void propertyNameCtorAndElementRoundTrip() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSProperty original =

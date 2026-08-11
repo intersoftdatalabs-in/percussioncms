@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * world, these keys would not be here because they are implementation specific and this object
  * attempts to be unaware of the implementation.
  */
-public class PSSearchConfig extends PSComponent {
+public final class PSSearchConfig extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

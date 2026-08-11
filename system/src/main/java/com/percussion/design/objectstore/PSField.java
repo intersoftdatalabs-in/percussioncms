@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
  * field specifies something other than PSXBackEndColumn, this field cannot be updated, it's for
  * query only.
  */
-public class PSField extends PSComponent {
+public final class PSField extends PSComponent {
   /** */
   private static final long serialVersionUID = -1837223721972561274L;
 

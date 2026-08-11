@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorMapper DTD defined in ContentEditorLocalDef.dtd. */
-public class PSContentEditorMapper extends PSComponent {
+public final class PSContentEditorMapper extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

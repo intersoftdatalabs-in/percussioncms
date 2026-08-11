@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * A component that holds one directory definition used to catalog information from directory
  * servers.
  */
-public class PSRoleProvider extends PSComponent {
+public final class PSRoleProvider extends PSComponent {
   /** java serial id */
   private static final long serialVersionUID = 1L;
 

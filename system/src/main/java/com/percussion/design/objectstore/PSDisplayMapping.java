@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXDisplayMapping DTD in BasicObjects.dtd. */
-public class PSDisplayMapping extends PSComponent {
+public final class PSDisplayMapping extends PSComponent {
   /** */
   private static final long serialVersionUID = 1L;
 

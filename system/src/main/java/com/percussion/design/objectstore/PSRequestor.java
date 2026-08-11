@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
  * @version 1.0
  * @since 1.0
  */
-public class PSRequestor extends PSComponent {
+public final class PSRequestor extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

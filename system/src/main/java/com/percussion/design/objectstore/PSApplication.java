@@ -54,7 +54,7 @@ import org.w3c.dom.NodeList;
  * @since 1.0
  */
 @SuppressWarnings(value = {"unchecked"})
-public class PSApplication implements IPSDocument {
+public final class PSApplication implements IPSDocument {
   /**
    * Specialized wrapper class that takes a <code>PSDataSet</code> and uses only the request name
    * and parameters to determine equivalence. Used in validation to determine if two datasets in the

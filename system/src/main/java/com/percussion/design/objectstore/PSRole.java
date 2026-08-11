@@ -42,7 +42,7 @@ import org.w3c.dom.Element;
  * @see com.percussion.design.objectstore.PSRelativeSubject
  * @see PSCollectionComponent
  */
-public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalogSummary {
+public final class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalogSummary {
 
   private static final long serialVersionUID = 1L;
 

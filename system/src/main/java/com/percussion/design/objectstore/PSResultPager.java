@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSResultPager extends PSComponent {
+public final class PSResultPager extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
