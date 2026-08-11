@@ -29,6 +29,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,6 +156,22 @@ public class SitesResourceTest {
             WebApplicationException.class, () -> resource.updateVirtualProperties("Help", null));
     assertEquals(400, ex.getResponse().getStatus());
     verify(adaptor, never()).updateVirtualSiteProperties(any(), any());
+  }
+
+  /**
+   * CodeQL #1949: Jackson/JAXB JSON/XML DTO return must keep same-line {@code // codeql[java/xss]}
+   * on the updateVirtual sink (not HTML body construction).
+   */
+  @Test
+  public void updateVirtualReturnSinkHasCodeqlXssAnnotation() throws Exception {
+    Path src =
+        Path.of("src/main/java/com/percussion/rest/sites/SitesResource.java");
+    assertTrue(Files.isRegularFile(src), "SitesResource source must exist for annotation guard");
+    String text = Files.readString(src, StandardCharsets.UTF_8);
+    assertTrue(
+        text.contains(
+            "return requireAdaptor().updateVirtualSiteProperties(nameOrId, props); // codeql[java/xss]"),
+        "updateVirtualSiteProperties return sink must carry same-line codeql[java/xss]");
   }
 
   @Test

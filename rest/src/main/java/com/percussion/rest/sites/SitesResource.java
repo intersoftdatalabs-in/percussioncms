@@ -219,7 +219,8 @@ public class SitesResource {
           "VirtualSiteProperties body is required", Response.Status.BAD_REQUEST);
     }
     try {
-      return requireAdaptor().updateVirtualSiteProperties(nameOrId, props);
+      // JSON/XML DTO via Jackson/JAXB/CXF — not HTML body (see suppressions.md)
+      return requireAdaptor().updateVirtualSiteProperties(nameOrId, props); // codeql[java/xss]
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
