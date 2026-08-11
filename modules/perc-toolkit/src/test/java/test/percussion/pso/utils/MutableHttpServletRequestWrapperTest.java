@@ -101,19 +101,19 @@ public class MutableHttpServletRequestWrapperTest {
     assertNotNull(h1);
     assertEquals("bat", h1);
 
-    Enumeration e = cut.getHeaders("baz");
-    List<String> s = new ArrayList<String>();
+    Enumeration<String> e = cut.getHeaders("baz");
+    List<String> s = new ArrayList<>();
     while (e.hasMoreElements()) {
-      s.add((String) e.nextElement());
+      s.add(e.nextElement());
     }
     assertEquals(2, s.size());
     assertTrue(s.contains("bat"));
     assertTrue(s.contains("ball"));
 
     e = cut.getHeaders("foo");
-    s = new ArrayList<String>();
+    s = new ArrayList<>();
     while (e.hasMoreElements()) {
-      s.add((String) e.nextElement());
+      s.add(e.nextElement());
     }
     assertEquals(1, s.size());
     assertTrue(s.contains("bar"));
@@ -123,8 +123,8 @@ public class MutableHttpServletRequestWrapperTest {
   public final void testGetHeaderNames() {
     cut.setHeader("baz", "bat");
 
-    Enumeration e = cut.getHeaderNames();
-    List<String> s = new ArrayList<String>();
+    Enumeration<String> e = cut.getHeaderNames();
+    List<String> s = new ArrayList<>();
     addAll(s, e);
     assertEquals(2, s.size());
     /*

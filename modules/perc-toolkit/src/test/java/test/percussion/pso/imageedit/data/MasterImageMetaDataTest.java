@@ -52,7 +52,7 @@ public class MasterImageMetaDataTest {
       cut.setSysTitle("sys title");
       cut.setDisplayTitle("display title");
       cut.setDescription("This is the description");
-      Map description = BeanUtils.describe(cut);
+      Map<?, ?> description = BeanUtils.describe(cut);
       assertTrue(description.size() > 0);
       log.info("Master Image Metadata : " + description);
 

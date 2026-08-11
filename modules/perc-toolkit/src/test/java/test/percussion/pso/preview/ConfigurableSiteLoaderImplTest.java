@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
+import com.percussion.pso.preview.CachingSiteLoaderImpl;
 import com.percussion.pso.preview.ConfigurableSiteLoaderImpl;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
@@ -46,7 +47,7 @@ public class ConfigurableSiteLoaderImplTest {
   @BeforeEach
   public void setUp() {
     cut = new ConfigurableSiteLoaderImpl();
-    cut.setSiteMgr(siteMgr);
+    CachingSiteLoaderImpl.setSiteMgr(siteMgr);
   }
 
   @Test

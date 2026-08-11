@@ -269,7 +269,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
   public void testIsPromotable() {
     final IPSSystemWs systemWs = mock(IPSSystemWs.class);
     validator.setSystemWs(systemWs);
-    final List<PSRelationship> emptyRels = Collections.EMPTY_LIST;
+    final List<PSRelationship> emptyRels = Collections.emptyList();
     final PSRelationship rel1 = mock(PSRelationship.class);
     final List<PSRelationship> oneRels = Collections.<PSRelationship>singletonList(rel1);
 

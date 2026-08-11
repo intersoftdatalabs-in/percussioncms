@@ -33,40 +33,40 @@ import org.junit.jupiter.api.Test;
 
 public class PSOListToolsTest {
 
-  private Collection emptyList;
-  private Collection nullCollection = null;
+  private Collection<String> emptyList;
+  private Collection<String> nullCollection = null;
   private Collection<String> stringVectorSingle;
   private Collection<String> stringVectorThree;
   private String[] stringArrayThree;
   private Vector<String> stringVectorTen;
   private Set<Integer> integerSetFour;
-  private Object[] nullArray;
+  private String[] nullArray;
   // private Object[] emptyArray;
   private PSOListTools listTools;
 
   @BeforeEach
   protected void setUp() throws Exception {
     listTools = new PSOListTools();
-    emptyList = new ArrayList();
+    emptyList = new ArrayList<>();
     nullArray = null;
     // emptyArray = new Object[] {};
-    stringVectorSingle = new Vector<String>();
+    stringVectorSingle = new Vector<>();
     stringVectorSingle.add("one");
-    stringVectorThree = new Vector<String>();
+    stringVectorThree = new Vector<>();
     stringVectorThree.add("a");
     stringVectorThree.add("b");
     stringVectorThree.add("c");
 
     stringArrayThree = new String[] {"a", "b", "c"};
 
-    stringVectorTen = new Vector<String>();
+    stringVectorTen = new Vector<>();
     String[] tenArray =
         new String[] {
           "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"
         };
     Collection<String> tenList = Arrays.asList(tenArray);
     stringVectorTen.addAll(tenList);
-    integerSetFour = new HashSet<Integer>();
+    integerSetFour = new HashSet<>();
     integerSetFour.add(0);
     integerSetFour.add(1);
     integerSetFour.add(2);
@@ -108,9 +108,9 @@ public class PSOListToolsTest {
      *  sublist(["a","b","c"], -2, -1) = ["b"]
      *  sublist(["a","b","c"], -4, 2)  = ["a","b"]
      */
-    List ab = Arrays.asList("a", "b");
-    List c = Arrays.asList("c");
-    List b = Arrays.asList("b");
+    List<String> ab = Arrays.asList("a", "b");
+    List<String> c = Arrays.asList("c");
+    List<String> b = Arrays.asList("b");
     assertNotNull(listTools.sublist(emptyList, 5, 6), "Empty collection should not be null");
     assertNotNull(
         listTools.sublist(nullCollection, 3, 4),
@@ -118,19 +118,19 @@ public class PSOListToolsTest {
     assertTrue(listTools.sublist(emptyList, 5, 6).size() == 0, "List should be empty");
 
     //// sublist(["a","b","c"], 0, 3)   = ["a","b","c"]
-    List abcTest = listTools.sublist(stringVectorThree, 0, 3);
+    List<String> abcTest = listTools.sublist(stringVectorThree, 0, 3);
     assertTrue(ListUtils.isEqualList(abcTest, stringVectorThree), "List should be equal");
 
     // sublist(["a","b","c"], 2, 4)   = ["c"]
-    List cTest = listTools.sublist(stringVectorThree, 2, 4);
+    List<String> cTest = listTools.sublist(stringVectorThree, 2, 4);
     assertTrue(ListUtils.isEqualList(cTest, c), "List should be equal to [\"c\"] but is " + cTest);
 
     // sublist(["a","b","c"], 0, 2)   = ["a","b"]
-    List abTest = listTools.sublist(stringVectorThree, 0, 2);
+    List<String> abTest = listTools.sublist(stringVectorThree, 0, 2);
     assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b'] ");
 
     // sublist(["a","b","c"], -2, -1) = ["b"]
-    List bTest = listTools.sublist(stringVectorThree, -2, -1);
+    List<String> bTest = listTools.sublist(stringVectorThree, -2, -1);
     assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
@@ -143,14 +143,14 @@ public class PSOListToolsTest {
    */
   @Test
   public void testSublistCollectionStringString() {
-    List ab = Arrays.asList("a", "b");
-    List b = Arrays.asList("b");
+    List<String> ab = Arrays.asList("a", "b");
+    List<String> b = Arrays.asList("b");
     // sublist(["a","b","c"], -2, -1) = ["b"]
-    List bTest = listTools.sublist(stringVectorThree, "-2", "-1");
+    List<String> bTest = listTools.sublist(stringVectorThree, "-2", "-1");
     assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
-    List abTest = listTools.sublist(stringVectorThree, "-4", "2");
+    List<String> abTest = listTools.sublist(stringVectorThree, "-4", "2");
     assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
     try {
       listTools.sublist(stringVectorThree, "wef", "");
@@ -164,10 +164,10 @@ public class PSOListToolsTest {
    */
   @Test
   public void testSublistObjectArrayIntInt() {
-    List abc = Arrays.asList("a", "b", "c");
-    List ab = Arrays.asList("a", "b");
-    List c = Arrays.asList("c");
-    List b = Arrays.asList("b");
+    List<String> abc = Arrays.asList("a", "b", "c");
+    List<String> ab = Arrays.asList("a", "b");
+    List<String> c = Arrays.asList("c");
+    List<String> b = Arrays.asList("b");
 
     assertNotNull(listTools.sublist(emptyList, 5, 6), "Empty collection should not be null");
     assertNotNull(
@@ -176,19 +176,19 @@ public class PSOListToolsTest {
     assertTrue(listTools.sublist(nullArray, 5, 6).size() == 0, "List should be empty");
 
     //// sublist(["a","b","c"], 0, 3)   = ["a","b","c"]
-    List abcTest = listTools.sublist(stringArrayThree, 0, 3);
+    List<String> abcTest = listTools.sublist(stringArrayThree, 0, 3);
     assertTrue(ListUtils.isEqualList(abcTest, abc), "List should be equal");
 
     // sublist(["a","b","c"], 2, 4)   = ["c"]
-    List cTest = listTools.sublist(stringArrayThree, 2, 4);
+    List<String> cTest = listTools.sublist(stringArrayThree, 2, 4);
     assertTrue(ListUtils.isEqualList(cTest, c), "List should be equal to [\"c\"] but is " + cTest);
 
     // sublist(["a","b","c"], 0, 2)   = ["a","b"]
-    List abTest = listTools.sublist(stringArrayThree, 0, 2);
+    List<String> abTest = listTools.sublist(stringArrayThree, 0, 2);
     assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b'] ");
 
     // sublist(["a","b","c"], -2, -1) = ["b"]
-    List bTest = listTools.sublist(stringArrayThree, -2, -1);
+    List<String> bTest = listTools.sublist(stringArrayThree, -2, -1);
     assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
@@ -201,14 +201,14 @@ public class PSOListToolsTest {
    */
   @Test
   public void testSublistObjectArrayStringString() {
-    List ab = Arrays.asList("a", "b");
-    List b = Arrays.asList("b");
+    List<String> ab = Arrays.asList("a", "b");
+    List<String> b = Arrays.asList("b");
     // sublist(["a","b","c"], -2, -1) = ["b"]
-    List bTest = listTools.sublist(stringArrayThree, "-2", "-1");
+    List<String> bTest = listTools.sublist(stringArrayThree, "-2", "-1");
     assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
-    List abTest = listTools.sublist(stringArrayThree, "-4", "2");
+    List<String> abTest = listTools.sublist(stringArrayThree, "-4", "2");
     assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
     try {
       listTools.sublist(stringArrayThree, "wef", "");
