@@ -83,6 +83,17 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 
 **Snapshot 2026-08-11:** G2 partially satisfied for the **selection API** (`PSLegacyDefinitionXmlShimTest`). G1/G3–G6 for **deletion** are N/A until M1–M3 pass.
 
+**Snapshot 2026-08-11 (G4 Widget inventory gate #3026):** **PASS G4 for product Widget definition XML** — automated assertion in `modules/perc-packages`:
+
+| Piece | Location |
+|-------|----------|
+| Inventory API + optional CLI | `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory` |
+| Surefire gate | `PSWidgetDefinitionXmlInventoryTest` (product tree zero non-waived; TempDir proves failure when dummy non-waived XML is introduced) |
+| Explicit waive | `perc.Test` only (`WAIVED_PACKAGE_DIRS`) |
+| Path I/O | `Path.resolve` / `Files` only (G6-aligned) |
+
+Pages/Gadgets ship-path inventory remains residual under the broader G4 wording; Widget path is the Phase 3 residual closed by #3026.
+
 ---
 
 ## 3. Time-box
@@ -131,7 +142,7 @@ Javadoc-only alignment references:
 | Surface | Path / class | Status in snapshot | Removal coupled to shim? |
 |---------|--------------|--------------------|---------------------------|
 | Widget install load | `projects/sitemanage/.../dao/impl/PSWidgetDao` → `${rxdeploydir}/rxconfig/Widgets` + optional `widgetDao.modernPackageRoots` | **Live** dual-run selection (#3024); content still from Widgets XML wire | **Yes** for product modern-only content path; selection wired; keep shim until M2 metrics pass |
-| Product Widget package XML | `modules/perc-packages/.../Packages/**/sys__UserDependency--rxconfig/Widgets/*.xml` | **29** files remaining after batch C ship-exit #2885 (was **48**); install materialize for modern-only | Product XML deletion continues via ship-exit #2883 / #2884; waived `perc.Test`; M1 still FAIL |
+| Product Widget package XML | `modules/perc-packages/.../Packages/**/sys__UserDependency--rxconfig/Widgets/*.xml` | **1** remaining (`perc.Test` waiver only; was **48**); install materialize for modern-only; **G4 inventory gate** `PSWidgetDefinitionXmlInventory` / #3026 | M1 Widget portion PASS; G4 Widget path automated; keep shim until M2/M3 |
 | Widget XML compilers | `…/widgetxml/PSWidgetXml*` | Upgrade-input compilers; keep after runtime shim exit | **No** (upgrade input OK) |
 | Page dual-ship / native | `…/pagexml/PSPageXmlDualShip`, `PSPageXmlNativeInstall`, `PSPageXmlInstallPolicy` | Native for base/responsive; dual-ship default elsewhere | Separate checklist ([dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)) |
 | Gadget catalog ship | `modules/perc-packages/.../catalogs/gadgets/gadget-catalog.json` | Modern catalog present | Preferred path |
