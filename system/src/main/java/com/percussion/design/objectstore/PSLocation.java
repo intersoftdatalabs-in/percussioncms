@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -230,11 +232,11 @@ public class PSLocation extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -263,7 +265,7 @@ public class PSLocation extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, PAGE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -280,7 +282,7 @@ public class PSLocation extends PSComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, TYPE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -292,7 +294,7 @@ public class PSLocation extends PSComponent {
           m_sequence = Integer.parseInt(data);
         } catch (NumberFormatException e) {
           Object[] args = {XML_NODE_NAME, SEQUENCE_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -303,7 +305,7 @@ public class PSLocation extends PSComponent {
           Object[] args = {
             FIELDREF_ELEM,
           };
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, args);
         }
 
         do {
@@ -311,7 +313,7 @@ public class PSLocation extends PSComponent {
           if (fieldRef.trim().length() == 0) {
             Object[] args = {XML_NODE_NAME, FIELDREF_ELEM, ""};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
           m_fieldRefs.add(fieldRef);
           node = tree.getNextElement(FIELDREF_ELEM, nextFlags);
@@ -351,7 +353,7 @@ public class PSLocation extends PSComponent {
     try {
       if ((PAGE_SUMMARY_VIEW == m_page || (PAGE_ROW_EDIT == m_page && TYPE_FORM == m_type))
           && m_fieldRefs.size() == 0) {
-        context.validationError(this, IPSObjectStoreErrors.INVALID_LOCATION, null);
+        context.validationError(this, ObjectStoreErrorCodes.INVALID_LOCATION, null);
       }
     } finally {
       context.popParent();

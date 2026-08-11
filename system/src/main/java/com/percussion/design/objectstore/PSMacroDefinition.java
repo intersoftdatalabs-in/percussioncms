@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
@@ -148,7 +150,7 @@ public final class PSMacroDefinition extends PSComponent {
     String strId = source.getAttribute(PSComponent.ID_ATTR);
     if (strId == null) {
       Object[] args = {XML_NODE_NAME, PSComponent.ID_ATTR, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     int id = 0;
@@ -156,7 +158,7 @@ public final class PSMacroDefinition extends PSComponent {
       id = Integer.parseInt(strId);
     } catch (NumberFormatException e) {
       Object[] args = {XML_NODE_NAME, PSComponent.ID_ATTR, strId};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     setId(id);
 
@@ -164,14 +166,14 @@ public final class PSMacroDefinition extends PSComponent {
       setName(tree.getElementData(ELEM_NAME));
     } catch (IllegalArgumentException e) {
       Object[] args = {XML_NODE_NAME, ELEM_NAME, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     try {
       setClassName(tree.getElementData(ELEM_CLASS));
     } catch (IllegalArgumentException e) {
       Object[] args = {XML_NODE_NAME, ELEM_CLASS, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     setDescription(tree.getElementData(ELEM_DESCRIPTION));
