@@ -81,8 +81,6 @@ public class DemandPreviewController extends ParameterizableViewController imple
       isFinder = new PSOItemSummaryFinderWrapper();
     }
   }
-
-  @Override
   /**
    * handleRequestInternal operation.
    * @param request the request
@@ -90,6 +88,8 @@ public class DemandPreviewController extends ParameterizableViewController imple
    * @return the result
    * @throws Exception if an error occurs
    */
+
+  @Override
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     String emsg;

@@ -50,8 +50,6 @@ public class BinaryImageController extends AbstractController implements Control
       cacheMgr = ImageCacheManagerLocator.getImageCacheManager();
     }
   }
-
-  @Override
   /**
    * handleRequestInternal operation.
    * @param request the request
@@ -59,6 +57,8 @@ public class BinaryImageController extends AbstractController implements Control
    * @return the result
    * @throws Exception if an error occurs
    */
+
+  @Override
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     String emsg;

@@ -79,15 +79,6 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "extra parameters to the process")
       },
       returns = "list of assembly items")
-  /**
-   * Returns the slot contents.
-   *
-   * @param item the item
-   * @param slotName the slot name
-   * @param params the params
-   * @return the result
-   * @throws Throwable if an error occurs
-   */
   public List<IPSAssemblyItem> getSlotContents(
       IPSAssemblyItem item, String slotName, Map<String, Object> params) throws Throwable {
     try {
@@ -155,14 +146,6 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "slotcontent", description = "contents of the slot"),
         @IPSJexlParam(name = "propertyName", description = "name of the property to fetch")
       })
-  /**
-   * Returns the slot property values.
-   *
-   * @param slotcontents the slotcontents
-   * @param propertyName the property name
-   * @return the result
-   * @throws RepositoryException if an error occurs
-   */
   public List<String> getSlotPropertyValues(List<IPSAssemblyItem> slotcontents, String propertyName)
       throws RepositoryException {
     Validate.notEmpty(propertyName, "the property name must be specified.");

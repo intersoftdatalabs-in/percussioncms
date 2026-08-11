@@ -41,13 +41,13 @@ public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements
     super();
     allowedSites = new ArrayList<String>();
   }
-
-  @Override
   /**
    * loadAllSites operation.
    * @return the result
    * @throws PSSiteManagerException if an error occurs
    */
+
+  @Override
   public synchronized List<IPSSite> loadAllSites() throws PSSiteManagerException {
     List<IPSSite> allSites = super.loadAllSites();
     List<IPSSite> mySites = new ArrayList<IPSSite>();

@@ -49,9 +49,6 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
   /** Default constructor. */
   @SuppressWarnings("this-escape")
   // Safe because setNeedsContentNode is final or not overridden in subclasses
-  /**
-   * Creates a new ImageSizeTemplateExpander.
-   */
   public ImageSizeTemplateExpander() {
     super.setNeedsContentNode(true);
   }

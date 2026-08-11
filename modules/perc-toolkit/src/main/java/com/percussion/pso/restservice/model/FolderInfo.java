@@ -40,14 +40,14 @@ public class FolderInfo {
   private String globalTemplate;
 
   List<ItemRef> folderItems;
-
-  @XmlElementWrapper(name = "Contents")
-  @XmlElement(name = "Item")
   /**
    * Returns the FolderItems.
    *
    * @return the value
    */
+
+  @XmlElementWrapper(name = "Contents")
+  @XmlElement(name = "Item")
   public List<ItemRef> getFolderItems() {
     return folderItems;
   }
@@ -67,13 +67,13 @@ public class FolderInfo {
   public void setFolderAcl(FolderAcl folderAcl) {
     this.folderAcl = folderAcl;
   }
-
-  @XmlElement
   /**
    * Returns the FolderAcl.
    *
    * @return the value
    */
+
+  @XmlElement
   public FolderAcl getFolderAcl() {
     return folderAcl;
   }
@@ -85,13 +85,13 @@ public class FolderInfo {
   public void setPubFileName(String pubFileName) {
     this.pubFileName = pubFileName;
   }
-
-  @XmlAttribute
   /**
    * Returns the PubFileName.
    *
    * @return the value
    */
+
+  @XmlAttribute
   public String getPubFileName() {
     return pubFileName;
   }
@@ -103,13 +103,13 @@ public class FolderInfo {
   public void setGlobalTemplate(String globalTemplate) {
     this.globalTemplate = globalTemplate;
   }
-
-  @XmlAttribute
   /**
    * Returns the GlobalTemplate.
    *
    * @return the value
    */
+
+  @XmlAttribute
   public String getGlobalTemplate() {
     return globalTemplate;
   }
