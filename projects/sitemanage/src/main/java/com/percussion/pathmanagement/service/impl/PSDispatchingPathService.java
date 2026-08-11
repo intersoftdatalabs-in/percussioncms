@@ -406,6 +406,9 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
       if (path.toLowerCase().startsWith("sites")) {
         path = replaceIgnoreCase(path, "sites", "Sites");
       }
+      if (path.toLowerCase().startsWith("folders")) {
+        path = replaceIgnoreCase(path, "folders", "Folders");
+      }
       if (path.toLowerCase().startsWith("assets")) {
         path = replaceIgnoreCase(path, "assets", "Assets");
       }
@@ -428,7 +431,8 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
         } else if (strReturn.isEmpty()
             && (pathItem.getName().equalsIgnoreCase("assets")
                 || pathItem.getName().equalsIgnoreCase("design")
-                || pathItem.getName().equalsIgnoreCase("sites"))) {
+                || pathItem.getName().equalsIgnoreCase("sites")
+                || pathItem.getName().equalsIgnoreCase("folders"))) {
           strReturn = pathItem.getPath();
         }
       }

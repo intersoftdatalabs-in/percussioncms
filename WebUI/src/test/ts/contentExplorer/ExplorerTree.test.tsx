@@ -83,6 +83,48 @@ describe("ExplorerTree", () => {
     );
   });
 
+  it("renders classic Folders root from path/folder/ children (#3044)", async () => {
+    const FOLDERS_ROOT: PSPathItem = {
+      id: "folders-root",
+      path: "/Folders/",
+      name: "Folders",
+      type: "folder",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    const SITES_ROOT: PSPathItem = {
+      id: "sites-root",
+      path: "/Sites/",
+      name: "Sites",
+      type: "folder",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      // Root children: encodePath("/") → folder/ (empty suffix).
+      if (
+        url.endsWith("/pathmanagement/path/folder/") ||
+        /\/pathmanagement\/path\/folder\/?$/.test(url)
+      ) {
+        return pathItemListResponse([SITES_ROOT, FOLDERS_ROOT]);
+      }
+      return pathItemListResponse([]);
+    });
+    render(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath={null}
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Folders/")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("tree-node-/Sites/")).toBeInTheDocument();
+    expect(screen.getByText("Folders")).toBeInTheDocument();
+  });
+
   it("renders site-type children with id paths under /Sites (#3001)", async () => {
     // Wire shape from PSSitePathItemService: type=site, path=/Sites/{id}/
     const SITE_CHILD: PSPathItem = {

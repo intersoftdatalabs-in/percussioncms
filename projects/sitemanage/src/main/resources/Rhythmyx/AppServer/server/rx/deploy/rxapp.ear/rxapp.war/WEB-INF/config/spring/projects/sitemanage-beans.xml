@@ -1595,7 +1595,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <bean id="pathService" class="com.percussion.pathmanagement.service.impl.PSPathService" lazy-init="true">
         <property name="registry">
             <map>
+                <!-- Order: Sites, Folders (classic //Folders, #3044), Assets, Design, Search, Recycling -->
                 <entry key="/Sites/" value-ref="sitePathItemService" />
+                <entry key="/Folders/" value-ref="foldersPathItemService" />
                 <entry key="/Assets/" value-ref="assetPathItemService" />
                 <entry key="/Design/" value-ref="designPathItemService" />
                 <entry key="/Search/" value-ref="searchPathItemService" />

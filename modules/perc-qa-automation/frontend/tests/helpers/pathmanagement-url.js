@@ -44,8 +44,17 @@ function isHumanReadableErrorText(text) {
   return t.length >= 3;
 }
 
-/** Well-known CMS root folders returned by path/folder/ on a stock install. */
-const EXPECTED_ROOT_FOLDER_NAMES = Object.freeze(["Sites", "Assets", "Design"]);
+/**
+ * Well-known CMS root folders returned by path/folder/ on a stock install.
+ * Includes classic Rhythmyx Folders (//Folders) next to Sites/Assets/Design (#3044).
+ * Recycling / Search may also appear depending on roles; not required here.
+ */
+const EXPECTED_ROOT_FOLDER_NAMES = Object.freeze([
+  "Sites",
+  "Folders",
+  "Assets",
+  "Design",
+]);
 
 module.exports = {
   isDoubleSlashPathmanagementUrl,

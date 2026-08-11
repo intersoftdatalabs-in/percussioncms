@@ -24,6 +24,24 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
 
+## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
+
+The Explorer **tree** lists the standard top-level containers returned by the CMS path
+service (roles may hide Design/Recycling for some users):
+
+| Root | Maps to | Purpose |
+|------|---------|---------|
+| **Sites** | `//Sites` | Traditional site folders and pages |
+| **Folders** | `//Folders` | Classic Rhythmyx folder tree (including `$System$` and other repository folders) |
+| **Assets** | `//Folders/$System$/Assets` | Shared asset library (CM1 convenience root) |
+| **Design** | Design file-system area | Templates, themes, web resources (Admin/Designer) |
+| **Recycling** | `//Folders/$System$/Recycling` | Recycled items (Admin/Designer) |
+
+**Folders** is the same classic **//Folders** container available in Desktop Content
+Explorer. Use it when you need the full repository folder hierarchy rather than only the
+Assets or Sites shortcuts. Expanding **Folders** loads children from the server; folder
+visibility still respects folder ACLs.
+
 ## Sites list and Create Site
 
 Under the tree root **Sites** you see traditional site folders available to your community

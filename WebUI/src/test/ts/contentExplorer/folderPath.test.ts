@@ -75,6 +75,21 @@ describe("isStrictCmsPathDescendant (#3001)", () => {
     expect(isStrictCmsPathDescendant("/", "/Sites/")).toBe(true);
     expect(isStrictCmsPathDescendant("/", "/")).toBe(false);
   });
+
+  it("accepts classic Folders root and children under / (#3044)", () => {
+    expect(isStrictCmsPathDescendant("/", "/Folders/")).toBe(true);
+    expect(isStrictCmsPathDescendant("/", "//Folders")).toBe(true);
+    expect(isStrictCmsPathDescendant("/", "/Folders")).toBe(true);
+    expect(
+      isStrictCmsPathDescendant("/Folders", "/Folders/$System$"),
+    ).toBe(true);
+    expect(
+      isStrictCmsPathDescendant("//Folders/", "//Folders/$System$/Assets"),
+    ).toBe(true);
+    // Self is not a strict descendant (tree cycle guard).
+    expect(isStrictCmsPathDescendant("/Folders", "/Folders")).toBe(false);
+    expect(isStrictCmsPathDescendant("/Folders", "/Sites")).toBe(false);
+  });
 });
 
 describe("resolveFolderPathFromSelection (#2792)", () => {
