@@ -100,9 +100,9 @@ public class PSIsCloneExists extends PSEffect {
               IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
         }
         PSComponentSummaries summaries = relProxy.getSummaries(filter, false);
-        Iterator iter = summaries.iterator();
+        Iterator<PSComponentSummary> iter = summaries.iterator();
         while (iter.hasNext()) {
-          PSComponentSummary element = (PSComponentSummary) iter.next();
+          PSComponentSummary element = iter.next();
           if (element.getLocale().equalsIgnoreCase(locale)) {
             throw new PSCloneAlreadyExistsException(
                 filter.getOwner(), (PSLocator) element.getCurrentLocator(), relationshipType);
@@ -113,7 +113,7 @@ public class PSIsCloneExists extends PSEffect {
         summaries = relProxy.getSummaries(filter, false);
         iter = summaries.iterator();
         while (iter.hasNext()) {
-          PSComponentSummary element = (PSComponentSummary) iter.next();
+          PSComponentSummary element = iter.next();
           if (element.getLocale().equalsIgnoreCase(locale)) {
             PSComponentSummary depSumm = PSPromote.getItemSummary(request, filter.getDependent());
             throw new PSCloneAlreadyExistsException(

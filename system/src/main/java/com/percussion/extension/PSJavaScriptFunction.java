@@ -62,8 +62,8 @@ class PSJavaScriptFunction implements ErrorReporter {
 
     myKey += def.getRef().getExtensionName();
 
-    Iterator iter = def.getRuntimeParameterNames();
-    ArrayList params = new ArrayList();
+    Iterator<String> iter = def.getRuntimeParameterNames();
+    ArrayList<String> params = new ArrayList<>();
     while (iter.hasNext()) params.add(iter.next());
 
     int paramCount = params.size();
@@ -82,7 +82,7 @@ class PSJavaScriptFunction implements ErrorReporter {
     buf.append(def.getRef().getExtensionName());
     buf.append("(");
     for (int i = 0; i < paramCount; i++) {
-      String paramName = (String) params.get(i);
+      String paramName = params.get(i);
       buf.append(paramName);
       paramNames[i] = paramName;
     }

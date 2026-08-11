@@ -125,7 +125,7 @@ public class PSDatabaseFunction {
               + dbFunc.getName()
               + ")");
 
-    Iterator it = dbFunc.iterator();
+    Iterator<PSDatabaseFunctionDef> it = dbFunc.iterator();
     while (it.hasNext()) {
       PSDatabaseFunctionDef funcDef = (PSDatabaseFunctionDef) it.next();
       if (contains(funcDef)) getDatabaseFunctionDef(funcDef.getDriver()).copyFrom(funcDef);
@@ -213,7 +213,7 @@ public class PSDatabaseFunction {
     Element root = doc.createElement(NODE_NAME);
     root.setAttribute(ATTR_FUNCTION_NAME, m_name);
 
-    Iterator it = m_dbFuncDefs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunctionDef>> it = m_dbFuncDefs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       PSDatabaseFunctionDef dbFuncDef = (PSDatabaseFunctionDef) item.getValue();
@@ -291,7 +291,7 @@ public class PSDatabaseFunction {
    */
   private boolean compareDatabaseFunctionDefs(PSDatabaseFunction funcDef, boolean full) {
     boolean equals = true;
-    Iterator it = m_dbFuncDefs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunctionDef>> it = m_dbFuncDefs.entrySet().iterator();
     while (it.hasNext() && equals) {
       Map.Entry item = (Map.Entry) it.next();
       String driver = (String) item.getKey();
@@ -315,7 +315,7 @@ public class PSDatabaseFunction {
    */
   private int getDatabaseFunctionDefsHashCode(boolean full) {
     int code = 0;
-    Iterator it = m_dbFuncDefs.entrySet().iterator();
+    Iterator<Map.Entry<String, PSDatabaseFunctionDef>> it = m_dbFuncDefs.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry item = (Map.Entry) it.next();
       PSDatabaseFunctionDef dbFuncDef = (PSDatabaseFunctionDef) item.getValue();
@@ -499,7 +499,7 @@ public class PSDatabaseFunction {
    * @return an iterator over over a collection of <code>PSDatabaseFunctionDef</code> objects, never
    *     <code>null</code>, the collection may be empty.
    */
-  public Iterator iterator() {
+  public Iterator<PSDatabaseFunctionDef> iterator() {
     return m_dbFuncDefs.values().iterator();
   }
 
@@ -521,7 +521,7 @@ public class PSDatabaseFunction {
    * driver is stored as the value. Initialized to an empty map, modified in the <code>fromXml
    * </code> and <code>setValue()</code> methods.
    */
-  private Map m_dbFuncDefs = new HashMap();
+  private Map<String, PSDatabaseFunctionDef> m_dbFuncDefs = new HashMap<>();
 
   /**
    * type of database function, initialized in the ctor, modified in the <code>fromXml</code> and

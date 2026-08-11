@@ -125,12 +125,12 @@ public class PSDtdNodeList extends PSDtdNode {
    * @param sep the element separator string
    * @param attribId the string used to identify an attribute entry
    */
-  public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
+  public void catalog(HashMap<Object, Object> stack, List<String> catalogList, String cur, String sep, String attribId) {
     if (m_nodes != null) {
       for (int i = 0; i < m_nodes.size(); i++) {
         if (catalogList.size() > PSDtdTree.MAX_CATALOG_SIZE) break;
 
-        ((PSDtdNode) m_nodes.get(i)).catalog(stack, catalogList, cur, sep, attribId);
+        m_nodes.get(i).catalog(stack, catalogList, cur, sep, attribId);
       }
     }
 
@@ -143,13 +143,13 @@ public class PSDtdNodeList extends PSDtdNode {
 
   public Object childrenAccept(PSDtdTreeVisitor visitor, Object data) {
     for (int i = 0; i < m_nodes.size(); i++) {
-      PSDtdNode n = (PSDtdNode) m_nodes.get(i);
+      PSDtdNode n = m_nodes.get(i);
       n.acceptVisitor(visitor, data);
     }
     return null;
   }
 
-  List m_nodes; /* use ArrayList: fastest (non-synchronized) way to
+  List<PSDtdNode> m_nodes; /* use ArrayList: fastest (non-synchronized) way to
                      maintain insert/append elements */
 
   int m_type;

@@ -284,15 +284,15 @@ class PSExtensionHandlerConfiguration {
    *     objects.
    * @see #setPendingRemoval
    */
-  public Iterator getPendingRemovals() {
+  public Iterator<File> getPendingRemovals() {
     /* Need to copy the hashset to a new list and return an iterator
        from this new list.  If we don't, when clearPendingRemoval() is
        called, it will invalid the iterator.
     */
     if (m_pendingRemovals == null) return IteratorUtils.EMPTY_LIST_ITERATOR;
 
-    ArrayList tmpList = new ArrayList(m_pendingRemovals.size());
-    Iterator i = m_pendingRemovals.iterator();
+    ArrayList<File> tmpList = new ArrayList<>(m_pendingRemovals.size());
+    Iterator<File> i = m_pendingRemovals.iterator();
     while (i.hasNext()) tmpList.add(i.next());
 
     return tmpList.iterator();
@@ -776,7 +776,7 @@ class PSExtensionHandlerConfiguration {
   /**
    * A set of files and dirs pending removal by the handler. Never <CODE>null</CODE>, may be empty.
    */
-  private volatile Set m_pendingRemovals = new HashSet();
+  private volatile Set<File> m_pendingRemovals = new HashSet<>();
 
   private static final Logger ms_log = LogManager.getLogger("PSExtensionHandlerConfiguration");
 }

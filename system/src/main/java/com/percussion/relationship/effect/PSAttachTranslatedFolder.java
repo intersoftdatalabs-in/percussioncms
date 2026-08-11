@@ -222,9 +222,9 @@ public class PSAttachTranslatedFolder extends PSEffect {
        */
       List<PSLocator> originalParents = new ArrayList<>();
       List<PSLocator> newParents = new ArrayList<>();
-      Iterator walker = folderParents.iterator();
+      Iterator<PSComponentSummary> walker = folderParents.iterator();
       while (walker.hasNext()) {
-        PSComponentSummary summary = (PSComponentSummary) walker.next();
+        PSComponentSummary summary = walker.next();
         PSLocator originaFolderLocator = (PSLocator) summary.getLocator();
 
         boolean foundTranslatedParent = false;

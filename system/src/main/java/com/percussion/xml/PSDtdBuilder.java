@@ -100,8 +100,8 @@ public class PSDtdBuilder {
     m_occurences.put(occKey, occString);
 
     // add to it's parent
-    ArrayList childList = (ArrayList) m_elements.get(parent);
-    if (childList == null) childList = new ArrayList();
+    ArrayList<String> childList = m_elements.get(parent);
+    if (childList == null) childList = new ArrayList<>();
     childList.add(name);
     m_elements.put(parent, childList);
   }
@@ -129,7 +129,7 @@ public class PSDtdBuilder {
     writer.newLine();
 
     // add the root and recursively add all children
-    List writtenElements = new ArrayList();
+    List<String> writtenElements = new ArrayList<>();
     writeElement(writer, m_root, writtenElements);
     writer.flush();
   }
@@ -145,23 +145,23 @@ public class PSDtdBuilder {
    *     definition being written to the DTD more than once. Assumed not <code>null</code>.
    * @throws IOException if there is an error writing to the output stream.
    */
-  private void writeElement(BufferedWriter writer, String element, List writtenElements)
+  private void writeElement(BufferedWriter writer, String element, List<String> writtenElements)
       throws IOException {
     // add it to the written list now so when recursing we don't add it twice
     writtenElements.add(element);
 
     // now add the actual element info
     writer.write("<!ELEMENT " + element + " (");
-    ArrayList children = (ArrayList) m_elements.get(element);
+    ArrayList<String> children = m_elements.get(element);
     if (children == null || children.size() == 0) {
       writer.write("#PCDATA)>");
       writer.newLine();
     } else {
       String sep = "";
-      Iterator i = children.iterator();
+      Iterator<String> i = children.iterator();
       while (i.hasNext()) {
-        String child = (String) i.next();
-        String occurence = (String) m_occurences.get(element + ":" + child);
+        String child = i.next();
+        String occurence = m_occurences.get(element + ":" + child);
         if (occurence == null) occurence = "";
         writer.write(sep + child + occurence);
         sep = ", ";
@@ -172,7 +172,7 @@ public class PSDtdBuilder {
       // now write the children's elements too if they have not been written
       i = children.iterator();
       while (i.hasNext()) {
-        String child = (String) i.next();
+        String child = i.next();
         if (!writtenElements.contains(child)) writeElement(writer, child, writtenElements);
       }
     }
@@ -204,14 +204,14 @@ public class PSDtdBuilder {
    * children's names or null if no child element has been added to this element. Each child element
    * will be in the map and in their parents child list. Never <code>null</code>, may be empty.
    */
-  private HashMap m_elements = new HashMap();
+  private HashMap<String, ArrayList<String>> m_elements = new HashMap<>();
 
   /**
    * Map of elements and their occurence types converted to Strings. Never <code>null</code>, may be
    * empty. Key is "parentName:childName", so that each child's occurence is associated with a
    * parent.
    */
-  private HashMap m_occurences = new HashMap();
+  private HashMap<String, String> m_occurences = new HashMap<>();
 
   /**
    * The name of the root element. Initialized in the constructor, never <code>

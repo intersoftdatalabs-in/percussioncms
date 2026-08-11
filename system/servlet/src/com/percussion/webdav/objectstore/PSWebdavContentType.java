@@ -91,7 +91,7 @@ public class PSWebdavContentType
     * @return iterator of mime types. Never <code>null</code>,
     * may be empty.
     */
-   public Iterator getMimeTypes()
+   public Iterator<String> getMimeTypes()
    {
       return m_mimetypes.iterator();
    }
@@ -181,7 +181,7 @@ public class PSWebdavContentType
     */
    public String getFieldName(String propertyName)
    {
-      return (String) m_propertyFieldMap.get(propertyName);
+      return m_propertyFieldMap.get(propertyName);
    }
 
    /**
@@ -543,7 +543,7 @@ public class PSWebdavContentType
     * name as <code>String</code> object, the value of the map is the field name
     * as <code>String</code> object. The map is never <code>null</code>.
     */
-   private Map m_propertyFieldMap = new HashMap();
+   private Map<String, String> m_propertyFieldMap = new HashMap<>();
 
    /**
     * The field name which hold the owner of a WebDAV lock. This is a required

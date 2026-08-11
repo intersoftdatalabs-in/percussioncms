@@ -70,7 +70,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
    *     objects), may be <code>null</code> or empty, if <code>null</code> then set to empty
    */
   private PSDatabaseFunctionDef(
-      int type, String name, String driver, String body, String description, List params) {
+      int type, String name, String driver, String body, String description, List<PSDatabaseFunctionDefParam> params) {
     PSDatabaseFunctionManager.verifyType(type);
 
     if ((name == null) || (name.trim().length() < 1))
@@ -206,9 +206,9 @@ public class PSDatabaseFunctionDef implements Cloneable {
 
     PSXmlDocumentBuilder.addElement(doc, root, EL_BODY, m_body);
 
-    Iterator it = m_params.iterator();
+    Iterator<PSDatabaseFunctionDefParam> it = m_params.iterator();
     while (it.hasNext()) {
-      PSDatabaseFunctionDefParam param = (PSDatabaseFunctionDefParam) it.next();
+      PSDatabaseFunctionDefParam param = it.next();
       root.appendChild(param.toXml(doc));
     }
 
@@ -264,7 +264,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
    * @return cloned object, never <code>null</code>
    */
   public Object clone() {
-    List params = new ArrayList();
+    List<PSDatabaseFunctionDefParam> params = new ArrayList<>();
     params.addAll(m_params);
 
     return new PSDatabaseFunctionDef(
@@ -444,7 +444,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
    *
    * @return an iterator over a list of parameters, never <code>null</code>, the list may be empty
    */
-  public Iterator getParams() {
+  public Iterator<PSDatabaseFunctionDefParam> getParams() {
     return m_params.iterator();
   }
 
@@ -459,7 +459,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
   public PSDatabaseFunctionDefParam getParamAtIndex(int index) {
     if ((index < 0) || (index > m_params.size() - 1))
       throw new IllegalArgumentException("Invalid function parameter index specified");
-    return (PSDatabaseFunctionDefParam) m_params.get(index);
+    return m_params.get(index);
   }
 
   /** Constant to be used for driver for default database function definition */
@@ -504,7 +504,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
    * list, modified in the <code>fromXml()</code> and
    * <code>copyFrom()</code> methods. Never <code>null</code>, may be empty.
    */
-  private List m_params = new ArrayList();
+  private List<PSDatabaseFunctionDefParam> m_params = new ArrayList<>();
 
   /**
    * type of database function, initialized in the ctor, modified in the <code>fromXml()</code> and

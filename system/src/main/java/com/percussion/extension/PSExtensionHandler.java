@@ -433,24 +433,24 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @throws IllegalArgumentException if def is <code>null</code>.
    * @throws PSExtensionException if the files cannot be located.
    */
-  public Iterator getResources(IPSExtensionDef def) throws PSExtensionException {
+  public Iterator<URL> getResources(IPSExtensionDef def) throws PSExtensionException {
     if (def == null) throw new IllegalArgumentException("def may not be null.");
 
     File codeRoot = getCodeBase(def);
 
-    ArrayList resources = new ArrayList();
+    ArrayList<URL> resources = new ArrayList<>();
 
     try {
       // walk resource locations
-      Iterator locations = def.getResourceLocations();
+      Iterator<URL> locations = def.getResourceLocations();
 
       while (locations.hasNext()) {
-        URL location = (URL) locations.next();
+        URL location = locations.next();
         // build path to file relative from code root
         File locFile = new File(codeRoot, location.getFile());
         if (!locFile.isDirectory()) resources.add(location);
         else {
-          Iterator locUrls = catalogResources(locFile, codeRoot).iterator();
+          Iterator<URL> locUrls = catalogResources(locFile, codeRoot).iterator();
           while (locUrls.hasNext()) {
             resources.add(locUrls.next());
           }
@@ -476,7 +476,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    *     codeRoot is <code>null</code>.
    * @throws MalformedURLException if the result from the catalog is invalid.
    */
-  private ArrayList catalogResources(File location, File codeRoot) throws MalformedURLException {
+  private ArrayList<URL> catalogResources(File location, File codeRoot) throws MalformedURLException {
     if (location == null) throw new IllegalArgumentException("location may not be null.");
 
     if (!location.isDirectory())
@@ -487,7 +487,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     int rootEndPos = codeRoot.getPath().length() + 1;
 
     File[] files = location.listFiles();
-    ArrayList retFiles = new ArrayList();
+    ArrayList<URL> retFiles = new ArrayList<>();
 
     for (int i = 0; i < files.length; i++) {
       // if it is a directory, recurisively catalog it and add it to the
@@ -498,7 +498,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
         String relPath = fullPath.substring(rootEndPos);
         retFiles.add(new URL("file", "", relPath));
       } else {
-        Iterator iFiles = catalogResources(files[i], codeRoot).iterator();
+        Iterator<URL> iFiles = catalogResources(files[i], codeRoot).iterator();
         while (iFiles.hasNext()) {
           // get these as URL's so just add it
           retFiles.add(iFiles.next());
@@ -861,7 +861,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * A map from extension names to live extension instances. Unused extensions will not have an
    * entry in this map, but all instantiated extensions will have an entry.
    */
-  private volatile Map m_liveExtensions = new ConcurrentHashMap(8, 0.9f, 1);
+  private volatile Map<PSExtensionRef, IPSExtension> m_liveExtensions = new ConcurrentHashMap<>(8, 0.9f, 1);
 
   /** The config file. */
   private File m_configFile;

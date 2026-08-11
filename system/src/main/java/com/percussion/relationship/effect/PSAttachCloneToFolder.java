@@ -78,14 +78,14 @@ public class PSAttachCloneToFolder extends PSEffect {
     }
     // A valid sys_folderid parameter must be present
     Object obj = request.getParameterObject(IPSHtmlParameters.SYS_FOLDERID);
-    List tgtFolders = new ArrayList();
+    List<Object> tgtFolders = new ArrayList<>();
     if (obj == null || StringUtils.isBlank(obj.toString())) {
       result.setWarning("No folder to attach");
       return;
     }
 
     if (obj instanceof List) {
-      tgtFolders = (List) obj;
+      tgtFolders = new ArrayList<>((List<?>) obj);
     } else {
       tgtFolders.add(obj.toString());
     }
@@ -123,9 +123,9 @@ public class PSAttachCloneToFolder extends PSEffect {
     // Restore the original if available
     if (orig != null) obj = orig;
 
-    List tgtFolders = new ArrayList();
+    List<Object> tgtFolders = new ArrayList<>();
     if (obj instanceof List) {
-      tgtFolders = (List) obj;
+      tgtFolders = new ArrayList<>((List<?>) obj);
     } else {
       tgtFolders.add(obj.toString());
     }
@@ -134,7 +134,7 @@ public class PSAttachCloneToFolder extends PSEffect {
       PSRelationshipProcessorProxy proc =
           new PSRelationshipProcessorProxy(
               PSRelationshipProcessorProxy.PROCTYPE_SERVERLOCAL, request);
-      List children = new ArrayList();
+      List<PSLocator> children = new ArrayList<>();
       children.add(currentRel.getDependent());
       for (int i = 0; i < tgtFolders.size(); i++) {
         String folderid = tgtFolders.get(i).toString();
@@ -179,7 +179,7 @@ public class PSAttachCloneToFolder extends PSEffect {
    *   <li>{@link PSRelationshipConfig.CATEGORY_TRANSLATION Translation}
    * </ol>
    */
-  static Set ms_cloneRelCategories = new HashSet();
+  public static final Set<String> ms_cloneRelCategories = new HashSet<>();
 
   static {
     ms_cloneRelCategories.add(PSRelationshipConfig.CATEGORY_COPY);

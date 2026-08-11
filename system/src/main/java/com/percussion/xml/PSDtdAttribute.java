@@ -34,7 +34,7 @@ public class PSDtdAttribute implements Serializable {
   public PSDtdAttribute(PSXmlAttributeDecl attr) {
     m_name = attr.getName();
 
-    m_possibleValues = new ArrayList();
+    m_possibleValues = new ArrayList<>();
 
     switch (attr.getDeclaredType()) {
       case PSXmlAttributeDecl.TYPE_NOTATION:
@@ -107,8 +107,8 @@ public class PSDtdAttribute implements Serializable {
   private void processEnumeration(PSXmlAttributeDecl att) {
     // Create string array of possible values
     if (att.size() == 0) return;
-    m_possibleValues = new ArrayList(att.size());
-    Enumeration e = att.elements();
+    m_possibleValues = new ArrayList<>(att.size());
+    Enumeration<?> e = att.elements();
     while (e.hasMoreElements()) {
       m_possibleValues.add((String) e.nextElement());
     }
@@ -247,11 +247,11 @@ public class PSDtdAttribute implements Serializable {
    * Return the array of possible values for this attribute or null if it is not an enumerated type.
    * The enumerated types are ENUMERATION and ENOTATION.
    */
-  public List getPossibleValues() {
+  public List<String> getPossibleValues() {
     return Collections.unmodifiableList(m_possibleValues);
   }
 
-  public void setPossibleValues(List possibleValues) {
+  public void setPossibleValues(List<String> possibleValues) {
     m_possibleValues = possibleValues;
   }
 
@@ -260,7 +260,7 @@ public class PSDtdAttribute implements Serializable {
   }
 
   /** Catalog method for this DTD item. */
-  public void catalog(List catalogList, String cur, String sep, String attribId) {
+  public void catalog(List<String> catalogList, String cur, String sep, String attribId) {
     if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE) {
       catalogList.add("TRUNCATED!");
       return;
@@ -272,7 +272,7 @@ public class PSDtdAttribute implements Serializable {
 
   int m_type = 0;
   String m_default = null;
-  List m_possibleValues = null;
+  List<String> m_possibleValues = null;
   String m_name = null;
   int m_occurrence = 0;
 

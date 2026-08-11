@@ -203,5 +203,5 @@ public class PSPropPatchMethod extends PSWebdavMethod
     * A list of requested properties. It is a list of zero or more 
     * <code>Element</code> objects. Set by <code>parseRequest()</code>.
     */
-   private List m_propList = new ArrayList();
+   private List<Element> m_propList = new ArrayList<>();
 }

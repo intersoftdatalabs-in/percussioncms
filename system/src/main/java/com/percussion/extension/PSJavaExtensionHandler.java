@@ -97,7 +97,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
    */
   public synchronized void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     super.init(def, codeRoot);
-    m_loaders = new HashMap();
+    m_loaders = new HashMap<>();
   }
 
   /**
@@ -274,7 +274,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
       throw new PSExtensionException(IPSExtensionErrors.EXT_INIT_FAILED, args);
     }
 
-    PSExtensionClassLoader loader = (PSExtensionClassLoader) m_loaders.get(ref);
+    PSExtensionClassLoader loader = m_loaders.get(ref);
 
     if (loader == null) {
       // create a class loader for this extension and add it to our map
@@ -382,7 +382,7 @@ public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNot
   }
 
   /** A map from extension names to the class loaders used to load them. */
-  private Map m_loaders;
+  private Map<PSExtensionRef, PSExtensionClassLoader> m_loaders;
 
   /**
    * A list of jar files imported into the system after server start up. Defaults to be an empty

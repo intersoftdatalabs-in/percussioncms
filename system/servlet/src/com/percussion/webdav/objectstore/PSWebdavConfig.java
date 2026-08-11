@@ -42,19 +42,19 @@ public class PSWebdavConfig
 
       m_defaultContentType = cloneContentType(configDef.getDefaultContentType());
 
-      Iterator contentTypes = configDef.getContentTypes();
+      Iterator<PSWebdavContentType> contentTypes = configDef.getContentTypes();
       PSWebdavContentType contentType = null;
       while (contentTypes.hasNext())
       {
-         contentType = (PSWebdavContentType) contentTypes.next();
+         contentType = contentTypes.next();
 
          contentType = cloneContentType(contentType);
-         m_idMap.put(new Long(contentType.getId()), contentType);
+         m_idMap.put(Long.valueOf(contentType.getId()), contentType);
 
-         Iterator mimeTypes = contentType.getMimeTypes();
+         Iterator<String> mimeTypes = contentType.getMimeTypes();
          while (mimeTypes.hasNext())
          {
-            String mimetype = (String) mimeTypes.next();
+            String mimetype = mimeTypes.next();
             m_mimeTypeMap.put(mimetype, contentType);
          }
 
@@ -184,7 +184,7 @@ public class PSWebdavConfig
     * @return an iterator over zero or more <code>String</code> objects, never
     *         <code>null</code>, but may by empty.
     */
-   public Iterator getExcludeFolderProperties()
+   public Iterator<String> getExcludeFolderProperties()
    {
       return m_configDef.getExcludeFolderProperties();
    }
@@ -291,14 +291,14 @@ public class PSWebdavConfig
     * type (as value in <code>PSWebdavContentType</code>). It is initialized
     * by ctor, never <code>null</code>.
     */
-   private Map m_mimeTypeMap = new HashMap();
+   private Map<String, PSWebdavContentType> m_mimeTypeMap = new HashMap<>();
 
    /**
     * It maps the content-id (as key in <code>Integer</code>) to the content
     * type (as value in <code>PSWebdavContentType</code>). It is initialized
     * by ctor, never <code>null</code>.
     */
-   private Map m_idMap = new HashMap();
+   private Map<Long, PSWebdavContentType> m_idMap = new HashMap<>();
 
    /**
     * The default (rx) content type. This is used for all unknown mime-type or

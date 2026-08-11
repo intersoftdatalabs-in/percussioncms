@@ -62,7 +62,7 @@ public class PSDtdElement implements Serializable {
    * @param dtd the parsed DTD in which the attributes will be looked up
    */
   public void setAttributes(PSDtd dtd) {
-    m_attributes = new ArrayList();
+    m_attributes = new ArrayList<>();
     java.util.Enumeration e = dtd.getAttributeDeclarations(m_name);
     while (e.hasMoreElements()) {
       m_attributes.add(new PSDtdAttribute((PSXmlAttributeDecl) e.nextElement()));
@@ -71,7 +71,7 @@ public class PSDtdElement implements Serializable {
 
   /** A simple clear method. */
   public void resetAttributes() {
-    m_attributes = new ArrayList();
+    m_attributes = new ArrayList<>();
   }
 
   public void addAttribute(PSDtdAttribute attr) {
@@ -174,13 +174,13 @@ public class PSDtdElement implements Serializable {
    * @param sep the element separator string
    * @param attribId the string used to identify an attribute entry
    */
-  public void catalogAttributes(List catalogList, String cur, String sep, String attribId) {
+  public void catalogAttributes(List<String> catalogList, String cur, String sep, String attribId) {
     if (m_attributes == null) return;
     else
       for (int i = 0; i < m_attributes.size(); i++) {
         if (catalogList.size() > PSDtdTree.MAX_CATALOG_SIZE) break;
 
-        ((PSDtdAttribute) m_attributes.get(i)).catalog(catalogList, cur, sep, attribId);
+        m_attributes.get(i).catalog(catalogList, cur, sep, attribId);
       }
   }
 
@@ -222,6 +222,6 @@ public class PSDtdElement implements Serializable {
   private PSDtdNode m_content;
   private String m_name;
   private boolean m_isAny;
-  private List m_attributes;
+  private List<PSDtdAttribute> m_attributes;
   private boolean m_hasCharData;
 }

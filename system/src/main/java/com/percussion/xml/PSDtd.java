@@ -354,10 +354,10 @@ public class PSDtd extends DTDGrammar {
 
       // make a new list of all the elements (obtained from the list of
       // possible roots) which have a valid content model
-      List possibleRoots = new ArrayList();
-      Iterator it = m_possibleRootElements.iterator();
+      List<String> possibleRoots = new ArrayList<>();
+      Iterator<String> it = m_possibleRootElements.iterator();
       while (it.hasNext()) {
-        String elemName = (String) it.next();
+        String elemName = it.next();
         String contentModel = getContentModelAsString(elemName);
         if (contentModel != null) {
           possibleRoots.add(elemName);
@@ -376,7 +376,7 @@ public class PSDtd extends DTDGrammar {
 
       // try to get the root by eliminating the elements which are contained
       // in any other element's content model
-      List roots = new ArrayList();
+      List<String> roots = new ArrayList<>();
       roots.addAll(possibleRoots);
       if (possibleRoots.size() > 0) {
         for (int i = 0; i < possibleRoots.size(); i++) {
@@ -633,7 +633,7 @@ public class PSDtd extends DTDGrammar {
    * List of possible root elements as <code>String</code> objects, never <code>null</code>, may be
    * empty.
    */
-  private List m_possibleRootElements = new ArrayList();
+  private List<String> m_possibleRootElements = new ArrayList<>();
 
   /** used in the buildSyntaxTree method. */
   protected int m_leafCount = 0;
@@ -642,7 +642,7 @@ public class PSDtd extends DTDGrammar {
   protected QName m_qName = new QName();
 
   /** Map that stores the content spec index of an element corresponding to the element's index. */
-  protected Map m_contentSpecIndexList = new HashMap();
+  protected Map<Object, Object> m_contentSpecIndexList = new HashMap<>();
 
   /**
    * the location of the entity which forms the starting point of the grammar to be constructed,

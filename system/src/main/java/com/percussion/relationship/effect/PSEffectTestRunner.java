@@ -58,7 +58,7 @@ public class PSEffectTestRunner {
    * @throws PSParameterMismatchException
    */
   public static void run(
-      IPSExecutionContext execContext, Iterator effects, PSExecutionData execData)
+      IPSExecutionContext execContext, Iterator<?> effects, PSExecutionData execData)
       throws PSNotFoundException,
           PSExtensionException,
           PSExtensionProcessingException,
@@ -72,7 +72,7 @@ public class PSEffectTestRunner {
     IPSExtensionManager manager = PSServer.getExtensionManager(null);
     PSExtensionRunner runner = null;
     PSTestResult result = null;
-    List results = new ArrayList();
+    List<PSEffectTestResultPair> results = new ArrayList<>();
     while (effects.hasNext()) {
       PSConditionalEffect effect = (PSConditionalEffect) effects.next();
       PSRuleListEvaluator evaluator = new PSRuleListEvaluator(effect.getConditions());
