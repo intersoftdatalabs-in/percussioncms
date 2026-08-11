@@ -75,7 +75,11 @@ public class RelationshipType {
   @Schema(description = "User properties")
   private List<RelationshipTypeProperty> userProperties = new ArrayList<>();
 
-  @Schema(description = "Honest design gaps for this read-only surface")
+  @Schema(
+      description =
+          "Honest design gaps for this read-only surface. Present on detail GET; typically"
+              + " omitted on list rows to avoid repeating the same catalog-level array"
+              + " (REST-GAPS-02)")
   private List<String> designGaps = new ArrayList<>();
 
   public RelationshipType() {}

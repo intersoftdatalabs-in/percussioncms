@@ -6,6 +6,16 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type { ViewDef } from "./types";
 
+/**
+ * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
+ * detail re-attaches or SPA falls back via this constant.
+ */
+export const VIEW_DESIGN_GAPS: string[] = [
+  "View create / update / delete not supported via this API",
+  "View field criterion editing not supported via this API",
+  "Searches are a separate catalog (Developer Searches / UI-06)",
+];
+
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
   if (Array.isArray(payload)) return payload as T[];
@@ -18,7 +28,15 @@ function asArray<T>(payload: unknown): T[] {
   return [];
 }
 
-/** GET /services/views */
+function withGaps(v: ViewDef): ViewDef {
+  return {
+    ...v,
+    designGaps:
+      v.designGaps && v.designGaps.length > 0 ? v.designGaps : [...VIEW_DESIGN_GAPS],
+  };
+}
+
+/** GET /services/views — list omits designGaps on the wire (REST-GAPS-02). */
 export async function listViews(): Promise<ViewDef[]> {
   const payload = await get<unknown>(PATHS.VIEWS);
   return asArray<ViewDef>(payload);
@@ -27,5 +45,6 @@ export async function listViews(): Promise<ViewDef[]> {
 /** GET /services/views/{idOrName} */
 export async function getViewDetail(idOrName: string): Promise<ViewDef> {
   const key = encodeURIComponent(idOrName);
-  return get<ViewDef>(`${PATHS.VIEWS}/${key}`);
+  const detail = await get<ViewDef>(`${PATHS.VIEWS}/${key}`);
+  return withGaps(detail);
 }

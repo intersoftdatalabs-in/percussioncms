@@ -90,9 +90,12 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
     s.setFileName(type.getFileName());
     s.setDescription(type.getDescription());
     s.setTypeId(type.getId());
-    s.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    // REST-GAPS-02: identical static gaps only on detail, not every list row (NON_NULL omits null).
     if (loadContent) {
+      s.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
       loadContentInto(s, type);
+    } else {
+      s.setDesignGaps(null);
     }
     return s;
   }

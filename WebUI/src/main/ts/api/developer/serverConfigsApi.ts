@@ -6,6 +6,15 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type { ServerConfigDef } from "./types";
 
+/**
+ * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows and may still
+ * attach them on detail; SPA falls back when the wire array is missing/empty.
+ */
+export const SERVER_CONFIG_DESIGN_GAPS: string[] = [
+  "Configuration create / update / save not supported via this API",
+  "Locking and concurrent edit are not exposed on this Developer surface",
+];
+
 function parseList(payload: unknown): ServerConfigDef[] {
   if (payload == null) return [];
   if (Array.isArray(payload)) return payload as ServerConfigDef[];
@@ -22,8 +31,19 @@ function parseList(payload: unknown): ServerConfigDef[] {
   throw new Error("Unexpected server config list payload type");
 }
 
-/** GET /services/serverconfigs */
+function withGaps(c: ServerConfigDef): ServerConfigDef {
+  return {
+    ...c,
+    designGaps:
+      c.designGaps && c.designGaps.length > 0
+        ? c.designGaps
+        : [...SERVER_CONFIG_DESIGN_GAPS],
+  };
+}
+
+/** GET /services/serverconfigs — list omits designGaps on the wire (REST-GAPS-02). */
 export async function listServerConfigs(): Promise<ServerConfigDef[]> {
+  // Do not rehydrate gaps on list rows; detail + withGaps handles honesty for the panel.
   return parseList(await get<unknown>(PATHS.SERVER_CONFIGS));
 }
 
@@ -39,5 +59,5 @@ export async function getServerConfigDetail(name: string): Promise<ServerConfigD
   if (!detail.name || !String(detail.name).trim()) {
     throw new Error("Configuration response missing name");
   }
-  return detail;
+  return withGaps(detail);
 }

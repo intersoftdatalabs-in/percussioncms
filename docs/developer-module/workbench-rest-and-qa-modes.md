@@ -47,7 +47,9 @@ perc-system / objectstore / services
 4. Keep sitemanage as **glue**, not a second design product.
 5. Document `designGaps[]` when REST is thinner than Workbench. Prefer structured
    `{ code, message }` objects on detail DTOs (REST-GAPS-01: ContentType / Template / Slot
-   first); free-text string arrays remain only on unmigrated peers.
+   first); free-text string arrays remain only on unmigrated peers. Catalog-level gaps
+   belong on **detail** only (omit identical arrays on list rows - REST-GAPS-02); SPA
+   may use constants when the wire omits them.
 
 ### DO NOT
 
