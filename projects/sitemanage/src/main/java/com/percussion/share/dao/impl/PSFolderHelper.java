@@ -816,7 +816,7 @@ public class PSFolderHelper implements IPSFolderHelper {
     if (PSSecurityProvider.INTERNAL_USER_NAME.equalsIgnoreCase(userName))
       userName = PSItemProperties.SYSTEM_USER;
 
-    return new PSPair(userName, modifiedDate);
+    return new PSPair<>(userName, modifiedDate);
   }
 
   /**

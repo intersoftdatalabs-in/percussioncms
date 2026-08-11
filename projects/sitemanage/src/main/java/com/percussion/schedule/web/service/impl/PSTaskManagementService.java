@@ -361,9 +361,14 @@ public class PSTaskManagementService {
       @PathParam("jobId") String jobId, @PathParam("issueId") String issueId) {
     Map<String, Object> job = consistencyJobs.get(jobId);
     if (job != null && job.containsKey("issues")) {
-      List<Map<String, Object>> issues = (List<Map<String, Object>>) job.get("issues");
-      synchronized (issues) {
-        issues.removeIf(issue -> issueId.equals(issue.get("issueId")));
+      Object issuesObj = job.get("issues");
+      if (issuesObj instanceof List<?> issues) {
+        synchronized (issues) {
+          issues.removeIf(
+              issue ->
+                  issue instanceof Map<?, ?> m
+                      && issueId.equals(String.valueOf(m.get("issueId"))));
+        }
       }
     }
     Map<String, Object> response = new HashMap<>();

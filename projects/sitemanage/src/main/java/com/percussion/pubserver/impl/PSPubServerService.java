@@ -2281,9 +2281,9 @@ public class PSPubServerService implements IPSPubServerService {
     IPSSite site = siteMgr.findSite(siteName);
     if (site == null) {
       PSEnumVals sites = siteDataService.getChoices();
-      List siteNames = sites.getEntries();
-      if (siteNames != null && siteNames.size() > 0) {
-        siteName = ((PSEnumVals.EnumVal) siteNames.get(0)).getValue();
+      List<PSEnumVals.EnumVal> siteNames = sites.getEntries();
+      if (siteNames != null && !siteNames.isEmpty()) {
+        siteName = siteNames.get(0).getValue();
         site = siteMgr.findSite(siteName);
       }
     }

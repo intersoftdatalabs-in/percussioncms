@@ -21,7 +21,6 @@ package com.percussion.share.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 /**
@@ -38,12 +37,18 @@ public abstract class PSAbstractFilter<T> implements Predicate {
    * @return a new list containing only the elements that should be kept
    */
   public List<T> filter(Collection<T> resources) {
-    var rvalue = new ArrayList<>(resources);
-    CollectionUtils.filter(rvalue, this);
+    // Prefer typed loop over CollectionUtils.filter (raw Predicate API).
+    var rvalue = new ArrayList<T>(resources.size());
+    for (T resource : resources) {
+      if (shouldKeep(resource)) {
+        rvalue.add(resource);
+      }
+    }
     return rvalue;
   }
 
   @Override
+  @SuppressWarnings("unchecked") // commons-collections Predicate is raw; domain type is T
   public boolean evaluate(Object obj) {
     return shouldKeep((T) obj);
   }

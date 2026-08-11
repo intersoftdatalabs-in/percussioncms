@@ -215,10 +215,10 @@ public class PSCommentsService implements IPSCommentsService {
                     server, COMMENT_GET_COMMENTS_ON_PAGE, HttpMethodType.POST, true),
                 mapper.writeValueAsString(postJson));
 
-        Map<String, Object> responseMap = (Map<String, Object>) responseMapObj;
+        Map<String, Object> responseMap = asStringObjectMap(responseMapObj);
 
         List<Map<String, Object>> commentsOnPage =
-            (List<Map<String, Object>>) responseMap.get("comments");
+            asListOfStringObjectMaps(responseMap.get("comments"));
 
         for (var jsonComment : commentsOnPage) {
           var currentComment = new PSComment();
@@ -476,15 +476,13 @@ public class PSCommentsService implements IPSCommentsService {
       var mapper = JsonMapper.builder().build();
 
       Map<String, Object> responseMap =
-          (Map<String, Object>)
+          asStringObjectMap(
               deliveryClient.getJsonObject(
                   new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
-                  mapper.writeValueAsString(postJson));
+                  mapper.writeValueAsString(postJson)));
 
-      List<Object> siteInfo = (List<Object>) responseMap.get("summaries");
-      for (var i = 0; i < siteInfo.size(); i++) {
-
-        Map<String, Object> pageObj = (Map<String, Object>) siteInfo.get(i);
+      List<Map<String, Object>> siteInfo = asListOfStringObjectMaps(responseMap.get("summaries"));
+      for (var pageObj : siteInfo) {
         summaries.add(getCommentSummary(name, pageObj, countsOnly));
       }
     } catch (Exception e) {
@@ -495,6 +493,35 @@ public class PSCommentsService implements IPSCommentsService {
           PSExceptionUtils.getMessageForLog(e));
     }
     return summaries;
+  }
+
+  /** Runtime-checked conversion of delivery JSON maps without unchecked casts. */
+  private static Map<String, Object> asStringObjectMap(Object value) {
+    if (value == null) {
+      return Map.of();
+    }
+    if (!(value instanceof Map<?, ?> map)) {
+      throw new IllegalArgumentException("Expected JSON object map, got " + value.getClass());
+    }
+    var out = new java.util.LinkedHashMap<String, Object>(map.size());
+    for (var e : map.entrySet()) {
+      out.put(String.valueOf(e.getKey()), e.getValue());
+    }
+    return out;
+  }
+
+  private static List<Map<String, Object>> asListOfStringObjectMaps(Object value) {
+    if (value == null) {
+      return List.of();
+    }
+    if (!(value instanceof List<?> list)) {
+      throw new IllegalArgumentException("Expected JSON array, got " + value.getClass());
+    }
+    var out = new ArrayList<Map<String, Object>>(list.size());
+    for (Object element : list) {
+      out.add(asStringObjectMap(element));
+    }
+    return out;
   }
 
   /** Logger for this service. */

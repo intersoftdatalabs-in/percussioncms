@@ -218,7 +218,7 @@ public class PSPageDao extends PSAbstractContentItemDao<PSPage> implements IPSPa
     var noindex = (String) f.get("page_noindex");
     var summary = (String) f.get("page_summary");
     var author = (String) f.get("page_authorname");
-    var tags = (List<String>) f.get("page_tags");
+    List<String> tags = stringListField(f.get("page_tags"));
     var templateContentMigrationVersion = (String) f.get("template_content_migration_version");
     var migrationEmptyWidgetFlag = (String) f.get("migrationemptywidgets");
 
@@ -321,5 +321,20 @@ public class PSPageDao extends PSAbstractContentItemDao<PSPage> implements IPSPa
       pages.add(find(idMapper.getString(node.getGuid())));
     }
     return pages;
+  }
+
+  /** Convert a field map value that may be a list of strings (or null) without unchecked cast. */
+  private static List<String> stringListField(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof List<?> list) {
+      var out = new ArrayList<String>(list.size());
+      for (Object o : list) {
+        out.add(o == null ? null : String.valueOf(o));
+      }
+      return out;
+    }
+    return List.of(String.valueOf(value));
   }
 }

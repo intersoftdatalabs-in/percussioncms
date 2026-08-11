@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -235,7 +236,8 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
   /** Obtain the token and site name from a metadata JSON. */
   private Map<String, String> obtainToken(String credentialsData) throws Exception {
     var mapper = JsonMapper.builder().build();
-    var credentialsJSON = mapper.readValue(credentialsData, java.util.LinkedHashMap.class);
+    Map<String, Object> credentialsJSON =
+        mapper.readValue(credentialsData, new TypeReference<Map<String, Object>>() {});
     var credentials = new HashMap<String, String>();
     if (!credentialsJSON.containsKey(SITE_NAME)) {
       var message = "The credentials were missing the associated site name.";
@@ -247,21 +249,37 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
       logger.error(message);
       throw new Exception(message);
     }
-    credentials.put(SITE_NAME, (String) credentialsJSON.get(SITE_NAME));
-    credentials.put(TOKEN, (String) credentialsJSON.get(TOKEN));
-    credentials.put("siteProtocol", (String) credentialsJSON.getOrDefault("siteProtocol", ""));
+    credentials.put(SITE_NAME, stringOrEmpty(credentialsJSON.get(SITE_NAME)));
+    credentials.put(TOKEN, stringOrEmpty(credentialsJSON.get(TOKEN)));
     credentials.put(
-        "defaultDocument", (String) credentialsJSON.getOrDefault("defaultDocument", ""));
-    credentials.put("canonicalDist", (String) credentialsJSON.getOrDefault("canonicalDist", ""));
+        "siteProtocol", stringOrEmpty(credentialsJSON.getOrDefault("siteProtocol", "")));
+    credentials.put(
+        "defaultDocument", stringOrEmpty(credentialsJSON.getOrDefault("defaultDocument", "")));
+    credentials.put(
+        "canonicalDist", stringOrEmpty(credentialsJSON.getOrDefault("canonicalDist", "")));
     return credentials;
+  }
+
+  private static String stringOrEmpty(Object value) {
+    return value == null ? "" : String.valueOf(value);
+  }
+
+  private static Boolean toBoolean(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Boolean b) {
+      return b;
+    }
+    return Boolean.valueOf(String.valueOf(value));
   }
 
   /** Parse metadata JSON for our Siteimprove configuration settings. */
   private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData)
       throws Exception {
     var mapper = JsonMapper.builder().build();
-    var siteConfigurationJson =
-        mapper.readValue(siteConfigurationData, java.util.LinkedHashMap.class);
+    Map<String, Object> siteConfigurationJson =
+        mapper.readValue(siteConfigurationData, new TypeReference<Map<String, Object>>() {});
     if (!siteConfigurationJson.containsKey(DO_PRODUCTION)) {
       var message = "Siteimprove configuration details were missing the production setting";
       logger.error(message);
@@ -290,13 +308,13 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
       throw new Exception(message);
     }
     var siteConfiguration = new PSSiteImproveSiteConfigurations();
-    siteConfiguration.setDoProduction((Boolean) siteConfigurationJson.get(DO_PRODUCTION));
-    siteConfiguration.setDoStaging((Boolean) siteConfigurationJson.get(DO_STAGING));
+    siteConfiguration.setDoProduction(toBoolean(siteConfigurationJson.get(DO_PRODUCTION)));
+    siteConfiguration.setDoStaging(toBoolean(siteConfigurationJson.get(DO_STAGING)));
     siteConfiguration.setDoAssetsScanExclude(
-        (Boolean) siteConfigurationJson.get(DO_ASSETS_SCAN_EXCLUDE));
-    siteConfiguration.setDoPreview((Boolean) siteConfigurationJson.get(DO_PREVIEW));
+        toBoolean(siteConfigurationJson.get(DO_ASSETS_SCAN_EXCLUDE)));
+    siteConfiguration.setDoPreview(toBoolean(siteConfigurationJson.get(DO_PREVIEW)));
     siteConfiguration.setIsSiteImproveEnabled(
-        (Boolean) siteConfigurationJson.get(IS_SITEIMPROVE_ENABLED));
+        toBoolean(siteConfigurationJson.get(IS_SITEIMPROVE_ENABLED)));
     return siteConfiguration;
   }
 

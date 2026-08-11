@@ -94,12 +94,10 @@ public class PSCategoryDao implements IPSCategoryDao {
       var query = session.createQuery(queryStr);
       query.setParameter("id", "%" + id + "%");
       try {
-        var result = query.list();
+        List<?> result = query.list();
         if (result != null) {
-
-          List<Object> objList = (List<Object>) result;
           pageIds.addAll(
-              objList.stream()
+              result.stream()
                   .filter(Integer.class::isInstance)
                   .map(Integer.class::cast)
                   .collect(Collectors.toList()));

@@ -34,6 +34,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSWebserviceUtils;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,7 +45,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.commons.collections.list.AbstractListDecorator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.StopWatch;
@@ -188,23 +188,21 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler {
    * block computation of its results till its accessed. Accessed meaning any of the list or
    * collection methods being called will ask the given future its value.
    *
-   * <p>Uses commons list decorator but is not ideal since it does not implement generics and <a
-   * href="https://issues.apache.org/jira/browse/COLLECTIONS-352">has some other problems. </a>
+   * <p>Typed as {@link AbstractList} so it is assignable to {@code List<T>} without unchecked
+   * conversion (replaces the raw commons-collections decorator).
    *
    * @author adamgent
    * @param <T> the type list holds.
    */
-  public static class FutureList<T> extends AbstractListDecorator {
+  public static class FutureList<T> extends AbstractList<T> {
 
-    private Future<List<T>> futureList;
+    private final Future<List<T>> futureList;
 
     public FutureList(Future<List<T>> futureList) {
-      super();
       this.futureList = futureList;
     }
 
-    @Override
-    protected Collection<T> getCollection() {
+    private List<T> resolve() {
       try {
         return futureList.get();
       } catch (InterruptedException e) {
@@ -216,13 +214,23 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler {
     }
 
     @Override
-    public String toString() {
-      return getList().toString();
+    public T get(int index) {
+      return resolve().get(index);
+    }
+
+    @Override
+    public int size() {
+      return resolve().size();
     }
 
     @Override
     public Iterator<T> iterator() {
-      return getCollection().iterator();
+      return resolve().iterator();
+    }
+
+    @Override
+    public String toString() {
+      return resolve().toString();
     }
   }
 

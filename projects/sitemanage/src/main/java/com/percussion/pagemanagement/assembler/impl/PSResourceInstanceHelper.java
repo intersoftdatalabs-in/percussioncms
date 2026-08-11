@@ -111,15 +111,16 @@ public class PSResourceInstanceHelper {
       jexlEvaluator.bind("$perc", perc);
       var jexlScript = PSJexlEvaluator.createScript(script);
       var rvalue = jexlEvaluator.evaluate(jexlScript);
-      if (rvalue instanceof List) {
-        var links = (List<?>) rvalue;
+      if (rvalue instanceof List<?> links) {
         // verify list elements are of expected type since Validate no longer provides the helper
+        var typed = new ArrayList<PSResourceLinkAndLocation>(links.size());
         for (Object o : links) {
-          if (!(o instanceof PSResourceLinkAndLocation)) {
+          if (!(o instanceof PSResourceLinkAndLocation link)) {
             throw new IllegalArgumentException("Script returned invalid element: " + o);
           }
+          typed.add(link);
         }
-        return (List<PSResourceLinkAndLocation>) links;
+        return typed;
       } else if (rvalue instanceof PSResourceLinkAndLocation) {
         var links = new ArrayList<PSResourceLinkAndLocation>();
         links.add((PSResourceLinkAndLocation) rvalue);

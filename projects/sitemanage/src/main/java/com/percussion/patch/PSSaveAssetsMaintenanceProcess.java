@@ -82,6 +82,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -288,13 +289,7 @@ public class PSSaveAssetsMaintenanceProcess
     assetListSet = new HashSet<>();
     var objectMapper = JsonMapper.builder().build();
     try {
-      addAssets(
-          (Set<ItemWrapper>)
-              objectMapper.readValue(
-                  f,
-                  objectMapper
-                      .getTypeFactory()
-                      .constructCollectionType(Set.class, ItemWrapper.class)));
+      addAssets(objectMapper.readValue(f, new TypeReference<Set<ItemWrapper>>() {}));
       assetListSet.removeIf(
           asset ->
               asset.getStatus() == ItemWrapper.STATUS.SUCCESS
@@ -712,13 +707,9 @@ public class PSSaveAssetsMaintenanceProcess
     qualifiedPages = new HashSet<>();
     var objectMapper = JsonMapper.builder().build();
     try {
-      qualifiedPages.addAll(
-          (Set<ItemWrapper>)
-              objectMapper.readValue(
-                  readFile,
-                  objectMapper
-                      .getTypeFactory()
-                      .constructCollectionType(Set.class, ItemWrapper.class)));
+      Set<ItemWrapper> loaded =
+          objectMapper.readValue(readFile, new TypeReference<Set<ItemWrapper>>() {});
+      qualifiedPages.addAll(loaded);
       var it = qualifiedPages.iterator();
       while (it.hasNext()) {
         var page = it.next();
