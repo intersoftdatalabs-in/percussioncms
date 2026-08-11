@@ -98,6 +98,13 @@ export const PATHS = {
   get TEMPLATES_BY_SITE() {
     return `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`;
   },
+  /**
+   * Read-only template summaries (base / responsive libraries).
+   * Query: {@code ?type=base|resp} — used by Create Site (#3002).
+   */
+  get TEMPLATES_READONLY() {
+    return `${SERVICES_ROOT}/pagemanagement/template/summary/all/readonly`;
+  },
   /** Full template load (widgets / region associations). */
   get TEMPLATE_LOAD() {
     return `${SERVICES_ROOT}/pagemanagement/template`;

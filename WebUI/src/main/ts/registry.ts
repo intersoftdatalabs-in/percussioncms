@@ -69,6 +69,10 @@ const loaders: Record<string, Loader> = {
     import("./contentExplorer/wizards/SiteCopyWizard").then((m) => ({
       default: m.SiteCopyWizard,
     })),
+  SiteCreateWizard: () =>
+    import("./contentExplorer/wizards/SiteCreateWizard").then((m) => ({
+      default: m.SiteCreateWizard,
+    })),
   SubfolderCopyWizard: () =>
     import("./contentExplorer/wizards/SubfolderCopyWizard").then((m) => ({
       default: m.SubfolderCopyWizard,

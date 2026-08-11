@@ -94,6 +94,7 @@ import {
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
+import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
 import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
 import { RelationshipsView } from "./views/RelationshipsView";
 import { DependencyViewer } from "./views/DependencyViewer";
@@ -390,6 +391,8 @@ export function ContentExplorerShell({
   const [showSecurity, setShowSecurity] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
   const [showTranslations, setShowTranslations] = useState(false);
+  /** Content → Create Site wizard panel (#3002 / parent #2989). */
+  const [showSiteCreate, setShowSiteCreate] = useState(false);
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
   const [showSiteCopy, setShowSiteCopy] = useState(false);
   /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
@@ -728,6 +731,9 @@ export function ContentExplorerShell({
         case "content-clipboard-add":
           handleAddToClipboard();
           break;
+        case "content-create-site":
+          setShowSiteCreate((v) => !v);
+          break;
         case "content-site-copy":
           // Only open when a site is in context; menu item is disabled otherwise.
           if (siteNameForCopy) {
@@ -847,6 +853,7 @@ export function ContentExplorerShell({
             showDependencies={showDependencies}
             hasDependencyItem={hasDependencyItem}
             showClipboard={showClipboard}
+            showSiteCreate={showSiteCreate}
             showSiteCopy={showSiteCopy}
             showSubfolderCopy={showSubfolderCopy}
             multiSelectedCount={multiSelectedIds.size}
@@ -1065,6 +1072,31 @@ export function ContentExplorerShell({
             {message(EXPLORER_MSG.TRANSLATIONS_SELECT_ITEM)}
           </div>
         )}
+      {showSiteCreate && (
+        <section
+          id="explorer-site-create-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-site-create-panel"
+          aria-label={message(EXPLORER_MSG.SITE_CREATE_PANEL_REGION)}
+        >
+          <SiteCreateWizard
+            onCreated={({ folderPath }) => {
+              // Success path: open the new site under Sites (acceptance #3002).
+              setSelection({ folderPath, item: null });
+              setMultiSelectedIds(new Set<string>());
+              setMultiSelectedItems(new Map<string, PSPathItem>());
+              setListEpoch((n) => n + 1);
+              setShowSiteCreate(false);
+              setError(null);
+            }}
+            onSettled={(ok) => {
+              if (!ok) {
+                // Keep panel open so the operator can fix validation / retry.
+              }
+            }}
+          />
+        </section>
+      )}
       {showSiteCopy && siteNameForCopy && (
         <section
           id="explorer-site-copy-panel"

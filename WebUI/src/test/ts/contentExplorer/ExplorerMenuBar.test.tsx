@@ -107,6 +107,21 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(onCommand).toHaveBeenCalledWith("content-clipboard-add");
   });
 
+  it("Content → Create Site is always enabled and toggles (#3002)", () => {
+    const { onCommand } = renderBar({ showSiteCreate: false });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const item = screen.getByTestId(
+      "explorer-content-create-site",
+    ) as HTMLButtonElement;
+    expect(item.disabled).toBe(false);
+    expect(item.getAttribute("role")).toBe("menuitemcheckbox");
+    expect(item.getAttribute("aria-controls")).toBe(
+      "explorer-site-create-panel",
+    );
+    fireEvent.click(item);
+    expect(onCommand).toHaveBeenCalledWith("content-create-site");
+  });
+
   it("Content → Site Copy is disabled without site context (#2767)", () => {
     renderBar({ hasSiteContext: false });
     fireEvent.click(screen.getByTestId("explorer-menu-content"));
