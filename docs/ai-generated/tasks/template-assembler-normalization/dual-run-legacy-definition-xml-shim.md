@@ -2,9 +2,10 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Accepted for Phase 3 slice 3 (#2752) |
+| **Status** | Accepted for Phase 3 slice 3 (#2752); **shim still required** (criteria not met — see Phase 5 criteria) |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) (Phase 3) |
 | **Epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
+| **Phase 5 criteria** | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835 / #2632) |
 | **ADR** | [ADR-004](./adr/004-no-definition-xml-packaging.md) |
 | **Code** | `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (`modules/perc-packages`) |
 | **Related slices** | Manifest model #2750 / PR #2754; Widget XML compiler #2751 / PR #2755 |
@@ -86,13 +87,15 @@ Deep rewiring of `PSWidgetDao` to call the shim for every load is **incremental*
 
 ## Exit criteria (shim retirement)
 
-The dual-run window ends when **all** of the following hold:
+The dual-run window ends when **all** of the following hold. **Authoritative metrics, test gates, time-box, and 2026-08-10 inventory:** [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835).
 
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; native install mode #2806 — dual-ship roots off).
-- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install.
-- [ ] Customer upgrade path documented and used for remaining XML.
-- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived.
-- [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help.
+- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install. **Inventory detail:** product Widget definition XMLs under Packages (`sys__UserDependency--rxconfig/Widgets`) — see [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md).
+- [ ] Customer upgrade path documented and used for remaining XML (window still open for 8.2 dual-run).
+- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot:** selection API un-wired into `PSWidgetDao`; no M2 metrics yet.
+- [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help — **blocked** until criteria doc M1–M3 + G1–G6 pass; residual tracks the deletion PR.
+
+**Do not** mass-delete the customer-facing shim while any box above is open.
 
 ## Non-goals
 
@@ -102,7 +105,9 @@ The dual-run window ends when **all** of the following hold:
 
 ## See also
 
+- [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) — Phase 5 metrics, gates, time-box, inventory (#2835)
 - [ADR-004](./adr/004-no-definition-xml-packaging.md) — no definition XML for product packaging
 - [component-package-manifest.md](./component-package-manifest.md) — modern ship format (when present on branch)
-- [plan.md](./plan.md) — Phase 3 goals
+- [plan.md](./plan.md) — Phase 3 / Phase 5 goals
 - [widget-xml-inventory.md](./widget-xml-inventory.md) — product widget matrix
+- [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md) — package-build dual-ship (related, not identical)
