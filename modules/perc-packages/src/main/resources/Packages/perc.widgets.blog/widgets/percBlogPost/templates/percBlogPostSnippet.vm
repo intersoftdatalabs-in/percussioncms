@@ -1,0 +1,107 @@
+<div class="perc-blog $!rootClass" data-query="$!dynamicListData">
+#if( ! $perc.widgetContents.isEmpty() )##
+<div class = "perc-blog-wrapper">
+#set($node = $perc.widgetContents.get(0).node)##
+#if( ($blogNavigationLocation == "above") || ($blogNavigationLocation == "aboveBeneath") )##
+<div class = "perc-blog-nav-top perc-blog-navigation-container">
+<div class = "perc-blog-navigation-wrapper">
+<div class="perc-blog-nav-left-wrapper">
+<div class = "perc-blog-left-arrow">
+</div>
+<div class = "perc-older-post-wrapper">
+<a href = "#" title="$!{olderText}"><span class="$!{olderPostClass}">$!{olderText}</span></a>
+</div>
+</div>
+<div class = "perc-place-holder">&nbsp;
+</div>
+<div class="perc-blog-nav-right-wrapper">
+<div class = "perc-newer-post-wrapper">
+<a href="#" title="$!{newerText}"><span class="$!{newerPostClass}">$!{newerText}</span></a>
+</div >
+<div class = "perc-blog-right-arrow">
+</div>
+</div>
+</div>
+<div class = "perc-clear-both"> </div>
+</div>
+#end##
+$!{titleFormatStartTag}$tools.esc.html($node.getProperty('rx:displaytitle').getString())$!{titleFormatEndTag}
+<div class="perc-blog-dateByline-container">
+#if(!($percHidefieldByline) && "$!{blogAuthorName}" != "")##
+$bylineStart$tools.esc.html($blogAuthorName)$bylineEnd
+#end##
+#if(!($percHidefieldBlogDate))##
+#set( $postDateTz = $sys.item.getProperty('rx:sys_contentpostdatetz').String )##
+#if($postDateTz == "Default")##
+#set( $postDateTz = "" )##
+#end##
+<div class="perc-blog-date">
+#perc_displayXdsDateTimeWithFormat($blogPostDateTimeFormat, 'rx:sys_contentpostdate') $postDateTz ##
+</div>
+#end##
+</div>
+<div class="perc-blog-post">
+$node.getProperty('rx:postbody').getString()##
+</div>
+#set($tag-novalue = "")##
+#if(! $sys.item.hasProperty("page_tags") || $tagValues.size() == 0)##
+#set($tag-novalue = "perc-blog-hide-container")##
+#end##
+#if(!($percHidefieldTags))##
+<div class="perc-blog-post-tag-container $tag-novalue">
+<span>$!{percTagsLabel}</span>
+#set($separator = ",")##
+#foreach($tag in $tagValues)##
+#if($velocityCount == $tagValues.size())##
+#set($separator = "")##
+#end##
+<a href="#">$tools.esc.html($tag.String)$!{separator}</a>
+#end##
+</div>
+#end##
+#set($category-novalue = "")##
+#if(!$sys.item.hasProperty("page_categories_tree") || ($categoryValues.size() == 0))##
+#set($category-novalue = "perc-blog-hide-container")##
+#end##
+#if(!($percHidefieldCategories))##
+<div class="perc-blog-post-category-container $category-novalue">
+<span>$!{percCategoriesLabel}</span>
+#set($separator = ",")##
+#foreach($categoryPath in $categoryValues)##
+#if($velocityCount == $categoryValues.size())##
+#set($separator = "")##
+#end##
+#foreach($categorySingle in $categoryPath.String.split("/"))##
+#set($category = $!{categorySingle})##
+#end##
+<a href="#" data-categories="$categoryPath.getString()">$tools.esc.html($!{category})$!{separator}</a>
+#end##
+</div>
+#end##
+#if( ($blogNavigationLocation == "beneath") || ($blogNavigationLocation == "aboveBeneath") )##
+<div class = "perc-blog-nav-bottom perc-blog-navigation-container">
+<div class = "perc-blog-navigation-wrapper">
+<div class="perc-blog-nav-left-wrapper">
+<div class = "perc-blog-left-arrow">
+</div>
+<div class = "perc-older-post-wrapper">
+<a href = "#"><span class="$!{olderPostClass}">$!{olderText}</span></a>
+</div>
+</div>
+<div class = "perc-place-holder">&nbsp;</div>
+<div class="perc-blog-nav-right-wrapper">
+<div class = "perc-newer-post-wrapper">
+<a href = "#"><span class ="$!{newerPostClass}">$!{newerText}</span></a>
+</div >
+<div class = "perc-blog-right-arrow">
+</div>
+</div>
+</div>
+<div class = "perc-clear-both"></div>
+</div>
+#end##
+</div>
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("blog-post-sample-content", "This blog post widget is showing sample content")##
+#end##
+</div>

@@ -1,0 +1,288 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percSocialButtons",
+  "name": "Social Buttons",
+  "version": "1.2.4",
+  "description": " ",
+  "publisher": {
+    "name": "https://www.percussion.com",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.3.15",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": false
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Social Buttons",
+    "category": "social",
+    "description": " ",
+    "thumbnail": "resources/percSocialButtonsIcon.png",
+    "icon": "resources/percSocialButtonsIcon.png",
+    "author": "https://www.percussion.com",
+    "preferredEditorWidth": 1000,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percSocialButtons",
+      "ref": "contentTypes/percSocialButtons"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percSocialButtonsSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percSocialButtonsSnippet.vm",
+      "contentType": "percSocialButtons",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "'percSocialButtons'"
+        },
+        {
+          "variable": "assets",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "colorScheme",
+          "expression": "$perc.widget.item.properties.get('colorScheme')"
+        },
+        {
+          "variable": "desktopButtonLocation",
+          "expression": "$perc.widget.item.properties.get('desktopButtonLocation')"
+        },
+        {
+          "variable": "mobileButtonLocation",
+          "expression": "$perc.widget.item.properties.get('mobileButtonLocation')"
+        },
+        {
+          "variable": "hideMobile",
+          "expression": "$perc.widget.item.properties.get('hideMobile')"
+        },
+        {
+          "variable": "hideDesktop",
+          "expression": "$perc.widget.item.properties.get('hideDesktop')"
+        },
+        {
+          "variable": "desktopVerticalOffset",
+          "expression": "$perc.widget.item.properties.get('desktopVerticalOffset')"
+        },
+        {
+          "variable": "mobileVerticalOffset",
+          "expression": "$perc.widget.item.properties.get('mobileVerticalOffset')"
+        },
+        {
+          "variable": "mobileBreakpoint",
+          "expression": "$perc.widget.item.properties.get('mobileBreakpoint')"
+        },
+        {
+          "variable": "mobileButtonSize",
+          "expression": "$perc.widget.item.properties.get('mobileButtonSize')"
+        },
+        {
+          "variable": "baseUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "standardColor",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "grayscaleColor",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "outputColor",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "outputColor",
+          "expression": "$standardColor"
+        },
+        {
+          "variable": "outputColor",
+          "expression": "$grayscaleColor"
+        },
+        {
+          "variable": "data",
+          "expression": "$assetItem.Node.getProperty('rx:buttonConfiguration').getString()"
+        },
+        {
+          "variable": "json",
+          "expression": "$rx.pageutils.createJsonObject($data)"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = 'percSocialButtons';\n\n       ## Get asset item(s)\n       $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n       $perc.setWidgetContents($assets);\n\n       if (! $assets.isEmpty())\n       {\n           $assetItem = $assets.get(0); ## Get first item (which may be only item)\n           $colorScheme = $perc.widget.item.properties.get('colorScheme');\n           $desktopButtonLocation = $perc.widget.item.properties.get('desktopButtonLocation');\n           $mobileButtonLocation = $perc.widget.item.properties.get('mobileButtonLocation');\n           $hideMobile = $perc.widget.item.properties.get('hideMobile');\n           $hideDesktop = $perc.widget.item.properties.get('hideDesktop');\n           $desktopVerticalOffset = $perc.widget.item.properties.get('desktopVerticalOffset');\n           $mobileVerticalOffset = $perc.widget.item.properties.get('mobileVerticalOffset');\n           $mobileBreakpoint = $perc.widget.item.properties.get('mobileBreakpoint');\n           $mobileButtonSize = $perc.widget.item.properties.get('mobileButtonSize');\n           $baseUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n           ## assign standard colors\n           $standardColor = $rx.string.stringToMap(null);\n           $standardColor.put('facebook', '3b5998');\n           $standardColor.put('twitter', '111111');\n           $standardColor.put('linkedIn', '0077b5');\n           $standardColor.put('pinterest', 'c92228');\n           $standardColor.put('youtube', 'cd201f');\n           $standardColor.put('whatsapp', '25d366');\n           $standardColor.put('email', '787878');\n           $standardColor.put('text', 'ffffff');\n\n           ## assign grayscale colors\n           $grayscaleColor = $rx.string.stringToMap(null);\n           $grayscaleColor.put('facebook', '666666');\n           $grayscaleColor.put('twitter', '666666');\n           $grayscaleColor.put('linkedIn', '666666');\n           $grayscaleColor.put('pinterest', '666666');\n           $grayscaleColor.put('youtube', '666666');\n           $grayscaleColor.put('whatsapp', '666666');\n           $grayscaleColor.put('email', '666666');\n           $grayscaleColor.put('text', 'ffffff');\n\n           $outputColor = $rx.string.stringToMap(null);\n\n           if( $colorScheme == 'standard') {\n            $outputColor = $standardColor;\n           }\n           else {\n            $outputColor = $grayscaleColor;\n           }\n\n          $data = $assetItem.Node.getProperty('rx:buttonConfiguration').getString();\n          $json = $rx.pageutils.createJsonObject($data);\n\n       }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percSocialButtonsContent",
+      "allowedContentTypes": [
+        "percSocialButtons"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/percSocialButtonsIcon.png",
+      "target": "rx_resources/widgets/percSocialButtons/images/percSocialButtonsIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "colorScheme",
+      "displayName": "Button color scheme",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "standard",
+      "enumValues": [
+        {
+          "value": "standard",
+          "displayValue": "Standard"
+        },
+        {
+          "value": "grayscale",
+          "displayValue": "Grayscale"
+        }
+      ]
+    },
+    {
+      "name": "desktopButtonLocation",
+      "displayName": "Desktop button location",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "inline",
+      "enumValues": [
+        {
+          "value": "inline",
+          "displayValue": "Inline"
+        },
+        {
+          "value": "left",
+          "displayValue": "Fixed Left"
+        },
+        {
+          "value": "right",
+          "displayValue": "Fixed Right"
+        },
+        {
+          "value": "bottom",
+          "displayValue": "Fixed Bottom"
+        }
+      ]
+    },
+    {
+      "name": "mobileButtonLocation",
+      "displayName": "Mobile button location",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "inline",
+      "enumValues": [
+        {
+          "value": "inline",
+          "displayValue": "Inline"
+        },
+        {
+          "value": "left",
+          "displayValue": "Fixed Left"
+        },
+        {
+          "value": "right",
+          "displayValue": "Fixed Right"
+        },
+        {
+          "value": "bottom",
+          "displayValue": "Fixed Bottom"
+        }
+      ]
+    },
+    {
+      "name": "mobileBreakpoint",
+      "displayName": "Mobile breakpoint screen size (Specify units px, em, %)",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "1024px",
+      "enumValues": []
+    },
+    {
+      "name": "hideMobile",
+      "displayName": "Hide buttons when <= Mobile breakpoint",
+      "datatype": "bool",
+      "required": true,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "hideDesktop",
+      "displayName": "Hide buttons when > Mobile breakpoint",
+      "datatype": "bool",
+      "required": true,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "desktopVerticalOffset",
+      "displayName": "Desktop vertical offset (side position only)",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "200px",
+      "enumValues": []
+    },
+    {
+      "name": "mobileVerticalOffset",
+      "displayName": "Mobile vertical offset (side position only)",
+      "datatype": "string",
+      "required": true,
+      "defaultValue": "100px",
+      "enumValues": []
+    },
+    {
+      "name": "mobileButtonSize",
+      "displayName": "Mobile button size (will not affect inline placement)",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "small",
+      "enumValues": [
+        {
+          "value": "1em",
+          "displayValue": "Small"
+        },
+        {
+          "value": "1.2em",
+          "displayValue": "Medium"
+        },
+        {
+          "value": "1.5em",
+          "displayValue": "Large"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": []
+}

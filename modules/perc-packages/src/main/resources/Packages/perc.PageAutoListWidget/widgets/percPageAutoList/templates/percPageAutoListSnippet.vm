@@ -1,0 +1,197 @@
+#define($ariaLabelString)##
+#if($title && $title.length() > 0)##
+aria-labelledby="$!{headerId}"##
+#else##
+$!{listAriaLabel}##
+#end##
+#end##
+#if($feedname)##
+<div style="display:none" hidden data-name="feedQuery_$feedname" data-hide-past-results="$!{hidePastResults}" data-hide-past-results-filter-type="$!{hidePastResultsFilterType}" data-query="$!{feedDynamicListData}"></div>
+#end##
+<div id="$!{autoListDivId}" $ariaLabelString class="#cleanClass("$!{rootclass} ${layout} perc-page-auto-list")" #if($perc_hide_when_empty && $relresults.size() <= 0)hidden #end data-hide-past-results="$!{hidePastResults}" data-hide-past-results-filter-type="$!{hidePastResultsFilterType}" data-query="$!{dynamicListData}" $!{listAriaRole} aria-live="polite" aria-relevant="additions" aria-atomic="true" aria-busy="true" data-locale="$!{locale}" data-datefmt="$!{postDateTimeFormat}">
+##This is a hidden div that holds the structure of the list when the page auto list
+##output structure changes this hidden div and delivery side view
+##should be modified to match the new structure.
+<div style="display:none" hidden class="perc-page-auto-list-structure">
+#if($rendering == "ordered")##
+<ol class="perc-list-main">##
+#else##
+<ul class="perc-list-main">##
+#end##
+<li class="perc-list-element">$!{listItemFormatStartTag}
+#if("$target" != "")##
+#set($setTarget = 'target=' + '"' + $!{target} + '"')##
+<a href="" $!{setTarget}></a>
+#else##
+<a href="#" title="placeholder">Placeholder</a>
+#end##
+$!{listItemFormatEndTag}
+#if($showPostDate)##
+<span class="perc-page-auto-list-date"></span>
+#end##
+#if($enableCalenderIcon)##
+<div class="perc-page-auto-list-calicon">
+<div class="perc-page-auto-list-calicon-month"></div>
+<div class="perc-page-auto-list-calicon-day"></div>
+</div>
+#end##
+#if ($summary)##
+<div class="#cleanClass("perc-page-auto-list-summary-container $!{summaryclass}")"></div>
+#end##
+</li>
+#if($rendering == "ordered")##
+</ol>##
+#else##
+</ul>##
+#end##
+</div>
+#if( ! $perc.widgetContents.isEmpty() )##
+#if($title && $title.length() > 0)##
+$!{titleFormatStartTag}$!{title}$!{titleFormatEndTag}
+#end##
+#if($enableRssIcon && $enableRssField == "Enable Rss feed" && $rssIconPosition == "perc-list-top")##
+##Keep link class name perc-rss-icon in sync with delivery tier.
+<span class ="perc-rss-icon-top"><a class="perc-rss-icon" aria-label="$!{rssLinkText}" title="$!{rssLinkText}" href="$!{sUrl}">RSS link</a></span>
+#end##
+#set($filteredList = $rx.string.getArrayList())##
+#if(0  < $relresults.size() )##
+#if($rendering == "ordered")##
+<div class = "perc-list-main-wrapper"><ol class="perc-list-main">##
+#else##
+<div class = "perc-list-main-wrapper"><ul class="perc-list-main">##
+#end##
+#if("$!{categoryList}" != "")##
+#foreach($result in $relresults)##
+#set($catMap = $rx.string.stringToMap(null))##
+#set($catClass = "")##
+#set($filterIn = true)##
+#set($cid = $result.getNode().getProperty("sys_contentid").getString())##
+#set($rid = $result.getNode().getProperty("revision").getString())##
+#set($sys_rid = $result.getNode().getProperty("sys_revision").getString())##
+#set($catFilters = $categoryList.split(","))##
+#set($catLike = "")##
+#foreach($cat in $catFilters)##
+#if($catLike != "")##
+#set($catLike = "$catLike OR")##
+#end## --($catLike != "")--
+#if($linkContext.getMode()=="PREVIEW")##
+#set($catLike = "$catLike (SELECT COUNT(CONTENTID) FROM CT_PAGE_PAGE_CATEGORIES_SET WHERE CONTENTID=$!{cid} AND (REVISIONID >= $!{rid}) AND  PAGE_CATEGORIES_TREE = '$!{cat}')>=1 ")##
+#else##
+#set($catLike = "$catLike (SELECT COUNT(CONTENTID) FROM CT_PAGE_PAGE_CATEGORIES_SET WHERE CONTENTID=$!{cid} AND (REVISIONID = $!{rid}) AND  PAGE_CATEGORIES_TREE = '$!{cat}')>=1 ")##
+#end##
+#end##
+#if($linkContext.getMode()=="PREVIEW")##
+#set($catSQL = "SELECT DISTINCT CONTENTID FROM CT_PAGE_PAGE_CATEGORIES_SET WHERE CONTENTID=$!{cid} AND REVISIONID >= $!{rid} AND $!{catLike}")## In preview display current or whatever the latest revision is.
+#else##
+#set($catSQL = "SELECT DISTINCT CONTENTID FROM CT_PAGE_PAGE_CATEGORIES_SET WHERE CONTENTID=$!{cid} AND REVISIONID=$!{rid} AND $!{catLike}")##
+#end##
+##$catSQL
+#set($categoryFilter = $rx.db.get("RhythmyxData", $catSQL))##
+#if(($categoryFilter.size() > 0))##
+#set($dummy = $filteredList.add($result))##
+#end##
+#end##
+#else##
+#set($filteredList=$relresults)##
+#end##
+#if($filteredList.size()>0)##
+#foreach($result in $filteredList)##
+#if($velocityCount <= $maxlength)
+#if($velocityCount == 1)##
+#set($firstrow = 'perc-list-first')##
+#else##
+#set($firstrow = ' ')##
+#end##
+#if($velocityCount == $relresults.size())##
+#set($lastrow = 'perc-list-last')##
+#else##
+#set($lastrow = ' ')##
+#end##
+#set($pagelink=$tools.esc.html($rx.pageutils.itemLink($linkContext, $result)))##
+#set($linkTitle=$rx.pageutils.html($result.node,"resource_link_title,sys_title", "-no-title-"))##
+#if($result.node.hasProperty('rx:page_categories_tree'))##
+#set($postCategories=$result.node.getProperty('rx:page_categories_tree').getValues())##
+#foreach($category in $postCategories)##
+#foreach($node in $rx.pageutils.getCategoryLabel( $category.getString()).split("/"))##
+#if("$!{node}" !="" && "$!{node}" != "Categories")##
+#set($leaf = $node.replaceAll("[^a-zA-Z0-9]+","").trim().toLowerCase())##
+#set($dummy = $catMap.put($leaf,$leaf))##
+#end##
+#end##
+#end##
+#foreach($c in $catMap.entrySet())##
+#if(""=="$!{catClass}")##
+#set($catClass = " perc-autolist-category-$!{c.key}")##
+#else##
+#set($catClass = "$!{catClass} perc-autolistlist-category-$!{c.key}")##
+#end##if
+#end##for
+#end##if
+<li class="#cleanClass("$rowtag $firstrow $lastrow perc-list-element $!{catClass}")">$!{listItemFormatStartTag}
+#if("$target" != "")
+#set($setTarget = 'target=' + '"' + $!{target} + '"')##
+#end##
+<a href="$!{pagelink}" aria-label="$!{linkTitle}" title="$!{linkTitle}" $!{setTarget}>$!{linkTitle}</a>$!{listItemFormatEndTag}
+##Setup Date Formatting
+#set($formatterOut = $rx.pageutils.getDateFormatFromLocale("$!{postDateTimeFormat}",$locale))##
+#set($postDateObject="")##
+#set($postDate="")##
+#set($postDateObject=$result.node.getProperty('rx:sys_contentpostdate'))##
+#set($postDateObjectString=$result.node.getProperty('rx:sys_contentpostdate').String)##
+#if("$!{postDateObjectString}" == "")##
+#set($postDateObject=$tools.date.getDate())##
+#else##
+#set($postDateObject=$result.node.getProperty('rx:sys_contentpostdate').getDate())##
+#end##
+#if("$!{postDateObject}" != "")##
+#set($postDate = $formatterOut.format($postDateObject.getTime()))##
+#end##
+#if($showPostDate)##
+#set( $postDateTz = $result.node.getProperty('rx:sys_contentpostdatetz').String  )##
+#if($postDateTz == "Default")##
+#set( $postDateTz = "" )##
+#end##
+#if("$!{postDate}" != "")##
+<span class="perc-page-auto-list-date">$!{postDate} $postDateTz</span>
+#end##
+#end##
+#if($enableCalenderIcon)##
+<div class="perc-page-auto-list-calicon">
+<div class="perc-page-auto-list-calicon-month">
+#set($formatterOut2 = $rx.pageutils.getDateFormatFromLocale("MMM",$locale))##
+#set($postDate = $formatterOut2.format($postDateObject.getTime()))##
+$postDate##
+</div>
+<div class="perc-page-auto-list-calicon-day">
+#set($formatterOut3 = $rx.pageutils.getDateFormatFromLocale("dd",$locale))##
+#set($postDate = $formatterOut3.format($postDateObject.getTime()))##
+$postDate##
+</div>
+</div>
+#end##
+#if ($summary)##
+#set($summary_text=$result.node.getProperty('rx:page_summary').getString().replace('<span class="perc-blog-more-link"></span>', "<a href='$!{pagelink}' aria-label='Read more about  $!{linkTitle}' title='$!{linkTitle}'>...more</a>"))##
+#if("$!{summary_text}" != "")##
+<div class="#cleanClass("perc-page-auto-list-summary-container $!{summaryclass}")">
+$!{summary_text}
+</div>
+#end##
+#end##
+</li>
+#end##
+#end##
+#end##
+#if($rendering == "ordered")##
+</ol></div>##
+#else##
+</ul></div>##
+#end##
+#if($enableRssIcon && $enableRssField == "Enable Rss feed" && $rssIconPosition == "perc-list-bottom")##
+##Keep link class name perc-rss-icon in sync with delivery tier.
+<span class="perc-rss-icon-bottom"><a class="perc-rss-icon" aria-label="$!{rssLinkText}" title="$!{rssLinkText}" href="$!{sUrl}">RSS link</a></span>
+#end##
+#end##
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("pagelist-sample-content", "This page auto list widget is showing sample content.")##
+#end##
+</div>

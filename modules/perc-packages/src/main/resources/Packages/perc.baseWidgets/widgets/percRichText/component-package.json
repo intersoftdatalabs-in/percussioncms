@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percRichText",
+  "name": "Rich Text",
+  "version": "1.1.9",
+  "description": "Widget to enter text using a WYSIWYG editor",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Rich Text",
+    "category": "content",
+    "description": "Widget to enter text using a WYSIWYG editor",
+    "thumbnail": "resources/widgetIconText.png",
+    "icon": "resources/widgetIconText.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 750,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percRichTextAsset",
+      "ref": "contentTypes/percRichTextAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percRichTextSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percRichTextSnippet.vm",
+      "contentType": "percRichTextAsset",
+      "bindings": [
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "classAttribute",
+          "expression": "' class=\"' + $rootclass + '\"'"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    if (!empty($rootclass))\n        $classAttribute = ' class=\"' + $rootclass + '\"';"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percRichTextContent",
+      "allowedContentTypes": [
+        "percRichTextAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconText.png",
+      "target": "rx_resources/widgets/PSWidget_RichText/images/widgetIconText.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS Root Class",
+      "datatype": "string"
+    }
+  ]
+}

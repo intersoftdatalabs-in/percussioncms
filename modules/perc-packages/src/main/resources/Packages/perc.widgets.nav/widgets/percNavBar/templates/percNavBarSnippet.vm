@@ -1,0 +1,155 @@
+<div class="$!{rootclass} perc-navbar"$!{sampleTooltip}>
+#if("$generateSkipLink"=="true" && ! $perc.isEditMode())##
+<script >
+window.addEventListener('DOMContentLoaded', function() {
+// bind a click event to the 'skip' link
+$(".perc-navigation-skiplink").on("click",function(event) {
+// strip the leading hash and declare
+// the content we're skipping to
+var skipTo="#"+this.href.split('#')[1];
+// Setting 'tabindex' to -1 takes an element out of normal
+// tab flow but allows it to be focused via javascript
+$(skipTo).attr('tabindex', -1).on('blur focusout', function () {
+// when focus leaves this element,
+// remove the tabindex attribute
+$(this).removeAttr('tabindex');
+}).trigger("focus"); // focus on the content container
+});
+});
+</script>
+<a href="#$!{skipLinkRegionId}" class="perc-navigation-skiplink" tabindex="$!{tabindexValue}">$!{skipLinkText}</a>
+#end##
+<nav aria-label="$!{navLabel}">
+<ul class="$!{layout}">
+#if($!{nav})##
+#perc_processNavigationNode($nav.getRoot(), 1, 1, $addTitleAttrs, $titleNavigateToText, $maxRootItems, $maxSubItems)##
+#elseif ($perc.isEditMode())##
+<li class="perc-navbar-current">
+<a href="#a">Section 1</a>
+#if($maxlevels > 1)##
+<ul>
+<li>
+<a href="#">Section 2</a>
+#if($maxlevels > 2)##
+<ul>
+<li>
+<a href="#aa">menu item that is quite long</a>
+</li>
+<li class="perc-navbar-current">
+<a href="#ab">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li class="perc-navbar-current"><a href="#">menu item</a></li>
+<li><a href="#aba">menu item</a></li>
+<li><a href="#abb">menu item</a></li>
+<li><a href="#abc">menu item</a></li>
+<li><a href="#abd">menu item</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+</ul>
+#end##
+</li>
+<li>
+<li>
+<a href="#">Section 3</a>
+#if($maxlevels > 2)##
+<ul>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">short</a></li>
+<li><a href="#">short</a></li>
+<li><a href="#">short</a></li>
+<li><a href="#">short</a></li>
+<li><a href="#">short</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">menu item</a>
+#if($maxlevels > 3)##
+<ul>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+<li><a href="#">menu item</a></li>
+</ul>
+#end##
+</li>
+</ul>
+#end##
+</li>
+<li>
+<a href="#">Section 4</a>
+</li>
+</ul>
+#end##
+</li>
+#end##
+</ul>
+</nav>
+<div style="clear:both"></div>
+</div>

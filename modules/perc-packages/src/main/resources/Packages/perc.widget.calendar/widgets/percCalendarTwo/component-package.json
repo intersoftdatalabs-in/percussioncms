@@ -1,0 +1,713 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percCalendarTwo",
+  "name": "Calendar 2.0",
+  "version": "2.4.8",
+  "description": "Enables integration of Google Calendar with Percussion",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.5.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Calendar 2.0",
+    "category": "Other",
+    "description": "Enables integration of Google Calendar with Percussion",
+    "thumbnail": "resources/calendarIcon.png",
+    "icon": "resources/calendarIcon.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 900,
+    "preferredEditorHeight": 600,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percCalendarAsset",
+      "ref": "contentTypes/percCalendarAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percCalendarTwoSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percCalendarTwoSnippet.vm",
+      "contentType": "percCalendarAsset",
+      "bindings": [
+        {
+          "variable": "widgetProps",
+          "expression": "$perc.widget.item.properties"
+        },
+        {
+          "variable": "perc_layout_type",
+          "expression": "$widgetProps.get(\"perc_layout_type\")"
+        },
+        {
+          "variable": "perc_max_results",
+          "expression": "$widgetProps.get(\"perc_max_results\")"
+        },
+        {
+          "variable": "perc_enable_calendar_icon",
+          "expression": "$widgetProps.get(\"enableCalenderIcon\")"
+        },
+        {
+          "variable": "perc_show_event_date",
+          "expression": "$widgetProps.get(\"showEventDate\")"
+        },
+        {
+          "variable": "perc_show_event_time",
+          "expression": "$widgetProps.get(\"showEventTime\")"
+        },
+        {
+          "variable": "perc_calendar_view",
+          "expression": "$widgetProps.get(\"perc_calendar_view\")"
+        },
+        {
+          "variable": "perc_calendar_type",
+          "expression": "$widgetProps.get(\"perc_calendar_type\")"
+        },
+        {
+          "variable": "perc_calendar_detail",
+          "expression": "$widgetProps.get(\"perc_calendar_detail\")"
+        },
+        {
+          "variable": "perc_show_page_summary",
+          "expression": "$widgetProps.get(\"perc_show_page_summary\")"
+        },
+        {
+          "variable": "perc_calendar_display_language",
+          "expression": "$widgetProps.get(\"perc_calendar_display_language\")"
+        },
+        {
+          "variable": "perc_start_day_number",
+          "expression": "$widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\")"
+        },
+        {
+          "variable": "perc_show_perc_events_button",
+          "expression": "$widgetProps.get(\"perc_show_perc_events_button\")"
+        },
+        {
+          "variable": "perc_event_button_label",
+          "expression": "$widgetProps.get(\"perc_event_button_label\")"
+        },
+        {
+          "variable": "eventDateFormat",
+          "expression": "$widgetProps.get(\"eventDateFormat\")"
+        },
+        {
+          "variable": "eventTimeFormat",
+          "expression": "$widgetProps.get(\"eventTimeFormat\")"
+        },
+        {
+          "variable": "perc_event_title_tag_type",
+          "expression": "$widgetProps.get(\"perc_event_title_tag_type\")"
+        },
+        {
+          "variable": "perc_enable_view_toggle_buttons",
+          "expression": "$widgetProps.get(\"perc_enable_view_toggle_buttons\")"
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "$widgetProps.get(\"perc_time_format\")"
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "\"hh:mmt\""
+        },
+        {
+          "variable": "perc_time_format",
+          "expression": "\"HH:mm\""
+        },
+        {
+          "variable": "pagesInCal",
+          "expression": "\"[]\""
+        },
+        {
+          "variable": "calTitle",
+          "expression": "\"\""
+        },
+        {
+          "variable": "calStartDate",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "id",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "id",
+          "expression": "$assetItem.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "calTitle",
+          "expression": "$assetItem.getNode().getProperty(\"calendar_title\").String"
+        },
+        {
+          "variable": "calName",
+          "expression": "$assetItem.getNode().getProperty(\"sys_title\").String"
+        },
+        {
+          "variable": "fullCalendarPage",
+          "expression": "$assetItem.getNode().getProperty(\"full_calendar_page\").String"
+        },
+        {
+          "variable": "calStartDate",
+          "expression": "$assetItem.getNode().getProperty(\"calendar_start_date\").String"
+        },
+        {
+          "variable": "pagesInCal",
+          "expression": "$rx.pageutils.getPagesForCalendar($calName).toString()"
+        },
+        {
+          "variable": "data",
+          "expression": "$assetItem.Node.getProperty('rx:googleSetupData').getString()"
+        },
+        {
+          "variable": "json",
+          "expression": "$rx.pageutils.createJsonObject($data)"
+        },
+        {
+          "variable": "googleCalendarArray",
+          "expression": "$json.getJSONArray(\"config\")"
+        },
+        {
+          "variable": "calendarContentId",
+          "expression": "$assetItem.Node.getProperty('rx:sys_contentid').getString()"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer()"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\")"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "##Widget properties\n      $widgetProps = $perc.widget.item.properties;\n      $perc_layout_type = $widgetProps.get(\"perc_layout_type\");\n      $perc_max_results = $widgetProps.get(\"perc_max_results\");\n      $perc_enable_calendar_icon = $widgetProps.get(\"enableCalenderIcon\");\n      $perc_show_event_date = $widgetProps.get(\"showEventDate\");\n      $perc_show_event_time = $widgetProps.get(\"showEventTime\");\n      $perc_calendar_view = $widgetProps.get(\"perc_calendar_view\");\n      $perc_calendar_type = $widgetProps.get(\"perc_calendar_type\");\n      $perc_calendar_detail = $widgetProps.get(\"perc_calendar_detail\");\n      $perc_show_page_summary = $widgetProps.get(\"perc_show_page_summary\");\n      $perc_calendar_display_language = $widgetProps.get(\"perc_calendar_display_language\");\n      $perc_start_day_number = $widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\");\n      $perc_show_perc_events_button = $widgetProps.get(\"perc_show_perc_events_button\");\n      $perc_event_button_label = $widgetProps.get(\"perc_event_button_label\");\n      $eventDateFormat = $widgetProps.get(\"eventDateFormat\");\n      $eventTimeFormat = $widgetProps.get(\"eventTimeFormat\");\n      $perc_event_title_tag_type = $widgetProps.get(\"perc_event_title_tag_type\");\n      $perc_enable_view_toggle_buttons = $widgetProps.get(\"perc_enable_view_toggle_buttons\");\n\n\n      $perc_time_format = $widgetProps.get(\"perc_time_format\");\n      if($perc_time_format == \"ampm\")\n          $perc_time_format = \"hh:mmt\";\n      else\n          $perc_time_format = \"HH:mm\";\n\n      $pagesInCal = \"[]\";\n      $calTitle = \"\";\n      $calStartDate = \"\";\n      $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n      $id = \"\";\n      $perc.setWidgetContents($assetItems);\n      if ( ! $assetItems.isEmpty() ) {\n          $assetItem = $assetItems.get(0);\n          $id = $assetItem.id;\n          $widgetId = $perc.widget.item.id;\n          $calTitle = $assetItem.getNode().getProperty(\"calendar_title\").String;\n          $calName = $assetItem.getNode().getProperty(\"sys_title\").String;\n          $fullCalendarPage = $assetItem.getNode().getProperty(\"full_calendar_page\").String;\n          $calStartDate = $assetItem.getNode().getProperty(\"calendar_start_date\").String;\n          $pagesInCal = $rx.pageutils.getPagesForCalendar($calName).toString();\n          $data = $assetItem.Node.getProperty('rx:googleSetupData').getString();\n          $json = $rx.pageutils.createJsonObject($data);\n          $googleCalendarArray = $json.getJSONArray(\"config\");\n          $calendarContentId = $assetItem.Node.getProperty('rx:sys_contentid').getString();\n      }\n\n      $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n      if(empty($rootclass)){\n          $rootclass = \"\";\n      }\n\n      $dsUrl = $rx.pageutils.getDeliveryServer();\n\n      $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percCalendarTwoContent",
+      "allowedContentTypes": [
+        "percCalendarAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/calendarIcon.png",
+      "target": "rx_resources/widgets/percCalendarTwo/images/calendarIcon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_layout_type",
+      "displayName": "Choose layout type",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "Calendar",
+      "enumValues": [
+        {
+          "value": "calendar",
+          "displayValue": "Calendar"
+        },
+        {
+          "value": "list",
+          "displayValue": "Event List"
+        }
+      ]
+    },
+    {
+      "name": "perc_enable_view_toggle_buttons",
+      "displayName": "Enable view toggle buttons",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_max_results",
+      "displayName": "<span style=\"font-size:125%;\"><br><b>Event List View Options</b></span><br><br>Event List Limit",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "5",
+      "enumValues": []
+    },
+    {
+      "name": "perc_event_title_tag_type",
+      "displayName": "Format for event title",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "p",
+      "enumValues": [
+        {
+          "value": "p",
+          "displayValue": "Paragraph"
+        },
+        {
+          "value": "h2",
+          "displayValue": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "displayValue": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "displayValue": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "displayValue": "Heading 5"
+        },
+        {
+          "value": "h6",
+          "displayValue": "Heading 6"
+        }
+      ]
+    },
+    {
+      "name": "enableCalenderIcon",
+      "displayName": "Enable calendar icon",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "showEventDate",
+      "displayName": "Show event date",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "eventDateFormat",
+      "displayName": "Format of event date",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "dddd, MMMM Do YYYY",
+      "enumValues": []
+    },
+    {
+      "name": "showEventTime",
+      "displayName": "Show event time",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "eventTimeFormat",
+      "displayName": "Format of event time",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "h:mmA",
+      "enumValues": []
+    },
+    {
+      "name": "perc_calendar_view",
+      "displayName": "<span style=\"font-size:125%;\"><br><br><b>Calendar View Options</b></span><br><br>Choose calendar view",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "full",
+      "enumValues": [
+        {
+          "value": "full",
+          "displayValue": "Full calendar"
+        },
+        {
+          "value": "mini",
+          "displayValue": "Mini calendar"
+        }
+      ]
+    },
+    {
+      "name": "perc_calendar_type",
+      "displayName": "Default calendar type",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "month",
+      "enumValues": [
+        {
+          "value": "Day",
+          "displayValue": "Day"
+        },
+        {
+          "value": "Week",
+          "displayValue": "Week"
+        },
+        {
+          "value": "month",
+          "displayValue": "Month"
+        }
+      ]
+    },
+    {
+      "name": "perc_calendar_detail",
+      "displayName": "Detail Level",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "basic",
+      "enumValues": [
+        {
+          "value": "basic",
+          "displayValue": "Basic (times not displayed for week and day views)"
+        },
+        {
+          "value": "agenda",
+          "displayValue": "Agenda"
+        }
+      ]
+    },
+    {
+      "name": "perc_show_page_summary",
+      "displayName": "Show summary",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "false",
+      "enumValues": []
+    },
+    {
+      "name": "perc_start_day",
+      "displayName": "Start week with",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "Day_0",
+      "enumValues": [
+        {
+          "value": "Day_0",
+          "displayValue": "Sunday"
+        },
+        {
+          "value": "Day_1",
+          "displayValue": "Monday"
+        },
+        {
+          "value": "Day_2",
+          "displayValue": "Tuesday"
+        },
+        {
+          "value": "Day_3",
+          "displayValue": "Wednesday"
+        },
+        {
+          "value": "Day_4",
+          "displayValue": "Thursday"
+        },
+        {
+          "value": "Day_5",
+          "displayValue": "Friday"
+        },
+        {
+          "value": "Day_6",
+          "displayValue": "Saturday"
+        }
+      ]
+    },
+    {
+      "name": "perc_time_format",
+      "displayName": "Time format",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "ampm",
+      "enumValues": [
+        {
+          "value": "ampm",
+          "displayValue": "12 hour"
+        },
+        {
+          "value": "military",
+          "displayValue": "24 hour"
+        }
+      ]
+    },
+    {
+      "name": "perc_calendar_display_language",
+      "displayName": "Language",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "en",
+      "enumValues": [
+        {
+          "value": "en",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "ar-ma",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-sa",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-tn",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "bg",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "cs",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "de-at",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "el",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "en-au",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-ca",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-gb",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-ie",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-nz",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "es",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "fi",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-ca",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-ch",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "fr",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "he",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-in",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hr",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "hu",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "id",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "is",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "it",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "ja",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lb",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "lt",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "lv",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "nb",
+          "displayValue": "Norwegian Bokmål Norway (NO)"
+        },
+        {
+          "value": "nl",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "nn",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-br",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sk",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "sr",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sv",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        },
+        {
+          "value": "zh-cn",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-tw",
+          "displayValue": "Chinese Taiwan (TW)"
+        }
+      ]
+    },
+    {
+      "name": "perc_show_perc_events_button",
+      "displayName": "Display show/hide button for Percussion events",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "N",
+      "enumValues": [
+        {
+          "value": "N",
+          "displayValue": "No"
+        },
+        {
+          "value": "Y",
+          "displayValue": "Yes"
+        }
+      ]
+    },
+    {
+      "name": "perc_event_button_label",
+      "displayName": "Percussion event button label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Other",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

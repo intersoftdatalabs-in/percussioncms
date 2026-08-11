@@ -1,0 +1,3 @@
+#if($perc.isEditMode())##
+<img src="/Rhythmyx/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-placeholder-small.png" alt="Twitter Summary Cards Widget Placeholder" title="Twitter Summary Cards Widget" />
+#end##

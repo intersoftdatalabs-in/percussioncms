@@ -1,0 +1,827 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percArchiveList",
+  "name": "Archives",
+  "version": "1.2.4",
+  "description": "Display of summary of pages published grouped by date",
+  "publisher": {
+    "name": "Percussion Software, Inc",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.9.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.1",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Archives",
+    "category": "blog,search",
+    "description": "Display of summary of pages published grouped by date",
+    "thumbnail": "resources/widgetIconArchive.gif",
+    "icon": "resources/widgetIconArchive.gif",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percArchiveList",
+      "ref": "contentTypes/percArchiveList"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percArchiveListSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percArchiveListSnippet.vm",
+      "contentType": "percArchiveList",
+      "bindings": [
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "isEditMode",
+          "expression": "$perc.isEditMode()"
+        },
+        {
+          "variable": "isPreviewMode",
+          "expression": "$perc.isPreviewMode()"
+        },
+        {
+          "variable": "archiveListMax",
+          "expression": "$perc.widget.item.properties.get('list_maxlength')"
+        },
+        {
+          "variable": "archiveListMaxNum",
+          "expression": "10000"
+        },
+        {
+          "variable": "archiveListMaxNum",
+          "expression": "$tools.number.toNumber($archiveListMax)"
+        },
+        {
+          "variable": "archiveLayout",
+          "expression": "$perc.widget.item.properties.get('layout')"
+        },
+        {
+          "variable": "archiveLayout",
+          "expression": "\"perc-list-hierarchical\""
+        },
+        {
+          "variable": "archiveLocale",
+          "expression": "$perc.widget.item.properties.get('locale')"
+        },
+        {
+          "variable": "archiveLocale",
+          "expression": "\"en-US\""
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "currentDate",
+          "expression": "$tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $tools.date.getDate())"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "query",
+          "expression": "$assetItem.getNode().getProperty('query_string').String"
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" and rx:sys_contentpostdate \" + \" <= '\" + $currentDate + \"'\""
+        },
+        {
+          "variable": "query",
+          "expression": "$query + \" where rx:sys_contentpostdate \" + \" <= '\" + $currentDate + \"'\""
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "blogYears",
+          "expression": "$rx.pageutils.getProcessedBlogs($relresults)"
+        },
+        {
+          "variable": "title",
+          "expression": "$rx.pageutils.html($assetItem, 'displaytitle')"
+        },
+        {
+          "variable": "rowtag",
+          "expression": "$tools.alternator.auto('perc-list-odd', 'perc-list-even')"
+        },
+        {
+          "variable": "titleContains",
+          "expression": "$assetItem.getNode().getProperty('query_title_contains').String"
+        },
+        {
+          "variable": "publishedAfter",
+          "expression": "$assetItem.getNode().getProperty('query_published_after').String"
+        },
+        {
+          "variable": "publishedBefore",
+          "expression": "$assetItem.getNode().getProperty('query_published_before').String"
+        },
+        {
+          "variable": "sitePath",
+          "expression": "$assetItem.getNode().getProperty('query_site_path').String"
+        },
+        {
+          "variable": "templatesList",
+          "expression": "$assetItem.getNode().getProperty('query_template_list').String"
+        },
+        {
+          "variable": "archiveResultPage",
+          "expression": "$assetItem.getNode().getProperty('archive_page_result').String"
+        },
+        {
+          "variable": "criteria",
+          "expression": "\"[\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"&quot;type = 'page'&quot;\""
+        },
+        {
+          "variable": "criteriaSep",
+          "expression": "\", \""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + $criteriaSep + \"&quot;dcterms:title LIKE '%\" + $titleContains +\"%'&quot;\""
+        },
+        {
+          "variable": "sd",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$publishedAfter)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\""
+        },
+        {
+          "variable": "ed",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$publishedBefore)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$sitePath.replace(\"//Sites/\", \"\")"
+        },
+        {
+          "variable": "temppaths",
+          "expression": "$temppath.split(\"/\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\""
+        },
+        {
+          "variable": "folderpath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "counter",
+          "expression": "1"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$folderpath + \"/\" + $temppaths[$counter]"
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\""
+        },
+        {
+          "variable": "templateNameList",
+          "expression": "$rx.pageutils.templateNames($templatesList)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "\"(\""
+        },
+        {
+          "variable": "counter",
+          "expression": "0"
+        },
+        {
+          "variable": "templNameArray",
+          "expression": "$templateNameList.toArray()"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \"'\" + $templNameArray[$counter] + \"'\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \", \""
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \")\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"]\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;criteria&quot;:\" + $criteria"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;layout&quot;:&quot;\" +$archiveLayout + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;numberEntries&quot;:&quot;\" + $archiveListMax + \"&quot;\""
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;archive_page_result&quot;:&quot;\" +$archiveResultPage + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isPreviewMode&quot; : &quot;\" + $isPreviewMode + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$linkContext = $perc.linkContext;\n    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assetItems);\n    $isEditMode = $perc.isEditMode();\n\t$isPreviewMode = $perc.isPreviewMode();\n    ##Get widget user prefs\n    $archiveListMax = $perc.widget.item.properties.get('list_maxlength');\n    $archiveListMaxNum = 10000;\n    if($archiveListMax != null && $archiveListMax != \"\")\n    {\n        $archiveListMaxNum = $tools.number.toNumber($archiveListMax);\n    }\n    $archiveLayout = $perc.widget.item.properties.get('layout');\n    if($archiveLayout == null)\n       $archiveLayout = \"perc-list-hierarchical\";\n\n    $archiveLocale = $perc.widget.item.properties.get('locale');\n    if($archiveLocale == null)\n       $archiveLocale = \"en-US\";\n    ##Get widget csas prefs\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n    if (!empty($rootclass)) {\n       $rootclass = $rootclass + \" \";\n    }\n\n    $currentDate =  $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $tools.date.getDate());\n\n    if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n        $query = $assetItem.getNode().getProperty('query_string').String;\n        if (! $query.contains('<=')) {\n            if ($query.contains('where'))\n            {\n                $query = $query + \" and rx:sys_contentpostdate \" + \" <= '\" + $currentDate + \"'\";\n            }\n            else\n            {\n                $query = $query + \" where rx:sys_contentpostdate \" + \" <= '\" + $currentDate + \"'\";\n            }\n        }\n        $params = $rx.string.stringToMap(null);\n        $params.put('query', $query);\n        $finderName = \"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n        $relresults =  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n        $blogYears = $rx.pageutils.getProcessedBlogs($relresults);\n        $title = $rx.pageutils.html($assetItem, 'displaytitle');\n        $rowtag = $tools.alternator.auto('perc-list-odd', 'perc-list-even');\n\n        ##Archive list query starts\n        ##Gets the individual field values\n        $titleContains = $assetItem.getNode().getProperty('query_title_contains').String;\n        $publishedAfter = $assetItem.getNode().getProperty('query_published_after').String;\n        $publishedBefore = $assetItem.getNode().getProperty('query_published_before').String;\n        $sitePath = $assetItem.getNode().getProperty('query_site_path').String;\n        $templatesList = $assetItem.getNode().getProperty('query_template_list').String;\n        $archiveResultPage = $assetItem.getNode().getProperty('archive_page_result').String;\n        ##Builds the criteria\n        $criteria = \"[\";\n        $criteria = $criteria + \"&quot;type = 'page'&quot;\";\n        $criteriaSep = \", \";\n        if ($titleContains != null && $titleContains != \"\")\n        {\n            $criteria = $criteria + $criteriaSep + \"&quot;dcterms:title LIKE '%\" + $titleContains +\"%'&quot;\";\n        }\n\n        if ($publishedAfter != null && $publishedAfter != \"\"){\n            $sd = $tools.date.toDate(\"MM/dd/yyyy\",$publishedAfter);\n            $criteria = $criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\";\n        }\n        if ($publishedBefore != null && $publishedBefore != \"\"){\n            $ed = $tools.date.toDate(\"MM/dd/yyyy\",$publishedBefore);\n            $criteria = $criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\";\n        }\n\n        if ($sitePath != null && $sitePath != \"\" && $sitePath != \"//Sites\")\n        {\n            $temppath = $sitePath.replace(\"//Sites/\", \"\");\n            if($temppath.indexOf(\"/\") > 0)\n            {\n                $temppaths = $temppath.split(\"/\");\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\";\n                $folderpath = \"\";\n                $counter = 1;\n                while($counter < $temppaths.size())\n                {\n                    $folderpath = $folderpath + \"/\" + $temppaths[$counter];\n                    $counter = $counter + 1;\n                }\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\";\n            }\n            else\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\";\n            }\n        }\n        if($templatesList != null && $templatesList != \"\")\n        {\n            $templateNameList = $rx.pageutils.templateNames($templatesList);\n            if($templateNameList.size() == 1)\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\";\n            }\n            else if($templateNameList.size() > 1)\n            {\n                $inCl = \"(\";\n                $counter = 0;\n                $templNameArray = $templateNameList.toArray();\n\n                while($counter < $templNameArray.size())\n                {\n                    $inCl = $inCl + \"'\" + $templNameArray[$counter] + \"'\";\n                    if($counter != $templNameArray.size()-1)\n                    $inCl = $inCl + \", \";\n                    $counter = $counter + 1;\n                }\n                $inCl = $inCl + \")\";\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\";\n            }\n        }\n\n        $criteria = $criteria + \"]\";\n\n        ##Build the query string for the delivery side archive list\n        ##builds the order by clause\n\n        $dynamicListData = \"{\" + \"&quot;criteria&quot;:\" + $criteria;\n        $dynamicListData = $dynamicListData + \", &quot;layout&quot;:&quot;\" +$archiveLayout + \"&quot;\";\n        if($archiveListMax != null)\n        {\n            $dynamicListData = $dynamicListData + \", &quot;numberEntries&quot;:&quot;\" + $archiveListMax + \"&quot;\";\n        }\n\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n        $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\";\n\n        $dynamicListData = $dynamicListData + \", &quot;archive_page_result&quot;:&quot;\" +$archiveResultPage + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isEditMode&quot; : &quot;\" + $isEditMode + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isPreviewMode&quot; : &quot;\" + $isPreviewMode + \"&quot;\";\n\n        $dynamicListData = $dynamicListData + \"}\";\n        ##Archive list query ends\n    }\n    else {\n        ;\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percArchiveListContent",
+      "allowedContentTypes": [
+        "percArchiveList"
+      ],
+      "layout": {
+        "layout": "perc-list-hierarchical"
+      },
+      "styles": {
+        "rootclass": "",
+        "summaryclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconArchive.gif",
+      "target": "rx_resources/widgets/archiveList/images/widgetIconArchive.gif",
+      "type": "image"
+    },
+    {
+      "path": "resources/perc_common_ui.js",
+      "target": "perc-common-ui/js/perc_common_ui.js",
+      "type": "javascript",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "layout",
+      "displayName": "Layout",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "perc-list-hierarchical",
+      "enumValues": [
+        {
+          "value": "perc-list-hierarchical",
+          "displayValue": "Hierarchical by year"
+        },
+        {
+          "value": "perc-list-flat",
+          "displayValue": "List by months"
+        }
+      ]
+    },
+    {
+      "name": "list_maxlength",
+      "displayName": "Number of entries to show",
+      "datatype": "number",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "locale",
+      "displayName": "Locale",
+      "datatype": "enum",
+      "required": true,
+      "defaultValue": "en-US",
+      "enumValues": [
+        {
+          "value": "sq-AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar-DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar-BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar-EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar-IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar-JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar-KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar-LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar-LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar-MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar-OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar-QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar-SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar-SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar-SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar-TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar-AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar-YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be-BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg-BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca-ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh-CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh-SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh-HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh-TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr-HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs-CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da-DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl-BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl-NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en-AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en-CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en-IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en-IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en-MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en-NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en-PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en-SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en-ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en-GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en-US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et-EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi-FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr-BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr-CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr-FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr-LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr-CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de-AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de-DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de-LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de-CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el-CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el-GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw-IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi-IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu-HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is-IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in-ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga-IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it-IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it-CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja-JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko-KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv-LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt-LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk-MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms-MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt-MT",
+          "displayValue": "Maltese (mt) Malta (MT)"
+        },
+        {
+          "value": "no-NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb-NO",
+          "displayValue": "Norwegian Bokmål Norway (NO)"
+        },
+        {
+          "value": "nn-NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl-PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt-BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt-PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro-RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru-RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr-BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr-ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr-RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk-SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl-SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es-AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es-BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es-CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es-CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es-CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es-DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es-EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es-SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es-GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es-HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es-MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es-NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es-PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es-PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es-PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es-PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es-ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es-US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es-UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es-VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv-SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th-TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr-TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk-UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi-VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    },
+    {
+      "name": "summaryclass",
+      "displayName": "CSS page summary class",
+      "datatype": "string"
+    }
+  ]
+}

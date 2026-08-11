@@ -1,0 +1,32 @@
+<div class = "perc-iframe $!{rootclass}" data="$!{dynamicListData}">
+				#if ($perc.isEditMode())
+					#if($iframeurl.isEmpty())
+                        #createEmptyWidgetContent("iframe-sample-content", "This iframe widget is showing sample content.")
+					#else
+						#if($defaultHeight.isEmpty()|| $defaultWidth.isEmpty() )
+                            #createEmptyWidgetContent("iframe-edit-content", "Preview the page or asset to view this iframe.")
+						#else
+                            #createEmptyWidgetContent("iframe-edit-content", "Preview the page or asset to view this iframe.", "width:$!{width} ; height:$!{height}")
+						#end
+                    #end
+
+				#else
+                    ## Absolute paths must be start with http:// or https://
+                    #if($perc.isPreviewMode() && (!$iframeurl.isEmpty() && !$iframeurl.startsWith("http://") && !$iframeurl.startsWith("https://")))
+                        <div style = "width:$!{width}; height:$!{height}; border: $!{frameborder}px solid" class="iframe-relative-url" title="$!{title}">
+						#if("$!alternateContent" != "")<p #if("$!ariaLabel" != "")aria-label="$ariaLabel"#end>$alternateContent</p>#end
+
+                            <p>Relative page urls are not supported in preview mode</p>
+                        </div>
+                    #else
+                        <iframe src = "$!{iframeurl}"   referrerpolicy="$!{referalPolicy}" style = "width: $!{width}; height: $!{height}; overflow: $!{overflow} !important; border: $!{frameborder}; margin-top: $!{marginheight}; margin-bottom: $!{marginheight}; margin-left: $!{marginwidth}; margin-right: $!{marginwidth};" title="$!{title}" #if($title.isEmpty() && "$!ariaLabel" != "")aria-label="$!{ariaLabel}"#end >
+
+						#if("$!alternateContent" != "")<p #if("$!ariaLabel" != "")aria-label="$ariaLabel"#end>$alternateContent</p>#end
+
+							<p>Your browser does not support frames or is currently configured
+                            not to display frames. However, you may browse the content of frames by
+                            <a href="$!{iframeurl}">clicking here.</a></p>
+                        </iframe>
+                    #end
+			   #end
+			</div>

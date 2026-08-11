@@ -1,0 +1,40 @@
+<div class="$rootclass $layout .ui-widget .ui-widget-content .ui-perc-list-widget">
+#if (!$assetItems.isEmpty())
+    #if($title && $title.length() > 0)##
+       <div class=".ui-perc-list-title">$title</div>
+    #end
+    #if($relresults && $relresults.size() > 0)
+       #if($rendering == "ordered")##
+          <ol class=".ui-perc-list-main">##
+       #else##
+	  <ul class=".ui-perc-list-main">##
+       #end##
+       #foreach($result in $relresults)
+          #if($velocityCount == 1)##
+             #set($firstrow = '.ui-perc-list-first')##
+          #else##
+             #set($firstrow = ' ')##
+          #end##
+          #if($velocityCount == $relresults.size())##
+             #set($lastrow = '.ui-perc-list-last')##
+          #else
+             #set($lastrow = ' ')##
+          #end
+             #set($pagelink = $tools.esc.html($rx.pageutils.itemLink($linkContext, $result)))##
+             #set($linkTitle = $rx.pageutils.html($result.node,"resource_link_title,sys_title", "-no-title-"))##
+             <li class="$rowtag $firstrow $lastrow .ui-perc-list-element"><a href="$!{pagelink}"
+             #if($target.length() > 0)##
+                target="${target}"
+             #end
+                >$!{linkTitle}</a></li>
+       #end##
+       #if($rendering == "ordered")##
+          </ol>##
+       #else##
+          </ul>##
+       #end##
+    #end##
+#elseif ($perc.isEditMode())
+        Insert list of links based on query here.
+#end
+    </div>

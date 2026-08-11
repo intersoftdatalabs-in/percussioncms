@@ -1,0 +1,20 @@
+#if( $assetItem)##
+        <div $!classAttribute data="$!{dynamicListData}">
+        #if( $rendering == 'image')##
+            #if( $img_height.length() > 0 && $img_width.length() > 0)##
+               <img src="$!{biglink}"  referrerpolicy="$!{referalPolicy}"  $!{img_title_attr} alt="$!{img_alt}" #if( "$!ariaLabel" != "")aria-label="$!ariaLabel"#end #if( "$!longdesc" != "")longdesc="$!longdesc"#end height="$!{img_height}" width="$!{img_width}"/>
+            #else##
+               <img src="$!{biglink}" referrerpolicy="$!{referalPolicy}"  $!{img_title_attr} alt="$!{img_alt}" #if( "$!ariaLabel" != "")aria-label="$!ariaLabel"#end #if( "$!longdesc" != "")longdesc="$!longdesc"#end/>
+            #end##
+        #end##
+        #if( $rendering == 'lightbox')##
+            <div class="ui-widget ui-widget-content" id="percImageTWLBBox-$!{assetItem.id}">
+            <a href="$!{biglink}" $!{img_title_attr} data-lightbox="$!{assetItem.id}" #if("$!ariaLabel" != "")aria-label="$!ariaLabel"#end>
+               <img src="$!{link}" referrerpolicy="$!{referalPolicy}"  alt="$!{img_alt}" #if("$!longdesc" != "")longdesc="$!longdesc"#end #if("$!ariaLabel" != "")aria-label="$!ariaLabel"#end height="$!{img_height}" width="$!{img_width}" />
+            </a>
+            </div>
+        #end##
+        </div>
+    #elseif ($perc.isEditMode())##
+        #createEmptyWidgetContent("image-sample-content", "This image widget is showing sample content.")
+    #end##

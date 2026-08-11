@@ -1,0 +1,363 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percCategoryList",
+  "name": "Categories",
+  "version": "1.2.3",
+  "description": "Display a hierarchical list of categories",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com/"
+  },
+  "cmsVersion": {
+    "min": "1.9.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.widget.calendar",
+      "version": "2.0.3",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "component",
+    "title": "Categories",
+    "category": "blog,search",
+    "description": "Display a hierarchical list of categories",
+    "thumbnail": "resources/widgetIconLinkCategoryList.png",
+    "icon": "resources/widgetIconLinkCategoryList.png",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 685,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percCategoryList",
+      "ref": "contentTypes/percCategoryList"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percCategoryListSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percCategoryListSnippet.vm",
+      "contentType": "percCategoryList",
+      "bindings": [
+        {
+          "variable": "linkContext",
+          "expression": "$perc.linkContext"
+        },
+        {
+          "variable": "isEditMode",
+          "expression": "$perc.isEditMode()"
+        },
+        {
+          "variable": "isPreviewMode",
+          "expression": "$perc.isPreviewMode()"
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "display",
+          "expression": "$perc.widget.item.properties.get('perc_display_option')"
+        },
+        {
+          "variable": "maxCat",
+          "expression": "$perc.widget.item.properties.get('perc_max_categories').toString().trim()"
+        },
+        {
+          "variable": "maxCat",
+          "expression": "0"
+        },
+        {
+          "variable": "maxCat",
+          "expression": "0 + $perc.widget.item.properties.get('perc_max_categories')"
+        },
+        {
+          "variable": "maxCat",
+          "expression": "0"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$rootclass + \" \""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "params",
+          "expression": "$rx.string.stringToMap(null)"
+        },
+        {
+          "variable": "query",
+          "expression": "$assetItem.getNode().getProperty('query').String"
+        },
+        {
+          "variable": "query",
+          "expression": "'select rx:sys_contentid, rx:sys_folderid from rx:percPage'"
+        },
+        {
+          "variable": "finderName",
+          "expression": "\"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\""
+        },
+        {
+          "variable": "relresults",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params)"
+        },
+        {
+          "variable": "processedCategories",
+          "expression": "$rx.pageutils.getProcessedCategories($relresults)"
+        },
+        {
+          "variable": "title",
+          "expression": "$rx.pageutils.html($assetItem, 'displaytitle')"
+        },
+        {
+          "variable": "titleContains",
+          "expression": "$assetItem.getNode().getProperty('title_contains').String"
+        },
+        {
+          "variable": "starDate",
+          "expression": "$assetItem.getNode().getProperty('start_date').String"
+        },
+        {
+          "variable": "endDate",
+          "expression": "$assetItem.getNode().getProperty('end_date').String"
+        },
+        {
+          "variable": "sitePath",
+          "expression": "$assetItem.getNode().getProperty('site_path').String"
+        },
+        {
+          "variable": "templatesList",
+          "expression": "$assetItem.getNode().getProperty('page_templates_list').String"
+        },
+        {
+          "variable": "categoryPageResult",
+          "expression": "$assetItem.getNode().getProperty('category_page_result').String"
+        },
+        {
+          "variable": "criteria",
+          "expression": "\"[\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"&quot;type = 'page'&quot;\""
+        },
+        {
+          "variable": "criteriaSep",
+          "expression": "\", \""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + $criteriaSep + \"&quot;dcterms:title LIKE '%\" + $titleContains +\"%'&quot;\""
+        },
+        {
+          "variable": "sd",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$starDate)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\""
+        },
+        {
+          "variable": "ed",
+          "expression": "$tools.date.toDate(\"MM/dd/yyyy\",$endDate)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\""
+        },
+        {
+          "variable": "temppath",
+          "expression": "$sitePath.replace(\"//Sites/\", \"\")"
+        },
+        {
+          "variable": "temppaths",
+          "expression": "$temppath.split(\"/\")"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\""
+        },
+        {
+          "variable": "folderpath",
+          "expression": "\"\""
+        },
+        {
+          "variable": "counter",
+          "expression": "1"
+        },
+        {
+          "variable": "folderpath",
+          "expression": "$folderpath + \"/\" + $temppaths[$counter]"
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\""
+        },
+        {
+          "variable": "templateNameList",
+          "expression": "$rx.pageutils.templateNames($templatesList)"
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "\"(\""
+        },
+        {
+          "variable": "counter",
+          "expression": "0"
+        },
+        {
+          "variable": "templNameArray",
+          "expression": "$templateNameList.toArray()"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \"'\" + $templNameArray[$counter] + \"'\""
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \", \""
+        },
+        {
+          "variable": "counter",
+          "expression": "$counter + 1"
+        },
+        {
+          "variable": "inCl",
+          "expression": "$inCl + \")\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\""
+        },
+        {
+          "variable": "criteria",
+          "expression": "$criteria + \"]\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "\"{\" + \"&quot;criteria&quot;:\" + $criteria"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;category_page_result&quot;:&quot;\" +$categoryPageResult + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;display_option&quot;:&quot;\" +$display + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;max_categories&quot;:&quot;\" +$maxCat + \"&quot;\""
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isEditMode&quot;:&quot;\" + $isEditMode + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \", &quot;isPreviewMode&quot;:&quot;\" + $isPreviewMode + \"&quot;\""
+        },
+        {
+          "variable": "dynamicListData",
+          "expression": "$dynamicListData + \"}\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$linkContext = $perc.linkContext;\n    $isEditMode = $perc.isEditMode();\n    $isPreviewMode =  $perc.isPreviewMode();\n    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n    $perc.setWidgetContents($assetItems);\n    $display = $perc.widget.item.properties.get('perc_display_option');\n    $maxCat = $perc.widget.item.properties.get('perc_max_categories').toString().trim();\n    if (empty($maxCat)) {\n        $maxCat = 0;\n    }else{\n        ##Use 0 + to force a integer result\n        $maxCat = 0 + $perc.widget.item.properties.get('perc_max_categories');\n        if( $maxCat < 0){\n            $maxCat = 0;\n        }\n    }\n\n    $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n    if (!empty($rootclass)) {\n        $rootclass = $rootclass + \" \";\n    }\n    if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n        $params = $rx.string.stringToMap(null);\n        if ( $assetItem.getNode().hasProperty('query') ){\n                $query = $assetItem.getNode().getProperty('query').String;\n        }else{\n                $query = 'select rx:sys_contentid, rx:sys_folderid from rx:percPage';\n        }\n        $params.put('query', $query);\n        $params.put('max_results', $maxCat);\n\t\t$finderName = \"Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder\";\n        $relresults =  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);\n        $processedCategories = $rx.pageutils.getProcessedCategories($relresults);\n        $title = $rx.pageutils.html($assetItem, 'displaytitle');\n\n        ##Category list query starts\n        ##Gets the individual field values\n        $titleContains = $assetItem.getNode().getProperty('title_contains').String;\n        $starDate = $assetItem.getNode().getProperty('start_date').String;\n        $endDate = $assetItem.getNode().getProperty('end_date').String;\n        $sitePath = $assetItem.getNode().getProperty('site_path').String;\n        $templatesList = $assetItem.getNode().getProperty('page_templates_list').String;\n\t\t$categoryPageResult = $assetItem.getNode().getProperty('category_page_result').String;\n        ##Builds the criteria\n        $criteria = \"[\";\n        $criteria = $criteria + \"&quot;type = 'page'&quot;\";\n        $criteriaSep = \", \";\n        if ($titleContains != null && $titleContains != \"\")\n        {\n             $criteria = $criteria + $criteriaSep + \"&quot;dcterms:title LIKE '%\" + $titleContains +\"%'&quot;\";\n        }\n        if ($starDate != null && $starDate != \"\"){\n             $sd = $tools.date.toDate(\"MM/dd/yyyy\",$starDate);\n             $criteria = $criteria +  $criteriaSep + \"&quot;dcterms:created >= '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $sd) + \"'&quot;\";\n        }\n        if ($endDate != null && $endDate != \"\"){\n             $ed = $tools.date.toDate(\"MM/dd/yyyy\",$endDate);\n             $criteria = $criteria +  $criteriaSep +  \"&quot;dcterms:created < '\" + $tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\", $ed) + \"'&quot;\";\n        }\n        if ($sitePath != null && $sitePath != \"\" && $sitePath != \"//Sites\")\n        {\n            $temppath = $sitePath.replace(\"//Sites/\", \"\");\n            if($temppath.indexOf(\"/\") > 0)\n            {\n                $temppaths = $temppath.split(\"/\");\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppaths[0] + \"'&quot;\";\n                $folderpath = \"\";\n                $counter = 1;\n                while($counter < $temppaths.size())\n                {\n                    $folderpath = $folderpath + \"/\" + $temppaths[$counter];\n                    $counter = $counter + 1;\n                }\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;folder LIKE '\" + $folderpath + \"/%'&quot;\";\n            }\n            else\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;site = '\" + $temppath + \"'&quot;\";\n            }\n        }\n        if($templatesList != null && $templatesList != \"\")\n        {\n            $templateNameList = $rx.pageutils.templateNames($templatesList);\n            if($templateNameList.size() == 1)\n            {\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source = '\" + $templateNameList.get(0).toString() + \"'&quot;\";\n            }\n            else if($templateNameList.size() > 1)\n            {\n                $inCl = \"(\";\n                $counter = 0;\n                $templNameArray = $templateNameList.toArray();\n\n                while($counter < $templNameArray.size())\n                {\n                    $inCl = $inCl + \"'\" + $templNameArray[$counter] + \"'\";\n                    if($counter != $templNameArray.size()-1)\n                        $inCl = $inCl + \", \";\n                    $counter = $counter + 1;\n                }\n                $inCl = $inCl + \")\";\n                $criteria = $criteria  +  $criteriaSep +  \"&quot;dcterms:source IN \" + $inCl + \"&quot;\";\n            }\n        }\n\n        $criteria = $criteria + \"]\";\n\n        ##Build the query string for the delivery side category list\n\t\t##builds the order by clause\n\n        $dynamicListData = \"{\" + \"&quot;criteria&quot;:\" + $criteria;\n\n\t\t$dynamicListData = $dynamicListData + \", &quot;category_page_result&quot;:&quot;\" +$categoryPageResult + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;display_option&quot;:&quot;\" +$display + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;max_categories&quot;:&quot;\" +$maxCat + \"&quot;\";\n\n        $dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n\n        $dynamicListData = $dynamicListData + \", &quot;deliveryurl&quot;:&quot;\" + $dsUrl + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isEditMode&quot;:&quot;\" + $isEditMode + \"&quot;\";\n        $dynamicListData = $dynamicListData + \", &quot;isPreviewMode&quot;:&quot;\" + $isPreviewMode + \"&quot;\";\n        $dynamicListData = $dynamicListData + \"}\";\n        ##Category list query ends\n    }\n    else {\n        ;\n    }"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percCategoryListContent",
+      "allowedContentTypes": [
+        "percCategoryList"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconLinkCategoryList.png",
+      "target": "rx_resources/widgets/categoryList/images/widgetIconLinkCategoryList.png",
+      "type": "image"
+    },
+    {
+      "path": "resources/perc_common_ui.js",
+      "target": "perc-common-ui/js/perc_common_ui.js",
+      "type": "javascript",
+      "placement": "head"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc_display_option",
+      "displayName": "Display",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "expanded",
+      "enumValues": [
+        {
+          "value": "expanded",
+          "displayValue": "Expanded hierarchy"
+        },
+        {
+          "value": "collapsible",
+          "displayValue": "Collapsible"
+        }
+      ]
+    },
+    {
+      "name": "perc_max_categories",
+      "displayName": "Maximum number of categories to show",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "10",
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

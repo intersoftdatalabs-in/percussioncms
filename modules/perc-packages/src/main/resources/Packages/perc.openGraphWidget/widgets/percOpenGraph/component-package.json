@@ -1,0 +1,1032 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percOpenGraph",
+  "name": "Facebook Open Graph",
+  "version": "1.1.6",
+  "description": "Adds Facebook Open Graph tags to a Page or Template.",
+  "publisher": {
+    "name": "Percussion Software, Inc.",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "5.2.5",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Facebook Open Graph",
+    "category": "social",
+    "description": "Adds Facebook Open Graph tags to a Page or Template.",
+    "thumbnail": "resources/open-graph-icon.png",
+    "icon": "resources/open-graph-icon.png",
+    "author": "Percussion Software, Inc.",
+    "preferredEditorWidth": 800,
+    "preferredEditorHeight": 600,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percOpenGraph",
+      "ref": "contentTypes/percOpenGraph"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percOpenGraphSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percOpenGraphSnippet.vm",
+      "contentType": "percOpenGraph",
+      "bindings": [
+        {
+          "variable": "percPageID",
+          "expression": "$perc.getPage().getId()"
+        },
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "og_site_name",
+          "expression": "$perc.widget.item.properties.get('og_site_name')"
+        },
+        {
+          "variable": "og_type",
+          "expression": "$perc.widget.item.properties.get('og_type')"
+        },
+        {
+          "variable": "og_image",
+          "expression": "$perc.widget.item.properties.get('og_image')"
+        },
+        {
+          "variable": "og_image_width",
+          "expression": "$perc.widget.item.properties.get('og_image_width')"
+        },
+        {
+          "variable": "og_image_height",
+          "expression": "$perc.widget.item.properties.get('og_image_height')"
+        },
+        {
+          "variable": "og_locale",
+          "expression": "$perc.widget.item.properties.get('og_locale')"
+        },
+        {
+          "variable": "fb_app_id",
+          "expression": "$perc.widget.item.properties.get('fb_app_id')"
+        },
+        {
+          "variable": "summary",
+          "expression": "$sys.assemblyItem.getNode().getProperty(\"rx:page_summary\").value.String"
+        },
+        {
+          "variable": "summary",
+          "expression": "\"\""
+        },
+        {
+          "variable": "description",
+          "expression": "$perc.page.description"
+        },
+        {
+          "variable": "summary_text",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "site_name_override",
+          "expression": "$assetItem.getNode().getProperty('site_name_override').String"
+        },
+        {
+          "variable": "title_override",
+          "expression": "$assetItem.getNode().getProperty('title_override').String"
+        },
+        {
+          "variable": "description_override",
+          "expression": "$assetItem.getNode().getProperty('description_override').String"
+        },
+        {
+          "variable": "image_override",
+          "expression": "$assetItem.getNode().getProperty('image_override').String"
+        },
+        {
+          "variable": "image_override_linkId",
+          "expression": "$assetItem.getNode().getProperty('image_override_linkId').String"
+        },
+        {
+          "variable": "image_width_override",
+          "expression": "$assetItem.getNode().getProperty('image_width_override').String"
+        },
+        {
+          "variable": "image_height_override",
+          "expression": "$assetItem.getNode().getProperty('image_height_override').String"
+        },
+        {
+          "variable": "url_override",
+          "expression": "$assetItem.getNode().getProperty('url_override').String"
+        },
+        {
+          "variable": "type_override",
+          "expression": "$assetItem.getNode().getProperty('type_override').String"
+        },
+        {
+          "variable": "locale_override",
+          "expression": "$assetItem.getNode().getProperty('locale_override').String"
+        },
+        {
+          "variable": "fb_app_id_override",
+          "expression": "$assetItem.getNode().getProperty('fb_app_id_override').String"
+        },
+        {
+          "variable": "use_site_name",
+          "expression": "$tools.esc.html($site_name_override)"
+        },
+        {
+          "variable": "use_site_name",
+          "expression": "$tools.esc.html($og_site_name)"
+        },
+        {
+          "variable": "meta_sitename",
+          "expression": "'<meta property=\"og:site_name\" content=\"' + $use_site_name + '\" />'"
+        },
+        {
+          "variable": "use_fb_app_id",
+          "expression": "$tools.esc.html($fb_app_id_override)"
+        },
+        {
+          "variable": "use_fb_app_id",
+          "expression": "$tools.esc.html($fb_app_id)"
+        },
+        {
+          "variable": "meta_fb_app_id",
+          "expression": "'<meta property=\"og:fb_app_id\" content=\"' + $use_fb_app_id + '\" />'"
+        },
+        {
+          "variable": "use_locale",
+          "expression": "$tools.esc.html($locale_override)"
+        },
+        {
+          "variable": "use_locale",
+          "expression": "$tools.esc.html($og_locale)"
+        },
+        {
+          "variable": "meta_locale",
+          "expression": "'<meta property=\"og:locale\" content=\"' + $use_locale + '\" />'"
+        },
+        {
+          "variable": "use_title",
+          "expression": "$tools.esc.html($title_override)"
+        },
+        {
+          "variable": "use_title",
+          "expression": "$tools.esc.html($perc.page.title)"
+        },
+        {
+          "variable": "meta_title",
+          "expression": "'<meta property=\"og:title\" content=\"' + $use_title + '\" />'"
+        },
+        {
+          "variable": "use_type",
+          "expression": "$tools.esc.html($type_override)"
+        },
+        {
+          "variable": "use_type",
+          "expression": "$tools.esc.html($og_type)"
+        },
+        {
+          "variable": "meta_type",
+          "expression": "'<meta property=\"og:type\" content=\"' + $use_type + '\" />'"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$tools.esc.html($url_override)"
+        },
+        {
+          "variable": "pagelink",
+          "expression": "$tools.esc.html($rx.pageutils.itemLink($perc.linkContext, $perc.page))"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$pagelink"
+        },
+        {
+          "variable": "doc",
+          "expression": "$sys.getClass().forName('org.jsoup.Jsoup').parseBodyFragment($summary)"
+        },
+        {
+          "variable": "body",
+          "expression": "$doc.body()"
+        },
+        {
+          "variable": "summary_images",
+          "expression": "$body.getElementsByTag(\"img\")"
+        },
+        {
+          "variable": "summary_image",
+          "expression": "$summary_images.first()"
+        },
+        {
+          "variable": "image_summary",
+          "expression": "$summary_image.attr(\"src\")"
+        },
+        {
+          "variable": "image_alt",
+          "expression": "$summary_image.attr(\"alt\")"
+        },
+        {
+          "variable": "summary_text",
+          "expression": "$doc.text()"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$tools.esc.html($description_override)"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$tools.esc.html($description)"
+        },
+        {
+          "variable": "use_description",
+          "expression": "$summary_text"
+        },
+        {
+          "variable": "use_description",
+          "expression": "\"\""
+        },
+        {
+          "variable": "meta_description",
+          "expression": "'<meta property=\"og:description\" content=\"' + $use_description + '\" />'"
+        },
+        {
+          "variable": "image_path",
+          "expression": "$rx.pageutils.renderManagedItemPath($perc.linkContext, $image_override_linkId)"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$tools.esc.html($image_path)"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$image_summary"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$og_image"
+        },
+        {
+          "variable": "use_image_height",
+          "expression": "$tools.esc.html($image_height_override)"
+        },
+        {
+          "variable": "use_image_height",
+          "expression": "$tools.esc.html($og_image_height)"
+        },
+        {
+          "variable": "meta_image_height",
+          "expression": "'<meta property=\"og:image:height\" content=\"' + $use_image_height + '\" />'"
+        },
+        {
+          "variable": "use_image_width",
+          "expression": "$tools.esc.html($image_width_override)"
+        },
+        {
+          "variable": "use_image_width",
+          "expression": "$tools.esc.html($og_image_width)"
+        },
+        {
+          "variable": "meta_image_width",
+          "expression": "'<meta property=\"og:image:width\" content=\"' + $use_image_width + '\" />'"
+        },
+        {
+          "variable": "baseURL",
+          "expression": "$perc.linkContext.getSite().getSiteProtocol() + \"://\""
+        },
+        {
+          "variable": "pubSiteName",
+          "expression": "$perc.linkContext.getSite().getName()"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$use_url.replace(\"/Sites/\",\"\")"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$use_url.substring(1)"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$baseURL + $pubSiteName + \"/\" + $use_url"
+        },
+        {
+          "variable": "use_url",
+          "expression": "$baseURL + $use_url"
+        },
+        {
+          "variable": "meta_url",
+          "expression": "'<meta property=\"og:url\" content=\"' + $use_url + '\" />'"
+        },
+        {
+          "variable": "use_image",
+          "expression": "\"/\" + $use_image"
+        },
+        {
+          "variable": "use_image",
+          "expression": "$baseURL + $pubSiteName + $use_image"
+        },
+        {
+          "variable": "meta_image",
+          "expression": "'<meta property=\"og:image\" content=\"' + $use_image + '\" />'"
+        },
+        {
+          "variable": "meta_image",
+          "expression": "\"\""
+        },
+        {
+          "variable": "addlHead",
+          "expression": "\"\""
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "nl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "addlHead",
+          "expression": "$perc.page.getAdditionalHeadContent()"
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$percPageID = $perc.getPage().getId();\n\t   $pageId = $perc.page.id;\n       $widgetId = $perc.widget.item.id;\n       $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n          if (empty($rootclass)) {\n            $rootclass = \"\";\n       }\n\t$assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n\t$perc.setWidgetContents($assetItems);\n\n   $og_site_name = $perc.widget.item.properties.get('og_site_name');\n   $og_type = $perc.widget.item.properties.get('og_type');\n   $og_image = $perc.widget.item.properties.get('og_image');\n   $og_image_width = $perc.widget.item.properties.get('og_image_width');\n   $og_image_height = $perc.widget.item.properties.get('og_image_height');\n   $og_locale = $perc.widget.item.properties.get('og_locale');\n   $fb_app_id = $perc.widget.item.properties.get('fb_app_id');\n\n    if($sys.assemblyItem.getNode().hasProperty(\"rx:page_summary\")){\n   \t\t$summary = $sys.assemblyItem.getNode().getProperty(\"rx:page_summary\").value.String;\n   \t}else{\n   \t\t$summary = \"\";\n   \t}\n   $description = $perc.page.description;\n   $summary_text = \"\";\n\n\t  if ( ! $assetItems.isEmpty() ) {\n        $assetItem = $assetItems.get(0);\n\t\tif(!empty($assetItem)){\n\t\t\t$site_name_override = $assetItem.getNode().getProperty('site_name_override').String;\n\t\t\t$title_override = $assetItem.getNode().getProperty('title_override').String;\n\t\t\t$description_override = $assetItem.getNode().getProperty('description_override').String;\n\t\t\t$image_override = $assetItem.getNode().getProperty('image_override').String;\n\t\t\t$image_override_linkId = $assetItem.getNode().getProperty('image_override_linkId').String;\n\t\t\t$image_width_override = $assetItem.getNode().getProperty('image_width_override').String;\n\t\t\t$image_height_override = $assetItem.getNode().getProperty('image_height_override').String;\n\t\t\t$url_override = $assetItem.getNode().getProperty('url_override').String;\n\t\t\t$type_override = $assetItem.getNode().getProperty('type_override').String;\n\t\t\t$locale_override = $assetItem.getNode().getProperty('locale_override').String;\n\t\t\t$fb_app_id_override = $assetItem.getNode().getProperty('fb_app_id_override').String;\n\n\t\t}\n\t}\n\n\tif(! empty($site_name_override)){\n\t\t$use_site_name = $tools.esc.html($site_name_override);\n\t}else{\n\t\t$use_site_name= $tools.esc.html($og_site_name);\n\t}\n    $meta_sitename='<meta property=\"og:site_name\" content=\"' + $use_site_name + '\" />';\n\n    if(! empty($fb_app_id_override)){\n\t\t$use_fb_app_id = $tools.esc.html($fb_app_id_override);\n\t}else{\n\t\t$use_fb_app_id = $tools.esc.html($fb_app_id);\n\t}\n\t$meta_fb_app_id='<meta property=\"og:fb_app_id\" content=\"' + $use_fb_app_id + '\" />';\n\n\tif(! empty($locale_override)){\n\t\t$use_locale = $tools.esc.html($locale_override);\n\t}else{\n\t\t$use_locale = $tools.esc.html($og_locale);\n\t}\n\t$meta_locale='<meta property=\"og:locale\" content=\"' + $use_locale + '\" />';\n\n\tif(! empty($title_override)){\n\t\t$use_title = $tools.esc.html($title_override);\n\t}else{\n\t\t$use_title = $tools.esc.html($perc.page.title);\n\t}\n\t$meta_title='<meta property=\"og:title\" content=\"' + $use_title + '\" />';\n\n\tif(! empty($type_override) && $type_override != 'none'){\n\t\t$use_type = $tools.esc.html($type_override);\n\t}else{\n\t\t$use_type = $tools.esc.html($og_type);\n\t}\n\n\t$meta_type='<meta property=\"og:type\" content=\"' + $use_type + '\" />';\n\n\tif(! empty($url_override)){\n\t\t$use_url = $tools.esc.html($url_override);\n\t}else{\n\t\t$pagelink = $tools.esc.html($rx.pageutils.itemLink($perc.linkContext, $perc.page));\n\t\t$use_url = $pagelink;\n\t}\n\n\tif(! empty($summary)){\n\n\t\t$doc = $sys.getClass().forName('org.jsoup.Jsoup').parseBodyFragment($summary);\n\t\t$body = $doc.body();\n\t\t$summary_images = $body.getElementsByTag(\"img\");\n\t\tif($summary_images.size() > 0){\n\t\t\t$summary_image = $summary_images.first();\n\t\t$image_summary = $summary_image.attr(\"src\");\n\t\t$image_alt = $summary_image.attr(\"alt\");\n\t\t}\n\t\t$summary_text  = $doc.text();\n\t}\n\n\tif(! empty($description_override)){\n\t\t$use_description = $tools.esc.html($description_override);\n\t}else{\n\t    if(! empty($description)){\n\t\t\t$use_description = $tools.esc.html($description);\n\t\t}\n\t\telse{\n\t\t\tif(!empty($summary_text)){\n\t\t\t\t$use_description = $summary_text;\n\t\t\t}\n\t\t\telse{\n\t\t\t\t$use_description = \"\";\n\t\t\t}\n\t\t}\n\t}\n\t$meta_description='<meta property=\"og:description\" content=\"' + $use_description + '\" />';\n\tif(! empty($image_override) && ! empty($image_override_linkId )){\n\n   \t\t    $image_path = $rx.pageutils.renderManagedItemPath($perc.linkContext, $image_override_linkId);\n\t\t\t$use_image = $tools.esc.html($image_path);\n\t}else{\n\t\tif(! empty($image_summary)){\n\t\t\t$use_image = $image_summary;\n\t\t}else{\n\t\t\tif(! empty($og_image)){\n\t\t\t\t$use_image = $og_image;\n\t\t\t}\n\t\t}\n\t}\n\n\n\tif(! empty($image_height_override)){\n\t\t$use_image_height = $tools.esc.html($image_height_override);\n\t}else{\n\t    if(! empty($og_image_height)){\n\t\t\t$use_image_height = $tools.esc.html($og_image_height);\n\t\t}\n\t}\n\n\t$meta_image_height='<meta property=\"og:image:height\" content=\"' + $use_image_height + '\" />';\n\n\n\tif(! empty($image_width_override)){\n\t\t$use_image_width = $tools.esc.html($image_width_override);\n\t}else{\n\t    if(! empty($og_image_width)){\n\t\t\t$use_image_width = $tools.esc.html($og_image_width);\n\t\t}\n\n\t}\n\n\t$meta_image_width='<meta property=\"og:image:width\" content=\"' + $use_image_width + '\" />';\n\n\n\t$baseURL = $perc.linkContext.getSite().getSiteProtocol() + \"://\";\n\t$pubSiteName = $perc.linkContext.getSite().getName();\n\n\tif(! empty($use_url)){\n\t\tif(! $use_url.startsWith(\"http\")){\n\n\t\t\tif($use_url.startsWith(\"/Sites/\"))\n\t\t\t\t$use_url = $use_url.replace(\"/Sites/\",\"\");\n\n\t\t\tif($use_url.startsWith(\"/\"))\n\t\t\t\t$use_url = $use_url.substring(1);\n\n\t\t\tif(! $use_url.startsWith($pubSiteName)){\n\t\t\t\t$use_url = $baseURL + $pubSiteName + \"/\" + $use_url;\n\t\t\t}else{\n\t\t\t\t$use_url = $baseURL + $use_url;\n\t\t\t}\n\n\t\t}\n\t}\n\t$meta_url='<meta property=\"og:url\" content=\"' + $use_url + '\" />';\n\n\tif(! empty($use_image)){\n\t\tif(! $use_image.startsWith(\"http\")){\n\n\t\t\tif(! $use_image.startsWith(\"/\")){\n\t\t\t\t$use_image = \"/\" + $use_image;\n\t\t\t}\n\n\t\t\t$use_image = $baseURL + $pubSiteName + $use_image;\n\t\t}\n\t}\n\n\tif(!empty($use_image)){\n\t    $meta_image='<meta property=\"og:image\" content=\"' + $use_image + '\" />';\n\t}else{\n\t\t$meta_image=\"\";\n\t}\n\n\n\tif( empty($perc.page.getAdditionalHeadContent())){\n\t\t$perc.page.setAdditionalHeadContent(\"\");\n\t\t$addlHead = \"\";\n\t}else{\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t}\n\t$nl=\"\";\n\tif(!empty($use_site_name)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:site_name\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($addlHead + $meta_sitename);\n\t\t}\n\t}\n\n\tif(!empty($use_title)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:title\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_title));\n\t\t}\n\t}\n\n\tif(!empty($use_description)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:description\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_description));\n\t\t}\n\t}\n\tif(!empty($use_url)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:url\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_url));\n\t\t}\n\t}\n\n\tif(!empty($use_type)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:type\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_type));\n\t\t}\n\t}\n\n\tif(!empty($use_image)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:image\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_image));\n\t\t}\n\t\tif(!empty($use_image_width)){\n\t\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t\tif (! $addlHead.contains(\"property=\\\"og:image:width\\\"\")) {\n\t\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_image_width));\n\t\t\t}\n\t\t}\n\t\tif(!empty($use_image_height)){\n\t\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\t\tif (! $addlHead.contains(\"property=\\\"og:image:height\\\"\")) {\n\t\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_image_height));\n\t\t\t}\n\t\t}\n\t}\n\n\tif(!empty($use_locale)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:locale\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead, $meta_locale));\n\t\t}\n\t}\n\n\tif(!empty($use_fb_app_id)){\n\t\t$addlHead = $perc.page.getAdditionalHeadContent();\n\t\tif (! $addlHead.contains(\"property=\\\"og:fb_app_id\\\"\")) {\n\t\t\t$perc.page.setAdditionalHeadContent($nl.format(\"%s%n%s\", $addlHead,$meta_fb_app_id));\n\t\t}\n\t}"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percOpenGraphContent",
+      "allowedContentTypes": [
+        "percOpenGraph"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/open-graph-icon.png",
+      "target": "rx_resources/widgets/percOpenGraph/images/open-graph-icon.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "og_site_name",
+      "displayName": "Site Name",
+      "datatype": "string",
+      "required": true,
+      "enumValues": []
+    },
+    {
+      "name": "og_type",
+      "displayName": "Type",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "website",
+      "enumValues": [
+        {
+          "value": "article",
+          "displayValue": "Article"
+        },
+        {
+          "value": "books.author",
+          "displayValue": "Book Author"
+        },
+        {
+          "value": "books.book",
+          "displayValue": "Book"
+        },
+        {
+          "value": "books.genre",
+          "displayValue": "Book Genre"
+        },
+        {
+          "value": "business.business",
+          "displayValue": "Business"
+        },
+        {
+          "value": "fitness.course",
+          "displayValue": "Fitness Course"
+        },
+        {
+          "value": "game.achievement",
+          "displayValue": "Game Achievement"
+        },
+        {
+          "value": "music.album",
+          "displayValue": "Music Album"
+        },
+        {
+          "value": "music.playlist",
+          "displayValue": "Music Playlist"
+        },
+        {
+          "value": "music.radio_station",
+          "displayValue": "Music Radio Station"
+        },
+        {
+          "value": "music.song",
+          "displayValue": "Music Song"
+        },
+        {
+          "value": "place",
+          "displayValue": "Place"
+        },
+        {
+          "value": "product",
+          "displayValue": "Product"
+        },
+        {
+          "value": "product.group",
+          "displayValue": "Product Group"
+        },
+        {
+          "value": "product.item",
+          "displayValue": "Product Item"
+        },
+        {
+          "value": "profile",
+          "displayValue": "Profile"
+        },
+        {
+          "value": "restaurant.menu",
+          "displayValue": "Restaurant Menu"
+        },
+        {
+          "value": "restaurant.menu_item",
+          "displayValue": "Restaurant Menu Item"
+        },
+        {
+          "value": "restaurant.menu_section",
+          "displayValue": "Restaurant Menu Section"
+        },
+        {
+          "value": "restaurant.restaurant",
+          "displayValue": "Restaurant"
+        },
+        {
+          "value": "video.episode",
+          "displayValue": "Video - Television Show Episode"
+        },
+        {
+          "value": "video.movie",
+          "displayValue": "Video - Movie"
+        },
+        {
+          "value": "video.other",
+          "displayValue": "Video - General"
+        },
+        {
+          "value": "video.tv_show",
+          "displayValue": "Video - Television Show"
+        },
+        {
+          "value": "website",
+          "displayValue": "Website"
+        }
+      ]
+    },
+    {
+      "name": "og_image",
+      "displayName": "Image Asset (Path)",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    },
+    {
+      "name": "og_image_width",
+      "displayName": "Image Asset Width",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "1200",
+      "enumValues": []
+    },
+    {
+      "name": "og_image_height",
+      "displayName": "Image Asset Height",
+      "datatype": "number",
+      "required": false,
+      "defaultValue": "630",
+      "enumValues": []
+    },
+    {
+      "name": "og_locale",
+      "displayName": "Locale",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "en_US",
+      "enumValues": [
+        {
+          "value": "sq_AL",
+          "displayValue": "Albanian Albania (AL)"
+        },
+        {
+          "value": "ar_DZ",
+          "displayValue": "Arabic Algeria (DZ)"
+        },
+        {
+          "value": "ar_BH",
+          "displayValue": "Arabic Bahrain (BH)"
+        },
+        {
+          "value": "ar_EG",
+          "displayValue": "Arabic Egypt (EG)"
+        },
+        {
+          "value": "ar_IQ",
+          "displayValue": "Arabic Iraq (IQ)"
+        },
+        {
+          "value": "ar_JO",
+          "displayValue": "Arabic Jordan (JO)"
+        },
+        {
+          "value": "ar_KW",
+          "displayValue": "Arabic Kuwait (KW)"
+        },
+        {
+          "value": "ar_LB",
+          "displayValue": "Arabic Lebanon (LB)"
+        },
+        {
+          "value": "ar_LY",
+          "displayValue": "Arabic Libya (LY)"
+        },
+        {
+          "value": "ar_MA",
+          "displayValue": "Arabic Morocco (MA)"
+        },
+        {
+          "value": "ar_OM",
+          "displayValue": "Arabic Oman (OM)"
+        },
+        {
+          "value": "ar_QA",
+          "displayValue": "Arabic Qatar (QA)"
+        },
+        {
+          "value": "ar_SA",
+          "displayValue": "Arabic Saudi Arabia (SA)"
+        },
+        {
+          "value": "ar_SD",
+          "displayValue": "Arabic Sudan (SD)"
+        },
+        {
+          "value": "ar_SY",
+          "displayValue": "Arabic Syria (SY)"
+        },
+        {
+          "value": "ar_TN",
+          "displayValue": "Arabic Tunisia (TN)"
+        },
+        {
+          "value": "ar_AE",
+          "displayValue": "Arabic United Arab Emirates (AE)"
+        },
+        {
+          "value": "ar_YE",
+          "displayValue": "Arabic Yemen (YE)"
+        },
+        {
+          "value": "be_BY",
+          "displayValue": "Belarusian Belarus (BY)"
+        },
+        {
+          "value": "bg_BG",
+          "displayValue": "Bulgarian Bulgaria (BG)"
+        },
+        {
+          "value": "ca_ES",
+          "displayValue": "Catalan Spain (ES)"
+        },
+        {
+          "value": "zh_CN",
+          "displayValue": "Chinese China (CN)"
+        },
+        {
+          "value": "zh_SG",
+          "displayValue": "Chinese Singapore (SG)"
+        },
+        {
+          "value": "zh_HK",
+          "displayValue": "Chinese Hong Kong (HK)"
+        },
+        {
+          "value": "zh_TW",
+          "displayValue": "Chinese Taiwan (TW)"
+        },
+        {
+          "value": "hr_HR",
+          "displayValue": "Croatian Croatia (HR)"
+        },
+        {
+          "value": "cs_CZ",
+          "displayValue": "Czech Czech Republic (CZ)"
+        },
+        {
+          "value": "da_DK",
+          "displayValue": "Danish Denmark (DK)"
+        },
+        {
+          "value": "nl_BE",
+          "displayValue": "Dutch Belgium (BE)"
+        },
+        {
+          "value": "nl_NL",
+          "displayValue": "Dutch Netherlands (NL)"
+        },
+        {
+          "value": "en_AU",
+          "displayValue": "English Australia (AU)"
+        },
+        {
+          "value": "en_CA",
+          "displayValue": "English Canada (CA)"
+        },
+        {
+          "value": "en_IN",
+          "displayValue": "English India (IN)"
+        },
+        {
+          "value": "en_IE",
+          "displayValue": "English Ireland (IE)"
+        },
+        {
+          "value": "en_MT",
+          "displayValue": "English Malta (MT)"
+        },
+        {
+          "value": "en_NZ",
+          "displayValue": "English New Zealand (NZ)"
+        },
+        {
+          "value": "en_PH",
+          "displayValue": "English Philippines (PH)"
+        },
+        {
+          "value": "en_SG",
+          "displayValue": "English Singapore (SG)"
+        },
+        {
+          "value": "en_ZA",
+          "displayValue": "English South Africa (ZA)"
+        },
+        {
+          "value": "en_GB",
+          "displayValue": "English United Kingdom (GB)"
+        },
+        {
+          "value": "en_US",
+          "displayValue": "English United States (US)"
+        },
+        {
+          "value": "et_EE",
+          "displayValue": "Estonian Estonia (EE)"
+        },
+        {
+          "value": "fi_FI",
+          "displayValue": "Finnish Finland (FI)"
+        },
+        {
+          "value": "fr_BE",
+          "displayValue": "French Belgium (BE)"
+        },
+        {
+          "value": "fr_CA",
+          "displayValue": "French Canada (CA)"
+        },
+        {
+          "value": "fr_FR",
+          "displayValue": "French France (FR)"
+        },
+        {
+          "value": "fr_LU",
+          "displayValue": "French Luxembourg (LU)"
+        },
+        {
+          "value": "fr_CH",
+          "displayValue": "French Switzerland (CH)"
+        },
+        {
+          "value": "de_AT",
+          "displayValue": "German Austria (AT)"
+        },
+        {
+          "value": "de_DE",
+          "displayValue": "German Germany (DE)"
+        },
+        {
+          "value": "de_LU",
+          "displayValue": "German Luxembourg (LU)"
+        },
+        {
+          "value": "de_CH",
+          "displayValue": "German Switzerland (CH)"
+        },
+        {
+          "value": "el_CY",
+          "displayValue": "Greek Cyprus (CY)"
+        },
+        {
+          "value": "el_GR",
+          "displayValue": "Greek Greece (GR)"
+        },
+        {
+          "value": "iw_IL",
+          "displayValue": "Hebrew Israel (IL)"
+        },
+        {
+          "value": "hi_IN",
+          "displayValue": "Hindi India (IN)"
+        },
+        {
+          "value": "hu_HU",
+          "displayValue": "Hungarian Hungary (HU)"
+        },
+        {
+          "value": "is_IS",
+          "displayValue": "Icelandic Iceland (IS)"
+        },
+        {
+          "value": "in_ID",
+          "displayValue": "Indonesian Indonesia (ID)"
+        },
+        {
+          "value": "ga_IE",
+          "displayValue": "Irish Ireland (IE)"
+        },
+        {
+          "value": "it_IT",
+          "displayValue": "Italian Italy (IT)"
+        },
+        {
+          "value": "it_CH",
+          "displayValue": "Italian Switzerland (CH)"
+        },
+        {
+          "value": "ja_JP",
+          "displayValue": "Japanese Japan (JP)"
+        },
+        {
+          "value": "ko_KR",
+          "displayValue": "Korean South Korea (KR)"
+        },
+        {
+          "value": "lv_LV",
+          "displayValue": "Latvian Latvia (LV)"
+        },
+        {
+          "value": "lt_LT",
+          "displayValue": "Lithuanian Lithuania (LT)"
+        },
+        {
+          "value": "mk_MK",
+          "displayValue": "Macedonian Macedonia (MK)"
+        },
+        {
+          "value": "ms_MY",
+          "displayValue": "Malay Malaysia (MY)"
+        },
+        {
+          "value": "mt_MT",
+          "displayValue": "Maltese (mt) Malta (MT)"
+        },
+        {
+          "value": "no_NO",
+          "displayValue": "Norwegian Norway (NO)"
+        },
+        {
+          "value": "nb_NO",
+          "displayValue": "Norwegian Bokmal Norway (NO)"
+        },
+        {
+          "value": "nn_NO",
+          "displayValue": "Norwegian Nynorsk Norway (NO)"
+        },
+        {
+          "value": "pl_PL",
+          "displayValue": "Polish Poland (PL)"
+        },
+        {
+          "value": "pt_BR",
+          "displayValue": "Portuguese Brazil (BR)"
+        },
+        {
+          "value": "pt_PT",
+          "displayValue": "Portuguese Portugal (PT)"
+        },
+        {
+          "value": "ro_RO",
+          "displayValue": "Romanian Romania (RO)"
+        },
+        {
+          "value": "ru_RU",
+          "displayValue": "Russian Russia (RU)"
+        },
+        {
+          "value": "sr_BA",
+          "displayValue": "Serbian Bosnia and Herzegovina (BA)"
+        },
+        {
+          "value": "sr_ME",
+          "displayValue": "Serbian Montenegro (ME)"
+        },
+        {
+          "value": "sr_RS",
+          "displayValue": "Serbian Serbia (RS)"
+        },
+        {
+          "value": "sk_SK",
+          "displayValue": "Slovak Slovakia (SK)"
+        },
+        {
+          "value": "sl_SI",
+          "displayValue": "Slovenian Slovenia (SI)"
+        },
+        {
+          "value": "es_AR",
+          "displayValue": "Spanish Argentina (AR)"
+        },
+        {
+          "value": "es_BO",
+          "displayValue": "Spanish Bolivia (BO)"
+        },
+        {
+          "value": "es_CL",
+          "displayValue": "Spanish Chile (CL)"
+        },
+        {
+          "value": "es_CO",
+          "displayValue": "Spanish Colombia (CO)"
+        },
+        {
+          "value": "es_CR",
+          "displayValue": "Spanish Costa Rica (CR)"
+        },
+        {
+          "value": "es_DO",
+          "displayValue": "Spanish Dominican Republic (DO)"
+        },
+        {
+          "value": "es_EC",
+          "displayValue": "Spanish Ecuador (EC)"
+        },
+        {
+          "value": "es_SV",
+          "displayValue": "Spanish El Salvador (SV)"
+        },
+        {
+          "value": "es_GT",
+          "displayValue": "Spanish Guatemala (GT)"
+        },
+        {
+          "value": "es_HN",
+          "displayValue": "Spanish Honduras (HN)"
+        },
+        {
+          "value": "es_MX",
+          "displayValue": "Spanish Mexico (MX)"
+        },
+        {
+          "value": "es_NI",
+          "displayValue": "Spanish Nicaragua (NL)"
+        },
+        {
+          "value": "es_PA",
+          "displayValue": "Spanish Panama (PA)"
+        },
+        {
+          "value": "es_PY",
+          "displayValue": "Spanish Paraguay (PY)"
+        },
+        {
+          "value": "es_PE",
+          "displayValue": "Spanish Peru (PE)"
+        },
+        {
+          "value": "es_PR",
+          "displayValue": "Spanish Puerto Rico (PR)"
+        },
+        {
+          "value": "es_ES",
+          "displayValue": "Spanish Spain (ES)"
+        },
+        {
+          "value": "es_US",
+          "displayValue": "Spanish United States (US)"
+        },
+        {
+          "value": "es_UY",
+          "displayValue": "Spanish Uruguay (UY)"
+        },
+        {
+          "value": "es_VE",
+          "displayValue": "Spanish Venezuela (VE)"
+        },
+        {
+          "value": "sv_SE",
+          "displayValue": "Swedish Sweden (SE)"
+        },
+        {
+          "value": "th_TH",
+          "displayValue": "Thai Thailand (TH)"
+        },
+        {
+          "value": "tr_TR",
+          "displayValue": "Turkish Turkey (TR)"
+        },
+        {
+          "value": "uk_UA",
+          "displayValue": "Ukrainian Ukraine (UA)"
+        },
+        {
+          "value": "vi_VN",
+          "displayValue": "Vietnamese Vietnam (VN)"
+        }
+      ]
+    },
+    {
+      "name": "fb_app_id",
+      "displayName": "Facebook App Id",
+      "datatype": "string",
+      "required": false,
+      "enumValues": []
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}

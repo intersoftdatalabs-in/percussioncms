@@ -1,0 +1,9 @@
+<div$!{classAttribute}>
+#loadRelatedWidgetContents()##
+#if( ! $perc.widgetContents.isEmpty() )##
+#set($node = $perc.widgetContents.get(0).node)##
+$node.getProperty('rx:text').getString()##
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("text-sample-content", "This rich text widget is showing sample content.")##
+#end##
+</div>

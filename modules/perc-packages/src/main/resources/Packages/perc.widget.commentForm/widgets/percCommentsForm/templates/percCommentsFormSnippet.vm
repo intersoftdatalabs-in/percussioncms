@@ -1,0 +1,35 @@
+#loadRelatedWidgetContents()
+          <div class = "perc-comments-form $!{rootclass} $!{labelalignclass}" data-query="$!{dynamicListData}">
+              #if( ! $perc.widgetContents.isEmpty() )
+                 #set($node = $perc.widgetContents.get(0).node)
+                 #set($formdata = $node.getProperty('rx:formdata').getString())
+                 #set($renderedForm = $node.getProperty('rx:renderedform').getString())
+                 #set($renderedForm = $renderedForm.replace("${tools.esc.q}PERC_RV_COMMENT_FORM_ACTION${tools.esc.q}","${tools.esc.q}${sUrl}${tools.esc.q}"))
+                 #set($renderedForm = $renderedForm.replace("PERC_RV_COMMENT_FORM_ACTION","${tools.esc.q}${sUrl}${tools.esc.q}"))
+                 #set($renderedForm = $renderedForm.replace("${tools.esc.q}PERC_RV_SITE_NAME${tools.esc.q}","${tools.esc.q}${siteName}${tools.esc.q}"))
+                 #set($renderedForm = $renderedForm.replace("PERC_RV_SITE_NAME","${tools.esc.q}${siteName}${tools.esc.q}"))
+                 #set($renderedForm = $renderedForm.replace("${tools.esc.q}PERC_RV_PAGE_PATH${tools.esc.q}","${tools.esc.q}$tools.esc.html($pagePath)${tools.esc.q}"))
+                 #set($renderedForm = $renderedForm.replace("PERC_RV_PAGE_PATH","${tools.esc.q}$tools.esc.html($pagePath)${tools.esc.q}"))
+                 <div class = "perc-form-name">$renderedForm </div>
+                 #if($formdata.contains('Honeypot'))##
+                     <script >
+                         function validatePercForm() {
+                             if(!document.getElementById("topyenoh").value) {
+                                 return true;
+                             }
+                             return false;
+                         }
+                     </script>
+                 #end##
+              #elseif ($perc.isEditMode())
+                 #createEmptyWidgetContent("commentsform-sample-content", "This Form widget is showing sample content.")
+             #end
+
+             #if($perc.isPreviewMode())
+                <script>
+                    window.addEventListener('DOMContentLoaded', function() {
+                        jQuery("input[type = 'submit']").attr('disabled', 'disabled');
+                    });
+                </script>
+             #end
+        </div>

@@ -1,0 +1,9 @@
+<div class="$!{rootclass} perc-file" data="$!{dynamicListData}">
+        #if( ! $perc.widgetContents.isEmpty() )##
+            <span property="perc:asset-link" aria-hidden="true" style="display: none;">$!{link}</span>
+            <span property="perc:asset-title" aria-hidden="true" style="display: none;">$!{title}</span>
+            <a href="$!{link}" referrerpolicy="$!{referalPolicy}"  title="$!{title}"target="$!{target}">$!{title}</a>
+        #elseif ($perc.isEditMode())##
+            #createEmptyWidgetContent("file-sample-content", "This file widget is showing sample content.")##
+        #end##
+    </div>

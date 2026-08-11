@@ -1,0 +1,51 @@
+<div class="$!rootclass">
+#if( ! $perc.widgetContents.isEmpty() )
+            <div>
+#set($addlHead = $perc.page.getAdditionalHeadContent())##
+## Check for existing Schema if using multiple instances of widget on same page
+#if( !($addlHead.contains($scriptSchemaId)) )##
+                    $perc.page.setAdditionalHeadContent("$!{addlHead}<script async id='$!{scriptSchemaId}' type='application/ld+json'>$!{dptSchema}</script>")##
+#end##
+## Display Department Name with selected formatting HTML tags
+#if( !($percHideFieldOrgName) )##
+                    <div class="perc-org-name">$!{orgName}</div>
+#end##
+                <div class="perc-dpt-name">
+#if( "$!{dptWebsite_path}" != "" && "$!{dptWebsite_path}" != "#" )##
+                        <a href="$dptWebsite_path" title="$dptWebsite_title">
+                            $!{dptNameFormatStartTag}${dptName}$!{dptNameFormatEndTag}
+                        </a>
+#else##
+                        $!{dptNameFormatStartTag}${dptName}$!{dptNameFormatEndTag}
+#end##
+                </div>
+#if( !($percHideFieldDptAddress) )##
+                    <div class="perc-dpt-address">
+#if( "$!{dptAddress1}" != "" && "$!{dptAddress1}" != "#" )##
+                            <div class="perc-address-street-1"><p>$!{dptAddress1}</p></div>
+#end##
+#if( "$!{dptAddress2}" != "" && "$!{dptAddress2}" != "#" )##
+                            <div class="perc-address-street-2"><p>$!{dptAddress2}</p></div>
+#end##
+#if( "$!{dptAddress3}" != "" && "$!{dptAddress3}" != "#" )##
+                            <div class="perc-address-city-state-post"><p>$!{dptAddress3}</p></div>
+#end##
+#if( "$!{dptCountry}" != "" && "$!{dptCountry}" != "#" )##
+                            <div class="perc-address-country"><p>$!{dptCountry}</p></div>
+#end##
+                    </div>
+#end##
+#if( !($percHideFieldDptPhone) && "$!{dptPhone}" != "" && "$!{dptPhone}" != "#" )##
+                    <div class="perc-dpt-phone"><p>$!{dptPhone}</p></div>
+#end##
+#if( !($percHideFieldDptFax) && $!{dptFax} != "" && $!{dptFax} != "#" )##
+                    <div class="perc-dpt-fax"><p>$!{dptFax}</p></div>
+#end##
+#if( !($percHideFieldDptEmail) && $!{dptEmail} != "" && $!{dptEmail} != "#" )##
+                    <div class="perc-dpt-email"><p>$!{dptEmail}</p></div>
+#end##
+            </div>
+#elseif ($perc.isEditMode())
+#createEmptyWidgetContent("percDepartment-empty-style", "This widget is showing sample content")
+#end
+       </div>

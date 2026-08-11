@@ -1,0 +1,88 @@
+<div class="$!{rootclass} perc-archive-list" data-query="$!{dynamicListData}">
+##This is a hidden div that holds the structure of the list when the category list output structure changes this hidden div and delivery side view
+##should be modified to match the new structure.
+#if ($title && $title.length() > 0)##
+<div class="perc-archive-title">$title</div>
+#end##
+<div style="display:none" class="perc-archive-list-structure">
+</div>
+<div class="perc-archive-list-container">
+#if( ! $perc.widgetContents.isEmpty() )##
+#if($blogYears && $blogYears.size() > 0)##
+## Split archive locale to get language and country
+#if("" == "$!{archiveLocale}")##
+#set($archiveLocale="en-US")##
+#end##
+##
+##Setup Date Formatting
+#set($formatterIn = $rx.pageutils.getDateFormatForString("MMMM d, yyyy"))##
+#set($formatterOut = $rx.pageutils.getDateFormatFromLocale("MMMM",$locale))##
+#if($archiveLayout == "perc-list-hierarchical")##
+<ul class="perc-archive-list-wrapper perc-archive-hierarchical">
+#foreach ($blogYear in $blogYears)##
+#if($blogYear.getYearCount() > 0)##
+#if($velocityCount <= $archiveListMaxNum)##
+#set ($dateValue =  "January 01, "+ $blogYear.getYear())##
+#set($date = $formatterIn.parse($dateValue))##
+#set($dummy = $formatterOut.applyPattern("YYYY"))##
+#set($year = $formatterOut.format($date))##
+<li class="perc-archive-year"><a href="#">$year ($blogYear.getYearCount())</a>
+<ul class="perc-archive-month-wrapper">
+#foreach ($blogMonth in $blogYear.getMonths())##
+#if($blogMonth.getCount() > 0)##
+## Get Date from Blog Month
+#set ($dateValue = $blogMonth.getMonth() + " 01, "+ $blogYear.getYear())##
+## Formate Date
+#set($date = $formatterIn.parse($dateValue))##
+#set($dummy = $formatterOut.applyPattern("MMMMM"))##
+#set($month = $formatterOut.format($date))##
+#if($month.length() >0)##
+#set($letter = $month.substring(0,1).toUpperCase())##
+#set($properMonth = $letter + $month.substring(1))##
+#else##
+#set($properMonth =  $month)##
+#end##
+<li class="perc-archive-month"><a href="#">$properMonth ($blogMonth.getCount())</a></li>
+#end##
+#end##
+</ul>
+</li>
+#end##
+#end##
+#end##
+</ul>
+#end##
+#if($archiveLayout == "perc-list-flat")##
+<ul class="perc-archive-list-container perc-archive-flat">
+#foreach ($blogYear in $blogYears)##
+#foreach ($blogMonth in $blogYear.getMonths())##
+#if($blogMonth.getCount() > 0)##
+#if($velocityCount <= $archiveListMaxNum)##
+## Get Date from Blog Month
+#set ($dateValue = $blogMonth.getMonth() + " 01, "+ $blogYear.getYear())##
+## Formate Date
+#set($date = $formatterIn.parse($dateValue))##
+#set($dummy = $formatterOut.applyPattern("MMMMM"))##
+#set($month = $formatterOut.format($date))##
+#if($month.length()>1)##
+#set($letter = $month.substring(0,1).toUpperCase())##
+#set($properMonth = $letter + $month.substring(1))##
+#else##
+#set($properMonth =  $month)##
+#end##
+##
+#set($dummy = $formatterOut.applyPattern("YYYY"))##
+#set($year = $formatterOut.format($date))##
+<li class="perc-archive-month"><a href="#">$properMonth $year ($blogMonth.getCount())</a></li>
+#end##
+#end##
+#end##
+#end##
+</ul>
+#end##
+#end##
+#elseif ($perc.isEditMode())##
+#createEmptyWidgetContent("archivelist-sample-content", "This archive list widget is showing sample content.")##
+#end##
+</div>
+</div>

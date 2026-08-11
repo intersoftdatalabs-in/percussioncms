@@ -170,7 +170,7 @@ public final class PSPageXmlNativeInstall {
     String stem = resolveStem(manifest, pageDir);
     // Mapping loaders key stems lower-case (Windows/macOS case-insensitive product history;
     // dual-ship uses the same policy). Preserve original stem for on-disk templateDef names.
-    String stemKey = stem.toLowerCase(Locale.ROOT);
+    String stemKey = stem != null ? stem.toLowerCase(Locale.ROOT) : "";
     String guid = guidsByStem.get(stemKey);
     String archiveFolder = foldersByStem.get(stemKey);
     if (guid == null || guid.isBlank() || archiveFolder == null || archiveFolder.isBlank()) {
@@ -214,6 +214,7 @@ public final class PSPageXmlNativeInstall {
       if (!km.matches()) {
         continue;
       }
+      // Match loadGuidsFromMapping: lowercase stem keys for mixed-case product ids.
       String stem = km.group(1).toLowerCase(Locale.ROOT);
       String value = props.getProperty(key);
       if (value == null) {

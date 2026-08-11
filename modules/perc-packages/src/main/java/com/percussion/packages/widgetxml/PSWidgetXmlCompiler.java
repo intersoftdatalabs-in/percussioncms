@@ -493,17 +493,26 @@ public final class PSWidgetXmlCompiler {
   }
 
   /**
-   * Resolve a package-relative path (URL-style {@code /}) under {@code base} using portable {@link
-   * Path#resolve(String)} per segment — never string-concatenate OS separators.
+   * Resolve a package-relative path under {@code base} using portable {@link Path#resolve(String)}
+   * per segment — never string-concatenate OS separators. Accepts URL-style {@code /} and Windows
+   * {@code \} in the relative string; strips a leading slash; rejects {@code ..} escapes.
    */
   static Path resolvePackageRelative(Path base, String packageRelative) {
+    if (packageRelative == null || packageRelative.isBlank()) {
+      throw new IllegalArgumentException("relative path must be non-blank");
+    }
+    String normalized = packageRelative.replace('\\', '/');
+    while (normalized.startsWith("/")) {
+      normalized = normalized.substring(1);
+    }
     Path p = base;
-    for (String segment : packageRelative.split("/")) {
+    for (String segment : normalized.split("/")) {
       if (segment.isEmpty() || ".".equals(segment)) {
         continue;
       }
       if ("..".equals(segment)) {
-        throw new IllegalArgumentException("Package-relative path must not contain '..': " + packageRelative);
+        throw new IllegalArgumentException(
+            "Package-relative path must not contain '..': " + packageRelative);
       }
       p = p.resolve(segment);
     }

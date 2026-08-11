@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "1.0",
+  "id": "percLogin",
+  "name": "Login",
+  "version": "1.1.8",
+  "description": "User login for membership services.",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "2.5.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Login",
+    "category": "integration",
+    "description": "User login for membership services.",
+    "thumbnail": "resources/widgetIconLogin.gif",
+    "icon": "resources/widgetIconLogin.gif",
+    "author": "Percussion Software Inc",
+    "preferredEditorWidth": 780,
+    "preferredEditorHeight": 500,
+    "responsive": true,
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "percLoginAsset",
+      "ref": "contentTypes/percLoginAsset"
+    }
+  ],
+  "templates": [
+    {
+      "name": "percLoginSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/percLoginSnippet.vm",
+      "contentType": "percLoginAsset",
+      "bindings": [
+        {
+          "variable": "pageId",
+          "expression": "$perc.page.id"
+        },
+        {
+          "variable": "widgetId",
+          "expression": "$perc.widget.item.id"
+        },
+        {
+          "variable": "percLabelLayout",
+          "expression": "$perc.widget.item.properties.get('perc-label-layout')"
+        },
+        {
+          "variable": "renderMode",
+          "expression": "$perc.widget.item.properties.get('perc-render-mode')"
+        },
+        {
+          "variable": "isLoginPage",
+          "expression": "false"
+        },
+        {
+          "variable": "loginPage",
+          "expression": "\"\""
+        },
+        {
+          "variable": "pwresetPage",
+          "expression": "\"\""
+        },
+        {
+          "variable": "finderPath",
+          "expression": "$rx.pageutils.getItemPath($pageId)"
+        },
+        {
+          "variable": "pathParts",
+          "expression": "$finderPath.split(\"\\/\")"
+        },
+        {
+          "variable": "loginPage",
+          "expression": "$rx.pageutils.getSiteLoginPage($pathParts[2])"
+        },
+        {
+          "variable": "pwresetPage",
+          "expression": "$rx.pageutils.getSiteResetRequestPasswordPage($pathParts[2])"
+        },
+        {
+          "variable": "loginPagePath",
+          "expression": "$pathParts[0] + '/' + $pathParts[1] + '/' + $pathParts[2] + $loginPage"
+        },
+        {
+          "variable": "isLoginPage",
+          "expression": "$finderPath.equals($loginPagePath)"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "$perc.widget.item.cssProperties.get('rootclass')"
+        },
+        {
+          "variable": "rootclass",
+          "expression": "\"\""
+        },
+        {
+          "variable": "assetItems",
+          "expression": "$rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null)"
+        },
+        {
+          "variable": "assetItem",
+          "expression": "$assetItems.get(0)"
+        },
+        {
+          "variable": "percEmailLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'email_label')"
+        },
+        {
+          "variable": "percPasswordLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'password_label')"
+        },
+        {
+          "variable": "percSubmitLabel",
+          "expression": "$rx.pageutils.html($assetItem, 'submit_label')"
+        },
+        {
+          "variable": "notLoggedInMessage",
+          "expression": "$rx.pageutils.html($assetItem, 'not_logged_in_message')"
+        },
+        {
+          "variable": "loggedInMessage",
+          "expression": "$rx.pageutils.html($assetItem, 'logged_in_message')"
+        },
+        {
+          "variable": "showUsername",
+          "expression": "$rx.pageutils.html($assetItem, 'show_username')"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "$rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId)"
+        },
+        {
+          "variable": "dsUrl",
+          "expression": "\"\""
+        },
+        {
+          "variable": "__widgetCode",
+          "expression": "$pageId = $perc.page.id;\n        $widgetId = $perc.widget.item.id;\n\n        ## Retrieve User prefs (Layout Tab)\n        $percLabelLayout = $perc.widget.item.properties.get('perc-label-layout');\n        $renderMode = $perc.widget.item.properties.get('perc-render-mode');\n\n        ## Set a default value for $isLoginPage, since we could be in a template, a normal page, the login page, etc\n        $isLoginPage = false;\n        $loginPage = \"\";\n        $pwresetPage = \"\";\n        ## This checks if we are in the login page only when we are in a page\n        ## The check is not performed in a template, because it doesn't have a $pageId\n        if (! empty($pageId)) {\n            ## Retrieve loginPage for the current site\n            $finderPath = $rx.pageutils.getItemPath($pageId);\n            $pathParts = $finderPath.split(\"\\/\");\n            ## current site name == $pathParts[2]\n            $loginPage = $rx.pageutils.getSiteLoginPage($pathParts[2]);\n            $pwresetPage = $rx.pageutils.getSiteResetRequestPasswordPage($pathParts[2]);\n            if (! empty($loginPage)) {\n                $loginPagePath = $pathParts[0] + '/' + $pathParts[1] + '/' + $pathParts[2] + $loginPage;\n                $isLoginPage = $finderPath.equals($loginPagePath);\n            }\n        }\n\n        $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n        if (empty($rootclass)) {\n            $rootclass = \"\";\n        }\n\n        $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n\n        if ( ! $assetItems.isEmpty() ) {\n            $assetItem = $assetItems.get(0);\n            $percEmailLabel = $rx.pageutils.html($assetItem, 'email_label');\n            $percPasswordLabel = $rx.pageutils.html($assetItem, 'password_label');\n            $percSubmitLabel = $rx.pageutils.html($assetItem, 'submit_label');\n            $notLoggedInMessage = $rx.pageutils.html($assetItem, 'not_logged_in_message');\n            $loggedInMessage = $rx.pageutils.html($assetItem, 'logged_in_message');\n            $showUsername = $rx.pageutils.html($assetItem, 'show_username');\n\t\t}\n\n\t\t$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);\n        if ($dsUrl.indexOf(\"http://localhost\") != -1 )\n\t\t\t$dsUrl = \"\";"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "percLoginContent",
+      "allowedContentTypes": [
+        "percLoginAsset"
+      ],
+      "layout": {},
+      "styles": {
+        "rootclass": ""
+      }
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconLogin.gif",
+      "target": "rx_resources/widgets/login/images/widgetIconLogin.gif",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "perc-label-layout",
+      "displayName": "Label layout",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "align_above",
+      "enumValues": [
+        {
+          "value": "align_above",
+          "displayValue": "Align above the field"
+        },
+        {
+          "value": "align_left",
+          "displayValue": "Align to the left of the field"
+        }
+      ]
+    },
+    {
+      "name": "perc-render-mode",
+      "displayName": "Render mode",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "show_as_link",
+      "enumValues": [
+        {
+          "value": "show_as_link",
+          "displayValue": "Show as link/text"
+        },
+        {
+          "value": "show_login_form",
+          "displayValue": "Show login form"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": [
+    {
+      "name": "rootclass",
+      "displayName": "CSS root class",
+      "datatype": "string"
+    }
+  ]
+}
