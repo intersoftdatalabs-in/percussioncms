@@ -28,7 +28,11 @@ import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.HttpErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
@@ -699,6 +703,148 @@ class LegacyErrorCodeRegistryTest {
     assertSame(WorkflowErrorCodes.WORKFLOW_NOT_FOUND, LegacyErrorCodeRegistry.find(1).orElseThrow());
     assertFalse(TransformationErrorCodes.NO_CONVERTER_FOUND.isAuditable());
     assertEquals(1, TransformationErrorCodes.NO_CONVERTER_FOUND.numericCode());
+  }
+
+  // --- Search / Lucene / Locale / Mail residual (#2880) ---
+
+  @Test
+  void searchAuthenticationFailedIsAuditableAndResolves() {
+    assertTrue(LegacyErrorCodeRegistry.isAuditable(16052));
+    assertSame(
+        SearchErrorCodes.SEARCH_ENGINE_AUTHENTICATION_FAILED,
+        LegacyErrorCodeRegistry.find(16052).orElseThrow());
+    assertTrue(SearchErrorCodes.SEARCH_ENGINE_AUTHENTICATION_FAILED.isAuditable());
+  }
+
+  @Test
+  void searchAuthenticationFailedDualWrites() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SearchErrorCodes.SEARCH_ENGINE_AUTHENTICATION_FAILED.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(1, sink.records().size());
+    assertEquals(
+        SearchErrorCodes.SEARCH_ENGINE_AUTHENTICATION_FAILED, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-16052]-"));
+  }
+
+  @Test
+  void searchOperationalCodeIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(16001));
+    assertSame(
+        SearchErrorCodes.SEARCH_ENGINE_UNIMPLEMENTED_OPERATION,
+        LegacyErrorCodeRegistry.find(16001).orElseThrow());
+    assertFalse(SearchErrorCodes.SEARCH_ENGINE_UNIMPLEMENTED_OPERATION.isAuditable());
+  }
+
+  @Test
+  void searchNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SearchErrorCodes.SEARCH_ENGINE_FATAL_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void luceneIndexCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(16311));
+    assertSame(
+        LuceneErrorCodes.INDEX_DIR_PARAM_INVALID_MISSING,
+        LegacyErrorCodeRegistry.find(16311).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(16451));
+    assertSame(
+        LuceneErrorCodes.INDEX_CURRUPTED_EXCEPTION_SEARCHING,
+        LegacyErrorCodeRegistry.find(16451).orElseThrow());
+  }
+
+  @Test
+  void luceneNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            LuceneErrorCodes.SEARCH_QUERY_PARSEEXCEPTION.numericCode(),
+            AuditContext.builder().actor("jdoe").build());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void localeCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(1801));
+    assertSame(
+        LocaleErrorCodes.INVALID_COLUMN_VALUE, LegacyErrorCodeRegistry.find(1801).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(1804));
+    assertSame(
+        LocaleErrorCodes.LOCALE_MGR_UNEXPECTED_ERROR,
+        LegacyErrorCodeRegistry.find(1804).orElseThrow());
+  }
+
+  @Test
+  void localeNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            LocaleErrorCodes.LOCALE_MGR_INIT.numericCode(),
+            AuditContext.empty(),
+            "init failed");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void mailCodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(3501));
+    assertSame(MailErrorCodes.MAIL_ADDRESS_EMPTY, LegacyErrorCodeRegistry.find(3501).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(3507));
+    assertSame(
+        MailErrorCodes.MAIL_SERVER_CONNECTION_ERROR,
+        LegacyErrorCodeRegistry.find(3507).orElseThrow());
+  }
+
+  @Test
+  void mailNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            MailErrorCodes.MAIL_ADDRESS_INVALID.numericCode(),
+            AuditContext.empty(),
+            "bad@");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversSearchLuceneLocaleAndMail() {
+    assertTrue(LegacyErrorCodeRegistry.size() >= 380);
+    assertTrue(LegacyErrorCodeRegistry.find(16052).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(16311).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(1801).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
   }
 
 }
