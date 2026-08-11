@@ -115,7 +115,7 @@ public class PSExportJob extends PSDeployJob {
       var treeCtx = new PSDependencyTreeContext();
       m_descriptor
           .getPackages()
-          .forEachRemaining(de -> treeCtx.addPackage((PSDeployableElement) de, true));
+          .forEachRemaining(de -> treeCtx.addPackage(de, true));
 
       // add suppression filter from descriptor to context
       if (m_descriptor.getDepKeysToExclude() != null) {
@@ -132,7 +132,7 @@ public class PSExportJob extends PSDeployJob {
               MessageFormat.format(bundle.getString("analyzingDeps"), de.getDisplayIdentifier());
           setStatusMessage(msg);
           try {
-            dm.addMissingDependencies(getSecurityToken(), (PSDeployableElement) de, treeCtx, this);
+            dm.addMissingDependencies(getSecurityToken(), de, treeCtx, this);
           } catch (PSDeployException e) {
             // wrap checked exception so we can handle it in the outer catch
             throw new RuntimeException(e);
@@ -177,7 +177,7 @@ public class PSExportJob extends PSDeployJob {
           var msg = MessageFormat.format(bundle.getString("processing"), de.getDisplayIdentifier());
           setStatusMessage(msg);
           try {
-            dm.addToArchive(getSecurityToken(), (PSDeployableElement) de, ah, this);
+            dm.addToArchive(getSecurityToken(), de, ah, this);
           } catch (PSDeployException e) {
             throw new RuntimeException(e);
           }

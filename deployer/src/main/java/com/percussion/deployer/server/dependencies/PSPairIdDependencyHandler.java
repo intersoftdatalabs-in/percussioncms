@@ -129,8 +129,8 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
 
     // should only get back one, take the first if found
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
-      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      PSJdbcRowData row = rows.next();
       String name = dbmsHelper.getColumnString(table, childNameCol, row);
 
       dep = createDependency(m_def, id, name);
@@ -244,16 +244,17 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
     if (data != null && data.getRows().hasNext()) // if there is things
     { // exist in the table
       // prepare to be deleted row
-      List cols = new ArrayList();
-      cols.add(new PSJdbcColumnData(parentIdCol, newParentId));
-      cols.add(new PSJdbcColumnData(childNameCol, pairId.getChildId()));
-      PSJdbcRowData rowData = new PSJdbcRowData(cols.iterator(), PSJdbcRowData.ACTION_DELETE);
+      List<PSJdbcColumnData> colDataList = new ArrayList<>();
+      colDataList.add(new PSJdbcColumnData(parentIdCol, newParentId));
+      colDataList.add(new PSJdbcColumnData(childNameCol, pairId.getChildId()));
+      PSJdbcRowData rowData =
+          new PSJdbcRowData(colDataList.iterator(), PSJdbcRowData.ACTION_DELETE);
 
       // set the update key: WHERE PARENT_ID=parentId and CHILD_NAME=childId
-      cols.clear();
-      cols.add(parentIdCol);
-      cols.add(childNameCol);
-      dbmsHelper.setUpdateKeyForSchema(cols.iterator(), schema);
+      List<String> keyCols = new ArrayList<>();
+      keyCols.add(parentIdCol);
+      keyCols.add(childNameCol);
+      dbmsHelper.setUpdateKeyForSchema(keyCols.iterator(), schema);
 
       // do the delete
       dbmsHelper.processTable(schema, table, rowData);

@@ -78,7 +78,7 @@ public class PSCommunityDependencyHandler extends PSElementDependencyHandler {
   private PSDependencyHandler m_cdHandler = null;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static final List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);

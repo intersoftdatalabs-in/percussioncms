@@ -77,7 +77,7 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
     var ids =
         getChildIdsFromTable(COMPONENT_TABLE, COMPONENT_URL, COMPONENT_ID, dep.getDependencyId());
     if (ids.hasNext()) {
-      var url = (String) ids.next();
+      var url = ids.next();
       var appName = PSDeployComponentUtils.getAppName(url);
       if (appName != null && !appName.isBlank()) {
         var handler = getDependencyHandler(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
@@ -107,7 +107,8 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     return getDependencies(tok, COMPONENT_TABLE, COMPONENT_ID, COMPONENT_NAME);
@@ -159,7 +160,8 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -193,13 +195,13 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive, 1st component, 2nd property
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
     PSDependencyData compData = getDepDataFromFile(archive, file);
 
     PSDependencyData propData = null;
     if (files.hasNext()) {
-      file = (PSDependencyFile) files.next();
+      file = files.next();
       propData = getDepDataFromFile(archive, file);
     }
 
@@ -233,7 +235,7 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
       PSJdbcTableData srcData, PSDependency compDep, PSImportCtx ctx, PSSecurityToken tok)
       throws PSDeployException {
     // reserve ids for the COMPPROP_ID
-    List rows = PSDeployComponentUtils.cloneList(srcData.getRows());
+    List<PSJdbcRowData> rows = PSDeployComponentUtils.cloneList(srcData.getRows());
 
     if (rows.isEmpty()) // not expecting no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -246,14 +248,14 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
     for (int i = 0; i < rows.size(); i++) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.get(i);
+      PSJdbcRowData srcRow = rows.get(i);
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for COMPPROP_ID and COMPONENT_ID
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(COMPONENT_ID)) {
           if (compMapping != null) col.setValue(compMapping.getTargetId());
