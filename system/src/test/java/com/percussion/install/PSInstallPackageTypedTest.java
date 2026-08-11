@@ -20,13 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.services.security.data.PSCommunity;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Behavioral tests for typed install/upgrade helpers after install-package rawtypes cleanup (#2933
- * / #2877 slice 1).
+ * / #2877 / #2942 upgrade-plugin slices).
  */
 @Tag("UnitTest")
 @DisplayName("install package generics")
@@ -135,5 +138,56 @@ class PSInstallPackageTypedTest {
     assertTrue(RxUpgrade.getResponses().isEmpty());
     Iterator<PSPluginResponse> it = RxUpgrade.getResponses().iterator();
     assertFalse(it.hasNext());
+  }
+
+  @Test
+  @DisplayName("community visibility findCommunitiesToFixNames is typed")
+  void convertCommunityVisibilityFindsNamesWithSpaces() {
+    List<PSCommunity> communities = new ArrayList<>();
+    communities.add(communityWithName("NoSpace"));
+    communities.add(communityWithName("Has Space"));
+    communities.add(communityWithName("Also_Ok"));
+
+    List<PSCommunity> toFix =
+        PSUpgradePluginConvertCommunityVisibility.findCommunitiesToFixNames(communities);
+    assertEquals(1, toFix.size());
+    assertEquals("Has Space", toFix.get(0).getName());
+  }
+
+  @Test
+  @DisplayName("community visibility getCommunityNames returns typed String set")
+  void convertCommunityVisibilityCommunityNames() {
+    List<PSCommunity> communities = new ArrayList<>();
+    communities.add(communityWithName("Alpha"));
+    communities.add(communityWithName("Beta"));
+
+    Set<String> names =
+        PSUpgradePluginConvertCommunityVisibility.getCommunityNames(communities);
+    assertEquals(2, names.size());
+    assertTrue(names.contains("Alpha"));
+    assertTrue(names.contains("Beta"));
+  }
+
+  /** Avoids PSCommunity(String,String) which needs a live guid manager Spring bean. */
+  private static PSCommunity communityWithName(String name) {
+    PSCommunity c = new PSCommunity();
+    c.setName(name);
+    return c;
+  }
+
+  @Test
+  @DisplayName("slot name modifyName collapses spaces for upgrade maps")
+  void slotNameModifyNameTyped() {
+    assertEquals("My_Slot", InstallUtil.modifyName("My Slot"));
+    assertEquals("Already_Ok", InstallUtil.modifyName("Already_Ok"));
+    assertEquals(null, InstallUtil.modifyName(null));
+  }
+
+  @Test
+  @DisplayName("convertSlotName rejects null application")
+  void convertSlotNameNullApp() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSUpgradeDbAndHtmlAndXslFilesForSlotNames.convertSlotName(null));
   }
 }

@@ -213,13 +213,13 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
    *     </code> statements or (2) 0 for SQL statements that return nothing
    * @throws Exception if an error occurs.
    */
-  private int executeUpdate(PrintStream logger, Connection conn, List bindValue, String sqlStmt)
+  private int executeUpdate(PrintStream logger, Connection conn, List<?> bindValue, String sqlStmt)
       throws Exception {
     return executeUpdate(logger, conn, sqlStmt, bindValue.toArray());
   }
 
   /** Convenience method that calls {@link #executeUpdate(null, Connection, List, String)}. */
-  private int executeUpdate(Connection conn, String sqlStmt, List bindValue) throws Exception {
+  private int executeUpdate(Connection conn, String sqlStmt, List<?> bindValue) throws Exception {
     return executeUpdate(null, conn, bindValue, sqlStmt);
   }
 
@@ -427,7 +427,7 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
           if (pubop != null && !pubop.toUpperCase().equals(STATUS_PUBLISH))
             operation = IPSSiteItem.Operation.UNPUBLISH.ordinal();
 
-          List bindValues = new ArrayList();
+          List<Object> bindValues = new ArrayList<>();
           bindValues.add(referenceid);
           bindValues.add(Integer.valueOf(pubstatusval.getPublicationId()));
           bindValues.add(Integer.valueOf(contentid));

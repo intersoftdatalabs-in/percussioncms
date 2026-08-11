@@ -156,22 +156,22 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
       PSJdbcTableSchema paramsSchema) {
     log("Checking for non-unique location schemes so they can be deleted.");
 
-    List schemeIds = new ArrayList();
-    List schemeKeys = new ArrayList();
-    List lsDeleteData = new ArrayList();
-    List paramsDeleteData = new ArrayList();
+    List<String> schemeIds = new ArrayList<>();
+    List<SchemeKey> schemeKeys = new ArrayList<>();
+    List<PSJdbcRowData> lsDeleteData = new ArrayList<>();
+    List<PSJdbcRowData> paramsDeleteData = new ArrayList<>();
     StringBuilder lsDeletedRows = new StringBuilder();
     StringBuilder paramsDeletedRows = new StringBuilder();
     PSJdbcTableData lsData = lsSchema.getTableData();
     PSJdbcTableData paramsData = paramsSchema.getTableData();
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-    Iterator rows = paramsData.getRows();
+    Iterator<PSJdbcRowData> rows = paramsData.getRows();
     PSJdbcRowData tRow = null;
-    Map paramsKeys = new HashMap();
+    Map<String, PSJdbcRowData> paramsKeys = new HashMap<>();
 
     while (rows.hasNext()) {
-      tRow = (PSJdbcRowData) rows.next();
+      tRow = rows.next();
       paramsKeys.put(tRow.getColumn("SCHEMEPARAMID").getValue(), tRow);
     }
 
@@ -183,7 +183,7 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
     SchemeKey sk = null;
 
     while (rows.hasNext()) {
-      tRow = (PSJdbcRowData) rows.next();
+      tRow = rows.next();
       schemeId = tRow.getColumn("SCHEMEID").getValue();
       variantId = tRow.getColumn("VARIANTID").getValue();
       contextId = tRow.getColumn("CONTEXTID").getValue();
@@ -197,17 +197,15 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
                 tRow.toXml(doc), PSXmlDocumentBuilder.FLAG_OMIT_XML_DECL));
         schemeIds.add(schemeId);
 
-        List cols = new ArrayList();
+        List<PSJdbcColumnData> cols = new ArrayList<>();
         cols.add(new PSJdbcColumnData("SCHEMEID", schemeId));
         lsDeleteData.add(new PSJdbcRowData(cols.iterator(), PSJdbcRowData.ACTION_DELETE));
 
         // Setup to delete all LOCATIONSCHEMEPARAMS rows with
         // this SCHEMEID
-        Iterator keys = paramsKeys.keySet().iterator();
-
-        while (keys.hasNext()) {
-          String schemeparamid = (String) keys.next();
-          PSJdbcRowData theRow = (PSJdbcRowData) paramsKeys.get(schemeparamid);
+        for (Map.Entry<String, PSJdbcRowData> keyEntry : paramsKeys.entrySet()) {
+          String schemeparamid = keyEntry.getKey();
+          PSJdbcRowData theRow = keyEntry.getValue();
           String value = theRow.getColumn("SCHEMEID").getValue();
           cols.clear();
 

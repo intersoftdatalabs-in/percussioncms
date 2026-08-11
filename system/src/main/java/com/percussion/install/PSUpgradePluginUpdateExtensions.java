@@ -78,20 +78,20 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
    * @param ifName the interface name that needs to be added, never <code>null</code>
    */
   private void updateExtensions(
-      IPSExtensionManager mgr, String ifPattern, Set extSet, String ifName)
+      IPSExtensionManager mgr, String ifPattern, Set<String> extSet, String ifName)
       throws PSExtensionException {
-    Iterator refs = null;
-    refs = mgr.getExtensionNames("Java", null, ifPattern, null);
+    @SuppressWarnings("rawtypes")
+    Iterator refs = mgr.getExtensionNames("Java", null, ifPattern, null);
     while (refs.hasNext()) {
       PSExtensionRef ref = (PSExtensionRef) refs.next();
       try {
         IPSExtensionDef def = null;
         if (extSet.contains(ref.getExtensionName())) {
           def = mgr.getExtensionDef(ref);
-          Iterator resources = def.getResourceLocations();
+          Iterator<java.net.URL> resources = def.getResourceLocations();
           boolean exists = def.implementsInterface(ifName);
           if (!exists) {
-            Collection ifCol = new ArrayList();
+            Collection<String> ifCol = new ArrayList<>();
             CollectionUtils.addAll(ifCol, def.getInterfaces());
             ifCol.add(ifName);
             ((PSExtensionDef) def).setInterfaces(ifCol);
@@ -219,13 +219,13 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   private IPSUpgradeModule m_config;
 
   /** List of extension names for which a new interface must be added */
-  private Set m_itemValidators = new HashSet();
+  private final Set<String> m_itemValidators = new HashSet<>();
 
   /** List of extension names for which a new interface must be added */
-  private Set m_fieldValidators = new HashSet();
+  private final Set<String> m_fieldValidators = new HashSet<>();
 
   /** List of extension names for which a new interface must be added */
-  private Set m_fieldTransformers = new HashSet();
+  private final Set<String> m_fieldTransformers = new HashSet<>();
 
   /** A string defining the interface that needs to be added */
   private static final String ITEM_VALIDATOR = "com.percussion.extension.IPSItemValidator";

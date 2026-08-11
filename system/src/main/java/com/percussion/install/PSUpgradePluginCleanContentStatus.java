@@ -138,9 +138,9 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
     PSJdbcTableData csData = csSchema.getTableData();
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-    Iterator rows = csData.getRows();
+    Iterator<PSJdbcRowData> rows = csData.getRows();
     PSJdbcRowData tRow = null;
-    Map nullntRows = new HashMap();
+    Map<String, PSJdbcRowData> nullntRows = new HashMap<>();
     String title = "";
     String newTitle = "title_";
     String contentid = "0";
@@ -149,7 +149,7 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
 
     // Scan each row
     while (rows.hasNext()) {
-      tRow = (PSJdbcRowData) rows.next();
+      tRow = rows.next();
       title = tRow.getColumn("TITLE").getValue();
       contentid = tRow.getColumn("CONTENTID").getValue();
 

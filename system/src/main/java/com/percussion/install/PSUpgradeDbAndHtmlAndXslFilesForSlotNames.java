@@ -94,12 +94,12 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     config.getLogStream().println();
     config.getLogStream().println("Running plugin to upgrade slot names to remove blank spaces...");
     config.getLogStream().println();
-    List fileList = null;
+    List<File> fileList = null;
 
     File root = new File(RxUpgrade.getRxRoot());
 
     try {
-      List slotNames = updateLabelsAndLoadSlotNamesFromDatabase(config.getLogStream());
+      List<String> slotNames = updateLabelsAndLoadSlotNamesFromDatabase(config.getLogStream());
       if (slotNames.isEmpty()) {
         config.getLogStream().println("No slot names in the system");
         return null;
@@ -128,9 +128,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       return null;
     }
 
-    Iterator iter = fileList.iterator();
-    while (iter.hasNext()) {
-      File appFile = (File) iter.next();
+    for (File appFile : fileList) {
 
       String fileName = appFile.getName();
       String appFolder = fileName.substring(0, fileName.length() - ".xml".length());
@@ -223,11 +221,11 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    *
    * @param slotNames list of slot names, assumed not null.
    */
-  private void buildNameMapAndArray(List slotNames) {
-    m_oldNewNameMap = new HashMap();
-    Set newNames = new HashSet();
+  private void buildNameMapAndArray(List<String> slotNames) {
+    m_oldNewNameMap = new HashMap<>();
+    Set<String> newNames = new HashSet<>();
     for (int i = 0; i < slotNames.size(); i++) {
-      String oldName = (String) slotNames.get(i);
+      String oldName = slotNames.get(i);
       String newName = InstallUtil.modifyName(oldName);
 
       // Make sure names are unique by appending trialing "X"
@@ -237,21 +235,16 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       m_oldNewNameMap.put(oldName, newName);
     }
 
-    Iterator iter = m_oldNewNameMap.keySet().iterator();
-    while (iter.hasNext()) {
-      String oldName = (String) iter.next();
-      String newName = (String) m_oldNewNameMap.get(oldName);
+    for (Map.Entry<String, String> e : m_oldNewNameMap.entrySet()) {
+      String oldName = e.getKey();
+      String newName = e.getValue();
       if (!oldName.equals(newName)) m_oldNewNameModifiedMap.put(oldName, newName);
     }
 
-    m_sortedSlotNames = (String[]) m_oldNewNameModifiedMap.keySet().toArray(new String[0]);
+    m_sortedSlotNames = m_oldNewNameModifiedMap.keySet().toArray(new String[0]);
     Arrays.sort(
         m_sortedSlotNames,
-        new Comparator() {
-          public int compare(Object o1, Object o2) {
-            return (((String) o2).length() - ((String) o1).length());
-          }
-        });
+        Comparator.comparingInt(String::length).reversed());
   }
 
   /**
@@ -266,18 +259,16 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     if (app == null) throw new IllegalArgumentException("app may not be null");
 
     int convertedSlots = 0;
-    Iterator dataSets = app.getDataSets().iterator();
-    while (dataSets.hasNext()) {
-      PSDataSet dataSet = (PSDataSet) dataSets.next();
+    for (Object dataSetObj : app.getDataSets()) {
+      PSDataSet dataSet = (PSDataSet) dataSetObj;
       PSPipe pipe = dataSet.getPipe();
 
       if (pipe != null) {
         PSExtensionCallSet resultDataExts = pipe.getResultDataExtensions();
 
         if (resultDataExts != null) {
-          Iterator callSet = resultDataExts.iterator();
-          while (callSet.hasNext()) {
-            PSExtensionCall call = (PSExtensionCall) callSet.next();
+          for (Object callObj : resultDataExts) {
+            PSExtensionCall call = (PSExtensionCall) callObj;
 
             if (call.getName().equals("rxs_NavTreeSlotMarker")) {
               PSExtensionParamValue[] values = call.getParamValues();
@@ -313,11 +304,11 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    * @return List of files matching the pattern, may be <code>null</code> or empty.
    * @throws IOException
    */
-  private List getFilesOfType(File folder, String extnPattern) throws IOException {
+  private List<File> getFilesOfType(File folder, String extnPattern) throws IOException {
     if (!folder.isDirectory()) {
       throw new IOException(folder.getAbsolutePath() + " is not a directory");
     }
-    List fileList;
+    List<File> fileList;
     PSPatternMatcher pattern = new PSPatternMatcher('?', '*', extnPattern);
     PSFileFilter filter = new PSFileFilter(PSFileFilter.IS_FILE);
     filter.setNamePattern(pattern);
@@ -351,7 +342,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       throws MalformedURLException, IOException {
     // Upgrade all source Html files
     File srcDir = new File(folder, "src");
-    List htmlFiles = getFilesOfType(folder, "*.htm*");
+    List<File> htmlFiles = getFilesOfType(folder, "*.htm*");
     if (srcDir.exists()) upgradeHtmlFiles(srcDir, testMode, logStream);
     else logStream.println("HTML source directory does not exist.");
     // May be some html files are not in the "src" directory ...
@@ -367,9 +358,9 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     File editDir = new File(folder, "edit");
     if (!editDir.exists()) return;
 
-    List xslFilesToDelete = getFilesOfType(editDir, ".xsl");
+    List<File> xslFilesToDelete = getFilesOfType(editDir, ".xsl");
     for (int i = 0; i < xslFilesToDelete.size(); i++) {
-      File file = (File) xslFilesToDelete.get(i);
+      File file = xslFilesToDelete.get(i);
       logStream.println("Deleting file '" + file.getAbsolutePath() + "'...");
       try {
         file.delete();
@@ -395,9 +386,9 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       throws IOException {
     logStream.println("modifying XSL files from: " + folder.getAbsolutePath() + "directory...");
 
-    List xslFiles = getFilesOfType(folder, "*.xsl");
+    List<File> xslFiles = getFilesOfType(folder, "*.xsl");
     for (int i = 0; i < xslFiles.size(); i++) {
-      File file = (File) xslFiles.get(i);
+      File file = xslFiles.get(i);
       try {
         upgradeFile(file, testMode, logStream);
       } catch (Exception e) {
@@ -421,7 +412,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       throws IOException {
     logStream.println("modifying HTML files from: " + folder.getAbsolutePath() + "directory...");
 
-    List htmlFiles = getFilesOfType(folder, "*.htm*");
+    List<File> htmlFiles = getFilesOfType(folder, "*.htm*");
     for (int i = 0; i < htmlFiles.size(); i++) {
       File file = (File) htmlFiles.get(i);
       try {
@@ -453,8 +444,8 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     StringBuilder sbOld = new StringBuilder();
     StringBuilder sbNew = new StringBuilder();
     List allStartTags = source.findAllStartTags();
-    for (Iterator i = allStartTags.iterator(); i.hasNext(); ) {
-      StartTag sTag = (StartTag) i.next();
+    for (Object tagObj : allStartTags) {
+      StartTag sTag = (StartTag) tagObj;
       Attributes attributes = sTag.getAttributes();
 
       if (attributes == null) continue;
@@ -584,7 +575,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
       int oldNameIndex = valueUpper.indexOf(oldName.toUpperCase());
       if (oldNameIndex != -1) {
         slotNames[0] = value.substring(oldNameIndex, oldNameIndex + oldNameLength);
-        slotNames[1] = (String) m_oldNewNameModifiedMap.get(oldName);
+        slotNames[1] = m_oldNewNameModifiedMap.get(oldName);
         return slotNames;
       }
     }
@@ -597,7 +588,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    * @param logStream print stream for logging, assumed not null.
    * @return List of all slot names in the system, never <code>null</code> may be empty.
    */
-  private static List updateLabelsAndLoadSlotNamesFromDatabase(PrintStream logStream)
+  private static List<String> updateLabelsAndLoadSlotNamesFromDatabase(PrintStream logStream)
       throws Exception {
     logStream.println("Filling empty slot labels...");
     Connection conn = RxUpgrade.getJdbcConnection();
@@ -629,7 +620,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     String queryStmt = "SELECT " + qualTableName + ".SLOTNAME " + "FROM " + qualTableName;
 
     ResultSet rs = stmt.executeQuery(queryStmt);
-    List result = new ArrayList();
+    List<String> result = new ArrayList<>();
     while (rs.next()) result.add(rs.getString("SLOTNAME"));
 
     return result;
@@ -642,7 +633,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    *     be empty.
    * @param logStream print stream for logging, assumed not null.
    */
-  private static void updateSlotNamesInDatabase(Map oldNewNameMap, PrintStream logStream)
+  private static void updateSlotNamesInDatabase(Map<String, String> oldNewNameMap, PrintStream logStream)
       throws Exception {
     logStream.println("Updating slot names with new ones...");
 
@@ -665,10 +656,9 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
             + ".SLOTNAME="
             + "?";
 
-    Iterator iter = oldNewNameMap.keySet().iterator();
-    while (iter.hasNext()) {
-      String oldName = (String) iter.next();
-      String newName = (String) oldNewNameMap.get(oldName);
+    for (Map.Entry<String, String> e : oldNewNameMap.entrySet()) {
+      String oldName = e.getKey();
+      String newName = e.getValue();
       logStream.println("Replacing '" + oldName + "' with '" + newName + "'...");
       PreparedStatement stmt = conn.prepareStatement(updateStmt);
       stmt.setString(1, newName);
@@ -680,7 +670,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /** Set of special app folder names to exclude from upgrade. */
-  private static Set EXCLUDE_APP_SET = new HashSet();
+  private static final Set<String> EXCLUDE_APP_SET = new HashSet<>();
 
   static {
     EXCLUDE_APP_SET.add("Administration");
@@ -691,13 +681,13 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /** Map of old and new slot names, old names being the keys. */
-  private Map m_oldNewNameMap = null;
+  private Map<String, String> m_oldNewNameMap = null;
 
   /** Array of old slot names (modified only) sorted by the length of the string. */
   private String[] m_sortedSlotNames = null;
 
   /** This will be the subset of m_oldNewNameMap in which the key and values are different. */
-  private Map m_oldNewNameModifiedMap = new HashMap();
+  private Map<String, String> m_oldNewNameModifiedMap = new HashMap<>();
 
   /**
    * Name of the property holding the list slot names in the property file {@link
@@ -718,7 +708,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     PSUpgradeDbAndHtmlAndXslFilesForSlotNames plugin =
         new PSUpgradeDbAndHtmlAndXslFilesForSlotNames();
 
-    List fileList = null;
+    List<File> fileList = null;
 
     File root = new File("f:/Rhythmyx");
 
@@ -727,9 +717,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
 
     System.out.println("Running in test mode. Files will not be changed");
 
-    Iterator iter = fileList.iterator();
-    while (iter.hasNext()) {
-      File appFile = (File) iter.next();
+    for (File appFile : fileList) {
 
       String fileName = appFile.getName();
       String appFolder = fileName.substring(0, fileName.length() - ".xml".length());
