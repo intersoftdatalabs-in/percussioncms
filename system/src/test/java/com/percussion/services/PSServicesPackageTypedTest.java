@@ -90,6 +90,26 @@ class PSServicesPackageTypedTest {
   }
 
   @Test
+  @DisplayName("PSContentNode getIndex: parent null → 0; empty same-name list → -1")
+  void contentNodeGetIndexMissingChildSentinel() throws Exception {
+    // Root / no parent: index is 0 (JCR single-root convention).
+    PSContentNode root = new PSContentNode(null, "root", null, null, null, null);
+    root.setChildrenLoaded(true);
+    assertEquals(0, root.getIndex());
+
+    // Child present under parent has same-name-sibling index 0.
+    Node child = root.addNode("solo");
+    assertEquals(0, ((PSContentNode) child).getIndex());
+
+    // Parent map has no entries for this name: MultiValuedMap#get yields an empty
+    // collection (not null). Pre-generics code then did indexOf → -1; do not force 0.
+    PSContentNode parent = new PSContentNode(null, "p", null, null, null, null);
+    parent.setChildrenLoaded(true);
+    PSContentNode ghost = new PSContentNode(null, "ghost", parent, null, null, null);
+    assertEquals(-1, ghost.getIndex());
+  }
+
+  @Test
   @DisplayName("PSAssemblyWorkItem.getMetaData reads typed $sys map")
   void assemblyWorkItemTypedSysMetadata() {
     PSAssemblyWorkItem item = new PSAssemblyWorkItem();

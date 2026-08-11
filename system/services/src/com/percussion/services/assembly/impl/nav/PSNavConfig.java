@@ -1213,10 +1213,14 @@ public class PSNavConfig
     *
     * @return the cache key, never <code>null</code> or empty.
     */
+   /**
+    * Read a String parameter from an internal-request map. Values must be
+    * {@link String} (or null) — same contract as the pre-generics cast so
+    * non-String entries still fail with {@link ClassCastException}.
+    */
    private static String stringParam(Map<String, ?> params, String key)
    {
-      Object v = params.get(key);
-      return v == null ? null : v.toString();
+      return (String) params.get(key);
    }
 
    private String getNavTreeKeyXML(Map<String, ?> intParams)
