@@ -72,8 +72,10 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
     >
       <header className={styles.header}>
         <div className={styles.headerRow}>
-          <h1>{message(WF_ADMIN_MSG.TITLE)}</h1>
-          {/* Admin tools is top-nav landing (#2784); keep cross-link when deep-linked here. */}
+          <h1 data-testid="perc-workflow-admin-shell-title">
+            {message(WF_ADMIN_MSG.TITLE)}
+          </h1>
+          {/* Admin tools is top-nav landing (#2784/#2953); cross-link when deep-linked here. */}
           <Link
             to="/admin"
             className={styles.siblingLink}
