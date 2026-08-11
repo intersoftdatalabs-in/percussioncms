@@ -351,7 +351,7 @@ public class PSExtensionInstallTool {
    * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
    *     defined extension will not be installed.
    */
-  public void installExtension(IPSExtensionDef def, Iterator resources)
+  public void installExtension(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
     if (!m_extMgr.exists(def.getRef())) {
       log.info("Installing extension: {} ", def.getRef().toString());

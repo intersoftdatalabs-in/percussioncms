@@ -143,7 +143,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    *
    * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRefs.
    */
-  public Iterator getExtensionNames() {
+  public Iterator<PSExtensionRef> getExtensionNames() {
     checkState();
     return m_config.getExtensionNames();
   }
@@ -156,7 +156,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    *     null</CODE> if the given context does not exist in this handler.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public Iterator getExtensionNames(String context) {
+  public Iterator<PSExtensionRef> getExtensionNames(String context) {
     checkState();
     return m_config.getExtensionNames(context);
   }
@@ -199,7 +199,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
        * the first time we load it and the resources are not part of the
        * def.  From now on they will be saved with the def.
        */
-      Iterator resources = def.getSuppliedResources();
+      Iterator<URL> resources = def.getSuppliedResources();
       if (resources == null) {
         // catalog them
         resources = getResources(def);
@@ -285,7 +285,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @throws PSExtensionException If the extension is invalid.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public synchronized void install(IPSExtensionDef def, Iterator resources)
+  public synchronized void install(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException {
     checkState();
 
@@ -350,7 +350,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @see #remove
    * @see #install
    */
-  public synchronized void update(IPSExtensionDef def, Iterator resources)
+  public synchronized void update(IPSExtensionDef def, Iterator<?> resources)
       throws PSExtensionException, PSNotFoundException {
     checkState();
 
@@ -555,7 +555,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    */
   protected Properties createInitProps(IPSExtensionDef def) {
     Properties props = new Properties();
-    for (Iterator i = def.getInitParameterNames(); i.hasNext(); ) {
+    for (Iterator<String> i = def.getInitParameterNames(); i.hasNext(); ) {
       String name = i.next().toString();
       props.setProperty(name, def.getInitParameter(name));
     }
@@ -620,7 +620,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @throws PSExtensionException If the code base could not be obtained or if another error
    *     occurred with the resources.
    */
-  private void saveResources(IPSExtensionDef def, Iterator resources)
+  private void saveResources(IPSExtensionDef def, Iterator<?> resources)
       throws IOException, PSExtensionException {
     File dir = getCodeBase(def);
 
@@ -639,7 +639,12 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
     }
 
     while (resources.hasNext()) {
-      IPSMimeContent resource = (IPSMimeContent) resources.next();
+      Object next = resources.next();
+      if (!(next instanceof IPSMimeContent)) {
+        // Legacy call sites may pass empty/non-mime iterators; skip non-mime entries.
+        continue;
+      }
+      IPSMimeContent resource = (IPSMimeContent) next;
       String resName = resource.getName();
       if (resName == null || resName.length() == 0) {
         Object[] args =
@@ -703,8 +708,8 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @throws PSExtensionException If an error occurred during processing.
    */
   private void processPendingRemovals() throws PSExtensionException, IOException {
-    for (Iterator i = m_config.getPendingRemovals(); i.hasNext(); ) {
-      File remove = (File) i.next();
+    for (Iterator<File> i = m_config.getPendingRemovals(); i.hasNext(); ) {
+      File remove = i.next();
 
       // ensure that this file is under the handler root
       if (!isWithinRoot(remove)) {

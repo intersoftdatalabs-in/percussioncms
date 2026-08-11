@@ -94,8 +94,7 @@ abstract public class PSWebdavComponent implements IPSWebdavComponent
     * validation exceptions.
     * @param captureList the capture list, cannot be <code>null</code>.
     */
-   @SuppressWarnings({"rawtypes", "unchecked"})
-   protected void setValidationExceptionsList(List captureList)
+   protected void setValidationExceptionsList(List<Object> captureList)
    {
       if(captureList == null)
          throw new IllegalArgumentException("Capture list cannot be null.");
@@ -107,8 +106,7 @@ abstract public class PSWebdavComponent implements IPSWebdavComponent
     * validation.
     * @return list of exceptions, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("rawtypes")
-   public List getValidationExceptionsList()
+   public List<Object> getValidationExceptionsList()
    {
       return m_validationExceptions;
    }
@@ -124,8 +122,7 @@ abstract public class PSWebdavComponent implements IPSWebdavComponent
     * Historically holds either {@link PSWebdavException} instances or String
     * messages depending on capture caller (validator vs component parse).
     */
-   @SuppressWarnings("rawtypes")
-   protected List m_validationExceptions = new ArrayList();
+   protected List<Object> m_validationExceptions = new ArrayList<>();
 
 
 }

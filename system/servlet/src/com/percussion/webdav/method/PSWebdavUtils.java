@@ -110,7 +110,6 @@ public class PSWebdavUtils
     *
     * @throws PSCmsException if error occurs.
     */
-   @SuppressWarnings(value={"unchecked"})
    public static void addToParentFolder(
       PSLocator child,
       PSLocator parent,
@@ -130,7 +129,7 @@ public class PSWebdavUtils
             remoteRequester,
             PSWebdavMethod.FOLDER_TYPE);
             
-      List children = new ArrayList();
+      List<PSLocator> children = new ArrayList<>();
       children.add(child);
       
       proxy.add(
@@ -266,10 +265,9 @@ public class PSWebdavUtils
     * 
     * @throws PSWebdavException if any other error occurs.
     */   
-   @SuppressWarnings(value={"unchecked"})
    public static PSFolder createFolder(
       String folderName,
-      Iterator excludeProperties,
+      Iterator<String> excludeProperties,
       PSLocator parentLocator,
       IPSRemoteRequester remoteRequester)
       throws PSWebdavException
@@ -297,7 +295,7 @@ public class PSWebdavUtils
          folder.setName(folderName);
          folder.setDescription("");
          while (excludeProperties.hasNext())
-            folder.deleteProperty((String)excludeProperties.next());
+            folder.deleteProperty(excludeProperties.next());
          
          PSSaveResults results = compProxy.save(new IPSDbComponent[] {folder});
          folder = (PSFolder) results.getResults()[0];
@@ -366,7 +364,6 @@ public class PSWebdavUtils
     * 
     * @throws PSCmsException if error occurs.
     */   
-   @SuppressWarnings(value={"unchecked"})
    public static void addToParentFolder(
       PSComponentSummary parent,
       PSLocator locator,
@@ -382,7 +379,7 @@ public class PSWebdavUtils
          
       PSRelationshipProcessorProxy proxy = new PSRelationshipProcessorProxy(
          PSRelationshipProcessorProxy.PROCTYPE_REMOTE, remoteRequester);
-      List children = new ArrayList();
+      List<PSLocator> children = new ArrayList<>();
       
       children.add(locator);
       proxy.add(

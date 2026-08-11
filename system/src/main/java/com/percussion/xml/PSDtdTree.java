@@ -1878,7 +1878,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /* Want to traverse all the elements?  Go key by key... */
-  public Iterator elementKeyIterator() {
+  public Iterator<String> elementKeyIterator() {
     if (m_elements == null) return null;
     else return m_elements.keySet().iterator();
   }

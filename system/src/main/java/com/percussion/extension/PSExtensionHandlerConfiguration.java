@@ -128,10 +128,14 @@ class PSExtensionHandlerConfiguration {
    *
    * @return An Iterator over 0 or more PSExtensionRef objects. Never <CODE>null</CODE>.
    */
-  public Iterator getExtensionNames() {
-    Collection names = new LinkedList();
-    for (Iterator i = getExtensionContexts(); i.hasNext(); ) {
-      for (Iterator j = getExtensionNames((String) i.next()); j.hasNext(); ) {
+  public Iterator<PSExtensionRef> getExtensionNames() {
+    Collection<PSExtensionRef> names = new LinkedList<>();
+    for (Iterator<String> i = getExtensionContexts(); i.hasNext(); ) {
+      Iterator<PSExtensionRef> j = getExtensionNames(i.next());
+      if (j == null) {
+        continue;
+      }
+      while (j.hasNext()) {
         names.add(j.next());
       }
     }
@@ -146,7 +150,7 @@ class PSExtensionHandlerConfiguration {
    * @return An Iterator over 0 or more PSExtensionRef objects. Could be <CODE>null</CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  public Iterator getExtensionNames(String context) {
+  public Iterator<PSExtensionRef> getExtensionNames(String context) {
     if (!PSExtensionRef.isValidContext(context)) {
       throw new IllegalArgumentException("\"" + context + "\" is not a valid context.");
     }
@@ -169,7 +173,7 @@ class PSExtensionHandlerConfiguration {
    *     this handler. Never <CODE>null</CODE>.
    * @see PSExtensionRef#getContext
    */
-  public Iterator getExtensionContexts() {
+  public Iterator<String> getExtensionContexts() {
     return m_extensionContexts.keySet().iterator();
   }
 
@@ -710,15 +714,15 @@ class PSExtensionHandlerConfiguration {
       root.setAttribute("handlerName", m_handlerName);
     }
 
-    for (Iterator i = getPendingRemovals(); i.hasNext(); ) {
-      File f = (File) i.next();
+    for (Iterator<File> i = getPendingRemovals(); i.hasNext(); ) {
+      File f = i.next();
       Element e = PSXmlDocumentBuilder.addEmptyElement(doc, root, "pendingRemoval");
 
       e.setAttribute("name", f.toString());
     }
 
-    for (Iterator i = getExtensionNames(); i.hasNext(); ) {
-      IPSExtensionDef def = getExtensionDef((PSExtensionRef) i.next());
+    for (Iterator<PSExtensionRef> i = getExtensionNames(); i.hasNext(); ) {
+      IPSExtensionDef def = getExtensionDef(i.next());
       m_defFactory.toXml(root, def, excludeMethods);
     }
 

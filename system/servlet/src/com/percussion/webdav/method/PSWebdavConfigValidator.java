@@ -77,7 +77,11 @@ public class PSWebdavConfigValidator
     * List of String exception msgs generated during the 
     * validation routines
     */
-   List<String> m_exceptionsList = new ArrayList<>();
+   /**
+    * Validation errors: resource strings and/or {@link PSWebdavException}
+    * instances captured from config parsing.
+    */
+   List<Object> m_exceptionsList = new ArrayList<>();
 
    /**
     * List of String warning msgs generated during the 
@@ -151,7 +155,7 @@ public class PSWebdavConfigValidator
     * 
     * @throws ServletException if an error occurs
     */
-   public void validate(InputStream in, Iterator paths) throws ServletException
+   public void validate(InputStream in, Iterator<String> paths) throws ServletException
    {
       if (in == null)
          throw new IllegalArgumentException(
@@ -181,7 +185,7 @@ public class PSWebdavConfigValidator
          validateContentTokens(config);
 
          // Validate community agaist the CMS
-         List validComms = agent.getCommunities();
+         List<PSEntry> validComms = agent.getCommunities();
          PSEntry commEntry = isValidCommunityID(validComms, config
                .getCommunityId(), config.getCommunityName());
 
@@ -189,14 +193,14 @@ public class PSWebdavConfigValidator
          // mimetypes & fields
          if (commEntry != null)
          {
-            List validTypeList = agent.getContentTypes(commEntry);
-            List supportedTypes = PSIteratorUtils.cloneList(config
+            List<PSEntry> validTypeList = agent.getContentTypes(commEntry);
+            List<PSWebdavContentType> supportedTypes = PSIteratorUtils.cloneList(config
                   .getContentTypes());
             validateAllContentTypes(validTypeList, supportedTypes);
          }
 
          // Write out error messages
-         Iterator exceptions = m_exceptionsList.iterator();
+         Iterator<Object> exceptions = m_exceptionsList.iterator();
          if (m_exceptionsList.size() > 0)
             m_out.write("<h4>" + getResourceString("msg.errors.found")
                   + "</h4>");
@@ -210,7 +214,7 @@ public class PSWebdavConfigValidator
                log.error("WebDAV config validation error: {}", PSExceptionUtils.getMessageForLog(ex));
                writeError(ERROR);
             }
-            else if (obj instanceof String)
+            else
             {
                log.error("WebDAV config validation error: {}", obj);
                writeError(ERROR);
@@ -218,14 +222,13 @@ public class PSWebdavConfigValidator
          }
 
          // Write out warnings
-         Iterator warnings = m_warningsList.iterator();
+         Iterator<String> warnings = m_warningsList.iterator();
          if (m_warningsList.size() > 0)
             m_out.write("<h4>" + getResourceString("msg.warnings.found")
                   + "</h4>");
          while (warnings.hasNext())
          {
-            Object w = warnings.next();
-            log.warn("WebDAV config validation warning: {}", w);
+            log.warn("WebDAV config validation warning: {}", warnings.next());
             writeError(WARNING);
          }
 
@@ -309,15 +312,15 @@ public class PSWebdavConfigValidator
     * @return PSEntry community if a match is found
     *         return will be <code>null</code> if the selectedID is invalid
     */
-   public PSEntry isValidCommunityID(List validComms, int selectedID, String name)
+   public PSEntry isValidCommunityID(List<PSEntry> validComms, int selectedID, String name)
    {
       boolean isValid = false;
-      Iterator it = validComms.iterator();
+      Iterator<PSEntry> it = validComms.iterator();
       PSEntry commEntry = null;
       
       while (it.hasNext())
       {
-         commEntry = (PSEntry) it.next();
+         commEntry = it.next();
          if (commEntry.getValue().equals(Integer.toString(selectedID)))
          {
             isValid = true;
@@ -348,16 +351,16 @@ public class PSWebdavConfigValidator
     * @return PSEntry ctype if the name and id of PSWebdavContentType type
     *          are valid, otherwise <code>null</code>
     */
-   private PSEntry validateAContentType(List validTypes, PSWebdavContentType type)
+   private PSEntry validateAContentType(List<PSEntry> validTypes, PSWebdavContentType type)
    {
       PSEntry ctEntry = null;
       boolean isValid = false;
 
       // Does this content type id exist in the CMS?
-      Iterator vTypes = validTypes.iterator();
+      Iterator<PSEntry> vTypes = validTypes.iterator();
       while (vTypes.hasNext())
       {
-         ctEntry = (PSEntry) vTypes.next();
+         ctEntry = vTypes.next();
          if (ctEntry.getValue().equals(Long.toString(type.getId())))
          {
             isValid = true;
@@ -387,7 +390,7 @@ public class PSWebdavConfigValidator
     * @throws PSRemoteException  on error
     *           
     */
-   public void validateAllContentTypes(List validTypes, List ConfigedTypes)
+   public void validateAllContentTypes(List<PSEntry> validTypes, List<PSWebdavContentType> ConfigedTypes)
          throws PSRemoteException
    {
       if (validTypes == null)
@@ -396,11 +399,11 @@ public class PSWebdavConfigValidator
          throw new IllegalArgumentException("ConfigedTypes may not be null");
       PSEntry ctEntry = null;
       boolean isValid = false;
-      Iterator walker = ConfigedTypes.iterator();
+      Iterator<PSWebdavContentType> walker = ConfigedTypes.iterator();
       while (walker.hasNext())
       {
          boolean contentTypeExists = false;
-         PSWebdavContentType type = (PSWebdavContentType) walker.next();
+         PSWebdavContentType type = walker.next();
 
          // Does this content type id exist in the CMS?
          ctEntry = validateAContentType(validTypes, type);
@@ -435,7 +438,7 @@ public class PSWebdavConfigValidator
    {
       // Check for fields
       PSClientItem clientItem = getRemoteAgent().newItem(ctEntry.getValue());
-      List fieldNames = PSIteratorUtils
+      List<String> fieldNames = PSIteratorUtils
             .cloneList(clientItem.getAllFieldNames());
 
       // Does contentfield exist?
@@ -455,11 +458,10 @@ public class PSWebdavConfigValidator
 
       }
       // Check field names in all properties
-      Iterator props = ctType.getMappings();
+      Iterator<PSPropertyFieldNameMapping> props = ctType.getMappings();
       while (props.hasNext())
       {
-         PSPropertyFieldNameMapping prop = (PSPropertyFieldNameMapping) props
-               .next();
+         PSPropertyFieldNameMapping prop = props.next();
          if (!fieldNames.contains(prop.getFieldName()))
          {
             m_exceptionsList.add(getResourceString("error.bad.fieldname",
@@ -491,7 +493,7 @@ public class PSWebdavConfigValidator
 
       // validates field rules
       PSItemDefinition itemDef = clientItem.getItemDefinition();
-      Iterator psFields = itemDef.getMappedParentFields().iterator();
+      Iterator<PSField> psFields = itemDef.getMappedParentFields().iterator();
 
       // get the excluded field names, which include the value of the fields
       // are set by WebDAV or the Backend server.
@@ -511,7 +513,7 @@ public class PSWebdavConfigValidator
 
       while (psFields.hasNext())
       {
-         PSField field = (PSField) psFields.next();
+         PSField field = psFields.next();
 
          PSFieldValidationRules rules = field.getValidationRules();
          fieldName = field.getSubmitName();
@@ -529,28 +531,28 @@ public class PSWebdavConfigValidator
     * 
     * @param contentTypes List of PSWebdavContentType supported by this servlet
     */
-   void validateMimeTypes(List contentTypes)
+   void validateMimeTypes(List<PSWebdavContentType> contentTypes)
    {
       PSWebdavContentType contentType = null;
 
-      Set allMimeTypes = new HashSet();
-      Iterator ctWalker = contentTypes.iterator();
+      Set<String> allMimeTypes = new HashSet<>();
+      Iterator<PSWebdavContentType> ctWalker = contentTypes.iterator();
       while (ctWalker.hasNext())
       {
-         contentType = (PSWebdavContentType) ctWalker.next();
+         contentType = ctWalker.next();
          if (contentType.isDefault())
             continue; // ignore the default
          
          // for each content type, put all mime types into a set to dedup
-         Set mimeTypeSet = new HashSet();
-         List mimeTypes = PSIteratorUtils.cloneList(contentType.getMimeTypes());
+         Set<String> mimeTypeSet = new HashSet<>();
+         List<String> mimeTypes = PSIteratorUtils.cloneList(contentType.getMimeTypes());
          mimeTypeSet.addAll(mimeTypes);
          
          // make sure the mime types are unique
-         Iterator mtWalker = mimeTypeSet.iterator();
+         Iterator<String> mtWalker = mimeTypeSet.iterator();
          while (mtWalker.hasNext())
          {
-            String mimetype = (String) mtWalker.next();
+            String mimetype = mtWalker.next();
             if (allMimeTypes.contains(mimetype))
             {
                m_exceptionsList.add(getResourceString("error.mimetype.overlap",
@@ -574,13 +576,13 @@ public class PSWebdavConfigValidator
     *          nor contains any other registered servlet root paths.
     *          <code>false</code> otherwise.
     */
-   private boolean checkNestedRootPaths(String me, Iterator it)
+   private boolean checkNestedRootPaths(String me, Iterator<String> it)
    {
       boolean status = false;
 
       while (it.hasNext())
       {
-         String apath = (String) it.next();
+         String apath = it.next();
          if ((apath.indexOf(me) != -1) || (me.indexOf(apath) != -1))
          {
             m_exceptionsList.add(getResourceString("error.nested.root",
@@ -714,7 +716,7 @@ public class PSWebdavConfigValidator
     * A list of system field names that will be excluded during validating field
     * rules.
     */
-   private static List ms_excludeSysFieldRules = new ArrayList();
+   private static List<String> ms_excludeSysFieldRules = new ArrayList<>();
    static
    {
       ms_excludeSysFieldRules.add("sys_title");

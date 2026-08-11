@@ -59,7 +59,7 @@ public class PSWebdavContentType
     * @throws PSWebdavException if an error occurs while creating this object
     * from xml.
     */
-   public PSWebdavContentType(Element src, boolean capture, List captureList)
+   public PSWebdavContentType(Element src, boolean capture, List<Object> captureList)
       throws PSWebdavException, PSUnknownNodeTypeException
    {
       setValidationExceptionCapture(capture);
@@ -102,7 +102,7 @@ public class PSWebdavContentType
     * @return iterator of <code>PSPropertyFieldNameMapping</code> objects.
     *     Never <code>null</code>, may be empty.
     */
-   public Iterator getMappings()
+   public Iterator<PSPropertyFieldNameMapping> getMappings()
    {
       return m_mappings.iterator();
    }
@@ -113,7 +113,7 @@ public class PSWebdavContentType
     * @return An collection over zero or more <code>PSPropertyFieldNameMapping
     *    </code> objects. Never <code>null</code>, may by empty.
     */
-   public Collection getMappingList()
+   public Collection<PSPropertyFieldNameMapping> getMappingList()
    {
       return m_mappings;
    }
@@ -495,13 +495,13 @@ public class PSWebdavContentType
    /**
     * The default property and field name mappings list.
     */
-   public final static List DEFAULT_MAPPING_LIST = Collections.unmodifiableList(
+   public final static List<PSPropertyFieldNameMapping> DEFAULT_MAPPING_LIST = Collections.unmodifiableList(
       Arrays.asList(DEFAULT_MAPPINGS)); 
       
    /**
     * The property-field name mapping list for folder component
     */
-   public final static List FOLDER_MAPPING_LIST = Collections.unmodifiableList(
+   public final static List<PSPropertyFieldNameMapping> FOLDER_MAPPING_LIST = Collections.unmodifiableList(
       Arrays.asList(DEFAULT_MAPPINGS)); 
    /**
     * The id of the content type in Rhythmyx
@@ -530,13 +530,13 @@ public class PSWebdavContentType
     * Collection of supported mime types for a Rhythmyx content type
     * Never <code>null</code>, may be empty.
     */
-   private Collection m_mimetypes = new ArrayList();
+   private Collection<String> m_mimetypes = new ArrayList<>();
 
    /**
     * Collection of property-field mappings for this content type
     * Never <code>null</code>, may be empty.
     */
-   private Collection m_mappings = new ArrayList();
+   private Collection<PSPropertyFieldNameMapping> m_mappings = new ArrayList<>();
 
    /**
     * The property and field name map. The key of the map is the property
