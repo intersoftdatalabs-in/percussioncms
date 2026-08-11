@@ -134,12 +134,11 @@ public class PSPagedRequestLinkGenerator {
         buf.append(nextParamMarker);
         nextParamMarker = '&';
 
-        Object rawVal = params.get(key);
-        String val = rawVal == null ? null : rawVal.toString();
-        buf.append(
-            PSURLEncoder.encodeQuery(key)
-                + "="
-                + ((val == null) ? "" : PSURLEncoder.encodeQuery(val)));
+        // Historical Map values are Strings; cast preserves ClassCastException for
+        // non-String entries (pre-rawtypes cleanup). Null values intentionally
+        // encode as empty (key=) via the ternary — never encodeQuery(null).
+        String val = (String) params.get(key);
+        appendEncodedQueryParam(buf, key, val);
       }
     }
 
@@ -148,6 +147,27 @@ public class PSPagedRequestLinkGenerator {
     buf.append(PSResultSetXmlConverter.FIRST_QUERY_INDEX_PARAMETER_NAME + "=" + startAt);
 
     return buf.toString();
+  }
+
+  /**
+   * Append {@code key=value} with URL encoding. Null {@code val} yields an empty
+   * value (legacy pagination link behavior); non-null values are query-encoded.
+   *
+   * <p>Package-visible for unit tests documenting the null→empty contract after
+   * rawtypes cleanup (#2760 / PR review).
+   *
+   * @param buf destination buffer (not null)
+   * @param key parameter name (not null)
+   * @param val parameter value, or {@code null} for empty value
+   */
+  static void appendEncodedQueryParam(StringBuilder buf, String key, String val) {
+    buf.append(PSURLEncoder.encodeQuery(key));
+    buf.append('=');
+    if (val == null) {
+      // empty value — same as pre-generics ternary ((val == null) ? "" : encode)
+      return;
+    }
+    buf.append(PSURLEncoder.encodeQuery(val));
   }
 
   int m_type;
