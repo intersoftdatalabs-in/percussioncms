@@ -39,7 +39,7 @@ import org.w3c.dom.Text;
  * and provide an easy lookup access to the desired search or view. Searches are stored using the
  * unique search id.
  */
-public class PSSearchViewCatalog {
+public final class PSSearchViewCatalog {
   /**
    * Constructs the catalog and loads all available searches and views.
    *
@@ -62,6 +62,7 @@ public class PSSearchViewCatalog {
     m_proxy = proxy;
 
     m_isFtsEnabled = isFtsAvailable;
+    // Class is final; load after fields are assigned so this-escape is intentional post-init.
     loadSearches();
   }
 
@@ -84,8 +85,9 @@ public class PSSearchViewCatalog {
       /* Remember the empty search to preserve changes the user may have
        * made.
        */
-      Object emptySearch = m_searches.get(EMPTY_SEARCHID);
+      PSSearch emptySearch = m_searches.get(EMPTY_SEARCHID);
       m_searches.clear();
+      // Preserve prior empty-search entry (value may be null on first load)
       m_searches.put(EMPTY_SEARCHID, emptySearch);
       m_rcSearch = null;
 
@@ -147,7 +149,7 @@ public class PSSearchViewCatalog {
     if (searchid == null || searchid.trim().length() == 0)
       throw new IllegalArgumentException("searchid may not be null or empty.");
 
-    return (PSSearch) m_searches.get(searchid);
+    return m_searches.get(searchid);
   }
 
   /**
@@ -193,9 +195,9 @@ public class PSSearchViewCatalog {
       // Add to the catalog
       m_searches.put("contentidinternalsearch", rval);
     } else {
-      Iterator iter = rval.getFields();
+      Iterator<PSSearchField> iter = rval.getFields();
       while (iter.hasNext()) {
-        PSSearchField sField = (PSSearchField) iter.next();
+        PSSearchField sField = iter.next();
         if (sField.getFieldName().equals(IPSConstants.PROPERTY_CONTENTID)) {
           sField.setFieldValue(PSSearchField.OP_EQUALS, contentid);
         }
@@ -289,12 +291,12 @@ public class PSSearchViewCatalog {
    * @see java.lang.Object#toString()
    */
   public String toString() {
-    StringBuffer rval = new StringBuffer(80);
+    StringBuilder rval = new StringBuilder(80);
     rval.append("PSSearchViewCatalog: ");
-    Iterator iter = m_searches.values().iterator();
+    Iterator<PSSearch> iter = m_searches.values().iterator();
     while (iter.hasNext()) {
-      PSSearch search = (PSSearch) iter.next();
-      rval.append(search.getLocator().getPart() + "(" + search.getDisplayName() + ")");
+      PSSearch search = iter.next();
+      rval.append(search.getLocator().getPart()).append('(').append(search.getDisplayName()).append(')');
       if (iter.hasNext()) rval.append(", ");
     }
     return rval.toString();
@@ -304,7 +306,7 @@ public class PSSearchViewCatalog {
    * Registry of all search view objects cataloged, setup as part of search loading and never <code>
    * null</code>, empty after that.
    */
-  private Map m_searches = new HashMap();
+  private final Map<String, PSSearch> m_searches = new HashMap<>();
 
   /**
    * Holds a reference to the first related content search found. Initialized in {@link

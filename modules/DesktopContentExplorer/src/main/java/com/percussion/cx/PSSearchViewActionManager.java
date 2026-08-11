@@ -143,7 +143,7 @@ public class PSSearchViewActionManager {
     PSSearch contentItemSearch;
     try {
       contentItemSearch = m_searchViewCatalog.getContentIdSearch(contentid);
-      searchNode.setSearchId(m_searchViewCatalog.getSearchId(contentItemSearch));
+      searchNode.setSearchId(PSSearchViewCatalog.getSearchId(contentItemSearch));
       setAsInitialized(searchNode);
     } catch (PSCmsException e) {
       throw new RuntimeException("Severe error while creating adhoc search", e);
@@ -237,23 +237,20 @@ public class PSSearchViewActionManager {
    *     <code>empty</code>.
    * @throws PSCmsException if an error happens while processing the request.
    */
-  public void delete(Iterator nodeList) throws PSCmsException {
+  public void delete(Iterator<? extends PSNode> nodeList) throws PSCmsException {
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
     if (nodeList.hasNext()) {
-      PSNode node = null;
-      String searchid = null;
-      List list = new ArrayList();
-      PSSearch searchObj = null;
+      List<PSSearch> list = new ArrayList<>();
       while (nodeList.hasNext()) {
-        node = (PSNode) nodeList.next();
-        searchid = node.getProperties().getProperty(IPSConstants.PROPERTY_SEARCHID);
+        PSNode node = nodeList.next();
+        String searchid = node.getProperties().getProperty(IPSConstants.PROPERTY_SEARCHID);
         if (searchid == null || searchid.trim().length() < 1) continue;
-        searchObj = m_searchViewCatalog.getSearchById(searchid);
+        PSSearch searchObj = m_searchViewCatalog.getSearchById(searchid);
         if (searchObj != null) list.add(searchObj);
       }
       // Convert the list to array
-      PSSearch comp[] = (PSSearch[]) list.toArray(new PSSearch[list.size()]);
+      PSSearch[] comp = list.toArray(new PSSearch[0]);
       m_proxy.delete(comp);
     }
   }
@@ -301,9 +298,9 @@ public class PSSearchViewActionManager {
       throw new IllegalArgumentException("formatid may not be null or empty.");
 
     PSDisplayFormat match = null;
-    Iterator iter = getDisplayFormats();
+    Iterator<PSDisplayFormat> iter = getDisplayFormats();
     while (iter.hasNext()) {
-      PSDisplayFormat format = (PSDisplayFormat) iter.next();
+      PSDisplayFormat format = iter.next();
       String id = String.valueOf(format.getDisplayId());
       if (id.equals(formatid)) {
         match = format;
@@ -311,7 +308,7 @@ public class PSSearchViewActionManager {
       }
     }
 
-    if (match == null && getDefault) match = (PSDisplayFormat) getDisplayFormats().next();
+    if (match == null && getDefault) match = getDisplayFormats().next();
 
     return match;
   }
@@ -335,7 +332,7 @@ public class PSSearchViewActionManager {
    * @throws PSCmsException if an error occurs while loading the search results.
    * @throws PSContentExplorerException if an error happens executing search.
    */
-  public Iterator loadChildren(PSNode searchNode)
+  public Iterator<PSNode> loadChildren(PSNode searchNode)
       throws PSCmsException, PSContentExplorerException {
     if (searchNode == null || !searchNode.isSearchType()) {
       throw new IllegalArgumentException(
@@ -343,8 +340,7 @@ public class PSSearchViewActionManager {
     }
 
     // Call listeners for start of search
-    for (Iterator iter = m_searchListenerList.iterator(); iter.hasNext(); ) {
-      IPSSearchListener listener = (IPSSearchListener) iter.next();
+    for (IPSSearchListener listener : m_searchListenerList) {
       listener.searchInitiated(searchNode);
     }
 
@@ -391,16 +387,14 @@ public class PSSearchViewActionManager {
               // For custom searches we always post the parameters as input XML
               // document
               if (search.isCustomSearch()) {
-                Map namevalues = new HashMap();
-                Iterator fields = search.getFields();
-                PSSearchField field = null;
-                Object obj = null;
+                Map<String, Object> namevalues = new HashMap<>();
+                Iterator<PSSearchField> fields = search.getFields();
                 while (fields.hasNext()) {
-                  field = (PSSearchField) fields.next();
-                  obj = field.getFieldValues();
-                  // Do not include any null or empty fields
-                  if (obj != null && obj.toString().trim().length() > 0) {
-                    namevalues.put(field.getFieldName(), field.getFieldValues());
+                  PSSearchField field = fields.next();
+                  List<String> values = field.getFieldValues();
+                  // Do not include any null or empty fields (preserve historic List#toString check)
+                  if (values != null && values.toString().trim().length() > 0) {
+                    namevalues.put(field.getFieldName(), values);
                     namevalues.put(
                         field.getFieldName() + PSHtmlParamDocument.OPERATOR_SUFFIX,
                         field.getOperator());
@@ -415,7 +409,7 @@ public class PSSearchViewActionManager {
                 PSHtmlParamDocument paramDoc = new PSHtmlParamDocument(namevalues);
                 result = m_applet.getActionManager().postXmlData(sUrl, paramDoc.getXmlString());
               } else {
-                Map params = new HashMap();
+                Map<String, Object> params = new HashMap<>();
                 result = m_applet.getActionManager().postData(sUrl, params);
               }
             } catch (PSException e) {
@@ -424,8 +418,8 @@ public class PSSearchViewActionManager {
             resultDoc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(result), false);
             NodeList nl = resultDoc.getElementsByTagName("Item");
             Element item = null;
-            Set idList = new HashSet();
-            Set typeList = new HashSet();
+            Set<Integer> idList = new HashSet<>();
+            Set<Integer> typeList = new HashSet<>();
             String temp = null;
             for (int i = 0; nl != null && i < nl.getLength(); i++) {
               String typeid;
@@ -444,14 +438,8 @@ public class PSSearchViewActionManager {
               searchNode.setChildren(Collections.emptyIterator());
               return searchNode.getChildren();
             }
-            List<Integer> retIdList = new ArrayList<>();
-            for (Object idObj : idList) {
-              retIdList.add((Integer) idObj);
-            }
-            Collection<Integer> typeIds = new ArrayList<>();
-            for (Object typeObj : typeList) {
-              typeIds.add((Integer) typeObj);
-            }
+            List<Integer> retIdList = new ArrayList<>(idList);
+            Collection<Integer> typeIds = new ArrayList<>(typeList);
             searchEx =
                 new PSExecutableSearch(m_urlBase, format, retIdList, typeIds, search, m_applet);
           } else {
@@ -477,8 +465,7 @@ public class PSSearchViewActionManager {
       }
     } finally {
       // Call listeners for end of search
-      for (Iterator iter = m_searchListenerList.iterator(); iter.hasNext(); ) {
-        IPSSearchListener listener = (IPSSearchListener) iter.next();
+      for (IPSSearchListener listener : m_searchListenerList) {
         listener.searchCompleted(searchNode);
       }
     }
@@ -582,8 +569,7 @@ public class PSSearchViewActionManager {
 
   /** Call all the {@link IPSSearchListener#searchReset()} methods. */
   public void resetSearchListeners() {
-    for (Iterator i = m_searchListenerList.iterator(); i.hasNext(); ) {
-      IPSSearchListener listener = (IPSSearchListener) i.next();
+    for (IPSSearchListener listener : m_searchListenerList) {
       listener.searchReset();
     }
   }
@@ -721,7 +707,7 @@ public class PSSearchViewActionManager {
    * appear under search results category in the Content Explorer. This falg is useful to hide the
    * results until user actually has edited (or at least has seen) the query.
    */
-  public static List ms_nodeTypesInitializable = new ArrayList();
+  public static final List<String> ms_nodeTypesInitializable = new ArrayList<>();
 
   /**
    * Stores the case sensitivity of the database. If <code>true</code> then the database is
@@ -761,7 +747,7 @@ public class PSSearchViewActionManager {
    * executed. Only modified by {@link #addSearchListener(IPSSearchListener)} and {@link
    * #removeSearchListener(IPSSearchListener)}. Never <code>null</code> but may be empty.
    */
-  private List m_searchListenerList = new ArrayList();
+  private final List<IPSSearchListener> m_searchListenerList = new ArrayList<>();
 
   /** static initializer for {@link #ms_nodeTypesInitializable}. */
   static {
