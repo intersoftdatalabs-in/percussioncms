@@ -31,21 +31,34 @@ public class PSFolders extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   @XmlElement(name = "child")
-  private List<PSFolderItem> children;
+  private ArrayList<PSFolderItem> children;
 
   public PSFolders() {
     // Default constructor
   }
 
   public PSFolders(List<PSFolderItem> children) {
-    this.children = children;
+    if (children == null) {
+      this.children = null;
+    } else if (children instanceof ArrayList) {
+      this.children = (ArrayList) children;
+    } else {
+      this.children = new ArrayList<>(children);
+    }
   }
 
   public List<PSFolderItem> getChildren() {
     return children == null ? new ArrayList<>() : children;
   }
 
+  @SuppressWarnings("unchecked")
   public void setChildren(List<PSFolderItem> children) {
-    this.children = children;
+    if (children == null) {
+      this.children = null;
+    } else if (children instanceof ArrayList) {
+      this.children = (ArrayList<PSFolderItem>) children;
+    } else {
+      this.children = new ArrayList<>(children);
+    }
   }
 }

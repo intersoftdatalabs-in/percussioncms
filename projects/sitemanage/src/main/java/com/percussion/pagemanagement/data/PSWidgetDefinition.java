@@ -71,16 +71,16 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   protected WidgetPrefs widgetPrefs;
 
   @XmlElement(name = "Resource")
-  protected List<Resource> resource;
+  protected ArrayList<Resource> resource;
 
   @XmlElement(name = "DnDPref")
-  protected List<DnDPref> dnDPref;
+  protected ArrayList<DnDPref> dnDPref;
 
   @XmlElement(name = "UserPref")
-  protected List<UserPref> userPref;
+  protected ArrayList<UserPref> userPref;
 
   @XmlElement(name = "CssPref")
-  protected List<CssPref> cssPref;
+  protected ArrayList<CssPref> cssPref;
 
   @XmlElement(name = "Content", required = true)
   protected Content content;

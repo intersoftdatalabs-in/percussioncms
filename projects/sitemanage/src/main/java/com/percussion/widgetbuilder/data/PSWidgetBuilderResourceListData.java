@@ -32,7 +32,7 @@ public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
 
-  private List<String> resourceList = new ArrayList<>();
+  private ArrayList<String> resourceList = new ArrayList<>();
 
   public static PSWidgetBuilderResourceListData fromXml(String resourceXml) {
     return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
@@ -58,7 +58,13 @@ public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
    */
   public void setResourceList(List<String> resourceList) {
     Objects.requireNonNull(resourceList, "resourceList must not be null");
-    this.resourceList = resourceList;
+    if (resourceList == null) {
+      this.resourceList = null;
+    } else if (resourceList instanceof ArrayList) {
+      this.resourceList = (ArrayList) resourceList;
+    } else {
+      this.resourceList = new ArrayList<>(resourceList);
+    }
   }
 
   @Override

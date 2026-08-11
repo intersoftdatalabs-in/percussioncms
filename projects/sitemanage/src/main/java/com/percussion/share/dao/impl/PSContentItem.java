@@ -29,7 +29,7 @@ import java.util.Map;
 public class PSContentItem extends PSDataItemSummary implements IPSContentItem {
 
   /** Never null. */
-  private Map<String, Object> fields = new HashMap<>();
+  private HashMap<String, Object> fields = new HashMap<>();
 
   /** {@inheritDoc} */
   @Override
@@ -41,7 +41,13 @@ public class PSContentItem extends PSDataItemSummary implements IPSContentItem {
   @Override
   public void setFields(Map<String, Object> fields) {
     notNull(fields, "fields");
-    this.fields = fields;
+    if (fields == null) {
+      this.fields = null;
+    } else if (fields instanceof HashMap) {
+      this.fields = (HashMap) fields;
+    } else {
+      this.fields = new HashMap<>(fields);
+    }
   }
 
   /** Not safe to serialize. */

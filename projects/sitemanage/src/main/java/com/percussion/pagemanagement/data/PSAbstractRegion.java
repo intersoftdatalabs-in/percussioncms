@@ -50,8 +50,8 @@ public abstract class PSAbstractRegion extends PSRegionNode {
   /** CSS class for the region. May be {@code null}. */
   private String cssClass;
 
-  private List<PSRegionNode> children = new ArrayList<>();
-  private List<PSRegionAttribute> attributes = new ArrayList<>();
+  private ArrayList<PSRegionNode> children = new ArrayList<>();
+  private ArrayList<PSRegionAttribute> attributes = new ArrayList<>();
 
   /**
    * Gets the children of this region, which are either {@link PSRegionCode} or {@link PSRegion}.
@@ -67,8 +67,15 @@ public abstract class PSAbstractRegion extends PSRegionNode {
     return children;
   }
 
+  @SuppressWarnings("unchecked")
   public void setChildren(List<PSRegionNode> children) {
-    this.children = children;
+    if (children == null) {
+      this.children = null;
+    } else if (children instanceof ArrayList) {
+      this.children = (ArrayList<PSRegionNode>) children;
+    } else {
+      this.children = new ArrayList<>(children);
+    }
   }
 
   @NotNull
@@ -133,8 +140,15 @@ public abstract class PSAbstractRegion extends PSRegionNode {
     return attributes;
   }
 
+  @SuppressWarnings("unchecked")
   public void setAttributes(List<PSRegionAttribute> attributes) {
-    this.attributes = attributes;
+    if (attributes == null) {
+      this.attributes = null;
+    } else if (attributes instanceof ArrayList) {
+      this.attributes = (ArrayList<PSRegionAttribute>) attributes;
+    } else {
+      this.attributes = new ArrayList<>(attributes);
+    }
   }
 
   @Override

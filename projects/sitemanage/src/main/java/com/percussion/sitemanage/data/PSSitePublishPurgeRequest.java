@@ -21,6 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.ArrayList;
 /**
  * Request to purge site publish jobs.
  *
@@ -30,13 +31,20 @@ import java.util.Optional;
 public class PSSitePublishPurgeRequest extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-  private List<Long> jobids;
+  private ArrayList<Long> jobids;
 
   public Optional<List<Long>> getJobids() {
     return Optional.ofNullable(jobids);
   }
 
+  @SuppressWarnings("unchecked")
   public void setJobids(List<Long> jobids) {
-    this.jobids = jobids;
+    if (jobids == null) {
+      this.jobids = null;
+    } else if (jobids instanceof ArrayList) {
+      this.jobids = (ArrayList<Long>) jobids;
+    } else {
+      this.jobids = new ArrayList<>(jobids);
+    }
   }
 }

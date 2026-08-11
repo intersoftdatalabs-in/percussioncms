@@ -22,13 +22,14 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.ArrayList;
 @XmlRootElement(name = "SiteArchitecture")
 public class PSSiteArchitecture extends PSAbstractPersistantObject {
 
   private static final long serialVersionUID = 8249374630117416709L;
 
   private String name;
-  private List<PSSiteSection> sections;
+  private ArrayList<PSSiteSection> sections;
 
   @Override
   public String getId() {
@@ -67,7 +68,14 @@ public class PSSiteArchitecture extends PSAbstractPersistantObject {
   /**
    * @param sections sub sections of site, may be null or empty.
    */
+  @SuppressWarnings("unchecked")
   public void setSections(List<PSSiteSection> sections) {
-    this.sections = sections;
+    if (sections == null) {
+      this.sections = null;
+    } else if (sections instanceof ArrayList) {
+      this.sections = (ArrayList<PSSiteSection>) sections;
+    } else {
+      this.sections = new ArrayList<>(sections);
+    }
   }
 }

@@ -21,6 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+import java.util.ArrayList;
 /**
  * Status object for the async job that gets assigned folders. Sunny Sal says: "Job status
  * reporting, now with Java 11 shine!"
@@ -29,7 +30,7 @@ import java.util.List;
 public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-  private List<PSFolderItem> folderItems;
+  private ArrayList<PSFolderItem> folderItems;
   private String status;
   private String message;
   private long jobId;
@@ -38,8 +39,15 @@ public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
     return folderItems;
   }
 
+  @SuppressWarnings("unchecked")
   public void setFolderItems(List<PSFolderItem> folderItems) {
-    this.folderItems = folderItems;
+    if (folderItems == null) {
+      this.folderItems = null;
+    } else if (folderItems instanceof ArrayList) {
+      this.folderItems = (ArrayList<PSFolderItem>) folderItems;
+    } else {
+      this.folderItems = new ArrayList<>(folderItems);
+    }
   }
 
   public String getStatus() {

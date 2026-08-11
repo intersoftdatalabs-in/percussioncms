@@ -76,7 +76,7 @@ public class PSIntegrityStatus extends PSAbstractDataObject {
   @JoinColumn(name = "TOKEN", nullable = false, insertable = false, updatable = false)
   @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSIntegrityTask")
   @Fetch(FetchMode.SUBSELECT)
-  private Set<PSIntegrityTask> tasks = new HashSet<>();
+  private HashSet<PSIntegrityTask> tasks = new HashSet<>();
 
   @Transient private long elapsedTime;
 
@@ -130,7 +130,14 @@ public class PSIntegrityStatus extends PSAbstractDataObject {
     return Collections.unmodifiableSet(tasks);
   }
 
+  @SuppressWarnings("unchecked")
   public void setTasks(Set<PSIntegrityTask> tasks) {
-    this.tasks = tasks == null ? new HashSet<>() : new HashSet<>(tasks);
+    if (tasks == null) {
+      this.tasks = new HashSet<>();
+    } else if (tasks instanceof HashSet) {
+      this.tasks = (HashSet<PSIntegrityTask>) tasks;
+    } else {
+      this.tasks = new HashSet<>(tasks);
+    }
   }
 }

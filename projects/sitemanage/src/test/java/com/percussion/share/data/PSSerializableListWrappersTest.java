@@ -22,17 +22,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.assetmanagement.data.PSAssetList;
 import com.percussion.assetmanagement.data.PSAssetSummaryList;
+import com.percussion.itemmanagement.data.PSItemStateTransition;
 import com.percussion.pagemanagement.data.PSWidgetContentTypeList;
 import com.percussion.pagemanagement.data.PSWidgetSummaryList;
 import com.percussion.sitemanage.data.PSPublishingActionList;
+import com.percussion.sitemanage.data.PSSiteSection;
+import com.percussion.user.data.PSUser;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 import org.junit.jupiter.api.Test;
 
 /**
  * Guards serialVersionUID + construction for JAXB/JSON list wrappers cleaned in issue #2032 batch
- * 1.
+ * 1, residual serialVersionUID batch 2 (#2421), and serial-field concrete collection types (#2870).
  */
 public class PSSerializableListWrappersTest {
 
@@ -99,11 +112,86 @@ public class PSSerializableListWrappersTest {
     assertEquals("2", list.get(1).getId());
   }
 
+  /**
+   * Guards issue #2870 serial-field cleanup: representative DTO collection fields use concrete
+   * serializable types (ArrayList/HashMap/HashSet/Vector), not bare List/Map/Set interfaces.
+   */
+  @Test
+  public void serialFieldCollectionTypesAreConcreteAndSerializable() throws Exception {
+    assertCollectionFieldConcrete(PSUser.class, "roles", ArrayList.class);
+    assertCollectionFieldConcrete(PSItemStateTransition.class, "transitionTriggers", ArrayList.class);
+    assertCollectionFieldConcrete(PSSiteSection.class, "childIds", ArrayList.class);
+    assertCollectionFieldConcrete(PSItemProperties.class, "tags", ArrayList.class);
+    assertCollectionFieldConcrete(
+        com.percussion.pathmanagement.data.PSPathItem.class, "displayProperties", HashMap.class);
+    assertCollectionFieldConcrete(
+        com.percussion.dashboardmanagement.data.PSGadget.class, "settings", HashMap.class);
+    assertCollectionFieldConcrete(
+        com.percussion.comments.data.PSComment.class, "commentTags", HashSet.class);
+    assertCollectionFieldConcrete(
+        com.percussion.pagemanagement.assembler.impl.PSProxyAssemblyTemplate.class,
+        "bindings",
+        Vector.class);
+  }
+
+  /**
+   * Setters accepting List/Map must defensive-copy into the concrete field so callers cannot share
+   * a non-serializable collection implementation with the DTO.
+   */
+  @Test
+  public void serialFieldSettersDefensivelyCopyCollections() {
+    var user = new PSUser();
+    List<String> linked = new LinkedList<>(Arrays.asList("Editor", "Admin"));
+    user.setRoles(linked);
+    assertEquals(List.of("Editor", "Admin"), user.getRoles());
+    assertTrue(user.getRoles() instanceof ArrayList, "roles field/runtime should be ArrayList");
+    linked.add("Extra");
+    assertEquals(
+        2, user.getRoles().size(), "mutating input list must not change DTO roles after set");
+
+    var transition = new PSItemStateTransition();
+    List<String> triggers = new LinkedList<>(List.of("approve", "reject"));
+    transition.setTransitionTriggers(triggers);
+    assertEquals(List.of("approve", "reject"), transition.getTransitionTriggers());
+    triggers.clear();
+    assertEquals(2, transition.getTransitionTriggers().size());
+
+    var section = new PSSiteSection();
+    section.setChildIds(new LinkedList<>(List.of("a", "b")));
+    assertEquals(List.of("a", "b"), section.getChildIds());
+    section.setChildIds(null);
+    assertNotNull(section.getChildIds());
+    assertTrue(section.getChildIds().isEmpty());
+  }
+
   private static void assertSerialVersionUid(Class<?> type) throws Exception {
     assertTrue(Serializable.class.isAssignableFrom(type), type.getName() + " should be Serializable");
     Field f = type.getDeclaredField("serialVersionUID");
     f.setAccessible(true);
     assertNotNull(f.get(null));
     assertEquals(long.class, f.getType());
+  }
+
+  private static void assertCollectionFieldConcrete(
+      Class<?> type, String fieldName, Class<?> expectedConcrete) throws Exception {
+    Field f = type.getDeclaredField(fieldName);
+    Class<?> fieldType = f.getType();
+    assertTrue(
+        expectedConcrete.equals(fieldType),
+        type.getName()
+            + "#"
+            + fieldName
+            + " expected field type "
+            + expectedConcrete.getName()
+            + " but was "
+            + fieldType.getName());
+    assertTrue(
+        Serializable.class.isAssignableFrom(fieldType),
+        type.getName() + "#" + fieldName + " field type must be Serializable");
+    assertTrue(
+        !fieldType.isInterface(),
+        type.getName() + "#" + fieldName + " must not be a bare collection interface");
+    // keep modifiers readable for future audits
+    assertTrue(Modifier.isPrivate(f.getModifiers()) || Modifier.isProtected(f.getModifiers()));
   }
 }

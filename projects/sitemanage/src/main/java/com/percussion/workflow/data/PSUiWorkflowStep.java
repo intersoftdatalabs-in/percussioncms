@@ -35,8 +35,8 @@ public class PSUiWorkflowStep extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   private String stepName;
-  private List<PSUiWorkflowStepRole> stepRoles = new ArrayList<>();
-  private List<String> permissionNames = new ArrayList<>();
+  private ArrayList<PSUiWorkflowStepRole> stepRoles = new ArrayList<>();
+  private ArrayList<String> permissionNames = new ArrayList<>();
 
   public PSUiWorkflowStep() {
     super();
@@ -55,8 +55,15 @@ public class PSUiWorkflowStep extends PSAbstractDataObject {
     return stepRoles;
   }
 
+  @SuppressWarnings("unchecked")
   public void setStepRoles(List<PSUiWorkflowStepRole> stepRoles) {
-    this.stepRoles = stepRoles;
+    if (stepRoles == null) {
+      this.stepRoles = null;
+    } else if (stepRoles instanceof ArrayList) {
+      this.stepRoles = (ArrayList<PSUiWorkflowStepRole>) stepRoles;
+    } else {
+      this.stepRoles = new ArrayList<>(stepRoles);
+    }
   }
 
   /** Gets the permission names. May be empty but never {@code null}. */
@@ -64,7 +71,14 @@ public class PSUiWorkflowStep extends PSAbstractDataObject {
     return permissionNames;
   }
 
+  @SuppressWarnings("unchecked")
   public void setPermissionNames(List<String> permissionNames) {
-    this.permissionNames = permissionNames;
+    if (permissionNames == null) {
+      this.permissionNames = null;
+    } else if (permissionNames instanceof ArrayList) {
+      this.permissionNames = (ArrayList<String>) permissionNames;
+    } else {
+      this.permissionNames = new ArrayList<>(permissionNames);
+    }
   }
 }

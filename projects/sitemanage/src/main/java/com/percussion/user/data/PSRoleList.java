@@ -35,7 +35,7 @@ import java.util.List;
 public class PSRoleList extends PSAbstractDataObject {
 
   private static final long serialVersionUID = 1L;
-  private List<String> roles;
+  private ArrayList<String> roles;
 
   public PSRoleList() {
     roles = new ArrayList<>();
@@ -47,7 +47,14 @@ public class PSRoleList extends PSAbstractDataObject {
   }
 
   /** Sets the roles. */
+  @SuppressWarnings("unchecked")
   public void setRoles(List<String> roles) {
-    this.roles = roles;
+    if (roles == null) {
+      this.roles = null;
+    } else if (roles instanceof ArrayList) {
+      this.roles = (ArrayList<String>) roles;
+    } else {
+      this.roles = new ArrayList<>(roles);
+    }
   }
 }

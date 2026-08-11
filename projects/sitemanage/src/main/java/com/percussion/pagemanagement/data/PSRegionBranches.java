@@ -35,7 +35,7 @@ import org.apache.commons.beanutils.BeanUtils;
 public class PSRegionBranches extends PSRegionWidgetAssociations {
   private static final long serialVersionUID = 1L;
 
-  @AssertValid private List<PSRegion> regions = new ArrayList<>();
+  @AssertValid private ArrayList<PSRegion> regions = new ArrayList<>();
 
   @AssertValid
   @XmlElementWrapper(name = "regions")
@@ -44,8 +44,15 @@ public class PSRegionBranches extends PSRegionWidgetAssociations {
     return regions;
   }
 
+  @SuppressWarnings("unchecked")
   public void setRegions(List<PSRegion> pageRegions) {
-    this.regions = pageRegions;
+    if (pageRegions == null) {
+      this.regions = null;
+    } else if (pageRegions instanceof ArrayList) {
+      this.regions = (ArrayList<PSRegion>) pageRegions;
+    } else {
+      this.regions = new ArrayList<>(pageRegions);
+    }
   }
 
   @Override

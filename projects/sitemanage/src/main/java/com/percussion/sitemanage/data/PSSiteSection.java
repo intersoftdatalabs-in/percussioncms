@@ -55,7 +55,7 @@ public class PSSiteSection extends PSAbstractPersistantObject implements IPSFold
   @NotNull private PSSectionTargetEnum target = PSSectionTargetEnum._self;
 
   /** The IDs of sub-sections. */
-  private List<String> childIds = new ArrayList<>();
+  private ArrayList<String> childIds = new ArrayList<>();
 
   /** Field to note if the section requires login. */
   private boolean requiresLogin;
@@ -101,8 +101,15 @@ public class PSSiteSection extends PSAbstractPersistantObject implements IPSFold
    *
    * @param ids the IDs of sub-sections, may be null or empty.
    */
+  @SuppressWarnings("unchecked")
   public void setChildIds(List<String> ids) {
-    this.childIds = (ids == null) ? Collections.emptyList() : new ArrayList<>(ids);
+    if (ids == null) {
+      this.childIds = new ArrayList<>();
+    } else if (ids instanceof ArrayList) {
+      this.childIds = (ArrayList<String>) ids;
+    } else {
+      this.childIds = new ArrayList<>(ids);
+    }
   }
 
   @Override

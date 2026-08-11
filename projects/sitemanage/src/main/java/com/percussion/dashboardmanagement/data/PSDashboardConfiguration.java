@@ -21,6 +21,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import java.util.List;
 
+import java.util.ArrayList;
 @XmlRootElement(name = "DashboardConfig")
 @XmlType(
     name = "",
@@ -28,13 +29,20 @@ import java.util.List;
 public class PSDashboardConfiguration extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-  private List<PSGadget> gadgets;
+  private ArrayList<PSGadget> gadgets;
 
   public List<PSGadget> getGadgets() {
     return gadgets;
   }
 
+  @SuppressWarnings("unchecked")
   public void setGadgets(List<PSGadget> gadgets) {
-    this.gadgets = gadgets;
+    if (gadgets == null) {
+      this.gadgets = null;
+    } else if (gadgets instanceof ArrayList) {
+      this.gadgets = (ArrayList<PSGadget>) gadgets;
+    } else {
+      this.gadgets = new ArrayList<>(gadgets);
+    }
   }
 }

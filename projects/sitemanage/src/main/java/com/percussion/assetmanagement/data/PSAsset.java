@@ -29,7 +29,7 @@ public class PSAsset extends PSAssetSummary implements IPSContentItem {
 
   private static final long serialVersionUID = 8252999104256582955L;
 
-  private Map<String, Object> fields = new HashMap<>();
+  private HashMap<String, Object> fields = new HashMap<>();
 
   /**
    * Gets the asset fields.
@@ -45,7 +45,14 @@ public class PSAsset extends PSAssetSummary implements IPSContentItem {
    *
    * @param fields the fields map; must not be {@code null}.
    */
+  @SuppressWarnings("unchecked")
   public void setFields(Map<String, Object> fields) {
-    this.fields = fields;
+    if (fields == null) {
+      this.fields = null;
+    } else if (fields instanceof HashMap) {
+      this.fields = (HashMap<String, Object>) fields;
+    } else {
+      this.fields = new HashMap<>(fields);
+    }
   }
 }

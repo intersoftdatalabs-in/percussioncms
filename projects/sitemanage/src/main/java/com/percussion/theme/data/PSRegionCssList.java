@@ -30,7 +30,7 @@ import java.util.List;
 public class PSRegionCssList extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-  private List<PSRegionCSS> regions = new ArrayList<>();
+  private ArrayList<PSRegionCSS> regions = new ArrayList<>();
 
   public List<PSRegionCSS> getRegions() {
     return regions;
@@ -38,6 +38,12 @@ public class PSRegionCssList extends PSAbstractDataObject {
 
   public void setRegions(List<PSRegionCSS> regionList) {
     notNull(regionList);
-    regions = regionList;
+    if (regionList == null) {
+      regions = null;
+    } else if (regionList instanceof ArrayList) {
+      regions = (ArrayList) regionList;
+    } else {
+      regions = new ArrayList<>(regionList);
+    }
   }
 }

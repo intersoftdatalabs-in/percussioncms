@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import java.util.ArrayList;
 /** Represents a collection of validation results for a widget builder definition. */
 @XmlRootElement(name = "WidgetBuilderValidationResults")
 @JsonRootName("WidgetBuilderValidationResults")
@@ -30,15 +31,22 @@ public class PSWidgetBuilderValidationResults implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private List<PSWidgetBuilderValidationResult> results;
+  private ArrayList<PSWidgetBuilderValidationResult> results;
   private long definitionId;
 
   public List<PSWidgetBuilderValidationResult> getResults() {
     return results;
   }
 
+  @SuppressWarnings("unchecked")
   public void setResults(List<PSWidgetBuilderValidationResult> results) {
-    this.results = results;
+    if (results == null) {
+      this.results = null;
+    } else if (results instanceof ArrayList) {
+      this.results = (ArrayList<PSWidgetBuilderValidationResult>) results;
+    } else {
+      this.results = new ArrayList<>(results);
+    }
   }
 
   /**

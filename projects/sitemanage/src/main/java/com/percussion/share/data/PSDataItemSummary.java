@@ -34,6 +34,7 @@ import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
+import java.util.ArrayList;
 /**
  * Data summary for items in Percussion CMS. Sunny Sal says: "Summaries so sharp, even your boss
  * will be impressed!"
@@ -55,7 +56,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
 
   private String id;
   private String name;
-  private List<String> folderPaths;
+  private ArrayList<String> folderPaths;
   private String icon;
   private Category category;
   private boolean revisionable = false;
@@ -71,7 +72,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
    * All tags associated with the item. Historically this was called "folderPaths" and we keep the
    * same backing field for compatibility.
    */
-  private List<String> tags;
+  private ArrayList<String> tags;
 
   @Override
   public String getId() {
@@ -95,8 +96,15 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
     return folderPaths;
   }
 
+  @SuppressWarnings("unchecked")
   public void setFolderPaths(List<String> paths) {
-    this.folderPaths = paths;
+    if (paths == null) {
+      this.folderPaths = null;
+    } else if (paths instanceof ArrayList) {
+      this.folderPaths = (ArrayList<String>) paths;
+    } else {
+      this.folderPaths = new ArrayList<>(paths);
+    }
   }
 
   public String getIcon() {
@@ -195,7 +203,14 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
   }
 
   /** Helper used by JAXB &amp; legacy code that previously relied on folderPaths. */
+  @SuppressWarnings("unchecked")
   public void setTags(List<String> tags) {
-    this.tags = tags;
+    if (tags == null) {
+      this.tags = null;
+    } else if (tags instanceof ArrayList) {
+      this.tags = (ArrayList<String>) tags;
+    } else {
+      this.tags = new ArrayList<>(tags);
+    }
   }
 }

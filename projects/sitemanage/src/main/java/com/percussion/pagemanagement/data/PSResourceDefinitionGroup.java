@@ -35,17 +35,24 @@ import java.util.List;
 public class PSResourceDefinitionGroup extends PSAbstractPersistantObject {
 
   private String id;
-  private List<PSFileResource> fileResources;
-  private List<PSFolderResource> folderResources;
-  private List<PSAssetResource> assetResources;
+  private ArrayList<PSFileResource> fileResources;
+  private ArrayList<PSFolderResource> folderResources;
+  private ArrayList<PSAssetResource> assetResources;
 
   @XmlElement(name = "folder")
   public List<PSFolderResource> getFolderResources() {
     return folderResources;
   }
 
+  @SuppressWarnings("unchecked")
   public void setFolderResources(List<PSFolderResource> folderResources) {
-    this.folderResources = folderResources;
+    if (folderResources == null) {
+      this.folderResources = null;
+    } else if (folderResources instanceof ArrayList) {
+      this.folderResources = (ArrayList<PSFolderResource>) folderResources;
+    } else {
+      this.folderResources = new ArrayList<>(folderResources);
+    }
   }
 
   @XmlElement(name = "asset")
@@ -53,8 +60,15 @@ public class PSResourceDefinitionGroup extends PSAbstractPersistantObject {
     return assetResources;
   }
 
+  @SuppressWarnings("unchecked")
   public void setAssetResources(List<PSAssetResource> assetResources) {
-    this.assetResources = assetResources;
+    if (assetResources == null) {
+      this.assetResources = null;
+    } else if (assetResources instanceof ArrayList) {
+      this.assetResources = (ArrayList<PSAssetResource>) assetResources;
+    } else {
+      this.assetResources = new ArrayList<>(assetResources);
+    }
   }
 
   @XmlElement(name = "file")
@@ -62,8 +76,15 @@ public class PSResourceDefinitionGroup extends PSAbstractPersistantObject {
     return fileResources;
   }
 
+  @SuppressWarnings("unchecked")
   public void setFileResources(List<PSFileResource> fileResources) {
-    this.fileResources = fileResources;
+    if (fileResources == null) {
+      this.fileResources = null;
+    } else if (fileResources instanceof ArrayList) {
+      this.fileResources = (ArrayList<PSFileResource>) fileResources;
+    } else {
+      this.fileResources = new ArrayList<>(fileResources);
+    }
   }
 
   @Override

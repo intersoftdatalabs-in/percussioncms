@@ -64,7 +64,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
     private Integer startIndex;
     private Integer childrenCount;
-    private List<UnassignedItem> childrenInPage;
+    private ArrayList<UnassignedItem> childrenInPage;
 
     public UnassignedItemList() {
       this.startIndex = 0;
@@ -76,7 +76,13 @@ public class PSUnassignedResults extends PSAbstractDataObject {
         Integer startIndex, Integer childrenCount, List<UnassignedItem> childrenInPage) {
       this.startIndex = startIndex;
       this.childrenCount = childrenCount;
-      this.childrenInPage = childrenInPage == null ? new ArrayList<>() : childrenInPage;
+      if (childrenInPage == null) {
+        this.childrenInPage = new ArrayList<>();
+      } else if (childrenInPage instanceof ArrayList) {
+        this.childrenInPage = (ArrayList) childrenInPage;
+      } else {
+        this.childrenInPage = new ArrayList<>(childrenInPage);
+      }
     }
 
     /**
@@ -111,8 +117,15 @@ public class PSUnassignedResults extends PSAbstractDataObject {
      * @see #getChildrenInPage()
      * @param childrenInPage {@code List<UnassignedItem>} assumed not null.
      */
+    @SuppressWarnings("unchecked")
     public void setChildrenInPage(List<UnassignedItem> childrenInPage) {
-      this.childrenInPage = childrenInPage;
+      if (childrenInPage == null) {
+        this.childrenInPage = null;
+      } else if (childrenInPage instanceof ArrayList) {
+        this.childrenInPage = (ArrayList<UnassignedItem>) childrenInPage;
+      } else {
+        this.childrenInPage = new ArrayList<>(childrenInPage);
+      }
     }
 
     /**

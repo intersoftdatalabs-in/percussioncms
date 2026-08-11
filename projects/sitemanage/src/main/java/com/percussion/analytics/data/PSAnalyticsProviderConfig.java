@@ -35,8 +35,8 @@ public class PSAnalyticsProviderConfig implements Serializable {
   private String password;
   private boolean isEncrypted;
   private String uid;
-  private Map<String, String> params = new HashMap<>();
-  private Map<String, String> extraParamsMap;
+  private HashMap<String, String> params = new HashMap<>();
+  private HashMap<String, String> extraParamsMap;
   private ExtraParamsClass extraParams;
 
   public PSAnalyticsProviderConfig() {
@@ -62,7 +62,13 @@ public class PSAnalyticsProviderConfig implements Serializable {
     this.userid = userid;
     this.password = password;
     this.isEncrypted = isEncrypted;
-    this.extraParamsMap = extraParamsMap;
+    if (extraParamsMap == null) {
+      this.extraParamsMap = null;
+    } else if (extraParamsMap instanceof HashMap) {
+      this.extraParamsMap = (HashMap) extraParamsMap;
+    } else {
+      this.extraParamsMap = new HashMap<>(extraParamsMap);
+    }
     this.uid = userid;
 
     // Build ExtraParamsClass from extraParamsMap
@@ -111,8 +117,15 @@ public class PSAnalyticsProviderConfig implements Serializable {
     return params;
   }
 
+  @SuppressWarnings("unchecked")
   public void setParams(Map<String, String> params) {
-    this.params = params;
+    if (params == null) {
+      this.params = null;
+    } else if (params instanceof HashMap) {
+      this.params = (HashMap<String, String>) params;
+    } else {
+      this.params = new HashMap<>(params);
+    }
   }
 
   public Map<String, String> getExtraParamsMap() {
@@ -127,8 +140,15 @@ public class PSAnalyticsProviderConfig implements Serializable {
     return map;
   }
 
+  @SuppressWarnings("unchecked")
   public void setExtraParamsMap(Map<String, String> extraParamsMap) {
-    this.extraParamsMap = extraParamsMap;
+    if (extraParamsMap == null) {
+      this.extraParamsMap = null;
+    } else if (extraParamsMap instanceof HashMap) {
+      this.extraParamsMap = (HashMap<String, String>) extraParamsMap;
+    } else {
+      this.extraParamsMap = new HashMap<>(extraParamsMap);
+    }
   }
 
   public ExtraParamsClass getExtraParams() {
@@ -142,14 +162,21 @@ public class PSAnalyticsProviderConfig implements Serializable {
   /** Holds extra parameters as a list of key-value pairs. */
   static class ExtraParamsClass implements Serializable {
     private static final long serialVersionUID = 1L;
-    private List<PSGAPairConfig> entry = new ArrayList<>();
+    private ArrayList<PSGAPairConfig> entry = new ArrayList<>();
 
     public List<PSGAPairConfig> getEntry() {
       return entry;
     }
 
+    @SuppressWarnings("unchecked")
     public void setEntry(List<PSGAPairConfig> entry) {
-      this.entry = entry;
+      if (entry == null) {
+        this.entry = null;
+      } else if (entry instanceof ArrayList) {
+        this.entry = (ArrayList<PSGAPairConfig>) entry;
+      } else {
+        this.entry = new ArrayList<>(entry);
+      }
     }
   }
 

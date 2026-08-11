@@ -43,7 +43,7 @@ public class PSUiWorkflow extends PSAbstractDataObject {
   // Used for step creation/update to identify the step to update or insert after.
   private String previousStepName = "";
 
-  private List<PSUiWorkflowStep> workflowSteps = new ArrayList<>();
+  private ArrayList<PSUiWorkflowStep> workflowSteps = new ArrayList<>();
 
   public PSUiWorkflow() {
     this("", new ArrayList<>());
@@ -51,7 +51,13 @@ public class PSUiWorkflow extends PSAbstractDataObject {
 
   public PSUiWorkflow(String workflowName, List<PSUiWorkflowStep> workflowSteps) {
     this.workflowName = workflowName;
-    this.workflowSteps = workflowSteps;
+    if (workflowSteps == null) {
+      this.workflowSteps = null;
+    } else if (workflowSteps instanceof ArrayList) {
+      this.workflowSteps = (ArrayList) workflowSteps;
+    } else {
+      this.workflowSteps = new ArrayList<>(workflowSteps);
+    }
   }
 
   public String getWorkflowName() {
@@ -75,8 +81,15 @@ public class PSUiWorkflow extends PSAbstractDataObject {
     return workflowSteps;
   }
 
+  @SuppressWarnings("unchecked")
   public void setWorkflowSteps(List<PSUiWorkflowStep> workflowSteps) {
-    this.workflowSteps = workflowSteps;
+    if (workflowSteps == null) {
+      this.workflowSteps = null;
+    } else if (workflowSteps instanceof ArrayList) {
+      this.workflowSteps = (ArrayList<PSUiWorkflowStep>) workflowSteps;
+    } else {
+      this.workflowSteps = new ArrayList<>(workflowSteps);
+    }
   }
 
   public String getPreviousWorkflowName() {
