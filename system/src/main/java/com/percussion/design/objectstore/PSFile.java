@@ -454,7 +454,7 @@ public abstract class PSFile extends PSComponent {
         // {
         //    Object[] args = { CONTENT, XFER_ENC, xferEnc };
         //    throw new PSUnknownNodeTypeException(
-        //       ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
+        //       IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
         // }
 
         String mimeType = contentEl.getAttribute(MIME_TYPE);

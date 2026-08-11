@@ -813,7 +813,7 @@ public class PSDataSet extends PSComponent {
     // if (m_results == null
     //    &&   (m_requestor != null && m_requestor.getOutputMimeType() == null
     //       && m_requestor.isHtmlOutputEnabled()))
-    //    cxt.validationError(this, ObjectStoreErrorCodes.DATASET_RESULT_PAGES_NULL,
+    //    cxt.validationError(this, IPSObjectStoreErrors.DATASET_RESULT_PAGES_NULL,
     //    null);
 
     // do children
