@@ -17,7 +17,9 @@
 package com.intsof.percussioncms.auditlog;
 
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
@@ -27,11 +29,13 @@ import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
@@ -55,9 +59,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * package-local ints, non-colliding {@link WebserviceErrorCodes} package-local ints (28–73), fully
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
  * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
- * {@link MailErrorCodes}, and bootstrap-only {@link TransformationErrorCodes} / {@link
- * DeliveryErrorCodes} (no flat register). Residual slices may register additional catalogs via
- * {@link #register(int, SystemErrorCode)}.
+ * {@link MailErrorCodes}, residual CMS {@link CmsErrorCodes} (skips PathItem-owned ints), fully
+ * unique {@link ContentExplorerErrorCodes} / {@link RemoteErrorCodes}, bootstrap-only {@link
+ * SystemServiceErrorCodes} / {@link TransformationErrorCodes} / {@link DeliveryErrorCodes} (no flat
+ * register). Residual slices may register additional catalogs via {@link #register(int,
+ * SystemErrorCode)}.
  */
 public final class LegacyErrorCodeRegistry {
 
@@ -72,14 +78,16 @@ public final class LegacyErrorCodeRegistry {
   /**
    * Ensure Phase 2b catalogs are loaded (auth/security, content, workflow, path/item, design,
    * server, HTTP, assembly, extension, delivery, job, webservices, WebDAV, servlet, search,
-   * Lucene, locale, mail, transformation). Safe to call repeatedly; catalogs register themselves
-   * in their own static initializers. {@link AssemblyErrorCodes} and {@link JobErrorCodes} skip
-   * package-local ints {@code 1–10} that collide with {@link WorkflowErrorCodes}. {@link
-   * JobErrorCodes} is bootstrapped after assembly so flat int {@code 11} ({@code
-   * CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code MISSING_SLOT} (prefer enum for
-   * assembly {@code 11}). {@link WebserviceErrorCodes} skips package-local ints {@code 1–27};
-   * {@link TransformationErrorCodes} and {@link DeliveryErrorCodes} do not flat-register. Search /
-   * Lucene / Locale / Mail ints are globally unique and fully registered.
+   * Lucene, locale, mail, residual CMS, Content Explorer, remote, system-service, transformation).
+   * Safe to call repeatedly; catalogs register themselves in their own static initializers. {@link
+   * AssemblyErrorCodes} and {@link JobErrorCodes} skip package-local ints {@code 1–10} that collide
+   * with {@link WorkflowErrorCodes}. {@link JobErrorCodes} is bootstrapped after assembly so flat
+   * int {@code 11} ({@code CONFIG_FILE_NOT_FOUND}) wins over assembly package-local {@code
+   * MISSING_SLOT} (prefer enum for assembly {@code 11}). {@link WebserviceErrorCodes} skips
+   * package-local ints {@code 1–27}; {@link TransformationErrorCodes}, {@link DeliveryErrorCodes},
+   * and {@link SystemServiceErrorCodes} do not flat-register. Search / Lucene / Locale / Mail /
+   * Content Explorer / Remote ints are globally unique and fully registered. {@link CmsErrorCodes}
+   * registers residual CMS ints after {@link PathItemErrorCodes} so path ownership is preserved.
    */
   public static void bootstrap() {
     if (BOOTSTRAPPED.compareAndSet(false, true)) {
@@ -109,6 +117,12 @@ public final class LegacyErrorCodeRegistry {
       LuceneErrorCodes.ensureRegistered();
       LocaleErrorCodes.ensureRegistered();
       MailErrorCodes.ensureRegistered();
+      // CMS/CX/Remote/System residual (#2900): PathItem first; residual CMS; unique CX/Remote;
+      // system-service enum-only (WF owns bare 1/4).
+      CmsErrorCodes.ensureRegistered();
+      ContentExplorerErrorCodes.ensureRegistered();
+      RemoteErrorCodes.ensureRegistered();
+      SystemServiceErrorCodes.ensureRegistered();
     }
   }
 

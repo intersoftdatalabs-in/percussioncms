@@ -18,7 +18,10 @@ System-wide Percussion CMS audit logging and unified error-code support.
   `WebserviceErrorCodes` (package-local 28–73), `ServerWebServicesErrorCodes`, `WebdavErrorCodes`,
   `ServletErrorCodes`, `TransformationErrorCodes` (enum-only),
   `SearchErrorCodes` (`IPSSearchErrors`; auth failure dual-write), `LuceneErrorCodes`,
-  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable)
+  `LocaleErrorCodes`, `MailErrorCodes` (all non-auditable),
+  `CmsErrorCodes` (residual `IPSCmsErrors` after `PathItemErrorCodes`; all non-auditable),
+  `ContentExplorerErrorCodes`, `RemoteErrorCodes` (all non-auditable),
+  `SystemServiceErrorCodes` (enum-only; WF owns bare 1/4)
   + `LegacyErrorCodeRegistry` bridge legacy `IPS*Errors` ints. Non-auditable / unregistered ints never
   dual-write. Central `PSErrorHandler.appendError` dual-writes only when the registry marks the legacy
   int auditable.
@@ -65,7 +68,9 @@ audit.log(
 ```java
 import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
 import com.intsof.percussioncms.auditlog.codes.AssemblyErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DeliveryErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
@@ -75,11 +80,13 @@ import com.intsof.percussioncms.auditlog.codes.LocaleErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.LuceneErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.MailErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.RemoteErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ServletErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.SystemServiceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
@@ -128,6 +135,10 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 16311, ctx); // Lucene index dir �
 | `LuceneErrorCodes` | 16311–16456 (`IPSLuceneErrors`) | All non-auditable index/query codes |
 | `LocaleErrorCodes` | 1801–1804 (`IPSLocaleErrors`) | All non-auditable |
 | `MailErrorCodes` | 3501–3508 (`IPSMailErrors`) | All non-auditable |
+| `CmsErrorCodes` | residual `IPSCmsErrors` 13001–14000 | All non-auditable; skips PathItem-owned ints + SQL 1002 (Server) |
+| `ContentExplorerErrorCodes` | 20001–20011 (`IPSContentExplorerErrors`) | All non-auditable UI/client codes |
+| `RemoteErrorCodes` | 15001–15002 (`IPSRemoteErrors`) | All non-auditable SOAP/transport |
+| `SystemServiceErrorCodes` | package-local 1, 4 (`IPSSystemErrors`) | Enum-only; WF owns bare 1/4 in flat registry |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
