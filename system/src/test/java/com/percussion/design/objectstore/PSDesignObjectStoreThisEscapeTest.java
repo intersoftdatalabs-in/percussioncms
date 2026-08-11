@@ -365,4 +365,79 @@ public class PSDesignObjectStoreThisEscapeTest {
     PSResultPage restored = new PSResultPage(elem, null, null);
     assertEquals(original.getStyleSheet().toExternalForm(), restored.getStyleSheet().toExternalForm());
   }
+
+  /**
+   * Review mitigation: {@code fromXmlBase} must call virtual {@code setName} so upgrade-plugin
+   * subclasses (whitespace-allowed names) still work on the Element-ctor path.
+   */
+  @Test
+  public void relationshipConfigFromXmlDispatchesVirtualSetName() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRelationshipConfig base =
+        new PSRelationshipConfig(
+            "ActiveAssembly",
+            PSRelationshipConfig.RS_TYPE_SYSTEM,
+            PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+    Element elem = base.toXml(doc);
+    elem.setAttribute("name", "Name With Spaces");
+
+    WhitespaceRelationshipConfig restored = new WhitespaceRelationshipConfig(elem);
+    assertEquals("Name With Spaces", restored.getName());
+  }
+
+  /**
+   * Review mitigation: {@link PSComponent#copyFrom} must call virtual {@code setId} so subclasses
+   * that override {@code setId} (e.g. PSDependency id-mirroring) still run.
+   */
+  @Test
+  public void componentCopyFromDispatchesVirtualSetId() {
+    TrackingIdComponent source = new TrackingIdComponent();
+    source.applyId(77);
+    TrackingIdComponent target = new TrackingIdComponent();
+    target.copyFrom(source);
+    assertEquals(1, target.setIdCalls);
+    assertEquals(77, target.getId());
+    assertEquals(77, target.lastSetId);
+  }
+
+  /** Mirrors upgrade-plugin RelationshipConfig: setName allows whitespace. */
+  private static final class WhitespaceRelationshipConfig extends PSRelationshipConfig {
+    WhitespaceRelationshipConfig(Element src) throws PSUnknownNodeTypeException {
+      super(src, null, null);
+    }
+
+    @Override
+    public void setName(String name) {
+      m_name = name;
+    }
+  }
+
+  /** Tracks virtual setId dispatch for copyFrom regression coverage. */
+  private static final class TrackingIdComponent extends PSComponent {
+    private static final long serialVersionUID = 1L;
+    int setIdCalls;
+    int lastSetId = -1;
+
+    @Override
+    public void setId(int id) {
+      setIdCalls++;
+      lastSetId = id;
+      super.setId(id);
+    }
+
+    @Override
+    public Element toXml(Document doc) {
+      return doc.createElement("TrackingIdComponent");
+    }
+
+    @Override
+    public void fromXml(Element sourceNode, IPSDocument parentDoc, java.util.List parentComponents) {
+      // no-op for unit test
+    }
+
+    @Override
+    public void validate(IPSValidationContext cxt) {
+      // no-op for unit test
+    }
+  }
 }

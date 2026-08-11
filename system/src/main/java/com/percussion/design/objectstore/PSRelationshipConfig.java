@@ -873,9 +873,12 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
       setIdFromXml(sourceNode);
 
       // REQUIRED: name attribute
+      // Use virtual setName (not private applyName) so upgrade-plugin subclass
+      // PSUpgradePluginRelationship.RelationshipConfig can allow whitespace names.
+      // Element-ctor path intentionally dispatches here for polymorphic XML load.
       String name = tree.getElementData(XML_ATTR_NAME);
       try {
-        applyName(name);
+        setName(name);
       } catch (IllegalArgumentException e) {
         Object[] args = {XML_NODE_NAME, XML_ATTR_NAME, e.getLocalizedMessage()};
         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
