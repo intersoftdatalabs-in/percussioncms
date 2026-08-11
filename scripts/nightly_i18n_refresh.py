@@ -178,8 +178,12 @@ def get_current_branch_worktree(worktree: Path) -> str:
 
 
 def check_gh_auth() -> bool:
-    """Check if gh is authenticated."""
-    cp = run(["gh", "auth", "status"])
+    """Check if the active gh account is authenticated.
+
+    Uses ``--active`` so inactive multi-account entries with expired tokens
+    do not fail the preflight when the active account is usable.
+    """
+    cp = run(["gh", "auth", "status", "--active"])
     return cp.returncode == 0
 
 

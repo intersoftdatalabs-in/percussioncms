@@ -271,6 +271,37 @@ class TestPreflightChecks(unittest.TestCase):
         self.assertEqual(failures, ["b"])
 
 
+class TestCheckGhAuth(unittest.TestCase):
+    """check_gh_auth must probe only the active gh account (--active)."""
+
+    def test_passes_when_active_account_ok(self):
+        original = m.run
+        calls: list[list[str]] = []
+
+        def fake_run(args, **kwargs):
+            calls.append(list(args))
+            return subprocess.CompletedProcess(args, 0, stdout="", stderr="")
+
+        m.run = fake_run  # type: ignore[assignment]
+        try:
+            self.assertTrue(m.check_gh_auth())
+        finally:
+            m.run = original  # type: ignore[assignment]
+        self.assertEqual(calls, [["gh", "auth", "status", "--active"]])
+
+    def test_fails_when_active_account_not_authenticated(self):
+        original = m.run
+
+        def fake_run(args, **kwargs):
+            return subprocess.CompletedProcess(args, 1, stdout="", stderr="not logged in")
+
+        m.run = fake_run  # type: ignore[assignment]
+        try:
+            self.assertFalse(m.check_gh_auth())
+        finally:
+            m.run = original  # type: ignore[assignment]
+
+
 class TestCommitMessage(unittest.TestCase):
     """Verify commit message assembly and footer contract."""
 
@@ -464,6 +495,7 @@ def main() -> int:
     suite.addTests(loader.loadTestsFromTestCase(TestUnpushedCommitsDetection))
     suite.addTests(loader.loadTestsFromTestCase(TestStagingPathBuilder))
     suite.addTests(loader.loadTestsFromTestCase(TestPreflightChecks))
+    suite.addTests(loader.loadTestsFromTestCase(TestCheckGhAuth))
     suite.addTests(loader.loadTestsFromTestCase(TestCommitMessage))
     suite.addTests(loader.loadTestsFromTestCase(TestPRBody))
     suite.addTests(loader.loadTestsFromTestCase(TestModuleConstants))
