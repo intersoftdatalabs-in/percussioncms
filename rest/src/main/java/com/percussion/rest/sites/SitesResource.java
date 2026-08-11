@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -226,6 +227,57 @@ public class SitesResource {
     } catch (Exception e) {
       log.error(
           "Failed to update virtual properties for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Builds a Virtual Site from configured {@code virtual.*} properties.
+   *
+   * @param nameOrId site name or GUID
+   * @param request optional body (output root override); may be null
+   * @return pages-written and link-problem summary
+   */
+  @POST
+  @Path("/{nameOrId}/virtual/build")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Build Virtual Site",
+      description =
+          "Runs the Phase 1 Virtual Site static build for a site configured with"
+              + " virtual.sourceKind=git-filesystem (and valid virtual.rootPath / configFile /"
+              + " siteKey). Uses PSVirtualSiteBuildService with portable NIO Path I/O. Requires"
+              + " Admin. Traditional repository Sites and invalid source kinds/paths return 4xx."
+              + " Optional body may set outputRoot; otherwise the server writes under"
+              + " {install}/tmp/virtual-sites/{siteKey}. Link problems are reported in the result"
+              + " (HTTP 200) without failing the build.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Build completed (check hasLinkProblems / linkProblemCount)",
+            content = @Content(schema = @Schema(implementation = VirtualSiteBuildResult.class))),
+        @ApiResponse(responseCode = "400", description = "Not virtual / validation / path failure"),
+        @ApiResponse(responseCode = "403", description = "Not authorized (Admin required)"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public VirtualSiteBuildResult buildVirtualSite(
+      @PathParam("nameOrId") String nameOrId, VirtualSiteBuildRequest request) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      // JSON/XML DTO via Jackson/JAXB/CXF — not HTML body (see suppressions.md)
+      return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to build virtual site '{}' ({}): {}",
           nameOrId,
           e.getClass().getName(),
           e.getMessage(),

@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.sites.Site;
+import com.percussion.rest.sites.VirtualSiteBuildRequest;
+import com.percussion.rest.sites.VirtualSiteBuildResult;
 import com.percussion.rest.sites.VirtualSiteProperties;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
@@ -36,14 +38,19 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,6 +62,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SitesAdaptorTest {
 
   @Mock private IPSSiteManager siteManager;
+
+  @TempDir Path tempDir;
 
   private SitesAdaptor adaptor;
   private IPSGuid previewCtx;
@@ -257,6 +266,188 @@ class SitesAdaptorTest {
     when(siteManager.findAllContexts()).thenReturn(List.of(other));
 
     assertEquals(otherId, adaptor.resolvePropertyContext(site));
+  }
+
+  @Test
+  void buildVirtualSite_rejectsRepositorySite() {
+    PSSite site = new PSSite();
+    site.setName("Corp");
+    site.setGUID(siteGuid);
+    when(siteManager.findSite("Corp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("Corp", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("not a virtual"));
+  }
+
+  @Test
+  void buildVirtualSite_forbiddenWhenNotAdmin() {
+    SitesAdaptor denied =
+        new SitesAdaptor(siteManager, () -> false, SitesAdaptor::defaultOutputRootForSiteKey, null);
+    // Admin gate runs before site load — no siteManager stub required.
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.buildVirtualSite("Help", null));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void buildVirtualSite_rejectsMissingRootDirectory() {
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    Path missing = tempDir.resolve("does-not-exist");
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, missing.toString());
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("Help", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+  }
+
+  @Test
+  void buildVirtualSite_runsBuildAndMapsResult() throws Exception {
+    Path siteRoot = createMinimalVirtualTree(tempDir.resolve("src"));
+    Path out = tempDir.resolve("out");
+
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sample");
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) ->
+            new PSVirtualSiteBuildResult(
+                outputRoot, 2, List.of(), List.of("8.2/index.html", "link-report.txt"));
+
+    SitesAdaptor building =
+        new SitesAdaptor(
+            siteManager, () -> true, key -> out, runner);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toString());
+
+    VirtualSiteBuildResult result = building.buildVirtualSite("Help", req);
+    assertEquals("Help", result.getSiteName().orElse(null));
+    assertEquals("sample", result.getSiteKey().orElse(null));
+    assertEquals(2, result.getPagesWritten().intValue());
+    assertEquals(0, result.getLinkProblemCount().intValue());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    assertTrue(result.getOutputPath().isPresent());
+    assertTrue(result.getWrittenFiles().contains("link-report.txt"));
+  }
+
+  @Test
+  void buildVirtualSite_realFilesystemBuild() throws Exception {
+    Path siteRoot = createMinimalVirtualTree(tempDir.resolve("real-src"));
+    Path out = tempDir.resolve("real-out");
+
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("Help", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    assertTrue(Files.isRegularFile(out.resolve("8.2").resolve("index.html")));
+    assertTrue(Files.isRegularFile(out.resolve("link-report.txt")));
+  }
+
+  @Test
+  void safePathSegment_stripsSeparators() {
+    assertEquals("a_b_c", SitesAdaptor.safePathSegment("a/b\\c"));
+    assertEquals("default", SitesAdaptor.safePathSegment(".."));
+  }
+
+  @Test
+  void requireSafeOutputRoot_rejectsTraversalAndEmpty() {
+    WebApplicationException parent =
+        assertThrows(
+            WebApplicationException.class,
+            () -> SitesAdaptor.requireSafeOutputRoot(Path.of("a", "..", "..", "etc").normalize()));
+    assertEquals(400, parent.getResponse().getStatus());
+
+    WebApplicationException empty =
+        assertThrows(
+            WebApplicationException.class,
+            () -> SitesAdaptor.requireSafeOutputRoot(Path.of("").normalize()));
+    assertEquals(400, empty.getResponse().getStatus());
+  }
+
+  @Test
+  void requireSafeOutputRoot_allowsNormalizedTempChild() {
+    Path ok = tempDir.resolve("virtual-out").normalize();
+    assertEquals(ok, SitesAdaptor.requireSafeOutputRoot(ok));
+  }
+
+  @Test
+  void resolveOutputRoot_rejectsUnsafeOverride() {
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(Path.of("a", "..", "..", "secret").toString());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.resolveOutputRoot(req, "help"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void resolveOutputRoot_acceptsSafeOverride() {
+    Path out = tempDir.resolve("safe-out").normalize();
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toString());
+    assertEquals(out, adaptor.resolveOutputRoot(req, "help").normalize());
+  }
+
+  private static Path createMinimalVirtualTree(Path siteRoot) throws Exception {
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Help
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body>{{content}}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        versionDir.resolve("index.md"),
+        """
+        ---
+        id: help-home
+        title: Home
+        ---
+
+        Welcome.
+        """,
+        StandardCharsets.UTF_8);
+    return siteRoot;
   }
 
   private void put(PSSite site, String name, String value) {

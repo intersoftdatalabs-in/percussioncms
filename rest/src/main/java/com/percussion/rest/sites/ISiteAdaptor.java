@@ -91,4 +91,20 @@ public interface ISiteAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException 400 on validation failure, 404 when site not found
    */
   VirtualSiteProperties updateVirtualSiteProperties(String nameOrId, VirtualSiteProperties props);
+
+  /**
+   * Builds a Virtual Site from configured {@code virtual.*} properties (Phase 1:
+   * {@code git-filesystem}).
+   *
+   * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, runs {@code
+   * PSVirtualSiteBuildService} with portable NIO {@code Path} I/O, and returns pages-written plus
+   * link-problem summary. Requires Admin (or equivalent site-manage) authorization.
+   *
+   * @param nameOrId site name or GUID string, not blank
+   * @param request optional body (output root override); may be null
+   * @return build summary (never null)
+   * @throws jakarta.ws.rs.WebApplicationException 400 for repository / invalid virtual config /
+   *     path issues, 403 when not authorized, 404 when site not found
+   */
+  VirtualSiteBuildResult buildVirtualSite(String nameOrId, VirtualSiteBuildRequest request);
 }

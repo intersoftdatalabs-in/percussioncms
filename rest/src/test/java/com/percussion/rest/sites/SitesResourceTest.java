@@ -158,6 +158,43 @@ public class SitesResourceTest {
     verify(adaptor, never()).updateVirtualSiteProperties(any(), any());
   }
 
+  @Test
+  public void buildVirtualSiteDelegates() {
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("Help");
+    built.setPagesWritten(3);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath("C:/tmp/out");
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot("C:/tmp/out");
+    when(adaptor.buildVirtualSite(eq("Help"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult out = resource.buildVirtualSite("Help", req);
+    assertEquals(3, out.getPagesWritten().intValue());
+    assertEquals("C:/tmp/out", out.getOutputPath().orElse(null));
+    verify(adaptor).buildVirtualSite("Help", req);
+  }
+
+  @Test
+  public void buildVirtualSiteAllowsNullBody() {
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setPagesWritten(1);
+    when(adaptor.buildVirtualSite(eq("Help"), any())).thenReturn(built);
+
+    VirtualSiteBuildResult out = resource.buildVirtualSite("Help", null);
+    assertEquals(1, out.getPagesWritten().intValue());
+    verify(adaptor).buildVirtualSite("Help", null);
+  }
+
+  @Test
+  public void buildVirtualSiteBlankName400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).buildVirtualSite(any(), any());
+  }
+
   /**
    * CodeQL #1949: Jackson/JAXB JSON/XML DTO return must keep same-line {@code // codeql[java/xss]}
    * on the updateVirtual sink (not HTML body construction).
@@ -172,6 +209,10 @@ public class SitesResourceTest {
         text.contains(
             "return requireAdaptor().updateVirtualSiteProperties(nameOrId, props); // codeql[java/xss]"),
         "updateVirtualSiteProperties return sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains(
+            "return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]"),
+        "buildVirtualSite return sink must carry same-line codeql[java/xss]");
   }
 
   @Test

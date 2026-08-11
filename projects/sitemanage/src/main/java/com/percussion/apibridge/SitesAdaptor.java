@@ -23,7 +23,10 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.rest.sites.ISiteAdaptor;
 import com.percussion.rest.sites.Site;
 import com.percussion.rest.sites.SiteList;
+import com.percussion.rest.sites.VirtualSiteBuildRequest;
+import com.percussion.rest.sites.VirtualSiteBuildResult;
 import com.percussion.rest.sites.VirtualSiteProperties;
+import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSPublishingContext;
@@ -31,24 +34,42 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.services.virtualsite.PSGitFilesystemVirtualSiteSource;
+import com.percussion.services.virtualsite.PSInMemoryVirtualParticipantService;
+import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
+import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
+import com.percussion.services.virtualsite.VirtualSiteConfig;
+import com.percussion.services.virtualsite.VirtualSiteConfigLoader;
 import com.percussion.services.virtualsite.VirtualSiteException;
+import com.percussion.services.virtualsite.VirtualSiteSourceType;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-/** Adaptor for managing sites in Percussion CMS, including Virtual Site properties. */
+/** Adaptor for managing sites in Percussion CMS, including Virtual Site properties and build. */
 @PSSiteManageBean
 @Lazy
 public class SitesAdaptor implements ISiteAdaptor {
@@ -57,26 +78,80 @@ public class SitesAdaptor implements ISiteAdaptor {
   /** Preferred default context name when creating new virtual.* properties. */
   static final String DEFAULT_PROPERTY_CONTEXT = "Preview";
 
+  /** Max link-problem / written-file lines returned on the wire (full report is on disk). */
+  static final int MAX_RESULT_LINES = 200;
+
   @Autowired private IPSPublishingWs publishingWs;
 
   @Autowired private IPSSiteDataService siteDataService;
 
   @Autowired private IPSSiteSectionService siteSectionService;
 
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired private IPSUserService userService;
+
   private final IPSSiteManager siteManager;
 
-  /** Default constructor (Spring / locator). */
-  public SitesAdaptor() {
-    this(PSSiteManagerLocator.getSiteManager());
+  /** Admin gate; production uses {@link #isCurrentUserAdmin()}, tests inject allow/deny. */
+  private final BooleanSupplier adminChecker;
+
+  /** Maps siteKey → default output Path when the request omits outputRoot. */
+  private final Function<String, Path> defaultOutputRootResolver;
+
+  /**
+   * Optional build runner for unit tests. When null, production constructs {@link
+   * PSVirtualSiteBuildService} with a participant meta directory under the output root.
+   */
+  private final BuildRunner buildRunner;
+
+  /** Functional hook for the static build (production or test double). */
+  @FunctionalInterface
+  interface BuildRunner {
+    PSVirtualSiteBuildResult build(VirtualSiteConfig config, Path outputRoot) throws Exception;
   }
 
   /**
-   * Test-friendly constructor.
+   * Default constructor (Spring / locator). Admin checks use {@link #isCurrentUserAdmin()} after
+   * {@link IPSUserService} field injection.
+   */
+  public SitesAdaptor() {
+    this(
+        PSSiteManagerLocator.getSiteManager(),
+        null,
+        SitesAdaptor::defaultOutputRootForSiteKey,
+        null);
+  }
+
+  /**
+   * Test-friendly constructor (Admin allowed for non-build tests; production default output /
+   * build).
    *
    * @param siteManager site manager, not null
    */
   public SitesAdaptor(IPSSiteManager siteManager) {
+    this(siteManager, () -> true, SitesAdaptor::defaultOutputRootForSiteKey, null);
+  }
+
+  /**
+   * Fully injectable constructor for unit tests.
+   *
+   * @param siteManager site manager
+   * @param adminChecker returns true when caller is Admin; null uses {@link #isCurrentUserAdmin()}
+   * @param defaultOutputRootResolver maps siteKey → default output Path
+   * @param buildRunner optional override for the build step; null uses production service
+   */
+  SitesAdaptor(
+      IPSSiteManager siteManager,
+      BooleanSupplier adminChecker,
+      Function<String, Path> defaultOutputRootResolver,
+      BuildRunner buildRunner) {
     this.siteManager = siteManager != null ? siteManager : PSSiteManagerLocator.getSiteManager();
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.defaultOutputRootResolver =
+        defaultOutputRootResolver != null
+            ? defaultOutputRootResolver
+            : SitesAdaptor::defaultOutputRootForSiteKey;
+    this.buildRunner = buildRunner;
   }
 
   @Override
@@ -201,6 +276,114 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
   }
 
+  @Override
+  public VirtualSiteBuildResult buildVirtualSite(
+      String nameOrId, VirtualSiteBuildRequest request) {
+    requireAdmin();
+    IPSSite site = requireSite(nameOrId);
+
+    if (!PSVirtualSiteHelper.isVirtual(site)) {
+      throw new WebApplicationException(
+          "Site '"
+              + site.getName()
+              + "' is not a Virtual Site (virtual.sourceKind is blank or '"
+              + PSVirtualSiteHelper.SOURCE_KIND_REPOSITORY
+              + "'). Configure virtual.* properties before building.",
+          Response.Status.BAD_REQUEST);
+    }
+
+    try {
+      PSVirtualSiteHelper.validate(site);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    }
+
+    VirtualSiteSourceType type =
+        PSVirtualSiteHelper.virtualSourceType(site)
+            .orElseThrow(
+                () ->
+                    new WebApplicationException(
+                        "Unsupported virtual.sourceKind for build",
+                        Response.Status.BAD_REQUEST));
+    if (type != VirtualSiteSourceType.GIT_FILESYSTEM) {
+      throw new WebApplicationException(
+          "Build is only supported for virtual.sourceKind="
+              + VirtualSiteSourceType.GIT_FILESYSTEM.wireName()
+              + " (got "
+              + type.wireName()
+              + ")",
+          Response.Status.BAD_REQUEST);
+    }
+
+    Path siteRoot =
+        PSVirtualSiteHelper.rootPath(site)
+            .orElseThrow(
+                () ->
+                    new WebApplicationException(
+                        PSVirtualSiteHelper.PROP_ROOT_PATH + " is required for Virtual Site build",
+                        Response.Status.BAD_REQUEST));
+    if (!Files.isDirectory(siteRoot)) {
+      throw new WebApplicationException(
+          PSVirtualSiteHelper.PROP_ROOT_PATH
+              + " is not an existing directory: '"
+              + siteRoot
+              + "'",
+          Response.Status.BAD_REQUEST);
+    }
+
+    String siteKey = PSVirtualSiteHelper.siteKey(site);
+    String configFile = PSVirtualSiteHelper.configFile(site);
+    // Barrier: only paths that pass requireSafeOutputRoot reach NIO create/resolve sinks.
+    Path outputRoot = requireSafeOutputRoot(resolveOutputRoot(request, siteKey));
+
+    try {
+      // codeql[java/path-injection] reason: outputRoot passed requireSafeOutputRoot /
+      // PSVirtualSiteHelper.isSafeRootPath (no empty path / remaining '..' after normalize);
+      // Admin-only. Model: SitesAdaptor.requireSafeOutputRoot barrier.
+      Files.createDirectories(outputRoot);
+      Path metaDir = outputRoot.resolve("_meta"); // codeql[java/path-injection]
+      Files.createDirectories(metaDir);
+
+      VirtualSiteConfig config = VirtualSiteConfigLoader.load(siteRoot, configFile, siteKey);
+      PSVirtualSiteBuildResult built = runBuild(config, outputRoot, metaDir);
+      return toWireResult(site.getName(), siteKey, built);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (IOException e) {
+      log.error(
+          "Virtual Site build I/O failed for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(
+          "Virtual Site build failed: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Virtual Site build failed for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(
+          "Virtual Site build failed: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private PSVirtualSiteBuildResult runBuild(
+      VirtualSiteConfig config, Path outputRoot, Path metaDir) throws Exception {
+    if (buildRunner != null) {
+      return buildRunner.build(config, outputRoot);
+    }
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(
+            new PSGitFilesystemVirtualSiteSource(),
+            new PSInMemoryVirtualParticipantService(metaDir));
+    return service.build(config, outputRoot);
+  }
+
   /**
    * Map domain site to rest detail DTO including virtual properties.
    *
@@ -250,6 +433,151 @@ public class SitesAdaptor implements ISiteAdaptor {
         .ifPresent(v::setSiteKey);
     v.setVirtual(PSVirtualSiteHelper.isVirtual(site));
     return v;
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(
+          "Admin role required to build Virtual Sites", Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(
+          "Admin role required to build Virtual Sites", Response.Status.FORBIDDEN);
+    }
+  }
+
+  /**
+   * Production Admin check via {@link IPSUserService}. Used when Spring wires the no-arg ctor and
+   * {@link #adminChecker} is the instance method reference.
+   */
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  Path resolveOutputRoot(VirtualSiteBuildRequest request, String siteKey) {
+    String override =
+        request != null ? blankToNull(request.getOutputRoot().orElse(null)) : null;
+    if (override != null) {
+      Path path;
+      try {
+        path = Path.of(override).normalize();
+      } catch (InvalidPathException e) {
+        throw new WebApplicationException(
+            "outputRoot is not a valid filesystem path: '" + override + "'",
+            Response.Status.BAD_REQUEST);
+      }
+      return requireSafeOutputRoot(path);
+    }
+    return requireSafeOutputRoot(defaultOutputRootResolver.apply(safePathSegment(siteKey)));
+  }
+
+  /**
+   * Path-injection barrier for Virtual Site build output roots.
+   *
+   * <p>Rejects empty / {@code .} / remaining {@code ..} name elements after normalize (delegates to
+   * {@link PSVirtualSiteHelper#isSafeRootPath(Path)}). Modeled for CodeQL as a {@code
+   * path-injection} barrier; callers must not use the input path after a failed check.
+   *
+   * @param path candidate output root (already normalized preferred)
+   * @return the same path after validation
+   * @throws WebApplicationException 400 when the path is unsafe
+   */
+  static Path requireSafeOutputRoot(Path path) {
+    if (!PSVirtualSiteHelper.isSafeRootPath(path)) {
+      throw new WebApplicationException(
+          "outputRoot must be a non-empty path with no '..' segments after normalize. Rejected: '"
+              + path
+              + "'",
+          Response.Status.BAD_REQUEST);
+    }
+    return path.normalize();
+  }
+
+  /**
+   * Default output: {@code {rxDir}/tmp/virtual-sites/{siteKey}} when install root is known, else
+   * {@code {java.io.tmpdir}/percussion-virtual-sites/{siteKey}}. Uses portable NIO {@link Path}.
+   */
+  static Path defaultOutputRootForSiteKey(String siteKey) {
+    String key = safePathSegment(siteKey);
+    try {
+      File rx = PSServer.getRxDir();
+      if (rx != null) {
+        Path base = rx.toPath().normalize();
+        if (PSVirtualSiteHelper.isSafeRootPath(base)) {
+          return base.resolve("tmp").resolve("virtual-sites").resolve(key);
+        }
+      }
+    } catch (RuntimeException e) {
+      // Fall through to JVM temp — unit tests / early boot may lack install root.
+      log.debug("PSServer.getRxDir unavailable for virtual build output: {}", e.getMessage());
+    }
+    return Path.of(System.getProperty("java.io.tmpdir"), "percussion-virtual-sites", key);
+  }
+
+  static VirtualSiteBuildResult toWireResult(
+      String siteName, String siteKey, PSVirtualSiteBuildResult built) {
+    VirtualSiteBuildResult dto = new VirtualSiteBuildResult();
+    dto.setSiteName(siteName);
+    dto.setSiteKey(siteKey);
+    if (built.outputRoot() != null) {
+      dto.setOutputPath(built.outputRoot().toAbsolutePath().normalize().toString());
+    }
+    dto.setPagesWritten(built.pageCount());
+    List<String> problems = built.linkProblems();
+    dto.setLinkProblemCount(problems.size());
+    dto.setHasLinkProblems(!problems.isEmpty());
+    dto.setLinkProblems(truncate(problems, MAX_RESULT_LINES));
+    dto.setWrittenFiles(truncate(built.writtenFiles(), MAX_RESULT_LINES));
+    return dto;
+  }
+
+  private static List<String> truncate(List<String> lines, int max) {
+    if (lines == null || lines.isEmpty()) {
+      return new ArrayList<>();
+    }
+    if (lines.size() <= max) {
+      return new ArrayList<>(lines);
+    }
+    List<String> out = new ArrayList<>(lines.subList(0, max));
+    out.add("… truncated " + (lines.size() - max) + " more line(s); see link-report.txt / output");
+    return out;
+  }
+
+  /** Sanitize siteKey for use as a single path segment (no separators / traversal). */
+  static String safePathSegment(String siteKey) {
+    String raw = StringUtils.isBlank(siteKey) ? "default" : siteKey.trim();
+    StringBuilder sb = new StringBuilder(raw.length());
+    for (int i = 0; i < raw.length(); i++) {
+      char c = raw.charAt(i);
+      if (c == '/' || c == '\\' || c == ':' || c == 0) {
+        sb.append('_');
+      } else {
+        sb.append(c);
+      }
+    }
+    String cleaned = sb.toString();
+    if ("..".equals(cleaned) || ".".equals(cleaned) || cleaned.isEmpty()) {
+      return "default";
+    }
+    return cleaned;
   }
 
   private IPSSite requireSite(String nameOrId) {
