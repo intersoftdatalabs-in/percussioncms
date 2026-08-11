@@ -76,7 +76,7 @@ public class PSSearchUtils {
    *     fields for that child are returned, otherwise the fields for the main item are returned.
    * @throws PSInvalidContentTypeException
    */
-  public static Iterator getFields(PSSearchKey key) throws PSInvalidContentTypeException {
+  public static Iterator<PSField> getFields(PSSearchKey key) throws PSInvalidContentTypeException {
     if (null == key) {
       throw new IllegalArgumentException("key cannot be null");
     }
@@ -84,7 +84,7 @@ public class PSSearchUtils {
       PSItemDefinition def =
           PSItemDefManager.getInstance()
               .getItemDef(key.getContentTypeKey().getPartAsInt(), PSItemDefManager.COMMUNITY_ANY);
-      Iterator results;
+      Iterator<PSField> results;
       if (null != key.getChildId()) {
         int id = Integer.parseInt(key.getChildId().getChildContentType());
         results = def.getChildFields(id);

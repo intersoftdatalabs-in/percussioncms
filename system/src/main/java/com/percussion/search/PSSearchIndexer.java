@@ -98,7 +98,8 @@ public abstract class PSSearchIndexer {
    *     basis.
    * @throws PSSearchException If the data can't be added for any reason.
    */
-  public abstract void update(PSSearchKey unitId, Map itemFragment, boolean commitToIndex)
+  public abstract void update(
+      PSSearchKey unitId, Map<String, Object> itemFragment, boolean commitToIndex)
       throws PSSearchException;
 
   /**
@@ -139,7 +140,7 @@ public abstract class PSSearchIndexer {
    *     to reach the server. Invalid or <code>
    * null</code> id entries do not cause an exception.
    */
-  public abstract void delete(Collection unitIds) throws PSSearchException;
+  public abstract void delete(Collection<? extends PSSearchKey> unitIds) throws PSSearchException;
 
   /**
    * Removes all data ever submitted to the index, including any data submitted but not yet

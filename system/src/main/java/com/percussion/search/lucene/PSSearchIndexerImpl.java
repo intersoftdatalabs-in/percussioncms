@@ -180,17 +180,22 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   @Override
-  public void delete(Collection unitIds) throws PSSearchException {
-    for (Object id : unitIds) {
-      PSSearchKey unitId = (PSSearchKey) id;
+  public void delete(Collection<? extends PSSearchKey> unitIds) throws PSSearchException {
+    if (unitIds == null) {
+      throw new IllegalArgumentException("unitIds cannot be null");
+    }
+    for (PSSearchKey unitId : unitIds) {
+      if (unitId == null) {
+        continue;
+      }
       PSItemChildLocator chLoc = unitId.getChildId();
-      Term term = null;
+      Term term;
       if (chLoc == null) {
         term = new Term(IPSHtmlParameters.SYS_CONTENTID, "" + unitId.getParentLocator().getId());
       } else {
         term = new Term(PSKeyConverter.LUCENE_DOCID_FIELDNAME, PSKeyConverter.convert(unitId));
       }
-      Long ctypeid = new Long(unitId.getContentTypeKey().getPartAsInt());
+      Long ctypeid = Long.valueOf(unitId.getContentTypeKey().getPartAsInt());
       try {
         IndexWriter iw = getIndexWriter(ctypeid, null);
         iw.deleteDocuments(term);
@@ -211,7 +216,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   @Override
-  public void update(PSSearchKey unitId, Map itemFragment, boolean commitToIndex)
+  public void update(PSSearchKey unitId, Map<String, Object> itemFragment, boolean commitToIndex)
       throws PSSearchException {
     if (null == unitId) {
       throw new IllegalArgumentException("unitId cannot be null");
@@ -219,8 +224,9 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
     if (null == itemFragment) {
       throw new IllegalArgumentException("itemFragment cannot be null");
     }
-    String lang = (String) itemFragment.get(IPSHtmlParameters.SYS_LANG);
-    Long ctypeid = new Long(unitId.getContentTypeKey().getPartAsInt());
+    Object langObj = itemFragment.get(IPSHtmlParameters.SYS_LANG);
+    String lang = langObj == null ? null : String.valueOf(langObj);
+    Long ctypeid = Long.valueOf(unitId.getContentTypeKey().getPartAsInt());
 
     try {
       Analyzer an = PSLuceneAnalyzerFactory.getInstance().getAnalyzer(lang);
@@ -339,13 +345,15 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
    * @param itemFragment assumed not <code>null</code>.
    * @return lucene documents never <code>null</code>.
    */
-  private Document prepareLuceneDocument(PSSearchKey unitId, Map itemFragment)
+  private Document prepareLuceneDocument(PSSearchKey unitId, Map<String, Object> itemFragment)
       throws PSSearchException {
     Document doc = new Document();
-    List<Field> lucFields = new ArrayList<Field>();
-    List<String> fieldData = new ArrayList<String>();
+    List<Field> lucFields = new ArrayList<>();
+    List<String> fieldData = new ArrayList<>();
     String errmsg = "Skipping indexing of field (name:{0},unitid:{1}).";
     String docid = PSKeyConverter.convert(unitId);
+    // Mime-type lookup only reads String field values (ext/type); binary payload keys are ignored.
+    Map<String, String> stringFieldValues = stringFieldValues(itemFragment);
 
     // separate submission; remove non-searchable fields
     try {
@@ -354,17 +362,15 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
               .getItemDef(
                   unitId.getContentTypeKey().getPartAsInt(), PSItemDefManager.COMMUNITY_ANY);
 
-      Set<PSField> fields = new HashSet<PSField>();
-      Iterator itemFields = PSSearchUtils.getFields(unitId);
+      Set<PSField> fields = new HashSet<>();
+      Iterator<PSField> itemFields = PSSearchUtils.getFields(unitId);
       while (itemFields.hasNext()) {
-        fields.add((PSField) itemFields.next());
+        fields.add(itemFields.next());
       }
       fields.addAll(PSSearchUtils.getSearchableFields(def));
 
-      Iterator fieldsIter = fields.iterator();
-      while (fieldsIter.hasNext()) {
+      for (PSField field : fields) {
         Field lucField = null;
-        PSField field = (PSField) fieldsIter.next();
         String name = field.getSubmitName();
         Object data = itemFragment.get(name);
         boolean addToAllContent = field.getSearchProperties().isVisibleToGlobalQuery();
@@ -396,7 +402,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
           try {
             is = getBodyFieldDataAsStream(unitId, data, name);
             if (is == null) continue;
-            String mimetype = def.getFieldMimeType(name, itemFragment);
+            String mimetype = def.getFieldMimeType(name, stringFieldValues);
             if (StringUtils.isBlank(mimetype)) {
               String msg = errmsg + " as the mimetype is empty.";
               Object[] args = {name, docid};
@@ -444,7 +450,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
           if (StringUtils.isBlank(fieldContent)) continue;
           String text = "";
 
-          String mimetype = def.getFieldMimeType(name, itemFragment);
+          String mimetype = def.getFieldMimeType(name, stringFieldValues);
           if (StringUtils.isBlank(mimetype)) {
             String msg = errmsg + " as the mimetype is empty.";
             Object[] args = {name, docid};
@@ -522,7 +528,7 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
     if (data instanceof InputStream) {
       is = (InputStream) data;
     } else {
-      byte[] body = null;
+      byte[] body;
       if (data instanceof byte[]) body = (byte[]) data;
       else if (data instanceof PSFieldRetriever) {
         PSFieldRetriever retriever = (PSFieldRetriever) data;
@@ -532,14 +538,31 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
           childId = Integer.parseInt(unitId.getChildId().getChildRowId());
         }
         body = retriever.getFieldContent(req, unitId.getParentLocator(), fieldName, childId);
-      } else if (null == data) {
-        body = new byte[0];
       } else {
-        body = ((String) data).toString().getBytes();
+        body = String.valueOf(data).getBytes();
       }
       if (body.length > 0) is = new ByteArrayInputStream(body);
     }
     return is;
+  }
+
+  /**
+   * Builds a string-only view of an item fragment for mime-type resolution. Non-string values
+   * (binary payloads, streams, field retrievers) are omitted — the same behavior as the historical
+   * raw-Map path when {@link PSItemDefinition#getFieldMimeType(String, Map)} cast values to String.
+   *
+   * @param itemFragment assumed not <code>null</code>
+   * @return never <code>null</code>
+   */
+  static Map<String, String> stringFieldValues(Map<String, Object> itemFragment) {
+    Map<String, String> strings = new HashMap<>();
+    for (Map.Entry<String, Object> entry : itemFragment.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof String) {
+        strings.put(entry.getKey(), (String) value);
+      }
+    }
+    return strings;
   }
 
   /**
