@@ -30,54 +30,71 @@ import org.junit.jupiter.api.Test;
  * Regression for issue #806: Directory widget package Velocity must emit Schema.org JSON-LD
  * (ItemList of Person entries) via additional head content, matching peer directory package widgets
  * (percPerson / percOrganization / percDepartment).
+ *
+ * <p>After batch B ship-exit (#2884), markers live under modern {@code widgets/&lt;stem&gt;/}
+ * templates (and bindings) rather than committed install Widget XML.
  */
 class PSDirectoryWidgetSchemaOrgTest {
 
-  private static final String DIRECTORY_WIDGET_RESOURCE =
-      "/Packages/perc.widget.directory/sys__UserDependency--rxconfig/Widgets/percDirectory.xml";
+  private static final String DIRECTORY_MODERN_TEMPLATE =
+      "/Packages/perc.widget.directory/widgets/percDirectory/templates/percDirectorySnippet.vm";
 
-  private static final String PERSON_WIDGET_RESOURCE =
-      "/Packages/perc.widget.directory/sys__UserDependency--rxconfig/Widgets/percPerson.xml";
+  private static final String DIRECTORY_MODERN_MANIFEST =
+      "/Packages/perc.widget.directory/widgets/percDirectory/component-package.json";
+
+  private static final String PERSON_MODERN_TEMPLATE =
+      "/Packages/perc.widget.directory/widgets/percPerson/templates/percPersonSnippet.vm";
+
+  private static final String PERSON_MODERN_MANIFEST =
+      "/Packages/perc.widget.directory/widgets/percPerson/component-package.json";
 
   @Test
   void percDirectoryXml_containsSchemaOrgJsonLdMarkers() throws IOException {
-    String xml = readClasspathResource(DIRECTORY_WIDGET_RESOURCE);
+    // Template + bindings cover Schema.org markers split across modern package parts.
+    String source =
+        readClasspathResource(DIRECTORY_MODERN_TEMPLATE)
+            + "\n"
+            + readClasspathResource(DIRECTORY_MODERN_MANIFEST);
 
     assertTrue(
-        xml.contains("http://schema.org"),
-        "percDirectory.xml must set JSON-LD @context to schema.org");
+        source.contains("http://schema.org"),
+        "percDirectory modern sources must set JSON-LD @context to schema.org");
     assertTrue(
-        xml.contains("application/ld+json"),
-        "percDirectory.xml must emit application/ld+json script type");
+        source.contains("application/ld+json"),
+        "percDirectory modern sources must emit application/ld+json script type");
     assertTrue(
-        xml.contains("ItemList"), "percDirectory.xml must use Schema.org ItemList for directory");
+        source.contains("ItemList"),
+        "percDirectory modern sources must use Schema.org ItemList for directory");
     assertTrue(
-        xml.contains("perc-directory-schema-"),
-        "percDirectory.xml must use multi-instance script id prefix perc-directory-schema-");
+        source.contains("perc-directory-schema-"),
+        "percDirectory modern sources must use multi-instance script id prefix perc-directory-schema-");
     assertTrue(
-        xml.contains("setAdditionalHeadContent"),
-        "percDirectory.xml must inject JSON-LD via setAdditionalHeadContent");
+        source.contains("setAdditionalHeadContent"),
+        "percDirectory modern sources must inject JSON-LD via setAdditionalHeadContent");
     assertTrue(
-        xml.contains("getJSONObject()"),
-        "percDirectory.xml must build JSON-LD with $rx.string.getJSONObject");
+        source.contains("getJSONObject()"),
+        "percDirectory modern sources must build JSON-LD with $rx.string.getJSONObject");
     assertTrue(
-        xml.contains("getJSONArray()"),
-        "percDirectory.xml must build itemListElement with $rx.string.getJSONArray");
+        source.contains("getJSONArray()"),
+        "percDirectory modern sources must build itemListElement with $rx.string.getJSONArray");
     assertTrue(
-        xml.contains("\"Person\"") || xml.contains("\"@type\", \"Person\""),
-        "percDirectory.xml must type directory entries as Person");
+        source.contains("\"Person\"") || source.contains("\"@type\", \"Person\""),
+        "percDirectory modern sources must type directory entries as Person");
     assertTrue(
-        xml.contains("itemListElement"),
-        "percDirectory.xml must populate Schema.org itemListElement");
+        source.contains("itemListElement"),
+        "percDirectory modern sources must populate Schema.org itemListElement");
   }
 
   @Test
   void percPersonXml_stillContainsPeerSchemaOrgMarkers() throws IOException {
     // Guard against accidental package resource packaging breakage while asserting peer parity.
-    String xml = readClasspathResource(PERSON_WIDGET_RESOURCE);
-    assertTrue(xml.contains("http://schema.org"));
-    assertTrue(xml.contains("application/ld+json"));
-    assertTrue(xml.contains("setAdditionalHeadContent"));
+    String source =
+        readClasspathResource(PERSON_MODERN_TEMPLATE)
+            + "\n"
+            + readClasspathResource(PERSON_MODERN_MANIFEST);
+    assertTrue(source.contains("http://schema.org"));
+    assertTrue(source.contains("application/ld+json"));
+    assertTrue(source.contains("setAdditionalHeadContent"));
   }
 
   private static String readClasspathResource(String resourcePath) throws IOException {

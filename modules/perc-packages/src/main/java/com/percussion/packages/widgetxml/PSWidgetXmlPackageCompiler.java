@@ -30,12 +30,13 @@ import java.util.Objects;
 /**
  * Compiles all Widget definition XML files found in a legacy product package source directory.
  *
- * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} (product packaging layout used
- * by {@code modules/perc-packages}). Covers baseWidgets, high-traffic product packages (#2772), the
- * residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
- * {@code perc.Test} residual (#2830). Product Widget XML remains dual-run until install consumes
- * modern packages (Phase 5 exit). Dual-ship modern authoring roots for batch A live under {@code
- * widgets/&lt;stem&gt;/} ({@link PSWidgetXmlDualShip}, issue #2831).
+ * <p>Looks under {@code sys__UserDependency--rxconfig/Widgets/*.xml} when present (product packaging
+ * layout used by {@code modules/perc-packages}). When install Widget XML is absent but modern {@code
+ * widgets/&lt;stem&gt;/} roots exist (batch B ship-exit #2884; batch A ship-exit #2883), compiles
+ * from modern authoring sources instead. Covers baseWidgets, high-traffic product packages (#2772),
+ * the residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
+ * {@code perc.Test} residual (#2830). Dual-ship modern authoring roots live under {@code
+ * widgets/&lt;stem&gt;/} ({@link PSWidgetXmlDualShip}, issues #2831 / #2832 / #2844).
  */
 public final class PSWidgetXmlPackageCompiler {
 
@@ -160,27 +161,27 @@ public final class PSWidgetXmlPackageCompiler {
 
     PSWidgetXmlPackageContext ctx = PSWidgetXmlPackageContext.fromPackageDir(packageDir);
     Path widgetsDir = resolveWidgetsDir(packageDir);
-    if (!Files.isDirectory(widgetsDir)) {
-      throw new PSWidgetXmlException(
-          "Widgets directory not found under package (expected "
-              + WIDGETS_RELATIVE
-              + "): "
-              + packageDir);
-    }
 
     List<Path> widgetFiles = new ArrayList<>();
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(widgetsDir, "*.xml")) {
-      for (Path p : stream) {
-        if (Files.isRegularFile(p)) {
-          widgetFiles.add(p);
+    if (Files.isDirectory(widgetsDir)) {
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(widgetsDir, "*.xml")) {
+        for (Path p : stream) {
+          if (Files.isRegularFile(p)) {
+            widgetFiles.add(p);
+          }
         }
       }
+      widgetFiles.sort(
+          Comparator.comparing(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)));
     }
-    widgetFiles.sort(
-        Comparator.comparing(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)));
 
+    // Modern-only ship packages (batch B #2884 / batch A #2883): no committed Widget XML.
     if (widgetFiles.isEmpty()) {
-      throw new PSWidgetXmlException("No Widget XML files found in: " + widgetsDir);
+      if (PSWidgetXmlDualShip.hasModernWidgetSources(packageDir)) {
+        return PSWidgetXmlDualShip.compileModernWidgets(packageDir);
+      }
+      throw new PSWidgetXmlException(
+          "No Widget XML files and no modern widgets/ sources under package: " + packageDir);
     }
 
     List<PSWidgetXmlCompileResult> results = new ArrayList<>();
