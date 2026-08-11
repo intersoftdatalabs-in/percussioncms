@@ -75,11 +75,18 @@ public class PSMembershipService implements IPSMembershipService {
       var summaries = new ArrayList<PSUserSummary>();
       var deliveryClient = new PSDeliveryClient();
 
-      List<Object> users =
-          (List<Object>) deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
-      for (var i = 0; i < users.size(); i++) {
-
-        Map<String, Object> userSum = (Map<String, Object>) users.get(i);
+      Object usersObj = deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
+      if (!(usersObj instanceof List<?> users)) {
+        throw new IllegalStateException("Membership users response was not a JSON array");
+      }
+      for (Object userObj : users) {
+        if (!(userObj instanceof Map<?, ?> raw)) {
+          continue;
+        }
+        Map<String, Object> userSum = new java.util.LinkedHashMap<>();
+        for (var e : raw.entrySet()) {
+          userSum.put(String.valueOf(e.getKey()), e.getValue());
+        }
         var userSummary = new PSUserSummary();
         userSummary.setEmail((String) userSum.get("email"));
         userSummary.setCreatedDate((String) userSum.get("createdDate"));

@@ -344,11 +344,9 @@ public class PSContentItemDao implements IPSContentItemDao {
             if (value instanceof PSPurgableTempFile) {
               fv = new PSPurgableFileValue((PSPurgableTempFile) value);
               f.addValue(fv);
-            } else if (value instanceof List) {
-
-              var values = (List<String>) value;
-              for (var val : values) {
-                fv = f.createFieldValue(val);
+            } else if (value instanceof List<?> list) {
+              for (var element : list) {
+                fv = f.createFieldValue(element == null ? null : String.valueOf(element));
                 f.addValue(fv);
               }
             } else if (value instanceof Long) {

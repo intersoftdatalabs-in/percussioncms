@@ -104,11 +104,14 @@ public class PSPreviewItemContent extends HttpServlet {
   private HttpServletRequest getRequestFromUrl(String url, HttpServletRequest request)
       throws PSRequestParsingException {
     var mutableUrl = new PSMutableUrl(url);
-    Map<String, String> params = mutableUrl.getParamMap();
+    // PSMutableUrl#getParamMap() is historically raw Map.
+    Map<?, ?> params = mutableUrl.getParamMap();
 
     var params2 = new HashMap<String, String[]>();
-    for (Map.Entry<String, String> entry : params.entrySet()) {
-      params2.put(entry.getKey(), new String[] {entry.getValue()});
+    for (Map.Entry<?, ?> entry : params.entrySet()) {
+      params2.put(
+          String.valueOf(entry.getKey()),
+          new String[] {entry.getValue() == null ? null : String.valueOf(entry.getValue())});
     }
 
     var wrapReq = new PSServletRequestWrapper(request);

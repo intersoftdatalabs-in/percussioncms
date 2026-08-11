@@ -162,6 +162,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -1020,7 +1021,8 @@ public class PSPageUtils extends PSJexlUtilBase {
     try {
       ObjectMapper mapper = JsonMapper.builder().build();
 
-      Map<String, String> jsonObject = mapper.readValue(metadata, Map.class);
+      Map<String, String> jsonObject =
+          mapper.readValue(metadata, new TypeReference<Map<String, String>>() {});
       Map<String, String> map = new ConcurrentHashMap<>();
 
       for (Map.Entry<String, String> entry : jsonObject.entrySet()) {
@@ -2020,7 +2022,8 @@ public class PSPageUtils extends PSJexlUtilBase {
       // Get the persisted drop down field value.
 
       var mapper = new tools.jackson.databind.ObjectMapper();
-      List<Map<String, Object>> jsonArray = mapper.readValue(fieldValue, java.util.ArrayList.class);
+      List<Map<String, Object>> jsonArray =
+          mapper.readValue(fieldValue, new TypeReference<List<Map<String, Object>>>() {});
 
       // Get the categories from the category xml, so that the relevant
       // map can be populated.
@@ -2127,6 +2130,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       throw new IllegalArgumentException("$sys is not a Map it is " + sysObj.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     Map<String, Object> sysMap = (Map<String, Object>) sysObj;
     Object metaObj = sysMap.get("metadata");
     if (metaObj == null) {
@@ -2137,13 +2141,19 @@ public class PSPageUtils extends PSJexlUtilBase {
         metaObj = sysMap.get("metadata");
 
         if (metaObj == null) {
-          metaObj = new HashMap<String, Integer>();
+          metaObj = new HashMap<String, Object>();
           sysMap.put("metadata", metaObj);
         }
       }
     }
 
-    return (Map<String, Object>) metaObj;
+    if (!(metaObj instanceof Map<?, ?>)) {
+      throw new IllegalArgumentException(
+          "$sys.metadata is not a Map it is " + metaObj.getClass());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> metaMap = (Map<String, Object>) metaObj;
+    return metaMap;
   }
 
   private List<PSCategoryNode> getCategoryList(List<PSCategoryNode> nodes, String selectedId) {
@@ -2361,8 +2371,7 @@ public class PSPageUtils extends PSJexlUtilBase {
     try {
       ObjectMapper mapper = JsonMapper.builder().build();
 
-      Map<String, Object> result = mapper.readValue(jsonString, Map.class);
-      return result;
+      return mapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
     } catch (Exception e) {
       log.error("Error processing json string: {}", jsonString);
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -2378,10 +2387,8 @@ public class PSPageUtils extends PSJexlUtilBase {
     if (jsonObj != null) {
       try {
         Object value = jsonObj.get(name);
-        if (value instanceof List<?>) {
-
-          List<Object> castedValue = (List<Object>) value;
-          ret = castedValue;
+        if (value instanceof List<?> list) {
+          ret.addAll(list);
         } else if (value != null) {
           ret.add(value);
         }

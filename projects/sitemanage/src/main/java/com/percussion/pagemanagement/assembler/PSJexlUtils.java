@@ -48,26 +48,31 @@ public class PSJexlUtils {
   public static <T> T bindExpression(PSJexlEvaluator eval, IPSScript exp, T value)
       throws Exception {
     var original = eval.evaluate(exp);
-    T rvalue;
     if (original == null) {
       if (log.isTraceEnabled()) {
         log.trace("Binding expression: {} to {}", exp.getSourceText(), value);
       }
       eval.bind(exp.getSourceText(), value);
-      rvalue = value;
-    } else {
-      log.debug("{} is already set to: {}", exp.getSourceText(), original);
-      if (value != null && !original.getClass().isInstance(value)) {
-        throw new RuntimeException(
-            exp.getSourceText()
-                + " should be of type: "
-                + value.getClass()
-                + " but is type: "
-                + original.getClass());
-      }
-      rvalue = (T) original;
+      return value;
     }
-    return rvalue;
+    log.debug("{} is already set to: {}", exp.getSourceText(), original);
+    if (value == null) {
+      // Existing binding present; caller requested null default — return null typed as T.
+      return null;
+    }
+    Class<?> expected = value.getClass();
+    if (!expected.isInstance(original)) {
+      throw new RuntimeException(
+          exp.getSourceText()
+              + " should be of type: "
+              + expected
+              + " but is type: "
+              + original.getClass());
+    }
+    // Runtime-checked cast via Class.cast; generic T is the compile-time type of value.
+    @SuppressWarnings("unchecked")
+    Class<T> type = (Class<T>) expected;
+    return type.cast(original);
   }
 
   /**
@@ -75,15 +80,18 @@ public class PSJexlUtils {
    *
    * @param eval the JEXL evaluator
    * @param exp the script expression
-   * @param k the expected class (unused, for type inference)
+   * @param k the expected class used for a runtime-checked cast
    * @param <T> the type of the result
    * @return the evaluated result
    * @throws Exception if evaluation fails
    */
-  public static <T> T evalExpression(
-      PSJexlEvaluator eval, IPSScript exp, @SuppressWarnings("unused") Class<T> k)
+  public static <T> T evalExpression(PSJexlEvaluator eval, IPSScript exp, Class<T> k)
       throws Exception {
-    return (T) eval.evaluate(exp);
+    Object result = eval.evaluate(exp);
+    if (result == null) {
+      return null;
+    }
+    return k.cast(result);
   }
 
   /** The log instance to use for this class, never {@code null}. */

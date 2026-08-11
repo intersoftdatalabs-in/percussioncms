@@ -915,8 +915,8 @@ public class FolderAdaptor implements IFolderAdaptor {
         }
       }
 
-      Collection<String> subSectionsToCreate =
-          CollectionUtils.subtract(requestedSubSections, existingSubSections);
+      Collection<String> subSectionsToCreate = new ArrayList<>(requestedSubSections);
+      subSectionsToCreate.removeAll(existingSubSections);
 
       for (String createName : subSectionsToCreate) {
         for (SectionLinkRef subsection : ApiUtils.orEmpty(folder.getSubsections())) {

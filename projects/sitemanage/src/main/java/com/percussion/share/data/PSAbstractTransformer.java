@@ -21,7 +21,6 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 
 /**
@@ -39,12 +38,20 @@ public abstract class PSAbstractTransformer<OLD, NEW> implements Transformer {
    * @return a list of NEW objects
    */
   public List<NEW> collect(Collection<OLD> old) {
-    var newList = new ArrayList<NEW>();
-    newList.addAll(CollectionUtils.collect(old, this));
+    // Prefer typed loop over CollectionUtils.collect (raw Transformer API).
+    var newList = new ArrayList<NEW>(old.size());
+    for (OLD item : old) {
+      try {
+        newList.add(doTransform(item));
+      } catch (PSDataServiceException e) {
+        throw new RuntimeException(e);
+      }
+    }
     return newList;
   }
 
   @Override
+  @SuppressWarnings("unchecked") // commons-collections Transformer is raw; domain type is OLD
   public Object transform(Object old) {
     try {
       return doTransform((OLD) old);

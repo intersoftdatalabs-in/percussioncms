@@ -197,15 +197,14 @@ public class PSWidgetUtils {
     T rvalue = null;
     try {
       if (dataType.isAssignableFrom(object.getClass())) {
-        rvalue = (T) object;
-      } else if (object instanceof String) {
-        var s = (String) object;
+        rvalue = dataType.cast(object);
+      } else if (object instanceof String s) {
         if (s.isEmpty()) {
           emptyString = true;
         } else if (Number.class.isAssignableFrom(dataType)) {
-          rvalue = (T) NumberUtils.createNumber(s);
+          rvalue = dataType.cast(NumberUtils.createNumber(s));
         } else if (Boolean.class.isAssignableFrom(dataType)) {
-          rvalue = (T) Boolean.valueOf(Boolean.parseBoolean(s));
+          rvalue = dataType.cast(Boolean.valueOf(Boolean.parseBoolean(s)));
         }
       }
     } catch (Exception e) {

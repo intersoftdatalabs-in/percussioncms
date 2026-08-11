@@ -17,8 +17,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import static org.apache.commons.collections.CollectionUtils.intersection;
-import static org.apache.commons.collections.CollectionUtils.isSubCollection;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -27,7 +25,9 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDe
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDependency;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PSResourceDefinitionUtils {
   /**
@@ -61,10 +61,12 @@ public class PSResourceDefinitionUtils {
     while (!resourceBag.isEmpty() && cutOff != 0) {
       cutOff--;
       T r = resourceBag.remove(0);
-      Collection<String> depIds = getResourceDependeeIds(r.getDependencies());
-      depIds = intersection(depIds, allIds);
+      List<String> depIds = getResourceDependeeIds(r.getDependencies());
+      // Typed intersection — avoid raw CollectionUtils.intersection
+      Set<String> knownIds = new HashSet<>(allIds);
+      depIds = depIds.stream().filter(knownIds::contains).toList();
       List<String> sortedIds = getResourceIds(sortedResources);
-      if (isSubCollection(depIds, sortedIds)) {
+      if (sortedIds.containsAll(depIds)) {
         sortedResources.add(r);
       } else {
         resourceBag.add(r);

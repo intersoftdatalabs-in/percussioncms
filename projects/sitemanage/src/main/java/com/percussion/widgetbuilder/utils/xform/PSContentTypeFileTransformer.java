@@ -337,9 +337,13 @@ public class PSContentTypeFileTransformer implements IPSWidgetFileTransformer {
   private void addTextCleanupExtension(PSDisplayMapping mapping, PSItemDefinition itemDef) {
     var depMap = itemDef.getPipe().getControlDependencyMap();
     var ctrlMeta = ctrlMgr.getControl(mapping.getUISet().getControl().getName());
-    List<PSDependency> deps = new ArrayList<>(ctrlMeta.getDependencies());
-    for (var dep : deps) {
-      dep.setId(getNextObjectId());
+    // PSControlMeta#getDependencies() is a raw List in design objectstore.
+    List<PSDependency> deps = new ArrayList<>();
+    for (Object depObj : ctrlMeta.getDependencies()) {
+      if (depObj instanceof PSDependency dep) {
+        dep.setId(getNextObjectId());
+        deps.add(dep);
+      }
     }
     depMap.setControlDependencies(mapping, deps);
   }

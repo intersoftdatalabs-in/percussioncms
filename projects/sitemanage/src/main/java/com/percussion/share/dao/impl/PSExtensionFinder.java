@@ -27,7 +27,7 @@ public class PSExtensionFinder {
   public <T> T findExtension(String extensionId, Class<T> klass) {
     try {
       var ref = new PSExtensionRef(extensionId);
-      return (T) extensionManager.prepareExtension(ref, null);
+      return klass.cast(extensionManager.prepareExtension(ref, null));
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to find extension: " + extensionId + " class: " + klass, e);

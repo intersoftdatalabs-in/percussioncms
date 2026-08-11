@@ -642,8 +642,11 @@ public class PSSiteTemplateService implements IPSSiteTemplateService {
       PSSite site = siteDao.find(siteId);
       if (site != null) newSites.add(siteDao.find(siteId));
     }
-    Collection<PSSiteSummary> remove = CollectionUtils.subtract(oldSites, newSites);
-    Collection<PSSiteSummary> add = CollectionUtils.subtract(newSites, oldSites);
+    // Typed set difference — avoid raw CollectionUtils.subtract unchecked conversion
+    Collection<PSSiteSummary> remove = new ArrayList<>(oldSites);
+    remove.removeAll(newSites);
+    Collection<PSSiteSummary> add = new ArrayList<>(newSites);
+    add.removeAll(oldSites);
 
     if (log.isDebugEnabled()) {
       log.debug(format("Removing sites:{1} from template:{0}", templateId, remove));

@@ -325,8 +325,16 @@ public class PSSearchService implements IPSSearchService {
       var method =
           cmsObjectMgr.getClass().getMethod("findItemEntries", List.class, Comparator.class);
 
-      List<IPSItemEntry> result =
-          (List<IPSItemEntry>) method.invoke(cmsObjectMgr, contentIdList, compare);
+      Object invoked = method.invoke(cmsObjectMgr, contentIdList, compare);
+      if (!(invoked instanceof List<?> raw)) {
+        return List.of();
+      }
+      var result = new ArrayList<IPSItemEntry>(raw.size());
+      for (Object o : raw) {
+        if (o instanceof IPSItemEntry entry) {
+          result.add(entry);
+        }
+      }
       return result;
     } catch (ReflectiveOperationException e) {
       throw new RuntimeException("Failed to invoke findItemEntries via reflection", e);

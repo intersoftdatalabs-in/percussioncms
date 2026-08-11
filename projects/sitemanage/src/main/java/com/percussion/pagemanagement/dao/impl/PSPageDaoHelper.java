@@ -117,11 +117,12 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
           "select distinct CONTENTID from "
               + qualifyTableName(PAGE_TABLE)
               + " where TEMPLATEID = :template";
-      org.hibernate.query.NativeQuery<Integer> query =
+      // Hibernate createNativeQuery+addScalar is not fully generic; assign via List<?> then copy.
+      org.hibernate.query.NativeQuery<?> query =
           sess.createNativeQuery(sql)
               .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
       query.setParameter(TEMPLATE_PARAM, templateId);
-      return query.list();
+      return castIntegerList(query.list());
     } catch (SQLException e) {
       log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
       throw new PSRuntimeException(e);
@@ -145,7 +146,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + "where TEMPLATEID = :template "
               + "    and (CS.CURRENTREVISION = P.REVISIONID "
               + "         OR CS.TIPREVISION = P.REVISIONID) ";
-      org.hibernate.query.NativeQuery<Integer> query =
+      org.hibernate.query.NativeQuery<?> query =
           sess.createNativeQuery(sql)
               .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
       query.setParameter(TEMPLATE_PARAM, deletedTemplate);
@@ -153,7 +154,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
       if (results == null) {
         return new ArrayList<>();
       }
-      return results;
+      return castIntegerList(results);
     } catch (SQLException e) {
       log.error(
           "Failed to get the fully qualified table name for {}. Error: {}",
@@ -264,8 +265,8 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + ") "
               + "    AND CS.CURRENTREVISION = P.REVISIONID ";
       org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
-      var results = query.list();
-      for (Object[] row : (List<Object[]>) results) {
+      for (Object rowObj : query.list()) {
+        Object[] row = (Object[]) rowObj;
         mapPageToTemplate.put(row[0].toString(), row[1].toString());
       }
       return mapPageToTemplate;
@@ -290,10 +291,10 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + "' AND CONTENTID in ("
               + join(pages, ",")
               + ") ";
-      org.hibernate.query.NativeQuery<Integer> query =
+      org.hibernate.query.NativeQuery<?> query =
           sess.createNativeQuery(sql)
               .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
-      return query.list();
+      return castIntegerList(query.list());
     } catch (SQLException e) {
       log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -337,8 +338,8 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + ") "
               + "    AND CS.CURRENTREVISION = P.REVISIONID ";
       org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
-      var results = query.list();
-      for (Object[] row : (List<Object[]>) results) {
+      for (Object rowObj : query.list()) {
+        Object[] row = (Object[]) rowObj;
         mapPageToLinkText.put(row[0].toString(), row[1].toString());
       }
       return mapPageToLinkText;
@@ -346,6 +347,24 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
       log.error(ERROR_QUALIFY, PAGE_TABLE, CONTENT_TABLE);
       throw new PSRuntimeException(e);
     }
+  }
+
+  /** Copy Hibernate scalar list into a typed {@link Integer} collection without unchecked cast. */
+  private static Collection<Integer> castIntegerList(List<?> results) {
+    if (results == null || results.isEmpty()) {
+      return new ArrayList<>();
+    }
+    var out = new ArrayList<Integer>(results.size());
+    for (Object o : results) {
+      if (o instanceof Integer i) {
+        out.add(i);
+      } else if (o instanceof Number n) {
+        out.add(n.intValue());
+      } else if (o != null) {
+        out.add(Integer.valueOf(o.toString()));
+      }
+    }
+    return out;
   }
 
   private static final String ERROR_QUALIFY =
@@ -391,13 +410,13 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
       // never reach the SQL string as concatenated text.
       var params = new HashMap<String, Object>();
       sql = formGetByStatusSQLQuery(criteria, sql, params);
-      org.hibernate.query.NativeQuery<Integer> query =
+      org.hibernate.query.NativeQuery<?> query =
           sess.createNativeQuery(sql)
               .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
       for (var e : params.entrySet()) {
         query.setParameter(e.getKey(), e.getValue());
       }
-      return query.list();
+      return castIntegerList(query.list());
     } catch (NumberFormatException e) {
       // Per the review on PR #1202: a non-numeric ID value in
       // sys_contenttypeid / sys_contentstateid / sys_workflowid
