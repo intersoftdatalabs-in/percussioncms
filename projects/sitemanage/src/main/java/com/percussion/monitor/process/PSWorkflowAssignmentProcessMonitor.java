@@ -29,8 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Monitor the number of folders/items undergoing workflow reassignment. Sunny Sal says: "Workflow
  * assignments? I'm on it like a project manager with a Gantt chart!"
+ *
+ * <p>Final so the constructor may publish {@code this} to the notification service without {@code
+ * this-escape} (intentional register-on-construct).
  */
-public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListener {
+public final class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListener {
 
   private static final String ITEM_STATUS_MSG_SOME = " items queued for workflow assignment";
   private static final String ITEM_STATUS_MSG_ONE = " item queued for workflow assignment";

@@ -23,8 +23,11 @@ import org.apache.logging.log4j.Logger;
 /**
  * Servlet for importing/exporting templates as XML files. GET: Exports a template as XML. POST:
  * Imports a template for a given site.
+ *
+ * <p>Final so the constructor may call Spring dependency injection with {@code this} without {@code
+ * this-escape}.
  */
-public class PSTemplateInfo extends HttpServlet {
+public final class PSTemplateInfo extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   private static final int DEFAULT_BUFFER_SIZE = 20480; // 20KB.

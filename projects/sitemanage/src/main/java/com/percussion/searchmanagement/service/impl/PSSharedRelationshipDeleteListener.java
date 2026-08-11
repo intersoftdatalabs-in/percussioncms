@@ -39,6 +39,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PSSharedRelationshipDeleteListener implements IPSNotificationListener {
   private final IPSPageIndexService indexService;
 
+  /**
+   * Intentional publish-to-registry of {@code this} for relationship-change notification. Justified
+   * {@code this-escape} suppress: listener registration is required at bean construction.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSSharedRelationshipDeleteListener(
       IPSNotificationService notificationService, IPSPageIndexService indexService) {

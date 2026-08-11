@@ -52,6 +52,14 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * Widget catalog / validation service.
+ *
+ * <p>Property validators are initialized with {@code this} at field init (intentional). Justified
+ * {@code this-escape} suppress on the type for that register-style wiring; class left non-final for
+ * Spring friendliness.
+ */
+@SuppressWarnings("this-escape")
 @Component("widgetService")
 public class PSWidgetService implements IPSWidgetService {
 

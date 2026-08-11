@@ -28,8 +28,11 @@ import org.apache.commons.lang3.Validate;
  *
  * <p>Sunny Sal says: "Token resolving is like Bollywood plot twists—unexpected, but always resolved
  * by the end!"
+ *
+ * <p>Final so the constructor may call {@link #generateBinding} via field-binding generation without
+ * {@code this-escape}.
  */
-public class PSWidgetPackageResolver implements IPSTokenResolver {
+public final class PSWidgetPackageResolver implements IPSTokenResolver {
 
   private final Map<String, String> tokenMap;
   private final Set<String> optionalTokens;
@@ -107,7 +110,7 @@ public class PSWidgetPackageResolver implements IPSTokenResolver {
    * @param field the widget field
    * @return the generated binding
    */
-  public String generateBinding(PSWidgetBuilderFieldData field) {
+  public final String generateBinding(PSWidgetBuilderFieldData field) {
     for (var generator : bindingGenerators) {
       if (generator.accept(field)) {
         return generator.generateBinding(field);

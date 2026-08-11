@@ -123,7 +123,11 @@ public abstract class PSPathItemService implements IPSPathService {
    * The root name seen in the ui as the base for all items located by this service. Initialized in
    * the spring configuration.
    */
-  private String rootName;
+  /**
+   * Root display name for this path service. Protected so subclass constructors can seed it without
+   * calling {@link #setRootName(String)} during construction ({@code this-escape}).
+   */
+  protected String rootName;
 
   /**
    * A comma separated list of user roles that are allowed to access this service. If it null or
@@ -547,7 +551,10 @@ public abstract class PSPathItemService implements IPSPathService {
     return rootName;
   }
 
-  public void setRootName(String rootName) {
+  /**
+   * Final so path-service subclass constructors may set the root name without {@code this-escape}.
+   */
+  public final void setRootName(String rootName) {
     this.rootName = rootName;
   }
 

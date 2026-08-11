@@ -42,9 +42,11 @@ import java.util.List;
  * <p>See {@link #isLeaf(PSMergedRegion)} and {@link #chooseTemplateOrPageRegion(PSAbstractRegion,
  * PSAbstractRegion, PSMergedRegion)} for details.
  *
+ * <p>Final so the merge constructor may call {@link #merge} without {@code this-escape}.
+ *
  * @author adamgent
  */
-public class PSMergedRegionTree extends PSAbstractMergedRegionTree {
+public final class PSMergedRegionTree extends PSAbstractMergedRegionTree {
 
   private IPSWidgetService widgetService;
 

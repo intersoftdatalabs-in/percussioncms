@@ -58,7 +58,7 @@ public class PSAssetPathItemService extends PSPathItemService {
         pageService,
         listViewHelper,
         userService);
-    setRootName("Assets");
+    this.rootName = "Assets";
   }
 
   @Override

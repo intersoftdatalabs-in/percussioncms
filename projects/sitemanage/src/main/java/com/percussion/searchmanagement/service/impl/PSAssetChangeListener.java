@@ -50,6 +50,11 @@ public class PSAssetChangeListener implements IPSEditorChangeListener, IPSHandle
   private final IPSIdMapper idMapper;
   private final IPSPageIndexService pageIndexService;
 
+  /**
+   * Intentional publish-to-registry of {@code this} as a server init listener. Justified {@code
+   * this-escape} suppress: registration must occur when the Spring bean is created.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSAssetChangeListener(
       IPSWorkflowHelper workflowHelper,

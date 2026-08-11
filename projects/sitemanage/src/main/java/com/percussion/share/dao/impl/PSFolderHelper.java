@@ -155,6 +155,11 @@ public class PSFolderHelper implements IPSFolderHelper {
   private static final String FOLDER_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
   private static final String RECYCLING_ROOT = PSRecycleService.RECYCLING_ROOT;
 
+  /**
+   * Intentional publish-to-registry via inner server-startup listener. Not {@code final}: bean is
+   * {@code @Transactional}. Justified {@code this-escape} suppress.
+   */
+  @SuppressWarnings("this-escape")
   @Autowired
   public PSFolderHelper(
       IPSContentWs contentWs,
@@ -186,9 +191,11 @@ public class PSFolderHelper implements IPSFolderHelper {
   /**
    * Registers {@link PSCreateBaseFoldersNotificationListener} for server startup.
    *
+   * <p>Final so subclass constructors cannot override registration order.
+   *
    * @param notificationService never <code>null</code>.
    */
-  protected void setupServerStartupListener(IPSNotificationService notificationService) {
+  protected final void setupServerStartupListener(IPSNotificationService notificationService) {
     if (notificationService != null) {
       PSCreateBaseFoldersNotificationListener listener =
           new PSCreateBaseFoldersNotificationListener();

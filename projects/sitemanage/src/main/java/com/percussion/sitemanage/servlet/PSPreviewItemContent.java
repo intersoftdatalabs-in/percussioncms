@@ -55,9 +55,12 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Refactored for Java 11 and Google Java Style.
  *
+ * <p>Final so the constructor may call Spring dependency injection with {@code this} without {@code
+ * this-escape}.
+ *
  * @author YuBingChen
  */
-public class PSPreviewItemContent extends HttpServlet {
+public final class PSPreviewItemContent extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LogManager.getLogger(PSPreviewItemContent.class);
   private static PSRenderLinkService linkService;

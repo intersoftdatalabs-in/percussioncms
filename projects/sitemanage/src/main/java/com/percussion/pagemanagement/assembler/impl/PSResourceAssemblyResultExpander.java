@@ -54,6 +54,11 @@ public class PSResourceAssemblyResultExpander extends PSAbstractAssemblyResultEx
     this(assemblyItemBridge, publishHandler, ASSEMBLY_RESULT_EXPANDER_NAME);
   }
 
+  /**
+   * Intentional publish-to-registry: expander must be visible to the publish handler immediately.
+   * Justified {@code this-escape} suppress (leaf bean; no subclass observes partial init).
+   */
+  @SuppressWarnings("this-escape")
   protected PSResourceAssemblyResultExpander(
       PSAssemblyItemBridge assemblyItemBridge,
       PSPublishHandler publishHandler,

@@ -34,8 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Monitor the status and size of the search index queue. Sunny Sal says: "Indexing? I'm on it, like
  * a librarian with a barcode scanner!"
+ *
+ * <p>Final so the constructor may publish {@code this} to the notification service without {@code
+ * this-escape} (intentional register-on-construct).
  */
-public class PSSearchIndexProcessMonitor implements IPSNotificationListener {
+public final class PSSearchIndexProcessMonitor implements IPSNotificationListener {
 
   private static final String STATUS_MSG_SOME = " items in queue";
   private static final String STATUS_MSG_ONE = " item in queue";

@@ -25,8 +25,13 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** A mutable HTTP servlet request wrapper. Refactored for Java 11 and Google Java Style. */
-public class PSServletRequestWrapper extends HttpServletRequestWrapper {
+/**
+ * A mutable HTTP servlet request wrapper. Refactored for Java 11 and Google Java Style.
+ *
+ * <p>Final so the constructor may copy {@link #getParameterMap()} without {@code this-escape} from
+ * further subclasses.
+ */
+public final class PSServletRequestWrapper extends HttpServletRequestWrapper {
   private Map<String, String[]> wrappedParams = new LinkedHashMap<>();
 
   public PSServletRequestWrapper(HttpServletRequest request) {

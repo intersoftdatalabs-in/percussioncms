@@ -86,7 +86,7 @@ public class PSRecyclePathItemService extends PSPathItemService {
         userService);
     this.recycleService = recycleService;
     this.navService = navService;
-    this.setRootName("Recycling");
+    this.rootName = "Recycling";
   }
 
   @Override
