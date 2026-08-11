@@ -30,7 +30,7 @@ class PSSqlBuilderContext {
     super();
     m_curGroup = null;
     m_curBlock = new PSStatementBlock(true);
-    m_blocks = new ArrayList();
+    m_blocks = new ArrayList<>();
     m_buf = new ByteArrayOutputStream();
     m_text = new PrintWriter(m_buf);
 
@@ -269,7 +269,7 @@ class PSSqlBuilderContext {
 
   private PSStatementGroup m_curGroup;
   private IPSStatementBlock m_curBlock;
-  private ArrayList m_blocks;
+  private final ArrayList<IPSStatementBlock> m_blocks;
   private ByteArrayOutputStream m_buf;
   private PrintWriter m_text;
 

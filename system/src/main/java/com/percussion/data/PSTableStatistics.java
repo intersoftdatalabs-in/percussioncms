@@ -58,7 +58,7 @@ class PSTableStatistics {
     m_login = login;
 
     m_indexStatistics = new PSIndexStatistics[0];
-    m_uniqueCounts = new HashMap(m_indexStatistics.length);
+    m_uniqueCounts = new HashMap<>(m_indexStatistics.length);
     m_isEstimated = true;
   }
 
@@ -85,7 +85,7 @@ class PSTableStatistics {
     m_indexStatistics = PSIndexStatistics.getStatistics(table, dmd);
     if (m_indexStatistics == null) m_indexStatistics = new PSIndexStatistics[0];
 
-    m_uniqueCounts = new java.util.HashMap(m_indexStatistics.length);
+    m_uniqueCounts = new java.util.HashMap<>(m_indexStatistics.length);
 
     for (int i = 0; i < m_indexStatistics.length; i++) {
       PSIndexStatistics curIdxStat = m_indexStatistics[i];
@@ -245,7 +245,7 @@ class PSTableStatistics {
     if (m_isEstimated) return m_cardinality;
 
     String columnList = getColumnListString(cols);
-    Integer cardinality = (Integer) m_uniqueCounts.get(columnList);
+    Integer cardinality = m_uniqueCounts.get(columnList);
     if (cardinality == null || cardinality.intValue() < 0) {
       // issue a select count distinct against the cols
       Connection conn = null;
@@ -315,7 +315,7 @@ class PSTableStatistics {
 
   // map from a sorted list of column names used to distinguish to a
   // cardinality of unique tuples given those column names
-  private Map m_uniqueCounts;
+  private Map<String, Integer> m_uniqueCounts;
 
   /**
    * Determines whether this is an estimated object, <code>true</code> if it is an estimated object.

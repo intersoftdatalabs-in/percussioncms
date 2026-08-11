@@ -233,7 +233,10 @@ public class PSStylesheetCleanupFilter {
   private void addNamespace(String ns, String namespaceUri) {
     if (!StringUtils.isEmpty(namespaceUri)) m_uris.put(ns, namespaceUri);
     if (!m_allowedNS.containsKey(ns)) {
-      List[] lists = {new ArrayList(), new ArrayList(), new ArrayList()};
+      @SuppressWarnings("unchecked")
+      List<String>[] lists =
+          (List<String>[])
+              new List<?>[] {new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>()};
       m_allowedNS.put(ns, lists);
     }
   }
@@ -290,14 +293,12 @@ public class PSStylesheetCleanupFilter {
     if (StringUtils.isBlank(ns)) ns = "";
     if (val == null) val = "";
     if (!m_allowedNS.containsKey(ns)) return false;
-    List list = getList(ns, listIndex);
+    List<String> list = getList(ns, listIndex);
     // First try to find a "*" wildcard entry, if we find this
     // we can just return true and save some time by not iterating
     // the list
     if (list.contains("*")) return true;
-    Iterator it = list.iterator();
-    while (it.hasNext()) {
-      String pattern = (String) it.next();
+    for (String pattern : list) {
       try {
         if (isMatch(val, pattern)) return true;
       } catch (MalformedPatternException e) {
@@ -384,10 +385,10 @@ public class PSStylesheetCleanupFilter {
    * namespace declaration values) Namespace devlaration values really doesn't need to be a list as
    * it is only a single value.
    */
-  private Map<String, List<String>[]> m_allowedNS = new HashMap<String, List<String>[]>();
+  private final Map<String, List<String>[]> m_allowedNS = new HashMap<>();
 
   /** A map that associates namespace prefixes with their corresponding uris. */
-  private Map<String, String> m_uris = new HashMap<String, String>();
+  private final Map<String, String> m_uris = new HashMap<>();
 
   /**
    * The singleton instance of this class, initialized in {@link #getInstance()}, never <code>null

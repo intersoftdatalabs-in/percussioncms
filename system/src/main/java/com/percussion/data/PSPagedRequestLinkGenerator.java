@@ -23,7 +23,6 @@ import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.util.PSURLEncoder;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -127,9 +126,7 @@ public class PSPagedRequestLinkGenerator {
 
     // Add all html parameters here then the psfirst link...
     if (params != null) {
-      Iterator i = params.keySet().iterator();
-      while (i.hasNext()) {
-        String key = (String) i.next();
+      for (String key : params.keySet()) {
         if (key.equalsIgnoreCase(PSResultSetXmlConverter.FIRST_QUERY_INDEX_PARAMETER_NAME))
           continue; // ignore this, we'll do it later
         else if (key.equalsIgnoreCase("psrequrl")) continue; // we've already set this (first step)
@@ -137,7 +134,8 @@ public class PSPagedRequestLinkGenerator {
         buf.append(nextParamMarker);
         nextParamMarker = '&';
 
-        String val = (String) params.get(key);
+        Object rawVal = params.get(key);
+        String val = rawVal == null ? null : rawVal.toString();
         buf.append(
             PSURLEncoder.encodeQuery(key)
                 + "="

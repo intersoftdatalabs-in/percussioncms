@@ -69,9 +69,10 @@ public abstract class PSTableUpdateHandlerBase
       PSCollection tableCol = upPipe.getBackEndDataTank().getTables();
 
       boolean added = false;
-      Iterator tables = tableCol.iterator();
+      @SuppressWarnings("unchecked")
+      Iterator<PSBackEndTable> tables = tableCol.iterator();
       while (tables.hasNext() && !added) {
-        PSBackEndTable table = (PSBackEndTable) tables.next();
+        PSBackEndTable table = tables.next();
         if (m_tables.contains(table.getTable().toLowerCase())) {
           uh.addTableChangeListener(this);
         }

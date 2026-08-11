@@ -17,6 +17,7 @@
 
 package com.percussion.data;
 
+import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSIllegalArgumentException;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class PSOracleUpdateInsertBuilder extends PSOracleUpdateBuilder {
 
     // for the INSERT statement, we need all key and update columns
     // in the column list
-    ArrayList columnList = new ArrayList();
+    ArrayList<PSBackEndColumn> columnList = new ArrayList<>();
     columnList.addAll(m_Keys);
     columnList.addAll(m_Columns);
 

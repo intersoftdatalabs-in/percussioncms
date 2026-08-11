@@ -53,7 +53,7 @@ public abstract class PSStyleSheetMerger {
     if (pos == -1) return null;
 
     urlExt = "text/" + urlExt.substring(pos + 1);
-    return (PSStyleSheetMerger) ms_StyleSheetMergers.get(urlExt);
+    return ms_StyleSheetMergers.get(urlExt);
   }
 
   /** Convienience method for {@link #merge(PSRequest,Document,OutputStream, String)} */
@@ -112,7 +112,7 @@ public abstract class PSStyleSheetMerger {
       }
     }
 
-    PSStyleSheetMerger merger = (PSStyleSheetMerger) ms_StyleSheetMergers.get(styleSheet.getType());
+    PSStyleSheetMerger merger = ms_StyleSheetMergers.get(styleSheet.getType());
     if (merger != null) {
       merger.merge(req, doc, out, styleURL, encoding);
 
@@ -176,7 +176,7 @@ public abstract class PSStyleSheetMerger {
    * This is a hash of our style sheet merging engines. The key is the style sheet MIME type (eg,
    * text/css) and the value is an instance of the appropriate PSStyleSheetMerger subclass.
    */
-  private static HashMap ms_StyleSheetMergers = new HashMap<>();
+  private static final HashMap<String, PSStyleSheetMerger> ms_StyleSheetMergers = new HashMap<>();
 
   /**
    * Initializes the static merger map so that the appropriate mergers can be found for each MIME

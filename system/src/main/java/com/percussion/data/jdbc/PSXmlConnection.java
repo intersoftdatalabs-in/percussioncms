@@ -284,7 +284,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    *
    * @return the java.util.Map object associated with this Connection object
    */
-  public java.util.Map getTypeMap() throws SQLException {
+  public java.util.Map<String, Class<?>> getTypeMap() throws SQLException {
     checkClosed();
     return null;
   }
@@ -296,7 +296,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    * @param map the java.util.Map object to install as the replacement for this Connection object's
    *     default type map
    */
-  public void setTypeMap(java.util.Map map) throws SQLException {
+  public void setTypeMap(java.util.Map<String, Class<?>> map) throws SQLException {
     checkClosed();
   }
 

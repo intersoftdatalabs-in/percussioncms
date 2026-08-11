@@ -25,6 +25,7 @@ import au.id.jericho.lib.html.StartTag;
 import au.id.jericho.lib.html.StringOutputSegment;
 import au.id.jericho.lib.html.Tag;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /** A Utility class that contains useful cleanup methods for pre and post processing a stylesheet */
@@ -55,10 +56,12 @@ public class PSStylesheetCleanupUtils {
     StartTag sTag = null;
     Attributes attributes = null;
     boolean replaceTag = false;
-    // Loop through every start tag
-    for (Iterator it = source.findAllStartTags().iterator(); it.hasNext(); ) {
+    // Loop through every start tag (jericho returns raw List/Iterator)
+    @SuppressWarnings("unchecked")
+    List<StartTag> startTags = source.findAllStartTags();
+    for (StartTag tag : startTags) {
       replaceTag = false;
-      sTag = (StartTag) it.next();
+      sTag = tag;
       if (!isNormalMarkupTag(sTag)) continue; // Skip if this is not a normal markup tag
 
       // Remove elements that use namespaces leaving the normal
@@ -74,15 +77,16 @@ public class PSStylesheetCleanupUtils {
       }
 
       attributes = sTag.getAttributes();
-      Iterator attrs = attributes.iterator();
       sb.setLength(0);
       sb.append("<");
       sb.append(getTagNameAsIs(sTag));
 
       // Remove namespace declarations or attribute that use a
       // namespace.
+      @SuppressWarnings("unchecked")
+      Iterator<Attribute> attrs = attributes.iterator();
       while (attrs.hasNext()) {
-        Attribute attr = (Attribute) attrs.next();
+        Attribute attr = attrs.next();
         String attrName = attr.getName().toLowerCase();
         qname = parseQName(attrName);
         // Handle namespace declarations
