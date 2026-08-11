@@ -42,6 +42,31 @@ Developer-module (Workbench replacement) endpoints should map design operations 
 endpoints chosen only because they “look REST.” See repository
 `docs/developer-module/workbench-rest-and-qa-modes.md` for the engineering contract.
 
+## Content types (design catalog)
+
+| Operation | Path | Notes |
+|-----------|------|--------|
+| List | `GET /services/contenttypes` | Name, label, description, guid |
+| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+
+### Field rule expressions (read-only)
+
+Content type **detail** field rows include boolean rule **flags** and, when rules exist,
+human-readable **expression summaries**:
+
+| Field | Meaning |
+|-------|---------|
+| `hasValidation` / `validationExpression` | Validation rules present / summary of conditionals or extension calls |
+| `hasVisibilityRules` / `visibilityExpression` | Visibility rules present / summary |
+| `hasInputTranslation` / `inputTranslationExpression` | Input transform present / extension call summary |
+| `hasOutputTranslation` / `outputTranslationExpression` | Output transform present / extension call summary |
+| `control` | Display control name |
+| `controlPropertyNames` | Control parameter **names** only (values and full choice catalogs not exposed) |
+
+These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They are **not**
+writable via `PUT` — rule write/save and full control property editors remain Workbench /
+future design APIs. `designGaps` on detail still calls out write and catalog gaps.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the

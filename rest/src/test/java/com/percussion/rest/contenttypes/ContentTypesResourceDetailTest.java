@@ -96,6 +96,33 @@ public class ContentTypesResourceDetailTest {
     assertEquals("percPage", resource.getContentType("percPage").getName());
   }
 
+  @Test
+  public void fieldRuleExpressionsSerializeWhenPresentAndOmitWhenEmpty() {
+    ContentTypeField withRules = new ContentTypeField();
+    withRules.setName("sys_title");
+    withRules.setHasValidation(true);
+    withRules.setValidationExpression("sys_title <>  AND");
+    withRules.setControlPropertyNames(List.of("height", "width"));
+
+    ContentTypeField emptyRules = new ContentTypeField();
+    emptyRules.setName("page_title");
+    emptyRules.setHasValidation(false);
+
+    ContentTypeDetail d = new ContentTypeDetail();
+    d.setName("percPage");
+    d.setFields(List.of(withRules, emptyRules));
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeDetail.class);
+    String json = mapper.writeValueAsString(d);
+
+    assertTrue(json.contains("\"validationExpression\""), json);
+    assertTrue(json.contains("sys_title <>"), json);
+    assertTrue(json.contains("\"controlPropertyNames\""), json);
+    assertTrue(json.contains("height"), json);
+    // empty expression fields must not force empty-string noise for the second field
+    assertTrue(json.contains("page_title"), json);
+  }
+
   private static ContentType sampleContentType() {
     ContentType ct = new ContentType();
     ct.setName("percPage");

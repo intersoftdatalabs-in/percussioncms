@@ -20,6 +20,7 @@ package com.percussion.rest.contenttypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /** Read-only field summary for a content type (Developer module design view). */
 @XmlRootElement(name = "ContentTypeField")
@@ -67,6 +68,33 @@ public class ContentTypeField {
 
   @Schema(description = "Control name when resolved from display mapping")
   private String control;
+
+  @Schema(
+      description =
+          "Read-only summary of field validation rule expressions (conditionals / extensions)."
+              + " Null when no validation rules are defined. Not writable via PUT.")
+  private String validationExpression;
+
+  @Schema(
+      description =
+          "Read-only summary of visibility rule expressions. Null when none defined. Not writable.")
+  private String visibilityExpression;
+
+  @Schema(
+      description =
+          "Read-only summary of input translation extension calls. Null when none. Not writable.")
+  private String inputTranslationExpression;
+
+  @Schema(
+      description =
+          "Read-only summary of output translation extension calls. Null when none. Not writable.")
+  private String outputTranslationExpression;
+
+  @Schema(
+      description =
+          "Control property / parameter names from the display mapping (cheap names only;"
+              + " values and full catalogs not exposed). Null or omitted when none. Not writable.")
+  private List<String> controlPropertyNames;
 
   @Schema(description = "Child field-set name when this field is nested; null for parent fields")
   private String fieldSet;
@@ -175,6 +203,46 @@ public class ContentTypeField {
 
   public void setControl(String control) {
     this.control = control;
+  }
+
+  public String getValidationExpression() {
+    return validationExpression;
+  }
+
+  public void setValidationExpression(String validationExpression) {
+    this.validationExpression = validationExpression;
+  }
+
+  public String getVisibilityExpression() {
+    return visibilityExpression;
+  }
+
+  public void setVisibilityExpression(String visibilityExpression) {
+    this.visibilityExpression = visibilityExpression;
+  }
+
+  public String getInputTranslationExpression() {
+    return inputTranslationExpression;
+  }
+
+  public void setInputTranslationExpression(String inputTranslationExpression) {
+    this.inputTranslationExpression = inputTranslationExpression;
+  }
+
+  public String getOutputTranslationExpression() {
+    return outputTranslationExpression;
+  }
+
+  public void setOutputTranslationExpression(String outputTranslationExpression) {
+    this.outputTranslationExpression = outputTranslationExpression;
+  }
+
+  public List<String> getControlPropertyNames() {
+    return controlPropertyNames;
+  }
+
+  public void setControlPropertyNames(List<String> controlPropertyNames) {
+    this.controlPropertyNames = controlPropertyNames;
   }
 
   public String getFieldSet() {
