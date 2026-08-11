@@ -26,6 +26,7 @@ import com.percussion.error.PSDeployException;
 import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Iterator;
 
 /**
  * Encapsulates an item definition and Jdbc table data for a single table that is part of a content
@@ -99,17 +100,18 @@ public class PSItemData {
       var tableName = m_srcItemData.getName();
       var pipe = (PSContentEditorPipe) m_itemDef.getContentEditor().getPipe();
       if (pipe != null) {
-        var tableSets = pipe.getLocator().getTableSets();
-        tableSets.forEachRemaining(
-            tableSet -> {
-              var tableRefs = ((PSTableSet) tableSet).getTableRefs();
-              tableRefs.forEachRemaining(
-                  tableRef -> {
-                    if (((PSTableRef) tableRef).getName().equalsIgnoreCase(tableName)) {
-                      m_tableAlias = ((PSTableRef) tableRef).getAlias();
-                    }
-                  });
-            });
+        // getTableSets()/getTableRefs() return raw Iterator from objectstore APIs
+        Iterator<?> tableSets = pipe.getLocator().getTableSets();
+        while (tableSets.hasNext()) {
+          PSTableSet tableSet = (PSTableSet) tableSets.next();
+          Iterator<?> tableRefs = tableSet.getTableRefs();
+          while (tableRefs.hasNext()) {
+            PSTableRef tableRef = (PSTableRef) tableRefs.next();
+            if (tableRef.getName().equalsIgnoreCase(tableName)) {
+              m_tableAlias = tableRef.getAlias();
+            }
+          }
+        }
       }
     }
     return m_tableAlias;

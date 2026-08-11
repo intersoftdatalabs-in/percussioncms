@@ -293,15 +293,15 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
 
     var tables = new ArrayList<String>();
 
-    locator
-        .getTableSets()
-        .forEachRemaining(
-            rawTableSet -> {
-              var tableSet = (PSTableSet) rawTableSet;
-              tableSet
-                  .getTableRefs()
-                  .forEachRemaining(rawRef -> tables.add(((PSTableRef) rawRef).getName()));
-            });
+    // getTableSets()/getTableRefs() return raw Iterator from objectstore APIs
+    Iterator<?> tableSets = locator.getTableSets();
+    while (tableSets.hasNext()) {
+      PSTableSet tableSet = (PSTableSet) tableSets.next();
+      Iterator<?> tableRefs = tableSet.getTableRefs();
+      while (tableRefs.hasNext()) {
+        tables.add(((PSTableRef) tableRefs.next()).getName());
+      }
+    }
 
     return tables.iterator();
   }

@@ -446,7 +446,7 @@ public class PSImportJob extends PSDeployJob {
     pkgInfo.setType(PackageType.PACKAGE);
     pkgInfo.setEditable(info.isEditable());
     pkgInfo.setPackageDescriptorName(expDesc.getName());
-    pkgInfo.setPackageDescriptorGuid(new PSGuid(new Long(expDesc.getId())));
+    pkgInfo.setPackageDescriptorGuid(new PSGuid(Long.valueOf(expDesc.getId())));
     pkgInfo.setCmVersionMinimum(expDesc.getCmsMinVersion());
     pkgInfo.setCmVersionMaximum(expDesc.getCmsMaxVersion());
     pkgInfo.setCategory(PSPkgInfo.PackageCategory.valueOf(info.getCategory()));
