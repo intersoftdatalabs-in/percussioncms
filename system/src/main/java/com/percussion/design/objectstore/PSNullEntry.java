@@ -21,8 +21,13 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** Implementation for the PSXNullEntry DTD in BasicObjects.dtd. */
-public class PSNullEntry extends PSEntry {
+/**
+ * Implementation for the PSXNullEntry DTD in BasicObjects.dtd.
+ *
+ * <p>Final monorepo leaf so Element/{@code fromXml} construction does not trip {@code
+ * -Xlint:this-escape} via parent-list registration.
+ */
+public final class PSNullEntry extends PSEntry {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**

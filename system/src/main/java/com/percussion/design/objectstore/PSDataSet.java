@@ -58,6 +58,9 @@ public class PSDataSet extends PSComponent {
       throws PSUnknownNodeTypeException {
     this();
     // Private path avoids virtual fromXml (e.g. PSContentEditor) during super construction.
+    // Construction must not reach updateParentList (non-final type / -Xlint:this-escape).
+    // Prefer empty + fromXml when parent-list membership is required during child load
+    // (e.g. PSApplication dataset restore).
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
@@ -132,6 +135,11 @@ public class PSDataSet extends PSComponent {
    * @param description the new description of the data set.
    */
   public void setDescription(String description) {
+    applyDescription(description);
+  }
+
+  /** Non-overridable description assignment for construction and {@link #setDescription(String)}. */
+  private void applyDescription(String description) {
     IllegalArgumentException ex = validateDescription(description);
     if (ex != null) throw ex;
 
@@ -643,102 +651,103 @@ public class PSDataSet extends PSComponent {
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
-    fromXmlBase(sourceNode, parentDoc, parentComponents);
+    // Post-construction: safe to publish this on the parent list.
+    parentComponents = updateParentList(parentComponents);
+    int parentSize = parentComponents.size() - 1;
+    try {
+      fromXmlBase(sourceNode, parentDoc, parentComponents);
+    } finally {
+      resetParentList(parentComponents, parentSize);
+    }
   }
 
   /**
-   * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
-   * (e.g. {@link PSContentEditor}) before subclass fields are initialized.
+   * Private field load for Element construction and {@link #fromXml}. Never calls {@link
+   * #updateParentList} so Element constructors of this non-final type stay free of {@code
+   * -Xlint:this-escape}; callers that need self-registration wrap this method (see {@link
+   * #fromXml}). Prefer empty + {@link #fromXml} when parent-list membership is required during
+   * nested child load (e.g. {@link PSApplication} dataset restore).
    */
   private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
-    parentComponents = updateParentList(parentComponents);
-    int parentSize = parentComponents.size() - 1;
+    if (sourceNode == null)
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
 
+    if (!ms_NodeType.equals(sourceNode.getNodeName())) {
+      Object[] args = {ms_NodeType, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
+
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+
+    String sTemp = tree.getElementData("id");
     try {
-      if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      m_id = Integer.parseInt(sTemp);
+    } catch (Exception e) {
+      Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+    }
 
-      if (!ms_NodeType.equals(sourceNode.getNodeName())) {
-        Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    try { // private          String          m_name = "";
+      applyName(tree.getElementData("name"));
+    } catch (IllegalArgumentException e) {
+      throw new PSUnknownNodeTypeException(
+          ms_NodeType, "name", new PSException(e.getLocalizedMessage()));
+    }
+
+    try { // private          String          m_description = "";
+      applyDescription(tree.getElementData("description"));
+    } catch (IllegalArgumentException e) {
+      throw new PSUnknownNodeTypeException(
+          ms_NodeType, "description", new PSException(e.getLocalizedMessage()));
+    }
+
+    // private       int    m_transactionType = DS_TRANSACTION_DISABLED;
+    sTemp = tree.getElementData("transactionType");
+    if (sTemp != null) {
+      if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_NONE)) m_transactionType = DS_TRANSACTION_DISABLED;
+      else if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_ROW)) m_transactionType = DS_TRANSACTION_ROW;
+      else if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_ALL_ROWS))
+        m_transactionType = DS_TRANSACTION_ALL_ROWS;
+      else {
+        Object[] args = {ms_NodeType, "transactionType", sTemp};
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
       }
+    } else m_transactionType = DS_TRANSACTION_DISABLED;
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+    m_dataEncryptor = null;
+    m_pipe = null;
+    m_requestor = null;
+    m_pageDataTank = null;
+    m_resultPager = null;
+    m_results = null;
 
-      String sTemp = tree.getElementData("id");
-      try {
-        m_id = Integer.parseInt(sTemp);
-      } catch (Exception e) {
-        Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+    int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
+    int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
+    for (Element curNode = tree.getNextElement(firstFlags);
+        curNode != null;
+        curNode = tree.getNextElement(nextFlags)) {
+      String elementName = curNode.getTagName();
+      if (PSDataEncryptor.ms_NodeType.equals(elementName)) {
+        if (null == m_dataEncryptor) m_dataEncryptor = new PSDataEncryptor(true); // default
+        m_dataEncryptor.fromXml(curNode, parentDoc, parentComponents);
+      } else if (PSQueryPipe.ms_NodeType.equals(elementName)) {
+        m_pipe = new PSQueryPipe(curNode, parentDoc, parentComponents);
+      } else if (PSUpdatePipe.ms_NodeType.equals(elementName)) {
+        m_pipe = new PSUpdatePipe(curNode, parentDoc, parentComponents);
+      } else if (PSContentEditorPipe.XML_NODE_NAME.equals(elementName)) {
+        m_pipe = new PSContentEditorPipe(curNode, parentDoc, parentComponents);
+      } else if (PSPageDataTank.ms_NodeType.equals(elementName)) {
+        m_pageDataTank = new PSPageDataTank(curNode, parentDoc, parentComponents);
+      } else if (PSRequestor.ms_NodeType.equals(elementName)) {
+        m_requestor = new PSRequestor(curNode, parentDoc, parentComponents);
+      } else if (PSResultPageSet.ms_NodeType.equals(elementName)) {
+        m_results = new PSResultPageSet(curNode, parentDoc, parentComponents);
+      } else if (PSRequestLink.ms_NodeType.equals(elementName)) {
+        m_results = new PSRequestLink(curNode, parentDoc, parentComponents);
+      } else if (PSResultPager.ms_NodeType.equals(elementName)) {
+        m_resultPager = new PSResultPager(curNode, parentDoc, parentComponents);
       }
-
-      try { // private          String          m_name = "";
-        applyName(tree.getElementData("name"));
-      } catch (IllegalArgumentException e) {
-        throw new PSUnknownNodeTypeException(
-            ms_NodeType, "name", new PSException(e.getLocalizedMessage()));
-      }
-
-      try { // private          String          m_description = "";
-        setDescription(tree.getElementData("description"));
-      } catch (IllegalArgumentException e) {
-        throw new PSUnknownNodeTypeException(
-            ms_NodeType, "description", new PSException(e.getLocalizedMessage()));
-      }
-
-      // private       int    m_transactionType = DS_TRANSACTION_DISABLED;
-      sTemp = tree.getElementData("transactionType");
-      if (sTemp != null) {
-        if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_NONE)) m_transactionType = DS_TRANSACTION_DISABLED;
-        else if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_ROW)) m_transactionType = DS_TRANSACTION_ROW;
-        else if (sTemp.equalsIgnoreCase(XML_FLAG_XACT_ALL_ROWS))
-          m_transactionType = DS_TRANSACTION_ALL_ROWS;
-        else {
-          Object[] args = {ms_NodeType, "transactionType", sTemp};
-          throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-        }
-      } else m_transactionType = DS_TRANSACTION_DISABLED;
-
-      m_dataEncryptor = null;
-      m_pipe = null;
-      m_requestor = null;
-      m_pageDataTank = null;
-      m_resultPager = null;
-      m_results = null;
-
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
-      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
-      for (Element curNode = tree.getNextElement(firstFlags);
-          curNode != null;
-          curNode = tree.getNextElement(nextFlags)) {
-        String elementName = curNode.getTagName();
-        if (PSDataEncryptor.ms_NodeType.equals(elementName)) {
-          if (null == m_dataEncryptor) m_dataEncryptor = new PSDataEncryptor(true); // default
-          m_dataEncryptor.fromXml(curNode, parentDoc, parentComponents);
-        } else if (PSQueryPipe.ms_NodeType.equals(elementName)) {
-          m_pipe = new PSQueryPipe(curNode, parentDoc, parentComponents);
-        } else if (PSUpdatePipe.ms_NodeType.equals(elementName)) {
-          m_pipe = new PSUpdatePipe(curNode, parentDoc, parentComponents);
-        } else if (PSContentEditorPipe.XML_NODE_NAME.equals(elementName)) {
-          m_pipe = new PSContentEditorPipe(curNode, parentDoc, parentComponents);
-        } else if (PSPageDataTank.ms_NodeType.equals(elementName)) {
-          m_pageDataTank = new PSPageDataTank(curNode, parentDoc, parentComponents);
-        } else if (PSRequestor.ms_NodeType.equals(elementName)) {
-          m_requestor = new PSRequestor(curNode, parentDoc, parentComponents);
-        } else if (PSResultPageSet.ms_NodeType.equals(elementName)) {
-          m_results = new PSResultPageSet(curNode, parentDoc, parentComponents);
-        } else if (PSRequestLink.ms_NodeType.equals(elementName)) {
-          m_results = new PSRequestLink(curNode, parentDoc, parentComponents);
-        } else if (PSResultPager.ms_NodeType.equals(elementName)) {
-          m_resultPager = new PSResultPager(curNode, parentDoc, parentComponents);
-        }
-      }
-
-    } finally {
-      resetParentList(parentComponents, parentSize);
     }
   }
 

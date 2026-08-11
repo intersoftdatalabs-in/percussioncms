@@ -82,6 +82,62 @@ public class PSDesignObjectStoreThisEscapeTest {
   }
 
   @Test
+  public void entryFromXmlAfterConstructionRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSEntry original = new PSEntry("post", new PSDisplayText("after"));
+    original.setSequence(3);
+    original.setDefault(true);
+    Element elem = original.toXml(doc);
+
+    PSEntry restored = new PSEntry();
+    restored.fromXml(elem, null, null);
+    assertEquals(original.getValue(), restored.getValue());
+    assertEquals(original.getLabel().getText(), restored.getLabel().getText());
+    assertEquals(3, restored.getSequence());
+    assertTrue(restored.isDefault());
+  }
+
+  @Test
+  public void nullEntryValueCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSNullEntry original = new PSNullEntry("nullVal", new PSDisplayText("Choose"));
+    original.setIncludeWhen(PSNullEntry.INCLUDE_WHEN_ALWAYS);
+    original.setSortOrder(PSNullEntry.SORT_ORDER_LAST);
+    Element elem = original.toXml(doc);
+
+    PSNullEntry restored = new PSNullEntry(elem, null, null);
+    assertEquals(original.getValue(), restored.getValue());
+    assertEquals(original.getLabel().getText(), restored.getLabel().getText());
+    assertEquals(PSNullEntry.INCLUDE_WHEN_ALWAYS, restored.getIncludeWhen());
+    assertEquals(PSNullEntry.SORT_ORDER_LAST, restored.getSortOrder());
+  }
+
+  @Test
+  public void dataSetNameCtorAndElementRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSDataSet original = new PSDataSet("dsQuery");
+    original.setDescription("query dataset");
+    Element elem = original.toXml(doc);
+
+    PSDataSet restored = new PSDataSet(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getDescription(), restored.getDescription());
+  }
+
+  @Test
+  public void dataSetFromXmlAfterConstructionRoundTrip() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSDataSet original = new PSDataSet("dsPost");
+    original.setDescription("fromXml path");
+    Element elem = original.toXml(doc);
+
+    PSDataSet restored = new PSDataSet();
+    restored.fromXml(elem, null, null);
+    assertEquals(original.getName(), restored.getName());
+    assertEquals(original.getDescription(), restored.getDescription());
+  }
+
+  @Test
   public void urlRequestCtorAndElementRoundTrip() throws Exception {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSCollection params = new PSCollection(PSParam.class);
