@@ -25,7 +25,6 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.services.assembly.data.PSTemplateSlot;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -120,10 +119,7 @@ public class PSAssemblyServiceHelper {
           "Assembly exception occurred while cataloging Templates");
     }
 
-    Iterator<IPSAssemblyTemplate> it = templates.iterator();
-
-    while (it.hasNext()) {
-      IPSAssemblyTemplate tmp = (IPSAssemblyTemplate) it.next();
+    for (IPSAssemblyTemplate tmp : templates) {
       // separate the legacy(variants) from new templates
       if (doLegacyTmps == false) {
         if (tmp.getAssembler().compareTo(IPSExtension.LEGACY_ASSEMBLER) == 0) continue;
@@ -359,17 +355,4 @@ public class PSAssemblyServiceHelper {
 
   /** Listing of TemplateSlots */
   private List<IPSTemplateSlot> m_slots = null;
-}
-
-/**
- * Utility sorter for list
- *
- * @author vamsinukala
- */
-class SlotsComparer implements Comparator {
-  public int compare(Object obj1, Object obj2) {
-    return (int)
-        (Math.abs(((PSTemplateSlot) obj1).getGUID().longValue())
-            - Math.abs(((PSTemplateSlot) obj1).getGUID().longValue()));
-  }
 }

@@ -61,39 +61,38 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
       var cfgDoc = relPlugin.getRelationshipConfigs(logger, conn);
       var cfgSet = relPlugin.getConfigSet(cfgDoc);
 
-      var cfgStream = (java.util.stream.Stream<PSRelationshipConfig>) cfgSet.stream();
-      cfgStream
-          .filter(PSRelationshipConfig::isSystem)
-          .forEach(
-              relConfig -> {
-                try {
-                  var doc = PSXmlDocumentBuilder.createXmlDocument();
-                  var version =
-                      IOTools.getChecksum(PSXmlDocumentBuilder.toString(relConfig.toXml(doc)));
+      // PSRelationshipConfigSet is a typed collection of PSRelationshipConfig
+      for (Object rawConfig : cfgSet) {
+        PSRelationshipConfig relConfig = (PSRelationshipConfig) rawConfig;
+        if (!relConfig.isSystem()) {
+          continue;
+        }
+        try {
+          var doc = PSXmlDocumentBuilder.createXmlDocument();
+          var version =
+              IOTools.getChecksum(PSXmlDocumentBuilder.toString(relConfig.toXml(doc)));
 
-                  var relName = relConfig.getName();
-                  var relGuid = PSIdNameHelper.getGuid(relName, PSTypeEnum.RELATIONSHIP_CONFIGNAME);
-                  var foundElem = pkgInfoSvc.findPkgElementByObject(relGuid);
-                  var pkgElem =
-                      foundElem != null
-                          ? pkgInfoSvc.loadPkgElementModifiable(foundElem.getGuid())
-                          : null;
+          var relName = relConfig.getName();
+          var relGuid = PSIdNameHelper.getGuid(relName, PSTypeEnum.RELATIONSHIP_CONFIGNAME);
+          var foundElem = pkgInfoSvc.findPkgElementByObject(relGuid);
+          var pkgElem =
+              foundElem != null
+                  ? pkgInfoSvc.loadPkgElementModifiable(foundElem.getGuid())
+                  : null;
 
-                  if (pkgElem != null) {
-                    pkgElem.setVersion(version);
-                    pkgInfoSvc.savePkgElement(pkgElem);
-                    logger.println(
-                        "Updated package element version for system relationship '"
-                            + relName
-                            + "'");
-                  } else {
-                    logger.println(
-                        "Could not find package element for system relationship '" + relName + "'");
-                  }
-                } catch (Exception e) {
-                  log.error(PSExceptionUtils.getMessageForLog(e));
-                }
-              });
+          if (pkgElem != null) {
+            pkgElem.setVersion(version);
+            pkgInfoSvc.savePkgElement(pkgElem);
+            logger.println(
+                "Updated package element version for system relationship '" + relName + "'");
+          } else {
+            logger.println(
+                "Could not find package element for system relationship '" + relName + "'");
+          }
+        } catch (Exception e) {
+          log.error(PSExceptionUtils.getMessageForLog(e));
+        }
+      }
     } catch (Exception e) {
       respType = PSPluginResponse.EXCEPTION;
       respMsg = e.getMessage();

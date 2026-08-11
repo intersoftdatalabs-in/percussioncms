@@ -117,7 +117,7 @@ public abstract class PSDeployJob extends PSJobRunner implements IPSJobHandle {
    * @param pkgs An iterator over one or more <code>PSDependency</code> objects to use to determine
    *     the count, may not be <code>null</code>.
    */
-  protected void initDepCount(Iterator pkgs) {
+  protected void initDepCount(Iterator<? extends PSDependency> pkgs) {
     if (pkgs == null || !pkgs.hasNext())
       throw new IllegalArgumentException("pkgs may not be null or empty");
 
@@ -133,13 +133,13 @@ public abstract class PSDeployJob extends PSJobRunner implements IPSJobHandle {
    * @param includedOnly If <code>true</code>, only included dependencies will be counted, otherwise
    *     all depedencies will be counted.
    */
-  protected void initDepCount(Iterator pkgs, boolean includedOnly) {
+  protected void initDepCount(Iterator<? extends PSDependency> pkgs, boolean includedOnly) {
     if (pkgs == null || !pkgs.hasNext())
       throw new IllegalArgumentException("pkgs may not be null or empty");
 
     int count = 0;
     while (pkgs.hasNext()) {
-      PSDependency dep = (PSDependency) pkgs.next();
+      PSDependency dep = pkgs.next();
       int childCount = dep.getChildCount(includedOnly);
       if (childCount == 0) {
         String included = includedOnly ? "included " : "";

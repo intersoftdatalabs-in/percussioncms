@@ -219,7 +219,7 @@ public final class PSDependencyFile implements IPSDeployComponent {
     tree.setCurrent(sourceNode);
     var origFileEl = tree.getNextElement(XML_EL_ORIG_FILE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (origFileEl != null) {
-      String origPath = tree.getElementData(origFileEl);
+      String origPath = PSXmlTreeWalker.getElementData(origFileEl);
       if (origPath == null || origPath.trim().isEmpty()) {
         throw new PSUnknownNodeTypeException(
             IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
