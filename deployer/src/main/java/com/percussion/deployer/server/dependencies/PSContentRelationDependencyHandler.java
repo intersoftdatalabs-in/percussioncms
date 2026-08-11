@@ -41,6 +41,7 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.PSBackEndColumn;
+import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
@@ -298,7 +299,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
       tgtOwnerLocator.setPersisted(true);
 
       // delete all current relationships
-      proc.delete(type, tgtOwnerLocator, (List) null);
+      proc.delete(type, tgtOwnerLocator, (List<?>) null);
 
       // add log entry
       addTransactionLogEntry(
@@ -309,12 +310,12 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
           PSTransactionSummary.ACTION_DELETED);
 
       PSRelationshipSet set = new PSRelationshipSet();
-      Map relationshipMap = new HashMap();
+      Map<Integer, PSRelationship> relationshipMap = new HashMap<>();
       String category = null;
 
-      Iterator files = archive.getFiles(dep);
+      Iterator<PSDependencyFile> files = archive.getFiles(dep);
       while (files.hasNext()) {
-        PSDependencyFile file = (PSDependencyFile) files.next();
+        PSDependencyFile file = files.next();
         Document doc = createXmlDocument(archive.getFileData(file));
         PSRelationship rel = new PSRelationship(doc.getDocumentElement(), null, null);
 
@@ -402,14 +403,14 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     String id = dep.getDependencyId();
 
     // get property deps, build a set so we don't end up with dupes
-    Set propSet = new HashSet();
+    Set<PSProperty> propSet = new HashSet<>();
     Iterator<PSRelationship> relationships = getRelationships(tok, id);
     while (relationships.hasNext()) {
-      PSRelationship relationship = (PSRelationship) relationships.next();
+      PSRelationship relationship = relationships.next();
       propSet.addAll(getUnknownProperties(relationship));
     }
 
-    List mappings = new ArrayList();
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     String reqName = dep.getDisplayName();
     PSAppTransformer.checkProperties(mappings, propSet.iterator(), null);
     idTypes.addMappings(
@@ -433,18 +434,19 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     }
 
     PSRelationship rel = (PSRelationship) object;
-    List propList = getUnknownProperties(rel);
+    List<PSProperty> propList = getUnknownProperties(rel);
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -457,9 +459,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     }
 
     // now set back on the relationship
-    Iterator props = propList.iterator();
-    while (props.hasNext()) {
-      PSProperty prop = (PSProperty) props.next();
+    for (PSProperty prop : propList) {
       rel.setProperty(prop.getName(), (String) prop.getValue());
     }
   }
@@ -478,16 +478,14 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    *     null</code>.
    * @return The list of <code>PSProperty</code> objects, never <code>null</code>, may be empty.
    */
-  private List getUnknownProperties(PSRelationship relationship) {
-    List propList = new ArrayList();
+  private List<PSProperty> getUnknownProperties(PSRelationship relationship) {
+    List<PSProperty> propList = new ArrayList<>();
 
-    Iterator props = relationship.getUserProperties().entrySet().iterator();
-    while (props.hasNext()) {
-      Map.Entry entry = (Map.Entry) props.next();
+    for (Map.Entry<String, String> entry : relationship.getUserProperties().entrySet()) {
       // skip known property names
       if (ms_propertyTypes.containsKey(entry.getKey())) continue;
 
-      PSProperty prop = new PSProperty((String) entry.getKey());
+      PSProperty prop = new PSProperty(entry.getKey());
       prop.setValue(entry.getValue());
       propList.add(prop);
     }
@@ -513,12 +511,10 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     if (idMap == null) return newSlotId;
 
     // transform known ids
-    Iterator props = rel.getUserProperties().entrySet().iterator();
-    while (props.hasNext()) {
-      Map.Entry prop = (Map.Entry) props.next();
-      String name = (String) prop.getKey();
-      String type = (String) ms_propertyTypes.get(name);
-      String value = (String) prop.getValue();
+    for (Map.Entry<String, String> prop : rel.getUserProperties().entrySet()) {
+      String name = prop.getKey();
+      String type = ms_propertyTypes.get(name);
+      String value = prop.getValue();
       if (type != null && value != null && value.trim().length() > 0) {
         String newId = null;
         // folders don't use id mapping
@@ -529,7 +525,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
           newId = folderHandler.getFolderIdFromPath(tok, value);
 
           if (newId == null) {
-            Object[] args = {folderHandler.DEPENDENCY_TYPE, value};
+            Object[] args = {PSFolderDefDependencyHandler.DEPENDENCY_TYPE, value};
             throw new PSDeployException(IPSDeploymentErrors.SERVER_OBJECT_NOT_FOUND, args);
           }
         } else {
@@ -553,6 +549,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     return newSlotId;
   }
 
+
   /**
    * Updates the inline link text with new ids in any item field for which inline slot relationships
    * are being installed, and saves those item rows back to the server. Also updates the inline
@@ -574,7 +571,10 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * @throws PSDeployException if there are any errors.
    */
   private PSRelationshipSet updateInlineLinks(
-      PSDependency dep, PSImportCtx ctx, String contentId, Map relationshipMap)
+      PSDependency dep,
+      PSImportCtx ctx,
+      String contentId,
+      Map<Integer, PSRelationship> relationshipMap)
       throws PSDeployException {
     try {
       // use internal user to bypass community filtering
@@ -619,17 +619,17 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
       PSImportCtx ctx,
       String contentid,
       PSFieldSet fieldSet,
-      Map relationshipMap,
+      Map<Integer, PSRelationship> relationshipMap,
       PSRelationshipSet modifiedSet)
       throws PSDeployException {
     // get list of inline fields, recurse into any field sets.  build map of
     // table to list of it's inline fields
     try {
-      Map inlineFieldMap = new HashMap();
-      Map fieldMap = new HashMap(); // map of fieldnames to be col names
-      Iterator fields = fieldSet.getAll();
+      Map<String, List<String>> inlineFieldMap = new HashMap<>();
+      Map<String, String> fieldMap = new HashMap<>(); // map of be col names to field submit names
+      Iterator<PSComponent> fields = fieldSet.getAll();
       while (fields.hasNext()) {
-        Object o = fields.next();
+        PSComponent o = fields.next();
         if (o instanceof PSFieldSet) {
           processFieldSet(dep, ctx, contentid, (PSFieldSet) o, relationshipMap, modifiedSet);
         } else if (o instanceof PSField) {
@@ -639,9 +639,9 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
             if (beMapping instanceof PSBackEndColumn) {
               PSBackEndColumn becol = (PSBackEndColumn) beMapping;
               String tableName = becol.getTable().getTable();
-              List fieldList = (List) inlineFieldMap.get(tableName);
+              List<String> fieldList = inlineFieldMap.get(tableName);
               if (fieldList == null) {
-                fieldList = new ArrayList();
+                fieldList = new ArrayList<>();
                 inlineFieldMap.put(tableName, fieldList);
               }
               fieldList.add(becol.getColumn().toLowerCase());
@@ -660,27 +660,24 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
               contentid,
               Types.INTEGER);
 
-      Iterator entries = inlineFieldMap.entrySet().iterator();
-      while (entries.hasNext()) {
-        Entry entry = (Entry) entries.next();
-
+      for (Entry<String, List<String>> entry : inlineFieldMap.entrySet()) {
         // query all matching rows from the table
-        String tableName = (String) entry.getKey();
-        List colList = (List) entry.getValue();
+        String tableName = entry.getKey();
+        List<String> colList = entry.getValue();
         PSJdbcTableSchema schema = dbmsHelper.catalogTable(tableName, false);
         PSJdbcTableData data = dbmsHelper.catalogTableData(schema, null, filter);
         if (data == null) continue;
 
-        List modRowList = new ArrayList();
-        Iterator rows = data.getRows();
+        List<PSJdbcRowData> modRowList = new ArrayList<>();
+        Iterator<PSJdbcRowData> rows = data.getRows();
         while (rows.hasNext()) {
           boolean modifiedRow = false;
-          List modColList = new ArrayList();
+          List<PSJdbcColumnData> modColList = new ArrayList<>();
 
           // see if this is a child row
           boolean isChild = false;
           String sysId = null;
-          PSJdbcRowData row = (PSJdbcRowData) rows.next();
+          PSJdbcRowData row = rows.next();
           PSJdbcColumnData sysCol = row.getColumn(IPSConstants.CHILD_ITEM_PKEY, true);
           if (sysCol != null) {
             sysId = sysCol.getValue();
@@ -688,9 +685,9 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
           }
 
           // walk the fields and get the value for each if there
-          Iterator cols = row.getColumns();
+          Iterator<PSJdbcColumnData> cols = row.getColumns();
           while (cols.hasNext()) {
-            PSJdbcColumnData colData = (PSJdbcColumnData) cols.next();
+            PSJdbcColumnData colData = cols.next();
             modColList.add(colData);
             String colName = colData.getName();
             if (!colList.contains(colName.toLowerCase())) continue;
@@ -704,8 +701,8 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
                     new InputSource((Reader) new StringReader(text)), false);
 
             // update all links and get back relationships matching
-            // modified links
-            PSRelationshipSet modifiedLinks = new PSRelationshipSet();
+            // modified links (typed Collection avoids unchecked PSRelationshipSet conversion)
+            List<PSRelationship> modifiedLinks = new ArrayList<>();
             PSInlineLinkField.modifyField(
                 fieldDoc.getDocumentElement(), relationshipMap, modifiedLinks);
 
@@ -719,11 +716,9 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
             // update the inlinelinkfield prop of any changed
             // relationships if this is a child row
             if (isChild) {
-              Iterator mods = modifiedLinks.iterator();
-              while (mods.hasNext()) {
-                PSRelationship mod = (PSRelationship) mods.next();
+              for (PSRelationship mod : modifiedLinks) {
                 String inlineRelText = mod.getProperty(PSRelationshipConfig.RS_INLINERELATIONSHIP);
-                String fieldName = (String) fieldMap.get(colName);
+                String fieldName = fieldMap.get(colName);
                 if (inlineRelText != null
                     && inlineRelText.trim().length() > 0
                     && fieldName.equalsIgnoreCase(PSInlineLinkField.getFieldName(inlineRelText))) {
@@ -797,7 +792,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * List of child types supported by this handler, it will never be <code>null</code>, entries are
    * added by a static intializer.
    */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   /**
    * Map of property names to their associated child handler types, never <code>null</code>, entries
