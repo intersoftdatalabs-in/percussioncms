@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implementation for the PSCustomActionGroup DTD in BasicObjects.dtd. */
-public class PSCustomActionGroup extends PSComponent {
+public final class PSCustomActionGroup extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -80,7 +80,7 @@ public class PSCustomActionGroup extends PSComponent {
    *
    * @param location the new custom action group location, not <code>null</code>.
    */
-  public void setLocation(PSLocation location) {
+  public final void setLocation(PSLocation location) {
     if (location == null) throw new IllegalArgumentException("location cannot be null");
 
     m_location = location;
@@ -191,7 +191,7 @@ public class PSCustomActionGroup extends PSComponent {
   }
 
   // see IPSComponent
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

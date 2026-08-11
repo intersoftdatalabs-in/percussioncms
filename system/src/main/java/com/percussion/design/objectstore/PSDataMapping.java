@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSDataMapping extends PSComponent {
+public final class PSDataMapping extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -119,7 +119,7 @@ public class PSDataMapping extends PSComponent {
    *
    * @param docMap the name of the XML field being mapped
    */
-  public void setDocumentMapping(IPSDocumentMapping docMap) {
+  public final void setDocumentMapping(IPSDocumentMapping docMap) {
     m_docMapping = docMap;
   }
 
@@ -155,7 +155,7 @@ public class PSDataMapping extends PSComponent {
    * @see PSBackEndColumn
    * @see PSExtensionCall
    */
-  public void setBackEndMapping(IPSBackEndMapping backEndMap) {
+  public final void setBackEndMapping(IPSBackEndMapping backEndMap) {
     IllegalArgumentException ex = validateBackEndMapping(backEndMap);
 
     if (ex != null) throw ex;
@@ -383,7 +383,7 @@ public class PSDataMapping extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapping
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

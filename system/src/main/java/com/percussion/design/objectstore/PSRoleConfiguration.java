@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * implements IPSDocument so that it can be sent to and retrieved from the administrator (and
  * administration applications i.e. PSRoleSynchronizer) by the server.
  */
-public class PSRoleConfiguration implements IPSDocument {
+public final class PSRoleConfiguration implements IPSDocument {
   private static final Logger log = LogManager.getLogger(PSRoleConfiguration.class);
 
   /** Empty ctor (for fromXml(), fromDb()) */
@@ -103,7 +103,7 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   // see interface
-  public void fromXml(Document sourceDoc)
+  public final void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXControlRef DTD in BasicObjects.dtd. */
-public class PSControlRef extends PSComponent {
+public final class PSControlRef extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -127,7 +127,7 @@ public class PSControlRef extends PSComponent {
    *
    * @param c <code>PSControlRef</code> to be copied, not <code>null</code>.
    */
-  public void copyFrom(PSComponent c) {
+  public final void copyFrom(PSComponent c) {
     if (c instanceof PSControlRef) {
       PSControlRef source = (PSControlRef) c;
       try {
@@ -154,7 +154,7 @@ public class PSControlRef extends PSComponent {
   }
 
   // see interface for description
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
 

@@ -54,7 +54,7 @@ import org.w3c.dom.NodeList;
  * @since 1.0
  */
 @SuppressWarnings(value = {"unchecked"})
-public class PSApplication implements IPSDocument {
+public final class PSApplication implements IPSDocument {
   /**
    * Specialized wrapper class that takes a <code>PSDataSet</code> and uses only the request name
    * and parameters to determine equivalence. Used in validation to determine if two datasets in the
@@ -173,7 +173,8 @@ public class PSApplication implements IPSDocument {
   public PSApplication(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     this();
-    fromXml(sourceDoc);
+    // Private path avoids virtual fromXml dispatch during construction (this-escape).
+    fromXmlBase(sourceDoc);
   }
 
   /** Construct an empty application. */
@@ -189,8 +190,9 @@ public class PSApplication implements IPSDocument {
    */
   protected PSApplication(java.lang.String name) {
     this();
-    setName(name);
-    setRequestRoot(name);
+    // Private helpers avoid virtual setName/setRequestRoot during construction (this-escape).
+    applyName(name);
+    applyRequestRoot(name);
   }
 
   /**
@@ -280,12 +282,17 @@ public class PSApplication implements IPSDocument {
    *     server. This is limited to 50 characters.
    */
   public void setName(String name) {
+    applyName(name);
+  }
+
+  /** Non-overridable name assignment for construction and {@link #setName(String)}. */
+  private void applyName(String name) {
     name = name.trim();
     IllegalArgumentException ex = validateName(name);
     if (ex != null) throw ex;
 
     m_name = name;
-    setModified(true);
+    applyModified(true);
   }
 
   private static IllegalArgumentException validateName(String name) {
@@ -399,12 +406,17 @@ public class PSApplication implements IPSDocument {
    * @param requestRoot the new application request root. This is limited to 50 characters.
    */
   public void setRequestRoot(String requestRoot) {
+    applyRequestRoot(requestRoot);
+  }
+
+  /** Non-overridable request-root assignment for construction and {@link #setRequestRoot(String)}. */
+  private void applyRequestRoot(String requestRoot) {
     requestRoot = requestRoot.trim();
     IllegalArgumentException ex = validateRequestRoot(requestRoot);
     if (ex != null) throw ex;
 
     m_requestRoot = requestRoot;
-    setModified(true);
+    applyModified(true);
   }
 
   private static IllegalArgumentException validateRequestRoot(String requestRoot) {
@@ -1191,6 +1203,11 @@ public class PSApplication implements IPSDocument {
    * @param bModified <code>true</code> if the application ia changed, else <CODE>false</CODE>
    */
   public void setModified(boolean bModified) {
+    applyModified(bModified);
+  }
+
+  /** Non-overridable modified flag for construction and {@link #setModified(boolean)}. */
+  private void applyModified(boolean bModified) {
     m_modified = bModified;
   }
 
@@ -1713,6 +1730,15 @@ public class PSApplication implements IPSDocument {
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
+    fromXmlBase(sourceDoc);
+  }
+
+  /**
+   * Shared load for {@link #fromXml(Document)} and the Document constructor (this-escape safe;
+   * non-virtual).
+   */
+  private void fromXmlBase(Document sourceDoc)
+      throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
 
@@ -1787,7 +1813,7 @@ public class PSApplication implements IPSDocument {
     // get application name element
     try {
 
-      setName(tree.getElementData("name"));
+      applyName(tree.getElementData("name"));
     } catch (IllegalArgumentException e) {
       throw new PSUnknownDocTypeException(ms_NodeType, "name", new PSException(e));
     }
@@ -1808,7 +1834,7 @@ public class PSApplication implements IPSDocument {
 
     // Get requestRoot from XML
     try {
-      setRequestRoot(tree.getElementData("requestRoot"));
+      applyRequestRoot(tree.getElementData("requestRoot"));
     } catch (IllegalArgumentException e) {
       throw new PSUnknownDocTypeException(
           ms_NodeType, "requestRoot", new PSException(e.getLocalizedMessage()));

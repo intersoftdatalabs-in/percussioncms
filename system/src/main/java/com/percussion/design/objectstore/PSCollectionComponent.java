@@ -173,7 +173,11 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @param parentComponents the parent list
    * @return the new parent list (in case parentComponents was null)
    */
-  protected List updateParentList(List parentComponents) {
+  /**
+   * Final so Element constructors / fromXml can call this without this-escape (parallel to {@link
+   * PSComponent#updateParentList}).
+   */
+  protected final List updateParentList(List parentComponents) {
     if (parentComponents == null) parentComponents = new ArrayList<>();
 
     parentComponents.add(this);
@@ -182,12 +186,13 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   }
 
   /**
-   * Reset the list of parent objects in the array list to the specified size.
+   * Reset the list of parent objects in the array list to the specified size. Final so fromXml load
+   * paths can reset the parent stack without this-escape.
    *
    * @param parentComponents the parent list
    * @param size the size to set the list to
    */
-  protected void resetParentList(List parentComponents, int size) {
+  protected final void resetParentList(List parentComponents, int size) {
     if (parentComponents == null) return;
 
     if (size == 0) parentComponents.clear();

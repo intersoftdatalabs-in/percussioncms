@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSResultPage extends PSComponent {
+public final class PSResultPage extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -103,7 +103,7 @@ public class PSResultPage extends PSComponent {
    * @param styleSheet the URL of the style sheet defining the output format for the results.
    *     Specify null to use the default E2 style sheet.
    */
-  public void setStyleSheet(java.net.URL styleSheet) {
+  public final void setStyleSheet(java.net.URL styleSheet) {
     m_styleSheet = styleSheet;
   }
 
@@ -362,7 +362,7 @@ public class PSResultPage extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResultPage
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

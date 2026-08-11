@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** A collection of PSRelationship objects. See PSXRelationshipSet.dtd. */
-public class PSRelationshipSet extends PSCollectionComponent {
+public final class PSRelationshipSet extends PSCollectionComponent {
   /** Constucts an empty relationship set. */
   public PSRelationshipSet() {
     super(PSRelationship.class);
@@ -66,7 +66,7 @@ public class PSRelationshipSet extends PSCollectionComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

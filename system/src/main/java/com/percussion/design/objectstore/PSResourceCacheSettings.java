@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Class to represent the cache settings for a resource. */
-public class PSResourceCacheSettings extends PSComponent {
+public final class PSResourceCacheSettings extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -200,7 +200,7 @@ public class PSResourceCacheSettings extends PSComponent {
    *     this component. May be <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in the expected format.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 

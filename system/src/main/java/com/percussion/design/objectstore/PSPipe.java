@@ -52,6 +52,14 @@ public abstract class PSPipe extends PSComponent {
    *     non-unique, an exception will be thrown when the application is saved on the E2 server.
    */
   public void setName(java.lang.String name) {
+    applyName(name);
+  }
+
+  /**
+   * Non-overridable name assignment for construction and {@link #setName(String)}. Final so
+   * {@link PSQueryPipe}/{@link PSUpdatePipe} name ctors are this-escape safe.
+   */
+  protected final void applyName(java.lang.String name) {
     IllegalArgumentException ex = validateName(name);
     if (ex != null) throw ex;
 

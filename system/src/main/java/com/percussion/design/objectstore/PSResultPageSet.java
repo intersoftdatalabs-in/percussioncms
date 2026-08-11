@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSResultPageSet extends PSComponent implements IPSResults {
+public final class PSResultPageSet extends PSComponent implements IPSResults {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -158,7 +158,7 @@ public class PSResultPageSet extends PSComponent implements IPSResults {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResults
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

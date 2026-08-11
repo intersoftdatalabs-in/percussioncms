@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
  * evaluating to <code>true</code>.
  */
 @SuppressWarnings("serial")
-public class PSCommandHandlerStylesheets extends PSComponent {
+public final class PSCommandHandlerStylesheets extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -392,7 +392,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
   }
 
   // see IPSComponent
-  public void validate(IPSValidationContext context) throws PSSystemValidationException {
+  public final void validate(IPSValidationContext context) throws PSSystemValidationException {
     if (!context.startValidation(this, null)) return;
 
     // do children
@@ -417,7 +417,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param name the command handler name to validate.
    */
-  public void validate(String name) {
+  public final void validate(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("the command handler name cannot be null or empty");
   }
@@ -427,7 +427,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param stylesheets the stylesheet collection to validate.
    */
-  public void validate(PSCollection stylesheets) {
+  public final void validate(PSCollection stylesheets) {
     if (stylesheets == null || stylesheets.isEmpty())
       throw new IllegalArgumentException("the stylesheet collection cannot be null or empty");
 

@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * @version 1.0
  * @since 1.0
  */
-public class PSUpdatePipe extends PSPipe {
+public final class PSUpdatePipe extends PSPipe {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -69,7 +69,7 @@ public class PSUpdatePipe extends PSPipe {
    */
   public PSUpdatePipe(java.lang.String name) {
     super();
-    setName(name);
+    applyName(name);
     m_dataSynchronizer = new PSDataSynchronizer(); /* default sync opts */
   }
 
@@ -211,7 +211,7 @@ public class PSUpdatePipe extends PSPipe {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXUpdatePipe
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

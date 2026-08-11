@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * This class wraps the system def xml document and provides access to the objectstore objects
  * defined within it.
  */
-public class PSContentEditorSystemDef implements IPSDocument {
+public final class PSContentEditorSystemDef implements IPSDocument {
   /**
    * Constructor for this class that takes a source document.
    *
@@ -402,7 +402,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * @throws PSUnknownNodeTypeException if an XML element node is missing or is not of the
    *     appropriate type.
    */
-  public void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
+  public final void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
     if (null == doc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
 

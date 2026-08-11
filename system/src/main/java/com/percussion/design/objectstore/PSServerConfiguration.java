@@ -62,7 +62,8 @@ public class PSServerConfiguration implements IPSDocument {
   public PSServerConfiguration(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     this();
-    fromXml(sourceDoc);
+    // Private path avoids virtual fromXml (e.g. PSLegacyServerConfig) during construction.
+    fromXmlBase(sourceDoc);
   }
 
   /** Construct an empty server configuration object. */
@@ -171,6 +172,11 @@ public class PSServerConfiguration implements IPSDocument {
    * @throws PSIllegalArgumentException if requestRoot exceeds the specified size limit
    */
   public void setRequestRoot(String requestRoot) throws PSIllegalArgumentException {
+    applyRequestRoot(requestRoot);
+  }
+
+  /** Non-overridable request-root assignment for construction / fromXmlBase (this-escape safe). */
+  private void applyRequestRoot(String requestRoot) throws PSIllegalArgumentException {
     requestRoot = requestRoot.trim();
     int length = requestRoot.length();
     if (length > MAX_REQ_ROOT_LEN) {
@@ -179,7 +185,7 @@ public class PSServerConfiguration implements IPSDocument {
     }
 
     m_requestRoot = requestRoot;
-    setModified(true);
+    applyModified(true);
   }
 
   /**
@@ -553,6 +559,11 @@ public class PSServerConfiguration implements IPSDocument {
    * @param bModified <code>true</code> if the server configuration is changed, else false
    */
   public void setModified(boolean bModified) {
+    applyModified(bModified);
+  }
+
+  /** Non-overridable modified flag for construction / fromXmlBase (this-escape safe). */
+  private void applyModified(boolean bModified) {
     m_modified = bModified;
   }
 
@@ -1088,6 +1099,16 @@ public class PSServerConfiguration implements IPSDocument {
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
+    fromXmlBase(sourceDoc);
+  }
+
+  /**
+   * Shared load for {@link #fromXml(Document)} and the Document constructor. Avoids virtual fromXml
+   * dispatch (e.g. {@link com.percussion.design.objectstore.legacy.PSLegacyServerConfig}) before
+   * subclass fields are initialized.
+   */
+  private void fromXmlBase(Document sourceDoc)
+      throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
 
@@ -1119,7 +1140,7 @@ public class PSServerConfiguration implements IPSDocument {
 
     // Get requestRoot from XML
     try {
-      setRequestRoot(tree.getElementData("requestRoot"));
+      applyRequestRoot(tree.getElementData("requestRoot"));
     } catch (PSIllegalArgumentException e) {
       throw new PSUnknownDocTypeException(ms_NodeType, "requestRoot", e);
     }

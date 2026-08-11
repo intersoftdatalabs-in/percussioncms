@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
  * to <code>true</code>.
  */
 @SuppressWarnings("serial")
-public class PSApplicationFlow extends PSComponent {
+public final class PSApplicationFlow extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -449,7 +449,8 @@ public class PSApplicationFlow extends PSComponent {
    *
    * @param name the command handler name to validate.
    */
-  public void validate(String name) {
+  /** Final so setDefaultRedirect/addRedirects ctors are this-escape safe. */
+  public final void validate(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("the command handler name cannot be null or empty");
   }
@@ -459,7 +460,8 @@ public class PSApplicationFlow extends PSComponent {
    *
    * @param redirects the redirect collection to validate.
    */
-  public void validate(PSCollection redirects) {
+  /** Final so addRedirects ctors are this-escape safe. */
+  public final void validate(PSCollection redirects) {
     if (redirects == null || redirects.isEmpty())
       throw new IllegalArgumentException("the redirect collection cannot be null or empty");
 

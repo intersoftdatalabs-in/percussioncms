@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * world, these keys would not be here because they are implementation specific and this object
  * attempts to be unaware of the implementation.
  */
-public class PSSearchConfig extends PSComponent {
+public final class PSSearchConfig extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -233,7 +233,7 @@ public class PSSearchConfig extends PSComponent {
    *     method.
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
     String searchEnabled = sourceNode.getAttribute(SEARCH_ENABLED_ATTR);
@@ -332,7 +332,7 @@ public class PSSearchConfig extends PSComponent {
    *
    * @param config Config to copy, must never be <code>null</code>
    */
-  public void copyFrom(PSSearchConfig config) {
+  public final void copyFrom(PSSearchConfig config) {
     if (config == null) {
       throw new IllegalArgumentException("config must never be null");
     }

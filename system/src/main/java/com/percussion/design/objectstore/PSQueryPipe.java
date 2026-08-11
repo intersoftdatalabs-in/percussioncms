@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSQueryPipe extends PSPipe {
+public final class PSQueryPipe extends PSPipe {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
   /**
@@ -50,6 +50,7 @@ public class PSQueryPipe extends PSPipe {
   public PSQueryPipe(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     this();
+    // Final fromXml on this leaf type is this-escape safe once updateParentList is final.
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
@@ -68,7 +69,7 @@ public class PSQueryPipe extends PSPipe {
    */
   public PSQueryPipe(java.lang.String name) {
     super();
-    setName(name);
+    applyName(name);
   }
 
   /**
@@ -234,7 +235,7 @@ public class PSQueryPipe extends PSPipe {
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXQueryPipe
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
