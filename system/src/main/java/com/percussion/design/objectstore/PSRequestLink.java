@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -184,7 +185,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
 
   private static PSIllegalArgumentException validateTargetDataSet(String name) {
     if (null == name || name.length() == 0)
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.REQLINK_DATA_SET_NULL);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.REQLINK_DATA_SET_NULL.numericCode());
 
     return null;
   }
@@ -225,7 +226,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   private static PSIllegalArgumentException validateXmlField(String name) {
     if ((name != null) && (name.length() > MAX_XML_FIELD_NAME_LEN)) {
       Object[] args = {Integer.valueOf(MAX_XML_FIELD_NAME_LEN), Integer.valueOf(name.length())};
-      return new PSIllegalArgumentException(IPSObjectStoreErrors.REQLINK_XML_FIELD_TOO_BIG, args);
+      return new PSIllegalArgumentException(ObjectStoreErrorCodes.REQLINK_XML_FIELD_TOO_BIG.numericCode(), args);
     }
 
     return null;
@@ -347,11 +348,11 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (!ms_NodeType.equals(sourceNode.getNodeName())) {
       Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -361,7 +362,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     sTemp = tree.getElementData("useHttpResponseForRedirect");
@@ -373,7 +374,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
     sTemp = tree.getElementData("type");
     if (sTemp == null) {
       Object[] args = {ms_NodeType, "type", ""};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else if (sTemp.equalsIgnoreCase("none")) m_requestType = RL_TYPE_NONE;
     else if (sTemp.equalsIgnoreCase("query")) m_requestType = RL_TYPE_QUERY;
     else if (sTemp.equalsIgnoreCase("insert")) m_requestType = RL_TYPE_INSERT;
@@ -381,7 +382,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
     else if (sTemp.equalsIgnoreCase("delete")) m_requestType = RL_TYPE_DELETE;
     else {
       Object[] args = {ms_NodeType, "type", sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     try { // private          String      m_dataSet = "";

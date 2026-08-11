@@ -16,10 +16,10 @@
  */
 package com.percussion.design.objectstore.server;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.data.IPSInternalRequestHandler;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.IPSDatabaseComponent;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSDatabaseComponent;
 import com.percussion.design.objectstore.PSDatabaseComponentCollection;
 import com.percussion.design.objectstore.PSRelation;
@@ -163,7 +163,7 @@ public class PSDatabaseComponentLoader {
           };
 
           throw new PSDatabaseComponentException(
-              IPSObjectStoreErrors.RELATED_DB_COMPONENT_LOAD_EXCEPTION, args);
+              ObjectStoreErrorCodes.RELATED_DB_COMPONENT_LOAD_EXCEPTION.numericCode(), args);
         }
 
         IPSDatabaseComponent component =
@@ -214,7 +214,7 @@ public class PSDatabaseComponentLoader {
       Object[] args = {resourceName, e.toString()};
 
       throw new PSDatabaseComponentException(
-          IPSObjectStoreErrors.DB_COMPONENT_LOAD_EXCEPTION, args);
+          ObjectStoreErrorCodes.DB_COMPONENT_LOAD_EXCEPTION.numericCode(), args);
     }
   }
 
@@ -284,7 +284,7 @@ public class PSDatabaseComponentLoader {
         "The internal request handler could not be loaded." + "  It may have failed to start"
       };
       throw new PSInternalRequestCallException(
-          IPSObjectStoreErrors.DB_COMPONENT_LOAD_EXCEPTION, args);
+          ObjectStoreErrorCodes.DB_COMPONENT_LOAD_EXCEPTION.numericCode(), args);
     }
 
     PSInternalRequest req = new PSInternalRequest(m_request, irh);

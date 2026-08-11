@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore.server;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.conn.PSServerException;
 import com.percussion.data.IPSInternalRequestHandler;
@@ -26,7 +27,6 @@ import com.percussion.data.PSMetaDataCache;
 import com.percussion.data.PSTableMetaData;
 import com.percussion.data.jdbc.PSFileSystemDriver;
 import com.percussion.data.vfs.IPSVirtualDirectory;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSAcl;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
@@ -388,7 +388,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // Check to see if app is locked
     if (!isApplicationLocked(lockId, appName)) {
       Object[] args = {appName};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getApplicationLock(lockId, appName, 30);
@@ -558,7 +558,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // we assume the request root is the application directory
     PSApplicationSummary sum = m_objectStoreHandler.m_appSums.getSummary(appName);
 
-    if (sum == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_ROOT_REQD, appName);
+    if (sum == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), appName);
 
     String appRoot = sum.getAppRoot();
     File appDir = getAppRootDir(appRoot);
@@ -567,7 +567,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // then error
     if (!(appDir.exists() && appDir.isDirectory())) {
       Object[] args = {appName, appDir.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     File appFileName = new File(appDir, appFile.getPath());
@@ -582,18 +582,18 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
     } catch (FileNotFoundException e) {
       Object[] args = {appName, appFileName.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
 
     } catch (IOException e) {
       Object[] args = new Object[] {appFileName.toString(), e.toString()};
-      throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
     } finally {
       if (in != null) {
         try {
           m_objectStoreHandler.releaseInputStream(in, appFileName);
         } catch (IOException e) {
           Object[] args = new Object[] {appFileName.toString(), e.toString()};
-          throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+          throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
         }
       }
     }
@@ -684,7 +684,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
     // shouldn't be able to save files to apps that aren't locked
     if (!isApplicationLocked(lockId, appName + "-" + appFile.getName())) {
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, appName);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), appName);
     } else {
       // extend the lock to be sure we keep it
       getApplicationLock(lockId, appName + "-" + appFile.getName(), 30);
@@ -693,7 +693,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // we assume the request root is the application directory
     PSApplicationSummary sum = m_objectStoreHandler.m_appSums.getSummary(appName);
 
-    if (sum == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_ROOT_REQD, appName);
+    if (sum == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), appName);
 
     String appRoot = sum.getAppRoot();
     File appDir = getAppRootDir(appRoot);
@@ -715,7 +715,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // then error
     if ((!appDir.exists() && !appDir.mkdir()) || !appDir.isDirectory()) {
       Object[] args = {appName, appDir.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     File appFileName = new File(appDir, path);
@@ -723,7 +723,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     if (appFileName.exists()) {
       if (!appFileName.isFile()) {
         Object[] args = {appName, appFileName.getPath()};
-        throw new PSNotFoundException(IPSObjectStoreErrors.APP_FILE_NOT_FOUND, args);
+        throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
       }
       exists = true;
     } else {
@@ -733,7 +733,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       if (parentDir != null) {
         if ((!parentDir.exists() && !parentDir.mkdirs()) || !parentDir.isDirectory()) {
           Object[] args = {appName, appFileName.getPath()};
-          throw new PSServerException(IPSObjectStoreErrors.APP_FILE_MKSUBDIR_ERROR, args);
+          throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_MKSUBDIR_ERROR.numericCode(), args);
         }
       }
     }
@@ -749,14 +749,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
     } catch (IOException e) {
       Object[] args = new Object[] {appFileName.toString(), e.toString()};
-      throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
     } finally {
       if (out != null) {
         try {
           m_objectStoreHandler.releaseOutputStream(out, appFileName);
         } catch (IOException e) {
           Object[] args = {appFileName.toString(), e.toString()};
-          throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+          throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
         }
       }
 
@@ -814,7 +814,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // we assume the request root is the application directory
     PSApplicationSummary sum = m_objectStoreHandler.m_appSums.getSummary(appName);
 
-    if (sum == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_ROOT_REQD, appName);
+    if (sum == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), appName);
 
     String appRoot = sum.getAppRoot();
     File appDir = getAppRootDir(appRoot);
@@ -836,7 +836,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // then error
     if ((!appDir.exists() && !appDir.mkdir()) || !appDir.isDirectory()) {
       Object[] args = {appName, appDir.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     File appFileName = new File(appDir, path);
@@ -844,7 +844,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     if (appFileName.exists()) {
       if (!appFileName.isFile()) {
         Object[] args = {appName, appFileName.getPath()};
-        throw new PSNotFoundException(IPSObjectStoreErrors.APP_FILE_NOT_FOUND, args);
+        throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
       }
       exists = true;
     } else {
@@ -854,7 +854,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       if (parentDir != null) {
         if ((!parentDir.exists() && !parentDir.mkdirs()) || !parentDir.isDirectory()) {
           Object[] args = {appName, appFileName.getPath()};
-          throw new PSServerException(IPSObjectStoreErrors.APP_FILE_MKSUBDIR_ERROR, args);
+          throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_MKSUBDIR_ERROR.numericCode(), args);
         }
       }
     }
@@ -870,14 +870,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
     } catch (IOException e) {
       Object[] args = new Object[] {appFileName.toString(), e.toString()};
-      throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
     } finally {
       if (out != null) {
         try {
           m_objectStoreHandler.releaseOutputStream(out, appFileName);
         } catch (IOException e) {
           Object[] args = {appFileName.toString(), e.toString()};
-          throw new PSServerException(IPSObjectStoreErrors.APP_FILE_IO_ERROR, args);
+          throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
         }
       }
 
@@ -950,7 +950,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
 
     // shouldn't be able to save files to apps that aren't locked
     if (!isApplicationLocked(lockId, app.getName())) {
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, app.getName());
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), app.getName());
     } else {
       // extend the lock to be sure we keep it
       getApplicationLock(lockId, app.getName(), 30);
@@ -960,7 +960,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     PSApplicationSummary sum = m_objectStoreHandler.m_appSums.getSummary(app.getName());
 
     if (sum == null)
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_ROOT_REQD, app.getName());
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), app.getName());
 
     String appRoot = sum.getAppRoot();
     File appDir = new File(appRoot);
@@ -969,13 +969,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // then error
     if ((!appDir.exists() && !appDir.mkdir()) || !appDir.isDirectory()) {
       Object[] args = {app.getName(), appDir.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     // delete the app file if it exists
     if (!appFile.exists() || !appFile.isFile()) {
       Object[] args = {app.getName(), appFile.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
     }
 
     return deleteFile(appFile);
@@ -1017,7 +1017,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     if (!dontLockApp) {
       // shouldn't be able to save files to apps that aren't locked
       if (!isApplicationLocked(lockId, app.getName())) {
-        throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, app.getName());
+        throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), app.getName());
       } else {
         // extend the lock to be sure we keep it
         getApplicationLock(lockId, app.getName(), 30);
@@ -1028,7 +1028,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     PSApplicationSummary sum = m_objectStoreHandler.m_appSums.getSummary(app.getName());
 
     if (sum == null)
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_ROOT_REQD, app.getName());
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), app.getName());
 
     String appRoot = sum.getAppRoot();
     File appDir = new File(appRoot);
@@ -1037,13 +1037,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // then error
     if ((!appDir.exists() && !appDir.mkdir()) || !appDir.isDirectory()) {
       Object[] args = {app.getName(), appDir.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     // delete the app file if it exists
     if (!appFile.exists() || !appFile.isFile()) {
       Object[] args = {app.getName(), appFile.getPath()};
-      throw new PSNotFoundException(IPSObjectStoreErrors.APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
     }
 
     return deleteFile(appFile);
@@ -1199,7 +1199,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
      */
     if (!isApplicationLocked(lockId, appName)) {
       Object[] args = {appName};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getApplicationLock(lockId, appName, 30);
@@ -1319,7 +1319,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
      */
     if (!isApplicationLocked(lockId, curName)) {
       Object[] args = {curName};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getApplicationLock(lockId, curName, 30);
@@ -1349,7 +1349,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
         // delete it if there is an error)
         if (!newRoot.mkdir()) {
           Object[] args = {curSum.getAppRoot(), app.getRequestRoot()};
-          throw new PSNonUniqueException(IPSObjectStoreErrors.APP_ROOT_RENAME_FAILED, args);
+          throw new PSNonUniqueException(ObjectStoreErrorCodes.APP_ROOT_RENAME_FAILED.numericCode(), args);
         }
 
         newAppDir = newRoot;
@@ -1411,7 +1411,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
           if (renameRoot) {
             if (!curAppRoot.renameTo(getAppRootDir(app.getRequestRoot()))) {
               Object[] args = {curSum.getAppRoot(), app.getRequestRoot()};
-              throw new PSNonUniqueException(IPSObjectStoreErrors.APP_ROOT_RENAME_FAILED, args);
+              throw new PSNonUniqueException(ObjectStoreErrorCodes.APP_ROOT_RENAME_FAILED.numericCode(), args);
             }
 
             // if also renaming, already fixed up the summary, otherwise
@@ -1476,7 +1476,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
       config.fromDb(new PSDatabaseComponentLoader(req));
       return config;
     } catch (Exception e) {
-      throw new PSServerException(IPSObjectStoreErrors.ROLE_CFG_LOAD_EXCEPTION, e.toString());
+      throw new PSServerException(ObjectStoreErrorCodes.ROLE_CFG_LOAD_EXCEPTION.numericCode(), e.toString());
     }
   }
 
@@ -1592,7 +1592,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // Check to see if config is locked
     if (!isServerConfigLocked(lockId)) {
       Object[] args = {SERVER_CONFIGURATION};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getServerConfigLock(lockId, 30);
@@ -1635,7 +1635,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // Check to see if config is locked
     if (!isServerConfigLocked(lockId)) {
       Object[] args = {SERVER_CONFIGURATION};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getServerConfigLock(lockId, 30);
@@ -1693,7 +1693,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     // Check to see if config is locked
     if (!isServerConfigLocked(lockId)) {
       Object[] args = {SERVER_CONFIGURATION};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       getServerConfigLock(lockId, 30);
@@ -2849,7 +2849,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
                   (PSBackEndTable) tables.get(col.getTable().getAlias().toLowerCase());
               if (null == table) {
                 PSSystemValidationException e =
-                    new PSSystemValidationException(IPSObjectStoreErrors.BE_TABLE_NULL);
+                    new PSSystemValidationException(ObjectStoreErrorCodes.BE_TABLE_NULL);
                 throw new SQLException(e.getLocalizedMessage());
               }
               try {
@@ -3236,7 +3236,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   private void extendServerConfigLock(IPSLockerId lockId)
       throws PSServerException, PSNotLockedException, PSLockedException {
     if (!isServerConfigLocked(lockId)) {
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, SERVER_CONFIGURATION);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), SERVER_CONFIGURATION);
     } else {
       // extend the lock to be sure we keep it
       getServerConfigLock(lockId, 30);

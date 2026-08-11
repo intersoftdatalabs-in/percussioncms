@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore.server;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.conn.PSServerException;
 import com.percussion.content.IPSMimeContent;
 import com.percussion.content.IPSMimeContentTypes;
@@ -569,7 +570,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           } else {
             PSException ex =
                 new PSUnknownDocTypeException(
-                    IPSObjectStoreErrors.XML_ELEMENT_NULL, "PSXApplication");
+                    ObjectStoreErrorCodes.XML_ELEMENT_NULL, "PSXApplication");
 
             Object[] args = new Object[] {app.getName(), ex.toString()};
             PSLogManager.write(
@@ -1204,7 +1205,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSServerXmlObjectStore.getInstance().getContentEditorSystemDef();
 
       if (systemDef == null)
-        throw new PSServerException(IPSObjectStoreErrors.CE_SYSTEM_DEF_NOT_FOUND);
+        throw new PSServerException(ObjectStoreErrorCodes.CE_SYSTEM_DEF_NOT_FOUND.numericCode());
 
       return systemDef.toXml();
     } catch (RuntimeException e) {
@@ -1247,7 +1248,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSServerXmlObjectStore.getInstance().getContentEditorSharedDef();
 
       if (sharedDef == null)
-        throw new PSServerException(IPSObjectStoreErrors.CE_SHARED_DEF_NOT_FOUND);
+        throw new PSServerException(ObjectStoreErrorCodes.CE_SHARED_DEF_NOT_FOUND.numericCode());
 
       return sharedDef.toXml();
     } catch (RuntimeException e) {
@@ -1365,21 +1366,21 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     Element tableLocElem = walker.getNextElement(PSTableLocator.XML_NODE_NAME, true, true);
     if (null == tableLocElem) {
       Object[] args = {ms_RootTableDefSave, PSTableLocator.XML_NODE_NAME, ""};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     PSTableLocator loc = null;
     try {
       loc = new PSTableLocator(tableLocElem, null, null);
     } catch (PSUnknownNodeTypeException e) {
       Object[] args = {ms_RootTableDefSave, PSTableLocator.XML_NODE_NAME, ""};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // first <tables> is the schema definition
     Element tableDefsElem = walker.getNextElement("tables", true, true);
     if (null == tableDefsElem) {
       Object[] args = {ms_RootTableDefSave, "tables", ""};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     Connection conn = null;
@@ -1419,7 +1420,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           if (PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, tableName, false)
               != null) {
             String msg =
-                PSErrorManager.createMessage(IPSObjectStoreErrors.CREATE_TABLE_EXISTS, tableName);
+                PSErrorManager.createMessage(ObjectStoreErrorCodes.CREATE_TABLE_EXISTS.numericCode(), tableName);
             el = PSXmlDocumentBuilder.addElement(responseDoc, responseRoot, "error", msg);
             el.setAttribute("tableName", tableName);
             el.setAttribute("create", "y");
@@ -1583,7 +1584,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       /* get the application XML tree */
       if (walker.getNextElement("PSXApplication", true, true) == null) {
         Object[] args = {ms_RootAppSave, "PSXApplication", ""};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       /* get the save flags */
@@ -2182,7 +2183,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       /* get the application XML tree */
       if (walker.getNextElement("PSXUserConfiguration", true, true) == null) {
         Object[] args = {ms_RootUserConfigSave, "PSXUserConfiguration", ""};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       /* promote the cfg to root so we can do the save easily */
@@ -2302,7 +2303,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // get the server config XML tree
     if (cfgEl == null) {
       Object[] args = {ms_RootServerConfigSave, "PSXServerConfiguration", ""};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     try {
@@ -2356,7 +2357,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       // get the server config XML tree
       if (cfgEl == null) {
         Object[] args = {ms_RootRoleConfigSave, ROLE_CONFIG_ROOT_TAGNAME, ""};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // lock the config, save the file, and unlock the config
@@ -4296,7 +4297,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // Check to see if config is locked
     if (!os.isServerConfigLocked(lockId)) {
       Object[] args = {"Server Configuration"};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       os.getServerConfigLock(lockId, 30);
@@ -4443,7 +4444,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // Check to see if config is locked
     if (!os.isServerConfigLocked(lockId)) {
       Object[] args = {"Server Configuration"};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       os.getServerConfigLock(lockId, 30);
@@ -4586,7 +4587,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // Check to see if config is locked
     if (!os.isServerConfigLocked(lockId)) {
       Object[] args = {"Server Configuration"};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       os.getServerConfigLock(lockId, 30);
@@ -4744,7 +4745,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // Check to see if config is locked
     if (!os.isServerConfigLocked(lockId)) {
       Object[] args = {"Server Configuration"};
-      throw new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, args);
+      throw new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), args);
     } else {
       // extend the lock to be sure we keep it
       os.getServerConfigLock(lockId, 30);

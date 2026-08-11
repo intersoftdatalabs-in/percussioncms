@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -149,17 +150,17 @@ public class PSSecurityConfiguration implements IPSDocument {
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (sourceDoc == null) {
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
     }
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the security configuration type node
     if (false == ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceDoc);
@@ -168,12 +169,12 @@ public class PSSecurityConfiguration implements IPSDocument {
     String sTemp = tree.getElementData("forceSecureLogin");
     if ((sTemp == null) || (sTemp.length() == 0)) {
       Object[] args = {ms_NodeType, "forceSecureLogin", "empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     } else if (sTemp.equals(XML_FLAG_TYPE_YES)) setIsForceSecureLogin(XML_FLAG_TYPE_YES);
     else if (sTemp.equals(XML_FLAG_TYPE_NO)) setIsForceSecureLogin(XML_FLAG_TYPE_NO);
     else {
       Object[] args = {ms_NodeType, "forceSecureLogin", sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // Read path elements of the security configuration

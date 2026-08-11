@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -263,7 +264,7 @@ public final class PSSearchConfig extends PSComponent {
         if (m_maxSearchResult < 0) m_maxSearchResult = -1;
       } catch (NumberFormatException nfe) {
         Object args[] = {"PSXSearchConfiguration", MAX_SEARCH_RESULT_ATTR, nsMaxSearchResult};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -278,7 +279,7 @@ public final class PSSearchConfig extends PSComponent {
           if (null == propName || propName.trim().length() == 0) {
             String[] args = {propEl.getNodeName(), NAME_ATTR, propName};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
           }
           String value = PSXmlTreeWalker.getElementData(propEl);
           m_properties.put(propName, value);

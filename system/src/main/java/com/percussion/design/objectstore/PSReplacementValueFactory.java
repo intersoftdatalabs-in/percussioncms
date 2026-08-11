@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
@@ -65,7 +66,7 @@ public abstract class PSReplacementValueFactory {
       throws PSUnknownNodeTypeException {
     if (node == null) {
       Object[] args = {xmlNodeName, xmlVarName, "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     // now figure out which type it is
@@ -76,7 +77,7 @@ public abstract class PSReplacementValueFactory {
       Class<?> replValueClass = ms_rvClasses.get(nodeName.toLowerCase());
       if (replValueClass == null) {
         Object[] args = {xmlNodeName, xmlVarName, nodeName};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       Class<?>[] constrArgs = {
@@ -99,13 +100,13 @@ public abstract class PSReplacementValueFactory {
     } catch (InvocationTargetException e) {
       Throwable orig = e.getTargetException();
       Object[] args = {xmlNodeName, xmlVarName, nodeName + ": " + orig.toString()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } catch (PSUnknownNodeTypeException e) {
       // no need to wrap this in a new PSUnknownNodeTypeException
       throw e;
     } catch (Exception e) {
       Object[] args = {xmlNodeName, xmlVarName, nodeName + ": " + e.toString()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     return value;
   }

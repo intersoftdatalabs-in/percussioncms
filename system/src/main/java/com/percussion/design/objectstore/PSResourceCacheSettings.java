@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -206,7 +207,7 @@ public final class PSResourceCacheSettings extends PSComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -219,7 +220,7 @@ public final class PSResourceCacheSettings extends PSComponent {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {XML_NODE_NAME, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       // get the enabled attribute
@@ -236,7 +237,7 @@ public final class PSResourceCacheSettings extends PSComponent {
       m_extraKeys.clear();
       Element keys = tree.getNextElement(KEYS_XML_EL, firstFlags);
       if (keys == null) {
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, KEYS_XML_EL);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, KEYS_XML_EL);
       }
 
       Element key = tree.getNextElement(KEY_XML_EL, firstFlags);
@@ -252,7 +253,7 @@ public final class PSResourceCacheSettings extends PSComponent {
         if (!(replVal instanceof PSNamedReplacementValue)) {
           Object args[] = {XML_NODE_NAME, KEY_XML_EL, child.getNodeName()};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
 
         m_extraKeys.add(replVal);
@@ -264,7 +265,7 @@ public final class PSResourceCacheSettings extends PSComponent {
       m_dependencies.clear();
       Element deps = tree.getNextElement(DEPS_XML_EL, nextFlags);
       if (deps == null) {
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, DEPS_XML_EL);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, DEPS_XML_EL);
       }
 
       Element dep = tree.getNextElement(DEP_XML_EL, firstFlags);
@@ -273,7 +274,7 @@ public final class PSResourceCacheSettings extends PSComponent {
         if (resource.trim().length() == 0) {
           Object args[] = {XML_NODE_NAME, DEP_XML_EL, resource};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
 
         m_dependencies.add(resource);

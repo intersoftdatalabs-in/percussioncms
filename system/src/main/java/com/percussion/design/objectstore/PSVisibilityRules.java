@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
 import java.util.List;
@@ -101,11 +102,11 @@ public class PSVisibilityRules extends PSCollectionComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -134,7 +135,7 @@ public class PSVisibilityRules extends PSCollectionComponent {
         }
         if (!found) {
           Object[] args = {XML_NODE_NAME, DATA_HIDING_ATTR, data};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
       }
 
@@ -171,7 +172,7 @@ public class PSVisibilityRules extends PSCollectionComponent {
 
     if (m_dataHiding != DATA_HIDING_XML && m_dataHiding != DATA_HIDING_XSL) {
       Object[] args = {DATA_HIDING_ENUM};
-      context.validationError(this, IPSObjectStoreErrors.UNSUPPORTED_DATA_HIDING, args);
+      context.validationError(this, ObjectStoreErrorCodes.UNSUPPORTED_DATA_HIDING, args);
     }
 
     super.validate(context);

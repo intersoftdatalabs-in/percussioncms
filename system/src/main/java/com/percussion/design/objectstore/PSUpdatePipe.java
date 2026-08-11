@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -218,11 +219,11 @@ public final class PSUpdatePipe extends PSPipe {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (false == ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -233,7 +234,7 @@ public final class PSUpdatePipe extends PSPipe {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       try { // set the pipe name
@@ -329,7 +330,7 @@ public final class PSUpdatePipe extends PSPipe {
       if (!(m_dataSynchronizer.isDeletingAllowed()
           || m_dataSynchronizer.isUpdatingAllowed()
           || m_dataSynchronizer.isInsertingAllowed())) {
-        cxt.validationError(this, IPSObjectStoreErrors.UPDATEPIPE_NO_SYNC_TYPES, null);
+        cxt.validationError(this, ObjectStoreErrorCodes.UPDATEPIPE_NO_SYNC_TYPES, null);
       }
     }
 

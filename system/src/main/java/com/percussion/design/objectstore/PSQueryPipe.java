@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -242,11 +243,11 @@ public final class PSQueryPipe extends PSPipe {
 
     try {
       if (sourceNode == null)
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
       if (!ms_NodeType.equals(sourceNode.getNodeName())) {
         Object[] args = {ms_NodeType, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -256,7 +257,7 @@ public final class PSQueryPipe extends PSPipe {
         m_id = Integer.parseInt(sTemp);
       } catch (Exception e) {
         Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
       }
 
       try {
@@ -373,7 +374,7 @@ public final class PSQueryPipe extends PSPipe {
 
         Object[] args = new Object[] {dsName, "" + tabSize, "" + joinSize, "" + (tabSize - 1)};
 
-        cxt.validationError(this, IPSObjectStoreErrors.BE_TANK_JOINS_REQUIRED, args);
+        cxt.validationError(this, ObjectStoreErrorCodes.BE_TANK_JOINS_REQUIRED, args);
       }
     }
 
@@ -381,7 +382,7 @@ public final class PSQueryPipe extends PSPipe {
     cxt.pushParent(this);
     try {
       if (m_dataSelector == null) {
-        cxt.validationError(this, IPSObjectStoreErrors.QPIPE_DATA_SELECTOR_NULL, null);
+        cxt.validationError(this, ObjectStoreErrorCodes.QPIPE_DATA_SELECTOR_NULL, null);
       } else m_dataSelector.validate(cxt);
 
       /* if we're doing a heterogeneous join, they must provide the
@@ -399,7 +400,7 @@ public final class PSQueryPipe extends PSPipe {
             PSBackEndTable secondTable = (PSBackEndTable) tabs.get(i);
             if (!firstTable.isSameDatasource(secondTable)) {
               cxt.validationError(
-                  this, IPSObjectStoreErrors.HETERO_NATIVE_SELECT_NOT_SUPPORTED, null);
+                  this, ObjectStoreErrorCodes.HETERO_NATIVE_SELECT_NOT_SUPPORTED, null);
             }
           }
         }

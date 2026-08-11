@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
 import java.util.List;
@@ -294,11 +295,11 @@ public final class PSSharedFieldGroup extends PSComponent {
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -317,7 +318,7 @@ public final class PSSharedFieldGroup extends PSComponent {
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null || m_name.trim().length() == 0) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // OPTIONAL: get the filename attribute
@@ -328,7 +329,7 @@ public final class PSSharedFieldGroup extends PSComponent {
       node = tree.getNextElement(PSContainerLocator.XML_NODE_NAME, firstFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSContainerLocator.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_locator = new PSContainerLocator(node, parentDoc, parentComponents);
 
@@ -336,7 +337,7 @@ public final class PSSharedFieldGroup extends PSComponent {
       node = tree.getNextElement(PSFieldSet.XML_NODE_NAME, nextFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSFieldSet.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_fieldSet = new PSFieldSet(node, parentDoc, parentComponents);
       m_fieldSet.setSourceType(PSField.TYPE_SHARED);
@@ -345,7 +346,7 @@ public final class PSSharedFieldGroup extends PSComponent {
       node = tree.getNextElement(PSUIDefinition.XML_NODE_NAME, nextFlags);
       if (node == null) {
         Object[] args = {XML_NODE_NAME, PSUIDefinition.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_uiDefinition = new PSUIDefinition(node, parentDoc, parentComponents);
 
@@ -403,19 +404,19 @@ public final class PSSharedFieldGroup extends PSComponent {
     if (!context.startValidation(this, null)) return;
 
     if (m_name == null || m_name.trim().length() == 0)
-      context.validationError(this, IPSObjectStoreErrors.INVALID_SHARED_FIELD_GROUP, null);
+      context.validationError(this, ObjectStoreErrorCodes.INVALID_SHARED_FIELD_GROUP, null);
 
     // do children
     context.pushParent(this);
     try {
       if (m_locator != null) m_locator.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_SHARED_FIELD_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_SHARED_FIELD_GROUP, null);
 
       if (m_fieldSet != null) m_fieldSet.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_SHARED_FIELD_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_SHARED_FIELD_GROUP, null);
 
       if (m_uiDefinition != null) m_uiDefinition.validate(context);
-      else context.validationError(this, IPSObjectStoreErrors.INVALID_SHARED_FIELD_GROUP, null);
+      else context.validationError(this, ObjectStoreErrorCodes.INVALID_SHARED_FIELD_GROUP, null);
 
       if (m_validationRules != null) m_validationRules.validate(context);
 

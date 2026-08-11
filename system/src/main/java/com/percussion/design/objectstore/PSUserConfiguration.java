@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Enumeration;
@@ -204,15 +205,15 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
    */
   public void fromXml(Document sourceDoc) throws PSUnknownDocTypeException {
     if (sourceDoc == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     if (false == ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // Read PSXUserConfiguration object attributes

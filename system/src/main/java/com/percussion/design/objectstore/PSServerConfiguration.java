@@ -17,6 +17,8 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.security.TLSSocketFactory;
@@ -181,7 +183,7 @@ public class PSServerConfiguration implements IPSDocument {
     int length = requestRoot.length();
     if (length > MAX_REQ_ROOT_LEN) {
       Object[] args = {MAX_REQ_ROOT_LEN, length};
-      throw new PSIllegalArgumentException(IPSObjectStoreErrors.SRV_ROOT_TOO_BIG, args);
+      throw new PSIllegalArgumentException(ObjectStoreErrorCodes.SRV_ROOT_TOO_BIG.numericCode(), args);
     }
 
     m_requestRoot = requestRoot;
@@ -212,11 +214,11 @@ public class PSServerConfiguration implements IPSDocument {
    * @see PSAcl
    */
   public void setAcl(PSAcl acl) throws PSIllegalArgumentException {
-    if (null == acl) throw new PSIllegalArgumentException(IPSObjectStoreErrors.SRV_ACL_NULL);
+    if (null == acl) throw new PSIllegalArgumentException(DesignErrorCodes.SRV_ACL_NULL.numericCode());
 
     PSCollection entries = acl.getEntries();
     int size = entries.size();
-    if (0 == size) throw new PSIllegalArgumentException(IPSObjectStoreErrors.SRV_ACL_EMPTY);
+    if (0 == size) throw new PSIllegalArgumentException(DesignErrorCodes.SRV_ACL_EMPTY.numericCode());
 
     int adminAccess = PSAclEntry.SACE_ADMINISTER_SERVER;
 
@@ -232,14 +234,14 @@ public class PSServerConfiguration implements IPSDocument {
 
       if (names.put(key, ace) != null) /* we've seen this already */
         throw new PSIllegalArgumentException(
-            IPSObjectStoreErrors.ACL_ENTRYLIST_DUPLICATE, ace.getName());
+            DesignErrorCodes.ACL_ENTRYLIST_DUPLICATE.numericCode(), ace.getName());
 
       level = ace.getAccessLevel();
       if ((level & adminAccess) == adminAccess) hasAdminAccess = true;
     }
 
     if (!hasAdminAccess)
-      throw new PSIllegalArgumentException(IPSObjectStoreErrors.SRV_ACL_NO_ADMIN);
+      throw new PSIllegalArgumentException(DesignErrorCodes.SRV_ACL_NO_ADMIN.numericCode());
 
     m_acl = acl;
     setModified(true);
@@ -462,7 +464,7 @@ public class PSServerConfiguration implements IPSDocument {
         Object[] args = {
           "Security Provider Instance", "PSSecurityProviderInstance", insts.getMemberClassName()
         };
-        throw new PSIllegalArgumentException(IPSObjectStoreErrors.COLL_BAD_CONTENT_TYPE, args);
+        throw new PSIllegalArgumentException(ObjectStoreErrorCodes.COLL_BAD_CONTENT_TYPE.numericCode(), args);
       }
     }
 
@@ -1110,16 +1112,16 @@ public class PSServerConfiguration implements IPSDocument {
   private void fromXmlBase(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     Element root = sourceDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_NodeType);
 
     // make sure we got the correct root node tag
     if (false == ms_NodeType.equals(root.getNodeName())) {
       Object[] args = {ms_NodeType, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // get the server type
@@ -1135,7 +1137,7 @@ public class PSServerConfiguration implements IPSDocument {
       m_id = Integer.parseInt(sTemp);
     } catch (Exception e) {
       Object[] args = {ms_NodeType, ((sTemp == null) ? "null" : sTemp)};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ID, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ID, args);
     }
 
     // Get requestRoot from XML
@@ -1181,7 +1183,7 @@ public class PSServerConfiguration implements IPSDocument {
           m_sessionTimeout = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "userSessionTimeout", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
       // create user sessions time out
@@ -1192,7 +1194,7 @@ public class PSServerConfiguration implements IPSDocument {
           m_sessionWarning = Integer.parseInt(sTemp);
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "userSessionWarning", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
 
@@ -1204,7 +1206,7 @@ public class PSServerConfiguration implements IPSDocument {
           setMaxOpenUserSessions(Integer.parseInt(sTemp));
         } catch (NumberFormatException e) {
           Object[] args = {ms_NodeType, "maxOpenUserSessions", sTemp};
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
       }
     }
@@ -1229,7 +1231,7 @@ public class PSServerConfiguration implements IPSDocument {
         if (sTemp != null) m_runningLogDays = Integer.parseInt(sTemp);
       } catch (NumberFormatException e) {
         Object[] args = {ms_NodeType, "runningLogDays", sTemp};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     }
 
@@ -1354,7 +1356,7 @@ public class PSServerConfiguration implements IPSDocument {
           if (groupProvider == null) {
             Object[] args = {XML_GROUP_PROVIDERS_ELEMENT, curNodeType, "null"};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
           while (groupProvider != null) {
             m_groupProviders.add(PSGroupProviderInstance.newInstance(groupProvider));

@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -71,7 +72,7 @@ public class PSUserContext extends PSNamedReplacementValue {
   protected int getErrorCode() {
     // no specific error code exists for this class, but this is the value
     // that the class has always returned
-    return IPSObjectStoreErrors.HTML_PARAM_NAME_EMPTY;
+    return ObjectStoreErrorCodes.HTML_PARAM_NAME_EMPTY.numericCode();
   }
 
   /** The value type associated with this instances of this class. */

@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSErrorManager;
 import com.percussion.error.PSException;
@@ -101,7 +102,7 @@ public class PSUnknownDocTypeException extends PSException {
    * @param e the exception to use as the error description
    */
   public PSUnknownDocTypeException(String parent, String child, PSException e) {
-    this(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, new Object[] {parent, child, ""});
+    this(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, new Object[] {parent, child, ""});
     m_exception = e;
   }
 

@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSDatabaseComponentException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -259,14 +260,14 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, "[PSX???Relation]");
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, "[PSX???Relation]");
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
     Element key = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
     if (key == null) {
       Object[] args = {sourceNode.getTagName(), "[a key element]", "null"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (key != null) {
