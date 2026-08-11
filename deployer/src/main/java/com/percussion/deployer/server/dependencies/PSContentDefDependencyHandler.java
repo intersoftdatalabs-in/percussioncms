@@ -168,7 +168,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     addAclDependency(tok, PSTypeEnum.LEGACY_CONTENT, dep, childDeps);
 
     // get all Community (Element) children for this content def
-    List cmDeps =
+    List<PSDependency> cmDeps =
         getChildDepsFromParentID(
             CONTENT_TABLE,
             COMMUNITY_ID,
@@ -217,17 +217,20 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -254,9 +257,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     // get the table schema and data for all item tables, use internal user to
     // bypass community filtering
     PSRequest adminReq = PSRequest.getContextForRequest();
-    Iterator tableData = getItemTableData(adminReq.getSecurityToken(), dep);
+    Iterator<PSDependencyData> tableData = getItemTableData(adminReq.getSecurityToken(), dep);
     while (tableData.hasNext()) {
-      PSDependencyData data = (PSDependencyData) tableData.next();
+      PSDependencyData data = tableData.next();
       files.add(getDepFileFromDepData(data));
     }
 
@@ -264,6 +267,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   // see base class
+  @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -280,13 +284,10 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     PSIdMapping idMapping = getIdMapping(ctx, dep);
     String newContentId = idMapping == null ? dep.getDependencyId() : idMapping.getTargetId();
 
-    // retrieve the data from the archive
-    PSDependencyData contentDepData = null;
-
     // get the content data first
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
-    contentDepData = getDepDataFromFile(archive, file);
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
+    PSDependencyData contentDepData = getDepDataFromFile(archive, file);
 
     // prepare a map to collect the cached data for updating the item summary
     // cache if it is on.
@@ -312,9 +313,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     int ctypeId = -1;
     String strContentTypeId = "";
     // should have a single child content type dependency
-    Iterator children = dep.getDependencies(PSCEDependencyHandler.DEPENDENCY_TYPE);
+    Iterator<PSDependency> children = dep.getDependencies(PSCEDependencyHandler.DEPENDENCY_TYPE);
     if (children.hasNext()) {
-      PSDependency child = (PSDependency) children.next();
+      PSDependency child = children.next();
       try {
         strContentTypeId = child.getDependencyId();
         ctypeId = Integer.parseInt(strContentTypeId);
@@ -348,7 +349,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
 
     // install the table schema and data for all item tables
     while (files.hasNext()) {
-      file = (PSDependencyFile) files.next();
+      file = files.next();
       PSDependencyData itemDepData = getDepDataFromFile(archive, file);
       PSJdbcTableSchema schema = itemDepData.getSchema();
       String table = schema.getName();
@@ -407,10 +408,11 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    *     </code>.
    * @throws PSDeployException if one of the values is <code>null</code> or empty.
    */
-  private void updateItemCache(String newContentId, Map cacheData) throws PSDeployException {
+  private void updateItemCache(String newContentId, Map<String, String> cacheData)
+      throws PSDeployException {
     // validate the cache data
     for (int i = 0; i < CACHED_COLS.length; i++) {
-      String value = (String) cacheData.get(CACHED_COLS[i]);
+      String value = cacheData.get(CACHED_COLS[i]);
       if (value == null || value.trim().length() == 0) {
         String[] args = new String[] {newContentId, CACHED_COLS[i], CONTENT_TABLE};
         throw new PSDeployException(IPSDeploymentErrors.MISSING_REQUIRED_CACHE_DATA, args);
@@ -418,6 +420,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     }
 
     PSItemSummaryCache itemCache = PSItemSummaryCache.getInstance();
+    // PSTableChangeEvent historically takes a raw Map; pass typed cache data.
     PSTableChangeEvent deleteEvent =
         new PSTableChangeEvent(CONTENT_TABLE, PSTableChangeEvent.ACTION_DELETE, cacheData);
     itemCache.tableChanged(deleteEvent);
@@ -427,6 +430,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   // see base class
+  @Override
   public void reserveNewId(PSDependency dep, PSIdMap idMap) throws PSDeployException {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
@@ -439,6 +443,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   // see IPSIdTypeHandler interface
+  @Override
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -460,10 +465,10 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     }
 
     // walk fields and check to ID type support, recurse into children
-    List mappings = new ArrayList();
-    Iterator tableData = getItemTableData(adminTok, dep);
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
+    Iterator<PSDependencyData> tableData = getItemTableData(adminTok, dep);
     while (tableData.hasNext()) {
-      PSDependencyData depData = (PSDependencyData) tableData.next();
+      PSDependencyData depData = tableData.next();
       PSItemData itemData = new PSItemData(itemDef, depData.getData());
       PSAppTransformer.checkItemData(mappings, itemData, null);
     }
@@ -478,6 +483,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * See {@link IPSIdTypeHandler#transformIds(Object, PSApplicationIDTypes, PSIdMap)} for details.
    * <code>object</code> supplied must be an instanceof {@link PSItemData}.
    */
+  @Override
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -493,16 +499,17 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     PSItemData itemData = (PSItemData) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -526,7 +533,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    *     , might be empty if there are no content rows for the item represented by this dependency.
    * @throws PSDeployException If there are any error retrieving the data.
    */
-  private Iterator getItemTableData(PSSecurityToken tok, PSDependency dep)
+  private Iterator<PSDependencyData> getItemTableData(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     // get the table schema and data for all item tables, do as internal user
     // since we're not filtering by community at all
@@ -536,9 +543,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       String csId = dep.getDependencyId();
       PSItemDefManager itemDefMgr = PSItemDefManager.getInstance();
       PSItemDefinition itemDef = itemDefMgr.getItemDef(new PSLocator(Integer.parseInt(csId)), tok);
-      Iterator tables = getAppCETables(itemDef.getContentEditor());
+      Iterator<String> tables = getAppCETables(itemDef.getContentEditor());
       while (tables.hasNext()) {
-        String table = (String) tables.next();
+        String table = tables.next();
         PSDependencyData itemData =
             getDepDataFromTable(dep, table, IPSConstants.ITEM_PKEY_CONTENTID, false);
         if (itemData != null) tableData.add(itemData);
@@ -580,19 +587,19 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     // get the source row
     PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     if (rows.hasNext()) {
       while (rows.hasNext()) {
-        PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+        PSJdbcRowData srcRow = rows.next();
 
         // walk the columns and build a new row, xform the ids as we go
         // xform the ids for CONTENT_ID, CONTENT_STATE_ID, CONTENTYPE_ID,
         // COMMUNITY_ID and WORKFLOW_ID
         String wfId = null; // used to optimize state and transition id xform
         List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-        Iterator srcCols = srcRow.getColumns();
+        Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
         while (srcCols.hasNext()) {
-          PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+          PSJdbcColumnData col = srcCols.next();
           // the column name must be upper case for collecting cache data
           String colName = col.getName().toUpperCase();
           if (colName.equalsIgnoreCase(CONTENT_ID)) {
@@ -630,9 +637,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
     }
 
-    PSJdbcTableData newData = new PSJdbcTableData(CONTENT_TABLE, tgtRowList.iterator());
-
-    return newData;
+    return new PSJdbcTableData(CONTENT_TABLE, tgtRowList.iterator());
   }
 
   /**
@@ -648,21 +653,21 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       throws PSDeployException {
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
 
     if (!rows.hasNext()) {
       throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go,
       // xform the ids for CONTENT_ID
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(IPSConstants.ITEM_PKEY_CONTENTID)) {
           col.setValue(newContentId);
@@ -675,9 +680,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       tgtRowList.add(tgtRow);
     }
 
-    PSJdbcTableData newData = new PSJdbcTableData(data.getName(), tgtRowList.iterator());
-
-    return newData;
+    return new PSJdbcTableData(data.getName(), tgtRowList.iterator());
   }
 
   /**
@@ -692,15 +695,15 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     // walk the data and get the highest sysid in use
     int maxId = -1;
     boolean hasSysId = true;
-    Iterator rows = data.getRows();
+    Iterator<PSJdbcRowData> rows = data.getRows();
     while (rows.hasNext() && hasSysId) {
-      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      PSJdbcRowData row = rows.next();
 
       // walk the columns and look for sysid column
       boolean foundSysId = false;
-      Iterator cols = row.getColumns();
+      Iterator<PSJdbcColumnData> cols = row.getColumns();
       while (cols.hasNext() && !foundSysId) {
-        PSJdbcColumnData col = (PSJdbcColumnData) cols.next();
+        PSJdbcColumnData col = cols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(IPSConstants.CHILD_ITEM_PKEY)) {
           // found it, now remember the max value
@@ -747,9 +750,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     if (stId != null && stId.trim().length() != 0) {
       // get the workflow id if not supplied
       if (wfId == null || wfId.trim().length() == 0) {
-        Iterator srcCols = srcRow.getColumns();
+        Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
         while (srcCols.hasNext()) {
-          PSJdbcColumnData srcCol = (PSJdbcColumnData) srcCols.next();
+          PSJdbcColumnData srcCol = srcCols.next();
           String colName = srcCol.getName();
           if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
             wfId = srcCol.getValue();
@@ -790,9 +793,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     if (transId != null && transId.trim().length() != 0 && !transId.equals("0")) {
       // get the workflow id if not supplied
       if (wfId == null || wfId.trim().length() == 0) {
-        Iterator srcCols = srcRow.getColumns();
+        Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
         while (srcCols.hasNext()) {
-          PSJdbcColumnData srcCol = (PSJdbcColumnData) srcCols.next();
+          PSJdbcColumnData srcCol = srcCols.next();
           String colName = srcCol.getName();
           if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
             wfId = srcCol.getValue();
@@ -824,15 +827,16 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    *     empty.
    * @throws PSDeployException if there are any errors.
    */
-  private Iterator getAppCETables(PSContentEditor ce) throws PSDeployException {
+  private Iterator<String> getAppCETables(PSContentEditor ce) throws PSDeployException {
     Set<String> names = new HashSet<>();
     PSContentEditorPipe cePipe = (PSContentEditorPipe) ce.getPipe();
 
     // check for tables
-    Iterator tables = PSContentEditorObjectDependencyHandler.getLocatorTables(cePipe.getLocator());
+    Iterator<String> tables =
+        PSContentEditorObjectDependencyHandler.getLocatorTables(cePipe.getLocator());
     PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
     while (tables.hasNext()) {
-      String tableName = (String) tables.next();
+      String tableName = tables.next();
       if (dbmsHelper.getDependencyType(tableName) != PSDependency.TYPE_SYSTEM) {
         names.add(tableName);
       }

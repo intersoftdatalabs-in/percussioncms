@@ -56,7 +56,8 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
    * child types. See {@link PSDependencyHandler#getChildDependencies(PSSecurityToken, PSDependency)
    * Base Class} for more info.
    */
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -102,7 +103,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("Invalid arguments provided.");
     }
 
-    var files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     if (!files.hasNext()) {
       throw new PSDeployException(
           IPSDeploymentErrors.MISSING_DEPENDENCY_FILE,
@@ -114,7 +115,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
           });
     }
 
-    var depFile = (PSDependencyFile) files.next();
+    PSDependencyFile depFile = files.next();
     var tgtFile =
         new File(
             PSServer.getRxDir().getAbsolutePath(),
@@ -144,13 +145,15 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     return PSIteratorUtils.emptyIterator();
   }
 
   // see base class
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -172,11 +175,13 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
    *
    * @return An empty iterator, never <code>null</code>.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return PSIteratorUtils.emptyIterator();
   }
 
   // see base class
+  @Override
   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
