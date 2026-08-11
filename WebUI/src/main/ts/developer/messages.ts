@@ -713,7 +713,7 @@ export const DEV_MSG_KEYS = {
   SITE_EMPTY: "perc.ui.developer@No sites returned.",
   SITE_ERROR: "perc.ui.developer@Could not load sites.",
   SITE_HINT:
-    "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.",
+    "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL, defaults, and Virtual Site source. Full site create/delete remains outside this catalog.",
   SITE_COL_NAME: "perc.ui.developer@Name",
   SITE_COL_DESC: "perc.ui.developer@Description",
   SITE_COL_URL: "perc.ui.developer@Base URL",
@@ -734,6 +734,30 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Full site publish and section design live outside the Developer catalog",
   SITE_GAP_WF:
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
+  SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
+  SITE_VIRT_HINT:
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git/filesystem). Blank/repository keeps traditional repository content.",
+  SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
+  SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
+  SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
+  SITE_VIRT_SAVE: "perc.ui.developer@Save Virtual Site source",
+  SITE_VIRT_SAVING: "perc.ui.developer@Saving Virtual Site source...",
+  SITE_VIRT_SAVED: "perc.ui.developer@Virtual Site source saved.",
+  SITE_VIRT_RETRY: "perc.ui.developer@Retry",
+  SITE_VIRT_SOURCE_KIND: "perc.ui.developer@Source kind",
+  SITE_VIRT_ROOT_PATH: "perc.ui.developer@Root path",
+  SITE_VIRT_CONFIG_FILE: "perc.ui.developer@Config file",
+  SITE_VIRT_SITE_KEY: "perc.ui.developer@Site key",
+  SITE_VIRT_KIND_REPOSITORY: "perc.ui.developer@Repository (traditional)",
+  SITE_VIRT_KIND_GIT_FILESYSTEM: "perc.ui.developer@Git filesystem",
+  SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
+  SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
+  SITE_VIRT_ERR_ROOT_REQUIRED:
+    "perc.ui.developer@Root path is required when source kind is Virtual.",
+  SITE_VIRT_ERR_ROOT_UNSAFE:
+    "perc.ui.developer@Root path must not contain '..' path segments.",
+  SITE_VIRT_ERR_CONFIG_UNSAFE:
+    "perc.ui.developer@Config file must be a simple file name (no path separators or '..').",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

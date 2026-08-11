@@ -53,15 +53,31 @@ Details: [Frontmatter reference](id:reference-frontmatter).
 
 ## Site properties (CMS)
 
-When a Percussion Site is configured as virtual:
+When a Percussion Site is configured as virtual (Phase 1 property contract — no new `RXSITES`
+columns), set these Site properties. The server helper
+`com.percussion.services.virtualsite.PSVirtualSiteHelper` validates the contract before a Site is
+treated as a safe Virtual Site source.
 
-| Property | Example | Meaning |
-|----------|---------|---------|
-| `virtual.sourceKind` | `git-filesystem` | Non-blank ⇒ Virtual Site |
-| `virtual.rootPath` | path to tree | Source root |
-| `virtual.configFile` | `_config.yaml` | Optional; default `_config.yaml` |
+| Property | Required | Example | Meaning |
+|----------|----------|---------|---------|
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Adapter wire name. **Allow-list (Phase 1):** `git-filesystem` only. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. |
+| `virtual.rootPath` | Yes (when virtual) | absolute path to `product-docs` (or install-relative) | Filesystem root of the Virtual Site tree. Non-blank required when virtual. Resolved with NIO `Path` (cross-platform). |
+| `virtual.configFile` | No | `_config.yaml` | Config file name under the root; default `_config.yaml`. Must be a simple file name (no path separators or `..`). |
+| `virtual.siteKey` | No | `product-docs` | Participant registry key; default = Site name, else `default`. |
 
-Empty / missing `virtual.sourceKind` means a traditional repository Site.
+Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional repository Site.
+
+### Validation rules
+
+- **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
+  (Phase 1: `git-filesystem`). Values such as future `sql` / `api` kinds are rejected until
+  implemented.
+- **Required root** — when `virtual.sourceKind` is virtual, `virtual.rootPath` must be non-blank.
+- **Safe paths** — `virtual.rootPath` is normalized with `java.nio.file.Path`. After normalize, empty
+  paths and any remaining `..` segments are rejected (path traversal). Prefer absolute paths on
+  Windows (`C:\…`) and Unix (`/opt/…`); relative paths under the install are allowed when they do not
+  escape via `..`.
+- **Config file name** — when set, `virtual.configFile` must not contain `/`, `\`, or `..`.
 
 ## Offline build
 

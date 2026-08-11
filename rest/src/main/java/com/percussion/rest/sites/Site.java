@@ -52,6 +52,16 @@ public class Site {
   private boolean pageBasedSite = false;
   private Guid guid;
 
+  /**
+   * Virtual Site property bag ({@code virtual.*}). Present when loaded with detail; may be {@code
+   * null} on summary list payloads.
+   */
+  @Schema(
+      description =
+          "Virtual Site properties (virtual.sourceKind, virtual.rootPath, virtual.configFile,"
+              + " virtual.siteKey). Null when not loaded.")
+  private VirtualSiteProperties virtual;
+
   public Site() {
     // Default constructor
   }
@@ -190,5 +200,13 @@ public class Site {
 
   public void setGuid(Guid guid) {
     this.guid = guid;
+  }
+
+  public Optional<VirtualSiteProperties> getVirtual() {
+    return Optional.ofNullable(virtual);
+  }
+
+  public void setVirtual(VirtualSiteProperties virtual) {
+    this.virtual = virtual;
   }
 }
