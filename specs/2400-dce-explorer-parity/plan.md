@@ -8,7 +8,7 @@
 
 | Deliverable | Status |
 |-------------|--------|
-| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-09) |
+| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-10 incl. #2829 P-Trans OUT) |
 | Child GH issues for first backlog | **Done** (#2407–#2411 + #2409→#2504–#2507 + #2411→#2428–#2430) |
 | Link package + slices on #2400 | **Done** (maintain `## Agent progress` on issue body) |
 
@@ -21,12 +21,12 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | 1.1 | Server action toolbar + context menu | `ActionToolbar`, `ContextMenu`, `actionMenuApi` → `rest/actions` | **Done** — #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
 | 1.2 | Search drawer/panel | `SearchPanel`, `searchApi` (sitemanage extended search) | **Done** — #2407 · PR #2412 |
 | 1.3 | Display format selector + columns | `rest/displayformats`, `DetailList` FR-027 hooks, `pathApi.paginatedFolder(displayFormatId)` | **Done** — #2407 · PR #2412 |
-| 1.4 | Folder security side panel | `FolderSecurityPanel`, path folderProperties | **Partial in shell** (toggle landed #2412); polish + properties → **#2410** |
+| 1.4 | Folder security side panel | `FolderSecurityPanel`, path folderProperties | **Done** — #2410 · [PR #2599](https://github.com/intersoftdatalabs-in/percussioncms/pull/2599); human QA #2600 |
 | 1.5 | Clipboard + multi-select | `ClipboardPanel`, selection model | **Done** — #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) |
-| 1.6 | Advanced tools | DependencyViewer, RelationshipsView, site/subfolder wizards | **Partial** — DependencyViewer shell chrome **Present** (#2768); RelationshipsView + site/subfolder wizards still not primary shell chrome |
+| 1.6 | Advanced tools | DependencyViewer, RelationshipsView, site/subfolder wizards | **Done** — #2768 / #2769 / #2767 / #2792 shell chrome Present |
 
 **Phase 1 exit:** Operator can navigate, act via server menus, search, and change list columns without DCE.  
-**Exit status (2026-08-09):** Met for primary chrome (1.1–1.3, 1.5). 1.4 polish and 1.6 remain. Human QA for shell: #2588.
+**Exit status (2026-08-10):** Met for primary + advanced chrome slices above. Remaining open work is mostly **human QA** (see #2400 Agent progress).
 
 ## Phase 2 — REST / path enrichment for list columns
 
@@ -35,8 +35,8 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Folder-valid display format list | `GET /rest/displayformats?validForFolder=true` | **Done** (PR #2412) |
 | Column cell data | Use `PSPathItem.displayProperties` / `columnData` when `displayFormatId` set on paginatedFolder | **Done** for shell path (PR #2412) |
 | Workflow / modified columns empty | If still empty after format id, extend path list DTO in sitemanage (not invent on client) | Open if QA finds empty columns |
-| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | Disposition **Done** (#2504 / [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579)); implement B–D **open** |
-| Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428 / [PR #2431](https://github.com/intersoftdatalabs-in/percussioncms/pull/2431)); REST #2429 **Done** ([PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)); Explorer UI #2430 **in PR** (locales + create Present; in-flight OUT) |
+| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | **Done** A–D (#2504–#2507); matrix Present; open human QA #2607 / #2645 |
+| Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428); REST **Done** (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)); Explorer UI **Done** (#2430 / [PR #2648](https://github.com/intersoftdatalabs-in/percussioncms/pull/2648)); in-flight + session **OUT** signed (#2829 / [p-trans-out-disposition.md](./research/p-trans-out-disposition.md)); human QA #2649 |
 
 ## Phase 3 — Action / workflow depth
 
@@ -57,11 +57,23 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 ## Active implementation order (do not re-audit from scratch)
 
-1. **#2410** — folder security polish + properties parity  
-2. **#2409** — saved searches: **#2505** REST execute → **#2506** SearchPanel UI → **#2507** Playwright  
-3. **#2411** — translation: **#2429** REST **Done** → **#2430** Explorer UI (locales + create); in-flight/session remain product OUT  
+**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** over inventing new implement slices.
 
-4. Phase 4 advanced chrome / menu bar — file children only when prioritized
+1. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
+2. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
+3. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
+4. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row)
+
+### Epic #2400 remaining-open criteria (research program)
+
+Documented in [p-trans-out-disposition.md](./research/p-trans-out-disposition.md) § “Epic #2400 remaining-open criteria”:
+
+- No Missing in-scope matrix rows; intentional non-goals under Explicit OUT  
+- No required open agent implement children for Present rows  
+- Remaining work = human QA and/or product OUT/redesign decisions  
+- Do not keep epic open solely to track signed OUT rows after QA disposition  
+
+**Current state:** epic stays **open** for the open **human QA** set (and ACL cross-epic Partial pointer); P-Trans agent implement residual is closed by #2829 docs.
 
 ## Test strategy
 

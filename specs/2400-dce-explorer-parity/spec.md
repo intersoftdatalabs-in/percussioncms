@@ -8,9 +8,9 @@
 
 The modern SPA **Explorer** (`WebUI` `ContentExplorerShell`, route `/cm/app/explorer`) is the product replacement for the Java **Desktop Content Explorer (DCE)** (`modules/DesktopContentExplorer`). Feature 992 delivered many **components** and REST surfaces. As of 2026-08-09:
 
-1. **Primary product shell composition has landed** (#2407 / PR #2412, #2408 / PR #2522): search panel, server action toolbar/context menus, display formats, folder security toggle, multi-select + clipboard are wired into the live route. **Remaining gaps** (saved-search execute, translation workflow, properties polish, advanced wizards, DCE menu bar) are tracked in [contracts/gap-matrix.md](./contracts/gap-matrix.md).
-2. Several DCE operator workflows still lack **public REST** in `rest` (or path enrichment) that the SPA can call without inventing fields (notably saved-search **execute** façade #2505 and P-Trans create-variant #2429).
-3. The 992 capability matrix still overstates some rows **Done** at the component level; operator-visible **product parity** uses this package’s gap matrix as the source of truth.
+1. **Primary product shell composition has landed** (#2407 / PR #2412, #2408 / PR #2522 and follow-on chrome slices): search, menus, display formats, folder security, multi-select + clipboard, advanced wizards/viewers, and P-Trans locales+create are on the live route. **Living gap matrix:** [contracts/gap-matrix.md](./contracts/gap-matrix.md). Remaining open work is mostly **human QA** plus cross-epic Partial (object ACL) and intentional **OUT** rows (e.g. P-Trans in-flight queue / content-locale session — [p-trans-out-disposition.md](./research/p-trans-out-disposition.md)).
+2. First-wave public REST gaps for Explorer (saved-search execute #2505, P-Trans create-variant #2429) have landed; do not invent new wire fields without `rest` + sitemanage companions.
+3. The 992 capability matrix may still overstate some rows **Done** at the component level; operator-visible **product parity** uses this package’s gap matrix as the source of truth.
 
 ## Goals
 
