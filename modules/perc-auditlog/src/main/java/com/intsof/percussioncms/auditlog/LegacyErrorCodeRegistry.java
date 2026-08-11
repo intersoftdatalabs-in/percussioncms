@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * package-local ints, non-colliding {@link WebserviceErrorCodes} package-local ints (28–73), fully
  * unique {@link ServerWebServicesErrorCodes} / {@link WebdavErrorCodes} / {@link ServletErrorCodes},
  * fully unique {@link SearchErrorCodes} / {@link LuceneErrorCodes} / {@link LocaleErrorCodes} /
- * {@link MailErrorCodes}, non-colliding {@link ObjectStoreErrorCodes} batches A–D (skips
+ * {@link MailErrorCodes}, non-colliding {@link ObjectStoreErrorCodes} batches A–E (skips
  * Design-owned ACL ints), and bootstrap-only {@link TransformationErrorCodes} / {@link
  * DeliveryErrorCodes} (no flat register). Residual slices may register additional catalogs via
  * {@link #register(int, SystemErrorCode)}.
@@ -113,7 +113,7 @@ public final class LegacyErrorCodeRegistry {
       LuceneErrorCodes.ensureRegistered();
       LocaleErrorCodes.ensureRegistered();
       MailErrorCodes.ensureRegistered();
-      // ObjectStore A+B+C+D (#2898/#2899/#2912/#2917): after Design so ACL ownership stays on Design.
+      // ObjectStore A+B+C+D+E (#2898/#2899/#2912/#2917/#2918): after Design so ACL ownership stays on Design.
       ObjectStoreErrorCodes.ensureRegistered();
     }
   }

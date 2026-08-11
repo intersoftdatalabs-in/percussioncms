@@ -35,14 +35,14 @@ class ObjectStoreErrorCodesTest {
     for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
       assertEquals(AuditModule.DESN, code.module());
       assertTrue(code.numericCode() >= 2011, code.name());
-      assertTrue(code.numericCode() <= 2475, code.name());
+      assertTrue(code.numericCode() <= 2848, code.name());
       assertTrue(seen.add(code.numericCode()), "duplicate numeric: " + code.numericCode());
       assertNotNull(code.userMessageTemplate());
       assertNotNull(code.logMessageTemplate());
       assertTrue(code.qualifiedCode().startsWith("DESN-"));
     }
-    // Batch A (63) + B (60) + C (34) + D (75) = 232 non-colliding IPSObjectStoreErrors ints.
-    assertEquals(232, ObjectStoreErrorCodes.values().length);
+    // Batch A (63) + B (60) + C (34) + D (75) + E (48) = 280 non-colliding IPSObjectStoreErrors ints.
+    assertEquals(280, ObjectStoreErrorCodes.values().length);
   }
 
   @Test
@@ -87,6 +87,14 @@ class ObjectStoreErrorCodesTest {
     assertEquals(2450, ObjectStoreErrorCodes.SYSTEM_TABLE_NOT_FOUND.numericCode());
     assertEquals(2466, ObjectStoreErrorCodes.CE_DUPLICATE_MERGED_FIELD_NAME.numericCode());
     assertEquals(2475, ObjectStoreErrorCodes.CHOICE_FILTER_DEPENDENT_FIELD_MISSING_ATTR.numericCode());
+    // Batch E anchors (handlers)
+    assertEquals(2801, ObjectStoreErrorCodes.METHOD_NOT_SUPPORTED.numericCode());
+    assertEquals(2802, ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode());
+    assertEquals(2812, ObjectStoreErrorCodes.LOCK_ALREADY_HELD.numericCode());
+    assertEquals(2826, ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode());
+    assertEquals(2835, ObjectStoreErrorCodes.DOC_CONVERSION_FAILED.numericCode());
+    assertEquals(2840, ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode());
+    assertEquals(2848, ObjectStoreErrorCodes.LOOKUP_TABLE_INFO_NULL.numericCode());
   }
 
   @Test
@@ -144,6 +152,22 @@ class ObjectStoreErrorCodesTest {
     assertEquals(75, batchD.size());
     for (int expected = 2401; expected <= 2475; expected++) {
       assertTrue(batchD.contains(expected), "missing batch D int " + expected);
+    }
+  }
+
+
+  @Test
+  void batchEHandlerCodesAreContiguousFrom2801Through2848() {
+    Set<Integer> batchE = new HashSet<>();
+    for (ObjectStoreErrorCodes code : ObjectStoreErrorCodes.values()) {
+      int n = code.numericCode();
+      if (n >= 2801 && n <= 2848) {
+        batchE.add(n);
+      }
+    }
+    assertEquals(48, batchE.size());
+    for (int expected = 2801; expected <= 2848; expected++) {
+      assertTrue(batchE.contains(expected), "missing batch E int " + expected);
     }
   }
 

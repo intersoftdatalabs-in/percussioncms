@@ -25,7 +25,7 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
 /**
  * Object-store error catalog bridging legacy {@code
  * com.percussion.design.objectstore.IPSObjectStoreErrors} general + PSObjectStore + object-store
- * structure / validation ints (batches A–D).
+ * structure / validation / handler ints (batches A–E; complete residual catalog).
  *
  * <p><strong>Batch A scope</strong> (issue #2898):
  *
@@ -66,6 +66,15 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       (75 codes; no Design collisions)
  * </ul>
  *
+ * <p><strong>Batch E scope</strong> (issue #2918):
+ *
+ * <ul>
+ *   <li>{@code 2801–2848} — object-store handler residual: app load/find, server/user config,
+ *       app files/dirs/streams/IO, exclusive locks, request handler IO/properties, validation
+ *       unexpected, character/feature-set load, role cfg, DB components, CE choice validation
+ *       warnings, lookup table info (48 codes; max legacy {@code IPSObjectStoreErrors} constant)
+ * </ul>
+ *
  * <p><strong>Collision / ownership notes:</strong>
  *
  * <ul>
@@ -75,8 +84,8 @@ import com.intsof.percussioncms.auditlog.SystemErrorCode;
  *       ints so Design keeps flat-registry ownership.
  *   <li>{@link ContentErrorCodes} lifecycle ints {@code 2001–2006} are intentionally outside
  *       objectstore general range (objectstore starts at {@code 2011}).
- *   <li>Remaining objectstore ranges after batch D: handlers {@code 2801–2848} (max legacy
- *       constant) → residual batch E.
+ *   <li>After batch E there is <strong>zero</strong> remaining {@code IPSObjectStoreErrors}
+ *       residual: 280 ObjectStore + 18 Design-owned ACL = 298 legacy constants.
  * </ul>
  *
  * <p>Every constant in this catalog sets {@link #isAuditable()} to {@code false}: XML parse /
@@ -1940,7 +1949,391 @@ public enum ObjectStoreErrorCodes implements SystemErrorCode {
       null,
       AuditOutcome.UNKNOWN,
       "Choice Filter Dependent Field Missing Attr",
-      "Choice Filter Dependent Field Missing Attr");
+      "Choice Filter Dependent Field Missing Attr"),
+
+  METHOD_NOT_SUPPORTED(
+      2801,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Method Not Supported",
+      "Method Not Supported"),
+
+  APP_NOT_FOUND(
+      2802,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Not Found",
+      "App Not Found"),
+
+  APP_NAME_ALREADY_EXISTS(
+      2803,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Name Already Exists",
+      "App Name Already Exists"),
+
+  APP_LOAD_EXCEPTION(
+      2804,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Load Exception",
+      "App Load Exception"),
+
+  SERVER_CFG_NOT_FOUND(
+      2805,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Server Cfg Not Found",
+      "Server Cfg Not Found"),
+
+  SERVER_CFG_LOAD_EXCEPTION(
+      2806,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Server Cfg Load Exception",
+      "Server Cfg Load Exception"),
+
+  USER_CFG_NOT_FOUND(
+      2807,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "User Cfg Not Found",
+      "User Cfg Not Found"),
+
+  USER_CFG_LOAD_EXCEPTION(
+      2808,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "User Cfg Load Exception",
+      "User Cfg Load Exception"),
+
+  APP_FILE_NOT_FOUND(
+      2809,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Not Found",
+      "App File Not Found"),
+
+  APP_DIR_NOT_FOUND(
+      2810,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Dir Not Found",
+      "App Dir Not Found"),
+
+  APP_FILE_MKSUBDIR_ERROR(
+      2811,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Mksubdir Error",
+      "App File Mksubdir Error"),
+
+  LOCK_ALREADY_HELD(
+      2812,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Already Held",
+      "Lock Already Held"),
+
+  LOCK_WAIT_INTERRUPTED(
+      2813,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Wait Interrupted",
+      "Lock Wait Interrupted"),
+
+  LOCK_BAD_KEY(
+      2814,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Key",
+      "Lock Bad Key"),
+
+  LOCK_BAD_LOCKER_ID(
+      2815,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Locker Id",
+      "Lock Bad Locker Id"),
+
+  LOCK_BAD_EXPIRATION(
+      2816,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Expiration",
+      "Lock Bad Expiration"),
+
+  LOCK_BAD_OBJECT(
+      2817,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Object",
+      "Lock Bad Object"),
+
+  LOCK_BAD_TYPE(
+      2818,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Bad Type",
+      "Lock Bad Type"),
+
+  APP_FILE_NAME_NULL(
+      2819,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Name Null",
+      "App File Name Null"),
+
+  APP_FILE_STREAM_NULL(
+      2820,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Stream Null",
+      "App File Stream Null"),
+
+  APP_FILE_STREAM_EXHAUSTED(
+      2821,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Stream Exhausted",
+      "App File Stream Exhausted"),
+
+  APP_FILE_IO_ERROR(
+      2822,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Io Error",
+      "App File Io Error"),
+
+  REQ_UNKNOWN_TYPE(
+      2823,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Req Unknown Type",
+      "Req Unknown Type"),
+
+  REQ_DOCUMENT_NULL(
+      2824,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Req Document Null",
+      "Req Document Null"),
+
+  APP_ROOT_RENAME_FAILED(
+      2825,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Root Rename Failed",
+      "App Root Rename Failed"),
+
+  HANDLER_IO_ERROR(
+      2826,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Io Error",
+      "Handler Io Error"),
+
+  APP_FILE_ROOT_MISMATCH(
+      2827,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Root Mismatch",
+      "App File Root Mismatch"),
+
+  HANDLER_PROPERTIES_NULL(
+      2828,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Properties Null",
+      "Handler Properties Null"),
+
+  HANDLER_OBJECTDIR_INVALID(
+      2829,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Objectdir Invalid",
+      "Handler Objectdir Invalid"),
+
+  HANDLER_UNEXPECTED_EXCEPTION(
+      2830,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Handler Unexpected Exception",
+      "Handler Unexpected Exception"),
+
+  VALIDATION_UNEXPECTED_EXCEPTION(
+      2831,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Validation Unexpected Exception",
+      "Validation Unexpected Exception"),
+
+  LOCK_CORRUPT_LOCKFILE(
+      2832,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Corrupt Lockfile",
+      "Lock Corrupt Lockfile"),
+
+  LOCK_IO_EXCEPTION(
+      2833,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Io Exception",
+      "Lock Io Exception"),
+
+  LOCK_ALREADY_HELD_SAME_USER(
+      2834,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Already Held Same User",
+      "Lock Already Held Same User"),
+
+  DOC_CONVERSION_FAILED(
+      2835,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Doc Conversion Failed",
+      "Doc Conversion Failed"),
+
+  APP_MAPPER_EMPTY(
+      2836,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App Mapper Empty",
+      "App Mapper Empty"),
+
+  CHARACTER_SET_MAP_NOT_FOUND(
+      2837,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Character Set Map Not Found",
+      "Character Set Map Not Found"),
+
+  CHARACTER_SET_LOAD_EXCEPTION(
+      2838,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Character Set Load Exception",
+      "Character Set Load Exception"),
+
+  FEATURE_SET_LOAD_EXCEPTION(
+      2839,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Feature Set Load Exception",
+      "Feature Set Load Exception"),
+
+  LOCK_NOT_HELD(
+      2840,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lock Not Held",
+      "Lock Not Held"),
+
+  ROLE_CFG_LOAD_EXCEPTION(
+      2841,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Role Cfg Load Exception",
+      "Role Cfg Load Exception"),
+
+  DB_COMPONENT_NEW_ID(
+      2842,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Db Component New Id",
+      "Db Component New Id"),
+
+  DB_COMPONENT_LOAD_EXCEPTION(
+      2843,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Db Component Load Exception",
+      "Db Component Load Exception"),
+
+  RELATED_DB_COMPONENT_LOAD_EXCEPTION(
+      2844,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Related Db Component Load Exception",
+      "Related Db Component Load Exception"),
+
+  DUPLICATE_SHARED_FIELD_VALIDATION_WARNING(
+      2845,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Duplicate Shared Field Validation Warning",
+      "Duplicate Shared Field Validation Warning"),
+
+  INVALID_CE_FIELD_CHOICES_ERROR(
+      2846,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Invalid Ce Field Choices Error",
+      "Invalid Ce Field Choices Error"),
+
+  APP_FILE_EXISTS_RENAME_ERROR(
+      2847,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "App File Exists Rename Error",
+      "App File Exists Rename Error"),
+
+  LOOKUP_TABLE_INFO_NULL(
+      2848,
+      false,
+      null,
+      AuditOutcome.UNKNOWN,
+      "Lookup Table Info Null",
+      "Lookup Table Info Null");
 
   private final int numericCode;
   private final boolean auditable;

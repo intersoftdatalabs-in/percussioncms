@@ -848,7 +848,7 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(3501).isPresent());
   }
 
-  // --- ObjectStore batch A/B/C residual (#2898 / #2899 / #2912) ---
+  // --- ObjectStore batch A/B/C/D/E residual (#2898 / #2899 / #2912 / #2917 / #2918) ---
 
   @Test
   void objectStoreBatchACodesAreRegisteredButNotAuditable() {
@@ -1032,8 +1032,54 @@ class LegacyErrorCodeRegistryTest {
     assertTrue(LegacyErrorCodeRegistry.find(2401).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2450).isPresent());
     assertTrue(LegacyErrorCodeRegistry.find(2475).isPresent());
-    // Handlers residual (batch E) not yet registered
-    assertTrue(LegacyErrorCodeRegistry.find(2801).isEmpty());
+    // Design still owns ACL ints
+    assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
+    assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
+  }
+
+  @Test
+  void objectStoreBatchECodesAreRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2801));
+    assertSame(
+        ObjectStoreErrorCodes.METHOD_NOT_SUPPORTED,
+        LegacyErrorCodeRegistry.find(2801).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2812));
+    assertSame(
+        ObjectStoreErrorCodes.LOCK_ALREADY_HELD, LegacyErrorCodeRegistry.find(2812).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2826));
+    assertSame(
+        ObjectStoreErrorCodes.HANDLER_IO_ERROR, LegacyErrorCodeRegistry.find(2826).orElseThrow());
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(2848));
+    assertSame(
+        ObjectStoreErrorCodes.LOOKUP_TABLE_INFO_NULL,
+        LegacyErrorCodeRegistry.find(2848).orElseThrow());
+  }
+
+  @Test
+  void objectStoreBatchENonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            ObjectStoreErrorCodes.HANDLER_UNEXPECTED_EXCEPTION.numericCode(),
+            AuditContext.empty(),
+            "detail");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void registryCoversObjectStoreBatchAThroughE() {
+    // Prior catalogs (~380+) plus ObjectStore A+B+C+D+E (280 non-colliding ints).
+    assertTrue(LegacyErrorCodeRegistry.size() >= 650);
+    assertTrue(LegacyErrorCodeRegistry.find(2011).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2475).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2801).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2812).isPresent());
+    assertTrue(LegacyErrorCodeRegistry.find(2848).isPresent());
     // Design still owns ACL ints
     assertSame(DesignErrorCodes.ACL_TYPE_INVALID, LegacyErrorCodeRegistry.find(2327).orElseThrow());
     assertSame(DesignErrorCodes.SRV_ACL_NO_ADMIN, LegacyErrorCodeRegistry.find(2353).orElseThrow());
