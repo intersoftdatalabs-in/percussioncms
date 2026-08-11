@@ -219,4 +219,60 @@ public class PSDesignObjectstoreTypedErrorCodeBatchK2Test {
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
   }
+
+  /**
+   * {@link PSLockedException#constructArguments()} was rewritten from a {@code switch} on
+   * {@code IPSObjectStoreErrors} ints to {@code if/else} on typed {@link ObjectStoreErrorCodes}
+   * numeric codes. Guard both branches: LOCK_ALREADY_HELD uses 3 args; SAME_USER / default uses 4
+   * (includes session id).
+   */
+  @Test
+  public void lockedExceptionConstructArgumentsLockAlreadyHeldUsesThreeArgs() {
+    PSLockedException ex =
+        new PSLockedException(ObjectStoreErrorCodes.LOCK_ALREADY_HELD.numericCode());
+    ex.setObjectName("app-A");
+    ex.setLockingUser("alice");
+    ex.setExpirationMinutes(12L);
+    ex.setLockingSession("sess-ignored-for-held");
+    ex.constructArguments();
+    Object[] args = ex.getErrorArguments();
+    assertEquals(3, args.length);
+    assertEquals("app-A", args[0]);
+    assertEquals("alice", args[1]);
+    assertEquals("12", args[2]);
+  }
+
+  @Test
+  public void lockedExceptionConstructArgumentsSameUserIncludesSessionId() {
+    PSLockedException ex =
+        new PSLockedException(ObjectStoreErrorCodes.LOCK_ALREADY_HELD_SAME_USER.numericCode());
+    ex.setObjectName("app-B");
+    ex.setLockingUser("bob");
+    ex.setExpirationMinutes(5L);
+    ex.setLockingSession("sess-xyz");
+    ex.constructArguments();
+    Object[] args = ex.getErrorArguments();
+    assertEquals(4, args.length);
+    assertEquals("app-B", args[0]);
+    assertEquals("bob", args[1]);
+    assertEquals("5", args[2]);
+    assertEquals("sess-xyz", args[3]);
+  }
+
+  @Test
+  public void lockedExceptionConstructArgumentsUnknownCodeDefaultsToFourArgs() {
+    // default branch of former switch — any non-LOCK_ALREADY_HELD code
+    PSLockedException ex = new PSLockedException(0);
+    ex.setObjectName("app-C");
+    ex.setLockingUser("carol");
+    ex.setExpirationMinutes(0L);
+    ex.setLockingSession("sess-default");
+    ex.constructArguments();
+    Object[] args = ex.getErrorArguments();
+    assertEquals(4, args.length);
+    assertEquals("app-C", args[0]);
+    assertEquals("carol", args[1]);
+    assertEquals("0", args[2]);
+    assertEquals("sess-default", args[3]);
+  }
 }

@@ -214,7 +214,7 @@ public class PSLoginWebPage extends PSComponent {
       // default login page
       // Object[] args = { ms_NodeType, "url", "" };
       // throw new PSUnknownNodeTypeException(
-      //    ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
+      //    IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
       m_url = null;
     } else {
       try {
@@ -243,7 +243,7 @@ public class PSLoginWebPage extends PSComponent {
     // this is no longer true. if no URL is specified, we use our
     // default login page
     // if (m_url == null)
-    //    cxt.validationError(this, ObjectStoreErrorCodes.LOGIN_WEBPAGE_URL_EMPTY, null);
+    //    cxt.validationError(this, IPSObjectStoreErrors.LOGIN_WEBPAGE_URL_EMPTY, null);
   }
 
   @Override
