@@ -34,29 +34,26 @@
  * align types to the live DTOs per constitution II (Evidence Over
  * Invention).</p>
  *
- * <p><strong>Wire-format notes (verified 2026-07-20 against the live
- * docker dev CMS at {@code http://localhost:9992}):</strong></p>
+ * <p><strong>Wire-format notes (verified 2026-07-20 / rechecked 2026-08-11
+ * on QA H2):</strong></p>
  * <ul>
- *   <li>{@code /actions/find} returns {@code {"ActionMenu": [...]}}.
- *     The resource method signature is {@code List<ActionMenu>} but
- *     Jackson honors {@code @XmlRootElement(name = "ActionMenu")} on
- *     the {@code ActionMenu} DTO and wraps the array under that key.</li>
+ *   <li>{@code /actions/find} typically returns {@code {"ActionMenu": [...]}}
+ *     (Jackson honors {@code @XmlRootElement(name = "ActionMenu")} on the
+ *     DTO). Some serializers may emit a raw array — both are accepted.</li>
  *   <li>{@code /actions/find/types} and {@code /actions/find/templates/{id}}
- *     both return {@code {"ActionMenuList": [...]}}. Their resource
- *     methods return the explicit {@code ActionMenuList} type (extends
- *     {@code ArrayList<ActionMenu>}, carries
- *     {@code @XmlRootElement(name = "ActionMenuList")}).</li>
+ *     typically return {@code {"ActionMenuList": [...]}} (explicit
+ *     {@code ActionMenuList} type). Raw arrays and the {@code ActionMenu}
+ *     key are also accepted so the Explorer toolbar does not go empty on
+ *     wire-shape drift (#2972).</li>
  * </ul>
- * <p>The functions below unwrap these envelopes so callers receive the
- * typed {@link ActionMenu[]} surface. The wrapper keys derive from the
- * server DTOs (no invented field names).</p>
+ * <p>Use {@link unwrapActionMenuListPayload} for all list endpoints so
+ * callers always receive a typed {@link ActionMenu[]} surface.</p>
  */
 
 import { get, post } from "../client";
 import { PATHS } from "../paths";
 import type {
   ActionMenu,
-  ActionMenuListEnvelope,
   AllowedContentTypeMenusRequest,
   MenuAction,
 } from "./types";
@@ -64,19 +61,44 @@ import type {
 // ---------- Wire envelopes (internal) ----------
 
 /**
- * Wire shape for {@code findActions} (path {@code /actions/find}). The
- * returned list is wrapped under the {@code ActionMenu} key by Jackson
- * honoring the DTO's {@code @XmlRootElement}.
+ * Normalize Jackson list wire shapes for action-menu endpoints.
+ *
+ * <p>Live CMS ({@code GET /actions/find}) wraps under {@code ActionMenu}.
+ * {@code ActionMenuList} subclasses and some serializers emit a raw array
+ * or the {@code ActionMenuList} key. Accept all forms so the Explorer
+ * toolbar never silently goes empty on a wire-shape drift (#2972).</p>
  */
-interface ActionMenuListResponse {
-  ActionMenu?: ActionMenu[];
+export function unwrapActionMenuListPayload(payload: unknown): ActionMenu[] {
+  if (payload == null) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    return payload as ActionMenu[];
+  }
+  if (typeof payload === "object") {
+    const obj = payload as Record<string, unknown>;
+    // Observed Jackson/@XmlRootElement keys are PascalCase (ActionMenu /
+    // ActionMenuList). Lowercase keys are accepted only as a defensive
+    // unwrap for accidental camelCase serializers or proxies — not as a
+    // documented wire contract. Prefer the uppercase keys first.
+    const raw =
+      obj.ActionMenu ??
+      obj.ActionMenuList ??
+      obj.actionMenu ??
+      obj.actionMenuList;
+    if (raw == null) {
+      return [];
+    }
+    if (Array.isArray(raw)) {
+      return raw as ActionMenu[];
+    }
+    // Single object under the envelope key.
+    if (typeof raw === "object") {
+      return [raw as ActionMenu];
+    }
+  }
+  return [];
 }
-
-/** Internal alias for the {@code ActionMenuList} wire envelope. */
-interface ActionMenuListEnvelopeResponse extends ActionMenuListEnvelope {}
-
-/** Internal alias matching the {@code POST /actions/find/types} envelope. */
-interface AllowedContentTypeMenusResponse extends ActionMenuListEnvelope {}
 
 // ---------- Public API ----------
 
@@ -106,10 +128,10 @@ export async function findActions(
   if (params.cascading !== undefined)
     q.set("cascading", String(params.cascading));
   const qs = q.toString();
-  const res = await get<ActionMenuListResponse>(
+  const res = await get<unknown>(
     `${PATHS.ACTIONS_ROOT}/find${qs ? `?${qs}` : ""}`,
   );
-  return res?.ActionMenu ?? [];
+  return unwrapActionMenuListPayload(res);
 }
 
 /**
@@ -124,11 +146,8 @@ export async function findAllowedContentTypeMenus(
   contentIds: number[],
 ): Promise<ActionMenu[]> {
   const body: AllowedContentTypeMenusRequest = { contentIds };
-  const res = await post<AllowedContentTypeMenusResponse>(
-    `${PATHS.ACTIONS_ROOT}/find/types`,
-    body,
-  );
-  return res?.ActionMenuList ?? [];
+  const res = await post<unknown>(`${PATHS.ACTIONS_ROOT}/find/types`, body);
+  return unwrapActionMenuListPayload(res);
 }
 
 /**
@@ -142,12 +161,12 @@ export async function findAllowedTemplateMenus(
   contentId: number,
   isAA = false,
 ): Promise<ActionMenu[]> {
-  const res = await get<ActionMenuListEnvelopeResponse>(
+  const res = await get<unknown>(
     `${PATHS.ACTIONS_ROOT}/find/templates/${encodeURIComponent(
       String(contentId),
     )}?isAA=${String(isAA)}`,
   );
-  return res?.ActionMenuList ?? [];
+  return unwrapActionMenuListPayload(res);
 }
 
 // ---------- Client-side mapping ----------

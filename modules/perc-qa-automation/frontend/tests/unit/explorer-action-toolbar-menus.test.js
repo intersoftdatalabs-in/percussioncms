@@ -28,5 +28,13 @@ describe("explorer-action-toolbar-menus helpers (#2730)", () => {
   it("exports action toolbar + server-actions region test ids", () => {
     assert.equal(TEST_IDS.actionToolbar, "action-toolbar");
     assert.equal(TEST_IDS.serverActions, "explorer-server-actions");
+    assert.equal(
+      TEST_IDS.serverActionsLabel,
+      "explorer-server-actions-label",
+    );
+    assert.equal(
+      TEST_IDS.serverActionsError,
+      "explorer-server-actions-error",
+    );
   });
 });

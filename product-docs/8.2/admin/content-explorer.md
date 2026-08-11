@@ -20,7 +20,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Menu bar** (Content / View / Help) | Product commands: search, clipboard, site/subfolder copy, view tools |
 | **Display format** | Column layout for the folder list (`validForFolder` formats) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
-| **Server action toolbar** | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection |
+| **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
 
@@ -54,9 +54,14 @@ the selected columns.
 
 ## Server actions and context menu
 
+The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder
+(and related reduced actions). It is always present on the Explorer page so you can tell the
+catalog region apart from the Content / View / Help menu bar and the display-format selector.
+
 Menus and toolbar buttons come from the server action catalog used by Content Explorer:
 
-- When you select a content item, the shell loads allowed menus for that content type.
+- When you select a content item, the shell loads allowed menus for that content type and
+  falls back to the full action catalog when type menus are empty or unavailable.
 - When only a folder is active, the shell loads the cascading action tree for the Explorer UI.
 - **Desktop-only** actions (for example custom application protocols that only DCE can run)
   are **hidden** in the web shell so operators are not offered controls that cannot succeed
@@ -64,6 +69,8 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - Actions of type **context menu** appear on right-click, not as permanent toolbar buttons.
 - Workflow transition triggers (when available for the selected item) appear as a labeled
   group on the toolbar and in the context menu.
+- If the catalog cannot be loaded, the **Server actions** region stays visible with a short
+  error message (and an empty-action placeholder) rather than disappearing from the page.
 
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).

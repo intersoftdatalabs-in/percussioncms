@@ -222,6 +222,33 @@ const toolRowStyle: React.CSSProperties = {
   marginTop: 6,
 };
 
+/**
+ * Labeled chrome for the server-driven action catalog (#2972).
+ * Always visible (even when empty / load-error) so test plans and operators
+ * can identify the region next to Display format / reduced actions.
+ */
+const serverActionsRegionStyle: React.CSSProperties = {
+  ...toolRowStyle,
+  alignItems: "flex-start",
+  border: "1px solid #e2e8f0",
+  borderRadius: 4,
+  padding: "6px 8px",
+  background: "#f8fafc",
+  maxHeight: 140,
+  overflowY: "auto",
+};
+
+const serverActionsLabelStyle: React.CSSProperties = {
+  flex: "0 0 auto",
+  fontSize: 11,
+  fontWeight: 600,
+  color: "#475569",
+  textTransform: "uppercase",
+  letterSpacing: "0.03em",
+  paddingTop: 6,
+  minWidth: 96,
+};
+
 function parseContentId(id: string | undefined): number | null {
   if (!id) return null;
   const n = Number(id);
@@ -237,13 +264,14 @@ function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
 }
 
 /**
- * Load the server action catalog for the current selection (#2849).
+ * Load the server action catalog for the current selection (#2849 / #2972).
  *
  * <p>When a content item is selected, prefer per-content-type menus from
- * {@code POST /actions/find/types}. Otherwise load the full cascading tree
- * from {@code GET /actions/find} (no {@code item=true} filter) so toolbar
- * dropdown parents ({@code MENU}) remain available — {@code item=true}
- * would keep only flat {@code MENUITEM} roots and drop nested chrome.</p>
+ * {@code POST /actions/find/types}. Failures or empty type menus fall back to
+ * the full cascading tree from {@code GET /actions/find} (no
+ * {@code item=true} filter) so toolbar dropdown parents ({@code MENU}) remain
+ * available — {@code item=true} would keep only flat {@code MENUITEM} roots
+ * and drop nested chrome. Folder-only selection always uses {@code find}.</p>
  *
  * <p>Desktop-only / surface enablement is applied by the shell after load
  * via {@link filterToolbarActions} / {@link filterContextMenuActions}.</p>
@@ -253,9 +281,17 @@ async function defaultLoadMenuActions(
 ): Promise<MenuAction[]> {
   const contentId = parseContentId(item?.id);
   if (contentId != null) {
-    const menus = await findAllowedContentTypeMenus([contentId]);
-    if (menus.length > 0) {
-      return mapActionMenusToMenuActions(menus);
+    try {
+      const menus = await findAllowedContentTypeMenus([contentId]);
+      if (menus.length > 0) {
+        return mapActionMenusToMenuActions(menus);
+      }
+    } catch (err: unknown) {
+      // Non-fatal: fall through to the full catalog so the toolbar is not wiped.
+      console.warn(
+        "[ContentExplorerShell] content-type menus load failed; falling back to findActions",
+        err instanceof Error ? err.message : String(err),
+      );
     }
   }
   const menus = await findActions({});
@@ -363,6 +399,8 @@ export function ContentExplorerShell({
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
+  /** Non-fatal catalog load failure — chrome stays mounted (#2972). */
+  const [menuLoadError, setMenuLoadError] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
@@ -446,8 +484,20 @@ export function ContentExplorerShell({
         // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
         const merged = mergeWorkflowMenuActions(base ?? [], workflow);
         setMenuActions(filterToolbarActions(merged));
-      } catch {
-        if (!cancelled) setMenuActions([]);
+        setMenuLoadError(null);
+      } catch (err: unknown) {
+        if (cancelled) return;
+        // Keep toolbar chrome mounted; surface a non-fatal message (#2972).
+        setMenuActions([]);
+        setMenuLoadError(
+          err instanceof Error && err.message
+            ? err.message
+            : message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR),
+        );
+        console.warn(
+          "[ContentExplorerShell] server actions load failed",
+          err instanceof Error ? err.message : String(err),
+        );
       }
     }
     void loadMenus();
@@ -818,16 +868,38 @@ export function ContentExplorerShell({
             />
           </div>
           <div
-            style={toolRowStyle}
+            style={serverActionsRegionStyle}
             data-testid="explorer-server-actions"
             role="group"
             aria-label={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
           >
-            <ActionToolbar
-              actions={menuActions}
-              ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
-              onInvoke={handleMenuInvoke}
-            />
+            <span
+              data-testid="explorer-server-actions-label"
+              style={serverActionsLabelStyle}
+            >
+              {message(EXPLORER_MSG.SERVER_ACTIONS_LABEL)}
+            </span>
+            <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+              {menuLoadError ? (
+                <div
+                  data-testid="explorer-server-actions-error"
+                  role="status"
+                  aria-live="polite"
+                  style={{ color: "#b00020", fontSize: "0.85rem", padding: "4px 0" }}
+                >
+                  {message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)}
+                  {menuLoadError &&
+                  menuLoadError !== message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)
+                    ? `: ${menuLoadError}`
+                    : null}
+                </div>
+              ) : null}
+              <ActionToolbar
+                actions={menuActions}
+                ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
+                onInvoke={handleMenuInvoke}
+              />
+            </div>
           </div>
           {/* Always-visible refresh residual (#2733); View menu also has Refresh (#2731). */}
           <div
