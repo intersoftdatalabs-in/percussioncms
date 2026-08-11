@@ -46,12 +46,15 @@ public class PSContentActivity {
       int newItems,
       int updatedItems,
       int archivedItems) {
-    setName(name);
-    setPublishedItems(publishedItems);
-    setPendingItems(pendingItems);
-    setNewItems(newItems);
-    setUpdatedItems(updatedItems);
-    setArchivedItems(archivedItems);
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name must not be blank");
+    }
+    this.name = name;
+    this.publishedItems = publishedItems;
+    this.pendingItems = pendingItems;
+    this.newItems = newItems;
+    this.updatedItems = updatedItems;
+    this.archivedItems = archivedItems;
   }
 
   public PSContentActivity(
@@ -62,13 +65,16 @@ public class PSContentActivity {
       int newItems,
       int updatedItems,
       int archivedItems) {
-    setSiteName(siteName);
-    setName(name);
-    setPublishedItems(publishedItems);
-    setPendingItems(pendingItems);
-    setNewItems(newItems);
-    setUpdatedItems(updatedItems);
-    setArchivedItems(archivedItems);
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name must not be blank");
+    }
+    this.siteName = siteName;
+    this.name = name;
+    this.publishedItems = publishedItems;
+    this.pendingItems = pendingItems;
+    this.newItems = newItems;
+    this.updatedItems = updatedItems;
+    this.archivedItems = archivedItems;
   }
 
   public PSContentActivity(
@@ -80,14 +86,17 @@ public class PSContentActivity {
       int newItems,
       int updatedItems,
       int archivedItems) {
-    setSiteName(siteName);
-    setPath(path);
-    setName(name);
-    setPublishedItems(publishedItems);
-    setPendingItems(pendingItems);
-    setNewItems(newItems);
-    setUpdatedItems(updatedItems);
-    setArchivedItems(archivedItems);
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name must not be blank");
+    }
+    this.siteName = siteName;
+    this.path = path;
+    this.name = name;
+    this.publishedItems = publishedItems;
+    this.pendingItems = pendingItems;
+    this.newItems = newItems;
+    this.updatedItems = updatedItems;
+    this.archivedItems = archivedItems;
   }
 
   /**

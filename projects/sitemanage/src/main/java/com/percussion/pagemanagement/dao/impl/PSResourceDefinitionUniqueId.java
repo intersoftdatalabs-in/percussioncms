@@ -40,7 +40,7 @@ public class PSResourceDefinitionUniqueId {
     init(groupId, localId);
   }
 
-  public void init(String groupId, String localId) throws PSResourceDefinitionInvalidIdException {
+  public final void init(String groupId, String localId) throws PSResourceDefinitionInvalidIdException {
     setGroupId(groupId);
     setLocalId(localId);
   }
@@ -49,7 +49,7 @@ public class PSResourceDefinitionUniqueId {
     return groupId;
   }
 
-  public void setGroupId(String groupId) throws PSResourceDefinitionInvalidIdException {
+  public final void setGroupId(String groupId) throws PSResourceDefinitionInvalidIdException {
     validateId("groupId", groupId);
     this.groupId = groupId;
   }
@@ -58,7 +58,7 @@ public class PSResourceDefinitionUniqueId {
     return localId;
   }
 
-  public void setLocalId(String localId) throws PSResourceDefinitionInvalidIdException {
+  public final void setLocalId(String localId) throws PSResourceDefinitionInvalidIdException {
     validateId("localId", localId);
     this.localId = localId;
   }
@@ -81,7 +81,7 @@ public class PSResourceDefinitionUniqueId {
     return groupId + IPSResourceDefinitionService.NAMESPACE_SEPARATOR + localId;
   }
 
-  public void init(String uniqueId) throws PSResourceDefinitionInvalidIdException {
+  public final void init(String uniqueId) throws PSResourceDefinitionInvalidIdException {
     if (isBlank(uniqueId)) {
       throw new PSResourceDefinitionInvalidIdException(
           "PSResourceDefinitionUniqueId cannot be blank");

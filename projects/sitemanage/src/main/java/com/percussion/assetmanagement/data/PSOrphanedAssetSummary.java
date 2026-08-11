@@ -46,7 +46,7 @@ public class PSOrphanedAssetSummary extends PSDataItemSummary {
 
   public PSOrphanedAssetSummary(
       String assetId, String slotId, String widgetName, int relationshipId) {
-    setId(assetId);
+    this.id = assetId;
     this.slotId = slotId;
     this.widgetName = widgetName;
     this.relationshipId = relationshipId;

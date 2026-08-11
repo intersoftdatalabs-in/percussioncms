@@ -49,10 +49,10 @@ public class PSInlineRenderLink extends PSRenderLink {
   private String stateClass;
 
   public PSInlineRenderLink() {
-    setUrl("");
-    setThumbUrl("");
-    setTitle("");
-    setStateClass("");
+    this.url = "";
+    this.thumbUrl = "";
+    this.title = "";
+    this.stateClass = "";
   }
 
   /**

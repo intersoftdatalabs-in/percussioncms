@@ -84,9 +84,9 @@ public class PSSEOStatistics {
     if (StringUtils.isBlank(path)) {
       throw new IllegalArgumentException("path must not be blank");
     }
-    setPageSummary(pageSummary);
-    setPath(path);
-    setKeyword(keyword);
+    this.pageSummary = pageSummary;
+    this.path = path;
+    this.keyword = keyword;
     analyze();
   }
 

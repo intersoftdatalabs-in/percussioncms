@@ -38,10 +38,10 @@ public abstract class PSAbstractAssetRequest {
     SIMPLE_TEXT
   }
 
-  private String folderPath;
-  private AssetType type;
-  private String fileName;
-  private InputStream fileContents;
+  protected String folderPath;
+  protected AssetType type;
+  protected String fileName;
+  protected InputStream fileContents;
 
   /**
    * Gets the type of asset this request will be used to create.
@@ -78,7 +78,7 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param folderPath the new asset folder path; must not be {@code null} or empty.
    */
-  protected void setFolderPath(String folderPath) {
+  protected final void setFolderPath(String folderPath) {
     if (StringUtils.isBlank(folderPath)) {
       throw new IllegalArgumentException("folderPath may not be blank");
     }
@@ -99,7 +99,7 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param fileName must not be {@code null} or empty.
    */
-  protected void setFileName(String fileName) {
+  protected final void setFileName(String fileName) {
     if (StringUtils.isBlank(fileName)) {
       throw new IllegalArgumentException("fileName may not be blank");
     }
@@ -120,7 +120,7 @@ public abstract class PSAbstractAssetRequest {
    *
    * @param fileContents may not be {@code null}.
    */
-  protected void setFileContents(InputStream fileContents) {
+  protected final void setFileContents(InputStream fileContents) {
     this.fileContents = fileContents;
   }
 }

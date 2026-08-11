@@ -41,15 +41,27 @@ public class PSBinaryAssetRequest extends PSAbstractAssetRequest {
       String fileType,
       InputStream fileContents) {
     super();
-    setFolderPath(folderPath);
-    setType(type);
-    setFileName(fileName);
-    setFileType(fileType);
-    setFileContents(fileContents);
+    if (folderPath == null || folderPath.isBlank()) {
+      throw new IllegalArgumentException("folderPath may not be blank");
+    }
+    if (type != AssetType.FILE && type != AssetType.IMAGE) {
+      throw new IllegalArgumentException("unsupported asset type : " + type);
+    }
+    if (fileName == null || fileName.isBlank()) {
+      throw new IllegalArgumentException("fileName may not be blank");
+    }
+    if (fileType == null || fileType.isBlank()) {
+      throw new IllegalArgumentException("fileType may not be blank");
+    }
+    this.folderPath = folderPath;
+    this.type = type;
+    this.fileName = fileName.replace("\\x20", "-");
+    this.fileType = fileType;
+    this.fileContents = fileContents;
   }
 
   @Override
-  public void setType(AssetType type) {
+  public final void setType(AssetType type) {
     if (type != AssetType.FILE && type != AssetType.IMAGE) {
       throw new IllegalArgumentException("unsupported asset type : " + type);
     }
@@ -70,7 +82,7 @@ public class PSBinaryAssetRequest extends PSAbstractAssetRequest {
    *
    * @param fileType may not be {@code null} or empty.
    */
-  public void setFileType(String fileType) {
+  public final void setFileType(String fileType) {
     if (fileType == null || fileType.isBlank()) {
       throw new IllegalArgumentException("fileType may not be blank");
     }

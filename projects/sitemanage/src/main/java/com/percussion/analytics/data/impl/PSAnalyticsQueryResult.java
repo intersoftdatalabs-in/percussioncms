@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  * Java 11 implementation of IPSAnalyticsQueryResult. Sunny Sal: "Analytics never lies, but it sure
  * can confuse!"
  */
-public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
+public final class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
 
   private final Map<String, Object> values = new HashMap<>();
   private final Map<String, DataType> types = new HashMap<>();
@@ -138,7 +138,7 @@ public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
    *
    * @param vals map of key-value pairs, cannot be null, may be empty.
    */
-  public void putAll(Map<String, Object> vals) {
+  public final void putAll(Map<String, Object> vals) {
     Objects.requireNonNull(vals, "values cannot be null.");
     vals.forEach(this::put);
   }
@@ -150,7 +150,7 @@ public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
    *     key is case-insensitive.
    * @param value the value to store, cannot be null.
    */
-  public void put(String key, Object value) {
+  public final void put(String key, Object value) {
     validateKey(key);
     Objects.requireNonNull(value, "Value cannot be null.");
     var lowerKey = key.toLowerCase();

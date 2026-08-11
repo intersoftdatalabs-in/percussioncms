@@ -39,6 +39,6 @@ public class PSExternalUser extends PSAbstractUser {
 
   public PSExternalUser(String userName) {
     super();
-    setName(userName);
+    this.name = userName;
   }
 }

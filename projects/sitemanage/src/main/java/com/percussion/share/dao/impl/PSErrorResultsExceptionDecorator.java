@@ -36,6 +36,12 @@ public class PSErrorResultsExceptionDecorator extends PSExceptionDecorator {
     this(cause);
   }
 
+  /**
+   * Wraps the first nested error (or the multi-error container) as this decorator. {@code wrap}
+   * must publish stack/cause during construction so the decorator resembles the original
+   * throwable; justified {@code this-escape} suppress for that intentional Throwable API use.
+   */
+  @SuppressWarnings("this-escape")
   public PSErrorResultsExceptionDecorator(PSErrorResultsException cause) {
     var errors = cause.getErrors();
     Throwable realCause = cause;

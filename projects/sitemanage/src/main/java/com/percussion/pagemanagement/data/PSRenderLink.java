@@ -33,7 +33,7 @@ import java.util.Objects;
 @XmlRootElement(name = "RenderLink")
 public class PSRenderLink {
 
-  private String url;
+  protected String url;
   private transient PSResourceDefinition resourceDefinition;
   private PSResourceDefinitionType resourceType;
   private String resourceDefinitionId;
@@ -44,7 +44,11 @@ public class PSRenderLink {
 
   public PSRenderLink(String url, PSResourceDefinition resourceDefinition) {
     this.url = url;
-    setResourceDefinition(resourceDefinition);
+    this.resourceDefinition = resourceDefinition;
+    if (resourceDefinition != null) {
+      this.resourceType = resourceDefinition.getResourceType();
+      this.resourceDefinitionId = resourceDefinition.getUniqueId();
+    }
   }
 
   @XmlTransient
@@ -74,7 +78,7 @@ public class PSRenderLink {
    *
    * @param url the URL string
    */
-  public void setUrl(String url) {
+  public final void setUrl(String url) {
     this.url = url;
   }
 

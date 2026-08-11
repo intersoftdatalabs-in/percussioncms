@@ -48,13 +48,13 @@ public class PSUser extends PSAbstractNamedObject {
   private static final String NAME_LENGTH_ERROR_MSG =
       "The maximum length of a user name is 50 characters.";
 
-  private String password;
-  private String email = "";
-  private PSUserProviderType providerType = PSUserProviderType.INTERNAL;
+  protected String password;
+  protected String email = "";
+  protected PSUserProviderType providerType = PSUserProviderType.INTERNAL;
   private boolean isCreateUser;
 
   /** A user has to be in at least one role. */
-  @NotEmpty @NotNull private ArrayList<String> roles;
+  @NotEmpty @NotNull protected ArrayList<String> roles;
 
   public PSUser() {
     roles = new ArrayList<>();
@@ -98,7 +98,7 @@ public class PSUser extends PSAbstractNamedObject {
   }
 
   /** Sets the password. */
-  public void setPassword(String password) {
+  public final void setPassword(String password) {
     this.password = password;
   }
 
@@ -109,7 +109,7 @@ public class PSUser extends PSAbstractNamedObject {
   }
 
   /** Sets the email. */
-  public void setEmail(String email) {
+  public final void setEmail(String email) {
     this.email = email;
   }
 
@@ -120,7 +120,7 @@ public class PSUser extends PSAbstractNamedObject {
 
   /** Sets the roles. */
   @SuppressWarnings("unchecked")
-  public void setRoles(List<String> roles) {
+  public final void setRoles(List<String> roles) {
     if (roles == null) {
       this.roles = null;
     } else if (roles instanceof ArrayList) {
@@ -140,7 +140,7 @@ public class PSUser extends PSAbstractNamedObject {
     return providerType;
   }
 
-  public void setProviderType(PSUserProviderType providerType) {
+  public final void setProviderType(PSUserProviderType providerType) {
     this.providerType = providerType;
   }
 

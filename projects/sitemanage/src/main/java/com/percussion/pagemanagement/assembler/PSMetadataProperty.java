@@ -146,7 +146,7 @@ public class PSMetadataProperty {
     return Optional.ofNullable(id).map(PropertyId::getName).orElse(null);
   }
 
-  public void setName(String name) {
+  public final void setName(String name) {
     createIdIfNull();
     id.setName(name);
   }
@@ -193,7 +193,7 @@ public class PSMetadataProperty {
     return "";
   }
 
-  public void setStringvalue(String stringvalue) {
+  public final void setStringvalue(String stringvalue) {
     this.valuetype = VALUETYPE.STRING;
     this.stringvalue = stringvalue;
     id.calculateHash(this.stringvalue);
@@ -203,7 +203,7 @@ public class PSMetadataProperty {
     return textvalue;
   }
 
-  public void setTextvalue(String textvalue) {
+  public final void setTextvalue(String textvalue) {
     this.valuetype = VALUETYPE.TEXT;
     this.textvalue = textvalue;
     id.calculateHash(this.textvalue);
@@ -213,7 +213,7 @@ public class PSMetadataProperty {
     return datevalue;
   }
 
-  public void setDatevalue(Date datevalue) {
+  public final void setDatevalue(Date datevalue) {
     this.valuetype = VALUETYPE.DATE;
     this.datevalue = datevalue;
     id.calculateHash(this.datevalue);
@@ -223,7 +223,7 @@ public class PSMetadataProperty {
     return numbervalue;
   }
 
-  public void setNumbervalue(Double numbervalue) {
+  public final void setNumbervalue(Double numbervalue) {
     this.valuetype = VALUETYPE.NUMBER;
     this.numbervalue = numbervalue;
     id.calculateHash(this.numbervalue);
@@ -293,7 +293,7 @@ class PropertyId implements Serializable {
     return name;
   }
 
-  public void setName(String name) {
+  public final void setName(String name) {
     this.name = StringUtils.isEmpty(name) ? null : name;
   }
 
