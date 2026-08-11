@@ -27,11 +27,23 @@ A **Virtual Site** is a Site whose content originates **outside** the traditiona
 (for example Git/filesystem Markdown under `product-docs/`). Virtual items are discovered and
 assembled without ingesting them as ordinary CMS content items.
 
-Operators configure Virtual Sites through Site properties (source kind, root path, config file).
+Operators configure Virtual Sites through **Site properties** (not new database columns in Phase 1).
 Authors of Virtual content use Git and Markdown tooling, not the classic page editor.
 
+### Property keys operators set
+
+| Property | Required | Example | Notes |
+|----------|----------|---------|-------|
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Phase 1 allow-list: **`git-filesystem` only**. Blank or `repository` = traditional Site. |
+| `virtual.rootPath` | Yes (when virtual) | absolute path to `product-docs` | Must be non-blank for Virtual Sites. Prefer absolute paths; use portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. |
+| `virtual.configFile` | No | `_config.yaml` | Default `_config.yaml`. Simple file name under the root (no `..` or directory separators). |
+| `virtual.siteKey` | No | `product-docs` | Optional participant key; defaults to the Site name. |
+
+Invalid combinations (unknown source kind, missing root, unsafe path, config path traversal) are
+rejected by server validation with clear error messages.
+
 See [Virtual Sites (developer)](id:developer-virtual-sites) and
-[Site configuration reference](id:reference-site-config).
+[Site configuration reference](id:reference-site-config) for full contract and offline build steps.
 
 ## Folders, pages, and assets
 

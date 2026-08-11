@@ -47,15 +47,20 @@ theme:
 
 ## CMS Site properties (Virtual)
 
-When a Percussion Site is configured as virtual:
+When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` columns):
 
-| Property name | Example | Meaning |
-|---------------|---------|---------|
-| `virtual.sourceKind` | `git-filesystem` | Non-blank ⇒ Virtual Site |
-| `virtual.rootPath` | absolute or install-relative path to tree | Source root |
-| `virtual.configFile` | `_config.yaml` | Optional; default `_config.yaml` |
+| Property name | Required | Example | Meaning |
+|---------------|----------|---------|---------|
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Adapter wire name. **Allow-list (Phase 1):** `git-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. |
+| `virtual.rootPath` | Yes (when virtual) | absolute or install-relative path to tree | Filesystem source root. Non-blank when virtual. NIO `Path` normalize; no empty path / remaining `..` segments. |
+| `virtual.configFile` | No | `_config.yaml` | Optional; default `_config.yaml`. Simple file name only (no separators / `..`). |
+| `virtual.siteKey` | No | `product-docs` | Participant registry key; default Site name, else `default`. |
 
 Empty / missing `virtual.sourceKind` means traditional **repository** site.
+
+Cross-platform notes: prefer absolute paths (`C:\…` on Windows, `/opt/…` on Linux/macOS). Operators
+should not hardcode OS path separators in scripts — use the repo `scripts/build-cms-docs.*` wrappers
+or NIO/`Path` APIs.
 
 ## Related
 
