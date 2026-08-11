@@ -71,10 +71,17 @@ public class SlotDetail {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<SlotAssociationSummary> associations;
 
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously {@code string[]}; now {@link DesignGap}
+   * objects {@code {code,message}}. See product-docs {@code developer/rest.md}.
+   */
   @Schema(
       description =
-          "Structured capability notes (code + message) vs full Workbench slot design"
-              + " (REST-GAPS-01). Wire shape is objects, not free-text strings.")
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench slot design."
+              + " See product-docs developer/rest.md.")
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<DesignGap> designGaps;
 

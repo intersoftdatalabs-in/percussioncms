@@ -57,10 +57,17 @@ public class TemplateDetail {
   private List<TemplateBindingSummary> bindings = new ArrayList<>();
   private List<TemplateSlotSummary> slots = new ArrayList<>();
 
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously {@code string[]}; now {@link DesignGap}
+   * objects {@code {code,message}}. See product-docs {@code developer/rest.md}.
+   */
   @Schema(
       description =
-          "Structured capability notes (code + message) vs full Workbench template design"
-              + " (REST-GAPS-01). Wire shape is objects, not free-text strings.")
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench template design."
+              + " See product-docs developer/rest.md.")
   private List<DesignGap> designGaps = new ArrayList<>();
 
   public TemplateDetail() {}

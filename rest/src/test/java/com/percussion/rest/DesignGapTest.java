@@ -50,8 +50,13 @@ public class DesignGapTest {
     assertTrue(json.contains("CT_ITEM_EXITS"), json);
     assertTrue(json.contains("\"message\""), json);
     assertTrue(json.contains("Item-level pre/post exits not exposed"), json);
-    // Must not serialize designGaps as bare string array entries
-    assertTrue(json.contains("designGaps"), json);
+    // Must not serialize designGaps as bare string array entries — require object array wire shape
+    assertTrue(
+        json.contains("\"designGaps\":[{\"code\":\"CT_ITEM_EXITS\""),
+        () -> "expected structured designGaps objects, got: " + json);
+    assertTrue(
+        !json.contains("\"designGaps\":[\"") && !json.contains("\"designGaps\":[ \"CT_"),
+        () -> "must not serialize designGaps as bare strings: " + json);
   }
 
   @Test

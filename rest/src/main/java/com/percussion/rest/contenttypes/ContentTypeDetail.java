@@ -77,11 +77,19 @@ public class ContentTypeDetail {
               + " non-null list full replace (empty clears).")
   private List<NamedObjectRef> allowedTemplates;
 
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously a free-text {@code string[]} of messages;
+   * now an array of {@link DesignGap} objects {@code {code,message}}. Integrators must not treat
+   * entries as bare strings. Documented in product-docs {@code developer/rest.md} (Design capability
+   * gaps). Unmigrated peer detail resources may still emit string arrays.
+   */
   @Schema(
       description =
-          "Structured capability notes (code + message) for what this payload includes vs full"
-              + " Workbench design object. Wire shape is objects, not free-text strings"
-              + " (REST-GAPS-01).")
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench design."
+              + " See product-docs developer/rest.md.")
   private List<DesignGap> designGaps = new ArrayList<>();
 
   public ContentTypeDetail() {}

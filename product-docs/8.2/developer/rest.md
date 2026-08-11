@@ -49,7 +49,13 @@ surface does **not** yet match full Workbench / design-WS capability.
 
 ### Structured shape (Content Type, Template, Slot detail)
 
-On **content type**, **template**, and **slot** detail responses, each gap is a structured object:
+**Breaking change (REST-GAPS-01):** on **content type**, **template**, and **slot** detail responses,
+`designGaps` is no longer a free-text string array. Each entry is a structured object
+(`{ "code", "message" }`). Integrators that treated entries as bare strings must update.
+Other Developer catalog detail resources may still return string arrays until migrated.
+There is no dual-shape / dual-version wire for these three paths in this release.
+
+On those three detail responses, each gap is a structured object:
 
 ```json
 {
