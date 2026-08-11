@@ -16,6 +16,7 @@
  */
 package com.percussion.design.objectstore.legacy;
 
+import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSProvider;
@@ -53,7 +54,7 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacySecurityProviderInstance(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     // Private path avoids virtual fromXml dispatch during construction (this-escape).
@@ -102,7 +103,7 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
    *
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -110,7 +111,7 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
   /**
    * Shared load for {@link #fromXml} and the Element constructor (this-escape safe; non-virtual).
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

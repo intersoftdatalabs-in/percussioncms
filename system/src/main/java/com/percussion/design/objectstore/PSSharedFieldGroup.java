@@ -52,7 +52,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSSharedFieldGroup(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSSharedFieldGroup(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -92,7 +92,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @param name the new name, not <code>null</code> or empty.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("the name cannot be null or empty");
 
@@ -134,7 +134,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @param locator the new container locator, not <code>null</code>.
    */
-  public void setLocator(PSContainerLocator locator) {
+  public final void setLocator(PSContainerLocator locator) {
     if (locator == null) throw new IllegalArgumentException("the locator cannot be null");
 
     m_locator = locator;
@@ -154,7 +154,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @param fieldSet the new field set, never <code>null</code>.
    */
-  public void setFieldSet(PSFieldSet fieldSet) {
+  public final void setFieldSet(PSFieldSet fieldSet) {
     if (fieldSet == null) throw new IllegalArgumentException("the fieldSet cannot be null");
 
     m_fieldSet = fieldSet;
@@ -174,7 +174,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @param uiDefinition the new UI definition, not <code>null</code>.
    */
-  public void setUIDefinition(PSUIDefinition uiDefinition) {
+  public final void setUIDefinition(PSUIDefinition uiDefinition) {
     if (uiDefinition == null) throw new IllegalArgumentException("the uiDefinition cannot be null");
 
     m_uiDefinition = uiDefinition;
@@ -291,7 +291,7 @@ public final class PSSharedFieldGroup extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

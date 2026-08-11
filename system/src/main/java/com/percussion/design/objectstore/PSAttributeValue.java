@@ -44,7 +44,7 @@ public class PSAttributeValue extends PSDatabaseComponent {
    * @param parentComponents the parent objects of this object can be <code>null</code>
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  PSAttributeValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  PSAttributeValue(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // Arraylist is used in this ctor because of the definition
     // of fromXml in IPSComponent
@@ -176,7 +176,7 @@ public class PSAttributeValue extends PSDatabaseComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
    * @see IPSComponent#fromXml(Element, IPSDocument, List) for the interface description
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

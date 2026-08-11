@@ -224,7 +224,7 @@ public class PSRevisionEntry extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRevisionEntry
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_nodeType);

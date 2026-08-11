@@ -183,7 +183,7 @@ public final class PSDependent extends PSCmsComponent {
    *
    * @see IPSComponent for additional information.
    */
-  public void fromXml(Element source, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element source, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source must be supplied");
 

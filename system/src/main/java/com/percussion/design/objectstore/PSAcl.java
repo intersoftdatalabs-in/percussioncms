@@ -52,7 +52,7 @@ public class PSAcl extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSAcl(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSAcl(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -408,7 +408,7 @@ public class PSAcl extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXAcl
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

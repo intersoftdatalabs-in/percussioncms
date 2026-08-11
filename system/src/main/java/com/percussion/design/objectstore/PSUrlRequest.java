@@ -65,7 +65,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSUrlRequest(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSUrlRequest(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // Private path avoids virtual fromXml dispatch before subclass fields initialize.
     fromXmlBase(sourceNode, parentDoc, parentComponents);
@@ -338,7 +338,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -347,7 +347,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
    * during construction for subclasses such as {@link PSConditionalRequest}.
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

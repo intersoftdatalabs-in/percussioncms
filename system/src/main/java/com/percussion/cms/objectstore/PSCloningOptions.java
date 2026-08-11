@@ -104,7 +104,7 @@ public final class PSCloningOptions extends PSComponent {
    *
    * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter descriptions.
    */
-  public PSCloningOptions(Element source, IPSDocument parent, List parentComponents)
+  public PSCloningOptions(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(source, parent, parentComponents);
   }
@@ -384,7 +384,7 @@ public final class PSCloningOptions extends PSComponent {
   /* (non-Javadoc)
    * @see IPSComponent#fromXml(Element, IPSDocument, ArrayList)
    */
-  public void fromXml(Element source, IPSDocument parent, List parentComponents)
+  public void fromXml(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (source == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

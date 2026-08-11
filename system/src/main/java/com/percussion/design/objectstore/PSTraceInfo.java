@@ -44,7 +44,7 @@ public class PSTraceInfo extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSTraceInfo(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSTraceInfo(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this(sourceNode, parentDoc, parentComponents, Locale.getDefault());
   }
@@ -287,7 +287,7 @@ public class PSTraceInfo extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
 
     if (sourceNode == null) {
@@ -544,7 +544,7 @@ public class PSTraceInfo extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSTraceInfo(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents, Locale locale)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents, Locale locale)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
     createOptionsList(locale);

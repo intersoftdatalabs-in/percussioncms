@@ -71,7 +71,7 @@ public final class PSApplicationFlow extends PSComponent {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSApplicationFlow(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSApplicationFlow(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -317,7 +317,7 @@ public final class PSApplicationFlow extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -449,7 +449,8 @@ public final class PSApplicationFlow extends PSComponent {
    *
    * @param name the command handler name to validate.
    */
-  public void validate(String name) {
+  /** Final so setDefaultRedirect/addRedirects ctors are this-escape safe. */
+  public final void validate(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("the command handler name cannot be null or empty");
   }
@@ -459,7 +460,8 @@ public final class PSApplicationFlow extends PSComponent {
    *
    * @param redirects the redirect collection to validate.
    */
-  public void validate(PSCollection redirects) {
+  /** Final so addRedirects ctors are this-escape safe. */
+  public final void validate(PSCollection redirects) {
     if (redirects == null || redirects.isEmpty())
       throw new IllegalArgumentException("the redirect collection cannot be null or empty");
 

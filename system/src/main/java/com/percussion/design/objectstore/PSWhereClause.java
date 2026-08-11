@@ -50,7 +50,7 @@ public final class PSWhereClause extends PSConditional {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSWhereClause(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSWhereClause(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -171,7 +171,7 @@ public final class PSWhereClause extends PSConditional {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXWhereClause
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

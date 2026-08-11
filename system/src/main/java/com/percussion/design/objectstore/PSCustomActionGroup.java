@@ -49,7 +49,7 @@ public final class PSCustomActionGroup extends PSComponent {
    * @param parentComponents the parent objects of this object, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSCustomActionGroup(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSCustomActionGroup(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -80,7 +80,7 @@ public final class PSCustomActionGroup extends PSComponent {
    *
    * @param location the new custom action group location, not <code>null</code>.
    */
-  public void setLocation(PSLocation location) {
+  public final void setLocation(PSLocation location) {
     if (location == null) throw new IllegalArgumentException("location cannot be null");
 
     m_location = location;
@@ -191,7 +191,7 @@ public final class PSCustomActionGroup extends PSComponent {
   }
 
   // see IPSComponent
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);

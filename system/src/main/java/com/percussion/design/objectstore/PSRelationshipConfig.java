@@ -55,9 +55,10 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * @param parentComponents the parent objects of this object, it may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSRelationshipConfig(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRelationshipConfig(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
-    fromXml(sourceNode, parentDoc, parentComponents);
+    // Private path avoids virtual fromXml dispatch during construction (this-escape).
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
 
   /**
@@ -107,8 +108,9 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    *     </code> or empty.
    */
   PSRelationshipConfig(String name, String type) {
-    setName(name);
-    setType(type);
+    // Private helpers avoid virtual setName/setType during construction (this-escape).
+    applyName(name);
+    applyType(type);
     m_label = name;
     m_category = CATEGORY_ACTIVE_ASSEMBLY;
 
@@ -127,7 +129,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    */
   public PSRelationshipConfig(String name, String type, String category) {
     this(name, type);
-    setCategory(category);
+    applyCategory(category);
   }
 
   /**
@@ -181,6 +183,11 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    *     </code> or empty.
    */
   public void setType(String type) {
+    applyType(type);
+  }
+
+  /** Non-overridable type assignment for construction and {@link #setType(String)}. */
+  private void applyType(String type) {
     if (type == null || (!type.equals(RS_TYPE_SYSTEM) && !type.equals(RS_TYPE_USER))) {
       throw new IllegalArgumentException(
           "type must not be null and must be one of RS_TYPE_XXXX values.");
@@ -277,6 +284,11 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    *     Character#isWhitespace(char)} for detail.
    */
   public void setName(String name) {
+    applyName(name);
+  }
+
+  /** Non-overridable name assignment for construction and {@link #setName(String)}. */
+  private void applyName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name may not be null or empty.");
 
@@ -307,6 +319,11 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * @param category category of relationship, must be one of the CATEGORY_XXX.
    */
   public void setCategory(String category) {
+    applyCategory(category);
+  }
+
+  /** Non-overridable category assignment for construction and {@link #setCategory(String)}. */
+  private void applyCategory(String category) {
     for (PSEntry entry : CATEGORY_ENUM) {
       if (entry.getValue().equalsIgnoreCase(category)) {
         m_category = entry.getValue();
@@ -823,7 +840,16 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * @see IPSComponent
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXmlBase(sourceNode, parentDoc, parentComponents);
+  }
+
+  /**
+   * Shared load for {@link #fromXml} and the Element constructor (this-escape safe; non-virtual).
+   */
+  private void fromXmlBase(
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -848,6 +874,9 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
       setIdFromXml(sourceNode);
 
       // REQUIRED: name attribute
+      // Use virtual setName (not private applyName) so upgrade-plugin subclass
+      // PSUpgradePluginRelationship.RelationshipConfig can allow whitespace names.
+      // Element-ctor path intentionally dispatches here for polymorphic XML load.
       String name = tree.getElementData(XML_ATTR_NAME);
       try {
         setName(name);

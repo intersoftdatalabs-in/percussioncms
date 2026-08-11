@@ -48,7 +48,7 @@ public class PSLoginWebPage extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLoginWebPage(
-      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -183,7 +183,7 @@ public class PSLoginWebPage extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXLoginWebPage
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

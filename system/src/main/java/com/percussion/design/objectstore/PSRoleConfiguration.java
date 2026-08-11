@@ -103,7 +103,7 @@ public final class PSRoleConfiguration implements IPSDocument {
   }
 
   // see interface
-  public void fromXml(Document sourceDoc)
+  public final void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
     if (null == sourceDoc)
       throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);

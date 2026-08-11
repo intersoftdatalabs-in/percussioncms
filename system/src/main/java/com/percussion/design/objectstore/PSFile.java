@@ -405,7 +405,7 @@ public abstract class PSFile extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
    *     supported by the class.
    */
-  public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException;
 
   /**
@@ -421,7 +421,7 @@ public abstract class PSFile extends PSComponent {
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   protected void fromXml(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents, String nodeType)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents, String nodeType)
       throws PSUnknownNodeTypeException {
     String lastModified = null;
     try {

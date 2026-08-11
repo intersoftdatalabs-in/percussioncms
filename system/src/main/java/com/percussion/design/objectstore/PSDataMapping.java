@@ -54,7 +54,7 @@ public final class PSDataMapping extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSDataMapping(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSDataMapping(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -119,7 +119,7 @@ public final class PSDataMapping extends PSComponent {
    *
    * @param docMap the name of the XML field being mapped
    */
-  public void setDocumentMapping(IPSDocumentMapping docMap) {
+  public final void setDocumentMapping(IPSDocumentMapping docMap) {
     m_docMapping = docMap;
   }
 
@@ -155,7 +155,7 @@ public final class PSDataMapping extends PSComponent {
    * @see PSBackEndColumn
    * @see PSExtensionCall
    */
-  public void setBackEndMapping(IPSBackEndMapping backEndMap) {
+  public final void setBackEndMapping(IPSBackEndMapping backEndMap) {
     IllegalArgumentException ex = validateBackEndMapping(backEndMap);
 
     if (ex != null) throw ex;
@@ -383,7 +383,7 @@ public final class PSDataMapping extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapping
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;
@@ -626,7 +626,7 @@ public final class PSDataMapping extends PSComponent {
   }
 
   private IPSComponent createMappingObject(
-      Element mappingNode, String nodeSource, IPSDocument parentDoc, List parentComponents)
+      Element mappingNode, String nodeSource, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     return (IPSComponent)
         PSReplacementValueFactory.getReplacementValueFromXml(

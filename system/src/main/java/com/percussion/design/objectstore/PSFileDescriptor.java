@@ -56,7 +56,7 @@ public class PSFileDescriptor extends PSComponent {
    * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 

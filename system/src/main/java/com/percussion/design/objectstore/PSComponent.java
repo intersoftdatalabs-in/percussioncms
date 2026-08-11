@@ -77,7 +77,9 @@ public abstract class PSComponent implements IPSComponent, Serializable {
    */
   public void copyFrom(PSComponent c) {
     if (null == c) throw new IllegalArgumentException("Invalid object for copy");
-    applyId(c.getId());
+    // Virtual setId so subclasses (e.g. PSDependency) that propagate id to dependents still run.
+    // copyFrom is not a constructor path, so this is not a this-escape.
+    setId(c.getId());
   }
 
   /**

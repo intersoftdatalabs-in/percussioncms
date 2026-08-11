@@ -72,7 +72,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCommandHandlerStylesheets(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
@@ -282,7 +282,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
   /**
    * @see IPSComponent
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -392,7 +392,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
   }
 
   // see IPSComponent
-  public void validate(IPSValidationContext context) throws PSSystemValidationException {
+  public final void validate(IPSValidationContext context) throws PSSystemValidationException {
     if (!context.startValidation(this, null)) return;
 
     // do children
@@ -417,7 +417,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param name the command handler name to validate.
    */
-  public void validate(String name) {
+  public final void validate(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("the command handler name cannot be null or empty");
   }
@@ -427,7 +427,7 @@ public final class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param stylesheets the stylesheet collection to validate.
    */
-  public void validate(PSCollection stylesheets) {
+  public final void validate(PSCollection stylesheets) {
     if (stylesheets == null || stylesheets.isEmpty())
       throw new IllegalArgumentException("the stylesheet collection cannot be null or empty");
 

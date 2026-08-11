@@ -35,7 +35,7 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
    * @param parentComponents the parent objects of this object, may be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSRelationshipConfigSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSRelationshipConfigSet(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
 
@@ -261,7 +261,7 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
    * @see com.percussion.design.objectstore.IPSComponent#fromXml(org.w3c.dom.Element, com.percussion.design.objectstore.IPSDocument, java.util.ArrayList)
    */
   @Override
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -321,7 +321,7 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   protected PSRelationshipConfig createMemberObject(
-      Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     return new PSRelationshipConfig(sourceNode, parentDoc, parentComponents);
   }

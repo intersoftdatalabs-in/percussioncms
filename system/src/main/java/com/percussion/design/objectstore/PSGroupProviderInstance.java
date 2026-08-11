@@ -98,7 +98,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     or does not contain valid attribute values.
    */
-  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     validateElementName(sourceNode, XML_NODE_NAME);
 

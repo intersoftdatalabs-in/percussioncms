@@ -32,7 +32,7 @@ public class PSContentItemData extends PSNamedReplacementValue {
    * @throws IllegalArgumentException if source is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
-  public PSContentItemData(Element source, IPSDocument parent, List parentComponents)
+  public PSContentItemData(Element source, IPSDocument parent, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     super(source, parent, parentComponents);
   }

@@ -52,7 +52,7 @@ public final class PSResultPage extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSResultPage(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSResultPage(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
@@ -103,7 +103,7 @@ public final class PSResultPage extends PSComponent {
    * @param styleSheet the URL of the style sheet defining the output format for the results.
    *     Specify null to use the default E2 style sheet.
    */
-  public void setStyleSheet(java.net.URL styleSheet) {
+  public final void setStyleSheet(java.net.URL styleSheet) {
     m_styleSheet = styleSheet;
   }
 
@@ -362,7 +362,7 @@ public final class PSResultPage extends PSComponent {
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResultPage
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public final void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     parentComponents = updateParentList(parentComponents);
     int parentSize = parentComponents.size() - 1;

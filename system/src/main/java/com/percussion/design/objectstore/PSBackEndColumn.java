@@ -50,7 +50,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSBackEndColumn(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public PSBackEndColumn(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     // Private path avoids virtual fromXml (e.g. PSSortedColumn) during construction.
     fromXmlBase(sourceNode, parentDoc, parentComponents);
@@ -440,7 +440,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    *
    * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndColumn
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     fromXmlBase(sourceNode, parentDoc, parentComponents);
   }
@@ -449,7 +449,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    * Shared load for {@link #fromXml} and the Element constructor. Avoids virtual fromXml dispatch
    * (e.g. {@link PSSortedColumn}) before subclass fields are initialized.
    */
-  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  private void fromXmlBase(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, ms_NodeType);
@@ -484,7 +484,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
       for (int i = parentComponents.size(); i != 0; ) {
         i--; // decrement right away as arraylist's are 0-based
 
-        parent = (IPSComponent) parentComponents.get(i);
+        parent = parentComponents.get(i);
         if (parent instanceof com.percussion.design.objectstore.PSBackEndDataTank)
           dt = (PSBackEndDataTank) parent;
         else if (parent instanceof com.percussion.design.objectstore.PSPipe)

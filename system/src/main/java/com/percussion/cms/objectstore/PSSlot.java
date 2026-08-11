@@ -17,6 +17,7 @@
 
 package com.percussion.cms.objectstore;
 
+import com.percussion.design.objectstore.IPSComponent;
 import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -210,7 +211,7 @@ public final class PSSlot extends PSCmsComponent {
    * @param parentDoc Unused.
    * @param parentComponents Unused.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
   }

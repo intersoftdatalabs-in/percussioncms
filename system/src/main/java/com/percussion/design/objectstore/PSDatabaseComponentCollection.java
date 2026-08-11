@@ -159,7 +159,7 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent implement
    * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
    *     supported by the class.
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     m_components.clear();
     m_deletes.clear();
