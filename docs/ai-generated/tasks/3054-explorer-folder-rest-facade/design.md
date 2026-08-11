@@ -59,16 +59,18 @@ Explorer shell/tree/detail modules that depend on this surface:
 
 **Note:** paths use the **services** root (`/services/pathmanagement/…` or `/Rhythmyx/services/…` via `detectServicesRoot()`), **not** the public `rest` module base (`/Rhythmyx/rest/…`).
 
-### 2.2 Legacy Finder WebUI (jQuery)
+### 2.2 Legacy Finder WebUI (jQuery) — retirement path
 
-Still heavy pathmanagement / PercPathService usage (same CM1 stack):
+**Product direction (operator review):** **Content Explorer is the only long-term UI** for navigating CMS folders and content. There will **not** be a permanent dual of Finder + Explorer. Finder remains only as a **legacy client** during migration; any CM1 / Finder-specific behavior that depends on folder type (Sites/Assets/sections, site-copy guards, etc.) must be **factored into Explorer designs** (and into the RX facade where parity requires it), not left as a second navigation product.
+
+Still heavy pathmanagement / PercPathService usage (same CM1 stack) today:
 
 - `WebUI/war/widgets/perc_finder.js` — open path, move, get by id
 - `perc_new_folder_button.js`, `perc_delete_page_button.js`, `perc_folderproperties_button.js`
 - `perc_site_map.js` — section trees / folderPath
 - `$.perc_pathmanager` / `$.PercPathService` clients
 
-These should **remain** on pathmanagement unless product later unifies Finder with Explorer.
+**During migration:** leave Finder clients on pathmanagement (do not break them in early facade phases). **Target end-state:** Explorer owns folder navigation UX; retire Finder tree/nav; absorb folder-type-specific CM1 behavior into Explorer + the content-explorer folders REST facade as needed.
 
 ### 2.3 Public `rest` module folders surface (existing)
 
@@ -189,7 +191,7 @@ WebUI Explorer / integrators
 
 - **No** `rest` → `sitemanage` Maven dependency.
 - **Do not** implement domain logic inside `rest`.
-- Keep **CM1 Finder** and **pathmanagement** as-is for Finder and for Explorer **list/paginate** until a deliberate switch.
+- Keep **pathmanagement** as-is for Explorer **list/paginate** and for **legacy Finder clients** until a deliberate switch; product end-state is **Explorer-only** nav (no permanent Finder+Explorer dual).
 
 ### Option B — Extend CM1 pathmanagement only
 
@@ -231,10 +233,11 @@ Phased hybrid (recommended **migration shape** even under Option A):
 1. **New** REST facade in `rest` under `/content-explorer/folders` (or `/content-explorer/rx-folders` if naming collision concerns win) that is a **thin façade over `IPSContentWs` folder operations**, not over pathmanagement.
 2. **Do not** repurpose `FoldersResource` or foldermanagement REST.
 3. **Do not** hard-cut Explorer off pathmanagement in the first implement PR.
-4. **Keep** pathmanagement for:
+4. **Keep** pathmanagement during migration for:
    - Left-nav roots including `/Folders` (#3044 / QA #3053)
    - Paginated listing + display formats
-   - Finder / CM1 product flows
+   - Legacy Finder clients (until Explorer fully replaces Finder nav)
+   - CM1 product flows that are not yet absorbed into Explorer
 5. **Switch Explorer mutations** (create/rename/move/delete/ACL where parity fails) onto the new facade only after:
    - Human design approval of this note
    - Resource + adaptor + unit/Spring tests green
@@ -264,8 +267,10 @@ All under `@Path("/content-explorer/folders")`, JSON, OpenAPI tags `Content Expl
 |--------|------|----------------------|
 | GET | `/by-path/{path:.+}` | `loadFolders(String[] paths)` (single) |
 | GET | `/by-id/{id}` | `loadFolder(IPSGuid)` |
-| GET | `/{id\|path}/children` | `findFolderChildren` |
-| GET | `/{id\|path}/child-folders` | `findChildFolders` |
+| GET | `/by-id/{id}/children` | `findFolderChildren` (by folder GUID) |
+| GET | `/by-path/{path:.+}/children` | `findFolderChildren` (by RX path) |
+| GET | `/by-id/{id}/child-folders` | `findChildFolders` (by folder GUID) |
+| GET | `/by-path/{path:.+}/child-folders` | `findChildFolders` (by RX path) |
 | POST | `/` or `/add` | `addFolder` |
 | POST | `/tree` | `addFolderTree` |
 | PUT | `/by-id/{id}` | `saveFolder` |
@@ -290,16 +295,16 @@ From `rest/AGENTS.md` + root change-class table:
 - [ ] product-docs only when operator/integrator public surface ships (implement phase)
 - [ ] Playwright / perc-qa-automation when Explorer **UI** is switched (later phase)
 
-### 6.4 What stays on CM1 REST
+### 6.4 What stays on CM1 REST (migration vs end-state)
 
-| Surface | Keep on pathmanagement / sitemanage |
-|---------|-------------------------------------|
-| Finder UI | Yes |
-| Explorer tree list + pagination + display formats | Yes (initially forever-or-until proven) |
-| Sites / Assets convenience roots | Yes |
-| Site section create / nav tree | Yes (section services — not WS folders) |
-| Recycle bin empty / restore | recycle pathmanagement APIs |
-| Workflow folder assignment | foldermanagement REST |
+| Surface | Migration | End-state (Explorer-only nav) |
+|---------|-----------|-------------------------------|
+| Finder UI (jQuery) | Yes — leave clients on pathmanagement | Retire as nav product; no dual Finder+Explorer |
+| Explorer tree list + pagination + display formats | Yes (pathmanagement until proven) | May stay or move to facade reads later |
+| Sites / Assets convenience roots | Yes | Absorb any folder-type-specific UX into Explorer |
+| Site section create / nav tree | Yes (section services — not WS folders) | Same (section services stay CM1) |
+| Recycle bin empty / restore | recycle pathmanagement APIs | Same unless Explorer recycles UX moves |
+| Workflow folder assignment | foldermanagement REST | Orthogonal; leave alone |
 
 ---
 
@@ -334,7 +339,7 @@ From `rest/AGENTS.md` + root change-class table:
 | Performance (load full `PSFolder` trees) | Keep pagination on pathmanagement; facade children calls stay **direct children** only |
 | rest→sitemanage cycle | Interfaces only in rest; impl in apibridge |
 | Site-copy / CM1 locks bypassed | For site paths, either delegate to pathmanagement or re-apply `PSSiteCopyUtils` guards in adaptor |
-| Breaking Finder | Never change Finder clients in early phases |
+| Breaking legacy Finder during migration | Never change Finder clients in early phases; plan retirement only after Explorer parity |
 | Agent-safe test gaps | See §9 |
 
 ---
@@ -348,7 +353,7 @@ From `rest/AGENTS.md` + root change-class table:
 | Spring wiring | `rest` MainTest stubs | New adaptor bean on test classpath |
 | Integration (optional) | sitemanage/H2 | Existing pathmanagement tests for `/Folders` remain; add WS-backed tests only if H2 harness can host content WS |
 | Playwright | `modules/perc-qa-automation` | **After** UI switch: create/rename/move/delete under Folders root; ACL deny cases if fixtures allow |
-| Manual QA | QA H2 docker / install | Assign `@vijaya-boddipudi` “qa task” when UI or install-visible behavior changes |
+| Manual QA | QA H2 docker / install | Coordinate with QA (open a human QA issue / assign via current rota) when UI or install-visible behavior changes — do not hardcode individual usernames in design docs |
 
 Prefer **unit + module clean install** for facade PRs; do not require full host install for pure API slices.
 
@@ -380,7 +385,7 @@ Cross-links:
 |----------|--------|
 | New `rest` facade over web-service folder API **vs** extend CM1 folder REST? | **New rest facade** (`/content-explorer/folders`) over `IPSContentWs`. |
 | Extend existing `FoldersResource`? | **No** (keep CM1 site/asset/section API stable). |
-| Extend pathmanagement only? | **No as sole strategy**; keep for browse/Finder/`//Folders` root (#3044). |
+| Extend pathmanagement only? | **No as sole strategy**; keep for browse/`//Folders` root (#3044) and legacy Finder during migration. Explorer is sole long-term nav UI. |
 | Production Explorer switch in first implement PR? | **No** — flag/default-off dual-run first. |
 | Spike delivers production code? | **No** — this document only. |
 
