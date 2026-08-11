@@ -27,8 +27,10 @@ A **Virtual Site** is a Site whose content originates **outside** the traditiona
 (for example Git/filesystem Markdown under `product-docs/`). Virtual items are discovered and
 assembled without ingesting them as ordinary CMS content items.
 
-Operators configure Virtual Sites through Site properties (source kind, root path, config file).
-Authors of Virtual content use Git and Markdown tooling, not the classic page editor.
+Operators configure Virtual Sites through Site properties (source kind, root path, config file,
+optional site key). Integrators can set the same properties over public Site REST
+(`GET`/`PUT /sites/{nameOrId}/virtual`) without Workbench. Authors of Virtual content use Git
+and Markdown tooling, not the classic page editor.
 
 See [Virtual Sites (developer)](id:developer-virtual-sites) and
 [Site configuration reference](id:reference-site-config).

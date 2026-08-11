@@ -54,8 +54,20 @@ When a Percussion Site is configured as virtual:
 | `virtual.sourceKind` | `git-filesystem` | Non-blank ⇒ Virtual Site |
 | `virtual.rootPath` | absolute or install-relative path to tree | Source root |
 | `virtual.configFile` | `_config.yaml` | Optional; default `_config.yaml` |
+| `virtual.siteKey` | `product-docs` | Optional participant key; default = site name |
 
 Empty / missing `virtual.sourceKind` means traditional **repository** site.
+
+### REST
+
+Integrators can read and write these keys via public Site REST:
+
+- `GET /sites/{nameOrId}/virtual`
+- `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
+
+Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
+enforced server-side (allow-listed source kinds, required root path when virtual, portable
+path safety).
 
 ## Related
 
