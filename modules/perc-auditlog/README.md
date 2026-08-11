@@ -60,6 +60,8 @@ import com.intsof.percussioncms.auditlog.codes.ContentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerWebServicesErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WorkflowErrorCodes;
 
 // Prefer enum when available:
@@ -68,12 +70,15 @@ audit.log(ContentErrorCodes.CREATE, ctx, AuditOutcome.SUCCESS, "guid", "42", "/S
 audit.log(WorkflowErrorCodes.ACCESS_DENIED, ctx, "5", "jdoe");
 audit.log(PathItemErrorCodes.FOLDER_PERMISSION_DENIED, ctx);
 audit.log(DesignErrorCodes.SRV_ACL_NO_ADMIN, ctx);
+audit.log(WebserviceErrorCodes.NOT_AUTHORIZED, ctx, "jdoe", "save", "denied");
+audit.log(ServerWebServicesErrorCodes.WEB_SERVICE_LOGIN_FAILURE, ctx, "jdoe", "****");
 
 // Central handlers with only a legacy int (e.g. PSException.getErrorCode()):
 LegacyErrorCodeRegistry.logIfAuditable(audit, 9002, ctx, "Directory", "ldap1", "jdoe"); // SEC
 LegacyErrorCodeRegistry.logIfAuditable(audit, 17001, ctx); // CONT conversion — non-auditable skip
 LegacyErrorCodeRegistry.logIfAuditable(audit, 6, ctx, "5", "jdoe"); // WF access denied
-// Provider/config/conversion/path/design noise (isAuditable=false) and unknown ints → no dual-write
+LegacyErrorCodeRegistry.logIfAuditable(audit, 72, ctx, "jdoe", "save", "denied"); // WS not authorized
+// Provider/config/conversion/path/design/WebDAV/servlet noise (isAuditable=false) and unknown ints → no dual-write
 ```
 
 | Catalog | Ranges | Notes |
@@ -83,6 +88,11 @@ LegacyErrorCodeRegistry.logIfAuditable(audit, 6, ctx, "5", "jdoe"); // WF access
 | `WorkflowErrorCodes` | 4001 transition; 1–10 service | Aligns Phase 2a transition numbering |
 | `PathItemErrorCodes` | CMS path/item/folder (e.g. 13007) | Folder/path permission bridge |
 | `DesignErrorCodes` | Design lifecycle + objectstore ACL (e.g. 2353) | Design server ACL bridge |
+| `WebserviceErrorCodes` | package-local 1–73 (flat-registers 28–73 only) | ACL/session dual-write; WF/assembly own 1–27 |
+| `ServerWebServicesErrorCodes` | 14001–14026 | Legacy server SOAP; login dual-write |
+| `WebdavErrorCodes` | 70001–70125 | All non-auditable protocol/config |
+| `ServletErrorCodes` | 10151–10158 | All non-auditable connection/request |
+| `TransformationErrorCodes` | package-local 1 (no flat register) | Prefer enum; WF owns bare int 1 |
 
 Non-auditable codes (`isAuditable() == false`) never create audit rows.
 
