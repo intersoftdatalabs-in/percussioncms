@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import jakarta.persistence.Basic;
@@ -219,7 +221,7 @@ public class PSConfig extends PSComponent {
       elem = tree.getNextElement("NAME", firstFlags);
       if (elem == null) {
         Object[] args = {RX_CONFIGURATIONS_ELEM, "NAME", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_name = tree.getElementData(elem);
 
@@ -228,12 +230,12 @@ public class PSConfig extends PSComponent {
       elem = tree.getNextElement("TYPE", firstFlags);
       if (elem == null) {
         Object[] args = {RX_CONFIGURATIONS_ELEM, "TYPE", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       m_type = tree.getElementData(elem);
       if (!m_type.equalsIgnoreCase("xml") && !m_type.equalsIgnoreCase("property")) {
         Object[] args = {RX_CONFIGURATIONS_ELEM, "TYPE", "unsupported type: " + m_type};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       // OPTIONAL: the locked flag
@@ -253,7 +255,7 @@ public class PSConfig extends PSComponent {
       elem = tree.getNextElement("CONFIGURATION", firstFlags);
       if (elem == null) {
         Object[] args = {RX_CONFIGURATIONS_ELEM, "CONFIGURATION", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       setConfig(tree.getElementData(elem));
 
@@ -264,10 +266,10 @@ public class PSConfig extends PSComponent {
       else m_description = "";
     } catch (IOException e) {
       Object[] args = {RX_CONFIGURATIONS_ELEM, "CONFIGURATION", e.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } catch (SAXException e) {
       Object[] args = {RX_CONFIGURATIONS_ELEM, "CONFIGURATION", e.getLocalizedMessage()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } finally {
       resetParentList(parentComponents, parentSize);
     }

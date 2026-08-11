@@ -16,6 +16,8 @@
  */
 package com.percussion.design.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
@@ -95,11 +97,11 @@ public class PSCloneHandlerConfig extends PSComponent {
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     parentComponents = updateParentList(parentComponents);
@@ -119,7 +121,7 @@ public class PSCloneHandlerConfig extends PSComponent {
       m_name = tree.getElementData(NAME_ATTR);
       if (m_name == null) {
         Object[] args = {XML_NODE_NAME, NAME_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // OPTIONAL: Process checks
@@ -136,7 +138,7 @@ public class PSCloneHandlerConfig extends PSComponent {
               "Duplicate entry, must be unique configuration wide: " + check.getName()
             };
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
           }
 
           // add the new process check sorted in sequence order
