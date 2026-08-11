@@ -50,8 +50,8 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 
 | Doc | Purpose |
 |-----|---------|
+| **[implementer-guide.md](./implementer-guide.md)** | **Single entry point** — one Template model, JEXL, assemblers, modern packages, dual-run/dual-ship status (Phase 5 #2833 / #2632) |
 | [plan.md](./plan.md) | Full strategic plan (canonical) |
-| [implementer-guide.md](./implementer-guide.md) | Phase 5 single Assemblers & Templates implementer guide (#2833; when present) |
 | [xsl-migration-cookbook.md](./xsl-migration-cookbook.md) | Phase 5 XSL / `legacyAssembler` support statement + migration cookbook (#2834) |
 | [rhino-js-extension-note.md](./rhino-js-extension-note.md) | Phase 5 optional Rhino JS **extension** note — non-assembly (#2834) |
 | [component-package-manifest.md](./component-package-manifest.md) | Phase 3 ship-format manifest schema v1.0 + Java model |
@@ -61,7 +61,8 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [gadget-definition-inventory.md](./gadget-definition-inventory.md) | Gadget XML / SPA survey |
 | [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) | Phase 3 dual-run operator policy + runtime shim selection (#2752) |
 | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) | Phase 5 shim removal metrics, gates, time-box + inventory (#2835 / #2632) |
-| [adr/](./adr/) | Architecture decision records |
+| [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md) | Dual-ship vs native page templateDef install |
+| [adr/](./adr/) | Architecture decision records (001–004) |
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
 | [region-slot-mapping.md](./region-slot-mapping.md) | Phase 2 residual: region↔slot composition + CssPref upgrade (#2690) |
 | [binding-modules.md](./binding-modules.md) | `$sys` / `$rx` / `$perc` + assembler picker guide |
@@ -93,6 +94,6 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 
 ## Immediate next work
 
-1. Land Phase 1 (#2628): HTML-first + Markdown assemblers + tests.
-2. Phase 2 (#2629): `slot_layout` / `slot_styles` schema.
-3. Align Widget Builder / Design SPA with modern package format (Phase 3+).
+1. **Start here for implementers:** [implementer-guide.md](./implementer-guide.md) (Phase 5 docs #2833).
+2. Land remaining Phase 3 packaging residuals under #2630 (product off definition XML).
+3. Phase 5 siblings: XSL cookbook (#2834), Design SPA help surfaces (#2835); shim removal when dual-run exit metrics allow (#2632).
