@@ -1265,14 +1265,11 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
 
     if (data != null && data.getRows().hasNext()) {
       Iterator<PSJdbcRowData> rows = data.getRows();
-      String childId;
-      String depId;
-      PSJdbcRowData row;
       while (rows.hasNext()) {
-        row = rows.next();
-        childId = dbmsHelper.getColumnString(table, childIdCol, row);
+        PSJdbcRowData row = rows.next();
+        String childId = dbmsHelper.getColumnString(table, childIdCol, row);
         parentId = dbmsHelper.getColumnString(table, parentIdCol, row);
-        depId = PSPairDependencyId.getPairDependencyId(parentId, childId);
+        String depId = PSPairDependencyId.getPairDependencyId(parentId, childId);
         ids.add(depId);
       }
     }

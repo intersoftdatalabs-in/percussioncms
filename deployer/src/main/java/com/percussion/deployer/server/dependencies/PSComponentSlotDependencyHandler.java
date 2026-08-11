@@ -56,7 +56,8 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -68,24 +69,26 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
     PSJdbcTableData data =
         PSDbmsHelper.getInstance().catalogTableData(CR_TABLE, new String[] {CR_CHILD_ID}, filter);
 
-    Iterator ids = getIdsFromTableData(data, CR_TABLE, CR_CHILD_ID);
-    List childDeps = getDepsFromIds(ids, PSComponentDefDependencyHandler.DEPENDENCY_TYPE, tok, -1);
+    Iterator<String> ids = getIdsFromTableData(data, CR_TABLE, CR_CHILD_ID);
+    List<PSDependency> childDeps =
+        getDepsFromIds(ids, PSComponentDefDependencyHandler.DEPENDENCY_TYPE, tok, -1);
 
     return childDeps.iterator();
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok)
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    Iterator ids;
-    ids = getChildPairIdsFromTable(CR_TABLE, CR_NAME, CR_PARENT_ID, null);
+    Iterator<String> ids = getChildPairIdsFromTable(CR_TABLE, CR_NAME, CR_PARENT_ID, null);
 
     return getDepsFromIds(ids, DEPENDENCY_TYPE, tok).iterator();
   }
 
   // see base class
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (id == null || id.trim().length() == 0)
@@ -122,7 +125,8 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -132,13 +136,14 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
     PSJdbcSelectFilter filter = getFilterForPairId(dep.getDependencyId(), CR_PARENT_ID, CR_NAME);
     PSDependencyData depData = getDepDataFromTable(CR_TABLE, filter, true);
 
-    List files = new ArrayList();
+    List<PSDependencyFile> files = new ArrayList<>();
     files.add(getDepFileFromDepData(depData));
 
     return files.iterator();
   }
 
   // see base class
+  @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -150,8 +155,8 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
     PSDependencyData crData = getDepDataFromFile(archive, file);
 
     // delete from TABLE where PARENT_ID=parentId and NAME=childId
@@ -184,24 +189,22 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
    */
   private PSJdbcTableData transferIdsForCRData(
       PSJdbcTableData srcData, PSImportCtx ctx, PSSecurityToken tok) throws PSDeployException {
-    List rows = PSDeployComponentUtils.cloneList(srcData.getRows());
+    List<PSJdbcRowData> rows = PSDeployComponentUtils.cloneList(srcData.getRows());
 
     if (rows.isEmpty()) // not expecting no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
 
-    PSDependency dep;
-
     // get the source row
-    List tgtRowList = new ArrayList();
+    List<PSJdbcRowData> tgtRowList = new ArrayList<>();
     for (int i = 0; i < rows.size(); i++) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.get(i);
+      PSJdbcRowData srcRow = rows.get(i);
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for CR_CHILD_ID and CR_PARENT_ID
-      List tgtColList = new ArrayList();
-      Iterator srcCols = srcRow.getColumns();
+      List<PSJdbcColumnData> tgtColList = new ArrayList<>();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(CR_CHILD_ID) || colName.equalsIgnoreCase(CR_PARENT_ID)) {
           PSIdMapping mapping =
@@ -216,9 +219,7 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
       tgtRowList.add(tgtRow);
     }
 
-    PSJdbcTableData newData = new PSJdbcTableData(CR_TABLE, tgtRowList.iterator());
-
-    return newData;
+    return new PSJdbcTableData(CR_TABLE, tgtRowList.iterator());
   }
 
   /** Constant for this handler's supported type */
@@ -237,7 +238,7 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   PSJdbcTableSchema m_crSchema;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static final List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSComponentDefDependencyHandler.DEPENDENCY_TYPE);
