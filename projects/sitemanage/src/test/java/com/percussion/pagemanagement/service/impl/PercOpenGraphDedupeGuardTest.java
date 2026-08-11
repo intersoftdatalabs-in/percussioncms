@@ -46,18 +46,22 @@ class PercOpenGraphDedupeGuardTest {
 
   @Test
   void openGraphWidgetGuardsEachPropertyBeforeAppend() throws Exception {
-    Path widget =
+    // After Widget XML dual-ship stop-ship (#2897 / cluster #2897), product packages author
+    // modern widgets/<stem>/component-package.json only — install Widget XML is materialised.
+    Path manifest =
         resolveRepoRoot()
             .resolve(
                 "modules/perc-packages/src/main/resources/Packages/perc.openGraphWidget"
-                    + "/sys__UserDependency--rxconfig/Widgets/percOpenGraph.xml");
-    if (!Files.isRegularFile(widget)) {
-      fail("expected Open Graph widget at " + widget.toAbsolutePath());
+                    + "/widgets/percOpenGraph/component-package.json");
+    if (!Files.isRegularFile(manifest)) {
+      fail("expected Open Graph modern package at " + manifest.toAbsolutePath());
     }
-    String xml = Files.readString(widget, StandardCharsets.UTF_8);
+    String json = Files.readString(manifest, StandardCharsets.UTF_8);
     for (String prop : OG_PROPS) {
-      String guard = "contains(\"property=\\\"" + prop + "\\\"\")";
-      assertTrue(xml.contains(guard), "missing contains() guard for " + prop);
+      // JSON embeds Jexl as raw text: contains(\"property=\\\"og:title\\\"\")
+      // (backslash-quote escapes inside the JSON string value)
+      String guard = "contains(\\\"property=\\\\\\\"" + prop + "\\\\\\\"\\\")";
+      assertTrue(json.contains(guard), "missing contains() guard for " + prop);
     }
   }
 

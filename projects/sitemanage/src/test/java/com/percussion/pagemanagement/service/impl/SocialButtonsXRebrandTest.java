@@ -46,15 +46,19 @@ class SocialButtonsXRebrandTest {
         root.resolve(
             PKG.resolve(
                 "SupportFile-rx_resources/widgets/percSocialButtons/css/percSocialButtons.css"));
-    Path widget =
-        root.resolve(PKG.resolve("sys__UserDependency--rxconfig/Widgets/percSocialButtons.xml"));
+    // After #2897 dual-ship stop-ship: assembly + snippet live under widgets/<stem>/.
+    Path manifest =
+        root.resolve(PKG.resolve("widgets/percSocialButtons/component-package.json"));
+    Path snippet =
+        root.resolve(
+            PKG.resolve("widgets/percSocialButtons/templates/percSocialButtonsSnippet.vm"));
     Path xsl =
         root.resolve(
             PKG.resolve(
                 "SupportFile-rx_resources/stylesheets/controls/percSocialButtonsControl.xsl"));
     Path archive = root.resolve(PKG.resolve("psx_archiveInfo.xml"));
 
-    for (Path p : new Path[] {css, supportCss, widget, xsl, archive}) {
+    for (Path p : new Path[] {css, supportCss, manifest, snippet, xsl, archive}) {
       if (!Files.isRegularFile(p)) {
         fail("expected " + p.toAbsolutePath());
       }
@@ -69,12 +73,16 @@ class SocialButtonsXRebrandTest {
     String support = Files.readString(supportCss, StandardCharsets.UTF_8);
     assertTrue(support.contains("#111111") && support.contains("mask-size: contain"));
 
-    String widgetXml = Files.readString(widget, StandardCharsets.UTF_8);
-    assertTrue(widgetXml.contains("https://x.com/intent/tweet"), "share link must use x.com");
+    String packageJson = Files.readString(manifest, StandardCharsets.UTF_8);
+    String snippetVm = Files.readString(snippet, StandardCharsets.UTF_8);
+    assertTrue(snippetVm.contains("https://x.com/intent/tweet"), "share link must use x.com");
     assertFalse(
-        widgetXml.contains("https://twitter.com/intent/tweet"), "legacy twitter.com share gone");
-    assertTrue(widgetXml.contains("put('twitter', '111111')"), "velocity standard color");
-    assertTrue(widgetXml.contains(".perc-twitter-social-button i::before"));
+        snippetVm.contains("https://twitter.com/intent/tweet"), "legacy twitter.com share gone");
+    assertFalse(
+        packageJson.contains("https://twitter.com/intent/tweet"),
+        "legacy twitter.com share gone from package json");
+    assertTrue(packageJson.contains("put('twitter', '111111')"), "velocity standard color");
+    assertTrue(snippetVm.contains(".perc-twitter-social-button i::before"));
 
     String xslText = Files.readString(xsl, StandardCharsets.UTF_8);
     assertTrue(xslText.contains("aria-label=\"X (Twitter)\""));
