@@ -18,6 +18,7 @@
 package com.percussion.rest.templates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -55,7 +56,19 @@ public class TemplateDetail {
   private String templateSource;
   private List<TemplateBindingSummary> bindings = new ArrayList<>();
   private List<TemplateSlotSummary> slots = new ArrayList<>();
-  private List<String> designGaps = new ArrayList<>();
+
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously {@code string[]}; now {@link DesignGap}
+   * objects {@code {code,message}}. See product-docs {@code developer/rest.md}.
+   */
+  @Schema(
+      description =
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench template design."
+              + " See product-docs developer/rest.md.")
+  private List<DesignGap> designGaps = new ArrayList<>();
 
   public TemplateDetail() {}
 
@@ -227,11 +240,11 @@ public class TemplateDetail {
     this.slots = slots != null ? slots : new ArrayList<>();
   }
 
-  public List<String> getDesignGaps() {
+  public List<DesignGap> getDesignGaps() {
     return designGaps;
   }
 
-  public void setDesignGaps(List<String> designGaps) {
+  public void setDesignGaps(List<DesignGap> designGaps) {
     this.designGaps = designGaps != null ? designGaps : new ArrayList<>();
   }
 }

@@ -19,6 +19,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateBindingSummary;
 import com.percussion.rest.templates.TemplateDetail;
@@ -60,10 +61,11 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private static final Logger log = LogManager.getLogger(TemplateAdaptor.class);
 
   /** API capability notes shared by every detail payload (not per-template data). */
-  static final List<String> TEMPLATE_DESIGN_GAPS =
+  static final List<DesignGap> TEMPLATE_DESIGN_GAPS =
       List.of(
-          "Create / delete / lock not supported via this API",
-          "Content-type associations not listed on this payload");
+          DesignGap.of("TPL_CREATE_DELETE_LOCK", "Create / delete / lock not supported via this API"),
+          DesignGap.of(
+              "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
   private final IPSAssemblyService asmSvc;
   private final IPSContentWs contentwsService;

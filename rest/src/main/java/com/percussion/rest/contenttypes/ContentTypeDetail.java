@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -76,11 +77,20 @@ public class ContentTypeDetail {
               + " non-null list full replace (empty clears).")
   private List<NamedObjectRef> allowedTemplates;
 
+  /**
+   * Structured design capability gaps (REST-GAPS-01).
+   *
+   * <p><strong>BREAKING wire change:</strong> previously a free-text {@code string[]} of messages;
+   * now an array of {@link DesignGap} objects {@code {code,message}}. Integrators must not treat
+   * entries as bare strings. Documented in product-docs {@code developer/rest.md} (Design capability
+   * gaps). Unmigrated peer detail resources may still emit string arrays.
+   */
   @Schema(
       description =
-          "Capability notes for clients — what this payload includes vs full Workbench design"
-              + " object")
-  private List<String> designGaps = new ArrayList<>();
+          "BREAKING (REST-GAPS-01): designGaps is DesignGap[] objects {code,message}, not"
+              + " free-text string[]. Structured capability notes vs full Workbench design."
+              + " See product-docs developer/rest.md.")
+  private List<DesignGap> designGaps = new ArrayList<>();
 
   public ContentTypeDetail() {}
 
@@ -188,11 +198,11 @@ public class ContentTypeDetail {
     this.allowedTemplates = allowedTemplates;
   }
 
-  public List<String> getDesignGaps() {
+  public List<DesignGap> getDesignGaps() {
     return designGaps;
   }
 
-  public void setDesignGaps(List<String> designGaps) {
+  public void setDesignGaps(List<DesignGap> designGaps) {
     this.designGaps = designGaps != null ? designGaps : new ArrayList<>();
   }
 }

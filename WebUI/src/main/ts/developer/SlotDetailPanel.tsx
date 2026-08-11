@@ -17,6 +17,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getSlotDetail, updateSlotDetail } from "../api/developer/assemblyApi";
+import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
 import type { SlotAssociationSummary, SlotDetail } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -429,8 +430,10 @@ export function SlotDetailPanel({
             <section data-testid="developer-slot-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {(detail.designGaps || []).map((g) => (
-                  <li key={g}>{g}</li>
+                {(detail.designGaps || []).map((g, i) => (
+                  <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
+                    {formatDesignGap(g)}
+                  </li>
                 ))}
               </ul>
             </section>

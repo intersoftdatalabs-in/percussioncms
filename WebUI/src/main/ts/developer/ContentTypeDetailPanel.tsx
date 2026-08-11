@@ -26,6 +26,7 @@ import type {
   ContentTypeFieldSummary,
   NamedObjectRef,
 } from "../api/developer/types";
+import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -789,8 +790,10 @@ export function ContentTypeDetailPanel({
             <section data-testid="developer-ct-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {detail.designGaps.map((g) => (
-                  <li key={g}>{g}</li>
+                {detail.designGaps.map((g, i) => (
+                  <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
+                    {formatDesignGap(g)}
+                  </li>
                 ))}
               </ul>
             </section>

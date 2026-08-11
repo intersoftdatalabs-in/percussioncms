@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
+import type { DesignGap, DesignGapWire } from "./designGaps";
+
+export type { DesignGap, DesignGapWire } from "./designGaps";
+export { designGapCode, designGapKey, formatDesignGap } from "./designGaps";
+
 /** Guid DTO from public REST (subset used by Developer module). */
 export interface RestGuid {
   stringValue?: string;
@@ -84,7 +89,8 @@ export interface ContentTypeDetail {
   allowedWorkflows?: NamedObjectRef[];
   defaultWorkflow?: NamedObjectRef | null;
   allowedTemplates?: NamedObjectRef[];
-  designGaps?: string[];
+  /** Structured {code,message} on CT detail (REST-GAPS-01); wire may still be legacy string. */
+  designGaps?: DesignGapWire[];
 }
 
 export interface KeywordChoiceSummary {
@@ -145,7 +151,8 @@ export interface TemplateDetail {
   templateSource?: string;
   bindings?: TemplateBindingSummary[];
   slots?: TemplateSlotSummary[];
-  designGaps?: string[];
+  /** Structured {code,message} on template detail (REST-GAPS-01). */
+  designGaps?: DesignGapWire[];
 }
 
 export interface SlotSummary {
@@ -175,7 +182,8 @@ export interface SlotDetail {
   /** ADR-003 presentational slot_styles map (schemaVersion + style tokens). */
   slotStyles?: Record<string, unknown>;
   associations?: SlotAssociationSummary[];
-  designGaps?: string[];
+  /** Structured {code,message} on slot detail (REST-GAPS-01). */
+  designGaps?: DesignGapWire[];
 }
 
 export interface CommunitySummary {

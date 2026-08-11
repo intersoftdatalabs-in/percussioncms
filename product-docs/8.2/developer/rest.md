@@ -42,6 +42,43 @@ Developer-module (Workbench replacement) endpoints should map design operations 
 endpoints chosen only because they “look REST.” See repository
 `docs/developer-module/workbench-rest-and-qa-modes.md` for the engineering contract.
 
+## Design capability gaps (`designGaps`)
+
+Some Developer detail payloads include a **`designGaps`** array so clients know what the REST
+surface does **not** yet match full Workbench / design-WS capability.
+
+### Structured shape (Content Type, Template, Slot detail)
+
+**Breaking change (REST-GAPS-01):** on **content type**, **template**, and **slot** detail responses,
+`designGaps` is no longer a free-text string array. Each entry is a structured object
+(`{ "code", "message" }`). Integrators that treated entries as bare strings must update.
+Other Developer catalog detail resources may still return string arrays until migrated.
+There is no dual-shape / dual-version wire for these three paths in this release.
+
+On those three detail responses, each gap is a structured object:
+
+```json
+{
+  "designGaps": [
+    {
+      "code": "CT_ITEM_EXITS",
+      "message": "Item-level pre/post exits not exposed"
+    }
+  ]
+}
+```
+
+| Field | Role |
+|-------|------|
+| **`code`** | Stable machine-readable id for SPA grouping, docs links, and future i18n keys |
+| **`message`** | English human-readable text for operators (this release) |
+
+Do **not** treat these entries as free-text strings on those three detail paths. Other Developer
+catalog detail resources may still return string arrays until migrated.
+
+Clients should render **`message`** when present and fall back to **`code`** (or a legacy string)
+when needed.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the
