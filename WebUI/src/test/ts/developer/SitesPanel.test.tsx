@@ -12,6 +12,8 @@ import { SitesPanel } from "../../../main/ts/developer/SitesPanel";
 
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn(),
+  getVirtualSiteProperties: vi.fn().mockResolvedValue({ virtual: false }),
+  updateVirtualSiteProperties: vi.fn(),
   SITE_DESIGN_GAPS: ["gap-write", "gap-publish", "gap-wf"],
 }));
 

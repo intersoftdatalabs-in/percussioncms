@@ -24,6 +24,13 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ),
 }));
 
+// Virtual Site source panel has its own suite; stub to keep detail tests prop-driven.
+vi.mock("../../../main/ts/developer/VirtualSiteSourcePanel", () => ({
+  VirtualSiteSourcePanel: (props: { siteName: string }) => (
+    <div data-testid="developer-site-virtual-stub" data-site-name={props.siteName} />
+  ),
+}));
+
 /**
  * SiteDetailPanel is prop-driven from the Sites list payload (no separate detail GET).
  * panelErrMsg ladders for load failures live on SitesPanel; this suite covers success +
@@ -58,6 +65,8 @@ describe("SiteDetailPanel", () => {
     const acl = screen.getByTestId("developer-site-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("site");
     expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
+    const virt = screen.getByTestId("developer-site-virtual-stub");
+    expect(virt.getAttribute("data-site-name")).toBe("Corporate");
     fireEvent.click(screen.getByTestId("developer-site-back"));
     expect(onBack).toHaveBeenCalled();
   });
