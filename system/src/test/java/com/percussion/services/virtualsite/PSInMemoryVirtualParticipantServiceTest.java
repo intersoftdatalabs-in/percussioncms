@@ -18,6 +18,7 @@ package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -139,6 +140,34 @@ class PSInMemoryVirtualParticipantServiceTest {
   void sanitizeKeepsSafeFileNames() {
     assertEquals("product-docs", PSInMemoryVirtualParticipantService.sanitize("product-docs"));
     assertEquals("a_b", PSInMemoryVirtualParticipantService.sanitize("a/b"));
+  }
+
+  @Test
+  void requireSafeStoreDirectoryRejectsTraversalAndEmpty() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSInMemoryVirtualParticipantService.requireSafeStoreDirectory(Path.of("")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSInMemoryVirtualParticipantService.requireSafeStoreDirectory(Path.of(".")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            PSInMemoryVirtualParticipantService.requireSafeStoreDirectory(
+                Path.of("meta/../../etc")));
+    Path ok = tempDir.resolve("meta-ok");
+    assertEquals(
+        ok.normalize(), PSInMemoryVirtualParticipantService.requireSafeStoreDirectory(ok));
+  }
+
+  @Test
+  void ctorRejectsUnsafeStoreDirectory() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSInMemoryVirtualParticipantService(Path.of(".")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSInMemoryVirtualParticipantService(Path.of("a/../../outside")));
   }
 
   private static VirtualParticipant sample(String site, String id, String published) {

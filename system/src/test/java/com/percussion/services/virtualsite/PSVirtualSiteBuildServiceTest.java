@@ -18,6 +18,7 @@ package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
@@ -149,11 +150,51 @@ class PSVirtualSiteBuildServiceTest {
   }
 
   @Test
-  void resolveHrefIsPortable() {
+  void resolveHrefIsPortable() throws Exception {
     Path base = tempDir.resolve("out");
     Path resolved = PSVirtualSiteBuildService.resolveHref(base, "8.2/getting-started/install.html");
     assertEquals(
-        base.resolve("8.2").resolve("getting-started").resolve("install.html"), resolved);
+        base.resolve("8.2").resolve("getting-started").resolve("install.html").normalize(),
+        resolved);
+  }
+
+  @Test
+  void requireSafeBuildRootRejectsTraversalAndEmpty() throws Exception {
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.requireSafeBuildRoot(Path.of("")));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.requireSafeBuildRoot(Path.of(".")));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.requireSafeBuildRoot(Path.of("a/../../etc")));
+    Path ok = tempDir.resolve("safe-out");
+    assertEquals(ok.normalize(), PSVirtualSiteBuildService.requireSafeBuildRoot(ok));
+  }
+
+  @Test
+  void resolveHrefRejectsParentAndAbsoluteSegments() {
+    Path base = tempDir.resolve("out");
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.resolveHref(base, "../escape.html"));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.resolveHref(base, "a/../../escape.html"));
+    assertThrows(
+        VirtualSiteException.class,
+        () -> PSVirtualSiteBuildService.resolveHref(base, "C:/windows/evil.html"));
+  }
+
+  @Test
+  void buildRejectsUnsafeOutputRoot() throws Exception {
+    Path sample = resolveSampleDocs();
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> new PSVirtualSiteBuildService().build(sample, Path.of("."), "sample"));
+    assertTrue(ex.getMessage().contains("outputRoot"), ex.getMessage());
   }
 
   private static Path resolveSampleDocs() throws Exception {
