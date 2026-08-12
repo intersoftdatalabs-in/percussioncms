@@ -74,6 +74,22 @@ describe("CategoriesSection", () => {
     expect(screen.getByTestId("lock-indicator-2")).toBeTruthy();
   });
 
+  it("renders empty tree when topLevelNodes is missing (#3202)", async () => {
+    vi.mocked(client.get).mockImplementation(async (url: string) => {
+      if (url.includes("category/all")) {
+        return { title: "Categories" };
+      }
+      return { userName: "", sessionId: "", sitename: "" };
+    });
+
+    render(<CategoriesSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-categories-section")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
   it("acquires lock when lock tab button clicked", async () => {
     vi.mocked(client.get).mockImplementation(async (url: string) => {
       if (url.includes("category/all")) {

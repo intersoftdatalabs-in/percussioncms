@@ -17,6 +17,7 @@
 import React, { useEffect, useState } from "react";
 import { get, post, put, del } from "../../api/client";
 import { parseWorkflowList } from "../../api/developer/workflowsApi";
+import { parseRoleNameList } from "../../api/jsonList";
 import type { WorkflowDef } from "../../api/developer/types";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
@@ -87,14 +88,14 @@ export const WorkflowSection: React.FC = () => {
       // not a bare array — parseWorkflowList unwraps before map (#2959).
       const [wfPayload, rolesRes] = await Promise.all([
         get<unknown>(PATHS.WORKFLOW_METADATA),
-        get<{ RoleList: { roles: string[] } }>(PATHS.USER_ROLES).catch(() => null),
+        get<unknown>(PATHS.USER_ROLES).catch(() => null),
       ]);
       const parsed = parseWorkflowList(wfPayload);
       const list = Array.isArray(parsed)
         ? parsed.map((row) => toWorkflowDefinition(row))
         : [];
       setWorkflows(list);
-      setAvailableRoles(rolesRes?.RoleList?.roles || []);
+      setAvailableRoles(parseRoleNameList(rolesRes));
     } catch (err) {
       setWorkflows([]);
       setError(message(WF_ADMIN_MSG.ERROR_GENERIC));

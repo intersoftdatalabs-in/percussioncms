@@ -50,6 +50,28 @@ describe("parseWorkflowList", () => {
     ).toEqual([{ workflowName: "Only One", defaultWorkflow: true }]);
   });
 
+  it("unwraps nested Workflow WRAP_ROOT (#3202)", () => {
+    expect(
+      parseWorkflowList({
+        Workflow: {
+          Workflow: [
+            { workflowName: "Default Workflow", defaultWorkflow: true },
+          ],
+        },
+      }),
+    ).toEqual([{ workflowName: "Default Workflow", defaultWorkflow: true }]);
+  });
+
+  it("unwraps PSUiWorkflowList envelope with inner Workflow array", () => {
+    expect(
+      parseWorkflowList({
+        PSUiWorkflowList: {
+          Workflow: [{ workflowName: "Simple Workflow" }],
+        },
+      }),
+    ).toEqual([{ workflowName: "Simple Workflow" }]);
+  });
+
   it("unwraps WorkflowList / entries aliases", () => {
     expect(
       parseWorkflowList({ WorkflowList: [{ workflowName: "A" }] }),

@@ -1,17 +1,19 @@
 /**
- * Regression: Admin → Workflow fails with TypeError e.map is not a function (#2959).
+ * Regression: Admin → Workflow fails with TypeError e.map is not a function
+ * (#2959 / residual #3202).
  *
  * GET workflowmanagement/workflows/metadata often returns a Jackson root wrapper
- * ({ Workflow: [...] }). WorkflowSection must unwrap before workflows.map so the
+ * ({ Workflow: [...] } or nested { Workflow: { Workflow: [...] } }).
+ * Workflow / Roles / Users / Categories must unwrap before .map so the
  * Admin shell loads without RouteErrorBoundary.
  *
  * #3088: Workflow admin lives under unified AdminShell (not sibling Workflow shell).
  *
- * Tags: @workflow-admin @administration @smoke @bug-2959
+ * Tags: @workflow-admin @administration @smoke @bug-2959 @bug-3202
  *
  * Surface filter:
  *   npm run test:surface -- --path tests/bugs/bug-2959-admin-workflow-section.spec.js
- *   npm run test:surface -- --tag bug-2959
+ *   npm run test:surface -- --tag bug-3202
  */
 
 const { test, expect } = require("@playwright/test");
@@ -74,6 +76,51 @@ test.describe("Administration WorkflowSection load (#2959)", () => {
       await expect(
         page.locator("[data-testid='perc-workflow-section']"),
       ).toBeVisible({ timeout: 30_000 });
+    },
+  );
+
+  test(
+    "Administration tabs render without RouteErrorBoundary or console TypeError (#3202)",
+    {
+      tag: ["@workflow-admin", "@administration", "@bug-3202", "@smoke"],
+    },
+    async ({ page }) => {
+      const consoleErrors = [];
+      page.on("pageerror", (err) => {
+        consoleErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+
+      await page.goto(`${BASE_URL}/cm/app/index.jsp?view=admin`);
+      await expect(page.locator("[data-testid='perc-admin-shell']")).toBeVisible({
+        timeout: 30_000,
+      });
+      await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
+
+      const tabs = [
+        ["tab-workflow", "perc-workflow-section"],
+        ["tab-roles", "perc-roles-section"],
+        ["tab-users", "perc-users-section"],
+        ["tab-categories", "perc-categories-section"],
+        ["tab-tools", "perc-tools-section"],
+      ];
+      for (const [tabId, sectionId] of tabs) {
+        await page.locator(`[data-testid='${tabId}']`).click();
+        await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
+        await expect(page.getByText(/Unable to load Admin/i)).toHaveCount(0);
+        await expect(page.locator(`[data-testid='${sectionId}']`)).toBeVisible({
+          timeout: 30_000,
+        });
+      }
+
+      const mapErrors = consoleErrors.filter((m) =>
+        /map is not a function|Route load\/render failed/i.test(m),
+      );
+      expect(mapErrors, mapErrors.join("\n")).toEqual([]);
     },
   );
 });

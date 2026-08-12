@@ -3,6 +3,7 @@
  */
 
 import { get } from "../client";
+import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
 import type { WorkflowDef } from "./types";
 
@@ -22,14 +23,57 @@ const LIST_WRAPPER_KEYS = [
   "entries",
 ] as const;
 
+function looksLikeWorkflowItem(obj: Record<string, unknown>): boolean {
+  return (
+    typeof obj.workflowName === "string" ||
+    typeof obj.name === "string" ||
+    Array.isArray(obj.workflowSteps) ||
+    Array.isArray(obj.steps) ||
+    typeof obj.defaultWorkflow === "boolean" ||
+    typeof obj.isDefault === "boolean"
+  );
+}
+
+function unwrapWorkflowWrapper(
+  obj: Record<string, unknown>,
+  depth: number,
+): WorkflowDef[] | null {
+  if (depth > 5) {
+    return null;
+  }
+  for (const key of LIST_WRAPPER_KEYS) {
+    const raw = obj[key];
+    if (raw == null) {
+      continue;
+    }
+    if (Array.isArray(raw)) {
+      return raw as WorkflowDef[];
+    }
+    const nested = asJsonRecord(raw);
+    if (!nested) {
+      continue;
+    }
+    const deeper = unwrapWorkflowWrapper(nested, depth + 1);
+    if (deeper) {
+      return deeper;
+    }
+    if (looksLikeWorkflowItem(nested)) {
+      return [nested as WorkflowDef];
+    }
+  }
+  return null;
+}
+
 /**
  * Parse workflowmanagement metadata list.
  * Accepts a bare JSON array or a known list wrapper object. Unknown object shapes throw
  * so the UI surfaces an error instead of a silent empty catalog.
  *
  * <p>Shared by Developer catalog and Admin WorkflowSection — Jackson WRAP_ROOT often
- * returns {@code { "Workflow": [ ... ] }} (PSUiWorkflowList @JsonRootName), and treating
- * that object as an array causes {@code TypeError: e.map is not a function} (#2959).
+ * returns {@code { "Workflow": [ ... ] }} (PSUiWorkflowList @JsonRootName). Nested
+ * envelopes ({@code { Workflow: { Workflow: [...] } }}) must unwrap fully; treating
+ * a wrapper object as the list causes {@code TypeError: e.map is not a function}
+ * (#2959 / #3202).
  */
 export function parseWorkflowList(payload: unknown): WorkflowDef[] {
   if (payload == null) {
@@ -38,17 +82,11 @@ export function parseWorkflowList(payload: unknown): WorkflowDef[] {
   if (Array.isArray(payload)) {
     return payload as WorkflowDef[];
   }
-  if (typeof payload === "object") {
-    const obj = payload as Record<string, unknown>;
-    for (const key of LIST_WRAPPER_KEYS) {
-      const raw = obj[key];
-      if (raw == null) continue;
-      if (Array.isArray(raw)) {
-        return raw as WorkflowDef[];
-      }
-      if (typeof raw === "object") {
-        return [raw as WorkflowDef];
-      }
+  const obj = asJsonRecord(payload);
+  if (obj) {
+    const unwrapped = unwrapWorkflowWrapper(obj, 0);
+    if (unwrapped) {
+      return unwrapped;
     }
     throw new Error(
       "Unexpected workflow list payload (expected array or known Workflow wrapper)",

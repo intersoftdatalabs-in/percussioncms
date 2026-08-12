@@ -32,6 +32,11 @@ Legacy bookmarks and deep links under `/workflow` and `/workflow/:tab` redirect 
 matching Admin tab (for example `/admin/workflow`, `/admin/roles`). There is no separate
 Workflow administration shell or sibling cross-link between Admin tools and Administration.
 
+Each tab should show its list or empty state. If a tab cannot load its data, the rest of
+the Admin shell (title and tab list) stays usable so you can switch tabs or reload —
+you should not see a full-page **Unable to load Admin** / **Unable to load Administration**
+panel for a single tab failure.
+
 Non-administrators never see the Admin top-nav item or these configuration surfaces.
 
 ## Topics

@@ -16,6 +16,7 @@
 
 import React, { useEffect, useState } from "react";
 import { get, del } from "../../api/client";
+import { asStringArray, parseUserNameList } from "../../api/jsonList";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
@@ -41,14 +42,21 @@ export const UsersSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await get<{ UserList: { users: string[] } }>(PATHS.USERS);
-      const userNames = res?.UserList?.users || [];
+      const res = await get<unknown>(PATHS.USERS);
+      const userNames = parseUserNameList(res);
 
       const details = await Promise.all(
         userNames.map(async (name) => {
           try {
             const u = await get<User>(`${PATHS.USER_FIND}/${encodeURIComponent(name)}`);
-            return u;
+            const providerType: User["providerType"] =
+              u?.providerType === "DIRECTORY" ? "DIRECTORY" : "INTERNAL";
+            return {
+              name: u?.name || name,
+              email: u?.email,
+              providerType,
+              roles: asStringArray(u?.roles),
+            };
           } catch {
             return { name, providerType: "INTERNAL" as const, roles: [] };
           }

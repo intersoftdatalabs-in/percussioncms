@@ -16,6 +16,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { get, post } from "../../api/client";
+import { asJsonRecord } from "../../api/jsonList";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
@@ -41,6 +42,30 @@ export interface LockInfo {
   sitename: string;
 }
 
+export function normalizeCategoryNode(raw: unknown): CategoryNode {
+  const o = asJsonRecord(raw) ?? {};
+  const children = Array.isArray(o.childNodes) ? o.childNodes : [];
+  return {
+    id: o.id != null ? String(o.id) : "",
+    title: o.title != null ? String(o.title) : "",
+    selectable: Boolean(o.selectable),
+    childNodes: children.map((child) => normalizeCategoryNode(child)),
+    deleted: typeof o.deleted === "boolean" ? o.deleted : undefined,
+    createdBy: typeof o.createdBy === "string" ? o.createdBy : undefined,
+  };
+}
+
+export function normalizeCategoryTree(raw: unknown): CategoryTree {
+  const o = asJsonRecord(raw) ?? {};
+  const nodes = Array.isArray(o.topLevelNodes) ? o.topLevelNodes : [];
+  return {
+    title: o.title != null ? String(o.title) : "Categories",
+    allowedSites:
+      typeof o.allowedSites === "string" ? o.allowedSites : undefined,
+    topLevelNodes: nodes.map((n) => normalizeCategoryNode(n)),
+  };
+}
+
 export const CategoriesSection: React.FC = () => {
   const [tree, setTree] = useState<CategoryTree | null>(null);
   const [lockInfo, setLockInfo] = useState<LockInfo | null>(null);
@@ -64,7 +89,7 @@ export const CategoriesSection: React.FC = () => {
       const lock = await get<LockInfo>(PATHS.CATEGORY_LOCK_INFO);
       
       if (isMountedRef.current) {
-        setTree(res || { title: "Categories", topLevelNodes: [] });
+        setTree(normalizeCategoryTree(res));
         setLockInfo(lock);
         // Try to identify current user if lock has it, or default to current user session check
         if (lock && lock.userName) {
@@ -318,7 +343,9 @@ export const CategoriesSection: React.FC = () => {
         {/* Children rendering */}
         {isExpanded && hasChildren && (
           <div style={{ marginTop: "4px" }}>
-            {node.childNodes.map((child) => renderNode(child, depth + 1))}
+            {(Array.isArray(node.childNodes) ? node.childNodes : []).map(
+              (child) => renderNode(child, depth + 1),
+            )}
           </div>
         )}
       </div>
@@ -381,7 +408,7 @@ export const CategoriesSection: React.FC = () => {
         {tree && tree.topLevelNodes.length === 0 ? (
           <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>No categories available.</div>
         ) : (
-          tree?.topLevelNodes.map((node) => renderNode(node))
+          (tree?.topLevelNodes ?? []).map((node) => renderNode(node))
         )}
       </div>
 

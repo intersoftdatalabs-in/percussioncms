@@ -75,6 +75,60 @@ export interface AdminShellProps {
   embedded?: boolean;
 }
 
+interface AdminSectionBoundaryProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+interface AdminSectionBoundaryState {
+  error: Error | null;
+}
+
+/**
+ * Isolates a single Admin tab. A TypeError in Workflow/Tasks must not replace
+ * the whole Admin route with RouteErrorBoundary (#3202 / #3195 shared shell).
+ */
+export class AdminSectionErrorBoundary extends React.Component<
+  AdminSectionBoundaryProps,
+  AdminSectionBoundaryState
+> {
+  state: AdminSectionBoundaryState = { error: null };
+
+  static getDerivedStateFromError(error: Error): AdminSectionBoundaryState {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo): void {
+    console.error(
+      `[PercModernUI] Admin section failed (${this.props.label})`,
+      error,
+      info.componentStack,
+    );
+  }
+
+  render(): React.ReactNode {
+    if (this.state.error) {
+      return (
+        <div data-testid="admin-section-error" role="alert">
+          <p>
+            {message(ADMIN_MSG.SECTION_LOAD_FAILED).replace(
+              "{0}",
+              this.props.label,
+            )}
+          </p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function tabPanel(tab: AdminTab, node: React.ReactNode): React.ReactElement {
+  return (
+    <AdminSectionErrorBoundary label={tab}>{node}</AdminSectionErrorBoundary>
+  );
+}
+
 export const AdminShell: React.FC<AdminShellProps> = ({
   initialTab = "tasks",
   embedded: _embedded = false,
@@ -215,14 +269,16 @@ export const AdminShell: React.FC<AdminShellProps> = ({
         id={`panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
       >
-        {activeTab === "tasks" && <TasksSection />}
-        {activeTab === "logs" && <TaskLogsSection />}
-        {activeTab === "notifications" && <TaskNotifications />}
-        {activeTab === "tools" && <ToolsSection />}
-        {activeTab === "workflow" && <WorkflowSection />}
-        {activeTab === "roles" && <RolesSection />}
-        {activeTab === "users" && <UsersSection />}
-        {activeTab === "categories" && <CategoriesSection />}
+        {activeTab === "tasks" && tabPanel("tasks", <TasksSection />)}
+        {activeTab === "logs" && tabPanel("logs", <TaskLogsSection />)}
+        {activeTab === "notifications" &&
+          tabPanel("notifications", <TaskNotifications />)}
+        {activeTab === "tools" && tabPanel("tools", <ToolsSection />)}
+        {activeTab === "workflow" && tabPanel("workflow", <WorkflowSection />)}
+        {activeTab === "roles" && tabPanel("roles", <RolesSection />)}
+        {activeTab === "users" && tabPanel("users", <UsersSection />)}
+        {activeTab === "categories" &&
+          tabPanel("categories", <CategoriesSection />)}
       </main>
     </div>
   );

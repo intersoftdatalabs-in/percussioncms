@@ -18,7 +18,10 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
-import { AdminShell } from "../../../main/ts/admin/AdminShell";
+import {
+  AdminSectionErrorBoundary,
+  AdminShell,
+} from "../../../main/ts/admin/AdminShell";
 
 // Mock child components
 vi.mock("../../../main/ts/admin/TasksSection", () => ({
@@ -114,6 +117,22 @@ describe("AdminShell", () => {
     const toolsTab = screen.getByTestId("tab-tools");
     fireEvent.click(toolsTab);
     expect(screen.getByTestId("mock-tools-section")).toBeDefined();
+  });
+
+  it("isolates a throwing Admin tab without RouteErrorBoundary (#3202 / #3195)", () => {
+    const Boom: React.FC = () => {
+      throw new Error("section boom");
+    };
+    const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    render(
+      <AdminSectionErrorBoundary label="workflow">
+        <Boom />
+      </AdminSectionErrorBoundary>,
+    );
+    expect(screen.getByTestId("admin-section-error")).toBeDefined();
+    expect(screen.getByText(/Unable to load workflow/i)).toBeDefined();
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    spy.mockRestore();
   });
 
   it("hosts former Workflow admin sections as Admin tabs (#3088)", () => {

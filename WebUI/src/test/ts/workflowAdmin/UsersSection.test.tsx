@@ -64,6 +64,29 @@ describe("UsersSection", () => {
     expect(screen.getByTestId("user-card-editor")).toBeTruthy();
   });
 
+  it("does not crash when UserList.users is a single string (#3202)", async () => {
+    vi.mocked(client.get).mockImplementation(async (url: string) => {
+      if (url.includes("user/users")) {
+        return { UserList: { users: "admin" } };
+      }
+      if (url.includes("user/find/admin")) {
+        return {
+          name: "admin",
+          providerType: "INTERNAL",
+          roles: "Admin",
+        };
+      }
+      return {};
+    });
+
+    render(<UsersSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user-card-admin")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
   it("opens create user editor on button click", async () => {
     vi.mocked(client.get).mockResolvedValue({ UserList: { users: [] } });
 

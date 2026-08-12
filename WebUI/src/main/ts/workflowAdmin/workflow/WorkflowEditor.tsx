@@ -133,7 +133,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             data-testid="workflow-staging-role-select"
           >
             <option value="">-- {message(WF_ADMIN_MSG.NONE)} --</option>
-            {availableRoles.map((role) => (
+            {(Array.isArray(availableRoles) ? availableRoles : []).map((role) => (
               <option key={role} value={role}>
                 {role}
               </option>

@@ -16,6 +16,7 @@
 
 import React, { useEffect, useState } from "react";
 import { get, post } from "../../api/client";
+import { asStringArray, parseRoleNameList } from "../../api/jsonList";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
@@ -38,18 +39,21 @@ export const RolesSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Get all role names from user service
-      const res = await get<{ RoleList: { roles: string[] } }>(PATHS.USER_ROLES);
-      const roleNames = res?.RoleList?.roles || [];
+      const res = await get<unknown>(PATHS.USER_ROLES);
+      const roleNames = parseRoleNameList(res);
 
-      // 2. Fetch full details for each role using ROLES_FIND
       const details = await Promise.all(
         roleNames.map(async (name) => {
           try {
-            const r = await post<{ Role: Role }>(PATHS.ROLES_FIND, {
+            const r = await post<{ Role?: Role }>(PATHS.ROLES_FIND, {
               psstring: { value: name },
             });
-            return r?.Role || { name, description: "", users: [] };
+            const role = r?.Role || { name, description: "", users: [] };
+            return {
+              name: role.name || name,
+              description: role.description || "",
+              users: asStringArray(role.users),
+            };
           } catch {
             return { name, description: "", users: [] };
           }
