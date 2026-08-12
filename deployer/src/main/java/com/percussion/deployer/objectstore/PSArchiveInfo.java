@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.system.utils.PSFormatVersion;
@@ -279,7 +279,7 @@ public final class PSArchiveInfo implements IPSDeployComponent {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -302,7 +302,7 @@ public final class PSArchiveInfo implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSFormatVersion.NODE_TYPE));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSFormatVersion.NODE_TYPE));
     m_serverInfo = PSFormatVersion.createFromXml(serverInfoEl);
 
     var repositoryEl =
@@ -313,7 +313,7 @@ public final class PSArchiveInfo implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDbmsInfo.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSDbmsInfo.XML_NODE_NAME));
     m_repository = new PSDbmsInfo(repositoryEl);
 
     var detailEl =

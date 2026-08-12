@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcTableData;
@@ -155,7 +155,7 @@ public final class PSDependencyData implements IPSDeployComponent {
       m_data = new PSJdbcTableData(dataEl);
     } catch (PSJdbcTableFactoryException e) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, e.getMessage()});
     }
   }

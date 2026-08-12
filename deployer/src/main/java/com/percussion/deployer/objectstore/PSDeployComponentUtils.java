@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -64,7 +64,7 @@ public class PSDeployComponentUtils {
     String val = source.getAttribute(attName);
     if (val == null || val.trim().length() == 0) {
       Object[] args = {source.getTagName(), attName, "empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     return val;
@@ -97,7 +97,7 @@ public class PSDeployComponentUtils {
     String temp = tree.getElementData(node);
     if (temp == null || (notEmpty && temp.trim().length() == 0)) {
       Object[] args = {parent, node, temp == null ? "null" : temp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     return temp;
@@ -140,7 +140,7 @@ public class PSDeployComponentUtils {
     Element element = tree.getNextElement(flags);
 
     if (element == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, nodeName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, nodeName);
     }
     return element;
   }
@@ -189,7 +189,7 @@ public class PSDeployComponentUtils {
       if (!found) {
         String parentName = tree.getCurrent().getNodeName();
         Object[] args = {parentName, attrName, data};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
     return index;
