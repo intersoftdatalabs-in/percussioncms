@@ -1,10 +1,10 @@
 ---
 id: admin-content-explorer
 title: Content Explorer
-description: Product Content Explorer shell — browse, Views catalog, search, display formats, and server actions
+description: Product Content Explorer shell — browse, Views catalog, Inbox, search, display formats, and server actions
 version: "8.2"
 order: 42
-tags: [admin, content explorer, ui, search]
+tags: [admin, content explorer, ui, search, inbox]
 ---
 
 # Content Explorer
@@ -23,6 +23,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
+| **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
 
 ## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
@@ -120,6 +121,47 @@ Related Content menu commands:
 - **Create Site** — new traditional Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
+
+## Views → My Content → Inbox
+
+Desktop Content Explorer **Inbox** is **not** a separate Content Explorer root and is **not**
+the workflow transition toolbar. It is a **system view** under **Views → My Content**
+(repository path `//Views//MyContent/Inbox`, classic resource `sys_cxViews/inbox`).
+Workflow **ShowInInbox** flags feed that view’s data.
+
+On the product web Explorer (`/cm/app/spa.jsp?entry=explorer`):
+
+1. Open **Explorer**.
+2. In the left tree, expand **Views** (below the Sites / Folders / Assets roots when that
+   catalog is deployed).
+3. Expand **My Content**.
+4. Select **Inbox**.
+
+Selecting **Inbox** runs the Inbox custom-URL view
+(`POST /services/views/Inbox/execute` — see [Public REST](id:developer-rest)) and lists
+items assigned to your workflow roles. **Open** and **Reveal in folder** behave like other
+Explorer result rows when the leaf is wired.
+
+| Result | Meaning |
+|--------|---------|
+| Rows in the Inbox results list | You have current assignments |
+| Empty list (`children: []`) | No current assignments — this is success, not an error |
+| Views category or Inbox leaf missing | This build does not yet show the operator Inbox leaf; use DCE **Views → My Content → Inbox**, or wait for the Inbox leaf on the Explorer route |
+| Error instead of a list | Custom-URL execute is not available on this server, or the view is not in the Inbox family allow-list |
+
+Do **not** look for a top-level **Inbox** tree root. Do **not** treat **Developer → Views**
+(design catalog) as the operator Inbox. Outbox / Recent / Session peers live in the same
+My Content group when the Views catalog returns them; this page documents **Inbox** as the
+assignment surface.
+
+Automated QA rerun (after `perc-devctl qa-up`, from `modules/perc-qa-automation/frontend`):
+
+```text
+npm run test:surface -- --path tests/explorer-inbox.spec.js
+```
+
+The spec soft-skips with a clear reason when the Inbox leaf or assignment execute path is
+missing on a minimal H2 cell.
 
 ## Search panel
 

@@ -798,6 +798,40 @@ npm run test:surface:list -- --path tests/explorer-saved-search.spec.js
 npm run test:surface:list -- --tag saved-search
 ```
 
+#### Explorer Inbox (#3241 / parent #3118 / #3102)
+
+Operator Inbox is **Views → My Content → Inbox** (`//Views//MyContent/Inbox`),
+not a CE root. Surface-filtered spec opens Explorer, asserts axe on the shell,
+then looks for `explorer-views-leaf-Inbox` (and related Views catalog testids).
+
+**Soft-skip:** when the H2 cell has no Views catalog / Inbox leaf (#3240 not
+deployed) or Inbox execute is not wired (#3239), or the fixture has no
+assignment rows after a successful empty run. Shell + a11y remain hard when
+the Explorer product route loads.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-inbox.spec.js` |
+| Tags | `@explorer-inbox` `@inbox` `@explorer` `@a11y` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-inbox.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-inbox.js` |
+| Product docs | `product-docs/8.2/admin/content-explorer.md` (Inbox location + run) |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-inbox.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-inbox
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-inbox.spec.js
+npm run test:surface:list -- --tag explorer-inbox
+```
+
 #### Profile shell keyboard section-nav / focus (#2502 / residual #2427)
 
 Beyond axe: keyboard path Tab → `perc-profile-nav-*` → Enter focuses and
