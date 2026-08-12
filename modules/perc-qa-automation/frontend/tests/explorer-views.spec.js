@@ -82,21 +82,32 @@ async function viewsChromeVisible(page) {
 }
 
 /**
- * Expand My Content (parentCategory=1) if the group row is collapsed.
+ * Expand a Views parent category if the group row is collapsed.
  *
  * @param {import("@playwright/test").Page} page
+ * @param {number} category parentCategory (1 = My Content)
  * @returns {Promise<void>}
  */
-async function expandMyContent(page) {
-  const group = page.getByTestId(TEST_IDS.group(PARENT_MY_CONTENT));
+async function expandViewsGroup(page, category) {
+  const group = page.getByTestId(TEST_IDS.group(category));
   await expect(group).toBeVisible({ timeout: 10_000 });
-  const row = page.getByTestId(TEST_IDS.groupRow(PARENT_MY_CONTENT));
+  const row = page.getByTestId(TEST_IDS.groupRow(category));
   await expect(row).toBeVisible();
   const expanded = await row.getAttribute("aria-expanded");
   if (expanded !== "true") {
     await row.click();
   }
   await expect(row).toHaveAttribute("aria-expanded", "true");
+}
+
+/**
+ * Expand My Content (parentCategory=1) if the group row is collapsed.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<void>}
+ */
+async function expandMyContent(page) {
+  await expandViewsGroup(page, PARENT_MY_CONTENT);
 }
 
 // Tags live on individual test() titles only — Playwright ignores @tags on describe names.
@@ -203,7 +214,8 @@ test.describe("Explorer Views Playwright + a11y (#3117 / #3110)", () => {
     const leaf = page.getByTestId(TEST_IDS.leaf(runnable.key));
     const inboxLeaf = page.getByTestId(TEST_IDS.inboxLeaf);
     if (!(await leaf.isVisible().catch(() => false))) {
-      // Leaf may live under another category; try clicking that group first.
+      // Leaf may live under another category; expand that group and wait
+      // for children (aria-expanded + leaf visible) before skip checks.
       if (
         runnable.parentCategory &&
         runnable.parentCategory !== PARENT_MY_CONTENT
@@ -212,10 +224,10 @@ test.describe("Explorer Views Playwright + a11y (#3117 / #3110)", () => {
           TEST_IDS.groupRow(runnable.parentCategory),
         );
         if (await otherRow.isVisible().catch(() => false)) {
-          const expanded = await otherRow.getAttribute("aria-expanded");
-          if (expanded !== "true") {
-            await otherRow.click();
-          }
+          await expandViewsGroup(page, runnable.parentCategory);
+          await leaf
+            .waitFor({ state: "visible", timeout: 10_000 })
+            .catch(() => undefined);
         }
       }
     }
