@@ -138,7 +138,18 @@ public class PSRequestPageMap {
         if (dotIndex > -1) {
           String extension = resourcePortion.substring(dotIndex + 1);
           if (!m_extensionsSupported.contains(extension)) {
-            if (!extension.equals("txt") && !extension.equals("xml")) return false;
+            /*
+             * Built-in classic result encodings are always accepted even when
+             * MimeProperties only lists html/htm for XSL result pages. Without
+             * this, live GET …/resource.json returns 404 (handler never matches)
+             * despite PAGE_TYPE_JSON / PSResultSetHtmlConverter JSON support
+             * (#2665 live smoke residual of #2662 / #2660).
+             */
+            if (!extension.equals("txt")
+                && !extension.equals("xml")
+                && !extension.equals("json")) {
+              return false;
+            }
           }
         }
       }
