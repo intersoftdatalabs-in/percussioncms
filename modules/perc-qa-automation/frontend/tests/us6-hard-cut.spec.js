@@ -95,9 +95,11 @@ const SHELLS = [
   },
   {
     name: "siteArchitecture",
+    // #3099: classic JSP hard-redirects to SPA Architecture (not explorer mount)
     path: "/Rhythmyx/cm/app/siteArchitecture.jsp",
-    asserted: true, // T031 complete on 2026-07-19
-    expectModernShell: true,
+    asserted: true,
+    expectModernShell: false,
+    expectArchitectureSpa: true,
   },
   {
     name: "SPA explorer (spa.jsp?entry=explorer)",
@@ -137,6 +139,12 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
         // Dedicated modern entry point: ContentExplorerShell mounts.
         const shellEl = page.locator('[data-testid="content-explorer-shell"]');
         await expect(shellEl).toBeVisible({ timeout: 15_000 });
+      }
+      if (shell.expectArchitectureSpa) {
+        // #3099: siteArchitecture.jsp → SPA Architecture shell (multi-hop redirect)
+        await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
+          timeout: 30_000,
+        });
       }
     });
   }
