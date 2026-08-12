@@ -144,8 +144,9 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await page.goto(explorerUrl, { waitUntil: "networkidle" });
     const shell = page.locator('[data-testid="content-explorer-shell"]');
     await expect(shell).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     const toggle = page.locator('[data-testid="explorer-toggle-security"]');
-    await expect(toggle).toBeVisible();
+    await expect(toggle).toBeVisible({ timeout: 10_000 });
     await toggle.click();
     // Either the security panel region or the select-folder hint is shown.
     const panelOrHint = page.locator(
@@ -162,6 +163,10 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await expect(
       page.locator('[data-testid="content-explorer-shell"]'),
     ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
+    await expect(page.locator('[data-testid="explorer-toggle-security"]')).toBeVisible({
+      timeout: 10_000,
+    });
     await page.locator('[data-testid="explorer-toggle-security"]').click();
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
   });
