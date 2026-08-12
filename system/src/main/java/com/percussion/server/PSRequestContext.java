@@ -572,7 +572,7 @@ public class PSRequestContext implements IPSRequestContext {
       String roleName,
       String emailAttributeName,
       String community,
-      Set<String> subjectsWithoutEmail) {
+      Set<? super PSSubject> subjectsWithoutEmail) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
     roleName = roleName.trim();
@@ -582,7 +582,8 @@ public class PSRequestContext implements IPSRequestContext {
 
     for (PSNotificationEmailAddress addr :
         PSRoleManager.getInstance()
-            .getRoleEmailAddresses(roleName, emailAttributeName, community, null)) {
+            .getRoleEmailAddresses(
+                roleName, emailAttributeName, community, subjectsWithoutEmail)) {
       if (addr != null && addr.getEmail() != null) emails.add(addr.getEmail());
     }
 
@@ -749,10 +750,10 @@ public class PSRequestContext implements IPSRequestContext {
    * @see com.percussion.server.IPSRequestContext#getRoleMembers(java.lang.String, int, int)
    * @deprecated
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public List<String> getRoleMembers(String roleName, int flags, int memberFlags) {
-    // Historical contract returns role subjects under a List<String> facade.
-    return (List) getRoleSubjects(roleName, memberFlags, null);
+  @Deprecated
+  public List<PSSubject> getRoleMembers(String roleName, int flags, int memberFlags) {
+    // Same as getRoleSubjects(roleName, memberFlags, null); flags unused.
+    return getRoleSubjects(roleName, memberFlags, null);
   }
 
   /*

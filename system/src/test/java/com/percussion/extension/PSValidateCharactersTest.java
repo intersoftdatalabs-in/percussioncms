@@ -285,12 +285,12 @@ public class PSValidateCharactersTest {
         String roleName,
         String emailAttributeName,
         String community,
-        Set<String> subjectsWithoutEmail) {
+        Set<? super PSSubject> subjectsWithoutEmail) {
 
       return null;
     }
 
-    public List getRoleMembers(String roleName, int flags, int memberFlags) {
+    public List<PSSubject> getRoleMembers(String roleName, int flags, int memberFlags) {
 
       return null;
     }

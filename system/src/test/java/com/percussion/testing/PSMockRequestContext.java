@@ -347,7 +347,7 @@ public class PSMockRequestContext implements IPSRequestContext {
     return null;
   }
 
-  public List getRoleMembers(String roleName, int flags, int memberFlags) {
+  public List<PSSubject> getRoleMembers(String roleName, int flags, int memberFlags) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -466,7 +466,7 @@ public class PSMockRequestContext implements IPSRequestContext {
       String roleName,
       String emailAttributeName,
       String community,
-      Set<String> subjectsWithoutEmail) {
+      Set<? super PSSubject> subjectsWithoutEmail) {
     // TODO Auto-generated method stub
     return null;
   }

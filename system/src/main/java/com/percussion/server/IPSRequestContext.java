@@ -838,7 +838,7 @@ public interface IPSRequestContext {
       String roleName,
       String emailAttributeName,
       String community,
-      Set<String> subjectsWithoutEmail);
+      Set<? super PSSubject> subjectsWithoutEmail);
 
   /**
    * Get all email addresses from the supplied subject.
@@ -861,11 +861,12 @@ public interface IPSRequestContext {
    * members, an empty list is returned.
    *
    * @param flags No longer supported.
+   * @return role members as {@link PSSubject} objects (not subject name strings)
    * @deprecated use {@link #getRoleSubjects(String, int, String)} to obtain information on role
    *     members
    */
   @Deprecated
-  public List<String> getRoleMembers(String roleName, int flags, int memberFlags);
+  public List<PSSubject> getRoleMembers(String roleName, int flags, int memberFlags);
 
   /**
    * Retrieve user context information from the current request context.
