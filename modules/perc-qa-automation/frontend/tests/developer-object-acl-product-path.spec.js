@@ -179,7 +179,11 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   }
 
   await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-  await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+  const aclNoEntries = page.locator(`[data-testid="${prefix}-no-entries"]`);
+  await aclSection.scrollIntoViewIfNeeded().catch(() => {});
+  await expect(
+    aclTable.or(aclEmpty).or(aclError).or(aclNoEntries).first(),
+  ).toBeVisible({
     timeout: 30_000,
   });
 
@@ -190,6 +194,11 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
 
   if (await aclEmpty.isVisible()) {
     // Create-first empty state still proves mount + kind on section
+    await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+    return "empty";
+  }
+
+  if (await aclNoEntries.isVisible()) {
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
     return "empty";
   }
