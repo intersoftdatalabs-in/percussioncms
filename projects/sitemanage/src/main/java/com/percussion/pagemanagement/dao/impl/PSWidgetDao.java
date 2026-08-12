@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,6 +61,11 @@ import org.springframework.stereotype.Component;
  * <p>Content continues to load from the Widgets XML repository (install wire format materialised
  * from modern packages by package-build emitters). Selection records which dual-run source won for
  * each id.
+ *
+ * <p><strong>M2 evidence harness (#3131):</strong> cumulative modern / legacy selection counters
+ * ({@link #getModernSelectionCount()}, {@link #getLegacySelectionCount()}), per-poll kinds, and
+ * {@link #formatSelectionMetricsSummary()} are test- and support-visible so Phase 5 M2 is not only
+ * INFO log text. Reset with {@link #resetSelectionMetrics()} in tests / probes only.
  *
  * <p>Paths use portable {@link Path} / {@link File#pathSeparator} for multi-root lists.
  */
@@ -86,6 +92,18 @@ public class PSWidgetDao
   /** Per-definition selection kinds from the most recent repository poll / update. */
   private final AtomicReference<Map<String, PSDefinitionSourceKind>> selectionKindsById =
       new AtomicReference<>(Map.of());
+
+  /**
+   * Cumulative modern-first selections (process lifetime of this bean). Incremented by successful
+   * {@link #selectDefinitionSource(String)} and by each id classified during repository poll.
+   */
+  private final AtomicLong modernSelectionCount = new AtomicLong();
+
+  /**
+   * Cumulative legacy Widget-XML fallback selections (process lifetime of this bean). Same
+   * increment points as {@link #modernSelectionCount}.
+   */
+  private final AtomicLong legacySelectionCount = new AtomicLong();
 
   /** Modern package roots consulted before legacy Widgets XML (empty = legacy-only selection). */
   private volatile List<Path> modernPackageRoots = List.of();
@@ -153,12 +171,20 @@ public class PSWidgetDao
     if (last != null) {
       lastSelectionKind.set(last);
     }
+    if (modernCount > 0) {
+      modernSelectionCount.addAndGet(modernCount);
+    }
+    if (legacyCount > 0) {
+      legacySelectionCount.addAndGet(legacyCount);
+    }
     if (!kinds.isEmpty()) {
       log.info(
-          "Widget definition dual-run selection: modern={}, legacyWidgetXml={}, total={}",
+          "Widget definition dual-run selection: modern={}, legacyWidgetXml={}, total={}, cumulativeModern={}, cumulativeLegacy={}",
           modernCount,
           legacyCount,
-          kinds.size());
+          kinds.size(),
+          modernSelectionCount.get(),
+          legacySelectionCount.get());
     }
   }
 
@@ -177,6 +203,12 @@ public class PSWidgetDao
         PSLegacyDefinitionXmlShim.selectDefinition(
             definitionId, modernPackageRoots, resolveWidgetsDir(), null, null);
     lastSelectionKind.set(selection.getKind());
+    if (selection.isModern()) {
+      modernSelectionCount.incrementAndGet();
+    } else {
+      // Legacy widget / page / gadget XML kinds all count as non-modern dual-run hits.
+      legacySelectionCount.incrementAndGet();
+    }
     log.debug(
         "Widget selectDefinitionSource id={} kind={}", definitionId, selection.getKind());
     return selection;
@@ -199,6 +231,82 @@ public class PSWidgetDao
    */
   public Map<String, PSDefinitionSourceKind> getSelectionKindsById() {
     return selectionKindsById.get();
+  }
+
+  /**
+   * Cumulative count of modern component-package selections since construction or last {@link
+   * #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public long getModernSelectionCount() {
+    return modernSelectionCount.get();
+  }
+
+  /**
+   * Cumulative count of legacy Widget-XML (or other non-modern) selections since construction or
+   * last {@link #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public long getLegacySelectionCount() {
+    return legacySelectionCount.get();
+  }
+
+  /**
+   * Total dual-run selections counted ({@link #getModernSelectionCount()} + {@link
+   * #getLegacySelectionCount()}).
+   *
+   * @return non-negative count
+   */
+  public long getTotalSelectionCount() {
+    return modernSelectionCount.get() + legacySelectionCount.get();
+  }
+
+  /**
+   * Snapshot of cumulative dual-run selection counters for CI assertions and support probes.
+   *
+   * <p>Keys: {@code modern}, {@code legacyWidgetXml}, {@code total}. Never null.
+   *
+   * @return unmodifiable map of counter name → value
+   */
+  public Map<String, Long> getSelectionMetricsSnapshot() {
+    long modern = modernSelectionCount.get();
+    long legacy = legacySelectionCount.get();
+    Map<String, Long> snap = new LinkedHashMap<>(4);
+    snap.put("modern", modern);
+    snap.put("legacyWidgetXml", legacy);
+    snap.put("total", modern + legacy);
+    return Collections.unmodifiableMap(snap);
+  }
+
+  /**
+   * Single-line ops / log summary of dual-run selection metrics (parity with INFO poll line and
+   * WebUI {@code GadgetRegistry} dual-load summary).
+   *
+   * @return never blank
+   */
+  public String formatSelectionMetricsSummary() {
+    Map<String, Long> snap = getSelectionMetricsSnapshot();
+    PSDefinitionSourceKind last = lastSelectionKind.get();
+    return String.format(
+        "Widget definition dual-run selection metrics: modern=%d, legacyWidgetXml=%d, total=%d, lastKind=%s, lastPollIds=%d",
+        snap.get("modern"),
+        snap.get("legacyWidgetXml"),
+        snap.get("total"),
+        last != null ? last.name() : "none",
+        selectionKindsById.get().size());
+  }
+
+  /**
+   * Resets cumulative selection counters and last-kind / last-poll maps. Intended for unit tests and
+   * support probes — not a normal runtime control plane.
+   */
+  public void resetSelectionMetrics() {
+    modernSelectionCount.set(0L);
+    legacySelectionCount.set(0L);
+    lastSelectionKind.set(null);
+    selectionKindsById.set(Map.of());
   }
 
   /**

@@ -60,6 +60,71 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 
 **Snapshot 2026-08-11 (slice #3025):** **PARTIAL M2 (gadget dual-load hardened)** — WebUI `GadgetRegistry` dual-load already preferred `gadget-catalog.json` with `GadgetRegistry.xml` fallback (#2788). Hardening adds INFO selection metrics `modern=` / `legacyRegistryXml=` / `none=` / `entries=` (parity with `PSWidgetDao`), test-visible `getLastLoadEntryCount()`, and edge-case tests (empty/unreadable modern → legacy; blank/null modern resource; successive last-load updates). Product classpath still reports `MODERN_CATALOG`. **Legacy fallback retained** (#2852). **M2 still FAIL overall** until widget modern roots + runtime legacy rate criteria and remaining dual-run exit evidence land.
 
+**Snapshot 2026-08-12 (slice #3131):** **PARTIAL M2 (evidence harness)** — cumulative dual-run / dual-load counters + snapshot/summary APIs + CI harness tests for `PSWidgetDao` and `GadgetRegistry` (see **How to measure M2** below). Still **FAIL overall** until production installs show zero (or waived) legacy rate over the time-box and modern roots are product-defaulted (#3130). Shim **must remain** (#2852).
+
+### How to measure M2 (evidence harness)
+
+Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evidence. Do **not** treat “no ERROR in chat” as a substitute for counters.
+
+#### Widget DAO (`projects/sitemanage` — `PSWidgetDao`)
+
+| Probe | API / surface | What it proves |
+|-------|---------------|----------------|
+| Last kind | `getLastSelectionKind()` | Most recent modern vs `LEGACY_WIDGET_XML` selection |
+| Per-id poll map | `getSelectionKindsById()` | Kind for every id on last repository poll |
+| Cumulative counters | `getModernSelectionCount()` / `getLegacySelectionCount()` / `getTotalSelectionCount()` | Process-lifetime modern vs legacy rate |
+| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `legacyWidgetXml`, `total` | Stable map for tests / support dumps |
+| Ops one-liner | `formatSelectionMetricsSummary()` | Log-friendly dump without new admin UI |
+| Reset (tests/probes) | `resetSelectionMetrics()` | Isolate a measurement window |
+| INFO log | `Widget definition dual-run selection: modern=…, legacyWidgetXml=…, …, cumulativeModern=…, cumulativeLegacy=…` | Runtime operators |
+
+**CI harness tests (must stay green):**
+
+```text
+# from projects/sitemanage (repo-root mvnw)
+..\..\mvnw.cmd -Dtest=PSWidgetDaoTest,PSWidgetDaoSelectionMetricsHarnessTest test
+# or full module gate:
+..\..\mvnw.cmd clean install
+```
+
+- `com.percussion.pagemanagement.dao.PSWidgetDaoTest` — modern preferred, legacy fallback, neither throws, poll kinds (#3024)
+- `com.percussion.pagemanagement.dao.PSWidgetDaoSelectionMetricsHarnessTest` — counters, snapshot, summary, reset, mixed select+poll (#3131)
+
+**M2 pass signal (widget path):** over the agreed window, `legacyWidgetXml` / `getLegacySelectionCount()` is **0** (or waived list with owner + sunset), and product widgets select `MODERN_COMPONENT_PACKAGE` when modern roots are configured.
+
+#### Gadget registry (`WebUI` — `GadgetRegistry`)
+
+| Probe | API / surface | What it proves |
+|-------|---------------|----------------|
+| Last source | `getLastLoadSource()` | `MODERN_CATALOG` / `LEGACY_REGISTRY_XML` / `NONE` |
+| Last entries | `getLastLoadEntryCount()` | Size of last dual-load map |
+| Cumulative counters | `getModernLoadCount()` / `getLegacyLoadCount()` / `getNoneLoadCount()` / `getTotalLoadCount()` | Process-lifetime dual-load rate |
+| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `legacyRegistryXml`, `none`, `total` | Stable map for tests / support dumps |
+| Ops one-liner | `formatSelectionMetricsSummary()` | Log-friendly dump |
+| Reset (tests/probes) | `resetSelectionMetrics()` | Isolate a measurement window |
+| INFO log | `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…, cumulativeModern=…, …` | Runtime operators |
+
+**CI harness tests (must stay green):**
+
+```text
+# from WebUI (repo-root mvnw)
+..\mvnw.cmd -Dtest=GadgetRegistryTest,GadgetRegistrySelectionMetricsHarnessTest test
+# or full module gate:
+..\mvnw.cmd clean install
+```
+
+- `com.percussion.webui.gadget.servlets.GadgetRegistryTest` — dual-load preference + edges (#3025)
+- `com.percussion.webui.gadget.servlets.GadgetRegistrySelectionMetricsHarnessTest` — counters, snapshot, summary, reset (#3131)
+
+**M2 pass signal (gadget path):** product installs report `lastSource=MODERN_CATALOG` and `legacyRegistryXml` cumulative **0** (or waived customer classpaths only).
+
+#### Support / operator collection recipe
+
+1. Run the module Surefire classes above in CI or a local clean install (both modules).
+2. On a live/QA CMS after widget/gadget traffic: capture INFO lines containing `dual-run selection` / `dual-load selection`, or call `formatSelectionMetricsSummary()` from a support probe / debugger.
+3. Attach counter snapshots (or log excerpts) to the removal residual (#2852) when claiming M2.
+4. **Hard ban:** do not delete the shim or legacy fallback based only on product classpath modern preference without the zero-legacy rate evidence above.
+
 ### M3 — Customer upgrade window closed (or accepted residual)
 
 | Metric | Pass condition | How to measure |
