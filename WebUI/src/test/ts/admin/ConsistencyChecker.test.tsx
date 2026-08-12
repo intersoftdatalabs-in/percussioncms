@@ -17,7 +17,10 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { ConsistencyChecker } from "../../../main/ts/admin/tools/ConsistencyChecker";
+import {
+  asConsistencyIssues,
+  ConsistencyChecker,
+} from "../../../main/ts/admin/tools/ConsistencyChecker";
 import * as client from "../../../main/ts/api/client";
 
 vi.mock("../../../main/ts/api/client", () => ({
@@ -34,6 +37,19 @@ vi.mock("../../../main/ts/api/client", () => ({
 describe("ConsistencyChecker", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+  });
+
+  it("asConsistencyIssues always returns an array (#3195)", () => {
+    expect(asConsistencyIssues(undefined)).toEqual([]);
+    expect(asConsistencyIssues({ ConsistencyIssue: [] })).toEqual([]);
+    const one = {
+      issueId: "i1",
+      type: "X",
+      description: "d",
+      fixable: false,
+    };
+    expect(asConsistencyIssues({ ConsistencyIssue: one })).toEqual([one]);
+    expect(asConsistencyIssues([one])).toEqual([one]);
   });
 
   it("renders consistency checker container and run button", () => {

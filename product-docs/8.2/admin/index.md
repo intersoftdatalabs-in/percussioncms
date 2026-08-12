@@ -37,6 +37,11 @@ the Admin shell (title and tab list) stays usable so you can switch tabs or relo
 you should not see a full-page **Unable to load Admin** / **Unable to load Administration**
 panel for a single tab failure.
 
+**System Tools** shows the Security Audit Log (default) and the Consistency Checker
+inside the same Admin shell. Those tools must render without replacing Admin with
+**Unable to load Admin**. If one tool fails, the Admin tab list and the other tool
+remain available.
+
 Non-administrators never see the Admin top-nav item or these configuration surfaces.
 
 ## Topics

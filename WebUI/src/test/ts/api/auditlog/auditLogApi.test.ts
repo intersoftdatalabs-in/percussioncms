@@ -81,6 +81,47 @@ describe("unwrapSystemAuditLogPage", () => {
     expect(unwrapSystemAuditLogPage({ Error: { message: "x" } }).total).toBe(0);
   });
 
+  it("unwraps Jackson WRAP_ROOT entries object so map never sees a non-array (#3195)", () => {
+    const page = unwrapSystemAuditLogPage({
+      [SYSTEM_AUDIT_LOG_PAGE_ROOT]: {
+        entries: {
+          [SYSTEM_AUDIT_LOG_ENTRY_ROOT]: [sampleEntry, sampleEntry],
+        },
+        total: 2,
+        offset: 0,
+        limit: 50,
+      },
+    });
+    expect(Array.isArray(page.entries)).toBe(true);
+    expect(page.entries).toHaveLength(2);
+    expect(page.entries?.[0]?.auditId).toBe(sampleEntry.auditId);
+    expect(page.total).toBe(2);
+  });
+
+  it("unwraps a single WRAP_ROOT entry object as a one-item list (#3195)", () => {
+    const page = unwrapSystemAuditLogPage({
+      [SYSTEM_AUDIT_LOG_PAGE_ROOT]: {
+        entries: { [SYSTEM_AUDIT_LOG_ENTRY_ROOT]: sampleEntry },
+        total: 1,
+      },
+    });
+    expect(page.entries).toHaveLength(1);
+    expect(page.entries?.[0]?.actor).toBe("Admin");
+  });
+
+  it("unwraps nested SystemAuditLogPage envelopes", () => {
+    const page = unwrapSystemAuditLogPage({
+      [SYSTEM_AUDIT_LOG_PAGE_ROOT]: {
+        [SYSTEM_AUDIT_LOG_PAGE_ROOT]: {
+          entries: [sampleEntry],
+          total: 1,
+        },
+      },
+    });
+    expect(page.entries).toHaveLength(1);
+    expect(page.total).toBe(1);
+  });
+
   it("without unwrap WRAP_ROOT would hide entries (regression guard)", () => {
     const wire = {
       [SYSTEM_AUDIT_LOG_PAGE_ROOT]: {

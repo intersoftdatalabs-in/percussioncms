@@ -46,15 +46,46 @@ const EMPTY_FILTERS: AuditLogFilterDraft = {
   actor: "",
 };
 
-function formatEventTime(iso: string | undefined): string {
-  if (!iso) {
+/**
+ * Format an audit eventTime for the table. Always returns a string so Jackson
+ * Instant objects cannot become a React child (RouteErrorBoundary).
+ */
+export function formatEventTime(value: unknown): string {
+  if (value == null || value === "") {
     return "—";
   }
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return iso;
+  if (typeof value === "string") {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return value;
+    }
+    return d.toLocaleString();
   }
-  return d.toLocaleString();
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+  }
+  const rec =
+    value != null && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : null;
+  if (rec) {
+    if (typeof rec.epochSecond === "number") {
+      const ms =
+        rec.epochSecond * 1000 +
+        (typeof rec.nano === "number" ? rec.nano / 1e6 : 0);
+      const d = new Date(ms);
+      return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+    }
+    if (typeof rec.seconds === "number") {
+      const ms =
+        rec.seconds * 1000 +
+        (typeof rec.nanos === "number" ? rec.nanos / 1e6 : 0);
+      const d = new Date(ms);
+      return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+    }
+  }
+  return "—";
 }
 
 /** Truncate for table cells; when longer than max, keeps {@code max} chars then ellipsis. */
@@ -159,8 +190,8 @@ export const SecurityAuditLogViewer: React.FC = () => {
       if (!mountedRef.current) {
         return;
       }
-      setEntries(page.entries ?? []);
-      setTotal(page.total ?? 0);
+      setEntries(Array.isArray(page.entries) ? page.entries : []);
+      setTotal(typeof page.total === "number" ? page.total : 0);
     } catch (err) {
       if (!mountedRef.current || isSessionRedirectError(err)) {
         return;
@@ -463,7 +494,7 @@ export const SecurityAuditLogViewer: React.FC = () => {
                 style={inputStyle}
                 data-testid="audit-page-size"
               >
-                {AUDIT_LOG_PAGE_SIZE_OPTIONS.map((n) => (
+                {(AUDIT_LOG_PAGE_SIZE_OPTIONS ?? []).map((n) => (
                   <option key={n} value={n}>
                     {n}
                   </option>
@@ -536,7 +567,7 @@ export const SecurityAuditLogViewer: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  entries.map((row) => {
+                  (Array.isArray(entries) ? entries : []).map((row) => {
                     const id = row.auditId ?? "";
                     const selected = id !== "" && id === selectedId;
                     return (
