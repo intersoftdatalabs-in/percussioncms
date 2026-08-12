@@ -85,9 +85,12 @@ def test_list_allowlist_exits_zero() -> None:
     assert "IPSObjectStoreErrors.java" in combined
     # Deployer production residual cleared in #3165 (parent #3149) — not allow-listed.
     assert "deployer/src/main/java/" not in combined
-    # Remaining documented residuals (Desktop CX / Design ACL).
-    assert "PSNode.java" in combined
-    assert "PSAclEntry.java" in combined
+    # #3141 / #3142 retypes landed — no longer residual-allow-listed (#3175).
+    assert "PSNode.java" not in combined
+    assert "PSAclEntry.java" not in combined
+    # Remaining documented residuals: legacy implements handlers (#3176 / #3177).
+    assert "PSXmlObjectStoreHandler.java" in combined
+    assert "PSXmlObjectStoreLockManager.java" in combined
 
 
 def test_clean_repo_passes() -> None:

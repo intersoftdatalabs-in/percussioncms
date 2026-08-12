@@ -15,8 +15,10 @@ Allow-list classes
 1. **Interface definition** — ``IPSObjectStoreErrors`` itself
 2. **Dual-write / typed peer bridge** — utils ``ObjectStoreErrorCode`` enum
 3. **Documented residual production call-sites** until sibling retypes land
-   (Desktop CX #3141, Design ACL #3142,
-   legacy ``implements IPSObjectStoreErrors`` handlers)
+   (legacy ``implements IPSObjectStoreErrors`` handlers — #3176 / #3177).
+   Desktop CX PSNode (#3141), Design ACL PSAclEntry (#3142), and deployer
+   production (#3149 / #3174) retypes have landed; those paths are no longer
+   allow-listed (#3175).
 
 Tests and comment/javadoc-only mentions are ignored.
 
@@ -67,15 +69,13 @@ ALWAYS_ALLOW_EXACT: frozenset[str] = frozenset(
 
 # Exact residual production call-sites (path == entry). Prefer exact paths so a
 # new file under the same tree fails the gate until explicitly allow-listed with
-# an issue link. Shrink as retypes merge (#3141 / #3142). Deployer (#3149) cleared in #3165.
+# an issue link. Shrink as retypes merge.
+# Cleared: Desktop CX PSNode (#3141), Design ACL PSAclEntry (#3142), deployer
+# production (#3149 / #3165 / #3174). Remaining: implements handlers (#3176/#3177).
 RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
     {
-        # #3141 — Desktop CX PSNode bare sites (PR open at gate land).
-        "modules/DesktopContentExplorer/src/main/java/com/percussion/cx/"
-        "objectstore/PSNode.java",
-        # #3142 — Design ACL PSAclEntry bare sites (PR open at gate land).
-        "system/src/main/java/com/percussion/design/objectstore/PSAclEntry.java",
         # Legacy implements IPSObjectStoreErrors (unqualified constant use).
+        # Sibling slices #3176 / #3177 own the retypes — keep until those land.
         "system/src/main/java/com/percussion/design/objectstore/server/"
         "PSXmlObjectStoreHandler.java",
         "system/src/main/java/com/percussion/design/objectstore/server/"
