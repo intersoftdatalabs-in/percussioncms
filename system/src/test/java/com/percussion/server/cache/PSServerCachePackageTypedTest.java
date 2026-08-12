@@ -17,6 +17,7 @@
 package com.percussion.server.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -108,7 +109,7 @@ class PSServerCachePackageTypedTest {
     Iterator<Integer> owners = tree.getOwners(20);
     assertNotNull(owners);
     // after remove, no owners for related id 20
-    assertTrue(!owners.hasNext() || true);
+    assertFalse(owners.hasNext(), "owners iterator must be empty after removeDependency");
   }
 
   @Test

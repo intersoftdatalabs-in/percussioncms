@@ -522,8 +522,10 @@ public class PSContentItemDependencyTree {
    * <p>This API is a <b>HACK</b> see {@link #getInstance()} for detail
    *
    * @param contentid The dependent id, never <code>null</code>.
-   * @return An iterator over zero or more owner ids in <code>Integer</code> objects, never <code>
-   *     null</code>.
+   * @return An iterator over zero or more owner ids as {@link Integer}, never <code>null</code>.
+   *     Return type is generified ({@code Iterator} → {@code Iterator<Integer>}); binary-compatible
+   *     via erasure. Callers outside this package should treat elements as {@link Integer} (as
+   *     documented historically).
    */
   public Iterator<Integer> getOwners(Integer contentid) {
     List<PSItemDependency> ownerList = m_dependencyMap.get(contentid);
