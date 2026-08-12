@@ -117,7 +117,7 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
       String control = PSControlDependencyMap.CONTROL;
       String dep = PSControlDependencyMap.DEP;
       String ctrlRegEx = control + ".*" + dep + ".*";
-      List controlDepends = new ArrayList();
+      List<Element> controlDepends = new ArrayList<>();
 
       NodeList userPropNodes = doc.getElementsByTagName(PSContentEditorPipe.USER_PROPERTY);
 
@@ -130,13 +130,13 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
 
         String name = property.getAttribute(PSContentEditorPipe.USER_PROP_NAME_ATTR);
 
-        if (name.matches(ctrlRegEx)) controlDepends.add(property);
+        if (isControlDependencyName(name, ctrlRegEx)) controlDepends.add(property);
       }
 
       // Add control dependencies to each content editor pipe if any
       NodeList contentEditorPipes = doc.getElementsByTagName(PSContentEditorPipe.XML_NODE_NAME);
 
-      if (controlDepends.size() > 0) {
+      if (!controlDepends.isEmpty()) {
         for (int i = 0; i < contentEditorPipes.getLength(); i++) {
           Element cePipe = (Element) contentEditorPipes.item(i);
           NodeList userPropsNodes =
@@ -151,8 +151,7 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
                 PSXmlDocumentBuilder.addEmptyElement(
                     doc, cePipe, PSContentEditorPipe.USER_PROPERTIES);
 
-          for (int j = 0; j < controlDepends.size(); j++) {
-            Element controlDep = (Element) controlDepends.get(j);
+          for (Element controlDep : controlDepends) {
             String name = controlDep.getAttribute(PSContentEditorPipe.USER_PROP_NAME_ATTR);
             String value = controlDep.getTextContent();
 
@@ -169,8 +168,7 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
       Element root = doc.getDocumentElement();
 
       if (root != null) {
-        for (int i = 0; i < controlDepends.size(); i++) {
-          Element controlDep = (Element) controlDepends.get(i);
+        for (Element controlDep : controlDepends) {
           String name = controlDep.getAttribute(PSContentEditorPipe.USER_PROP_NAME_ATTR);
 
           log("Removing dependency " + name + " from application user properties");
@@ -180,6 +178,18 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
     } catch (Exception e) {
       log("Migration failed due to the following error: " + e.getMessage());
     }
+  }
+
+  /**
+   * Whether a user-property name matches the control-dependency naming pattern. Package-visible for
+   * unit tests.
+   *
+   * @param name property name, may be <code>null</code>
+   * @param ctrlRegEx regex built from control/dep constants, never <code>null</code>
+   * @return <code>true</code> when the name matches the control-dependency pattern
+   */
+  static boolean isControlDependencyName(String name, String ctrlRegEx) {
+    return name != null && name.matches(ctrlRegEx);
   }
 
   /**

@@ -29,7 +29,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -348,18 +347,14 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
 
     Statement stmt = conn.createStatement();
     ResultSet rs = stmt.executeQuery(queryStmt);
-    Map labelsIds = new HashMap();
+    Map<Integer, String> labelsIds = new HashMap<>();
 
     while (rs.next()) labelsIds.put(Integer.valueOf(rs.getInt(2)), rs.getString(1));
 
     int rowsUpdated = 0;
-    Iterator keyIter = labelsIds.keySet().iterator();
-    while (keyIter.hasNext()) {
-      Integer id = (Integer) keyIter.next();
-      String label = (String) labelsIds.get(id);
-      String name = InstallUtil.modifyName(label);
-
-      name = name.replaceAll("'", "''");
+    for (Map.Entry<Integer, String> entry : labelsIds.entrySet()) {
+      Integer id = entry.getKey();
+      String name = sqlEscapedTemplateName(entry.getValue());
 
       String updateStmt =
           "UPDATE "
@@ -377,6 +372,22 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
       rowsUpdated++;
     }
     log("Updated " + rowsUpdated + " names");
+  }
+
+  /**
+   * Builds a SQL-safe template NAME from a LABEL via {@link InstallUtil#modifyName(String)} and
+   * single-quote escaping. Package-visible for unit tests.
+   *
+   * @param label the template label, may be <code>null</code>
+   * @return name suitable for embedding in a SQL string literal, never <code>null</code> if label
+   *     was non-null (follows modifyName null handling)
+   */
+  static String sqlEscapedTemplateName(String label) {
+    String name = InstallUtil.modifyName(label);
+    if (name == null) {
+      return null;
+    }
+    return name.replace("'", "''");
   }
 
   /**

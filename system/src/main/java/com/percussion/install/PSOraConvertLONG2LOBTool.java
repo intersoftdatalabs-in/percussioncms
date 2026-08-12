@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -136,18 +136,15 @@ public class PSOraConvertLONG2LOBTool {
             + "ORDER BY table_name";
 
     ResultSet rs = performQuery(filterLongTablesSql);
-    Vector vTables = new Vector();
+    List<String> vTables = new ArrayList<>();
 
     while (rs.next()) {
       vTables.add(rs.getString("table_name"));
     }
 
-    if (vTables.size() <= 0) return null;
+    if (vTables.isEmpty()) return null;
 
-    String[] arrTableNames = new String[vTables.size()];
-    for (int i = 0; i < arrTableNames.length; i++) arrTableNames[i] = (String) vTables.elementAt(i);
-
-    return arrTableNames;
+    return vTables.toArray(new String[0]);
   }
 
   /**
@@ -259,7 +256,7 @@ public class PSOraConvertLONG2LOBTool {
       return true;
     }
 
-    Collection coll = Arrays.asList(arrTablesToConvert);
+    Collection<String> coll = Arrays.asList(arrTablesToConvert);
 
     return executeConversion2(coll);
   }
@@ -275,7 +272,7 @@ public class PSOraConvertLONG2LOBTool {
    * @throws SQLException on any ORA error
    * @throws PSJdbcTableFactoryException
    */
-  private boolean executeConversion2(Collection collLongTableNames)
+  private boolean executeConversion2(Collection<String> collLongTableNames)
       throws SQLException, PSJdbcTableFactoryException {
     if (collLongTableNames == null) throw new IllegalArgumentException("collLongTableNames==null");
 
@@ -283,18 +280,14 @@ public class PSOraConvertLONG2LOBTool {
 
     // create a table instance for each LONG table and gather all the info we
     // need to convert this table, which includes detailed column info, etc.
-    Iterator itTableNames = collLongTableNames.iterator();
-
-    Collection collLongTables = new ArrayList();
+    Collection<OraTable> collLongTables = new ArrayList<>();
     OraTable curTable = null;
 
     try {
       // first gather all the info needed to convert given tables
       logIt("Gathering table information..");
 
-      while (itTableNames.hasNext()) {
-        String tableName = (String) itTableNames.next();
-
+      for (String tableName : collLongTableNames) {
         curTable = new OraTable(m_conn, schemaName, tableName);
 
         curTable.queryTableInfo();
@@ -304,10 +297,8 @@ public class PSOraConvertLONG2LOBTool {
 
       logIt("About to convert " + collLongTables.size() + " LONG tables.");
 
-      Iterator itTables = collLongTables.iterator();
-
-      while (itTables.hasNext()) {
-        curTable = (OraTable) itTables.next();
+      for (OraTable table : collLongTables) {
+        curTable = table;
 
         logIt("About to convert table: " + curTable.getOwner() + "." + curTable.getName());
 
@@ -364,10 +355,11 @@ public class PSOraConvertLONG2LOBTool {
    * @return a collection of table names under a given schema that use LONGs
    * @throws SQLException
    */
-  public Collection querySchemaLONGTables() throws SQLException, PSJdbcTableFactoryException {
+  public Collection<String> querySchemaLONGTables()
+      throws SQLException, PSJdbcTableFactoryException {
     String schemaName = m_databaseDef.getSchema();
 
-    ArrayList al = new ArrayList();
+    ArrayList<String> al = new ArrayList<>();
 
     /* get list of tables that use LONG or LONG RAW datatype
     input: schema name
@@ -456,16 +448,13 @@ public class PSOraConvertLONG2LOBTool {
 
       if (cmd.equalsIgnoreCase(CMD_LIST)) {
         // get a list of LONG tables found is user's schema
-        Collection collLongTables = convertTool.querySchemaLONGTables();
+        Collection<String> collLongTables = convertTool.querySchemaLONGTables();
 
-        if (collLongTables.size() <= 0)
+        if (collLongTables.isEmpty())
           System.out.println("No tables in a given schema use LONG column type.");
         else System.out.println("List of table names that use LONG column type:");
 
-        Iterator iter = collLongTables.iterator();
-        while (iter.hasNext()) {
-          String tName = (String) iter.next();
-
+        for (String tName : collLongTables) {
           System.out.println(tName);
         }
       } else if (cmd.equalsIgnoreCase(CMD_TEST)) {
@@ -541,7 +530,7 @@ public class PSOraConvertLONG2LOBTool {
     private String m_name;
 
     // all column definitions
-    private Collection m_collColumns = new ArrayList();
+    private Collection<OraColumn> m_collColumns = new ArrayList<>();
 
     private OraTable m_backupTable = null;
 
@@ -638,12 +627,7 @@ public class PSOraConvertLONG2LOBTool {
     }
 
     private OraColumn getLongColumn() {
-      String colName = null;
-      Iterator it = m_collColumns.iterator();
-
-      while (it.hasNext()) {
-        OraColumn col = (OraColumn) it.next();
-
+      for (OraColumn col : m_collColumns) {
         if (col.isLongType()) {
           return col;
         }
@@ -733,10 +717,10 @@ public class PSOraConvertLONG2LOBTool {
       OraColumn lobCol = null;
 
       // append all columns
-      Iterator itcol = m_collColumns.iterator();
+      Iterator<OraColumn> itcol = m_collColumns.iterator();
 
       for (; itcol.hasNext(); ) {
-        OraColumn col = (OraColumn) itcol.next();
+        OraColumn col = itcol.next();
 
         if (col.isLongType()) {
           lobCol = col;
@@ -803,10 +787,10 @@ public class PSOraConvertLONG2LOBTool {
       buf.append("\" SELECT ");
 
       // append all columns
-      Iterator itcol = m_collColumns.iterator();
+      Iterator<OraColumn> itcol = m_collColumns.iterator();
 
       for (; itcol.hasNext(); ) {
-        OraColumn col = (OraColumn) itcol.next();
+        OraColumn col = itcol.next();
 
         buf.append(col.formatForInsertIntoBackup(true));
 
@@ -930,10 +914,10 @@ public class PSOraConvertLONG2LOBTool {
       buf.append(new_table_name);
       buf.append("\" (");
 
-      Iterator itcol = m_collColumns.iterator();
+      Iterator<OraColumn> itcol = m_collColumns.iterator();
 
       for (; itcol.hasNext(); ) {
-        OraColumn col = (OraColumn) itcol.next();
+        OraColumn col = itcol.next();
 
         buf.append(col.formatForCreate(convertLong2Lob));
 

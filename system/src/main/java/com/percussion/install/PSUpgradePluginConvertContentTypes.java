@@ -53,7 +53,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set; // Removed unused import
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -693,7 +693,7 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   private static Properties m_resourceMapProps = new Properties();
 
   /** Content type name storage. */
-  private static Set m_contentNames = new HashSet();
+  private static Set<String> m_contentNames = new HashSet<>();
 
   private static IPSUpgradeModule m_config;
 }
