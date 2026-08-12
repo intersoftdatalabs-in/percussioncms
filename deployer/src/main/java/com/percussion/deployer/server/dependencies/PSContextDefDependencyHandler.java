@@ -112,7 +112,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -137,7 +137,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(
+  public Iterator<PSDependencyFile> getDependencyFiles(
       @SuppressWarnings("unused") PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -225,6 +225,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
    * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
    * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
+  @Override
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException, PSNotFoundException {
@@ -236,8 +237,8 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
 
     IPSPublishingContext context = null;
     PSIdMapping ctxtMapping = getIdMapping(ctx, dep);
@@ -355,9 +356,6 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
   private static IPSSiteManager m_siteMgr = PSSiteManagerLocator.getSiteManager();
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List<String> ms_childTypes = new ArrayList<>();
-
-  static {
-    ms_childTypes.add(PSLocSchemeDefDependencyHandler.DEPENDENCY_TYPE);
-  }
+  private static final List<String> ms_childTypes =
+      List.of(PSLocSchemeDefDependencyHandler.DEPENDENCY_TYPE);
 }

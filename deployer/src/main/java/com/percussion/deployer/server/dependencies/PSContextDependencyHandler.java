@@ -18,7 +18,6 @@ package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -77,9 +76,6 @@ public class PSContextDependencyHandler extends PSElementDependencyHandler {
   private PSDependencyHandler m_childHandler = null;
 
   /** List of child types supported by this handler, never <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
-
-  static {
-    ms_childTypes.add(PSContextDefDependencyHandler.DEPENDENCY_TYPE);
-  }
+  private static final List<String> ms_childTypes =
+      List.of(PSContextDefDependencyHandler.DEPENDENCY_TYPE);
 }

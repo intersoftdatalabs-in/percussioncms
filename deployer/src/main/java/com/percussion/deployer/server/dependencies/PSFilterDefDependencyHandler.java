@@ -114,7 +114,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -243,8 +243,8 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
-    Iterator files = getFilterDependecyFilesFromArchive(archive, dep);
-    PSDependencyFile depFile = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getFilterDependecyFilesFromArchive(archive, dep);
+    PSDependencyFile depFile = files.next();
 
     IPSDeployService depSvc = PSDeployServiceLocator.getDeployService();
     try {
@@ -365,12 +365,12 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getFilterDependecyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
-      throws PSDeployException {
+  protected Iterator<PSDependencyFile> getFilterDependecyFilesFromArchive(
+      PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -385,7 +385,8 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   // see base class
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -419,6 +420,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   // see base class
+  @Override
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -434,16 +436,11 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
         for (IPSItemFilterRuleDef ruleDef : ruleDefSet) {
           Map<String, String> paramMap = ruleDef.getParams();
 
-          List mappings = new ArrayList<>();
+          List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
           // check each param for idtypes
-          Iterator entries = paramMap.entrySet().iterator();
-          while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
-
+          for (Map.Entry<String, String> entry : paramMap.entrySet()) {
             // convert to PSParam to leverage existing transformer code
-            Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-            while (params.hasNext()) {
-              PSParam param = (PSParam) params.next();
+            for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
               PSAppTransformer.checkParam(mappings, param, null);
             }
           }
@@ -521,6 +518,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   // see base class
+  @Override
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -532,31 +530,29 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
       throw new IllegalArgumentException("invalid object type");
     }
 
-    Map paramMap = (Map) object;
+    @SuppressWarnings("unchecked")
+    Map<String, Object> paramMap = (Map<String, Object>) object;
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) continue;
 
           if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_RULEDEF_PARAMS)) {
             // transform the params
-            Iterator entries = paramMap.entrySet().iterator();
-            while (entries.hasNext()) {
+            for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
               // convert to PSParam(s) to leverage existing code
               List<String> valList = new ArrayList<>();
-              Map.Entry entry = (Map.Entry) entries.next();
-              List paramList = PSDeployComponentUtils.convertToParams(entry);
-              for (Object o : paramList) {
-                PSParam param = (PSParam) o;
-
+              List<PSParam> paramList = PSDeployComponentUtils.convertToParams(entry);
+              for (PSParam param : paramList) {
                 // transform
                 PSAppTransformer.transformParam(param, mapping, idMap);
                 valList.add(param.getValue().getValueText());
@@ -594,18 +590,15 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   /** Filter Svc */
   private static IPSFilterService m_filterSvc = PSFilterServiceLocator.getFilterService();
 
-  private HashMap<String, IPSItemFilter> m_namedFiltersMap = new HashMap<>();
+  private final Map<String, IPSItemFilter> m_namedFiltersMap = new HashMap<>();
 
-  private HashMap<IPSGuid, IPSItemFilter> m_guidFiltersMap = new HashMap<>();
+  private final Map<IPSGuid, IPSItemFilter> m_guidFiltersMap = new HashMap<>();
 
   /** the rule def params name */
   public static String RULEDEF_ARGS = "RuleDefParams";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List<String> ms_childTypes = new ArrayList<>();
-
-  static {
-    ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSAclDefDependencyHandler.DEPENDENCY_TYPE);
-  }
+  private static final List<String> ms_childTypes =
+      List.of(
+          PSExitDefDependencyHandler.DEPENDENCY_TYPE, PSAclDefDependencyHandler.DEPENDENCY_TYPE);
 }
