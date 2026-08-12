@@ -31,7 +31,9 @@ import { get } from "../client";
 import {
   normalizeDisplayFormatGuid,
   objectGuidString,
+  resolveDisplayFormatObjectGuid,
   unwrapDisplayFormat,
+  unwrapDisplayFormatList,
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "../developer/types";
@@ -40,26 +42,16 @@ export type { DisplayFormat, DisplayFormatColumn };
 
 // Re-export shared GUID helpers so Content Explorer callers (and tests) share
 // one implementation with the Developer API.
-export { normalizeDisplayFormatGuid, objectGuidString, unwrapDisplayFormat };
+export {
+  normalizeDisplayFormatGuid,
+  objectGuidString,
+  resolveDisplayFormatObjectGuid,
+  unwrapDisplayFormat,
+  unwrapDisplayFormatList,
+};
 
 function asArray(payload: unknown): DisplayFormat[] {
-  if (payload == null) return [];
-  let rawList: unknown[] = [];
-  if (Array.isArray(payload)) {
-    rawList = payload;
-  } else if (typeof payload === "object") {
-    const obj = payload as Record<string, unknown>;
-    const raw =
-      obj.DisplayFormat ??
-      obj.displayFormat ??
-      obj.DisplayFormatList ??
-      obj.displayFormatList;
-    if (raw == null) return [];
-    rawList = Array.isArray(raw) ? raw : [raw];
-  } else {
-    return [];
-  }
-  return rawList.map((item) => unwrapDisplayFormat(item));
+  return unwrapDisplayFormatList(payload);
 }
 
 export function normalizeDisplayFormatColumns(

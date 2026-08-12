@@ -10,27 +10,17 @@ import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormat
 import { DisplayFormatDetailPanel } from "../../../main/ts/developer/DisplayFormatDetailPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
-  listDisplayFormats: vi.fn(),
-  getDisplayFormatDetail: vi.fn(),
-  normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
-  objectGuidString: (guid: unknown) => {
-    if (guid == null) return undefined;
-    if (typeof guid === "string") {
-      const t = guid.trim();
-      return t || undefined;
-    }
-    if (typeof guid !== "object" || Array.isArray(guid)) return undefined;
-    const g = guid as { stringValue?: string; hostId?: number; type?: number; uuid?: number };
-    if (typeof g.stringValue === "string" && g.stringValue.trim()) {
-      return g.stringValue.trim();
-    }
-    if (g.hostId != null && g.type != null && g.uuid != null) {
-      return `${g.hostId}-${g.type}-${g.uuid}`;
-    }
-    return undefined;
-  },
-}));
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/displayFormatsApi")
+  >();
+  return {
+    ...actual,
+    listDisplayFormats: vi.fn(),
+    getDisplayFormatDetail: vi.fn(),
+    normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
+  };
+});
 
 // ObjectAclSection loads ACL via separate API; stub to isolate detail load + assert wiring.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
@@ -117,6 +107,39 @@ describe("DisplayFormatDetailPanel", () => {
     expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-11-5");
     expect(screen.getByTestId("developer-df-acl-stub").getAttribute("data-object-guid")).toBe(
       "0-11-5",
+    );
+  });
+
+  it("uses guidString when nested guid is absent (#3200)", async () => {
+    getDisplayFormatDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: "0-31-9",
+    });
+    render(<DisplayFormatDetailPanel idOrName="By_Author" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-31-9");
+    expect(screen.getByTestId("developer-df-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-31-9",
+    );
+  });
+
+  it("synthesizes GUID from displayId when guid is omitted (#3200)", async () => {
+    getDisplayFormatDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: undefined,
+      displayId: 12,
+    });
+    render(<DisplayFormatDetailPanel idOrName="By_Author" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-guid").textContent).toBe("0-31-12");
+    expect(screen.getByTestId("developer-df-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-31-12",
     );
   });
 

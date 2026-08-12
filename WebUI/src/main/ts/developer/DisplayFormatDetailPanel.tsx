@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import {
   getDisplayFormatDetail,
   normalizeColumns,
-  objectGuidString,
+  resolveDisplayFormatObjectGuid,
 } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -58,11 +58,8 @@ export function DisplayFormatDetailPanel({
 
   const columns =
     detail != null ? normalizeColumns(detail.columns) : [];
-  // Prefer detail GUID (after unwrap/normalize); fall back to catalog list GUID.
-  const objectGuid =
-    (detail != null ? objectGuidString(detail.guid) : undefined) ||
-    (catalogGuid && catalogGuid.trim() ? catalogGuid.trim() : undefined) ||
-    undefined;
+  // Prefer detail GUID (unwrap / guidString / displayId); then catalog list GUID.
+  const objectGuid = resolveDisplayFormatObjectGuid(detail, catalogGuid);
 
   return (
     <div data-testid="developer-df-detail">

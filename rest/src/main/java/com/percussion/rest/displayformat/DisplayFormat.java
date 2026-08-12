@@ -31,6 +31,13 @@ public class DisplayFormat {
   @Schema(description = "The global unique id for this item.")
   private Guid guid;
 
+  /**
+   * Plain {@code host-type-uuid} string for SPA Object ACL binding when nested {@link Guid}
+   * Optional/wrap shapes are hard to read (#3200). Always set by the adaptor when a GUID exists.
+   */
+  @Schema(description = "Plain GUID string (host-type-uuid) for Object ACL and detail header.")
+  private String guidString;
+
   @Schema(description = "The name of this Display Format")
   private String name;
 
@@ -74,6 +81,14 @@ public class DisplayFormat {
 
   public void setGuid(Guid guid) {
     this.guid = guid;
+  }
+
+  public String getGuidString() {
+    return guidString;
+  }
+
+  public void setGuidString(String guidString) {
+    this.guidString = guidString;
   }
 
   public String getName() {
@@ -200,6 +215,7 @@ public class DisplayFormat {
         && validForFolder == that.validForFolder
         && displayId == that.displayId
         && Objects.equals(guid, that.guid)
+        && Objects.equals(guidString, that.guidString)
         && Objects.equals(name, that.name)
         && Objects.equals(label, that.label)
         && Objects.equals(sortedColumnNames, that.sortedColumnNames)
@@ -216,6 +232,7 @@ public class DisplayFormat {
   public int hashCode() {
     return Objects.hash(
         guid,
+        guidString,
         name,
         label,
         validForRelatedContent,
@@ -239,6 +256,9 @@ public class DisplayFormat {
     return "DisplayFormat{"
         + "guid="
         + guid
+        + ", guidString='"
+        + guidString
+        + '\''
         + ", name='"
         + name
         + '\''

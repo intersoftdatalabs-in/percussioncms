@@ -19,7 +19,9 @@ import {
   getDisplayFormatDetail,
   listDisplayFormats,
   objectGuidString,
+  resolveDisplayFormatObjectGuid,
   unwrapDisplayFormat,
+  unwrapDisplayFormatList,
 } from "../../../../main/ts/api/developer/displayFormatsApi";
 
 describe("objectGuidString", () => {
@@ -48,6 +50,23 @@ describe("objectGuidString", () => {
     expect(objectGuidString(undefined)).toBeUndefined();
     expect(objectGuidString({})).toBeUndefined();
     expect(objectGuidString("")).toBeUndefined();
+  });
+
+  it("reads Optional-like and snake_case stringValue (#3200)", () => {
+    expect(objectGuidString({ stringValue: { value: "0-31-8" } })).toBe("0-31-8");
+    expect(objectGuidString({ string_value: "0-31-7" })).toBe("0-31-7");
+  });
+});
+
+describe("resolveDisplayFormatObjectGuid", () => {
+  it("prefers nested guid then guidString then catalog then displayId (#3200)", () => {
+    expect(
+      resolveDisplayFormatObjectGuid({ guid: { stringValue: "0-31-1" }, displayId: 9 }),
+    ).toBe("0-31-1");
+    expect(resolveDisplayFormatObjectGuid({ guidString: "0-31-2", displayId: 9 })).toBe("0-31-2");
+    expect(resolveDisplayFormatObjectGuid({ displayId: 9 }, " 0-31-3 ")).toBe("0-31-3");
+    expect(resolveDisplayFormatObjectGuid({ displayId: 9 })).toBe("0-31-9");
+    expect(resolveDisplayFormatObjectGuid({}, undefined)).toBeUndefined();
   });
 });
 
@@ -93,7 +112,10 @@ describe("unwrapDisplayFormat", () => {
       name: "FolderList",
       guid: { stringValue: "0-11-2" },
     };
-    expect(unwrapDisplayFormat(flat)).toEqual(flat);
+    expect(unwrapDisplayFormat(flat)).toEqual({
+      ...flat,
+      guidString: "0-11-2",
+    });
   });
 
   it("takes first element when envelope holds a singleton array", () => {
@@ -109,6 +131,31 @@ describe("unwrapDisplayFormat", () => {
     expect(unwrapDisplayFormat(undefined)).toEqual({});
     expect(unwrapDisplayFormat("x")).toEqual({});
     expect(unwrapDisplayFormat([])).toEqual({});
+  });
+
+  it("copies guidString onto guid.stringValue (#3200)", () => {
+    const unwrapped = unwrapDisplayFormat({
+      DisplayFormat: { name: "By_Author", guidString: "0-31-4" },
+    });
+    expect(unwrapped.guidString).toBe("0-31-4");
+    expect(unwrapped.guid?.stringValue).toBe("0-31-4");
+  });
+});
+
+describe("unwrapDisplayFormatList", () => {
+  it("flattens nested DisplayFormatList envelope (#3200)", () => {
+    const list = unwrapDisplayFormatList({
+      DisplayFormatList: {
+        DisplayFormat: [
+          { name: "By_Author", guid: { hostId: 0, type: 31, uuid: 5 } },
+          { name: "Default", displayId: 2 },
+        ],
+      },
+    });
+    expect(list).toHaveLength(2);
+    expect(list[0].name).toBe("By_Author");
+    expect(list[0].guid?.stringValue).toBe("0-31-5");
+    expect(list[1].guid?.stringValue).toBe("0-31-2");
   });
 });
 

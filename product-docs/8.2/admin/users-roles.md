@@ -72,6 +72,24 @@ to `/cm/app/` so the dispatcher applies this preference.
 
 See [Architecture & site navigation](id:admin-architecture-navigation).
 
+## Design-object ACL (Developer)
+
+System Definition (**Developer**) shows an **Object ACL** section on securable design
+objects, including **Display Formats**.
+
+1. Open **Developer → Display Formats**.
+2. Open a format such as **By_Author** (or any other listed format).
+3. The detail header **GUID** field shows the object GUID when the server has one
+   (never a silent dash when a GUID exists).
+4. **Object ACL** below the column list:
+   - Shows the ACL table when entries exist.
+   - Shows an empty create path when the object has no ACL yet.
+   - Shows an explicit load error if the ACL service fails.
+   - Does **not** say “Object GUID not available” when the header GUID is present.
+
+Use this section to inspect design-time and runtime visibility permissions for that
+display format. Site Object ACL is a separate surface (Sites detail).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.

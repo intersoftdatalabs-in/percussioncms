@@ -41,9 +41,26 @@ export type CreateAclOwner = {
  *
  * <p>Returns the design-time ACL for a securable object. 404 when no ACL exists.
  */
+/**
+ * Unwrap Jackson WRAP_ROOT_VALUE {@code {"Acl":{…}}} so ObjectAclSection can
+ * read entries. Flat bodies pass through (#3200 Display Format Object ACL).
+ */
+export function unwrapObjectAcl(payload: unknown): ObjectAcl {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.Acl ?? root.acl;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as ObjectAcl;
+  }
+  return payload as ObjectAcl;
+}
+
 export async function getAclForObject(objectGuid: string): Promise<ObjectAcl> {
   const key = encodeURIComponent(objectGuid);
-  return get<ObjectAcl>(`${PATHS.ACLS}/object/${key}`);
+  const payload = await get<unknown>(`${PATHS.ACLS}/object/${key}`);
+  return unwrapObjectAcl(payload);
 }
 
 /**

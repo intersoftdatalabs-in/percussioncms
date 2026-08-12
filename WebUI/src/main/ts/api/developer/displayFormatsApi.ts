@@ -18,33 +18,24 @@ import { get } from "../client";
 import {
   normalizeDisplayFormatGuid,
   objectGuidString,
+  resolveDisplayFormatObjectGuid,
   unwrapDisplayFormat,
+  unwrapDisplayFormatList,
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { DisplayFormat, DisplayFormatColumn } from "./types";
 
 // Re-export shared GUID helpers so existing developer imports keep working.
-export { normalizeDisplayFormatGuid, objectGuidString, unwrapDisplayFormat };
+export {
+  normalizeDisplayFormatGuid,
+  objectGuidString,
+  resolveDisplayFormatObjectGuid,
+  unwrapDisplayFormat,
+  unwrapDisplayFormatList,
+};
 
 function asArray(payload: unknown): DisplayFormat[] {
-  if (payload == null) return [];
-  let rawList: unknown[] = [];
-  if (Array.isArray(payload)) {
-    rawList = payload;
-  } else if (typeof payload === "object") {
-    const obj = payload as Record<string, unknown>;
-    const raw =
-      obj.DisplayFormat ??
-      obj.displayFormat ??
-      obj.DisplayFormatList ??
-      obj.displayFormatList;
-    if (raw == null) return [];
-    rawList = Array.isArray(raw) ? raw : [raw];
-  } else {
-    return [];
-  }
-  // Normalize each element (Jackson may wrap list items or omit guid.stringValue).
-  return rawList.map((item) => unwrapDisplayFormat(item));
+  return unwrapDisplayFormatList(payload);
 }
 
 export function normalizeColumns(

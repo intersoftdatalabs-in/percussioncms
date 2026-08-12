@@ -17,7 +17,9 @@
 
 package com.percussion.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.guidmgr.data.PSGuid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -29,6 +31,12 @@ import java.util.Optional;
 @Schema(description = "Guid")
 public class Guid {
 
+  /**
+   * Serialized as a plain JSON string via the field (not {@link #getStringValue()}). The Optional
+   * getter is for Java callers; Jackson must not emit Optional as an object or the SPA cannot bind
+   * Object ACL (#3200 / #2951).
+   */
+  @JsonProperty("stringValue")
   @Schema(
       name = "stringValue",
       description =
@@ -120,10 +128,12 @@ public class Guid {
     this.longValue = longValue;
   }
 
+  @JsonIgnore
   public Optional<String> getStringValue() {
     return Optional.ofNullable(stringValue);
   }
 
+  @JsonProperty("stringValue")
   public void setStringValue(String stringValue) {
     this.stringValue = stringValue;
   }
