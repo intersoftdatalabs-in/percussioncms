@@ -1,7 +1,7 @@
 ---
 id: admin-architecture-navigation
 title: Architecture & site navigation
-description: Modern Architecture SPA for browsing site navigation trees (navons); editing in follow-on slices
+description: Modern Architecture SPA for browsing and editing site navigation trees (navons / sections)
 version: "8.2"
 order: 43
 tags: [admin, architecture, navigation, ui]
@@ -25,7 +25,7 @@ chrome. In Percussion CMS 8.2 the primary entry is the SPA shell. The classic
 Default landing can also be set to **Architecture** for a user or role (homepage type
 `Architecture`); login then resolves to the SPA Architecture entry.
 
-## Browse a site navigation tree (read-only)
+## Browse a site navigation tree
 
 1. Open **Architecture**.
 2. Choose a site from the **Site** list (or open a deep link with `?site=YourSiteName`
@@ -37,9 +37,56 @@ Default landing can also be set to **Architecture** for a user or role (homepage
 Empty, loading, and error states are shown explicitly when the site list or tree
 cannot be loaded, or when a site has no sections.
 
-**Note:** This release provides a **read-only** tree. Create, edit, reorder, and
-delete of sections (and landing-page / section-link workflows) ship in follow-on
-Architecture slices.
+## Keyboard and accessibility
+
+The navigation tree follows the ARIA tree pattern:
+
+| Key | Behavior |
+|-----|----------|
+| **Tab** | Moves focus into the tree (roving tabindex on the selected or root item). |
+| **Arrow Up / Down** | Move focus among visible nodes. |
+| **Arrow Right** | Expand a collapsed branch, or move into the first child when expanded. |
+| **Arrow Left** | Collapse an expanded branch, or move focus to the parent. |
+| **Home / End** | Jump to the first or last visible node. |
+| **Enter / Space** | Select the focused section (and toggle expand on branches). |
+
+Structure dialogs (create, rename, landing page, section link, external link, and the
+section picker) are modal (`role="dialog"`, `aria-modal`). **Escape** closes the open
+dialog when a mutation is not in progress. Primary structure actions live in a toolbar
+with an accessible name (**Structure actions**).
+
+Chrome strings (shell, tree states, actions, dialogs, validation) use the
+`perc.ui.architecture.modern` message catalog so they follow the session locale when
+TMX is loaded.
+
+## Edit navigation structure
+
+With a site selected, use the structure action bar above the tree:
+
+| Action | Behavior |
+|--------|----------|
+| **Create section** | Opens a dialog to add a regular section (title, URL name, template) under the selected section, or under the site root when nothing is selected. Requires a site template. |
+| **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
+| **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
+| **Landing page** | Opens the content page picker so you can assign a different landing page to the selected regular section. |
+| **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
+| **Rename** | Renames the selected regular section (updates section title / landing link title). |
+| **Move up / Move down** | Reorders the selected section among its siblings under the same parent. |
+| **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
+
+Server errors from create, rename, move, delete, landing-page, or link mutations are
+shown in the panel (no silent failure). The tree reloads after a successful mutation.
+
+### Blog sections
+
+Blog-type sections appear in the navigation tree (type badge). Full blog post
+authoring remains outside this Architecture editor; treat blog structure as
+visible but limited in this surface.
+
+### Still later
+
+Convert folder to section, full section security / ACL preferences, and
+retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 
 ## Current status (migration)
 
@@ -48,6 +95,13 @@ Architecture slices.
 | SPA route + top-nav entry under product chrome | **Available** |
 | Role gate (Admin / Designer) | **Available** |
 | Site picker | **Available** |
+| Site navigation tree browse (navons / sections) | **Available** |
+| Structure editing (create / rename / reorder / delete) | **Available** |
+| Landing page / section-link / external-link parity | **Available** |
+| Keyboard / ARIA tree + Escape dialogs | **Available** |
+| `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
+| Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
+| Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
 | Site navigation tree browse (navons / sections) | **Available** (read-only) |
 | Structure editing (create / edit / move / delete) | **Coming soon** |
 | Landing page / section-link parity | **Coming soon** |

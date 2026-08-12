@@ -15,14 +15,55 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
-import { loadSectionTree } from "../api/architecture/sectionApi";
+import {
+  createExternalLinkSection,
+  createSectionLink,
+  createSiteSection,
+  deleteSectionLink,
+  deleteSiteSection,
+  loadSection,
+  loadSectionProperties,
+  loadSectionTree,
+  moveSiteSection,
+  replaceLandingPage,
+  updateExternalLink,
+  updateSectionLink,
+  updateSiteSection,
+} from "../api/architecture/sectionApi";
+import {
+  applyTitleToProperties,
+  buildSiblingReorderMove,
+  canCreateChildUnder,
+  canDeleteNavNode,
+  canEditLinkNode,
+  canMoveNavNodeDown,
+  canMoveNavNodeUp,
+  canReplaceLandingPage,
+  findNavNodeById,
+  findSiblingPlacement,
+  isExternalLinkType,
+  isSectionLinkType,
+  resolveCreateParentFolderPath,
+} from "../api/architecture/sectionMutations";
 import type { NavTreeNode } from "../api/architecture/types";
 import { fetchSites } from "../api/home/homeApi";
 import { catalogColors } from "../developer/catalogStyles";
+import { CreateSectionDialog } from "./CreateSectionDialog";
+import { ExternalLinkDialog } from "./ExternalLinkDialog";
 import { NavTree } from "./NavTree";
+import { RenameSectionDialog } from "./RenameSectionDialog";
+import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
+import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
+import { StructureActionBar } from "./StructureActionBar";
 import { ARCH_MSG } from "./messages";
 
 export interface ArchitectureShellProps {
@@ -35,6 +76,15 @@ export interface ArchitectureShellProps {
    * When true (SPA AppLayout), shell is under product chrome — tighter padding.
    */
   embedded?: boolean;
+  /**
+   * Optional confirm hook (tests). Defaults to {@code window.confirm}.
+   */
+  confirmFn?: (message: string) => boolean;
+  /**
+   * When false, landing dialog uses page-id field instead of ContentBrowser
+   * (unit tests). Default true.
+   */
+  useLandingContentBrowser?: boolean;
 }
 
 type SitesLoadState =
@@ -49,15 +99,20 @@ type TreeLoadState =
   | { status: "ready"; root: NavTreeNode | null };
 
 /**
- * Architecture / Navigation SPA shell (#3094 shell + #3095 read-only tree).
- *
- * <p>Site picker + {@code GET /section/tree/{site}} browse. Mutations (create /
- * edit / reorder / delete) are out of scope until Slice D.</p>
+ * Architecture / Navigation SPA shell
+ * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links).
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
   embedded = false,
+  confirmFn,
+  useLandingContentBrowser = true,
 }) => {
+  const confirmAction = useCallback(
+    (msg: string) => (confirmFn ? confirmFn(msg) : window.confirm(msg)),
+    [confirmFn],
+  );
+
   const [sitesState, setSitesState] = useState<SitesLoadState>({
     status: "loading",
   });
@@ -68,6 +123,24 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [treeState, setTreeState] = useState<TreeLoadState>({ status: "idle" });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [mutationBusy, setMutationBusy] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [landingOpen, setLandingOpen] = useState(false);
+  const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
+  const [sectionLinkMode, setSectionLinkMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [externalLinkOpen, setExternalLinkOpen] = useState(false);
+  const [externalLinkMode, setExternalLinkMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [externalInitial, setExternalInitial] = useState<{
+    linkTitle: string;
+    externalUrl: string;
+    target: string;
+  } | null>(null);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -90,12 +163,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           .filter((n) => n.length > 0)
           .sort((a, b) => a.localeCompare(b));
         setSitesState({ status: "ready", names });
-        // If no selection yet, pick first site when available
         setSelectedSite((prev) => {
           if (prev && names.includes(prev)) return prev;
-          if (prev && names.length === 0) return prev; // keep deep-link name for tree attempt
+          if (prev && names.length === 0) return prev;
           if (prev && !names.includes(prev) && names.length > 0) {
-            // Deep-link site not in list — still try loading with that name
             return prev;
           }
           if (!prev && names.length > 0) return names[0];
@@ -125,6 +196,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     let cancelled = false;
     setTreeState({ status: "loading" });
     setSelectedNodeId(null);
+    setMutationError(null);
     void (async () => {
       try {
         const root = await loadSectionTree(selectedSite);
@@ -148,9 +220,291 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     setRefreshToken((n) => n + 1);
   }, []);
 
+  const treeRoot =
+    treeState.status === "ready" ? treeState.root : null;
+  const selectedNode = useMemo(
+    () =>
+      selectedNodeId
+        ? findNavNodeById(treeRoot, selectedNodeId)
+        : null,
+    [treeRoot, selectedNodeId],
+  );
+
+  const createParent = useMemo(() => {
+    if (selectedNode && canCreateChildUnder(selectedNode)) {
+      return selectedNode;
+    }
+    if (treeRoot && canCreateChildUnder(treeRoot)) {
+      return treeRoot;
+    }
+    return null;
+  }, [selectedNode, treeRoot]);
+
+  const canCreate = !!selectedSite && !!createParent && !mutationBusy;
+  const canCreateSectionLink = canCreate;
+  const canCreateExternalLink = canCreate;
+  const canLanding =
+    !!selectedNode && canReplaceLandingPage(selectedNode) && !mutationBusy;
+  const canEditLink =
+    !!selectedNode && canEditLinkNode(selectedNode) && !mutationBusy;
+  const canRename =
+    !!selectedNode &&
+    String(selectedNode.sectionType || "section").toLowerCase() ===
+      "section" &&
+    !mutationBusy;
+  const canMoveUp =
+    !!selectedNodeId &&
+    canMoveNavNodeUp(treeRoot, selectedNodeId) &&
+    !mutationBusy;
+  const canMoveDown =
+    !!selectedNodeId &&
+    canMoveNavNodeDown(treeRoot, selectedNodeId) &&
+    !mutationBusy;
+  const canDelete =
+    canDeleteNavNode(treeRoot, selectedNode) && !mutationBusy;
+
+  const runMutation = useCallback(
+    async (work: () => Promise<void>) => {
+      setMutationBusy(true);
+      setMutationError(null);
+      try {
+        await work();
+        setRefreshToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.MUTATION_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    },
+    [],
+  );
+
+  const onCreateSubmit = useCallback(
+    (input: { title: string; urlName: string; templateId: string }) => {
+      if (!selectedSite || !createParent) return;
+      const folderPath = resolveCreateParentFolderPath(
+        createParent,
+        selectedSite,
+      );
+      void runMutation(async () => {
+        await createSiteSection({
+          pageTitle: input.title,
+          pageLinkTitle: input.title,
+          pageName: input.urlName,
+          pageUrlIdentifier: input.urlName,
+          templateId: input.templateId,
+          folderPath,
+          sectionType: "section",
+          copyTemplates: true,
+          target: "_self",
+        });
+        setCreateOpen(false);
+      });
+    },
+    [selectedSite, createParent, runMutation],
+  );
+
+  const onRenameSubmit = useCallback(
+    (title: string) => {
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        const props = await loadSectionProperties(selectedNode.id);
+        const next = applyTitleToProperties(props, title);
+        await updateSiteSection(next);
+        setRenameOpen(false);
+      });
+    },
+    [selectedNode, runMutation],
+  );
+
+  const onMove = useCallback(
+    (direction: "up" | "down") => {
+      if (!selectedNodeId || !treeRoot) return;
+      const fields = buildSiblingReorderMove(
+        treeRoot,
+        selectedNodeId,
+        direction,
+      );
+      if (!fields) return;
+      void runMutation(async () => {
+        await moveSiteSection(fields);
+      });
+    },
+    [selectedNodeId, treeRoot, runMutation],
+  );
+
+  const onDelete = useCallback(() => {
+    if (!selectedNode || !treeRoot) return;
+    if (!canDeleteNavNode(treeRoot, selectedNode)) {
+      setMutationError(ARCH_MSG.DELETE_ROOT_BLOCKED);
+      return;
+    }
+    // Avoid String#replace $`/$& injection from user-controlled titles.
+    const msg = ARCH_MSG.DELETE_CONFIRM.split("{0}").join(selectedNode.title);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    const nodeId = selectedNode.id;
+    const sectionType = selectedNode.sectionType;
+    void runMutation(async () => {
+      if (isSectionLinkType(sectionType)) {
+        const place = findSiblingPlacement(treeRoot, nodeId);
+        if (!place) {
+          throw new Error("Could not resolve parent for section link delete");
+        }
+        await deleteSectionLink(nodeId, place.parent.id);
+      } else {
+        await deleteSiteSection(nodeId);
+      }
+      setSelectedNodeId(null);
+    });
+  }, [selectedNode, treeRoot, confirmAction, runMutation]);
+
+  const onLandingSubmit = useCallback(
+    (newLandingPageId: string) => {
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        await replaceLandingPage({
+          sectionId: selectedNode.id,
+          newLandingPageId,
+        });
+        setLandingOpen(false);
+      });
+    },
+    [selectedNode, runMutation],
+  );
+
+  const onSectionLinkSubmit = useCallback(
+    (targetSectionId: string) => {
+      if (sectionLinkMode === "create") {
+        if (!createParent) return;
+        void runMutation(async () => {
+          await createSectionLink(targetSectionId, createParent.id);
+          setSectionLinkOpen(false);
+        });
+        return;
+      }
+      // edit
+      if (!selectedNode || !treeRoot) return;
+      const place = findSiblingPlacement(treeRoot, selectedNode.id);
+      if (!place) {
+        setMutationError(ARCH_MSG.MUTATION_ERROR);
+        return;
+      }
+      void runMutation(async () => {
+        await updateSectionLink({
+          oldSectionId: selectedNode.id,
+          newSectionId: targetSectionId,
+          parentSectionId: place.parent.id,
+        });
+        setSectionLinkOpen(false);
+      });
+    },
+    [sectionLinkMode, createParent, selectedNode, treeRoot, runMutation],
+  );
+
+  const onExternalLinkSubmit = useCallback(
+    (values: {
+      linkTitle: string;
+      externalUrl: string;
+      target: string;
+    }) => {
+      if (externalLinkMode === "create") {
+        if (!selectedSite || !createParent) return;
+        const folderPath = resolveCreateParentFolderPath(
+          createParent,
+          selectedSite,
+        );
+        void runMutation(async () => {
+          await createExternalLinkSection({
+            linkTitle: values.linkTitle,
+            externalUrl: values.externalUrl,
+            folderPath,
+            sectionType: "externallink",
+            target: values.target,
+          });
+          setExternalLinkOpen(false);
+        });
+        return;
+      }
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        const loaded = await loadSection(selectedNode.id);
+        // Prefer wire folderPath; fall back to tree node path so we never POST
+        // an empty folderPath that would re-parent the link to site root.
+        const parentForPath =
+          findSiblingPlacement(treeRoot, selectedNode.id)?.parent ??
+          treeRoot ??
+          null;
+        const folderPath =
+          (loaded.folderPath && String(loaded.folderPath).trim()) ||
+          (selectedNode.folderPath && String(selectedNode.folderPath).trim()) ||
+          (selectedSite
+            ? resolveCreateParentFolderPath(parentForPath, selectedSite)
+            : "");
+        await updateExternalLink(selectedNode.id, {
+          linkTitle: values.linkTitle,
+          externalUrl: values.externalUrl,
+          folderPath,
+          sectionType: "externallink",
+          target: values.target,
+          cssClassNames: loaded.cssClassNames,
+        });
+        setExternalLinkOpen(false);
+      });
+    },
+    [
+      externalLinkMode,
+      selectedSite,
+      createParent,
+      selectedNode,
+      treeRoot,
+      runMutation,
+    ],
+  );
+
+  const externalEditLoadGen = useRef(0);
+
+  const openEditLink = useCallback(() => {
+    if (!selectedNode) return;
+    setMutationError(null);
+    if (isSectionLinkType(selectedNode.sectionType)) {
+      setSectionLinkMode("edit");
+      setSectionLinkOpen(true);
+      return;
+    }
+    if (isExternalLinkType(selectedNode.sectionType)) {
+      setExternalLinkMode("edit");
+      setExternalInitial(null);
+      setExternalLinkOpen(true);
+      const nodeId = selectedNode.id;
+      const fallbackTitle = selectedNode.title;
+      const gen = ++externalEditLoadGen.current;
+      void (async () => {
+        try {
+          const loaded = await loadSection(nodeId);
+          if (gen !== externalEditLoadGen.current) {
+            return; // superseded by a later edit click or cancel
+          }
+          setExternalInitial({
+            // Preserve intentional empty title from API; only fall back when nullish.
+            linkTitle: loaded.title ?? fallbackTitle,
+            externalUrl: loaded.externalLinkUrl || "",
+            target: loaded.target || "_self",
+          });
+        } catch (err) {
+          if (gen !== externalEditLoadGen.current) return;
+          if (isSessionRedirectError(err)) return;
+          setMutationError(formatApiError(err, ARCH_MSG.MUTATION_ERROR));
+          setExternalLinkOpen(false);
+        }
+      })();
+    }
+  }, [selectedNode]);
+
   const siteNames =
     sitesState.status === "ready" ? sitesState.names : [];
-  // Immutable options: never mutate arrays during render
   const siteOptions =
     selectedSite && !siteNames.includes(selectedSite)
       ? [{ name: selectedSite }, ...siteNames.map((name) => ({ name }))]
@@ -159,8 +513,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const treeLoading = treeState.status === "loading";
   const treeError =
     treeState.status === "error" ? treeState.message : null;
-  const treeRoot =
-    treeState.status === "ready" ? treeState.root : null;
+
+  const selectedSiblingPlace = useMemo(() => {
+    if (!selectedNode || !treeRoot) return null;
+    return findSiblingPlacement(treeRoot, selectedNode.id);
+  }, [selectedNode, treeRoot]);
+
+  const sectionLinkParentId =
+    sectionLinkMode === "edit"
+      ? selectedSiblingPlace?.parent.id ?? createParent?.id ?? ""
+      : createParent?.id ?? "";
+  const sectionLinkParentTitle =
+    sectionLinkMode === "edit"
+      ? selectedSiblingPlace?.parent.title ?? createParent?.title ?? ""
+      : createParent?.title ?? "";
 
   return (
     <div
@@ -168,6 +534,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       data-testid="perc-architecture-shell"
       data-embedded={embedded ? "true" : "false"}
       data-site={selectedSite ?? ""}
+      aria-busy={mutationBusy || undefined}
       style={{
         fontFamily: "var(--perc-font-family, sans-serif)",
         padding: embedded ? "8px 12px 20px" : "20px",
@@ -235,15 +602,21 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           type="button"
           data-testid="architecture-refresh"
           onClick={onRefresh}
-          disabled={!selectedSite || treeLoading}
+          disabled={!selectedSite || treeLoading || mutationBusy}
           style={{
             padding: "0.4rem 0.85rem",
             border: `1px solid ${catalogColors.softBorder}`,
             borderRadius: 4,
-            background: !selectedSite || treeLoading ? "#f0f0f0" : "#fff",
-            color: !selectedSite || treeLoading ? "#999" : "#222",
+            background:
+              !selectedSite || treeLoading || mutationBusy
+                ? "#f0f0f0"
+                : "#fff",
+            color:
+              !selectedSite || treeLoading || mutationBusy ? "#999" : "#222",
             cursor:
-              !selectedSite || treeLoading ? "not-allowed" : "pointer",
+              !selectedSite || treeLoading || mutationBusy
+                ? "not-allowed"
+                : "pointer",
             fontSize: "0.9rem",
           }}
         >
@@ -329,15 +702,102 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               }}
               data-testid="architecture-site-hint"
             >
-              {ARCH_MSG.SITE_HINT.replace("{0}", selectedSite)}
+              {ARCH_MSG.SITE_HINT.split("{0}").join(selectedSite)}
             </p>
           </div>
+
+          <StructureActionBar
+            busy={mutationBusy}
+            canCreate={canCreate}
+            canCreateSectionLink={canCreateSectionLink}
+            canCreateExternalLink={canCreateExternalLink}
+            canLanding={canLanding}
+            canEditLink={canEditLink}
+            canRename={canRename}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
+            canDelete={canDelete}
+            onCreate={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setCreateOpen(true);
+            }}
+            onCreateSectionLink={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setSectionLinkMode("create");
+              setSectionLinkOpen(true);
+            }}
+            onCreateExternalLink={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setExternalLinkMode("create");
+              setExternalInitial(null);
+              setExternalLinkOpen(true);
+            }}
+            onLanding={() => {
+              setMutationError(null);
+              if (!selectedNode || !canReplaceLandingPage(selectedNode)) {
+                setMutationError(ARCH_MSG.LANDING_BLOCKED);
+                return;
+              }
+              setLandingOpen(true);
+            }}
+            onEditLink={openEditLink}
+            onRename={() => {
+              setMutationError(null);
+              setRenameOpen(true);
+            }}
+            onMoveUp={() => onMove("up")}
+            onMoveDown={() => onMove("down")}
+            onDelete={onDelete}
+          />
+
+          {!selectedNodeId ? (
+            <p
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.muted,
+                fontSize: "0.85rem",
+              }}
+              data-testid="architecture-select-hint"
+            >
+              {ARCH_MSG.SELECT_HINT}
+            </p>
+          ) : null}
+
+          {mutationError ? (
+            <p
+              role="alert"
+              data-testid="architecture-mutation-error"
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.error,
+                fontSize: "0.9rem",
+              }}
+            >
+              {mutationError}
+            </p>
+          ) : null}
+
           <NavTree
             root={treeRoot}
             loading={treeLoading}
             error={treeError}
             selectedId={selectedNodeId}
-            onSelect={(node) => setSelectedNodeId(node.id)}
+            onSelect={(node) => {
+              setSelectedNodeId(node.id);
+              setMutationError(null);
+            }}
           />
           <p
             style={{
@@ -345,12 +805,79 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               color: catalogColors.empty,
               fontSize: "0.85rem",
             }}
-            data-testid="architecture-readonly-note"
+            data-testid="architecture-structure-note"
           >
-            {ARCH_MSG.TREE_READONLY_NOTE}
+            {ARCH_MSG.TREE_STRUCTURE_NOTE}
+          </p>
+          <p
+            style={{
+              margin: "0.35rem 0 0",
+              color: catalogColors.empty,
+              fontSize: "0.8rem",
+            }}
+            data-testid="architecture-blog-note"
+          >
+            {ARCH_MSG.BLOG_NOTE}
           </p>
         </section>
       )}
+
+      <CreateSectionDialog
+        open={createOpen}
+        siteName={selectedSite ?? ""}
+        parentTitle={createParent?.title ?? ""}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setCreateOpen(false);
+        }}
+        onSubmit={onCreateSubmit}
+      />
+      <RenameSectionDialog
+        open={renameOpen}
+        initialTitle={selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setRenameOpen(false);
+        }}
+        onSubmit={onRenameSubmit}
+      />
+      <ReplaceLandingPageDialog
+        open={landingOpen}
+        siteName={selectedSite ?? ""}
+        sectionTitle={selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        useContentBrowser={useLandingContentBrowser}
+        onCancel={() => {
+          if (!mutationBusy) setLandingOpen(false);
+        }}
+        onSubmit={onLandingSubmit}
+      />
+      <SectionLinkDialog
+        open={sectionLinkOpen}
+        mode={sectionLinkMode}
+        parentId={sectionLinkParentId}
+        parentTitle={sectionLinkParentTitle}
+        treeRoot={treeRoot}
+        busy={mutationBusy}
+        linkSectionId={
+          sectionLinkMode === "edit" ? selectedNode?.id ?? null : null
+        }
+        onCancel={() => {
+          if (!mutationBusy) setSectionLinkOpen(false);
+        }}
+        onSubmit={onSectionLinkSubmit}
+      />
+      <ExternalLinkDialog
+        open={externalLinkOpen}
+        mode={externalLinkMode}
+        parentTitle={createParent?.title ?? selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        initial={externalInitial}
+        onCancel={() => {
+          if (!mutationBusy) setExternalLinkOpen(false);
+        }}
+        onSubmit={onExternalLinkSubmit}
+      />
     </div>
   );
 };

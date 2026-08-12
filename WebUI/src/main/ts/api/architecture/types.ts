@@ -16,7 +16,8 @@
  */
 
 /**
- * Wire types for sitemanage section / Architecture nav tree (#3095).
+ * Wire types for sitemanage section / Architecture nav tree
+ * (#3095 / #3096 / #3097).
  *
  * <p>Mirrors {@code PSSectionNode} / {@code PSSiteSection} and
  * {@code PSSectionTypeEnum} from projects/sitemanage.</p>
@@ -73,4 +74,93 @@ export interface NavTreeNode {
   sectionType: SectionType;
   requiresLogin: boolean;
   children: NavTreeNode[];
+}
+
+/** Target window values from {@code PSSiteSection.PSSectionTargetEnum}. */
+export type SectionTarget = "_self" | "_blank" | "_top" | "_parent" | string;
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/create}
+ * ({@code CreateSiteSection} / {@code PSCreateSiteSection}).
+ */
+export interface CreateSiteSectionFields {
+  pageTitle: string;
+  pageLinkTitle: string;
+  pageName: string;
+  pageUrlIdentifier: string;
+  templateId: string;
+  folderPath: string;
+  sectionType?: SectionType;
+  target?: SectionTarget;
+  copyTemplates?: boolean;
+  blogPostTemplateId?: string;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/update}
+ * ({@code SiteSectionProperties} / {@code PSSiteSectionProperties}).
+ */
+export interface SiteSectionPropertiesWire {
+  id: string;
+  title: string;
+  folderName: string;
+  target?: SectionTarget | null;
+  requiresLogin?: boolean | null;
+  allowAccessTo?: string | null;
+  cssClassNames?: string | null;
+  secureSite?: boolean | null;
+  secureAncestor?: boolean | null;
+  siteRootSection?: boolean | null;
+  /** Folder ACL object from server — pass through on update when present. */
+  folderPermission?: unknown;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/move}
+ * ({@code MoveSiteSection} / {@code PSMoveSiteSection}).
+ */
+export interface MoveSiteSectionFields {
+  sourceId: string;
+  targetId: string;
+  targetIndex: number;
+  sourceParentId?: string | null;
+}
+
+/** Result of locating a node among its siblings for reorder. */
+export interface SiblingPlacement {
+  parent: NavTreeNode;
+  index: number;
+  siblings: NavTreeNode[];
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/replaceLandingPage}
+ * ({@code ReplaceLandingPage} / {@code PSReplaceLandingPage}).
+ */
+export interface ReplaceLandingPageFields {
+  sectionId: string;
+  newLandingPageId: string;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/createExternalLinkSection}
+ * and update external link ({@code CreateExternalLinkSection}).
+ */
+export interface CreateExternalLinkFields {
+  externalUrl: string;
+  linkTitle: string;
+  folderPath: string;
+  sectionType?: SectionType;
+  target?: SectionTarget;
+  cssClassNames?: string | null;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/updateSectionLink}
+ * ({@code UpdateSectionLink} / {@code PSUpdateSectionLink}).
+ */
+export interface UpdateSectionLinkFields {
+  oldSectionId: string;
+  newSectionId: string;
+  parentSectionId: string;
 }
