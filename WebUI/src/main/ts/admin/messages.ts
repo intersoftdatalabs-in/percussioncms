@@ -21,8 +21,6 @@ export const ADMIN_MSG = {
    * (not "Administration") when top-nav Admin lands on {@code /admin}.
    */
   ADMIN_TITLE: "perc.ui.dashboard.modern@Admin tools",
-  SECTION_LOAD_FAILED:
-    "perc.ui.admin@Unable to load {0}. Try another Admin tab or reload.",
   TAB_TASKS: "perc.ui.admin@Scheduled Tasks",
   TAB_LOGS: "perc.ui.admin@Execution Logs",
   TAB_NOTIFICATIONS: "perc.ui.admin@Notification Settings",
