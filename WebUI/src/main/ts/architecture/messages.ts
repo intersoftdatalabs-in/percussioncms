@@ -41,6 +41,9 @@ const KEYS = {
   TREE_ERROR: "perc.ui.architecture.modern@Could not load the navigation tree.",
   TREE_EMPTY:
     "perc.ui.architecture.modern@This site has no navigation sections yet.",
+  TREE_EMPTY_TITLE: "perc.ui.architecture.modern@No navigation tree",
+  TREE_EMPTY_HINT:
+    "perc.ui.architecture.modern@A site can exist without a NavTree. Add a navigation tree at the site root in Explorer, then refresh, or choose another site.",
   TREE_PANEL_TITLE: "perc.ui.architecture.modern@Navigation tree",
   TREE_STRUCTURE_NOTE:
     "perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.",
@@ -179,6 +182,8 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   TREE_LOADING: message(KEYS.TREE_LOADING),
   TREE_ERROR: message(KEYS.TREE_ERROR),
   TREE_EMPTY: message(KEYS.TREE_EMPTY),
+  TREE_EMPTY_TITLE: message(KEYS.TREE_EMPTY_TITLE),
+  TREE_EMPTY_HINT: message(KEYS.TREE_EMPTY_HINT),
   TREE_PANEL_TITLE: message(KEYS.TREE_PANEL_TITLE),
   TREE_STRUCTURE_NOTE: message(KEYS.TREE_STRUCTURE_NOTE),
   REFRESH: message(KEYS.REFRESH),

@@ -37,6 +37,22 @@ Default landing can also be set to **Architecture** for a user or role (homepage
 Empty, loading, and error states are shown explicitly when the site list or tree
 cannot be loaded, or when a site has no sections.
 
+### Site without a navigation tree
+
+A site can exist without a NavTree item at the site root (for example a newly
+created site, a Rhythmyx site listed in the site picker, or a site whose
+navigation was never created). Opening **Architecture** for that site does
+**not** fail with HTTP 500.
+
+The server `GET /Rhythmyx/sitemanage/section/tree/{siteName}` call returns
+**HTTP 200** with an empty section tree (`childNodes` empty). The SPA shows an
+operator **empty state** (“No navigation tree”) in the Navigation tree panel
+instead of a route error or a generic 500 banner.
+
+To add navigation later, create a NavTree at the site root in **Explorer**
+(or create the site with managed navigation), then use **Refresh**. Other
+sites with a tree continue to load normally.
+
 ## Keyboard and accessibility
 
 The navigation tree follows the ARIA tree pattern:

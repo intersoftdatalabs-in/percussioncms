@@ -139,4 +139,17 @@ public class PSSectionNode extends PSAbstractPersistantObject {
   public void setFolderPath(String folderPath) {
     this.folderPath = folderPath;
   }
+
+  /**
+   * Empty tree payload for a site that exists but has no NavTree item (#3218).
+   * {@code id} is left unset; {@link #getChildNodes()} is never {@code null}.
+   */
+  public static PSSectionNode emptyTree(String siteName, String folderPath) {
+    PSSectionNode node = new PSSectionNode();
+    node.setTitle(siteName);
+    node.setFolderPath(folderPath);
+    node.setSectionType(PSSectionTypeEnum.section);
+    node.setChildNodes(new ArrayList<>());
+    return node;
+  }
 }

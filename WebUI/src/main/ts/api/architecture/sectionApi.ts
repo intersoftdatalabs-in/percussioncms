@@ -23,9 +23,10 @@
  * Mutations: create / properties / update / move / delete / landing / links.</p>
  */
 
-import { del, get, post } from "../client";
+import { del, extractRestErrorMessage, get, isApiError, post } from "../client";
 import { PATHS } from "../paths";
 import {
+  isEmptySectionTreeWire,
   mapSectionNodeToTree,
   parseSectionNodePayload,
 } from "./mapSectionTree";
@@ -119,11 +120,36 @@ export function sectionLoadUrl(sectionId: string): string {
 }
 
 /**
+ * True when the API failure is a missing/empty NavTree (operator empty
+ * state), not a hard tree-load failure (#3218).
+ */
+export function isMissingNavTreeError(err: unknown): boolean {
+  const chunks: string[] = [];
+  if (err instanceof Error && err.message) {
+    chunks.push(err.message);
+  }
+  if (isApiError(err)) {
+    chunks.push(String(err.statusText || ""));
+    const fromBody = extractRestErrorMessage(err.body);
+    if (fromBody) {
+      chunks.push(fromBody);
+    }
+  }
+  const text = chunks.join(" ").toLowerCase();
+  return (
+    text.includes("cannot find navigation tree") ||
+    text.includes("cannot find navtree") ||
+    text.includes("navtree for site") ||
+    text.includes("no navigation tree")
+  );
+}
+
+/**
  * Load the full section/navon tree for a site.
  *
  * @param siteName CMS site name (e.g. {@code Corporate Investments})
  * @returns Normalized root {@link NavTreeNode}, or {@code null} when the
- *          payload is empty / unparseable (caller may treat as empty).
+ *          payload is empty / unparseable / missing nav tree (#3218).
  */
 export async function loadSectionTree(
   siteName: string,
@@ -132,12 +158,19 @@ export async function loadSectionTree(
   if (!name) {
     throw new Error("Site name is required to load the navigation tree");
   }
-  const payload = await get<unknown>(sectionTreeUrl(name));
-  const wire = parseSectionNodePayload(payload);
-  if (!wire) {
-    return null;
+  try {
+    const payload = await get<unknown>(sectionTreeUrl(name));
+    const wire = parseSectionNodePayload(payload);
+    if (!wire || isEmptySectionTreeWire(wire)) {
+      return null;
+    }
+    return mapSectionNodeToTree(wire);
+  } catch (err) {
+    if (isMissingNavTreeError(err)) {
+      return null;
+    }
+    throw err;
   }
-  return mapSectionNodeToTree(wire);
 }
 
 /**

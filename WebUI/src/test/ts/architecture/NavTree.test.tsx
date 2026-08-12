@@ -126,5 +126,10 @@ describe("NavTree (#3095)", () => {
 
     rerender(<NavTree root={null} />);
     expect(screen.getByTestId("architecture-nav-tree-empty")).toBeTruthy();
+    expect(
+      screen.getByTestId("architecture-nav-tree-empty-title").textContent,
+    ).toMatch(/no navigation tree/i);
+    expect(screen.getByTestId("architecture-nav-tree-empty-hint")).toBeTruthy();
+    expect(screen.queryByRole("tree")).toBeNull();
   });
 });
