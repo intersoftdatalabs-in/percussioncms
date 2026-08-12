@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { listSites } from "../api/developer/sitesApi";
+import { coerceDisplayString, listSites } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { mutedCell, openButtonStyle } from "./catalogStyles";
@@ -12,8 +12,12 @@ import { DEV_MSG } from "./messages";
 import { SiteDetailPanel } from "./SiteDetailPanel";
 
 function siteName(s: SiteDef): string {
-  const n = s.name;
-  if (typeof n === "string") return n.trim();
+  const n = coerceDisplayString(s.name);
+  if (n) return n;
+  const guid = s.guid;
+  if (guid && typeof guid.stringValue === "string" && guid.stringValue.trim()) {
+    return guid.stringValue.trim();
+  }
   return "";
 }
 
@@ -64,8 +68,14 @@ export function SitesPanel(): React.ReactElement {
     return (
       <CatalogStatus testId="developer-site-loading">{DEV_MSG.SITE_LOADING}</CatalogStatus>
     );
-  if (items.length === 0 || sorted.length === 0)
+  if (items.length === 0)
     return <CatalogStatus testId="developer-site-empty">{DEV_MSG.SITE_EMPTY}</CatalogStatus>;
+  if (sorted.length === 0)
+    return (
+      <CatalogStatus testId="developer-site-error" error>
+        {DEV_MSG.SITE_BIND_ERROR}
+      </CatalogStatus>
+    );
 
   return (
     <div data-testid="developer-site-panel">

@@ -101,6 +101,18 @@ Example create body:
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
 
+## Sites (catalog)
+
+| Operation | Path | Notes |
+|-----------|------|--------|
+| List | `GET /services/sites` | All CMS Sites (traditional, page-based, Virtual). JSON is a Jackson root wrap `{ "SiteList": [ { "name", "description", "baseUrl", … } ] }` or a bare array. Each entry includes a plain string `name` when the Site has one. |
+| Detail | `GET /services/sites/{nameOrId}` | Site detail including `virtual.*` when configured |
+| Virtual properties | `GET` / `PUT /services/sites/{nameOrId}/virtual` | Virtual Site source bag |
+| Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; Git-filesystem Virtual Sites |
+
+An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty list JSON is the
+only empty-catalog case. See [Sites & content structure](id:admin-sites).
+
 ## Content types (design catalog)
 
 | Operation | Path | Notes |

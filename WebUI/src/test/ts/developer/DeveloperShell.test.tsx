@@ -540,6 +540,8 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
       pageBasedSite: true,
     },
   ]),
+  coerceDisplayString: (value: unknown) =>
+    typeof value === "string" ? value.trim() : "",
   SITE_DESIGN_GAPS: [],
 }));
 

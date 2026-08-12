@@ -14,6 +14,8 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn(),
   getVirtualSiteProperties: vi.fn().mockResolvedValue({ virtual: false }),
   updateVirtualSiteProperties: vi.fn(),
+  coerceDisplayString: (value: unknown) =>
+    typeof value === "string" ? value.trim() : "",
   SITE_DESIGN_GAPS: ["gap-write", "gap-publish", "gap-wf"],
 }));
 
@@ -115,5 +117,27 @@ describe("SitesPanel", () => {
       expect(screen.getByTestId("developer-site-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-site-error").textContent).toBe(DEV_MSG.SITE_ERROR);
+  });
+
+  it("shows bind error when API rows have no usable name (#3198)", async () => {
+    listSites.mockResolvedValue([{ description: "orphan" }]);
+    render(<SitesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-error").textContent).toBe(DEV_MSG.SITE_BIND_ERROR);
+    expect(screen.queryByTestId("developer-site-empty")).toBeNull();
+  });
+
+  it("lists a site by guid when name is missing", async () => {
+    listSites.mockResolvedValue([
+      { guid: { stringValue: "0-1-301" }, description: "no name" },
+    ]);
+    render(<SitesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-table").textContent).toContain("0-1-301");
+    expect(screen.queryByTestId("developer-site-empty")).toBeNull();
   });
 });

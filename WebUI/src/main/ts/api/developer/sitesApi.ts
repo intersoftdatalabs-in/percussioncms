@@ -18,14 +18,36 @@ export const SITE_DESIGN_GAPS: string[] = [
   "Workflow association is browsed under the Workflows catalog",
 ];
 
-const LIST_WRAPPER_KEYS = ["Site", "site", "SiteList", "sites", "entries"] as const;
+const LIST_WRAPPER_KEYS = [
+  "SiteList",
+  "siteList",
+  "Site",
+  "site",
+  "sites",
+  "entries",
+] as const;
 
-function parseSiteList(payload: unknown): SiteDef[] {
+/**
+ * Parse GET /services/sites JSON.
+ *
+ * <p>Accepts a bare array or Jackson WRAP_ROOT envelopes ({@code SiteList} / {@code Site}).
+ * Nested wraps ({@code {SiteList:{Site:[...]}}}) and per-item {@code {Site:{name}}} objects
+ * are unwrapped so Developer Sites does not render a silent empty table after HTTP 200
+ * (#3198). Unknown object shapes throw so the panel shows an error instead of empty.
+ */
+export function parseSiteList(payload: unknown): SiteDef[] {
+  return collectSiteRows(payload, 0).map(normalizeSiteRow);
+}
+
+function collectSiteRows(payload: unknown, depth: number): unknown[] {
   if (payload == null) {
     return [];
   }
+  if (depth > 5) {
+    throw new Error("Unexpected site list payload (too deeply nested)");
+  }
   if (Array.isArray(payload)) {
-    return payload as SiteDef[];
+    return payload.flatMap((item) => unwrapArrayItem(item, depth));
   }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
@@ -33,15 +55,72 @@ function parseSiteList(payload: unknown): SiteDef[] {
       const raw = obj[key];
       if (raw == null) continue;
       if (Array.isArray(raw)) {
-        return raw as SiteDef[];
+        return collectSiteRows(raw, depth + 1);
       }
       if (typeof raw === "object") {
-        return [raw as SiteDef];
+        if (looksLikeSite(raw as Record<string, unknown>)) {
+          return [raw];
+        }
+        return collectSiteRows(raw, depth + 1);
       }
+    }
+    if (looksLikeSite(obj)) {
+      return [obj];
     }
     throw new Error("Unexpected site list payload (expected array or known Site wrapper)");
   }
   throw new Error("Unexpected site list payload type");
+}
+
+function unwrapArrayItem(item: unknown, depth: number): unknown[] {
+  if (item == null || typeof item !== "object" || Array.isArray(item)) {
+    return item == null ? [] : [item];
+  }
+  const obj = item as Record<string, unknown>;
+  if (looksLikeSite(obj)) {
+    return [obj];
+  }
+  const nested = obj.Site ?? obj.site;
+  if (nested != null && typeof nested === "object") {
+    return collectSiteRows(nested, depth + 1);
+  }
+  return [obj];
+}
+
+function looksLikeSite(obj: Record<string, unknown>): boolean {
+  return (
+    "name" in obj ||
+    "baseUrl" in obj ||
+    "pageBasedSite" in obj ||
+    "guid" in obj ||
+    "description" in obj
+  );
+}
+
+function normalizeSiteRow(raw: unknown): SiteDef {
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
+    return {};
+  }
+  const obj = raw as Record<string, unknown>;
+  const name = coerceDisplayString(obj.name);
+  return {
+    ...(obj as SiteDef),
+    name: name || undefined,
+  };
+}
+
+/** Jackson Optional leftovers may arrive as objects; only strings bind as names. */
+export function coerceDisplayString(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    const obj = value as Record<string, unknown>;
+    if (typeof obj.value === "string") {
+      return obj.value.trim();
+    }
+  }
+  return "";
 }
 
 function withGaps(s: SiteDef): SiteDef {

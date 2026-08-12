@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.percussion.rest.JacksonContextResolver;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import java.io.StringWriter;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -36,7 +38,10 @@ import tools.jackson.databind.json.JsonMapper;
  * Wire shape for SitesResource list GET must marshal {@link SiteList} elements.
  *
  * <p>List GET {@code /services/sites} requires {@link SiteList} JAXB context registration of {@link
- * Site} via {@code @XmlSeeAlso} (#3090). Mirrors {@code UserPreferenceSerialDeserialTest} (#2746).
+ * Site} via {@code @XmlSeeAlso} (#3090). Production JSON uses {@link JacksonContextResolver}
+ * WRAP_ROOT_VALUE; Site getters must emit plain {@code name} strings so Developer Sites can bind
+ * (#3198). Mirrors {@code UserPreferenceSerialDeserialTest} (#2746) and {@code
+ * JacksonContextResolverOptionalTest} (#1693).
  */
 @Tag("UnitTest")
 public class SiteListSerialDeserialTest {
@@ -74,9 +79,43 @@ public class SiteListSerialDeserialTest {
 
     var roundTrip = mapper.readValue(json, SiteList.class);
     assertEquals(1, roundTrip.size(), "list size after round-trip");
-    assertEquals("Help", roundTrip.get(0).getName().orElse(null));
-    assertEquals("Help site", roundTrip.get(0).getDescription().orElse(null));
-    assertEquals("https://help.example.com", roundTrip.get(0).getBaseUrl().orElse(null));
+    assertEquals("Help", roundTrip.get(0).getName());
+    assertEquals("Help site", roundTrip.get(0).getDescription());
+    assertEquals("https://help.example.com", roundTrip.get(0).getBaseUrl());
+  }
+
+  /**
+   * Production CXF mapper (WRAP_ROOT_VALUE) must emit a SiteList envelope whose elements have
+   * string {@code name} fields — not Optional beans and not a nameless wrapper (#3198).
+   */
+  @Test
+  public void productionMapperSerializesSiteListWithPlainNames() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(SiteList.class);
+    var list = new SiteList();
+    list.add(sampleSite());
+
+    String json = mapper.writeValueAsString(list);
+    assertTrue(json.contains("\"SiteList\""), "expected WRAP_ROOT_VALUE SiteList: " + json);
+    assertTrue(json.contains("\"name\""), "site name property must be present: " + json);
+    assertTrue(json.contains("\"Help\""), "site name value must be present: " + json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"baseUrl\""), json);
+    assertFalse(
+        json.contains("\"empty\"") && !json.contains("\"name\":\"Help\""),
+        "name must be a plain string, not an Optional bean: " + json);
+
+    SiteList roundTrip = mapper.readValue(json, SiteList.class);
+    assertEquals(1, roundTrip.size());
+    assertEquals("Help", roundTrip.get(0).getName());
+    assertEquals("Help site", roundTrip.get(0).getDescription());
+    assertEquals("https://help.example.com", roundTrip.get(0).getBaseUrl());
+  }
+
+  @Test
+  public void productionMapperSerializesEmptySiteListEnvelope() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(SiteList.class);
+    String json = mapper.writeValueAsString(new SiteList());
+    assertTrue(json.contains("SiteList") || json.contains("["), json);
   }
 
   /**

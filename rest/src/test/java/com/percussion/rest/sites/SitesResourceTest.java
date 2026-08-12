@@ -71,7 +71,7 @@ public class SitesResourceTest {
 
     SiteList out = resource.listSites();
     assertEquals(1, out.size());
-    assertEquals("Help", out.get(0).getName().orElse(null));
+    assertEquals("Help", out.get(0).getName());
     verify(adaptor).findAllSites();
   }
 
@@ -93,9 +93,9 @@ public class SitesResourceTest {
     when(adaptor.findByName("Help")).thenReturn(s);
 
     Site out = resource.getSite("Help");
-    assertEquals("Help", out.getName().orElse(null));
-    assertTrue(out.getVirtual().isPresent());
-    assertEquals("git-filesystem", out.getVirtual().get().getSourceKind().orElse(null));
+    assertEquals("Help", out.getName());
+    assertTrue(out.getVirtual() != null);
+    assertEquals("git-filesystem", out.getVirtual().getSourceKind().orElse(null));
     verify(adaptor).findByName("Help");
     verify(adaptor, never()).findByGuid(any());
   }
@@ -108,7 +108,7 @@ public class SitesResourceTest {
     when(adaptor.findByGuid("0-1-301")).thenReturn(s);
 
     Site out = resource.getSite("0-1-301");
-    assertEquals("Help", out.getName().orElse(null));
+    assertEquals("Help", out.getName());
     verify(adaptor).findByGuid("0-1-301");
   }
 
