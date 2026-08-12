@@ -18,11 +18,12 @@
 /**
  * Read-only accessible navigation tree for Architecture (#3095).
  *
- * <p>Uses ARIA tree / treeitem + keyboard expand/collapse (peer: ExplorerTree).
- * Mutations (create/edit/reorder/delete) are intentionally out of scope.</p>
+ * <p>Uses ARIA tree / treeitem + keyboard expand/collapse and focus movement
+ * (peer: ExplorerTree). Mutations (create/edit/reorder/delete) are intentionally
+ * out of scope.</p>
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { NavTreeNode } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
@@ -104,6 +105,36 @@ const badgeStyle: React.CSSProperties = {
   background: "#fff",
 };
 
+/** Flatten visible nodes in document order for arrow up/down. */
+function collectVisible(
+  node: NavTreeNode,
+  expanded: Record<string, boolean>,
+  out: NavTreeNode[] = [],
+): NavTreeNode[] {
+  out.push(node);
+  if (isNavBranch(node) && (expanded[node.id] ?? false)) {
+    for (const child of node.children) {
+      collectVisible(child, expanded, out);
+    }
+  }
+  return out;
+}
+
+/** Parent id map for ArrowLeft focus-to-parent. */
+function buildParentMap(
+  node: NavTreeNode,
+  parentId: string | null = null,
+  map: Map<string, string | null> = new Map(),
+): Map<string, string | null> {
+  map.set(node.id, parentId);
+  if (node.children?.length) {
+    for (const child of node.children) {
+      buildParentMap(child, node.id, map);
+    }
+  }
+  return map;
+}
+
 /**
  * Read-only site navigation tree (navons / sections).
  */
@@ -115,6 +146,7 @@ export function NavTree({
   onSelect,
 }: NavTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const treeRef = useRef<HTMLDivElement | null>(null);
 
   const rootId = root?.id ?? null;
   useEffect(() => {
@@ -129,6 +161,90 @@ export function NavTree({
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
+  const setExpandedOpen = useCallback((id: string, open: boolean) => {
+    setExpanded((prev) =>
+      prev[id] === open ? prev : { ...prev, [id]: open },
+    );
+  }, []);
+
+  const focusItem = useCallback((id: string) => {
+    const el = treeRef.current?.querySelector<HTMLElement>(
+      `[data-testid="nav-tree-item-${id}"]`,
+    );
+    el?.focus();
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, node: NavTreeNode) => {
+      if (!root) return;
+      const branch = isNavBranch(node);
+      const open = expanded[node.id] ?? false;
+      const visible = collectVisible(root, expanded);
+      const parentMap = buildParentMap(root);
+      const idx = visible.findIndex((n) => n.id === node.id);
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onSelect?.(node);
+        if (branch) toggle(node.id);
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (branch && !open) {
+          setExpandedOpen(node.id, true);
+          return;
+        }
+        if (branch && open && node.children.length > 0) {
+          focusItem(node.children[0].id);
+        }
+        return;
+      }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (branch && open) {
+          setExpandedOpen(node.id, false);
+          return;
+        }
+        const parentId = parentMap.get(node.id);
+        if (parentId) {
+          focusItem(parentId);
+        }
+        return;
+      }
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (idx >= 0 && idx < visible.length - 1) {
+          focusItem(visible[idx + 1].id);
+        }
+        return;
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (idx > 0) {
+          focusItem(visible[idx - 1].id);
+        }
+        return;
+      }
+
+      if (e.key === "Home") {
+        e.preventDefault();
+        if (visible.length > 0) focusItem(visible[0].id);
+        return;
+      }
+
+      if (e.key === "End") {
+        e.preventDefault();
+        if (visible.length > 0) focusItem(visible[visible.length - 1].id);
+      }
+    },
+    [root, expanded, onSelect, toggle, setExpandedOpen, focusItem],
+  );
+
   const renderNode = (
     node: NavTreeNode,
     depth: number,
@@ -137,33 +253,24 @@ export function NavTree({
     const open = expanded[node.id] ?? false;
     const selected = selectedId === node.id;
     const typeBadge = sectionTypeLabel(node.sectionType);
+    // Roving tabindex: selected item, else root when nothing selected
+    const isTabStop =
+      selected ||
+      (selectedId == null && root != null && node.id === root.id);
 
     return (
       <div key={node.id} data-testid={`nav-tree-node-${node.id}`}>
         <div
           role="treeitem"
+          aria-level={depth + 1}
           aria-expanded={branch ? open : undefined}
           aria-selected={selected}
-          tabIndex={0}
+          tabIndex={isTabStop ? 0 : -1}
           data-testid={`nav-tree-item-${node.id}`}
           data-section-type={node.sectionType}
           style={nodeRowStyle(selected, depth)}
           onClick={() => onSelect?.(node)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onSelect?.(node);
-              if (branch) toggle(node.id);
-              return;
-            }
-            if (e.key === "ArrowRight") {
-              e.preventDefault();
-              if (branch && !open) toggle(node.id);
-            } else if (e.key === "ArrowLeft") {
-              e.preventDefault();
-              if (branch && open) toggle(node.id);
-            }
-          }}
+          onKeyDown={(e) => handleKeyDown(e, node)}
         >
           <span
             style={toggleStyle}
@@ -238,7 +345,11 @@ export function NavTree({
     );
   } else {
     body = (
-      <div role="tree" aria-label={ARCH_MSG.TREE_PANEL_TITLE}>
+      <div
+        ref={treeRef}
+        role="tree"
+        aria-label={ARCH_MSG.TREE_PANEL_TITLE}
+      >
         {renderNode(root, 0)}
       </div>
     );

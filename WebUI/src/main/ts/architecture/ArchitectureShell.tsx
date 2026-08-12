@@ -150,14 +150,11 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
 
   const siteNames =
     sitesState.status === "ready" ? sitesState.names : [];
-  const siteOptions = siteNames.map((name) => ({ name }));
-  // Include deep-linked site even if not yet in list so the select can show it
-  if (
-    selectedSite &&
-    !siteOptions.some((s) => s.name === selectedSite)
-  ) {
-    siteOptions.unshift({ name: selectedSite });
-  }
+  // Immutable options: never mutate arrays during render
+  const siteOptions =
+    selectedSite && !siteNames.includes(selectedSite)
+      ? [{ name: selectedSite }, ...siteNames.map((name) => ({ name }))]
+      : siteNames.map((name) => ({ name }));
 
   const treeLoading = treeState.status === "loading";
   const treeError =

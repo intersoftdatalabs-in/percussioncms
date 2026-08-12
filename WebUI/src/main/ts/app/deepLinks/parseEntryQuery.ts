@@ -262,9 +262,16 @@ export function parseClientPath(
       };
     }
     case "architecture": {
-      const siteFromPath = normalizeArchitectureSite(
-        second != null ? decodeURIComponent(second) : undefined,
-      );
+      let pathSegment: string | undefined;
+      if (second != null) {
+        try {
+          pathSegment = decodeURIComponent(second);
+        } catch {
+          // Malformed % sequences must not throw URIError during navigation
+          pathSegment = second;
+        }
+      }
+      const siteFromPath = normalizeArchitectureSite(pathSegment);
       const siteFromQuery = normalizeArchitectureSite(params.get("site"));
       const site = siteFromPath ?? siteFromQuery;
       if (site) {

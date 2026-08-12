@@ -35,7 +35,7 @@ const KEYS = {
   SITES_LOADING: "perc.ui.architecture.modern@Loading sites…",
   SITES_ERROR: "perc.ui.architecture.modern@Could not load the site list.",
   SITES_EMPTY:
-    "perc.ui.architecture.modern@No sites are available. Create a site before editing navigation.",
+    "perc.ui.architecture.modern@No sites are available. Create a site to browse its navigation tree.",
   TREE_LOADING: "perc.ui.architecture.modern@Loading navigation tree…",
   TREE_ERROR: "perc.ui.architecture.modern@Could not load the navigation tree.",
   TREE_EMPTY:
