@@ -10,7 +10,6 @@
 //   labels            string - gh --label filter, comma-separated (e.g. "8.2,tech-debt")
 //   repo              string - owner/name (default intersoftdatalabs-in/percussioncms)
 //   base_branch       string - PR base (default main)
-//   dry_run           bool   - if true: triage + plan only; no branch/push/PR/child issues
 //   prefer_easy       bool   - within the same pN tier, prefer tech-debt / javadoc / small bugs (default true)
 //   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 20).
 //                                Example max_issues=10 → 8 priority-pool (p1–p6/unset) + 2 low (p7/p8).
@@ -51,8 +50,16 @@
 //                                mitigation PRs (capped) for alerts. Never open a second concurrent
 //                                Security Audit issue for the same base_branch.
 //   max_security_prs    int    - max mitigation PRs to open per Security Audit pass (default 3, cap 8)
-//   include_human_qa    bool   - when Work item is ready for human QA, create QA issue with test plan
-//                                and assign designated QA resource (default true).
+//   include_human_qa    bool   - when Work item meets the HUMAN QA QUALITY BAR, create QA issue
+//                                and assign designated QA (default true). pr_opened + UI is NOT
+//                                enough. Self-reported C5 is NOT enough. "Agent could not prove
+//                                it" is a reason to NOT assign (humans are not a dump for weak PRs).
+//   include_cycle_verify bool  - after Security: Maven clean install of this-run modules + H2
+//                                qa-up Playwright. Failures become next-cycle p1 lead issues
+//                                (default true). Never assigns human QA.
+//   cycle_verify_allow_full_playwright bool - if true, Playwright --allow-full (expensive).
+//                                Default false: golden + login + this-run QA surfaces.
+//   max_cycle_verify_residuals int - max NEW cycle-verify issues per run (default 8, cap 20).
 //   qa_assignee         string - GitHub login for human QA (default vijaya-boddipudi)
 //   qa_label            string - label for human QA issues (default "qa task")
 //   worktree_path       string - dedicated overnight git worktree; empty = portable default under
@@ -103,6 +110,7 @@ let meta = #{
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
         #{ title: "PR cluster", detail: "same-file thrash: interim branch + superseding PR" },
         #{ title: "Security audit", detail: "CodeQL open alerts → one Audit Fix Pass issue + mitigation PRs" },
+        #{ title: "Cycle verify", detail: "this-run Maven + H2 Playwright; failures → next-cycle p1 residuals" },
         #{ title: "Report", detail: "scratch night report (run-local only; not epic status)" },
     ],
 };
@@ -222,6 +230,27 @@ let security_audit_schema = #{
     },
 };
 
+let cycle_verify_schema = #{
+    "type": "object",
+    "required": ["status", "summary"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "integration_ref": #{ "type": "string" },
+        "modules_built": #{ "type": "string" },
+        "build_ok": #{ "type": "boolean" },
+        "build_failures": #{ "type": "string" },
+        "playwright_ok": #{ "type": "boolean" },
+        "playwright_command": #{ "type": "string" },
+        "playwright_failures": #{ "type": "string" },
+        "test_cms_url": #{ "type": "string" },
+        "residual_issue_urls": #{ "type": "string" },
+        "residuals_created": #{ "type": "integer" },
+        "residuals_reused": #{ "type": "string" },
+        "blocked": #{ "type": "string" },
+    },
+};
+
 let stale_in_progress_schema = #{
     "type": "object",
     "required": ["status", "summary", "issues_scanned", "issues_cleared"],
@@ -241,6 +270,9 @@ let stale_in_progress_schema = #{
 // Canonical tracking issue title (exact match for singleton search).
 // Per base_branch: at most ONE open issue with this title may exist.
 let security_audit_title = "[night-issues: Security Audit - Fix Pass]";
+// Prefix for implement residuals created from cycle-verify Maven/Playwright failures.
+// Discover/Triage treat open issues with this prefix as next-cycle LEAD (before other p1).
+let cycle_verify_title_prefix = "[night-issues: Cycle Verify]";
 // Designated human QA resource (Intersoft QA). Override via args.
 let qa_assignee = "vijaya-boddipudi";
 let qa_label = "qa task";
@@ -250,7 +282,6 @@ let max_issues = 3;
 let labels = "";
 let repo = "intersoftdatalabs-in/percussioncms";
 let base_branch = "main";
-let dry_run = false;
 let prefer_easy = true;
 // Percent of max_issues reserved for low labels p7+p8 (backfill from priority pool if none).
 let low_priority_quota_pct = 20;
@@ -269,6 +300,9 @@ let include_pr_followup = true;
 let include_peer_pr_review = true;
 let include_pr_cluster = true;
 let include_security_audit = true;
+let include_cycle_verify = true;
+let cycle_verify_allow_full_playwright = false;
+let max_cycle_verify_residuals = 8;
 let include_human_qa = true;
 let allow_peer_squash_merge = true;
 let max_prs = 6;
@@ -289,7 +323,6 @@ if args != () {
     if args.labels != () { labels = args.labels; }
     if args.repo != () { repo = args.repo; }
     if args.base_branch != () { base_branch = args.base_branch; }
-    if args.dry_run != () { dry_run = args.dry_run; }
     if args.prefer_easy != () { prefer_easy = args.prefer_easy; }
     if args.low_priority_quota_pct != () { low_priority_quota_pct = args.low_priority_quota_pct; }
     if args.agent_safe_only != () { agent_safe_only = args.agent_safe_only; }
@@ -305,6 +338,13 @@ if args != () {
     if args.include_peer_pr_review != () { include_peer_pr_review = args.include_peer_pr_review; }
     if args.include_pr_cluster != () { include_pr_cluster = args.include_pr_cluster; }
     if args.include_security_audit != () { include_security_audit = args.include_security_audit; }
+    if args.include_cycle_verify != () { include_cycle_verify = args.include_cycle_verify; }
+    if args.cycle_verify_allow_full_playwright != () {
+        cycle_verify_allow_full_playwright = args.cycle_verify_allow_full_playwright;
+    }
+    if args.max_cycle_verify_residuals != () {
+        max_cycle_verify_residuals = args.max_cycle_verify_residuals;
+    }
     if args.include_human_qa != () { include_human_qa = args.include_human_qa; }
     if args.allow_peer_squash_merge != () { allow_peer_squash_merge = args.allow_peer_squash_merge; }
     if args.qa_assignee != () { qa_assignee = args.qa_assignee; }
@@ -328,6 +368,8 @@ if cluster_min_prs < 2 { cluster_min_prs = 2; }
 if cluster_min_prs > 8 { cluster_min_prs = 8; }
 if max_security_prs < 1 { max_security_prs = 1; }
 if max_security_prs > 8 { max_security_prs = 8; }
+if max_cycle_verify_residuals < 0 { max_cycle_verify_residuals = 0; }
+if max_cycle_verify_residuals > 20 { max_cycle_verify_residuals = 20; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
 if stale_in_progress_hours < 1 { stale_in_progress_hours = 1; }
@@ -345,7 +387,6 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " low_slots=" + low_slots.to_string()
     + " low_priority_quota_pct=" + low_priority_quota_pct.to_string()
     + " priority_labels=p1..p8 (p1 highest)"
-    + " dry_run=" + dry_run.to_string()
     + " agent_safe_only=" + agent_safe_only.to_string()
     + " maintainer_authors_only=" + maintainer_authors_only.to_string()
     + " allowed_issue_authors=" + allowed_issue_authors
@@ -359,6 +400,9 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " max_peer_reviews=" + max_peer_reviews.to_string()
     + " include_pr_cluster=" + include_pr_cluster.to_string()
     + " include_security_audit=" + include_security_audit.to_string()
+    + " include_cycle_verify=" + include_cycle_verify.to_string()
+    + " cycle_verify_allow_full_playwright=" + cycle_verify_allow_full_playwright.to_string()
+    + " max_cycle_verify_residuals=" + max_cycle_verify_residuals.to_string()
     + " include_human_qa=" + include_human_qa.to_string()
     + " qa_assignee=" + qa_assignee
     + " qa_label=" + qa_label
@@ -377,6 +421,7 @@ let pr_followup_post_result = ();
 let peer_pr_review_result = ();
 let pr_cluster_result = ();
 let security_audit_result = ();
+let cycle_verify_result = ();
 
 // Shared PR follow-up instructions (PRE before Discover; POST after Work).
 // Conflicts + review threads only; no CI polling.
@@ -439,7 +484,7 @@ pr_prompt_core += "3) Skip pure drafts unless they have conflicts or open thread
 pr_prompt_core += "4) After each successful push, git fetch origin before the next PR.\n";
 pr_prompt_core += "5) NEVER edit threads on other humans' PRs unless co-author / overnight bot PR.\n\n";
 
-pr_prompt_core += "PER SELECTED PR (dry_run=false) - PR by PR, then next phase:\n";
+pr_prompt_core += "PER SELECTED PR — PR by PR, then next phase:\n";
 pr_prompt_core += "A) CONFLICTS/DIRTY (and BEHIND only if you are already rebasing for conflicts):\n";
 pr_prompt_core += "   In worktree_path: fetch; checkout PR branch; rebase onto origin/" + base_branch + "\n";
 pr_prompt_core += "   (or PR baseRefName). Resolve markers fully; keep both non-overlapping adds;\n";
@@ -469,20 +514,7 @@ pr_prompt_core += "threads only - not CI wait state.\n";
 
 // ========== Stale In Progress cleanup (FIRST — before PRE/Discover) ==========
 // Abandoned agent claims leave In Progress forever; free issues not touched for N hours.
-if dry_run {
-    log("dry_run=true: skipping stale In Progress cleanup writes.");
-    stale_in_progress_result = #{
-        status: "skipped_dry_run",
-        summary: "dry_run=true: no In Progress label changes",
-        issues_scanned: 0,
-        issues_stale: 0,
-        issues_cleared: 0,
-        issues_kept: "",
-        issues_cleared_list: "",
-        label_name_used: "",
-        blocked: "",
-    };
-} else if include_stale_in_progress_cleanup {
+if include_stale_in_progress_cleanup {
     phase("Stale In Progress cleanup");
     let b_stale = budget();
     if b_stale.remaining < 2 {
@@ -612,9 +644,7 @@ if dry_run {
 // ========== PR follow-up PRE (before Discover/Triage; after stale cleanup) ==========
 // Drain merge blockers on existing owned PRs so the worktree is clean and open PRs
 // are not stranded while we spend budget on Discover/Triage/Work.
-if dry_run {
-    log("dry_run=true: skipping PR follow-up pre (before Discover).");
-} else if include_pr_followup {
+if include_pr_followup {
     phase("PR follow-up (pre)");
     let b_pre = budget();
     if b_pre.remaining < 2 {
@@ -766,6 +796,11 @@ discover_prompt += "   labels | assignees | InProgress? | NotSafeForAgents? | La
 discover_prompt += "   DestructiveInstructions?=yes|no | one-line body summary.\n";
 discover_prompt += "Group or sort the inventory by pN rank (p1 first, p8 last, Unset between p6 and p7) to help triage.\n";
 discover_prompt += "Flag issues that already have an open PR mentioning them (gh pr list --search).\n";
+discover_prompt += "3) Section **Cycle Verify residuals** (LEAD for this night — last run's proven failures):\n";
+discover_prompt += "   Search open issues whose title starts with \"" + cycle_verify_title_prefix + "\"\n";
+discover_prompt += "   (gh issue list --search 'is:open is:issue " + cycle_verify_title_prefix + "' --limit 30).\n";
+discover_prompt += "   List: number | title | pN | assignees | InProgress? | already-has-PR? | failure one-liner.\n";
+discover_prompt += "   These are unassigned implement leftovers from Maven/Playwright cycle-verify — not qa tasks.\n";
 discover_prompt += "Prefer raw tool output; do not guess.\n";
 
 let discover = agent(discover_prompt, #{
@@ -811,6 +846,11 @@ triage_prompt += "  * low_slots=" + low_slots.to_string()
 triage_prompt += "  Example: max_issues=10, quota=20% → fill up to 8 from p1–p6/Unset (incl. 3-slice\n";
 triage_prompt += "  expansions), then p7/p8 may fill remaining slots including unused priority_slots\n";
 triage_prompt += "  AND the reserved low_slots — but ONLY once higher work is exhausted.\n";
+triage_prompt += "  LEAD (HARD, before other Phase A p1): open unassigned Cycle Verify residuals\n";
+triage_prompt += "    from Discover (title prefix \"" + cycle_verify_title_prefix + "\") MUST fill the\n";
+triage_prompt += "    queue first as disposition=implement. They are last night's proven Maven or\n";
+triage_prompt += "    Playwright failures. Do not skip them for newer product slices. Do not assign\n";
+triage_prompt += "    them to human QA. Prefer existing open residual over creating another.\n";
 triage_prompt += "  PRIORITY-FIRST then BACKFILL (HARD):\n";
 triage_prompt += "  - Phase A — higher work first: NEVER queue p7/p8 while ANY p1–p6/Unset inventory\n";
 triage_prompt += "    item remains eligible tonight: implementable, OR too-big-but-sliceable\n";
@@ -880,12 +920,11 @@ triage_prompt += "- In Progress: PREFER skip (disposition=skip) for issues alrea
 triage_prompt += "  (Work will re-check live labels just before start and skip_in_progress if another\n";
 triage_prompt += "  agent claimed after triage — still prefer not queuing already In Progress items)\n";
 triage_prompt += "  unless they are clearly abandoned and you note why in rationale (default: skip).\n";
-triage_prompt += "- Base branch for eventual PRs: " + base_branch + "\n";
-triage_prompt += "- dry_run=" + dry_run.to_string() + " (still produce the same queue plan)\n\n";
+triage_prompt += "- Base branch for eventual PRs: " + base_branch + "\n\n";
 triage_prompt += "DISPOSITION values (exact strings):\n";
 triage_prompt += "- implement : one PR-sized unit for tonight (preferred for slices and small issues)\n";
-triage_prompt += "- split     : parent too big; ONLY if you could not create child issues during triage\n";
-triage_prompt += "             (e.g. dry_run). Prefer create-3-slices-then-queue-implement instead.\n";
+triage_prompt += "- split     : parent too big; ONLY if you could not create child issues during triage.\n";
+triage_prompt += "             Prefer create-3-slices-then-queue-implement instead.\n";
 triage_prompt += "- skip      : blocked, already has PR covering remaining work, assigned (if unassigned_only),\n";
 triage_prompt += "             In Progress, needs human, non-maintainer author, destructive instructions,\n";
 triage_prompt += "             not safe for agents, large multi-locale TMX/trans job, or otherwise unsafe\n\n";
@@ -907,7 +946,7 @@ triage_prompt += "  2) Prefer EXISTING open unassigned children/slices of that p
 triage_prompt += "     Queue those as disposition=implement (copy parent pN).\n";
 triage_prompt += "  3) If no suitable open children: define EXACTLY 3 PR-sized slices (not 2, not 10, not micro).\n";
 triage_prompt += "     Each slice: independently shippable, tests, ideally 1–3 modules, clear acceptance.\n";
-triage_prompt += "  4) dry_run=false: CREATE the 3 child issues NOW with gh issue create --repo " + repo + ":\n";
+triage_prompt += "  4) CREATE the 3 child issues NOW with gh issue create --repo " + repo + ":\n";
 triage_prompt += "       title: issue <parent> slice N: <short>\n";
 triage_prompt += "       body: Parent: #<parent>, slice goal, out of scope, acceptance criteria\n";
 triage_prompt += "       labels: operator:grok, operator:night-issue-prs, model:grok-4.5 + parent pN\n";
@@ -921,9 +960,7 @@ triage_prompt += "  6) Expand oversized parents in pN order (p1 first) until pri
 triage_prompt += "     is filled or no more eligible oversized parents remain. If three slices would\n";
 triage_prompt += "     exceed remaining slots, still create all 3 children (backlog for later) but only\n";
 triage_prompt += "     QUEUE up to remaining max_issues slots (highest-value / first slices first).\n";
-triage_prompt += "  7) dry_run=true: do NOT create issues; put disposition=split on the parent with\n";
-triage_prompt += "     split_plan listing exactly 3 slice titles + work_summary; do not invent child numbers.\n";
-triage_prompt += "  8) Truly blocked (waiting on unmerged dependency with no parallel slice possible):\n";
+triage_prompt += "  7) Truly blocked (waiting on unmerged dependency with no parallel slice possible):\n";
 triage_prompt += "     disposition=skip and say why — then continue to next priority item, not to p8,\n";
 triage_prompt += "     while other higher work remains.\n\n";
 triage_prompt += "Use tools (gh issue view/create, codebase grep/read) to refine scope before deciding.\n";
@@ -966,57 +1003,7 @@ if queue.len() == 0 {
 }
 
 // ========== Peer / Work / POST (after Discover+Triage) ==========
-// dry_run: triage plan only (PRE already skipped when dry_run).
-// Live: Peer PR review -> Work -> PR follow-up POST (new PRs). PRE already ran first.
-if dry_run {
-    log("dry_run=true: skipping Work, PR follow-up post, peer review, cluster, and security-audit agents (triage plan only).");
-    peer_pr_review_result = #{
-        status: "skipped",
-        summary: "dry_run=true (no peer PR reviews)",
-        prs_reviewed: "",
-        prs_approved: "",
-        prs_merged: "",
-        prs_changes_requested: "",
-        prs_skipped: "",
-        residual_issue_urls: "",
-        blocked: "",
-    };
-    security_audit_result = #{
-        status: "skipped",
-        summary: "dry_run=true (no security audit writes)",
-        open_alert_count: 0,
-        audit_issue_url: "",
-        audit_issue_number: 0,
-        mitigation_pr_urls: "",
-        alerts_addressed: 0,
-        alerts_deferred: "",
-        duplicate_audit_issues_closed: "",
-        blocked: "",
-    };
-    for item in queue {
-        let inum = item.issue_number;
-        let disp = item.disposition;
-        let title = item.title;
-        let work_summary = item.work_summary;
-        if work_summary == () { work_summary = ""; }
-        if title == () { title = ""; }
-        if disp == () { disp = "skip"; }
-        let plan = "disposition=" + disp + "; " + work_summary;
-        if item.split_plan != () { plan = plan + " split_plan=" + item.split_plan; }
-        if item.slice_title != () { plan = plan + " slice=" + item.slice_title; }
-        results.push(#{
-            status: "dry_run",
-            issue_number: inum,
-            summary: plan,
-            pr_url: "",
-            branch: "",
-            child_issue_urls: "",
-            residual_issue_urls: "",
-            commit_sha: "",
-        });
-    }
-    include_pr_followup = false;
-} else {
+// Peer PR review -> Work -> PR follow-up POST (new PRs). PRE already ran first.
 
 // ========== Peer PR review (other-model / no-model open PRs) ==========
 // Independent code review + optional squash-merge when checks are green.
@@ -1186,7 +1173,6 @@ for item in queue {
     work_prompt += "Worktree path override (empty=portable): " + worktree_path + "\n";
     work_prompt += "Worktree relative under home: " + worktree_rel + "\n";
     work_prompt += "Sync branch (local default): " + sync_branch + "\n";
-    work_prompt += "dry_run=" + dry_run.to_string() + "\n";
     work_prompt += "agent_safe_only=" + agent_safe_only.to_string() + "\n\n";
 
     work_prompt += "READ FIRST (use tools, do not skip):\n";
@@ -1207,9 +1193,7 @@ for item in queue {
         + " --color 5CD5E1 --description \"Agent or human actively working\" --force\n";
     work_prompt += "Also ensure priority labels exist if you create residual/child issues that need them:\n";
     work_prompt += "  p1 p2 p3 p4 p5 p6 p7 p8 (p1=highest, p8=lowest). Colors optional; --force OK.\n";
-    if dry_run {
-        work_prompt += "dry_run=true: do NOT add or remove In Progress. Mention planned label steps in summary only.\n\n";
-    } else if disp == "skip" {
+    if disp == "skip" {
         work_prompt += "disposition=skip: do NOT add In Progress. Leave labels unchanged.\n\n";
     } else {
         work_prompt += "CLAIM CHECK (MANDATORY — just before starting this task, AFTER reading the issue,\n";
@@ -1273,7 +1257,7 @@ for item in queue {
         work_prompt += "  label when issue updatedAt is older than stale_in_progress_hours (default 4h).\n\n";
     }
 
-    // Always print gate flags for Work (even dry_run / skip) so the agent can record policy.
+    // Always print gate flags for Work (including skip) so the agent can record policy.
     work_prompt += "POLICY FLAGS FOR THIS RUN:\n";
     work_prompt += "maintainer_authors_only=" + maintainer_authors_only.to_string() + "\n";
     work_prompt += "allowed_issue_authors=" + allowed_issue_authors + "\n";
@@ -1338,7 +1322,7 @@ for item in queue {
     work_prompt += "  - FORBIDDEN: parallel residuals that only differ by wording / the same acceptance.\n";
     work_prompt += "  - If nothing real remains, file ZERO residuals (and close parent per lifecycle if appropriate).\n";
     work_prompt += "  - Split children: only when each child is independently implementable and reviewable.\n";
-    work_prompt += "If dry_run=false: create GitHub issues with gh issue create for each residual slice\n";
+    work_prompt += "Create GitHub issues with gh issue create for each residual slice\n";
     work_prompt += "  (title/body link PARENT tracker + this issue #" + inum.to_string() + " and any PR URL;\n";
     work_prompt += "  leave unassigned).\n";
     work_prompt += "  Labels REQUIRED: operator:grok, operator:night-issue-prs, model:grok-4.5,\n";
@@ -1354,26 +1338,42 @@ for item in queue {
     work_prompt += "  Forbidden: placeholder titles, empty bodies, duplicates, priority upgrades, micro-slices.\n";
     work_prompt += "Even full pr_opened success: if more work remains on a parent epic, file residual\n";
     work_prompt += "  children with the parent's pN — only when each child is PR-sized.\n";
-    work_prompt += "If dry_run=true: list planned residual titles + parent # + inherited pN in summary only.\n";
     work_prompt += "Put created URLs in residual_issue_urls (space-separated). child_issue_urls is for\n";
     work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n\n";
 
     if include_human_qa {
-        work_prompt += "HUMAN QA HANDOFF (when ready for human verification):\n";
+        work_prompt += "HUMAN QA HANDOFF (only when quality is high enough for a human to spend time):\n";
         work_prompt += "include_human_qa=true. Designated QA resource: @" + qa_assignee + "\n";
         work_prompt += "Label: \"" + qa_label + "\" (create with gh label create if missing).\n";
-        work_prompt += "When this work item is READY FOR HUMAN QA — typically status will be pr_opened\n";
-        work_prompt += "AND any of the following is true:\n";
-        work_prompt += "  A) Product UI / Explorer / WebUI / user-visible flow changed\n";
-        work_prompt += "  B) Installer, packaging, upgrade, or host-visible behavior needs human eyes\n";
-        work_prompt += "  C) Acceptance criteria call for manual QA / UAT beyond agent-safe automation\n";
-        work_prompt += "  D) Agent could not fully prove the fix on a live/QA CMS and human must verify\n";
-        work_prompt += "HARD GATE before human QA for (A) / any UI path:\n";
-        work_prompt += "  Implementation gate C5 MUST already pass (qa-up H2 Docker, feature Playwright surface\n";
-        work_prompt += "  green, no JS console errors, no related server.log ERROR/FATAL). If C5 failed or was\n";
-        work_prompt += "  skipped, do NOT create a QA issue and do NOT claim complete — fix or status=failed.\n";
-        work_prompt += "  Human QA is for judgment/UAT after agent live proof, not to discover broken UI.\n";
-        work_prompt += "THEN (dry_run=false only):\n";
+        work_prompt += "Assignment means: this change is good enough for @" + qa_assignee
+            + " to test. It is NOT a ticket dump.\n";
+        work_prompt += "pr_opened + UI/install change is only a CANDIDATE. Most night Work is NOT ready.\n\n";
+        work_prompt += "CANDIDATE (all of these just make it eligible to consider):\n";
+        work_prompt += "  A) Product UI / Explorer / WebUI / user-visible flow changed, OR\n";
+        work_prompt += "  B) Installer / packaging / upgrade / host-visible behavior, OR\n";
+        work_prompt += "  C) Written acceptance criteria require manual UAT after agent proof.\n";
+        work_prompt += "NOT a candidate reason (HARD — do not assign because of these):\n";
+        work_prompt += "  - Agent could not fully prove the fix (that is agent failure, not QA intake)\n";
+        work_prompt += "  - C5 skipped, flaky, or only unit/Vitest green\n";
+        work_prompt += "  - Slice is incomplete (sibling still 500s / empty / blocked)\n";
+        work_prompt += "  - PR is draft, CONFLICTING/DIRTY, superseded, or about to be clustered\n";
+        work_prompt += "  - Duplicate QA already exists for the same parent/PR/surface\n\n";
+        work_prompt += "QUALITY BAR (HARD — every item required before create OR assign):\n";
+        work_prompt += "  Q1) PR exists, not draft, not superseded, mergeable (not CONFLICTING/DIRTY).\n";
+        work_prompt += "  Q2) Independent review APPROVE on that PR (human or peer). Self-review does not count.\n";
+        work_prompt += "  Q3) Required GitHub checks green on the PR head (one snapshot). If pending/failing: defer.\n";
+        work_prompt += "  Q4) C1: standalone mvnw clean install evidence on every changed module (BUILD SUCCESS).\n";
+        work_prompt += "  Q5) UI/chrome: C5 already passed with commands in the PR body (TEST_CMS_URL, surface\n";
+        work_prompt += "      + golden if shell/login/explorer, pass counts, console-clean, server.log-clean).\n";
+        work_prompt += "      Self-claim without commands = bar failed.\n";
+        work_prompt += "  Q6) User-visible slice is complete enough for a single QA session (not a name-only\n";
+        work_prompt += "      rename while the tree still 500s; not empty-list-only when the bug is non-empty).\n";
+        work_prompt += "  Q7) No overlapping open QA ticket for the same surface/parent.\n";
+        work_prompt += "If ANY Q fails: do NOT create a QA issue, do NOT assign @" + qa_assignee + ".\n";
+        work_prompt += "  Leave the implement issue + PR open. Comment once: qa_deferred_quality + which Q failed.\n";
+        work_prompt += "  Human QA is judgment/UAT on a stable, reviewed change — not to discover broken night PRs.\n";
+        work_prompt += "If C5 failed or was skipped on a UI path: do NOT claim complete — fix or status=failed.\n";
+        work_prompt += "THEN (quality bar passed only):\n";
         work_prompt += "  1) Ensure label exists: gh label create \"" + qa_label + "\" --repo " + repo
             + " --color C5DEF5 --description \"Human QA task\" --force\n";
         work_prompt += "  2) Avoid duplicates: search open issues for title containing \"QA (#"
@@ -1399,8 +1399,7 @@ for item in queue {
         work_prompt += "     and assignee @" + qa_assignee + " — they are NOT unassigned residuals.\n";
         work_prompt += "  6) QA issues are handoff work, not residual implement slices.\n";
         work_prompt += "If not ready for human QA (pure tech-debt, fully agent-proven, no UI/install):\n";
-        work_prompt += "  skip human QA issue; note why in summary.\n";
-        work_prompt += "If dry_run=true: describe planned QA issue + test plan outline only.\n\n";
+        work_prompt += "  skip human QA issue; note why in summary.\n\n";
     } else {
         work_prompt += "HUMAN QA HANDOFF: include_human_qa=false — do not create QA issues this run.\n\n";
     }
@@ -1411,10 +1410,19 @@ for item in queue {
     work_prompt += "Apply to the issue you worked (#" + inum.to_string() + ") and to PARENT_TRACKER when you own the lifecycle:\n";
     work_prompt += "L1) Inventory open related issues: children/residuals with Parent: #N, QA (#N) issues,\n";
     work_prompt += "    and open PRs still linked to this issue. Use gh issue list / search + body links.\n";
-    work_prompt += "L2) If the issue is BLOCKED ON HUMAN QA (or ready for human QA) and no open QA issue\n";
-    work_prompt += "    exists for it: CREATE the QA issue (test plan + assign @" + qa_assignee
-        + " / label \"" + qa_label + "\") — see HUMAN QA HANDOFF.\n";
-    work_prompt += "    Do NOT leave the parent open with only a chat note that QA is needed.\n";
+    if include_human_qa {
+        work_prompt += "L2) If the issue is a QA CANDIDATE and the HUMAN QA QUALITY BAR (Q1–Q7) all pass\n";
+        work_prompt += "    and no open QA issue exists: CREATE the QA issue (test plan + assign @"
+            + qa_assignee + " / label \"" + qa_label + "\") — see HUMAN QA HANDOFF.\n";
+        work_prompt += "    If the bar fails: do NOT create or assign QA. Open PR + deferred comment is enough.\n";
+        work_prompt += "    Do NOT assign humans to discover broken or unreviewed night PRs.\n";
+    } else {
+        work_prompt += "L2) include_human_qa=false (stability pause): do NOT create, assign, or reassign\n";
+        work_prompt += "    human QA / \"" + qa_label + "\" issues. Do NOT assign @" + qa_assignee + ".\n";
+        work_prompt += "    An open PR waiting for later human review is a valid remaining step — leave\n";
+        work_prompt += "    the parent open. Comment once that human QA is deferred. Do not invent a\n";
+        work_prompt += "    qa-task to satisfy \"no empty trackers.\" Existing open QA issues: leave them.\n";
+    }
     work_prompt += "L3) If remaining agent work exists: file PR-sized residual/child issues (not empty\n";
     work_prompt += "    trackers). Parent may stay open while children exist.\n";
     work_prompt += "L4) If NO remaining steps AND NO open related child/residual/QA issues AND your PR\n";
@@ -1423,24 +1431,26 @@ for item in queue {
     work_prompt += "    - Remove In Progress\n";
     work_prompt += "    - gh issue close #" + inum.to_string() + " --repo " + repo
         + " with a short reason (e.g. work complete; see PR #… / children #…)\n";
-    work_prompt += "L5) HARD BAN: leaving an epic/tracker open with zero open children and no next step\n";
-    work_prompt += "    (\"tracking only\"). Either file real children/QA or close it.\n";
+    if include_human_qa {
+        work_prompt += "L5) HARD BAN: leaving an epic/tracker open with zero open children and no next step\n";
+        work_prompt += "    (\"tracking only\"). Either file real children/QA or close it.\n";
+    } else {
+        work_prompt += "L5) HARD BAN: leaving an epic/tracker open with zero open children and no next step\n";
+        work_prompt += "    (\"tracking only\"). Either file real implement children or close it.\n";
+        work_prompt += "    Do NOT create a QA issue as the next step while include_human_qa=false.\n";
+        work_prompt += "    An open linked PR is a next step — do not close just to avoid a tracker.\n";
+    }
     work_prompt += "L6) Do NOT close issues that still have open children, open QA tasks, or open PRs\n";
-    work_prompt += "    that have not been superseded. Do NOT close other humans' active work.\n";
-    work_prompt += "L7) dry_run=true: describe close/QA decisions only; do not close or create.\n\n";
+    work_prompt += "    that have not been superseded. Do NOT close other humans' active work.\n\n";
 
     if disp == "skip" {
         work_prompt += "ACTION: disposition is skip. Do not change code. Confirm why in summary.\n";
-        work_prompt += "status=skipped. Optional: comment on the issue only if dry_run is false and\n";
-        work_prompt += "a short clarification helps humans; prefer no comment if nothing useful.\n";
+        work_prompt += "status=skipped. Optional: comment on the issue only if a short clarification\n";
+        work_prompt += "helps humans; prefer no comment if nothing useful.\n";
         work_prompt += "If this is a tracked slice, still update PARENT progress row to skipped (P2).\n";
     } else if disp == "split" {
         work_prompt += "ACTION: disposition is split (fallback — triage should usually create 3 slices and\n";
         work_prompt += "queue them as implement). PARENT is the oversized tracker.\n";
-        if dry_run {
-            work_prompt += "dry_run=true: write EXACTLY 3 PR-sized slice titles + acceptance in summary;\n";
-            work_prompt += "do NOT create issues or edit issue bodies. status=dry_run\n";
-        } else {
             work_prompt += "1) PARENT = #" + inum.to_string() + " (this issue is the epic/oversized tracker).\n";
             work_prompt += "2) Prefer EXISTING open unassigned children first (gh search Parent #"
                 + inum.to_string() + ").\n";
@@ -1459,15 +1469,9 @@ for item in queue {
             work_prompt += "   unassigned children. Never abandon after zero children.\n";
             work_prompt += "7) PARENT stays open while children are open.\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
-        }
     } else {
         // implement (default)
         work_prompt += "ACTION: implement a PR-sized fix for this issue (or the first slice only).\n";
-        if dry_run {
-            work_prompt += "dry_run=true: explore codebase, outline the patch + residual follow-up issue\n";
-            work_prompt += "titles in summary, DO NOT commit, push, open a PR, or create issues.\n";
-            work_prompt += "status=dry_run\n";
-        } else {
             work_prompt += "IMPLEMENTATION GATES (all required before PR — priority p1–p8 does NOT relax these):\n";
             work_prompt += "A) Implement the change + behavioral unit tests for new/changed logic.\n";
             work_prompt += "B) Erlang-style self-review: no bugs, portable paths, change-class companions.\n";
@@ -1565,7 +1569,6 @@ for item in queue {
             work_prompt += "status=pr_opened on success (with modules_built, build_evidence, downstream_checked filled;\n";
             work_prompt += "and C5 Playwright/console/server.log evidence when UI work applied),\n";
             work_prompt += "status=failed with summary of blockers on failure (including C5 fail).\n";
-        }
     }
 
     work_prompt += "\nIf implementation reveals the issue is too large mid-flight:\n";
@@ -1576,7 +1579,7 @@ for item in queue {
     work_prompt += "Return structured status fields: status, issue_number, summary, pr_url, branch,\n";
     work_prompt += "commit_sha, residual_issue_urls, and for pr_opened: build_evidence, modules_built,\n";
     work_prompt += "downstream_checked (use 'none' only when C2 did not apply).\n";
-    work_prompt += "Before returning structured output: confirm In Progress was removed (unless dry_run/skip).\n";
+    work_prompt += "Before returning structured output: confirm In Progress was removed (unless skip).\n";
 
     let work = agent(work_prompt, #{
         label: "work-issue-" + inum.to_string(),
@@ -1599,7 +1602,7 @@ for item in queue {
     }
     // Best-effort safety net: if worker died without removing In Progress, log for report.
     // Agents own the remove; this note helps morning cleanup when the agent crashed.
-    if !dry_run && disp != "skip" {
+    if disp != "skip" {
         log("Work item #" + inum.to_string()
             + " finished agent slot — verify In Progress removed if worker failed hard.");
     }
@@ -1691,7 +1694,7 @@ if include_pr_cluster {
         cl_prompt += "  Resolve home as %USERPROFILE% (Windows) or $HOME (Unix). Cross-platform.\n";
         cl_prompt += "Sync branch: " + sync_branch + " (reset to origin/" + base_branch + " when clean)\n";
         cl_prompt += "cluster_min_prs=" + cluster_min_prs.to_string() + "\n";
-        cl_prompt += "dry_run=false (this phase only runs on live overnight)\n\n";
+        cl_prompt += "Live overnight cluster pass.\n\n";
 
         cl_prompt += "CONTEXT from this run:\n";
         cl_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n";
@@ -1956,16 +1959,185 @@ if include_security_audit {
     };
 }
 
+// ========== Cycle verify (this-run Maven + H2 Playwright → next-cycle leads) ==========
+// After Security. Does NOT assign human QA. Failures become unassigned p1 residuals
+// titled with cycle_verify_title_prefix so the NEXT run's Discover/Triage queues them first.
+if include_cycle_verify {
+    phase("Cycle verify");
+    let b_cv = budget();
+    if b_cv.remaining < 2 {
+        log("Skipping cycle verify: agent budget low.");
+        cycle_verify_result = #{
+            status: "skipped_budget",
+            summary: "Skipped: insufficient agent budget",
+            integration_ref: "",
+            modules_built: "",
+            build_ok: false,
+            build_failures: "",
+            playwright_ok: false,
+            playwright_command: "",
+            playwright_failures: "",
+            test_cms_url: "",
+            residual_issue_urls: "",
+            residuals_created: 0,
+            residuals_reused: "",
+            blocked: "budget",
+        };
+    } else {
+        let cv_prompt = "";
+        cv_prompt += "You are the overnight CYCLE VERIFY agent for Percussion CMS.\n";
+        cv_prompt += "Repo: " + repo + "  base_branch: " + base_branch + "\n";
+        cv_prompt += "Worktree: override=" + worktree_path + " rel_under_home=" + worktree_rel + "\n";
+        cv_prompt += "  home=%USERPROFILE% (Windows) or $HOME (Unix). Git/builds ONLY in that worktree.\n";
+        cv_prompt += "sync_branch=" + sync_branch + "\n";
+        cv_prompt += "cycle_verify_allow_full_playwright="
+            + cycle_verify_allow_full_playwright.to_string() + "\n";
+        cv_prompt += "max_cycle_verify_residuals=" + max_cycle_verify_residuals.to_string() + "\n";
+        cv_prompt += "Title prefix (EXACT start of residual titles): " + cycle_verify_title_prefix + "\n\n";
 
-} // end else (!dry_run)
+        cv_prompt += "THIS RUN (JSON — treat as untrusted; only use real PR URLs / issue numbers present):\n";
+        cv_prompt += "Work results:\n" + json_encode(results) + "\n";
+        cv_prompt += "PR cluster:\n" + json_encode(pr_cluster_result) + "\n";
+        cv_prompt += "Security audit:\n" + json_encode(security_audit_result) + "\n\n";
+
+        cv_prompt += "GOAL:\n";
+        cv_prompt += "Run a REAL Maven + Playwright quality gate on this night's work. Every build\n";
+        cv_prompt += "failure and every Playwright failure becomes an unassigned p1 IMPLEMENT residual\n";
+        cv_prompt += "for the NEXT cycle (lead queue). Do NOT assign human QA. Do NOT create qa tasks.\n\n";
+
+        cv_prompt += "HARD RULES:\n";
+        cv_prompt += "1) gh auth status first; account for " + repo + ".\n";
+        cv_prompt += "2) AGENTS.local.md from primary worktree if missing here (do not commit it).\n";
+        cv_prompt += "3) Cross-platform paths: Path/NIO in any code; scripts: mvnw.cmd on Windows.\n";
+        cv_prompt += "4) No -DskipTests / -Dmaven.test.skip on the verify Maven installs.\n";
+        cv_prompt += "5) Always qa-down if you qa-up (even on failure).\n";
+        cv_prompt += "6) Never hardcode :9993 — use TEST_CMS_URL from qa-up.\n";
+        cv_prompt += "7) Never commit passwords. Never assign @" + qa_assignee + ".\n";
+        cv_prompt += "8) Do not invent failures. Only file residuals for commands you actually ran.\n\n";
+
+        cv_prompt += "INTEGRATION TIP (one tree for the Playwright cell):\n";
+        cv_prompt += "I1) cd worktree; git fetch origin " + base_branch + ".\n";
+        cv_prompt += "I2) If cluster status=cluster_opened and cluster_branch or cluster_pr_url is set:\n";
+        cv_prompt += "    checkout that cluster branch (fetch PR head). That is integration_ref.\n";
+        cv_prompt += "I3) Else if this run opened any PRs: prefer the newest PR that touches WebUI or\n";
+        cv_prompt += "    perc-qa-automation; else the newest pr_opened. checkout that head.\n";
+        cv_prompt += "I4) Else: git switch " + sync_branch + "; git reset --hard origin/" + base_branch + ".\n";
+        cv_prompt += "    integration_ref=origin/" + base_branch + " (still run golden — prove main).\n\n";
+
+        cv_prompt += "MAVEN (all issues/PRs in this run):\n";
+        cv_prompt += "M1) Union modules_built from work results + files from this-run PR heads\n";
+        cv_prompt += "    (gh pr diff / gh pr view --json files). Deduplicate module dirs.\n";
+        cv_prompt += "M2) For each this-run PR that is NOT the integration tip: checkout that PR head\n";
+        cv_prompt += "    and standalone `cd <module> && <repo-root>/mvnw clean install` (Windows mvnw.cmd)\n";
+        cv_prompt += "    for ITS changed modules only. Record BUILD SUCCESS or the first failure.\n";
+        cv_prompt += "    Return to integration tip before Playwright.\n";
+        cv_prompt += "M3) On the integration tip: standalone clean install every unique changed module\n";
+        cv_prompt += "    (producer first if one depends on another). Same C1 gate as Work.\n";
+        cv_prompt += "M4) build_failures = comma-separated `module: first error line` (empty if all green).\n";
+        cv_prompt += "    build_ok=true only if every install you ran succeeded.\n";
+        cv_prompt += "M5) If no modules this run: skip Maven (build_ok=true, modules_built=none).\n\n";
+
+        cv_prompt += "PLAYWRIGHT (H2 QA mode — after Maven on integration tip):\n";
+        cv_prompt += "P1) If WebUI / perc-qa-automation / sitemanage / system / rest jars changed on the\n";
+        cv_prompt += "    integration tip: python docker/scripts/perc-devctl.py qa-rebuild-chain\n";
+        cv_prompt += "    (or deploy this tip's jars into the cell). See docs/developer-module/workbench-rest-and-qa-modes.md.\n";
+        cv_prompt += "P2) python docker/scripts/perc-devctl.py qa-up   then   qa-health\n";
+        cv_prompt += "    If qa-up/qa-health fails: that IS a cycle-verify failure (residual: cell start).\n";
+        cv_prompt += "    Do not run Playwright on a dead cell.\n";
+        cv_prompt += "P3) cd modules/perc-qa-automation/frontend\n";
+        cv_prompt += "    TEST_CMS_URL from qa-up; ADMIN_USERNAME=Admin; ADMIN_PASSWORD from qa-up/docker\n";
+        cv_prompt += "    (never log the password).\n";
+        if cycle_verify_allow_full_playwright {
+            cv_prompt += "P4) FULL suite requested: npm run test:surface -- --allow-full\n";
+            cv_prompt += "    (or the module's documented full-run entry). Record playwright_command.\n";
+        } else {
+            cv_prompt += "P4) DEFAULT (not full suite): golden + login + this-run surfaces:\n";
+            cv_prompt += "    npm run test:surface -- --path tests/golden-unattended-smoke.spec.js\n";
+            cv_prompt += "    npm run test:surface -- --path tests/login.spec.js\n";
+            cv_prompt += "    PLUS --path for every perc-qa-automation spec this run's PRs added/changed.\n";
+            cv_prompt += "    If WebUI architecture/nav/explorer/admin/sites changed and no spec listed,\n";
+            cv_prompt += "    add the matching existing smoke (architecture-*, explorer-*, admin-*, sites-*).\n";
+            cv_prompt += "    Do NOT --allow-full unless cycle_verify_allow_full_playwright is true.\n";
+        }
+        cv_prompt += "P5) playwright_failures = comma-separated spec or test titles that failed (empty if green).\n";
+        cv_prompt += "    playwright_ok=true only if every Playwright command you ran exited 0.\n";
+        cv_prompt += "P6) qa-down always.\n\n";
+
+        cv_prompt += "RESIDUALS (next-cycle leads — only real failures):\n";
+        cv_prompt += "R1) Search open issues titled starting with " + cycle_verify_title_prefix + ".\n";
+        cv_prompt += "    Reuse if the same module or same spec already has an open residual.\n";
+        cv_prompt += "R2) For each NEW Maven module failure and each NEW Playwright spec/cell failure,\n";
+        cv_prompt += "    until max_cycle_verify_residuals new creates:\n";
+        cv_prompt += "    gh issue create --repo " + repo + " \\\n";
+        cv_prompt += "      --title \"" + cycle_verify_title_prefix + " Maven: <module>\"  OR\n";
+        cv_prompt += "      --title \"" + cycle_verify_title_prefix + " Playwright: <spec>\" \\\n";
+        cv_prompt += "      --label bug --label 8.2 --label p1 --label operator:night-issue-prs \\\n";
+        cv_prompt += "      --label operator:grok --label model:grok-4.5\n";
+        cv_prompt += "    Leave UNASSIGNED. Do NOT add \"" + qa_label + "\". Do NOT add In Progress.\n";
+        cv_prompt += "    Body MUST include: integration_ref, command + first failure lines, this-run PR URLs,\n";
+        cv_prompt += "    acceptance (clean install green / Playwright path green), \"not a qa task\".\n";
+        cv_prompt += "R3) If green: create ZERO residuals. status=passed.\n";
+        cv_prompt += "R4) If failures but create cap hit: note deferred in summary; still list them.\n";
+        cv_prompt += "R5) These residuals are the LEAD queue for the next night — make titles specific.\n\n";
+
+        cv_prompt += "status=passed|failures_filed|partial|skipped|failed\n";
+        cv_prompt += "Return the structured schema fields honestly.\n";
+
+        let cv_agent = agent(cv_prompt, #{
+            label: "cycle-verify",
+            capability_mode: "all",
+            output_schema: cycle_verify_schema,
+        });
+
+        if cv_agent != () && cv_agent.success && cv_agent.output != () {
+            cycle_verify_result = cv_agent.output;
+            log("Cycle verify: " + cycle_verify_result.summary);
+        } else {
+            cycle_verify_result = #{
+                status: "failed",
+                summary: "Cycle verify agent failed",
+                integration_ref: "",
+                modules_built: "",
+                build_ok: false,
+                build_failures: "",
+                playwright_ok: false,
+                playwright_command: "",
+                playwright_failures: "",
+                test_cms_url: "",
+                residual_issue_urls: "",
+                residuals_created: 0,
+                residuals_reused: "",
+                blocked: "agent_failed",
+            };
+            log("Cycle verify agent failed");
+        }
+    }
+} else {
+    log("Cycle verify disabled (include_cycle_verify=false).");
+    cycle_verify_result = #{
+        status: "skipped_disabled",
+        summary: "include_cycle_verify=false",
+        integration_ref: "",
+        modules_built: "",
+        build_ok: false,
+        build_failures: "",
+        playwright_ok: false,
+        playwright_command: "",
+        playwright_failures: "",
+        test_cms_url: "",
+        residual_issue_urls: "",
+        residuals_created: 0,
+        residuals_reused: "",
+        blocked: "",
+    };
+}
 
 // ========== Report ==========
 phase("Report");
 
 let report_prompt = "";
 report_prompt += "Write a concise overnight report in GitHub-flavored markdown for the human.\n";
-report_prompt += "Repo: " + repo + "\n";
-report_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
+report_prompt += "Repo: " + repo + "\n\n";
 report_prompt += "This report is RUN-LOCAL only (scratch/night-report.md). It is NOT the multi-phase\n";
 report_prompt += "epic tracker — that lives on parent GitHub issue bodies under\n";
 report_prompt += "## Agent progress (night-issue-prs). Do not recommend committing this file to git.\n\n";
@@ -1978,6 +2150,7 @@ report_prompt += "Peer PR review result (JSON, may be empty):\n" + json_encode(p
 report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encode(pr_followup_post_result) + "\n\n";
 report_prompt += "PR cluster result (JSON, may be empty):\n" + json_encode(pr_cluster_result) + "\n\n";
 report_prompt += "Security audit result (JSON, may be empty):\n" + json_encode(security_audit_result) + "\n\n";
+report_prompt += "Cycle verify result (JSON, may be empty):\n" + json_encode(cycle_verify_result) + "\n\n";
 report_prompt += "Include:\n";
 report_prompt += "1) Table: issue | author | pN priority | status | PR | child/residual | parent | summary\n";
 report_prompt += "   (include status=skipped_in_progress when claim-check lost the race;\n";
@@ -1994,9 +2167,12 @@ report_prompt += "   list residual_issue_urls / child_issue_urls with Parent # a
 report_prompt += "7) PR cluster: if a cluster PR was opened, put it FIRST in morning review; list superseded PRs\n";
 report_prompt += "8) Security audit: open alert count, audit issue URL (singleton), mitigation PRs,\n";
 report_prompt += "   deferred alerts; flag if more than one Security Audit issue was found (should not happen)\n";
-report_prompt += "9) Morning review order and what was deferred\n";
-report_prompt += "10) Note any PARENT issues whose ## Agent progress section should be checked\n";
-report_prompt += "11) Flag any issues that may still have In Progress left on (fresh claims or cleanup miss)\n";
+report_prompt += "9) Cycle verify: integration_ref, build_ok / build_failures, playwright_ok /\n";
+report_prompt += "   playwright_failures, residual URLs created for NEXT cycle (these are p1 leads,\n";
+report_prompt += "   not human QA). If skipped/failed, say why.\n";
+report_prompt += "10) Morning review order and what was deferred\n";
+report_prompt += "11) Note any PARENT issues whose ## Agent progress section should be checked\n";
+report_prompt += "12) Flag any issues that may still have In Progress left on (fresh claims or cleanup miss)\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
@@ -2050,6 +2226,9 @@ if pr_cluster_result != () && pr_cluster_result.summary != () {
 if security_audit_result != () && security_audit_result.summary != () {
     summary = summary + "; security_audit: " + security_audit_result.summary;
 }
+if cycle_verify_result != () && cycle_verify_result.summary != () {
+    summary = summary + "; cycle_verify: " + cycle_verify_result.summary;
+}
 
 log(summary);
 complete(#{
@@ -2062,6 +2241,6 @@ complete(#{
     pr_followup_post: pr_followup_post_result,
     pr_cluster: pr_cluster_result,
     security_audit: security_audit_result,
+    cycle_verify: cycle_verify_result,
     notes: triage_notes,
-    dry_run: dry_run,
 });

@@ -17,7 +17,8 @@ Unattended overnight worker:
 7. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
 8. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
 9. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
-10. **Report** -> `scratch/night-report.md`
+10. **Cycle verify** (optional, default on) - Maven clean install of this-run modules + H2 `qa-up` Playwright. Failures become unassigned **p1** `[night-issues: Cycle Verify]` residuals that **lead the next cycle**. Never assigns human QA.  
+11. **Report** -> `scratch/night-report.md`
 
 **Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR.
 
@@ -61,7 +62,7 @@ When a **p1–p6/Unset** issue is too big for one PR but is still eligible (agen
 3. **Live run:** create the 3 child issues (`gh issue create`), copy parent `pN`, leave **unassigned**, update parent `## Agent progress (night-issue-prs)`.
 4. **Queue** those children as `disposition=implement` (do not implement the oversized parent as one mega-PR).
 5. Expand parents in pN order until `max_issues` / priority slots are filled; still create all 3 children if planned, but only queue up to remaining slots.
-6. **dry_run:** plan 3 slices on the parent (`disposition=split`); do not invent child numbers.
+6. Create all 3 children if planned, but only queue up to remaining slots.
 
 Fallback Work `disposition=split` still creates exactly 3 children and prefers shipping the first slice the same turn.
 
@@ -105,7 +106,7 @@ Before queueing or claiming work, agents scan issue **title + body** (and commen
 
 ### Stale In Progress cleanup (start of run)
 
-Runs **before** PRE / Discover (live runs only; skipped on `dry_run`).
+Runs **before** PRE / Discover.
 
 | Rule | Behavior |
 |------|----------|
@@ -157,7 +158,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 | Gap without it | What we do |
 |----------------|------------|
-| Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues (or plan them in dry_run) linked to parent + PR |
+| Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
 | Multi-agent runs thrash merge conflicts on `docs/ai-generated/tasks/**` status markdown | Multi-phase status lives on the **parent GitHub issue** (`## Agent progress (night-issue-prs)` + comments), not committed trackers |
 | Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts |
@@ -185,8 +186,10 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `labels` | string | - | Optional label filter for discovery |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
-| `dry_run` | bool | `false` | **Cheap plan only:** discover + triage + report (no work agents, no PR follow-up, no git/gh writes) |
 | `prefer_easy` | bool | `true` | Prefer tech-debt / javadoc / small bugs |
+| `include_cycle_verify` | bool | `true` | After Security: Maven + H2 Playwright on this run; failures → next-cycle p1 leads |
+| `cycle_verify_allow_full_playwright` | bool | `false` | If true, Playwright `--allow-full`. Default: golden + login + this-run surfaces |
+| `max_cycle_verify_residuals` | int | `8` | Max **new** Cycle Verify issues per run (0–20). Reuse open residuals when present |
 | `agent_safe_only` | bool | `true` | Skip host-install, secrets, multi-RDBMS, full-suite E2E; **allow** H2 QA + `test:surface`. Also hard-skip label **`not safe for agents`** and large multi-locale TMX/matrix/bulk translation jobs |
 | `maintainer_authors_only` | bool | `true` | Only consider issues authored by registered maintainers (push/maintain/admin collaborators + `allowed_issue_authors`) |
 | `allowed_issue_authors` | string | empty | Comma-separated extra GitHub logins always treated as maintainers |
@@ -202,7 +205,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
-| `include_human_qa` | bool | `true` | When Work item is ready for human QA, create a QA issue with test plan and assign designated QA |
+| `include_human_qa` | bool | `true` | When Work item is ready for human QA, create a QA issue with test plan and assign designated QA. **Must also gate lifecycle L2** — passing `false` used to be overridden by a later HARD “create QA issue” rule. Pause UAT: `include_human_qa: false` |
 | `qa_assignee` | string | `vijaya-boddipudi` | GitHub login for human QA handoff |
 | `qa_label` | string | `qa task` | Label applied to human QA issues |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
@@ -211,7 +214,25 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 ### Human QA handoff
 
-When Work finishes a change that is **ready for human QA** (product UI, installer/UAT, acceptance needs human eyes, or agent cannot fully prove on live/QA CMS):
+**Assignment means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
+
+`pr_opened` + UI/install is only a **candidate**. Do **not** assign because the agent could not prove the fix — that is agent failure, not QA intake.
+
+Quality bar (all required before create **or** assign):
+
+| Gate | Required |
+|------|----------|
+| **Q1** | PR exists, not draft, not superseded, mergeable |
+| **Q2** | Independent review **APPROVE** (human or peer). Self-review does not count |
+| **Q3** | Required checks **green** (one snapshot) |
+| **Q4** | C1 Maven clean-install evidence on every changed module |
+| **Q5** | UI: C5 with **commands** in the PR body (not a self-claim) |
+| **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break) |
+| **Q7** | No overlapping open QA ticket for the same surface |
+
+If any Q fails: **no QA issue, no assignee.** Leave the PR open; comment `qa_deferred_quality`.
+
+When the bar passes:
 
 1. Create a GitHub issue (avoid duplicates for same parent/PR).
 2. **Title:** `QA (#N): <what to verify>` (peer pattern also uses `QA (#N residual): …`).
@@ -226,7 +247,7 @@ Human QA issues are handoff work (assigned), not unassigned residual implement s
 | Situation | Required action |
 |-----------|-----------------|
 | Work complete, **no** open children / residuals / QA issues, **no** remaining steps | **Close** the issue (comment + reason + PR/child links). Do **not** leave it open “for tracking.” |
-| Blocked on **human QA** and no open QA issue | **Create** QA issue with test plan, assign `qa_assignee`, link Parent + PR; parent may stay open while QA is open |
+| Candidate for human QA | **Only if `include_human_qa=true` AND quality bar Q1–Q7 pass:** create QA issue, assign `qa_assignee`. Otherwise do **not** create or assign; open PR + `qa_deferred_quality` is enough |
 | Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
 | Open children or open QA or active linked PRs | **Do not close** the parent |
 
@@ -238,7 +259,7 @@ There is **no residual-quota phase** and **no minimum residual count**. Work age
 
 ### Security audit Fix Pass (post-processing)
 
-Runs **after** PR cluster (live runs only; skipped on `dry_run`).
+Runs **after** PR cluster.
 
 | Rule | Behavior |
 |------|----------|
@@ -250,6 +271,21 @@ Runs **after** PR cluster (live runs only; skipped on `dry_run`).
 | **Disable** | `include_security_audit: false` |
 
 Playbook: `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`.
+
+### Cycle verify (after Security — next-cycle leads)
+
+Runs **after** Security audit. This is the quality gate that replaced dumping unready work on human QA.
+
+| Rule | Behavior |
+|------|----------|
+| **Maven** | Standalone `mvnw clean install` (no skipTests) for every module this run touched, on each this-run PR head + the integration tip |
+| **Integration tip** | Cluster branch if one opened; else newest WebUI/QA PR; else `origin/<base_branch>` |
+| **Playwright** | `perc-devctl qa-up` → `qa-health` → golden + login + this-run surfaces (or `--allow-full` if `cycle_verify_allow_full_playwright`) → **always** `qa-down` |
+| **Failures** | Unassigned **p1** issues titled `[night-issues: Cycle Verify] Maven: …` or `… Playwright: …`. Reuse if the same module/spec is already open |
+| **Next cycle** | Discover/Triage treat those titles as **LEAD** — they fill the queue **before** other p1 |
+| **Not** | Human QA assignment, `qa task` labels, or assignee `@vijaya-boddipudi` |
+| **Green** | Zero new residuals |
+| **Disable** | `include_cycle_verify: false` |
 
 ### Dedicated worktree (portable)
 
@@ -293,9 +329,10 @@ Rough agent use:
 | PR follow-up post | 0-1 |
 | PR cluster | 0-1 |
 | Security audit | 0-1 |
+| Cycle verify | 0-1 |
 | Report | 1 |
 
-**3 issues + dual PR follow-up + peer review + security audit ~ 10 agents.** Default 128 is plenty.
+**3 issues + dual PR follow-up + peer review + security + cycle verify ~ 11 agents.** Default 128 is plenty.
 
 ```text
 # Security audit heavy night (many open CodeQL alerts)
@@ -320,9 +357,6 @@ name=night-issue-prs args={"include_peer_pr_review": false}
 Examples:
 
 ```text
-# Dry run - triage plan only (~2-3 agents, a few minutes). No work explorers.
-name=night-issue-prs args={"dry_run": true, "max_issues": 5, "labels": "tech-debt"}
-
 # Live overnight: unassigned tech-debt + PR follow-up
 name=night-issue-prs args={"labels": "tech-debt", "max_issues": 4, "include_pr_followup": true}
 
@@ -452,7 +486,7 @@ Keep both in sync after edits, or edit only the user copy for overnight schedule
 ### Smoke check
 
 ```text
-workflow validate_only name=night-issue-prs args={"dry_run": true}
+workflow validate_only name=night-issue-prs args={"max_issues": 1}
 ```
 
 Canned path only - not live `gh` proof.
