@@ -19,7 +19,7 @@ package com.percussion.deployer.server;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.deployer.server.dependencies.PSDependencyHandler;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
@@ -98,7 +98,7 @@ public final class PSDependencyMap {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);

@@ -19,7 +19,7 @@ package com.percussion.deployer.catalog;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.Date;
 import java.util.HashMap;
@@ -157,7 +157,7 @@ public final class PSCatalogResultColumn implements IPSDeployComponent {
     // make sure we got the correct root node tag
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_NAME_ATTR);
@@ -165,7 +165,7 @@ public final class PSCatalogResultColumn implements IPSDeployComponent {
     m_type = getType(type);
     if (m_type == TYPE_UNKNOWN) {
       Object[] args = {sourceNode, XML_TYPE_ATTR, type};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
   }
 

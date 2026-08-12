@@ -18,7 +18,7 @@ package com.percussion.deployer.catalog;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -175,7 +175,7 @@ public final class PSCatalogResult implements IPSDeployComponent, Comparable<PSC
     // make sure we got the correct root node tag
     if (false == XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -194,7 +194,7 @@ public final class PSCatalogResult implements IPSDeployComponent, Comparable<PSC
       Element column = tree.getNextElement(XML_COLUMN_NODE, firstFlags);
       if (column == null) {
         Object[] args = {XML_COLUMNS_NODE, XML_COLUMN_NODE, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       while (column != null) {
@@ -208,12 +208,12 @@ public final class PSCatalogResult implements IPSDeployComponent, Comparable<PSC
           } else {
             Object[] args = {XML_COLUMNS_NODE, XML_COLUMN_NODE, data};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
           }
         } else {
           Object[] args = {XML_COLUMNS_NODE, XML_COLUMN_NODE, typeString};
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+              ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
         }
         column = tree.getNextElement(XML_COLUMN_NODE, nextFlags);
       }

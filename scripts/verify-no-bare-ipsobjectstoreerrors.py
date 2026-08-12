@@ -15,7 +15,7 @@ Allow-list classes
 1. **Interface definition** — ``IPSObjectStoreErrors`` itself
 2. **Dual-write / typed peer bridge** — utils ``ObjectStoreErrorCode`` enum
 3. **Documented residual production call-sites** until sibling retypes land
-   (Desktop CX #3141, Design ACL #3142, deployer objectstore XML residual,
+   (Desktop CX #3141, Design ACL #3142,
    legacy ``implements IPSObjectStoreErrors`` handlers)
 
 Tests and comment/javadoc-only mentions are ignored.
@@ -67,7 +67,7 @@ ALWAYS_ALLOW_EXACT: frozenset[str] = frozenset(
 
 # Exact residual production call-sites (path == entry). Prefer exact paths so a
 # new file under the same tree fails the gate until explicitly allow-listed with
-# an issue link. Shrink as retypes merge (#3141 / #3142 / #3149).
+# an issue link. Shrink as retypes merge (#3141 / #3142). Deployer (#3149) cleared in #3165.
 RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
     {
         # #3141 — Desktop CX PSNode bare sites (PR open at gate land).
@@ -80,77 +80,6 @@ RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
         "PSXmlObjectStoreHandler.java",
         "system/src/main/java/com/percussion/design/objectstore/server/"
         "PSXmlObjectStoreLockManager.java",
-        # #3149 — Deployer bare sites freeze (exact files at gate land).
-        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResult.java",
-        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResultColumn.java",
-        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResultSet.java",
-        "deployer/src/main/java/com/percussion/deployer/client/PSDeploymentManager.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSAppPolicySetting.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSAppPolicySettings.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/"
-        "PSApplicationIDTypeMapping.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSApplicationIDTypes.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveDetail.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveInfo.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveManifest.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchivePackage.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveSummary.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDatasourceMap.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsInfo.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsMap.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsMapping.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependency.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependencyData.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependencyFile.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployComponentUtils.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployableElement.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployableObject.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/"
-        "PSDeploymentServerConnectionInfo.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDescriptor.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSExportDescriptor.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSIdMap.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSIdMapping.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSImportDescriptor.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSImportPackage.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSLogDetail.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSLogSummary.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSTransactionLogSummary.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSTransactionSummary.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSUserDependency.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSValidationResult.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/PSValidationResults.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppCEItemIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppConditionalIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppDataMappingIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppDisplayMapperIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppEntryIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppExtensionCallIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppExtensionParamIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppIndexedItemIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppNamedItemIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppUISetIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSAppUrlRequestIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSApplicationIDContextFactory.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSBindingIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
-        "PSBindingParamIdContext.java",
-        "deployer/src/main/java/com/percussion/deployer/server/PSDependencyDef.java",
-        "deployer/src/main/java/com/percussion/deployer/server/PSDependencyMap.java",
-        "deployer/src/main/java/com/percussion/deployer/server/PSDeploymentHandler.java",
     }
 )
 
@@ -204,9 +133,18 @@ def _norm_path(path: str) -> str:
 
 
 def _is_test_path(path: str) -> bool:
+    """True for test / it / testFixtures sources under any module layout.
+
+    Detects ``src/test``, ``src/it``, and ``src/testFixtures`` as consecutive
+    path segments so both module-prefixed paths (``deployer/src/test/...``) and
+    repo-root layouts (``src/test/...``) classify as tests. A leading-slash
+    substring check alone would miss the latter.
+    """
     norm = _norm_path(path)
-    if "/src/test/" in norm or "/src/it/" in norm or "/src/testFixtures/" in norm:
-        return True
+    parts = Path(norm).parts
+    for i in range(len(parts) - 1):
+        if parts[i] == "src" and parts[i + 1] in ("test", "it", "testFixtures"):
+            return True
     name = Path(norm).name
     if name.endswith("Test.java") or name.endswith("Tests.java"):
         return True
@@ -228,7 +166,7 @@ def _is_always_allowlisted(path: str) -> bool:
 def _residual_reason(path: str) -> str | None:
     norm = _norm_path(path)
     if norm in RESIDUAL_ALLOW_EXACT:
-        return "documented residual exact path (#3141/#3142/#3149)"
+        return "documented residual exact path (#3141/#3142)"
     for prefix, reason in RESIDUAL_ALLOW_PREFIXES:
         if norm == prefix or norm.startswith(prefix):
             return reason
