@@ -69,6 +69,7 @@ import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogInformation;
 import com.percussion.log.PSLogMultipleHandlers;
 import com.percussion.security.PSAclHandler;
+import com.percussion.security.PSEntry;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthenticationRequiredException;
 import com.percussion.security.PSAuthorizationException;
@@ -188,7 +189,10 @@ public class PSApplicationHandler implements IPSRootedHandler {
     if (request == null || request.length() == 0)
       throw new IllegalArgumentException("Invalid request name");
 
-    return (IPSInternalRequestHandler) m_dataHandlers.get(request.toLowerCase());
+    IPSRequestHandler handler = m_dataHandlers.get(request.toLowerCase());
+    return handler instanceof IPSInternalRequestHandler
+        ? (IPSInternalRequestHandler) handler
+        : null;
   }
 
   /**
@@ -302,7 +306,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
         foundOne = true;
 
         PSContentEditorPipe pipe = (PSContentEditorPipe) ceh.getContentEditor().getPipe();
-        Collection addedSystemMandatoryFields = pipe.getMapper().getAddedSystemMandatoryFields();
+        Collection<?> addedSystemMandatoryFields = pipe.getMapper().getAddedSystemMandatoryFields();
         if (!addedSystemMandatoryFields.isEmpty()) {
           // warn the user that we added system mandatory fields
           Object[] args = {addedSystemMandatoryFields.toString()};
@@ -338,12 +342,12 @@ public class PSApplicationHandler implements IPSRootedHandler {
    */
   public synchronized void removeDataHandler(PSDataSet ds) {
     // remove the handler defined for this data set
-    IPSRequestHandler rh = (IPSRequestHandler) m_dataHandlers.remove(ds.getName().toLowerCase());
+    IPSRequestHandler rh = m_dataHandlers.remove(ds.getName().toLowerCase());
     if (rh != null) {
       PSRequestor requestor = ds.getRequestor();
       if (requestor != null) {
         String reqPage = requestor.getRequestPage();
-        PSRequestPageMap[] maps = (PSRequestPageMap[]) m_dataHandlerMap.get(reqPage);
+        PSRequestPageMap[] maps = m_dataHandlerMap.get(reqPage);
         if (maps != null) {
           for (int i = 0; i < maps.length; i++) {
             if (maps[i].getRequestHandler() == rh) {
@@ -394,8 +398,8 @@ public class PSApplicationHandler implements IPSRootedHandler {
   }
 
   // see IPSRootedHandler for documentation
-  public Iterator getRequestRoots() {
-    List roots = new ArrayList();
+  public Iterator<String> getRequestRoots() {
+    List<String> roots = new ArrayList<>();
     roots.add(m_requestRoot);
 
     return roots.iterator();
@@ -1030,8 +1034,8 @@ public class PSApplicationHandler implements IPSRootedHandler {
    */
   private void shutdownDataHandlers() {
     // shut down all the data handlers
-    for (Enumeration e = m_dataHandlers.elements(); e.hasMoreElements(); ) {
-      IPSRequestHandler handler = (IPSRequestHandler) e.nextElement();
+    for (Enumeration<IPSRequestHandler> e = m_dataHandlers.elements(); e.hasMoreElements(); ) {
+      IPSRequestHandler handler = e.nextElement();
       PSServer.notifyHandlerShutdownListeners(handler);
       handler.shutdown();
     }
@@ -1042,7 +1046,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
   private void logAppStatistics() {
     if (!m_LogHandler.isAppStatisticsLoggingEnabled()) return;
 
-    Map info = new HashMap();
+    Map<String, String> info = new HashMap<>();
 
     info.put("elapsedTime", String.valueOf(m_stats.getProcessingTime()));
     info.put("eventsProcessed", String.valueOf(m_stats.getSuccessfulEventCount()));
@@ -1110,7 +1114,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
 
     if (dataSetName != null) {
       // get the handler for the data set/request type from the hash
-      rh = (IPSRequestHandler) m_dataHandlers.get(dataSetName.toLowerCase());
+      rh = m_dataHandlers.get(dataSetName.toLowerCase());
     } else {
       pageName = request.getRequestPage(true);
 
@@ -1118,11 +1122,11 @@ public class PSApplicationHandler implements IPSRootedHandler {
        * appropriate data set for this request from the request info
        */
       if ((pageName != null) && (pageName.length() > 0)) {
-        maps = (PSRequestPageMap[]) m_dataHandlerMap.get(pageName.toLowerCase());
+        maps = m_dataHandlerMap.get(pageName.toLowerCase());
         if (maps == null) {
           /* Try the more generic form, for the new flexible engine */
           pageName = pageName.substring(0, pageName.lastIndexOf('.'));
-          maps = (PSRequestPageMap[]) m_dataHandlerMap.get(pageName.toLowerCase());
+          maps = m_dataHandlerMap.get(pageName.toLowerCase());
         }
       }
 
@@ -1134,7 +1138,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
         pageName = request.getRequestPage(false);
 
         if ((pageName != null) && (pageName.length() > 0)) {
-          maps = (PSRequestPageMap[]) m_dataHandlerMap.get(pageName.toLowerCase());
+          maps = m_dataHandlerMap.get(pageName.toLowerCase());
         }
       }
 
@@ -1197,7 +1201,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
         }
 
         if (matchingHandlers > 1) {
-          ConcurrentHashMap info = new ConcurrentHashMap();
+          ConcurrentHashMap<String, String> info = new ConcurrentHashMap<>();
           info.put(PSLogMultipleHandlers.PROP_SESS_ID, request.getUserSessionId());
           info.put(PSLogMultipleHandlers.PROP_DATASET_NAMES, dataSetNames);
           m_LogHandler.write(new PSLogMultipleHandlers(m_id, info));
@@ -1420,10 +1424,10 @@ public class PSApplicationHandler implements IPSRootedHandler {
       throws PSExtensionException, PSNotFoundException {
     IPSExtensionDef def = m_extMgr.getExtensionDef(ref);
     try {
-      Class toTest = Class.forName(interfaceName);
-      for (Iterator i = def.getInterfaces(); i.hasNext(); ) {
-        String iface = (String) (i.next());
-        Class clazz = Class.forName(iface);
+      Class<?> toTest = Class.forName(interfaceName);
+      for (Iterator<String> i = def.getInterfaces(); i.hasNext(); ) {
+        String iface = i.next();
+        Class<?> clazz = Class.forName(iface);
         if (toTest.isAssignableFrom(clazz)) {
           return true;
         }
@@ -1739,8 +1743,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
       PSRequestPageMap pageMap = new PSRequestPageMap(ds, rh);
 
       int len = 1;
-      PSRequestPageMap[] curMaps =
-          (PSRequestPageMap[]) m_dataHandlerMap.get(pageMap.getRequestPage().toLowerCase());
+      PSRequestPageMap[] curMaps = m_dataHandlerMap.get(pageMap.getRequestPage().toLowerCase());
       if (curMaps != null) len += curMaps.length;
 
       PSRequestPageMap[] newMaps = new PSRequestPageMap[len];
@@ -1783,14 +1786,14 @@ public class PSApplicationHandler implements IPSRootedHandler {
    * The data handlers managed by this object. The handlers are stored using dataSetName as the key,
    * and the handler instance as the value.
    */
-  private ConcurrentHashMap m_dataHandlers = new ConcurrentHashMap();
+  private ConcurrentHashMap<String, IPSRequestHandler> m_dataHandlers = new ConcurrentHashMap<>();
 
   /**
    * A mapping from request page names to data handlers objects. The handlers are stored using the
    * request page name as the key and the handler instance as the value. For instance, the handler
    * for the "Stock" data set may have "stock.xml" as its key.
    */
-  private ConcurrentHashMap m_dataHandlerMap = new ConcurrentHashMap();
+  private ConcurrentHashMap<String, PSRequestPageMap[]> m_dataHandlerMap = new ConcurrentHashMap<>();
 
   /** The log handler for this application. this handler also handles tracing. */
   private PSDebugLogHandler m_LogHandler;
@@ -1944,7 +1947,7 @@ public class PSApplicationHandler implements IPSRootedHandler {
    *     of entry will be determined by the type of Acl entry requested. Never <code>null</code>.
    * @throws IllegalArgumentException if <code>type</code> does not represent a valid type.
    */
-  public Iterator getAclEntries(int type) {
+  public Iterator<PSEntry> getAclEntries(int type) {
     // this will validate the type, don't want to duplicate that code here
     return m_aclHandler.getAclEntries(type);
   }

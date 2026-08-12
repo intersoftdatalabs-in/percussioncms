@@ -55,7 +55,7 @@ public class PSRequestHandlerDef {
 
     m_requestRoots = new HashMap<>();
     while (requestRoots.hasNext()) {
-      String requestRoot = (String) requestRoots.next();
+      String requestRoot = requestRoots.next();
 
       // add with null request methods for now
       m_requestRoots.put(requestRoot, null);
@@ -131,19 +131,14 @@ public class PSRequestHandlerDef {
    * @throws IllegalArgumentException if requestRoot is <code>null</code>, or if the specified
    *     requestRoot is not found in the list of request roots passed into the constructor.
    */
-  @SuppressWarnings(value = "unchecked")
   public Iterator<String> getRequestMethods(String requestRoot) {
     if (requestRoot == null) throw new IllegalArgumentException("requestRoot may not be null");
 
     if (!m_requestRoots.containsKey(requestRoot))
       throw new IllegalArgumentException("requestRoot not found");
 
-    Iterator result = null;
-
-    ArrayList<String> methodList = (ArrayList) m_requestRoots.get(requestRoot);
-    if (methodList != null) result = methodList.iterator();
-
-    return result;
+    ArrayList<String> methodList = m_requestRoots.get(requestRoot);
+    return methodList != null ? methodList.iterator() : null;
   }
 
   /**

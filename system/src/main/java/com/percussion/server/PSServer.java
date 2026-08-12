@@ -1154,7 +1154,6 @@ public class PSServer {
    * @deprecated This method does not consider page selection criteria or supported mime types when
    *     selecting a page. Use {@link #getInternalRequest(String, PSRequest, Map, boolean)} instead.
    */
-  @SuppressWarnings(value = "unchecked")
   public static IPSInternalRequestHandler getInternalRequestHandler(URL request) {
     IPSInternalRequestHandler irh = null;
     if (request != null) {
@@ -1179,9 +1178,9 @@ public class PSServer {
         if (pos > 0) requestPage = requestPage.substring(0, pos);
         PSApplication app = ah.getApplicationDefinition();
         String resource = null;
-        Iterator<PSDataSet> datasets = app.getDataSets().iterator();
+        Iterator<?> datasets = app.getDataSets().iterator();
         while (datasets.hasNext() && resource == null) {
-          PSDataSet dataset = datasets.next();
+          PSDataSet dataset = (PSDataSet) datasets.next();
           if (dataset.getRequestor().getRequestPage().equalsIgnoreCase(requestPage))
             resource = dataset.getName();
         }
@@ -1272,7 +1271,7 @@ public class PSServer {
     // make sure handler able to process this type of request method
     String reqMethod = req.getServletRequest().getMethod();
     if (rh != null) {
-      ArrayList methodList = (ArrayList) ms_requestHandlerTypes.get(rh);
+      List<String> methodList = ms_requestHandlerTypes.get(rh);
       if (methodList == null || !methodList.contains(reqMethod.toUpperCase())) {
         // don't want to allow this to be used
         rh = null;
@@ -1291,7 +1290,8 @@ public class PSServer {
   public static PSApplicationHandler getApplicationHandler(String appName) {
     if (ms_RequestHandlers == null) return null; // Only for unit testing
 
-    return (PSApplicationHandler) ms_RequestHandlers.get("data-" + appName.toLowerCase());
+    IPSRequestHandler handler = ms_RequestHandlers.get("data-" + appName.toLowerCase());
+    return handler instanceof PSApplicationHandler ? (PSApplicationHandler) handler : null;
   }
 
   public static PSApplicationSummary[] getApplicationSummaries(PSRequest req) {
@@ -1306,9 +1306,7 @@ public class PSServer {
    */
   public static boolean isApplicationActive(String appName) {
 
-    Object ah = ms_RequestHandlers.get("data-" + appName.toLowerCase());
-
-    return (ah != null);
+    return ms_RequestHandlers.get("data-" + appName.toLowerCase()) != null;
   }
 
   /**
@@ -1439,7 +1437,6 @@ public class PSServer {
    *     ignored.
    * @throws IllegalArgumentException if <code>type</code> does not represent a valid type.
    */
-  @SuppressWarnings(value = "unchecked")
   public static Iterator<PSEntry> getAclEntries(int type) {
     Map<String, PSEntry> entryMap = new HashMap<String, PSEntry>();
 
@@ -1800,7 +1797,6 @@ public class PSServer {
    *     .
    * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
-  @SuppressWarnings(value = "unchecked")
   public static Element getRequestHandlersStatus(Document doc, boolean full) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
 
@@ -1814,7 +1810,7 @@ public class PSServer {
       IPSRequestHandler h = ms_RequestHandlers.get(name);
       handler.setAttribute("class", h.getClass().getName());
 
-      List suppTypes = ms_requestHandlerTypes.get(h);
+      List<String> suppTypes = ms_requestHandlerTypes.get(h);
       Element types = doc.createElement("SupportedTypes");
       if (suppTypes != null) types.appendChild(doc.createTextNode(suppTypes.toString()));
       handler.appendChild(types);
@@ -1834,7 +1830,7 @@ public class PSServer {
 
       if (full && h instanceof PSApplicationHandler) {
         PSApplicationHandler a = (PSApplicationHandler) h;
-        Map cache = a.getStylesheetCache();
+        ConcurrentHashMap<URL, PSCachedStylesheet> cache = a.getStylesheetCache();
         if (cache != null) {
           Iterator<PSCachedStylesheet> stylesheets = cache.values().iterator();
           while (stylesheets.hasNext()) {
@@ -1844,7 +1840,7 @@ public class PSServer {
         }
       }
 
-      List suppTypes = ms_requestHandlerTypes.get(h);
+      List<String> suppTypes = ms_requestHandlerTypes.get(h);
       Element types = doc.createElement("SupportedTypes");
       if (suppTypes != null) types.appendChild(doc.createTextNode(suppTypes.toString()));
       handler.appendChild(types);
@@ -1870,7 +1866,6 @@ public class PSServer {
    * @param apps All applications that need to be started. If an entry in the array is <code>null
    *     </code> it is skipped. If <code>null</code> is supplied, no app handlers will be started.
    */
-  @SuppressWarnings(value = "unchecked")
   private static void initRequestHandlers(PSApplication[] apps)
       throws PSNotFoundException, PSServerException, PSCacheException {
     PSConsole.printInfoMsg("Server", IPSServerErrors.REQ_HANDLER_INIT, (Object[]) null);
@@ -2043,7 +2038,6 @@ public class PSServer {
    *
    * @throws PSServerException for any errors.
    */
-  @SuppressWarnings(value = "unchecked")
   private static void initLoadableRequestHandlers() throws PSServerException {
     PSRequestHandlerConfiguration handlerConfig = new PSRequestHandlerConfiguration();
     Iterator<PSRequestHandlerDef> defs = handlerConfig.getHandlerDefs();
@@ -2055,9 +2049,9 @@ public class PSServer {
         /* Use a constructor with the signature (IPSObjectStoreHandler,
         IPSExtensionManager) if one exists.  Otherwise, use the empty
         contructor */
-        Class handlerClass = Class.forName(def.getClassName());
+        Class<?> handlerClass = Class.forName(def.getClassName());
         try {
-          Constructor handlerCtor =
+          Constructor<?> handlerCtor =
               handlerClass.getConstructor(
                   new Class[] {IPSObjectStoreHandler.class, IPSExtensionManager.class});
           loadableHandler =
@@ -2353,7 +2347,6 @@ public class PSServer {
    * @see IPSHandlerStateListener
    * @see PSHandlerStateEvent
    */
-  @SuppressWarnings(value = "unchecked")
   public static void addHandlerStateListener(
       IPSHandlerStateListener listener, String handlerName, int events) {
     if (listener == null) {
@@ -2363,11 +2356,12 @@ public class PSServer {
       throw new IllegalArgumentException("handlerName must not be null or empty");
     }
 
-    Map listenerEventMap = (Map) ms_handlerStateListenerMap.get(handlerName);
-    if (listenerEventMap == null) listenerEventMap = new HashMap();
+    Map<IPSHandlerStateListener, Integer> listenerEventMap =
+        ms_handlerStateListenerMap.get(handlerName);
+    if (listenerEventMap == null) listenerEventMap = new HashMap<>();
 
     int flags = events;
-    Integer eventsObj = (Integer) listenerEventMap.get(listener);
+    Integer eventsObj = listenerEventMap.get(listener);
     if (eventsObj != null) flags = eventsObj.intValue() | events;
     listenerEventMap.put(listener, Integer.valueOf(flags));
 
@@ -2383,19 +2377,19 @@ public class PSServer {
    * @param stateEvent a valid state event, one of the {@link
    *     PSHandlerStateEvent#HANDLER_EVENT_STARTED HANDLER_EVENT_XXX} flags.
    */
-  @SuppressWarnings(value = "unchecked")
   private static void fireAppHandlerStateChanged(PSApplicationHandler ah, int stateEvent) {
     String handlerName = ah.getName();
     if (!ms_handlerStateListenerMap.containsKey(handlerName)) {
       // No listeners have been registered for the application
       return;
     }
-    Map listenerEvents = (Map) ms_handlerStateListenerMap.get(handlerName);
+    Map<IPSHandlerStateListener, Integer> listenerEvents =
+        ms_handlerStateListenerMap.get(handlerName);
     // Get iterator of all registered listeners for the application handler
-    Iterator listeners = listenerEvents.keySet().iterator();
+    Iterator<IPSHandlerStateListener> listeners = listenerEvents.keySet().iterator();
     while (listeners.hasNext()) {
-      IPSHandlerStateListener listener = (IPSHandlerStateListener) listeners.next();
-      Integer eventsObj = (Integer) listenerEvents.get(listener);
+      IPSHandlerStateListener listener = listeners.next();
+      Integer eventsObj = listenerEvents.get(listener);
       int flags = eventsObj.intValue();
       if (stateEvent != (flags & stateEvent)) continue;
       // Notify the listener
@@ -2439,7 +2433,7 @@ public class PSServer {
   }
 
   /** Get a collection of the rooted app handlers */
-  static Collection getRootedAppHandlers() {
+  static Collection<IPSRequestHandler> getRootedAppHandlers() {
     return ms_rootedRequestHandlers.values();
   }
 
@@ -2449,7 +2443,7 @@ public class PSServer {
    * @return An iterator over zero or more {@link IPSHandlerInitListener} objects, never <code>null
    *     </code>;
    */
-  static Iterator getHandlerInitListeners() {
+  static Iterator<IPSHandlerInitListener> getHandlerInitListeners() {
     return ms_handlerInitListeners.iterator();
   }
 
@@ -2473,7 +2467,6 @@ public class PSServer {
    *
    * @param rh The request handler being initialized, may not be <code>null</code>.
    */
-  @SuppressWarnings(value = "unchecked")
   public static void notifyHandlerInitListeners(IPSRequestHandler rh) {
     if (rh == null) throw new IllegalArgumentException("rh may not be null");
 
@@ -2490,7 +2483,6 @@ public class PSServer {
    *
    * @param rh The request handler being shutdown, may not be <code>null</code>.
    */
-  @SuppressWarnings(value = "unchecked")
   public static void notifyHandlerShutdownListeners(IPSRequestHandler rh) {
     if (rh == null) throw new IllegalArgumentException("rh may not be null");
 
@@ -3743,7 +3735,8 @@ public class PSServer {
    * together. This is to facilitate registering multiple handler state listeners and state events
    * for each handler.
    */
-  private static Map ms_handlerStateListenerMap = new HashMap();
+  private static Map<String, Map<IPSHandlerStateListener, Integer>> ms_handlerStateListenerMap =
+      new HashMap<>();
 
   /**
    * List of listeners to be notified of handler initializations. Listeners are added during server
