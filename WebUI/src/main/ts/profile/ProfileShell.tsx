@@ -22,6 +22,7 @@ import { AccountSection } from "./AccountSection";
 import { AvatarSection } from "./AvatarSection";
 import { PROFILE_MSG } from "./messages";
 import { PreferencesSection } from "./PreferencesSection";
+import { SecuritySection } from "./SecuritySection";
 import styles from "./ProfileShell.module.css";
 
 
@@ -69,8 +70,8 @@ const SECTIONS: {
 
 /**
  * User profile hub shell: landmarks, heading hierarchy, and section content.
- * Account (#2395), Preferences (#2396), and Avatar (#2397) are live; security
- * remains a placeholder until its slice lands.
+ * Account (#2395), Security (#2394), Preferences (#2396), and Avatar (#2397)
+ * are live product sections.
  */
 export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement {
   const reactId = useId();
@@ -131,6 +132,7 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
         {SECTIONS.map((section) => {
           const headingId = `perc-profile-${section.id}-heading`;
           const isAccount = section.id === "account";
+          const isSecurity = section.id === "security";
           const isPreferences = section.id === "preferences";
           const isAvatar = section.id === "avatar";
           return (
@@ -154,6 +156,8 @@ export function ProfileShell(_props: ProfileShellProps = {}): React.ReactElement
               </p>
               {isAccount ? (
                 <AccountSection />
+              ) : isSecurity ? (
+                <SecuritySection />
               ) : isPreferences ? (
                 <PreferencesSection />
               ) : isAvatar ? (
