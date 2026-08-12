@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
+import java.io.Serializable;
 import net.sf.oval.constraint.NotNull;
 
 /**
@@ -24,7 +25,9 @@ import net.sf.oval.constraint.NotNull;
  *
  * @author adamgent
  */
-public class PSResourceLocation {
+public class PSResourceLocation implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   @NotNull private String filePath;
 

@@ -34,7 +34,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class PSFolderProperties extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
-  private PSObjectAcl acl;
+  /**
+   * Runtime/CMS object-store ACL. Not Java-serializable through {@link PSObjectAcl}; JAXB/Jackson
+   * still use the accessor pair for wire formats.
+   */
+  private transient PSObjectAcl acl;
   private String locale = PSI18nUtils.DEFAULT_LANG;
   private String communityName;
   private int communityId;

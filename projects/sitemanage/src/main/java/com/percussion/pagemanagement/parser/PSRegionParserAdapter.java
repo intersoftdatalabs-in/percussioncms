@@ -32,10 +32,30 @@ public abstract class PSRegionParserAdapter<
         REGION extends PSAbstractRegion, CODE extends PSRegionCode>
     implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
 
-  private final PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+  /**
+   * Lazy: {@link PSRegionParser} takes the factory ({@code this}) as a constructor arg. Creating it
+   * in a field initializer would leak {@code this} before the subclass finishes construction
+   * ({@code this-escape}). Construction is complete before {@link #parse(String)} runs. Synchronized
+   * so concurrent {@link #parse(String)} on a shared adapter (e.g. Spring singleton) cannot race.
+   */
+  private volatile PSRegionParser<REGION, CODE> parser;
+
+  private PSRegionParser<REGION, CODE> parser() {
+    PSRegionParser<REGION, CODE> local = parser;
+    if (local == null) {
+      synchronized (this) {
+        local = parser;
+        if (local == null) {
+          local = new PSRegionParser<>(this);
+          parser = local;
+        }
+      }
+    }
+    return local;
+  }
 
   @Override
   public PSParsedRegionTree<REGION, CODE> parse(String text) {
-    return parser.parse(text);
+    return parser().parse(text);
   }
 }

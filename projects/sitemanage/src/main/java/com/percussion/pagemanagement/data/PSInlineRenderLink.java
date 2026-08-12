@@ -32,6 +32,8 @@ import jakarta.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "InlineRenderLink")
 public class PSInlineRenderLink extends PSRenderLink {
 
+  private static final long serialVersionUID = 1L;
+
   private String targetId;
   private String thumbUrl;
   private String title;

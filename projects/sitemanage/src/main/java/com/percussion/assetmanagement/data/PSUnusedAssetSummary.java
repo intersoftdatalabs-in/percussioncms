@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
@@ -74,8 +75,18 @@ public class PSUnusedAssetSummary extends PSDataItemSummary
     this.label = summary.getLabel();
     this.icon = summary.getIcon();
     this.category = summary.getCategory();
-    // Shared final helper: same null/copy semantics as setFolderPaths without overridable call.
-    initFolderPaths(summary.getFolderPaths());
+    // Direct field seed (same null/copy semantics as setFolderPaths/initFolderPaths) — no
+    // method call on this during construction (this-escape).
+    var paths = summary.getFolderPaths();
+    if (paths == null) {
+      this.folderPaths = null;
+    } else if (paths instanceof ArrayList) {
+      @SuppressWarnings("unchecked")
+      var asArrayList = (ArrayList<String>) paths;
+      this.folderPaths = asArrayList;
+    } else {
+      this.folderPaths = new ArrayList<>(paths);
+    }
     this.type = summary.getType();
     this.revisionable = summary.isRevisionable();
   }

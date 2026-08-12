@@ -66,7 +66,8 @@ public class PSFoldersPathItemService extends PSPathItemService {
         pageService,
         listViewHelper,
         userService);
-    setRootName("Folders");
+    // Seed protected field directly — setRootName is final but still a this method call in ctor.
+    this.rootName = "Folders";
   }
 
   @Override
