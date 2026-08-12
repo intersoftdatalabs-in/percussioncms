@@ -3,6 +3,7 @@
  */
 
 import React from "react";
+import { objectGuidString } from "../api/displayFormatGuid";
 import { coerceDisplayString } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { catalogColors, backButton, metaGrid, monoCell } from "./catalogStyles";
@@ -19,6 +20,7 @@ export function SiteDetailPanel({
 }): React.ReactElement {
   const name = coerceDisplayString(site.name) || "—";
   const siteKey = coerceDisplayString(site.name);
+  const objectGuid = objectGuidString(site.guid);
   const gaps =
     site.designGaps && site.designGaps.length
       ? site.designGaps
@@ -43,6 +45,13 @@ export function SiteDetailPanel({
         <dl style={metaGrid}>
           <dt>{DEV_MSG.SITE_COL_NAME}</dt>
           <dd style={{ margin: 0, ...monoCell }}>{name}</dd>
+          <dt>{DEV_MSG.SITE_COL_GUID}</dt>
+          <dd
+            style={{ margin: 0, ...monoCell }}
+            data-testid="developer-site-detail-guid"
+          >
+            {objectGuid || "—"}
+          </dd>
           <dt>{DEV_MSG.SITE_COL_DESC}</dt>
           <dd style={{ margin: 0 }}>{site.description || "—"}</dd>
           <dt>{DEV_MSG.SITE_COL_URL}</dt>
@@ -63,7 +72,7 @@ export function SiteDetailPanel({
       {siteKey ? <VirtualSiteSourcePanel siteName={siteKey} /> : null}
 
       <ObjectAclSection
-        objectGuid={site.guid?.stringValue}
+        objectGuid={objectGuid}
         objectKind="site"
         testIdPrefix="developer-site-acl"
       />

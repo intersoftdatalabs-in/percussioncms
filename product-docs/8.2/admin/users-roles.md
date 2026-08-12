@@ -75,20 +75,38 @@ See [Architecture & site navigation](id:admin-architecture-navigation).
 ## Design-object ACL (Developer)
 
 System Definition (**Developer**) shows an **Object ACL** section on securable design
-objects, including **Display Formats**.
+objects, including **Display Formats** and **Sites**.
+
+### Display Formats
 
 1. Open **Developer → Display Formats**.
 2. Open a format such as **By_Author** (or any other listed format).
 3. The detail header **GUID** field shows the object GUID when the server has one
    (never a silent dash when a GUID exists).
 4. **Object ACL** below the column list:
-   - Shows the ACL table when entries exist.
+   - Shows the ACL table when entries exist (Design access and Runtime visibility).
    - Shows an empty create path when the object has no ACL yet.
    - Shows an explicit load error if the ACL service fails.
    - Does **not** say “Object GUID not available” when the header GUID is present.
+   - If the object truly has no GUID, the section still mounts with kind-aware copy
+     (display format) and does not crash the detail page.
 
-Use this section to inspect design-time and runtime visibility permissions for that
-display format. Site Object ACL is a separate surface (Sites detail).
+Use this section to inspect and edit design-time and runtime visibility permissions
+for that display format.
+
+### Sites
+
+1. Open **Developer → Sites**.
+2. Open a Site row (catalog from `GET /services/sites`).
+3. The detail header **GUID** field shows the site object GUID when the list payload
+   includes `guid.stringValue` or synthesizable `hostId` / `type` / `uuid` parts.
+4. **Object ACL** on Site detail:
+   - Loads and is readable/editable when a GUID is present (same Design / Runtime
+     columns as other runtime-relevant objects).
+   - If the catalog row has no GUID parts, the section still mounts with site-specific
+     empty copy and does not crash Site detail.
+
+See also [Sites & content structure](id:admin-sites).
 
 ## Object ACL (design objects)
 

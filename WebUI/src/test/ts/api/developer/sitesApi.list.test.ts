@@ -88,6 +88,25 @@ describe("parseSiteList (#3198 bind)", () => {
     expect(parseSiteList({ Site: { name: "Only" } })).toEqual([{ name: "Only" }]);
   });
 
+  it("synthesizes guid.stringValue from host/type/uuid parts (#3203)", () => {
+    expect(
+      parseSiteList({
+        Site: { name: "Help", guid: { hostId: 0, type: 20, uuid: 301 } },
+      }),
+    ).toEqual([
+      {
+        name: "Help",
+        guid: { hostId: 0, type: 20, uuid: 301, stringValue: "0-20-301" },
+      },
+    ]);
+  });
+
+  it("keeps existing guid.stringValue", () => {
+    expect(
+      parseSiteList([{ name: "Help", guid: { stringValue: "0-20-1" } }]),
+    ).toEqual([{ name: "Help", guid: { stringValue: "0-20-1" } }]);
+  });
+
   it("throws on unknown object shape", () => {
     expect(() => parseSiteList({ unexpected: true })).toThrow(
       /Unexpected site list payload/,

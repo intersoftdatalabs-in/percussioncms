@@ -37,13 +37,8 @@ export type CreateAclOwner = {
 };
 
 /**
- * GET /services/acls/object/{objectGuid}
- *
- * <p>Returns the design-time ACL for a securable object. 404 when no ACL exists.
- */
-/**
  * Unwrap Jackson WRAP_ROOT_VALUE {@code {"Acl":{…}}} so ObjectAclSection can
- * read entries. Flat bodies pass through (#3200 Display Format Object ACL).
+ * read entries. Flat bodies pass through (site / display-format Object ACL, #3200).
  */
 export function unwrapObjectAcl(payload: unknown): ObjectAcl {
   if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
@@ -57,6 +52,11 @@ export function unwrapObjectAcl(payload: unknown): ObjectAcl {
   return payload as ObjectAcl;
 }
 
+/**
+ * GET /services/acls/object/{objectGuid}
+ *
+ * <p>Returns the design-time ACL for a securable object. 404 when no ACL exists.
+ */
 export async function getAclForObject(objectGuid: string): Promise<ObjectAcl> {
   const key = encodeURIComponent(objectGuid);
   const payload = await get<unknown>(`${PATHS.ACLS}/object/${key}`);
@@ -75,13 +75,14 @@ export async function createObjectAcl(
 ): Promise<ObjectAcl> {
   const guid: RestGuid =
     typeof objectGuid === "string" ? { stringValue: objectGuid } : objectGuid;
-  return post<ObjectAcl>(PATHS.ACLS, {
+  const payload = await post<unknown>(PATHS.ACLS, {
     objectGuid: guid,
     owner: {
       name: owner.name,
       type: owner.type,
     },
   });
+  return unwrapObjectAcl(payload);
 }
 
 /**
