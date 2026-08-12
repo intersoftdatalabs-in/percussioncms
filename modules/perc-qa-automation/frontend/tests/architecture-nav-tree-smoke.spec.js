@@ -58,7 +58,7 @@ test.describe("Architecture read-only nav tree (#3095)", () => {
       timeout: 20_000,
     });
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
-      /Architecture/i,
+      /Navigation/i,
     );
 
     // Toolbar always present once shell mounts

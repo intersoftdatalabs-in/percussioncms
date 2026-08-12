@@ -78,7 +78,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
     expect(screen.getByTestId("architecture-shell-title").textContent).toMatch(
-      /Architecture/i,
+      /Navigation/i,
     );
   });
 

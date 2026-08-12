@@ -1,33 +1,37 @@
 ---
 id: admin-architecture-navigation
-title: Architecture & site navigation
-description: Modern Architecture SPA for browsing and editing site navigation trees (navons / sections)
+title: Navigation & site structure
+description: Modern Navigation SPA for browsing and editing site navigation trees (navons / sections)
 version: "8.2"
 order: 43
 tags: [admin, architecture, navigation, ui]
 ---
 
-# Architecture & site navigation
+# Navigation & site structure
 
-**Architecture** (site navigation / navon tree editor) runs in the modern SPA product
+**Navigation** (site navigation / navon tree editor) runs in the modern SPA product
 chrome. In Percussion CMS 8.2 the primary entry is the SPA shell. The classic
 `siteArchitecture.jsp` page and `?view=arch` bookmarks hard-redirect into the SPA.
 
-## Open Architecture (SPA)
+The product name is **Navigation**. The SPA route remains `/architecture` (and
+`spa.jsp?entry=architecture`) so existing bookmarks and homepage type
+`Architecture` keep working.
+
+## Open Navigation (SPA)
 
 1. Sign in as an **Admin** or **Designer**.
-2. Choose **Architecture** in the product top navigation, or open the SPA entry:
+2. Choose **Navigation** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
    - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
 3. The shell loads under the same product top nav as Explorer, Design, Publish, and Admin.
 
-Default landing can also be set to **Architecture** for a user or role (homepage type
-`Architecture`); login then resolves to the SPA Architecture entry.
+Default landing can also be set to **Navigation** for a user or role (homepage type
+`Architecture`); login then resolves to the SPA Navigation entry.
 
 ## Browse a site navigation tree
 
-1. Open **Architecture**.
+1. Open **Navigation**.
 2. Choose a site from the **Site** list (or open a deep link with `?site=YourSiteName`
    or `/architecture/YourSiteName`).
 3. The **Navigation tree** panel loads the site’s sections (navons) from the server.
@@ -80,7 +84,7 @@ shown in the panel (no silent failure). The tree reloads after a successful muta
 ### Blog sections
 
 Blog-type sections appear in the navigation tree (type badge). Full blog post
-authoring remains outside this Architecture editor; treat blog structure as
+authoring remains outside this Navigation editor; treat blog structure as
 visible but limited in this surface.
 
 ### Still later
@@ -105,10 +109,10 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Site navigation tree browse (navons / sections) | **Available** (read-only) |
 | Structure editing (create / edit / move / delete) | **Coming soon** |
 | Landing page / section-link parity | **Coming soon** |
-| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Architecture (#3099) |
+| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (#3099) |
 
 ## Related
 
 - [Sites & content structure](id:admin-sites)
 - [Content Explorer](id:admin-content-explorer)
-- [Users, roles & security](id:admin-users-roles) (default landing options include Architecture)
+- [Users, roles & security](id:admin-users-roles) (default landing options include Navigation)
