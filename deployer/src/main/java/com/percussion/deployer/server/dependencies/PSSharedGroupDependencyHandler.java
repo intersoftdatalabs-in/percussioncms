@@ -85,7 +85,8 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  @Override
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -94,7 +95,8 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     var sharedDef = PSDependencyUtils.getSharedDef();
     List<PSDependency> deps = new ArrayList<>();
-    Iterator groups = sharedDef.getFieldGroups();
+    // PSContentEditorSharedDef.getFieldGroups() is a raw Iterator (system module).
+    Iterator<?> groups = sharedDef.getFieldGroups();
     while (groups != null && groups.hasNext()) {
       Object grp = groups.next();
       // field groups are PSSharedFieldGroup according to PSContentEditorSharedDef
@@ -105,11 +107,13 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
+  @Override
   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -120,6 +124,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -134,7 +139,8 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -208,6 +214,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
+  @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -224,10 +231,10 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
 
     String groupName = dep.getDependencyId();
     Document doc = null;
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     File origFile = null;
     while (files.hasNext() && doc == null) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_SHARED_GROUP_XML) {
         doc = createXmlDocument(archive.getFileData(file));
         origFile = file.getOriginalFile();
@@ -347,6 +354,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see IPSIdTypeHandler interface
+  @Override
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -361,10 +369,11 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
       PSContentEditorSharedDef sharedDef = os.getContentEditorSharedDef();
 
-      List mappings = new ArrayList();
+      List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
       String groupName = dep.getDependencyId();
       PSSharedFieldGroup sharedGroup = null;
-      Iterator groups = sharedDef.getFieldGroups();
+      // PSContentEditorSharedDef.getFieldGroups() is a raw Iterator (system module).
+      Iterator<?> groups = sharedDef.getFieldGroups();
       while (groups.hasNext() && sharedGroup == null) {
         PSSharedFieldGroup test = (PSSharedFieldGroup) groups.next();
         if (test.getName().equals(groupName)) sharedGroup = test;
@@ -411,6 +420,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see IPSIdTypeHandler interface
+  @Override
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -425,18 +435,19 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
     PSSharedFieldGroup group = (PSSharedFieldGroup) object;
 
     String groupName = group.getName();
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
+      String resource = resources.next();
       if (!groupName.equals(resource)) continue;
 
-      Iterator elements = idTypes.getElementList(resource, false);
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -494,15 +505,13 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   public static final String DEPENDENCY_TYPE = "SharedGroup";
 
   /** List of child types supported by this handler, never <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
-
-  static {
-    ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSControlDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSStylesheetDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSSupportFileDependencyHandler.DEPENDENCY_TYPE);
-  }
+  private static final List<String> ms_childTypes =
+      List.of(
+          PSApplicationDependencyHandler.DEPENDENCY_TYPE,
+          PSControlDependencyHandler.DEPENDENCY_TYPE,
+          PSExitDefDependencyHandler.DEPENDENCY_TYPE,
+          PSKeywordDependencyHandler.DEPENDENCY_TYPE,
+          PSSchemaDependencyHandler.DEPENDENCY_TYPE,
+          PSStylesheetDependencyHandler.DEPENDENCY_TYPE,
+          PSSupportFileDependencyHandler.DEPENDENCY_TYPE);
 }
