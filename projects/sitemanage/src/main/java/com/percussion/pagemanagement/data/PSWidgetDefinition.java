@@ -842,10 +842,14 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
       propOrder = {"icon"})
   public static class WidgetPrefs implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Bumped from 1L when {@code icon} field type changed from {@code List} to {@code ArrayList}
+     * and {@link #setIcon} was added (JAXB / serialization contract).
+     */
+    private static final long serialVersionUID = 2L;
 
     @XmlElement(name = "Icon")
-    protected List<Icon> icon;
+    protected ArrayList<Icon> icon;
 
     @XmlAttribute(name = "contenttype_name")
     protected String contenttypeName;
@@ -886,8 +890,9 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
      * Gets the value of the icon property.
      *
      * <p>This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is
-     * why there is not a <CODE>set</CODE> method for the icon property.
+     * modification you make to the returned list will be present inside the JAXB object. Callers may
+     * also use {@link #setIcon(List)} (e.g. JAXB unmarshalling) to replace the list; that method
+     * always stores a concrete {@link ArrayList}.
      *
      * <p>For example, to add a new item, do as follows:
      *
@@ -905,6 +910,16 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
         icon = new ArrayList<>();
       }
       return icon;
+    }
+
+    /**
+     * Sets the icon list (JAXB / callers). Any {@link List} is copied into a concrete {@link
+     * ArrayList} for a stable serialization type.
+     *
+     * @param icon icon list, may be null
+     */
+    public void setIcon(List<Icon> icon) {
+      this.icon = icon == null ? null : new ArrayList<>(icon);
     }
 
     /**

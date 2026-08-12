@@ -18,7 +18,11 @@ package com.percussion.cx.objectstore;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSEntrySet;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,9 +30,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-/** Test case for the {@link PSNode} class. */
+/**
+ * Test case for the {@link PSNode} class.
+ *
+ * <p>Includes typed {@link ObjectStoreErrorCodes} regression coverage for issue #3141 / parent
+ * #2616 (DesktopContentExplorer residual after ObjectStore batches F–M).
+ */
+@Tag("UnitTest")
 public class PSNodeTest {
   /**
    * Test the clone method to ensure child collections are properly supported.
@@ -190,5 +203,107 @@ public class PSNodeTest {
     assertNotNull(found);
     assertEquals("i1", found.getName());
     assertNull(parent.findChildNode("nope", PSNode.TYPE_ITEM, false));
+  }
+
+  @Test
+  public void fromXmlWrongRootUsesTypedWrongType() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element wrong = PSXmlDocumentBuilder.createRoot(doc, "NotANode");
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(wrong));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
+    assertEquals(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlInvalidHelpTypeHintUsesTypedInvalidAttr() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = itemNode(doc, "n1", "Label");
+    root.setAttribute("helptypehint", "not-a-valid-hint");
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlFolderMissingPermissionsUsesTypedInvalidAttr() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, PSNode.XML_NODE_NAME);
+    root.setAttribute("name", "folder1");
+    root.setAttribute("label", "Folder 1");
+    root.setAttribute("type", PSNode.TYPE_FOLDER);
+    // permissions intentionally omitted
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlFolderNonNumericPermissionsUsesTypedInvalidAttr() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, PSNode.XML_NODE_NAME);
+    root.setAttribute("name", "folder1");
+    root.setAttribute("label", "Folder 1");
+    root.setAttribute("type", PSNode.TYPE_FOLDER);
+    root.setAttribute("permissions", "not-an-int");
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlEmptyRowDataUsesTypedInvalidChild() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = itemNode(doc, "i1", "Item");
+    // Empty RowData child triggers RowData.fromXml invalid-child path
+    root.appendChild(doc.createElement("RowData"));
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), ex.getErrorCode());
+    assertEquals(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlTableMetaWithoutColumnsUsesTypedInvalidChild() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = itemNode(doc, "i1", "Item");
+    // hasChildNodes() true via whitespace/text so TableMeta.fromXml runs; no Column children
+    Element tableMeta = doc.createElement(PSNode.TABLEMETA_NODE);
+    tableMeta.appendChild(doc.createTextNode(" "));
+    root.appendChild(tableMeta);
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void fromXmlValidItemRoundTripPreservesName() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = itemNode(doc, "ok", "OK Label");
+    PSNode node = new PSNode(root);
+    assertEquals("ok", node.getName());
+    assertEquals("OK Label", node.getLabel());
+    assertEquals(PSNode.TYPE_ITEM, node.getType());
+  }
+
+  /** Minimal valid Item {@code Node} element for fromXml success/error cases. */
+  private static Element itemNode(Document doc, String name, String label) {
+    Element root = PSXmlDocumentBuilder.createRoot(doc, PSNode.XML_NODE_NAME);
+    root.setAttribute("name", name);
+    root.setAttribute("label", label);
+    root.setAttribute("type", PSNode.TYPE_ITEM);
+    return root;
   }
 }

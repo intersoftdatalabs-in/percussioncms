@@ -52,7 +52,8 @@ export const ADMIN_NAV_LANDING = "/admin";
 
 /**
  * Client path for Architecture top-nav NavLink and homepage SPA landing (#3094).
- * Replaces primary legacy {@code ?view=arch} / {@code siteArchitecture.jsp} entry.
+ * Primary Architecture entry (SPA). Legacy {@code ?view=arch} /
+ * {@code siteArchitecture.jsp} hard-redirect here (#3099).
  */
 export const ARCHITECTURE_NAV_LANDING = "/architecture";
 

@@ -68,6 +68,20 @@ public class PSFileDownLoadJobRunner implements Runnable {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    var j = getJob();
+    if (j == null) {
+      return 0;
+    }
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (j.getFile() == null ? 0 : j.getFile().hashCode());
+    result = prime * result + (j.getUrl() == null ? 0 : j.getUrl().hashCode());
+    result = prime * result + (j.getCreateAsset() == null ? 0 : j.getCreateAsset().hashCode());
+    return result;
+  }
+
   public void setRequestInfo(Map<String, Object> requestInfoMap) {
     if (PSRequestInfo.isInited()) {
       PSRequestInfo.resetRequestInfo();

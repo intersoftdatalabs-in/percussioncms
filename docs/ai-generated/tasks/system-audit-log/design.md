@@ -18,6 +18,7 @@
 | Legacy `com.percussion.auditlog` | **Purged** Phase 2c (#2675); keep only `com.intsof.percussioncms.auditlog` |
 | Design audit table `PSX_DESIGN_AUDIT_LOG` | **Keep** for design-object history (`PSAuditLogEntry` / `PSDesignObjectAuditor`). Not a CADF store. System security events use `PSX_SYSTEM_AUDIT_LOG` only. Read-only freeze or drop is a later schema decision; no silent dual-store without this note. |
 | Grep gate | `scripts/verify-no-cadf-legacy-auditlog.py` — no `com.ibm.cadf` / `com.percussion.auditlog` in production Java/POMs; no `modules/jcadf-master` tree |
+| ObjectStore bare-int freeze | `scripts/verify-no-bare-ipsobjectstoreerrors.py` (#3143) — no new bare production `IPSObjectStoreErrors` outside allow-list (interface, `ObjectStoreErrorCode` bridge, documented residuals) |
 
 ## Architecture
 

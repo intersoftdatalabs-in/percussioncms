@@ -31,7 +31,8 @@ public class PSMapWrapper implements Serializable {
 
   private static final long serialVersionUID = 8252999104256582955L;
 
-  private Map<String, String> entries = new HashMap<>();
+  /** Concrete serializable map type (not the Map interface) for serial-field compliance. */
+  private HashMap<String, String> entries = new HashMap<>();
 
   public Map<String, String> getEntries() {
     return entries;

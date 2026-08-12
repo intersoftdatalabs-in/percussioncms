@@ -226,7 +226,7 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
         Thread.currentThread().interrupt();
         return false;
       } catch (Throwable t) {
-        if (t instanceof ThreadDeath) {
+        if (isThreadDeath(t)) {
           return false;
         }
         return true;
@@ -249,7 +249,7 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
         Thread.currentThread().interrupt();
         return false;
       } catch (Throwable t) {
-        if (t instanceof ThreadDeath) {
+        if (isThreadDeath(t)) {
           return false;
         }
         log.error(
@@ -264,6 +264,15 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
     } catch (Exception e) {
       return true;
     }
+  }
+
+  /**
+   * {@link ThreadDeath} is deprecated for removal; keep historical stop-thread behavior without
+   * littering call sites with removal warnings.
+   */
+  @SuppressWarnings("removal")
+  private static boolean isThreadDeath(Throwable t) {
+    return t instanceof ThreadDeath;
   }
 
   private void setRequestInfo(PSSiteQueue importingSite) {

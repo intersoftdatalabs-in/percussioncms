@@ -33,6 +33,7 @@ System-wide Percussion CMS audit logging and unified error-code support.
 * IBM CADF module `modules/jcadf-master` (`com.ibm.cadf:auditlogger`) — **removed from reactor**
 * Legacy package `com.percussion.auditlog` (CADF-facing `PSAuditLogService` / event types) — **purged**
 * Grep gate: `python3 scripts/verify-no-cadf-legacy-auditlog.py` (Windows: same via `python`)
+* ObjectStore freeze gate (#3143): `python3 scripts/verify-no-bare-ipsobjectstoreerrors.py` — fails on **new** bare production `IPSObjectStoreErrors` call-sites; prefer typed `ObjectStoreErrorCodes` / `ObjectStoreErrorCode` / `DesignErrorCodes`. Allow-list is interface + bridges + documented residuals only (see script `--list-allowlist`).
 
 Do **not** reintroduce CADF or the legacy package. Call sites must use
 `com.intsof.percussioncms.auditlog` / `PSSystemAuditLogger`.

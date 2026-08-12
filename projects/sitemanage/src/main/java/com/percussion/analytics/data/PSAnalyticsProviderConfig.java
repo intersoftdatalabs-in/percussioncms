@@ -62,13 +62,8 @@ public class PSAnalyticsProviderConfig implements Serializable {
     this.userid = userid;
     this.password = password;
     this.isEncrypted = isEncrypted;
-    if (extraParamsMap == null) {
-      this.extraParamsMap = null;
-    } else if (extraParamsMap instanceof HashMap) {
-      this.extraParamsMap = (HashMap) extraParamsMap;
-    } else {
-      this.extraParamsMap = new HashMap<>(extraParamsMap);
-    }
+    this.extraParamsMap =
+        extraParamsMap == null ? null : new HashMap<>(extraParamsMap);
     this.uid = userid;
 
     // Build ExtraParamsClass from extraParamsMap
@@ -140,15 +135,9 @@ public class PSAnalyticsProviderConfig implements Serializable {
     return map;
   }
 
-  @SuppressWarnings("unchecked")
   public void setExtraParamsMap(Map<String, String> extraParamsMap) {
-    if (extraParamsMap == null) {
-      this.extraParamsMap = null;
-    } else if (extraParamsMap instanceof HashMap) {
-      this.extraParamsMap = (HashMap<String, String>) extraParamsMap;
-    } else {
-      this.extraParamsMap = new HashMap<>(extraParamsMap);
-    }
+    this.extraParamsMap =
+        extraParamsMap == null ? null : new HashMap<>(extraParamsMap);
   }
 
   public ExtraParamsClass getExtraParams() {

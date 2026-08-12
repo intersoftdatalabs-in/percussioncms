@@ -9,9 +9,9 @@ tags: [admin, architecture, navigation, ui]
 
 # Architecture & site navigation
 
-**Architecture** (site navigation / navon tree editor) is migrating into the modern SPA
-product chrome. In Percussion CMS 8.2 the primary entry is the SPA shell — not the
-legacy CM1 Architecture page.
+**Architecture** (site navigation / navon tree editor) runs in the modern SPA product
+chrome. In Percussion CMS 8.2 the primary entry is the SPA shell. The classic
+`siteArchitecture.jsp` page and `?view=arch` bookmarks hard-redirect into the SPA.
 
 ## Open Architecture (SPA)
 
@@ -19,6 +19,7 @@ legacy CM1 Architecture page.
 2. Choose **Architecture** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
+   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
 3. The shell loads under the same product top nav as Explorer, Design, Publish, and Admin.
 
 Default landing can also be set to **Architecture** for a user or role (homepage type
@@ -101,6 +102,10 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
 | Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
+| Site navigation tree browse (navons / sections) | **Available** (read-only) |
+| Structure editing (create / edit / move / delete) | **Coming soon** |
+| Landing page / section-link parity | **Coming soon** |
+| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Architecture (#3099) |
 
 ## Related
 

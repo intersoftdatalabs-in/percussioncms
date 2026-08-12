@@ -2085,6 +2085,7 @@ public class PSPubServerService implements IPSPubServerService {
           PSExceptionUtils.getMessageForLog(e));
       try {
         // Decrypt-only upgrade fallback (accepted-risk T047/T048) — do not encrypt with PSAesCBC
+        @SuppressWarnings("removal")
         PSAesCBC aes = new PSAesCBC();
         return aes.decrypt(dstr, IPSPubServerDao.ENCRYPTION_KEY);
       } catch (PSEncryptionException psEncryptionException) {

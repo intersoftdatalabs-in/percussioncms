@@ -64,7 +64,7 @@
     Map<String, String> legacyViews = new HashMap<String, String>();
     legacyViews.put("editAsset", "editAsset.jsp");
     legacyViews.put("design", "admin.jsp");
-    // arch / Architecture → SPA entry=architecture (#3094); JSP retained for Slice G only
+    // arch / Architecture → SPA entry=architecture (#3094); siteArchitecture.jsp hard-redirects (#3099)
     legacyViews.put("editor", "webmgt.jsp");
     legacyViews.put("editTemplate", "editTemplate.jsp");
 

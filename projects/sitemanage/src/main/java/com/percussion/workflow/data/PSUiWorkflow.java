@@ -51,13 +51,7 @@ public class PSUiWorkflow extends PSAbstractDataObject {
 
   public PSUiWorkflow(String workflowName, List<PSUiWorkflowStep> workflowSteps) {
     this.workflowName = workflowName;
-    if (workflowSteps == null) {
-      this.workflowSteps = null;
-    } else if (workflowSteps instanceof ArrayList) {
-      this.workflowSteps = (ArrayList) workflowSteps;
-    } else {
-      this.workflowSteps = new ArrayList<>(workflowSteps);
-    }
+    this.workflowSteps = workflowSteps == null ? null : new ArrayList<>(workflowSteps);
   }
 
   public String getWorkflowName() {
@@ -81,15 +75,8 @@ public class PSUiWorkflow extends PSAbstractDataObject {
     return workflowSteps;
   }
 
-  @SuppressWarnings("unchecked")
   public void setWorkflowSteps(List<PSUiWorkflowStep> workflowSteps) {
-    if (workflowSteps == null) {
-      this.workflowSteps = null;
-    } else if (workflowSteps instanceof ArrayList) {
-      this.workflowSteps = (ArrayList<PSUiWorkflowStep>) workflowSteps;
-    } else {
-      this.workflowSteps = new ArrayList<>(workflowSteps);
-    }
+    this.workflowSteps = workflowSteps == null ? null : new ArrayList<>(workflowSteps);
   }
 
   public String getPreviousWorkflowName() {
