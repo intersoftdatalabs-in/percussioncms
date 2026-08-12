@@ -28,7 +28,33 @@ import { ArchitectureShell } from "../../../main/ts/architecture/ArchitectureShe
 import * as homeApi from "../../../main/ts/api/home/homeApi";
 import * as sectionApi from "../../../main/ts/api/architecture/sectionApi";
 
-describe("ArchitectureShell (#3095 read-only tree)", () => {
+const treeFixture = {
+  id: "root",
+  title: "Home",
+  folderPath: "//Sites/Demo",
+  sectionType: "section" as const,
+  requiresLogin: false,
+  children: [
+    {
+      id: "c1",
+      title: "About",
+      folderPath: "//Sites/Demo/About",
+      sectionType: "section" as const,
+      requiresLogin: false,
+      children: [],
+    },
+    {
+      id: "c2",
+      title: "News",
+      folderPath: "//Sites/Demo/News",
+      sectionType: "section" as const,
+      requiresLogin: false,
+      children: [],
+    },
+  ],
+};
+
+describe("ArchitectureShell (#3095/#3096)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -62,21 +88,9 @@ describe("ArchitectureShell (#3095 read-only tree)", () => {
       { name: "Demo" },
     ]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue({
-      id: "root",
-      title: "Home",
+      ...treeFixture,
       folderPath: "//Sites/Corporate Investments",
-      sectionType: "section",
-      requiresLogin: false,
-      children: [
-        {
-          id: "c1",
-          title: "About",
-          folderPath: null,
-          sectionType: "section",
-          requiresLogin: false,
-          children: [],
-        },
-      ],
+      title: "Home",
     });
 
     render(
@@ -95,7 +109,8 @@ describe("ArchitectureShell (#3095 read-only tree)", () => {
     expect(screen.getByTestId("architecture-site-hint").textContent).toContain(
       "Corporate Investments",
     );
-    expect(screen.getByTestId("architecture-readonly-note")).toBeTruthy();
+    expect(screen.getByTestId("architecture-structure-note")).toBeTruthy();
+    expect(screen.getByTestId("architecture-structure-actions")).toBeTruthy();
     expect(sectionApi.loadSectionTree).toHaveBeenCalledWith(
       "Corporate Investments",
     );
@@ -123,14 +138,7 @@ describe("ArchitectureShell (#3095 read-only tree)", () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     const loadSpy = vi
       .spyOn(sectionApi, "loadSectionTree")
-      .mockResolvedValue({
-        id: "root",
-        title: "Home",
-        folderPath: null,
-        sectionType: "section",
-        requiresLogin: false,
-        children: [],
-      });
+      .mockResolvedValue(treeFixture);
 
     render(<ArchitectureShell embedded initialSite="Demo" />);
     await waitFor(() => {
@@ -139,6 +147,124 @@ describe("ArchitectureShell (#3095 read-only tree)", () => {
     fireEvent.click(screen.getByTestId("architecture-refresh"));
     await waitFor(() => {
       expect(loadSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("enables create under root and opens create dialog", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-create")).toBeTruthy();
+    });
+    // Create enabled with root as parent even without selection
+    expect(
+      (screen.getByTestId("architecture-action-create") as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("architecture-action-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+  });
+
+  it("delete confirms and calls deleteSiteSection", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const delSpy = vi
+      .spyOn(sectionApi, "deleteSiteSection")
+      .mockResolvedValue({});
+    const confirmFn = vi.fn(() => true);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={confirmFn}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-delete"));
+    expect(confirmFn).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(delSpy).toHaveBeenCalledWith("c1");
+    });
+    await waitFor(() => {
+      expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it("surfaces mutation errors without silent failure", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(sectionApi, "deleteSiteSection").mockRejectedValue({
+      status: 500,
+      statusText: "Error",
+      body: { message: "Cannot delete section" },
+    });
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => true}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-mutation-error")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("architecture-mutation-error").textContent,
+    ).toMatch(/Cannot delete section|Could not update/i);
+  });
+
+  it("move up calls moveSiteSection with reordered index", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c2")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c2"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-move-up") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-move-up"));
+    await waitFor(() => {
+      expect(moveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: "c2",
+          targetId: "root",
+          targetIndex: 0,
+        }),
+      );
     });
   });
 });

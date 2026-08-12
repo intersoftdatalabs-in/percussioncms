@@ -16,11 +16,11 @@
  */
 
 /**
- * Read-only accessible navigation tree for Architecture (#3095).
+ * Accessible navigation tree for Architecture (#3095 / #3096).
  *
  * <p>Uses ARIA tree / treeitem + keyboard expand/collapse and focus movement
- * (peer: ExplorerTree). Mutations (create/edit/reorder/delete) are intentionally
- * out of scope.</p>
+ * (peer: ExplorerTree). Structure mutations are driven from the shell toolbar
+ * against the selected node.</p>
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -136,7 +136,7 @@ function buildParentMap(
 }
 
 /**
- * Read-only site navigation tree (navons / sections).
+ * Site navigation tree (navons / sections) with selection for structure actions.
  */
 export function NavTree({
   root,

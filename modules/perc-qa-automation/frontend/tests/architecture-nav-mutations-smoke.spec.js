@@ -15,14 +15,14 @@
  */
 
 /**
- * Architecture read-only nav tree smoke (#3095 / parent #3092).
+ * Architecture structure mutations smoke (#3096 / parent #3092).
  *
  * Surface-filtered only:
- *   npm run test:surface -- --path tests/architecture-nav-tree-smoke.spec.js
+ *   npm run test:surface -- --path tests/architecture-nav-mutations-smoke.spec.js
  *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
- * Entry: spa.jsp?entry=architecture (site picker + tree when sites exist).
+ * Entry: spa.jsp?entry=architecture (structure action bar when sites exist).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -37,15 +37,25 @@ function architectureUrl(extra = {}) {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Architecture read-only nav tree (#3095)", () => {
+test.describe("Architecture nav structure mutations (#3096)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
-  test("shell loads site picker and tree or empty/error states @smoke @ui", async ({
+  test("structure action bar is present with tree or empty states @smoke @ui", async ({
     page,
   }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     await page.goto(architectureUrl(), { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("perc-spa-topnav")).toBeVisible({
@@ -60,13 +70,10 @@ test.describe("Architecture read-only nav tree (#3095)", () => {
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
       /Architecture/i,
     );
-
-    // Toolbar always present once shell mounts
     await expect(page.getByTestId("architecture-toolbar")).toBeVisible({
       timeout: 15_000,
     });
 
-    // Either no sites, site list error, or picker + tree panel
     const sitesEmpty = page.getByTestId("architecture-sites-empty");
     const sitesError = page.getByTestId("architecture-sites-error");
     const picker = page.getByTestId("architecture-site-picker");
@@ -88,32 +95,59 @@ test.describe("Architecture read-only nav tree (#3095)", () => {
 
     if (await picker.isVisible().catch(() => false)) {
       await expect(page.getByTestId("architecture-site-select")).toBeVisible();
-      // When a site is auto-selected, tree panel (loading/ready/error) appears
       await expect(treePanel.or(emptyState)).toBeVisible({ timeout: 15_000 });
       if (await treePanel.isVisible().catch(() => false)) {
         await expect(page.getByTestId("architecture-nav-tree")).toBeVisible();
-        // Structure note / actions (Slice D) or legacy readonly note if older build
-        const structureNote = page.getByTestId("architecture-structure-note");
-        const readonlyNote = page.getByTestId("architecture-readonly-note");
-        const actions = page.getByTestId("architecture-structure-actions");
-        await expect
-          .poll(async () => {
-            if (await structureNote.isVisible().catch(() => false))
-              return "structure";
-            if (await actions.isVisible().catch(() => false)) return "actions";
-            if (await readonlyNote.isVisible().catch(() => false))
-              return "readonly";
-            return "pending";
-          })
-          .not.toBe("pending");
+        await expect(
+          page.getByTestId("architecture-structure-actions"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-action-create"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-action-rename"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-action-move-up"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-action-move-down"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-action-delete"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-structure-note"),
+        ).toBeVisible();
+        // Read-only note must be gone
+        await expect(
+          page.getByTestId("architecture-readonly-note"),
+        ).toHaveCount(0);
+
+        // Create dialog open/close (no forced save against live site)
+        const createBtn = page.getByTestId("architecture-action-create");
+        if (await createBtn.isEnabled().catch(() => false)) {
+          await createBtn.click();
+          await expect(
+            page.getByTestId("architecture-create-dialog"),
+          ).toBeVisible({ timeout: 10_000 });
+          await page.getByTestId("architecture-create-cancel").click();
+          await expect(
+            page.getByTestId("architecture-create-dialog"),
+          ).toHaveCount(0);
+        }
       }
     }
 
-    // Top-nav Architecture remains SPA NavLink
-    const href = await page
-      .getByTestId("nav-architecture")
-      .getAttribute("href");
-    expect(href || "").toMatch(/architecture/);
-    expect(href || "").not.toMatch(/view=arch/);
+    // Zero uncaught page errors; ignore common network 404 console noise
+    // (favicon, optional assets) that is not feature-related.
+    expect(
+      consoleErrors.filter(
+        (e) =>
+          !/favicon|Download the React DevTools|third-party|Failed to load resource|net::ERR_/i.test(
+            e,
+          ),
+      ),
+    ).toEqual([]);
   });
 });

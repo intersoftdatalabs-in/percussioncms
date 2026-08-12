@@ -74,3 +74,60 @@ export interface NavTreeNode {
   requiresLogin: boolean;
   children: NavTreeNode[];
 }
+
+/** Target window values from {@code PSSiteSection.PSSectionTargetEnum}. */
+export type SectionTarget = "_self" | "_blank" | "_top" | "_parent" | string;
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/create}
+ * ({@code CreateSiteSection} / {@code PSCreateSiteSection}).
+ */
+export interface CreateSiteSectionFields {
+  pageTitle: string;
+  pageLinkTitle: string;
+  pageName: string;
+  pageUrlIdentifier: string;
+  templateId: string;
+  folderPath: string;
+  sectionType?: SectionType;
+  target?: SectionTarget;
+  copyTemplates?: boolean;
+  blogPostTemplateId?: string;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/update}
+ * ({@code SiteSectionProperties} / {@code PSSiteSectionProperties}).
+ */
+export interface SiteSectionPropertiesWire {
+  id: string;
+  title: string;
+  folderName: string;
+  target?: SectionTarget | null;
+  requiresLogin?: boolean | null;
+  allowAccessTo?: string | null;
+  cssClassNames?: string | null;
+  secureSite?: boolean | null;
+  secureAncestor?: boolean | null;
+  siteRootSection?: boolean | null;
+  /** Folder ACL object from server — pass through on update when present. */
+  folderPermission?: unknown;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/move}
+ * ({@code MoveSiteSection} / {@code PSMoveSiteSection}).
+ */
+export interface MoveSiteSectionFields {
+  sourceId: string;
+  targetId: string;
+  targetIndex: number;
+  sourceParentId?: string | null;
+}
+
+/** Result of locating a node among its siblings for reorder. */
+export interface SiblingPlacement {
+  parent: NavTreeNode;
+  index: number;
+  siblings: NavTreeNode[];
+}
