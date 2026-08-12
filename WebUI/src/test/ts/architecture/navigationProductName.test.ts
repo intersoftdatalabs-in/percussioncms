@@ -34,6 +34,11 @@ describe("Navigation product name (#3217)", () => {
     expect(fallbackLabelFromKey(MSG.NAV_ARCHITECTURE_TITLE)).toBe(
       "Site navigation",
     );
+    expect(MSG.NAV_ARCHITECTURE).toBe("perc.ui.navMenu.architecture@Navigation");
     expect(MSG.NAV_ARCHITECTURE).not.toMatch(/@Architecture$/);
+    expect(ARCH_MSG_KEYS.TITLE).toBe("perc.ui.architecture.modern@Navigation");
+    expect(MSG.NAV_ARCHITECTURE_TITLE).toBe(
+      "perc.ui.architecture.modern@Site navigation",
+    );
   });
 });
