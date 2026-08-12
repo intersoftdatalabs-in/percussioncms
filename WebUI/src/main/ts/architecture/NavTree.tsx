@@ -42,10 +42,9 @@ function typeBadgeLabel(sectionType: SectionType | string): string | null {
       return ARCH_MSG.TYPE_EXTERNAL_LINK;
     case "blog":
       return ARCH_MSG.TYPE_BLOG;
-    default: {
-      const raw = String(sectionType || "").trim();
-      return raw.length > 0 ? raw : null;
-    }
+    default:
+      // Do not surface raw CMS type names for unforeseen section types.
+      return null;
   }
 }
 

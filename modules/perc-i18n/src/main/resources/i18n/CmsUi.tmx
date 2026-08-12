@@ -27343,6 +27343,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@URL is too long (max 2048 characters)">
       <tuv xml:lang="en-us"><seg>URL is too long (max 2048 characters)</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@URL scheme is not allowed (use http(s) or a site path)">
+      <tuv xml:lang="en-us"><seg>URL scheme is not allowed (use http(s) or a site path)</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)">
       <tuv xml:lang="en-us"><seg>Enter a valid URL (for example https://example.com or /path)</seg></tuv>
     </tu>

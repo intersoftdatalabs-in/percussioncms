@@ -153,6 +153,8 @@ const KEYS = {
   VALIDATION_URL_REQUIRED: "perc.ui.architecture.modern@URL is required",
   VALIDATION_URL_TOO_LONG:
     "perc.ui.architecture.modern@URL is too long (max 2048 characters)",
+  VALIDATION_URL_SCHEME_BLOCKED:
+    "perc.ui.architecture.modern@URL scheme is not allowed (use http(s) or a site path)",
   VALIDATION_URL_INVALID:
     "perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)",
 } as const;
@@ -259,6 +261,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   VALIDATION_TITLE_TOO_LONG: message(KEYS.VALIDATION_TITLE_TOO_LONG),
   VALIDATION_URL_REQUIRED: message(KEYS.VALIDATION_URL_REQUIRED),
   VALIDATION_URL_TOO_LONG: message(KEYS.VALIDATION_URL_TOO_LONG),
+  VALIDATION_URL_SCHEME_BLOCKED: message(KEYS.VALIDATION_URL_SCHEME_BLOCKED),
   VALIDATION_URL_INVALID: message(KEYS.VALIDATION_URL_INVALID),
 };
 

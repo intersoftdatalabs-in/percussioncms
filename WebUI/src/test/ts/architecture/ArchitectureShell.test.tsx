@@ -437,7 +437,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       externalLinkUrl: "https://old.partner",
       target: "_self",
       sectionType: "externallink",
-    } as never);
+    });
     const updateSpy = vi
       .spyOn(sectionApi, "updateExternalLink")
       .mockResolvedValue({});

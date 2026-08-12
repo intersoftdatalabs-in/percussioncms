@@ -108,8 +108,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   confirmFn,
   useLandingContentBrowser = true,
 }) => {
-  const confirmAction =
-    confirmFn ?? ((msg: string) => window.confirm(msg));
+  const confirmAction = useCallback(
+    (msg: string) => (confirmFn ? confirmFn(msg) : window.confirm(msg)),
+    [confirmFn],
+  );
 
   const [sitesState, setSitesState] = useState<SitesLoadState>({
     status: "loading",
@@ -486,7 +488,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             return; // superseded by a later edit click or cancel
           }
           setExternalInitial({
-            linkTitle: loaded.title || fallbackTitle,
+            // Preserve intentional empty title from API; only fall back when nullish.
+            linkTitle: loaded.title ?? fallbackTitle,
             externalUrl: loaded.externalLinkUrl || "",
             target: loaded.target || "_self",
           });

@@ -15,17 +15,23 @@
  * limitations under the License.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Close Architecture dialogs on Escape when open and not busy (#3098 a11y).
  * Peer: Design TemplateDetailDrawer Escape handler.
+ *
+ * <p>{@code onCancel} is held in a ref so inline arrow call-sites do not
+ * teardown/re-register the window keydown listener every parent render.</p>
  */
 export function useDialogEscape(
   open: boolean,
   busy: boolean,
   onCancel: () => void,
 ): void {
+  const onCancelRef = useRef(onCancel);
+  onCancelRef.current = onCancel;
+
   useEffect(() => {
     if (!open) {
       return;
@@ -39,9 +45,9 @@ export function useDialogEscape(
       }
       ev.preventDefault();
       ev.stopPropagation();
-      onCancel();
+      onCancelRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, busy, onCancel]);
+  }, [open, busy]);
 }

@@ -413,6 +413,7 @@ export function validateExternalUrl(url: string): string | null {
     );
   }
   // Block dangerous schemes even when they match a generic scheme: pattern.
+  // Key is declared in architecture/messages.ts KEYS.VALIDATION_URL_SCHEME_BLOCKED + CmsUi.tmx.
   if (BLOCKED_EXTERNAL_SCHEMES.test(t)) {
     return message(
       "perc.ui.architecture.modern@URL scheme is not allowed (use http(s) or a site path)",
