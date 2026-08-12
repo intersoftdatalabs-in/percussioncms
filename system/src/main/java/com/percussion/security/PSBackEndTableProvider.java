@@ -239,12 +239,12 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
     if (m_metaData == null) {
       String[] attrNames = null;
 
-      List attributeNamesList = new ArrayList();
-      Iterator attributeNames = m_backendConnection.getUserAttributeNames();
+      List<String> attributeNamesList = new ArrayList<>();
+      Iterator<String> attributeNames = m_backendConnection.getUserAttributeNames();
       while (attributeNames.hasNext()) attributeNamesList.add(attributeNames.next());
 
       if (!attributeNamesList.isEmpty()) {
-        attrNames = (String[]) attributeNamesList.toArray(new String[attributeNamesList.size()]);
+        attrNames = attributeNamesList.toArray(new String[0]);
       }
 
       m_metaData =

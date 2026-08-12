@@ -57,23 +57,31 @@ public class PSDirectoryDefinition {
   }
 
   /**
-   * Creates an array with attribute names. The array is created with no duplicates as a combination
-   * of the attribute names defined in this directory and the additional names supplied.
+   * Creates a set of attribute names with no duplicates as a combination of the attribute names
+   * defined in this directory and the additional names supplied.
    *
-   * @param additionalReturns a set with attribute names which should be returned in addition to the
-   *     returns defined in this directory. May be <code>null</code> or empty, the method may change
-   *     the supplied set.
+   * @param additionalReturns attribute names to return in addition to those defined on the
+   *     directory. May be <code>null</code> or empty. Elements are treated as strings via {@link
+   *     Object#toString()}.
    * @return a set of attribute names to be returned with search results, never <code>null</code>.
    */
-  @SuppressWarnings(value = {"unchecked"})
-  public Set<String> getReturnAttributeNames(Set additionalReturns) {
+  public Set<String> getReturnAttributeNames(Set<?> additionalReturns) {
     Set<String> results = new HashSet<>();
 
-    Collection returns = getDirectory().getAttributes();
+    // Directory attributes are string attribute names (PSCollection raw at objectstore boundary).
+    Collection<?> returns = getDirectory().getAttributes();
 
-    if (additionalReturns == null) results.addAll(additionalReturns);
+    if (additionalReturns != null) {
+      for (Object attr : additionalReturns) {
+        if (attr != null) results.add(attr.toString());
+      }
+    }
 
-    if (returns != null) results.addAll(returns);
+    if (returns != null) {
+      for (Object attr : returns) {
+        if (attr != null) results.add(attr.toString());
+      }
+    }
 
     return results;
   }

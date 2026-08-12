@@ -28,6 +28,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -109,10 +111,14 @@ public class PSBackEndConnection {
 
     /**
      * Save the properties that remain - this is the password column, plus any user defined
-     * attributes.
+     * attributes. Values are column names (strings) from the provider properties. Sorted for
+     * deterministic SELECT column order (property name iteration is unordered).
      */
     m_columns = new ArrayList<>();
-    m_columns.addAll(localProps.values());
+    for (String propName : localProps.stringPropertyNames()) {
+      m_columns.add(localProps.getProperty(propName));
+    }
+    Collections.sort(m_columns);
 
     /**
      * We don't want to return the password column as a user attribute, that's why we need to remove
@@ -120,8 +126,11 @@ public class PSBackEndConnection {
      */
     m_pwColumn = PSJndiUtils.getProperty(localProps, PROPS_PW_COLUMN, false);
 
-    // store the requested user attribute names
-    m_userAttributes = localProps;
+    // store the requested user attribute names -> backend column mapping
+    m_userAttributes = new HashMap<>();
+    for (String attrName : localProps.stringPropertyNames()) {
+      m_userAttributes.put(attrName, localProps.getProperty(attrName));
+    }
   }
 
   /**
@@ -246,13 +255,15 @@ public class PSBackEndConnection {
    * and it will be used to lookup password information for authentication and all specified user
    * attributes.
    *
-   * @param columns the list of columns to query, not <code>null</code> or empty.
+   * @param columns the list of columns to query, not <code>null</code> or empty. Elements are
+   *     converted via {@link Object#toString()}; accepts {@code List<String>} and legacy {@code
+   *     List<Object>} of column-name strings.
    * @param key the key column to use for lookups, not <code>null</code> or empty.
    * @param table the name of the table to do the lookups in, not <code>null</code> or empty.
    * @return the query statement string, never <code>null</code>.
    *     <p>Note: There will be one bound parameter, which is the key for the query.
    */
-  public String prepareStatement(List<Object> columns, String key, String table) {
+  public String prepareStatement(List<?> columns, String key, String table) {
     if (columns == null) throw new IllegalArgumentException("columns cannot be null");
 
     if (columns.isEmpty()) throw new IllegalArgumentException("columns cannot be empty");
@@ -272,13 +283,14 @@ public class PSBackEndConnection {
     StringBuilder buff = new StringBuilder();
     buff.append("SELECT");
 
-    Iterator cols = columns.iterator();
-    while (cols.hasNext()) {
+    for (Object colObj : columns) {
+      if (colObj == null) throw new IllegalArgumentException("column cannot be null");
+      String col = colObj.toString();
       if (!firstIn) buff.append(comma);
       else firstIn = false;
 
       buff.append(" ");
-      buff.append((String) cols.next());
+      buff.append(col);
     }
 
     buff.append(" FROM ");
@@ -307,7 +319,7 @@ public class PSBackEndConnection {
    * @throws SQLException for any database error.
    */
   public PreparedStatement getPreparedStatement(
-      PSConditional criteria, Collection attributeNames, Connection connection)
+      PSConditional criteria, Collection<?> attributeNames, Connection connection)
       throws SQLException {
     if (connection == null) throw new IllegalArgumentException("connection may not be null");
 
@@ -321,7 +333,7 @@ public class PSBackEndConnection {
 
       String var = criteria.getVariable().getValueText();
       if (var.equals(getUserColumn())) whereCol = var;
-      else whereCol = (String) m_userAttributes.get(var);
+      else whereCol = m_userAttributes.get(var);
 
       if (StringUtils.isBlank(whereCol)) return null;
     }
@@ -343,10 +355,10 @@ public class PSBackEndConnection {
     buff.append("SELECT " + m_uidColumn);
 
     if (attributeNames != null) {
-      Iterator<String> attrs = attributeNames.iterator();
-      while (attrs.hasNext()) {
-        String attr = attrs.next();
-        String col = (String) m_userAttributes.get(attr);
+      for (Object attrObj : attributeNames) {
+        if (attrObj == null) continue;
+        String attr = attrObj.toString();
+        String col = m_userAttributes.get(attr);
         if (StringUtils.isBlank(col)) continue;
 
         buff.append(comma);
@@ -383,7 +395,7 @@ public class PSBackEndConnection {
    *     found, never empty.
    */
   public String getUserAttribute(String key) {
-    return (String) m_userAttributes.get(key);
+    return m_userAttributes.get(key);
   }
 
   /**
@@ -391,7 +403,7 @@ public class PSBackEndConnection {
    *
    * @return a list of user attribute names, never <code>null</code> may be empty.
    */
-  public Iterator getUserAttributeNames() {
+  public Iterator<String> getUserAttributeNames() {
     if (m_userAttributes == null || m_userAttributes.isEmpty())
       return PSIteratorUtils.emptyIterator();
 
@@ -529,8 +541,8 @@ public class PSBackEndConnection {
    * attribute value. Initialized in constructor, never <code>null</code> after that, may be empty,
    * never modified.
    */
-  private Map m_userAttributes = null;
+  private Map<String, String> m_userAttributes = null;
 
   /** List of columns to query. */
-  private List<Object> m_columns;
+  private List<String> m_columns;
 }

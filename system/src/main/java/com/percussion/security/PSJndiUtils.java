@@ -30,7 +30,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -196,17 +196,24 @@ public class PSJndiUtils {
       if (obj == null || obj instanceof String) {
         String value = (String) values.get(key);
         appendFilterCond(filter, key, value);
-      } else {
-        List valList = (List) obj;
+      } else if (obj instanceof Collection) {
+        Collection<?> valList = (Collection<?>) obj;
         if (valList.isEmpty()) appendFilterCond(filter, key, null);
         else {
           filter.append("(|");
           for (Object o : valList) {
-            String value = (String) o;
+            String value = o == null ? null : o.toString();
             appendFilterCond(filter, key, value);
           }
           filter.append(")");
         }
+      } else {
+        // Fail-fast like the historical (List) cast: only String/Collection values are valid.
+        throw new IllegalArgumentException(
+            "Filter value for attribute '"
+                + key
+                + "' must be a String or Collection; got "
+                + obj.getClass().getName());
       }
     }
     filter.append(")");
@@ -303,9 +310,7 @@ public class PSJndiUtils {
     if (config.isJndiConnectionPoolingEnabled()) {
       Properties jndiConnectionPooling = config.getJndiConnectionPoolingConfig();
 
-      Enumeration keys = jndiConnectionPooling.keys();
-      while (keys.hasMoreElements()) {
-        String key = (String) keys.nextElement();
+      for (String key : jndiConnectionPooling.stringPropertyNames()) {
         String value = jndiConnectionPooling.getProperty(key);
         env.put(key, value);
       }

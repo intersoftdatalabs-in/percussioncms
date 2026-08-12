@@ -221,11 +221,12 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
       m_credentialFilter = PSJndiUtils.initPasswordFilter(filterClass);
 
     if (directory.getAttributes() != null) {
-      @SuppressWarnings("unchecked")
-      Iterator<String> attributes = directory.getAttributes().iterator();
-      while (attributes.hasNext()) {
-        String attribute = attributes.next();
-        m_userAttributes.put(attribute, attribute);
+      // PSCollection iterator is raw at the objectstore boundary
+      for (Object attributeObj : directory.getAttributes()) {
+        if (attributeObj != null) {
+          String attribute = attributeObj.toString();
+          m_userAttributes.put(attribute, attribute);
+        }
       }
     }
 
@@ -263,7 +264,6 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * @throws IllegalArgumentException if userName is <code>null</code>.
    * @throws NamingException if any errors occur.
    */
-  @SuppressWarnings({"unused", "unchecked"})
   protected PSGroupEntry[] getGroupEntries(String userName) throws NamingException {
     if (userName == null || StringUtils.isBlank(userName))
       throw new IllegalArgumentException("userName may not be null or empty");
@@ -278,10 +278,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
       }
     }
 
-    PSGroupEntry[] groupArray = new PSGroupEntry[memberSet.size()];
-    memberSet.toArray(groupArray);
-
-    return groupArray;
+    return memberSet.toArray(new PSGroupEntry[0]);
   }
 
   /**

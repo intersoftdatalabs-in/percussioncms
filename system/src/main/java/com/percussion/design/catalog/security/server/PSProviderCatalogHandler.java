@@ -21,7 +21,6 @@ import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import org.w3c.dom.Document;
@@ -227,13 +226,12 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
       Element propListNode =
           PSXmlDocumentBuilder.addEmptyElement(doc, node, "ConnectionProperties");
 
-      Iterator iterator = connProps.entrySet().iterator();
-      while (iterator.hasNext()) {
-        Map.Entry entry = (Map.Entry) iterator.next();
+      for (Map.Entry<Object, Object> entry : connProps.entrySet()) {
         Element propNode =
             PSXmlDocumentBuilder.addEmptyElement(doc, propListNode, "ConnectionProperty");
-        PSXmlDocumentBuilder.addElement(doc, propNode, "name", (String) entry.getKey());
-        PSXmlDocumentBuilder.addElement(doc, propNode, "description", (String) entry.getValue());
+        PSXmlDocumentBuilder.addElement(doc, propNode, "name", String.valueOf(entry.getKey()));
+        PSXmlDocumentBuilder.addElement(
+            doc, propNode, "description", String.valueOf(entry.getValue()));
       }
     }
   }

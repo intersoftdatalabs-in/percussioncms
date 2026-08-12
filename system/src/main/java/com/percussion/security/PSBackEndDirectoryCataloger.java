@@ -32,7 +32,6 @@ import java.util.Properties;
 import java.util.Set;
 
 /** A directory cataloger using the backend role/subject data as directory source. */
-@SuppressWarnings(value = {"unchecked"})
 public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
   /** Default ctor, sets the name of this cataloger. */
   public PSBackEndDirectoryCataloger() {
@@ -53,9 +52,8 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
     PSSubject subject = getAttributes(user, attrs);
     PSAttribute attr = subject.getAttributes().getAttribute(attributeName);
     if (attr != null) {
-      @SuppressWarnings("unchecked")
-      List<?> vals = attr.getValues();
-      if (!vals.isEmpty()) attributeVal = vals.get(0).toString();
+      List<String> vals = attr.getValues();
+      if (!vals.isEmpty()) attributeVal = vals.get(0);
     }
 
     return attributeVal;
