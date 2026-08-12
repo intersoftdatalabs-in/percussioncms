@@ -287,4 +287,21 @@ export const EXPLORER_MSG = {
   WORKFLOW_TRANSITION_FAILED:
     "perc.ui.explorer@Workflow transition failed",
   // Success path refreshes the list silently (error banner is fail-only).
+
+  // Views catalog tree + run results (#3116 / parent #3110) — not the View menu
+  VIEWS_CATEGORY: "perc.ui.explorer@Views",
+  VIEWS_GROUP_MY: "perc.ui.explorer@My Content",
+  VIEWS_GROUP_COMMUNITY: "perc.ui.explorer@Community Content",
+  VIEWS_GROUP_ALL: "perc.ui.explorer@All Content",
+  VIEWS_GROUP_OTHER: "perc.ui.explorer@Other Content",
+  VIEWS_TREE_REGION: "perc.ui.explorer@Views catalog",
+  VIEWS_LOADING: "perc.ui.explorer@Loading views",
+  VIEWS_LOAD_ERROR: "perc.ui.explorer@Failed to load views",
+  VIEWS_GROUP_EMPTY: "perc.ui.explorer@No views in this group",
+  VIEWS_RUN_LOADING: "perc.ui.explorer@Running view…",
+  VIEWS_RUN_EMPTY: "perc.ui.explorer@No items in this view",
+  VIEWS_RUN_ERROR: "perc.ui.explorer@Failed to run view",
+  VIEWS_CUSTOM_UNSUPPORTED:
+    "perc.ui.explorer@Custom URL views cannot be run from Explorer",
+  VIEWS_RESULTS_REGION: "perc.ui.explorer@View results",
 } as const;

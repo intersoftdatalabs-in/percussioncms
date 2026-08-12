@@ -1,7 +1,7 @@
 ---
 id: admin-content-explorer
 title: Content Explorer
-description: Product Content Explorer shell — browse, search, display formats, and server actions
+description: Product Content Explorer shell — browse, Views catalog, search, display formats, and server actions
 version: "8.2"
 order: 42
 tags: [admin, content explorer, ui, search]
@@ -22,6 +22,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
+| **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
 
 ## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
@@ -41,6 +42,27 @@ service (roles may hide Design/Recycling for some users):
 Explorer. Use it when you need the full repository folder hierarchy rather than only the
 Assets or Sites shortcuts. Expanding **Folders** loads children from the server; folder
 visibility still respects folder ACLs.
+
+Below the folder roots, Explorer lists a **Views** system category. Expand **Views**
+to see the same four groups as Desktop Content Explorer:
+
+| Group | What it contains |
+|-------|------------------|
+| **My Content** | Views in parent category 1 (including system views such as Inbox) |
+| **Community Content** | Views in parent category 2 |
+| **All Content** | Views in parent category 3 |
+| **Other Content** | Views in parent category 4 (and any view without a known category) |
+
+Selecting a **group** only expands or collapses its children. Selecting a **standard**
+view (field-criteria) runs it and replaces the folder list with the result rows.
+Each row has **Open** (editor) and **Reveal in folder** (select the item’s parent
+folder in the tree), matching the Search panel result actions.
+
+**Custom URL** views (for example **Inbox**, Outbox, or Recent) are listed so you can
+see them in the catalog, but they cannot be executed from this Explorer release.
+Those views need a dedicated Inbox / custom-URL runner; they show an error instead
+of an empty list. Do not use Developer → Views as a substitute for this Explorer
+tree — Developer is the design catalog, not the operator navigation path.
 
 If the left tree fails to load, Explorer shows an **error** in the tree panel (not a
 blank list). Typical causes are a path-service HTTP error or a session timeout.
