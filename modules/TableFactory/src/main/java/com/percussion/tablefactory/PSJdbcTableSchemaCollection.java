@@ -248,12 +248,6 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     }
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public Iterator<PSJdbcTableSchema> iterator() {
-    return (Iterator<PSJdbcTableSchema>) super.iterator();
-  }
-
   /** The name of this objects root Xml element. */
   public static String NODE_NAME = "tables";
 

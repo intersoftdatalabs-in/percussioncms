@@ -4014,12 +4014,12 @@ public class RxJdbcTableFactory {
       }
 
       int schemaObjectsLen = schemaColl.size();
-      Iterator<PSJdbcTableSchema> it = schemaColl.iterator();
+      Iterator<?> it = schemaColl.iterator();
       int percentCompleted = 0;
       int index = 0;
 
       while (it.hasNext()) {
-        schema = it.next();
+        schema = (PSJdbcTableSchema) it.next();
         String tblName = schema.getName();
         data = dataColl.getTableData(tblName);
         // getTableData may return null if this table has no data associated
