@@ -735,13 +735,13 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
 
     var summaries = new ArrayList<PSSiteSummary>();
 
-    // Filter out sites that are currently getting copied
+    // Omit only the in-progress copy target. List every persisted site (Rhythmyx /
+    // not page-based and CM1 / page-based; with or without pub servers or nav tree).
+    // Explorer varies behavior by site type once the site is visible and navigable.
     var entries = getCopySiteInfo().getEntries();
     final String newSiteName = entries.isEmpty() ? null : entries.get("Target");
-    // Java 11 Streams for filtering and mapping
     sums.stream()
         .filter(site -> !StringUtils.equals(site.getName(), newSiteName))
-        .filter(PSSiteSummary::isPageBased)
         .forEach(
             site -> {
               if (includePubInfo) {
@@ -761,9 +761,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     return summaries;
 
     // Filter out sites that shouldn't be visible
-    // TODO: Re-enable when site permissions are fixed
+    // TODO: Re-enable when site permissions are fixed (must include all site types)
     /**
-     * ArrayList<IPSGuid> guids = new ArrayList<>(); for(PSSiteSummary s: sums){ if(s.isPageBased())
+     * ArrayList<IPSGuid> guids = new ArrayList<>(); for(PSSiteSummary s: sums){
      * { guids.add(new PSGuid(PSTypeEnum.SITE, s.getSiteId())); } }
      *
      * <p>List<IPSGuid> filtered_guids = securityWs.filterByRuntimeVisibility(guids); Iterator
