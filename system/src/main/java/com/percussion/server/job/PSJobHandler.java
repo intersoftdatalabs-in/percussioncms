@@ -59,7 +59,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    * @throws PSServerException if <code>InputStream</code> is <code>null</code> or contains invalid
    *     content.
    */
-  public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn) throws PSServerException {
     if (requestRoots == null || requestRoots.size() == 0)
       throw new IllegalArgumentException("must provide at least one request root");
 
@@ -272,7 +272,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
       throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);
     }
 
-    PSJobRunner job = (PSJobRunner) m_jobRunners.get(jobId);
+    PSJobRunner job = m_jobRunners.get(jobId);
     if (job == null) throw new PSJobException(IPSJobErrors.INVALID_JOB_ID, jobId.toString());
 
     // prepare response
@@ -328,7 +328,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
       throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);
     }
 
-    PSJobRunner job = (PSJobRunner) m_jobRunners.get(jobId);
+    PSJobRunner job = m_jobRunners.get(jobId);
     if (job == null) throw new PSJobException(IPSJobErrors.INVALID_JOB_ID, jobId.toString());
 
     int resultCode = doCancelJob(job);
@@ -355,7 +355,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    */
   public void jobCompleted(long jobId) {
     // remove listener
-    PSJobRunner job = (PSJobRunner) m_jobRunners.get(Integer.valueOf((int) jobId));
+    PSJobRunner job = m_jobRunners.get(Integer.valueOf((int) jobId));
     if (job != null) job.removeJobListener(this);
 
     // unlock handler
@@ -363,7 +363,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   // see IPSRootedHandler for documentation
-  public Iterator getRequestRoots() {
+  public Iterator<String> getRequestRoots() {
     return m_requestRoots.iterator();
   }
 
@@ -475,7 +475,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    * Storage for the request roots, initialized in <code>init()</code>, never <code>null</code>,
    * empty or modified after that. A list of <code>String</code> objects.
    */
-  private Collection m_requestRoots = null;
+  private Collection<String> m_requestRoots = null;
 
   /**
    * Job handler config used by this handler, intialized by file provided by <code>init()</code>
@@ -498,7 +498,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    * the job id as an <code>Integer</code>, value is an instance of a <code>PSJobRunner</code>.
    * Never <code>null</code>.
    */
-  private Map m_jobRunners = new HashMap();
+  private Map<Integer, PSJobRunner> m_jobRunners = new HashMap<>();
 
   /**
    * The next job id to use, incremented each time a job is started by a call to <code>runJob()

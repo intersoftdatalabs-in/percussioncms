@@ -53,14 +53,13 @@ import org.xml.sax.SAXException;
  */
 public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
   // see the IPSLoadableRequestHandler interface for method javadocs
-  @SuppressWarnings("rawtypes")
-  public void init(Collection requestRoots, InputStream cfgFileIn) {
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn) {
     if (requestRoots == null || requestRoots.isEmpty())
       throw new IllegalArgumentException("must provide at least one request root");
 
     // validate that requestRoots contains only Strings
-    for (Iterator<String> iter = requestRoots.iterator(); iter.hasNext(); ) {
-      if (!(iter.next() instanceof String))
+    for (String root : requestRoots) {
+      if (root == null)
         throw new IllegalArgumentException(
             "request roots collection may only contain String objects");
     }
@@ -86,8 +85,7 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
   }
 
   // see IPSRootedHandler for documentation
-  @SuppressWarnings("rawtypes")
-  public Iterator getRequestRoots() {
+  public Iterator<String> getRequestRoots() {
     return m_requestRoots.iterator();
   }
 
@@ -112,11 +110,9 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
       PSUserSession session = request.getUserSession();
       String lang = "en-US";
       if (session != null) {
-        Collection userProps = session.getUserProperties();
+        Collection<PSPersistentProperty> userProps = session.getUserProperties();
         if (userProps != null) {
-          Iterator<PSPersistentProperty> userPropsItr = userProps.iterator();
-          while (userPropsItr.hasNext()) {
-            PSPersistentProperty prop = userPropsItr.next();
+          for (PSPersistentProperty prop : userProps) {
             if (PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG.equals(prop.getName())) {
               String lg = prop.getValue();
               if (lg != null && !lg.isEmpty()) {

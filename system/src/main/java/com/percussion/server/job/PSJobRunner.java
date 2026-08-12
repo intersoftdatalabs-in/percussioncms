@@ -107,10 +107,8 @@ public abstract class PSJobRunner extends Thread {
     // need to copy the listener list because as we call jobCompleted, each
     // listener will remove themselves, and it will cause a concurrent
     // modification exception if we iterate on m_listeners
-    List listeners = new ArrayList(m_listeners);
-    Iterator i = listeners.iterator();
-    while (i.hasNext()) {
-      IPSJobListener listener = (IPSJobListener) i.next();
+    List<IPSJobListener> listeners = new ArrayList<>(m_listeners);
+    for (IPSJobListener listener : listeners) {
       listener.jobCompleted(getId());
     }
   }
@@ -254,7 +252,7 @@ public abstract class PSJobRunner extends Thread {
   protected int m_id = -1;
 
   /** List of job listeners, never <code>null</code>, may be empty. */
-  private List m_listeners = new ArrayList();
+  private List<IPSJobListener> m_listeners = new ArrayList<>();
 
   /**
    * the actual request that will result in spawning a thread. The consumer i.e the subclass may set

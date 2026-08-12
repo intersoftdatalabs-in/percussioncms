@@ -198,7 +198,7 @@ public class PSJobHandlerConfiguration {
     if (jobType == null || jobType.trim().length() == 0)
       throw new IllegalArgumentException("jobType may not be null or empty");
 
-    String className = (String) m_jobs.get(getContext(category, jobType));
+    String className = m_jobs.get(getContext(category, jobType));
 
     if (className == null) {
       Object[] args = {category, jobType};
@@ -215,7 +215,7 @@ public class PSJobHandlerConfiguration {
    * @return The params, never <code>null</code>.
    */
   public Properties getHandlerInitParams() {
-    Properties props = (Properties) m_initParams.get(getContext(null, null));
+    Properties props = m_initParams.get(getContext(null, null));
 
     return props;
   }
@@ -238,7 +238,7 @@ public class PSJobHandlerConfiguration {
     if (jobType == null || jobType.trim().length() == 0)
       throw new IllegalArgumentException("jobType may not be null or empty");
 
-    Properties props = (Properties) m_initParams.get(getContext(category, jobType));
+    Properties props = m_initParams.get(getContext(category, jobType));
 
     if (props == null) {
       Object[] args = {category, jobType};
@@ -328,7 +328,7 @@ public class PSJobHandlerConfiguration {
    * are specified by a context of "handler/<category>/<jobType>". Never <code>null</code>,
    * intialized during ctor, never modified after that.
    */
-  private HashMap m_jobs = new HashMap();
+  private HashMap<String, String> m_jobs = new HashMap<>();
 
   /**
    * Map of initParams. Each key is a context as a <code>String</code> and the value is a <code>
@@ -337,5 +337,5 @@ public class PSJobHandlerConfiguration {
    * used as a key to store initParams for the handler as well as the category and the jobs in that
    * category. Never <code>null</code>, initialized during ctor, never modified after that.
    */
-  private HashMap m_initParams = new HashMap();
+  private HashMap<String, Properties> m_initParams = new HashMap<>();
 }
