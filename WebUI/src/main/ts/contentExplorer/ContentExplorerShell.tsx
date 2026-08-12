@@ -162,7 +162,7 @@ export interface ContentExplorerShellProps {
   search?: SearchPanelProps["search"];
   /**
    * Test / host seam: saved-search catalog for the product Search panel.
-   * Default {@link SearchPanel} → listSearches.
+   * Default {@link SearchPanel} → listExplorerSavedSearches (includeViews).
    */
   listSavedSearches?: SearchPanelProps["listSavedSearches"];
   /**

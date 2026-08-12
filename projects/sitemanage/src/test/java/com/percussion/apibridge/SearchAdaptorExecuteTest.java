@@ -135,6 +135,7 @@ class SearchAdaptorExecuteTest {
   @Test
   void executeSearch_missingReturnsNull() throws Exception {
     when(designWs.findSearches(isNull(), isNull())).thenReturn(List.of());
+    when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
     assertNull(adaptor.executeSearch("Missing", new SearchExecuteRequest()));
   }
 
@@ -148,6 +149,63 @@ class SearchAdaptorExecuteTest {
             IllegalArgumentException.class,
             () -> adaptor.executeSearch("Custom", new SearchExecuteRequest()));
     assertTrue(ex.getMessage().toLowerCase().contains("custom"));
+  }
+
+  @Test
+  void executeSearch_resolvesDefaultViewAllFromViewCatalog() throws Exception {
+    PSSearch viewAll = mockSearch("View_All", false, false);
+    when(viewAll.getLabel()).thenReturn("All");
+    when(viewAll.isView()).thenReturn(true);
+    when(viewAll.isCustomView()).thenReturn(false);
+    when(viewAll.getDisplayFormatId()).thenReturn("0-1-1");
+    when(viewAll.getMaximumResultSize()).thenReturn(25);
+    when(viewAll.clone()).thenReturn(viewAll);
+    when(designWs.findSearches(isNull(), isNull())).thenReturn(List.of());
+    stubLoadedViews(List.of(viewAll));
+    doReturn(List.of(item("id-a", "Welcome"))).when(adaptor).runDesignSearch(any(PSSearch.class));
+
+    SearchExecuteResult byName = adaptor.executeSearch("View_All", new SearchExecuteRequest());
+    assertNotNull(byName);
+    assertEquals("View_All", byName.getSearchName());
+    assertEquals(1, byName.getChildren().size());
+
+    SearchExecuteResult byLabel = adaptor.executeSearch("All", new SearchExecuteRequest());
+    assertNotNull(byLabel);
+    assertEquals("View_All", byLabel.getSearchName());
+  }
+
+  @Test
+  void listSearches_includeViewsMergesViewAll() throws Exception {
+    PSSearch search = mockSearch("My Pages", false, true);
+    PSSearch viewAll = mockSearch("View_All", false, false);
+    when(viewAll.getLabel()).thenReturn("All");
+    when(viewAll.isView()).thenReturn(true);
+    when(viewAll.isCustomView()).thenReturn(false);
+    stubLoadedSearches(List.of(search));
+    stubLoadedViews(List.of(viewAll));
+
+    List<com.percussion.rest.searches.SearchDef> developer = adaptor.listSearches(false);
+    assertEquals(1, developer.size());
+    assertEquals("My Pages", developer.get(0).getName());
+
+    List<com.percussion.rest.searches.SearchDef> explorer = adaptor.listSearches(true);
+    assertEquals(2, explorer.size());
+    assertTrue(explorer.stream().anyMatch(d -> "View_All".equals(d.getName())));
+    assertTrue(explorer.stream().anyMatch(d -> "My Pages".equals(d.getName())));
+  }
+
+  @Test
+  void listSearches_includeViewsStillReturnsViewsWhenSearchCatalogFails() throws Exception {
+    PSSearch viewAll = mockSearch("View_All", false, false);
+    when(viewAll.getLabel()).thenReturn("All");
+    when(viewAll.isCustomView()).thenReturn(false);
+    when(designWs.findSearches(isNull(), isNull()))
+        .thenThrow(new IllegalStateException("PSAction missing"));
+    stubLoadedViews(List.of(viewAll));
+
+    List<com.percussion.rest.searches.SearchDef> explorer = adaptor.listSearches(true);
+    assertEquals(1, explorer.size());
+    assertEquals("View_All", explorer.get(0).getName());
   }
 
   @Test
@@ -270,7 +328,9 @@ class SearchAdaptorExecuteTest {
   private PSSearch mockSearch(String name, boolean custom, boolean standard) {
     PSSearch s = mock(PSSearch.class);
     when(s.getName()).thenReturn(name);
+    when(s.getLabel()).thenReturn(name);
     when(s.isCustomSearch()).thenReturn(custom);
+    when(s.isCustomView()).thenReturn(false);
     when(s.isStandardSearch()).thenReturn(standard);
     when(s.getId()).thenReturn(10);
     when(s.getGUID()).thenReturn(null);
@@ -293,5 +353,20 @@ class SearchAdaptorExecuteTest {
     when(designWs.findSearches(isNull(), isNull())).thenReturn(summaries);
     when(designWs.loadSearches(anyList(), eq(false), eq(false), isNull(), isNull()))
         .thenReturn(searches);
+  }
+
+  private void stubLoadedViews(List<PSSearch> views) throws Exception {
+    List<IPSCatalogSummary> summaries = new ArrayList<>();
+    for (int i = 0; i < views.size(); i++) {
+      IPSGuid g = mock(IPSGuid.class);
+      when(g.toString()).thenReturn("0-302-" + i);
+      IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+      when(sum.getGUID()).thenReturn(g);
+      summaries.add(sum);
+      PSSearch s = views.get(i);
+      when(s.getGUID()).thenReturn(g);
+    }
+    when(designWs.findViews(isNull(), isNull())).thenReturn(summaries);
+    when(designWs.loadViews(anyList(), eq(false), eq(false), isNull(), isNull())).thenReturn(views);
   }
 }

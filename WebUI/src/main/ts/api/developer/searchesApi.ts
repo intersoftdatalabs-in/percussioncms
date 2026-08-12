@@ -87,10 +87,27 @@ export function unwrapSearchExecuteResult(payload: unknown): SearchExecuteResult
   };
 }
 
-/** GET /services/searches */
-export async function listSearches(): Promise<SearchDef[]> {
-  const payload = await get<unknown>(PATHS.SEARCHES);
+/**
+ * GET /services/searches
+ *
+ * <p>Explorer saved-search picker must pass {@code includeViews: true} so the
+ * default All view ({@code View_All}) is in the catalog. Developer Searches
+ * stays searches-only (default).</p>
+ */
+export async function listSearches(options?: {
+  includeViews?: boolean;
+}): Promise<SearchDef[]> {
+  const url =
+    options?.includeViews === true
+      ? `${PATHS.SEARCHES}?includeViews=true`
+      : PATHS.SEARCHES;
+  const payload = await get<unknown>(url);
   return asArray<SearchDef>(payload);
+}
+
+/** Explorer catalog: searches plus CX views (View_All / All). */
+export function listExplorerSavedSearches(): Promise<SearchDef[]> {
+  return listSearches({ includeViews: true });
 }
 
 /** GET /services/searches/{idOrName} */

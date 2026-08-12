@@ -15,6 +15,7 @@ const {
   explorerEntryUrl,
   searchesCatalogUrl,
   searchesExecuteUrl,
+  isDefaultAllView,
   unwrapSearchDefs,
   searchDefKey,
   searchDefLabel,
@@ -51,6 +52,10 @@ describe("explorer-saved-search helpers (#2507)", () => {
     assert.equal(
       searchesCatalogUrl("http://127.0.0.1:9993/"),
       "http://127.0.0.1:9993/Rhythmyx/services/searches",
+    );
+    assert.equal(
+      searchesCatalogUrl("http://127.0.0.1:9993/", { includeViews: true }),
+      "http://127.0.0.1:9993/Rhythmyx/services/searches?includeViews=true",
     );
     assert.equal(
       searchesExecuteUrl("http://cms.example", "All Content"),
@@ -91,6 +96,22 @@ describe("explorer-saved-search helpers (#2507)", () => {
     assert.equal(isCustomUrlSearch({ customSearch: "true" }), true);
     assert.equal(isCustomUrlSearch({ customSearch: false }), false);
     assert.equal(isCustomUrlSearch({}), false);
+  });
+
+  it("isDefaultAllView matches View_All / All view", () => {
+    assert.equal(isDefaultAllView({ name: "View_All", label: "All" }), true);
+    assert.equal(isDefaultAllView({ name: "All", type: "View" }), true);
+    assert.equal(isDefaultAllView({ name: "My Pages" }), false);
+  });
+
+  it("pickRunnableSavedSearch prefers View_All over other runnable rows", () => {
+    const picked = pickRunnableSavedSearch([
+      { name: "My Pages" },
+      { name: "View_All", label: "All", type: "View" },
+    ]);
+    assert.ok(picked);
+    assert.equal(picked.key, "View_All");
+    assert.equal(picked.label, "All");
   });
 
   it("pickRunnableSavedSearch skips custom URL entries", () => {

@@ -37,26 +37,37 @@ public class SearchResourceTest {
   public void listSearchesSuccess() {
     SearchDef s = new SearchDef();
     s.setName("All Content");
-    when(adaptor.listSearches()).thenReturn(List.of(s));
-    List<SearchDef> out = resource.listSearches();
+    when(adaptor.listSearches(false)).thenReturn(List.of(s));
+    List<SearchDef> out = resource.listSearches(false);
     assertEquals(1, out.size());
     assertEquals("All Content", out.get(0).getName());
-    verify(adaptor).listSearches();
+    verify(adaptor).listSearches(false);
+  }
+
+  @Test
+  public void listSearchesIncludeViewsDelegates() {
+    SearchDef view = new SearchDef();
+    view.setName("View_All");
+    when(adaptor.listSearches(true)).thenReturn(List.of(view));
+    List<SearchDef> out = resource.listSearches(true);
+    assertEquals(1, out.size());
+    assertEquals("View_All", out.get(0).getName());
+    verify(adaptor).listSearches(true);
   }
 
   @Test
   public void listSearchesNullSafe() {
-    when(adaptor.listSearches()).thenReturn(null);
-    assertTrue(resource.listSearches().isEmpty());
+    when(adaptor.listSearches(false)).thenReturn(null);
+    assertTrue(resource.listSearches(false).isEmpty());
   }
 
   @Test
   public void listSearchesWrapsUnexpectedFailuresAs500() {
     IllegalStateException boom = new IllegalStateException("boom");
-    when(adaptor.listSearches()).thenThrow(boom);
+    when(adaptor.listSearches(false)).thenThrow(boom);
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.listSearches());
+        assertThrows(WebApplicationException.class, () -> resource.listSearches(false));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
   }
@@ -65,7 +76,7 @@ public class SearchResourceTest {
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     SearchResource bare = new SearchResource();
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listSearches);
+        assertThrows(WebApplicationException.class, () -> bare.listSearches(false));
     assertEquals(503, ex.getResponse().getStatus());
   }
 

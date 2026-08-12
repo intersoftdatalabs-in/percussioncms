@@ -14,9 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -51,8 +53,9 @@ public class SearchResource {
   @Operation(
       summary = "List search definitions",
       description =
-          "Lists Content Explorer search definitions (not views). Create/edit/delete are later"
-              + " slices.",
+          "Lists Content Explorer search definitions. Pass includeViews=true to also return CX"
+              + " views (Explorer saved-search picker, including the default All / View_All"
+              + " view). Create/edit/delete are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -62,9 +65,10 @@ public class SearchResource {
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public List<SearchDef> listSearches() {
+  public List<SearchDef> listSearches(
+      @QueryParam("includeViews") @DefaultValue("false") boolean includeViews) {
     try {
-      List<SearchDef> list = requireAdaptor().listSearches();
+      List<SearchDef> list = requireAdaptor().listSearches(includeViews);
       return list != null ? list : List.of();
     } catch (WebApplicationException e) {
       throw e;

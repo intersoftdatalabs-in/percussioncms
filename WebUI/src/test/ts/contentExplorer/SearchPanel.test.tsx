@@ -42,6 +42,11 @@ const ONE_ROW: PSItemProperties[] = [
 
 const SAVED: SearchDef[] = [
   {
+    name: "View_All",
+    label: "All",
+    type: "View",
+  },
+  {
     name: "All Content",
     label: "All Content",
     standardSearch: true,
@@ -307,6 +312,9 @@ describe("SearchPanel", () => {
       expect(Array.from(select.options).some((o) => o.value === "All Content")).toBe(
         true,
       );
+      expect(Array.from(select.options).some((o) => o.value === "View_All")).toBe(
+        true,
+      );
     });
 
     it("shows empty catalog state", async () => {
@@ -334,6 +342,35 @@ describe("SearchPanel", () => {
         expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
       });
       expect(attempt).toBe(2);
+    });
+
+    it("runs the default All view (View_All) via execute", async () => {
+      const executeSavedSearch = vi.fn().mockResolvedValue({
+        children: ONE_ROW,
+        totalCount: 1,
+        startIndex: 1,
+        searchName: "View_All",
+      });
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "View_All" },
+      });
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(executeSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("View_All");
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+      });
     });
 
     it("runs a selected saved search via execute and shows results", async () => {
