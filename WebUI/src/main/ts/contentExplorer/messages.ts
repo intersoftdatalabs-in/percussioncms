@@ -303,5 +303,7 @@ export const EXPLORER_MSG = {
   VIEWS_RUN_ERROR: "perc.ui.explorer@Failed to run view",
   VIEWS_CUSTOM_UNSUPPORTED:
     "perc.ui.explorer@Custom URL views cannot be run from Explorer",
+  VIEWS_INBOX: "perc.ui.explorer@Inbox",
+  VIEWS_INBOX_ICON: "perc.ui.explorer@Inbox view",
   VIEWS_RESULTS_REGION: "perc.ui.explorer@View results",
 } as const;

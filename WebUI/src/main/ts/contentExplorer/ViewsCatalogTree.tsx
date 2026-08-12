@@ -22,7 +22,7 @@
  * Other groups from {@code GET /services/views} grouped by
  * {@code parentCategory} 1–4. Selecting a group expands children only.
  * Selecting a leaf reports the {@link ViewDef} to the host (shell runs
- * V1 execute for standard views).</p>
+ * V1 execute for standard views and Inbox C1 execute).</p>
  */
 
 import React, { useCallback, useEffect, useState } from "react";
@@ -35,15 +35,18 @@ import { EXPLORER_MSG } from "./messages";
 import {
   emptyStateStyle,
   errorStateStyle,
+  inboxIconStyle,
   nodeLabelStyle,
   nodeRowStyle,
   toggleStyle,
   viewsTreeStyle,
 } from "./styles";
 import {
+  PATH_MY_CONTENT_INBOX,
   VIEW_CATEGORY_MSG,
   VIEW_PARENT_CATEGORIES,
   groupViewsByParentCategory,
+  isInboxView,
   type ViewParentCategory,
   viewKey,
   viewLabel,
@@ -213,7 +216,10 @@ export function ViewsCatalogTree({
                   children.map((def) => {
                     const key = viewKey(def);
                     const selected = selectedViewKey === key;
-                    const label = viewLabel(def);
+                    const inbox = isInboxView(def);
+                    const label = inbox
+                      ? message(EXPLORER_MSG.VIEWS_INBOX)
+                      : viewLabel(def);
                     return (
                       <div
                         key={key}
@@ -221,7 +227,14 @@ export function ViewsCatalogTree({
                         aria-selected={selected}
                         tabIndex={0}
                         style={nodeRowStyle(selected, 2)}
-                        data-testid={`explorer-views-leaf-${key}`}
+                        data-testid={
+                          inbox
+                            ? "explorer-views-leaf-Inbox"
+                            : `explorer-views-leaf-${key}`
+                        }
+                        data-inbox={inbox ? "true" : undefined}
+                        data-cx-path={inbox ? PATH_MY_CONTENT_INBOX : undefined}
+                        data-icon={inbox ? "Inbox" : undefined}
                         onClick={() => onSelectView?.(def)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
@@ -233,10 +246,26 @@ export function ViewsCatalogTree({
                         <span style={toggleStyle} aria-hidden="true">
                           {" "}
                         </span>
+                        {inbox ? (
+                          <span
+                            style={inboxIconStyle}
+                            data-testid="explorer-views-inbox-icon"
+                            data-icon="Inbox"
+                            aria-hidden="true"
+                            title={message(EXPLORER_MSG.VIEWS_INBOX_ICON)}
+                          >
+                            {"✉"}
+                          </span>
+                        ) : null}
+                        {inbox ? (
+                          <span data-testid="explorer-views-inbox" hidden />
+                        ) : null}
                         <span
                           style={nodeLabelStyle}
                           title={label}
-                          {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
+                          {...(inbox
+                            ? {}
+                            : { [MKD_LANG_IGNORE_ATTR]: "1" as const })}
                         >
                           {label}
                         </span>

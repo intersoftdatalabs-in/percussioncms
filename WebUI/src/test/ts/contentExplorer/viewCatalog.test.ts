@@ -18,8 +18,12 @@
 import { describe, expect, it } from "vitest";
 import type { ViewDef } from "../../../main/ts/api/developer/types";
 import {
+  PATH_MY_CONTENT_INBOX,
+  canExecuteView,
+  ensureInboxInMyContent,
   groupViewsByParentCategory,
   isCustomUrlView,
+  isInboxView,
   normalizeViewParentCategory,
   viewKey,
   viewLabel,
@@ -40,7 +44,7 @@ describe("viewCatalog grouping (#3116)", () => {
       v({ name: "All", parentCategory: 3 }),
       v({ name: "Other", parentCategory: 4 }),
     ]);
-    expect(grouped[1].map((d) => d.name)).toEqual(["Alpha", "Zulu"]);
+    expect(grouped[1].map((d) => d.name)).toEqual(["Alpha", "Inbox", "Zulu"]);
     expect(grouped[2].map((d) => d.name)).toEqual(["Comm"]);
     expect(grouped[3].map((d) => d.name)).toEqual(["All"]);
     expect(grouped[4].map((d) => d.name)).toEqual(["Other"]);
@@ -50,17 +54,26 @@ describe("viewCatalog grouping (#3116)", () => {
     const grouped = groupViewsByParentCategory([
       v({ name: "", label: "NoKey", parentCategory: 1 }),
       { label: "AlsoNoKey", parentCategory: 2 },
-      v({ name: "Inbox", parentCategory: 0 }),
       v({ name: "Orphan", parentCategory: 99 }),
     ]);
-    expect(grouped[1]).toHaveLength(0);
+    expect(grouped[1].map((d) => d.name)).toEqual(["Inbox"]);
     expect(grouped[2]).toHaveLength(0);
-    expect(grouped[4].map((d) => d.name)).toEqual(["Inbox", "Orphan"]);
+    expect(grouped[4].map((d) => d.name)).toEqual(["Orphan"]);
   });
 
-  it("returns empty groups for null / empty input", () => {
-    expect(groupViewsByParentCategory(null)[1]).toEqual([]);
-    expect(groupViewsByParentCategory([])[3]).toEqual([]);
+  it("places Inbox under My Content even when catalog category is missing", () => {
+    const grouped = groupViewsByParentCategory([
+      v({ name: "Inbox", parentCategory: 0, customView: true }),
+    ]);
+    expect(grouped[1].map((d) => d.name)).toEqual(["Inbox"]);
+    expect(grouped[4]).toHaveLength(0);
+  });
+
+  it("injects an Inbox stub into My Content when the catalog omits it", () => {
+    const grouped = groupViewsByParentCategory([]);
+    expect(grouped[1]).toHaveLength(1);
+    expect(isInboxView(grouped[1][0])).toBe(true);
+    expect(groupViewsByParentCategory(null)[3]).toEqual([]);
   });
 
   it("normalizes category and view keys / labels", () => {
@@ -73,5 +86,18 @@ describe("viewCatalog grouping (#3116)", () => {
     );
     expect(isCustomUrlView({ customView: true })).toBe(true);
     expect(isCustomUrlView({ standardView: true })).toBe(false);
+  });
+
+  it("identifies Inbox and allows C1 execute only for Inbox among custom-URL views", () => {
+    expect(isInboxView({ name: "Inbox", customView: true })).toBe(true);
+    expect(isInboxView({ name: PATH_MY_CONTENT_INBOX })).toBe(true);
+    expect(isInboxView({ name: "Outbox", customView: true })).toBe(false);
+    expect(canExecuteView({ name: "View_All", standardView: true })).toBe(true);
+    expect(canExecuteView({ name: "Inbox", customView: true })).toBe(true);
+    expect(canExecuteView({ name: "Outbox", customView: true })).toBe(false);
+    const ensured = ensureInboxInMyContent([
+      { name: "Inbox", parentCategory: 4, customView: true },
+    ]);
+    expect(ensured[0].parentCategory).toBe(1);
   });
 });

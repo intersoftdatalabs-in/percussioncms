@@ -17,6 +17,7 @@ const {
   unwrapViewDefs,
   viewDefKey,
   isCustomUrlView,
+  isInboxView,
   pickRunnableView,
 } = require("../helpers/explorer-views-catalog");
 
@@ -26,6 +27,9 @@ describe("explorer-views-catalog helpers (#3116)", () => {
     assert.equal(TEST_IDS.viewsTree, "explorer-views-tree");
     assert.equal(TEST_IDS.group(1), "explorer-views-group-1");
     assert.equal(TEST_IDS.leaf("View_All"), "explorer-views-leaf-View_All");
+    assert.equal(TEST_IDS.inbox, "explorer-views-inbox");
+    assert.equal(TEST_IDS.inboxLeaf, "explorer-views-leaf-Inbox");
+    assert.equal(TEST_IDS.inboxIcon, "explorer-views-inbox-icon");
     assert.equal(PATH_VIEWS, "/Rhythmyx/services/views");
   });
 
@@ -59,5 +63,7 @@ describe("explorer-views-catalog helpers (#3116)", () => {
     );
     assert.equal(isCustomUrlView({ customView: true }), true);
     assert.equal(viewDefKey({ name: "  X  " }), "X");
+    assert.equal(isInboxView({ name: "Inbox", customView: true }), true);
+    assert.equal(isInboxView({ name: "Outbox", customView: true }), false);
   });
 });

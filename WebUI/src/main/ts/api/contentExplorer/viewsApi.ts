@@ -20,9 +20,9 @@
  *
  * <p>List reuses {@link listViews} from the Developer catalog client
  * ({@code GET /services/views}). Execute is the product contract from
- * #3115: {@code POST /services/views/{idOrName}/execute}. Custom URL
- * views (Inbox family) are expected to return HTTP 400 — the Explorer
- * tree surfaces that as unsupported rather than running Inbox (#3118).</p>
+ * #3115: {@code POST /services/views/{idOrName}/execute}. The Inbox
+ * custom-URL leaf uses the same execute contract (C1 / #3239). Other
+ * custom-URL views stay listed but unsupported in Explorer (#3240).</p>
  */
 
 import { post } from "../client";
