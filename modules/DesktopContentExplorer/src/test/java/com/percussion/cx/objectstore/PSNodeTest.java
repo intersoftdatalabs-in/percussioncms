@@ -241,6 +241,7 @@ public class PSNodeTest {
         assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test
@@ -255,6 +256,7 @@ public class PSNodeTest {
         assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test
@@ -283,6 +285,7 @@ public class PSNodeTest {
         assertThrows(PSUnknownNodeTypeException.class, () -> new PSNode(root));
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test
