@@ -17,7 +17,7 @@
 
 package com.percussion.utils.exceptions;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.percussion.design.objectstore.ObjectStoreErrorCode;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -130,7 +130,7 @@ public class ConnectorConfigurationException extends Exception {
 
     if (!XML_NODE_NAME.equals(source.getNodeName())) {
       Object[] args = {XML_NODE_NAME, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCode.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // get message code
@@ -140,7 +140,7 @@ public class ConnectorConfigurationException extends Exception {
       m_code = Integer.parseInt(sTemp);
     } catch (NumberFormatException e) {
       Object[] args = {XML_NODE_NAME, XML_ATTR_MSG_CODE, sTemp == null ? "null" : sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCode.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get optional exception class
