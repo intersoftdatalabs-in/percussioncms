@@ -57,6 +57,7 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
+  @Override
   public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
@@ -75,18 +76,19 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
    * and name of the element set to the child depedency's key and display name, and the child
    * dependency set as a local child dependency. See {@link PSDependencyHandler} for more info.
    */
-  public Iterator getDependencies(PSSecurityToken tok)
+  @Override
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    List deps = new ArrayList();
-    Iterator types = getChildTypes();
+    List<PSDependency> deps = new ArrayList<>();
+    Iterator<String> types = getChildTypes();
     while (types.hasNext()) {
-      String type = (String) types.next();
+      String type = types.next();
       PSDependency custDep = createDeployableElement(m_def, type, type);
-      Iterator childDeps = getChildDependencies(tok, custDep);
+      Iterator<PSDependency> childDeps = getChildDependencies(tok, custDep);
       while (childDeps.hasNext()) {
-        PSDependency childDep = (PSDependency) childDeps.next();
+        PSDependency childDep = childDeps.next();
         PSDependency dep = getDependency(tok, childDep.getKey());
         if (dep != null) deps.add(dep);
       }
@@ -96,11 +98,13 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
   }
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
+  @Override
   public boolean doesDependencyExist(PSSecurityToken tok, String id)
       throws PSDeployException, PSNotFoundException {
     return getDependency(tok, id) != null;
@@ -114,6 +118,7 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
    * specified as the id and name, and an element with no children is returned. See {@link
    * PSDependencyHandler} for more info.
    */
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -150,7 +155,8 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
    * of the provided <code>dep</code> must be the type of the children that will be returned. See
    * {@link PSDependencyHandler} for more info.
    */
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -159,12 +165,12 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    List childList = new ArrayList();
+    List<PSDependency> childList = new ArrayList<>();
     String childType = dep.getDependencyId();
     PSDependencyHandler childHandler = getDependencyHandler(childType);
-    Iterator childDeps = childHandler.getDependencies(tok);
+    Iterator<PSDependency> childDeps = childHandler.getDependencies(tok);
     while (childDeps.hasNext()) {
-      PSDependency childDep = (PSDependency) childDeps.next();
+      PSDependency childDep = childDeps.next();
       // don't return non-deployable children
       if (!childDep.canBeIncludedExcluded()) continue;
       childDep.setDependencyType(PSDependency.TYPE_LOCAL);
