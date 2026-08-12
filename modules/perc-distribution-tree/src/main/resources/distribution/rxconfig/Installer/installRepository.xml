@@ -732,6 +732,10 @@
 			tableDef="${data.dir}/cmsTableDef.xml,${data.dir}/RxffTableDef.xml"
 			failonerror="true" silenceerrors="false" />
 
+		<!-- Sample sites are Rhythmyx (not CM1 page-based). Seed XML sets IS_PAGE_BASED=F.
+			 Do not force T here; findAll no longer filters by isPageBased / pub server / nav tree
+			 (#2989). CM1 sites remain page-based when created via CM1 paths. -->
+
 		<echo>Sample sites seeded.</echo>
 	</target>
 

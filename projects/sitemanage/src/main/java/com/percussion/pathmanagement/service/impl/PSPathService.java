@@ -359,16 +359,18 @@ public class PSPathService extends PSDispatchingPathService
     }
   }
 
-  @GET
-  @Path("/folder/{path:.*}")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSPathItem> findChildren(@PathParam("path") String path)
-      throws PSPathServiceException {
+  /**
+   * Internal + polymorphic {@link IPSPathService#findChildren(String)}: validates path, enables
+   * child-type checks, and returns a {@link PSPathItemList}. REST exposes the same list via {@link
+   * #findFolderPathChildren(String)} as Jackson JSON ({@code {"PathItem":[...]}}) so non-empty Sites
+   * listings avoid JAXB IllegalAnnotationExceptions on bare List returns (#2989).
+   */
+  @Override
+  public List<PSPathItem> findChildren(String path) throws PSPathServiceException {
     try {
       if (!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH))
         throw new PSPathServiceException("Invalid path.");
 
-      // check child types
       PSPathOptions.setShouldCheckChildTypes(true);
       return new PSPathItemList(
           findChildren(path, null, null, null, null, null, null, null, null, false)
@@ -376,24 +378,41 @@ public class PSPathService extends PSDispatchingPathService
     } catch (PSPathServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw (e);
+      throw e;
     } finally {
       PSPathOptions.setShouldCheckChildTypes(false);
     }
   }
 
+  /**
+   * REST path/folder children. Delegates to {@link #findChildren(String)} then wraps as
+   * {@code Response} with explicit JSON so Jackson writes {@code {"PathItem":[...]}}.
+   */
+  @GET
+  @Path("/folder/{path:.*}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public jakarta.ws.rs.core.Response findFolderPathChildren(@PathParam("path") String path)
+      throws PSPathServiceException {
+    return jakarta.ws.rs.core.Response.ok(findChildren(path))
+        .type(MediaType.APPLICATION_JSON)
+        .build();
+  }
+
   @GET
   @Path("/childFolders/{path:.*}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSPathItem> findChildFolders(@PathParam("path") String path)
+  public jakarta.ws.rs.core.Response findChildFolders(@PathParam("path") String path)
       throws PSPathServiceException {
     try {
       if (!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH))
         throw new PSPathServiceException("Invalid path.");
 
-      // get folders only
       PSPathOptions.setFolderChildrenOnly(true);
-      return findChildren(path);
+      return jakarta.ws.rs.core.Response.ok(findChildren(path))
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+    } catch (PSPathServiceException e) {
+      throw e;
     } finally {
       PSPathOptions.setFolderChildrenOnly(false);
     }
