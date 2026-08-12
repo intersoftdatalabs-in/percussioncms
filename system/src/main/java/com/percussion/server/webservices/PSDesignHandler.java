@@ -26,7 +26,6 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Collection;
-import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -93,14 +92,12 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
    */
   void contentTypeListAction(PSRequest request, Document parent) throws PSException {
     PSItemDefManager mgr = PSItemDefManager.getInstance();
-    Collection itemDefSummaryList = mgr.getSummaries(request.getSecurityToken());
+    Collection<PSItemDefSummary> itemDefSummaryList =
+        mgr.getSummaries(request.getSecurityToken());
 
     Element root = parent.getDocumentElement();
 
-    Iterator iter = itemDefSummaryList.iterator();
-    while (iter.hasNext()) {
-      PSItemDefSummary itemDefSummary = (PSItemDefSummary) iter.next();
-
+    for (PSItemDefSummary itemDefSummary : itemDefSummaryList) {
       Element el =
           PSXmlDocumentBuilder.addElement(
               parent, root, EL_CONTENTTYPE, itemDefSummary.getDescription());

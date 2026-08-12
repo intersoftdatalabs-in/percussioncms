@@ -218,7 +218,7 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
     // get the required parameters from the input document
     Document inputDoc = request.getInputDocument();
 
-    List contentIds = new ArrayList();
+    List<String> contentIds = new ArrayList<>();
     Element root = inputDoc.getDocumentElement();
     Element element = PSXMLDomUtil.getFirstElementChild(root, EL_PURGEKEY);
     while (element != null) {

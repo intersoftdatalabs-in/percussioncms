@@ -95,6 +95,7 @@ import com.percussion.services.system.PSSystemException;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.system.utils.IPSHtmlParameters;
+import com.percussion.util.PSCollection;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.timing.PSStopwatchStack;
@@ -112,7 +113,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -479,7 +479,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
       Collection<PSWSSearchField> allFields = new ArrayList<>();
       allFields.addAll(intSearchFields);
       allFields.addAll(extSearchFields);
-      Iterator flIter = allFields.iterator();
       List<String> contentIds = new ArrayList<>();
 
       if (allowedIds != null) {
@@ -488,9 +487,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
         }
       }
 
-      while (flIter.hasNext()) {
-        PSWSSearchField field = (PSWSSearchField) flIter.next();
-
+      for (PSWSSearchField field : allFields) {
         if (field.getName().equals(SYS_CONTENTTYPEID)) hasContentTypeId = true;
         if (field.getName().equals(IPSHtmlParameters.SYS_CONTENTID) && !field.isExternal()) {
           contentIds.addAll(getContentIds(field));
@@ -518,7 +515,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
           && (!contentIds.isEmpty())
           && (contentTypeIdSet.size() == allTypes.length)) {
         IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-        Collection ctypeIds = cms.findContentTypesForIds(contentIds);
+        Collection<Long> ctypeIds = cms.findContentTypesForIds(contentIds);
         contentTypeIdSet.retainAll(ctypeIds);
       }
     }
@@ -639,10 +636,8 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
       // within the folder hierarchy
       if (allowedIds != null) {
         StringBuilder inClause = new StringBuilder(allowedIds.size() * 5);
-        Iterator i = allowedIds.iterator();
-        while (i.hasNext()) {
-          String idstr = i.next().toString();
-          int ctId = Integer.parseInt(idstr);
+        for (Integer allowedId : allowedIds) {
+          int ctId = allowedId.intValue();
           String delim = inClause.length() == 0 ? "" : ",";
           inClause.append(delim);
           inClause.append(ctId);
@@ -937,10 +932,11 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * @param extSearchFields Assumed not <code>null</code>. May be modified by this method, the
    *     sys_contenttypeid field may be removed.
    */
-  private void optimizeForContentType(List intSearchFields, List extSearchFields) {
-    Iterator extFields = extSearchFields.iterator();
+  private void optimizeForContentType(
+      List<PSWSSearchField> intSearchFields, List<PSWSSearchField> extSearchFields) {
+    Iterator<PSWSSearchField> extFields = extSearchFields.iterator();
     while (extFields.hasNext()) {
-      PSWSSearchField fld = (PSWSSearchField) extFields.next();
+      PSWSSearchField fld = extFields.next();
       if (fld.getName().equals(SYS_CONTENTTYPEID)) {
         StringBuilder buf = new StringBuilder(100);
         Iterator<String> values = new PSExternalInValuesIterator(fld.getValue());
@@ -1019,10 +1015,11 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *     </code> key that is the content id of an item or folder. May be empty, in which case all
    *     results are removed.
    */
-  private void filterSearchResultsById(List searchResults, Set allowedIds) {
-    Iterator entries = searchResults.iterator();
+  private void filterSearchResultsById(
+      List<PSSearchResult> searchResults, Set<Integer> allowedIds) {
+    Iterator<PSSearchResult> entries = searchResults.iterator();
     while (entries.hasNext()) {
-      PSSearchResult result = (PSSearchResult) entries.next();
+      PSSearchResult result = entries.next();
       Integer key = result.getKey().getId();
       if (!allowedIds.contains(key)) entries.remove();
     }
@@ -1074,7 +1071,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
 
     if (ah != null) {
       PSApplication app = ah.getApplicationDefinition();
-      List datasets = app.getDataSets();
+      PSCollection datasets = app.getDataSets();
       if (datasets != null && !datasets.isEmpty()) {
         for (Object o : datasets) {
           PSDataSet dataset = (PSDataSet) o;
@@ -1148,7 +1145,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
       PSRequest request,
       Document retDoc,
       int searchType,
-      List searchResultList,
+      List<PSSearchResult> searchResultList,
       PSWSSearchResponse searchResponse)
       throws PSException {
 
@@ -1265,22 +1262,22 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *     rows in the <code>searchResponse</code>, assumed not <code>null</code>, and to contain a
    *     result for any of the rows in the <code>searchResponse</code>, matching on content id.
    */
-  private void setRelevancy(PSWSSearchResponse searchResponse, List searchResults) {
-    // build map of contentid to relvancy as strings to avoid walking list
+  private void setRelevancy(
+      PSWSSearchResponse searchResponse, List<PSSearchResult> searchResults) {
+    // build map of contentid to relevancy as strings to avoid walking list
     // many times
-    Map resultMap = new HashMap(searchResults.size());
-    for (Object searchResult : searchResults) {
-      PSSearchResult result = (PSSearchResult) searchResult;
+    Map<String, String> resultMap = new HashMap<>(searchResults.size());
+    for (PSSearchResult result : searchResults) {
       resultMap.put(String.valueOf(result.getKey().getId()), String.valueOf(result.getRelevancy()));
     }
 
     // now walk rows and set relevancy
-    Iterator rows = searchResponse.getRows();
+    Iterator<IPSSearchResultRow> rows = searchResponse.getRows();
     while (rows.hasNext()) {
-      IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
+      IPSSearchResultRow row = rows.next();
       if (row.hasColumn(IPSConstants.SYS_RELEVANCY)) {
         String ctId = row.getColumnValue(IPSHtmlParameters.SYS_CONTENTID);
-        String relevancy = (String) resultMap.get(ctId);
+        String relevancy = resultMap.get(ctId);
         if (relevancy != null) {
           row.setColumnValue(IPSConstants.SYS_RELEVANCY, relevancy);
         }
@@ -1366,12 +1363,10 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
     String path = INTERNAL_SEARCHES_APP + "/" + searchReq.getInternalSearchName() + ".html";
 
     // load all the html parameters from the input document
-    Map params = searchReq.getInternalSearchParams();
+    Map<String, String> params = searchReq.getInternalSearchParams();
     if (params != null) {
-      Iterator entries = params.entrySet().iterator();
-      while (entries.hasNext()) {
-        Map.Entry entry = (Entry) entries.next();
-        request.setParameter((String) entry.getKey(), entry.getValue());
+      for (Map.Entry<String, String> entry : params.entrySet()) {
+        request.setParameter(entry.getKey(), entry.getValue());
       }
     }
 
@@ -1410,19 +1405,19 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
 
     if (updateItem == null) throw new IllegalArgumentException("updateItem cannot be null");
 
-    Iterator relIter = updateItem.getAllRelatedItems();
+    Iterator<PSItemRelatedItem> relIter = updateItem.getAllRelatedItems();
     while (relIter.hasNext()) {
-      PSItemRelatedItem related = (PSItemRelatedItem) relIter.next();
+      PSItemRelatedItem related = relIter.next();
       String action = related.getAction();
       if (action.equalsIgnoreCase(PSItemRelatedItem.PSRelatedItemAction.INSERT.toString())
           || action.equalsIgnoreCase(PSItemRelatedItem.PSRelatedItemAction.UPDATE.toString())) {
-        Iterator keyFields = related.getAllKeyFields();
+        Iterator<String> keyFields = related.getAllKeyFields();
         if (keyFields.hasNext()) {
           Document searchDoc = PSXmlDocumentBuilder.createXmlDocument();
           PSWSSearchParams searchParams = new PSWSSearchParams();
-          List searchFields = new ArrayList();
+          List<PSWSSearchField> searchFields = new ArrayList<>();
           while (keyFields.hasNext()) {
-            Element el = related.getKeyField((String) keyFields.next());
+            Element el = related.getKeyField(keyFields.next());
             searchFields.add(new PSWSSearchField(el));
           }
           searchParams.setSearchFields(searchFields);
@@ -1448,9 +1443,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
            * better still, we should add each returned item as a new related content item
            */
           // if we found a content item
-          Iterator rows = searchResponse.getRows();
+          Iterator<IPSSearchResultRow> rows = searchResponse.getRows();
           if (rows.hasNext()) {
-            IPSSearchResultRow rowData = (IPSSearchResultRow) rows.next();
+            IPSSearchResultRow rowData = rows.next();
             String strId = rowData.getColumnValue(IPSHtmlParameters.SYS_CONTENTID);
             if (strId != null) {
               int id = Integer.parseInt(strId);
