@@ -42,12 +42,15 @@ Learned from **#2700 / #2761**: making `PSComponentSummary` `final` in **system*
 | **C1 — changed modules** | For **each** changed Maven module: standalone `mvnw clean install` from the module dir (includes **testCompile** + tests). **No** `-DskipTests` / `-Dmaven.test.skip`. **No** “when practical.” |
 | **C2 — API shape / reverse-deps** | When a type becomes `final`/`sealed`, or public/protected (or package-visible cross-module) API signatures change: (1) monorepo grep for `extends <Type>` and `new <Type>() {`; (2) standalone clean install on **known reverse-deps** (e.g. system/objectstore → `modules/perc-toolkit`; rest → `projects/sitemanage`). |
 | **C3 — evidence** | Structured Work result + PR body must include `modules_built`, `build_evidence` (commands + BUILD SUCCESS / Tests run: N), and `downstream_checked` (`none` only when C2 did not apply). |
+| **C5 — UI live proof (HARD for UI)** | When WebUI/SPA/product chrome/user-visible browser flows change: (1) `python docker/scripts/perc-devctl.py qa-up` (H2 Docker cell; freeport `TEST_CMS_URL`); (2) deploy/hot-deploy this PR’s jars into the cell and restart Jetty if needed; (3) run **surface-filtered Playwright** for the feature (`npm run test:surface -- --path …`) and golden smoke when shell/login/explorer is touched; (4) **zero** JS console errors and **zero** related `server.log` ERROR/FATAL during the run; (5) record commands + pass counts + console-clean + server.log-clean in `build_evidence` / PR body. **No** human QA handoff and **no** UI `pr_opened` without C5. See `modules/perc-qa-automation/README.md`. |
 
 Hard bans:
 
 * Open PR after only `compile` (without test-compile) or only a single focused unit test class when the module suite is the gate.
 * Claim “install green” without recording the command in `build_evidence`.
-* Treat p8 as exempt from C1–C3.
+* Treat p8 as exempt from C1–C3 (or C5 for UI).
+* Open a UI PR or create `QA (#N)` after only unit/Vitest green without H2 `qa-up` + Playwright surface pass.
+* Hand off broken UI for humans to discover (C5 is agent live proof; human QA is judgment/UAT after that).
 
 ### Oversized priority work → 3 slices into the pool
 
