@@ -186,7 +186,7 @@ public class PSDataCollectionHelper
     * 
     * @return the query result in a list.
     */
-   public static List<?> executeQuery(Query q)
+   public static <T> List<T> executeQuery(Query<T> q)
    {
       notNull(q, "query (q) may not be null");
 
