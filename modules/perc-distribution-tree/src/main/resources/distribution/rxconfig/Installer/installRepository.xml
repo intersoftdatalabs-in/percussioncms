@@ -210,11 +210,12 @@
 		<!-- Optional sample sites (Corporate Investments / Enterprise Investments).
 			Driven by the Java preinstall's demo-sites flag, propagated to ANT as -Dinstall.demo.sites=true
 			from Phase-1 options (wizard Yes / demo-sites CLI flag) via Main.execJar (#2192).
-			When true on new installs and upgrades: antcall installSampleSites chains an
-			RxffTableData/RxffTableDef PSTableAction pass that seeds the two sample sites plus
-			their ACLs, content types, nav, etc. RXLOCALE / RXLOCALEFORMAT are protected by
-			stripSampleLocales, not by install-type gating. This in-target guard is defensive
-			so the chain wiring and the system property remain in sync. -->
+			When true on new installs and upgrades: antcall installSampleSites chains a
+			PSTableAction over cmsTableDef+RxffTableDef with RxffTableData (locale-stripped
+			staging) so RXSITES and the dependent sample graph are inserted (#3133).
+			RXLOCALE / RXLOCALEFORMAT are protected by stripSampleLocales, not by
+			install-type gating. This in-target guard is defensive so the chain wiring
+			and the system property remain in sync. -->
 		<if>
 			<equals arg1="${install.demo.sites}" arg2="true" />
 			<then>
@@ -716,13 +717,20 @@
 		</antcall>
 
 		<!-- Run the schema + data load using the stripped staging copy. The original
-			shipped file is never modified. -->
+			shipped file is never modified.
+			PSTableAction only processes tables present in tableDef (schema collection
+			is the outer loop; data is looked up by table name). RxffTableDef.xml lists
+			only RXS_CT_* extension schemas; RxffTableData has the sample graph
+			(RXSITES, PSX_FOLDER, ACLs, editions, …) with no CT extension rows.
+			Without cmsTableDef, installSampleSites "succeeds" while never inserting
+			RXSITES (#3133 residual of #2989). Match legacy FastForward install:
+			cmsTableDef + RxffTableDef (see installFastForward.xml). -->
 		<PSTableAction rootDir="${install.dir}"
 			repositoryLocation="${rxrepository.properties}"
 			tableFactoryLogFile="${install.dir}/rxconfig/Installer/tableFactory.log"
 			tableData="${data.dir}/RxffTableData.staging.xml"
-			tableDef="${data.dir}/RxffTableDef.xml" failonerror="true"
-			silenceerrors="false" />
+			tableDef="${data.dir}/cmsTableDef.xml,${data.dir}/RxffTableDef.xml"
+			failonerror="true" silenceerrors="false" />
 
 		<echo>Sample sites seeded.</echo>
 	</target>
