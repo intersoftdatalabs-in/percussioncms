@@ -22,11 +22,11 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +43,16 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPersistentPropertyManager {
   private static final Logger log = LogManager.getLogger(PSPersistentPropertyManager.class);
+
+  /** Nested leaf map: property name → value object. */
+  private static final class LeafMap<T> extends ConcurrentHashMap<String, T> {
+    private static final long serialVersionUID = 1L;
+  }
+
+  /** Nested category map: category → leaf map. */
+  private static final class CategoryMap<T> extends ConcurrentHashMap<String, LeafMap<T>> {
+    private static final long serialVersionUID = 1L;
+  }
 
   /** Default constructor; private to disallow instantiation. */
   private PSPersistentPropertyManager() {}
@@ -74,15 +84,14 @@ public class PSPersistentPropertyManager {
    *     search criteria. If a match isn't found, an empty collection is returned.
    * @throws IllegalArgumentException if property name and category is not supplied.
    */
-  public Collection getPersistedPropertyMeta(
+  public Collection<PSPersistentPropertyMeta> getPersistedPropertyMeta(
       String category, PSUserSession userSession, String propertyName) {
     if ((category == null || category.length() == 0)
         && (propertyName == null || propertyName.length() == 0))
       throw new IllegalArgumentException(
           "Category and property name cannot be null at the same time");
-    Collection c = null;
+    Collection<PSPersistentPropertyMeta> c = new ArrayList<>();
     try {
-      c = new ArrayList<>();
       String userName = getUserName(userSession);
       if (userName.length() == 0) return c;
 
@@ -91,25 +100,17 @@ public class PSPersistentPropertyManager {
       // to ensure that no updates are done concurrently.
       synchronized (this) {
         populateCache(userSession, true);
-        ConcurrentHashMap cMap = m_mergedMetaCache.get(userName);
+        CategoryMap<PSPersistentPropertyMeta> cMap = m_mergedMetaCache.get(userName);
         if (cMap == null) return c;
         PSPatternMatcher pm = PSPatternMatcher.SQLPatternMatcher(null);
-        Set cSet = cMap.keySet();
-        Iterator cItr = cSet.iterator();
-        String cat = null;
-        ConcurrentHashMap objMap = null;
         if (category != null && category.length() != 0) {
-          while (cItr.hasNext()) {
-            cat = (String) cItr.next();
-            if (pm.doesMatchPattern(category, cat)) {
-              objMap = (ConcurrentHashMap) cMap.get(cat);
-              matchLeaves(pm, propertyName, objMap, c);
+          for (Map.Entry<String, LeafMap<PSPersistentPropertyMeta>> entry : cMap.entrySet()) {
+            if (pm.doesMatchPattern(category, entry.getKey())) {
+              matchLeaves(pm, propertyName, entry.getValue(), c);
             }
           }
         } else {
-          while (cItr.hasNext()) {
-            cat = (String) cItr.next();
-            objMap = (ConcurrentHashMap) cMap.get(cat);
+          for (LeafMap<PSPersistentPropertyMeta> objMap : cMap.values()) {
             matchLeaves(pm, propertyName, objMap, c);
           }
         }
@@ -127,7 +128,7 @@ public class PSPersistentPropertyManager {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
 
     List<PSPersistentPropertyMeta> ret =
-        mgr.saveAllPersistentMeta(list).collect(java.util.stream.Collectors.toList());
+        mgr.saveAllPersistentMeta(list).collect(Collectors.toList());
     resetMetaCache(user);
     return ret;
   }
@@ -160,14 +161,12 @@ public class PSPersistentPropertyManager {
    * @param rc container in which matched objects will reside.
    * @return collection of matched objects.
    */
-  private Collection matchLeaves(
-      PSPatternMatcher pm, String pattern, ConcurrentHashMap hm, Collection rc) {
-
-    Set objSet = hm.keySet();
-    Iterator objItr = objSet.iterator();
-    while (objItr.hasNext()) {
-      String propName = (String) objItr.next();
-      if (pm.doesMatchPattern(pattern, propName)) rc.add(hm.get(propName));
+  private <T> Collection<T> matchLeaves(
+      PSPatternMatcher pm, String pattern, LeafMap<T> hm, Collection<T> rc) {
+    for (Map.Entry<String, T> entry : hm.entrySet()) {
+      if (pm.doesMatchPattern(pattern, entry.getKey())) {
+        rc.add(entry.getValue());
+      }
     }
     return rc;
   }
@@ -177,14 +176,8 @@ public class PSPersistentPropertyManager {
    * @param user
    */
   public void resetMetaCache(PSUserSession user) {
-
-    while (m_mergedMetaCache.entrySet().iterator().hasNext()) {
-      Map.Entry<String, ConcurrentHashMap> entry = m_mergedMetaCache.entrySet().iterator().next();
-      if (entry.getKey().equalsIgnoreCase(getUserName(user))) {
-        m_mergedMetaCache.entrySet().iterator().remove();
-      }
-    }
-
+    String userName = getUserName(user);
+    m_mergedMetaCache.keySet().removeIf(k -> k.equalsIgnoreCase(userName));
     populateCache(user, true);
   }
 
@@ -198,128 +191,136 @@ public class PSPersistentPropertyManager {
   private void populateCache(PSUserSession userSession, boolean isMeta) {
     String userName = getUserName(userSession);
     if (isMeta) {
-      if (m_mergedMetaCache.get(SYS_USER) == null) load(SYS_USER, true);
+      if (m_mergedMetaCache.get(SYS_USER) == null) loadMeta(SYS_USER);
       if (m_mergedMetaCache.get(userName) == null) {
-        load(userName, true);
-        merge(userName, m_mergedMetaCache, true);
+        loadMeta(userName);
+        mergeMeta(userName);
       }
     } else {
-      if (m_propertyCache.get(SYS_USER) == null) load(SYS_USER, false);
+      if (m_propertyCache.get(SYS_USER) == null) loadProperty(SYS_USER);
       if (m_propertyCache.get(userName) == null) {
-        load(userName, false);
-        if (m_propertyCache.get(SYS_USER) != null) merge(userName, m_propertyCache, false);
+        loadProperty(userName);
+        if (m_propertyCache.get(SYS_USER) != null) mergeProperty(userName);
       }
     }
   }
 
   /**
-   * Merges default entries with the user entries,already existing user entries are left untouched.
+   * Merges default meta entries with the user entries; already existing user entries are left
+   * untouched.
    */
-  private void merge(String userName, Map map, boolean isMeta) {
-    ConcurrentHashMap sysCategoryMap = (ConcurrentHashMap) map.get(SYS_USER);
-    ConcurrentHashMap usrCategoryMap = (ConcurrentHashMap) map.get(userName);
+  private void mergeMeta(String userName) {
+    merge(
+        userName,
+        m_mergedMetaCache,
+        (src, uname) -> new PSPersistentPropertyMeta(src, uname));
+  }
+
+  /**
+   * Merges default property entries with the user entries; already existing user entries are left
+   * untouched.
+   */
+  private void mergeProperty(String userName) {
+    merge(
+        userName,
+        m_propertyCache,
+        (src, uname) -> new PSPersistentProperty(src, uname, PSPersistentPropertyManager.UPDATE));
+  }
+
+  private <T> void merge(
+      String userName,
+      Map<String, CategoryMap<T>> map,
+      BiFunction<T, String, T> copyForUser) {
+    CategoryMap<T> sysCategoryMap = map.get(SYS_USER);
+    CategoryMap<T> usrCategoryMap = map.get(userName);
     if (usrCategoryMap == null) {
-      usrCategoryMap = new ConcurrentHashMap();
+      usrCategoryMap = new CategoryMap<>();
       map.put(userName, usrCategoryMap);
     }
 
-    if (null == sysCategoryMap) return;
-    Set sysCatSet = sysCategoryMap.keySet();
-    Iterator sysCatItr = sysCatSet.iterator();
-    while (sysCatItr.hasNext()) {
-      String sysCategory = (String) sysCatItr.next();
-      if (!usrCategoryMap.containsKey(sysCategory))
-        usrCategoryMap.put(sysCategory, new ConcurrentHashMap<>());
-      mergeLeaves(
-          userName,
-          (ConcurrentHashMap) sysCategoryMap.get(sysCategory),
-          (ConcurrentHashMap) usrCategoryMap.get(sysCategory),
-          isMeta);
+    if (sysCategoryMap == null) return;
+    for (Map.Entry<String, LeafMap<T>> sysCatEntry : sysCategoryMap.entrySet()) {
+      String sysCategory = sysCatEntry.getKey();
+      if (!usrCategoryMap.containsKey(sysCategory)) {
+        usrCategoryMap.put(sysCategory, new LeafMap<>());
+      }
+      mergeLeaves(userName, sysCatEntry.getValue(), usrCategoryMap.get(sysCategory), copyForUser);
     }
   }
 
   /**
-   * Merges the leaf map - the map which maintains meta property name and meta
-   * object(PSPersistentPropertyMeta) mappings.
+   * Merges the leaf map - the map which maintains property name and value object mappings.
    */
-  private Map mergeLeaves(String userName, Map src, Map dest, boolean isMeta) {
-    Set srcSet = src.keySet();
-    Iterator srcItr = srcSet.iterator();
-    while (srcItr.hasNext()) {
-      String srcName = (String) srcItr.next();
+  private <T> void mergeLeaves(
+      String userName, LeafMap<T> src, LeafMap<T> dest, BiFunction<T, String, T> copyForUser) {
+    for (Map.Entry<String, T> srcEntry : src.entrySet()) {
+      String srcName = srcEntry.getKey();
       // checks if the user mapping for a name already exists
       // to prevent overwrites, if exists don't touch it!!.
       if (dest.get(srcName) == null) {
-        if (isMeta) {
-          PSPersistentPropertyMeta obj = (PSPersistentPropertyMeta) src.get(srcName);
-          PSPersistentPropertyMeta newObj = new PSPersistentPropertyMeta(obj, userName);
-          dest.put(srcName, newObj);
-        } else {
-          PSPersistentProperty obj = (PSPersistentProperty) src.get(srcName);
-          PSPersistentProperty newObj =
-              new PSPersistentProperty(obj, userName, PSPersistentPropertyManager.UPDATE);
-          dest.put(srcName, newObj);
-        }
+        dest.put(srcName, copyForUser.apply(srcEntry.getValue(), userName));
       }
     }
-    return src;
   }
 
   /**
-   * Populates <code>m_mergedMetaCache</code> and <code>m_propertyCache</code> for an user.
+   * Populates <code>m_mergedMetaCache</code> for a user.
    *
-   * @param userName
-   * @param loadMetadata indicates whether to load meta properties or properties. Metadata is loaded
-   *     if <code>true</code>, data otherwise.
+   * @param userName the user name key
    */
-  private void load(String userName, boolean loadMetadata) {
+  private void loadMeta(String userName) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
+    CategoryMap<PSPersistentPropertyMeta> categoryMap = new CategoryMap<>();
+    m_mergedMetaCache.put(userName, categoryMap);
 
-    ConcurrentHashMap categoryMap = new ConcurrentHashMap();
+    List<PSPersistentPropertyMeta> persists =
+        mgr.findAllPersistentMeta()
+            .filter(pm -> pm.getUserName().equals(userName))
+            .collect(Collectors.toList());
 
-    if (loadMetadata) m_mergedMetaCache.put(userName, categoryMap);
-    else m_propertyCache.put(userName, categoryMap);
-
-    List persists;
-    if (loadMetadata) {
-      persists =
-          mgr.findAllPersistentMeta()
-              .filter(pm -> pm.getUserName().equals(userName))
-              .collect(java.util.stream.Collectors.toList());
-    } else {
-      persists = mgr.findPersistentPropertiesByName(userName);
-    }
-
-    Iterator ps = persists.iterator();
-    while (ps.hasNext()) {
-      String propertyName = null;
-      String category = null;
-      Object obj = ps.next();
-      if (loadMetadata) {
-        category = ((PSPersistentPropertyMeta) obj).getCategory();
-        propertyName = ((PSPersistentPropertyMeta) obj).getPropertyName();
-      } else {
-        category = ((PSPersistentProperty) obj).getCategory();
-        propertyName = ((PSPersistentProperty) obj).getName();
-      }
-      // if category is null then the key is null and all the metaobj without
-      // category go there.
-      ConcurrentHashMap map = (ConcurrentHashMap) categoryMap.get(category);
+    for (PSPersistentPropertyMeta meta : persists) {
+      String category = meta.getCategory();
+      String propertyName = meta.getPropertyName();
+      LeafMap<PSPersistentPropertyMeta> map = categoryMap.get(category);
       if (map == null) {
-        map = new ConcurrentHashMap<>();
+        map = new LeafMap<>();
         categoryMap.put(category, map);
       }
-      map.put(propertyName, obj);
+      map.put(propertyName, meta);
+    }
+  }
+
+  /**
+   * Populates <code>m_propertyCache</code> for a user.
+   *
+   * @param userName the user name key
+   */
+  private void loadProperty(String userName) {
+    IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
+    CategoryMap<PSPersistentProperty> categoryMap = new CategoryMap<>();
+    m_propertyCache.put(userName, categoryMap);
+
+    List<PSPersistentProperty> persists = mgr.findPersistentPropertiesByName(userName);
+
+    for (PSPersistentProperty prop : persists) {
+      String category = prop.getCategory();
+      String propertyName = prop.getName();
+      LeafMap<PSPersistentProperty> map = categoryMap.get(category);
+      if (map == null) {
+        map = new LeafMap<>();
+        categoryMap.put(category, map);
+      }
+      map.put(propertyName, prop);
     }
   }
 
   /** Utility method to get PSPersistentPropertyMeta objects from m_mergedMetaCache. */
   private PSPersistentPropertyMeta getFromMetaCache(
       String category, String userName, String propertyName) {
-    Map catMap = (ConcurrentHashMap) m_mergedMetaCache.get(userName);
+    CategoryMap<PSPersistentPropertyMeta> catMap = m_mergedMetaCache.get(userName);
     if (catMap != null) {
-      ConcurrentHashMap objMap = (ConcurrentHashMap) catMap.get(category);
-      if (objMap != null) return (PSPersistentPropertyMeta) objMap.get(propertyName);
+      LeafMap<PSPersistentPropertyMeta> objMap = catMap.get(category);
+      if (objMap != null) return objMap.get(propertyName);
       else return null;
     } else {
       return null;
@@ -382,7 +383,7 @@ public class PSPersistentPropertyManager {
    * @throws IllegalArgumentException If <code>propertyName</code> and <code>category</code> are
    *     both <code>null</code> or empty, or if <code>request</code> is <code>null</code>.
    */
-  public synchronized Collection getPersistedProperty(
+  public synchronized Collection<PSPersistentProperty> getPersistedProperty(
       String category, PSUserSession userSession, String propertyName) {
     if ((category == null || category.length() == 0)
         && (propertyName == null || propertyName.length() == 0))
@@ -391,7 +392,7 @@ public class PSPersistentPropertyManager {
 
     if (userSession == null) throw new IllegalArgumentException("request may not be null");
 
-    Collection c = new ArrayList();
+    Collection<PSPersistentProperty> c = new ArrayList<>();
     try {
       String userName = getUserName(userSession);
       if (userName.length() == 0) return c;
@@ -402,23 +403,17 @@ public class PSPersistentPropertyManager {
       synchronized (this) {
         populateCache(userSession, false);
         if (m_propertyCache.isEmpty()) return c;
-        ConcurrentHashMap cMap = (ConcurrentHashMap) m_propertyCache.get(userName);
+        CategoryMap<PSPersistentProperty> cMap = m_propertyCache.get(userName);
         if (cMap == null) return c;
         PSPatternMatcher pm = PSPatternMatcher.SQLPatternMatcher(null);
-        Set cSet = cMap.keySet();
-        Iterator cItr = cSet.iterator();
         if (category != null && category.length() != 0) {
-          while (cItr.hasNext()) {
-            String cat = (String) cItr.next();
-            if (pm.doesMatchPattern(category, cat)) {
-              ConcurrentHashMap objMap = (ConcurrentHashMap) cMap.get(cat);
-              matchLeaves(pm, propertyName, objMap, c);
+          for (Map.Entry<String, LeafMap<PSPersistentProperty>> entry : cMap.entrySet()) {
+            if (pm.doesMatchPattern(category, entry.getKey())) {
+              matchLeaves(pm, propertyName, entry.getValue(), c);
             }
           }
         } else {
-          while (cItr.hasNext()) {
-            String cat = (String) cItr.next();
-            ConcurrentHashMap objMap = (ConcurrentHashMap) cMap.get(cat);
+          for (LeafMap<PSPersistentProperty> objMap : cMap.values()) {
             matchLeaves(pm, propertyName, objMap, c);
           }
         }
@@ -441,21 +436,18 @@ public class PSPersistentPropertyManager {
    *     null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
-  public synchronized void save(Collection c, PSUserSession userSession) {
+  public synchronized void save(Collection<PSPersistentProperty> c, PSUserSession userSession) {
     if (c == null) throw new IllegalArgumentException("c may not be null");
 
     if (userSession == null) throw new IllegalArgumentException("userSession may not be null");
 
     try {
-      Iterator itr = c.iterator();
       String userName = getUserName(userSession);
       if (userName.length() == 0) return;
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-      while (itr.hasNext()) {
-        PSPersistentProperty ps = (PSPersistentProperty) itr.next();
+      for (PSPersistentProperty ps : c) {
         String action = ps.getExtraParam();
         if (action == null) {
-          if (!itr.hasNext()) return;
           continue;
         }
         if (action.equals(INSERT) || action.equals(UPDATE) || action.equals(DELETE)) {
@@ -532,10 +524,8 @@ public class PSPersistentPropertyManager {
    * Synchronize properties in <code>m_propertyCache</code>. Preferably called after backend has
    * updated.
    */
-  private void syncPropertyCache(Collection c) {
-    Iterator itr = c.iterator();
-    while (itr.hasNext()) {
-      PSPersistentProperty ps = (PSPersistentProperty) itr.next();
+  private void syncPropertyCache(Collection<PSPersistentProperty> c) {
+    for (PSPersistentProperty ps : c) {
       setPropertyCache(ps);
     }
   }
@@ -551,21 +541,20 @@ public class PSPersistentPropertyManager {
     synchronized (ps) {
       String userName = ps.getUserName();
       String category = ps.getCategory();
-      Map catMap = (Map) m_propertyCache.get(userName);
+      CategoryMap<PSPersistentProperty> catMap = m_propertyCache.get(userName);
       if (catMap == null) {
-        catMap = new ConcurrentHashMap();
+        catMap = new CategoryMap<>();
         m_propertyCache.put(userName, catMap);
       }
-      Map objMap = null;
       if (category != null && category.length() == 0) category = null;
-      objMap = (Map) catMap.get(category);
+      LeafMap<PSPersistentProperty> objMap = catMap.get(category);
       if (objMap == null) {
-        objMap = new ConcurrentHashMap();
+        objMap = new LeafMap<>();
         catMap.put(category, objMap);
       }
       String propName = ps.getName();
       String action = ps.getExtraParam();
-      PSPersistentProperty obj = (PSPersistentProperty) objMap.get(propName);
+      PSPersistentProperty obj = objMap.get(propName);
       if (action.equals(PSPersistentPropertyManager.INSERT)) {
         objMap.put(propName, ps);
         // reset the action
@@ -590,15 +579,17 @@ public class PSPersistentPropertyManager {
   private static final Logger ms_log = LogManager.getLogger(PSPersistentPropertyManager.class);
 
   /**
-   * Maintains a cache of merged <code> PSPersitentPropertyMeta</code> objects. Note there 2 levels
-   * of indirection. Username key(s) are mapped to ConcurrentHashMap(s), whose keys are categories
-   * and those key(s) are mapped to ConcurrentHashMap(s) whose key(s) are mapped to meta property
-   * objects Pictorially --- (Usernname,(categories,(metaPropertyName,metaObjs)))
+   * Maintains a cache of merged <code>PSPersistentPropertyMeta</code> objects. Note there are 2
+   * levels of indirection. Username key(s) are mapped to category maps, whose keys are categories
+   * and those key(s) are mapped to leaf maps whose keys are meta property names mapped to meta
+   * objects. Pictorially --- (Username,(categories,(metaPropertyName,metaObjs)))
    */
-  private final Map<String, ConcurrentHashMap> m_mergedMetaCache = new ConcurrentHashMap<>();
+  private final Map<String, CategoryMap<PSPersistentPropertyMeta>> m_mergedMetaCache =
+      new ConcurrentHashMap<>();
 
-  /** Cache for <code>PSPersitentProperty</code> objects. */
-  private final Map m_propertyCache = new ConcurrentHashMap();
+  /** Cache for <code>PSPersistentProperty</code> objects (same nesting as meta cache). */
+  private final Map<String, CategoryMap<PSPersistentProperty>> m_propertyCache =
+      new ConcurrentHashMap<>();
 
   public static final String SYS_USER = "**psxsystem";
   public static final String DELETE = "DELETE";

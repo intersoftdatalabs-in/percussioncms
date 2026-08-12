@@ -103,9 +103,9 @@ public class PSUserSession {
 
     PSUserSession session = new PSUserSession(request, m_id);
 
-    session.m_privateObjects = new ConcurrentHashMap(m_privateObjects);
+    session.m_privateObjects = new ConcurrentHashMap<>(m_privateObjects);
     session.m_systemObjects = m_systemObjects;
-    session.m_UserEntries = new CopyOnWriteArrayList();
+    session.m_UserEntries = new CopyOnWriteArrayList<>();
     session.m_usrMeta = m_usrMeta;
     session.m_usrProp = m_usrProp;
 
@@ -266,10 +266,8 @@ public class PSUserSession {
    * @return The list, never null, may be empty.
    */
   public List<String> getUserRoles() {
-    List<String> roleList = new ArrayList<String>();
-    Iterator userEntries = m_UserEntries.iterator();
-    while (userEntries.hasNext()) {
-      PSUserEntry userEntry = (PSUserEntry) userEntries.next();
+    List<String> roleList = new ArrayList<>();
+    for (PSUserEntry userEntry : m_UserEntries) {
       PSRoleEntry[] roles = userEntry.getRoles();
       for (int i = 0; i < roles.length; i++) {
         roleList.add(roles[i].getName());
@@ -309,11 +307,11 @@ public class PSUserSession {
    *     null</code> may be empty. List is cached in the user's session after the first call.
    * @throws PSInternalRequestCallException if there is an error retrieving the communities
    */
-  @SuppressWarnings(value = {"unchecked"})
   public List<String> getUserCommunities(PSRequest request) throws PSInternalRequestCallException {
+    @SuppressWarnings("unchecked")
     List<String> list = (List<String>) getPrivateObject(USER_COMMUNITIES);
     if (list == null) {
-      list = new ArrayList<String>();
+      list = new ArrayList<>();
 
       // Make an internal request to get the user roles.
       PSInternalRequest iReq =
@@ -335,7 +333,7 @@ public class PSUserSession {
       setPrivateObject(USER_COMMUNITIES, list);
     }
 
-    return new ArrayList<String>(list);
+    return new ArrayList<>(list);
   }
 
   /**
@@ -345,14 +343,14 @@ public class PSUserSession {
    * @return The list of names, never <code>null</code>.
    * @throws PSInternalRequestCallException if there is an error.
    */
-  @SuppressWarnings(value = {"unchecked"})
   public List<String> getUserCommunityNames(PSRequest request)
       throws PSInternalRequestCallException {
     if (request == null) throw new IllegalArgumentException("request  may not be null");
 
+    @SuppressWarnings("unchecked")
     List<String> names = (List<String>) getPrivateObject(USER_COMMUNITY_NAMES);
     if (names == null) {
-      names = new ArrayList<String>();
+      names = new ArrayList<>();
       List<String> ids = getUserCommunities(request);
       if (!ids.isEmpty()) {
         IPSGuid[] guids = new IPSGuid[ids.size()];
@@ -369,7 +367,7 @@ public class PSUserSession {
       setPrivateObject(USER_COMMUNITY_NAMES, names);
     }
 
-    return new ArrayList<String>(names);
+    return new ArrayList<>(names);
   }
 
   /**
@@ -415,8 +413,7 @@ public class PSUserSession {
   public String getRealAuthenticatedUserEntry() {
     String userName = null;
     if (null != m_UserEntries) {
-      for (Iterator iter = m_UserEntries.iterator(); iter.hasNext(); ) {
-        PSUserEntry entry = (PSUserEntry) iter.next();
+      for (PSUserEntry entry : m_UserEntries) {
         userName = entry.getName();
         break;
       }
@@ -496,7 +493,7 @@ public class PSUserSession {
     if (driver == null) driver = "";
     if (server == null) server = "";
 
-    return (String[]) m_Credentials.get(driver + "/" + server);
+    return m_Credentials.get(driver + "/" + server);
   }
 
   /**
@@ -585,7 +582,7 @@ public class PSUserSession {
    *     to the container object itself, and thus prevent GC of the copied container. (It's
    *     <em>very</em> likely, but I saw no guarantee in the spec) (dbreslau 12/12/02)
    */
-  public Iterator authenticationIdIterator() {
+  public Iterator<String> authenticationIdIterator() {
     return m_authentications.keySet().iterator();
   }
 
@@ -670,25 +667,21 @@ public class PSUserSession {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
 
     Element authentications = doc.createElement("Authentications");
-    Iterator auths = m_authentications.keySet().iterator();
-    while (auths.hasNext()) {
+    for (String user : m_authentications.keySet()) {
       Element authentication = doc.createElement("Authentication");
 
-      String user = (String) auths.next();
       authentication.setAttribute("user", user);
-      authentication.setAttribute("password", (String) m_authentications.get(user));
+      authentication.setAttribute("password", m_authentications.get(user));
 
       authentications.appendChild(authentication);
     }
 
     Element credentials = doc.createElement("Credentials");
-    Iterator creds = m_Credentials.keySet().iterator();
-    while (creds.hasNext()) {
+    for (String driverServer : m_Credentials.keySet()) {
       Element credential = doc.createElement("Credential");
 
-      String driverServer = (String) creds.next();
       credential.setAttribute("driverServer", driverServer);
-      String[] login = (String[]) m_Credentials.get(driverServer);
+      String[] login = m_Credentials.get(driverServer);
       credential.setAttribute("user", login[0]);
       credential.setAttribute("password", login[1]);
 
@@ -696,19 +689,15 @@ public class PSUserSession {
     }
 
     Element userEntries = doc.createElement("AuthenticatedUsers");
-    Iterator entries = m_UserEntries.iterator();
-    while (entries.hasNext()) {
-      PSUserEntry entry = (PSUserEntry) entries.next();
+    for (PSUserEntry entry : m_UserEntries) {
       userEntries.appendChild(entry.getUserEntryStatus(doc));
     }
 
     Element usedDbCredentials = doc.createElement("UsedDatabaseCredentials");
-    Iterator usedCreds = m_dbIds.keySet().iterator();
-    while (usedCreds.hasNext()) {
-      String driverServer = (String) usedCreds.next();
+    for (String driverServer : m_dbIds.keySet()) {
       Element usedDbCredential = doc.createElement("Credential");
       usedDbCredential.setAttribute("driverServer", driverServer);
-      usedDbCredential.setAttribute("user", (String) m_dbIds.get(driverServer));
+      usedDbCredential.setAttribute("user", m_dbIds.get(driverServer));
 
       usedDbCredentials.appendChild(usedDbCredential);
     }
@@ -767,11 +756,9 @@ public class PSUserSession {
    * @param context - system or designer
    * @param map - system or private map, assumed not <code>null</code>
    */
-  private void updateProperties(String context, Map map) {
+  private void updateProperties(String context, Map<?, ?> map) {
     if (!m_isLoaded || map.isEmpty()) return;
-    for (Iterator itr = m_usrMeta.iterator(); itr.hasNext(); ) {
-      PSPersistentPropertyMeta meta = (PSPersistentPropertyMeta) itr.next();
-
+    for (PSPersistentPropertyMeta meta : m_usrMeta) {
       String propName = meta.getPropertyName();
       // if key is not there at all then the property does not exist.
       // this applies to situation where meta exist but property does not
@@ -779,7 +766,8 @@ public class PSUserSession {
       if (!map.containsKey(propName)) {
         continue;
       }
-      String newValue = (String) map.get(propName);
+      Object raw = map.get(propName);
+      String newValue = raw == null ? null : String.valueOf(raw);
       boolean isNew = isNewProperty(propName);
 
       // check to see if the property is new and exists in the map
@@ -837,8 +825,7 @@ public class PSUserSession {
    * @return <code>null</code> if not found
    */
   private PSPersistentProperty getProperty(String propName) {
-    for (Iterator itr = m_usrProp.iterator(); itr.hasNext(); ) {
-      PSPersistentProperty propObj = (PSPersistentProperty) itr.next();
+    for (PSPersistentProperty propObj : m_usrProp) {
       String name = propObj.getName();
       if (name != null) if (name.equals(propName)) return propObj;
     }
@@ -857,8 +844,7 @@ public class PSUserSession {
       if (ms_log.isDebugEnabled()) {
         ms_log.debug("Persistent property [" + propName + "] does not exist");
         ms_log.debug("Current persistent properties:");
-        for (Iterator iter = m_usrProp.iterator(); iter.hasNext(); ) {
-          PSPersistentProperty propObj = (PSPersistentProperty) iter.next();
+        for (PSPersistentProperty propObj : m_usrProp) {
           ms_log.debug(propObj.getName());
         }
       }
@@ -932,7 +918,7 @@ public class PSUserSession {
     m_UserEntries.clear();
   }
 
-  public synchronized Collection getUserPropertyMetadata() {
+  public synchronized Collection<PSPersistentPropertyMeta> getUserPropertyMetadata() {
 
     if (m_usrMeta == null) {
       loadPersistentProperties();
@@ -940,18 +926,19 @@ public class PSUserSession {
     return m_usrMeta;
   }
 
-  public synchronized void setUserPropertyMetadata(Collection m_usrMeta) {
+  public synchronized void setUserPropertyMetadata(
+      Collection<PSPersistentPropertyMeta> m_usrMeta) {
     this.m_usrMeta = m_usrMeta;
   }
 
-  public synchronized Collection getUserProperties() {
+  public synchronized Collection<PSPersistentProperty> getUserProperties() {
     if (m_usrProp == null) {
       loadPersistentProperties();
     }
     return m_usrProp;
   }
 
-  public synchronized void setUserProperties(Collection m_usrProp) {
+  public synchronized void setUserProperties(Collection<PSPersistentProperty> m_usrProp) {
     this.m_usrProp = m_usrProp;
   }
 
@@ -969,10 +956,7 @@ public class PSUserSession {
     m_usrMeta = mgr.getPersistedPropertyMeta(CATEGORY, this, ALL);
     m_usrProp = mgr.getPersistedProperty(CATEGORY, this, ALL);
 
-    Iterator properties = m_usrProp.iterator();
-    while (properties.hasNext()) {
-      PSPersistentProperty prop = (PSPersistentProperty) properties.next();
-
+    for (PSPersistentProperty prop : m_usrProp) {
       String context = prop.getContext();
       if (context == null) continue;
 
@@ -1109,17 +1093,17 @@ public class PSUserSession {
    * <code>null</code> until <code>m_isLoaded
    * </code> is <code>true</code>, then never <code>null</code> after that.
    */
-  private volatile Collection m_usrMeta = null;
+  private volatile Collection<PSPersistentPropertyMeta> m_usrMeta = null;
 
   /**
    * Stores <code>PSPersistentProperty</code> objects returned by PSPersistentPropertyManager and
    * those set on the session object. <code>null</code> until <code>m_isLoaded</code> is <code>true
    * </code>, then never <code>null</code> after that.
    */
-  private volatile Collection m_usrProp = null;
+  private volatile Collection<PSPersistentProperty> m_usrProp = null;
 
   /** Maintains system session properties */
-  private ConcurrentHashMap m_systemObjects = new ConcurrentHashMap();
+  private ConcurrentHashMap<String, Object> m_systemObjects = new ConcurrentHashMap<>();
 
   /** The designer session cookie */
   public static final String DESIGNER_SESSION_COOKIE = "psdsessid";
@@ -1145,7 +1129,7 @@ public class PSUserSession {
    * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
    * safety. Since the field is private, it should be easy to verify this.
    */
-  private CopyOnWriteArrayList m_UserEntries = new CopyOnWriteArrayList();
+  private CopyOnWriteArrayList<PSUserEntry> m_UserEntries = new CopyOnWriteArrayList<>();
 
   /**
    * Store the back-end credentials for this user with key = driver/server and value = String[] {
@@ -1154,7 +1138,7 @@ public class PSUserSession {
    * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
    * safety. Since the field is private, it should be easy to verify this.
    */
-  private ConcurrentHashMap m_Credentials = new ConcurrentHashMap();
+  private ConcurrentHashMap<String, String[]> m_Credentials = new ConcurrentHashMap<>();
 
   /**
    * Table of database ids.
@@ -1162,7 +1146,7 @@ public class PSUserSession {
    * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
    * safety. Since the field is private, it should be easy to verify this.
    */
-  private ConcurrentHashMap m_dbIds = new ConcurrentHashMap();
+  private ConcurrentHashMap<String, String> m_dbIds = new ConcurrentHashMap<>();
 
   /**
    * Table of database authentications.
@@ -1170,7 +1154,7 @@ public class PSUserSession {
    * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
    * safety. Since the field is private, it should be easy to verify this.
    */
-  private Map m_authentications = new ConcurrentHashMap();
+  private Map<String, String> m_authentications = new ConcurrentHashMap<>();
 
   /**
    * Allows extensions to store user session information in a map.
@@ -1178,7 +1162,7 @@ public class PSUserSession {
    * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
    * safety. Since the field is private, it should be easy to verify this.
    */
-  private ConcurrentHashMap m_privateObjects = new ConcurrentHashMap();
+  private ConcurrentHashMap<Object, Object> m_privateObjects = new ConcurrentHashMap<>();
 
   /**
    * Flag to mark this session as designer session (<code>true</code>). The default is set to <code>
