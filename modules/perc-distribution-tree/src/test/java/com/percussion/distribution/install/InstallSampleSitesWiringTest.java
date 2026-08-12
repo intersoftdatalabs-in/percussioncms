@@ -62,19 +62,23 @@ class InstallSampleSitesWiringTest {
   private static final Path SAMPLE_DEF = INSTALLER_DATA.resolve("RxffTableDef.xml");
   private static final Path CMS_TABLE_DEF = INSTALLER_DATA.resolve("cmsTableDef.xml");
 
+  /** Matches {@code name} anywhere on a {@code <table ...>} start tag (not only first attr). */
   private static final Pattern TABLE_NAME_ATTR =
-      Pattern.compile("<table\\s+name\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
+      Pattern.compile(
+          "<table\\s+[^>]*?name\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
 
   @Test
-  void installSampleSitesTableDefIncludesCmsAndRxffDefs() throws IOException {
+  void installSampleSitesTableDefIncludesCmsAndRxffDefs()
+      throws IOException, ParserConfigurationException, SAXException {
     assertTrue(Files.isRegularFile(INSTALL_REPOSITORY_XML), "missing " + INSTALL_REPOSITORY_XML);
-    String body = Files.readString(INSTALL_REPOSITORY_XML, StandardCharsets.UTF_8);
-
-    int targetStart = body.indexOf("name=\"installSampleSites\"");
-    assertTrue(targetStart >= 0, "installSampleSites target must exist");
-    int targetEnd = body.indexOf("</target>", targetStart);
-    assertTrue(targetEnd > targetStart, "installSampleSites target must be closed");
-    String targetBody = body.substring(targetStart, targetEnd);
+    Document installDoc = parseXml(INSTALL_REPOSITORY_XML);
+    Element sampleSitesTarget = findNamedTarget(installDoc, "installSampleSites");
+    if (sampleSitesTarget == null) {
+      fail("installSampleSites target must exist in installRepository.xml");
+    }
+    // Serialize just this target's attributes/children via getTextContent + attribute checks
+    // on the Element tree (avoids brittle first-</target> string scan).
+    String targetBody = elementTextSnapshot(sampleSitesTarget);
 
     assertTrue(
         targetBody.contains("RxffTableData.staging.xml"),
@@ -197,6 +201,47 @@ class InstallSampleSitesWiringTest {
       }
     }
     return null;
+  }
+
+  /** Ant project targets are flat; select by {@code name} attribute. */
+  private static Element findNamedTarget(Document doc, String targetName) {
+    NodeList targets = doc.getElementsByTagName("target");
+    for (int i = 0; i < targets.getLength(); i++) {
+      Element target = (Element) targets.item(i);
+      if (targetName.equals(target.getAttribute("name"))) {
+        return target;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Flatten element attributes and descendant attributes/text into one string for contains /
+   * regex checks. Preferable to string-slicing on the first {@code </target>} in the file.
+   */
+  private static String elementTextSnapshot(Element root) {
+    StringBuilder sb = new StringBuilder();
+    appendElementSnapshot(root, sb);
+    return sb.toString();
+  }
+
+  private static void appendElementSnapshot(Element el, StringBuilder sb) {
+    var attrs = el.getAttributes();
+    for (int i = 0; i < attrs.getLength(); i++) {
+      sb.append(' ').append(attrs.item(i).getNodeName()).append('=');
+      sb.append('"').append(attrs.item(i).getNodeValue()).append('"');
+    }
+    NodeList children = el.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      var child = children.item(i);
+      if (child instanceof Element childEl) {
+        appendElementSnapshot(childEl, sb);
+      } else if (child.getNodeType() == org.w3c.dom.Node.TEXT_NODE
+          || child.getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE
+          || child.getNodeType() == org.w3c.dom.Node.COMMENT_NODE) {
+        sb.append(child.getNodeValue());
+      }
+    }
   }
 
   private static String columnValue(Element row, String columnName) {

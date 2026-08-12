@@ -724,7 +724,7 @@
 			(RXSITES, PSX_FOLDER, ACLs, editions, …) with no CT extension rows.
 			Without cmsTableDef, installSampleSites "succeeds" while never inserting
 			RXSITES (#3133 residual of #2989). Match legacy FastForward install:
-			sys_cmstableDef + RxffTableDef (see installFastForward.xml). -->
+			cmsTableDef + RxffTableDef (see installFastForward.xml). -->
 		<PSTableAction rootDir="${install.dir}"
 			repositoryLocation="${rxrepository.properties}"
 			tableFactoryLogFile="${install.dir}/rxconfig/Installer/tableFactory.log"
