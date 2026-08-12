@@ -36,7 +36,6 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
@@ -98,9 +97,10 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Set<PSDependency> childDeps = new HashSet<>();
 
     // get LOCAL state child dependencies
-    Iterator childIDs = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, workflowId);
+    Iterator<String> childIDs =
+        getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, workflowId);
     while (childIDs.hasNext()) {
-      String childId = (String) childIDs.next();
+      String childId = childIDs.next();
       PSPairDependencyId pairId = new PSPairDependencyId(childId);
       PSDependencyHandler handler =
           getDependencyHandler(PSStateDefDependencyHandler.DEPENDENCY_TYPE);
@@ -122,6 +122,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   // see base class
+  @Override
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -129,6 +130,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   // see base class
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -160,11 +162,13 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
           PSStateDefDependencyHandler.DEPENDENCY_TYPE, PSAclDefDependencyHandler.DEPENDENCY_TYPE);
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
+  @Override
   public void reserveNewId(PSDependency dep, PSIdMap idMap) throws PSDeployException {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
@@ -180,6 +184,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * Override the method from supper class, but this is to get the next id specifically for <code>
    * WORKFLOW_ID</code> in <code>WORKFLOW_TABLE</code>.
    */
+  @Override
   protected String getNextId(String table, PSDependency dep) throws PSDeployException {
     int id = PSDbmsHelper.getInstance().getNextIdInMemory(WORKFLOW_TABLE, WORKFLOW_ID, null, null);
 
@@ -187,7 +192,8 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -196,7 +202,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    List<PSDependencyFile> files = new ArrayList<PSDependencyFile>();
+    List<PSDependencyFile> files = new ArrayList<>();
 
     // retrieve data from all tables, add to the list if not empty
     for (int i = 0; i < TABLE_ENUM.length; i++) {
@@ -213,7 +219,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   // see base class
-
+  @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -224,7 +230,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
       throw new IllegalArgumentException("dep wrong type");
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
-    Map dataMap = getImportDataFromArchive(archive, dep);
+    Map<String, PSDependencyData> dataMap = getImportDataFromArchive(archive, dep);
 
     // get the target workflow id
     PSIdMapping wfMapping = getIdMapping(ctx, dep);
@@ -232,11 +238,10 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
 
     // reserve ids for various tables, since they are managed by this
     // handler only, not managed by the frame work.
-    Map rolesIdMap =
-        reserveIdsForTable(ROLE_ID, workflowId, (PSDependencyData) dataMap.get(ROLES_TABLE));
-    Map notifIdMap =
-        reserveIdsForTable(
-            NOTIFICATION_ID, workflowId, (PSDependencyData) dataMap.get(NOTIFICATIONS_TABLE));
+    Map<String, String> rolesIdMap =
+        reserveIdsForTable(ROLE_ID, workflowId, dataMap.get(ROLES_TABLE));
+    Map<String, String> notifIdMap =
+        reserveIdsForTable(NOTIFICATION_ID, workflowId, dataMap.get(NOTIFICATIONS_TABLE));
 
     // delete the rows which reference to the workflow dependency from
     // all database tables.
@@ -264,7 +269,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     }
 
     // update the version in dependency table data
-    PSDependencyData data = (PSDependencyData) dataMap.get(WORKFLOW_TABLE);
+    PSDependencyData data = dataMap.get(WORKFLOW_TABLE);
     PSJdbcTableData tableData = data.getData();
     tableData.updateColumn("VERSION", String.valueOf(version));
 
@@ -274,25 +279,25 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     // update(increment) the workflow version
     ms_wfService.updateWorkflowVersion(guid);
 
-    data = (PSDependencyData) dataMap.get(STATES_TABLE);
+    data = dataMap.get(STATES_TABLE);
     if (data != null) installDataToStatesTable(data, dep, ctx);
 
-    data = (PSDependencyData) dataMap.get(TRANSITIONS_TABLE);
+    data = dataMap.get(TRANSITIONS_TABLE);
     if (data != null) installDataToTnxTable(data, dep, ctx);
 
-    data = (PSDependencyData) dataMap.get(NOTIFICATIONS_TABLE);
+    data = dataMap.get(NOTIFICATIONS_TABLE);
     if (data != null) installDataToNotifTable(data, dep, ctx, notifIdMap);
 
-    data = (PSDependencyData) dataMap.get(ROLES_TABLE);
+    data = dataMap.get(ROLES_TABLE);
     if (data != null) installDataToRolesTable(data, dep, ctx, rolesIdMap);
 
-    data = (PSDependencyData) dataMap.get(STATEROLES_TABLE);
+    data = dataMap.get(STATEROLES_TABLE);
     if (data != null) installDataToStateRolesTable(data, dep, ctx, rolesIdMap);
 
-    data = (PSDependencyData) dataMap.get(TRANSITIONNOTIFICATIONS_TABLE);
+    data = dataMap.get(TRANSITIONNOTIFICATIONS_TABLE);
     if (data != null) installDataToTnxNotifTable(data, dep, ctx, notifIdMap);
 
-    data = (PSDependencyData) dataMap.get(TRANSITIONROLES_TABLE);
+    data = dataMap.get(TRANSITIONROLES_TABLE);
     if (data != null) installDataToTnxRolesTable(data, dep, ctx, rolesIdMap);
 
     // Ensure the Workflow Roles being installed are included in the
@@ -302,8 +307,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     workflow = ms_wfService.loadWorkflow(guid);
     List<PSWorkflowRole> wfRoles = workflow.getRoles();
     for (PSWorkflowRole wfRole : wfRoles) {
-      String wfRoleName = wfRole.getName();
-      PSBackEndRole ber = beRoleMgr.createRole(wfRoleName);
+      beRoleMgr.createRole(wfRole.getName());
     }
   }
 
@@ -321,7 +325,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -332,15 +336,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for STATE_ID, WORKFLOW_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
@@ -382,7 +386,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -396,15 +400,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSIdMapping> stateMappings = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for STATE_ID, WORKFLOW_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
@@ -426,9 +430,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSDbmsHelper.getInstance().processTable(schema, newData);
 
     // make sure state mappings are reset after update
-    Iterator mappings = stateMappings.iterator();
-    while (mappings.hasNext()) {
-      PSIdMapping mapping = (PSIdMapping) mappings.next();
+    for (PSIdMapping mapping : stateMappings) {
       mapping.setIsNewObject(false);
     }
 
@@ -497,7 +499,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -511,16 +513,16 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSIdMapping> transMappings = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for TRANSITION_ID, WORKFLOW_ID,
       // TRANSITIONFROMSTATE_ID, TRANSITIONTOSTATE_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
@@ -545,9 +547,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSDbmsHelper.getInstance().processTable(schema, newData);
 
     // make sure transition mappings are reset after update
-    Iterator mappings = transMappings.iterator();
-    while (mappings.hasNext()) {
-      PSIdMapping mapping = (PSIdMapping) mappings.next();
+    for (PSIdMapping mapping : transMappings) {
       mapping.setIsNewObject(false);
     }
 
@@ -573,12 +573,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToNotifTable(
-      PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx, Map notifDdMap)
+      PSDependencyData depData,
+      PSDependency wfDep,
+      PSImportCtx ctx,
+      Map<String, String> notifDdMap)
       throws PSDeployException {
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -590,20 +593,20 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for NOTIFICATION_ID and WORKFLOW_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
         } else if (colName.equalsIgnoreCase(NOTIFICATION_ID)) {
-          String newId = (String) notifDdMap.get(col.getValue());
+          String newId = notifDdMap.get(col.getValue());
           col.setValue(newId);
         }
 
@@ -641,12 +644,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToRolesTable(
-      PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx, Map rolesIdMap)
+      PSDependencyData depData,
+      PSDependency wfDep,
+      PSImportCtx ctx,
+      Map<String, String> rolesIdMap)
       throws PSDeployException {
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -658,20 +664,20 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for ROLE_ID and WORKFLOW_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
         } else if (colName.equalsIgnoreCase(ROLE_ID)) {
-          String newId = (String) rolesIdMap.get(col.getValue());
+          String newId = rolesIdMap.get(col.getValue());
           col.setValue(newId);
         }
 
@@ -709,12 +715,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToStateRolesTable(
-      PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx, Map rolesIdMap)
+      PSDependencyData depData,
+      PSDependency wfDep,
+      PSImportCtx ctx,
+      Map<String, String> rolesIdMap)
       throws PSDeployException {
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -726,20 +735,20 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for WORKFLOW_ID, STATE_ID and ROLE_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           if (wfMapping != null) col.setValue(wfMapping.getTargetId());
         } else if (colName.equalsIgnoreCase(ROLE_ID)) {
-          String newId = (String) rolesIdMap.get(col.getValue());
+          String newId = rolesIdMap.get(col.getValue());
           col.setValue(newId);
         } else if (colName.equalsIgnoreCase(STATE_ID)) {
           setStateIdCol(col, wfDep, ctx);
@@ -779,7 +788,10 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToTnxNotifTable(
-      PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx, Map notifIdMap)
+      PSDependencyData depData,
+      PSDependency wfDep,
+      PSImportCtx ctx,
+      Map<String, String> notifIdMap)
       throws PSDeployException {
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
@@ -787,9 +799,10 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
     String workflowId = (wfMapping == null) ? wfDep.getDependencyId() : wfMapping.getTargetId();
 
-    Map tnxNotifIdMap = reserveIdsForTable(TRANSITIONNOTIFICATION_ID, workflowId, depData);
+    Map<String, String> tnxNotifIdMap =
+        reserveIdsForTable(TRANSITIONNOTIFICATION_ID, workflowId, depData);
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -799,26 +812,26 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for WORKFLOW_ID, TRANSITIONNOTIFICATION_ID,
       // TRANSITION_ID and NOTIFICATION_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           col.setValue(workflowId);
         } else if (colName.equalsIgnoreCase(TRANSITIONNOTIFICATION_ID)) {
-          String newId = (String) tnxNotifIdMap.get(col.getValue());
+          String newId = tnxNotifIdMap.get(col.getValue());
           col.setValue(newId);
         } else if (colName.equalsIgnoreCase(TRANSITION_ID)) {
           setTransIdCol(col, wfDep, ctx);
         } else if (colName.equalsIgnoreCase(NOTIFICATION_ID)) {
-          String newId = (String) notifIdMap.get(col.getValue());
+          String newId = notifIdMap.get(col.getValue());
           col.setValue(newId);
         }
 
@@ -858,7 +871,10 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToTnxRolesTable(
-      PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx, Map rolesIdMap)
+      PSDependencyData depData,
+      PSDependency wfDep,
+      PSImportCtx ctx,
+      Map<String, String> rolesIdMap)
       throws PSDeployException {
     PSJdbcTableSchema schema = depData.getSchema();
     schema.setAllowSchemaChanges(false); // don't want to change the table!
@@ -866,7 +882,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
     String workflowId = (wfMapping == null) ? wfDep.getDependencyId() : wfMapping.getTargetId();
 
-    Iterator rows = depData.getData().getRows();
+    Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
     throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
@@ -876,23 +892,23 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
 
     while (rows.hasNext()) {
-      PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
+      PSJdbcRowData srcRow = rows.next();
 
       // walk the columns and build a new row, xform the ids as we go
       // xform the ids for WORKFLOW_ID, TRANSITIONROLE_ID,
       // TRANSITION_ID
 
       List<PSJdbcColumnData> tgtColList = new ArrayList<>();
-      Iterator srcCols = srcRow.getColumns();
+      Iterator<PSJdbcColumnData> srcCols = srcRow.getColumns();
       while (srcCols.hasNext()) {
-        PSJdbcColumnData col = (PSJdbcColumnData) srcCols.next();
+        PSJdbcColumnData col = srcCols.next();
         String colName = col.getName();
         if (colName.equalsIgnoreCase(WORKFLOW_ID)) {
           col.setValue(workflowId);
         } else if (colName.equalsIgnoreCase(TRANSITION_ID)) {
           setTransIdCol(col, wfDep, ctx);
         } else if (colName.equalsIgnoreCase(TRANSITIONROLE_ID)) {
-          String newId = (String) rolesIdMap.get(col.getValue());
+          String newId = rolesIdMap.get(col.getValue());
           col.setValue(newId);
         }
 
@@ -929,15 +945,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    *     <code>null</code> if <code>data</code> is <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
-  private Map reserveIdsForTable(String idCol, String workflowId, PSDependencyData depData)
-      throws PSDeployException {
+  private Map<String, String> reserveIdsForTable(
+      String idCol, String workflowId, PSDependencyData depData) throws PSDeployException {
     Map<String, String> idmap = null;
 
     if (depData != null) {
       PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
 
       PSJdbcTableData tblData = depData.getData();
-      List rows = PSDeployComponentUtils.cloneList(tblData.getRows());
+      List<PSJdbcRowData> rows = PSDeployComponentUtils.cloneList(tblData.getRows());
 
       int idBlockSize = rows.size();
       int[] ids =
@@ -947,7 +963,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
       String table = tblData.getName();
       idmap = new HashMap<>(idBlockSize);
       for (int i = 0; i < idBlockSize; i++) {
-        PSJdbcRowData row = (PSJdbcRowData) rows.get(i);
+        PSJdbcRowData row = rows.get(i);
         String oldId = dbmsHelper.getColumnString(table, idCol, row);
         idmap.put(oldId, Integer.toString(ids[i]));
       }
@@ -969,9 +985,9 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   private Map<String, PSDependencyData> getImportDataFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     Map<String, PSDependencyData> dataMap = new HashMap<>();
-    Iterator files = getDependecyDataFiles(archive, dep);
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
     while (files.hasNext()) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       PSDependencyData depData = getDepDataFromFile(archive, file);
       dataMap.put(depData.getData().getName(), depData);
     }
