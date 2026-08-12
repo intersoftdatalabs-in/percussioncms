@@ -43,6 +43,12 @@ describe("ViewsCatalogTree (#3116)", () => {
     expect(screen.getByTestId("explorer-views-group-4")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-views-leaf-MyPages")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-views-inbox")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-views-inbox-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-views-leaf-Inbox")).toHaveAttribute(
+      "data-cx-path",
+      "//Views//MyContent/Inbox",
+    );
     expect(screen.queryByTestId("explorer-views-leaf-View_All")).toBeNull();
 
     fireEvent.click(screen.getByTestId("explorer-views-group-3-row"));
@@ -81,5 +87,19 @@ describe("ViewsCatalogTree (#3116)", () => {
       expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument(),
     );
     expect(listViews).toHaveBeenCalledTimes(2);
+  });
+
+  it("always shows an Inbox leaf under My Content when catalog is empty (#3240)", async () => {
+    const { container } = render(
+      <ViewsCatalogTree listViews={async () => []} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("explorer-views-group-1")).toContainElement(
+      screen.getByTestId("explorer-views-leaf-Inbox"),
+    );
+    expect(screen.getByTestId("explorer-views-inbox-icon")).toBeInTheDocument();
+    await renderA11yGate(container);
   });
 });

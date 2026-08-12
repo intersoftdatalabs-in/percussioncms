@@ -1444,12 +1444,93 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
-  it("custom URL view leaf does not call execute (#3116)", async () => {
+  it("running Inbox POSTs view execute and shows results (#3240)", async () => {
     stubPathFetch();
     const listViews = vi.fn(async () => [
       {
         name: "Inbox",
         label: "Inbox",
+        parentCategory: 1,
+        customView: true,
+      },
+    ]);
+    const executeView = vi.fn(async () => ({
+      children: [
+        {
+          id: "88",
+          title: "Assigned page",
+          folderPath: "/Sites/Demo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+      viewName: "Inbox",
+    }));
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listViews={listViews}
+        executeView={executeView}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-Inbox"));
+    await waitFor(() => {
+      expect(executeView).toHaveBeenCalledWith("Inbox", {
+        startIndex: 1,
+        maxResults: 50,
+      });
+      expect(screen.getByTestId("explorer-view-results")).toBeInTheDocument();
+      expect(screen.getByTestId("explorer-view-results-list")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("explorer-view-open-88"));
+    fireEvent.click(screen.getByTestId("explorer-view-reveal-88"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-view-results")).toBeNull();
+    });
+    await renderA11yGate(container);
+  });
+
+  it("Inbox empty execute shows empty state (#3240)", async () => {
+    stubPathFetch();
+    const executeView = vi.fn(async () => ({
+      children: [],
+      totalCount: 0,
+      startIndex: 1,
+      viewName: "Inbox",
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listViews={async () => [
+          { name: "Inbox", label: "Inbox", parentCategory: 1, customView: true },
+        ]}
+        executeView={executeView}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-Inbox"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-view-results-empty")).toBeInTheDocument();
+    });
+    expect(executeView).toHaveBeenCalled();
+  });
+
+  it("other custom URL view leaf does not call execute (#3116 / #3240)", async () => {
+    stubPathFetch();
+    const listViews = vi.fn(async () => [
+      {
+        name: "Outbox",
+        label: "Outbox",
         parentCategory: 1,
         customView: true,
       },
@@ -1465,9 +1546,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument(),
+      expect(screen.getByTestId("explorer-views-leaf-Outbox")).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByTestId("explorer-views-leaf-Inbox"));
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-Outbox"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-view-results-error")).toBeInTheDocument();
     });

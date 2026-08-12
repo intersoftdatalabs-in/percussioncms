@@ -14,6 +14,9 @@ const TEST_IDS = Object.freeze({
   group: (n) => `explorer-views-group-${n}`,
   groupRow: (n) => `explorer-views-group-${n}-row`,
   leaf: (key) => `explorer-views-leaf-${key}`,
+  inbox: "explorer-views-inbox",
+  inboxLeaf: "explorer-views-leaf-Inbox",
+  inboxIcon: "explorer-views-inbox-icon",
   results: "explorer-view-results",
   resultsList: "explorer-view-results-list",
   resultsEmpty: "explorer-view-results-empty",
@@ -62,6 +65,17 @@ function isCustomUrlView(def) {
   return !!(def && def.customView === true);
 }
 
+function isInboxView(def) {
+  if (def == null || typeof def !== "object") return false;
+  const name = typeof def.name === "string" ? def.name.trim() : "";
+  const label = typeof def.label === "string" ? def.label.trim() : "";
+  if (name.toLowerCase() === "inbox" || label.toLowerCase() === "inbox") {
+    return true;
+  }
+  const key = viewDefKey(def).replace(/\\/g, "/");
+  return /\/\/Views\/\/MyContent\/Inbox$/i.test(key);
+}
+
 function pickRunnableView(defs) {
   const list = Array.isArray(defs) ? defs : [];
   return list.find((d) => viewDefKey(d) && !isCustomUrlView(d)) || null;
@@ -75,5 +89,6 @@ module.exports = {
   unwrapViewDefs,
   viewDefKey,
   isCustomUrlView,
+  isInboxView,
   pickRunnableView,
 };

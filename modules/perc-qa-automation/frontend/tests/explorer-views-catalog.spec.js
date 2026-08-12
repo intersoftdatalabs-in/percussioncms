@@ -16,7 +16,8 @@
  */
 
 /**
- * Explorer Views catalog tree smoke (#3116). Full Playwright surface is #3117.
+ * Explorer Views catalog tree smoke (#3116) + Inbox leaf (#3240).
+ * Full Playwright / gap-matrix Present remains #3241 / #3117.
  *
  *   npm run test:surface -- --path tests/explorer-views-catalog.spec.js
  */
@@ -61,6 +62,51 @@ test.describe("Explorer Views catalog tree (#3116)", () => {
     await expect(page.getByTestId(TEST_IDS.group(2))).toBeVisible();
     await expect(page.getByTestId(TEST_IDS.group(3))).toBeVisible();
     await expect(page.getByTestId(TEST_IDS.group(4))).toBeVisible();
+
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test("Views → My Content shows Inbox leaf and running it is not a no-op @views @explorer-inbox @explorer @smoke", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") return;
+      const text = msg.text();
+      if (/Failed to load resource: the server responded with a status of (404|400)/i.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.goto(explorerEntryUrl(BASE_URL), { waitUntil: "networkidle" });
+    await expect(page.getByTestId(TEST_IDS.shell)).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByTestId(TEST_IDS.group(1))).toBeVisible({
+      timeout: 20_000,
+    });
+    const inboxLeaf = page.getByTestId(TEST_IDS.inboxLeaf);
+    await expect(inboxLeaf).toBeVisible();
+    await expect(page.getByTestId(TEST_IDS.inboxIcon)).toBeVisible();
+    await expect(inboxLeaf).toHaveAttribute(
+      "data-cx-path",
+      "//Views//MyContent/Inbox",
+    );
+
+    await inboxLeaf.click();
+    await expect(page.getByTestId(TEST_IDS.results)).toBeVisible({
+      timeout: 20_000,
+    });
+    const unsupported = page.getByTestId(TEST_IDS.resultsError);
+    if (await unsupported.count()) {
+      await expect(unsupported).not.toContainText(
+        /Custom URL views cannot be run/i,
+      );
+    }
 
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });

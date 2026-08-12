@@ -104,7 +104,7 @@ import {
   navColumnStyle,
   shellStyle,
 } from "./styles";
-import { isCustomUrlView, viewKey, viewLabel } from "./viewCatalog";
+import { canExecuteView, viewKey, viewLabel } from "./viewCatalog";
 import { ViewResultsPanel, type ViewRunStatus } from "./ViewResultsPanel";
 import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
@@ -742,7 +742,7 @@ export function ContentExplorerShell({
         return;
       }
       setSelectedViewKey(key);
-      if (isCustomUrlView(view)) {
+      if (!canExecuteView(view)) {
         setViewRun({
           kind: "error",
           label,
@@ -770,8 +770,9 @@ export function ContentExplorerShell({
 
   const handleRetryView = useCallback(() => {
     if (viewRun == null) return;
-    // Retry last execute using the selected key + last label; custom
-    // views stay on the same unsupported message (no Inbox runner).
+    // Retry last execute using the selected key + last label. Inbox
+    // (custom URL) re-POSTs execute; other custom-URL views stay
+    // on the unsupported message.
     if (selectedViewKey) {
       void runSelectedView({
         name: selectedViewKey,

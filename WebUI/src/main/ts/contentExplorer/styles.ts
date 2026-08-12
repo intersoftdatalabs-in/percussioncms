@@ -118,6 +118,20 @@ export const nodeRowStyle = (
   fontSize: "0.9rem",
 });
 
+/** DCE-style Inbox glyph next to the My Content Inbox leaf (#3240). */
+export const inboxIconStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 14,
+  height: 14,
+  flex: "0 0 14px",
+  fontSize: 11,
+  lineHeight: "14px",
+  color: "#1a73e8",
+  userSelect: "none",
+};
+
 export const toggleStyle: CSSProperties = {
   display: "inline-block",
   width: 14,
