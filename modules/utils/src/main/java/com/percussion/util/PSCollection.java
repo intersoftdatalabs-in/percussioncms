@@ -16,6 +16,7 @@
  */
 package com.percussion.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -25,15 +26,20 @@ import java.util.Objects;
  * The PSCollection class is used to maintain a collection of objects. Objects can be added, changed
  * or removed from the collection. All objects in the collection must be of the same class.
  *
- * <p>Element type is {@link Object} at the list API surface (historical heterogeneous product use);
- * runtime membership is still enforced via {@link #m_memberClass}. Parameterized as {@code
- * PSConcurrentList<Object>} so callers and subclasses no longer sit on a raw concurrent list.
+ * <p>Parameterized as {@code PSConcurrentList<E>} so a typed collection is {@code List<E>} (and
+ * {@code iterator()} is {@code Iterator<E>}). Raw {@code PSCollection} (historical product
+ * subclasses such as {@code PSCollectionComponent}) stay a raw list, so covariant {@code
+ * iterator()} overrides remain legal. Do not lock the public type to {@code List<Object>} — that
+ * makes {@code Iterator<Specific>} incompatible with {@code List.iterator()}.
  *
+ * <p>Runtime membership is still enforced via {@link #m_memberClass}.
+ *
+ * @param <E> element type
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-public class PSCollection extends PSConcurrentList<Object> {
+public class PSCollection<E> extends PSConcurrentList<E> {
 
   /**
    * Serialization id. Parent {@link PSConcurrentList} owns list payload serialization; this class
@@ -47,8 +53,9 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @param className the name of the class which this collection's members must be or extend
    * @exception ClassNotFoundException if the specified class cannot be found
    */
+  @SuppressWarnings("unchecked")
   public PSCollection(String className) throws ClassNotFoundException {
-    this(Class.forName(className));
+    this((Class<? extends E>) Class.forName(className));
   }
 
   /**
@@ -56,7 +63,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    *
    * @param cl the class which this collection's members must be or extend
    */
-  public PSCollection(Class<?> cl) {
+  public PSCollection(Class<? extends E> cl) {
     m_memberClass = cl;
   }
 
@@ -67,8 +74,8 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @param cl the class which this collection's members must be or extend.
    * @param initialCapacity the initial capacity of the collection.
    */
-  public PSCollection(Class<?> cl, int initialCapacity) {
-    super(Object.class, initialCapacity);
+  public PSCollection(Class<? extends E> cl, int initialCapacity) {
+    super(cl, initialCapacity);
     m_memberClass = cl;
   }
 
@@ -79,15 +86,18 @@ public class PSCollection extends PSConcurrentList<Object> {
    *     type. May not be <code>null</code>.
    * @throws ClassCastException if all of the objects under the iterator are not of the same type.
    */
-  public PSCollection(Iterator<?> i) throws ClassCastException {
-    m_memberClass = null;
+  public PSCollection(Iterator<? extends E> i) throws ClassCastException {
+    this(snapshot(i));
+  }
 
-    while (i.hasNext()) {
-      Object o = i.next();
-      if (m_memberClass == null) m_memberClass = o.getClass();
-
-      super.add(o);
-    }
+  /**
+   * Secondary ctor so the iterator snapshot can be passed to {@link
+   * PSConcurrentList#PSConcurrentList(java.util.List)} without calling overridable {@code add}
+   * during construction (this-escape).
+   */
+  private PSCollection(Snapshot<E> snapshot) {
+    super(snapshot.items);
+    m_memberClass = snapshot.memberClass;
   }
 
   /** Default constructor needed for serialization. */
@@ -105,7 +115,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  public void add(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
+  public void add(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
     super.add(index, o);
@@ -121,7 +131,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  public boolean add(Object o) throws ClassCastException {
+  public boolean add(E o) throws ClassCastException {
     checkType(o);
 
     return super.add(o);
@@ -135,7 +145,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @param o the object to add to the collection
    * @throws ClassCastException if the object is not of the appropriate class
    */
-  public void addElement(Object o) throws ClassCastException {
+  public void addElement(E o) throws ClassCastException {
     add(o);
   }
 
@@ -149,7 +159,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  public boolean addAll(Collection<?> c)
+  public boolean addAll(Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
 
@@ -167,7 +177,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  public boolean addAll(int index, Collection<?> c)
+  public boolean addAll(int index, Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
 
@@ -186,7 +196,7 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  public Object set(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
+  public E set(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
     return super.set(index, o);
@@ -202,14 +212,14 @@ public class PSCollection extends PSConcurrentList<Object> {
    * @throws ArrayIndexOutOfBoundsException if index is out of range
    * @throws ClassCastException if the object is not of the appropriate class
    */
-  public void setElementAt(Object o, int index)
+  public void setElementAt(E o, int index)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
     set(index, o);
   }
 
-  public void insertElementAt(Object o, int i) {
+  public void insertElementAt(E o, int i) {
     this.add(i, o);
   }
 
@@ -234,7 +244,7 @@ public class PSCollection extends PSConcurrentList<Object> {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof PSCollection that)) return false;
+    if (!(o instanceof PSCollection<?> that)) return false;
     return Objects.equals(m_memberClass, that.m_memberClass);
   }
 
@@ -299,7 +309,7 @@ public class PSCollection extends PSConcurrentList<Object> {
     return copy;
   }
 
-  public Object lastElement() {
+  public E lastElement() {
     if (this.size() > 0) {
       return this.get(this.size() - 1);
     } else {
@@ -311,15 +321,38 @@ public class PSCollection extends PSConcurrentList<Object> {
     this.clear();
   }
 
-  public Object elementAt(int index) {
+  public E elementAt(int index) {
     return this.get(index);
   }
 
-  public Object firstElement() {
+  public E firstElement() {
     if (this.size() > 0) return this.get(0);
     else throw new NoSuchElementException();
   }
 
   /** The one and only valid class type for this collection. */
   private Class<?> m_memberClass;
+
+  private static <T> Snapshot<T> snapshot(Iterator<? extends T> i) {
+    ArrayList<T> items = new ArrayList<>();
+    Class<?> member = null;
+    while (i.hasNext()) {
+      T o = i.next();
+      if (member == null) {
+        member = o.getClass();
+      }
+      items.add(o);
+    }
+    return new Snapshot<>(member, items);
+  }
+
+  private static final class Snapshot<T> {
+    private final Class<?> memberClass;
+    private final ArrayList<T> items;
+
+    private Snapshot(Class<?> memberClass, ArrayList<T> items) {
+      this.memberClass = memberClass;
+      this.items = items;
+    }
+  }
 }
