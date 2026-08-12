@@ -7,7 +7,7 @@
 
 ## Summary
 
-Nightshift workflow: (1) remove `dry_run`; (2) gate human QA assignment on a quality bar and fix L2 override leak; (3) add **Cycle verify** after Security so Maven/Playwright failures become next-cycle p1 leads instead of dumping unready work on human QA.
+Nightshift workflow: (1) remove `dry_run`; (2) gate human QA assignment on a quality bar and fix L2 override leak; (3) add **Cycle verify** after Security so Maven/Playwright failures become next-cycle p1 leads instead of dumping unready work on human QA; (4) **Human QA phase after Cycle verify** — Work never assigns humans (Q8 = cycle verify did not fail the PR).
 
 Smoke check (`workflow validate_only name=night-issue-prs args={"max_issues":1}`) passed.
 

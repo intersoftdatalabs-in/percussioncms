@@ -18,9 +18,10 @@ Unattended overnight worker:
 8. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
 9. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
 10. **Cycle verify** (optional, default on) - Maven clean install of this-run modules + H2 `qa-up` Playwright. Failures become unassigned **p1** `[night-issues: Cycle Verify]` residuals that **lead the next cycle**. Never assigns human QA.  
-11. **Report** -> `scratch/night-report.md`
+11. **Human QA** (optional, default on) - **only after Cycle verify**. Create a **`qa task`** and assign **`vijaya-boddipudi`** only if Q1–Q8 pass. Work and Cycle verify never assign humans.  
+12. **Report** -> `scratch/night-report.md`
 
-**Human QA handoff (during Work, default on):** when a task is **ready for human QA**, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR.
+**Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
 
 **Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
 
@@ -205,7 +206,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
-| `include_human_qa` | bool | `true` | When Work item is ready for human QA, create a QA issue with test plan and assign designated QA. **Must also gate lifecycle L2** — passing `false` used to be overridden by a later HARD “create QA issue” rule. Pause UAT: `include_human_qa: false` |
+| `include_human_qa` | bool | `true` | **After Cycle verify only:** create a QA issue and assign designated QA when Q1–Q8 pass. Work never assigns. Pause UAT: `include_human_qa: false` |
 | `qa_assignee` | string | `vijaya-boddipudi` | GitHub login for human QA handoff |
 | `qa_label` | string | `qa task` | Label applied to human QA issues |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
@@ -214,11 +215,13 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 ### Human QA handoff
 
+**When:** after Cycle verify only. Work, POST, cluster, Security, and Cycle verify **must not** assign any human.
+
 **Assignment means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
 
 `pr_opened` + UI/install is only a **candidate**. Do **not** assign because the agent could not prove the fix — that is agent failure, not QA intake.
 
-Quality bar (all required before create **or** assign):
+Quality bar (all required before create **or** assign). Evaluated **after Cycle verify**:
 
 | Gate | Required |
 |------|----------|
@@ -229,6 +232,7 @@ Quality bar (all required before create **or** assign):
 | **Q5** | UI: C5 with **commands** in the PR body (not a self-claim) |
 | **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break) |
 | **Q7** | No overlapping open QA ticket for the same surface |
+| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `failed` / `skipped_budget` / agent failed: assign **nobody**. If `failures_filed`: do not assign PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 is N/A (still require Q1–Q7) |
 
 If any Q fails: **no QA issue, no assignee.** Leave the PR open; comment `qa_deferred_quality`.
 
@@ -247,7 +251,7 @@ Human QA issues are handoff work (assigned), not unassigned residual implement s
 | Situation | Required action |
 |-----------|-----------------|
 | Work complete, **no** open children / residuals / QA issues, **no** remaining steps | **Close** the issue (comment + reason + PR/child links). Do **not** leave it open “for tracking.” |
-| Candidate for human QA | **Only if `include_human_qa=true` AND quality bar Q1–Q7 pass:** create QA issue, assign `qa_assignee`. Otherwise do **not** create or assign; open PR + `qa_deferred_quality` is enough |
+| Candidate for human QA | **Work:** record candidacy only — never assign. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue and assign `qa_assignee`. Otherwise do **not** create or assign; open PR + `qa_deferred_quality` is enough |
 | Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
 | Open children or open QA or active linked PRs | **Do not close** the parent |
 
@@ -274,7 +278,7 @@ Playbook: `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`.
 
 ### Cycle verify (after Security — next-cycle leads)
 
-Runs **after** Security audit. This is the quality gate that replaced dumping unready work on human QA.
+Runs **after** Security audit and **before** Human QA. This is the quality gate that replaced dumping unready work on humans.
 
 | Rule | Behavior |
 |------|----------|
@@ -330,9 +334,10 @@ Rough agent use:
 | PR cluster | 0-1 |
 | Security audit | 0-1 |
 | Cycle verify | 0-1 |
+| Human QA | 0-1 |
 | Report | 1 |
 
-**3 issues + dual PR follow-up + peer review + security + cycle verify ~ 11 agents.** Default 128 is plenty.
+**3 issues + dual PR follow-up + peer review + security + cycle verify + human QA ~ 12 agents.** Default 128 is plenty.
 
 ```text
 # Security audit heavy night (many open CodeQL alerts)
