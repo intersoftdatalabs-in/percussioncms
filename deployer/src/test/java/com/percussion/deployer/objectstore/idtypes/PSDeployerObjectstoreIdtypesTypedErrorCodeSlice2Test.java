@@ -92,4 +92,84 @@ public class PSDeployerObjectstoreIdtypesTypedErrorCodeSlice2Test {
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, ex.getTypedErrorCode());
   }
+
+  @Test
+  public void namedItemWrongRootUsesTypedWrongType() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element wrong = PSXmlDocumentBuilder.createRoot(doc, "NotNamedItemIdContext");
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> new PSAppNamedItemIdContext(wrong));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  public void conditionalWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppConditionalIdContext(wrong));
+  }
+
+  @Test
+  public void dataMappingWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppDataMappingIdContext(wrong));
+  }
+
+  @Test
+  public void displayMapperWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppDisplayMapperIdContext(wrong));
+  }
+
+  @Test
+  public void entryWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppEntryIdContext(wrong));
+  }
+
+  @Test
+  public void extensionCallWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppExtensionCallIdContext(wrong));
+  }
+
+  @Test
+  public void extensionParamWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppExtensionParamIdContext(wrong));
+  }
+
+  @Test
+  public void indexedItemWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppIndexedItemIdContext(wrong));
+  }
+
+  @Test
+  public void urlRequestWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSAppUrlRequestIdContext(wrong));
+  }
+
+  @Test
+  public void bindingWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSBindingIdContext(wrong));
+  }
+
+  @Test
+  public void bindingParamWrongRootUsesTypedWrongType() throws Exception {
+    assertWrongRootTyped(wrong -> new PSBindingParamIdContext(wrong));
+  }
+
+  /**
+   * Wrong-root path for each remaining idtypes context: constructor must throw typed {@link
+   * ObjectStoreErrorCodes#XML_ELEMENT_WRONG_TYPE}, not a bare int code.
+   */
+  private static void assertWrongRootTyped(XmlCtor ctor) throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element wrong = PSXmlDocumentBuilder.createRoot(doc, "NotAnIdtypesContextRoot");
+    PSUnknownNodeTypeException ex =
+        assertThrows(PSUnknownNodeTypeException.class, () -> ctor.construct(wrong));
+    assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
+    assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @FunctionalInterface
+  private interface XmlCtor {
+    void construct(Element el) throws PSUnknownNodeTypeException;
+  }
 }
