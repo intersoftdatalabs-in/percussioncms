@@ -125,11 +125,24 @@ describe("path-based SPA URLs (PR-9)", () => {
     expect(parseClientPath("/home/gadgets").entry).toBe("home");
     expect(parseClientPath("/home/gadgets").section).toBe("gadgets");
     expect(parseClientPath("/publish/logs", "?siteId=s1").siteId).toBe("s1");
+    // Legacy /workflow/* still parses, client path folds into Admin (#3088)
     expect(parseClientPath("/workflow/users").tab).toBe("users");
+    expect(parseClientPath("/workflow/users").clientPath).toBe("/admin/users");
     expect(parseClientPath("/admin/tools").clientPath).toBe("/admin/tools");
+    expect(parseClientPath("/admin/roles").tab).toBe("roles");
     expect(
       parseClientPath("/explorer", "?path=/Sites/demo").path,
     ).toBe("/Sites/demo");
+  });
+
+  it("workflow entry maps to unified Admin client paths (#3088)", () => {
+    expect(parseEntryQuery("?entry=workflow").clientPath).toBe(
+      "/admin/workflow",
+    );
+    expect(parseEntryQuery("?entry=workflow&tab=roles").clientPath).toBe(
+      "/admin/roles",
+    );
+    expect(parseEntryQuery("?entry=workflow&tab=roles").tab).toBe("roles");
   });
 
   it("resolveSpaReturnFromLocation prefers query then path", () => {

@@ -10,18 +10,17 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /**
- * Top navigation restructure (#2702 / #2784 / #2953):
+ * Top navigation restructure (#2702 / #2784 / #2953 / #3088):
  * - Dashboard removed from SPA top chrome
  * - Explorer immediately after Home
- * - Single consolidated Admin (no separate Administration + Admin tools)
- * - Admin lands on working Admin tools shell (/admin); Workflow via sibling
- * - Admin tools shell title + Administration sibling; /workflow → Admin tools sibling
+ * - Single consolidated Admin (no separate Administration + Admin tools shells)
+ * - Admin lands on unified Admin shell (/admin); workflow/roles/users/categories
+ *   are in-shell tabs (sibling chrome removed in #3088)
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/top-nav-restructure.spec.js
@@ -77,7 +76,7 @@ test.describe("Top nav restructure (#2702)", () => {
     });
     expect(adjacency).toBe(true);
 
-    // Consolidated Admin lands on working Admin tools shell (#2784 / #2953)
+    // Consolidated Admin lands on unified Admin shell (#2784 / #3088)
     await admin.click();
     await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
       timeout: 30_000,
@@ -85,21 +84,20 @@ test.describe("Top nav restructure (#2702)", () => {
     await expect(page.getByTestId("perc-admin-shell-title")).toContainText(
       /Admin tools/i,
     );
-    // Workflow administration still reachable from Admin tools sibling link
-    const workflowLink = page.getByTestId("admin-sibling-workflow-link");
-    await expect(workflowLink).toBeVisible();
-    await expect(workflowLink).toContainText(/Administration/i);
-    await workflowLink.click();
-    await expect(page.getByTestId("perc-workflow-admin-shell")).toBeVisible({
+    // No sibling cross-links; workflow is an Admin tab (#3088)
+    await expect(page.getByTestId("admin-sibling-workflow-link")).toHaveCount(0);
+    await expect(page.getByTestId("admin-sibling-tools-link")).toHaveCount(0);
+    await expect(page.getByTestId("tab-workflow")).toBeVisible();
+    await expect(page.getByTestId("tab-roles")).toBeVisible();
+    await expect(page.getByTestId("tab-users")).toBeVisible();
+    await expect(page.getByTestId("tab-categories")).toBeVisible();
+
+    await page.getByTestId("tab-workflow").click();
+    await expect(page.getByTestId("perc-workflow-section")).toBeVisible({
       timeout: 30_000,
     });
-    // Deep-linked Administration surface must offer Admin tools sibling (#2953)
-    const toolsLink = page.getByTestId("admin-sibling-tools-link");
-    await expect(toolsLink).toBeVisible();
-    await expect(toolsLink).toContainText(/Admin tools/i);
-    await toolsLink.click();
-    await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
-      timeout: 30_000,
-    });
+    // Still one Admin shell (no WorkflowAdminShell product chrome)
+    await expect(page.getByTestId("perc-admin-shell")).toBeVisible();
+    await expect(page.getByTestId("perc-workflow-admin-shell")).toHaveCount(0);
   });
 });

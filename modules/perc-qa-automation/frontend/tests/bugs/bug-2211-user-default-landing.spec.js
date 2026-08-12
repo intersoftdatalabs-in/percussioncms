@@ -1,9 +1,11 @@
 /**
  * Issue #2211 / parent #959 slice 4 — Admin Users default landing control.
  *
- * WebUI product screen companion (Workflow Admin → Users tab → user editor).
+ * WebUI product screen companion (Admin → Users tab → user editor).
  * Verifies the select is present, options load, and saving clears/sets
  * override when the slice-2 homepage API is available.
+ *
+ * #3088: Users live under unified AdminShell (not sibling Workflow shell).
  *
  * Tags: @webui @admin @users @landing
  */
@@ -18,10 +20,10 @@ test.describe("Admin Users default landing page (#2211)", () => {
   test("Users tab exposes default landing control on edit", async ({
     page,
   }) => {
-    // SPA workflow admin hosts Users section
+    // SPA Admin hosts Users section (legacy view=workflow redirects here)
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
-    const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
+    const shell = page.locator("[data-testid='perc-admin-shell']");
     await expect(shell).toBeVisible({ timeout: 30000 });
 
     const usersTab = page.locator("[data-testid='tab-users']");

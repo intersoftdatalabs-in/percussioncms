@@ -14,16 +14,25 @@ day-two server operations.
 
 ## Product Admin navigation (SPA)
 
-The top navigation exposes a **single Admin** item for administrators:
+The top navigation exposes a **single Admin** item for administrators. Admin opens one
+unified **Admin** product shell with tabs for:
 
-1. **Admin** opens the **Admin tools** shell (scheduled tasks, execution logs, notification
-   settings, and system tools such as the security audit log and consistency checker).
-2. From Admin tools, use the **Administration** sibling link (page header, right side) to open
-   workflow / users / roles / categories administration.
-3. From Administration, use the **Admin tools** sibling link to return to the tools shell.
+| Tab | Purpose |
+|-----|---------|
+| Scheduled Tasks | Create and run scheduled CMS tasks |
+| Execution Logs | Review task run history |
+| Notification Settings | Task email notification templates |
+| System Tools | Security audit log, consistency checker |
+| Workflow | Workflow definitions and site/folder assignment |
+| Roles | Role membership |
+| Users | User accounts and default landing |
+| Categories | Category tree administration |
 
-There are no separate top-nav entries for Administration and Admin tools. Both surfaces share
-the consolidated Admin highlight in the top bar.
+Legacy bookmarks and deep links under `/workflow` and `/workflow/:tab` redirect into the
+matching Admin tab (for example `/admin/workflow`, `/admin/roles`). There is no separate
+Workflow administration shell or sibling cross-link between Admin tools and Administration.
+
+Non-administrators never see the Admin top-nav item or these configuration surfaces.
 
 ## Topics
 

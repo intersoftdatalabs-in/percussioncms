@@ -94,12 +94,18 @@ describe("TopNav (#2702)", () => {
     expect(screen.getByTestId("nav-explorer")).toBeTruthy();
   });
 
-  it("marks Admin active on admin-tools and workflow routes", () => {
+  it("marks Admin active on admin-tools, workflow tabs, and legacy /workflow", () => {
     const { unmount } = renderNav("/cm/app/admin/tools");
     expect(screen.getByTestId("nav-admin").getAttribute("data-nav-active")).toBe(
       "true",
     );
     unmount();
+    const { unmount: unmountRoles } = renderNav("/cm/app/admin/roles");
+    expect(screen.getByTestId("nav-admin").getAttribute("data-nav-active")).toBe(
+      "true",
+    );
+    unmountRoles();
+    // Legacy path still highlights Admin while redirect resolves (#3088)
     renderNav("/cm/app/workflow/roles");
     expect(screen.getByTestId("nav-admin").getAttribute("data-nav-active")).toBe(
       "true",

@@ -15,34 +15,26 @@
  * limitations under the License.
  */
 
-import React, { lazy } from "react";
-import { useParams } from "react-router";
-import { loadComponent } from "../../registry";
-import { LazyRouteFrame } from "./RouteErrorBoundary";
+import React from "react";
+import { Navigate, useParams } from "react-router";
 import { RequireRole } from "./RequireRole";
-
-const WorkflowAdminShellLazy = lazy(() =>
-  loadComponent("WorkflowAdminShell").then((C) => ({ default: C })),
-);
+import { normalizeWorkflowTab } from "../deepLinks/allowlists";
 
 /**
- * SPA Administration (workflow) route — Admin only.
+ * Legacy SPA Administration (workflow) routes — Admin only.
+ *
+ * <p>#3088: {@code /workflow} and {@code /workflow/:tab} redirect into the
+ * unified Admin shell ({@code /admin/workflow}, {@code /admin/roles}, …)
+ * so bookmarks and docs keep working without a sibling product chrome.</p>
  */
 export function WorkflowRoute(): React.ReactElement {
   const { tab } = useParams();
+  const normalized = normalizeWorkflowTab(tab) ?? "workflow";
+  const target = `/admin/${normalized}`;
 
   return (
     <RequireRole gate="admin">
-      <LazyRouteFrame
-        label="Administration"
-        fallback={
-          <div data-testid="route-workflow-loading" style={{ padding: "1.5rem" }}>
-            Loading Administration…
-          </div>
-        }
-      >
-        <WorkflowAdminShellLazy embedded initialTab={tab} />
-      </LazyRouteFrame>
+      <Navigate to={target} replace />
     </RequireRole>
   );
 }

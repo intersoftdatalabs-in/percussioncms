@@ -79,7 +79,21 @@ export const WORKFLOW_TABS = [
 
 export type WorkflowTab = (typeof WORKFLOW_TABS)[number];
 
-export const ADMIN_TABS = ["tasks", "logs", "notifications", "tools"] as const;
+/**
+ * Unified Admin shell tabs (#3088). Includes former Workflow administration
+ * surfaces (workflow / roles / users / categories) so deep links and path
+ * segments share one product area under {@code /admin/*}.
+ */
+export const ADMIN_TABS = [
+  "tasks",
+  "logs",
+  "notifications",
+  "tools",
+  "workflow",
+  "roles",
+  "users",
+  "categories",
+] as const;
 
 export type AdminTab = (typeof ADMIN_TABS)[number];
 

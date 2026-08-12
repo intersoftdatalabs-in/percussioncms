@@ -227,8 +227,11 @@
         else if ("dash".equals(view))
             // PR-7: former peer dashboard → Home gadgets (not spa entry=dashboard)
             entry = "home";
+        else if ("workflow".equals(view))
+            // #3088: fold legacy Workflow admin view into unified Admin shell
+            entry = "admin";
         else if ("home".equals(view) || "publish".equals(view)
-                || "workflow".equals(view) || "admin".equals(view)
+                || "admin".equals(view)
                 || "developer".equals(view))
             entry = view;
         else
@@ -269,13 +272,15 @@
         }
         else if ("workflow".equals(view))
         {
+            // Map to Admin tab; default Workflow tab when no tab query
             String tab = firstAllowlisted(
                     request.getParameter("tab"),
                     request.getParameter("section"),
                     WORKFLOW_TABS,
                     null);
-            if (tab != null)
-                qs.append("&tab=").append(URLEncoder.encode(tab, "UTF-8"));
+            if (tab == null)
+                tab = "workflow";
+            qs.append("&tab=").append(URLEncoder.encode(tab, "UTF-8"));
         }
         else if ("admin".equals(view))
         {
@@ -666,8 +671,10 @@
     private static final String[] WORKFLOW_TABS = new String[]{
             "workflow", "roles", "users", "categories"
     };
+    /** Unified Admin shell tabs (#3088) — includes former Workflow admin tabs. */
     private static final String[] ADMIN_TABS = new String[]{
-            "tasks", "logs", "notifications", "tools"
+            "tasks", "logs", "notifications", "tools",
+            "workflow", "roles", "users", "categories"
     };
     private static final String[] DEVELOPER_SECTIONS = new String[]{
             "content-types", "templates", "slots", "keywords", "communities", "pipelines"

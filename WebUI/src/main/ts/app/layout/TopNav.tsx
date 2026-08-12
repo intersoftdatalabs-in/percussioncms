@@ -153,8 +153,8 @@ export function TopNav(): React.ReactElement {
                 </li>
               );
             case "admin":
-              // Consolidated Administration + Admin tools entry (#2702 / #2784).
-              // Landing: working Admin tools shell; /workflow remains deep-linked.
+              // Consolidated Admin entry (#2702 / #2784 / #3088).
+              // Landing: unified Admin shell; legacy /workflow* redirects into /admin*.
               return (
                 <li key={id}>
                   <NavLink

@@ -89,9 +89,12 @@ describe("ADMIN_NAV_LANDING (#2784)", () => {
 });
 
 describe("isAdminNavPath", () => {
-  it("marks admin-tools and workflow SPA paths as Admin-active", () => {
+  it("marks unified Admin shell and legacy workflow redirect paths as Admin-active (#3088)", () => {
     expect(isAdminNavPath("/admin")).toBe(true);
     expect(isAdminNavPath("/admin/tools")).toBe(true);
+    expect(isAdminNavPath("/admin/workflow")).toBe(true);
+    expect(isAdminNavPath("/admin/roles")).toBe(true);
+    // Legacy /workflow* still active while redirect resolves
     expect(isAdminNavPath("/workflow")).toBe(true);
     expect(isAdminNavPath("/workflow/roles")).toBe(true);
     expect(isAdminNavPath("/home")).toBe(false);

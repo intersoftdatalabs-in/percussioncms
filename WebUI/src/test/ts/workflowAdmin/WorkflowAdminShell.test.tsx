@@ -15,73 +15,55 @@
  */
 
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
-import { describe, expect, it, vi } from "vitest";
-import { WorkflowAdminShell } from "../../../main/ts/workflowAdmin/WorkflowAdminShell";
+import { render } from "@testing-library/react";
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router";
+import { describe, expect, it } from "vitest";
+import {
+  normalizeWorkflowAdminTab,
+  WorkflowAdminShell,
+} from "../../../main/ts/workflowAdmin/WorkflowAdminShell";
 
-// Mock child components
-vi.mock("../../../main/ts/workflowAdmin/workflow/WorkflowSection", () => ({
-  WorkflowSection: () => <div data-testid="mock-workflow-section">Workflow Content</div>,
-}));
+function LocationProbe(): React.ReactElement {
+  const loc = useLocation();
+  return <div data-testid="location-pathname">{loc.pathname}</div>;
+}
 
-vi.mock("../../../main/ts/workflowAdmin/role/RolesSection", () => ({
-  RolesSection: () => <div data-testid="perc-roles-section">Roles Content</div>,
-}));
-
-vi.mock("../../../main/ts/workflowAdmin/user/UsersSection", () => ({
-  UsersSection: () => <div data-testid="perc-users-section">Users Content</div>,
-}));
-
-vi.mock("../../../main/ts/workflowAdmin/category/CategoriesSection", () => ({
-  CategoriesSection: () => <div data-testid="perc-categories-section">Categories Content</div>,
-}));
-
-function renderShell(ui: React.ReactElement) {
+function renderRedirect(initialTab?: string) {
   return render(
     <MemoryRouter basename="/cm/app" initialEntries={["/cm/app/workflow"]}>
-      {ui}
+      <Routes>
+        <Route
+          path="/workflow"
+          element={<WorkflowAdminShell initialTab={initialTab} />}
+        />
+        <Route path="/admin/:tab" element={<LocationProbe />} />
+        <Route path="/admin" element={<LocationProbe />} />
+      </Routes>
     </MemoryRouter>,
   );
 }
 
 describe("WorkflowAdminShell", () => {
-  it("renders shell title and Admin tools sibling (#2953)", () => {
-    renderShell(<WorkflowAdminShell />);
-    expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
-    expect(screen.getByTestId("mock-workflow-section")).toBeTruthy();
-    expect(screen.getByTestId("perc-workflow-admin-shell-title")).toBeTruthy();
-    const sibling = screen.getByTestId("admin-sibling-tools-link");
-    expect(sibling).toBeTruthy();
-    expect(sibling.textContent).toMatch(/Admin tools/i);
-    const href = sibling.getAttribute("href") || "";
-    expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
+  it("is redirect-only into unified Admin paths (#3088)", () => {
+    const { getByTestId } = renderRedirect();
+    expect(getByTestId("location-pathname").textContent).toBe(
+      "/admin/workflow",
+    );
   });
 
-  it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
-    renderShell(<WorkflowAdminShell />);
-    const shell = screen.getByTestId("perc-workflow-admin-shell");
-    const tablist = screen.getByTestId("perc-workflow-admin-tablist");
-    expect(tablist.getAttribute("role")).toBe("tablist");
-    expect(tablist.className.length).toBeGreaterThan(0);
-    expect(shell.className.length).toBeGreaterThan(0);
+  it("maps initialTab to Admin tab path", () => {
+    const { getByTestId } = renderRedirect("roles");
+    expect(getByTestId("location-pathname").textContent).toBe("/admin/roles");
   });
 
-  it("switches tabs when nav buttons are clicked", () => {
-    renderShell(<WorkflowAdminShell />);
-
-    const rolesTab = screen.getByTestId("tab-roles");
-    fireEvent.click(rolesTab);
-    expect(screen.getByTestId("perc-roles-section")).toBeTruthy();
-    expect(screen.queryByTestId("mock-workflow-section")).toBeNull();
-
-    const usersTab = screen.getByTestId("tab-users");
-    fireEvent.click(usersTab);
-    expect(screen.getByTestId("perc-users-section")).toBeTruthy();
-
-    const catTab = screen.getByTestId("tab-categories");
-    fireEvent.click(catTab);
-    expect(screen.getByTestId("perc-categories-section")).toBeTruthy();
+  it("normalizeWorkflowAdminTab defaults and validates", () => {
+    expect(normalizeWorkflowAdminTab(undefined)).toBe("workflow");
+    expect(normalizeWorkflowAdminTab("users")).toBe("users");
+    expect(normalizeWorkflowAdminTab("nope")).toBe("workflow");
   });
 });
-
