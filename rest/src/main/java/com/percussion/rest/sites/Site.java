@@ -17,13 +17,25 @@
 
 package com.percussion.rest.sites;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents a Site in Percussion CMS. Sunny Sal: "Site ka hero, URL ka zero!" */
+/**
+ * Represents a Site in Percussion CMS. Sunny Sal: "Site ka hero, URL ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON always emits {@code
+ * name}, {@code description}, {@code baseUrl}, and {@code guid} when set. Optional-returning
+ * getters historically dropped those fields (or serialized Optional beans) under WRAP_ROOT_VALUE
+ * when the mapper did not unwrap {@code Optional}, leaving Developer Sites with a 200 list payload
+ * and zero named rows (#3198). Matches {@link com.percussion.rest.contenttypes.ContentType} getter
+ * style (issue #1693).
+ */
 @XmlRootElement(name = "Site")
+@JsonRootName("Site")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "Site")
 public class Site {
 
@@ -66,32 +78,32 @@ public class Site {
     // Default constructor
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getBaseUrl() {
-    return Optional.ofNullable(baseUrl);
+  public String getBaseUrl() {
+    return baseUrl;
   }
 
   public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
 
-  public Optional<String> getDefaultFileExtention() {
-    return Optional.ofNullable(defaultFileExtention);
+  public String getDefaultFileExtention() {
+    return defaultFileExtention;
   }
 
   public void setDefaultFileExtention(String defaultFileExtention) {
@@ -130,48 +142,48 @@ public class Site {
     this.overrideSystemJQueryUI = overrideSystemJQueryUI;
   }
 
-  public Optional<String> getSiteAdditionalHeadContent() {
-    return Optional.ofNullable(siteAdditionalHeadContent);
+  public String getSiteAdditionalHeadContent() {
+    return siteAdditionalHeadContent;
   }
 
   public void setSiteAdditionalHeadContent(String siteAdditionalHeadContent) {
     this.siteAdditionalHeadContent = siteAdditionalHeadContent;
   }
 
-  public Optional<String> getSiteBeforeBodyCloseContent() {
-    return Optional.ofNullable(siteBeforeBodyCloseContent);
+  public String getSiteBeforeBodyCloseContent() {
+    return siteBeforeBodyCloseContent;
   }
 
   public void setSiteBeforeBodyCloseContent(String siteBeforeBodyCloseContent) {
     this.siteBeforeBodyCloseContent = siteBeforeBodyCloseContent;
   }
 
-  public Optional<String> getSiteAfterBodyOpenContent() {
-    return Optional.ofNullable(siteAfterBodyOpenContent);
+  public String getSiteAfterBodyOpenContent() {
+    return siteAfterBodyOpenContent;
   }
 
   public void setSiteAfterBodyOpenContent(String siteAfterBodyOpenContent) {
     this.siteAfterBodyOpenContent = siteAfterBodyOpenContent;
   }
 
-  public Optional<String> getSiteProtocol() {
-    return Optional.ofNullable(siteProtocol);
+  public String getSiteProtocol() {
+    return siteProtocol;
   }
 
   public void setSiteProtocol(String siteProtocol) {
     this.siteProtocol = siteProtocol;
   }
 
-  public Optional<String> getDefaultDocument() {
-    return Optional.ofNullable(defaultDocument);
+  public String getDefaultDocument() {
+    return defaultDocument;
   }
 
   public void setDefaultDocument(String defaultDocument) {
     this.defaultDocument = defaultDocument;
   }
 
-  public Optional<String> getCanonicalDist() {
-    return Optional.ofNullable(canonicalDist);
+  public String getCanonicalDist() {
+    return canonicalDist;
   }
 
   public void setCanonicalDist(String canonicalDist) {
@@ -194,16 +206,16 @@ public class Site {
     this.pageBasedSite = pageBasedSite;
   }
 
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
-  public Optional<VirtualSiteProperties> getVirtual() {
-    return Optional.ofNullable(virtual);
+  public VirtualSiteProperties getVirtual() {
+    return virtual;
   }
 
   public void setVirtual(VirtualSiteProperties virtual) {

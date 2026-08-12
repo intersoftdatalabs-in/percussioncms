@@ -66,6 +66,21 @@ and Markdown tooling, not the classic page editor.
 Invalid combinations (unknown source kind, missing root, unsafe path, config path traversal) are
 rejected by server validation with clear error messages.
 
+### Browse Sites in Developer
+
+**Developer → Sites** lists **all** CMS Sites from `GET /services/sites` (traditional repository
+Sites, CM1 page-based Sites, and Virtual Sites). Sample / demo Sites appear when they exist on
+the server (for example after **Install sample sites**).
+
+1. Sign in as an administrator (or a role that can open **Developer**).
+2. Open **Developer** → **Sites** (SPA entry `spa.jsp?entry=developer&section=sites`).
+3. Confirm the catalog table shows site **name**, **description**, **base URL**, and flags.
+4. Choose a row to open **Site detail** (URL defaults and Virtual Site source).
+
+Empty state (**No sites returned**) appears only when the list API has **zero** Sites. A
+successful HTTP 200 with Site entries must populate the table (never a silent blank). Load
+failures show **Could not load sites** rather than the empty state.
+
 ### Configure Virtual Site source in the product UI
 
 1. Sign in as an administrator (or a role that can open **Developer**).

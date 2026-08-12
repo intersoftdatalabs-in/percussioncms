@@ -114,9 +114,9 @@ class SitesAdaptorTest {
 
     Site out = adaptor.findByName("Help");
     assertNotNull(out);
-    assertEquals("Help", out.getName().orElse(null));
-    assertTrue(out.getVirtual().isPresent());
-    assertTrue(Boolean.TRUE.equals(out.getVirtual().get().getVirtual()));
+    assertEquals("Help", out.getName());
+    assertTrue(out.getVirtual() != null);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual().getVirtual()));
   }
 
   @Test

@@ -3,6 +3,7 @@
  */
 
 import React from "react";
+import { coerceDisplayString } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { catalogColors, backButton, metaGrid, monoCell } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
@@ -16,8 +17,8 @@ export function SiteDetailPanel({
   site: SiteDef;
   onBack: () => void;
 }): React.ReactElement {
-  const name = typeof site.name === "string" ? site.name : "—";
-  const siteKey = typeof site.name === "string" ? site.name.trim() : "";
+  const name = coerceDisplayString(site.name) || "—";
+  const siteKey = coerceDisplayString(site.name);
   const gaps =
     site.designGaps && site.designGaps.length
       ? site.designGaps

@@ -712,6 +712,8 @@ export const DEV_MSG_KEYS = {
   SITE_LOADING: "perc.ui.developer@Loading sites...",
   SITE_EMPTY: "perc.ui.developer@No sites returned.",
   SITE_ERROR: "perc.ui.developer@Could not load sites.",
+  SITE_BIND_ERROR:
+    "perc.ui.developer@Sites API returned entries but none had a usable name. Check GET /services/sites JSON bind.",
   SITE_HINT:
     "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL, defaults, and Virtual Site source. Full site create/delete remains outside this catalog.",
   SITE_COL_NAME: "perc.ui.developer@Name",

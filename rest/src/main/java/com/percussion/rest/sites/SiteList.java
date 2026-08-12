@@ -17,6 +17,7 @@
 
 package com.percussion.rest.sites;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -34,6 +35,7 @@ import java.util.Collection;
  * wrappers.
  */
 @XmlRootElement(name = "SiteList")
+@JsonRootName("SiteList")
 @ArraySchema(schema = @Schema(implementation = Site.class))
 @XmlSeeAlso(Site.class)
 public class SiteList extends ArrayList<Site> {
