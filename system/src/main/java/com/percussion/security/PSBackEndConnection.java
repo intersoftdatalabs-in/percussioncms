@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -110,12 +111,14 @@ public class PSBackEndConnection {
 
     /**
      * Save the properties that remain - this is the password column, plus any user defined
-     * attributes. Values are column names (strings) from the provider properties.
+     * attributes. Values are column names (strings) from the provider properties. Sorted for
+     * deterministic SELECT column order (property name iteration is unordered).
      */
     m_columns = new ArrayList<>();
     for (String propName : localProps.stringPropertyNames()) {
       m_columns.add(localProps.getProperty(propName));
     }
+    Collections.sort(m_columns);
 
     /**
      * We don't want to return the password column as a user attribute, that's why we need to remove
@@ -252,13 +255,15 @@ public class PSBackEndConnection {
    * and it will be used to lookup password information for authentication and all specified user
    * attributes.
    *
-   * @param columns the list of columns to query, not <code>null</code> or empty.
+   * @param columns the list of columns to query, not <code>null</code> or empty. Elements are
+   *     converted via {@link Object#toString()}; accepts {@code List<String>} and legacy {@code
+   *     List<Object>} of column-name strings.
    * @param key the key column to use for lookups, not <code>null</code> or empty.
    * @param table the name of the table to do the lookups in, not <code>null</code> or empty.
    * @return the query statement string, never <code>null</code>.
    *     <p>Note: There will be one bound parameter, which is the key for the query.
    */
-  public String prepareStatement(List<String> columns, String key, String table) {
+  public String prepareStatement(List<?> columns, String key, String table) {
     if (columns == null) throw new IllegalArgumentException("columns cannot be null");
 
     if (columns.isEmpty()) throw new IllegalArgumentException("columns cannot be empty");
@@ -278,7 +283,9 @@ public class PSBackEndConnection {
     StringBuilder buff = new StringBuilder();
     buff.append("SELECT");
 
-    for (String col : columns) {
+    for (Object colObj : columns) {
+      if (colObj == null) throw new IllegalArgumentException("column cannot be null");
+      String col = colObj.toString();
       if (!firstIn) buff.append(comma);
       else firstIn = false;
 

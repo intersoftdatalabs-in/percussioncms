@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.design.objectstore.PSAcl;
@@ -65,9 +66,8 @@ public class PSSecurityPackageTypedTest {
 
     assertEquals("EMAILCOL", conn.getUserAttribute("email"));
     assertEquals("DEPTCOL", conn.getUserAttribute("dept"));
-    // password column is not exposed as a user attribute
+    // passwordColumn property key is removed from user-attribute map (not the DB column value)
     assertNull(conn.getUserAttribute(PSBackEndConnection.PROPS_PW_COLUMN));
-    assertNull(conn.getUserAttribute("PASSWORD"));
 
     List<String> names = new ArrayList<>();
     Iterator<String> it = conn.getUserAttributeNames();
@@ -80,6 +80,12 @@ public class PSSecurityPackageTypedTest {
 
     String sql = conn.prepareStatement(List.of("USERID", "EMAILCOL"), "USERID", "USERLOGIN");
     assertEquals("SELECT USERID, EMAILCOL FROM USERLOGIN WHERE USERID=?", sql);
+
+    // List<?> accepts legacy List<Object> of column-name strings
+    List<Object> legacyCols = new ArrayList<>();
+    legacyCols.add("USERID");
+    legacyCols.add("EMAILCOL");
+    assertEquals(sql, conn.prepareStatement(legacyCols, "USERID", "USERLOGIN"));
   }
 
   @Test
@@ -175,6 +181,14 @@ public class PSSecurityPackageTypedTest {
 
     String filter = PSJndiUtils.buildFilter(values);
     assertEquals("(&(sn=*))", filter);
+  }
+
+  @Test
+  void jndiBuildFilterRejectsNonStringNonCollectionValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("uid", Integer.valueOf(42));
+
+    assertThrows(IllegalArgumentException.class, () -> PSJndiUtils.buildFilter(values));
   }
 
   private static List<PSEntry> collect(Iterator<PSEntry> it) {

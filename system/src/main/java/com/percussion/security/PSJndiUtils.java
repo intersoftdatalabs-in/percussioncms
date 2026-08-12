@@ -208,7 +208,12 @@ public class PSJndiUtils {
           filter.append(")");
         }
       } else {
-        appendFilterCond(filter, key, obj.toString());
+        // Fail-fast like the historical (List) cast: only String/Collection values are valid.
+        throw new IllegalArgumentException(
+            "Filter value for attribute '"
+                + key
+                + "' must be a String or Collection; got "
+                + obj.getClass().getName());
       }
     }
     filter.append(")");
