@@ -837,11 +837,10 @@ hub chrome (`perc-profile-shell`).
 | Account edit | `tests/profile-account.spec.js` | `[data-testid="perc-profile-account"]` | #2395 |
 | Preferences | `tests/profile-preferences.spec.js` | `[data-testid="perc-profile-preferences"]` | #2396 |
 | Avatar / Gravatar | `tests/profile-avatar.spec.js` | `[data-testid="perc-profile-avatar"]` | #2397 |
-| Password (local auth) | *not on main yet* | — | #2394 (still open) — residual when form lands |
+| Password (local auth) | `tests/profile-password.spec.js` | `[data-testid="perc-profile-security"]` | #2394 / residual #2647 |
 
-Account also scans after a client email-validation error so `aria-invalid` /
-error live region stay free of serious/critical issues. Password form axe is
-intentionally out of scope until #2394 merges.
+Account and password also scan after a client validation error so `aria-invalid` /
+error live regions stay free of serious/critical issues.
 
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
@@ -858,6 +857,10 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
   npm run test:surface -- --path tests/profile-avatar.spec.js --grep "axe-core"
 
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/profile-password.spec.js --grep "axe-core"
+
 # Multi-path landed form surfaces (axe only)
 TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
@@ -865,12 +868,14 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
     --path tests/profile-account.spec.js \
     --path tests/profile-preferences.spec.js \
     --path tests/profile-avatar.spec.js \
+    --path tests/profile-password.spec.js \
     --grep "axe-core"
 
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/profile-account.spec.js
 npm run test:surface:list -- --path tests/profile-preferences.spec.js
 npm run test:surface:list -- --path tests/profile-avatar.spec.js
+npm run test:surface:list -- --path tests/profile-password.spec.js
 ```
 
 **`run-surface` refuses the full suite** unless you pass `--allow-full` (agents must

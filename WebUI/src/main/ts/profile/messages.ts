@@ -16,7 +16,8 @@
  */
 
 /**
- * User profile hub catalog keys (#2393 shell + #2395 account + #2396 preferences — parent #2374).
+ * User profile hub catalog keys (#2393 shell + #2395 account + #2396 preferences
+ * + #2394 security — parent #2374).
  * English after {@code @} is the source fallback when TMX is not loaded.
  */
 export const PROFILE_MSG = {
@@ -30,7 +31,7 @@ export const PROFILE_MSG = {
     "perc.ui.profile.modern@Your login id, email, provider, and role summary for this account.",
   SECTION_SECURITY: "perc.ui.profile.modern@Security",
   SECTION_SECURITY_BODY:
-    "perc.ui.profile.modern@Password and authentication options for your account will appear here.",
+    "perc.ui.profile.modern@Change your password when your account uses local authentication, or learn how directory and SSO accounts manage credentials.",
   SECTION_PREFERENCES: "perc.ui.profile.modern@Preferences",
   SECTION_PREFERENCES_BODY:
     "perc.ui.profile.modern@Choose your default CMS landing page and view preferences stored for your account.",
@@ -38,6 +39,29 @@ export const PROFILE_MSG = {
   SECTION_AVATAR_BODY:
     "perc.ui.profile.modern@Choose the email used for your Gravatar avatar and preview how it appears in the header.",
   COMING_SOON: "perc.ui.profile.modern@Coming soon",
+
+  // Security / password section (#2394)
+  SECURITY_LOADING: "perc.ui.profile.modern@Loading security settings…",
+  SECURITY_LOAD_ERROR:
+    "perc.ui.profile.modern@Could not load security settings.",
+  SECURITY_RETRY: "perc.ui.profile.modern@Try again",
+  PW_NEW_LABEL: "perc.ui.profile.modern@New password",
+  PW_CONFIRM_LABEL: "perc.ui.profile.modern@Confirm new password",
+  PW_LENGTH_HINT:
+    "perc.ui.profile.modern@Use at least {0} characters. Server password rules still apply.",
+  PW_REQUIRED: "perc.ui.profile.modern@Enter a password.",
+  PW_TOO_SHORT:
+    "perc.ui.profile.modern@Password must be at least {0} characters.",
+  PW_MISMATCH: "perc.ui.profile.modern@Passwords do not match.",
+  PW_SUBMIT: "perc.ui.profile.modern@Change password",
+  PW_SAVING: "perc.ui.profile.modern@Updating password…",
+  PW_SAVE_SUCCESS: "perc.ui.profile.modern@Your password was changed.",
+  PW_SAVE_ERROR:
+    "perc.ui.profile.modern@Unable to change your password. Check the requirements and try again.",
+  PW_EXTERNAL_TITLE:
+    "perc.ui.profile.modern@Password managed outside Percussion",
+  PW_EXTERNAL_BODY:
+    "perc.ui.profile.modern@Your account uses directory or single sign-on authentication. Change your password with your identity provider or IT administrator — it cannot be updated from this profile.",
 
   // Preferences section (#2396)
   PREF_LOADING: "perc.ui.profile.modern@Loading preferences…",

@@ -47,6 +47,21 @@ Workflow states gate who can edit and publish. Common patterns:
   documentation for your configured authenticator.
 - Protect the login endpoint behind TLS at the reverse proxy or edge.
 
+## My profile — Security (password)
+
+Authenticated users open **My profile** from the header user menu (or deep link
+`spa.jsp?entry=profile`). The **Security** section behaves by account type:
+
+| Account type | What the user sees |
+|--------------|--------------------|
+| **Internal** (local auth) | Change-password form: new password + confirm. The product calls the existing self-only `PUT /user/user/changepw` endpoint; you cannot change another user’s password from this page. |
+| **Directory / SSO** | A localized explanation that credentials are managed by the identity provider or IT — **no** password form that would always fail. |
+
+Password rules enforced by the server (complexity / history filters when configured)
+still apply. Client-side checks require a non-empty password of at least six characters
+and a matching confirmation before submit. Success and failure messages are announced
+to assistive technology via a live region.
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.
