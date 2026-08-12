@@ -815,7 +815,6 @@ Playwright / a11y matrix is #3117.
 | Unit (no CMS) | `npm run test:unit` (includes `explorer-views-catalog.test.js`) |
 | Helper | `frontend/tests/helpers/explorer-views-catalog.js` |
 | Product peer | `WebUI/.../ViewsCatalogTree.tsx` + `viewCatalog.ts` |
-
 ```bash
 # After qa-up — path-filtered only (do not run full suite)
 cd modules/perc-qa-automation/frontend
@@ -828,6 +827,42 @@ npm run test:surface -- --tag explorer-views
 
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/explorer-views-catalog.spec.js
+npm run test:surface:list -- --tag explorer-views
+```
+
+#### Explorer Views Playwright + a11y (#3117 / parent #3110 / #3102)
+
+Additive V3 surface for the Explorer **Views catalog** (DCE My/Community/All/Other).
+Does **not** rebuild catalog UI (that is V2 #3116 / cluster PR #3252). Opens modern
+Content Explorer, asserts Views category + expand My Content when V2 chrome is on
+the build, selects a standard view when the catalog is non-empty, and runs
+`expectNoSeriousA11yViolations` on the Views tree / results surface.
+
+**Soft-skip:** V2 `explorer-views-tree` chrome missing on the build, or
+`GET /services/views` has no runnable (non-custom-URL) standard view. Explorer
+shell load remains a hard assertion.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-views.spec.js` |
+| Tags | `@explorer-views` `@views` `@a11y` `@explorer` |
+| Unit (no CMS) | `node --test tests/unit/explorer-views.test.js` (not in `package.json` `test:unit` — avoids #3252 thrash) |
+| Helper | `frontend/tests/helpers/explorer-views.js` |
+| Product peer | V2 `ViewsCatalogTree` / `ViewResultsPanel` when merged |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-views.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-views
+npm run test:surface -- --tag views
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-views.spec.js
 npm run test:surface:list -- --tag explorer-views
 ```
 
@@ -864,7 +899,6 @@ npm run test:surface -- --tag explorer-inbox
 npm run test:surface:list -- --path tests/explorer-inbox.spec.js
 npm run test:surface:list -- --tag explorer-inbox
 ```
-
 #### Profile shell keyboard section-nav / focus (#2502 / residual #2427)
 
 Beyond axe: keyboard path Tab → `perc-profile-nav-*` → Enter focuses and
