@@ -17,12 +17,13 @@
 /**
  * ContentExplorerShell — product Explorer route shell (feature 992 + #2400).
  *
- * <p>Composes DCE-style top menu bar (Content / View / Help), tree, detail
- * list, reduced actions, server-driven action toolbar (with nested MENU
+ * <p>Composes DCE-style top menu bar (Content / View / Help), folder tree,
+ * Views catalog (My / Community / All / Other), detail list or view results,
+ * reduced actions, server-driven action toolbar (with nested MENU
  * dropdowns and enablement filtering from {@code rest/actions}), item/folder
  * context menu, search panel, IA relationships panel, dependency viewer, and
  * display-format selector so the SPA route approaches Desktop Content Explorer
- * parity (#2400 / #2407 / #2731 / #2768 / #2769 / #2849).</p>
+ * parity (#2400 / #2407 / #2731 / #2768 / #2769 / #2849 / #3116).</p>
  */
 
 import React, {
@@ -32,6 +33,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { formatApiError } from "../api/client";
 import {
   findActions,
   findAllowedContentTypeMenus,
@@ -47,6 +49,10 @@ import {
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
+import {
+  executeView as executeViewApi,
+  listViews as listViewsApi,
+} from "../api/contentExplorer/viewsApi";
 import type {
   Clipboard,
   ClipboardItem,
@@ -54,6 +60,11 @@ import type {
   PSItemProperties,
   PSPathItem,
 } from "../api/contentExplorer/types";
+import type {
+  ViewDef,
+  ViewExecuteRequest,
+  ViewExecuteResult,
+} from "../api/developer/types";
 import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { message } from "../i18n/message";
 import {
@@ -90,8 +101,12 @@ import {
   errorStateStyle,
   headerStyle,
   headerTitleStyle,
+  navColumnStyle,
   shellStyle,
 } from "./styles";
+import { isCustomUrlView, viewKey, viewLabel } from "./viewCatalog";
+import { ViewResultsPanel, type ViewRunStatus } from "./ViewResultsPanel";
+import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
@@ -170,6 +185,19 @@ export interface ContentExplorerShellProps {
    * Default {@link SearchPanel} → executeSearch.
    */
   executeSavedSearch?: SearchPanelProps["executeSavedSearch"];
+  /**
+   * Test / host seam: Views catalog for the product tree (#3116).
+   * Default {@link listViewsApi}.
+   */
+  listViews?: () => Promise<ViewDef[]>;
+  /**
+   * Test / host seam: V1 view execute ({@code POST /services/views/{id}/execute}).
+   * Default {@link executeViewApi}.
+   */
+  executeView?: (
+    idOrName: string,
+    request?: ViewExecuteRequest | null,
+  ) => Promise<ViewExecuteResult>;
 }
 
 type ContextMenuState = {
@@ -361,6 +389,8 @@ export function ContentExplorerShell({
   search: searchTransport,
   listSavedSearches,
   executeSavedSearch,
+  listViews = listViewsApi,
+  executeView = executeViewApi,
 }: ContentExplorerShellProps): React.ReactElement {
   const bootstrap = useSpaBootstrap();
   const currentUserIdentities = useMemo(() => {
@@ -387,6 +417,8 @@ export function ContentExplorerShell({
       : EMPTY_SELECTION,
   );
   const [error, setError] = useState<string | null>(null);
+  const [viewRun, setViewRun] = useState<ViewRunStatus | null>(null);
+  const [selectedViewKey, setSelectedViewKey] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
@@ -536,6 +568,8 @@ export function ContentExplorerShell({
       setMultiSelectedIds(new Set<string>());
       setMultiSelectedItems(new Map<string, PSPathItem>());
       setContextMenu(null);
+      setViewRun(null);
+      setSelectedViewKey(null);
       if (folder) onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
@@ -547,6 +581,8 @@ export function ContentExplorerShell({
       setMultiSelectedIds(new Set<string>());
       setMultiSelectedItems(new Map<string, PSPathItem>());
       setContextMenu(null);
+      setViewRun(null);
+      setSelectedViewKey(null);
       onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
@@ -693,8 +729,58 @@ export function ContentExplorerShell({
     if (folder) {
       setSelection({ folderPath: folder, item: null });
       setShowSearch(false);
+      setViewRun(null);
+      setSelectedViewKey(null);
     }
   }, []);
+
+  const runSelectedView = useCallback(
+    async (view: ViewDef) => {
+      const key = viewKey(view);
+      const label = viewLabel(view);
+      if (!key) {
+        return;
+      }
+      setSelectedViewKey(key);
+      if (isCustomUrlView(view)) {
+        setViewRun({
+          kind: "error",
+          label,
+          message: message(EXPLORER_MSG.VIEWS_CUSTOM_UNSUPPORTED),
+        });
+        return;
+      }
+      setViewRun({ kind: "loading", label });
+      try {
+        const results = await executeView(key, {
+          startIndex: 1,
+          maxResults: 50,
+        });
+        setViewRun({ kind: "ready", label, results });
+      } catch (err: unknown) {
+        setViewRun({
+          kind: "error",
+          label,
+          message: formatApiError(err, message(EXPLORER_MSG.VIEWS_RUN_ERROR)),
+        });
+      }
+    },
+    [executeView],
+  );
+
+  const handleRetryView = useCallback(() => {
+    if (viewRun == null) return;
+    // Retry last execute using the selected key + last label; custom
+    // views stay on the same unsupported message (no Inbox runner).
+    if (selectedViewKey) {
+      void runSelectedView({
+        name: selectedViewKey,
+        label: viewRun.label,
+        customView: viewRun.kind === "error"
+          && viewRun.message === message(EXPLORER_MSG.VIEWS_CUSTOM_UNSUPPORTED),
+      });
+    }
+  }, [viewRun, selectedViewKey, runSelectedView]);
 
   const siteNameForCopy = useMemo(
     () =>
@@ -936,24 +1022,42 @@ export function ContentExplorerShell({
           {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
         </div>
       )}
-      <ExplorerTree
-        initialPath={initialPath}
-        selectedPath={selection.folderPath}
-        onSelectFolder={handleSelectFolder}
-        onActivate={handleActivate}
-      />
-      <DetailList
-        key={`list-${listEpoch}-${displayFormatId ?? "default"}`}
-        folderPath={selection.folderPath}
-        selectedItemId={selection.item?.id ?? null}
-        onSelectItem={handleSelectItem}
-        onActivateItem={handleActivateItem}
-        displayFormat={detailDisplayFormat}
-        displayFormatId={displayFormatId}
-        onItemContextMenu={handleItemContextMenu}
-        selectedItemIds={multiSelectedIds}
-        onToggleSelectItem={handleToggleSelectItem}
-      />
+      <div style={navColumnStyle} data-testid="explorer-nav">
+        <ExplorerTree
+          initialPath={initialPath}
+          selectedPath={selection.folderPath}
+          onSelectFolder={handleSelectFolder}
+          onActivate={handleActivate}
+        />
+        <ViewsCatalogTree
+          listViews={listViews}
+          selectedViewKey={selectedViewKey}
+          onSelectView={(view) => {
+            void runSelectedView(view);
+          }}
+        />
+      </div>
+      {viewRun ? (
+        <ViewResultsPanel
+          status={viewRun}
+          onOpen={handleSearchOpen}
+          onReveal={handleSearchReveal}
+          onRetry={handleRetryView}
+        />
+      ) : (
+        <DetailList
+          key={`list-${listEpoch}-${displayFormatId ?? "default"}`}
+          folderPath={selection.folderPath}
+          selectedItemId={selection.item?.id ?? null}
+          onSelectItem={handleSelectItem}
+          onActivateItem={handleActivateItem}
+          displayFormat={detailDisplayFormat}
+          displayFormatId={displayFormatId}
+          onItemContextMenu={handleItemContextMenu}
+          selectedItemIds={multiSelectedIds}
+          onToggleSelectItem={handleToggleSelectItem}
+        />
+      )}
       {showSearch && (
         <section
           id="explorer-search-panel"

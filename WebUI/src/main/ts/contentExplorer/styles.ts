@@ -79,6 +79,23 @@ export const treeStyle: CSSProperties = {
   background: "#fafafa",
 };
 
+/** Left nav column: folder tree + Views catalog (#3116). */
+export const navColumnStyle: CSSProperties = {
+  gridArea: "tree",
+  display: "flex",
+  flexDirection: "column",
+  minHeight: 200,
+  overflow: "auto",
+  background: "#fafafa",
+};
+
+/** Views catalog tree below the folder tree (no second grid-area). */
+export const viewsTreeStyle: CSSProperties = {
+  borderTop: "1px solid #ddd",
+  padding: "8px 0",
+  flex: "0 0 auto",
+};
+
 export const listStyle: CSSProperties = {
   gridArea: "list",
   overflow: "auto",
