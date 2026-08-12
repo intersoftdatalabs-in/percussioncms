@@ -24,6 +24,7 @@ import com.percussion.packages.shim.PSDefinitionSourceKind;
 import com.percussion.packages.shim.PSDefinitionSourceNotFoundException;
 import com.percussion.packages.shim.PSDefinitionSourceSelection;
 import com.percussion.packages.shim.PSLegacyDefinitionXmlShim;
+import com.percussion.packages.shim.PSModernPackageRootDefaults;
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.server.PSServer;
@@ -39,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,17 +51,28 @@ import org.springframework.stereotype.Component;
  * Loads widget definitions from install {@code rxconfig/Widgets} (legacy Widget definition XML wire
  * format).
  *
- * <p><strong>Dual-run modern-first selection (ADR-004 / #3024 / parent #2630):</strong> when modern
- * package roots are configured, each loaded definition id is classified via {@link
- * PSLegacyDefinitionXmlShim#selectDefinition} so product installs prefer {@link
- * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package Manifest is present for
- * that id. Legacy {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} remains the fallback when modern
- * is absent. Selection kind is test-visible and logged for Phase 5 exit metrics; the shim itself is
- * <strong>not</strong> deleted here (#2852).
+ * <p><strong>Dual-run modern-first selection (ADR-004 / #3024 / #3130 / parent #2630):</strong> when
+ * modern package roots are configured <em>or</em> product defaults apply, each loaded definition id
+ * is classified via {@link PSLegacyDefinitionXmlShim#selectDefinition} so product / H2 installs
+ * prefer {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package Manifest
+ * is present for that id. Legacy {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} remains the
+ * fallback when modern is absent. Selection kind is test-visible and logged for Phase 5 exit
+ * metrics; the shim itself is <strong>not</strong> deleted here (#2852).
+ *
+ * <p><strong>Default modern roots (#3130):</strong> when Spring property {@code
+ * widgetDao.modernPackageRoots} is blank, roots are resolved from {@link
+ * PSModernPackageRootDefaults#RELATIVE_MODERN_ROOTS_DIR} under {@code ${rxdeploydir}}, materializing
+ * from the product classpath when that install tree is empty. Explicit path-separator lists still
+ * override. Operators need not hand-edit Spring for H2 {@code qa-up} / product sample installs.
  *
  * <p>Content continues to load from the Widgets XML repository (install wire format materialised
  * from modern packages by package-build emitters). Selection records which dual-run source won for
  * each id.
+ *
+ * <p><strong>M2 evidence harness (#3131):</strong> cumulative modern / legacy selection counters
+ * ({@link #getModernSelectionCount()}, {@link #getLegacySelectionCount()}), per-poll kinds, and
+ * {@link #formatSelectionMetricsSummary()} are test- and support-visible so Phase 5 M2 is not only
+ * INFO log text. Reset with {@link #resetSelectionMetrics()} in tests / probes only.
  *
  * <p>Paths use portable {@link Path} / {@link File#pathSeparator} for multi-root lists.
  */
@@ -87,8 +100,32 @@ public class PSWidgetDao
   private final AtomicReference<Map<String, PSDefinitionSourceKind>> selectionKindsById =
       new AtomicReference<>(Map.of());
 
+  /**
+   * Cumulative modern-first selections (process lifetime of this bean). Incremented by successful
+   * {@link #selectDefinitionSource(String)} and by each id classified during repository poll.
+   */
+  private final AtomicLong modernSelectionCount = new AtomicLong();
+
+  /**
+   * Cumulative legacy Widget-XML fallback selections (process lifetime of this bean). Same
+   * increment points as {@link #modernSelectionCount}.
+   */
+  private final AtomicLong legacySelectionCount = new AtomicLong();
+
   /** Modern package roots consulted before legacy Widgets XML (empty = legacy-only selection). */
   private volatile List<Path> modernPackageRoots = List.of();
+
+  /**
+   * When true, {@link #setModernPackageRoots(List)} was used (tests / programmatic); skip re-apply
+   * from Spring property defaults.
+   */
+  private volatile boolean modernRootsProgrammatic;
+
+  /** Raw Spring property for modern roots (blank ⇒ product defaults). */
+  private volatile String modernPackageRootsProperty = "";
+
+  /** Install root from {@code ${rxdeploydir}} for default modern-root discovery. */
+  private volatile Path rxDeployDir;
 
   public PSWidgetDao() {
     super(PSWidgetDefinition.class);
@@ -153,12 +190,20 @@ public class PSWidgetDao
     if (last != null) {
       lastSelectionKind.set(last);
     }
+    if (modernCount > 0) {
+      modernSelectionCount.addAndGet(modernCount);
+    }
+    if (legacyCount > 0) {
+      legacySelectionCount.addAndGet(legacyCount);
+    }
     if (!kinds.isEmpty()) {
       log.info(
-          "Widget definition dual-run selection: modern={}, legacyWidgetXml={}, total={}",
+          "Widget definition dual-run selection: modern={}, legacyWidgetXml={}, total={}, cumulativeModern={}, cumulativeLegacy={}",
           modernCount,
           legacyCount,
-          kinds.size());
+          kinds.size(),
+          modernSelectionCount.get(),
+          legacySelectionCount.get());
     }
   }
 
@@ -177,6 +222,12 @@ public class PSWidgetDao
         PSLegacyDefinitionXmlShim.selectDefinition(
             definitionId, modernPackageRoots, resolveWidgetsDir(), null, null);
     lastSelectionKind.set(selection.getKind());
+    if (selection.isModern()) {
+      modernSelectionCount.incrementAndGet();
+    } else {
+      // Legacy widget / page / gadget XML kinds all count as non-modern dual-run hits.
+      legacySelectionCount.incrementAndGet();
+    }
     log.debug(
         "Widget selectDefinitionSource id={} kind={}", definitionId, selection.getKind());
     return selection;
@@ -202,6 +253,82 @@ public class PSWidgetDao
   }
 
   /**
+   * Cumulative count of modern component-package selections since construction or last {@link
+   * #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public long getModernSelectionCount() {
+    return modernSelectionCount.get();
+  }
+
+  /**
+   * Cumulative count of legacy Widget-XML (or other non-modern) selections since construction or
+   * last {@link #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public long getLegacySelectionCount() {
+    return legacySelectionCount.get();
+  }
+
+  /**
+   * Total dual-run selections counted ({@link #getModernSelectionCount()} + {@link
+   * #getLegacySelectionCount()}).
+   *
+   * @return non-negative count
+   */
+  public long getTotalSelectionCount() {
+    return modernSelectionCount.get() + legacySelectionCount.get();
+  }
+
+  /**
+   * Snapshot of cumulative dual-run selection counters for CI assertions and support probes.
+   *
+   * <p>Keys: {@code modern}, {@code legacyWidgetXml}, {@code total}. Never null.
+   *
+   * @return unmodifiable map of counter name → value
+   */
+  public Map<String, Long> getSelectionMetricsSnapshot() {
+    long modern = modernSelectionCount.get();
+    long legacy = legacySelectionCount.get();
+    Map<String, Long> snap = new LinkedHashMap<>(4);
+    snap.put("modern", modern);
+    snap.put("legacyWidgetXml", legacy);
+    snap.put("total", modern + legacy);
+    return Collections.unmodifiableMap(snap);
+  }
+
+  /**
+   * Single-line ops / log summary of dual-run selection metrics (parity with INFO poll line and
+   * WebUI {@code GadgetRegistry} dual-load summary).
+   *
+   * @return never blank
+   */
+  public String formatSelectionMetricsSummary() {
+    Map<String, Long> snap = getSelectionMetricsSnapshot();
+    PSDefinitionSourceKind last = lastSelectionKind.get();
+    return String.format(
+        "Widget definition dual-run selection metrics: modern=%d, legacyWidgetXml=%d, total=%d, lastKind=%s, lastPollIds=%d",
+        snap.get("modern"),
+        snap.get("legacyWidgetXml"),
+        snap.get("total"),
+        last != null ? last.name() : "none",
+        selectionKindsById.get().size());
+  }
+
+  /**
+   * Resets cumulative selection counters and last-kind / last-poll maps. Intended for unit tests and
+   * support probes — not a normal runtime control plane.
+   */
+  public void resetSelectionMetrics() {
+    modernSelectionCount.set(0L);
+    legacySelectionCount.set(0L);
+    lastSelectionKind.set(null);
+    selectionKindsById.set(Map.of());
+  }
+
+  /**
    * Modern package roots used for dual-run selection (directories that may contain {@code
    * component-package.json} or nested {@code widgets/&lt;id&gt;/component-package.json}).
    *
@@ -212,11 +339,13 @@ public class PSWidgetDao
   }
 
   /**
-   * Sets modern package roots for dual-run selection (programmatic / tests).
+   * Sets modern package roots for dual-run selection (programmatic / tests). Disables product
+   * default re-apply until a new Spring property is injected.
    *
    * @param roots package root directories; {@code null} or empty means legacy-only selection
    */
   public void setModernPackageRoots(List<Path> roots) {
+    modernRootsProgrammatic = true;
     if (roots == null || roots.isEmpty()) {
       this.modernPackageRoots = List.of();
       return;
@@ -232,23 +361,74 @@ public class PSWidgetDao
 
   /**
    * Spring property: modern package roots as a {@link File#pathSeparator}-separated list of paths
-   * (portable on Windows/Unix). Empty default keeps legacy Widgets-only selection.
+   * (portable on Windows/Unix). Blank default uses product install discovery under {@link
+   * PSModernPackageRootDefaults#RELATIVE_MODERN_ROOTS_DIR} (with classpath materialize when empty)
+   * so H2 qa-up / product installs are modern-first without manual surgery (#3130).
    *
    * @param rootsProperty path list or blank
    */
   @Value("${widgetDao.modernPackageRoots:}")
   public void setModernPackageRootsProperty(String rootsProperty) {
-    if (rootsProperty == null || rootsProperty.isBlank()) {
-      this.modernPackageRoots = List.of();
+    modernRootsProgrammatic = false;
+    this.modernPackageRootsProperty = rootsProperty != null ? rootsProperty : "";
+    applyModernPackageRoots();
+  }
+
+  /**
+   * Install root used for default modern package root discovery when the Spring property is blank.
+   *
+   * @param rxDeployDirPath {@code ${rxdeploydir}} value
+   */
+  @Value("${rxdeploydir}")
+  public void setRxDeployDir(String rxDeployDirPath) {
+    if (rxDeployDirPath == null || rxDeployDirPath.isBlank()) {
+      this.rxDeployDir = null;
+    } else {
+      this.rxDeployDir = Path.of(rxDeployDirPath).toAbsolutePath().normalize();
+    }
+    applyModernPackageRoots();
+  }
+
+  /**
+   * Re-resolves {@link #modernPackageRoots} from the Spring property and/or product defaults unless
+   * roots were set programmatically via {@link #setModernPackageRoots(List)}.
+   */
+  private void applyModernPackageRoots() {
+    if (modernRootsProgrammatic) {
       return;
     }
-    List<Path> roots = new ArrayList<>();
-    for (String part : rootsProperty.split(File.pathSeparator)) {
-      if (part != null && !part.isBlank()) {
-        roots.add(Path.of(part.trim()).toAbsolutePath().normalize());
+    try {
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+      if (cl == null) {
+        cl = PSWidgetDao.class.getClassLoader();
       }
+      this.modernPackageRoots =
+          PSModernPackageRootDefaults.resolve(modernPackageRootsProperty, rxDeployDir, cl);
+      if (log.isInfoEnabled() && !modernPackageRoots.isEmpty()) {
+        Path defaultDir =
+            rxDeployDir != null
+                ? rxDeployDir
+                    .resolve(PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR)
+                    .toAbsolutePath()
+                    .normalize()
+                : null;
+        log.info(
+            "Widget dual-run modern package roots ({}): defaultDir={}, resolvedRoots={}, count={}",
+            modernPackageRootsProperty == null || modernPackageRootsProperty.isBlank()
+                ? "product-default"
+                : "explicit",
+            defaultDir != null
+                ? defaultDir
+                : PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR,
+            modernPackageRoots,
+            modernPackageRoots.size());
+      }
+    } catch (IOException e) {
+      log.warn(
+          "Failed to resolve widgetDao.modernPackageRoots defaults; using legacy-only selection",
+          e);
+      this.modernPackageRoots = List.of();
     }
-    this.modernPackageRoots = List.copyOf(roots);
   }
 
   private Path resolveWidgetsDir() {
