@@ -27142,6 +27142,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Could not load the site list.">
       <tuv xml:lang="en-us"><seg>Could not load the site list.</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@Site {0} was created, but the site list could not be refreshed.">
+      <tuv xml:lang="en-us"><seg>Site {0} was created, but the site list could not be refreshed.</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@No sites are available. Create a site to browse its navigation tree.">
       <tuv xml:lang="en-us"><seg>No sites are available. Create a site to browse its navigation tree.</seg></tuv>
     </tu>

@@ -16,7 +16,7 @@
  */
 
 import {
-  DEFAULT_SPA_ENTRY_REDIRECT,
+  DEFAULT_POST_LOGIN_REDIRECT,
   sanitizeLoginRedirect,
 } from "./redirect";
 import type { LoginBootstrap, SpaLandingBootstrap } from "./types";
@@ -86,7 +86,7 @@ export function readLoginBootstrap(): LoginBootstrap {
     autocomplete: raw?.autocomplete === "off" ? "off" : "on",
     defaultRedirect: sanitizeLoginRedirect(
       raw?.defaultRedirect,
-      DEFAULT_SPA_ENTRY_REDIRECT,
+      DEFAULT_POST_LOGIN_REDIRECT,
     ),
     csrfTokenName: csrf.name,
     csrfTokenValue: csrf.value,

@@ -26,8 +26,10 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
    - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
 3. The shell loads under the same product top nav as Explorer, Design, Publish, and Admin.
 
-Default landing can also be set to **Navigation** for a user or role (homepage type
-`Architecture`); login then resolves to the SPA Navigation entry.
+Default landing can also be set to **Navigation** (stored homepage type
+`Architecture`, also accepted as `Navigation`) for a user or role. After sign-in
+with no deep-link return URL, the login form posts to `/cm/app/` so the
+dispatcher applies that preference and opens the Navigation SPA — not Home.
 
 ## Browse a site navigation tree
 
@@ -37,9 +39,14 @@ Default landing can also be set to **Navigation** for a user or role (homepage t
 3. The **Navigation tree** panel loads the site’s sections (navons) from the server.
 4. Expand and collapse nodes with the mouse or keyboard (Enter/Space, Arrow Left/Right).
 5. Use **Refresh** to reload the tree after external changes.
+6. Use **New Site** (Admin or Designer) to open the same traditional-site wizard
+   used in Content Explorer. After a successful create, the new site is selected
+   in this shell.
 
 Empty, loading, and error states are shown explicitly when the site list or tree
-cannot be loaded, or when a site has no sections.
+cannot be loaded, or when a site has no sections. **New Site** remains available
+when the site list is empty so operators can create the first site from this
+screen.
 
 ### Site without a navigation tree
 
@@ -70,9 +77,10 @@ The navigation tree follows the ARIA tree pattern:
 | **Home / End** | Jump to the first or last visible node. |
 | **Enter / Space** | Select the focused section (and toggle expand on branches). |
 
-Structure dialogs (create, rename, landing page, section link, external link, and the
-section picker) are modal (`role="dialog"`, `aria-modal`). **Escape** closes the open
-dialog when a mutation is not in progress. Primary structure actions live in a toolbar
+Structure dialogs (create, rename, landing page, section link, external link, the
+section picker, and **New Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
+closes the open dialog when a mutation is not in progress. Closing **New Site**
+returns keyboard focus to the **New Site** button. Primary structure actions live in a toolbar
 with an accessible name (**Structure actions**).
 
 Chrome strings (shell, tree states, actions, dialogs, validation) use the
@@ -115,6 +123,7 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | SPA route + top-nav entry under product chrome | **Available** |
 | Role gate (Admin / Designer) | **Available** |
 | Site picker | **Available** |
+| New Site (Explorer create-site wizard) | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
@@ -122,9 +131,6 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
 | Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
-| Site navigation tree browse (navons / sections) | **Available** (read-only) |
-| Structure editing (create / edit / move / delete) | **Coming soon** |
-| Landing page / section-link parity | **Coming soon** |
 | Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (#3099) |
 
 ## Related

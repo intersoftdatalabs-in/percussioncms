@@ -63,11 +63,9 @@ public class PSLoginServletTest {
     assertEquals(
         "/cm/app/spa.jsp?entry=home",
         PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app/spa.jsp?entry=home"));
-    // Default CMS index when blank / null — modern SPA landing
-    assertEquals(
-        "/cm/app/spa.jsp?entry=home", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
-    assertEquals(
-        "/cm/app/spa.jsp?entry=home", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
+    // Default CMS index when blank / null — dispatcher (homepage resolve, #3219)
+    assertEquals("/cm/app/", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
+    assertEquals("/cm/app/", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
     // App-relative entry points still allowed
     assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "index.jsp"));
     assertEquals(
@@ -83,15 +81,15 @@ public class PSLoginServletTest {
 
     // External host → fall back to CMS SPA index
     assertEquals(
-        "/cm/app/spa.jsp?entry=home",
+        "/cm/app/",
         PSLoginServlet.resolveSafePostLoginRedirect(request, "http://evil.example/phish"));
     // Path traversal
     assertEquals(
-        "/cm/app/spa.jsp?entry=home",
+        "/cm/app/",
         PSLoginServlet.resolveSafePostLoginRedirect(request, "/../../etc/passwd"));
     // javascript: scheme (relative form rejected by colon rule)
     assertEquals(
-        "/cm/app/spa.jsp?entry=home",
+        "/cm/app/",
         PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
     // Same-host absolute is allowed
     assertEquals(

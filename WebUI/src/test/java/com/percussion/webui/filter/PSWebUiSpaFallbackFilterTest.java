@@ -106,6 +106,9 @@ public class PSWebUiSpaFallbackFilterTest {
     assertEquals(
         "/cm/app/spa.jsp?entry=architecture",
         PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/arch", null));
+    assertEquals(
+        "/cm/app/spa.jsp?entry=architecture",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/navigation", null));
   }
 
   @Test

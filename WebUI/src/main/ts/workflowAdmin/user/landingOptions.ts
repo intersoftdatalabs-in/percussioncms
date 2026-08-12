@@ -55,7 +55,7 @@ export const ALL_LANDING_OPTIONS: readonly LandingOption[] = [
   },
   {
     value: HOMEPAGE_TYPES.ARCHITECTURE,
-    // Product name Navigation; SPA path /architecture (#3094 / #3217)
+    // Product name Navigation; SPA path /architecture (#3094 / #3217 / #3219)
     labelKey: "perc.ui.navMenu.architecture@Navigation",
   },
   {

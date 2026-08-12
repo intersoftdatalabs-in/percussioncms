@@ -20,12 +20,20 @@ import {
   buildSpaEntryRedirect,
   sanitizeLoginRedirect,
   DEFAULT_SPA_ENTRY_REDIRECT,
+  DEFAULT_POST_LOGIN_REDIRECT,
 } from "@/login/redirect";
 
 describe("login redirect helpers", () => {
   it("builds default home SPA entry", () => {
     expect(buildSpaEntryRedirect()).toBe("/cm/app/spa.jsp?entry=home");
     expect(DEFAULT_SPA_ENTRY_REDIRECT).toBe("/cm/app/spa.jsp?entry=home");
+  });
+
+  it("uses the app dispatcher as unauthenticated post-login default (#3219)", () => {
+    expect(DEFAULT_POST_LOGIN_REDIRECT).toBe("/cm/app/");
+    expect(sanitizeLoginRedirect(null)).toBe("/cm/app/");
+    expect(sanitizeLoginRedirect("")).toBe("/cm/app/");
+    expect(sanitizeLoginRedirect("/cm/app/")).toBe("/cm/app/");
   });
 
   it("allowlists entries and rejects unknown", () => {
@@ -47,12 +55,18 @@ describe("login redirect helpers", () => {
   });
 
   it("rejects open redirects and fragments", () => {
-    expect(sanitizeLoginRedirect("http://evil.example/x")).toBe(DEFAULT_SPA_ENTRY_REDIRECT);
-    expect(sanitizeLoginRedirect("//evil.example/x")).toBe(DEFAULT_SPA_ENTRY_REDIRECT);
-    expect(sanitizeLoginRedirect("/cm/app/spa.jsp?entry=home#/hack")).toBe(
-      DEFAULT_SPA_ENTRY_REDIRECT,
+    expect(sanitizeLoginRedirect("http://evil.example/x")).toBe(
+      DEFAULT_POST_LOGIN_REDIRECT,
     );
-    expect(sanitizeLoginRedirect("../etc/passwd")).toBe(DEFAULT_SPA_ENTRY_REDIRECT);
+    expect(sanitizeLoginRedirect("//evil.example/x")).toBe(
+      DEFAULT_POST_LOGIN_REDIRECT,
+    );
+    expect(sanitizeLoginRedirect("/cm/app/spa.jsp?entry=home#/hack")).toBe(
+      DEFAULT_POST_LOGIN_REDIRECT,
+    );
+    expect(sanitizeLoginRedirect("../etc/passwd")).toBe(
+      DEFAULT_POST_LOGIN_REDIRECT,
+    );
   });
 
   it("accepts SPA and transitional /cm/app paths", () => {
@@ -60,5 +74,6 @@ describe("login redirect helpers", () => {
       "/cm/app/spa.jsp?entry=workflow",
     );
     expect(sanitizeLoginRedirect("/cm/app")).toBe("/cm/app");
+    expect(sanitizeLoginRedirect("/cm/app/?view=arch")).toBe("/cm/app/?view=arch");
   });
 });

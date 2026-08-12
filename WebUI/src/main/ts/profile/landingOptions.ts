@@ -53,7 +53,7 @@ export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
   },
   {
     value: HOMEPAGE_TYPES.ARCHITECTURE,
-    // SPA path /architecture (#3094); API homepage type remains "Architecture"
+    // Product name Navigation; stored type remains Architecture; SPA path /architecture (#3094 / #3217 / #3219)
     labelKey: "perc.ui.navMenu.architecture@Navigation",
   },
   {
