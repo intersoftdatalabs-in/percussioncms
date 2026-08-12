@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   countNavTreeNodes,
   flattenNavTree,
+  isEmptySectionTreeWire,
   mapSectionNodeToTree,
   normalizeChildNodes,
   parseSectionNodePayload,
@@ -102,6 +103,20 @@ describe("mapSectionTree (#3095)", () => {
     expect(parseSectionNodePayload(null)).toBeNull();
     expect(parseSectionNodePayload("nope")).toBeNull();
     expect(mapSectionNodeToTree({ title: "NoId" }).title).toBe("NoId");
+  });
+
+  it("treats missing-id empty children as empty nav tree (#3218)", () => {
+    expect(
+      isEmptySectionTreeWire({ title: "BareSite", childNodes: [] }),
+    ).toBe(true);
+    expect(isEmptySectionTreeWire(null)).toBe(true);
+    expect(
+      isEmptySectionTreeWire({
+        id: "root-1",
+        title: "Home",
+        childNodes: [],
+      }),
+    ).toBe(false);
   });
 
   it("sectionTypeLabel badges non-default types", () => {

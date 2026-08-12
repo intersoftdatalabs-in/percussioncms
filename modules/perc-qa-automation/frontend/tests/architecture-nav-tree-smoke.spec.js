@@ -92,6 +92,12 @@ test.describe("Architecture read-only nav tree (#3095)", () => {
       await expect(treePanel.or(emptyState)).toBeVisible({ timeout: 15_000 });
       if (await treePanel.isVisible().catch(() => false)) {
         await expect(page.getByTestId("architecture-nav-tree")).toBeVisible();
+        // Missing NavTree is empty state, not HTTP 500 (#3218)
+        const treeError = page.getByTestId("architecture-nav-tree-error");
+        if (await treeError.isVisible().catch(() => false)) {
+          const errText = (await treeError.textContent()) || "";
+          expect(errText).not.toMatch(/HTTP 500/i);
+        }
         // Structure note / actions (Slice D) or legacy readonly note if older build
         const structureNote = page.getByTestId("architecture-structure-note");
         const readonlyNote = page.getByTestId("architecture-readonly-note");

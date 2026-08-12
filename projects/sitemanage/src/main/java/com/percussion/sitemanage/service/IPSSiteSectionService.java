@@ -159,7 +159,9 @@ public interface IPSSiteSectionService
    * Loads the root of the navigation for the specified site.
    *
    * @param siteName the name of the site, not blank.
-   * @return the root of the navigation, never <code>null</code>.
+   * @return the root of the navigation, never <code>null</code>. When the site
+   *     exists but has no NavTree, returns an empty root (no id, no children)
+   *     and does not delete the site (#3218).
    */
   PSSiteSection loadRoot(String siteName) throws PSSiteSectionException, PSNotFoundException;
 
@@ -167,7 +169,9 @@ public interface IPSSiteSectionService
    * Loads the entire tree nodes for the specified site.
    *
    * @param siteName the name of the specified site, not blank.
-   * @return the tree nodes of the site, never <code>null</code>.
+   * @return the tree nodes of the site, never <code>null</code>. When the site
+   *     exists but has no nav tree, an empty {@link PSSectionNode} (no id, empty
+   *     children) is returned so callers can emit HTTP 200 instead of 500.
    */
   PSSectionNode loadTree(String siteName) throws PSSiteSectionException, PSNotFoundException;
 

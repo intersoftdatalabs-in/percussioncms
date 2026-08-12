@@ -116,6 +116,22 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     );
   });
 
+  it("shows operator empty state when tree is missing (#3218)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "BareSite" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(null);
+
+    render(<ArchitectureShell embedded initialSite="BareSite" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-nav-tree-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("architecture-nav-tree-empty-title").textContent).toMatch(
+      /no navigation tree/i,
+    );
+    expect(screen.queryByTestId("architecture-nav-tree-error")).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("surfaces tree load errors", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockRejectedValue({

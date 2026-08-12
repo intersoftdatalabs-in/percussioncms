@@ -359,8 +359,33 @@ export function NavTree({
     );
   } else if (!root) {
     body = (
-      <div style={emptyStyle} data-testid="architecture-nav-tree-empty">
-        {ARCH_MSG.TREE_EMPTY}
+      <div
+        style={emptyStyle}
+        data-testid="architecture-nav-tree-empty"
+        role="status"
+      >
+        <p
+          style={{
+            margin: "0 0 0.35rem",
+            fontWeight: 600,
+            color: "#1a202c",
+          }}
+          data-testid="architecture-nav-tree-empty-title"
+        >
+          {ARCH_MSG.TREE_EMPTY_TITLE}
+        </p>
+        <p
+          style={{ margin: "0 0 0.5rem", color: catalogColors.muted }}
+          data-testid="architecture-nav-tree-empty-body"
+        >
+          {ARCH_MSG.TREE_EMPTY}
+        </p>
+        <p
+          style={{ margin: 0, fontSize: "0.9rem" }}
+          data-testid="architecture-nav-tree-empty-hint"
+        >
+          {ARCH_MSG.TREE_EMPTY_HINT}
+        </p>
       </div>
     );
   } else {

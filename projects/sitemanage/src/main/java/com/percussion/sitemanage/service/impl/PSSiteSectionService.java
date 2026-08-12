@@ -37,8 +37,6 @@ import com.percussion.comments.service.IPSCommentsService;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
-import com.percussion.fastforward.managednav.IPSNavigationErrors;
-import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
@@ -1473,13 +1471,12 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     IPSSite site = siteMgr.loadSite(siteName);
     IPSGuid navTreeId = navSrv.findNavigationIdFromFolder(site.getFolderRoot());
     if (navTreeId == null) {
-      PSNavException ne =
-          new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_CANNOT_FIND_NAVTREE_FOR_SITE, siteName);
-
-      log.error("{}", PSExceptionUtils.getMessageForLog(ne));
-      log.warn("Removing invalid site definition: {}", siteName);
-      siteMgr.deleteSite(site);
+      // Do not delete the site: missing NavTree is a valid empty state (#3218).
+      log.warn(
+          "Site {} has no navigation tree under {}; returning empty root",
+          siteName,
+          site.getFolderRoot());
+      return emptyRootSection(site);
     }
 
     return loadSiteSection(navTreeId, null, site.getFolderRoot(), true, false, null);
@@ -1651,8 +1648,50 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   public PSSectionNode loadTree(String siteName)
       throws PSSiteSectionException, com.percussion.services.error.PSNotFoundException {
-    PSSiteSection root = loadRoot(siteName);
+    IPSSite site = siteMgr.loadSite(siteName);
+    String folderRoot = site.getFolderRoot();
+    IPSGuid navTreeId = navSrv.findNavigationIdFromFolder(folderRoot);
+    if (navTreeId == null) {
+      log.info("Site '{}' has no navigation tree; returning empty section tree", siteName);
+      return PSSectionNode.emptyTree(siteName, folderRoot);
+    }
+    PSSiteSection root = loadSiteSection(navTreeId, null, folderRoot, true, false, null);
     return loadSectionTree(root);
+  }
+
+  /**
+   * Operator-facing message when a site has no NavTree item. REST maps this to
+   * an empty 200 tree rather than HTTP 500 (#3218).
+   */
+  static String missingNavTreeMessage(String siteName) {
+    return "Cannot find navigation tree for site: " + siteName;
+  }
+
+  /**
+   * Empty root section when the site exists but has no NavTree item.
+   * Id is left unset so callers do not treat this as a real navon.
+   */
+  static PSSiteSection emptyRootSection(IPSSite site) {
+    PSSiteSection section = new PSSiteSection();
+    if (site != null) {
+      section.setTitle(site.getName());
+      section.setFolderPath(site.getFolderRoot());
+    }
+    section.setChildIds(new ArrayList<>());
+    section.setSectionType(PSSectionTypeEnum.section);
+    return section;
+  }
+
+  /** True when {@code message} is the missing-NavTree empty-state case (#3218). */
+  static boolean isMissingNavTreeMessage(String message) {
+    if (message == null || message.isBlank()) {
+      return false;
+    }
+    String lower = message.toLowerCase(Locale.ROOT);
+    return lower.contains("cannot find navigation tree")
+        || lower.contains("cannot find navtree")
+        || lower.contains("navtree for site")
+        || lower.contains("navtree_for_site");
   }
 
   /**
