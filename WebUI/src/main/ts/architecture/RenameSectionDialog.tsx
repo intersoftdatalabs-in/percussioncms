@@ -23,6 +23,7 @@ import React, { useEffect, useState } from "react";
 import { catalogColors } from "../developer/catalogStyles";
 import { validateSectionTitle } from "../api/architecture/sectionMutations";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface RenameSectionDialogProps {
   open: boolean;
@@ -62,6 +63,8 @@ export function RenameSectionDialog({
 }: RenameSectionDialogProps): React.ReactElement | null {
   const [title, setTitle] = useState(initialTitle);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useDialogEscape(open, busy, onCancel);
 
   useEffect(() => {
     if (open) {

@@ -27093,5 +27093,262 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
       <tuv xml:lang="en-us"><seg>Server</seg></tuv>
     <tuv xml:lang="lou"><seg>Server</seg></tuv><tuv xml:lang="tr"><seg>Sunucu</seg></tuv></tu>
 
+    <!-- Architecture SPA chrome (#3098 Slice F) — feature keys only (en-us). -->
+    <tu tuid="perc.ui.architecture.modern@Architecture">
+      <tuv xml:lang="en-us"><seg>Architecture</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.">
+      <tuv xml:lang="en-us"><seg>Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Loading Architecture…">
+      <tuv xml:lang="en-us"><seg>Loading Architecture…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Site">
+      <tuv xml:lang="en-us"><seg>Site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a site…">
+      <tuv xml:lang="en-us"><seg>Select a site…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Site context: {0}">
+      <tuv xml:lang="en-us"><seg>Site context: {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a site to load its navigation tree.">
+      <tuv xml:lang="en-us"><seg>Select a site to load its navigation tree.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Loading sites…">
+      <tuv xml:lang="en-us"><seg>Loading sites…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Could not load the site list.">
+      <tuv xml:lang="en-us"><seg>Could not load the site list.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@No sites are available. Create a site to browse its navigation tree.">
+      <tuv xml:lang="en-us"><seg>No sites are available. Create a site to browse its navigation tree.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Loading navigation tree…">
+      <tuv xml:lang="en-us"><seg>Loading navigation tree…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Could not load the navigation tree.">
+      <tuv xml:lang="en-us"><seg>Could not load the navigation tree.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@This site has no navigation sections yet.">
+      <tuv xml:lang="en-us"><seg>This site has no navigation sections yet.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Navigation tree">
+      <tuv xml:lang="en-us"><seg>Navigation tree</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.">
+      <tuv xml:lang="en-us"><seg>Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Refresh">
+      <tuv xml:lang="en-us"><seg>Refresh</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@No site selected">
+      <tuv xml:lang="en-us"><seg>No site selected</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Choose a site from the list above to browse its navigation tree (navons / sections).">
+      <tuv xml:lang="en-us"><seg>Choose a site from the list above to browse its navigation tree (navons / sections).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Structure actions">
+      <tuv xml:lang="en-us"><seg>Structure actions</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create section">
+      <tuv xml:lang="en-us"><seg>Create section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create section link">
+      <tuv xml:lang="en-us"><seg>Create section link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create external link">
+      <tuv xml:lang="en-us"><seg>Create external link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page">
+      <tuv xml:lang="en-us"><seg>Landing page</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Edit link">
+      <tuv xml:lang="en-us"><seg>Edit link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Rename">
+      <tuv xml:lang="en-us"><seg>Rename</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Move up">
+      <tuv xml:lang="en-us"><seg>Move up</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Move down">
+      <tuv xml:lang="en-us"><seg>Move down</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Delete">
+      <tuv xml:lang="en-us"><seg>Delete</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Working…">
+      <tuv xml:lang="en-us"><seg>Working…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a section in the tree to enable structure actions.">
+      <tuv xml:lang="en-us"><seg>Select a section in the tree to enable structure actions.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Could not update navigation structure.">
+      <tuv xml:lang="en-us"><seg>Could not update navigation structure.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Parent section">
+      <tuv xml:lang="en-us"><seg>Parent section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Title">
+      <tuv xml:lang="en-us"><seg>Title</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL name">
+      <tuv xml:lang="en-us"><seg>URL name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Template">
+      <tuv xml:lang="en-us"><seg>Template</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Loading templates…">
+      <tuv xml:lang="en-us"><seg>Loading templates…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@No templates are available for this site.">
+      <tuv xml:lang="en-us"><seg>No templates are available for this site.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create">
+      <tuv xml:lang="en-us"><seg>Create</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Cancel">
+      <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Rename section">
+      <tuv xml:lang="en-us"><seg>Rename section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Save">
+      <tuv xml:lang="en-us"><seg>Save</seg></tuv>
+    </tu>
+    <tu tuid='perc.ui.architecture.modern@Delete section "{0}"? This cannot be undone.'>
+      <tuv xml:lang="en-us"><seg>Delete section "{0}"? This cannot be undone.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@The site root section cannot be deleted.">
+      <tuv xml:lang="en-us"><seg>The site root section cannot be deleted.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a regular section (not a section or external link) as the parent.">
+      <tuv xml:lang="en-us"><seg>Select a regular section (not a section or external link) as the parent.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Replace landing page">
+      <tuv xml:lang="en-us"><seg>Replace landing page</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Section">
+      <tuv xml:lang="en-us"><seg>Section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Choose a page under this site to use as the section landing page.">
+      <tuv xml:lang="en-us"><seg>Choose a page under this site to use as the section landing page.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select landing page">
+      <tuv xml:lang="en-us"><seg>Select landing page</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a page before replacing the landing page.">
+      <tuv xml:lang="en-us"><seg>Select a page before replacing the landing page.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page can only be set on a regular section.">
+      <tuv xml:lang="en-us"><seg>Landing page can only be set on a regular section.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Edit section link">
+      <tuv xml:lang="en-us"><seg>Edit section link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Target section">
+      <tuv xml:lang="en-us"><seg>Target section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Browse the navigation tree and select the section this link should point to.">
+      <tuv xml:lang="en-us"><seg>Browse the navigation tree and select the section this link should point to.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Browse sections…">
+      <tuv xml:lang="en-us"><seg>Browse sections…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a target section for the link.">
+      <tuv xml:lang="en-us"><seg>Select a target section for the link.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@That target is not valid for a section link under the selected parent.">
+      <tuv xml:lang="en-us"><seg>That target is not valid for a section link under the selected parent.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create link">
+      <tuv xml:lang="en-us"><seg>Create link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Save link">
+      <tuv xml:lang="en-us"><seg>Save link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Edit external link">
+      <tuv xml:lang="en-us"><seg>Edit external link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Link text">
+      <tuv xml:lang="en-us"><seg>Link text</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL">
+      <tuv xml:lang="en-us"><seg>URL</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Target window">
+      <tuv xml:lang="en-us"><seg>Target window</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Same window">
+      <tuv xml:lang="en-us"><seg>Same window</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@New window">
+      <tuv xml:lang="en-us"><seg>New window</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Top window">
+      <tuv xml:lang="en-us"><seg>Top window</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Parent window">
+      <tuv xml:lang="en-us"><seg>Parent window</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select section">
+      <tuv xml:lang="en-us"><seg>Select section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select">
+      <tuv xml:lang="en-us"><seg>Select</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a section in the tree, then confirm.">
+      <tuv xml:lang="en-us"><seg>Select a section in the tree, then confirm.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Blog sections appear in the tree; full blog authoring remains outside this editor.">
+      <tuv xml:lang="en-us"><seg>Blog sections appear in the tree; full blog authoring remains outside this editor.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Secure">
+      <tuv xml:lang="en-us"><seg>Secure</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Requires login">
+      <tuv xml:lang="en-us"><seg>Requires login</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Section link">
+      <tuv xml:lang="en-us"><seg>Section link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@External link">
+      <tuv xml:lang="en-us"><seg>External link</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Blog">
+      <tuv xml:lang="en-us"><seg>Blog</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Page id">
+      <tuv xml:lang="en-us"><seg>Page id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL name is required">
+      <tuv xml:lang="en-us"><seg>URL name is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL name is too long (max 100 characters)">
+      <tuv xml:lang="en-us"><seg>URL name is too long (max 100 characters)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL name may only contain letters, numbers, dash, underscore, and period">
+      <tuv xml:lang="en-us"><seg>URL name may only contain letters, numbers, dash, underscore, and period</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Title is required">
+      <tuv xml:lang="en-us"><seg>Title is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Title is too long (max 512 characters)">
+      <tuv xml:lang="en-us"><seg>Title is too long (max 512 characters)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL is required">
+      <tuv xml:lang="en-us"><seg>URL is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@URL is too long (max 2048 characters)">
+      <tuv xml:lang="en-us"><seg>URL is too long (max 2048 characters)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)">
+      <tuv xml:lang="en-us"><seg>Enter a valid URL (for example https://example.com or /path)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Site navigation (Architecture)">
+      <tuv xml:lang="en-us"><seg>Site navigation (Architecture)</seg></tuv>
+    </tu>
+
   </body>
 </tmx>

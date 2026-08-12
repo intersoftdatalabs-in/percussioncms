@@ -28,6 +28,7 @@ import {
 import type { SectionTarget } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface ExternalLinkDialogValues {
   linkTitle: string;
@@ -90,6 +91,8 @@ export function ExternalLinkDialog({
   const [externalUrl, setExternalUrl] = useState("");
   const [target, setTarget] = useState<SectionTarget>("_self");
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useDialogEscape(open, busy, onCancel);
 
   useEffect(() => {
     if (!open) return;

@@ -27,8 +27,27 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { NavTreeNode } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
-import { isNavBranch, sectionTypeLabel } from "./treeModel";
+import type { SectionType } from "../api/architecture/types";
+import { isNavBranch } from "./treeModel";
 import { ARCH_MSG } from "./messages";
+
+/** i18n type badge for nav tree rows (#3098). */
+function typeBadgeLabel(sectionType: SectionType | string): string | null {
+  switch (String(sectionType).toLowerCase()) {
+    case "section":
+      return null;
+    case "sectionlink":
+      return ARCH_MSG.TYPE_SECTION_LINK;
+    case "externallink":
+      return ARCH_MSG.TYPE_EXTERNAL_LINK;
+    case "blog":
+      return ARCH_MSG.TYPE_BLOG;
+    default: {
+      const raw = String(sectionType || "").trim();
+      return raw.length > 0 ? raw : null;
+    }
+  }
+}
 
 export interface NavTreeProps {
   root: NavTreeNode | null;
@@ -252,7 +271,7 @@ export function NavTree({
     const branch = isNavBranch(node);
     const open = expanded[node.id] ?? false;
     const selected = selectedId === node.id;
-    const typeBadge = sectionTypeLabel(node.sectionType);
+    const typeBadge = typeBadgeLabel(node.sectionType);
     // Roving tabindex: selected item, else root when nothing selected
     const isTabStop =
       selected ||
@@ -300,17 +319,19 @@ export function NavTree({
             {node.requiresLogin ? (
               <span
                 style={badgeStyle}
-                title="Requires login"
+                title={ARCH_MSG.SECURE_TITLE}
                 data-testid={`nav-tree-secure-${node.id}`}
               >
-                Secure
+                {ARCH_MSG.SECURE_BADGE}
               </span>
             ) : null}
           </span>
         </div>
-        {branch && open
-          ? node.children.map((child) => renderNode(child, depth + 1))
-          : null}
+        {branch && open ? (
+          <div role="group" data-testid={`nav-tree-group-${node.id}`}>
+            {node.children.map((child) => renderNode(child, depth + 1))}
+          </div>
+        ) : null}
       </div>
     );
   };

@@ -24,6 +24,7 @@
  */
 
 import { toRepositoryCmsPath } from "../../home/create/filenameUtils";
+import { message } from "../../i18n/message";
 import type {
   CreateExternalLinkFields,
   CreateSiteSectionFields,
@@ -46,13 +47,17 @@ const FOLDER_NAME_RE = /^[A-Za-z0-9._-]+$/;
 export function validateSectionFolderName(name: string): string | null {
   const t = name.trim();
   if (!t) {
-    return "URL name is required";
+    return message("perc.ui.architecture.modern@URL name is required");
   }
   if (t.length > 100) {
-    return "URL name is too long (max 100 characters)";
+    return message(
+      "perc.ui.architecture.modern@URL name is too long (max 100 characters)",
+    );
   }
   if (!FOLDER_NAME_RE.test(t)) {
-    return "URL name may only contain letters, numbers, dash, underscore, and period";
+    return message(
+      "perc.ui.architecture.modern@URL name may only contain letters, numbers, dash, underscore, and period",
+    );
   }
   return null;
 }
@@ -64,10 +69,12 @@ export function validateSectionFolderName(name: string): string | null {
 export function validateSectionTitle(title: string): string | null {
   const t = title.trim();
   if (!t) {
-    return "Title is required";
+    return message("perc.ui.architecture.modern@Title is required");
   }
   if (t.length > 512) {
-    return "Title is too long (max 512 characters)";
+    return message(
+      "perc.ui.architecture.modern@Title is too long (max 512 characters)",
+    );
   }
   return null;
 }
@@ -395,10 +402,12 @@ export function isValidSectionLinkTarget(
 export function validateExternalUrl(url: string): string | null {
   const t = url.trim();
   if (!t) {
-    return "URL is required";
+    return message("perc.ui.architecture.modern@URL is required");
   }
   if (t.length > 2048) {
-    return "URL is too long (max 2048 characters)";
+    return message(
+      "perc.ui.architecture.modern@URL is too long (max 2048 characters)",
+    );
   }
   // Accept absolute http(s), protocol-relative, or site-relative paths
   if (
@@ -414,7 +423,9 @@ export function validateExternalUrl(url: string): string | null {
   if (/^[\w./?#&=%-]+$/i.test(t)) {
     return null;
   }
-  return "Enter a valid URL (for example https://example.com or /path)";
+  return message(
+    "perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)",
+  );
 }
 
 /**

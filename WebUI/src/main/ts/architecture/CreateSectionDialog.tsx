@@ -34,6 +34,7 @@ import {
   validateSectionTitle,
 } from "../api/architecture/sectionMutations";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface CreateSectionDialogProps {
   open: boolean;
@@ -94,6 +95,8 @@ export function CreateSectionDialog({
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useDialogEscape(open, busy, onCancel);
 
   useEffect(() => {
     if (!open) {

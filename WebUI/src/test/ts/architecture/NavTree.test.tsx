@@ -61,18 +61,42 @@ describe("NavTree (#3095)", () => {
     cleanup();
   });
 
-  it("renders role=tree with treeitems and type badges", () => {
+  it("renders role=tree with treeitems, groups, and type badges", () => {
     render(<NavTree root={sampleRoot} />);
     const tree = screen.getByRole("tree");
     expect(tree).toBeTruthy();
     expect(screen.getByTestId("nav-tree-item-root")).toBeTruthy();
+    expect(screen.getByTestId("nav-tree-group-root")).toBeTruthy();
     expect(screen.getByTestId("nav-tree-badge-link-1").textContent).toMatch(
       /section link/i,
     );
     expect(screen.getByTestId("nav-tree-badge-ext-1").textContent).toMatch(
       /external/i,
     );
-    expect(screen.getByTestId("nav-tree-secure-ext-1")).toBeTruthy();
+    const secure = screen.getByTestId("nav-tree-secure-ext-1");
+    expect(secure).toBeTruthy();
+    expect(secure.getAttribute("title")).toMatch(/requires login/i);
+    expect(secure.textContent).toMatch(/secure/i);
+  });
+
+  it("moves focus with arrow keys and toggles expand", () => {
+    render(
+      <NavTree root={sampleRoot} selectedId="root" onSelect={() => undefined} />,
+    );
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    rootItem.focus();
+    fireEvent.keyDown(rootItem, { key: "ArrowDown" });
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "nav-tree-item-link-1",
+    );
+    fireEvent.keyDown(screen.getByTestId("nav-tree-item-link-1"), {
+      key: "ArrowUp",
+    });
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "nav-tree-item-root",
+    );
+    fireEvent.keyDown(rootItem, { key: "ArrowLeft" });
+    expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
   });
 
   it("reports selection and collapses via toggle", () => {

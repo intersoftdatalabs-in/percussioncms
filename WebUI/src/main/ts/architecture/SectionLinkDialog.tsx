@@ -29,6 +29,7 @@ import type { NavTreeNode } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { SectionTreePickerDialog } from "./SectionTreePickerDialog";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface SectionLinkDialogProps {
   open: boolean;
@@ -80,6 +81,9 @@ export function SectionLinkDialog({
   const [targetTitle, setTargetTitle] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  // Escape closes the main dialog only when the nested picker is closed.
+  useDialogEscape(open && !pickerOpen, busy, onCancel);
 
   useEffect(() => {
     if (open) {

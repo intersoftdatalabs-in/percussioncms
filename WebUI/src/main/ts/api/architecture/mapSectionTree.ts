@@ -187,9 +187,12 @@ export function isNavBranch(node: NavTreeNode): boolean {
 }
 
 /**
- * Human-readable section type label for badges (English fallback; TMX later).
+ * Human-readable section type label for badges
+ * ({@code perc.ui.architecture.modern} keys — #3098).
  */
 export function sectionTypeLabel(sectionType: SectionType): string | null {
+  // Lazy import avoided: pure English after @ is the runtime fallback when
+  // TMX is not loaded; callers that need full i18n should prefer ARCH_MSG.
   switch (String(sectionType).toLowerCase()) {
     case "section":
       return null;

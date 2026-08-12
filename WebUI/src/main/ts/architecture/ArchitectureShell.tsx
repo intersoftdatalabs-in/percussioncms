@@ -495,6 +495,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       data-testid="perc-architecture-shell"
       data-embedded={embedded ? "true" : "false"}
       data-site={selectedSite ?? ""}
+      aria-busy={mutationBusy || undefined}
       style={{
         fontFamily: "var(--perc-font-family, sans-serif)",
         padding: embedded ? "8px 12px 20px" : "20px",

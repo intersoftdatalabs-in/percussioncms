@@ -36,6 +36,28 @@ Default landing can also be set to **Architecture** for a user or role (homepage
 Empty, loading, and error states are shown explicitly when the site list or tree
 cannot be loaded, or when a site has no sections.
 
+## Keyboard and accessibility
+
+The navigation tree follows the ARIA tree pattern:
+
+| Key | Behavior |
+|-----|----------|
+| **Tab** | Moves focus into the tree (roving tabindex on the selected or root item). |
+| **Arrow Up / Down** | Move focus among visible nodes. |
+| **Arrow Right** | Expand a collapsed branch, or move into the first child when expanded. |
+| **Arrow Left** | Collapse an expanded branch, or move focus to the parent. |
+| **Home / End** | Jump to the first or last visible node. |
+| **Enter / Space** | Select the focused section (and toggle expand on branches). |
+
+Structure dialogs (create, rename, landing page, section link, external link, and the
+section picker) are modal (`role="dialog"`, `aria-modal`). **Escape** closes the open
+dialog when a mutation is not in progress. Primary structure actions live in a toolbar
+with an accessible name (**Structure actions**).
+
+Chrome strings (shell, tree states, actions, dialogs, validation) use the
+`perc.ui.architecture.modern` message catalog so they follow the session locale when
+TMX is loaded.
+
 ## Edit navigation structure
 
 With a site selected, use the structure action bar above the tree:
@@ -75,6 +97,9 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
+| Keyboard / ARIA tree + Escape dialogs | **Available** |
+| `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
+| Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
 | Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
 
 ## Related

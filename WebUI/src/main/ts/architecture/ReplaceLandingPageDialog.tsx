@@ -26,6 +26,7 @@ import type { SelectionResult } from "../api/contentExplorer/types";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import { catalogColors } from "../developer/catalogStyles";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface ReplaceLandingPageDialogProps {
   open: boolean;
@@ -77,6 +78,8 @@ export function ReplaceLandingPageDialog({
   const [pageLabel, setPageLabel] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);
+
+  useDialogEscape(open && !browserOpen, busy, onCancel);
 
   useEffect(() => {
     if (open) {
@@ -191,7 +194,7 @@ export function ReplaceLandingPageDialog({
                   htmlFor="architecture-landing-page-id"
                   style={{ fontWeight: 600, fontSize: "0.9rem" }}
                 >
-                  Page id
+                  {ARCH_MSG.LANDING_PAGE_ID_LABEL}
                 </label>
                 <input
                   id="architecture-landing-page-id"
