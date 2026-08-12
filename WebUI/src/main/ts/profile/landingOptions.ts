@@ -53,6 +53,7 @@ export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
   },
   {
     value: HOMEPAGE_TYPES.ARCHITECTURE,
+    // SPA path /architecture (#3094); homepage type remains "Architecture"
     labelKey: "perc.ui.navMenu.architecture@Architecture",
   },
   {

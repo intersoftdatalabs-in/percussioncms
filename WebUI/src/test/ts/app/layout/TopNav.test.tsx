@@ -85,6 +85,18 @@ describe("TopNav (#2702)", () => {
     expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
   });
 
+  it("Architecture is SPA NavLink to /architecture (#3094)", () => {
+    renderNav();
+    const arch = screen.getByTestId("nav-architecture");
+    const href = arch.getAttribute("href") || "";
+    expect(href === "/architecture" || href.endsWith("/architecture")).toBe(
+      true,
+    );
+    // Must not be a full-page legacy exit
+    expect(href).not.toMatch(/view=arch/);
+    expect(arch.tagName.toLowerCase()).toBe("a");
+  });
+
   it("hides Admin for non-admin", () => {
     bootstrapState.isAdmin = false;
     bootstrapState.isDesigner = false;

@@ -90,9 +90,13 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       // Legacy exits preserved (dash moved to SPA Home gadgets in PR-7)
       expect(text).toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
       expect(text).toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
-      expect(text).toMatch(
+      // #3094: Architecture is SPA entry, not legacyViews arch → siteArchitecture.jsp
+      expect(text).not.toMatch(
         /legacyViews\.put\("arch",\s*"siteArchitecture\.jsp"\)/,
       );
+      expect(text).toMatch(/"arch"/);
+      expect(text).toMatch(/"architecture"/);
+      expect(text).toMatch(/entry\s*=\s*"architecture"|entry = "architecture"/);
     }
   });
 

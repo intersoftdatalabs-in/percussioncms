@@ -64,12 +64,13 @@
     Map<String, String> legacyViews = new HashMap<String, String>();
     legacyViews.put("editAsset", "editAsset.jsp");
     legacyViews.put("design", "admin.jsp");
-    legacyViews.put("arch", "siteArchitecture.jsp");
+    // arch / Architecture → SPA entry=architecture (#3094); JSP retained for Slice G only
     legacyViews.put("editor", "webmgt.jsp");
     legacyViews.put("editTemplate", "editTemplate.jsp");
 
     // Modern SPA entries (query contract — never hash). *Modern.jsp is not product path.
     // "dash" is handled as SPA Home gadgets (PR-7 product lock).
+    // "arch" / "architecture" → Architecture SPA shell (#3094).
     String[] spaViews = new String[]{
             "home",
             "publish",
@@ -77,6 +78,8 @@
             "admin",
             "widgetbuilder",
             "developer",
+            "arch",
+            "architecture",
             "dash"
     };
 
@@ -230,6 +233,9 @@
         else if ("workflow".equals(view))
             // #3088: fold legacy Workflow admin view into unified Admin shell
             entry = "admin";
+        else if ("arch".equals(view) || "architecture".equals(view))
+            // #3094: Architecture homepage / view=arch → SPA Architecture shell
+            entry = "architecture";
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
                 || "developer".equals(view))
@@ -301,6 +307,16 @@
                     DEVELOPER_SECTION_ALIASES);
             if (section != null)
                 qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
+        }
+        else if ("arch".equals(view) || "architecture".equals(view))
+        {
+            // Optional site context for Architecture SPA (#3094)
+            String site = request.getParameter("site");
+            if (site != null && !site.isBlank() && site.length() <= 128
+                    && !site.contains("://") && !site.contains("..") && !site.contains("/"))
+            {
+                qs.append("&site=").append(URLEncoder.encode(site.trim(), "UTF-8"));
+            }
         }
 
         // Canonical SPA document lives under /cm/app/ (both trees redirect here)

@@ -51,6 +51,12 @@ export interface TopNavGates {
 export const ADMIN_NAV_LANDING = "/admin";
 
 /**
+ * Client path for Architecture top-nav NavLink and homepage SPA landing (#3094).
+ * Replaces primary legacy {@code ?view=arch} / {@code siteArchitecture.jsp} entry.
+ */
+export const ARCHITECTURE_NAV_LANDING = "/architecture";
+
+/**
  * Ordered top-nav item ids for the given role / feature gates.
  * Explorer is always immediately after Home.
  */
