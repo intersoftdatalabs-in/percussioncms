@@ -845,7 +845,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
     private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "Icon")
-    protected ArrayList<Icon> icon;
+    protected List<Icon> icon;
 
     @XmlAttribute(name = "contenttype_name")
     protected String contenttypeName;

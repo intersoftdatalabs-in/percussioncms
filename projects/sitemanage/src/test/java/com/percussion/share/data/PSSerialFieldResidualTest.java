@@ -86,14 +86,20 @@ class PSSerialFieldResidualTest {
   @Test
   void pubInfoOnSiteSummaryRoundTrip() throws Exception {
     var pub = new PSPubInfo("bucket", "ak", "sk", "us-east-1");
+    pub.setArnRole("arn:aws:iam::123:role/r");
     var site = new PSSiteSummary();
     site.setName("site-a");
     site.setPubInfo(pub);
 
     var copy = roundTrip(site);
     assertEquals("site-a", copy.getName());
-    assertEquals("bucket", copy.getPubInfo().orElseThrow().getBucketName());
-    assertEquals("us-east-1", copy.getPubInfo().orElseThrow().getRegionName());
+    var pubCopy = copy.getPubInfo().orElseThrow();
+    assertEquals("bucket", pubCopy.getBucketName());
+    assertEquals("us-east-1", pubCopy.getRegionName());
+    // Credential fields are transient — must not survive Java serialization.
+    assertNull(pubCopy.getAccessKey());
+    assertNull(pubCopy.getSecretKey());
+    assertNull(pubCopy.getArnRole());
   }
 
   @Test

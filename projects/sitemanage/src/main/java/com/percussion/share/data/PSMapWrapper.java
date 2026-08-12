@@ -31,20 +31,16 @@ public class PSMapWrapper implements Serializable {
 
   private static final long serialVersionUID = 8252999104256582955L;
 
-  private HashMap<String, String> entries = new HashMap<>();
+  private Map<String, String> entries = new HashMap<>();
 
   public Map<String, String> getEntries() {
     return entries;
   }
 
-  @SuppressWarnings("unchecked")
   public void setEntries(Map<String, String> map) {
     Objects.requireNonNull(map, "Map cannot be null");
-    if (map instanceof HashMap) {
-      this.entries = (HashMap<String, String>) map;
-    } else {
-      this.entries = new HashMap<>(map);
-    }
+    // Copy into HashMap so the field always holds a concrete Serializable map instance.
+    this.entries = new HashMap<>(map);
   }
 
   @Override

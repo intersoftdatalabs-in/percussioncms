@@ -35,15 +35,23 @@ public abstract class PSRegionParserAdapter<
   /**
    * Lazy: {@link PSRegionParser} takes the factory ({@code this}) as a constructor arg. Creating it
    * in a field initializer would leak {@code this} before the subclass finishes construction
-   * ({@code this-escape}). Construction is complete before {@link #parse(String)} runs.
+   * ({@code this-escape}). Construction is complete before {@link #parse(String)} runs. Synchronized
+   * so concurrent {@link #parse(String)} on a shared adapter (e.g. Spring singleton) cannot race.
    */
-  private PSRegionParser<REGION, CODE> parser;
+  private volatile PSRegionParser<REGION, CODE> parser;
 
   private PSRegionParser<REGION, CODE> parser() {
-    if (parser == null) {
-      parser = new PSRegionParser<>(this);
+    PSRegionParser<REGION, CODE> local = parser;
+    if (local == null) {
+      synchronized (this) {
+        local = parser;
+        if (local == null) {
+          local = new PSRegionParser<>(this);
+          parser = local;
+        }
+      }
     }
-    return parser;
+    return local;
   }
 
   @Override

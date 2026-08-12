@@ -33,11 +33,17 @@ public class PSPubInfo implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private String bucketName;
-  private String accessKey;
-  private String secretKey;
+  /**
+   * Credentials are not part of the Java serialization contract — {@code transient} so session
+   * replication / caches never persist AWS secrets even when nested under a {@code Serializable}
+   * site summary.
+   */
+  private transient String accessKey;
+
+  private transient String secretKey;
   private String regionName;
   private String useAssumeRole;
-  private String arnRole;
+  private transient String arnRole;
 
   public PSPubInfo() {
     // Default constructor

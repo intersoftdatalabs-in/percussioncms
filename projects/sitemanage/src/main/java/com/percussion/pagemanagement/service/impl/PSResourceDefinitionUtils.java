@@ -124,8 +124,14 @@ public class PSResourceDefinitionUtils {
       return "Cycle detected with the following resources: " + cyclicalResourceIds;
     }
 
+    /**
+     * In-process graph only. After Java deserialization this is always empty ({@code transient});
+     * use {@link #getMessage()} / ids for post-serialization diagnostics.
+     *
+     * @return never {@code null}; may be empty after deserialization.
+     */
     public final List<? extends PSResourceDefinition> getCyclicalResources() {
-      return cyclicalResources;
+      return cyclicalResources == null ? List.of() : cyclicalResources;
     }
   }
 
