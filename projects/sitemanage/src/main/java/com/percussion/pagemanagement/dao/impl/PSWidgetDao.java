@@ -297,18 +297,28 @@ public class PSWidgetDao
       this.modernPackageRoots =
           PSModernPackageRootDefaults.resolve(modernPackageRootsProperty, rxDeployDir, cl);
       if (log.isInfoEnabled() && !modernPackageRoots.isEmpty()) {
+        Path defaultDir =
+            rxDeployDir != null
+                ? rxDeployDir
+                    .resolve(PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR)
+                    .toAbsolutePath()
+                    .normalize()
+                : null;
         log.info(
-            "Widget dual-run modern package roots ({}): defaultDir={}, count={}",
+            "Widget dual-run modern package roots ({}): defaultDir={}, resolvedRoots={}, count={}",
             modernPackageRootsProperty == null || modernPackageRootsProperty.isBlank()
                 ? "product-default"
                 : "explicit",
-            PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR,
+            defaultDir != null
+                ? defaultDir
+                : PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR,
+            modernPackageRoots,
             modernPackageRoots.size());
       }
     } catch (IOException e) {
       log.warn(
-          "Failed to resolve widgetDao.modernPackageRoots defaults; using legacy-only selection: {}",
-          e.getMessage());
+          "Failed to resolve widgetDao.modernPackageRoots defaults; using legacy-only selection",
+          e);
       this.modernPackageRoots = List.of();
     }
   }

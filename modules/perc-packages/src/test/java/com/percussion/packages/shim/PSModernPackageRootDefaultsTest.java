@@ -19,8 +19,10 @@ package com.percussion.packages.shim;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -165,5 +167,24 @@ class PSModernPackageRootDefaultsTest {
     String prop = a + java.io.File.pathSeparator + b;
     List<Path> roots = PSModernPackageRootDefaults.parsePathSeparatorList(prop);
     assertEquals(2, roots.size());
+  }
+
+  @Test
+  void safeResolveUnder_rejectsZipSlipAndAbsolute() throws Exception {
+    Path root = tempDir.resolve("dest").toAbsolutePath().normalize();
+    Files.createDirectories(root);
+
+    Path ok = PSModernPackageRootDefaults.safeResolveUnder(root, "widgets/stem/file.json");
+    assertTrue(ok.startsWith(root));
+    assertTrue(ok.endsWith(Path.of("widgets", "stem", "file.json")));
+
+    assertThrows(
+        IOException.class,
+        () -> PSModernPackageRootDefaults.safeResolveUnder(root, "../escape.txt"));
+    assertThrows(
+        IOException.class,
+        () -> PSModernPackageRootDefaults.safeResolveUnder(root, "widgets/../../escape.txt"));
+    assertThrows(
+        IOException.class, () -> PSModernPackageRootDefaults.safeResolveUnder(root, "/abs.txt"));
   }
 }

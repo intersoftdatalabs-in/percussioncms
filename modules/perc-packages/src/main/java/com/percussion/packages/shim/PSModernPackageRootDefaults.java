@@ -216,7 +216,8 @@ public final class PSModernPackageRootDefaults {
     Set<String> packageNames = listModernPackageNames(jarOrDir);
     int written = 0;
     for (String packageName : packageNames) {
-      Path packageDest = dest.resolve(packageName);
+      // Package names from jar listings must stay single-segment under dest (Zip Slip)
+      Path packageDest = safeResolveUnder(dest, packageName);
       if (isModernPackageRoot(packageDest)) {
         continue;
       }
@@ -279,9 +280,9 @@ public final class PSModernPackageRootDefaults {
       if (bang < 0) {
         return null;
       }
-      // jar:file:/…/foo.jar!/Packages/…
+      // jar:file:/…/foo.jar!/Packages/… — parse jar URI directly (no URL round-trip)
       String jarUri = external.substring("jar:".length(), bang);
-      return urlToPath(URI.create(jarUri).toURL());
+      return uriToPath(URI.create(jarUri));
     }
     return null;
   }
@@ -391,6 +392,7 @@ public final class PSModernPackageRootDefaults {
   private static int copyModernPackageFromJar(
       Path jarPath, String packageName, Path packageDest) throws IOException {
     String prefix = CLASSPATH_PACKAGES_PREFIX + packageName + "/";
+    Path destRoot = packageDest.toAbsolutePath().normalize();
     int written = 0;
     try (JarFile jar = new JarFile(jarPath.toFile())) {
       Enumeration<JarEntry> entries = jar.entries();
@@ -407,7 +409,8 @@ public final class PSModernPackageRootDefaults {
         if (!isRootManifest && !underWidgets) {
           continue;
         }
-        Path target = packageDest.resolve(relative);
+        // Zip Slip: reject absolute / .. / escaped paths before any FS write
+        Path target = safeResolveUnder(destRoot, relative);
         Files.createDirectories(target.getParent());
         try (InputStream in = jar.getInputStream(entry)) {
           Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
@@ -422,6 +425,7 @@ public final class PSModernPackageRootDefaults {
     if (!Files.isDirectory(source)) {
       return 0;
     }
+    Path destRoot = dest.toAbsolutePath().normalize();
     final int[] count = {0};
     Files.walkFileTree(
         source,
@@ -430,7 +434,8 @@ public final class PSModernPackageRootDefaults {
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
               throws IOException {
             Path rel = source.relativize(dir);
-            Files.createDirectories(dest.resolve(rel.toString()));
+            Path targetDir = safeResolveUnder(destRoot, rel.toString());
+            Files.createDirectories(targetDir);
             return FileVisitResult.CONTINUE;
           }
 
@@ -438,7 +443,7 @@ public final class PSModernPackageRootDefaults {
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
             Path rel = source.relativize(file);
-            Path target = dest.resolve(rel.toString());
+            Path target = safeResolveUnder(destRoot, rel.toString());
             Files.createDirectories(target.getParent());
             Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
             count[0]++;
@@ -446,6 +451,53 @@ public final class PSModernPackageRootDefaults {
           }
         });
     return count[0];
+  }
+
+  /**
+   * Resolves {@code relative} under {@code destRoot} and rejects Zip Slip ({@code ..}, absolute
+   * segments, or any path that escapes the destination root after normalize).
+   *
+   * @param destRoot absolute normalized destination root
+   * @param relative archive or tree-relative path (may use {@code /} or platform separators)
+   * @return absolute normalized target path under {@code destRoot}
+   * @throws IOException if the entry path escapes {@code destRoot}
+   */
+  static Path safeResolveUnder(Path destRoot, String relative) throws IOException {
+    Objects.requireNonNull(destRoot, "destRoot");
+    Path root = destRoot.toAbsolutePath().normalize();
+    // Empty relative is the destination root itself (e.g. walkFileTree preVisit on source root)
+    if (relative == null || relative.isBlank() || ".".equals(relative) || "./".equals(relative)) {
+      return root;
+    }
+    String normalized = relative.replace('\\', '/');
+    if (normalized.startsWith("/") || normalized.contains(":")) {
+      throw new IOException("Rejected absolute/drive archive entry path: " + relative);
+    }
+    // Reject ".." segments before resolve (portable Zip Slip guard)
+    for (String segment : normalized.split("/")) {
+      if (segment.isEmpty() || ".".equals(segment)) {
+        continue;
+      }
+      if ("..".equals(segment)) {
+        throw new IOException("Rejected Zip Slip archive entry path: " + relative);
+      }
+    }
+    Path target = root.resolve(normalized).normalize();
+    if (!target.startsWith(root)) {
+      throw new IOException("Rejected Zip Slip archive entry path: " + relative);
+    }
+    return target;
+  }
+
+  private static Path uriToPath(URI uri) throws IOException {
+    if (uri == null) {
+      return null;
+    }
+    try {
+      return Path.of(uri);
+    } catch (Exception e) {
+      throw new IOException("Cannot convert URI to path: " + uri, e);
+    }
   }
 
   private static Path urlToPath(URL url) throws IOException {
@@ -456,7 +508,7 @@ public final class PSModernPackageRootDefaults {
       return Path.of(url.toURI());
     } catch (URISyntaxException e) {
       try {
-        return Path.of(URI.create(url.toExternalForm()));
+        return uriToPath(URI.create(url.toExternalForm()));
       } catch (Exception ex) {
         throw new IOException("Cannot convert URL to path: " + url, e);
       }
