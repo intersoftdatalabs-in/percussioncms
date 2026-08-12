@@ -28,6 +28,7 @@ import {
   paginatedFolder,
   saveFolderProperties,
   unwrapFolderProperties,
+  unwrapPrincipalList,
   validatePath,
   wrapFolderProperties,
 } from "../../../main/ts/api/contentExplorer/pathApi";
@@ -330,6 +331,41 @@ describe("folderProperties Jackson root wrap (#2749)", () => {
         locale: "en-us",
       },
     });
+  });
+
+  it("unwrapPrincipalList accepts array, JAXB wrap, and single principal (#3206)", () => {
+    expect(
+      unwrapPrincipalList([{ type: "ROLE", name: "Admin" }]),
+    ).toEqual([{ type: "ROLE", name: "Admin" }]);
+    expect(
+      unwrapPrincipalList({
+        Principal: [{ type: "ROLE", name: "Admin" }, { type: "USER", name: "alice" }],
+      }),
+    ).toEqual([
+      { type: "ROLE", name: "Admin" },
+      { type: "USER", name: "alice" },
+    ]);
+    expect(unwrapPrincipalList({ type: "USER", name: "solo" })).toEqual([
+      { type: "USER", name: "solo" },
+    ]);
+    expect(unwrapPrincipalList(null)).toEqual([]);
+  });
+
+  it("unwrapFolderProperties normalizes JAXB-wrapped ROLE identities (#3206)", () => {
+    const props = unwrapFolderProperties({
+      FolderProperties: {
+        id: "16777215-101-703",
+        name: "Design",
+        locale: "en-us",
+        permission: {
+          accessLevel: "ADMIN",
+          adminPrincipals: { Principal: [{ type: "ROLE", name: "Admin" }] },
+        },
+      },
+    });
+    expect(props?.permission?.adminPrincipals).toEqual([
+      { type: "ROLE", name: "Admin" },
+    ]);
   });
 
   it("saveFolderProperties defaults missing permission and rejects missing id", async () => {

@@ -96,12 +96,17 @@ public class PSFolderPermissionUtils {
     var iter = acl.iterator();
     while (iter.hasNext()) {
       var entry = iter.next();
-      if (entry == null || !entry.isUser()) {
+      // Folder Security lists USER and ROLE identities. Virtual Everyone is the
+      // default accessLevel, not a named principal (#3206 / QA #2600).
+      if (entry == null || entry.isVirtual()) {
+        continue;
+      }
+      if (!entry.isUser() && !entry.isRole()) {
         continue;
       }
       var p = new Principal();
       p.setName(entry.getName());
-      p.setType(PrincipalType.USER);
+      p.setType(entry.isRole() ? PrincipalType.ROLE : PrincipalType.USER);
       if (entry.hasAdminAccess()) {
         adminPrincipals.add(p);
       } else if (entry.hasWriteAccess()) {
@@ -213,7 +218,8 @@ public class PSFolderPermissionUtils {
    * of the folder.
    *
    * <p>Note, The folder will always has an entry with ADMIN permission for the "Admin" and
-   * "Designer" roles. However, the role ACL entry is not exposed in {@link PSFolderPermission} yet.
+   * "Designer" roles. Those ROLE entries are listed on {@link PSFolderPermission} principal lists
+   * (#3206).
    *
    * @param folder the folder, never <code>null</code>.
    * @param acl the new access level of the folder, never <code>null</code>
@@ -255,9 +261,9 @@ public class PSFolderPermissionUtils {
       return;
     }
 
-    setUserAcls(acl, perm.getReadPrincipals(), READ_ACCESS);
-    setUserAcls(acl, perm.getWritePrincipals(), WRITE_ACCESS);
-    setUserAcls(acl, perm.getAdminPrincipals(), ADMIN_ACCESS);
+    setPrincipalAcls(acl, perm.getReadPrincipals(), READ_ACCESS);
+    setPrincipalAcls(acl, perm.getWritePrincipals(), WRITE_ACCESS);
+    setPrincipalAcls(acl, perm.getAdminPrincipals(), ADMIN_ACCESS);
   }
 
   /**
@@ -296,22 +302,23 @@ public class PSFolderPermissionUtils {
    * @param userName the name of the user in question, it may be <code>null</code> or empty.
    * @param permission the new access level for the user.
    */
-  private static void setUserAcl(PSObjectAcl acl, String userName, int permission) {
-    setAclEntry(acl, PSObjectAclEntry.ACL_ENTRY_TYPE_USER, userName, permission);
-  }
-
   /**
-   * Sets the access level of ACL entries within the specified ACL, where the type of the entry is
-   * {@link PSObjectAclEntry#ACL_ENTRY_TYPE_USER} and the name of the entry is specified in the
-   * given principals.
-   *
-   * @param acl the ACL in question, assumed not <code>null</code>.
-   * @param users the list of principals in question, it may be <code>null</code> or empty.
-   * @param permission the new access level for the users.
+   * Persist USER and ROLE principals onto the folder ACL (#3206). ROLE names must not be written
+   * as USER entries or Folder Security identities disappear on the next load.
    */
-  private static void setUserAcls(PSObjectAcl acl, List<Principal> users, int permission) {
-    if (users != null) {
-      users.forEach(user -> setUserAcl(acl, user.getName(), permission));
+  private static void setPrincipalAcls(PSObjectAcl acl, List<Principal> principals, int permission) {
+    if (principals == null) {
+      return;
+    }
+    for (Principal principal : principals) {
+      if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+        continue;
+      }
+      int type =
+          principal.getType() == PrincipalType.ROLE
+              ? PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE
+              : PSObjectAclEntry.ACL_ENTRY_TYPE_USER;
+      setAclEntry(acl, type, principal.getName(), permission);
     }
   }
 

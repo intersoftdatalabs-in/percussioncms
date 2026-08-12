@@ -251,7 +251,7 @@ export function FolderSecurityPanel(
     return (Object.keys(PRINCIPAL_LABELS) as PrincipalListKey[]).map((k) => ({
       level: k,
       label: PRINCIPAL_LABELS[k],
-      principals: permission[k] ?? [],
+      principals: Array.isArray(permission[k]) ? permission[k]! : [],
     }));
   }, [status]);
 

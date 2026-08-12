@@ -428,6 +428,28 @@ describe("FolderSecurityPanel", () => {
     expect(saved.permission?.adminPrincipals?.[0]?.name).toBe("Admin");
   });
 
+  it("renders ROLE identities so lockout can see Admin (#3206)", () => {
+    const props = makeProps({
+      permission: {
+        accessLevel: "ADMIN",
+        adminPrincipals: [{ type: "ROLE", name: "Admin" }],
+      },
+    });
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Admin"]}
+        initial={props}
+      />,
+    );
+    expect(
+      screen.getByTestId("folder-security-list-adminPrincipals-remove-Admin"),
+    ).toBeTruthy();
+    expect(
+      screen.queryByTestId("folder-security-list-adminPrincipals-empty"),
+    ).toBeNull();
+  });
+
   it("folder property inputs are disabled in read-only mode (#2410)", () => {
     const props = makeProps({
       permission: permission([], [], [], [], "READ"),
