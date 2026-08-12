@@ -18,6 +18,10 @@ export {
   AuditLogForbiddenError,
   getAuditLogEntry,
   queryAuditLogEntries,
+  SYSTEM_AUDIT_LOG_ENTRY_ROOT,
+  SYSTEM_AUDIT_LOG_PAGE_ROOT,
+  unwrapSystemAuditLogEntry,
+  unwrapSystemAuditLogPage,
 } from "./auditLogApi";
 export {
   AUDIT_LOG_PAGE_SIZE_OPTIONS,

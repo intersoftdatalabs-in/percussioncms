@@ -17,13 +17,21 @@
 package com.percussion.rest.auditlog;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Paged query result for system audit log entries. */
+/**
+ * Paged query result for system audit log entries.
+ *
+ * <p>Wire root {@code SystemAuditLogPage} matches {@code WRAP_ROOT_VALUE}/{@code
+ * UNWRAP_ROOT_VALUE} (JacksonContextResolver). SPA clients must unwrap before reading {@code
+ * entries}/{@code total} (#3089).
+ */
 @XmlRootElement(name = "SystemAuditLogPage")
+@JsonRootName("SystemAuditLogPage")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Paged system security audit log query result")
 public class SystemAuditLogPage {
