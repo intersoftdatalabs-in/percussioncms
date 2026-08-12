@@ -63,12 +63,15 @@ export function RenameSectionDialog({
   const [title, setTitle] = useState(initialTitle);
   const [localError, setLocalError] = useState<string | null>(null);
 
+  // Seed only when the dialog opens — do not wipe in-progress edits if the
+  // parent re-renders with a new initialTitle while open stays true.
   useEffect(() => {
     if (open) {
       setTitle(initialTitle);
       setLocalError(null);
     }
-  }, [open, initialTitle]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open-transition seed
+  }, [open]);
 
   if (!open) {
     return null;
@@ -76,6 +79,7 @@ export function RenameSectionDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLocalError(null);
     const err = validateSectionTitle(title);
     if (err) {
       setLocalError(err);
@@ -107,12 +111,19 @@ export function RenameSectionDialog({
           {ARCH_MSG.RENAME_DIALOG_TITLE}
         </h2>
         <form onSubmit={handleSubmit}>
-          <label style={{ display: "block", fontSize: "0.9rem" }}>
+          <label
+            htmlFor="architecture-rename-title-input"
+            style={{ display: "block", fontSize: "0.9rem" }}
+          >
             {ARCH_MSG.RENAME_TITLE_LABEL}
             <input
+              id="architecture-rename-title-input"
               data-testid="architecture-rename-title-input"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setLocalError(null);
+                setTitle(e.target.value);
+              }}
               required
               disabled={busy}
               autoFocus

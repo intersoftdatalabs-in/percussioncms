@@ -43,16 +43,27 @@ With a site selected, use the structure action bar above the tree:
 | Action | Behavior |
 |--------|----------|
 | **Create section** | Opens a dialog to add a regular section (title, URL name, template) under the selected section, or under the site root when nothing is selected. Requires a site template. |
+| **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
+| **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
+| **Landing page** | Opens the content page picker so you can assign a different landing page to the selected regular section. |
+| **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent. |
 | **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
 
-Server errors from create, rename, move, or delete are shown in the panel (no silent
-failure). The tree reloads after a successful mutation.
+Server errors from create, rename, move, delete, landing-page, or link mutations are
+shown in the panel (no silent failure). The tree reloads after a successful mutation.
 
-**Not in this surface yet:** landing-page assignment, section-link / external-link
-create and edit dialogs, convert folder, and full section security preferences.
-Those follow in a later Architecture slice.
+### Blog sections
+
+Blog-type sections appear in the navigation tree (type badge). Full blog post
+authoring remains outside this Architecture editor; treat blog structure as
+visible but limited in this surface.
+
+### Still later
+
+Convert folder to section, full section security / ACL preferences, and
+retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 
 ## Current status (migration)
 
@@ -63,7 +74,7 @@ Those follow in a later Architecture slice.
 | Site picker | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
-| Landing page / section-link parity | **Coming soon** |
+| Landing page / section-link / external-link parity | **Available** |
 | Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
 
 ## Related

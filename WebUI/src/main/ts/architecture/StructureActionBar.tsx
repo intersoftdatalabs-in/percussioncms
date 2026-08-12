@@ -16,7 +16,7 @@
  */
 
 /**
- * Structure action toolbar for Architecture nav mutations (#3096).
+ * Structure action toolbar for Architecture nav mutations (#3096 / #3097).
  */
 
 import React from "react";
@@ -26,11 +26,19 @@ import { ARCH_MSG } from "./messages";
 export interface StructureActionBarProps {
   busy: boolean;
   canCreate: boolean;
+  canCreateSectionLink: boolean;
+  canCreateExternalLink: boolean;
+  canLanding: boolean;
+  canEditLink: boolean;
   canRename: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
   canDelete: boolean;
   onCreate: () => void;
+  onCreateSectionLink: () => void;
+  onCreateExternalLink: () => void;
+  onLanding: () => void;
+  onEditLink: () => void;
   onRename: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -60,17 +68,29 @@ function buttonStyle(enabled: boolean): React.CSSProperties {
 export function StructureActionBar({
   busy,
   canCreate,
+  canCreateSectionLink,
+  canCreateExternalLink,
+  canLanding,
+  canEditLink,
   canRename,
   canMoveUp,
   canMoveDown,
   canDelete,
   onCreate,
+  onCreateSectionLink,
+  onCreateExternalLink,
+  onLanding,
+  onEditLink,
   onRename,
   onMoveUp,
   onMoveDown,
   onDelete,
 }: StructureActionBarProps): React.ReactElement {
   const createEnabled = canCreate && !busy;
+  const sectionLinkEnabled = canCreateSectionLink && !busy;
+  const externalLinkEnabled = canCreateExternalLink && !busy;
+  const landingEnabled = canLanding && !busy;
+  const editLinkEnabled = canEditLink && !busy;
   const renameEnabled = canRename && !busy;
   const upEnabled = canMoveUp && !busy;
   const downEnabled = canMoveDown && !busy;
@@ -91,6 +111,42 @@ export function StructureActionBar({
         style={buttonStyle(createEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-create-section-link"
+        disabled={!sectionLinkEnabled}
+        onClick={onCreateSectionLink}
+        style={buttonStyle(sectionLinkEnabled)}
+      >
+        {ARCH_MSG.ACTION_CREATE_SECTION_LINK}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-create-external-link"
+        disabled={!externalLinkEnabled}
+        onClick={onCreateExternalLink}
+        style={buttonStyle(externalLinkEnabled)}
+      >
+        {ARCH_MSG.ACTION_CREATE_EXTERNAL_LINK}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-landing"
+        disabled={!landingEnabled}
+        onClick={onLanding}
+        style={buttonStyle(landingEnabled)}
+      >
+        {ARCH_MSG.ACTION_LANDING}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-edit-link"
+        disabled={!editLinkEnabled}
+        onClick={onEditLink}
+        style={buttonStyle(editLinkEnabled)}
+      >
+        {ARCH_MSG.ACTION_EDIT_LINK}
       </button>
       <button
         type="button"

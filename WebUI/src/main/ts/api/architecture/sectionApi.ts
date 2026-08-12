@@ -16,10 +16,11 @@
  */
 
 /**
- * Typed section REST client for Architecture nav tree (#3095 / #3096).
+ * Typed section REST client for Architecture nav tree
+ * (#3095 / #3096 / #3097).
  *
  * <p>Read: {@code GET /sitemanage/section/tree/{siteName}}.
- * Mutations (Slice D): create / properties / update / move / delete.</p>
+ * Mutations: create / properties / update / move / delete / landing / links.</p>
  */
 
 import { del, get, post } from "../client";
@@ -29,17 +30,25 @@ import {
   parseSectionNodePayload,
 } from "./mapSectionTree";
 import {
+  buildCreateExternalLinkBody,
+  buildCreateSectionLinkPath,
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
+  buildReplaceLandingPageBody,
+  buildUpdateSectionLinkBody,
   buildUpdateSiteSectionBody,
+  parseSiteSectionPayload,
   parseSiteSectionPropertiesPayload,
 } from "./sectionMutations";
 import type {
+  CreateExternalLinkFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
+  ReplaceLandingPageFields,
   SiteSectionPropertiesWire,
   SiteSectionWire,
+  UpdateSectionLinkFields,
 } from "./types";
 
 /**
@@ -83,6 +92,30 @@ export function sectionDeleteLinkUrl(
   const sec = encodeURIComponent(sectionId.trim());
   const parent = encodeURIComponent(parentId.trim());
   return `${PATHS.SECTION_DELETE_SECTION_LINK}/${sec}/${parent}`;
+}
+
+/** Build create-section-link URL (exported for tests). */
+export function sectionCreateLinkUrl(
+  targetSectionId: string,
+  parentSectionId: string,
+): string {
+  const path = buildCreateSectionLinkPath(targetSectionId, parentSectionId);
+  if (!path) {
+    throw new Error("Target and parent section ids are required");
+  }
+  return `${PATHS.SECTION_CREATE_SECTION_LINK}/${path}`;
+}
+
+/** Build update-external-link URL (exported for tests). */
+export function sectionUpdateExternalLinkUrl(sectionId: string): string {
+  const key = encodeURIComponent(sectionId.trim());
+  return `${PATHS.SECTION_UPDATE_EXTERNAL_LINK}/${key}`;
+}
+
+/** Build load-one-section URL (exported for tests). */
+export function sectionLoadUrl(sectionId: string): string {
+  const key = encodeURIComponent(sectionId.trim());
+  return `${PATHS.SECTION}/${key}`;
 }
 
 /**
@@ -243,10 +276,118 @@ export async function convertSectionToFolder(
   return del<unknown>(sectionConvertToFolderUrl(id));
 }
 
+/**
+ * Load one section by id ({@code GET /section/{id}}).
+ * Used when editing external / section links (#3097).
+ */
+export async function loadSection(
+  sectionId: string,
+): Promise<SiteSectionWire> {
+  const id = sectionId.trim();
+  if (!id) {
+    throw new Error("Section id is required to load");
+  }
+  const payload = await get<unknown>(sectionLoadUrl(id));
+  const section = parseSiteSectionPayload(payload);
+  if (!section) {
+    throw new Error("Section response was empty or unparseable");
+  }
+  return section;
+}
+
+/**
+ * Replace a section landing page
+ * ({@code POST /section/replaceLandingPage}).
+ */
+export async function replaceLandingPage(
+  fields: ReplaceLandingPageFields,
+): Promise<unknown> {
+  if (!fields.sectionId?.trim() || !fields.newLandingPageId?.trim()) {
+    throw new Error("Section id and new landing page id are required");
+  }
+  const body = buildReplaceLandingPageBody(fields);
+  return post<unknown>(PATHS.SECTION_REPLACE_LANDING_PAGE, body);
+}
+
+/**
+ * Create a section link
+ * ({@code GET /section/createSectionLink/{target}/{parent}}).
+ * Wire uses GET for historical CM1 parity.
+ */
+export async function createSectionLink(
+  targetSectionId: string,
+  parentSectionId: string,
+): Promise<unknown> {
+  const url = sectionCreateLinkUrl(targetSectionId, parentSectionId);
+  return get<unknown>(url);
+}
+
+/**
+ * Create an external link section
+ * ({@code POST /section/createExternalLinkSection}).
+ */
+export async function createExternalLinkSection(
+  fields: CreateExternalLinkFields,
+): Promise<unknown> {
+  if (!fields.linkTitle?.trim()) {
+    throw new Error("Link title is required");
+  }
+  if (!fields.externalUrl?.trim()) {
+    throw new Error("External URL is required");
+  }
+  if (!fields.folderPath?.trim()) {
+    throw new Error("Parent folder path is required");
+  }
+  const body = buildCreateExternalLinkBody(fields);
+  return post<unknown>(PATHS.SECTION_CREATE_EXTERNAL_LINK, body);
+}
+
+/**
+ * Update a section link target
+ * ({@code POST /section/updateSectionLink}).
+ */
+export async function updateSectionLink(
+  fields: UpdateSectionLinkFields,
+): Promise<unknown> {
+  if (
+    !fields.oldSectionId?.trim() ||
+    !fields.newSectionId?.trim() ||
+    !fields.parentSectionId?.trim()
+  ) {
+    throw new Error(
+      "Old, new, and parent section ids are required to update a section link",
+    );
+  }
+  const body = buildUpdateSectionLinkBody(fields);
+  return post<unknown>(PATHS.SECTION_UPDATE_SECTION_LINK, body);
+}
+
+/**
+ * Update an external link section
+ * ({@code POST /section/updateExternalLink/{sectionGuid}}).
+ */
+export async function updateExternalLink(
+  sectionId: string,
+  fields: CreateExternalLinkFields,
+): Promise<unknown> {
+  const id = sectionId.trim();
+  if (!id) {
+    throw new Error("Section id is required to update an external link");
+  }
+  if (!fields.linkTitle?.trim() || !fields.externalUrl?.trim()) {
+    throw new Error("Link title and URL are required");
+  }
+  const body = buildCreateExternalLinkBody(fields);
+  return post<unknown>(sectionUpdateExternalLinkUrl(id), body);
+}
+
 export type {
+  CreateExternalLinkFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
+  ReplaceLandingPageFields,
   SiteSectionPropertiesWire,
   SiteSectionWire,
+  UpdateSectionLinkFields,
 };

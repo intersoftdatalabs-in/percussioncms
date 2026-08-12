@@ -182,6 +182,37 @@ export const PATHS = {
   get SECTION_CONVERT_TO_FOLDER() {
     return `${SERVICES_ROOT}/sitemanage/section/convertToFolder`;
   },
+  /**
+   * Replace section landing page — {@code POST} body root {@code ReplaceLandingPage}.
+   * Architecture Slice E (#3097).
+   */
+  get SECTION_REPLACE_LANDING_PAGE() {
+    return `${SERVICES_ROOT}/sitemanage/section/replaceLandingPage`;
+  },
+  /**
+   * Create section link — append {@code /{targetGuid}/{parentGuid}} (GET mutation).
+   */
+  get SECTION_CREATE_SECTION_LINK() {
+    return `${SERVICES_ROOT}/sitemanage/section/createSectionLink`;
+  },
+  /**
+   * Create external link section — {@code POST} body root {@code CreateExternalLinkSection}.
+   */
+  get SECTION_CREATE_EXTERNAL_LINK() {
+    return `${SERVICES_ROOT}/sitemanage/section/createExternalLinkSection`;
+  },
+  /**
+   * Update section link target — {@code POST} body root {@code UpdateSectionLink}.
+   */
+  get SECTION_UPDATE_SECTION_LINK() {
+    return `${SERVICES_ROOT}/sitemanage/section/updateSectionLink`;
+  },
+  /**
+   * Update external link — append {@code /{sectionGuid}} (POST body CreateExternalLinkSection).
+   */
+  get SECTION_UPDATE_EXTERNAL_LINK() {
+    return `${SERVICES_ROOT}/sitemanage/section/updateExternalLink`;
+  },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
   },
