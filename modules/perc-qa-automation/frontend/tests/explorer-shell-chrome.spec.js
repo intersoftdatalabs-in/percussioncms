@@ -89,6 +89,15 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
         page.locator(`[data-testid="${TEST_IDS.displayFormat}"]`),
       ).toBeVisible();
       await expect(
+        page.locator(`[data-testid="${TEST_IDS.viewTools}"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.viewToolSearch}"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.viewToolSecurity}"]`),
+      ).toBeVisible();
+      await expect(
         page.locator(`[data-testid="${TEST_IDS.serverActions}"]`),
       ).toBeVisible();
       await expect(
@@ -110,6 +119,37 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
           `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"]`,
         ),
       );
+    },
+  );
+
+  test(
+    "view-tool Search opens the Search panel under header chrome (#3208)",
+    { tag: ["@explorer-shell-chrome", "@explorer", "@search", "@smoke"] },
+    async ({ page }) => {
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+      ).toBeVisible({ timeout: 20_000 });
+
+      const searchTool = page.locator(
+        `[data-testid="${TEST_IDS.viewToolSearch}"]`,
+      );
+      await expect(searchTool).toBeVisible();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await searchTool.click();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "true");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.sidePanels}"]`),
+      ).toBeVisible();
+      const panel = page.locator(
+        `[data-testid="${TEST_IDS.searchPanelHost}"]`,
+      );
+      await expect(panel).toBeVisible({ timeout: 10_000 });
+      await expect(panel).toBeInViewport();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.searchInput}"]`),
+      ).toBeVisible();
+      await searchTool.click();
+      await expect(panel).toHaveCount(0);
     },
   );
 

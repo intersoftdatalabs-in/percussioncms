@@ -56,6 +56,13 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(screen.getByTestId("explorer-menu-help")).toBeTruthy();
     // Display format is adjacent shell chrome (always present).
     expect(screen.getByTestId("explorer-display-format")).toBeTruthy();
+    expect(screen.queryByTestId("explorer-display-format-error")).toBeNull();
+  });
+
+  it("keeps the display-format selector when catalog load failed (#3208)", () => {
+    renderBar({ displayFormatLoadError: "formats down" });
+    expect(screen.getByTestId("explorer-display-format")).toBeTruthy();
+    expect(screen.getByTestId("explorer-display-format-error")).toBeTruthy();
   });
 
   it("opens View dropdown with nested toggles (not flat multi-row chrome)", () => {

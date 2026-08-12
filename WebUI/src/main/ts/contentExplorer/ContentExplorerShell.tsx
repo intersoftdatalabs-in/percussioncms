@@ -22,7 +22,7 @@
  * dropdowns and enablement filtering from {@code rest/actions}), item/folder
  * context menu, search panel, IA relationships panel, dependency viewer, and
  * display-format selector so the SPA route approaches Desktop Content Explorer
- * parity (#2400 / #2407 / #2731 / #2768 / #2769 / #2849).</p>
+ * parity (#2400 / #2407 / #2731 / #2768 / #2769 / #2849 / #3208).</p>
  */
 
 import React, {
@@ -91,6 +91,8 @@ import {
   headerStyle,
   headerTitleStyle,
   shellStyle,
+  shellStyleWithPanels,
+  sidePanelsRegionStyle,
 } from "./styles";
 import { TranslationsPanel } from "./TranslationsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
@@ -207,12 +209,9 @@ function toClipboardItem(item: PSPathItem): ClipboardItem | null {
 }
 
 const sidePanelStyle: React.CSSProperties = {
-  gridColumn: "1 / -1",
-  borderTop: "1px solid #ddd",
   padding: 8,
   background: "#fcfcfc",
-  maxHeight: "40vh",
-  overflow: "auto",
+  borderBottom: "1px solid #eee",
 };
 
 const toolRowStyle: React.CSSProperties = {
@@ -401,6 +400,10 @@ export function ContentExplorerShell({
   const [showDependencies, setShowDependencies] = useState(false);
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
+  /** Non-fatal display-format catalog failure — selector stays mounted (#3208). */
+  const [displayFormatLoadError, setDisplayFormatLoadError] = useState<
+    string | null
+  >(null);
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
   /** Non-fatal catalog load failure — chrome stays mounted (#2972). */
   const [menuLoadError, setMenuLoadError] = useState<string | null>(null);
@@ -457,10 +460,17 @@ export function ContentExplorerShell({
       .then((list) => {
         if (cancelled) return;
         setDisplayFormats(list ?? []);
+        setDisplayFormatLoadError(null);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        // Non-fatal: list still works with default columns.
+        // Non-fatal: list still works with default columns; surface chrome.
+        setDisplayFormats([]);
+        setDisplayFormatLoadError(
+          err instanceof Error && err.message
+            ? err.message
+            : message(EXPLORER_MSG.DISPLAY_FORMAT_LOAD_ERROR),
+        );
         console.warn(
           "[ContentExplorerShell] display formats load failed",
           err instanceof Error ? err.message : String(err),
@@ -720,6 +730,16 @@ export function ContentExplorerShell({
     selection.item.type !== "folder" &&
     selection.item.id != null &&
     String(selection.item.id).trim().length > 0;
+  const hasOpenSidePanel =
+    showSearch ||
+    showSecurity ||
+    showClipboard ||
+    showTranslations ||
+    showRelationships ||
+    showDependencies ||
+    showSiteCreate ||
+    showSiteCopy ||
+    showSubfolderCopy;
 
   const handleMenuBarCommand = useCallback(
     (id: ExplorerMenuCommandId) => {
@@ -837,7 +857,7 @@ export function ContentExplorerShell({
 
   return (
     <div
-      style={shellStyle}
+      style={hasOpenSidePanel ? shellStyleWithPanels : shellStyle}
       role="application"
       aria-label={message(EXPLORER_MSG.TITLE)}
       data-testid="content-explorer-shell"
@@ -862,6 +882,7 @@ export function ContentExplorerShell({
             hasFolderContext={hasFolderContext}
             displayFormats={displayFormats}
             selectedFormatKey={selectedFormatKey}
+            displayFormatLoadError={displayFormatLoadError}
             onSelectFormat={setSelectedFormatKey}
             onCommand={handleMenuBarCommand}
           />
@@ -917,6 +938,30 @@ export function ContentExplorerShell({
           >
             <button
               type="button"
+              data-testid="explorer-view-tool-search"
+              aria-pressed={showSearch}
+              aria-expanded={showSearch}
+              aria-controls="explorer-search-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_SEARCH_ARIA)}
+              title={message(EXPLORER_MSG.TOGGLE_SEARCH_ARIA)}
+              onClick={() => handleMenuBarCommand("view-search")}
+            >
+              {message(EXPLORER_MSG.SEARCH_TITLE)}
+            </button>
+            <button
+              type="button"
+              data-testid="explorer-view-tool-security"
+              aria-pressed={showSecurity}
+              aria-expanded={showSecurity}
+              aria-controls="explorer-security-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
+              title={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
+              onClick={() => handleMenuBarCommand("view-security")}
+            >
+              {message(EXPLORER_MSG.SECURITY_TITLE)}
+            </button>
+            <button
+              type="button"
               data-testid="explorer-refresh-list"
               aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
               title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
@@ -954,6 +999,11 @@ export function ContentExplorerShell({
         selectedItemIds={multiSelectedIds}
         onToggleSelectItem={handleToggleSelectItem}
       />
+      {hasOpenSidePanel ? (
+      <div
+        data-testid="explorer-side-panels"
+        style={sidePanelsRegionStyle}
+      >
       {showSearch && (
         <section
           id="explorer-search-panel"
@@ -1226,6 +1276,8 @@ export function ContentExplorerShell({
             {message(EXPLORER_MSG.DEPENDENCY_SELECT_ITEM)}
           </div>
         )}
+      </div>
+      ) : null}
       {contextMenu && (
         <div
           style={{
