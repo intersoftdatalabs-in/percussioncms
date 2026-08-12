@@ -57,10 +57,11 @@ import java.util.Optional;
  *
  * <ul>
  *   <li>Widgets: {@code projects/sitemanage/.../dao/impl/PSWidgetDao} — production dual-run wire
- *       (#3024). Repository {@code ${rxdeploydir}/rxconfig/Widgets} loads install Widget XML;
- *       optional {@code widgetDao.modernPackageRoots} feeds this API so modern manifests win when
- *       present. Selection kinds are test-visible on the DAO. Do <strong>not</strong> delete this
- *       shim (#2852).
+ *       (#3024 / #3130). Repository {@code ${rxdeploydir}/rxconfig/Widgets} loads install Widget
+ *       XML; {@code widgetDao.modernPackageRoots} (or product defaults under {@code
+ *       Packages/Modern} via {@link PSModernPackageRootDefaults}) feeds this API so modern
+ *       manifests win when present. Selection kinds are test-visible on the DAO. Do
+ *       <strong>not</strong> delete this shim (#2852).
  *   <li>Package source trees: {@code modules/perc-packages/.../Packages/<id>/} with either {@code
  *       component-package.json} (modern) or {@code sys__UserDependency--rxconfig/Widgets/*.xml}
  *       (legacy).

@@ -500,6 +500,8 @@
 		<include name="SiteFolderPublishinExits/**" />
 		<include name="WorkflowExits/**" />
 		<include name="Packages/Percussion/**" />
+		<!-- Product modern package roots for dual-run defaults (#3130) -->
+		<include name="Packages/Modern/**" />
 		<include name="jetty/upstream/**" />
 		<include name="jetty/defaults/**" />
 		<include
@@ -582,6 +584,8 @@
 		<include name="cm/**" />
 		<include name="DTD" />
 		<include name="Packages/Percussion/**" />
+		<!-- Product modern package roots for dual-run defaults (#3130) -->
+		<include name="Packages/Modern/**" />
 		<include name="jetty/upstream/**" />
 		<include name="jetty/defaults/**" />
 		<include name="jetty/base/webapps/CI_Home/**" />

@@ -27,6 +27,7 @@ import com.percussion.packages.shim.PSDefinitionSourceKind;
 import com.percussion.packages.shim.PSDefinitionSourceNotFoundException;
 import com.percussion.packages.shim.PSDefinitionSourceSelection;
 import com.percussion.packages.shim.PSLegacyDefinitionXmlShim;
+import com.percussion.packages.shim.PSModernPackageRootDefaults;
 import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import java.nio.charset.StandardCharsets;
@@ -38,11 +39,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Behavioral tests for {@link PSWidgetDao} dual-run modern-first selection (#3024 / parent #2630).
+ * Behavioral tests for {@link PSWidgetDao} dual-run modern-first selection (#3024 / #3130 / parent
+ * #2630).
  *
  * <p>Policy via {@link PSLegacyDefinitionXmlShim}: modern component package preferred; legacy
  * Widgets XML fallback; neither → clear {@link PSDefinitionSourceNotFoundException} (no silent
- * invent). Selection kinds are test-visible on the DAO.
+ * invent). Selection kinds are test-visible on the DAO. Product defaults under {@link
+ * PSModernPackageRootDefaults#RELATIVE_MODERN_ROOTS_DIR} apply when the Spring property is blank.
  */
 class PSWidgetDaoTest {
 
@@ -177,6 +180,75 @@ class PSWidgetDaoTest {
     assertEquals(
         PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE,
         dao.selectDefinitionSource(id).getKind());
+  }
+
+  @Test
+  void productDefaults_modernPresentUnderPackagesModern_selectsModernWithoutExplicitProperty()
+      throws Exception {
+    // Fresh DAO: blank property + rxdeploydir with Packages/Modern product layout (#3130)
+    PSWidgetDao defaultingDao = new PSWidgetDao();
+    defaultingDao.setRepositoryDirectory(widgetsDir.toString());
+
+    String id = "percSimpleText";
+    writeWidgetXml(id);
+    Path modernPkg =
+        tempDir
+            .resolve(PSModernPackageRootDefaults.RELATIVE_MODERN_ROOTS_DIR)
+            .resolve("perc.baseWidgets");
+    Path widgetDir = modernPkg.resolve("widgets").resolve(id);
+    Files.createDirectories(widgetDir);
+    Files.writeString(
+        widgetDir.resolve(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME),
+        "{\"schemaVersion\":\"1.0\",\"id\":\""
+            + id
+            + "\",\"name\":\""
+            + id
+            + "\",\"version\":\"1.0.0\"}",
+        StandardCharsets.UTF_8);
+
+    // Blank property first, then rx deploy dir triggers product default discovery
+    defaultingDao.setModernPackageRootsProperty("");
+    defaultingDao.setRxDeployDir(tempDir.toString());
+
+    assertFalse(defaultingDao.getModernPackageRoots().isEmpty());
+    assertEquals(
+        PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE,
+        defaultingDao.selectDefinitionSource(id).getKind());
+  }
+
+  @Test
+  void productDefaults_modernAbsent_fallsBackToLegacyWidgetXml() throws Exception {
+    PSWidgetDao defaultingDao = new PSWidgetDao();
+    defaultingDao.setRepositoryDirectory(widgetsDir.toString());
+
+    String id = "customerLegacyOnly";
+    writeWidgetXml(id);
+
+    // Blank property + empty install: classpath materialize may seed Packages/Modern for product
+    // packages, but a customer-only id still has no modern root → LEGACY_WIDGET_XML.
+    Path emptyRx = tempDir.resolve("emptyRx");
+    Files.createDirectories(emptyRx);
+    defaultingDao.setModernPackageRootsProperty("");
+    defaultingDao.setRxDeployDir(emptyRx.toString());
+
+    assertEquals(
+        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
+        defaultingDao.selectDefinitionSource(id).getKind());
+  }
+
+  @Test
+  void productDefaults_blankPropertyWithoutRxDir_legacyOnlyUntilRxConfigured() throws Exception {
+    PSWidgetDao defaultingDao = new PSWidgetDao();
+    defaultingDao.setRepositoryDirectory(widgetsDir.toString());
+    defaultingDao.setModernPackageRootsProperty("");
+    // No setRxDeployDir yet → empty roots
+    assertTrue(defaultingDao.getModernPackageRoots().isEmpty());
+
+    String id = "preRxLegacy";
+    writeWidgetXml(id);
+    assertEquals(
+        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
+        defaultingDao.selectDefinitionSource(id).getKind());
   }
 
   @Test
