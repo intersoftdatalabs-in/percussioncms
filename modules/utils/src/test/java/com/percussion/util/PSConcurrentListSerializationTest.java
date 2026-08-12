@@ -88,11 +88,11 @@ public class PSConcurrentListSerializationTest {
 
   @Test
   public void testCollectionRoundTripPreservesMemberClassAndElements() throws Exception {
-    PSCollection original = new PSCollection(String.class);
+    PSCollection<String> original = new PSCollection<>(String.class);
     original.add("one");
     original.add("two");
 
-    PSCollection restored = roundTrip(original);
+    PSCollection<String> restored = roundTrip(original);
 
     assertNotNull(restored);
     assertEquals(String.class, restored.getMemberClassType());

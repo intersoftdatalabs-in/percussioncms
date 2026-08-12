@@ -29,15 +29,15 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Behavioral coverage for {@link PSCollection} after parameterizing as {@code
- * PSConcurrentList<Object>} with {@code Class<?>}/{@code Collection<?>}/{@code Iterator<?>}
- * surfaces (#3015 batch 8).
+ * PSConcurrentList<E>}. Residual of #3015 batch 8 / #3173: locking the type to {@code
+ * List<Object>} broke perc-system covariant {@code iterator()} overrides.
  */
 @Tag("UnitTest")
 public class PSCollectionTypedTest {
 
   @Test
-  public void memberClassAndElementsRoundTripThroughObjectListApi() {
-    PSCollection coll = new PSCollection(String.class);
+  public void memberClassAndElementsRoundTripThroughTypedListApi() {
+    PSCollection<String> coll = new PSCollection<>(String.class);
     assertEquals(String.class, coll.getMemberClassType());
     assertTrue(coll.add("a"));
     coll.add(0, "b");
@@ -47,30 +47,79 @@ public class PSCollectionTypedTest {
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void addAllRejectsWrongElementType() {
-    PSCollection coll = new PSCollection(String.class);
+    PSCollection<String> coll = new PSCollection<>(String.class);
     coll.add("ok");
     List<Object> mixed = new ArrayList<>();
     mixed.add("fine");
     mixed.add(Integer.valueOf(1));
-    assertThrows(ClassCastException.class, () -> coll.addAll(mixed));
+    PSCollection raw = coll;
+    assertThrows(ClassCastException.class, () -> raw.addAll(mixed));
     assertEquals(1, coll.size());
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void iteratorCtorInfersMemberClass() {
     Iterator<String> it = Arrays.asList("x", "y").iterator();
-    PSCollection coll = new PSCollection(it);
+    PSCollection<String> coll = new PSCollection<>(it);
     assertEquals(String.class, coll.getMemberClassType());
     assertEquals(2, coll.size());
     assertEquals("x", coll.get(0));
-    assertThrows(ClassCastException.class, () -> coll.add(Integer.valueOf(3)));
+    PSCollection raw = coll;
+    assertThrows(ClassCastException.class, () -> raw.add(Integer.valueOf(3)));
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void initialCapacityCtorStillEnforcesType() {
-    PSCollection coll = new PSCollection(Integer.class, 8);
+    PSCollection<Integer> coll = new PSCollection<>(Integer.class, 8);
     assertTrue(coll.add(Integer.valueOf(1)));
-    assertThrows(ClassCastException.class, () -> coll.add("nope"));
+    PSCollection raw = coll;
+    assertThrows(ClassCastException.class, () -> raw.add("nope"));
+  }
+
+  @Test
+  public void typedCollectionIteratorIsElementType() {
+    PSCollection<String> coll = new PSCollection<>(String.class);
+    coll.add("a");
+    Iterator<String> it = coll.iterator();
+    assertEquals("a", it.next());
+    Iterable<String> iterable = coll;
+    int n = 0;
+    for (String s : iterable) {
+      n++;
+      assertEquals("a", s);
+    }
+    assertEquals(1, n);
+  }
+
+  /**
+   * perc-system pattern: raw {@code PSCollection} / {@code PSCollectionComponent} subclasses
+   * override {@code iterator()} to {@code Iterator<Specific>} and pass the set as {@code
+   * Iterable<Specific>}.
+   */
+  @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void rawSubclassMayOverrideCovariantIterator() {
+    class TypedRaw extends PSCollection {
+      private static final long serialVersionUID = 1L;
+
+      TypedRaw() {
+        super(String.class);
+      }
+
+      @Override
+      public Iterator<String> iterator() {
+        return super.iterator();
+      }
+    }
+    TypedRaw coll = new TypedRaw();
+    coll.add("a");
+    Iterator<String> it = coll.iterator();
+    assertEquals("a", it.next());
+    Iterable<String> iterable = coll;
+    assertEquals("a", iterable.iterator().next());
   }
 }
