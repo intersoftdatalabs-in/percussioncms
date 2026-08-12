@@ -28,8 +28,11 @@ This section covers how to obtain, install, upgrade, and take first steps with P
 
 1. Confirm the server process starts and logs under the install `jetty/base/logs` (or platform service logs) are clean.
 2. Sign in with the administrative account created at install time.
-3. Create or open a **Site**, confirm Finder navigation, and open the Web UI editor.
-4. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.
+3. Confirm the SPA top navigation starts with **Home**, then **Explorer** (adjacent).
+   There is no **Dashboard** top-nav item. Administrators see a single **Admin**
+   item that opens **Admin tools** (`/admin`). See [Administration](id:admin).
+4. Create or open a **Site**, confirm Finder navigation, and open the Web UI editor.
+5. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.
 
 ## Related
 

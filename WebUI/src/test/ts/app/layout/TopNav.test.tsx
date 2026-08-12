@@ -74,7 +74,8 @@ describe("TopNav (#2702)", () => {
     expect(testIds).not.toContain("nav-dashboard");
     expect(testIds).not.toContain("nav-workflow");
     expect(testIds.filter((id) => id === "nav-admin")).toEqual(["nav-admin"]);
-    expect(screen.getByTestId("nav-admin").textContent).toMatch(/Admin/i);
+    // Exact chrome word (not "Administration") — #3201 / failed QA #2714
+    expect(screen.getByTestId("nav-admin").textContent?.trim()).toBe("Admin");
   });
 
   it("lands consolidated Admin on Admin tools shell path (#2784)", () => {

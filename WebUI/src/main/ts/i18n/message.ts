@@ -216,8 +216,9 @@ export const MSG = {
   NAV_DEVELOPER: "perc.ui.dashboard.modern@Developer",
   NAV_PUBLISH: "perc.ui.navMenu.publish@Publish",
   /**
-   * Consolidated top-nav Admin label (#2702). Classic key en-us is already "Admin".
-   * Prefer this for top chrome over separate Administration / Admin tools entries.
+   * Consolidated top-nav Admin label (#2702 / #3201). TMX en-us is "Admin".
+   * TopNav also normalizes the English {@code @Administration} fallback so
+   * chrome never shows the old dual-entry word.
    */
   NAV_ADMIN: "perc.ui.navMenu.admin@Administration",
   /** @deprecated Prefer NAV_ADMIN for top chrome; retained for residual page titles. */

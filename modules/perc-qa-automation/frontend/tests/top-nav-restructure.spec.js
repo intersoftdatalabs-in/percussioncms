@@ -15,12 +15,12 @@
  */
 
 /**
- * Top navigation restructure (#2702 / #2784 / #2953 / #3088):
+ * Top navigation restructure (#2702 / #2784 / #2953 / #3088 / #3201):
  * - Dashboard removed from SPA top chrome
  * - Explorer immediately after Home
- * - Single consolidated Admin (no separate Administration + Admin tools shells)
- * - Admin lands on unified Admin shell (/admin); workflow/roles/users/categories
- *   are in-shell tabs (sibling chrome removed in #3088)
+ * - Single consolidated Admin labeled "Admin" (not "Administration")
+ * - Admin lands on working Admin tools shell (/admin); workflow/roles/users/
+ *   categories are in-shell tabs (sibling chrome removed in #3088)
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/top-nav-restructure.spec.js
@@ -47,10 +47,20 @@ async function expectSpaTopNav(page) {
   });
 }
 
-test.describe("Top nav restructure (#2702)", () => {
+test.describe("Top nav restructure (#2702 / #3201)", () => {
   test("Home then Explorer; no Dashboard; single Admin @smoke @ui", async ({
     page,
   }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     await loginAsAdmin(page);
     await page.goto(homeDeepLink(), { waitUntil: "domcontentloaded" });
     await expectSpaTopNav(page);
@@ -63,8 +73,15 @@ test.describe("Top nav restructure (#2702)", () => {
     await expect(home).toBeVisible();
     await expect(explorer).toBeVisible();
     await expect(admin).toBeVisible();
+    await expect(admin).toHaveText(/^Admin$/);
     await expect(nav.getByTestId("nav-dashboard")).toHaveCount(0);
     await expect(nav.getByTestId("nav-workflow")).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "Dashboard", exact: true })).toHaveCount(
+      0,
+    );
+    await expect(
+      nav.getByRole("link", { name: "Administration", exact: true }),
+    ).toHaveCount(0);
 
     // DOM adjacency: Explorer is the next top-level nav item after Home
     const adjacency = await page.evaluate(() => {
@@ -76,14 +93,17 @@ test.describe("Top nav restructure (#2702)", () => {
     });
     expect(adjacency).toBe(true);
 
-    // Consolidated Admin lands on unified Admin shell (#2784 / #3088)
+    // Consolidated Admin lands on working Admin tools shell (#2784 / #3088 / #3201)
     await admin.click();
     await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
       timeout: 30_000,
     });
+    await expect(page).toHaveURL(/\/admin(?:\/|$|\?)/);
     await expect(page.getByTestId("perc-admin-shell-title")).toContainText(
       /Admin tools/i,
     );
+    await expect(page.getByTestId("tab-tools")).toBeVisible();
+    await expect(page.getByTestId("tab-tasks")).toBeVisible();
     // No sibling cross-links; workflow is an Admin tab (#3088)
     await expect(page.getByTestId("admin-sibling-workflow-link")).toHaveCount(0);
     await expect(page.getByTestId("admin-sibling-tools-link")).toHaveCount(0);
@@ -99,5 +119,14 @@ test.describe("Top nav restructure (#2702)", () => {
     // Still one Admin shell (no WorkflowAdminShell product chrome)
     await expect(page.getByTestId("perc-admin-shell")).toBeVisible();
     await expect(page.getByTestId("perc-workflow-admin-shell")).toHaveCount(0);
+
+    const unexpected = consoleErrors.filter(
+      (t) =>
+        !/favicon|404|net::ERR|Failed to load resource/i.test(t) &&
+        !/Download the React DevTools/i.test(t),
+    );
+    expect(unexpected, `JS console errors: ${unexpected.join(" | ")}`).toEqual(
+      [],
+    );
   });
 });
