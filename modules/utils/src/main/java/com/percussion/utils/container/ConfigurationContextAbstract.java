@@ -71,15 +71,15 @@ public abstract class ConfigurationContextAbstract<
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void load() {
-    load((T) this);
+    // CRTP residual: subclasses are typed as ConfigurationContextAbstract<Self, U>
+    load(self());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void save() {
-    save((T) this);
+    // CRTP residual: subclasses are typed as ConfigurationContextAbstract<Self, U>
+    save(self());
   }
 
   /**
@@ -87,12 +87,36 @@ public abstract class ConfigurationContextAbstract<
    *
    * @param from the source context to copy from
    */
-  @SuppressWarnings("unchecked")
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {
     try {
-      this.config = (U) BeanUtils.cloneBean(from.getConfig());
+      // BeanUtils.cloneBean returns Object; config type is U by construction of this hierarchy.
+      this.config = cloneConfig(from.getConfig());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * CRTP self-view. Concrete contexts extend {@code ConfigurationContextAbstract<Self, U>} so this
+   * cast is the single residual for load/save without a class-level blanket suppress.
+   *
+   * @return {@code this} as {@code T}
+   */
+  @SuppressWarnings("unchecked")
+  private T self() {
+    return (T) this;
+  }
+
+  /**
+   * Clone a config bean. {@link BeanUtils#cloneBean(Object)} returns {@link Object}; the cast is
+   * scoped here.
+   *
+   * @param source config to clone, never {@code null}
+   * @return cloned config as {@code U}
+   * @throws Exception if BeanUtils fails
+   */
+  @SuppressWarnings("unchecked")
+  private U cloneConfig(U source) throws Exception {
+    return (U) BeanUtils.cloneBean(source);
   }
 }

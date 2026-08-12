@@ -25,12 +25,15 @@ import java.util.Objects;
  * The PSCollection class is used to maintain a collection of objects. Objects can be added, changed
  * or removed from the collection. All objects in the collection must be of the same class.
  *
+ * <p>Element type is {@link Object} at the list API surface (historical heterogeneous product use);
+ * runtime membership is still enforced via {@link #m_memberClass}. Parameterized as {@code
+ * PSConcurrentList<Object>} so callers and subclasses no longer sit on a raw concurrent list.
+ *
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
-public class PSCollection extends PSConcurrentList {
+public class PSCollection extends PSConcurrentList<Object> {
 
   /**
    * Serialization id. Parent {@link PSConcurrentList} owns list payload serialization; this class
@@ -64,7 +67,8 @@ public class PSCollection extends PSConcurrentList {
    * @param cl the class which this collection's members must be or extend.
    * @param initialCapacity the initial capacity of the collection.
    */
-  public PSCollection(Class cl, int initialCapacity) {
+  public PSCollection(Class<?> cl, int initialCapacity) {
+    super(Object.class, initialCapacity);
     m_memberClass = cl;
   }
 
@@ -75,7 +79,7 @@ public class PSCollection extends PSConcurrentList {
    *     type. May not be <code>null</code>.
    * @throws ClassCastException if all of the objects under the iterator are not of the same type.
    */
-  public PSCollection(Iterator i) throws ClassCastException {
+  public PSCollection(Iterator<?> i) throws ClassCastException {
     m_memberClass = null;
 
     while (i.hasNext()) {
@@ -100,6 +104,7 @@ public class PSCollection extends PSConcurrentList {
    * @param o the object to add to the collection
    * @throws ClassCastException if the object is not of the appropriate class
    */
+  @Override
   public void add(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -115,6 +120,7 @@ public class PSCollection extends PSConcurrentList {
    * @return <code>true</code> if the object was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
+  @Override
   public boolean add(Object o) throws ClassCastException {
     checkType(o);
 
@@ -142,7 +148,9 @@ public class PSCollection extends PSConcurrentList {
    * @return <code>true</code> if the collection was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
-  public boolean addAll(Collection c) throws ArrayIndexOutOfBoundsException, ClassCastException {
+  @Override
+  public boolean addAll(Collection<?> c)
+      throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
 
     return super.addAll(c);
@@ -153,11 +161,13 @@ public class PSCollection extends PSConcurrentList {
    * collection must be of the class or extend the class which was defined at construction of the
    * collection. If the object is of an incorrect type, an exception will be thrown.
    *
+   * @param index the insert position
    * @param c the collection to add to this collection
    * @return <code>true</code> if the collection was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
-  public boolean addAll(int index, Collection c)
+  @Override
+  public boolean addAll(int index, Collection<?> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
 
@@ -175,6 +185,7 @@ public class PSCollection extends PSConcurrentList {
    * @throws ArrayIndexOutOfBoundsException if index is out of range
    * @throws ClassCastException if the object is not of the appropriate class
    */
+  @Override
   public Object set(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -207,7 +218,7 @@ public class PSCollection extends PSConcurrentList {
    *
    * @return the class type
    */
-  public Class getMemberClassType() {
+  public Class<?> getMemberClassType() {
     return m_memberClass;
   }
 
@@ -223,9 +234,8 @@ public class PSCollection extends PSConcurrentList {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof PSCollection)) return false;
-    PSCollection that = (PSCollection) o;
-    return m_memberClass.equals(that.m_memberClass);
+    if (!(o instanceof PSCollection that)) return false;
+    return Objects.equals(m_memberClass, that.m_memberClass);
   }
 
   @Override
@@ -255,10 +265,8 @@ public class PSCollection extends PSConcurrentList {
    * @param c the collection to check
    * @exception ClassCastException if any object in the provided collection is of the wrong type.
    */
-  private void checkType(Collection c) throws ClassCastException {
-    Iterator i = c.iterator();
-    while (i.hasNext()) {
-      Object o = i.next();
+  private void checkType(Collection<?> c) throws ClassCastException {
+    for (Object o : c) {
       if (!(m_memberClass.isInstance(o)))
         throw new ClassCastException(
             "Cannot add an object of class "
@@ -313,5 +321,5 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /** The one and only valid class type for this collection. */
-  private Class m_memberClass;
+  private Class<?> m_memberClass;
 }
