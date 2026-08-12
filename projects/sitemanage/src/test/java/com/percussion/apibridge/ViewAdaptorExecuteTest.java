@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,9 +47,12 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 @Tag("UnitTest")
 class ViewAdaptorExecuteTest {
@@ -152,16 +156,55 @@ class ViewAdaptorExecuteTest {
   }
 
   @Test
-  void executeView_customUrlThrows400Style() throws Exception {
+  void executeView_inboxCustomUrlRunsAndMaps() throws Exception {
     PSSearch custom = mockView("Inbox", true, false);
+    when(custom.getUrl()).thenReturn("../sys_cxViews/inbox.xml");
+    when(custom.getDisplayFormatId()).thenReturn("0-1-1");
+    when(custom.getMaximumResultSize()).thenReturn(25);
+    stubLoadedViews(List.of(custom));
+
+    ViewResultItem row = item("guid-1", "Assignment");
+    row.setFolderPath("//Sites/Demo");
+    row.setType("Page");
+    doReturn(List.of(row)).when(adaptor).runCustomUrlView(any(PSSearch.class), any());
+
+    ViewExecuteResult result = adaptor.executeView("Inbox", new ViewExecuteRequest());
+    assertNotNull(result);
+    assertEquals("Inbox", result.getViewName());
+    assertEquals("0-1-1", result.getDisplayFormatId());
+    assertEquals(1, result.getTotalCount());
+    assertEquals(1, result.getChildren().size());
+    assertEquals("Assignment", result.getChildren().get(0).getTitle());
+    assertEquals("//Sites/Demo", result.getChildren().get(0).getFolderPath());
+    assertEquals("Page", result.getChildren().get(0).getType());
+    verify(adaptor, never()).runDesignView(any());
+  }
+
+  @Test
+  void executeView_customUrlUnsupportedThrows400Style() throws Exception {
+    PSSearch custom = mockView("MyAppView", true, false);
+    when(custom.getUrl()).thenReturn("../my_custom_app/foo.xml");
     stubLoadedViews(List.of(custom));
 
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> adaptor.executeView("Inbox", new ViewExecuteRequest()));
-    assertTrue(ex.getMessage().toLowerCase().contains("custom"));
-    assertTrue(ex.getMessage().contains("#3118"));
+            () -> adaptor.executeView("MyAppView", new ViewExecuteRequest()));
+    assertTrue(ex.getMessage().toLowerCase().contains("unsupported"));
+    assertTrue(ex.getMessage().contains("sys_cxViews"));
+  }
+
+  @Test
+  void executeView_customUrlBlankThrows400Style() throws Exception {
+    PSSearch custom = mockView("Broken", true, false);
+    when(custom.getUrl()).thenReturn("  ");
+    stubLoadedViews(List.of(custom));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.executeView("Broken", new ViewExecuteRequest()));
+    assertTrue(ex.getMessage().contains("Unsupported custom URL"));
   }
 
   @Test
@@ -269,6 +312,87 @@ class ViewAdaptorExecuteTest {
 
     assertEquals(s, adaptor.findPsViewByKey("0-301-0"));
     assertEquals(s, adaptor.findPsViewByKey("42"));
+  }
+
+  @Test
+  void resolveCustomViewResource_normalizesInboxFamilyUrls() {
+    assertEquals(
+        "sys_cxViews/inbox", ViewAdaptor.resolveCustomViewResource("../sys_cxViews/inbox.xml"));
+    assertEquals(
+        "sys_cxViews/outbox", ViewAdaptor.resolveCustomViewResource("sys_cxViews/outbox"));
+    assertEquals(
+        "sys_cxViews/recent",
+        ViewAdaptor.resolveCustomViewResource("/Rhythmyx/sys_cxViews/recent.xml?x=1"));
+    assertEquals(
+        "sys_cxViews/session", ViewAdaptor.resolveCustomViewResource("../sys_cxViews/session.xml"));
+    assertEquals(
+        "sys_cxViews/checkedoutbyme",
+        ViewAdaptor.resolveCustomViewResource("../sys_cxViews/checkedoutbyme.xml"));
+    assertEquals(
+        "sys_cxViews/duplicatefolderpaths",
+        ViewAdaptor.resolveCustomViewResource("../sys_cxViews/duplicatefolderpaths.xml"));
+  }
+
+  @Test
+  void resolveCustomViewResource_rejectsUnsafeAndUnknown() {
+    assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveCustomViewResource(null));
+    assertThrows(IllegalArgumentException.class, () -> ViewAdaptor.resolveCustomViewResource(""));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("../other_app/inbox.xml"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews/notapage"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews/inbox/../../../etc/passwd"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ViewAdaptor.resolveCustomViewResource("sys_cxViews\\inbox"));
+  }
+
+  @Test
+  void mapCustomViewDocument_mapsContentIdsAndSkipsBlank() throws Exception {
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element root = doc.createElement("View");
+    doc.appendChild(root);
+    Element blank = doc.createElement("Item");
+    blank.setAttribute("sys_contentid", "  ");
+    root.appendChild(blank);
+    Element ok = doc.createElement("Item");
+    ok.setAttribute("sys_contentid", "42");
+    root.appendChild(ok);
+
+    ViewResultItem mapped = item("guid-42", "Inbox item");
+    mapped.setFolderPath("//Folders/Work");
+    mapped.setType("Page");
+    doReturn(mapped).when(adaptor).mapContentIdToItem("42");
+
+    List<ViewResultItem> out = adaptor.mapCustomViewDocument(doc);
+    assertEquals(1, out.size());
+    assertEquals("guid-42", out.get(0).getId());
+    assertEquals("//Folders/Work", out.get(0).getFolderPath());
+  }
+
+  @Test
+  void mapCustomViewDocument_nullSafe() {
+    assertTrue(adaptor.mapCustomViewDocument(null).isEmpty());
+  }
+
+  @Test
+  void runCustomUrlView_capsResults() throws Exception {
+    PSSearch design = mockView("Inbox", true, false);
+    when(design.getUrl()).thenReturn("../sys_cxViews/inbox.xml");
+    when(design.getMaximumResultSize()).thenReturn(1);
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    doReturn(doc).when(adaptor).fetchCustomViewDocument("sys_cxViews/inbox");
+    doReturn(List.of(item("1", "A"), item("2", "B"), item("3", "C")))
+        .when(adaptor)
+        .mapCustomViewDocument(doc);
+
+    List<ViewResultItem> out = adaptor.runCustomUrlView(design, new ViewExecuteRequest());
+    assertEquals(1, out.size());
+    assertEquals("A", out.get(0).getTitle());
   }
 
   @Test

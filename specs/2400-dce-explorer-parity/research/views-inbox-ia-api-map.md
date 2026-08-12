@@ -104,7 +104,7 @@ Both design catalogs store definitions as `PSSearch` rows with different `TYPE`:
 |--------|--------------|-------------------|--------------------|
 | `GET` | `/rest/views` | `/services/views` | `ViewResource.listViews` → `IViewAdaptor.listViews` |
 | `GET` | `/rest/views/{idOrName}` | `/services/views/{idOrName}` | `ViewResource.getView` → `findViewByKey` |
-| `POST` | `/rest/views/{idOrName}/execute` | `/services/views/{idOrName}/execute` | `ViewResource.executeView` → `IViewAdaptor.executeView` (standard views only; custom URL → 400 / #3118) |
+| `POST` | `/rest/views/{idOrName}/execute` | `/services/views/{idOrName}/execute` | `ViewResource.executeView` → `IViewAdaptor.executeView` (standard views + Inbox-family `sys_cxViews/*`; other custom URLs → 400) |
 
 | Layer | Path |
 |-------|------|
