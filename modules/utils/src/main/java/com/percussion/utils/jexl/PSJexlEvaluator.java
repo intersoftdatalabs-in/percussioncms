@@ -32,9 +32,13 @@ import org.apache.logging.log4j.Logger;
  * the context for use in expressions. After a number of expressions are evaluated using {@link
  * #evaluate(String, IPSScript)} , the results can be extracted by calling {@link #getVars()}.
  *
+ * <p>The binder walks a tree of {@code Map<String, Object>} and {@code List<Object>} values created
+ * on demand. Re-entering an existing node requires a single unchecked cast per node (the graph is
+ * only ever populated with those types by this class); those casts live on private helpers rather
+ * than a class-level blanket suppress.
+ *
  * @author dougrand
  */
-@SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class PSJexlEvaluator {
   /** Commons logger for evaluator */
   private static final Logger log = LogManager.getLogger(PSJexlEvaluator.class);
@@ -185,7 +189,7 @@ public class PSJexlEvaluator {
 
     for (int i = 0; i < components.length; i++) {
       boolean last = (components.length - i) == 1;
-      Object next = null;
+      Object next;
       component = components[i];
       int square = component.indexOf("[");
       index = -1;
@@ -206,7 +210,7 @@ public class PSJexlEvaluator {
       if (!last) {
         next = dereferenceMap(current, component);
         if (index >= 0) {
-          if (next != null && !(next instanceof List)) {
+          if (next != null && !(next instanceof List<?>)) {
             throw new IllegalStateException(
                 "While trying to bind variable "
                     + var
@@ -214,22 +218,22 @@ public class PSJexlEvaluator {
                     + next.getClass().getCanonicalName()
                     + " was found");
           }
-          List nlist = (List) next;
+          List<Object> nlist = asMutableObjectList(next);
           if (nlist == null) {
             nlist = new ArrayList<>();
-            ((Map<String, Object>) current).put(component, nlist);
+            asStringObjectMap(current).put(component, nlist);
           }
-          matchLength((ArrayList<Object>) nlist, index);
+          matchLength(nlist, index);
           next = nlist.get(index);
           if (next == null) {
-            next = new HashMap<>();
+            next = new HashMap<String, Object>();
             nlist.set(index, next);
           }
           current = next;
         } else {
           if (next == null) {
-            next = new HashMap();
-            ((Map) current).put(component, next);
+            next = new HashMap<String, Object>();
+            asStringObjectMap(current).put(component, next);
           }
           current = next;
         }
@@ -238,7 +242,7 @@ public class PSJexlEvaluator {
     // At this point we have either a map, or a map and an index
     if (index >= 0) {
       Object val = dereferenceMap(current, component);
-      if (val != null && !(val instanceof List)) {
+      if (val != null && !(val instanceof List<?>)) {
         throw new IllegalStateException(
             "While trying to bind variable "
                 + var
@@ -246,19 +250,19 @@ public class PSJexlEvaluator {
                 + val.getClass().getCanonicalName()
                 + " was found");
       }
-      ArrayList setval = (ArrayList) val;
+      List<Object> setval = asMutableObjectList(val);
       if (setval == null) {
         setval = new ArrayList<>();
-        ((Map) current).put(component, setval);
+        asStringObjectMap(current).put(component, setval);
       }
       matchLength(setval, index);
       setval.set(index, value);
     } else {
-      if (!(current instanceof Map)) {
+      if (!(current instanceof Map<?, ?>)) {
         log.debug("Did not find a Map when setting component {}", component);
         return;
       }
-      ((Map) current).put(component, value);
+      asStringObjectMap(current).put(component, value);
     }
   }
 
@@ -288,10 +292,10 @@ public class PSJexlEvaluator {
     }
     if (value == null) {
       value = new HashMap<String, Object>();
-    } else if (!(value instanceof Map)) {
+    } else if (!(value instanceof Map<?, ?>)) {
       throw new IllegalStateException("var " + var + " did not evaluate to a Map");
     }
-    Map varmap = (Map) value;
+    Map<String, Object> varmap = asStringObjectMap(value);
     for (Map.Entry<String, Object> binding : bindings.entrySet()) {
       varmap.put(binding.getKey(), binding.getValue());
     }
@@ -299,15 +303,17 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Make sure that the array list is of the right size
+   * Make sure that the list is of the right size for the given index.
    *
    * @param list list, assumed never <code>null</code>
    * @param index index, assumed zero or positive
    */
-  private static void matchLength(ArrayList list, int index) {
+  private static void matchLength(List<Object> list, int index) {
     if (list.size() > index) return;
 
-    list.ensureCapacity(index + 1);
+    if (list instanceof ArrayList<?> arrayList) {
+      arrayList.ensureCapacity(index + 1);
+    }
     for (int i = list.size(); i <= index; i++) {
       list.add(null);
     }
@@ -321,13 +327,39 @@ public class PSJexlEvaluator {
    * @return the dereferenced value
    */
   private static Object dereferenceMap(Object obj, String component) {
-    if (obj instanceof Map) {
-      obj = ((Map) obj).get(component);
-    } else {
-      throw new IllegalStateException(
-          "Expected map but found " + obj.getClass() + " at component " + component);
+    if (obj instanceof Map<?, ?> map) {
+      return map.get(component);
     }
-    return obj;
+    throw new IllegalStateException(
+        "Expected map but found " + obj.getClass() + " at component " + component);
+  }
+
+  /**
+   * Reinterpret a binder tree node as a mutable {@code Map<String, Object>}. The binder only ever
+   * inserts such maps (or the root {@link #m_vars}); the cast is the single residual needed to
+   * re-enter an existing node without copying.
+   *
+   * @param obj existing map node, never {@code null}
+   * @return the same map typed for mutation
+   */
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> asStringObjectMap(Object obj) {
+    return (Map<String, Object>) obj;
+  }
+
+  /**
+   * Reinterpret a binder tree list node as a mutable {@code List<Object>}, or {@code null} when the
+   * slot has not been created yet. Same residual contract as {@link #asStringObjectMap(Object)}.
+   *
+   * @param obj existing list node, or {@code null}
+   * @return the same list typed for mutation, or {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  private static List<Object> asMutableObjectList(Object obj) {
+    if (obj == null) {
+      return null;
+    }
+    return (List<Object>) obj;
   }
 
   @Override
@@ -364,8 +396,10 @@ public class PSJexlEvaluator {
     for (String key : data.keySet()) {
       if (key.equals("$rx") || key.equals("$tools")) continue;
       Object value = data.get(key);
-      if (value instanceof Map) {
-        rval.append(bindingsToString((Map) value, prefix.length() > 0 ? prefix + "." + key : key));
+      if (value instanceof Map<?, ?>) {
+        rval.append(
+            bindingsToString(
+                asStringObjectMap(value), prefix.length() > 0 ? prefix + "." + key : key));
       } else {
         if (prefix.length() > 0) {
           rval.append(prefix);

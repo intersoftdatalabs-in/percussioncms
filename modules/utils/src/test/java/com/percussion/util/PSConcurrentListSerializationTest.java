@@ -17,15 +17,20 @@
 package com.percussion.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +102,25 @@ public class PSConcurrentListSerializationTest {
     // Type guard still works after deserialization
     restored.add("three");
     assertEquals(3, restored.size());
+  }
+
+  @Test
+  public void testRestoreListRejectsNonListPayload() throws Exception {
+    Method restore = PSConcurrentList.class.getDeclaredMethod("restoreList", Object.class);
+    restore.setAccessible(true);
+    InvocationTargetException thrown =
+        assertThrows(InvocationTargetException.class, () -> restore.invoke(null, "not-a-list"));
+    assertInstanceOf(InvalidObjectException.class, thrown.getCause());
+  }
+
+  @Test
+  public void testRestoreListAcceptsNullAsEmpty() throws Exception {
+    Method restore = PSConcurrentList.class.getDeclaredMethod("restoreList", Object.class);
+    restore.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    List<Object> empty = (List<Object>) restore.invoke(null, new Object[] {null});
+    assertNotNull(empty);
+    assertTrue(empty.isEmpty());
   }
 
   @SuppressWarnings("unchecked")

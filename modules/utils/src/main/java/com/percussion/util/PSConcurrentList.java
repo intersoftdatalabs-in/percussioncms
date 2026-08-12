@@ -18,6 +18,7 @@
 package com.percussion.util;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -107,17 +108,32 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @throws IOException on read failure
    * @throws ClassNotFoundException if an element class is missing
    */
-  @SuppressWarnings("unchecked")
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     readWriteLock = new ReentrantReadWriteLock();
     rentrantLock = new ReentrantLock();
-    Object raw = in.readObject();
+    list = restoreList(in.readObject());
+  }
+
+  /**
+   * Rebuild the backing list from the serialized payload. The stream is trusted to contain a {@link
+   * List} of {@code T} elements written by {@link #writeObject(ObjectOutputStream)}; the single
+   * unchecked cast is inherent to Java generic deserialization and is isolated here.
+   *
+   * @param raw payload from the stream, may be {@code null}
+   * @return a new mutable list, never {@code null}
+   * @throws InvalidObjectException if the payload is present but not a list
+   */
+  @SuppressWarnings("unchecked")
+  private static <E> List<E> restoreList(Object raw) throws InvalidObjectException {
     if (raw == null) {
-      list = new ArrayList<>();
-    } else {
-      list = new ArrayList<>((List<T>) raw);
+      return new ArrayList<>();
     }
+    if (!(raw instanceof List<?>)) {
+      throw new InvalidObjectException(
+          "PSConcurrentList expected List payload, found " + raw.getClass().getName());
+    }
+    return new ArrayList<>((List<E>) raw);
   }
 
   public boolean remove(Object o) {
