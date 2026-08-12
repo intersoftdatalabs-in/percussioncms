@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Collections;
@@ -177,7 +177,7 @@ public final class PSValidationResult implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -186,7 +186,7 @@ public final class PSValidationResult implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+                        ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR,
                         new Object[] {sourceNode.getTagName(), XML_ATTR_MSG, "null"}));
 
     m_isError = getRequiredBoolAttr(sourceNode, XML_ATTR_IS_ERROR);
@@ -199,7 +199,7 @@ public final class PSValidationResult implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME));
 
     switch (depEl.getNodeName()) {
       case PSDeployableObject.XML_NODE_NAME -> m_dep = new PSDeployableObject(depEl);
@@ -207,7 +207,7 @@ public final class PSValidationResult implements IPSDeployComponent {
       case PSUserDependency.XML_NODE_NAME -> m_dep = new PSUserDependency(depEl);
       default ->
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+              ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
               new Object[] {
                 "(PSXDeployableElement | PSXDeployableObject | PSXUserDependency)",
                 depEl.getNodeName()

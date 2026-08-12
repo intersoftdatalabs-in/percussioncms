@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -224,7 +224,7 @@ public final class PSArchiveManifest implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_depMap.clear(); // initialize internal data.
@@ -384,7 +384,7 @@ public final class PSArchiveManifest implements IPSDeployComponent {
 
       if (!XML_CHILD_NODE.equals(sourceNode.getNodeName())) {
         Object[] args = {XML_CHILD_NODE, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
       m_key = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_CHILD_NODE_ATTR);
 
@@ -399,7 +399,7 @@ public final class PSArchiveManifest implements IPSDeployComponent {
       if (childEl == null) // no child element
       {
         Object[] args = {XML_CHILD_NODE + " DependencyKey=\"" + m_key + "\"", "first", "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       while (childEl != null) {
         if (childEl.getNodeName().equals(PSApplicationIDTypes.XML_NODE_NAME)) {

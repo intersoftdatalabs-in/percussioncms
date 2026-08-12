@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.utils.collections.PSMapUtils;
@@ -177,7 +177,7 @@ public final class PSArchiveDetail implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -190,7 +190,7 @@ public final class PSArchiveDetail implements IPSDeployComponent {
     Element descEl = tree.getNextElement(PSExportDescriptor.XML_NODE_NAME, firstFlags);
     if (descEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSExportDescriptor.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSExportDescriptor.XML_NODE_NAME);
     }
     m_exportDescriptor = new PSExportDescriptor(descEl);
 
@@ -202,7 +202,7 @@ public final class PSArchiveDetail implements IPSDeployComponent {
     Element mapEl = tree.getNextElement(XML_EL_DBMS_INFO_MAP, firstFlags);
     if (mapEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_DBMS_INFO_MAP);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_EL_DBMS_INFO_MAP);
     }
 
     // walk the mappings
@@ -210,7 +210,7 @@ public final class PSArchiveDetail implements IPSDeployComponent {
     // need to have at least one
     if (mappingEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_DBMS_INFO_MAPPING);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_EL_DBMS_INFO_MAPPING);
     }
 
     while (mappingEl != null) {
@@ -221,7 +221,7 @@ public final class PSArchiveDetail implements IPSDeployComponent {
       List<PSDatasourceMap> dbmsList = m_externalDbmsMap.get(pkgKey);
       if (dbmsList == null) {
         Object[] args = {XML_EL_DBMS_INFO_MAPPING, XML_ATTR_PKGKEY, pkgKey};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       // restore each dbms info and add to that map entry's list
