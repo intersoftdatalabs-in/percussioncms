@@ -83,7 +83,9 @@ def test_list_allowlist_exits_zero() -> None:
     assert result.returncode == 0, result.stderr
     combined = result.stdout + result.stderr
     assert "IPSObjectStoreErrors.java" in combined
-    assert "deployer/src/main/java/" in combined
+    # Exact deployer residual freeze (#3149), not a broad tree prefix.
+    assert "deployer/src/main/java/com/percussion/deployer/objectstore/" in combined
+    assert "PSCatalogResult.java" in combined
 
 
 def test_clean_repo_passes() -> None:
@@ -190,6 +192,45 @@ def test_test_source_bare_use_passes(tmp_path: Path) -> None:
     result = _run("--repo-root", str(fake_root))
     assert result.returncode == 0, result.stdout + result.stderr
     assert "PASS" in result.stdout
+
+
+def test_norm_path_edge_cases() -> None:
+    """``_norm_path`` must not corrupt ``../`` via character-class strip."""
+    # Import from script module (same directory on sys.path via file load).
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("ips_gate", SCRIPT)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    assert mod._norm_path(r"foo\bar\Baz.java") == "foo/bar/Baz.java"
+    assert mod._norm_path("./system/src/main/java/X.java") == "system/src/main/java/X.java"
+    assert mod._norm_path("././deployer/src/main/java/Y.java") == "deployer/src/main/java/Y.java"
+    # Critical: ``../`` must not collapse to empty/parent-stripped.
+    assert mod._norm_path("../foo/bar.java") == "../foo/bar.java"
+    assert mod._norm_path(r"..\foo\bar.java") == "../foo/bar.java"
+    assert mod._norm_path("system/src/main/java/X.java") == "system/src/main/java/X.java"
+
+
+def test_new_file_under_deployer_tree_not_silently_allowed(tmp_path: Path) -> None:
+    """Broad deployer prefix removed — only exact residual files pass."""
+    fake_root = tmp_path / "repo"
+    _init_fake_git_repo(fake_root)
+    _write_and_add(
+        fake_root,
+        "deployer/src/main/java/com/percussion/deployer/NewBareSite.java",
+        (
+            "package com.percussion.deployer;\n"
+            "import com.percussion.design.objectstore.IPSObjectStoreErrors;\n"
+            "public class NewBareSite {\n"
+            "  int c = IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE;\n"
+            "}\n"
+        ),
+    )
+    result = _run("--repo-root", str(fake_root))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "NewBareSite.java" in (result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

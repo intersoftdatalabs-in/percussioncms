@@ -65,37 +65,98 @@ ALWAYS_ALLOW_EXACT: frozenset[str] = frozenset(
     }
 )
 
-# Prefix allow-list for documented residual production call-sites.
-# Shrink this list as retype residuals merge; do not grow without an issue link.
-RESIDUAL_ALLOW_PREFIXES: tuple[tuple[str, str], ...] = (
-    # #3141 — Desktop CX PSNode bare sites (PR open at gate land).
-    (
+# Exact residual production call-sites (path == entry). Prefer exact paths so a
+# new file under the same tree fails the gate until explicitly allow-listed with
+# an issue link. Shrink as retypes merge (#3141 / #3142 / #3149).
+RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
+    {
+        # #3141 — Desktop CX PSNode bare sites (PR open at gate land).
         "modules/DesktopContentExplorer/src/main/java/com/percussion/cx/"
         "objectstore/PSNode.java",
-        "Desktop CX PSNode residual (#3141)",
-    ),
-    # #3142 — Design ACL PSAclEntry bare sites (PR open at gate land).
-    (
+        # #3142 — Design ACL PSAclEntry bare sites (PR open at gate land).
         "system/src/main/java/com/percussion/design/objectstore/PSAclEntry.java",
-        "Design ACL PSAclEntry residual (#3142)",
-    ),
-    # Legacy implements IPSObjectStoreErrors (unqualified constant use).
-    (
+        # Legacy implements IPSObjectStoreErrors (unqualified constant use).
         "system/src/main/java/com/percussion/design/objectstore/server/"
         "PSXmlObjectStoreHandler.java",
-        "implements IPSObjectStoreErrors handler residual",
-    ),
-    (
         "system/src/main/java/com/percussion/design/objectstore/server/"
         "PSXmlObjectStoreLockManager.java",
-        "implements IPSObjectStoreErrors lock residual",
-    ),
-    # Deployer objectstore XML residual (not yet sliced for ObjectStore retype).
-    (
-        "deployer/src/main/java/",
-        "deployer objectstore XML residual (pre-existing bare sites)",
-    ),
+        # #3149 — Deployer bare sites freeze (exact files at gate land).
+        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResult.java",
+        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResultColumn.java",
+        "deployer/src/main/java/com/percussion/deployer/catalog/PSCatalogResultSet.java",
+        "deployer/src/main/java/com/percussion/deployer/client/PSDeploymentManager.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSAppPolicySetting.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSAppPolicySettings.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/"
+        "PSApplicationIDTypeMapping.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSApplicationIDTypes.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveDetail.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveInfo.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveManifest.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchivePackage.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSArchiveSummary.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDatasourceMap.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsInfo.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsMap.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDbmsMapping.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependency.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependencyData.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDependencyFile.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployComponentUtils.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployableElement.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDeployableObject.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/"
+        "PSDeploymentServerConnectionInfo.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSDescriptor.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSExportDescriptor.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSIdMap.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSIdMapping.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSImportDescriptor.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSImportPackage.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSLogDetail.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSLogSummary.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSTransactionLogSummary.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSTransactionSummary.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSUserDependency.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSValidationResult.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/PSValidationResults.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppCEItemIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppConditionalIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppDataMappingIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppDisplayMapperIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppEntryIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppExtensionCallIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppExtensionParamIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppIndexedItemIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppNamedItemIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppUISetIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSAppUrlRequestIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSApplicationIDContextFactory.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSBindingIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/objectstore/idtypes/"
+        "PSBindingParamIdContext.java",
+        "deployer/src/main/java/com/percussion/deployer/server/PSDependencyDef.java",
+        "deployer/src/main/java/com/percussion/deployer/server/PSDependencyMap.java",
+        "deployer/src/main/java/com/percussion/deployer/server/PSDeploymentHandler.java",
+    }
 )
+
+# Optional path prefixes (rare). Prefer RESIDUAL_ALLOW_EXACT. Do not grow without
+# an issue link. Empty at land so new trees are not silently allowed.
+RESIDUAL_ALLOW_PREFIXES: tuple[tuple[str, str], ...] = ()
 
 # This gate and its tests may mention the token.
 SCRIPT_ALLOW_PREFIXES: tuple[str, ...] = (
@@ -130,7 +191,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _norm_path(path: str) -> str:
-    return path.replace("\\", "/").lstrip("./")
+    """Normalize git-grep paths to posix relative form.
+
+    Only strip a leading ``./`` segment (not character-class ``lstrip("./")``,
+    which would corrupt ``../foo`` into ``foo``). Match peer freeze scripts that
+    only rewrite separators.
+    """
+    norm = path.replace("\\", "/")
+    while norm.startswith("./"):
+        norm = norm[2:]
+    return norm
 
 
 def _is_test_path(path: str) -> bool:
@@ -157,6 +227,8 @@ def _is_always_allowlisted(path: str) -> bool:
 
 def _residual_reason(path: str) -> str | None:
     norm = _norm_path(path)
+    if norm in RESIDUAL_ALLOW_EXACT:
+        return "documented residual exact path (#3141/#3142/#3149)"
     for prefix, reason in RESIDUAL_ALLOW_PREFIXES:
         if norm == prefix or norm.startswith(prefix):
             return reason
@@ -213,10 +285,7 @@ def _git_grep_lines(repo_root: Path, pattern: str) -> list[tuple[str, int, str]]
 
 def _paths_with_code_hits(repo_root: Path) -> list[str]:
     """Unique production paths that mention the token in non-comment code."""
-    try:
-        hits = _git_grep_lines(repo_root, BANNED_TOKEN)
-    except RuntimeError:
-        raise
+    hits = _git_grep_lines(repo_root, BANNED_TOKEN)
 
     # Group lines by path for comment stripping at file granularity (cheaper
     # than reading every file when git already scoped to tracked *.java).
@@ -257,10 +326,14 @@ def _print_allowlist() -> None:
     print("== Always allow (interface + typed bridges) ==")
     for path in sorted(ALWAYS_ALLOW_EXACT):
         print(f"  {path}")
-    print("== Residual production allow-list (shrink as retypes land) ==")
-    for prefix, reason in RESIDUAL_ALLOW_PREFIXES:
-        print(f"  {prefix}")
-        print(f"    reason: {reason}")
+    print("== Residual production allow-list exact (shrink as retypes land) ==")
+    for path in sorted(RESIDUAL_ALLOW_EXACT):
+        print(f"  {path}")
+    if RESIDUAL_ALLOW_PREFIXES:
+        print("== Residual production allow-list prefixes ==")
+        for prefix, reason in RESIDUAL_ALLOW_PREFIXES:
+            print(f"  {prefix}")
+            print(f"    reason: {reason}")
     print("== Script self-allow ==")
     for prefix in SCRIPT_ALLOW_PREFIXES:
         print(f"  {prefix}")
@@ -294,9 +367,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    {path}", file=sys.stderr)
         print(
             "  Prefer typed ObjectStoreErrorCodes / ObjectStoreErrorCode / "
-            "DesignErrorCodes. To document an intentional residual, extend "
-            "RESIDUAL_ALLOW_PREFIXES in this script with an issue link "
-            "(#3143 / parent #2616).",
+            "DesignErrorCodes. To document an intentional residual, add the "
+            "exact path to RESIDUAL_ALLOW_EXACT in this script with an issue "
+            "link (#3143 / parent #2616 / deployer #3149).",
             file=sys.stderr,
         )
         print("verify-no-bare-ipsobjectstoreerrors: FAIL", file=sys.stderr)
