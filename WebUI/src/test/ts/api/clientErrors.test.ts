@@ -44,6 +44,37 @@ describe("extractRestErrorMessage", () => {
       }),
     ).toBe("adaptor boom");
   });
+
+  it("unwraps sitemanage PSErrors / PathItem error envelope (#3196)", () => {
+    expect(
+      extractRestErrorMessage({
+        Errors: {
+          globalError: {
+            defaultMessage: "1 counts of IllegalAnnotationExceptions",
+            code: "jakarta.ws.rs.InternalServerErrorException",
+          },
+        },
+      }),
+    ).toBe("1 counts of IllegalAnnotationExceptions");
+    expect(
+      extractRestErrorMessage({
+        PathItem: [
+          {
+            Errors: {
+              globalError: {
+                cause: {
+                  message: "HTTP 500 Internal Server Error",
+                  errorCause: {
+                    message: "1 counts of IllegalAnnotationExceptions",
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }),
+    ).toBe("1 counts of IllegalAnnotationExceptions");
+  });
 });
 
 describe("formatApiError RestError alignment", () => {

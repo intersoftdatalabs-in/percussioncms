@@ -17,6 +17,7 @@
  */
 package com.percussion.pathmanagement.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.pathmanagement.data.xmladapters.PSMapAdapter;
 import com.percussion.share.data.IPSFolderPath;
@@ -48,8 +49,16 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
   @XmlElement private String path;
   private PSFolderPermission.Access accessLevel;
 
-  /** Runtime association only — not part of Java serialization. */
-  @XmlTransient private transient Object relatedObject;
+  /**
+   * Runtime association only (e.g. a {@code File} for design FS items). Must stay out of Java
+   * serialization ({@code transient}) and JSON ({@code @JsonIgnore} on accessors).
+   *
+   * <p>Do not put JAXB annotations on this field: Glassfish JAXB rejects {@code @XmlTransient} (or
+   * any JAXB annotation) on a {@code transient} field with {@code IllegalAnnotationExceptions}
+   * ("Transient field relatedObject cannot have any JAXB annotations"), which surfaced as HTTP 500
+   * on Explorer path list/find (#3196).
+   */
+  private transient Object relatedObject;
 
   @XmlElement(name = "columnData")
   @XmlJavaTypeAdapter(PSMapAdapter.class)
@@ -181,10 +190,12 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
     this.accessLevel = accessLevel;
   }
 
+  @JsonIgnore
   public Object getRelatedObject() {
     return relatedObject;
   }
 
+  @JsonIgnore
   public void setRelatedObject(Object relatedObject) {
     this.relatedObject = relatedObject;
   }
