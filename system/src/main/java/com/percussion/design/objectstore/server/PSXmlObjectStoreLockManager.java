@@ -18,7 +18,6 @@
 package com.percussion.design.objectstore.server;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSLockedException;
 import com.percussion.design.objectstore.PSObjectFactory;
@@ -39,7 +38,7 @@ import java.util.Properties;
  * IPSServerConfigurationListener} interfaces.
  */
 public class PSXmlObjectStoreLockManager extends PSObjectFactory
-    implements IPSObjectStoreLockManager, IPSObjectStoreErrors {
+    implements IPSObjectStoreLockManager {
   /**
    * Constructs a lock manager for an XML object store.
    *
@@ -209,9 +208,11 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
           break; // we acquired the lock
         }
       } catch (NumberFormatException nfe) {
-        throw new PSLockAcquisitionException(LOCK_CORRUPT_LOCKFILE, nfe.getMessage());
+        throw new PSLockAcquisitionException(
+            ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE, nfe.getMessage());
       } catch (IOException ioe) {
-        throw new PSLockAcquisitionException(LOCK_CORRUPT_LOCKFILE, ioe.getMessage());
+        throw new PSLockAcquisitionException(
+            ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE, ioe.getMessage());
       } catch (InterruptedException inte) {
         if (lockedResults != null) {
           lockedResults.setArgs(ObjectStoreErrorCodes.LOCK_WAIT_INTERRUPTED, null);
@@ -377,7 +378,10 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
         if (createdStr == null || expiresStr == null) {
           com.percussion.log.PSLogManager.write(
               new com.percussion.log.PSLogServerWarning(
-                  LOCK_CORRUPT_LOCKFILE, new Object[] {f.toString()}, true, "XmlLockManager"));
+                  ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE.numericCode(),
+                  new Object[] {f.toString()},
+                  true,
+                  "XmlLockManager"));
           return;
         }
 
@@ -389,7 +393,10 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
         } catch (NumberFormatException nfe) {
           com.percussion.log.PSLogManager.write(
               new com.percussion.log.PSLogServerWarning(
-                  LOCK_CORRUPT_LOCKFILE, new Object[] {f.toString()}, true, "XmlLockManager"));
+                  ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE.numericCode(),
+                  new Object[] {f.toString()},
+                  true,
+                  "XmlLockManager"));
           return;
         }
 
@@ -408,7 +415,7 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
       } catch (IOException e) {
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                LOCK_IO_EXCEPTION,
+                ObjectStoreErrorCodes.LOCK_IO_EXCEPTION.numericCode(),
                 new Object[] {f.toString(), e.toString()},
                 true,
                 "XmlLockManager"));
@@ -509,7 +516,10 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
         if (createdStr == null || expiresStr == null) {
           com.percussion.log.PSLogManager.write(
               new com.percussion.log.PSLogServerWarning(
-                  LOCK_CORRUPT_LOCKFILE, new Object[] {f.toString()}, true, "XmlLockManager"));
+                  ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE.numericCode(),
+                  new Object[] {f.toString()},
+                  true,
+                  "XmlLockManager"));
           return null;
         }
 
@@ -521,7 +531,10 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
         } catch (NumberFormatException nfe) {
           com.percussion.log.PSLogManager.write(
               new com.percussion.log.PSLogServerWarning(
-                  LOCK_CORRUPT_LOCKFILE, new Object[] {f.toString()}, true, "XmlLockManager"));
+                  ObjectStoreErrorCodes.LOCK_CORRUPT_LOCKFILE.numericCode(),
+                  new Object[] {f.toString()},
+                  true,
+                  "XmlLockManager"));
           return null;
         }
 
@@ -534,7 +547,7 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
       } catch (IOException e) {
         com.percussion.log.PSLogManager.write(
             new com.percussion.log.PSLogServerWarning(
-                LOCK_IO_EXCEPTION,
+                ObjectStoreErrorCodes.LOCK_IO_EXCEPTION.numericCode(),
                 new Object[] {f.toString(), e.toString()},
                 true,
                 "XmlLockManager"));

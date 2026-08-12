@@ -76,10 +76,9 @@ RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
         # #3142 — Design ACL PSAclEntry bare sites (PR open at gate land).
         "system/src/main/java/com/percussion/design/objectstore/PSAclEntry.java",
         # Legacy implements IPSObjectStoreErrors (unqualified constant use).
+        # LockManager cleared in #3176 — keep Handler for sibling #3177.
         "system/src/main/java/com/percussion/design/objectstore/server/"
         "PSXmlObjectStoreHandler.java",
-        "system/src/main/java/com/percussion/design/objectstore/server/"
-        "PSXmlObjectStoreLockManager.java",
     }
 )
 
