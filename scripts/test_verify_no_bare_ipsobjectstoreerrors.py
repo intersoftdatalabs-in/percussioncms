@@ -88,9 +88,10 @@ def test_list_allowlist_exits_zero() -> None:
     # #3141 / #3142 retypes landed — no longer residual-allow-listed (#3175).
     assert "PSNode.java" not in combined
     assert "PSAclEntry.java" not in combined
-    # Remaining documented residuals: legacy implements handlers (#3176 / #3177).
+    # LockManager residual cleared in #3176 — not allow-listed.
+    assert "PSXmlObjectStoreLockManager.java" not in combined
+    # Remaining documented residual: Handler implements (#3177).
     assert "PSXmlObjectStoreHandler.java" in combined
-    assert "PSXmlObjectStoreLockManager.java" in combined
 
 
 def test_clean_repo_passes() -> None:
