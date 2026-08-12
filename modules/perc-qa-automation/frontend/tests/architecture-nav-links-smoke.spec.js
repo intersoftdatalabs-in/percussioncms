@@ -107,7 +107,7 @@ test.describe("Architecture nav landing & links (#3097)", () => {
       const createExt = page.getByTestId(
         "architecture-action-create-external-link",
       );
-      if (await createExt.isEnabled()) {
+      if (await createExt.isEnabled().catch(() => false)) {
         await createExt.click();
         await expect(
           page.getByTestId("architecture-external-link-dialog"),
@@ -121,12 +121,15 @@ test.describe("Architecture nav landing & links (#3097)", () => {
       const createLink = page.getByTestId(
         "architecture-action-create-section-link",
       );
-      if (await createLink.isEnabled()) {
+      if (await createLink.isEnabled().catch(() => false)) {
         await createLink.click();
         await expect(
           page.getByTestId("architecture-section-link-dialog"),
         ).toBeVisible({ timeout: 10_000 });
         await page.getByTestId("architecture-section-link-cancel").click();
+        await expect(
+          page.getByTestId("architecture-section-link-dialog"),
+        ).toHaveCount(0);
       }
     }
 

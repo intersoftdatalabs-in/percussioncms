@@ -80,7 +80,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(screen.getByTestId("architecture-shell-title").textContent).toMatch(
       /Architecture/i,
     );
-  }
+  });
 
   it("loads tree when initial site is provided", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([
@@ -114,7 +114,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(sectionApi.loadSectionTree).toHaveBeenCalledWith(
       "Corporate Investments",
     );
-  }
+  });
 
   it("surfaces tree load errors", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -132,7 +132,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(
       screen.getByTestId("architecture-nav-tree-error").textContent,
     ).toMatch(/Site not found|Could not load/i);
-  }
+  });
 
   it("refresh reloads the tree", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -148,7 +148,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     await waitFor(() => {
       expect(loadSpy).toHaveBeenCalledTimes(2);
     });
-  }
+  });
 
   it("enables create under root and opens create dialog", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -170,7 +170,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
     });
-  }
+  });
 
   it("delete confirms and calls deleteSiteSection", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -207,7 +207,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     await waitFor(() => {
       expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
-  }
+  });
 
   it("surfaces mutation errors without silent failure", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -236,7 +236,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(
       screen.getByTestId("architecture-mutation-error").textContent,
     ).toMatch(/Cannot delete section|Could not update/i);
-  }
+  });
 
   it("move up calls moveSiteSection with reordered index", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -266,7 +266,40 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         }),
       );
     });
-  }
+  });
+
+  it("move down calls moveSiteSection with reordered index", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-move-down",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-move-down"));
+    await waitFor(() => {
+      expect(moveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: "c1",
+          targetId: "root",
+          targetIndex: 1,
+        }),
+      );
+    });
+  });
 
   it("opens external link create dialog from action bar (#3097)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -292,7 +325,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         screen.getByTestId("architecture-external-link-dialog"),
       ).toBeTruthy();
     });
-  }
+  });
 
   it("opens section link dialog and landing dialog (#3097)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -334,7 +367,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-landing-dialog")).toBeTruthy();
     });
-  }
+  });
 
   it("create external link calls createExternalLinkSection (#3097)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -379,7 +412,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         }),
       );
     });
-  }
+  });
 
   it("edit external link loads section and submits updateExternalLink (#3097)", async () => {
     const extTree = {
@@ -449,7 +482,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         }),
       );
     });
-  }
+  });
 
   it("create under a selected non-root section posts that parent folderPath", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
@@ -491,40 +524,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         }),
       );
     });
-  }
-
-  it("move down calls moveSiteSection with reordered index", async () => {
-    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
-    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
-    const moveSpy = vi
-      .spyOn(sectionApi, "moveSiteSection")
-      .mockResolvedValue({});
-
-    render(<ArchitectureShell embedded initialSite="Demo" />);
-    await waitFor(() => {
-      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
-    await waitFor(() => {
-      expect(
-        (
-          screen.getByTestId(
-            "architecture-action-move-down",
-          ) as HTMLButtonElement
-        ).disabled,
-      ).toBe(false);
-    });
-    fireEvent.click(screen.getByTestId("architecture-action-move-down"));
-    await waitFor(() => {
-      expect(moveSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sourceId: "c1",
-          targetId: "root",
-          targetIndex: 1,
-        }),
-      );
-    });
-  }
+  });
 
   it("delete section link calls deleteSectionLink with parent id", async () => {
     const linkTree = {
@@ -571,5 +571,5 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       expect(delLinkSpy).toHaveBeenCalledWith("link-1", "root");
     });
     expect(delSecSpy).not.toHaveBeenCalled();
-  }
+  });
 });

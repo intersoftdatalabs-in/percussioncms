@@ -25,6 +25,7 @@ import type { NavTreeNode } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { NavTree } from "./NavTree";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface SectionTreePickerDialogProps {
   open: boolean;
@@ -71,6 +72,8 @@ export function SectionTreePickerDialog({
 }: SectionTreePickerDialogProps): React.ReactElement | null {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useDialogEscape(open, busy, onCancel);
 
   useEffect(() => {
     if (open) {

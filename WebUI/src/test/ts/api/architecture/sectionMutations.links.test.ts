@@ -96,6 +96,11 @@ describe("sectionMutations links & landing (#3097)", () => {
     expect(validateExternalUrl("/relative/path")).toBeNull();
     expect(validateExternalUrl("http://host/x?y=1")).toBeNull();
     expect(validateExternalUrl("ftp://files.example")).toBeNull();
+    // Security: reject XSS-capable schemes (CRITICAL #3154 review)
+    expect(validateExternalUrl("javascript:alert(1)")).toMatch(/not allowed|scheme/i);
+    expect(validateExternalUrl("JAVASCRIPT:void(0)")).toMatch(/not allowed|scheme/i);
+    expect(validateExternalUrl("data:text/html,hi")).toMatch(/not allowed|scheme/i);
+    expect(validateExternalUrl("vbscript:msgbox(1)")).toMatch(/not allowed|scheme/i);
   });
 
   it("builds landing / external / section-link bodies", () => {

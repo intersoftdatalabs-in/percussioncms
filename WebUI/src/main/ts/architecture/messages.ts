@@ -134,6 +134,27 @@ const KEYS = {
   // Blog support note
   BLOG_NOTE:
     "perc.ui.architecture.modern@Blog sections appear in the tree; full blog authoring remains outside this editor.",
+  // a11y / type badges / validation (#3098)
+  SECURE_BADGE: "perc.ui.architecture.modern@Secure",
+  SECURE_TITLE: "perc.ui.architecture.modern@Requires login",
+  TYPE_SECTION_LINK: "perc.ui.architecture.modern@Section link",
+  TYPE_EXTERNAL_LINK: "perc.ui.architecture.modern@External link",
+  TYPE_BLOG: "perc.ui.architecture.modern@Blog",
+  LANDING_PAGE_ID_LABEL: "perc.ui.architecture.modern@Page id",
+  VALIDATION_URL_NAME_REQUIRED:
+    "perc.ui.architecture.modern@URL name is required",
+  VALIDATION_URL_NAME_TOO_LONG:
+    "perc.ui.architecture.modern@URL name is too long (max 100 characters)",
+  VALIDATION_URL_NAME_CHARS:
+    "perc.ui.architecture.modern@URL name may only contain letters, numbers, dash, underscore, and period",
+  VALIDATION_TITLE_REQUIRED: "perc.ui.architecture.modern@Title is required",
+  VALIDATION_TITLE_TOO_LONG:
+    "perc.ui.architecture.modern@Title is too long (max 512 characters)",
+  VALIDATION_URL_REQUIRED: "perc.ui.architecture.modern@URL is required",
+  VALIDATION_URL_TOO_LONG:
+    "perc.ui.architecture.modern@URL is too long (max 2048 characters)",
+  VALIDATION_URL_INVALID:
+    "perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)",
 } as const;
 
 export type ArchitectureMsgKey = keyof typeof KEYS;
@@ -225,6 +246,20 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   TREE_PICKER_CANCEL: message(KEYS.TREE_PICKER_CANCEL),
   TREE_PICKER_HINT: message(KEYS.TREE_PICKER_HINT),
   BLOG_NOTE: message(KEYS.BLOG_NOTE),
+  SECURE_BADGE: message(KEYS.SECURE_BADGE),
+  SECURE_TITLE: message(KEYS.SECURE_TITLE),
+  TYPE_SECTION_LINK: message(KEYS.TYPE_SECTION_LINK),
+  TYPE_EXTERNAL_LINK: message(KEYS.TYPE_EXTERNAL_LINK),
+  TYPE_BLOG: message(KEYS.TYPE_BLOG),
+  LANDING_PAGE_ID_LABEL: message(KEYS.LANDING_PAGE_ID_LABEL),
+  VALIDATION_URL_NAME_REQUIRED: message(KEYS.VALIDATION_URL_NAME_REQUIRED),
+  VALIDATION_URL_NAME_TOO_LONG: message(KEYS.VALIDATION_URL_NAME_TOO_LONG),
+  VALIDATION_URL_NAME_CHARS: message(KEYS.VALIDATION_URL_NAME_CHARS),
+  VALIDATION_TITLE_REQUIRED: message(KEYS.VALIDATION_TITLE_REQUIRED),
+  VALIDATION_TITLE_TOO_LONG: message(KEYS.VALIDATION_TITLE_TOO_LONG),
+  VALIDATION_URL_REQUIRED: message(KEYS.VALIDATION_URL_REQUIRED),
+  VALIDATION_URL_TOO_LONG: message(KEYS.VALIDATION_URL_TOO_LONG),
+  VALIDATION_URL_INVALID: message(KEYS.VALIDATION_URL_INVALID),
 };
 
 /** Alias kept so older tests that look for TREE_READONLY_NOTE still compile if imported. */
