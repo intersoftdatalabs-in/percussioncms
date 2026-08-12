@@ -83,6 +83,11 @@
 // STALE IN PROGRESS CLEANUP (start of run): open issues still labeled In Progress whose
 // issue updatedAt is older than stale_in_progress_hours (default 4h) get the label removed
 // (crashed/abandoned claims). Fresh activity keeps the claim.
+//
+// UI LIVE PROOF (Work C5 — HARD for WebUI/product UI): before pr_opened and before human QA
+// handoff, run surface Playwright against H2 Docker (perc-devctl qa-up), deploy this change's
+// jars into the cell, zero JS console errors, zero related server.log ERROR/FATAL. Unit/Vitest
+// alone is insufficient for UI.
 
 let meta = #{
     name: "night-issue-prs",
@@ -1363,6 +1368,11 @@ for item in queue {
         work_prompt += "  B) Installer, packaging, upgrade, or host-visible behavior needs human eyes\n";
         work_prompt += "  C) Acceptance criteria call for manual QA / UAT beyond agent-safe automation\n";
         work_prompt += "  D) Agent could not fully prove the fix on a live/QA CMS and human must verify\n";
+        work_prompt += "HARD GATE before human QA for (A) / any UI path:\n";
+        work_prompt += "  Implementation gate C5 MUST already pass (qa-up H2 Docker, feature Playwright surface\n";
+        work_prompt += "  green, no JS console errors, no related server.log ERROR/FATAL). If C5 failed or was\n";
+        work_prompt += "  skipped, do NOT create a QA issue and do NOT claim complete — fix or status=failed.\n";
+        work_prompt += "  Human QA is for judgment/UAT after agent live proof, not to discover broken UI.\n";
         work_prompt += "THEN (dry_run=false only):\n";
         work_prompt += "  1) Ensure label exists: gh label create \"" + qa_label + "\" --repo " + repo
             + " --color C5DEF5 --description \"Human QA task\" --force\n";
@@ -1382,6 +1392,8 @@ for item in queue {
         work_prompt += "       - ## Pass / fail criteria\n";
         work_prompt += "       - ## Out of scope\n";
         work_prompt += "       - ## Evidence already collected by agent (Playwright/modules/commands)\n";
+        work_prompt += "         MUST include C5: TEST_CMS_URL, surface/golden commands + pass, console-clean,\n";
+        work_prompt += "         server.log-clean (or BUG:# with reason)\n";
         work_prompt += "  4) Comment on Parent #" + inum.to_string() + " and on the PR with the QA issue URL.\n";
         work_prompt += "  5) Mention qa_issue_url in summary. QA issues use label \"" + qa_label + "\"\n";
         work_prompt += "     and assignee @" + qa_assignee + " — they are NOT unassigned residuals.\n";
@@ -1484,6 +1496,46 @@ for item in queue {
             work_prompt += "   operator-, admin-, integrator-, or end-user-facing change (WebUI, REST, install/config,\n";
             work_prompt += "   publishing, sites, ACL with operator impact, etc.). docs/ engineering notes are NOT enough.\n";
             work_prompt += "   Pure refactor / test-only / non-product-facing: mark N/A with one-line reason.\n";
+            work_prompt += "C5) UI LIVE PROOF — Playwright on H2 Docker QA (HARD for all UI work):\n";
+            work_prompt += "   APPLIES when ANY of: WebUI SPA/React/TS, product chrome, Explorer/Architecture/Admin/\n";
+            work_prompt += "   Home/Publish/Developer shells, user-visible browser flows, or new/changed frontend\n";
+            work_prompt += "   Playwright specs. Does NOT apply to pure Java backend / tech-debt with zero UI surface.\n";
+            work_prompt += "   Failure mode this prevents: PR + human QA handoff while feature is broken in browser\n";
+            work_prompt += "   (repeated UI deliverable defects).\n";
+            work_prompt += "   REQUIRED sequence BEFORE pr_opened and BEFORE creating any human QA issue:\n";
+            work_prompt += "   C5a) Bring up QA H2 stack from REPO ROOT (worktree OK if same monorepo):\n";
+            work_prompt += "        python docker/scripts/perc-devctl.py qa-up\n";
+            work_prompt += "        Capture TEST_CMS_URL / QA_CMS_HOST_PORT / ADMIN_PASSWORD from stdout\n";
+            work_prompt += "        (freeport — never hardcode :9993). See modules/perc-qa-automation/README.md.\n";
+            work_prompt += "        If matrix image/package required: follow README prereq (perc-distribution-tree\n";
+            work_prompt += "        package, rebuild matrix image when scripts change).\n";
+            work_prompt += "   C5b) Deploy THIS change into the running QA cell: after module clean install, hot-deploy\n";
+            work_prompt += "        / copy updated jars/WAR into the QA install path (or rebuild cell so the image\n";
+            work_prompt += "        includes your artifacts). Restart Jetty/CMS in the cell if required so the new\n";
+            work_prompt += "        code is what the browser hits. Verify login still works against TEST_CMS_URL.\n";
+            work_prompt += "   C5c) Run surface-filtered Playwright for THIS feature under\n";
+            work_prompt += "        modules/perc-qa-automation/frontend:\n";
+            work_prompt += "        npm ci (if needed); npx playwright install chromium (if needed);\n";
+            work_prompt += "        set TEST_CMS_URL, ADMIN_USERNAME=Admin, ADMIN_PASSWORD, TEST_DB_TYPE=h2,\n";
+            work_prompt += "        TEST_PRODUCT=cms;\n";
+            work_prompt += "        npm run test:surface -- --path tests/<feature-spec>.js\n";
+            work_prompt += "        (or --grep / --tag for the feature). Add/update the feature spec if missing.\n";
+            work_prompt += "        Also run golden smoke when product shell/login/explorer chrome is touched:\n";
+            work_prompt += "        npm run test:golden (or golden-extended when folder/profile paths apply).\n";
+            work_prompt += "   C5d) ZERO ERRORS gate during the Playwright run:\n";
+            work_prompt += "        - Browser: no uncaught JS console errors (error/pageerror) on exercised paths\n";
+            work_prompt += "          (pageerror / console error listeners in the spec, or attach Playwright report).\n";
+            work_prompt += "        - Server: no new ERROR/FATAL lines in CMS server.log for the test window that\n";
+            work_prompt += "          relate to the feature (ignore pre-existing known noise only with BUG: issue URL).\n";
+            work_prompt += "        Any failing Playwright test, JS console error, or related server ERROR → do NOT\n";
+            work_prompt += "        open PR as complete; fix or status=failed / residual. Do NOT hand off to human QA.\n";
+            work_prompt += "   C5e) Record in build_evidence AND PR body:\n";
+            work_prompt += "        qa-up command + TEST_CMS_URL; deploy/hot-deploy steps; exact Playwright\n";
+            work_prompt += "        commands + pass counts; console-clean=yes|no; server.log-clean=yes|no\n";
+            work_prompt += "        (or BUG:#N for known skip). Tear down with qa-down when done if you own the cell.\n";
+            work_prompt += "   HARD BANS: claim UI pr_opened without C5; create QA (#N) human issue without C5 pass;\n";
+            work_prompt += "   skip Playwright because 'unit tests green'; run only against host install without\n";
+            work_prompt += "   qa-up when agent_safe_only expects Docker QA.\n";
             work_prompt += "D) Commit only in-scope files; do not dump monorepo-wide reformat or unrelated churn.\n";
             work_prompt += "E) Commit with a clear message referencing issue " + inum.to_string() + ".\n";
             work_prompt += "F) OPERATOR LABELS (required for daily status - create labels if missing):\n";
@@ -1495,8 +1547,9 @@ for item in queue {
             work_prompt += "G) git push -u origin HEAD and gh pr create --base " + base_branch + "\n";
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label model:grok-4.5\n";
             work_prompt += "   body: Summary, Test plan, Product documentation checklist ([x] updated pages under product-docs/ OR [x] N/A reason),\n";
-            work_prompt += "   C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked), Fixes or Partial.\n";
-            work_prompt += "   Prefer the checklist shape from .github/pull_request_template.md.\n";
+            work_prompt += "   C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked),\n";
+            work_prompt += "   C5 UI proof when applicable (Playwright surface path + pass, console-clean, server.log-clean),\n";
+            work_prompt += "   Fixes or Partial. Prefer the checklist shape from .github/pull_request_template.md.\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model grok-4.5) in the PR body.\n";
             work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
@@ -1509,8 +1562,9 @@ for item in queue {
             work_prompt += "M) Apply ISSUE LIFECYCLE / CLOSE RULES: QA issue if blocked on human QA; residual\n";
             work_prompt += "   children if more agent work remains; otherwise close #" + inum.to_string()
                 + " when no open children/QA remain.\n";
-            work_prompt += "status=pr_opened on success (with modules_built, build_evidence, downstream_checked filled),\n";
-            work_prompt += "status=failed with summary of blockers on failure.\n";
+            work_prompt += "status=pr_opened on success (with modules_built, build_evidence, downstream_checked filled;\n";
+            work_prompt += "and C5 Playwright/console/server.log evidence when UI work applied),\n";
+            work_prompt += "status=failed with summary of blockers on failure (including C5 fail).\n";
         }
     }
 
