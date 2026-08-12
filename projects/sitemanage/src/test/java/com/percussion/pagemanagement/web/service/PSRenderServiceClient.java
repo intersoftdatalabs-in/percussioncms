@@ -27,8 +27,24 @@ import com.percussion.share.test.PSObjectRestClient;
 public class PSRenderServiceClient extends PSObjectRestClient {
   private final String path = "/Rhythmyx/services/pagemanagement/render";
 
-  {
-    addAccept("text/html");
+  public PSRenderServiceClient() {
+    super();
+    seedAccepts();
+  }
+
+  public PSRenderServiceClient(String baseUrl) {
+    super(baseUrl);
+    seedAccepts();
+  }
+
+  private void seedAccepts() {
+    // Direct header mutation after super — no this-escape method dispatch.
+    String accept = requestHeaders.get("Accept");
+    if (accept == null || accept.isBlank()) {
+      requestHeaders.put("Accept", "text/html");
+    } else {
+      requestHeaders.put("Accept", accept + ",text/html");
+    }
   }
 
   public String getPath() {

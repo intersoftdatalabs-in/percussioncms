@@ -57,11 +57,15 @@ public abstract class PSTestDataCleaner<ID> {
    *
    * @param ids never any <code>null</code> elements.
    */
-  public void add(ID... ids) {
+  @SafeVarargs
+  @SuppressWarnings("varargs")
+  public final void add(ID... ids) {
     noNullElements(ids, "one of the ids passed to the cleaner was null");
     for (ID id : ids) {
       boolean shouldAdd = !(isRemoveDuplicates() && getDataIds().contains(id));
-      if (shouldAdd) dataIds.add(id);
+      if (shouldAdd) {
+        dataIds.add(id);
+      }
     }
   }
 
@@ -70,7 +74,9 @@ public abstract class PSTestDataCleaner<ID> {
    *
    * @param ids never any <code>null</code> elements.
    */
-  public void remove(ID... ids) {
+  @SafeVarargs
+  @SuppressWarnings("varargs")
+  public final void remove(ID... ids) {
     noNullElements(ids, "one of the ids passed to the cleaner was null");
     dataIds.removeAll(asList(ids));
   }

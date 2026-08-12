@@ -20,15 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import sun.misc.Unsafe;
 
 /**
  * Regression tests for {@link PSCSSParser} focused on the three {@code java/path-injection}
@@ -46,25 +46,19 @@ import sun.misc.Unsafe;
  * every path BEFORE any File / FileWriter / FileInputStream construction, with the theme root as
  * the canonical base.
  *
- * <p>Tests use {@link sun.misc.Unsafe#allocateInstance} to bypass the PSCSSParser constructor
- * (which has a {@code @notNull} precondition and a real logger dependency) and reflectively invoke
- * the three private sink methods. The same pattern is used by {@code
- * PSSiteDataServicePathInjectionTest} (T043).
+ * <p>Tests construct {@link PSCSSParser} via its public constructor with a Mockito-mocked logger
+ * (no {@code sun.misc.Unsafe}) and reflectively invoke the three private sink methods.
  */
 public class PSCSSParserPathInjectionTest {
 
   @TempDir File themeRoot;
 
-  private static final Unsafe UNSAFE;
   private static final Method FILE_EXISTS_METHOD;
   private static final Method SAVE_FILE_METHOD;
   private static final Method LOAD_FILE_METHOD;
 
   static {
     try {
-      Field f = Unsafe.class.getDeclaredField("theUnsafe");
-      f.setAccessible(true);
-      UNSAFE = (Unsafe) f.get(null);
       FILE_EXISTS_METHOD = PSCSSParser.class.getDeclaredMethod("fileExists", String.class);
       FILE_EXISTS_METHOD.setAccessible(true);
       SAVE_FILE_METHOD =
@@ -78,24 +72,13 @@ public class PSCSSParserPathInjectionTest {
   }
 
   /**
-   * Constructs an uninitialized PSCSSParser instance and sets the {@code themeRootDirectory} field
-   * via reflection so the validator has a real base directory to check against.
+   * Constructs a real PSCSSParser with a mocked logger so private sinks can be invoked without
+   * JDK-internal {@code Unsafe.allocateInstance}.
    */
-  private PSCSSParser parser() throws Exception {
-    PSCSSParser p = (PSCSSParser) UNSAFE.allocateInstance(PSCSSParser.class);
-    setField(p, "themeRootDirectory", themeRoot.getAbsolutePath());
-    // logger is unused by the three sink methods being tested (they do
-    // not log on success), so leave it null. setFileDownloader would
-    // require a real downloader; not needed for these tests.
-    setField(p, "logger", null);
-    return p;
-  }
-
-  private static void setField(Object target, String name, Object value)
-      throws ReflectiveOperationException {
-    Field f = PSCSSParser.class.getDeclaredField(name);
-    f.setAccessible(true);
-    f.set(target, value);
+  private PSCSSParser parser() {
+    IPSSiteImportLogger logger = mock(IPSSiteImportLogger.class);
+    return new PSCSSParser(
+        "test-site", themeRoot.getAbsolutePath(), "http://test.example/theme/", logger);
   }
 
   private static Object invokeFileExists(PSCSSParser p, String path) throws Throwable {

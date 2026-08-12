@@ -17,62 +17,41 @@ package com.percussion.cloudservice.impl;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.percussion.licensemanagement.service.impl.PSLicenseService;
+import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.pagemanagement.service.IPSRenderService;
+import com.percussion.share.dao.IPSFolderHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import sun.misc.Unsafe;
 
 /**
  * Path-injection regression for {@link PSCloudService#generateThumbUrl}: siteName and pageId are
  * validated with {@code requireSafeFileName} before any File I/O under {@code PSServer.getRxDir()}.
  *
- * <p>Uses {@link Unsafe#allocateInstance} so validation runs without constructing Spring deps or
- * requiring a live server (same pattern as {@code PSSiteDataServicePathInjectionTest}).
+ * <p>Instantiates {@link PSCloudService} via its public constructor with Mockito-mocked
+ * dependencies (same pattern as {@code PSImportThemeHelperPathInjectionTest}) — no {@code
+ * sun.misc.Unsafe}.
  */
 public class PSCloudServicePathInjectionTest {
 
-  private static final Unsafe UNSAFE;
-  private static final Method GENERATE_THUMB_URL;
-
-  static {
-    try {
-      Field f = Unsafe.class.getDeclaredField("theUnsafe");
-      f.setAccessible(true);
-      UNSAFE = (Unsafe) f.get(null);
-      GENERATE_THUMB_URL =
-          PSCloudService.class.getDeclaredMethod("generateThumbUrl", String.class, String.class);
-      GENERATE_THUMB_URL.setAccessible(true);
-    } catch (ReflectiveOperationException e) {
-      throw new ExceptionInInitializerError(e);
-    }
-  }
-
-  private static String invokeGenerateThumbUrl(String pageId, String siteName) throws Exception {
-    Object instance = UNSAFE.allocateInstance(PSCloudService.class);
-    try {
-      return (String) GENERATE_THUMB_URL.invoke(instance, pageId, siteName);
-    } catch (InvocationTargetException ite) {
-      Throwable cause = ite.getCause();
-      if (cause instanceof Exception) {
-        throw (Exception) cause;
-      }
-      if (cause instanceof Error) {
-        throw (Error) cause;
-      }
-      throw ite;
-    }
+  private static PSCloudService service() {
+    return new PSCloudService(
+        mock(IPSFolderHelper.class),
+        mock(IPSRenderService.class),
+        mock(IPSPageService.class),
+        mock(PSLicenseService.class));
   }
 
   @Test
   @DisplayName("generateThumbUrl rejects parent traversal in siteName before File I/O")
   void rejectsTraversalInSiteName() {
+    PSCloudService svc = service();
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> invokeGenerateThumbUrl("page1", "../escape"),
+            () -> svc.generateThumbUrl("page1", "../escape"),
             "siteName traversal must be rejected by requireSafeFileName");
     assertTrue(
         ex.getMessage() != null && !ex.getMessage().isBlank(),
@@ -82,32 +61,36 @@ public class PSCloudServicePathInjectionTest {
   @Test
   @DisplayName("generateThumbUrl rejects parent traversal in pageId before File I/O")
   void rejectsTraversalInPageId() {
+    PSCloudService svc = service();
     assertThrows(
         IllegalArgumentException.class,
-        () -> invokeGenerateThumbUrl("../escape", "goodSite"),
+        () -> svc.generateThumbUrl("../escape", "goodSite"),
         "pageId traversal must be rejected by requireSafeFileName");
   }
 
   @Test
   @DisplayName("generateThumbUrl rejects path separators in siteName")
   void rejectsSlashInSiteName() {
+    PSCloudService svc = service();
     assertThrows(
-        IllegalArgumentException.class, () -> invokeGenerateThumbUrl("page1", "site/name"));
+        IllegalArgumentException.class, () -> svc.generateThumbUrl("page1", "site/name"));
     assertThrows(
-        IllegalArgumentException.class, () -> invokeGenerateThumbUrl("page1", "site\\name"));
+        IllegalArgumentException.class, () -> svc.generateThumbUrl("page1", "site\\name"));
   }
 
   @Test
   @DisplayName("generateThumbUrl rejects path separators in pageId")
   void rejectsSlashInPageId() {
+    PSCloudService svc = service();
     assertThrows(
-        IllegalArgumentException.class, () -> invokeGenerateThumbUrl("page/id", "goodSite"));
+        IllegalArgumentException.class, () -> svc.generateThumbUrl("page/id", "goodSite"));
   }
 
   @Test
   @DisplayName("generateThumbUrl rejects NUL in siteName")
   void rejectsNulInSiteName() {
+    PSCloudService svc = service();
     assertThrows(
-        IllegalArgumentException.class, () -> invokeGenerateThumbUrl("page1", "site\0name"));
+        IllegalArgumentException.class, () -> svc.generateThumbUrl("page1", "site\0name"));
   }
 }

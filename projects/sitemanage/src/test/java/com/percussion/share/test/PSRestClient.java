@@ -51,10 +51,25 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSRestClient {
   private String url;
-  private Map<String, String> requestHeaders = new HashMap<String, String>();
-  private String postContentType = "text/xml";
+  /** Protected so subclasses can seed headers in ctors without this-escape method calls. */
+  protected final Map<String, String> requestHeaders = new HashMap<String, String>();
+  /** Protected so subclasses can seed content type in ctors without this-escape method calls. */
+  protected String postContentType = "text/xml";
 
   private PSModernHttpClient client;
+
+  public PSRestClient() {}
+
+  /**
+   * Seeds base URL and HTTP client during construction without overridable method dispatch
+   * (clears subclass this-escape when chaining {@code super(baseUrl)}).
+   */
+  public PSRestClient(String baseUrl) {
+    this.url = baseUrl;
+    if (baseUrl != null) {
+      this.client = new PSModernHttpClient(baseUrl, requestHeaders);
+    }
+  }
 
   public List<String> parseAcceptHeader(String acceptHeader) {
     return new ArrayList<String>(asList(acceptHeader.split(",")));
@@ -64,19 +79,19 @@ public class PSRestClient {
     return StringUtils.join(accepts, ",");
   }
 
-  protected void addAccept(String mime) {
+  protected final void addAccept(String mime) {
     List<String> accepts = parseAcceptHeader(getAcceptHeader());
     accepts.add(mime);
     setAcceptHeader(outputAcceptHeader(accepts));
   }
 
-  protected String getAcceptHeader() {
+  protected final String getAcceptHeader() {
     String accept = getRequestHeaders().get("Accept");
     if (accept == null) return "";
     return accept;
   }
 
-  protected void setAcceptHeader(String header) {
+  protected final void setAcceptHeader(String header) {
     notNull(header, "header");
     getRequestHeaders().put("Accept", header);
   }
@@ -85,7 +100,7 @@ public class PSRestClient {
     return url;
   }
 
-  public void setUrl(String url) {
+  public final void setUrl(String url) {
     this.url = url;
     // Initialize the modern HTTP client with the base URL
     if (url != null) {
@@ -242,22 +257,27 @@ public class PSRestClient {
     public RestClientException() {}
 
     public RestClientException(RestClientException cause) {
-      setStatus(cause.getStatus());
-      setUri(cause.getUri());
-      setResponseBody(cause.getResponseBody());
-      setMessage(cause.getMessage());
+      // Direct field copies (not overridable setters) avoid -Xlint:this-escape.
+      this.status = cause.getStatus();
+      this.uri = cause.getUri();
+      this.responseBody = cause.getResponseBody();
+      this.message = cause.getMessage();
     }
 
     public RestClientException(int status, String uri, InputStream responseBody) {
-      init(status, uri, null);
-      setMessage(getRestErrorMessage());
-      fillInStackTrace();
+      // super() already fills the stack; do not call fillInStackTrace() again.
+      this.status = status;
+      this.uri = uri;
+      this.responseBody = null;
+      this.message =
+          format("HTTP Error code: {0}\nURI: {1}\nResponse: {2}", status, uri, (Object) null);
     }
 
     public RestClientException(int status, String uri, String responseBody) {
-      init(status, uri, responseBody);
-      setMessage(getRestErrorMessage());
-      fillInStackTrace();
+      this.status = status;
+      this.uri = uri;
+      this.responseBody = responseBody;
+      this.message = format("HTTP Error code: {0}\nURI: {1}\nResponse: {2}", status, uri, responseBody);
     }
 
     @Override
@@ -268,62 +288,68 @@ public class PSRestClient {
       return super.getMessage();
     }
 
-    protected void setMessage(String message) {
+    protected final void setMessage(String message) {
       this.message = message;
     }
 
-    protected String getRestErrorMessage() {
+    protected final String getRestErrorMessage() {
       return format(
           "HTTP Error code: {0}\nURI: {1}\nResponse: {2}",
           getStatus(), getUri(), getResponseBody());
     }
 
-    protected void init(int status, String uri, String responseBody) {
+    protected final void init(int status, String uri, String responseBody) {
       this.status = status;
       this.uri = uri;
       this.responseBody = responseBody;
     }
 
-    public String getUri() {
+    public final String getUri() {
       return uri;
     }
 
-    public void setUri(String uri) {
+    public final void setUri(String uri) {
       this.uri = uri;
     }
 
-    public int getStatus() {
+    public final int getStatus() {
       return status;
     }
 
-    public void setStatus(int status) {
+    public final void setStatus(int status) {
       this.status = status;
     }
 
-    public String getResponseBody() {
+    public final String getResponseBody() {
       return responseBody;
     }
 
-    public void setResponseBody(String responseBody) {
+    public final void setResponseBody(String responseBody) {
       this.responseBody = responseBody;
     }
   }
 
   protected static final Logger log = LogManager.getLogger(PSRestClient.class);
 
-  public String getPostContentType() {
+  public final String getPostContentType() {
     return postContentType;
   }
 
-  public void setPostContentType(String postContentType) {
+  public final void setPostContentType(String postContentType) {
     this.postContentType = postContentType;
   }
 
-  public Map<String, String> getRequestHeaders() {
+  public final Map<String, String> getRequestHeaders() {
     return requestHeaders;
   }
 
-  public void setRequestHeaders(Map<String, String> requestHeaders) {
-    this.requestHeaders = requestHeaders;
+  /**
+   * Replaces header entries in place (map is final). Prefer mutating {@link #requestHeaders}
+   * directly from subclass constructors to avoid this-escape diagnostics.
+   */
+  public final void setRequestHeaders(Map<String, String> requestHeaders) {
+    notNull(requestHeaders, "requestHeaders");
+    this.requestHeaders.clear();
+    this.requestHeaders.putAll(requestHeaders);
   }
 }

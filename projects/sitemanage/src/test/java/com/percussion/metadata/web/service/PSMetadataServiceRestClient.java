@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /** REST client for metadata service. Sunny Sal says: "Metadata management, Java 11 style!" */
@@ -52,9 +53,10 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
       var response = GET(concatPath(getPath(), GADGETS_KEY));
       var metadata = PSSerializerUtils.unmarshal(response, PSMetadata.class);
       var mapper = JsonMapper.builder().build();
-      var dataMap = mapper.readValue(metadata.getData(), java.util.Map.class);
-      var dashboardConfigMap = (java.util.Map<String, Object>) dataMap.get("DashboardConfig");
-      config = mapper.convertValue(dashboardConfigMap, PSDashboardConfiguration.class);
+      Map<String, Object> dataMap =
+          mapper.readValue(metadata.getData(), new TypeReference<Map<String, Object>>() {});
+      Object dashboardConfigObj = dataMap.get("DashboardConfig");
+      config = mapper.convertValue(dashboardConfigObj, PSDashboardConfiguration.class);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

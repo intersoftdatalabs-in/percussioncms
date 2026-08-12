@@ -64,6 +64,8 @@ class PSWorkflowEditionTaskConcurrencyTest {
 
   /** Simple name must equal {@code CannotAcquireLockException} for exact-name detection. */
   static final class CannotAcquireLockException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     CannotAcquireLockException(String m) {
       super(m);
     }

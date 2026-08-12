@@ -39,9 +39,11 @@ public class PSDataObjectTestUtils {
     public T actualSerialized;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> DataObjectXmlTestResults<T> doXmlSerialization(T object) {
     var s = PSSerializerUtils.marshal(object);
-    var klass = (Class<T>) object.getClass();
+    // object.getClass() is Class<? extends T>; cast is required for typed unmarshal.
+    Class<T> klass = (Class<T>) object.getClass();
     var copy = PSSerializerUtils.unmarshal(s, klass);
     var sCopy = PSSerializerUtils.marshal(copy);
 
@@ -83,7 +85,8 @@ public class PSDataObjectTestUtils {
       var defaults = new HashMap<String, P>();
       for (var pd : props) {
         if (pt.equals(pd.getPropertyType())) {
-          defaults.put(pd.getName(), (P) map.get(pd.getName()));
+          Object raw = map.get(pd.getName());
+          defaults.put(pd.getName(), raw == null ? null : pt.cast(raw));
         }
       }
       return defaults;
