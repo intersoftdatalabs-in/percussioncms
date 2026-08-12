@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-export { ArchitectureShell } from "./ArchitectureShell";
-export type { ArchitectureShellProps } from "./ArchitectureShell";
-export { NavTree } from "./NavTree";
-export type { NavTreeProps } from "./NavTree";
-export { SitePicker } from "./SitePicker";
-export type { SitePickerProps, SiteOption } from "./SitePicker";
-export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
-export type { ArchitectureMsgKey } from "./messages";
+export {
+  loadSectionTree,
+  loadRootSection,
+  sectionTreeUrl,
+  sectionRootUrl,
+} from "./sectionApi";
 export {
   countNavTreeNodes,
   flattenNavTree,
   isNavBranch,
   mapSectionNodeToTree,
+  normalizeChildNodes,
   parseSectionNodePayload,
   sectionTypeLabel,
-} from "./treeModel";
+} from "./mapSectionTree";
+export type {
+  NavTreeNode,
+  SectionNodeWire,
+  SiteSectionWire,
+  SectionType,
+} from "./types";

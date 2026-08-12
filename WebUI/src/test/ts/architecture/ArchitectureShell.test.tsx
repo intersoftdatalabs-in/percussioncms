@@ -15,12 +15,20 @@
  * limitations under the License.
  */
 
-import { cleanup, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+} from "@testing-library/react";
 import React from "react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ArchitectureShell } from "../../../main/ts/architecture/ArchitectureShell";
+import * as homeApi from "../../../main/ts/api/home/homeApi";
+import * as sectionApi from "../../../main/ts/api/architecture/sectionApi";
 
-describe("ArchitectureShell (#3094)", () => {
+describe("ArchitectureShell (#3095 read-only tree)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -28,37 +36,109 @@ describe("ArchitectureShell (#3094)", () => {
         return at >= 0 ? key.slice(at + 1) : key;
       },
     };
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
-  it("renders shell chrome and empty/in-progress state", () => {
+  it("shows empty state when no site is selected and no sites load", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([]);
     render(<ArchitectureShell embedded />);
-    const shell = screen.getByTestId("perc-architecture-shell");
-    expect(shell).toBeTruthy();
-    expect(shell.getAttribute("data-embedded")).toBe("true");
-    expect(shell.getAttribute("data-site")).toBe("");
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-sites-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
     expect(screen.getByTestId("architecture-shell-title").textContent).toMatch(
       /Architecture/i,
     );
-    expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
-    expect(screen.getByTestId("architecture-empty-title").textContent).toMatch(
-      /coming soon/i,
-    );
-    expect(screen.getByTestId("architecture-site-hint").textContent).toMatch(
-      /No site selected/i,
-    );
   });
 
-  it("surfaces optional site context from props", () => {
-    render(<ArchitectureShell embedded initialSite="Corporate Investments" />);
-    expect(
-      screen.getByTestId("perc-architecture-shell").getAttribute("data-site"),
-    ).toBe("Corporate Investments");
+  it("loads tree when initial site is provided", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([
+      { name: "Corporate Investments" },
+      { name: "Demo" },
+    ]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue({
+      id: "root",
+      title: "Home",
+      folderPath: "//Sites/Corporate Investments",
+      sectionType: "section",
+      requiresLogin: false,
+      children: [
+        {
+          id: "c1",
+          title: "About",
+          folderPath: null,
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    });
+
+    render(
+      <ArchitectureShell embedded initialSite="Corporate Investments" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-nav-tree")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-root")).toBeTruthy();
+    });
+    expect(screen.getByTestId("nav-tree-item-root").textContent).toMatch(
+      /Home/i,
+    );
     expect(screen.getByTestId("architecture-site-hint").textContent).toContain(
       "Corporate Investments",
     );
+    expect(screen.getByTestId("architecture-readonly-note")).toBeTruthy();
+    expect(sectionApi.loadSectionTree).toHaveBeenCalledWith(
+      "Corporate Investments",
+    );
+  });
+
+  it("surfaces tree load errors", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Site not found" },
+    });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-nav-tree-error")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("architecture-nav-tree-error").textContent,
+    ).toMatch(/Site not found|Could not load/i);
+  });
+
+  it("refresh reloads the tree", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue({
+        id: "root",
+        title: "Home",
+        folderPath: null,
+        sectionType: "section",
+        requiresLogin: false,
+        children: [],
+      });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(loadSpy).toHaveBeenCalledTimes(1);
+    });
+    fireEvent.click(screen.getByTestId("architecture-refresh"));
+    await waitFor(() => {
+      expect(loadSpy).toHaveBeenCalledTimes(2);
+    });
   });
 });

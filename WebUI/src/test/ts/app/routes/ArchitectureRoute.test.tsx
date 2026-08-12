@@ -20,6 +20,8 @@ import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ArchitectureRoute } from "../../../../main/ts/app/routes/ArchitectureRoute";
+import * as homeApi from "../../../../main/ts/api/home/homeApi";
+import * as sectionApi from "../../../../main/ts/api/architecture/sectionApi";
 
 const bootstrapState = {
   isAdmin: true,
@@ -40,12 +42,14 @@ vi.mock("../../../../main/ts/registry", () => ({
     if (name !== "ArchitectureShell") {
       throw new Error(`unexpected component: ${name}`);
     }
-    const mod = await import("../../../../main/ts/architecture/ArchitectureShell");
+    const mod = await import(
+      "../../../../main/ts/architecture/ArchitectureShell"
+    );
     return mod.ArchitectureShell;
   },
 }));
 
-describe("ArchitectureRoute (#3094)", () => {
+describe("ArchitectureRoute (#3094 / #3095)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -55,10 +59,13 @@ describe("ArchitectureRoute (#3094)", () => {
     };
     bootstrapState.isAdmin = true;
     bootstrapState.isDesigner = true;
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(null);
   });
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   function renderAt(path: string) {
@@ -73,22 +80,38 @@ describe("ArchitectureRoute (#3094)", () => {
     );
   }
 
-  it("mounts shell for Admin/Designer with empty state", async () => {
+  it("mounts shell for Admin/Designer with empty state when no sites", async () => {
     renderAt("/architecture");
     await waitFor(() => {
       expect(screen.getByTestId("perc-architecture-shell")).toBeTruthy();
     });
-    expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-empty-state")).toBeTruthy();
+    });
   });
 
-  it("passes path site param into shell", async () => {
+  it("passes path site param into shell and loads tree", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "DemoSite" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue({
+      id: "r",
+      title: "Home",
+      folderPath: null,
+      sectionType: "section",
+      requiresLogin: false,
+      children: [],
+    });
     renderAt("/architecture/DemoSite");
     await waitFor(() => {
       expect(screen.getByTestId("perc-architecture-shell")).toBeTruthy();
     });
-    expect(
-      screen.getByTestId("perc-architecture-shell").getAttribute("data-site"),
-    ).toBe("DemoSite");
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-architecture-shell").getAttribute("data-site"),
+      ).toBe("DemoSite");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-nav-tree")).toBeTruthy();
+    });
   });
 
   it("role gate redirects non-designer/non-admin to home", async () => {
