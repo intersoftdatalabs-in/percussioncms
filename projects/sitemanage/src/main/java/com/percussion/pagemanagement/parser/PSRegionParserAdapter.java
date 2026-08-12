@@ -32,10 +32,22 @@ public abstract class PSRegionParserAdapter<
         REGION extends PSAbstractRegion, CODE extends PSRegionCode>
     implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
 
-  private final PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+  /**
+   * Lazy: {@link PSRegionParser} takes the factory ({@code this}) as a constructor arg. Creating it
+   * in a field initializer would leak {@code this} before the subclass finishes construction
+   * ({@code this-escape}). Construction is complete before {@link #parse(String)} runs.
+   */
+  private PSRegionParser<REGION, CODE> parser;
+
+  private PSRegionParser<REGION, CODE> parser() {
+    if (parser == null) {
+      parser = new PSRegionParser<>(this);
+    }
+    return parser;
+  }
 
   @Override
   public PSParsedRegionTree<REGION, CODE> parse(String text) {
-    return parser.parse(text);
+    return parser().parse(text);
   }
 }

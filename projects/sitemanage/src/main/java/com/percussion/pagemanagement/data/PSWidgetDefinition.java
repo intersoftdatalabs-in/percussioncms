@@ -27,6 +27,7 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import jakarta.xml.bind.annotation.*;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +166,9 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   @XmlType(
       name = "",
       propOrder = {"value"})
-  public static class Code {
+  public static class Code implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @XmlValue protected String value;
     @XmlAttribute protected String type;
@@ -239,7 +242,9 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   @XmlType(
       name = "",
       propOrder = {"value"})
-  public static class Content {
+  public static class Content implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @XmlValue protected String value;
     @XmlAttribute protected String type;
@@ -835,10 +840,12 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   @XmlType(
       name = "",
       propOrder = {"icon"})
-  public static class WidgetPrefs {
+  public static class WidgetPrefs implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "Icon")
-    protected List<Icon> icon;
+    protected ArrayList<Icon> icon;
 
     @XmlAttribute(name = "contenttype_name")
     protected String contenttypeName;
@@ -897,7 +904,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
       if (icon == null) {
         icon = new ArrayList<>();
       }
-      return this.icon;
+      return icon;
     }
 
     /**
@@ -1180,7 +1187,9 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
     @XmlType(
         name = "",
         propOrder = {"value"})
-    public static class Icon {
+    public static class Icon implements Serializable {
+
+      private static final long serialVersionUID = 1L;
 
       @XmlValue protected String value;
       @XmlAttribute protected String mode;

@@ -182,5 +182,7 @@ public class PSAssetUploadServlet extends HttpServlet {
   }
 
   private static final Logger logger = LogManager.getLogger("PSAssetUploadServlet");
-  private final PSAssetCreator assetCreator = new PSAssetCreator();
+
+  /** Runtime collaborator — not part of servlet Java serialization. */
+  private final transient PSAssetCreator assetCreator = new PSAssetCreator();
 }

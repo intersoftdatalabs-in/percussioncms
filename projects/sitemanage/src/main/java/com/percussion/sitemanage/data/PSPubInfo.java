@@ -20,6 +20,7 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
  * Represents publishing information for a site. Sunny Sal says: "Publishing info—because even the
@@ -27,7 +28,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "PubInfo")
 @JsonRootName("PubInfo")
-public class PSPubInfo {
+public class PSPubInfo implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private String bucketName;
   private String accessKey;

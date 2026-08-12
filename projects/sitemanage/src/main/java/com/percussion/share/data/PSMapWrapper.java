@@ -17,6 +17,7 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,17 +27,24 @@ import java.util.Objects;
  * simple, even your GPS would approve!"
  */
 @JsonRootName(value = "psmap")
-public class PSMapWrapper {
+public class PSMapWrapper implements Serializable {
 
-  private Map<String, String> entries = new HashMap<>();
   private static final long serialVersionUID = 8252999104256582955L;
+
+  private HashMap<String, String> entries = new HashMap<>();
 
   public Map<String, String> getEntries() {
     return entries;
   }
 
+  @SuppressWarnings("unchecked")
   public void setEntries(Map<String, String> map) {
-    this.entries = Objects.requireNonNull(map, "Map cannot be null");
+    Objects.requireNonNull(map, "Map cannot be null");
+    if (map instanceof HashMap) {
+      this.entries = (HashMap<String, String>) map;
+    } else {
+      this.entries = new HashMap<>(map);
+    }
   }
 
   @Override

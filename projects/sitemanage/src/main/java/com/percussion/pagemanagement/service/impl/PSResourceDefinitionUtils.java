@@ -105,18 +105,23 @@ public class PSResourceDefinitionUtils {
   public static class PSResourceDefinitionDependencyCycleException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    private List<? extends PSResourceDefinition> cyclicalResources;
+
+    /** In-process definitions only — not Java-serializable resource graph. */
+    private final transient List<? extends PSResourceDefinition> cyclicalResources;
+
+    /** Stable ids retained for {@link #getMessage()} after serialization. */
+    private final ArrayList<String> cyclicalResourceIds;
 
     public PSResourceDefinitionDependencyCycleException(
         List<? extends PSResourceDefinition> resources) {
       super();
       cyclicalResources = resources;
+      cyclicalResourceIds = new ArrayList<>(getResourceIds(resources));
     }
 
     @Override
     public String getMessage() {
-      return "Cycle detected with the following resources: "
-          + getResourceIds(getCyclicalResources());
+      return "Cycle detected with the following resources: " + cyclicalResourceIds;
     }
 
     public final List<? extends PSResourceDefinition> getCyclicalResources() {

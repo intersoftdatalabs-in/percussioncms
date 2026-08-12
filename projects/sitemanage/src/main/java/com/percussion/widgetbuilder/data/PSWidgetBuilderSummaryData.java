@@ -79,16 +79,17 @@ public class PSWidgetBuilderSummaryData extends PSAbstractPersistantObject {
     if (dao == null) {
       throw new IllegalArgumentException("dao must not be null");
     }
-    setAuthor(dao.getAuthor().orElse(null));
-    setDescription(dao.getDescription().orElse(null));
-    setLabel(dao.getLabel().orElse(null));
-    setPrefix(dao.getPrefix().orElse(null));
-    setPublisherUrl(dao.getPublisherUrl().orElse(null));
-    setVersion(dao.getVersion().orElse(null));
-    setId(Long.toString(dao.getWidgetBuilderDefinitionId()));
-    setResponsive(dao.isResponsive());
-    setWidgetTrayCustomizedIconPath(dao.getWidgetTrayCustomizedIconPath().orElse(null));
-    setToolTipMessage(dao.getToolTipMessage().orElse(null));
+    // Direct field seeds — avoid overridable setters during construction (this-escape).
+    this.author = dao.getAuthor().orElse(null);
+    this.description = dao.getDescription().orElse(null);
+    this.label = dao.getLabel().orElse(null);
+    this.prefix = dao.getPrefix().orElse(null);
+    this.publisherUrl = dao.getPublisherUrl().orElse(null);
+    this.version = dao.getVersion().orElse(null);
+    this.widgetId = dao.getWidgetBuilderDefinitionId();
+    this.responsive = dao.isResponsive();
+    this.widgetTrayCustomizedIconPath = dao.getWidgetTrayCustomizedIconPath().orElse(null);
+    this.toolTipMessage = dao.getToolTipMessage().orElse(null);
   }
 
   public String getToolTipMessage() {

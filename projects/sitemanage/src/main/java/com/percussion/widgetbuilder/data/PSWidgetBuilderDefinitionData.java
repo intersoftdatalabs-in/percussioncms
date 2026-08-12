@@ -49,15 +49,16 @@ public class PSWidgetBuilderDefinitionData extends PSWidgetBuilderSummaryData {
    */
   public PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinition dao) {
     super(dao);
+    // Direct field seeds — avoid overridable setters during construction (this-escape).
     if (StringUtils.isNotBlank(dao.getFields())) {
-      setFieldsList(PSWidgetBuilderFieldsListData.fromXml(dao.getFields()));
+      this.fieldsList = PSWidgetBuilderFieldsListData.fromXml(dao.getFields());
     }
-    widgetHtml = dao.getWidgetHtml();
+    this.widgetHtml = dao.getWidgetHtml();
     if (StringUtils.isNotBlank(dao.getCssFiles())) {
-      setCssFileList(PSWidgetBuilderResourceListData.fromXml(dao.getCssFiles()));
+      this.cssFileList = PSWidgetBuilderResourceListData.fromXml(dao.getCssFiles());
     }
     if (StringUtils.isNotBlank(dao.getJsFiles())) {
-      setJsFileList(PSWidgetBuilderResourceListData.fromXml(dao.getJsFiles()));
+      this.jsFileList = PSWidgetBuilderResourceListData.fromXml(dao.getJsFiles());
     }
   }
 
