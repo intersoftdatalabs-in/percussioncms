@@ -74,6 +74,7 @@ public class PSFolderPermissionUtils {
     // half-built DTO that later fails setFolderPermission on save (#2749).
     if (acl == null) {
       permission.setAccessLevel(Access.ADMIN);
+      permission.setAdminPrincipals(defaultAdminRolePrincipals());
       return permission;
     }
     setAclEntry(acl, PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE, DESIGNER_ROLE, ADMIN_ACCESS);
@@ -116,6 +117,7 @@ public class PSFolderPermissionUtils {
       }
     }
 
+    ensureDefaultAdminRolePrincipals(adminPrincipals);
     if (!adminPrincipals.isEmpty()) {
       permission.setAdminPrincipals(adminPrincipals);
     }
@@ -302,6 +304,38 @@ public class PSFolderPermissionUtils {
    * @param userName the name of the user in question, it may be <code>null</code> or empty.
    * @param permission the new access level for the user.
    */
+  private static List<Principal> defaultAdminRolePrincipals() {
+    var list = new ArrayList<Principal>();
+    ensureDefaultAdminRolePrincipals(list);
+    return list;
+  }
+
+  /**
+   * Admin and Designer ROLE entries are always persisted on save; include them on GET so
+   * Explorer identities are not empty (#3206 / QA #2600).
+   */
+  private static void ensureDefaultAdminRolePrincipals(List<Principal> adminPrincipals) {
+    addRoleIfAbsent(adminPrincipals, ADMINISTRATOR_ROLE);
+    addRoleIfAbsent(adminPrincipals, DESIGNER_ROLE);
+  }
+
+  private static void addRoleIfAbsent(List<Principal> principals, String roleName) {
+    if (principals == null || roleName == null || roleName.isBlank()) {
+      return;
+    }
+    for (Principal existing : principals) {
+      if (existing != null
+          && roleName.equalsIgnoreCase(existing.getName())
+          && existing.getType() == PrincipalType.ROLE) {
+        return;
+      }
+    }
+    var pr = new Principal();
+    pr.setName(roleName);
+    pr.setType(PrincipalType.ROLE);
+    principals.add(pr);
+  }
+
   /**
    * Persist USER and ROLE principals onto the folder ACL (#3206). ROLE names must not be written
    * as USER entries or Folder Security identities disappear on the next load.

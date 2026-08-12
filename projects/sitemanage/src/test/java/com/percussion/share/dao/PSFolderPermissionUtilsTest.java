@@ -61,6 +61,10 @@ class PSFolderPermissionUtilsTest {
     PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
     assertNotNull(permission);
     assertEquals(Access.ADMIN, permission.getAccessLevel());
+    assertNotNull(permission.getAdminPrincipals());
+    assertTrue(
+        permission.getAdminPrincipals().stream()
+            .anyMatch(pr -> "Admin".equals(pr.getName()) && pr.getType() == PrincipalType.ROLE));
   }
 
   @Test

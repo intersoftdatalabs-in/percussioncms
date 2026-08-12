@@ -177,7 +177,7 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
    * only outcome. Loading, ready panel, or a structured error (invalid id)
    * are all acceptable; the security panel region must remain mounted.
    */
-  test("REST: Sites folderProperties lists ROLE identities and locale (#3206)", async ({
+  test("REST: Folders child folderProperties lists ROLE identities and locale (#3206)", async ({
     request,
   }) => {
     test.setTimeout(30_000);
@@ -240,15 +240,23 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     const tree = page.locator('[data-testid="explorer-tree"]');
     await expect(tree).toBeVisible({ timeout: 15_000 });
 
-    const namedSites = tree.locator(
-      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
+    const foldersNode = tree.locator(
+      '[data-testid="tree-node-/Folders/"], [data-testid="tree-node-/Folders"]',
     );
-    const anyNode = tree.locator('[data-testid^="tree-node-"]');
-    await expect(anyNode.first()).toBeVisible({ timeout: 20_000 });
-    if ((await namedSites.count()) > 0) {
-      await namedSites.first().locator('[role="treeitem"]').click();
+    await expect(foldersNode.first()).toBeVisible({ timeout: 20_000 });
+    await foldersNode.first().locator('[role="treeitem"]').click();
+    const systemNode = tree.locator(
+      '[data-testid="tree-node-/Folders/$/"], [data-testid="tree-node-/Folders/$"]',
+    );
+    const systemRow = page.locator('[data-testid="detail-row-16777215-101-4"]');
+    if ((await systemNode.count()) > 0) {
+      await systemNode.first().locator('[role="treeitem"]').click();
+    } else if ((await systemRow.count()) > 0) {
+      await systemRow.first().click();
     } else {
-      await anyNode.first().locator('[role="treeitem"]').click();
+      const anyRow = page.locator('[data-testid^="detail-row-"]');
+      await expect(anyRow.first()).toBeVisible({ timeout: 15_000 });
+      await anyRow.first().click();
     }
 
     await page.locator('[data-testid="explorer-menu-view"]').click();
@@ -296,7 +304,7 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
   }) => {
     // Use a plausible legacy guid shape; H2 QA may 400/500 for unknown ids —
     // assert mount + absence of miller-column, not a successful ACL payload.
-    await page.goto(aclUrl("16777215-101-703"), { waitUntil: "networkidle" });
+    await page.goto(aclUrl("16777215-101-4"), { waitUntil: "networkidle" });
     const root = page.locator('[data-testid="perc-folder-security-root"]');
     await expect(root).toBeVisible({ timeout: 15_000 });
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
