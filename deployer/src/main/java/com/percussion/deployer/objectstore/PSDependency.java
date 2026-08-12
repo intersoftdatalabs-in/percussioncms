@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.system.IPSDependencyBaseline;
@@ -1174,7 +1174,7 @@ public abstract class PSDependency
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // static helper — avoid overridable getRequiredAttribute this-escape from Element ctor
@@ -1186,7 +1186,7 @@ public abstract class PSDependency
     }
     if (m_dependencyType == -1) {
       Object[] args = {sourceNode.getTagName(), XML_ATT_DEPENDENCY_TYPE, sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_dependencyId =
@@ -1242,7 +1242,7 @@ public abstract class PSDependency
             PSDeployableElement.XML_NODE_NAME + ", " + PSDeployableObject.XML_NODE_NAME,
             dep.getNodeName()
           };
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
         }
         m_dependencies.add(depObj);
         depObj.setParentDependency(this); // support a doubly-linked list
@@ -1267,7 +1267,7 @@ public abstract class PSDependency
             PSDeployableElement.XML_NODE_NAME + ", " + PSDeployableObject.XML_NODE_NAME,
             dep.getNodeName()
           };
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
         }
         m_ancestors.add(depObj);
         dep = tree.getNextElement(nextFlags);

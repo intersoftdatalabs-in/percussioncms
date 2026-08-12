@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -153,7 +153,7 @@ public final class PSTransactionSummary implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -168,7 +168,7 @@ public final class PSTransactionSummary implements IPSDeployComponent {
 
     if (!validateElementType(m_elementType) || !isActionValid(m_action)) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR,
           new Object[] {XML_NODE_NAME, XML_ATTR_EL_TYPE, m_elementType});
     }
   }
