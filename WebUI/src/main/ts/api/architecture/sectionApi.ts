@@ -16,19 +16,31 @@
  */
 
 /**
- * Typed section REST client for Architecture nav tree (#3095).
+ * Typed section REST client for Architecture nav tree (#3095 / #3096).
  *
- * <p>Read-only Slice C surface: load full tree via
- * {@code GET /sitemanage/section/tree/{siteName}}. Mutations land in Slice D.</p>
+ * <p>Read: {@code GET /sitemanage/section/tree/{siteName}}.
+ * Mutations (Slice D): create / properties / update / move / delete.</p>
  */
 
-import { get } from "../client";
+import { del, get, post } from "../client";
 import { PATHS } from "../paths";
 import {
   mapSectionNodeToTree,
   parseSectionNodePayload,
 } from "./mapSectionTree";
-import type { NavTreeNode, SiteSectionWire } from "./types";
+import {
+  buildCreateSiteSectionBody,
+  buildMoveSiteSectionBody,
+  buildUpdateSiteSectionBody,
+  parseSiteSectionPropertiesPayload,
+} from "./sectionMutations";
+import type {
+  CreateSiteSectionFields,
+  MoveSiteSectionFields,
+  NavTreeNode,
+  SiteSectionPropertiesWire,
+  SiteSectionWire,
+} from "./types";
 
 /**
  * Build the tree URL for a site name (exported for tests).
@@ -43,6 +55,34 @@ export function sectionTreeUrl(siteName: string): string {
 export function sectionRootUrl(siteName: string): string {
   const key = encodeURIComponent(siteName.trim());
   return `${PATHS.SECTION_ROOT}/${key}`;
+}
+
+/** Build properties URL for a section id (exported for tests). */
+export function sectionPropertiesUrl(sectionId: string): string {
+  const key = encodeURIComponent(sectionId.trim());
+  return `${PATHS.SECTION_PROPERTIES}/${key}`;
+}
+
+/** Build delete URL for a section id (exported for tests). */
+export function sectionDeleteUrl(sectionId: string): string {
+  const key = encodeURIComponent(sectionId.trim());
+  return `${PATHS.SECTION}/${key}`;
+}
+
+/** Build convert-to-folder URL (exported for tests). */
+export function sectionConvertToFolderUrl(sectionId: string): string {
+  const key = encodeURIComponent(sectionId.trim());
+  return `${PATHS.SECTION_CONVERT_TO_FOLDER}/${key}`;
+}
+
+/** Build delete-section-link URL (exported for tests). */
+export function sectionDeleteLinkUrl(
+  sectionId: string,
+  parentId: string,
+): string {
+  const sec = encodeURIComponent(sectionId.trim());
+  const parent = encodeURIComponent(parentId.trim());
+  return `${PATHS.SECTION_DELETE_SECTION_LINK}/${sec}/${parent}`;
 }
 
 /**
@@ -90,4 +130,123 @@ export async function loadRootSection(
   return root ?? null;
 }
 
-export type { NavTreeNode, SiteSectionWire };
+/**
+ * Load editable section properties ({@code GET /section/properties/{id}}).
+ */
+export async function loadSectionProperties(
+  sectionId: string,
+): Promise<SiteSectionPropertiesWire> {
+  const id = sectionId.trim();
+  if (!id) {
+    throw new Error("Section id is required to load properties");
+  }
+  const payload = await get<unknown>(sectionPropertiesUrl(id));
+  const props = parseSiteSectionPropertiesPayload(payload);
+  if (!props) {
+    throw new Error("Section properties response was empty or unparseable");
+  }
+  return props;
+}
+
+/**
+ * Create a regular (or blog) site section under {@code fields.folderPath}.
+ */
+export async function createSiteSection(
+  fields: CreateSiteSectionFields,
+): Promise<unknown> {
+  if (!fields.templateId?.trim()) {
+    throw new Error("Template is required to create a section");
+  }
+  if (!fields.folderPath?.trim()) {
+    throw new Error("Parent folder path is required to create a section");
+  }
+  const body = buildCreateSiteSectionBody(fields);
+  return post<unknown>(PATHS.SECTION_CREATE_SECTION, body);
+}
+
+/**
+ * Update section properties (rename / folder name / target / security fields).
+ */
+export async function updateSiteSection(
+  props: SiteSectionPropertiesWire,
+): Promise<unknown> {
+  if (!props.id?.trim()) {
+    throw new Error("Section id is required to update");
+  }
+  if (!props.title?.trim()) {
+    throw new Error("Title is required to update a section");
+  }
+  if (!props.folderName?.trim()) {
+    throw new Error("Folder name is required to update a section");
+  }
+  const body = buildUpdateSiteSectionBody(props);
+  return post<unknown>(PATHS.SECTION_UPDATE, body);
+}
+
+/**
+ * Move / reorder a section ({@code POST /section/move}).
+ */
+export async function moveSiteSection(
+  fields: MoveSiteSectionFields,
+): Promise<unknown> {
+  if (!fields.sourceId?.trim() || !fields.targetId?.trim()) {
+    throw new Error("Source and target section ids are required to move");
+  }
+  if (
+    typeof fields.targetIndex !== "number" ||
+    Number.isNaN(fields.targetIndex)
+  ) {
+    throw new Error("Target index is required to move a section");
+  }
+  const body = buildMoveSiteSectionBody(fields);
+  return post<unknown>(PATHS.SECTION_MOVE, body);
+}
+
+/**
+ * Delete a regular section ({@code DELETE /section/{id}}).
+ */
+export async function deleteSiteSection(sectionId: string): Promise<unknown> {
+  const id = sectionId.trim();
+  if (!id) {
+    throw new Error("Section id is required to delete");
+  }
+  return del<unknown>(sectionDeleteUrl(id));
+}
+
+/**
+ * Delete a section link ({@code GET /section/deleteSectionLink/{sec}/{parent}}).
+ * Wire uses GET for historical CM1 parity.
+ */
+export async function deleteSectionLink(
+  sectionId: string,
+  parentId: string,
+): Promise<unknown> {
+  const sec = sectionId.trim();
+  const parent = parentId.trim();
+  if (!sec || !parent) {
+    throw new Error("Section and parent ids are required to delete a section link");
+  }
+  return get<unknown>(sectionDeleteLinkUrl(sec, parent));
+}
+
+/**
+ * Convert a section to a plain folder
+ * ({@code DELETE /section/convertToFolder/{id}}).
+ */
+export async function convertSectionToFolder(
+  sectionId: string,
+): Promise<unknown> {
+  const id = sectionId.trim();
+  if (!id) {
+    throw new Error("Section id is required to convert to folder");
+  }
+  return del<unknown>(sectionConvertToFolderUrl(id));
+}
+
+export type {
+  CreateSiteSectionFields,
+  MoveSiteSectionFields,
+  NavTreeNode,
+  SiteSectionPropertiesWire,
+  SiteSectionWire,
+};

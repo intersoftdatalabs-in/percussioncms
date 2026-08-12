@@ -116,9 +116,19 @@ export const PATHS = {
   get ALL_BLOGS() {
     return `${SERVICES_ROOT}/sitemanage/section/allBlogs`;
   },
-  /** Create site section (including sectionType=blog). */
+  /**
+   * Create site section base (BlogsWidget and peers).
+   * Prefer {@link SECTION_CREATE_SECTION} ({@code /section/create}) for Architecture.
+   */
   get SECTION_CREATE() {
     return `${SERVICES_ROOT}/sitemanage/section`;
+  },
+  /**
+   * Create regular / blog section — {@code PSSiteSectionRestService#create}.
+   * POST body root {@code CreateSiteSection}.
+   */
+  get SECTION_CREATE_SECTION() {
+    return `${SERVICES_ROOT}/sitemanage/section/create`;
   },
   /**
    * Full section/navon tree for a site (Architecture Slice C).
@@ -140,6 +150,37 @@ export const PATHS = {
    */
   get SECTION() {
     return `${SERVICES_ROOT}/sitemanage/section`;
+  },
+  /**
+   * Section properties — append {@code /{id}}.
+   * {@code GET} {@code PSSiteSectionRestService#getSectionProperties}.
+   */
+  get SECTION_PROPERTIES() {
+    return `${SERVICES_ROOT}/sitemanage/section/properties`;
+  },
+  /**
+   * Update section properties — {@code POST} body root {@code SiteSectionProperties}.
+   */
+  get SECTION_UPDATE() {
+    return `${SERVICES_ROOT}/sitemanage/section/update`;
+  },
+  /**
+   * Move / reorder section — {@code POST} body root {@code MoveSiteSection}.
+   */
+  get SECTION_MOVE() {
+    return `${SERVICES_ROOT}/sitemanage/section/move`;
+  },
+  /**
+   * Delete section link — append {@code /{sectionGuid}/{parentGuid}} (GET mutation).
+   */
+  get SECTION_DELETE_SECTION_LINK() {
+    return `${SERVICES_ROOT}/sitemanage/section/deleteSectionLink`;
+  },
+  /**
+   * Convert section to folder — append {@code /{id}} (DELETE).
+   */
+  get SECTION_CONVERT_TO_FOLDER() {
+    return `${SERVICES_ROOT}/sitemanage/section/convertToFolder`;
   },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;

@@ -15,14 +15,37 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
-import { loadSectionTree } from "../api/architecture/sectionApi";
+import {
+  createSiteSection,
+  deleteSectionLink,
+  deleteSiteSection,
+  loadSectionProperties,
+  loadSectionTree,
+  moveSiteSection,
+  updateSiteSection,
+} from "../api/architecture/sectionApi";
+import {
+  applyTitleToProperties,
+  buildSiblingReorderMove,
+  canCreateChildUnder,
+  canDeleteNavNode,
+  canMoveNavNodeDown,
+  canMoveNavNodeUp,
+  findNavNodeById,
+  findSiblingPlacement,
+  isSectionLinkType,
+  resolveCreateParentFolderPath,
+} from "../api/architecture/sectionMutations";
 import type { NavTreeNode } from "../api/architecture/types";
 import { fetchSites } from "../api/home/homeApi";
 import { catalogColors } from "../developer/catalogStyles";
+import { CreateSectionDialog } from "./CreateSectionDialog";
 import { NavTree } from "./NavTree";
+import { RenameSectionDialog } from "./RenameSectionDialog";
 import { SitePicker } from "./SitePicker";
+import { StructureActionBar } from "./StructureActionBar";
 import { ARCH_MSG } from "./messages";
 
 export interface ArchitectureShellProps {
@@ -35,6 +58,10 @@ export interface ArchitectureShellProps {
    * When true (SPA AppLayout), shell is under product chrome — tighter padding.
    */
   embedded?: boolean;
+  /**
+   * Optional confirm hook (tests). Defaults to {@code window.confirm}.
+   */
+  confirmFn?: (message: string) => boolean;
 }
 
 type SitesLoadState =
@@ -49,15 +76,19 @@ type TreeLoadState =
   | { status: "ready"; root: NavTreeNode | null };
 
 /**
- * Architecture / Navigation SPA shell (#3094 shell + #3095 read-only tree).
+ * Architecture / Navigation SPA shell (#3094 shell + #3095 tree + #3096 mutations).
  *
- * <p>Site picker + {@code GET /section/tree/{site}} browse. Mutations (create /
- * edit / reorder / delete) are out of scope until Slice D.</p>
+ * <p>Site picker + section tree + create / rename / reorder / delete for
+ * regular sections. Landing-page and section-link dialogs remain Slice E.</p>
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
   embedded = false,
+  confirmFn,
 }) => {
+  const confirmAction =
+    confirmFn ?? ((msg: string) => window.confirm(msg));
+
   const [sitesState, setSitesState] = useState<SitesLoadState>({
     status: "loading",
   });
@@ -68,6 +99,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [treeState, setTreeState] = useState<TreeLoadState>({ status: "idle" });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [mutationBusy, setMutationBusy] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -90,12 +125,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           .filter((n) => n.length > 0)
           .sort((a, b) => a.localeCompare(b));
         setSitesState({ status: "ready", names });
-        // If no selection yet, pick first site when available
         setSelectedSite((prev) => {
           if (prev && names.includes(prev)) return prev;
-          if (prev && names.length === 0) return prev; // keep deep-link name for tree attempt
+          if (prev && names.length === 0) return prev;
           if (prev && !names.includes(prev) && names.length > 0) {
-            // Deep-link site not in list — still try loading with that name
             return prev;
           }
           if (!prev && names.length > 0) return names[0];
@@ -125,6 +158,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     let cancelled = false;
     setTreeState({ status: "loading" });
     setSelectedNodeId(null);
+    setMutationError(null);
     void (async () => {
       try {
         const root = await loadSectionTree(selectedSite);
@@ -148,9 +182,142 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     setRefreshToken((n) => n + 1);
   }, []);
 
+  const treeRoot =
+    treeState.status === "ready" ? treeState.root : null;
+  const selectedNode = useMemo(
+    () =>
+      selectedNodeId
+        ? findNavNodeById(treeRoot, selectedNodeId)
+        : null,
+    [treeRoot, selectedNodeId],
+  );
+
+  const createParent = useMemo(() => {
+    if (selectedNode && canCreateChildUnder(selectedNode)) {
+      return selectedNode;
+    }
+    if (treeRoot && canCreateChildUnder(treeRoot)) {
+      return treeRoot;
+    }
+    return null;
+  }, [selectedNode, treeRoot]);
+
+  const canCreate = !!selectedSite && !!createParent && !mutationBusy;
+  const canRename =
+    !!selectedNode &&
+    String(selectedNode.sectionType || "section").toLowerCase() ===
+      "section" &&
+    !mutationBusy;
+  const canMoveUp =
+    !!selectedNodeId &&
+    canMoveNavNodeUp(treeRoot, selectedNodeId) &&
+    !mutationBusy;
+  const canMoveDown =
+    !!selectedNodeId &&
+    canMoveNavNodeDown(treeRoot, selectedNodeId) &&
+    !mutationBusy;
+  const canDelete =
+    canDeleteNavNode(treeRoot, selectedNode) && !mutationBusy;
+
+  const runMutation = useCallback(
+    async (work: () => Promise<void>) => {
+      setMutationBusy(true);
+      setMutationError(null);
+      try {
+        await work();
+        setRefreshToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.MUTATION_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    },
+    [],
+  );
+
+  const onCreateSubmit = useCallback(
+    (input: { title: string; urlName: string; templateId: string }) => {
+      if (!selectedSite || !createParent) return;
+      const folderPath = resolveCreateParentFolderPath(
+        createParent,
+        selectedSite,
+      );
+      void runMutation(async () => {
+        await createSiteSection({
+          pageTitle: input.title,
+          pageLinkTitle: input.title,
+          pageName: input.urlName,
+          pageUrlIdentifier: input.urlName,
+          templateId: input.templateId,
+          folderPath,
+          sectionType: "section",
+          copyTemplates: true,
+          target: "_self",
+        });
+        setCreateOpen(false);
+      });
+    },
+    [selectedSite, createParent, runMutation],
+  );
+
+  const onRenameSubmit = useCallback(
+    (title: string) => {
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        const props = await loadSectionProperties(selectedNode.id);
+        const next = applyTitleToProperties(props, title);
+        await updateSiteSection(next);
+        setRenameOpen(false);
+      });
+    },
+    [selectedNode, runMutation],
+  );
+
+  const onMove = useCallback(
+    (direction: "up" | "down") => {
+      if (!selectedNodeId || !treeRoot) return;
+      const fields = buildSiblingReorderMove(
+        treeRoot,
+        selectedNodeId,
+        direction,
+      );
+      if (!fields) return;
+      void runMutation(async () => {
+        await moveSiteSection(fields);
+      });
+    },
+    [selectedNodeId, treeRoot, runMutation],
+  );
+
+  const onDelete = useCallback(() => {
+    if (!selectedNode || !treeRoot) return;
+    if (!canDeleteNavNode(treeRoot, selectedNode)) {
+      setMutationError(ARCH_MSG.DELETE_ROOT_BLOCKED);
+      return;
+    }
+    const msg = ARCH_MSG.DELETE_CONFIRM.replace("{0}", selectedNode.title);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    const nodeId = selectedNode.id;
+    const sectionType = selectedNode.sectionType;
+    void runMutation(async () => {
+      if (isSectionLinkType(sectionType)) {
+        const place = findSiblingPlacement(treeRoot, nodeId);
+        if (!place) {
+          throw new Error("Could not resolve parent for section link delete");
+        }
+        await deleteSectionLink(nodeId, place.parent.id);
+      } else {
+        await deleteSiteSection(nodeId);
+      }
+      setSelectedNodeId(null);
+    });
+  }, [selectedNode, treeRoot, confirmAction, runMutation]);
+
   const siteNames =
     sitesState.status === "ready" ? sitesState.names : [];
-  // Immutable options: never mutate arrays during render
   const siteOptions =
     selectedSite && !siteNames.includes(selectedSite)
       ? [{ name: selectedSite }, ...siteNames.map((name) => ({ name }))]
@@ -159,8 +326,6 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const treeLoading = treeState.status === "loading";
   const treeError =
     treeState.status === "error" ? treeState.message : null;
-  const treeRoot =
-    treeState.status === "ready" ? treeState.root : null;
 
   return (
     <div
@@ -235,15 +400,21 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           type="button"
           data-testid="architecture-refresh"
           onClick={onRefresh}
-          disabled={!selectedSite || treeLoading}
+          disabled={!selectedSite || treeLoading || mutationBusy}
           style={{
             padding: "0.4rem 0.85rem",
             border: `1px solid ${catalogColors.softBorder}`,
             borderRadius: 4,
-            background: !selectedSite || treeLoading ? "#f0f0f0" : "#fff",
-            color: !selectedSite || treeLoading ? "#999" : "#222",
+            background:
+              !selectedSite || treeLoading || mutationBusy
+                ? "#f0f0f0"
+                : "#fff",
+            color:
+              !selectedSite || treeLoading || mutationBusy ? "#999" : "#222",
             cursor:
-              !selectedSite || treeLoading ? "not-allowed" : "pointer",
+              !selectedSite || treeLoading || mutationBusy
+                ? "not-allowed"
+                : "pointer",
             fontSize: "0.9rem",
           }}
         >
@@ -332,12 +503,67 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               {ARCH_MSG.SITE_HINT.replace("{0}", selectedSite)}
             </p>
           </div>
+
+          <StructureActionBar
+            busy={mutationBusy}
+            canCreate={canCreate}
+            canRename={canRename}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
+            canDelete={canDelete}
+            onCreate={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setCreateOpen(true);
+            }}
+            onRename={() => {
+              setMutationError(null);
+              setRenameOpen(true);
+            }}
+            onMoveUp={() => onMove("up")}
+            onMoveDown={() => onMove("down")}
+            onDelete={onDelete}
+          />
+
+          {!selectedNodeId ? (
+            <p
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.muted,
+                fontSize: "0.85rem",
+              }}
+              data-testid="architecture-select-hint"
+            >
+              {ARCH_MSG.SELECT_HINT}
+            </p>
+          ) : null}
+
+          {mutationError ? (
+            <p
+              role="alert"
+              data-testid="architecture-mutation-error"
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.error,
+                fontSize: "0.9rem",
+              }}
+            >
+              {mutationError}
+            </p>
+          ) : null}
+
           <NavTree
             root={treeRoot}
             loading={treeLoading}
             error={treeError}
             selectedId={selectedNodeId}
-            onSelect={(node) => setSelectedNodeId(node.id)}
+            onSelect={(node) => {
+              setSelectedNodeId(node.id);
+              setMutationError(null);
+            }}
           />
           <p
             style={{
@@ -345,12 +571,32 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               color: catalogColors.empty,
               fontSize: "0.85rem",
             }}
-            data-testid="architecture-readonly-note"
+            data-testid="architecture-structure-note"
           >
-            {ARCH_MSG.TREE_READONLY_NOTE}
+            {ARCH_MSG.TREE_STRUCTURE_NOTE}
           </p>
         </section>
       )}
+
+      <CreateSectionDialog
+        open={createOpen}
+        siteName={selectedSite ?? ""}
+        parentTitle={createParent?.title ?? ""}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setCreateOpen(false);
+        }}
+        onSubmit={onCreateSubmit}
+      />
+      <RenameSectionDialog
+        open={renameOpen}
+        initialTitle={selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setRenameOpen(false);
+        }}
+        onSubmit={onRenameSubmit}
+      />
     </div>
   );
 };

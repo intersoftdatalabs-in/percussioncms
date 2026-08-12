@@ -21,6 +21,12 @@ export { NavTree } from "./NavTree";
 export type { NavTreeProps } from "./NavTree";
 export { SitePicker } from "./SitePicker";
 export type { SitePickerProps, SiteOption } from "./SitePicker";
+export { StructureActionBar } from "./StructureActionBar";
+export type { StructureActionBarProps } from "./StructureActionBar";
+export { CreateSectionDialog } from "./CreateSectionDialog";
+export type { CreateSectionDialogProps } from "./CreateSectionDialog";
+export { RenameSectionDialog } from "./RenameSectionDialog";
+export type { RenameSectionDialogProps } from "./RenameSectionDialog";
 export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 export type { ArchitectureMsgKey } from "./messages";
 export {
