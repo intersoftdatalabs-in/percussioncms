@@ -113,7 +113,7 @@ describe("explorer-inbox helpers (#3241)", () => {
     );
     assert.equal(
       isInboxView({ name: "//views//mycontent/inbox" }),
-      false,
+      true,
     );
   });
 
@@ -127,13 +127,17 @@ describe("explorer-inbox helpers (#3241)", () => {
     assert.equal(hit && hit.name, "Inbox");
   });
 
-  it("inboxLeafSelector and inboxResultsSelector join testids", () => {
+  it("inboxLeafSelector and inboxResultsSelector target clickable/content nodes only", () => {
     const leaf = inboxLeafSelector();
     assert.match(leaf, /explorer-views-leaf-Inbox/);
-    assert.match(leaf, /explorer-views-inbox/);
+    assert.doesNotMatch(leaf, /explorer-views-inbox[^-]/);
     assert.doesNotMatch(leaf, /data-cx-path/);
-    assert.match(inboxResultsSelector(), /explorer-view-results-empty/);
-    assert.match(inboxResultsSelector(), /explorer-view-results-list/);
+    const results = inboxResultsSelector();
+    assert.match(results, /explorer-view-results-empty/);
+    assert.match(results, /explorer-view-results-list/);
+    assert.match(results, /explorer-view-results-loading/);
+    assert.match(results, /explorer-view-results-error/);
+    assert.doesNotMatch(results, /data-testid="explorer-view-results"/);
   });
 
   it("skip messages mention leaf vs empty assignments", () => {

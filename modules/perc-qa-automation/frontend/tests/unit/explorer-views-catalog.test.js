@@ -65,5 +65,7 @@ describe("explorer-views-catalog helpers (#3116)", () => {
     assert.equal(viewDefKey({ name: "  X  " }), "X");
     assert.equal(isInboxView({ name: "Inbox", customView: true }), true);
     assert.equal(isInboxView({ name: "Outbox", customView: true }), false);
+    assert.equal(isInboxView({ name: "//Views//MyContent/Inbox" }), true);
+    assert.equal(isInboxView({ name: "//views//mycontent/inbox" }), true);
   });
 });

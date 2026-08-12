@@ -154,7 +154,8 @@ function isInboxView(def) {
   if (/sys_cxViews\/inbox(\.xml)?$/.test(url)) {
     return true;
   }
-  return /\/\/Views\/\/MyContent\/Inbox$/.test(name);
+  // Same DCE path rule as WebUI viewCatalog.ts (case-insensitive).
+  return /\/\/Views\/\/MyContent\/Inbox$/i.test(name);
 }
 
 /**
@@ -174,10 +175,7 @@ function findInboxView(payload) {
  * @returns {string}
  */
 function inboxLeafSelector() {
-  return [
-    `[data-testid="${TEST_IDS.inboxLeaf}"]`,
-    `[data-testid="${TEST_IDS.inboxMarker}"]`,
-  ].join(", ");
+  return `[data-testid="${TEST_IDS.inboxLeaf}"]`;
 }
 
 /**
@@ -187,7 +185,6 @@ function inboxLeafSelector() {
  */
 function inboxResultsSelector() {
   return [
-    `[data-testid="${TEST_IDS.results}"]`,
     `[data-testid="${TEST_IDS.resultsLoading}"]`,
     `[data-testid="${TEST_IDS.resultsError}"]`,
     `[data-testid="${TEST_IDS.resultsEmpty}"]`,

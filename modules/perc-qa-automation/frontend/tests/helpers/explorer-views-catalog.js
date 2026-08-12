@@ -67,12 +67,16 @@ function isCustomUrlView(def) {
 
 function isInboxView(def) {
   if (def == null || typeof def !== "object") return false;
-  const name = typeof def.name === "string" ? def.name.trim() : "";
+  const name = typeof def.name === "string" ? def.name.trim().replace(/\\/g, "/") : "";
   const label = typeof def.label === "string" ? def.label.trim() : "";
   if (name.toLowerCase() === "inbox" || label.toLowerCase() === "inbox") {
     return true;
   }
   const key = viewDefKey(def).replace(/\\/g, "/");
+  if (key.toLowerCase() === "inbox") {
+    return true;
+  }
+  // Same DCE path rule as WebUI viewCatalog.ts and explorer-inbox.js.
   return /\/\/Views\/\/MyContent\/Inbox$/i.test(key);
 }
 

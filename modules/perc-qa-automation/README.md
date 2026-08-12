@@ -798,6 +798,39 @@ npm run test:surface:list -- --path tests/explorer-saved-search.spec.js
 npm run test:surface:list -- --tag saved-search
 ```
 
+#### Explorer Views catalog (#3116 / parent #3110)
+
+Views is the Explorer left-nav catalog (`explorer-views-tree`): My Content /
+Community / All / Other groups plus runnable leaves. Inbox (#3240 / #3241)
+is one leaf under My Content; this surface is the prerequisite for that leaf.
+
+**Soft-skip:** when the H2 cell has no Views tree (`#3116` not deployed) the
+catalog spec still asserts Explorer shell chrome where present. Full Views
+Playwright / a11y matrix is #3117.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-views-catalog.spec.js` |
+| Tags | `@views` `@explorer-views` `@explorer` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-views-catalog.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-views-catalog.js` |
+| Product peer | `WebUI/.../ViewsCatalogTree.tsx` + `viewCatalog.ts` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-views-catalog.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-views
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-views-catalog.spec.js
+npm run test:surface:list -- --tag explorer-views
+```
+
 #### Explorer Inbox (#3241 / parent #3118 / #3102)
 
 Operator Inbox is **Views → My Content → Inbox** (`//Views//MyContent/Inbox`),
