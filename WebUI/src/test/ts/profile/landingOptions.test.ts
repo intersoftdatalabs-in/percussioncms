@@ -21,6 +21,7 @@ import {
   profileLandingOptions,
 } from "../../../main/ts/profile/landingOptions";
 import { HOMEPAGE_TYPES } from "../../../main/ts/api/user/userHomepageApi";
+import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 
 describe("profileLandingOptions", () => {
   it("allows Home and Editor for any user", () => {
@@ -46,5 +47,13 @@ describe("profileLandingOptions", () => {
   it("keeps current value when no longer allowed", () => {
     const opts = profileLandingOptions({}, HOMEPAGE_TYPES.DESIGNER);
     expect(opts.some((o) => o.value === HOMEPAGE_TYPES.DESIGNER)).toBe(true);
+  });
+
+  it("labels the Architecture homepage type as Navigation (#3217)", () => {
+    const opt = profileLandingOptions({ isDesigner: true }).find(
+      (o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE,
+    );
+    expect(opt).toBeTruthy();
+    expect(fallbackLabelFromKey(opt!.labelKey)).toBe("Navigation");
   });
 });

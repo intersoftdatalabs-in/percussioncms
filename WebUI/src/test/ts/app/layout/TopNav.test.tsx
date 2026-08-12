@@ -95,6 +95,7 @@ describe("TopNav (#2702)", () => {
     // Must not be a full-page legacy exit
     expect(href).not.toMatch(/view=arch/);
     expect(arch.tagName.toLowerCase()).toBe("a");
+    expect(arch.textContent).toMatch(/^Navigation$/);
   });
 
   it("hides Admin for non-admin", () => {

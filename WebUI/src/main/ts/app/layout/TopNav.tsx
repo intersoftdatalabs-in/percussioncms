@@ -99,7 +99,7 @@ export function TopNav(): React.ReactElement {
                 </li>
               );
             case "architecture":
-              // SPA Architecture shell (#3094 / parent #3092) — not legacy view=arch
+              // SPA Navigation shell at /architecture (#3094 / #3217)
               return (
                 <li key={id}>
                   <NavLink

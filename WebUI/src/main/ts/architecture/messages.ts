@@ -24,10 +24,10 @@ import { message } from "../i18n/message";
  * Small key set only — no multi-locale mass TMX backfill in this slice.
  */
 const KEYS = {
-  TITLE: "perc.ui.architecture.modern@Architecture",
+  TITLE: "perc.ui.architecture.modern@Navigation",
   INTRO:
     "perc.ui.architecture.modern@Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.",
-  SHELL_LOADING: "perc.ui.architecture.modern@Loading Architecture…",
+  SHELL_LOADING: "perc.ui.architecture.modern@Loading Navigation…",
   SITE_LABEL: "perc.ui.architecture.modern@Site",
   SITE_PLACEHOLDER: "perc.ui.architecture.modern@Select a site…",
   SITE_HINT: "perc.ui.architecture.modern@Site context: {0}",

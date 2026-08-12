@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import { HOMEPAGE_TYPES } from "../../../main/ts/api/user/userHomepageApi";
+import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 import {
   isLandingAllowedForRoles,
   landingOptionsForRoles,
@@ -39,6 +40,8 @@ describe("landingOptionsForRoles", () => {
     expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    const arch = opts.find((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(fallbackLabelFromKey(arch!.labelKey)).toBe("Navigation");
   });
 
   it("includes Administration (Workflow) for Admin role", () => {

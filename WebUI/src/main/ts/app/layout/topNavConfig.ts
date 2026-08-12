@@ -51,8 +51,8 @@ export interface TopNavGates {
 export const ADMIN_NAV_LANDING = "/admin";
 
 /**
- * Client path for Architecture top-nav NavLink and homepage SPA landing (#3094).
- * Primary Architecture entry (SPA). Legacy {@code ?view=arch} /
+ * Client path for Navigation top-nav NavLink and homepage SPA landing (#3094).
+ * Primary Navigation entry (SPA). Legacy {@code ?view=arch} /
  * {@code siteArchitecture.jsp} hard-redirect here (#3099).
  */
 export const ARCHITECTURE_NAV_LANDING = "/architecture";
