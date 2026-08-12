@@ -172,6 +172,48 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("create under a selected non-root section posts that parent folderPath", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+    const createSpy = vi
+      .spyOn(sectionApi, "createSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Child Page" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "child-page" },
+    });
+    // Template may auto-select; ensure one is chosen if a select is present.
+    const tpl = screen.queryByTestId("architecture-create-template-select");
+    if (tpl) {
+      fireEvent.change(tpl, { target: { value: "tpl-1" } });
+    }
+    fireEvent.click(screen.getByTestId("architecture-create-submit"));
+    await waitFor(() => {
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          folderPath: "//Sites/Demo/About",
+          templateId: "tpl-1",
+          pageTitle: "Child Page",
+        }),
+      );
+    });
+  });
+
   it("delete confirms and calls deleteSiteSection", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     const loadSpy = vi
@@ -266,5 +308,85 @@ describe("ArchitectureShell (#3095/#3096)", () => {
         }),
       );
     });
+  });
+
+  it("move down calls moveSiteSection with reordered index", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-move-down",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-move-down"));
+    await waitFor(() => {
+      expect(moveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: "c1",
+          targetId: "root",
+          targetIndex: 1,
+        }),
+      );
+    });
+  });
+
+  it("delete section link calls deleteSectionLink with parent id", async () => {
+    const linkTree = {
+      ...treeFixture,
+      children: [
+        {
+          id: "link-1",
+          title: "Linked",
+          folderPath: "//Sites/Demo/Linked",
+          sectionType: "sectionlink" as const,
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(linkTree);
+    const delLinkSpy = vi
+      .spyOn(sectionApi, "deleteSectionLink")
+      .mockResolvedValue({});
+    const delSecSpy = vi
+      .spyOn(sectionApi, "deleteSiteSection")
+      .mockResolvedValue({});
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => true}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-link-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-link-1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-delete"));
+    await waitFor(() => {
+      expect(delLinkSpy).toHaveBeenCalledWith("link-1", "root");
+    });
+    expect(delSecSpy).not.toHaveBeenCalled();
   });
 });
