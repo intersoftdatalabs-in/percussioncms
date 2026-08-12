@@ -40,6 +40,33 @@ class TranslateTest(unittest.TestCase):
     def test_placeholder_skipped(self):
         self.assertEqual(itd.translate("{0}", "ar", cache={}), "{0}")
 
+    def test_url_only_skipped(self):
+        url = (
+            "https://percussioncmshelp.intsof.com/percussion-cm1/"
+            "install-setup/installing-cm1/system-requirements#browsers"
+        )
+        invoked = []
+        orig = itd.invoke_translate
+        itd.invoke_translate = lambda text, target: invoked.append((text, target)) or "nope"
+        try:
+            self.assertEqual(itd.translate(url, "tr", cache={}), url)
+            self.assertEqual(itd.translate("  " + url + "  ", "tr", cache={}), "  " + url + "  ")
+        finally:
+            itd.invoke_translate = orig
+        self.assertEqual(invoked, [])
+
+    def test_prose_with_url_still_translates(self):
+        text = "See https://example.com/docs for details"
+        orig = itd.invoke_translate
+        orig_sleep = itd.time.sleep
+        itd.invoke_translate = lambda text, target: "translated"
+        itd.time.sleep = lambda s: None
+        try:
+            self.assertEqual(itd.translate(text, "tr", cache={}), "translated")
+        finally:
+            itd.invoke_translate = orig
+            itd.time.sleep = orig_sleep
+
     def test_uses_cache_without_invoking(self):
         cache = {itd.cache_key("Hello", "ar"): "مرحبا"}
         invoked = []

@@ -17,7 +17,7 @@
 package com.percussion.security;
 
 import com.percussion.data.PSInternalRequestCallException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSGlobalSubject;
@@ -201,7 +201,7 @@ public class PSBackendCataloger {
     Element el = tree.getNextElement("Role", ms_firstFlags);
     if (null == el) {
       Object[] args = {"Roles", "Role", "Element is missing"};
-      throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSSecurityException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), args);
     }
 
     PSAttributeList attribs = getAttributes(el);
@@ -361,7 +361,7 @@ public class PSBackendCataloger {
 
     if (!el.getTagName().equals("Subjects")) {
       Object[] args = {"Subjects", el.getTagName()};
-      throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSSecurityException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), args);
     }
 
     return new ArrayList<>(processCatalogedSubjects(el, includeEmptySubjects));
@@ -407,7 +407,7 @@ public class PSBackendCataloger {
       String name = tree.getElementData("@name", false);
       if ((name == null) || (name.trim().length() == 0)) {
         Object[] args = {"Subject", "@name", "null"};
-        throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSSecurityException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), args);
       }
 
       String type = tree.getElementData("@type", false);
@@ -426,7 +426,7 @@ public class PSBackendCataloger {
               + " or "
               + PSSubject.SUBJECT_TYPE_GROUP
         };
-        throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSSecurityException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD.numericCode(), args);
       }
 
       int subjectType = Integer.parseInt(type);

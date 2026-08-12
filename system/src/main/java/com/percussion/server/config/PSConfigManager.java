@@ -16,7 +16,7 @@
  */
 package com.percussion.server.config;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSConfig;
 import com.percussion.design.objectstore.PSConfigurationFactory;
 import com.percussion.design.objectstore.PSLockedException;
@@ -251,7 +251,7 @@ public class PSConfigManager {
     }
 
     if (!(cfg.isLocked() && cfg.getLocker().equals(reqUser))) {
-      PSNotLockedException ex = new PSNotLockedException(IPSObjectStoreErrors.LOCK_NOT_HELD, name);
+      PSNotLockedException ex = new PSNotLockedException(ObjectStoreErrorCodes.LOCK_NOT_HELD.numericCode(), name);
       throw ex;
     }
 

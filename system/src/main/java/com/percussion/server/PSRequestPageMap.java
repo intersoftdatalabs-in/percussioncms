@@ -18,7 +18,7 @@ package com.percussion.server;
 
 import com.percussion.data.PSConditionalEvaluator;
 import com.percussion.data.PSExecutionData;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.PSResultPage;
@@ -57,7 +57,7 @@ public class PSRequestPageMap {
     PSRequestor requestor = dataSet.getRequestor();
 
     if (requestor == null)
-      throw new PSIllegalArgumentException(IPSObjectStoreErrors.DATASET_REQUESTOR_NULL);
+      throw new PSIllegalArgumentException(ObjectStoreErrorCodes.DATASET_REQUESTOR_NULL.numericCode());
 
     m_reqPage = requestor.getRequestPage();
     m_reqHandler = rh;
@@ -138,7 +138,18 @@ public class PSRequestPageMap {
         if (dotIndex > -1) {
           String extension = resourcePortion.substring(dotIndex + 1);
           if (!m_extensionsSupported.contains(extension)) {
-            if (!extension.equals("txt") && !extension.equals("xml")) return false;
+            /*
+             * Built-in classic result encodings are always accepted even when
+             * MimeProperties only lists html/htm for XSL result pages. Without
+             * this, live GET …/resource.json returns 404 (handler never matches)
+             * despite PAGE_TYPE_JSON / PSResultSetHtmlConverter JSON support
+             * (#2665 live smoke residual of #2662 / #2660).
+             */
+            if (!extension.equals("txt")
+                && !extension.equals("xml")
+                && !extension.equals("json")) {
+              return false;
+            }
           }
         }
       }

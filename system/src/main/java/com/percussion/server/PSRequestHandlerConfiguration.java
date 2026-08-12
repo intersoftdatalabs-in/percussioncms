@@ -18,7 +18,7 @@
 package com.percussion.server;
 
 import com.percussion.conn.PSServerException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.services.general.IPSRhythmyxInfo;
@@ -147,12 +147,12 @@ public class PSRequestHandlerConfiguration {
       // validate that it is the correct type
       Element root = cfgDoc.getDocumentElement();
       if (root == null)
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, CONFIG_ROOT);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, CONFIG_ROOT);
 
       // make sure we got the correct root node tag
       if (false == CONFIG_ROOT.equals(root.getNodeName())) {
         Object[] args = {CONFIG_ROOT, root.getNodeName()};
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       // walk it and load the handlers
@@ -177,14 +177,14 @@ public class PSRequestHandlerConfiguration {
         String handlerName = defEl.getAttribute("handlerName");
         if (handlerName == null || handlerName.length() == 0) {
           Object[] args = {searchEl, "handlerName", handlerName};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         // determine class name
         String className = defEl.getAttribute("className");
         if (className == null || className.length() == 0) {
           Object[] args = {searchEl, "className", className};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         // may not have a cfg file
@@ -199,21 +199,21 @@ public class PSRequestHandlerConfiguration {
 
         Element rootsEl = tree.getNextElement(rootsElName, firstFlags);
         if (rootsEl == null)
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, rootsElName);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootsElName);
 
         String rootElName = "RequestRoot";
         Element rootEl = tree.getNextElement(rootElName, firstFlags);
 
         // must have at least one root
         if (rootEl == null)
-          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, rootElName);
+          throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootElName);
 
         while (rootEl != null) {
           String rootName = rootEl.getAttribute("baseName");
           if (rootName == null) {
             Object[] args = {rootElName, "baseName", rootName};
             throw new PSUnknownNodeTypeException(
-                IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+                ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
           }
 
           // strip off leading "/" if there
@@ -226,7 +226,7 @@ public class PSRequestHandlerConfiguration {
 
           // must have at least one
           if (typeEl == null)
-            throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, typeElName);
+            throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, typeElName);
 
           while (typeEl != null) {
             methods.add(tree.getElementData(typeEl));

@@ -42,6 +42,25 @@ Explorer. Use it when you need the full repository folder hierarchy rather than 
 Assets or Sites shortcuts. Expanding **Folders** loads children from the server; folder
 visibility still respects folder ACLs.
 
+## Folder mutations dual-run (optional)
+
+By default, Explorer **create / rename / move / delete** folder actions use the same
+pathmanagement REST surface as browse. Operators and QA can opt into a dual-run path that
+sends those mutations under **Folders** and **Sites** to the Rhythmyx content-explorer
+folders REST façade (`/Rhythmyx/rest/content-explorer/folders`) while list/pagination stay
+on pathmanagement.
+
+| Setting | Detail |
+|---------|--------|
+| Name | `perc.explorer.rxFolderMutations` |
+| Default | **off** |
+| Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
+| Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only |
+| Unchanged | Browse/list, folder ACL (security panel), copy, `/Assets` / `/Design` / `/Recycling` |
+
+Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
+production unless you are validating the RX folder façade with QA.
+
 ## Sites list and Create Site
 
 Under the tree root **Sites** you see traditional site folders available to your community

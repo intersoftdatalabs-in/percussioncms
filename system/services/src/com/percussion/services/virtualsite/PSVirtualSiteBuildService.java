@@ -38,6 +38,11 @@ import java.util.Set;
  * participants → link check.
  *
  * <p>Does not require Spring or a CMS repository. Safe for offline / CI dogfood.
+ *
+ * <p>Path-injection defense: every NIO write under {@code outputRoot} runs only after {@link
+ * #requireSafeBuildRoot(Path)} (delegates to {@link PSVirtualSiteHelper#isSafeRootPath(Path)} —
+ * rejects empty / {@code .} / remaining {@code ..}). Href segments are validated before resolve.
+ * CodeQL alerts #1956–#1960 / #1966.
  */
 public class PSVirtualSiteBuildService {
 
@@ -72,7 +77,9 @@ public class PSVirtualSiteBuildService {
 
   public PSVirtualSiteBuildResult build(VirtualSiteConfig config, Path outputRoot)
       throws IOException, VirtualSiteException {
-    Files.createDirectories(outputRoot);
+    // Barrier: only paths that pass requireSafeBuildRoot reach NIO create/write sinks.
+    Path safeOut = requireSafeBuildRoot(outputRoot);
+    Files.createDirectories(safeOut); // codeql[java/path-injection]
 
     // Full rebuild replaces this site's registry so removed pages do not linger and all current
     // frontmatter ids are re-registered (see IPSVirtualParticipantService lifetime notes).
@@ -132,9 +139,9 @@ public class PSVirtualSiteBuildService {
               versionSwitcher);
 
       String href = VirtualNavBuilder.toHref(item.ref().relativePath());
-      Path outFile = resolveHref(outputRoot, href);
-      Files.createDirectories(outFile.getParent());
-      Files.writeString(outFile, html, StandardCharsets.UTF_8);
+      Path outFile = resolveHref(safeOut, href);
+      Files.createDirectories(outFile.getParent()); // codeql[java/path-injection]
+      Files.writeString(outFile, html, StandardCharsets.UTF_8); // codeql[java/path-injection]
       written.add(href);
 
       participants.upsert(
@@ -155,24 +162,24 @@ public class PSVirtualSiteBuildService {
               pathsByVersion.getOrDefault(item.ref().versionId(), Set.of())));
     }
 
-    copyAssets(config.assetsDir(), outputRoot.resolve("assets"));
+    copyAssets(config.assetsDir(), safeOut.resolve("assets"));
     if (Files.isDirectory(config.themeDir().resolve("assets"))) {
-      copyAssets(config.themeDir().resolve("assets"), outputRoot.resolve("assets"));
+      copyAssets(config.themeDir().resolve("assets"), safeOut.resolve("assets"));
     }
 
     participants.flush(config.siteKey());
 
     // Write link report
-    Path report = outputRoot.resolve("link-report.txt");
+    Path report = safeOut.resolve("link-report.txt"); // codeql[java/path-injection]
     if (linkProblems.isEmpty()) {
-      Files.writeString(report, "OK: no link problems\n", StandardCharsets.UTF_8);
+      Files.writeString(report, "OK: no link problems\n", StandardCharsets.UTF_8); // codeql[java/path-injection]
     } else {
       Files.writeString(
-          report, String.join("\n", linkProblems) + "\n", StandardCharsets.UTF_8);
+          report, String.join("\n", linkProblems) + "\n", StandardCharsets.UTF_8); // codeql[java/path-injection]
     }
     written.add("link-report.txt");
 
-    return new PSVirtualSiteBuildResult(outputRoot, items.size(), linkProblems, written);
+    return new PSVirtualSiteBuildResult(safeOut, items.size(), linkProblems, written);
   }
 
   private static VersionSpec findVersion(VirtualSiteConfig config, String id) {
@@ -184,21 +191,71 @@ public class PSVirtualSiteBuildService {
     return null;
   }
 
-  static Path resolveHref(Path outputRoot, String href) {
-    Path p = outputRoot;
-    for (String seg : href.split("/")) {
-      if (!seg.isEmpty()) {
+  /**
+   * Path-injection barrier for Virtual Site build output roots.
+   *
+   * <p>Rejects empty / {@code .} / remaining {@code ..} name elements after normalize (delegates to
+   * {@link PSVirtualSiteHelper#isSafeRootPath(Path)}). Modeled for CodeQL as a {@code
+   * path-injection} barrier; callers must not use the input path after a failed check.
+   *
+   * @param outputRoot candidate output root
+   * @return normalized path after validation
+   * @throws VirtualSiteException when the path is unsafe
+   */
+  static Path requireSafeBuildRoot(Path outputRoot) throws VirtualSiteException {
+    if (!PSVirtualSiteHelper.isSafeRootPath(outputRoot)) {
+      throw new VirtualSiteException(
+          "outputRoot must be a non-empty path with no '..' segments after normalize. Rejected: '"
+              + outputRoot
+              + "'");
+    }
+    return outputRoot.normalize();
+  }
+
+  /**
+   * Resolve a published href under {@code outputRoot}, rejecting {@code ..} / absolute segments and
+   * ensuring the result stays under the (already barrier-checked) root.
+   */
+  static Path resolveHref(Path outputRoot, String href) throws VirtualSiteException {
+    Path safeRoot = requireSafeBuildRoot(outputRoot);
+    Path p = safeRoot;
+    if (href != null) {
+      for (String seg : href.split("/")) {
+        if (seg.isEmpty() || ".".equals(seg)) {
+          continue;
+        }
+        if ("..".equals(seg) || seg.indexOf('\0') >= 0) {
+          throw new VirtualSiteException(
+              "href must not contain '..' or NUL segments. Rejected segment in: '" + href + "'");
+        }
+        // Reject Windows drive / absolute-looking segments
+        if (seg.indexOf(':') >= 0 || seg.indexOf('\\') >= 0) {
+          throw new VirtualSiteException(
+              "href must not contain absolute or Windows path segments. Rejected: '" + href + "'");
+        }
         p = p.resolve(seg);
       }
     }
-    return p;
+    Path normalized = p.normalize();
+    if (!normalized.startsWith(safeRoot)) {
+      throw new VirtualSiteException(
+          "Resolved href escapes outputRoot. href='" + href + "' root='" + safeRoot + "'");
+    }
+    return normalized;
   }
 
   private static void copyAssets(Path from, Path to) throws IOException {
     if (!Files.isDirectory(from)) {
       return;
     }
-    Files.createDirectories(to);
+    // Barrier: dest must be a safe root path (no empty / '.' / remaining '..').
+    Path safeTo;
+    try {
+      safeTo = requireSafeBuildRoot(to);
+    } catch (VirtualSiteException e) {
+      throw new IOException(e.getMessage(), e);
+    }
+    Files.createDirectories(safeTo); // codeql[java/path-injection]
     Files.walkFileTree(
         from,
         new SimpleFileVisitor<>() {
@@ -206,19 +263,39 @@ public class PSVirtualSiteBuildService {
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
               throws IOException {
             Path rel = from.relativize(dir);
-            Path dest = to.resolve(rel.toString());
-            Files.createDirectories(dest);
+            Path dest = resolveUnder(safeTo, rel);
+            Files.createDirectories(dest); // codeql[java/path-injection]
             return FileVisitResult.CONTINUE;
           }
 
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path rel = from.relativize(file);
-            Path dest = to.resolve(rel.toString());
-            Files.createDirectories(dest.getParent());
-            Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
+            Path dest = resolveUnder(safeTo, rel);
+            Files.createDirectories(dest.getParent()); // codeql[java/path-injection]
+            Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING); // codeql[java/path-injection]
             return FileVisitResult.CONTINUE;
           }
         });
+  }
+
+  /** Resolve a relative path under base; reject escaping {@code ..} name elements. */
+  private static Path resolveUnder(Path base, Path relative) throws IOException {
+    Path p = base;
+    for (Path part : relative) {
+      String name = part.toString();
+      if (name.isEmpty() || ".".equals(name)) {
+        continue;
+      }
+      if ("..".equals(name) || name.indexOf('\0') >= 0) {
+        throw new IOException("Asset relative path escapes base: " + relative);
+      }
+      p = p.resolve(name);
+    }
+    Path normalized = p.normalize();
+    if (!normalized.startsWith(base.normalize())) {
+      throw new IOException("Asset path escapes base directory: " + relative);
+    }
+    return normalized;
   }
 }

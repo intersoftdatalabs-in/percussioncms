@@ -17,12 +17,19 @@
 package com.percussion.rest.auditlog;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 
-/** Wire DTO for one row from {@code PSX_SYSTEM_AUDIT_LOG}. */
+/**
+ * Wire DTO for one row from {@code PSX_SYSTEM_AUDIT_LOG}.
+ *
+ * <p>Wire root {@code SystemAuditLogEntry} matches {@code WRAP_ROOT_VALUE}/{@code
+ * UNWRAP_ROOT_VALUE} (JacksonContextResolver). SPA detail panel must unwrap (#3089).
+ */
 @XmlRootElement(name = "SystemAuditLogEntry")
+@JsonRootName("SystemAuditLogEntry")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "System security audit log entry")
 public class SystemAuditLogEntry {

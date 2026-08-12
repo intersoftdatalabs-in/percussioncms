@@ -17,7 +17,7 @@
 
 package com.percussion.server.job;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -96,12 +96,12 @@ public class PSJobHandlerConfiguration {
 
     Element root = config.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_NAME);
 
     // make sure we got the correct root node tag
     if (false == XML_NODE_NAME.equals(root.getNodeName())) {
       Object[] args = {XML_NODE_NAME, root.getNodeName()};
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(root);
@@ -115,7 +115,7 @@ public class PSJobHandlerConfiguration {
     // get handler init params
     Element params = walker.getNextElement("InitParams", firstFlag);
     if (params == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, "InitParams");
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "InitParams");
 
     Properties handlerProps = loadInitParams(params, null);
     m_initParams.put(getContext(null, null), handlerProps);
@@ -124,7 +124,7 @@ public class PSJobHandlerConfiguration {
     walker.setCurrent(root);
     Element categories = walker.getNextElement("Categories", firstFlag);
     if (categories == null)
-      throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, "Categories");
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "Categories");
 
     Element cat = walker.getNextElement("Category", firstFlag);
 
@@ -132,7 +132,7 @@ public class PSJobHandlerConfiguration {
       String catName = cat.getAttribute("name");
       if (catName == null || catName.trim().length() == 0) {
         Object[] args = {cat.getTagName(), "name", catName};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       String context = getContext(catName, null);
@@ -145,7 +145,7 @@ public class PSJobHandlerConfiguration {
       // load the jobs for this category
       Element jobs = walker.getNextElement("Jobs", firstFlag);
       if (jobs == null)
-        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, "Jobs");
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "Jobs");
 
       Element job = walker.getNextElement("Job", firstFlag);
       while (job != null) {
@@ -153,13 +153,13 @@ public class PSJobHandlerConfiguration {
         String jobType = job.getAttribute("jobType");
         if (jobType == null || jobType.trim().length() == 0) {
           Object[] args = {job.getTagName(), "jobType", jobType};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         String className = job.getAttribute("className");
         if (className == null || className.trim().length() == 0) {
           Object[] args = {job.getTagName(), "className", className};
-          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         String jobCtx = getContext(catName, jobType);
@@ -279,13 +279,13 @@ public class PSJobHandlerConfiguration {
       String attName = param.getAttribute("name");
       if (attName == null || attName.trim().length() == 0) {
         Object[] args = {"InitParam", "name", attName};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       String attVal = param.getAttribute("value");
       if (attVal == null || attVal.trim().length() == 0) {
         Object[] args = {"InitParam", "value", attVal};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       props.setProperty(attName, attVal);

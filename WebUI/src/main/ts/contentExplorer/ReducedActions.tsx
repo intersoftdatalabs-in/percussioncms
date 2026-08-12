@@ -30,7 +30,14 @@
 
 import React, { useCallback, useState } from "react";
 import { formatApiError } from "../api/client";
-import { addNewFolder, deleteItem, moveItem, renameFolder } from "../api/contentExplorer/pathApi";
+// Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
+// /Folders and /Sites when perc.explorer.rxFolderMutations is on.
+import {
+  addNewFolder,
+  deleteItem,
+  moveItem,
+  renameFolder,
+} from "../api/contentExplorer/folderMutations";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { isPreviewableItem } from "./previewItem";

@@ -30,11 +30,33 @@ vi.mock("../../../main/ts/admin/TaskLogsSection", () => ({
 }));
 
 vi.mock("../../../main/ts/admin/TaskNotifications", () => ({
-  TaskNotifications: () => <div data-testid="mock-notifications-section">Notifications Content</div>,
+  TaskNotifications: () => (
+    <div data-testid="mock-notifications-section">Notifications Content</div>
+  ),
 }));
 
 vi.mock("../../../main/ts/admin/tools/ToolsSection", () => ({
   ToolsSection: () => <div data-testid="mock-tools-section">Tools Content</div>,
+}));
+
+vi.mock("../../../main/ts/workflowAdmin/workflow/WorkflowSection", () => ({
+  WorkflowSection: () => (
+    <div data-testid="mock-workflow-section">Workflow Content</div>
+  ),
+}));
+
+vi.mock("../../../main/ts/workflowAdmin/role/RolesSection", () => ({
+  RolesSection: () => <div data-testid="perc-roles-section">Roles Content</div>,
+}));
+
+vi.mock("../../../main/ts/workflowAdmin/user/UsersSection", () => ({
+  UsersSection: () => <div data-testid="perc-users-section">Users Content</div>,
+}));
+
+vi.mock("../../../main/ts/workflowAdmin/category/CategoriesSection", () => ({
+  CategoriesSection: () => (
+    <div data-testid="perc-categories-section">Categories Content</div>
+  ),
 }));
 
 function renderShell(ui: React.ReactElement) {
@@ -46,7 +68,7 @@ function renderShell(ui: React.ReactElement) {
 }
 
 describe("AdminShell", () => {
-  it("renders Admin tools title and Administration sibling (#2953)", () => {
+  it("renders unified Admin title without sibling Workflow link (#3088)", () => {
     renderShell(<AdminShell />);
     expect(screen.getByTestId("perc-admin-shell")).toBeDefined();
     expect(screen.getByTestId("mock-tasks-section")).toBeDefined();
@@ -54,11 +76,9 @@ describe("AdminShell", () => {
     expect(screen.getByTestId("perc-admin-shell-title").textContent).toMatch(
       /Admin tools/i,
     );
-    const sibling = screen.getByTestId("admin-sibling-workflow-link");
-    expect(sibling).toBeDefined();
-    expect(sibling.textContent).toMatch(/Administration/i);
-    const href = sibling.getAttribute("href") || "";
-    expect(href === "/workflow" || href.endsWith("/workflow")).toBe(true);
+    // Sibling cross-links removed when Workflow admin folded into Admin (#3088)
+    expect(screen.queryByTestId("admin-sibling-workflow-link")).toBeNull();
+    expect(screen.queryByTestId("admin-sibling-tools-link")).toBeNull();
   });
 
   it("exposes responsive tablist chrome for narrow / portrait layouts", () => {
@@ -73,6 +93,10 @@ describe("AdminShell", () => {
     expect(screen.getByTestId("tab-logs")).toBeDefined();
     expect(screen.getByTestId("tab-notifications")).toBeDefined();
     expect(screen.getByTestId("tab-tools")).toBeDefined();
+    expect(screen.getByTestId("tab-workflow")).toBeDefined();
+    expect(screen.getByTestId("tab-roles")).toBeDefined();
+    expect(screen.getByTestId("tab-users")).toBeDefined();
+    expect(screen.getByTestId("tab-categories")).toBeDefined();
   });
 
   it("switches tabs when nav buttons are clicked", () => {
@@ -90,5 +114,23 @@ describe("AdminShell", () => {
     const toolsTab = screen.getByTestId("tab-tools");
     fireEvent.click(toolsTab);
     expect(screen.getByTestId("mock-tools-section")).toBeDefined();
+  });
+
+  it("hosts former Workflow admin sections as Admin tabs (#3088)", () => {
+    renderShell(<AdminShell initialTab="workflow" />);
+    expect(screen.getByTestId("mock-workflow-section")).toBeDefined();
+    expect(screen.getByTestId("tab-workflow").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+
+    fireEvent.click(screen.getByTestId("tab-roles"));
+    expect(screen.getByTestId("perc-roles-section")).toBeDefined();
+    expect(screen.queryByTestId("mock-workflow-section")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("tab-users"));
+    expect(screen.getByTestId("perc-users-section")).toBeDefined();
+
+    fireEvent.click(screen.getByTestId("tab-categories"));
+    expect(screen.getByTestId("perc-categories-section")).toBeDefined();
   });
 });

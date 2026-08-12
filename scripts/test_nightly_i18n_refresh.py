@@ -270,6 +270,39 @@ class TestPreflightChecks(unittest.TestCase):
         self.assertFalse(all_pass)
         self.assertEqual(failures, ["b"])
 
+    def test_resume_skips_clean_and_main_checks(self):
+        """Resume preflight must not require a clean tree or main branch."""
+        import logging
+        logger = logging.getLogger("test_resume_preflight")
+        logger.addHandler(logging.NullHandler())
+
+        original_trans = m.check_trans_available
+        original_gh = m.check_gh_auth
+        original_clean = m.is_working_tree_clean_worktree
+        original_main = m.is_on_main_or_detached
+
+        m.check_trans_available = lambda: True  # type: ignore[assignment]
+        m.check_gh_auth = lambda: True  # type: ignore[assignment]
+        m.is_working_tree_clean_worktree = lambda wt: False  # type: ignore[assignment]
+        m.is_on_main_or_detached = lambda wt: False  # type: ignore[assignment]
+        try:
+            self.assertTrue(
+                m.run_preflight_checks(logger, Path("/tmp/fake"), resume=True)
+            )
+            self.assertFalse(
+                m.run_preflight_checks(logger, Path("/tmp/fake"), resume=False)
+            )
+        finally:
+            m.check_trans_available = original_trans  # type: ignore[assignment]
+            m.check_gh_auth = original_gh  # type: ignore[assignment]
+            m.is_working_tree_clean_worktree = original_clean  # type: ignore[assignment]
+            m.is_on_main_or_detached = original_main  # type: ignore[assignment]
+
+    def test_resume_cli_requires_locale(self):
+        """--resume without --locale must exit non-zero before locking."""
+        code = m.main(["--resume"])
+        self.assertEqual(code, 1)
+
 
 class TestCheckGhAuth(unittest.TestCase):
     """check_gh_auth must probe only the active gh account (--active)."""

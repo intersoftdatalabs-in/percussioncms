@@ -23,7 +23,6 @@ import com.percussion.cms.objectstore.PSFolderProperty;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.legacy.data.PSItemEntry;
-import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,12 +157,14 @@ public class PSFolderEntry extends PSItemEntry {
    * @param folder the updated folder object.
    */
   void updateFolder(PSFolder folder) {
-    // create a PSFolderAcl from a PSObjectAcl
+    // Convert folder PSObjectAcl → PSFolderAcl without XML root-name mismatch
+    // (PSXObjectAcl vs derived PSXFolderAcl). See #3077.
     PSFolderAcl acl = null;
     try {
       int contentId = ((PSLocator) folder.getLocator()).getId();
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      acl = new PSFolderAcl(folder.getAcl().toXml(doc), contentId, folder.getCommunityId());
+      if (folder.getAcl() != null) {
+        acl = new PSFolderAcl(folder.getAcl(), contentId, folder.getCommunityId());
+      }
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

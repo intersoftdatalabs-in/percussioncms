@@ -223,8 +223,9 @@ describe("App shell", () => {
     expect(nav).toBeTruthy();
   });
 
-  it("loads WorkflowAdminShell for admin entry", async () => {
-    window.history.replaceState({}, "", "/cm/app/workflow/roles");
+  it("folds workflow entry into unified AdminShell (#3088)", async () => {
+    // entry=workflow&tab=roles handoff lands on /admin/roles
+    window.history.replaceState({}, "", "/cm/app/admin/roles");
     render(
       <App
         bootstrap={bootstrap}
@@ -234,7 +235,7 @@ describe("App shell", () => {
     );
     expect(
       await screen.findByTestId(
-        "perc-workflow-admin-shell",
+        "perc-admin-shell",
         {},
         { timeout: SHELL_TIMEOUT },
       ),
@@ -242,6 +243,8 @@ describe("App shell", () => {
     expect(screen.getByTestId("tab-roles").getAttribute("aria-selected")).toBe(
       "true",
     );
+    // No sibling product chrome
+    expect(screen.queryByTestId("perc-workflow-admin-shell")).toBeNull();
   });
 
   it("loads AdminShell for admin tools entry", async () => {

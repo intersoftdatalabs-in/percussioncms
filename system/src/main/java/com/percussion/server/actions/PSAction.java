@@ -22,7 +22,7 @@ import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
 import com.percussion.data.PSExtensionRunner;
 import com.percussion.data.PSUrlRequestExtractor;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSExtensionCall;
 import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSParam;
@@ -111,14 +111,14 @@ public class PSAction {
     String localName = sourceNode.getNodeName();
     if (!XML_NODE_NAME.equals(localName)) {
       Object[] args = {XML_NODE_NAME, localName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // process the name attribute (required)
     m_name = sourceNode.getAttribute(NAME_XATTR);
     if (m_name == null || m_name.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, NAME_XATTR, m_name};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // process the ignoreError attribute (optional -- known default)
@@ -144,7 +144,7 @@ public class PSAction {
       Object[] args = {
         PSParam.XML_NODE_NAME + " or " + PSExtensionCallSet.ms_NodeType, elem.getNodeName()
       };
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     while (elem != null && elem.getNodeName().equals(PSParam.XML_NODE_NAME)) {

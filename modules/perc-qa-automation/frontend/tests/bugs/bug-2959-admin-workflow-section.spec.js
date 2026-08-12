@@ -1,9 +1,11 @@
 /**
- * Regression: Admin → Administration fails with TypeError e.map is not a function (#2959).
+ * Regression: Admin → Workflow fails with TypeError e.map is not a function (#2959).
  *
  * GET workflowmanagement/workflows/metadata often returns a Jackson root wrapper
  * ({ Workflow: [...] }). WorkflowSection must unwrap before workflows.map so the
- * Administration shell loads without RouteErrorBoundary.
+ * Admin shell loads without RouteErrorBoundary.
+ *
+ * #3088: Workflow admin lives under unified AdminShell (not sibling Workflow shell).
  *
  * Tags: @workflow-admin @administration @smoke @bug-2959
  *
@@ -27,15 +29,16 @@ test.describe("Administration WorkflowSection load (#2959)", () => {
       tag: ["@workflow-admin", "@administration", "@smoke", "@bug-2959"],
     },
     async ({ page }) => {
+      // Legacy view=workflow redirects into unified Admin workflow tab (#3088)
       await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
-      const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
+      const shell = page.locator("[data-testid='perc-admin-shell']");
       await expect(shell).toBeVisible({ timeout: 30_000 });
 
-      // Must not crash into route error boundary (Unable to load Administration)
+      // Must not crash into route error boundary
       await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
       await expect(
-        page.getByText(/Unable to load Administration/i),
+        page.getByText(/Unable to load Admin/i),
       ).toHaveCount(0);
 
       const wfSection = page.locator("[data-testid='perc-workflow-section']");
@@ -44,11 +47,14 @@ test.describe("Administration WorkflowSection load (#2959)", () => {
         page.locator("[data-testid='create-workflow-button']"),
       ).toBeVisible();
       await expect(page.locator("[data-testid='tab-workflow']")).toBeVisible();
+      await expect(
+        page.locator("[data-testid='tab-workflow']"),
+      ).toHaveAttribute("aria-selected", "true");
     },
   );
 
   test(
-    "Admin sibling Administration link reaches workflow section",
+    "Admin workflow tab reaches workflow section (no sibling shell)",
     {
       tag: ["@workflow-admin", "@administration", "@bug-2959"],
     },
@@ -58,17 +64,12 @@ test.describe("Administration WorkflowSection load (#2959)", () => {
       const adminShell = page.locator("[data-testid='perc-admin-shell']");
       await expect(adminShell).toBeVisible({ timeout: 30_000 });
 
-      const workflowLink = page.getByTestId("admin-sibling-workflow-link");
-      if ((await workflowLink.count()) > 0) {
-        await workflowLink.click();
-      } else {
-        // Fallback deep link used by product nav when sibling chrome differs
-        await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
-      }
-
+      // Sibling cross-link removed (#3088); use in-shell Workflow tab
       await expect(
-        page.locator("[data-testid='perc-workflow-admin-shell']"),
-      ).toBeVisible({ timeout: 30_000 });
+        page.getByTestId("admin-sibling-workflow-link"),
+      ).toHaveCount(0);
+
+      await page.locator("[data-testid='tab-workflow']").click();
       await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
       await expect(
         page.locator("[data-testid='perc-workflow-section']"),

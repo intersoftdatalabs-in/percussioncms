@@ -34,19 +34,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Sibling admin surface deep link after top-nav Admin consolidation (#2702) */
-.siblingLink {
-  font-size: 0.95rem;
-  color: #007ea8;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.siblingLink:hover,
-.siblingLink:focus {
-  text-decoration: underline;
-}
-
 .tabNav {
   display: flex;
   flex-wrap: wrap;

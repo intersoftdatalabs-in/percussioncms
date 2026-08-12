@@ -18,7 +18,7 @@
 package com.percussion.i18n;
 
 import com.percussion.data.PSDataExtractionException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.i18n.rxlt.PSLocaleHandler;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -295,7 +295,7 @@ public class PSLocale implements IPSCatalogSummary {
 
     if (!XML_NODE_NAME.equals(source.getNodeName())) {
       Object[] args = {XML_NODE_NAME, source.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_languageString = getRequiredAttribute(source, ATTR_LANGUAGE_STRING);
@@ -311,7 +311,7 @@ public class PSLocale implements IPSCatalogSummary {
 
     if (!validateStatus(m_status)) {
       Object[] args = {source.getTagName(), ATTR_STATUS, status};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     m_version = null;
@@ -390,7 +390,7 @@ public class PSLocale implements IPSCatalogSummary {
     String val = source.getAttribute(attName);
     if (val == null || val.trim().length() == 0) {
       Object[] args = {source.getTagName(), attName, "empty"};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     return val;

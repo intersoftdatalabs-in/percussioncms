@@ -16,7 +16,7 @@
  */
 package com.percussion.extension;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -115,7 +115,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -128,7 +128,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
     String sTemp = sourceNode.getAttribute(ATTR_FUNCTION_NAME);
     if (sTemp == null || sTemp.trim().length() == 0) {
       Object[] args = {NODE_NAME, ATTR_FUNCTION_NAME, sTemp == null ? "null" : sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_name = sTemp;
 
@@ -141,7 +141,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
         sTemp = DRIVER_TYPE_DEFAULT;
       } else {
         Object[] args = {NODE_NAME, ATTR_DRIVER, sTemp == null ? "null" : sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
     m_driver = sTemp;
@@ -152,7 +152,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
     if ((el == null) || (sTemp == null) || (sTemp.trim().length() < 1)) {
       if (!fromDefault) {
         Object[] args = {NODE_NAME, EL_BODY, sTemp == null ? "null" : sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } else {
       m_body = sTemp;
@@ -180,7 +180,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
     if ((el == null) || (sTemp == null) || (sTemp.trim().length() < 1)) {
       if (!fromDefault) {
         Object[] args = {NODE_NAME, EL_DESCRIPTION, sTemp == null ? "null" : sTemp};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
     } else {
       m_desc = sTemp;

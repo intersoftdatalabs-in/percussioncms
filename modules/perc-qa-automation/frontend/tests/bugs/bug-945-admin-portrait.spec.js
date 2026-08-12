@@ -19,6 +19,8 @@
  *
  * Primary Admin chrome (SPA AdminShell tabs) must remain clickable when the
  * viewport is phone-portrait sized — wrapping tabs / no fixed min-width clip.
+ *
+ * #3088: Workflow / roles / users / categories are Admin tabs in the same shell.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -50,6 +52,10 @@ test.describe("Admin portrait layout (GH-945)", () => {
       "tab-logs",
       "tab-notifications",
       "tab-tools",
+      "tab-workflow",
+      "tab-roles",
+      "tab-users",
+      "tab-categories",
     ]) {
       const tab = page.locator(`[data-testid='${id}']`);
       await expect(tab).toBeVisible();
@@ -72,17 +78,16 @@ test.describe("Admin portrait layout (GH-945)", () => {
     ).toBeVisible();
   });
 
-  test("Workflow AdminShell tabs remain visible in portrait", async ({
+  test("Admin workflow tabs remain visible in portrait (#3088)", async ({
     page,
   }) => {
+    // Legacy workflow entry redirects into Admin workflow tab
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
-    const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
+    const shell = page.locator("[data-testid='perc-admin-shell']");
     await expect(shell).toBeVisible({ timeout: 20_000 });
 
-    const tablist = page.locator(
-      "[data-testid='perc-workflow-admin-tablist']",
-    );
+    const tablist = page.locator("[data-testid='perc-admin-tablist']");
     await expect(tablist).toBeVisible();
 
     for (const id of [

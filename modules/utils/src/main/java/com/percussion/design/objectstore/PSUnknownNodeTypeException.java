@@ -92,16 +92,16 @@ public class PSUnknownNodeTypeException extends PSException {
   }
 
   /**
-   * Construct this exception using IPSObjectStore.XML_ELEMENT_INVALID_CHILD as the error message.
-   * The specified parent node, child element and PSException subclass will be used to construct the
-   * detail message.
+   * Construct this exception using {@link ObjectStoreErrorCode#XML_ELEMENT_INVALID_CHILD} as the
+   * error message. The specified parent node, child element and PSException subclass will be used
+   * to construct the detail message.
    *
    * @param parent the parent node
    * @param child the child element
    * @param e the exception to use as the error description
    */
   public PSUnknownNodeTypeException(String parent, String child, PSException e) {
-    this(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, new Object[] {parent, child, ""});
+    this(ObjectStoreErrorCode.XML_ELEMENT_INVALID_CHILD, new Object[] {parent, child, ""});
     m_exception = e;
   }
 

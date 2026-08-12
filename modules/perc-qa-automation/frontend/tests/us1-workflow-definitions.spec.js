@@ -10,23 +10,23 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
     "navigate to workflow admin and verify shell and list render",
     { tag: ["@workflow-admin", "@administration", "@smoke"] },
     async ({ page }) => {
+      // Legacy view=workflow → unified Admin workflow tab (#3088)
       await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
-      // Verify WorkflowAdminShell container is present
-      const shell = page.locator("[data-testid='perc-workflow-admin-shell']");
+      const shell = page.locator("[data-testid='perc-admin-shell']");
       await expect(shell).toBeVisible({ timeout: 30_000 });
 
       // #2959: wrapper payload must not trip RouteErrorBoundary (e.map is not a function)
       await expect(page.locator("[data-testid='route-error']")).toHaveCount(0);
       await expect(
-        page.getByText(/Unable to load Administration/i),
+        page.getByText(/Unable to load Admin/i),
       ).toHaveCount(0);
 
       // Verify Workflow section table is visible
       const wfSection = page.locator("[data-testid='perc-workflow-section']");
       await expect(wfSection).toBeVisible({ timeout: 30_000 });
 
-      // Verify tabs are present
+      // Verify tabs are present on unified Admin shell
       await expect(page.locator("[data-testid='tab-workflow']")).toBeVisible();
       await expect(page.locator("[data-testid='tab-roles']")).toBeVisible();
       await expect(page.locator("[data-testid='tab-users']")).toBeVisible();

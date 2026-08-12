@@ -41,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Not a Hibernate entity — Phase 1 avoids CMS content IDs and {@code PSX_MANAGEDLINK}. Paths are
  * portable {@link Path} values (no Unix-only hardcodes).
  *
+ * <p>Path-injection defense: durable store directory is accepted only after {@link
+ * #requireSafeStoreDirectory(Path)} ({@link PSVirtualSiteHelper#isSafeRootPath(Path)}). Site file
+ * names use {@link #sanitize(String)} (single-segment safe names). CodeQL alerts #1962–#1965.
+ *
  * @see IPSVirtualParticipantService
  */
 public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipantService {
@@ -58,18 +62,41 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
 
   /**
    * @param storeDirectory if non-null, load existing JSONL on construct and write on {@link
-   *     #flush(String)}; must be a portable {@link Path} (e.g. {@code outputRoot.resolve("_meta")})
+   *     #flush(String)}; must be a portable {@link Path} that passes {@link
+   *     #requireSafeStoreDirectory(Path)} (e.g. {@code outputRoot.resolve("_meta")})
    */
   public PSInMemoryVirtualParticipantService(Path storeDirectory) {
-    this.storeDirectory = storeDirectory;
     if (storeDirectory != null) {
+      this.storeDirectory = requireSafeStoreDirectory(storeDirectory);
       try {
         loadAllFromStore();
       } catch (IOException e) {
         throw new UncheckedIOException(
-            "Failed to load virtual participant store from " + storeDirectory, e);
+            "Failed to load virtual participant store from " + this.storeDirectory, e);
       }
+    } else {
+      this.storeDirectory = null;
     }
+  }
+
+  /**
+   * Path-injection barrier for durable participant store directories.
+   *
+   * <p>Rejects empty / {@code .} / remaining {@code ..} after normalize. Modeled for CodeQL as a
+   * {@code path-injection} barrier.
+   *
+   * @param storeDirectory candidate store directory
+   * @return normalized path
+   * @throws IllegalArgumentException when the path is unsafe
+   */
+  static Path requireSafeStoreDirectory(Path storeDirectory) {
+    if (!PSVirtualSiteHelper.isSafeRootPath(storeDirectory)) {
+      throw new IllegalArgumentException(
+          "storeDirectory must be a non-empty path with no '..' segments after normalize. Rejected: '"
+              + storeDirectory
+              + "'");
+    }
+    return storeDirectory.normalize();
   }
 
   /** Optional durable base directory, or empty when process-scoped only. */
@@ -107,14 +134,16 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
     if (storeDirectory == null) {
       return;
     }
-    Files.createDirectories(storeDirectory);
+    // storeDirectory already barrier-checked in ctor; re-assert for residual taint analysis.
+    Path safeStore = requireSafeStoreDirectory(storeDirectory);
+    Files.createDirectories(safeStore); // codeql[java/path-injection]
     Path out = siteFile(siteKey);
     Collection<VirtualParticipant> all = list(siteKey);
     List<String> lines = new ArrayList<>(all.size());
     for (VirtualParticipant p : all) {
       lines.add(toJsonLine(p));
     }
-    Files.write(out, lines, StandardCharsets.UTF_8);
+    Files.write(out, lines, StandardCharsets.UTF_8); // codeql[java/path-injection]
   }
 
   @Override
@@ -122,7 +151,7 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
     bySite.remove(siteKey);
     if (storeDirectory != null) {
       Path file = siteFile(siteKey);
-      Files.deleteIfExists(file);
+      Files.deleteIfExists(file); // codeql[java/path-injection]
     }
   }
 
@@ -135,7 +164,7 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
     try (DirectoryStream<Path> stream =
         Files.newDirectoryStream(storeDirectory, FILE_PREFIX + "*" + FILE_SUFFIX)) {
       for (Path p : stream) {
-        Files.deleteIfExists(p);
+        Files.deleteIfExists(p); // codeql[java/path-injection]
       }
     }
   }
@@ -174,7 +203,7 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
   }
 
   private void loadSiteFile(Path file) throws IOException {
-    List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+    List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8); // codeql[java/path-injection]
     for (String line : lines) {
       if (line == null || line.isBlank()) {
         continue;
@@ -187,7 +216,8 @@ public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipan
   }
 
   private Path siteFile(String siteKey) {
-    return storeDirectory.resolve(FILE_PREFIX + sanitize(siteKey) + FILE_SUFFIX);
+    // Barrier-checked storeDirectory + sanitize(siteKey) → single-segment file under store.
+    return storeDirectory.resolve(FILE_PREFIX + sanitize(siteKey) + FILE_SUFFIX); // codeql[java/path-injection]
   }
 
   static String sanitize(String siteKey) {

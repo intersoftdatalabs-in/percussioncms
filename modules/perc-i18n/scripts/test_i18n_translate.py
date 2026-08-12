@@ -60,6 +60,20 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(result, '{0}')
         self.assertEqual(invoked, [])
 
+    def test_url_only_skipped(self):
+        url = (
+            'https://percussioncmshelp.intsof.com/percussion-cm1/'
+            'install-setup/installing-cm1/system-requirements#browsers'
+        )
+        invoked = []
+        orig_invoke = it.invoke_translate
+        it.invoke_translate = lambda text, target: invoked.append((text, target)) or 'oops'
+        try:
+            self.assertEqual(it.translate(url, 'tr', cache={}), url)
+        finally:
+            it.invoke_translate = orig_invoke
+        self.assertEqual(invoked, [])
+
     def test_uses_cache_without_invoking(self):
         cache = {it.cache_key('Hello', 'de-de'): 'Hallo'}
         invoked = []

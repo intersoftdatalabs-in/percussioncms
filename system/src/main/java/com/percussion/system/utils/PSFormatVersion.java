@@ -16,7 +16,7 @@
  */
 package com.percussion.system.utils;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
@@ -406,12 +406,12 @@ public class PSFormatVersion {
   private void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     // make sure we have a source node
     if (sourceNode == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, NODE_TYPE);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, NODE_TYPE);
 
     // make sure we got the PSXFormatVersion type node
     if (false == NODE_TYPE.equals(sourceNode.getNodeName())) {
       Object[] args = {NODE_TYPE, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -470,7 +470,7 @@ public class PSFormatVersion {
       sTemp = def == null ? "" : def;
       if (required && sTemp.trim().length() == 0) {
         Object[] args = {NODE_TYPE, attrName, ((sTemp == null) ? "null" : sTemp)};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
     return sTemp;

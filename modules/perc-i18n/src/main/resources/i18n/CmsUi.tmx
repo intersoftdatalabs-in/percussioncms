@@ -26961,6 +26961,52 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.profile.modern@None">
       <tuv xml:lang="en-us"><seg>None</seg></tuv>
     <tuv xml:lang="lou"><seg>None</seg></tuv><tuv xml:lang="pl"><seg>Nic</seg></tuv><tuv xml:lang="tr"><seg>Hiçbiri</seg></tuv></tu>
+    <!-- Issue #2394 / parent #2374 slice 3: Profile Security password section (en-us source; other locales fall back) -->
+    <tu tuid="perc.ui.profile.modern@Change your password when your account uses local authentication, or learn how directory and SSO accounts manage credentials.">
+      <tuv xml:lang="en-us"><seg>Change your password when your account uses local authentication, or learn how directory and SSO accounts manage credentials.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Loading security settings…">
+      <tuv xml:lang="en-us"><seg>Loading security settings…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Could not load security settings.">
+      <tuv xml:lang="en-us"><seg>Could not load security settings.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@New password">
+      <tuv xml:lang="en-us"><seg>New password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Confirm new password">
+      <tuv xml:lang="en-us"><seg>Confirm new password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Use at least {0} characters. Server password rules still apply.">
+      <tuv xml:lang="en-us"><seg>Use at least {0} characters. Server password rules still apply.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Enter a password.">
+      <tuv xml:lang="en-us"><seg>Enter a password.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Password must be at least {0} characters.">
+      <tuv xml:lang="en-us"><seg>Password must be at least {0} characters.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Passwords do not match.">
+      <tuv xml:lang="en-us"><seg>Passwords do not match.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Change password">
+      <tuv xml:lang="en-us"><seg>Change password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Updating password…">
+      <tuv xml:lang="en-us"><seg>Updating password…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Your password was changed.">
+      <tuv xml:lang="en-us"><seg>Your password was changed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Unable to change your password. Check the requirements and try again.">
+      <tuv xml:lang="en-us"><seg>Unable to change your password. Check the requirements and try again.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Password managed outside Percussion">
+      <tuv xml:lang="en-us"><seg>Password managed outside Percussion</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.profile.modern@Your account uses directory or single sign-on authentication. Change your password with your identity provider or IT administrator — it cannot be updated from this profile.">
+      <tuv xml:lang="en-us"><seg>Your account uses directory or single sign-on authentication. Change your password with your identity provider or IT administrator — it cannot be updated from this profile.</seg></tuv>
+    </tu>
     <!-- Security Audit Log Admin UI (Phase 4 / #2619) — en-us source + lou -->
     <tu tuid="perc.ui.admin@System Tools">
       <tuv xml:lang="en-us"><seg>System Tools</seg></tuv>

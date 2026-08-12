@@ -49,6 +49,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restExtensionsResource",
     // #2429 P-Trans create-variant / item-locale façade
     "restContentTranslationsResource",
+    // #3073 content-explorer folders façade over IPSContentWs
+    "restContentExplorerFoldersResource",
   };
 
   @Test

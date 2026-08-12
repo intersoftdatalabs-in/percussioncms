@@ -18,6 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,29 +41,68 @@ public class PSFolderAcl extends PSObjectAcl {
   }
 
   /**
-   * Just like {@link #PSFolderAcl(Element)}, in addition, there are couple extra parameters.
+   * Constructs a folder ACL by copying ACL entries from a folder's {@link PSObjectAcl} and
+   * attaching the folder's content and community ids. Prefer this over round-tripping through
+   * {@code toXml()}/{@code fromXml()} when converting a live folder ACL for cache use.
    *
+   * <p>Does not invent a separate XML root name: folder ACLs share the {@code PSXObjectAcl} wire
+   * format of {@link PSObjectAcl}.
+   *
+   * @param source the object ACL to copy, may not be <code>null</code>
    * @param contentId The id of the folder for which this ACL defines security settings.
    * @param communityId The community id of the folder for which this ACL defines security settings.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>
+   */
+  public PSFolderAcl(PSObjectAcl source, int contentId, int communityId) {
+    super();
+    if (source == null) {
+      throw new IllegalArgumentException("source may not be null");
+    }
+    m_contentId = contentId;
+    m_communityId = communityId;
+    copyEntriesFrom(source);
+  }
+
+  /**
+   * Just like {@link #PSFolderAcl(Element)}, except content and community ids are supplied by the
+   * caller rather than read from element attributes. Accepts a {@code PSXObjectAcl} root element
+   * (the wire format produced by {@link PSObjectAcl#toXml(Document)}).
+   *
+   * @param element the element to load from, may not be <code>null</code>
+   * @param contentId The id of the folder for which this ACL defines security settings.
+   * @param communityId The community id of the folder for which this ACL defines security settings.
+   * @throws IllegalArgumentException if element is <code>null</code>
+   * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
   public PSFolderAcl(Element element, int contentId, int communityId)
       throws PSUnknownNodeTypeException {
-    super(element);
+    // Empty super first: Element construction via PSDbComponentSet uses defaultNodeNameFor
+    // (PSFolderAcl → PSXFolderAcl), which does not match the shared PSXObjectAcl wire format.
+    // After full construction, fromXml honors PSObjectAcl.getNodeName() → PSXObjectAcl.
+    super();
+    if (element == null) {
+      throw new IllegalArgumentException("element may not be null");
+    }
+    super.fromXml(element);
     m_contentId = contentId;
     m_communityId = communityId;
   }
 
   /**
    * Constructs this object from the supplied element. See <code>fromXml()</code> for the expected
-   * form of xml.
+   * form of xml. Root element name is {@code PSXObjectAcl} (same as {@link PSObjectAcl}), with
+   * additional {@code contentId} and {@code communityId} attributes.
    *
    * @param element the element to load from, may not be <code>null</code>
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
   public PSFolderAcl(Element element) throws PSUnknownNodeTypeException {
-    super(element);
-    loadState(element);
+    super();
+    if (element == null) {
+      throw new IllegalArgumentException("element may not be null");
+    }
+    fromXml(element);
   }
 
   /**
@@ -119,6 +159,19 @@ public class PSFolderAcl extends PSObjectAcl {
   private void loadState(Element src) throws PSUnknownNodeTypeException {
     m_communityId = getIntAttrVal(src, XML_ATTR_COMMUNITYID);
     m_contentId = getIntAttrVal(src, XML_ATTR_CONTENTID);
+  }
+
+  /**
+   * Copies ACL entries from {@code source} into this set. Entries are cloned so the source
+   * collection is not shared with the folder ACL cache entry.
+   *
+   * @param source never {@code null}
+   */
+  private void copyEntriesFrom(PSObjectAcl source) {
+    Iterator<PSObjectAclEntry> entries = source.iterator();
+    while (entries.hasNext()) {
+      add((PSObjectAclEntry) entries.next().clone());
+    }
   }
 
   /**

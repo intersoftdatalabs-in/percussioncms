@@ -31,7 +31,7 @@ import com.percussion.data.PSInternalRequestURIResolver;
 import com.percussion.data.PSTransformErrorListener;
 import com.percussion.data.PSUrlRequestExtractor;
 import com.percussion.data.PSXslStyleSheetMerger;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSStylesheet;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
@@ -143,14 +143,14 @@ public class PSActionSet {
     String localName = sourceNode.getNodeName();
     if (!XML_NODE_NAME.equals(localName)) {
       Object[] args = {XML_NODE_NAME, localName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // process the name attribute (required)
     m_name = sourceNode.getAttribute("name");
     if (m_name == null || m_name.trim().length() == 0) {
       Object[] args = {XML_NODE_NAME, "name", m_name};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     int searchChildren =
@@ -166,7 +166,7 @@ public class PSActionSet {
       Object[] args = {
         XML_NODE_NAME, PSAction.XML_NODE_NAME, (elem == null ? "null" : elem.getNodeName())
       };
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } else {
       // make sure each action name is unique by using a set
       Set actionNames = new HashSet();
@@ -192,7 +192,7 @@ public class PSActionSet {
       Object[] args = {
         XML_NODE_NAME, PSUrlRequest.XML_NODE_NAME, (elem == null ? "null" : elem.getNodeName())
       };
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } else m_redirect = new PSUrlRequest(elem, null, null);
 
     // process the stylesheet (optional)

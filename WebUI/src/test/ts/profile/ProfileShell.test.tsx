@@ -72,6 +72,12 @@ function renderShell() {
   );
 }
 
+vi.mock("../../../main/ts/api/user/userPasswordApi", () => ({
+  changeMyPassword: vi.fn().mockResolvedValue(undefined),
+  MIN_PASSWORD_LENGTH: 6,
+  validatePasswordChange: vi.fn().mockReturnValue({ ok: true }),
+}));
+
 vi.mock("../../../main/ts/api/user/userProfileApi", () => ({
   getCurrentUserProfile: vi.fn().mockResolvedValue({
     name: "Admin",
@@ -112,7 +118,7 @@ describe("ProfileShell", () => {
     };
   });
 
-  it("renders title, intro, four sections, live account/preferences/avatar", async () => {
+  it("renders title, intro, four sections, live account/security/preferences/avatar", async () => {
     renderShell();
     expect(screen.getByTestId("perc-profile-shell")).toBeTruthy();
     expect(screen.getByTestId("perc-profile-title").textContent).toBe("My profile");
@@ -129,6 +135,8 @@ describe("ProfileShell", () => {
       expect(screen.getByTestId("perc-profile-account-login").textContent).toBe(
         "Admin",
       );
+      expect(screen.getByTestId("perc-profile-security")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-security-form")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-avatar")).toBeTruthy();
     });
@@ -166,21 +174,24 @@ describe("ProfileShell", () => {
     );
   });
 
-  it("marks only security as coming soon; account/preferences/avatar live", async () => {
+  it("marks no section as coming soon; all four sections live", async () => {
     renderShell();
     await waitFor(() => {
       expect(screen.getByTestId("perc-profile-account")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-security")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-avatar")).toBeTruthy();
     });
-    const statuses = screen.getAllByText("Coming soon");
-    // Only Security remains a placeholder
-    expect(statuses.length).toBe(1);
+    // Scope to section status testids — avoid document-wide "Coming soon" text match.
     expect(PROFILE_MSG.COMING_SOON).toContain("Coming soon");
-    expect(screen.queryByTestId("perc-profile-section-account-status")).toBeNull();
-    expect(screen.queryByTestId("perc-profile-section-preferences-status")).toBeNull();
-    expect(screen.queryByTestId("perc-profile-section-avatar-status")).toBeNull();
-    expect(screen.getByTestId("perc-profile-section-security-status")).toBeTruthy();
+    for (const statusId of [
+      "perc-profile-section-account-status",
+      "perc-profile-section-security-status",
+      "perc-profile-section-preferences-status",
+      "perc-profile-section-avatar-status",
+    ]) {
+      expect(screen.queryByTestId(statusId)).toBeNull();
+    }
   });
 
   it("makes section landmarks focusable skip targets (tabIndex=-1)", async () => {

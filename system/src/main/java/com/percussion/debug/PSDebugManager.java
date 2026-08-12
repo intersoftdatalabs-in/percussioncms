@@ -17,7 +17,7 @@
 
 package com.percussion.debug;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSTraceInfo;
 import com.percussion.error.PSNotFoundException;
@@ -67,7 +67,7 @@ public class PSDebugManager {
    */
   public PSDebugLogHandler getLogHandler(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = (PSDebugLogHandler) m_logHandlers.get(appName);
-    if (dh == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_NOT_FOUND, appName);
+    if (dh == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     return dh;
   }
@@ -142,7 +142,7 @@ public class PSDebugManager {
    */
   public PSTraceFlag getTraceOptionsFlag(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = getLogHandler(appName);
-    if (dh == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_NOT_FOUND, appName);
+    if (dh == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     return dh.getTraceInfo().getTraceOptionsFlag();
   }
@@ -158,7 +158,7 @@ public class PSDebugManager {
   public void setTraceOptionsFlag(String appName, PSTraceFlag traceFlags)
       throws PSNotFoundException {
     PSDebugLogHandler dh = getLogHandler(appName);
-    if (dh == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_NOT_FOUND, appName);
+    if (dh == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     PSTraceInfo info = dh.getTraceInfo();
     info.setTraceOptionsFlag(traceFlags);
@@ -173,7 +173,7 @@ public class PSDebugManager {
    */
   public void restoreInitialTraceOptions(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = getLogHandler(appName);
-    if (dh == null) throw new PSNotFoundException(IPSObjectStoreErrors.APP_NOT_FOUND, appName);
+    if (dh == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     dh.getTraceInfo().restoreInitialOptions();
   }

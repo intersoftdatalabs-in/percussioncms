@@ -16,7 +16,7 @@
  */
 package com.percussion.data;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSFunctionCall;
 import com.percussion.design.objectstore.PSFunctionParamValue;
@@ -150,7 +150,7 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
     } catch (ParseException pex) {
       Object[] errArgs = new Object[] {funcDef.getName(), pex.getLocalizedMessage()};
       throw new PSDataExtractionException(
-          IPSObjectStoreErrors.DATABASE_FUNCTION_PARSE_ERROR, errArgs);
+          ObjectStoreErrorCodes.DATABASE_FUNCTION_PARSE_ERROR.numericCode(), errArgs);
     }
     return ret;
   }
