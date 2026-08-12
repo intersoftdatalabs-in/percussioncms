@@ -28,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
@@ -165,14 +164,14 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
             // get each param element
             Element param = PSXMLDomUtil.getFirstElementChild(params);
 
-            Map parameters = new HashMap();
+            Map<String, List<String>> parameters = new HashMap<>();
             while (param != null && PSXMLDomUtil.getUnqualifiedNodeName(param).equals(EL_PARAM)) {
               String name = param.getAttribute("name");
               String value = PSXMLDomUtil.getElementData(param);
 
-              List values = (List) parameters.get(name);
+              List<String> values = parameters.get(name);
               if (values == null) {
-                values = new ArrayList();
+                values = new ArrayList<>();
                 parameters.put(name, values);
               }
               values.add(value);
@@ -180,12 +179,11 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
               param = PSXMLDomUtil.getNextElementSibling(param);
             }
 
-            Iterator walker = parameters.keySet().iterator();
-            while (walker.hasNext()) {
-              String name = (String) walker.next();
-              List values = (List) parameters.get(name);
-              if (values != null && values.size() > 0) {
-                if (values.size() == 1) request.setParameter(name, (String) values.get(0));
+            for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
+              String name = entry.getKey();
+              List<String> values = entry.getValue();
+              if (values != null && !values.isEmpty()) {
+                if (values.size() == 1) request.setParameter(name, values.get(0));
                 else request.setParameter(name, values);
               }
             }

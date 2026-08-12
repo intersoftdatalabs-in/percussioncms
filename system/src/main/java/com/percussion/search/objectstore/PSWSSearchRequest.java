@@ -23,7 +23,6 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -109,7 +108,7 @@ public class PSWSSearchRequest {
    * @return The params, may be <code>null</code> if an internal search was not constructed. Key is
    *     the parameter name and value is the parameter value, both as <code>String</code> objects.
    */
-  public Map getInternalSearchParams() {
+  public Map<String, String> getInternalSearchParams() {
     return Collections.unmodifiableMap(m_internalSearchParams);
   }
 
@@ -175,12 +174,10 @@ public class PSWSSearchRequest {
       PSXmlDocumentBuilder.addElement(doc, root, EL_SEARCHNAME, m_internalSearchName);
 
       if (m_internalSearchParams != null) {
-        Iterator params = m_internalSearchParams.entrySet().iterator();
-        while (params.hasNext()) {
-          Map.Entry param = (Map.Entry) params.next();
+        for (Map.Entry<String, String> param : m_internalSearchParams.entrySet()) {
           Element elParam =
-              PSXmlDocumentBuilder.addElement(doc, root, EL_REQ_PARAM, (String) param.getValue());
-          elParam.setAttribute(ATTR_NAME, (String) param.getKey());
+              PSXmlDocumentBuilder.addElement(doc, root, EL_REQ_PARAM, param.getValue());
+          elParam.setAttribute(ATTR_NAME, param.getKey());
         }
       }
     } else {

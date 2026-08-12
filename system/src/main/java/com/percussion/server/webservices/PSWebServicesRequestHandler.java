@@ -86,13 +86,14 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
    * @param cfgFileIn @see IPSLoadableRequestHandler
    * @throws PSServerException @see IPSLoadableRequestHandler
    */
-  public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
-    if (requestRoots == null || requestRoots.size() == 0)
+  public void init(Collection<String> requestRoots, InputStream cfgFileIn)
+      throws PSServerException {
+    if (requestRoots == null || requestRoots.isEmpty())
       throw new IllegalArgumentException("must provide at least one request root");
 
-    // validate that requestRoots contains only Strings
-    for (Iterator iter = requestRoots.iterator(); iter.hasNext(); ) {
-      if (!(iter.next() instanceof String))
+    // validate that requestRoots contains only Strings (defensive for legacy callers)
+    for (Object root : requestRoots) {
+      if (!(root instanceof String))
         throw new IllegalArgumentException(
             "request roots collection may only contain String objects");
     }
@@ -215,7 +216,7 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
   }
 
   // see IPSRootedHandler for documentation
-  public Iterator getRequestRoots() {
+  public Iterator<String> getRequestRoots() {
     return ms_requestRoots.iterator();
   }
 
@@ -229,7 +230,7 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
    * Storage for the request roots, initialized in init() call, never <code>null</code> or empty
    * after that. A list of String objects.
    */
-  private static Collection ms_requestRoots = null;
+  private static Collection<String> ms_requestRoots = null;
 
   /** Name of the subsystem used to dump messages to server console. */
   private static final String HANDLER = "WebServices";

@@ -44,7 +44,6 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.w3c.dom.Document;
@@ -224,9 +223,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
       throws PSCmsException {
     List<PSComponentSummary> children = getFolderSummaries(folder);
 
-    Iterator walker = children.iterator();
-    while (walker.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) walker.next();
+    for (PSComponentSummary summary : children) {
       if (summary.isFolder()) getFolderContent(summary.getCurrentLocator(), itemIds);
       else if (summary.isItem()) itemIds.add(String.valueOf(summary.getContentId()));
     }
@@ -298,7 +295,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
             PSWsFolderProcessor.ADD_FOLDERCHILDREN_OPERATION);
 
     PSServerFolderProcessor.getInstance()
-        .addChildren(pcIds.getChildLocators(), pcIds.getParentLocator());
+        .addChildren(pcIds.getChildLocatorList(), pcIds.getParentLocator());
 
     addResultResponseXml("success", 0, null, parent);
   }
@@ -324,7 +321,11 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
 
     PSServerFolderProcessor proxy = PSServerFolderProcessor.getInstance();
 
-    proxy.copyChildren(pcIds.getChildLocators(), pcIds.getParentLocator());
+    // copy() accepts List<?> so override-name locators (PSLocatorWithName) are preserved
+    proxy.copy(
+        PSServerFolderProcessor.FOLDER_RELATE_TYPE,
+        pcIds.getChildLocators(),
+        pcIds.getParentLocator());
 
     addResultResponseXml("success", 0, null, parent);
   }
@@ -383,14 +384,12 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
             PSWsFolderProcessor.FOLDER_ID_EL,
             PSWsFolderProcessor.GET_FOLDERCOMMUNITIES_OPERATION);
 
-    Set communities = proxy.getFolderCommunities(new PSLocator(id, 1));
+    Set<Integer> communities = proxy.getFolderCommunities(new PSLocator(id, 1));
 
     // create response document
     Element communitiesElem = parent.createElement("Communities");
 
-    Iterator walker = communities.iterator();
-    while (walker.hasNext()) {
-      Integer community = (Integer) walker.next();
+    for (Integer community : communities) {
       Element communityElem = parent.createElement("Community");
       communityElem.setAttribute("id", community.toString());
       communitiesElem.appendChild(communityElem);
@@ -451,7 +450,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
 
     proxy.moveChildren(
         pcIds.getParentLocator(),
-        pcIds.getChildLocators(),
+        pcIds.getChildLocatorList(),
         pcIds.getParentLocator2(),
         pcIds.isForce());
 
@@ -508,7 +507,8 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
 
     PSServerFolderProcessor proxy = PSServerFolderProcessor.getInstance();
 
-    proxy.removeChildren(pcIds.getParentLocator(), pcIds.getChildLocators(), pcIds.isForce());
+    proxy.removeChildren(
+        pcIds.getParentLocator(), pcIds.getChildLocatorList(), pcIds.isForce());
 
     addResultResponseXml("success", 0, null, parent);
   }
@@ -923,7 +923,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
       Element childIdsEl =
           PSXMLDomUtil.getNextElementSibling(parentIdEl, PSWsFolderProcessor.CHILD_IDS_EL);
 
-      m_childIds = getChildLocators(childIdsEl, action);
+      m_childIds = new ArrayList<>(getChildLocators(childIdsEl, action));
 
       // The following element can only exist one at a time,
       // not both at the same time
@@ -952,7 +952,8 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
      * Get a list of child ids from a XML element. The format of the XML is specified in <code>
      * ChildIds</code> element in the sys_FolderParameters.xsd. All <code>ChildIds</code> elements
      * must either have the <code>name</code> attribute or not have the attribute. It cannot be
-     * mixed.
+     * mixed. Each entry is either a {@link PSLocator} or a {@link PSLocatorWithName} (never mixed
+     * in one request).
      *
      * @param childIdsEl The XML element that contains a list of child ids. Assume it is not <code>
      *     null</code>
@@ -963,8 +964,8 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
      * @throws PSException if some <code>ChildIds</code> element has <code>name</code> attribute,
      *     but not others, or other error occurs.
      */
-    private List getChildLocators(Element childIdsEl, String action) throws PSException {
-      Set childIds = new HashSet();
+    private List<?> getChildLocators(Element childIdsEl, String action) throws PSException {
+      Set<Object> childIds = new HashSet<>();
 
       Element el = PSXMLDomUtil.getFirstElementChild(childIdsEl, PSWsFolderProcessor.CHILD_ID_EL);
       boolean isFirstElement = true;
@@ -1001,7 +1002,7 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
         el = PSXMLDomUtil.getNextElementSibling(el);
       }
 
-      return new ArrayList(childIds);
+      return new ArrayList<>(childIds);
     }
 
     /**
@@ -1023,13 +1024,36 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
     }
 
     /**
-     * Get a list of the child locators. All revision id is default to <code>1</code>.
+     * Get a list of the child locators. All revision id is default to <code>1</code>. Used by copy
+     * paths that need override names ({@link PSLocator} and/or {@link PSLocatorWithName}, never
+     * mixed in one request).
      *
      * @return A list over <code>PSLocator</code> or <code>PSLocatorWithName</code> objects. It
      *     never contains mixed objects. Never <code>null</code> or empty.
      */
-    private List getChildLocators() {
+    private List<?> getChildLocators() {
       return m_childIds;
+    }
+
+    /**
+     * Project child entries to {@link PSLocator} (maps {@link PSLocatorWithName} to a plain
+     * locator). Used by add/move/remove folder APIs that require {@code List<PSLocator>}.
+     */
+    private List<PSLocator> getChildLocatorList() {
+      List<PSLocator> result = new ArrayList<>(m_childIds.size());
+      for (Object o : m_childIds) {
+        if (o instanceof PSLocator) {
+          result.add((PSLocator) o);
+        } else if (o instanceof PSLocatorWithName) {
+          PSLocatorWithName named = (PSLocatorWithName) o;
+          result.add(new PSLocator(named.getId(), named.getRevision()));
+        } else {
+          throw new IllegalStateException(
+              "Expected PSLocator or PSLocatorWithName, got "
+                  + (o == null ? "null" : o.getClass().getName()));
+        }
+      }
+      return result;
     }
 
     /**
@@ -1058,10 +1082,10 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
     private boolean m_recursive;
 
     /**
-     * A list of child ids in <code>Integer</code> objects. Initialized by constructor. Never <code>
-     * null</code> or empty after that.
+     * A list of child locators ({@link PSLocator} or {@link PSLocatorWithName}). Initialized by
+     * constructor. Never <code>null</code> or empty after that. Never mixed in one request.
      */
-    List m_childIds = new ArrayList();
+    List<Object> m_childIds = new ArrayList<>();
 
     /**
      * @see #isForce()

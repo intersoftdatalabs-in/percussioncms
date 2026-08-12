@@ -452,9 +452,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       // load the folder ACL from the complex child data if exists
       PSFolderAcl folderAcl = new PSFolderAcl(locator.getId(), communityId);
       PSItemChild child = folderItem.getChildByName(CHILD_NAME_ACL);
-      Iterator childs = child.getAllEntries();
+      Iterator<PSItemChildEntry> childs = child.getAllEntries();
       while (childs.hasNext()) {
-        PSItemChildEntry childEntry = (PSItemChildEntry) childs.next();
+        PSItemChildEntry childEntry = childs.next();
 
         // get the ACL type
         field = childEntry.getFieldByName(ACL_TYPE);
@@ -944,7 +944,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       // process its folder folder children (sub-folders)
       PSRelationship rel;
-      Iterator children = childSet.iterator();
+      Iterator<?> children = childSet.iterator();
       Set<String> contentIdSet = new HashSet<>();
       List<PSLocator> subFolderLocators = new ArrayList<>();
       while (children.hasNext()) {
@@ -1190,21 +1190,28 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     // do validation from the repository
     {
       // get the summary info for the to be deleted components
-      List locatorList = new ArrayList();
-      for (int i = 0; i < locators.length; i++) locatorList.add(locators[i]);
+      List<PSLocator> locatorList = new ArrayList<>();
+      for (int i = 0; i < locators.length; i++) {
+        PSKey key = locators[i];
+        if (key instanceof PSLocator) {
+          locatorList.add((PSLocator) key);
+        } else {
+          locatorList.add(new PSLocator(key.getPartAsInt(PSLocator.KEY_ID), 1));
+        }
+      }
       PSComponentSummaries summaries = getComponentSummaries(locatorList.iterator(), null, false);
 
       // validating the type of the component, they must be folders
-      List folderList =
+      List<PSLocator> folderList =
           summaries.getComponentLocators(
               PSComponentSummary.TYPE_FOLDER, PSComponentSummary.GET_CURRENT_LOCATOR);
 
       if (folderList.size() != locators.length) {
         // get the 1st non-folder item
         String itemName = "";
-        Iterator summaryIt = summaries.getSummaries();
+        Iterator<PSComponentSummary> summaryIt = summaries.getSummaries();
         while (summaryIt.hasNext()) {
-          PSComponentSummary comp = (PSComponentSummary) summaryIt.next();
+          PSComponentSummary comp = summaryIt.next();
           if (!comp.isFolder()) {
             itemName = comp.getName();
             break;
@@ -1430,13 +1437,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
      * Test if the target already contains a child with the same name and that
      * the supplied children does not contain duplicate names.
      */
-    List sameNameSummaries = new ArrayList();
-    List duplicateChildren = new ArrayList();
-    Map currentMap = null;
-    Map childMap = new HashMap();
-    Iterator walker = children.iterator();
+    List<PSComponentSummary> sameNameSummaries = new ArrayList<>();
+    List<PSComponentSummary> duplicateChildren = new ArrayList<>();
+    Map<String, PSComponentSummary> currentMap = null;
+    Map<String, PSComponentSummary> childMap = new HashMap<>();
+    Iterator<PSComponentSummary> walker = children.iterator();
     while (walker.hasNext()) {
-      PSComponentSummary child = (PSComponentSummary) walker.next();
+      PSComponentSummary child = walker.next();
       // Can't work with a child with no title
       if (child.getName() == null || child.getName().length() == 0) {
         throw new IllegalArgumentException("Item title must not be null or empty");
@@ -1447,16 +1454,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       PSComponentSummary currentSummary = null;
       if (currentMap == null) {
-        currentMap = new HashMap();
+        currentMap = new HashMap<>();
 
-        Iterator currentWalker = parentSummaries.iterator();
+        Iterator<PSComponentSummary> currentWalker = parentSummaries.iterator();
         while (currentWalker.hasNext()) {
-          currentSummary = (PSComponentSummary) currentWalker.next();
+          currentSummary = currentWalker.next();
           currentMap.put(currentSummary.getName().toLowerCase(), currentSummary);
         }
       }
 
-      currentSummary = (PSComponentSummary) currentMap.get(child.getName().toLowerCase());
+      currentSummary = currentMap.get(child.getName().toLowerCase());
 
       if (currentSummary != null) {
         if (child.getName().equalsIgnoreCase(currentSummary.getName())) {
@@ -1757,7 +1764,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     otherwise.
    * @throws PSCmsException for any error.
    */
-  private boolean testCircularReferences(PSKey[] parents, Collection children, int filter)
+  private boolean testCircularReferences(PSKey[] parents, Collection<?> children, int filter)
       throws PSCmsException {
     for (PSKey parent : parents) {
       for (Object o : children) {
@@ -1951,7 +1958,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     // delete the relationship between the folder and its specified child
     // items
     PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
-    List childItems =
+    List<PSLocator> childItems =
         summaries.getComponentLocators(
             PSComponentSummary.TYPE_ITEM, PSComponentSummary.GET_CURRENT_LOCATOR);
     processor.delete(relType, sourceParent, childItems);
@@ -2269,7 +2276,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
      * For each folder child, clone a new folder from it and insert the
      * relationship between the new folder child and its parent.
      */
-    Iterator childFolders = summaries.getComponents(PSComponentSummary.TYPE_FOLDER);
+    Iterator<PSComponentSummary> childFolders = summaries.getComponents(PSComponentSummary.TYPE_FOLDER);
     while (childFolders.hasNext()) {
       // clone and insert a new folder
       PSComponentSummary origComp = (PSComponentSummary) childFolders.next();
@@ -2310,7 +2317,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
        * Recursively add the children of the original folder to the new child
        * folder.
        */
-      List grandChildren =
+      List<PSLocator> grandChildren =
           processor.getDependentLocators(FOLDER_RELATE_TYPE, origComp.getCurrentLocator());
       if (!grandChildren.isEmpty()) {
         PSComponentSummaries gradChildSummaries =
@@ -2342,7 +2349,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     as requested. Never <code>null</code>, may be empty.
    * @throws PSException if an error occurs.
    */
-  private List cloneItems(
+  private List<PSLocator> cloneItems(
       Iterator<PSComponentSummary> summaries,
       boolean isOverrideName,
       Map<Integer, Integer> communityMappings,
@@ -2353,7 +2360,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         summaries, null, isOverrideName, communityMappings, isUseUserCommunity, useSrcWorfklow);
   }
 
-  private List cloneItems(
+  private List<PSLocator> cloneItems(
       Iterator<PSComponentSummary> summaries,
       PSCloningOptions options,
       boolean isOverrideName,
@@ -2591,9 +2598,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       PSComponentSummaries summaries, int permission) {
     PSComponentSummaries retSummaries = new PSComponentSummaries();
 
-    Iterator it = summaries.getSummaries();
+    Iterator<PSComponentSummary> it = summaries.getSummaries();
     while (it.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) it.next();
+      PSComponentSummary summary = it.next();
       boolean addSummary = true;
       if (summary.isFolder()) {
         if (!(summary.getPermissions().hasAccess(permission))) addSummary = false;
@@ -2632,7 +2639,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     if (collectFolderWithItem && hasItemDependent(rels)) results.add(parent);
 
     // recursive to sub-folders.
-    Iterator itRels = rels.iterator();
+    Iterator<?> itRels = rels.iterator();
     PSRelationship rel;
     PSLocator depLocator;
     while (itRels.hasNext()) {
@@ -2703,7 +2710,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return <code>true</code> if the specified relationship contains an item dependent.
    */
   private boolean hasItemDependent(PSRelationshipSet rels) {
-    Iterator itRels = rels.iterator();
+    Iterator<?> itRels = rels.iterator();
     while (itRels.hasNext()) {
       PSRelationship rel = (PSRelationship) itRels.next();
       if (rel.getDependentObjectType() == PSCmsObject.TYPE_ITEM) return true;
@@ -2995,7 +3002,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       // Otherwise relationship processor will load them and
       // getComponentSummaries() will load them again.
       PSFolderSecurityManager.setCheckFolderPermissions(false);
-      List parents = null;
+      List<PSLocator> parents = null;
       try {
         parents =
             processor.getParents(
@@ -3029,7 +3036,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if an error occurs.
    */
   private PSKey[] getFolderParents(PSKey[] locators, int donotfilterby) throws PSCmsException {
-    List parents = new ArrayList();
+    List<PSLocator> parents = new ArrayList<>();
     PSRelationshipProcessor relation = PSRelationshipProcessor.getInstance();
 
     for (int i = 0; i < locators.length; i++) {
@@ -3376,17 +3383,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       }
     } else {
       // get the permission from the database
-      List list = new ArrayList();
+      List<PSLocator> list = new ArrayList<>();
       list.add(locator);
 
       // get the component summaries along with permissions
       PSComponentSummaries summaries = getComponentSummaries(list.iterator(), null, true);
 
-      list = summaries.getComponentList(PSComponentSummary.TYPE_FOLDER);
-      if (list.isEmpty()) return true; // the locator is not a folder
+      List<PSComponentSummary> folders =
+          summaries.getComponentList(PSComponentSummary.TYPE_FOLDER);
+      if (folders.isEmpty()) return true; // the locator is not a folder
 
-      Iterator it = list.iterator();
-      PSComponentSummary summary = (PSComponentSummary) it.next();
+      PSComponentSummary summary = folders.iterator().next();
       perm = summary.getPermissions();
     }
 
@@ -4262,11 +4269,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       Map<PSLocator, PSRelationshipSet> navSections,
       String assemblyTemplate) {
 
-    Iterator navSecItr = navSections.entrySet().iterator();
+    Iterator<Map.Entry<PSLocator, PSRelationshipSet>> navSecItr =
+        navSections.entrySet().iterator();
     PSNavConfig navConfig = PSNavConfig.getInstance();
     while (navSecItr.hasNext()) {
-      Map.Entry mapElement = (Map.Entry) navSecItr.next();
-      PSRelationshipSet rels = (PSRelationshipSet) mapElement.getValue();
+      Map.Entry<PSLocator, PSRelationshipSet> mapElement = navSecItr.next();
+      PSRelationshipSet rels = mapElement.getValue();
 
       for (int i = 0; i < rels.size(); i++) {
         PSRelationship relationship = (PSRelationship) rels.get(i);
@@ -4294,7 +4302,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
             PSManagedNavServiceLocator.getContentWebservice()
                 .addLandingPageToNavnode(childId, parentId, assemblyTemplate);
           } else if (slotType != null) {
-            List chlrn =
+            List<IPSGuid> chlrn =
                 PSManagedNavServiceLocator.getContentWebservice().findDescendantNavonIds(parentId);
             if (chlrn == null || !chlrn.contains(childId)) {
               PSManagedNavServiceLocator.getContentWebservice()
@@ -4486,9 +4494,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       throws PSCmsException {
     PSComponentSummaries newSummaries =
         getFolderChildren(parentFolder, getFilterFlags(), true, FOLDER_RELATE_TYPE);
-    Iterator walker = newSummaries.iterator();
+    Iterator<PSComponentSummary> walker = newSummaries.iterator();
     while (walker.hasNext()) {
-      PSComponentSummary summary = (PSComponentSummary) walker.next();
+      PSComponentSummary summary = walker.next();
       summaries.add(summary);
       if (summary.isFolder()) collectComponentSummaries(summary.getCurrentLocator(), summaries);
     }
@@ -4530,11 +4538,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
        * with a list of all duplicate items to inform the user that there is
        * a problem in his source.
        */
-      List duplicateChildren = new ArrayList();
-      Map childSummaries = new HashMap();
-      Iterator summaries = children.iterator();
+      List<PSComponentSummary> duplicateChildren = new ArrayList<>();
+      Map<String, PSComponentSummary> childSummaries = new HashMap<>();
+      Iterator<PSComponentSummary> summaries = children.iterator();
       while (summaries.hasNext()) {
-        PSComponentSummary summary = (PSComponentSummary) summaries.next();
+        PSComponentSummary summary = summaries.next();
         if (childSummaries.get(summary.getName().toLowerCase()) == null)
           childSummaries.put(summary.getName().toLowerCase(), summary);
         else duplicateChildren.add(summary);
@@ -4543,9 +4551,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       if (!duplicateChildren.isEmpty()) {
         PSFolder targetFolder = loadFolder(target);
         StringBuilder skippedItems = new StringBuilder();
-        Iterator duplicates = duplicateChildren.iterator();
+        Iterator<PSComponentSummary> duplicates = duplicateChildren.iterator();
         while (duplicates.hasNext()) {
-          PSComponentSummary duplicate = (PSComponentSummary) duplicates.next();
+          PSComponentSummary duplicate = duplicates.next();
 
           children.remove(duplicate);
 
@@ -4569,9 +4577,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       PSComponentSummaries navigationSummaries = new PSComponentSummaries();
       if (options.isNavigationContent() || options.isAllContent()) {
-        Iterator objects = children.iterator();
+        Iterator<PSComponentSummary> objects = children.iterator();
         while (objects.hasNext()) {
-          PSComponentSummary summary = (PSComponentSummary) objects.next();
+          PSComponentSummary summary = objects.next();
           if (isNavItem(summary)) {
             navigationSummaries.add(summary);
             PSRelationshipSet subMenu = getChildNavons(summary);
@@ -4582,8 +4590,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         }
       }
 
-      Iterator navs = navigationSummaries.iterator();
-      while (navs.hasNext()) children.remove((PSComponentSummary) navs.next());
+      Iterator<PSComponentSummary> navs = navigationSummaries.iterator();
+      while (navs.hasNext()) children.remove(navs.next());
 
       // clone all navigation items as new copy
       boolean isAsNewCopy = true;
@@ -4614,7 +4622,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
        * For each folder child, clone a new folder from it and insert the
        * relationship between the new folder child and its parent.
        */
-      Iterator childFolders = children.getComponents(PSComponentSummary.TYPE_FOLDER);
+      Iterator<PSComponentSummary> childFolders = children.getComponents(PSComponentSummary.TYPE_FOLDER);
       while (childFolders.hasNext()) {
         // clone a new folder
         PSComponentSummary origComp = (PSComponentSummary) childFolders.next();
@@ -4641,7 +4649,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         if (tracker != null) tracker.addFolderMapping(folder.getLocator(), newLocator);
 
         // add relationship between the inserted folder and the parent
-        List childItems = new ArrayList();
+        List<PSLocator> childItems = new ArrayList<>();
         childItems.add(newLocator);
         addChildren(childItems, target);
 
@@ -4651,7 +4659,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
          */
         PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
 
-        List grandChildren =
+        List<PSLocator> grandChildren =
             processor.getDependentLocators(FOLDER_RELATE_TYPE, origComp.getCurrentLocator());
         if (grandChildren.size() > 0) {
           PSComponentSummaries grandChildSummaries =
@@ -4660,9 +4668,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           PSComponentSummaries processSummaries = new PSComponentSummaries();
           if (options.isAllContent() || options.isNavigationContent()) {
             // copy all but navigation content
-            Iterator objects = grandChildSummaries.iterator();
+            Iterator<PSComponentSummary> objects = grandChildSummaries.iterator();
             while (objects.hasNext()) {
-              PSComponentSummary summary = (PSComponentSummary) objects.next();
+              PSComponentSummary summary = objects.next();
               if (summary.isItem()) processSummaries.add(summary);
               if (isNavItem(summary)) {
                 // navigationSummaries.add(summary);
@@ -4675,7 +4683,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
             }
           }
           // copy all folders
-          List folders = grandChildSummaries.getComponentList(PSComponentSummary.TYPE_FOLDER);
+          List<PSComponentSummary> folders = grandChildSummaries.getComponentList(PSComponentSummary.TYPE_FOLDER);
           processSummaries.addAll(folders);
           cloneSiteFolderChildren(
               request,
@@ -4741,7 +4749,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       PSCloningOptions options,
       PSLocator target,
       boolean isAsNewCopy,
-      Map communityMappings,
+      Map<Integer, Integer> communityMappings,
       Map<PSLocator, PSLocator> copiedContent,
       Map<PSLocator, PSRelationshipSet> navSections,
       boolean useSrcWorfklow,
@@ -4753,11 +4761,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       // weed out all children which were already copied earlier
       PSComponentSummaries newChildren = new PSComponentSummaries();
       List<PSLocator> existingChildren = new ArrayList<PSLocator>();
-      Iterator summaries = children.iterator();
+      Iterator<PSComponentSummary> summaries = children.iterator();
 
       while (summaries.hasNext()) {
         // Adding Nav Folder
-        PSComponentSummary summary = (PSComponentSummary) summaries.next();
+        PSComponentSummary summary = summaries.next();
         PSLocator newLocator = copiedContent.get(summary.getCurrentLocator());
         if (newLocator == null) {
           newChildren.add(summary);
@@ -4799,7 +4807,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       PSComponentSummaries children,
       PSLocator target,
       boolean isAsNewCopy,
-      Map communityMappings,
+      Map<Integer, Integer> communityMappings,
       Map<PSLocator, PSLocator> copiedContent,
       boolean useSrcWorfklow)
       throws PSException {
@@ -4808,9 +4816,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       // weed out all children which were already copied earlier
       PSComponentSummaries newChildren = new PSComponentSummaries();
       List<PSLocator> existingChildren = new ArrayList<PSLocator>();
-      Iterator summaries = children.iterator();
+      Iterator<PSComponentSummary> summaries = children.iterator();
       while (summaries.hasNext()) {
-        PSComponentSummary summary = (PSComponentSummary) summaries.next();
+        PSComponentSummary summary = summaries.next();
         PSLocator newLocator = copiedContent.get(summary.getCurrentLocator());
         if (newLocator == null) newChildren.add(summary);
         else existingChildren.add(newLocator);
@@ -4857,17 +4865,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     getLogger().debug("Recreating relationships and fixup inline links...");
     PSRelationshipTracker tracker = (PSRelationshipTracker) m_tracker.get();
     if (tracker != null) {
-      Iterator sources = tracker.getItemSources();
+      Iterator<?> sources = tracker.getItemSources();
       while (sources.hasNext()) {
         Integer sourceId = (Integer) sources.next();
         Integer targetId = tracker.getItemTargetId(sourceId);
 
         PSRelationshipSet newRelationships = new PSRelationshipSet();
-        Map inlineRelationships = new HashMap();
+        Map<Object, Object> inlineRelationships = new HashMap<>();
         PSLocator processedItem = null;
 
         try {
-          Iterator relationships = tracker.getItemRelationships(sourceId);
+          Iterator<?> relationships = tracker.getItemRelationships(sourceId);
           while (relationships.hasNext()) {
             PSRelationship relationship = (PSRelationship) relationships.next();
             // TODO : Change this to use the proper relationship configuration cloning options
@@ -5038,9 +5046,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     locators to the root.
    * @throws PSCmsException if an error occurs.
    */
+  @SuppressWarnings("unchecked")
   public List<List<PSLocator>> getFolderLocatorPaths(PSLocator itemLocator) throws PSCmsException {
     if (itemLocator == null) throw new IllegalArgumentException("itemLocator cannot be null");
-    return getFolderLocatorPaths(itemLocator, null);
+    return (List<List<PSLocator>>) getFolderLocatorPaths(itemLocator, null);
   }
 
   /**
@@ -5055,7 +5064,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     the <code>parents</code>. Never <code>null</code>, may be empty.
    * @throws PSCmsException if an error occurs.
    */
-  private List getFolderLocatorPaths(PSLocator itemLocator, List parents) throws PSCmsException {
+  private List<?> getFolderLocatorPaths(PSLocator itemLocator, List<PSLocator> parents)
+      throws PSCmsException {
     // get immediate parents
     PSRelationshipFilter filter = new PSRelationshipFilter();
     filter.setName(FOLDER_RELATE_TYPE);
@@ -5063,17 +5073,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     filter.setCommunityFiltering(false);
 
     PSRelationshipSet relSet = PSRelationshipProcessor.getInstance().getRelationships(filter);
-    Iterator rels = relSet.iterator();
+    Iterator<?> rels = relSet.iterator();
     PSRelationship rel;
     if (parents == null) // 1st time come in, get paths for an item/folder
     {
       // get the folder paths (may be more than one) for the item locator.
-      List idPaths = new ArrayList(relSet.size());
+      List<List<PSLocator>> idPaths = new ArrayList<>(relSet.size());
       while (rels.hasNext()) {
         rel = (PSRelationship) rels.next();
-        parents = new ArrayList();
+        parents = new ArrayList<>();
         parents.add(rel.getOwner());
-        idPaths.add(getFolderLocatorPaths(rel.getOwner(), parents));
+        idPaths.add((List<PSLocator>) getFolderLocatorPaths(rel.getOwner(), parents));
       }
       return idPaths;
     }
@@ -5103,7 +5113,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     PSLocator locator = null;
     String contentId = request.getParameter(PSContentEditorHandler.CONTENT_ID_PARAM_NAME);
 
-    List parentList = null;
+    List<PSLocator> parentList = null;
     PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
 
     // get the sys_title, assume it is a required field and has validated
@@ -5165,7 +5175,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     if (parentList == null) return; // nothing to validate
 
     // validate unique names for each parent if there is any
-    Iterator parents = parentList.iterator();
+    Iterator<PSLocator> parents = parentList.iterator();
     while (parents.hasNext()) {
       PSLocator parentLocator = (PSLocator) parents.next();
       boolean isUniqueName = validateUniqueDepName(parentLocator, locator, sys_title, request);
@@ -5357,13 +5367,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       int donotfilterby =
           PSRelationshipConfig.FILTER_TYPE_COMMUNITY
               | PSRelationshipConfig.FILTER_TYPE_FOLDER_PERMISSIONS;
-      List locators =
+      List<PSLocator> locators =
           processor.getDependentLocators(
               PSRelationshipConfig.TYPE_FOLDER_CONTENT, owner, donotfilterby);
-      Iterator locs = locators.iterator();
+      Iterator<PSLocator> locs = locators.iterator();
       IPSItemEntry itemEntry;
       while (locs.hasNext()) {
-        int id = ((PSLocator) locs.next()).getId();
+        int id = locs.next().getId();
         itemEntry = cache.getItem(id);
         if (itemEntry == null) {
 
