@@ -36,13 +36,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -81,7 +81,10 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * @param curAclEntries currently set ACL entries, never <code>null</code>.
    */
   public PSFolderAclEditorDialog(
-      Dialog parent, PSFolderActionManager folderMgr, boolean enabled, Enumeration curAclEntries) {
+      Dialog parent,
+      PSFolderActionManager folderMgr,
+      boolean enabled,
+      Enumeration<PSObjectAclEntry> curAclEntries) {
     super(
         parent,
         folderMgr
@@ -94,7 +97,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
     if (folderMgr.getApplet() == null) throw new IllegalArgumentException("applet may not be null");
 
-    Collection aclEntries = new ArrayList();
+    Collection<PSObjectAclEntry> aclEntries = new ArrayList<>();
     while (curAclEntries.hasMoreElements()) aclEntries.add(curAclEntries.nextElement());
 
     m_folderMgr = folderMgr;
@@ -109,7 +112,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    *
    * @param curAclEntries currently set ACL entries, never <code>null</code>.
    */
-  private void initDialog(Collection curAclEntries) {
+  private void initDialog(Collection<PSObjectAclEntry> curAclEntries) {
     JPanel mainPanel = new JPanel();
     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -130,7 +133,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
     centerPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED), ""));
     centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
 
-    m_catalogAclList = new JList(new DefaultListModel());
+    m_catalogAclList = new JList<>(new DefaultListModel<>());
     centerPanel.add(
         createAclListPanel(
             m_catalogAclList, m_applet.getResourceString(getClass(), "Cataloged Entries")));
@@ -143,7 +146,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
     JPanel curAclListPanel = new JPanel();
     curAclListPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-    m_curAclList = new JList(new DefaultListModel());
+    m_curAclList = new JList<>(new DefaultListModel<>());
     m_curAclList.addListSelectionListener(new PSAccessibleListSelectionListener());
     curAclListPanel.add(
         createAclListPanel(
@@ -164,7 +167,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
     // get cataloged data for currently selected radio button,
     // that serves as a catalog selector.
-    Collection catalogedAclEntries = getCatalogEntries();
+    Collection<PSObjectAclEntry> catalogedAclEntries = getCatalogEntries();
 
     // load current ACL list
     insertCurrentAclListEntries(curAclEntries);
@@ -189,19 +192,21 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    *
    * @param aclEntries collection of PSObjectAclEntry, never <code>null</code>.
    */
-  private void insertCurrentAclListEntries(Collection aclEntries) {
+  private void insertCurrentAclListEntries(Collection<PSObjectAclEntry> aclEntries) {
     if (aclEntries == null) throw new IllegalArgumentException("aclEntries may not be null");
 
     if (aclEntries.size() <= 0) return; // nothing to insert
 
-    Iterator itNewEntries = aclEntries.iterator();
+    Iterator<PSObjectAclEntry> itNewEntries = aclEntries.iterator();
 
-    DefaultListModel curListModel = (DefaultListModel) m_curAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> curListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_curAclList.getModel();
 
-    DefaultListModel catalogListModel = (DefaultListModel) m_catalogAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> catalogListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_catalogAclList.getModel();
 
     while (itNewEntries.hasNext()) {
-      Object newEntry = itNewEntries.next();
+      PSObjectAclEntry newEntry = itNewEntries.next();
 
       if (!curListModel.contains(newEntry)) {
         // add to cur list
@@ -222,19 +227,21 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    *
    * @param aclEntries collection of acl entries, never <code>null</code>
    */
-  private void insertCatalogedAclListEntries(Collection aclEntries) {
+  private void insertCatalogedAclListEntries(Collection<PSObjectAclEntry> aclEntries) {
     if (aclEntries == null) throw new IllegalArgumentException("aclEntries may not be null");
 
     if (aclEntries.size() <= 0) return; // nothing to insert
 
-    Iterator itNewEntries = aclEntries.iterator();
+    Iterator<PSObjectAclEntry> itNewEntries = aclEntries.iterator();
 
-    DefaultListModel curListModel = (DefaultListModel) m_curAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> curListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_curAclList.getModel();
 
-    DefaultListModel catalogListModel = (DefaultListModel) m_catalogAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> catalogListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_catalogAclList.getModel();
 
     while (itNewEntries.hasNext()) {
-      Object newEntry = itNewEntries.next();
+      PSObjectAclEntry newEntry = itNewEntries.next();
 
       if (!curListModel.contains(newEntry)) catalogListModel.addElement(newEntry);
     }
@@ -250,7 +257,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * @return collection of PSObjectAclEntry objects, never <code>null</code>, may be <code>empty
    *     </code>.
    */
-  private Collection getCatalogEntries() {
+  private Collection<PSObjectAclEntry> getCatalogEntries() {
     try {
       // which catalog?
       if (m_rbRoles.isSelected()) {
@@ -303,7 +310,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
         if (m_catalogedVirtualAcls != null) // see if it is already cached
         return Collections.unmodifiableCollection(m_catalogedVirtualAcls);
 
-        m_catalogedVirtualAcls = new ArrayList();
+        m_catalogedVirtualAcls = new ArrayList<>();
 
         // create Virtual ACLs
         PSObjectAclEntry aclEntry =
@@ -334,7 +341,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
           null);
     }
 
-    return new ArrayList();
+    return new ArrayList<>();
   }
 
   /** Custom Cell Renderer for displaying ACL roles or members in List. */
@@ -345,8 +352,9 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
      *
      * @see ListCellRenderer#getListCellRendererComponent
      */
+    @Override
     public Component getListCellRendererComponent(
-        JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
       PSObjectAclEntry aclEntry = null;
 
       if (value instanceof PSObjectAclEntry) {
@@ -400,19 +408,21 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * tooltips with provider type and instance name.
    */
   private class AclListMouseMotion extends MouseMotionAdapter {
+    @Override
     public void mouseMoved(MouseEvent event) {
-      JList srcList = null;
+      JList<PSObjectAclEntry> srcList = null;
 
       if (event.getSource() == m_catalogAclList) srcList = m_catalogAclList;
       else if (event.getSource() == m_curAclList) srcList = m_curAclList;
       else return;
 
-      DefaultListModel listModel = (DefaultListModel) srcList.getModel();
+      DefaultListModel<PSObjectAclEntry> listModel =
+          (DefaultListModel<PSObjectAclEntry>) srcList.getModel();
 
       int index = srcList.locationToIndex(event.getPoint());
 
       if (index > -1 && index < listModel.size()) {
-        PSObjectAclEntry aclEntry = (PSObjectAclEntry) srcList.getModel().getElementAt(index);
+        PSObjectAclEntry aclEntry = srcList.getModel().getElementAt(index);
 
         String tooltip = getToolTipText(aclEntry);
 
@@ -552,7 +562,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * @param listLabel label for the list, never <code>null</code>.
    * @return panel object, never <code>null</code>.
    */
-  private JPanel createAclListPanel(JList aclList, String listLabel) {
+  private JPanel createAclListPanel(JList<PSObjectAclEntry> aclList, String listLabel) {
     if (aclList == null) throw new IllegalArgumentException("aclList may not be null");
 
     if (listLabel == null) throw new IllegalArgumentException("listLabel may not be null");
@@ -587,6 +597,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    *
    * @param e current action, assumed never <code>null</code>.
    */
+  @Override
   public void actionPerformed(ActionEvent e) {
     if (!m_enabled) return;
 
@@ -597,11 +608,12 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
     } else return;
 
     if (btn == m_rbRoles || btn == m_rbUsers || btn == m_rbVirtual) {
-      DefaultListModel catalogModel = (DefaultListModel) m_catalogAclList.getModel();
+      DefaultListModel<PSObjectAclEntry> catalogModel =
+          (DefaultListModel<PSObjectAclEntry>) m_catalogAclList.getModel();
 
       catalogModel.removeAllElements();
 
-      Collection catalogedAclEntries = getCatalogEntries();
+      Collection<PSObjectAclEntry> catalogedAclEntries = getCatalogEntries();
       insertCatalogedAclListEntries(catalogedAclEntries);
     } else if (btn == m_btnAdd) {
       onAdd();
@@ -614,13 +626,14 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
   /** Handles 'Add' operation by moving cataloged ACL entries to the current acl entries list. */
   private void onAdd() {
-    DefaultListModel catalogModel = (DefaultListModel) m_catalogAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> catalogModel =
+        (DefaultListModel<PSObjectAclEntry>) m_catalogAclList.getModel();
 
     if (catalogModel.isEmpty()) return;
 
     int[] sel_indices = m_catalogAclList.getSelectedIndices();
 
-    ArrayList selectedEntries = new ArrayList();
+    ArrayList<PSObjectAclEntry> selectedEntries = new ArrayList<>();
 
     for (int i = sel_indices.length - 1; i >= 0; i--) {
       int selInd = sel_indices[i];
@@ -635,13 +648,14 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
 
   /** Handles 'Remove' operation by moving current acl entries to the cataloged acl entries list. */
   private void onRemove() {
-    DefaultListModel curModel = (DefaultListModel) m_curAclList.getModel();
+    DefaultListModel<PSObjectAclEntry> curModel =
+        (DefaultListModel<PSObjectAclEntry>) m_curAclList.getModel();
 
     if (curModel.isEmpty()) return;
 
     int[] sel_indices = m_curAclList.getSelectedIndices();
 
-    ArrayList selectedEntries = new ArrayList();
+    ArrayList<PSObjectAclEntry> selectedEntries = new ArrayList<>();
 
     for (int i = sel_indices.length - 1; i >= 0; i--) {
       int selInd = sel_indices[i];
@@ -652,7 +666,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
     if (selectedEntries.size() <= 0) return;
 
     // remove selected entries from the current ACL list
-    Iterator itSelected = selectedEntries.iterator();
+    Iterator<PSObjectAclEntry> itSelected = selectedEntries.iterator();
 
     while (itSelected.hasNext()) curModel.removeElement(itSelected.next());
 
@@ -685,7 +699,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
               dlg.getUserName(),
               PSObjectAclEntry.ACCESS_READ);
 
-      ArrayList alNewEntry = new ArrayList();
+      ArrayList<PSObjectAclEntry> alNewEntry = new ArrayList<>();
       alNewEntry.add(aclEntry);
 
       insertCurrentAclListEntries(alNewEntry);
@@ -705,14 +719,14 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    *
    * @param listModel ACL list model to sort, never <code>null</code>
    */
-  private void sortListModelEntries(DefaultListModel listModel) {
+  private void sortListModelEntries(DefaultListModel<PSObjectAclEntry> listModel) {
     if (listModel == null) throw new IllegalArgumentException("sorted listModel may not be null");
 
     if (listModel.isEmpty()) return;
 
-    Enumeration enumEntries = listModel.elements();
+    Enumeration<PSObjectAclEntry> enumEntries = listModel.elements();
 
-    ArrayList entriesToSort = new ArrayList();
+    List<PSObjectAclEntry> entriesToSort = new ArrayList<>();
 
     while (enumEntries.hasMoreElements()) entriesToSort.add(enumEntries.nextElement());
 
@@ -723,53 +737,67 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
     listModel.removeAllElements();
 
     // add sorted ones
-    Iterator itSortedEntries = entriesToSort.iterator();
-
-    while (itSortedEntries.hasNext()) listModel.addElement(itSortedEntries.next());
+    for (PSObjectAclEntry entry : entriesToSort) {
+      listModel.addElement(entry);
+    }
   }
 
   /**
    * Sorts given ACL entries. The sorting is done first by the ACL Entry type, in order VIRTUAL then
    * ROLE then USER; then each type group is also sorted by the ACL names to alpha-order them.
    *
+   * <p>Package-visible for unit tests (no product behavior change). Same ordering as {@link
+   * PSFolderSecurityPanel#sortAclEntries(List)}.
+   *
    * @param listAclEntries a list of ACL Entries to sort, never <code>null</code>
    */
-  private void sortAclEntries(AbstractList listAclEntries) {
+  static void sortAclEntries(List<PSObjectAclEntry> listAclEntries) {
     if (listAclEntries == null)
       throw new IllegalArgumentException("listAclEntries may not be null");
 
-    if (listAclEntries.size() <= 0) return;
+    if (listAclEntries.isEmpty()) return;
 
-    /** Special ACL Entry comparator class that is used to sort ACL Entries */
-    class AclComparator implements Comparator {
-      public int compare(Object left, Object right) {
-        PSObjectAclEntry leftAcl = (PSObjectAclEntry) left;
-        PSObjectAclEntry rightAcl = (PSObjectAclEntry) right;
-
-        if (leftAcl.equals(rightAcl)) return 0;
-
-        int leftType = leftAcl.getType();
-        int rightType = rightAcl.getType();
-
-        if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
-          // we want VIRTUAL acls to show up first
-          if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) return -1;
-        } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE) {
-          // we want ROLE acls to show up after VIRTUALs
-          if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) return 1;
-          if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) return -1;
-        } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
-          // we want USER acls to show up after ROLEs
-          if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_USER) return 1;
-        }
-
-        // same type ACLs should be sorted in alpha order
-        return leftAcl.getName().compareTo(rightAcl.getName());
-      }
-    }
-
-    Collections.sort(listAclEntries, new AclComparator());
+    listAclEntries.sort(ACL_ENTRY_COMPARATOR);
   }
+
+  /**
+   * Null-safe comparator for ACL list display order: nulls last; then VIRTUAL, ROLE, USER; alpha
+   * within type. Package-visible for unit tests. Matches {@link
+   * PSFolderSecurityPanel#ACL_ENTRY_COMPARATOR} ordering.
+   */
+  static final Comparator<PSObjectAclEntry> ACL_ENTRY_COMPARATOR =
+      Comparator.nullsLast(
+          (leftAcl, rightAcl) -> {
+            if (leftAcl.equals(rightAcl)) {
+              return 0;
+            }
+
+            int leftType = leftAcl.getType();
+            int rightType = rightAcl.getType();
+
+            if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+              // we want VIRTUAL acls to show up first
+              if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+                return -1;
+              }
+            } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE) {
+              // we want ROLE acls to show up after VIRTUALs
+              if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL) {
+                return 1;
+              }
+              if (rightType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+                return -1;
+              }
+            } else if (leftType == PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+              // we want USER acls to show up after ROLEs
+              if (rightType != PSObjectAclEntry.ACL_ENTRY_TYPE_USER) {
+                return 1;
+              }
+            }
+
+            // same type ACLs should be sorted in alpha order
+            return leftAcl.getName().compareTo(rightAcl.getName());
+          });
 
   /**
    * Gets the ACL entries selected by the user in the dialog.
@@ -777,12 +805,13 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * @return collection of user selected ACL Entries, of type PSObjectAclEntry, never <code>null
    *     </code>, may be <code>empty</code>.
    */
-  public Collection getResultAclEntries() {
-    DefaultListModel curListModel = (DefaultListModel) m_curAclList.getModel();
+  public Collection<PSObjectAclEntry> getResultAclEntries() {
+    DefaultListModel<PSObjectAclEntry> curListModel =
+        (DefaultListModel<PSObjectAclEntry>) m_curAclList.getModel();
 
-    ArrayList curAcls = new ArrayList();
+    ArrayList<PSObjectAclEntry> curAcls = new ArrayList<>();
 
-    Enumeration enumCurAcls = curListModel.elements();
+    Enumeration<PSObjectAclEntry> enumCurAcls = curListModel.elements();
 
     while (enumCurAcls.hasMoreElements()) curAcls.add(enumCurAcls.nextElement());
 
@@ -793,19 +822,19 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * Cached collection of cataloged Role ACLs, it is lazily initilized in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection m_catalogedRoleAcls;
+  private Collection<PSObjectAclEntry> m_catalogedRoleAcls;
 
   /**
    * Cached collection of cataloged User ACLs, it is lazily initilized in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection m_catalogedUserAcls;
+  private Collection<PSObjectAclEntry> m_catalogedUserAcls;
 
   /**
    * Cached collection of Virtual ACLs, it is lazily initilized. in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection m_catalogedVirtualAcls;
+  private Collection<PSObjectAclEntry> m_catalogedVirtualAcls;
 
   /**
    * <code>true</code> indicates that user can make and save modifications to any control in this
@@ -838,10 +867,10 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
   private JRadioButton m_rbVirtual;
 
   /** List that shows Catologed ACL entries */
-  private JList m_catalogAclList;
+  private JList<PSObjectAclEntry> m_catalogAclList;
 
   /** List that shows Currently selected ACL entries */
-  private JList m_curAclList;
+  private JList<PSObjectAclEntry> m_curAclList;
 
   /** A reference back to the applet that initiated the action manager. */
   private PSContentExplorerApplet m_applet;
