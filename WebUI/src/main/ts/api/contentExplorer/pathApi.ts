@@ -45,7 +45,7 @@
  * DTOs in {@code projects/sitemanage/src/main/java/}.</p>
  */
 
-import { get, post } from "../client";
+import { get, post, type ApiError } from "../client";
 import { PATHS } from "../paths";
 import type {
   PSPathItem,
@@ -104,11 +104,43 @@ export function joinPathUrl(base: string, path: string): string {
  * matching the DTO's local element name — Evidence Over Invention: do not
  * invent alternate bare-array wire shapes).</p>
  */
+function isPathItemErrorEnvelope(item: unknown): boolean {
+  if (item == null || typeof item !== "object") {
+    return false;
+  }
+  const rec = item as Record<string, unknown>;
+  const errors = rec.Errors ?? rec.errors;
+  const hasPath = typeof rec.path === "string" && rec.path.length > 0;
+  const hasName = typeof rec.name === "string" && rec.name.length > 0;
+  return !!errors && !hasPath && !hasName;
+}
+
+/**
+ * Treat a {@code PathItem} payload that is actually a PSErrors envelope as a
+ * failure so the Explorer tree shows an error instead of an empty panel (#3196).
+ */
+export function unwrapPathItemList(res: PSPathItemListResponse | null | undefined): PSPathItem[] {
+  const items = res?.PathItem;
+  if (!items) {
+    return [];
+  }
+  const list = Array.isArray(items) ? items : [items];
+  if (list.length > 0 && list.every(isPathItemErrorEnvelope)) {
+    const err: ApiError = {
+      status: 500,
+      statusText: "Internal Server Error",
+      body: res,
+    };
+    throw err;
+  }
+  return list;
+}
+
 export async function findChildren(path: string): Promise<PSPathItem[]> {
   const res = await get<PSPathItemListResponse>(
     joinPathUrl(PATHS.PATH_FOLDER, path),
   );
-  return res?.PathItem ?? [];
+  return unwrapPathItemList(res);
 }
 
 /**

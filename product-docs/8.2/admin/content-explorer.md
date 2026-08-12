@@ -42,6 +42,16 @@ Explorer. Use it when you need the full repository folder hierarchy rather than 
 Assets or Sites shortcuts. Expanding **Folders** loads children from the server; folder
 visibility still respects folder ACLs.
 
+If the left tree fails to load, Explorer shows an **error** in the tree panel (not a
+blank list). Typical causes are a path-service HTTP error or a session timeout.
+Refresh after login, then confirm
+`/Rhythmyx/services/pathmanagement/path/folder/` returns JSON
+`{"PathItem":[…]}` with Sites / Folders / Assets (and Design / Recycling when
+your role allows them). A `500` whose message mentions
+`IllegalAnnotationExceptions` is a server serialization defect on `PathItem`
+(fixed in 8.2 for the `relatedObject` field) — collect that response body for
+support.
+
 ## Folder mutations dual-run (optional)
 
 By default, Explorer **create / rename / move / delete** folder actions use the same

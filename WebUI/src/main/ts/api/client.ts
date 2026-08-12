@@ -83,10 +83,44 @@ function firstNonBlankString(
  *
  * <p>Recognizes the {@code RestError} shape from rest {@code ExceptionMapper}s
  * ({@code message} / {@code detailMessage}), optional Jackson root wrap
- * ({@code Error} / {@code RestError}), plain string bodies, and a loose
- * {@code detail} alias. Returns {@code undefined} when no usable text is found
- * so callers can fall back to status chrome.</p>
+ * ({@code Error} / {@code RestError}), sitemanage {@code Errors.globalError}
+ * (including {@code PathItem:[{Errors:...}]} #3196), plain string bodies, and
+ * a loose {@code detail} alias. Returns {@code undefined} when no usable text
+ * is found so callers can fall back to status chrome.</p>
  */
+function extractPsErrorsMessage(errors: Record<string, unknown>): string | undefined {
+  const global = asRecord(errors.globalError);
+  if (!global) {
+    return firstNonBlankString(errors, "message", "defaultMessage", "detail");
+  }
+  const fromGlobal = firstNonBlankString(
+    global,
+    "defaultMessage",
+    "message",
+    "detailMessage",
+    "detail",
+  );
+  if (fromGlobal) {
+    return fromGlobal;
+  }
+  const cause = asRecord(global.cause);
+  if (cause) {
+    const nestedCause = asRecord(cause.errorCause);
+    if (nestedCause) {
+      const fromNested = firstNonBlankString(
+        nestedCause,
+        "message",
+        "localizedMessage",
+      );
+      if (fromNested) {
+        return fromNested;
+      }
+    }
+    return firstNonBlankString(cause, "message", "localizedMessage");
+  }
+  return undefined;
+}
+
 export function extractRestErrorMessage(body: unknown): string | undefined {
   if (typeof body === "string" && body.trim()) {
     return body.trim();
@@ -112,6 +146,24 @@ export function extractRestErrorMessage(body: unknown): string | undefined {
     );
     if (nestedMsg) {
       return nestedMsg;
+    }
+  }
+  const errorsRoot = asRecord(root.Errors) ?? asRecord(root.errors);
+  if (errorsRoot) {
+    const fromErrors = extractPsErrorsMessage(errorsRoot);
+    if (fromErrors) {
+      return fromErrors;
+    }
+  }
+  const pathItem = root.PathItem;
+  if (Array.isArray(pathItem) && pathItem.length > 0) {
+    const first = asRecord(pathItem[0]);
+    const wrapped = first ? asRecord(first.Errors) ?? asRecord(first.errors) : null;
+    if (wrapped) {
+      const fromPathItem = extractPsErrorsMessage(wrapped);
+      if (fromPathItem) {
+        return fromPathItem;
+      }
     }
   }
   return undefined;

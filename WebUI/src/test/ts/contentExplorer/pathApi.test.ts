@@ -159,6 +159,26 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     expect(cap.lastUrl()).not.toContain("folder//");
   });
 
+  it("findChildren throws when PathItem is a PSErrors envelope (#3196)", async () => {
+    mockJson({
+      PathItem: [
+        {
+          Errors: {
+            globalError: {
+              defaultMessage: "1 counts of IllegalAnnotationExceptions",
+            },
+          },
+        },
+      ],
+    });
+    await expect(findChildren("/")).rejects.toMatchObject({
+      status: 500,
+      body: {
+        PathItem: [{ Errors: { globalError: expect.any(Object) } }],
+      },
+    });
+  });
+
   it("findChildren Sites strips leading slash", async () => {
     const cap = mockJson({ PathItem: [] });
     await findChildren("/Sites/");
