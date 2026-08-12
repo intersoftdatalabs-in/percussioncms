@@ -57,15 +57,23 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 ## Active implementation order (do not re-audit from scratch)
 
-**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices — **except** newly dispositioned **Missing** rows that need product IN/OUT first.
+**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices — **except** product-IN **Missing** rows with an IA map (product IN/OUT first; do not invent OUT).
 
 1. **#3102 / #3109** — gap matrix no longer claims **Present** for shell/DF/search, menu, toolbar, saved search, Sites tree while QA is Failed/open; see [false-present-qa-reconcile.md](./research/false-present-qa-reconcile.md)  
 2. **#2989** (and related folder QA) — Sites/hierarchy p1 before new chrome features  
 3. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
 4. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
 5. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
-6. **Views + Inbox Missing** (#3102 / #3108 docs; [views-inbox-missing-disposition.md](./research/views-inbox-missing-disposition.md)) — product IN/OUT/REDESIGN required; implement map only after IN via #3110; do **not** invent OUT  
+6. **Views + Inbox (operator reality-check #3102)** — matrix **Missing** until product IN/OUT/REDESIGN (#3108; [views-inbox-missing-disposition.md](./research/views-inbox-missing-disposition.md)). **Do not implement SPA Views/Inbox without product IN.** Research IA/API map + child backlog: [research/views-inbox-ia-api-map.md](./research/views-inbox-ia-api-map.md) (#3110). If product **IN**: V1 [#3115](https://github.com/intersoftdatalabs-in/percussioncms/issues/3115) execute façade → V2 [#3116](https://github.com/intersoftdatalabs-in/percussioncms/issues/3116) Explorer tree/run → V3 [#3117](https://github.com/intersoftdatalabs-in/percussioncms/issues/3117) Playwright; Inbox [#3118](https://github.com/intersoftdatalabs-in/percussioncms/issues/3118) custom-URL or signed OUT.  
 7. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row)
+
+### Views / Inbox planning (2026-08-11)
+
+| Doc | Role |
+|-----|------|
+| [views-inbox-missing-disposition.md](./research/views-inbox-missing-disposition.md) | Why matrix **Missing** (#3108) |
+| [views-inbox-ia-api-map.md](./research/views-inbox-ia-api-map.md) | DCE tree, REST inventory, SPA IA, execute disposition, child issues (#3110) |
+| Gap matrix | Rows stay **Missing** until product IN / OUT / REDESIGN — no Present from Developer catalog or View menu chrome |
 
 ### Epic #2400 remaining-open criteria (research program)
 
