@@ -109,7 +109,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
                 "PSX_ROLES", "PSX_SUBJECTS", "RXCOMMUNITY", "RXCOMMUNITYROLE"
             };
         String[] pks = { "ID", "ID", "COMMUNITYID", null };
-        Class[] clazz = {
+        Class<?>[] clazz = {
                 PSBackEndRole.class, PSBackEndSubject.class, PSCommunity.class,
                 PSCommunityRoleAssociation.class
             };
@@ -308,7 +308,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
                 subjectType, null);
         PSSubject sub = roleCfg.getGlobalSubject(relativeSub, true);
 
-        Iterator roles = roleCfg.getRoles().iterator();
+        Iterator<?> roles = roleCfg.getRoles().iterator();
 
         while (roles.hasNext()) {
             PSRole role = (PSRole) roles.next();
@@ -336,7 +336,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
     private void removeSubjectFromRole(PSRole role,
         PSRelativeSubject relativeSub) {
         PSRelativeSubject tgtSub = null;
-        Iterator subs = role.getSubjects().iterator();
+        Iterator<?> subs = role.getSubjects().iterator();
 
         while (subs.hasNext()) {
             PSRelativeSubject sub = (PSRelativeSubject) subs.next();
@@ -421,11 +421,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
         Set<IPSPrincipalAttribute> attrSet = new HashSet<>();
 
-        Iterator attrs = PSBackendCataloger.getRoleAttributes(roleName)
-                                           .iterator();
-
-        while (attrs.hasNext()) {
-            PSAttribute attr = (PSAttribute) attrs.next();
+        for (PSAttribute attr : PSBackendCataloger.getRoleAttributes(roleName)) {
             attrSet.add(PSJaasUtils.convertAttribute(attr));
         }
 
@@ -442,11 +438,8 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
         Set<Subject> subSet = new HashSet<>();
 
-        Iterator subs = PSBackendCataloger.getSubjectRoleAttributes(subjectNameFilter,
-                0, roleName, null).iterator();
-
-        while (subs.hasNext()) {
-            PSSubject psSub = (PSSubject) subs.next();
+        for (PSSubject psSub : PSBackendCataloger.getSubjectRoleAttributes(
+                subjectNameFilter, 0, roleName, null)) {
             subSet.add(PSJaasUtils.convertSubject(psSub));
         }
 
@@ -458,11 +451,9 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         String attributeNameFilter, boolean includeEmptySubjects) {
         Set<Subject> subSet = new HashSet<>();
 
-        Iterator subs = PSBackendCataloger.getSubjectGlobalAttributes(subjectNameFilter,
-                0, null, attributeNameFilter, includeEmptySubjects).iterator();
-
-        while (subs.hasNext()) {
-            PSSubject psSub = (PSSubject) subs.next();
+        for (PSSubject psSub : PSBackendCataloger.getSubjectGlobalAttributes(
+                subjectNameFilter, 0, null, attributeNameFilter,
+                includeEmptySubjects)) {
             subSet.add(PSJaasUtils.convertSubject(psSub));
         }
 
@@ -892,8 +883,9 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         Session session = getSession();
 
         IPSGuid[] ids = roleIds.toArray(new IPSGuid[roleIds.size()]);
-        Query query = session.createQuery(
-                "from PSCommunityRoleAssociation cr where cr.id.roleId in (:ids)");
+        Query<PSCommunityRoleAssociation> query = session.createQuery(
+                "from PSCommunityRoleAssociation cr where cr.id.roleId in (:ids)",
+                PSCommunityRoleAssociation.class);
         query.setParameterList("ids", PSGuidUtils.toLongArray(ids));
 
         return query.list();

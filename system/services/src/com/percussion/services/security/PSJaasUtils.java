@@ -48,8 +48,6 @@ import java.util.TreeSet;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.iterators.FilterIterator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -67,39 +65,6 @@ public class PSJaasUtils
    public static final String ROLE_DEFAULT = "Default";
 
    /**
-    * Predicate for filtering an iterater to return only group entries.
-    */
-   private static class PSGroupNamePredicate implements Predicate
-   {
-      /**
-       * The name of the principal that contains groups, never
-       * <code>null</code>.
-       */
-      String mi_name = null;
-
-      /**
-       * Ctor
-       * @param n name, assumed not <code>null</code>
-       */
-      PSGroupNamePredicate(String n)
-      {
-         mi_name = n;
-      }
-
-      public boolean evaluate(Object principal)
-      {
-         if (principal instanceof Principal)
-         {
-            return principal instanceof Group &&
-               ((Principal) principal).getName().equals(mi_name);
-         }
-         else
-            return false;
-      }
-
-   }
-
-   /**
     * Find the group that represents the roles for the subject, or create a new
     * group with the appropriate name. If a group is created, it will be
     * appended to the collection of principals.
@@ -111,25 +76,28 @@ public class PSJaasUtils
     *          the name of the group to find, never <code>null</code>
     * @return the group, either found or created, never <code>null</code>
     */
-   @SuppressWarnings(value={"unchecked"})
-   public static Group findOrCreateGroup(Collection coll, String name)
+   public static Group findOrCreateGroup(Collection<? super Principal> coll, String name)
    {
       if (StringUtils.isEmpty(name))
       {
          throw new IllegalArgumentException("name may not be null or empty");
       }
-      Iterator roleGroups =
-         new FilterIterator(coll.iterator(), new PSGroupNamePredicate(name));
-      if (! roleGroups.hasNext())
+      if (coll == null)
       {
-         Group roleGroup = new PSGroup(name);
-         coll.add(roleGroup);
-         return roleGroup;
+         throw new IllegalArgumentException("coll may not be null");
       }
-      else
+      for (Object principal : coll)
       {
-         return (Group) roleGroups.next();
+         if (principal instanceof Group
+            && principal instanceof Principal
+            && name.equals(((Principal) principal).getName()))
+         {
+            return (Group) principal;
+         }
       }
+      Group roleGroup = new PSGroup(name);
+      coll.add(roleGroup);
+      return roleGroup;
    }
 
    /**
@@ -141,21 +109,20 @@ public class PSJaasUtils
     * @return the first principal that matches or <code>null</code> if none
     *         match
     */
-   @SuppressWarnings(value={"unchecked"})
-   public static Principal findFirstPSPrincipal(Collection coll)
+   public static Principal findFirstPSPrincipal(Collection<?> coll)
    {
-      Iterator iter = new FilterIterator(coll.iterator(), new Predicate()
+      if (coll == null)
       {
-         public boolean evaluate(Object principal)
+         throw new IllegalArgumentException("coll may not be null");
+      }
+      for (Object principal : coll)
+      {
+         if (principal instanceof PSPrincipal)
          {
-            return principal instanceof PSPrincipal;
+            return (PSPrincipal) principal;
          }
-      });
-
-      if (iter.hasNext())
-         return (Principal) iter.next();
-      else
-         return null;
+      }
+      return null;
    }
 
    /**
@@ -254,7 +221,6 @@ public class PSJaasUtils
     *
     * @return The subject, never <code>null</code>.
     */
-   @SuppressWarnings(value={"unchecked"})
    public static Subject userEntryToSubject(PSUserEntry userEntry, String pwd)
    {
       if (userEntry == null)
@@ -302,14 +268,12 @@ public class PSJaasUtils
       PSUserAttributes attrs = userEntry.getAttributes();
       if (attrs != null)
       {
-         Iterator entries = attrs.entrySet().iterator();
-         while (entries.hasNext())
+         for (Map.Entry<String, String> entry : attrs.entrySet())
          {
-            Map.Entry entry = (Map.Entry)entries.next();
             List<String> values = new ArrayList<>();
-            values.add((String) entry.getValue());
+            values.add(entry.getValue());
             IPSPrincipalAttribute attr = new PSPrincipalAttribute(
-               (String) entry.getKey(), PrincipalAttributes.ANY, values);
+               entry.getKey(), PrincipalAttributes.ANY, values);
             principals.add(attr);
          }
       }
@@ -354,7 +318,7 @@ public class PSJaasUtils
       Set<Principal> principals = sub.getPrincipals();
       principals.add(subjectToPrincipal(psSub));
 
-      Iterator attrs = psSub.getAttributes().iterator();
+      Iterator<?> attrs = psSub.getAttributes().iterator();
       while (attrs.hasNext())
          principals.add(PSJaasUtils.convertAttribute(
             (PSAttribute) attrs.next(), emailAttrName));
@@ -391,12 +355,10 @@ public class PSJaasUtils
          throw new IllegalArgumentException("attr may not be null");
 
       List<String> values = new ArrayList<>();
-      Iterator valItr = attr.getValues().iterator();
-      while (valItr.hasNext())
+      for (String val : attr.getValues())
       {
-         Object val = valItr.next();
          if (val != null)
-            values.add(val.toString());
+            values.add(val);
       }
 
       PrincipalAttributes attrType = attr.getName().equals(emailAttrName) ?
@@ -501,16 +463,23 @@ public class PSJaasUtils
       Set<Principal> principals)
    {
       String username = null;
-      Iterator principalGroups = new FilterIterator(principals.iterator(),
-         new PSGroupNamePredicate("CallerPrincipal"));
-      if (principalGroups.hasNext())
+      for (Principal principal : principals)
       {
-         Group group = (Group) principalGroups.next();
+         if (!(principal instanceof Group))
+         {
+            continue;
+         }
+         if (!"CallerPrincipal".equals(principal.getName()))
+         {
+            continue;
+         }
+         Group group = (Group) principal;
          if (group.members().hasMoreElements())
          {
             Principal userPrincipal = group.members().nextElement();
             username = userPrincipal.getName();
          }
+         break;
       }
 
       return username;

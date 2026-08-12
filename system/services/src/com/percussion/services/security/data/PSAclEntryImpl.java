@@ -445,15 +445,11 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see java.security.acl.AclEntry#permissions()
     */
-   @SuppressWarnings(value =
-   {
-      "unchecked"
-   })
    public Enumeration<Permission> permissions()
    {
       return new Enumeration<Permission>()
       {
-         private Iterator it = psPermissions.iterator();
+         private final Iterator<PSAccessLevelImpl> it = psPermissions.iterator();
 
          public boolean hasMoreElements()
          {
@@ -462,7 +458,7 @@ public class PSAclEntryImpl implements IPSAclEntry
 
          public Permission nextElement()
          {
-            return ((PSAccessLevelImpl) it.next()).getPermission();
+            return it.next().getPermission();
          }
       };
    }

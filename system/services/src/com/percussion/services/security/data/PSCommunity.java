@@ -44,7 +44,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
+
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -524,11 +524,8 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    public Object tuneClone(long newId)
    {
       id = newId;
-      Iterator roleAssocs = roleAssociations.iterator();
-      while (roleAssocs.hasNext())
+      for (PSCommunityRoleAssociation assoc : roleAssociations)
       {
-         PSCommunityRoleAssociation assoc = (PSCommunityRoleAssociation) roleAssocs
-            .next();
          assoc.setCommunityId(id);
       }
       return this;

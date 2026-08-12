@@ -182,7 +182,9 @@ public class PSAclService implements IPSAclService
    {
       Session session = entityManager.unwrap(Session.class);
 
-      List<Object[]> rows = session.createQuery("select distinct a.objectId, a.objectType from PSAclImpl a").list();
+      List<Object[]> rows = session
+         .createQuery("select distinct a.objectId, a.objectType from PSAclImpl a", Object[].class)
+         .list();
       return rows.stream().map(r -> new PSGuid(PSTypeEnum.valueOf(((Number) r[1]).intValue()), ((Number) r[0]).longValue()));
    }
 
@@ -389,10 +391,12 @@ public class PSAclService implements IPSAclService
       synchronized (this) {
          getSession().flush();
          CriteriaBuilder builder = getSession().getCriteriaBuilder();
-         CriteriaQuery criteria = builder.createQuery(PSAclImpl.class);
-         Root critRoot = criteria.from(PSAclImpl.class);
+         CriteriaQuery<PSAclImpl> criteria = builder.createQuery(PSAclImpl.class);
+         Root<PSAclImpl> critRoot = criteria.from(PSAclImpl.class);
+         criteria.select(critRoot);
 
-         List<IPSAcl> acls = entityManager.createQuery(criteria).getResultList();
+         List<PSAclImpl> loaded = entityManager.createQuery(criteria).getResultList();
+         List<IPSAcl> acls = new ArrayList<>(loaded);
          for (IPSAcl acl : acls) {
             if (acl.getObjectId() >> 32 != 0) {
                ms_logger.error("Fixing acl entry with bad id " + acl.getObjectId());

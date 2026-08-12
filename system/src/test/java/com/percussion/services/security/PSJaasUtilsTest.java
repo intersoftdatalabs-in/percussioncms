@@ -28,10 +28,7 @@ import com.percussion.services.security.loginmods.data.PSPrincipal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.security.auth.Subject;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.iterators.FilterIterator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -77,34 +74,15 @@ public class PSJaasUtilsTest {
    *
    * @throws Exception if the test fails.
    */
-  @SuppressWarnings(value = {"unchecked"})
   @Test
   public void testCollectionResults() throws Exception {
     ms_testData.add(new PSPrincipal("user"));
     ms_testData.add(new PSPrincipal("grape"));
     ms_testData.add(new PSPrincipal("orange"));
 
-    Iterator<Principal> rval;
-
     Principal u = PSJaasUtils.findFirstPSPrincipal(ms_testData);
     assertTrue(u == ms_testData.iterator().next());
-
-    rval =
-        new FilterIterator(
-            ms_testData.iterator(),
-            new Predicate() {
-              public boolean evaluate(Object principal) {
-                return true;
-              }
-            });
-
-    Iterator<Principal> td = ms_testData.iterator();
-
-    assertEquals(rval.next(), td.next());
-    assertEquals(rval.next(), td.next());
-    assertEquals(rval.next(), td.next());
-    assertTrue(rval.hasNext() == false);
-    assertTrue(td.hasNext() == false);
+    assertEquals("user", u.getName());
   }
 
   /**
@@ -112,7 +90,6 @@ public class PSJaasUtilsTest {
    *
    * @throws Exception if the test fails.
    */
-  @SuppressWarnings(value = {"unchecked"})
   @Test
   public void testSubjectToEntry() throws Exception {
     PSGroupEntry group1 = new PSGroupEntry("group1", 0);

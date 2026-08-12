@@ -25,7 +25,7 @@ import com.percussion.security.shim.acl.Group;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
+
 
 import javax.security.auth.Subject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,10 +104,8 @@ public class PSServletRequestWrapper extends HttpServletRequestWrapper
       String remoteUser = null;
       if (m_subject != null)
       {
-         Iterator<Principal> principals = m_subject.getPrincipals().iterator();
-         while (principals.hasNext())
+         for (Principal p : m_subject.getPrincipals())
          {
-            Principal p = principals.next();
             if (p instanceof Group)
                continue;
             if (p instanceof IPSTypedPrincipal)
@@ -140,17 +138,14 @@ public class PSServletRequestWrapper extends HttpServletRequestWrapper
       else
       {
          getRoles(); // Ensure that roles are populated
-         Iterator it = m_roles.iterator();
-         boolean exists = false;
-         while(it.hasNext())
+         for (String existingRole : m_roles)
          {
-            if ( StringUtils.equalsIgnoreCase(role, (String)it.next()) )
+            if (StringUtils.equalsIgnoreCase(role, existingRole))
             {
-               exists = true;
-               break;
+               return true;
             }
          }
-         return exists;
+         return false;
       }
    }
 

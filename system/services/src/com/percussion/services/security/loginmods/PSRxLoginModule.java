@@ -50,7 +50,7 @@ public class PSRxLoginModule implements LoginModule
 
    // see base class
    public void initialize(Subject subject, CallbackHandler handler,
-      Map sharedState, Map options)
+      Map<String, ?> sharedState, Map<String, ?> options)
    {
       m_subject = subject;
       m_callbackHandler = handler;
