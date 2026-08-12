@@ -17,6 +17,11 @@
 /**
  * Wire types for {@code GET /services/auditlog/entries} (rest AuditLogResource).
  * Mirrors {@code com.percussion.rest.auditlog.SystemAuditLogEntry / SystemAuditLogPage}.
+ *
+ * <p>On the wire under {@code JacksonContextResolver} WRAP_ROOT_VALUE the page is nested as
+ * {@code {"SystemAuditLogPage":{ entries, total, … }}} and a detail row as
+ * {@code {"SystemAuditLogEntry":{…}}}. Prefer {@link unwrapSystemAuditLogPage} /
+ * {@link unwrapSystemAuditLogEntry} before reading fields (#3089).
  */
 
 export interface SystemAuditLogEntry {

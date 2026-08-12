@@ -170,8 +170,12 @@ public final class DefaultAuditLogService implements AuditLogService {
         sink.write(record);
       } catch (RuntimeException ex) {
         sinkFailureCount.incrementAndGet();
+        // Dual-write split-brain: other sinks (e.g. Log4j) may have already succeeded. Operators
+        // must see ERROR when the durable repository leg fails while server.log still has AUTH
+        // lines (#3089 / AU-5 fail-safe logging).
         FAILURE_LOG.error(
-            "AUDIT_SINK_FAILURE sink={} logId={} code={}: {}",
+            "AUDIT_SINK_FAILURE sink={} logId={} code={} — other sinks may have succeeded"
+                + " (dual-write split-brain risk if this is the durable repository): {}",
             sink.name(),
             logId.value(),
             code.qualifiedCode(),

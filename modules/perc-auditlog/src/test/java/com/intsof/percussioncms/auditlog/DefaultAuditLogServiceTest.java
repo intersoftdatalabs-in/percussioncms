@@ -78,10 +78,11 @@ class DefaultAuditLogServiceTest {
 
   @Test
   void sinkFailureDoesNotPreventOtherSinks() {
-    CapturingAuditLogSink ok = new CapturingAuditLogSink("ok");
-    CapturingAuditLogSink bad = new CapturingAuditLogSink("bad", true);
+    // Log4j-like sink still receives the event when durable repository sink fails (#3089).
+    CapturingAuditLogSink log4j = new CapturingAuditLogSink("log4j");
+    CapturingAuditLogSink repository = new CapturingAuditLogSink("repository", true);
     DefaultAuditLogService svc =
-        DefaultAuditLogService.builder().addSink(bad).addSink(ok).build();
+        DefaultAuditLogService.builder().addSink(log4j).addSink(repository).build();
 
     AuditLogId id =
         svc.log(
@@ -91,12 +92,12 @@ class DefaultAuditLogServiceTest {
             "password=hunter2",
             "1.2.3.4");
 
-    assertEquals(1, ok.records().size());
-    assertEquals(0, bad.records().size());
-    assertEquals(id, ok.records().get(0).logId());
+    assertEquals(1, log4j.records().size());
+    assertEquals(0, repository.records().size());
+    assertEquals(id, log4j.records().get(0).logId());
     assertEquals(1, svc.sinkFailureCount());
     assertTrue(
-        !ok.records().get(0).logMessage().contains("hunter2"),
+        !log4j.records().get(0).logMessage().contains("hunter2"),
         "secret must be redacted even when one sink fails");
   }
 

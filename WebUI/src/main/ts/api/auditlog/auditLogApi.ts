@@ -24,6 +24,11 @@
  *
  * AuthZ (server): Admin role or role property {@code sys_securityAuditLogViewer}.
  * Unauthorized → HTTP 403.
+ *
+ * <p>REST {@code JacksonContextResolver} enables {@code WRAP_ROOT_VALUE}, so list/detail
+ * responses arrive as {@code {"SystemAuditLogPage":{…}}} / {@code {"SystemAuditLogEntry":{…}}}.
+ * Without client unwrap the Admin Security Audit Log viewer always shows 0 rows even when the
+ * durable store and Log4j dual-write succeeded (#3089, same class as #2708 / #3039).
  */
 
 import { get, isApiError } from "../client";
@@ -34,6 +39,12 @@ import type {
   SystemAuditLogEntry,
   SystemAuditLogPage,
 } from "./types";
+
+/** Jackson WRAP_ROOT_VALUE root for {@code SystemAuditLogPage}. */
+export const SYSTEM_AUDIT_LOG_PAGE_ROOT = "SystemAuditLogPage";
+
+/** Jackson WRAP_ROOT_VALUE root for {@code SystemAuditLogEntry}. */
+export const SYSTEM_AUDIT_LOG_ENTRY_ROOT = "SystemAuditLogEntry";
 
 export class AuditLogForbiddenError extends Error {
   readonly status = 403;
@@ -54,18 +65,87 @@ function rethrowIfForbidden(err: unknown): never {
   throw err;
 }
 
-function asPage(payload: unknown): SystemAuditLogPage {
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+function isAuditPageShape(o: Record<string, unknown>): boolean {
+  return (
+    Array.isArray(o.entries) ||
+    typeof o.total === "number" ||
+    typeof o.offset === "number" ||
+    typeof o.limit === "number"
+  );
+}
+
+function isAuditEntryShape(o: Record<string, unknown>): boolean {
+  return (
+    typeof o.auditId === "string" ||
+    typeof o.moduleCode === "string" ||
+    typeof o.eventType === "string" ||
+    typeof o.userMessage === "string" ||
+    typeof o.logMessage === "string"
+  );
+}
+
+/**
+ * Normalize a list response to a flat {@link SystemAuditLogPage}.
+ *
+ * <p>Prefers {@code {"SystemAuditLogPage":{…}}} (production WRAP_ROOT_VALUE); also accepts a
+ * flat body (unit tests / proxies that already unwrapped).
+ */
+export function unwrapSystemAuditLogPage(payload: unknown): SystemAuditLogPage {
   if (payload == null || typeof payload !== "object") {
     return { entries: [], total: 0, offset: 0, limit: 50 };
   }
-  const p = payload as SystemAuditLogPage;
-  const entries = Array.isArray(p.entries) ? p.entries : [];
+  const root = asRecord(payload);
+  if (!root) {
+    return { entries: [], total: 0, offset: 0, limit: 50 };
+  }
+  const nested = asRecord(
+    root[SYSTEM_AUDIT_LOG_PAGE_ROOT] ?? root.systemAuditLogPage,
+  );
+  const body = nested && isAuditPageShape(nested) ? nested : isAuditPageShape(root) ? root : null;
+  if (!body) {
+    return { entries: [], total: 0, offset: 0, limit: 50 };
+  }
+  const rawEntries = body.entries;
+  const entries: SystemAuditLogEntry[] = Array.isArray(rawEntries)
+    ? rawEntries.map((row) => unwrapSystemAuditLogEntry(row) ?? (row as SystemAuditLogEntry))
+    : [];
   return {
     entries,
-    total: typeof p.total === "number" ? p.total : entries.length,
-    offset: typeof p.offset === "number" ? p.offset : 0,
-    limit: typeof p.limit === "number" ? p.limit : 50,
+    total: typeof body.total === "number" ? body.total : entries.length,
+    offset: typeof body.offset === "number" ? body.offset : 0,
+    limit: typeof body.limit === "number" ? body.limit : 50,
   };
+}
+
+/**
+ * Normalize a detail response to a flat {@link SystemAuditLogEntry}.
+ *
+ * <p>Prefers {@code {"SystemAuditLogEntry":{…}}}; accepts flat bodies for tests.
+ */
+export function unwrapSystemAuditLogEntry(
+  payload: unknown,
+): SystemAuditLogEntry | null {
+  const root = asRecord(payload);
+  if (!root) {
+    return null;
+  }
+  const nested = asRecord(
+    root[SYSTEM_AUDIT_LOG_ENTRY_ROOT] ?? root.systemAuditLogEntry,
+  );
+  if (nested && isAuditEntryShape(nested)) {
+    return nested as SystemAuditLogEntry;
+  }
+  if (isAuditEntryShape(root)) {
+    return root as SystemAuditLogEntry;
+  }
+  return null;
 }
 
 /** Query a page of durable system audit log entries. */
@@ -75,7 +155,7 @@ export async function queryAuditLogEntries(
   const qs = buildAuditLogQueryString(params);
   try {
     const payload = await get<unknown>(`${PATHS.AUDIT_LOG_ENTRIES}${qs}`);
-    return asPage(payload);
+    return unwrapSystemAuditLogPage(payload);
   } catch (err) {
     rethrowIfForbidden(err);
   }
@@ -90,9 +170,14 @@ export async function getAuditLogEntry(
     throw new Error("auditId is required");
   }
   try {
-    return await get<SystemAuditLogEntry>(
+    const payload = await get<unknown>(
       `${PATHS.AUDIT_LOG_ENTRIES}/${encodeURIComponent(id)}`,
     );
+    const entry = unwrapSystemAuditLogEntry(payload);
+    if (!entry) {
+      throw new Error("Audit log entry response was empty or mis-shaped");
+    }
+    return entry;
   } catch (err) {
     rethrowIfForbidden(err);
   }
