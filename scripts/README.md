@@ -157,15 +157,20 @@ Automated nightly i18n translation refresh for the 16 base locales.
 
   # Verbose logging
   python3 scripts/nightly_i18n_refresh.py --verbose
+
+  # Resume an interrupted run (keeps dirty TMX/cache on the locale branch)
+  python3 scripts/nightly_i18n_refresh.py --locale tr --resume
   ```
 
   Or via the shell wrapper (recommended for cron):
 
   ```bash
   ./scripts/nightly-i18n-refresh.sh --locale de
+  ./scripts/nightly-i18n-refresh.sh --locale tr --resume
   ```
 
-- **Pre-flight checks**: Verifies `trans` (translate-shell) is on PATH, working tree is clean (in the worktree), on `main` branch (or detached HEAD at `origin/main` — git disallows two worktrees on the same branch), and the **active** `gh` account is authenticated (`gh auth status --active`). Inactive multi-account tokens that are expired do not fail this check.
+- **Pre-flight checks**: Verifies `trans` (translate-shell) is on PATH, working tree is clean (in the worktree), on `main` branch (or detached HEAD at `origin/main` — git disallows two worktrees on the same branch), and the **active** `gh` account is authenticated (`gh auth status --active`). Inactive multi-account tokens that are expired do not fail this check. With **`--resume`**, the clean-tree and main-branch checks are skipped so partial work can continue; `trans` and `gh` are still required. `--resume` also requires `--locale`.
+- **Resume**: After a hang or kill mid-translation, re-run with `--locale <code> --resume` from the same worktree. The wrapper leaves the dirty tree alone; `i18n_translate_direct.py` fills only missing `<tuv>`s and hits the on-disk cache for already-translated strings. Bare URL-only segments pass through without calling `trans` (avoids hangs on help-doc href keys).
 - **Pipeline**: Ensures worktree exists → fetches origin/main → checks for existing PR → creates branch → runs `i18n_translate_direct.py --target <locale>` → runs `i18n_translate_direct.py --target <locale> --fix-matching-en` → commits → pushes → creates PR.
 - **No spotless**: This wrapper does **not** invoke `mvnw spotless:apply`. The perc-i18n spotless config targets JSON (which we exclude due to the 4 MB translation cache) and the eclipseWtp XML formatter hangs on this environment's Eclipse OSGi classloader. TMX formatting is left to the translation script itself per `modules/perc-i18n/AGENTS.md`. The `scripts/cache/**` exclude in `modules/perc-i18n/pom.xml` is kept as defense in depth for manual spotless runs.
 - **Locking**: Uses `flock` on `tmp/nightly-i18n.lock` to prevent concurrent runs.

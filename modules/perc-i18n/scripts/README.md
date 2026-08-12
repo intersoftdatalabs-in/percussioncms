@@ -64,6 +64,11 @@ python3 modules/perc-i18n/scripts/i18n_translate.py \
 - **Placeholder-only segments** (e.g. `{0}`, `{1,2,3}`) are skipped — they
   pass through to the output unchanged so parameter substitution still
   works.
+- **URL-only segments** (the entire string is `http://…` or `https://…`)
+  also pass through unchanged. Sending bare URLs to translate-shell can
+  hang or rewrite them into `translate.google.com` wrapper URLs (bad for
+  help-doc href keys). Mixed prose that merely *contains* a URL is still
+  translated.
 - **Cache**: results are keyed by `sha256(target || \0 || text)` and
   stored at the **shared checked-in** file
   `scripts/cache/i18n_translate.json` (both Docker and direct CLIs).

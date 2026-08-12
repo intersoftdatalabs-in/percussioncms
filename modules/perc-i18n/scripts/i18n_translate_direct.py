@@ -64,7 +64,20 @@ DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx', 'DeveloperUi.tmx')
 
 PLACEHOLDER_RE = re.compile(r'^\s*\{[0-9]+(,[0-9]+)*\}\s*$')
 
+# URL-only segments (e.g. help-doc hrefs). translate-shell often hangs or
+# rewrites these into google-translate wrapper URLs; keep them identity.
+URL_ONLY_RE = re.compile(r'^\s*https?://\S+\s*$', re.IGNORECASE)
+
 SOURCE_LANG = 'en-us'
+
+
+def is_identity_segment(text: str) -> bool:
+    """True when the source segment must pass through untranslated.
+
+    Covers placeholder-only keys (``{0}``) and bare URL keys. Mixed prose
+    that merely *contains* a URL is translated normally.
+    """
+    return bool(PLACEHOLDER_RE.match(text) or URL_ONLY_RE.match(text))
 
 # Exponential-backoff parameters (shared contract with i18n_translate.py).
 BACKOFF_START_SEC = 2.0
@@ -302,7 +315,7 @@ def _preview(s: str, n: int = 50) -> str:
 
 def translate(text: str, target: str, *, cache: dict[str, str] | None = None, force: bool = False) -> str:
     """Translate text to target, honoring cache."""
-    if PLACEHOLDER_RE.match(text):
+    if is_identity_segment(text):
         return text
     if cache is None:
         cache = load_cache()
