@@ -112,7 +112,10 @@ describe("unwrapDisplayFormat", () => {
       name: "FolderList",
       guid: { stringValue: "0-11-2" },
     };
-    expect(unwrapDisplayFormat(flat)).toEqual(flat);
+    expect(unwrapDisplayFormat(flat)).toEqual({
+      ...flat,
+      guidString: "0-11-2",
+    });
   });
 
   it("takes first element when envelope holds a singleton array", () => {
