@@ -458,11 +458,11 @@ public class ContentExplorerFolderAdaptor implements IContentExplorerFolderAdapt
 
     boolean repoForm = p.startsWith("//");
     if (repoForm) {
-      // Keep // prefix; collapse internal // after prefix.
-      String rest = p.substring(2).replaceAll("/{2,}", "/");
+      // Keep // prefix; collapse internal // after prefix (linear helpers; CodeQL #1977).
+      String rest = collapseDuplicateSlashes(p.substring(2)); // linear, no regex (CodeQL #1977)
       p = "//" + rest;
     } else {
-      p = p.replaceAll("/{2,}", "/");
+      p = collapseDuplicateSlashes(p); // linear, no regex (CodeQL #1977)
       if (!p.startsWith("/")) {
         p = "/" + p;
       }
@@ -476,9 +476,9 @@ public class ContentExplorerFolderAdaptor implements IContentExplorerFolderAdapt
       }
     }
 
-    // Strip trailing slash except pure root forms.
+    // Strip trailing slash except pure root forms (linear helper; CodeQL #1977).
     if (p.length() > 1 && p.endsWith("/")) {
-      p = p.replaceAll("/+$", "");
+      p = stripTrailingSlashes(p); // linear, no regex (CodeQL #1977)
       if (p.equals("/") || p.equals("//")) {
         return "/";
       }
@@ -491,6 +491,43 @@ public class ContentExplorerFolderAdaptor implements IContentExplorerFolderAdapt
       return "/";
     }
     return p;
+  }
+
+
+  /**
+   * Collapse runs of {@code /} to a single slash in linear time (no regex). Avoids CodeQL
+   * {@code java/polynomial-redos} on user-supplied folder paths (alert #1977).
+   */
+  private static String collapseDuplicateSlashes(String s) {
+    if (s == null || s.length() < 2) {
+      return s;
+    }
+    StringBuilder out = new StringBuilder(s.length());
+    char prev = 0;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '/' && prev == '/') {
+        continue;
+      }
+      out.append(c);
+      prev = c;
+    }
+    return out.toString();
+  }
+
+  /**
+   * Strip trailing {@code /} characters in linear time (no regex). Same CodeQL motivation as
+   * {@link #collapseDuplicateSlashes(String)}.
+   */
+  private static String stripTrailingSlashes(String s) {
+    if (s == null || s.isEmpty()) {
+      return s;
+    }
+    int end = s.length();
+    while (end > 0 && s.charAt(end - 1) == '/') {
+      end--;
+    }
+    return end == s.length() ? s : s.substring(0, end);
   }
 
   // -------------------------------------------------------------------------

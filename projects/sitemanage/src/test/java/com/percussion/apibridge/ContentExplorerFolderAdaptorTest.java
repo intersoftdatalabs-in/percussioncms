@@ -106,6 +106,23 @@ class ContentExplorerFolderAdaptorTest {
         "//Folders/a", ContentExplorerFolderAdaptor.normalizeRxPath("C:\\Folders\\a"));
   }
 
+
+  @Test
+  void normalizeCollapsesDuplicateSlashes() {
+    assertEquals("//Folders/a/b", ContentExplorerFolderAdaptor.normalizeRxPath("//Folders//a///b"));
+    assertEquals("//Folders/a", ContentExplorerFolderAdaptor.normalizeRxPath("/Folders//a//"));
+  }
+
+  @Test
+  void normalizeStripsLongTrailingSlashRunWithoutRegex() {
+    // Adversarial trailing-slash run must remain linear (CodeQL #1977 / java/polynomial-redos).
+    String path = "//Folders/a" + "/".repeat(5000);
+    long start = System.nanoTime();
+    assertEquals("//Folders/a", ContentExplorerFolderAdaptor.normalizeRxPath(path));
+    long ms = (System.nanoTime() - start) / 1_000_000L;
+    assertTrue(ms < 1000L, "normalizeRxPath took " + ms + "ms on long trailing slash run");
+  }
+
   // ---- load ----
 
   @Test
