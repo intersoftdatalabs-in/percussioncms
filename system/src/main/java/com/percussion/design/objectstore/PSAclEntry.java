@@ -18,6 +18,7 @@
 package com.percussion.design.objectstore;
 
 
+import com.intsof.percussioncms.auditlog.codes.DesignErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -617,7 +618,7 @@ public class PSAclEntry extends PSComponent {
       sTemp = tree.getElementData("modifyAcl", false);
       if ((sTemp != null) && sTemp.equalsIgnoreCase("yes")) m_accessLevel |= AACE_DESIGN_MODIFY_ACL;
     } else {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.ACL_ENTRY_LEVEL_NOT_FOUND);
+      throw new PSUnknownNodeTypeException(DesignErrorCodes.ACL_ENTRY_LEVEL_NOT_FOUND);
     }
   }
 
@@ -658,7 +659,7 @@ public class PSAclEntry extends PSComponent {
 
       if (0 != (m_accessLevel & all_flags_compliment)) {
         Object[] args = {"" + m_accessLevel};
-        cxt.validationError(this, IPSObjectStoreErrors.ACL_SECURITY_LEVEL_INVALID, args);
+        cxt.validationError(this, DesignErrorCodes.ACL_SECURITY_LEVEL_INVALID, args);
       }
     } else {
       // turn on all invalid bits
@@ -672,7 +673,7 @@ public class PSAclEntry extends PSComponent {
 
       if (0 != (m_accessLevel & all_flags_compliment)) {
         Object[] args = {"" + m_accessLevel};
-        cxt.validationError(this, IPSObjectStoreErrors.ACL_SECURITY_LEVEL_INVALID, args);
+        cxt.validationError(this, DesignErrorCodes.ACL_SECURITY_LEVEL_INVALID, args);
       }
     }
 
@@ -685,7 +686,7 @@ public class PSAclEntry extends PSComponent {
         break; // end valid types
       default:
         cxt.validationError(
-            this, IPSObjectStoreErrors.ACL_TYPE_INVALID, new Object[] {m_name, "" + m_type});
+            this, DesignErrorCodes.ACL_TYPE_INVALID, new Object[] {m_name, "" + m_type});
     }
 
     IllegalArgumentException ex = validateName(m_name);
