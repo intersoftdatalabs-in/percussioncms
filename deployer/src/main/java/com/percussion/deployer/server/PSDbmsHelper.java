@@ -997,9 +997,9 @@ public class PSDbmsHelper {
       try {
         PSJdbcTableSchemaCollection schemaColl =
             new PSJdbcTableSchemaCollection(schemaDoc, getDataTypeMap());
-        Iterator<PSJdbcTableSchema> schemas = schemaColl.iterator();
+        Iterator<?> schemas = schemaColl.iterator();
         while (schemas.hasNext()) {
-          PSJdbcTableSchema schema = schemas.next();
+          PSJdbcTableSchema schema = (PSJdbcTableSchema) schemas.next();
           m_systemTables.add(schema.getName());
         }
       } catch (PSJdbcTableFactoryException e) {
