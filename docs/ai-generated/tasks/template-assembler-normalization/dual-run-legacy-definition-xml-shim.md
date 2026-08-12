@@ -2,13 +2,13 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Accepted for Phase 3 slice 3 (#2752); **shim still required** (criteria not met — see Phase 5 criteria) |
+| **Status** | Accepted for Phase 3 slice 3 (#2752); **shim still required** (criteria not met — snapshot **2026-08-12**); [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) **blocked** until M1–M3 + G1–G6 |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) (Phase 3) |
 | **Epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
-| **Phase 5 criteria** | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835 / #2632) |
+| **Phase 5 criteria** | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835 / #2632 / criteria refresh #3132) |
 | **ADR** | [ADR-004](./adr/004-no-definition-xml-packaging.md) |
 | **Code** | `com.percussion.packages.shim.PSLegacyDefinitionXmlShim` (`modules/perc-packages`) |
-| **Related slices** | Manifest model #2750 / PR #2754; Widget XML compiler #2751 / PR #2755 |
+| **Related slices** | Manifest model #2750; Widget XML compiler #2751; modern-first wire #3024 / PR #3045; gadget metrics #3025 / PR #3071; G4 inventory #3026 / PR #3051; defaults open #3130 / PR #3134; harness open #3131 / PR #3136 |
 
 ## Purpose
 
@@ -77,12 +77,83 @@ Hard order for a package root or definition id:
 
 ## Operator dual-run checklist
 
+High-level convert path (all environments):
+
 1. **Inventory** customer Widget XML under install `rxconfig/Widgets` (and package archives if applicable).
 2. **Convert** using the Widget XML → Component Package Manifest compiler when available (#2751).
 3. **Deploy** modern packages (`component-package.json` + artifacts) beside or instead of XML.
 4. **Verify** selection: modern present ⇒ modern wins even if old XML remains on disk.
 5. **Remove** legacy XML after smoke/parity for converted definitions.
-6. **Exit dual-run** when no required customer definitions rely on the XML path (Phase 5).
+6. **Exit dual-run** when no required customer definitions rely on the XML path (Phase 5) — only after [criteria](./definition-xml-shim-removal-criteria.md) M1–M3 + G1–G6.
+
+### When the shim **must stay**
+
+Keep `PSLegacyDefinitionXmlShim` and gadget legacy fallback when **any** of the following is true:
+
+| Condition | Why |
+|-----------|-----|
+| Criteria Status snapshot shows M2 **FAIL** or **PARTIAL** | No zero-legacy runtime evidence yet |
+| Criteria M3 **FAIL** | Customer upgrade window still open |
+| Install has Widget XML without a matching modern package root | Customer / residual defs still load via legacy |
+| `widgetDao.modernPackageRoots` is blank **and** product defaults (#3130) are not on the build | Pre-#3130 `main`: blank property ⇒ legacy-only selection kinds |
+| Gadget classpath missing `gadget-catalog.json` | Product prefers modern; fallback is the safety net |
+| Agent or human is tempted to “finish Phase 5 early” | **#2852 is blocked** — deletion is not the dual-run checklist |
+
+### How to read metrics
+
+| Surface | Log / API | How to interpret |
+|---------|-----------|------------------|
+| Widgets | INFO `Widget definition dual-run selection: modern=N, legacyWidgetXml=M, total=T` (+ cumulative fields after #3131) | After a repository poll: `M > 0` means at least some loaded ids classified as legacy (expected when modern roots empty or customer-only XML). `N` rises when modern package roots match ids. |
+| Widgets | `PSWidgetDao.getLastSelectionKind()` / `getSelectionKindsById()` | Last single selection / per-id map — use from tests or support probes |
+| Widgets | `PSWidgetDao.getModernPackageRoots()` | Empty ⇒ expect legacy kinds for install Widgets XML on disk (or missing modern tree) |
+| Widgets | `getSelectionMetricsSnapshot()` / `formatSelectionMetricsSummary()` / cumulative counters (#3131) | Process-lifetime modern vs legacy rate |
+| Gadgets | INFO `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…` | Product classpath should show modern preferred; `legacyRegistryXml=1` means fallback fired |
+| Gadgets | `GadgetRegistry.getLastLoadSource()` / `getLastLoadEntryCount()` | Diagnostics / unit tests |
+| Gadgets | cumulative counters + `formatSelectionMetricsSummary()` (#3131) | Process-lifetime dual-load rate |
+
+See criteria § **How to measure M2** for CI harness tests.
+
+### What evidence **closes M2**
+
+M2 becomes **PASS** only when **all** hold (document on #2852 when claiming):
+
+1. Product / QA installs have modern roots available (explicit property **or** product defaults from #3130).
+2. Over the agreed time-box, widget `legacyWidgetXml` rate is **0** (or an explicit waiver list with owner + sunset date).
+3. Gadget product path reports modern catalog with **no** required production dependence on `LEGACY_REGISTRY_XML` (or waived classpaths only).
+4. Evidence is attached (log excerpts and/or counter snapshots) — not chat assertion alone.
+
+Until then: **shim stays; #2852 stays blocked.**
+
+### H2 `qa-up` (docker / local QA)
+
+| Step | Action | Pass signal |
+|------|--------|-------------|
+| 1 | Bring up CMS via project H2 `qa-up` / docker compose path used by the team | Server starts; widgets load |
+| 2 | Confirm install Widgets dir exists (`${rxdeploydir}/rxconfig/Widgets`) | Product widgets present as install wire XML (materialized) |
+| 3 | With #3130 defaults: leave `widgetDao.modernPackageRoots` blank (discovers `Packages/Modern` + classpath materialize) **or** set an explicit path-separator list for a custom tree | `getModernPackageRoots()` non-empty when modern tree present |
+| 4 | Exercise widget list / page edit that loads definitions (poll triggers `recordSelectionKinds`) | INFO line appears with `modern=` / `legacyWidgetXml=` |
+| 5 | Open dashboard (gadget type map load) | INFO gadget dual-load line; product classpath typically `source=MODERN_CATALOG` |
+| 6 | Capture log excerpts / `formatSelectionMetricsSummary()` for any M2 discussion | Attach to #2852 only when claiming zero-legacy — do **not** open deletion work from PARTIAL metrics |
+
+### Product install (full installer / upgrade)
+
+| Step | Action | Pass signal |
+|------|--------|-------------|
+| 1 | Install or upgrade using product distribution | `rxconfig/Widgets` populated for install wire format; `Packages/Modern` staged when packaging includes #3130 |
+| 2 | Inventory customer residual Widget XML (support path) | List of non-product ids retained under Widgets |
+| 3 | Rely on product defaults (#3130) or set explicit modern roots for package roots with `component-package.json` | Selection kinds show MODERN for converted product ids |
+| 4 | Convert remaining customer XML via Widget XML compiler → deploy modern packages | Customer defs selectable as modern |
+| 5 | Smoke pages/widgets; read dual-run INFO metrics / cumulative counters | No unexpected `none` / mass legacy for product ids after modern roots configured |
+| 6 | Only after criteria M1–M3 + G1–G6: allow #2852 deletion work | Criteria Status snapshot all PASS |
+
+### Spring / property knobs (portable)
+
+| Knob | Behavior (2026-08-12 cluster: #3130 + #3131 + #3132) |
+|------|------------------------------------------------------|
+| `widgetDao.modernPackageRoots` | `File.pathSeparator`-separated paths. **Blank default** → `PSModernPackageRootDefaults` discovers `${rxdeploydir}/Packages/Modern` (+ classpath materialize when empty). Explicit list still overrides. |
+| Widgets repository | `${rxdeploydir}/rxconfig/Widgets` (existing DAO repository directory) |
+| Gadget modern resource | Classpath `com/percussion/webui/gadget/servlets/gadget-catalog.json` |
+| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (fallback; **do not delete** until #2852 criteria met) |
 
 ### Product / H2 default modern roots (#3130)
 
@@ -97,15 +168,15 @@ Hard order for a package root or definition id:
 
 ## Exit criteria (shim retirement)
 
-The dual-run window ends when **all** of the following hold. **Authoritative metrics, test gates, time-box, and 2026-08-10 inventory:** [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835).
+The dual-run window ends when **all** of the following hold. **Authoritative metrics, test gates, time-box, and inventory:** [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (Status snapshot **2026-08-12**, #2835 / #3132).
 
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; native install mode #2806 — dual-ship roots off).
-- [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install. **Inventory detail:** product Widget definition XMLs under Packages (`sys__UserDependency--rxconfig/Widgets`) — see [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md).
-- [ ] Customer upgrade path documented and used for remaining XML (window still open for 8.2 dual-run).
-- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot (#3024):** `PSWidgetDao` logs dual-run counts and exposes selection kinds. **Snapshot (#3130):** product/H2 default `Packages/Modern` (+ classpath materialize) so modern-first selection without Spring surgery; M2 still open until runtime legacy rate is zero/waived. **Snapshot (#3025):** WebUI `GadgetRegistry` logs INFO dual-load metrics (`modern=` / `legacyRegistryXml=` / `none=`) and exposes `getLastLoadSource()` / `getLastLoadEntryCount()`; product classpath prefers modern; legacy fallback retained until #2852. **Snapshot (#3131):** cumulative counters + `formatSelectionMetricsSummary()` + CI harness tests (`PSWidgetDaoSelectionMetricsHarnessTest`, `GadgetRegistrySelectionMetricsHarnessTest`); see [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) § How to measure M2.
-- [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help — **blocked** until criteria doc M1–M3 + G1–G6 pass; residual tracks the deletion PR.
+- [x] Product **Widget** packages (non-waived) no longer ship definition XML as source of truth under Packages — cluster [#2897](https://github.com/intersoftdatalabs-in/percussioncms/pull/2897) (A+B+C); only `perc.Test` waived residual; G4 gate [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051). Install wire XML may still be **materialized** at package-build for runtime load — that is not ADR-004 authoring regression. **Broader M1 (Pages/Gadgets wording):** see criteria M1 row.
+- [ ] Customer upgrade path documented and used for remaining XML (window still open for 8.2 dual-run) — **M3 FAIL**.
+- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot (#3024):** `PSWidgetDao` logs dual-run counts and exposes selection kinds. **Snapshot (#3130):** product/H2 default `Packages/Modern` (+ classpath materialize) so modern-first selection without Spring surgery. **Snapshot (#3025):** WebUI `GadgetRegistry` dual-load metrics + last source/entry count; product classpath prefers modern; legacy fallback retained until #2852. **Snapshot (#3131):** cumulative counters + `formatSelectionMetricsSummary()` + CI harness tests. Overall **M2 FAIL** until zero (or waived) runtime legacy rate over the time-box. See criteria § How to measure M2.
+- [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help — **blocked** until criteria doc **M1–M3 + G1–G6** pass; residual **[#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852)** tracks the deletion PR and must **not** start early.
 
-**Do not** mass-delete the customer-facing shim while any box above is open.
+**Do not** mass-delete the customer-facing shim while any box above is open. **Do not** treat PARTIAL M2 as “ready to remove.”
 
 ## Non-goals
 
