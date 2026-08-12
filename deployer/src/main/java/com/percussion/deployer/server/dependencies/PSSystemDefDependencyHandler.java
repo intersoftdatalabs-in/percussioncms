@@ -103,11 +103,13 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   // see base class
+  @Override
   public String getType() {
     return DEPENDENCY_TYPE;
   }
 
   // see base class
+  @Override
   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -118,6 +120,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   // see base class
+  @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -133,7 +136,8 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -143,7 +147,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
       throw new IllegalArgumentException("dep wrong type");
 
     // use set to ensure we don't add dupes
-    Set<PSDependency> childDeps = new HashSet<PSDependency>();
+    Set<PSDependency> childDeps = new HashSet<>();
 
     // get dependencies specified by id type map
     childDeps.addAll(getIdTypeDependencies(tok, dep));
@@ -163,7 +167,8 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  @Override
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -172,7 +177,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    List<PSDependencyFile> files = new ArrayList<PSDependencyFile>();
+    List<PSDependencyFile> files = new ArrayList<>();
     if (doesDependencyExist(tok, dep.getDependencyId())) {
       PSContentEditorSystemDef def = getSystemDef();
       File defFile = createXmlFile(def.toXml());
@@ -183,6 +188,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   // see base class
+  @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -198,9 +204,9 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     Document doc = null;
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     while (files.hasNext() && doc == null) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_SYSTEM_DEF_XML) {
         doc = createXmlDocument(archive.getFileData(file));
       }
@@ -264,7 +270,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     try {
       PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
       PSContentEditorSystemDef sysDef = os.getContentEditorSystemDef();
-      List mappings = new ArrayList();
+      List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
       String resource = dep.getObjectType();
       mappings.clear();
       PSAppTransformer.checkAppFlow(mappings, sysDef.getApplicationFlow(), null);
@@ -297,7 +303,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
           resource, IPSDeployConstants.ID_TYPE_ELEMENT_CE_VALIDATION_RULES, mappings.iterator());
 
       mappings.clear();
-      Iterator links = sysDef.getSectionLinkList();
+      Iterator<?> links = sysDef.getSectionLinkList();
       while (links.hasNext()) {
         PSAppTransformer.checkUrlRequest(mappings, (PSUrlRequest) links.next(), null);
       }
@@ -312,7 +318,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
           mappings.iterator());
 
       mappings.clear();
-      Iterator cmds = sysDef.getInputDataExitCommands();
+      Iterator<?> cmds = sysDef.getInputDataExitCommands();
       while (cmds.hasNext()) {
         String cmd = (String) cmds.next();
         PSAppNamedItemIdContext cmdCtx =
@@ -335,17 +341,19 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
           resource, IPSDeployConstants.ID_TYPE_ELEMENT_RESULT_DATA_EXITS, mappings.iterator());
 
       mappings.clear();
-      Map initParams = sysDef.getInitParams();
-      Iterator entries = initParams.entrySet().iterator();
-      while (entries.hasNext()) {
-        Map.Entry entry = (Map.Entry) entries.next();
+      // PSContentEditorSystemDef.getInitParams() is a raw Map (system module).
+      Map<?, ?> initParams = sysDef.getInitParams();
+      for (Map.Entry<?, ?> entry : initParams.entrySet()) {
         String cmd = (String) entry.getKey();
         PSAppNamedItemIdContext cmdCtx =
             new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_SYS_DEF_INIT_PARAMS, cmd);
 
-        Iterator params = ((List) entry.getValue()).iterator();
-        while (params.hasNext()) {
-          PSAppTransformer.checkParam(mappings, (PSParam) params.next(), cmdCtx);
+        Object value = entry.getValue();
+        if (!(value instanceof List<?>)) {
+          continue;
+        }
+        for (Object paramObj : (List<?>) value) {
+          PSAppTransformer.checkParam(mappings, (PSParam) paramObj, cmdCtx);
         }
       }
       idTypes.addMappings(
@@ -382,18 +390,19 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
 
     // walk id types and perform any transforms
     String id = IPSDeployConstants.DEP_OBJECT_TYPE_SYSTEM_DEF;
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
+      String resource = resources.next();
       if (!id.equals(resource)) continue;
 
-      Iterator elements = idTypes.getElementList(resource, false);
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -417,7 +426,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CE_VALIDATION_RULES)) {
             PSAppTransformer.transformConditionalExits(sysDef.getValidationRules(), mapping, idMap);
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_CE_SECTION_LINK_LIST)) {
-            Iterator links = sysDef.getSectionLinkList();
+            Iterator<?> links = sysDef.getSectionLinkList();
             while (links.hasNext()) {
               PSAppTransformer.transformUrlRequest((PSUrlRequest) links.next(), mapping, idMap);
             }
@@ -426,13 +435,13 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
             PSCommandHandlerStylesheets sheets = sysDef.getStyleSheetSet();
             if (sheets != null) PSAppTransformer.transformStylesheetSet(sheets, mapping, idMap);
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_INPUT_DATA_EXITS)) {
-            Iterator cmds = sysDef.getInputDataExitCommands();
+            Iterator<?> cmds = sysDef.getInputDataExitCommands();
             while (cmds.hasNext()) {
               PSAppTransformer.transformExtensionCalls(
                   sysDef.getInputDataExits(cmds.next().toString()), mapping, idMap);
             }
           } else if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_RESULT_DATA_EXITS)) {
-            Iterator cmds = sysDef.getResultDataExitCommands();
+            Iterator<?> cmds = sysDef.getResultDataExitCommands();
             while (cmds.hasNext()) {
               PSAppTransformer.transformExtensionCalls(
                   sysDef.getResultDataExits(cmds.next().toString()), mapping, idMap);
@@ -445,12 +454,12 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
             if (paramCtx.getType() != PSAppNamedItemIdContext.TYPE_SYS_DEF_INIT_PARAMS) {
               continue;
             }
-            Map initParams = sysDef.getInitParams();
-            List paramList = (List) initParams.get(paramCtx.getName());
-            if (paramList == null) continue;
-            Iterator params = paramList.iterator();
-            while (params.hasNext()) {
-              PSAppTransformer.transformParam((PSParam) params.next(), mapping, idMap);
+            // PSContentEditorSystemDef.getInitParams() is a raw Map (system module).
+            Map<?, ?> initParams = sysDef.getInitParams();
+            Object paramListObj = initParams.get(paramCtx.getName());
+            if (!(paramListObj instanceof List<?>)) continue;
+            for (Object paramObj : (List<?>) paramListObj) {
+              PSAppTransformer.transformParam((PSParam) paramObj, mapping, idMap);
             }
           }
         }
