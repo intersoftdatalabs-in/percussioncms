@@ -53,7 +53,7 @@ public class PSPageOptimizerService extends PSCloudService implements IPSPageOpt
       IPSPageService pageService,
       PSLicenseService licenseService) {
     super(folderHelper, renderService, pageService, licenseService);
-    this.log = LogManager.getLogger(PSPageOptimizerService.class);
+    PSCloudService.log = LogManager.getLogger(PSPageOptimizerService.class);
   }
 
   /**

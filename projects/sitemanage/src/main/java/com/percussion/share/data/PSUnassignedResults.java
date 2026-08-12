@@ -76,13 +76,8 @@ public class PSUnassignedResults extends PSAbstractDataObject {
         Integer startIndex, Integer childrenCount, List<UnassignedItem> childrenInPage) {
       this.startIndex = startIndex;
       this.childrenCount = childrenCount;
-      if (childrenInPage == null) {
-        this.childrenInPage = new ArrayList<>();
-      } else if (childrenInPage instanceof ArrayList) {
-        this.childrenInPage = (ArrayList) childrenInPage;
-      } else {
-        this.childrenInPage = new ArrayList<>(childrenInPage);
-      }
+      this.childrenInPage =
+          childrenInPage == null ? new ArrayList<>() : new ArrayList<>(childrenInPage);
     }
 
     /**

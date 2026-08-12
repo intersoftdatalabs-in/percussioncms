@@ -38,27 +38,14 @@ public class PSFolders extends PSAbstractDataObject {
   }
 
   public PSFolders(List<PSFolderItem> children) {
-    if (children == null) {
-      this.children = null;
-    } else if (children instanceof ArrayList) {
-      this.children = (ArrayList) children;
-    } else {
-      this.children = new ArrayList<>(children);
-    }
+    this.children = children == null ? null : new ArrayList<>(children);
   }
 
   public List<PSFolderItem> getChildren() {
     return children == null ? new ArrayList<>() : children;
   }
 
-  @SuppressWarnings("unchecked")
   public void setChildren(List<PSFolderItem> children) {
-    if (children == null) {
-      this.children = null;
-    } else if (children instanceof ArrayList) {
-      this.children = (ArrayList<PSFolderItem>) children;
-    } else {
-      this.children = new ArrayList<>(children);
-    }
+    this.children = children == null ? null : new ArrayList<>(children);
   }
 }

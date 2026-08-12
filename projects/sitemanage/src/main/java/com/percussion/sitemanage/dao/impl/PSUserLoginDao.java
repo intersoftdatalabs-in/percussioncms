@@ -60,7 +60,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
     String emsg;
     var session = getSession();
     try {
-      var login = session.get(PSUserLogin.class, name);
+      var login = session.find(PSUserLogin.class, name);
       log.debug("deleting userlogin for {}", login);
       if (login == null) {
         emsg = "Attempt to delete non-existent user " + name;
@@ -106,7 +106,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
     var session = getSession();
     PSUserLogin result = null;
     try {
-      result = session.get(PSUserLogin.class, id);
+      result = session.find(PSUserLogin.class, id);
       if (result == null) {
         emsg = "no such user " + id;
         log.debug(emsg);
@@ -173,7 +173,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
     var session = getSession();
     try {
       var uid = login.getUserid();
-      var l2 = session.get(PSUserLogin.class, uid);
+      var l2 = session.find(PSUserLogin.class, uid);
       if (l2 == null) {
         emsg = "Attempt to modify non-existent user " + uid;
         log.error(emsg);

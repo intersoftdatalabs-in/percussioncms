@@ -72,9 +72,12 @@ public class PSRecent extends PSAbstractDataObject {
   }
 
   @Id
+  // Custom next-number generator; GenericGenerator is deprecated for removal in Hibernate 7 —
+  // keep until entity generators migrate monorepo-wide (tracked under Hibernate migration plans).
+  @SuppressWarnings("removal")
   @GenericGenerator(
       name = "id",
-      strategy = "com.percussion.data.utils.PSNextNumberHibernateGenerator")
+      type = com.percussion.data.utils.PSNextNumberHibernateGenerator.class)
   @GeneratedValue(generator = "id")
   @Column(name = "ID", nullable = false)
   private int id;

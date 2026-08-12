@@ -873,8 +873,8 @@ public class PSSiteConfigUtils {
    */
   private static void appendLogoutElement(SecureXmlData securityData, Document doc, Node http) {
     Element logout = doc.createElement("security:logout");
-    logout.setAttribute("logout-url", securityData.LOGOUT_PROCESSING_URL);
-    logout.setAttribute("success-handler-ref", securityData.LOGOUT_SUCCESS_HANDLER_REF);
+    logout.setAttribute("logout-url", SecureXmlData.LOGOUT_PROCESSING_URL);
+    logout.setAttribute("success-handler-ref", SecureXmlData.LOGOUT_SUCCESS_HANDLER_REF);
 
     http.appendChild(logout);
   }
@@ -998,12 +998,13 @@ public class PSSiteConfigUtils {
     if (!isBlank(loginPage)) {
       formLogin.setAttribute("login-page", loginPage);
       formLogin.setAttribute(
-          "authentication-failure-url", loginPage + securityData.AUTHENTICATION_FAILURE_URL_SUFFIX);
+          "authentication-failure-url",
+          loginPage + SecureXmlData.AUTHENTICATION_FAILURE_URL_SUFFIX);
     }
 
-    formLogin.setAttribute("login-processing-url", securityData.LOGING_PROCESSING_URL);
+    formLogin.setAttribute("login-processing-url", SecureXmlData.LOGING_PROCESSING_URL);
     formLogin.setAttribute(
-        "authentication-success-handler-ref", securityData.AUTHENTICATION_SUCCESS_HANDLER_REF);
+        "authentication-success-handler-ref", SecureXmlData.AUTHENTICATION_SUCCESS_HANDLER_REF);
 
     http.appendChild(formLogin);
   }
@@ -1063,8 +1064,8 @@ public class PSSiteConfigUtils {
   private static void appendFormLoginProcessor(
       SecureXmlData securityData, Document doc, Node http) {
     Element logout = doc.createElement("security:custom-filter");
-    logout.setAttribute("before", securityData.FORM_LOGIN_FILTER);
-    logout.setAttribute("ref", securityData.FORM_LOGIN_PROCESSOR);
+    logout.setAttribute("before", SecureXmlData.FORM_LOGIN_FILTER);
+    logout.setAttribute("ref", SecureXmlData.FORM_LOGIN_PROCESSOR);
 
     http.appendChild(logout);
   }
@@ -1275,6 +1276,21 @@ public class PSSiteConfigUtils {
       } else if (!sitename.equals(other.sitename)) return false;
       if (useHttpsForSecureSite != other.useHttpsForSecureSite) return false;
       return true;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((loginPage == null) ? 0 : loginPage.hashCode());
+      result =
+          prime * result
+              + ((secureAndMemberSectionsUrls == null)
+                  ? 0
+                  : secureAndMemberSectionsUrls.hashCode());
+      result = prime * result + ((sitename == null) ? 0 : sitename.hashCode());
+      result = prime * result + (useHttpsForSecureSite ? 1231 : 1237);
+      return result;
     }
 
     public String getRequiresChannelAttributeValue() {

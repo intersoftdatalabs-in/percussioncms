@@ -242,6 +242,7 @@ public class PSTemplateService implements IPSTemplateService {
   /**
    * @deprecated This is used by unit test only. It cannot be used by production code
    */
+  @Deprecated
   public PSTemplateSummary findUserTemplateByName_UsedByUnitTestOnly(String name)
       throws PSDataServiceException {
     rejectIfBlank("findUserTemplateByName", "name", name);

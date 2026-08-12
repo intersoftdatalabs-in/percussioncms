@@ -845,7 +845,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
     private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "Icon")
-    protected List<Icon> icon;
+    protected ArrayList<Icon> icon;
 
     @XmlAttribute(name = "contenttype_name")
     protected String contenttypeName;
@@ -905,6 +905,15 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
         icon = new ArrayList<>();
       }
       return icon;
+    }
+
+    /**
+     * JAXB / callers may pass any List; store as concrete ArrayList for serialization.
+     *
+     * @param icon icon list, may be null
+     */
+    public void setIcon(List<Icon> icon) {
+      this.icon = icon == null ? null : new ArrayList<>(icon);
     }
 
     /**

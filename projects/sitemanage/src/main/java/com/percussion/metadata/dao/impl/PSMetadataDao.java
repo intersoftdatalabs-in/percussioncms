@@ -98,7 +98,7 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
     var session = getSession();
     try {
       var key = data.getKey();
-      var existing = session.get(PSMetadata.class, key);
+      var existing = session.find(PSMetadata.class, key);
       if (existing == null) {
         var emsg = "Attempt to modify non-existent record " + key;
         log.error(emsg);
@@ -124,7 +124,7 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
   public PSMetadata find(String key) throws IPSGenericDao.LoadException {
     var session = getSession();
     try {
-      return session.get(PSMetadata.class, key);
+      return session.find(PSMetadata.class, key);
     } catch (HibernateException e) {
       var msg = "find(String key) database error " + e.getMessage();
       log.error(msg);

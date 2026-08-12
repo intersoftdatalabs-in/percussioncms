@@ -27,8 +27,6 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -105,7 +103,7 @@ public class PSCategoryUnMarshaller {
     if (StringUtils.isBlank(categoryJson)) {
       return null;
     }
-    try (Reader reader = new StringReader(categoryJson)) {
+    try {
       var mapper =
           JsonMapper.builder()
               .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
