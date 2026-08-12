@@ -15,19 +15,17 @@
  * limitations under the License.
  */
 
-export { ArchitectureShell } from "./ArchitectureShell";
-export type { ArchitectureShellProps } from "./ArchitectureShell";
-export { NavTree } from "./NavTree";
-export type { NavTreeProps } from "./NavTree";
-export { SitePicker } from "./SitePicker";
-export type { SitePickerProps, SiteOption } from "./SitePicker";
-export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
-export type { ArchitectureMsgKey } from "./messages";
+/**
+ * Re-export pure nav-tree helpers for Architecture UI consumers (#3095).
+ * Implementation lives under {@code api/architecture/mapSectionTree}.
+ */
+
 export {
   countNavTreeNodes,
   flattenNavTree,
   isNavBranch,
   mapSectionNodeToTree,
+  normalizeChildNodes,
   parseSectionNodePayload,
   sectionTypeLabel,
-} from "./treeModel";
+} from "../api/architecture/mapSectionTree";

@@ -120,6 +120,27 @@ export const PATHS = {
   get SECTION_CREATE() {
     return `${SERVICES_ROOT}/sitemanage/section`;
   },
+  /**
+   * Full section/navon tree for a site (Architecture Slice C).
+   * Append {@code /{siteName}} — {@code PSSiteSectionRestService#loadTree}.
+   */
+  get SECTION_TREE() {
+    return `${SERVICES_ROOT}/sitemanage/section/tree`;
+  },
+  /**
+   * Root section for a site.
+   * Append {@code /{siteName}} — {@code PSSiteSectionRestService#loadRoot}.
+   */
+  get SECTION_ROOT() {
+    return `${SERVICES_ROOT}/sitemanage/section/root`;
+  },
+  /**
+   * Section service base (load / properties / mutations).
+   * Append paths such as {@code /{id}} or {@code /properties/{id}}.
+   */
+  get SECTION() {
+    return `${SERVICES_ROOT}/sitemanage/section`;
+  },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
   },
