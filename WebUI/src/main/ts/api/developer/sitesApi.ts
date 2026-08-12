@@ -87,14 +87,42 @@ function unwrapArrayItem(item: unknown, depth: number): unknown[] {
   return [obj];
 }
 
+const SITE_SIGNAL_KEYS = [
+  "baseUrl",
+  "pageBasedSite",
+  "guid",
+  "defaultDocument",
+  "siteProtocol",
+  "canonicalDist",
+  "description",
+  "defaultFileExtention",
+] as const;
+
+const NAME_ONLY_KEYS = new Set(["name", "label", "id"]);
+
+/**
+ * A Site row must have a name. Name-only summaries are accepted; a lone
+ * {@code name} plus unrelated keys (e.g. nested metadata) is not a Site.
+ */
 function looksLikeSite(obj: Record<string, unknown>): boolean {
-  return (
-    "name" in obj ||
-    "baseUrl" in obj ||
-    "pageBasedSite" in obj ||
-    "guid" in obj ||
-    "description" in obj
-  );
+  if (!hasSiteName(obj.name)) {
+    return false;
+  }
+  if (SITE_SIGNAL_KEYS.some((key) => key in obj)) {
+    return true;
+  }
+  return Object.keys(obj).every((key) => NAME_ONLY_KEYS.has(key));
+}
+
+function hasSiteName(value: unknown): boolean {
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    const obj = value as Record<string, unknown>;
+    return typeof obj.value === "string" && obj.value.trim().length > 0;
+  }
+  return false;
 }
 
 function normalizeSiteRow(raw: unknown): SiteDef {

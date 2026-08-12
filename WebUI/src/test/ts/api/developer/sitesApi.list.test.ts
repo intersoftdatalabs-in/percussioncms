@@ -76,6 +76,18 @@ describe("parseSiteList (#3198 bind)", () => {
     expect(parseSiteList({ Site: { name: "Only" } })).toEqual([{ name: "Only" }]);
   });
 
+  it("does not treat a nested metadata bag as a Site row", () => {
+    expect(() =>
+      parseSiteList({
+        Site: { metadata: { name: "config", env: "qa" } },
+      }),
+    ).toThrow(/Unexpected site list payload/);
+  });
+
+  it("still binds a name-only Site summary", () => {
+    expect(parseSiteList({ Site: { name: "Only" } })).toEqual([{ name: "Only" }]);
+  });
+
   it("throws on unknown object shape", () => {
     expect(() => parseSiteList({ unexpected: true })).toThrow(
       /Unexpected site list payload/,
