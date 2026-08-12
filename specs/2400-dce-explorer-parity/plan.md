@@ -8,7 +8,7 @@
 
 | Deliverable | Status |
 |-------------|--------|
-| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-11 #3109 false-Present→Partial vs open Failed QA; prior #2829 P-Trans OUT) |
+| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-11: Views + Inbox **Missing** #3108 / #3102; #3109 false-Present→Partial vs open Failed QA; prior #2829 P-Trans OUT) |
 | Child GH issues for first backlog | **Done** (#2407–#2411 + #2409→#2504–#2507 + #2411→#2428–#2430) |
 | Link package + slices on #2400 | **Done** (maintain `## Agent progress` on issue body) |
 
@@ -57,25 +57,27 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 ## Active implementation order (do not re-audit from scratch)
 
-**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices.
+**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices — **except** newly dispositioned **Missing** rows that need product IN/OUT first.
 
 1. **#3102 / #3109** — gap matrix no longer claims **Present** for shell/DF/search, menu, toolbar, saved search, Sites tree while QA is Failed/open; see [false-present-qa-reconcile.md](./research/false-present-qa-reconcile.md)  
 2. **#2989** (and related folder QA) — Sites/hierarchy p1 before new chrome features  
 3. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
 4. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
 5. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
-6. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row; Views/Inbox disposition #3108/#3110)
+6. **Views + Inbox Missing** (#3102 / #3108 docs; [views-inbox-missing-disposition.md](./research/views-inbox-missing-disposition.md)) — product IN/OUT/REDESIGN required; implement map only after IN via #3110; do **not** invent OUT  
+7. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row)
 
 ### Epic #2400 remaining-open criteria (research program)
 
-Documented in [p-trans-out-disposition.md](./research/p-trans-out-disposition.md) § “Epic #2400 remaining-open criteria”:
+Documented in [p-trans-out-disposition.md](./research/p-trans-out-disposition.md) § “Epic #2400 remaining-open criteria” (updated 2026-08-11 for Views/Inbox):
 
-- No Missing in-scope matrix rows; intentional non-goals under Explicit OUT  
+- No **silent** omissions; every known DCE capability is Present / Partial / Missing / Explicit OUT (or cross-epic pointer)  
+- **Missing** rows (Views, Inbox as of #3108) require product IN/OUT/REDESIGN before implement; not agent invent  
 - No required open agent implement children for Present rows  
-- Remaining work = human QA and/or product OUT/redesign decisions  
+- Remaining work = human QA, product OUT/redesign decisions, and any product-IN implement children  
 - Do not keep epic open solely to track signed OUT rows after QA disposition  
 
-**Current state:** epic stays **open** for the open **human QA** set (and ACL cross-epic Partial pointer); P-Trans agent implement residual is closed by #2829 docs.
+**Current state:** epic stays **open** for the open **human QA** set, ACL cross-epic Partial pointer, and **Missing** Views/Inbox until product disposition (#3102 family).
 
 ## Test strategy
 
