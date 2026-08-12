@@ -222,10 +222,26 @@ Accept either repository form or a documented single-slash form; the server norm
 Prefer the generated **OpenAPI** schema for wire field names. Auth and folder ACLs of the underlying
 content web service still apply.
 
+### Dual-run mutation flag (Explorer clients)
+
+Content Explorer can optionally route **folder mutations** (create / rename / move / delete)
+under **Folders** and **Sites** to this façade while **browse / list / pagination** stay on
+pathmanagement.
+
+| Item | Value |
+|------|--------|
+| Operator property name | `perc.explorer.rxFolderMutations` |
+| Default | **off** (pathmanagement only — zero behavior change) |
+| Client enable (QA / dual-run) | URL `?rxFolderMutations=1`, or `sessionStorage` / `localStorage` key `perc.explorer.rxFolderMutations=true`, or `window.__PERC_RX_FOLDER_MUTATIONS__ = true` |
+| When on | Mutations under `/Folders` and `/Sites` (and `//Folders` / `//Sites`) use this REST surface |
+| Still on pathmanagement | List/paginate, ACL folder-properties save, copy, non-RX roots (`/Assets`, `/Design`, `/Recycling`, …) |
+
+See also [Content Explorer](id:admin-content-explorer) dual-run notes.
+
 ### Migration notes
 
 - Content Explorer **browse / pagination** remains on pathmanagement until a deliberate client
-  switch; this façade ships for integrators and for a later dual-run mutation flag.
+  switch; mutation dual-run is **default off** (`perc.explorer.rxFolderMutations`).
 - Do not confuse with foldermanagement workflow assignment (`/services/folders`) or CM1
   `FoldersResource` section APIs.
 
