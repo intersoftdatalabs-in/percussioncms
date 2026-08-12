@@ -18,7 +18,7 @@
 package com.percussion.server.job;
 
 import com.percussion.conn.PSServerException;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -266,7 +266,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     } catch (NumberFormatException e) {
       Object[] msgArgs = {reqRoot.getTagName(), "id", id};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {reqRoot.getTagName(), une.getLocalizedMessage()};
       throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);
@@ -322,7 +322,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     } catch (NumberFormatException e) {
       Object[] msgArgs = {reqRoot.getTagName(), "id", id};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {reqRoot.getTagName(), une.getLocalizedMessage()};
       throw new PSJobException(IPSJobErrors.SERVER_REQUEST_MALFORMED, args);

@@ -16,7 +16,7 @@
  */
 package com.percussion.extension;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.HashMap;
@@ -153,13 +153,13 @@ public class PSDatabaseFunction {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String sTemp = sourceNode.getAttribute(ATTR_FUNCTION_NAME);
     if ((sTemp == null) || (sTemp.trim().length() == 0)) {
       Object[] args = {NODE_NAME, ATTR_FUNCTION_NAME, sTemp == null ? "null" : sTemp};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_name = sTemp;
 

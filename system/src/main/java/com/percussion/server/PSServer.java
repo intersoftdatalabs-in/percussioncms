@@ -35,7 +35,7 @@ import com.percussion.data.PSMetaDataCache;
 import com.percussion.data.PSTableMetaData;
 import com.percussion.debug.PSDebugManager;
 import com.percussion.design.objectstore.IPSJavaPluginConfig;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSAttribute;
@@ -1758,7 +1758,7 @@ public class PSServer {
       int msgCode = 0;
       if (appRoot == null) {
         // this is not allowed!!
-        msgCode = IPSObjectStoreErrors.APP_ROOT_REQD;
+        msgCode = ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode();
         Object[] args = {"application path not found", "server/startApplication"};
         throw new PSNotFoundException(msgCode, args);
       }
@@ -1777,7 +1777,7 @@ public class PSServer {
       if (o != null) {
         // warn that we've got one by this name already!!
         PSApplicationHandler appHandler = (PSApplicationHandler) o;
-        msgCode = IPSObjectStoreErrors.APP_REQUEST_ROOTS_DUP;
+        msgCode = ObjectStoreErrorCodes.APP_REQUEST_ROOTS_DUP.numericCode();
         Object[] args = {appHandler.getName(), appHandler.getRequestRoot()};
         PSLogManager.write(new PSLogServerWarning(msgCode, args, true, "Server"));
       }

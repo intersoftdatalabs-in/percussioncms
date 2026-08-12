@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.debug.PSDebugLogHandler;
@@ -226,7 +227,7 @@ public class PSUpdateHandler extends PSDataHandler {
           } catch (java.net.MalformedURLException e) {
             Object[] args = {app.getName(), ds.getName(), page.getStyleSheet()};
             throw new PSIllegalArgumentException(
-                com.percussion.design.objectstore.IPSObjectStoreErrors.STYLE_SHEET_BAD_URL, args);
+                ObjectStoreErrorCodes.STYLE_SHEET_BAD_URL.numericCode(), args);
           }
         }
       }
