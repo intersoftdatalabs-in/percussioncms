@@ -31,6 +31,9 @@ const ALLOWED_ENTRIES = new Set([
   "explorer",
   "profile",
   "unavailable",
+  "design",
+  "developer",
+  "architecture",
 ]);
 
 /**

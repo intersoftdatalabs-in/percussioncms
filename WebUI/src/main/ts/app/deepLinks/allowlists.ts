@@ -24,6 +24,7 @@ export const SPA_ENTRIES = [
   "widget-builder",
   "developer",
   "design",
+  "architecture",
   "explorer",
   "profile",
   "unavailable",
@@ -266,6 +267,25 @@ export function normalizeDesignSection(
     return n as DesignSection;
   }
   return DESIGN_SECTION_ALIASES[n];
+}
+
+/**
+ * Site name for Architecture deep links / path segments (#3094).
+ * Allows common CMS site name characters; rejects traversal and schemes.
+ */
+export function normalizeArchitectureSite(
+  raw: string | null | undefined,
+): string | undefined {
+  if (raw == null || !raw.trim()) return undefined;
+  const t = raw.trim();
+  if (t.length > 128 || t.includes("://") || t.includes("..") || t.includes("/")) {
+    return undefined;
+  }
+  // Letters, digits, spaces, common punctuation used in demo site names
+  if (!/^[A-Za-z0-9._ -]{1,128}$/.test(t)) {
+    return undefined;
+  }
+  return t;
 }
 
 export function normalizeId(raw: string | null | undefined): string | undefined {

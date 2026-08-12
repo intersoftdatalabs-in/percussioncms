@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ADMIN_NAV_LANDING,
+  ARCHITECTURE_NAV_LANDING,
   isAdminNavPath,
   topNavItemIds,
 } from "../../../../main/ts/app/layout/topNavConfig";
@@ -85,6 +86,12 @@ describe("ADMIN_NAV_LANDING (#2784)", () => {
   it("points consolidated Admin top-nav at Admin tools shell", () => {
     expect(ADMIN_NAV_LANDING).toBe("/admin");
     expect(isAdminNavPath(ADMIN_NAV_LANDING)).toBe(true);
+  });
+});
+
+describe("ARCHITECTURE_NAV_LANDING (#3094)", () => {
+  it("points Architecture top-nav at SPA shell path", () => {
+    expect(ARCHITECTURE_NAV_LANDING).toBe("/architecture");
   });
 });
 

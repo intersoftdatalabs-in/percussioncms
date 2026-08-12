@@ -52,9 +52,13 @@
         if ("widgetbuilder".equals(n)) {
             return "widget-builder";
         }
+        if ("arch".equals(n)) {
+            return "architecture";
+        }
         if ("home".equals(n) || "publish".equals(n) || "workflow".equals(n)
                 || "admin".equals(n) || "widget-builder".equals(n)
                 || "explorer".equals(n) || "developer".equals(n)
+                || "design".equals(n) || "architecture".equals(n)
                 || "profile".equals(n)
                 || "unavailable".equals(n)) {
             return n;
@@ -119,7 +123,8 @@
         entry = "home";
     }
     if (("publish".equals(entry) || "widget-builder".equals(entry)
-            || "developer".equals(entry))
+            || "developer".equals(entry) || "design".equals(entry)
+            || "architecture".equals(entry))
             && !(isAdmin || isDesigner)) {
         entry = "home";
     }
