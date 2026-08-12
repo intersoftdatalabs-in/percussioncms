@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +47,11 @@ import tools.jackson.core.json.JsonFactory;
  * <p>Each dual-load records {@link #getLastLoadSource()} and logs INFO selection metrics ({@code
  * modern=} / {@code legacyRegistryXml=} / {@code none=} / {@code entries=}) for Phase 5 exit
  * visibility (parity with {@code PSWidgetDao} dual-run metrics).
+ *
+ * <p><strong>M2 evidence harness (#3131):</strong> cumulative load counters ({@link
+ * #getModernLoadCount()}, {@link #getLegacyLoadCount()}, {@link #getNoneLoadCount()}), {@link
+ * #getSelectionMetricsSnapshot()}, and {@link #formatSelectionMetricsSummary()} are CI- and
+ * support-visible. Reset with {@link #resetSelectionMetrics()} in tests / probes only.
  */
 public final class GadgetRegistry {
 
@@ -77,6 +83,15 @@ public final class GadgetRegistry {
   /** Entry count from the most recent successful dual-load (0 when {@link Source#NONE}). */
   private static final AtomicReference<Integer> LAST_ENTRY_COUNT = new AtomicReference<>(0);
 
+  /** Cumulative dual-loads that resolved via modern {@code gadget-catalog.json}. */
+  private static final AtomicLong MODERN_LOAD_COUNT = new AtomicLong();
+
+  /** Cumulative dual-loads that resolved via legacy {@code GadgetRegistry.xml}. */
+  private static final AtomicLong LEGACY_LOAD_COUNT = new AtomicLong();
+
+  /** Cumulative dual-loads that produced no entries from either source. */
+  private static final AtomicLong NONE_LOAD_COUNT = new AtomicLong();
+
   private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
   private GadgetRegistry() {}
@@ -97,6 +112,93 @@ public final class GadgetRegistry {
    */
   public static int getLastLoadEntryCount() {
     return LAST_ENTRY_COUNT.get();
+  }
+
+  /**
+   * Cumulative modern-catalog dual-loads since class init or last {@link #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public static long getModernLoadCount() {
+    return MODERN_LOAD_COUNT.get();
+  }
+
+  /**
+   * Cumulative legacy-registry dual-loads since class init or last {@link #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public static long getLegacyLoadCount() {
+    return LEGACY_LOAD_COUNT.get();
+  }
+
+  /**
+   * Cumulative empty dual-loads (neither source) since class init or last {@link
+   * #resetSelectionMetrics()}.
+   *
+   * @return non-negative count
+   */
+  public static long getNoneLoadCount() {
+    return NONE_LOAD_COUNT.get();
+  }
+
+  /**
+   * Total dual-load attempts counted ({@link #getModernLoadCount()} + {@link #getLegacyLoadCount()}
+   * + {@link #getNoneLoadCount()}).
+   *
+   * @return non-negative count
+   */
+  public static long getTotalLoadCount() {
+    return MODERN_LOAD_COUNT.get() + LEGACY_LOAD_COUNT.get() + NONE_LOAD_COUNT.get();
+  }
+
+  /**
+   * Snapshot of cumulative dual-load counters for CI assertions and support probes.
+   *
+   * <p>Keys: {@code modern}, {@code legacyRegistryXml}, {@code none}, {@code total}. Never null.
+   *
+   * @return unmodifiable map of counter name → value
+   */
+  public static Map<String, Long> getSelectionMetricsSnapshot() {
+    long modern = MODERN_LOAD_COUNT.get();
+    long legacy = LEGACY_LOAD_COUNT.get();
+    long none = NONE_LOAD_COUNT.get();
+    Map<String, Long> snap = new LinkedHashMap<>(6);
+    snap.put("modern", modern);
+    snap.put("legacyRegistryXml", legacy);
+    snap.put("none", none);
+    snap.put("total", modern + legacy + none);
+    return Collections.unmodifiableMap(snap);
+  }
+
+  /**
+   * Single-line ops / log summary of dual-load selection metrics (parity with INFO load line and
+   * {@code PSWidgetDao} dual-run summary).
+   *
+   * @return never blank
+   */
+  public static String formatSelectionMetricsSummary() {
+    Map<String, Long> snap = getSelectionMetricsSnapshot();
+    return String.format(
+        "Gadget registry dual-load selection metrics: modern=%d, legacyRegistryXml=%d, none=%d, total=%d, lastSource=%s, lastEntries=%d",
+        snap.get("modern"),
+        snap.get("legacyRegistryXml"),
+        snap.get("none"),
+        snap.get("total"),
+        LAST_SOURCE.get(),
+        LAST_ENTRY_COUNT.get());
+  }
+
+  /**
+   * Resets cumulative dual-load counters and last-load source/entry count. Intended for unit tests
+   * and support probes — not a normal runtime control plane.
+   */
+  public static void resetSelectionMetrics() {
+    MODERN_LOAD_COUNT.set(0L);
+    LEGACY_LOAD_COUNT.set(0L);
+    NONE_LOAD_COUNT.set(0L);
+    LAST_SOURCE.set(Source.NONE);
+    LAST_ENTRY_COUNT.set(0);
   }
 
   /**
@@ -150,13 +252,23 @@ public final class GadgetRegistry {
     int modern = source == Source.MODERN_CATALOG ? 1 : 0;
     int legacy = source == Source.LEGACY_REGISTRY_XML ? 1 : 0;
     int none = source == Source.NONE ? 1 : 0;
+    if (modern > 0) {
+      MODERN_LOAD_COUNT.incrementAndGet();
+    } else if (legacy > 0) {
+      LEGACY_LOAD_COUNT.incrementAndGet();
+    } else {
+      NONE_LOAD_COUNT.incrementAndGet();
+    }
     log.info(
-        "Gadget registry dual-load selection: modern={}, legacyRegistryXml={}, none={}, entries={}, source={}",
+        "Gadget registry dual-load selection: modern={}, legacyRegistryXml={}, none={}, entries={}, source={}, cumulativeModern={}, cumulativeLegacy={}, cumulativeNone={}",
         modern,
         legacy,
         none,
         entries,
-        source);
+        source,
+        MODERN_LOAD_COUNT.get(),
+        LEGACY_LOAD_COUNT.get(),
+        NONE_LOAD_COUNT.get());
     if (source == Source.NONE) {
       log.error(
           "No gadget type map available: modern catalog [{}] and legacy registry [{}] both missing or empty",
