@@ -44,7 +44,7 @@ import com.percussion.deployer.objectstore.PSLogSummary;
 import com.percussion.deployer.objectstore.PSUserDependency;
 import com.percussion.deployer.server.uninstall.IPSUninstallResult;
 import com.percussion.deployer.server.uninstall.PSPackageUninstaller;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSFeatureSet;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -241,7 +241,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (type == null || type.trim().length() == 0) {
       Object[] msgArgs = {root.getTagName(), "type", ""};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {root.getTagName(), PSExceptionUtils.getMessageForLog(une)};
       throw new PSDeployException(IPSDeploymentErrors.SERVER_REQUEST_MALFORMED, args);
@@ -536,7 +536,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (idTypeEl == null) {
       Object[] msgArgs = {PSApplicationIDTypes.XML_NODE_NAME};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, msgArgs);
 
       Object[] args = {
         doc.getDocumentElement().getTagName(), PSExceptionUtils.getMessageForLog(une)
@@ -683,7 +683,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       if (infoEl == null) {
         Object[] msgArgs = {PSArchiveInfo.XML_NODE_NAME};
         PSUnknownNodeTypeException une =
-            new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, msgArgs);
+            new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, msgArgs);
 
         Object[] args = {
           doc.getDocumentElement().getTagName(), PSExceptionUtils.getMessageForLog(une)
@@ -1090,7 +1090,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (attrValue == null || attrValue.trim().length() == 0) {
       Object[] msgArgs = {root.getTagName(), attrName, ""};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {root.getTagName(), PSExceptionUtils.getMessageForLog(une)};
       throw new PSDeployException(IPSDeploymentErrors.SERVER_REQUEST_MALFORMED, args);
@@ -1270,7 +1270,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       Element root = req.getInputDocument().getDocumentElement();
       Object[] msgArgs = {root.getTagName(), attrName, sNumber};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
       Object[] args = {root.getTagName(), PSExceptionUtils.getMessageForLog(une)};
       throw new PSDeployException(IPSDeploymentErrors.SERVER_REQUEST_MALFORMED, args);
@@ -1560,7 +1560,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     if (compEl == null) {
       Object[] msgArgs = {xmlNodeName};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, msgArgs);
 
       Object[] args = {
         doc.getDocumentElement().getTagName(), PSExceptionUtils.getMessageForLog(une)
@@ -2515,7 +2515,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       // wrap exception
       Object[] args = {PSExceptionUtils.getMessageForLog(e)};
       PSServerException se =
-          new PSServerException(IPSObjectStoreErrors.FEATURE_SET_LOAD_EXCEPTION, args);
+          new PSServerException(ObjectStoreErrorCodes.FEATURE_SET_LOAD_EXCEPTION.numericCode(), args);
       throw new PSDeployException(se);
     } finally {
       if (fIn != null)
@@ -3032,7 +3032,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       String badEl = depEl == null ? "null" : depEl.getTagName();
       Object[] msgArgs = {PSDependency.XML_NODE_NAME, badEl};
       PSUnknownNodeTypeException une =
-          new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, msgArgs);
+          new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, msgArgs);
 
       Object[] args = {
         doc.getDocumentElement().getTagName(), PSExceptionUtils.getMessageForLog(une)

@@ -36,6 +36,12 @@
             <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- Direct ObjectStoreErrorCodes imports (typed IPSObjectStoreErrors peers) -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>audit-log</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>tablefactory</artifactId>

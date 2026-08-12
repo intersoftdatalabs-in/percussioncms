@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.util.PSDateFormatISO8601;
@@ -209,7 +209,7 @@ public final class PSArchiveSummary implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     // get the attributes
     m_id = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ID));
@@ -219,7 +219,7 @@ public final class PSArchiveSummary implements IPSDeployComponent {
     m_installDate = dateFormat.parse(sDate, new ParsePosition(0));
     if (m_installDate == null) {
       Object[] args = {XML_NODE_NAME, XML_ATTR_INSTALL_DATE, sDate};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // get the child elements
@@ -229,7 +229,7 @@ public final class PSArchiveSummary implements IPSDeployComponent {
     Element childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (childEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME);
     }
     m_archiveInfo = new PSArchiveInfo(childEl);
 
@@ -238,7 +238,7 @@ public final class PSArchiveSummary implements IPSDeployComponent {
     childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     if (childEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSArchivePackage.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSArchivePackage.XML_NODE_NAME);
     }
     while (childEl != null && childEl.getNodeName().equals(PSArchivePackage.XML_NODE_NAME)) {
       m_packageList.add(new PSArchivePackage(childEl));

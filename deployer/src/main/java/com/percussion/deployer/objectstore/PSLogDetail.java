@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Optional;
@@ -134,7 +134,7 @@ public final class PSLogDetail implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -145,7 +145,7 @@ public final class PSLogDetail implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDbmsMap.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSDbmsMap.XML_NODE_NAME));
     m_dbmsMap = new PSDbmsMap(dbmsEl);
 
     var txnEl =
@@ -153,7 +153,7 @@ public final class PSLogDetail implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL,
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL,
                         PSTransactionLogSummary.XML_NODE_NAME));
     m_txnLog = new PSTransactionLogSummary(txnEl);
 
@@ -162,7 +162,7 @@ public final class PSLogDetail implements IPSDeployComponent {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSValidationResults.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSValidationResults.XML_NODE_NAME));
     m_validationResults = new PSValidationResults(valEl);
 
     var idEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
@@ -179,7 +179,7 @@ public final class PSLogDetail implements IPSDeployComponent {
   private void checkNullXmlELement(Element element, String nodeName)
       throws PSUnknownNodeTypeException {
     if (element == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, nodeName);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, nodeName);
     }
   }
 

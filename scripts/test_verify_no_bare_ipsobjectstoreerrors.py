@@ -83,9 +83,11 @@ def test_list_allowlist_exits_zero() -> None:
     assert result.returncode == 0, result.stderr
     combined = result.stdout + result.stderr
     assert "IPSObjectStoreErrors.java" in combined
-    # Exact deployer residual freeze (#3149), not a broad tree prefix.
-    assert "deployer/src/main/java/com/percussion/deployer/objectstore/" in combined
-    assert "PSCatalogResult.java" in combined
+    # Deployer production residual cleared in #3165 (parent #3149) — not allow-listed.
+    assert "deployer/src/main/java/" not in combined
+    # Remaining documented residuals (Desktop CX / Design ACL).
+    assert "PSNode.java" in combined
+    assert "PSAclEntry.java" in combined
 
 
 def test_clean_repo_passes() -> None:
@@ -194,6 +196,26 @@ def test_test_source_bare_use_passes(tmp_path: Path) -> None:
     assert "PASS" in result.stdout
 
 
+def test_repo_root_src_test_bare_use_passes(tmp_path: Path) -> None:
+    """Repo-root ``src/test/`` layout (no module prefix) must still be treated as test."""
+    fake_root = tmp_path / "repo"
+    _init_fake_git_repo(fake_root)
+    _write_and_add(
+        fake_root,
+        "src/test/java/com/percussion/example/RootLayoutParity.java",
+        (
+            "package com.percussion.example;\n"
+            "import com.percussion.design.objectstore.IPSObjectStoreErrors;\n"
+            "public class RootLayoutParity {\n"
+            "  int c = IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE;\n"
+            "}\n"
+        ),
+    )
+    result = _run("--repo-root", str(fake_root))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "PASS" in result.stdout
+
+
 def test_norm_path_edge_cases() -> None:
     """``_norm_path`` must not corrupt ``../`` via character-class strip."""
     # Import from script module (same directory on sys.path via file load).
@@ -211,6 +233,26 @@ def test_norm_path_edge_cases() -> None:
     assert mod._norm_path("../foo/bar.java") == "../foo/bar.java"
     assert mod._norm_path(r"..\foo\bar.java") == "../foo/bar.java"
     assert mod._norm_path("system/src/main/java/X.java") == "system/src/main/java/X.java"
+
+
+def test_is_test_path_segment_detection() -> None:
+    """``src/test`` (and it / testFixtures) as consecutive segments — no leading slash required."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("ips_gate", SCRIPT)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    assert mod._is_test_path("system/src/test/java/com/example/FooTest.java")
+    assert mod._is_test_path("src/test/java/com/example/RootLayoutTest.java")
+    assert mod._is_test_path("src/it/java/com/example/RootIt.java")
+    assert mod._is_test_path("module/src/testFixtures/java/com/example/Fx.java")
+    assert mod._is_test_path(r"src\test\java\com\example\WinSep.java")
+    assert not mod._is_test_path("system/src/main/java/com/example/Prod.java")
+    assert not mod._is_test_path("src/main/java/com/example/Prod.java")
+    # Name-based fallback still works for *Test.java outside src/test.
+    assert mod._is_test_path("tools/FooTest.java")
 
 
 def test_new_file_under_deployer_tree_not_silently_allowed(tmp_path: Path) -> None:

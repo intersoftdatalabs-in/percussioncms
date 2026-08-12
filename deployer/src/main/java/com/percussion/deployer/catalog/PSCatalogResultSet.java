@@ -17,7 +17,7 @@
 package com.percussion.deployer.catalog;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -80,7 +80,7 @@ public final class PSCatalogResultSet implements IPSDeployComponent {
     // make sure we got the correct root node tag
     if (false == XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -95,7 +95,7 @@ public final class PSCatalogResultSet implements IPSDeployComponent {
       Element resultColumn = tree.getNextElement(PSCatalogResultColumn.XML_NODE_NAME, firstFlags);
       if (resultColumn == null) {
         Object[] args = {XML_COLUMN_META, PSCatalogResultColumn.XML_NODE_NAME, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
       var catalogResultColumns = new ArrayList<PSCatalogResultColumn>();
       while (resultColumn != null) {
@@ -114,7 +114,7 @@ public final class PSCatalogResultSet implements IPSDeployComponent {
         m_results.add(result);
       } else {
         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+            ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD,
             new Object[] {XML_NODE_NAME, PSCatalogResult.XML_NODE_NAME, "invalid column data"});
       }
       catalogResult = tree.getNextElement(PSCatalogResult.XML_NODE_NAME, nextFlags);

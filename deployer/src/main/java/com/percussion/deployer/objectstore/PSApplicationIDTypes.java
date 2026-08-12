@@ -18,7 +18,7 @@
 package com.percussion.deployer.objectstore;
 
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIdContext;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -538,7 +538,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -546,7 +546,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
     Element depEl = tree.getNextElement(FIRST_FLAGS);
     String expected = "PSXDeployableElement | PSXDeployableObject";
     if (depEl == null)
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, expected);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, expected);
 
     String nodeName = depEl.getNodeName();
     if (nodeName.equals(PSDeployableElement.XML_NODE_NAME)) m_dep = new PSDeployableElement(depEl);
@@ -554,7 +554,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
       m_dep = new PSDeployableObject(depEl);
     else {
       Object[] args = {expected, nodeName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     tree.setCurrent(sourceNode); // roll back to the root
@@ -718,7 +718,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
     // need to have at least one
     if (elemEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_MAPPING_ELEMENT);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_MAPPING_ELEMENT);
     }
     Map<String, List<PSApplicationIDTypeMapping>> elemMap = new HashMap<>();
 
@@ -747,7 +747,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
     // need to have at least one
     if (mappingEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSApplicationIDTypeMapping.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSApplicationIDTypeMapping.XML_NODE_NAME);
     }
     List<PSApplicationIDTypeMapping> mappingList = new ArrayList<>();
 
@@ -777,7 +777,7 @@ public final class PSApplicationIDTypes implements IPSDeployComponent {
     // must have at least one filter
     Element filterEl = tree.getNextElement(XML_NODE_FILTER, FIRST_FLAGS);
     if (filterEl == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_FILTER);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_NODE_FILTER);
     }
 
     while (filterEl != null) {

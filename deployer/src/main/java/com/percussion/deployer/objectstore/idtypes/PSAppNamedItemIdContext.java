@@ -19,7 +19,7 @@ package com.percussion.deployer.objectstore.idtypes;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.text.MessageFormat;
@@ -151,7 +151,7 @@ public final class PSAppNamedItemIdContext extends PSApplicationIdContext {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -165,7 +165,7 @@ public final class PSAppNamedItemIdContext extends PSApplicationIdContext {
     }
     if (!validateType(m_type)) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+          ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR,
           new Object[] {XML_NODE_NAME, XML_ATTR_TYPE, strType});
     }
 

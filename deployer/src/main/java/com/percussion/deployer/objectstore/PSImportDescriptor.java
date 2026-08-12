@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -185,7 +185,7 @@ public final class PSImportDescriptor extends PSDescriptor {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -197,7 +197,7 @@ public final class PSImportDescriptor extends PSDescriptor {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME));
     super.fromXml(descEl);
 
     var archiveInfoEl =
@@ -207,7 +207,7 @@ public final class PSImportDescriptor extends PSDescriptor {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME));
+                        ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME));
     m_archiveInfo = new PSArchiveInfo(archiveInfoEl);
 
     m_packages.clear();

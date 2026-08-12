@@ -38,7 +38,7 @@ import com.percussion.deployer.objectstore.PSLogSummary;
 import com.percussion.deployer.objectstore.PSUserDependency;
 import com.percussion.deployer.objectstore.PSValidationResults;
 import com.percussion.deployer.server.PSDeploymentHandler;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSFeatureSet;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -1651,7 +1651,7 @@ public class PSDeploymentManager {
       } catch (NumberFormatException e) {
         Object[] msgArgs = {respRoot.getTagName(), statusAttr, strStatus};
         PSUnknownNodeTypeException une =
-            new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+            new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, respRoot.getTagName(), une.getLocalizedMessage()};
         throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
@@ -1699,7 +1699,7 @@ public class PSDeploymentManager {
       } catch (NumberFormatException e) {
         Object[] msgArgs = {respRoot.getTagName(), resultAttr, strResult};
         PSUnknownNodeTypeException une =
-            new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+            new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, respRoot.getTagName(), une.getLocalizedMessage()};
         throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
@@ -1830,7 +1830,7 @@ public class PSDeploymentManager {
       } catch (NumberFormatException e) {
         Object[] msgArgs = {root.getTagName(), idAttr, strId};
         PSUnknownNodeTypeException une =
-            new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, msgArgs);
+            new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, root.getTagName(), une.getLocalizedMessage()};
         throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);

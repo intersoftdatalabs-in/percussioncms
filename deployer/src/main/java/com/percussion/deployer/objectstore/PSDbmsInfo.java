@@ -18,7 +18,7 @@
 package com.percussion.deployer.objectstore;
 
 import com.percussion.deployer.server.PSDbmsHelper;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.legacy.security.deprecated.PSCryptographer;
@@ -383,7 +383,7 @@ public final class PSDbmsInfo implements IPSDeployComponent {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       var args = new Object[] {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     var tree = new PSXmlTreeWalker(sourceNode);
     String ds;

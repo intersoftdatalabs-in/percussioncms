@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -323,7 +323,7 @@ public final class PSExportDescriptor extends PSDescriptor {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -341,14 +341,14 @@ public final class PSExportDescriptor extends PSDescriptor {
     Element descEl = tree.getNextElement(PSDescriptor.XML_NODE_NAME, firstFlags);
     if (descEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME);
     }
     super.fromXml(descEl);
 
     // restore packages
     Element packagesEl = tree.getNextElement(XML_EL_PACKAGES, nextFlags);
     if (packagesEl == null) {
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_PACKAGES);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_EL_PACKAGES);
     }
 
     m_packages.clear();
@@ -364,7 +364,7 @@ public final class PSExportDescriptor extends PSDescriptor {
     Element modsEl = tree.getNextElement(XML_EL_MODIFIED_PACKAGES, nextFlags);
     if (modsEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_MODIFIED_PACKAGES);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_EL_MODIFIED_PACKAGES);
     }
     Element modName = tree.getNextElement(XML_EL_PACKAGE_NAME, firstFlags);
     while (modName != null) {
@@ -379,7 +379,7 @@ public final class PSExportDescriptor extends PSDescriptor {
     Element missingEl = tree.getNextElement(XML_EL_MISSING_PACKAGES, nextFlags);
     if (missingEl == null) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_MISSING_PACKAGES);
+          ObjectStoreErrorCodes.XML_ELEMENT_NULL, XML_EL_MISSING_PACKAGES);
     }
     Element missingName = tree.getNextElement(XML_EL_PACKAGE_NAME, firstFlags);
     while (missingName != null) {

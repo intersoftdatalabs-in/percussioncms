@@ -18,7 +18,7 @@
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -118,7 +118,7 @@ public class PSDependencyDef {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       var args = new Object[] {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_objectType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OBJECT_TYPE);

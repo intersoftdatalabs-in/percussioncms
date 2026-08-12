@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -102,7 +102,7 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
 
     if (!xmlNodeName.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {xmlNodeName, sourceNode.getNodeName()});
     }
 

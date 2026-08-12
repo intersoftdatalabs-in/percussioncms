@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -174,7 +174,7 @@ public final class PSArchivePackage implements IPSDeployComponent {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode should not be null");
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       var args = new Object[] {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_NAME);
     m_type = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
