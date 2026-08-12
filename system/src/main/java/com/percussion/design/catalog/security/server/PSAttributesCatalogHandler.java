@@ -130,15 +130,13 @@ public class PSAttributesCatalogHandler
     String instanceName = tree.getElementData("instanceName");
 
     /* parse the tableType string and build an array from it */
-    java.util.ArrayList typeList = new java.util.ArrayList();
+    java.util.List<String> typeList = new java.util.ArrayList<>();
     while (tree.getNextElement("objectType", true, false) != null) {
       typeList.add(tree.getElementData((Element) tree.getCurrent()));
     }
     String[] objectTypes = null;
-    final int typeListSize = typeList.size();
-    if (typeListSize != 0) {
-      objectTypes = new String[typeListSize];
-      typeList.toArray(objectTypes);
+    if (!typeList.isEmpty()) {
+      objectTypes = typeList.toArray(new String[0]);
     }
 
     Document retDoc = PSXmlDocumentBuilder.createXmlDocument();

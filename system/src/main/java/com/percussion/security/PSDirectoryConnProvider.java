@@ -122,10 +122,12 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
         }
 
         setProviderProperties(directory, authentication);
-        Iterator<?> groupProviders = getGroupProviders();
+        Iterator<IPSGroupProvider> groupProviders = getGroupProviders();
         while (groupProviders.hasNext()) {
-          PSJndiGroupProvider groupProvider = (PSJndiGroupProvider) groupProviders.next();
-          groupProvider.setProviderUrl(directory.getProviderUrl());
+          IPSGroupProvider groupProvider = groupProviders.next();
+          if (groupProvider instanceof PSJndiGroupProvider) {
+            ((PSJndiGroupProvider) groupProvider).setProviderUrl(directory.getProviderUrl());
+          }
         }
 
         String encryptedPassword = getEncryptedPassword(pw);

@@ -80,9 +80,9 @@ public class PSSecurityProviderPool {
     }
 
     // init directory catalogers for all directory sets
-    Iterator dirSets = config.getDirectorySets();
+    Iterator<PSDirectorySet> dirSets = config.getDirectorySets();
     while (dirSets.hasNext()) {
-      PSDirectorySet dirSet = (PSDirectorySet) dirSets.next();
+      PSDirectorySet dirSet = dirSets.next();
       IPSDirectoryCataloger dirCat = initDirectoryCataloger(config, dirSet);
       if (dirCat != null) ms_directoryCatalogers.add(dirCat);
     }
@@ -93,9 +93,9 @@ public class PSSecurityProviderPool {
     ms_directoryCatalogers.add(ms_defaultDirCataloger);
 
     // init role catalogers for all role providers
-    Iterator roleProviders = config.getRoleProviders();
+    Iterator<PSRoleProvider> roleProviders = config.getRoleProviders();
     while (roleProviders.hasNext()) {
-      PSRoleProvider roleProvider = (PSRoleProvider) roleProviders.next();
+      PSRoleProvider roleProvider = roleProviders.next();
       if (roleProvider != null) ms_roleCatalogers.add(initRoleCataloger(config, roleProvider));
     }
 

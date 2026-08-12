@@ -41,7 +41,6 @@ import com.percussion.services.security.data.PSCommunity;
 import com.percussion.utils.guid.IPSGuid;
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Enumeration;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
@@ -119,8 +118,6 @@ public class PSExitCreateDefaultCommunityAcl extends PSDefaultExtension
       IPSTypedPrincipal owner =
           new PSTypedPrincipal(PSTypedPrincipal.DEFAULT_USER_ENTRY, PrincipalTypes.USER);
       IPSAcl acl = aclService.createAcl(objectGuid, owner);
-      Enumeration entries = acl.entries();
-      int entryCount = 0;
       IPSAclEntry ownerEntry = acl.findEntry(owner);
       assert (ownerEntry != null);
       ownerEntry.addPermissions(

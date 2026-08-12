@@ -39,7 +39,6 @@ import org.apache.logging.log4j.Logger;
  * A directory cataloger using a backend table security provider configuration as a directory
  * source.
  */
-@SuppressWarnings(value = {"unchecked"})
 public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
   /**
    * Construct a backend directory cataloger for the supplied properties.
@@ -83,14 +82,9 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     PSSubject subject = getAttributes(user, attributeNames);
 
     PSAttribute attribute = subject.getAttributes().getAttribute(attributeName);
-    List<?> values = null;
-    if (attribute != null) {
-      @SuppressWarnings("unchecked")
-      List<?> attrValues = attribute.getValues();
-      values = attrValues;
-    }
+    List<String> values = attribute != null ? attribute.getValues() : null;
 
-    return (values == null || values.isEmpty()) ? null : values.get(0).toString();
+    return (values == null || values.isEmpty()) ? null : values.get(0);
   }
 
   /**
@@ -111,13 +105,15 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     while (attributes.size() > 0) attributes.removeElementAt(0);
 
     // 2nd prepare all requested attributes with null's
-    Iterator<?> attrNames;
-    if (attributeNames == null || attributeNames.isEmpty())
-      attrNames = m_backendConnection.getUserAttributeNames();
-    else attrNames = attributeNames.iterator();
-    while (attrNames.hasNext()) {
-      Object attrName = attrNames.next();
-      if (attrName != null) attributes.setAttribute(attrName.toString(), null);
+    if (attributeNames == null || attributeNames.isEmpty()) {
+      Iterator<String> attrNames = m_backendConnection.getUserAttributeNames();
+      while (attrNames.hasNext()) {
+        attributes.setAttribute(attrNames.next(), null);
+      }
+    } else {
+      for (Object attrName : attributeNames) {
+        if (attrName != null) attributes.setAttribute(attrName.toString(), null);
+      }
     }
 
     Connection conn = null;
@@ -186,7 +182,7 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
       Collection<Object> resolvedAttrs;
       if (attributeNames == null || attributeNames.isEmpty()) {
         resolvedAttrs = new ArrayList<>();
-        Iterator<?> attrs = m_backendConnection.getUserAttributeNames();
+        Iterator<String> attrs = m_backendConnection.getUserAttributeNames();
         while (attrs.hasNext()) resolvedAttrs.add(attrs.next());
       } else {
         resolvedAttrs = new ArrayList<>(attributeNames);
