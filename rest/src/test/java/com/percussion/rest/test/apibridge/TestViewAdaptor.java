@@ -19,6 +19,8 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.views.IViewAdaptor;
 import com.percussion.rest.views.ViewDef;
+import com.percussion.rest.views.ViewExecuteRequest;
+import com.percussion.rest.views.ViewExecuteResult;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -34,5 +36,14 @@ public class TestViewAdaptor implements IViewAdaptor {
   @Override
   public ViewDef findViewByKey(String idOrName) {
     return null;
+  }
+
+  @Override
+  public ViewExecuteResult executeView(String idOrName, ViewExecuteRequest request) {
+    ViewExecuteResult empty = new ViewExecuteResult();
+    empty.setChildren(List.of());
+    empty.setTotalCount(0);
+    empty.setStartIndex(1);
+    return empty;
   }
 }

@@ -98,12 +98,13 @@ Both design catalogs store definitions as `PSSearch` rows with different `TYPE`:
 
 ## 2. Public REST / adaptor inventory (today)
 
-### 2.1 Views catalog (UI-07) — **read-only, no execute**
+### 2.1 Views catalog (UI-07) — list/detail plus standard execute (#3115)
 
 | Method | Servlet path | WebUI client path | Resource / adaptor |
 |--------|--------------|-------------------|--------------------|
 | `GET` | `/rest/views` | `/services/views` | `ViewResource.listViews` → `IViewAdaptor.listViews` |
 | `GET` | `/rest/views/{idOrName}` | `/services/views/{idOrName}` | `ViewResource.getView` → `findViewByKey` |
+| `POST` | `/rest/views/{idOrName}/execute` | `/services/views/{idOrName}/execute` | `ViewResource.executeView` → `IViewAdaptor.executeView` (standard views only; custom URL → 400 / #3118) |
 
 | Layer | Path |
 |-------|------|
