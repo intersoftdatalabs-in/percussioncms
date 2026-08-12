@@ -15,22 +15,43 @@
  */
 
 import React, { useState } from "react";
-import { Link } from "react-router";
-import { message, MSG } from "../i18n/message";
+import { message } from "../i18n/message";
 import { ADMIN_MSG } from "./messages";
+import { WF_ADMIN_MSG } from "../workflowAdmin/messages";
 import { TasksSection } from "./TasksSection";
 import { TaskLogsSection } from "./TaskLogsSection";
 import { TaskNotifications } from "./TaskNotifications";
 import { ToolsSection } from "./tools/ToolsSection";
+import { WorkflowSection } from "../workflowAdmin/workflow/WorkflowSection";
+import { RolesSection } from "../workflowAdmin/role/RolesSection";
+import { UsersSection } from "../workflowAdmin/user/UsersSection";
+import { CategoriesSection } from "../workflowAdmin/category/CategoriesSection";
 import styles from "./AdminChrome.module.css";
 
-export type AdminTab = "tasks" | "logs" | "notifications" | "tools";
+/**
+ * Unified Admin product shell tabs (#3088).
+ * Former Workflow administration tabs (workflow / roles / users / categories)
+ * live here alongside tasks, logs, notifications, and system tools.
+ */
+export type AdminTab =
+  | "tasks"
+  | "logs"
+  | "notifications"
+  | "tools"
+  | "workflow"
+  | "roles"
+  | "users"
+  | "categories";
 
 const ADMIN_TABS: readonly AdminTab[] = [
   "tasks",
   "logs",
   "notifications",
   "tools",
+  "workflow",
+  "roles",
+  "users",
+  "categories",
 ];
 
 export function normalizeAdminShellTab(
@@ -75,14 +96,6 @@ export const AdminShell: React.FC<AdminShellProps> = ({
           <h1 data-testid="perc-admin-shell-title">
             {message(ADMIN_MSG.ADMIN_TITLE)}
           </h1>
-          {/* Top nav lands on Admin tools (#2784/#2953); keep Workflow admin reachable. */}
-          <Link
-            to="/workflow"
-            className={styles.siblingLink}
-            data-testid="admin-sibling-workflow-link"
-          >
-            {message(MSG.NAV_ADMINISTRATION)}
-          </Link>
         </div>
       </header>
 
@@ -142,6 +155,58 @@ export const AdminShell: React.FC<AdminShellProps> = ({
         >
           {message(ADMIN_MSG.TAB_TOOLS)}
         </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-workflow"
+          aria-selected={activeTab === "workflow"}
+          aria-controls="panel-workflow"
+          onClick={() => setActiveTab("workflow")}
+          className={tabClass("workflow")}
+          data-testid="tab-workflow"
+        >
+          {message(WF_ADMIN_MSG.TAB_WORKFLOW)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-roles"
+          aria-selected={activeTab === "roles"}
+          aria-controls="panel-roles"
+          onClick={() => setActiveTab("roles")}
+          className={tabClass("roles")}
+          data-testid="tab-roles"
+        >
+          {message(WF_ADMIN_MSG.TAB_ROLES)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-users"
+          aria-selected={activeTab === "users"}
+          aria-controls="panel-users"
+          onClick={() => setActiveTab("users")}
+          className={tabClass("users")}
+          data-testid="tab-users"
+        >
+          {message(WF_ADMIN_MSG.TAB_USERS)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-categories"
+          aria-selected={activeTab === "categories"}
+          aria-controls="panel-categories"
+          onClick={() => setActiveTab("categories")}
+          className={tabClass("categories")}
+          data-testid="tab-categories"
+        >
+          {message(WF_ADMIN_MSG.TAB_CATEGORIES)}
+        </button>
       </nav>
 
       <main
@@ -154,6 +219,10 @@ export const AdminShell: React.FC<AdminShellProps> = ({
         {activeTab === "logs" && <TaskLogsSection />}
         {activeTab === "notifications" && <TaskNotifications />}
         {activeTab === "tools" && <ToolsSection />}
+        {activeTab === "workflow" && <WorkflowSection />}
+        {activeTab === "roles" && <RolesSection />}
+        {activeTab === "users" && <UsersSection />}
+        {activeTab === "categories" && <CategoriesSection />}
       </main>
     </div>
   );

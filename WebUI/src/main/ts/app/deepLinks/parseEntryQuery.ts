@@ -86,11 +86,12 @@ export function parseEntryQuery(
       return { entry, section, siteId, serverId, clientPath };
     }
     case "workflow": {
-      const tab = normalizeWorkflowTab(tabParam ?? sectionParam);
+      // #3088: fold legacy workflow entry into unified Admin shell paths
+      const tab = normalizeWorkflowTab(tabParam ?? sectionParam) ?? "workflow";
       return {
         entry,
         tab,
-        clientPath: tab ? `/workflow/${tab}` : "/workflow",
+        clientPath: `/admin/${tab}`,
       };
     }
     case "admin": {
@@ -204,11 +205,12 @@ export function parseClientPath(
       return { entry, section, siteId, serverId, clientPath: cp };
     }
     case "workflow": {
-      const tab = normalizeWorkflowTab(second);
+      // Legacy path prefix still parseable; client path is Admin (#3088)
+      const tab = normalizeWorkflowTab(second) ?? "workflow";
       return {
         entry,
         tab,
-        clientPath: tab ? `/workflow/${tab}` : "/workflow",
+        clientPath: `/admin/${tab}`,
       };
     }
     case "admin": {

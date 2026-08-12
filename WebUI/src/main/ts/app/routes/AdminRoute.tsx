@@ -26,7 +26,9 @@ const AdminShellLazy = lazy(() =>
 );
 
 /**
- * SPA Admin tools route — Admin only (includes tools tab).
+ * SPA Admin route — Admin only.
+ * Unified shell: tasks, logs, notifications, tools, workflow, roles, users,
+ * categories (#3088).
  */
 export function AdminRoute(): React.ReactElement {
   const { tab } = useParams();
@@ -34,10 +36,10 @@ export function AdminRoute(): React.ReactElement {
   return (
     <RequireRole gate="admin">
       <LazyRouteFrame
-        label="Admin tools"
+        label="Admin"
         fallback={
           <div data-testid="route-admin-loading" style={{ padding: "1.5rem" }}>
-            Loading Admin tools…
+            Loading Admin…
           </div>
         }
       >
