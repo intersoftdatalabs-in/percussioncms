@@ -112,10 +112,13 @@ public final class PSSearchIndexProcessMonitor implements IPSNotificationListene
             }
           }
         }
-      // fall through
+        // Same as item queued/processed: mark monitor dirty so the timer refreshes the message.
+        changed.compareAndSet(false, true);
+        break;
       case SEARCH_INDEX_ITEM_QUEUED:
       case SEARCH_INDEX_ITEM_PROCESSED:
         changed.compareAndSet(false, true);
+        break;
       default:
         break;
     }

@@ -218,8 +218,7 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
   public PSWidgetBuilderValidationResults validate(PSWidgetBuilderDefinitionData definition) {
     Validate.notNull(definition, "definition must not be null");
     var results = new PSWidgetBuilderValidationResults();
-    var validator = new PSWidgetBuilderDefinitionValidator();
-    results.setResults(validator.validate(definition, loadAll()));
+    results.setResults(PSWidgetBuilderDefinitionValidator.validate(definition, loadAll()));
     return results;
   }
 

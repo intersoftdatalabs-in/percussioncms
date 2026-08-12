@@ -205,6 +205,11 @@ public class PSSiteSectionMetaDataService implements IPSSiteSectionMetaDataServi
     }
 
     @Override
+    public int hashCode() {
+      return folderPath == null ? 0 : folderPath.hashCode();
+    }
+
+    @Override
     public String toString() {
       final StringBuffer sb = new StringBuffer("SectionPath{");
       sb.append("folderPath='").append(folderPath).append('\'');

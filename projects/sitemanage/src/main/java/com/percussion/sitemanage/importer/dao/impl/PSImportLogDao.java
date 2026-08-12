@@ -110,7 +110,7 @@ public class PSImportLogDao implements IPSImportLogDao {
   @Override
   public PSImportLogEntry findLogEntryById(long pageLogId) {
     var session = getSession();
-    return session.get(PSImportLogEntry.class, pageLogId);
+    return session.find(PSImportLogEntry.class, pageLogId);
   }
 
   @Override

@@ -38,14 +38,6 @@ public class PSContentMigrationException extends Exception {
   }
 
   public void setFailedItems(Map<String, String> failedItems) {
-    if (failedItems != null) {
-      if (failedItems == null) {
-        this.failedItems = null;
-      } else if (failedItems instanceof HashMap) {
-        this.failedItems = (HashMap) failedItems;
-      } else {
-        this.failedItems = new HashMap<>(failedItems);
-      }
-    }
+    this.failedItems = failedItems == null ? null : new HashMap<>(failedItems);
   }
 }

@@ -78,7 +78,7 @@ public class PSUiService implements IPSUiService {
     var cols = df.getColumns();
     var temp = new ArrayList<PSDisplayColumn>();
     while (cols.hasNext()) {
-      temp.add((PSDisplayColumn) cols.next());
+      temp.add(cols.next());
     }
     temp.sort(Comparator.comparingInt(PSDisplayColumn::getPosition));
 

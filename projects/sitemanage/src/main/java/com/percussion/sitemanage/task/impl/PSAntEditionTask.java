@@ -134,7 +134,7 @@ public class PSAntEditionTask implements IPSEditionTask {
         pubServer = pubOpt.get();
         root =
             pubServer
-                .getProperty(pubServerMgr.PUBLISH_FOLDER_PROPERTY)
+                .getProperty(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY)
                 .map(PSPubServerProperty::getValue)
                 .orElse(EMPTY);
       }

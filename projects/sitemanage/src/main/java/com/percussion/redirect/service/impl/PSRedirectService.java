@@ -201,7 +201,7 @@ public class PSRedirectService implements IPSRedirectService {
     // Assume failure
     var ret = new PSRedirectStatus(PSRedirectStatus.SERVICE_ERROR, "Error.");
 
-    var client = ClientBuilder.newBuilder().newClient();
+    var client = ClientBuilder.newClient();
     var lic = getLicense();
 
     if (lic != null) {
