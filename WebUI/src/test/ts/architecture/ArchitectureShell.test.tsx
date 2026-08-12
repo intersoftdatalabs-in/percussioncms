@@ -267,4 +267,118 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       );
     });
   });
+
+  it("opens external link create dialog from action bar (#3097)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-action-create-external-link"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByTestId("architecture-action-create-external-link"),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-external-link-dialog"),
+      ).toBeTruthy();
+    });
+  });
+
+  it("opens section link dialog and landing dialog (#3097)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-action-create-section-link"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByTestId("architecture-action-create-section-link"),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-section-link-dialog"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-section-link-cancel"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-landing") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-dialog")).toBeTruthy();
+    });
+  });
+
+  it("create external link calls createExternalLinkSection (#3097)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const createExt = vi
+      .spyOn(sectionApi, "createExternalLinkSection")
+      .mockResolvedValue({});
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-action-create-external-link"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByTestId("architecture-action-create-external-link"),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-external-link-text"),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-external-link-text"), {
+      target: { value: "Docs" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-external-link-url"), {
+      target: { value: "https://docs.example" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-external-link-submit"));
+    await waitFor(() => {
+      expect(createExt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          linkTitle: "Docs",
+          externalUrl: "https://docs.example",
+          sectionType: "externallink",
+        }),
+      );
+    });
+  });
 });
+

@@ -16,7 +16,8 @@
  */
 
 /**
- * Wire types for sitemanage section / Architecture nav tree (#3095).
+ * Wire types for sitemanage section / Architecture nav tree
+ * (#3095 / #3096 / #3097).
  *
  * <p>Mirrors {@code PSSectionNode} / {@code PSSiteSection} and
  * {@code PSSectionTypeEnum} from projects/sitemanage.</p>
@@ -130,4 +131,36 @@ export interface SiblingPlacement {
   parent: NavTreeNode;
   index: number;
   siblings: NavTreeNode[];
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/replaceLandingPage}
+ * ({@code ReplaceLandingPage} / {@code PSReplaceLandingPage}).
+ */
+export interface ReplaceLandingPageFields {
+  sectionId: string;
+  newLandingPageId: string;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/createExternalLinkSection}
+ * and update external link ({@code CreateExternalLinkSection}).
+ */
+export interface CreateExternalLinkFields {
+  externalUrl: string;
+  linkTitle: string;
+  folderPath: string;
+  sectionType?: SectionType;
+  target?: SectionTarget;
+  cssClassNames?: string | null;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/updateSectionLink}
+ * ({@code UpdateSectionLink} / {@code PSUpdateSectionLink}).
+ */
+export interface UpdateSectionLinkFields {
+  oldSectionId: string;
+  newSectionId: string;
+  parentSectionId: string;
 }

@@ -16,19 +16,24 @@
  */
 
 /**
- * Pure helpers for Architecture nav structure mutations (#3096).
+ * Pure helpers for Architecture nav structure mutations (#3096 / #3097).
  *
  * <p>No I/O. Builds REST payload wrappers and resolves parent/sibling placement
- * for create / rename / reorder / delete. Safe for Vitest without fetch.</p>
+ * for create / rename / reorder / delete / landing / links. Safe for Vitest
+ * without fetch.</p>
  */
 
 import { toRepositoryCmsPath } from "../../home/create/filenameUtils";
 import type {
+  CreateExternalLinkFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
+  ReplaceLandingPageFields,
   SiblingPlacement,
   SiteSectionPropertiesWire,
+  SiteSectionWire,
+  UpdateSectionLinkFields,
 } from "./types";
 
 /** Windows-ish folder / URL segment: letters, digits, dash, underscore, period. */
@@ -322,4 +327,194 @@ export function parseSiteSectionPropertiesPayload(
  */
 export function isSectionLinkType(sectionType: string | null | undefined): boolean {
   return String(sectionType || "").toLowerCase() === "sectionlink";
+}
+
+/** External-link section type. */
+export function isExternalLinkType(
+  sectionType: string | null | undefined,
+): boolean {
+  return String(sectionType || "").toLowerCase() === "externallink";
+}
+
+/** Blog section type (structure-visible; full blog UX deferred). */
+export function isBlogSectionType(
+  sectionType: string | null | undefined,
+): boolean {
+  return String(sectionType || "").toLowerCase() === "blog";
+}
+
+/**
+ * Regular section (including site root) may have its landing page replaced.
+ * Section links / external links / blogs are not landing-page hosts in this slice.
+ */
+export function canReplaceLandingPage(node: NavTreeNode | null): boolean {
+  if (!node) return false;
+  const t = String(node.sectionType || "section").toLowerCase();
+  return t === "section";
+}
+
+/**
+ * Whether the selected node can open the edit-link dialog (section or external).
+ */
+export function canEditLinkNode(node: NavTreeNode | null): boolean {
+  if (!node) return false;
+  return (
+    isSectionLinkType(node.sectionType) || isExternalLinkType(node.sectionType)
+  );
+}
+
+/**
+ * Whether {@code targetId} may be a section-link target under {@code parentId}.
+ * Rejects missing ids, self-parent, and when the target is already a
+ * <strong>direct</strong> child of the parent (CM1 {@code isChild} / duplicate
+ * section guard — not full subtree).
+ */
+export function isValidSectionLinkTarget(
+  root: NavTreeNode | null | undefined,
+  parentId: string,
+  targetId: string,
+): boolean {
+  const parent = parentId.trim();
+  const target = targetId.trim();
+  if (!root || !parent || !target) return false;
+  if (parent === target) return false;
+  if (!findNavNodeById(root, target)) return false;
+  const parentNode = findNavNodeById(root, parent);
+  if (!parentNode) return false;
+  // CM1 isChild: only direct children count as duplicates
+  if (parentNode.children.some((c) => c.id === target)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Validate external link URL (non-empty; basic scheme or path).
+ * Returns error message or {@code null} when valid.
+ */
+export function validateExternalUrl(url: string): string | null {
+  const t = url.trim();
+  if (!t) {
+    return "URL is required";
+  }
+  if (t.length > 2048) {
+    return "URL is too long (max 2048 characters)";
+  }
+  // Accept absolute http(s), protocol-relative, or site-relative paths
+  if (
+    /^https?:\/\//i.test(t) ||
+    t.startsWith("//") ||
+    t.startsWith("/") ||
+    t.startsWith("#") ||
+    /^[a-z][a-z0-9+.-]*:/i.test(t)
+  ) {
+    return null;
+  }
+  // Also allow bare hostnames / relative paths used in CM1
+  if (/^[\w./?#&=%-]+$/i.test(t)) {
+    return null;
+  }
+  return "Enter a valid URL (for example https://example.com or /path)";
+}
+
+/**
+ * Build Jackson-rooted body for {@code POST /section/replaceLandingPage}.
+ */
+export function buildReplaceLandingPageBody(
+  fields: ReplaceLandingPageFields,
+): { ReplaceLandingPage: ReplaceLandingPageFields } {
+  return {
+    ReplaceLandingPage: {
+      sectionId: fields.sectionId.trim(),
+      newLandingPageId: fields.newLandingPageId.trim(),
+    },
+  };
+}
+
+/**
+ * Build Jackson-rooted body for create / update external link.
+ */
+export function buildCreateExternalLinkBody(
+  fields: CreateExternalLinkFields,
+): { CreateExternalLinkSection: CreateExternalLinkFields } {
+  return {
+    CreateExternalLinkSection: {
+      externalUrl: fields.externalUrl.trim(),
+      linkTitle: fields.linkTitle.trim(),
+      folderPath: toRepositoryCmsPath(fields.folderPath),
+      sectionType: fields.sectionType ?? "externallink",
+      target: fields.target ?? "_self",
+      ...(fields.cssClassNames != null && String(fields.cssClassNames).trim()
+        ? { cssClassNames: String(fields.cssClassNames).trim() }
+        : {}),
+    },
+  };
+}
+
+/**
+ * Build Jackson-rooted body for {@code POST /section/updateSectionLink}.
+ */
+export function buildUpdateSectionLinkBody(
+  fields: UpdateSectionLinkFields,
+): { UpdateSectionLink: UpdateSectionLinkFields } {
+  return {
+    UpdateSectionLink: {
+      oldSectionId: fields.oldSectionId.trim(),
+      newSectionId: fields.newSectionId.trim(),
+      parentSectionId: fields.parentSectionId.trim(),
+    },
+  };
+}
+
+/**
+ * Unwrap {@code SiteSection} / plain object from GET section payload.
+ */
+export function parseSiteSectionPayload(
+  payload: unknown,
+): SiteSectionWire | null {
+  if (payload == null || typeof payload !== "object") {
+    return null;
+  }
+  const obj = payload as Record<string, unknown>;
+  const root =
+    (obj.SiteSection as unknown) ??
+    (obj.siteSection as unknown) ??
+    payload;
+  if (root == null || typeof root !== "object" || Array.isArray(root)) {
+    return null;
+  }
+  const rec = root as Record<string, unknown>;
+  const id = rec.id != null ? String(rec.id).trim() : "";
+  if (!id) {
+    return null;
+  }
+  return {
+    id,
+    title: rec.title != null ? String(rec.title) : "",
+    folderPath: rec.folderPath != null ? String(rec.folderPath) : null,
+    sectionType:
+      rec.sectionType != null ? String(rec.sectionType) : "section",
+    externalLinkUrl:
+      rec.externalLinkUrl != null ? String(rec.externalLinkUrl) : null,
+    target: rec.target != null ? String(rec.target) : "_self",
+    requiresLogin: rec.requiresLogin === true,
+    allowAccessTo:
+      rec.allowAccessTo != null ? String(rec.allowAccessTo) : null,
+    cssClassNames:
+      rec.cssClassNames != null ? String(rec.cssClassNames) : null,
+  };
+}
+
+/**
+ * Resolve section-link create path segment pair for GET mutation.
+ * Returns encoded path suffix {@code target/parent} or {@code null}.
+ */
+export function buildCreateSectionLinkPath(
+  targetSectionId: string,
+  parentSectionId: string,
+): string | null {
+  const target = targetSectionId.trim();
+  const parent = parentSectionId.trim();
+  if (!target || !parent) return null;
+  return `${encodeURIComponent(target)}/${encodeURIComponent(parent)}`;
 }

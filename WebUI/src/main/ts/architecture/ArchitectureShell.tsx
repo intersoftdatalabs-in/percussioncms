@@ -18,12 +18,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import {
+  createExternalLinkSection,
+  createSectionLink,
   createSiteSection,
   deleteSectionLink,
   deleteSiteSection,
+  loadSection,
   loadSectionProperties,
   loadSectionTree,
   moveSiteSection,
+  replaceLandingPage,
+  updateExternalLink,
+  updateSectionLink,
   updateSiteSection,
 } from "../api/architecture/sectionApi";
 import {
@@ -31,10 +37,13 @@ import {
   buildSiblingReorderMove,
   canCreateChildUnder,
   canDeleteNavNode,
+  canEditLinkNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
+  canReplaceLandingPage,
   findNavNodeById,
   findSiblingPlacement,
+  isExternalLinkType,
   isSectionLinkType,
   resolveCreateParentFolderPath,
 } from "../api/architecture/sectionMutations";
@@ -42,8 +51,11 @@ import type { NavTreeNode } from "../api/architecture/types";
 import { fetchSites } from "../api/home/homeApi";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
+import { ExternalLinkDialog } from "./ExternalLinkDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
+import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
+import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
 import { ARCH_MSG } from "./messages";
@@ -62,6 +74,11 @@ export interface ArchitectureShellProps {
    * Optional confirm hook (tests). Defaults to {@code window.confirm}.
    */
   confirmFn?: (message: string) => boolean;
+  /**
+   * When false, landing dialog uses page-id field instead of ContentBrowser
+   * (unit tests). Default true.
+   */
+  useLandingContentBrowser?: boolean;
 }
 
 type SitesLoadState =
@@ -76,15 +93,14 @@ type TreeLoadState =
   | { status: "ready"; root: NavTreeNode | null };
 
 /**
- * Architecture / Navigation SPA shell (#3094 shell + #3095 tree + #3096 mutations).
- *
- * <p>Site picker + section tree + create / rename / reorder / delete for
- * regular sections. Landing-page and section-link dialogs remain Slice E.</p>
+ * Architecture / Navigation SPA shell
+ * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links).
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
   embedded = false,
   confirmFn,
+  useLandingContentBrowser = true,
 }) => {
   const confirmAction =
     confirmFn ?? ((msg: string) => window.confirm(msg));
@@ -103,6 +119,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
+  const [landingOpen, setLandingOpen] = useState(false);
+  const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
+  const [sectionLinkMode, setSectionLinkMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [externalLinkOpen, setExternalLinkOpen] = useState(false);
+  const [externalLinkMode, setExternalLinkMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [externalInitial, setExternalInitial] = useState<{
+    linkTitle: string;
+    externalUrl: string;
+    target: string;
+  } | null>(null);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -203,6 +233,12 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   }, [selectedNode, treeRoot]);
 
   const canCreate = !!selectedSite && !!createParent && !mutationBusy;
+  const canCreateSectionLink = canCreate;
+  const canCreateExternalLink = canCreate;
+  const canLanding =
+    !!selectedNode && canReplaceLandingPage(selectedNode) && !mutationBusy;
+  const canEditLink =
+    !!selectedNode && canEditLinkNode(selectedNode) && !mutationBusy;
   const canRename =
     !!selectedNode &&
     String(selectedNode.sectionType || "section").toLowerCase() ===
@@ -316,6 +352,119 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     });
   }, [selectedNode, treeRoot, confirmAction, runMutation]);
 
+  const onLandingSubmit = useCallback(
+    (newLandingPageId: string) => {
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        await replaceLandingPage({
+          sectionId: selectedNode.id,
+          newLandingPageId,
+        });
+        setLandingOpen(false);
+      });
+    },
+    [selectedNode, runMutation],
+  );
+
+  const onSectionLinkSubmit = useCallback(
+    (targetSectionId: string) => {
+      if (sectionLinkMode === "create") {
+        if (!createParent) return;
+        void runMutation(async () => {
+          await createSectionLink(targetSectionId, createParent.id);
+          setSectionLinkOpen(false);
+        });
+        return;
+      }
+      // edit
+      if (!selectedNode || !treeRoot) return;
+      const place = findSiblingPlacement(treeRoot, selectedNode.id);
+      if (!place) {
+        setMutationError(ARCH_MSG.MUTATION_ERROR);
+        return;
+      }
+      void runMutation(async () => {
+        await updateSectionLink({
+          oldSectionId: selectedNode.id,
+          newSectionId: targetSectionId,
+          parentSectionId: place.parent.id,
+        });
+        setSectionLinkOpen(false);
+      });
+    },
+    [sectionLinkMode, createParent, selectedNode, treeRoot, runMutation],
+  );
+
+  const onExternalLinkSubmit = useCallback(
+    (values: {
+      linkTitle: string;
+      externalUrl: string;
+      target: string;
+    }) => {
+      if (externalLinkMode === "create") {
+        if (!selectedSite || !createParent) return;
+        const folderPath = resolveCreateParentFolderPath(
+          createParent,
+          selectedSite,
+        );
+        void runMutation(async () => {
+          await createExternalLinkSection({
+            linkTitle: values.linkTitle,
+            externalUrl: values.externalUrl,
+            folderPath,
+            sectionType: "externallink",
+            target: values.target,
+          });
+          setExternalLinkOpen(false);
+        });
+        return;
+      }
+      if (!selectedNode) return;
+      void runMutation(async () => {
+        const loaded = await loadSection(selectedNode.id);
+        await updateExternalLink(selectedNode.id, {
+          linkTitle: values.linkTitle,
+          externalUrl: values.externalUrl,
+          folderPath: loaded.folderPath || "",
+          sectionType: "externallink",
+          target: values.target,
+          cssClassNames: loaded.cssClassNames,
+        });
+        setExternalLinkOpen(false);
+      });
+    },
+    [externalLinkMode, selectedSite, createParent, selectedNode, runMutation],
+  );
+
+  const openEditLink = useCallback(() => {
+    if (!selectedNode) return;
+    setMutationError(null);
+    if (isSectionLinkType(selectedNode.sectionType)) {
+      setSectionLinkMode("edit");
+      setSectionLinkOpen(true);
+      return;
+    }
+    if (isExternalLinkType(selectedNode.sectionType)) {
+      setExternalLinkMode("edit");
+      setExternalInitial(null);
+      setExternalLinkOpen(true);
+      void (async () => {
+        try {
+          const loaded = await loadSection(selectedNode.id);
+          setExternalInitial({
+            linkTitle: loaded.title || selectedNode.title,
+            externalUrl: loaded.externalLinkUrl || "",
+            target: loaded.target || "_self",
+          });
+        } catch (err) {
+          if (isSessionRedirectError(err)) return;
+          setMutationError(formatApiError(err, ARCH_MSG.MUTATION_ERROR));
+          setExternalLinkOpen(false);
+        }
+      })();
+    }
+  }, [selectedNode]);
+
   const siteNames =
     sitesState.status === "ready" ? sitesState.names : [];
   const siteOptions =
@@ -326,6 +475,19 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const treeLoading = treeState.status === "loading";
   const treeError =
     treeState.status === "error" ? treeState.message : null;
+
+  const sectionLinkParentId =
+    sectionLinkMode === "edit" && selectedNode && treeRoot
+      ? findSiblingPlacement(treeRoot, selectedNode.id)?.parent.id ??
+        createParent?.id ??
+        ""
+      : createParent?.id ?? "";
+  const sectionLinkParentTitle =
+    sectionLinkMode === "edit" && selectedNode && treeRoot
+      ? findSiblingPlacement(treeRoot, selectedNode.id)?.parent.title ??
+        createParent?.title ??
+        ""
+      : createParent?.title ?? "";
 
   return (
     <div
@@ -507,6 +669,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           <StructureActionBar
             busy={mutationBusy}
             canCreate={canCreate}
+            canCreateSectionLink={canCreateSectionLink}
+            canCreateExternalLink={canCreateExternalLink}
+            canLanding={canLanding}
+            canEditLink={canEditLink}
             canRename={canRename}
             canMoveUp={canMoveUp}
             canMoveDown={canMoveDown}
@@ -519,6 +685,34 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               }
               setCreateOpen(true);
             }}
+            onCreateSectionLink={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setSectionLinkMode("create");
+              setSectionLinkOpen(true);
+            }}
+            onCreateExternalLink={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setExternalLinkMode("create");
+              setExternalInitial(null);
+              setExternalLinkOpen(true);
+            }}
+            onLanding={() => {
+              setMutationError(null);
+              if (!selectedNode || !canReplaceLandingPage(selectedNode)) {
+                setMutationError(ARCH_MSG.LANDING_BLOCKED);
+                return;
+              }
+              setLandingOpen(true);
+            }}
+            onEditLink={openEditLink}
             onRename={() => {
               setMutationError(null);
               setRenameOpen(true);
@@ -575,6 +769,16 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           >
             {ARCH_MSG.TREE_STRUCTURE_NOTE}
           </p>
+          <p
+            style={{
+              margin: "0.35rem 0 0",
+              color: catalogColors.empty,
+              fontSize: "0.8rem",
+            }}
+            data-testid="architecture-blog-note"
+          >
+            {ARCH_MSG.BLOG_NOTE}
+          </p>
         </section>
       )}
 
@@ -596,6 +800,43 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           if (!mutationBusy) setRenameOpen(false);
         }}
         onSubmit={onRenameSubmit}
+      />
+      <ReplaceLandingPageDialog
+        open={landingOpen}
+        siteName={selectedSite ?? ""}
+        sectionTitle={selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        useContentBrowser={useLandingContentBrowser}
+        onCancel={() => {
+          if (!mutationBusy) setLandingOpen(false);
+        }}
+        onSubmit={onLandingSubmit}
+      />
+      <SectionLinkDialog
+        open={sectionLinkOpen}
+        mode={sectionLinkMode}
+        parentId={sectionLinkParentId}
+        parentTitle={sectionLinkParentTitle}
+        treeRoot={treeRoot}
+        busy={mutationBusy}
+        linkSectionId={
+          sectionLinkMode === "edit" ? selectedNode?.id ?? null : null
+        }
+        onCancel={() => {
+          if (!mutationBusy) setSectionLinkOpen(false);
+        }}
+        onSubmit={onSectionLinkSubmit}
+      />
+      <ExternalLinkDialog
+        open={externalLinkOpen}
+        mode={externalLinkMode}
+        parentTitle={createParent?.title ?? selectedNode?.title ?? ""}
+        busy={mutationBusy}
+        initial={externalInitial}
+        onCancel={() => {
+          if (!mutationBusy) setExternalLinkOpen(false);
+        }}
+        onSubmit={onExternalLinkSubmit}
       />
     </div>
   );
