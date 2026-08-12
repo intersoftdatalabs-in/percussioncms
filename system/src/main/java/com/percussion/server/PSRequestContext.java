@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /** The PSRequestContext class contains all the context information of a given request. */
-@SuppressWarnings(value = {"unchecked"})
 public class PSRequestContext implements IPSRequestContext {
   /**
    * Construct a PSRequestContext object.
@@ -209,8 +208,9 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getParametersIterator()
    */
-  public Iterator getParametersIterator() {
-    return m_requestToProxy.getParametersIterator();
+  @SuppressWarnings("unchecked")
+  public Iterator<Map.Entry<String, Object>> getParametersIterator() {
+    return (Iterator<Map.Entry<String, Object>>) m_requestToProxy.getParametersIterator();
   }
 
   /*
@@ -264,7 +264,7 @@ public class PSRequestContext implements IPSRequestContext {
     if (values == null || values.length == 0) value = null;
     else if (values.length == 1) value = values[0];
     else {
-      ArrayList list = new ArrayList(values.length);
+      ArrayList<Object> list = new ArrayList<>(values.length);
       for (int i = 0; i < values.length; i++) {
         Object val = values[i];
         if (!(val instanceof String))
@@ -282,7 +282,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getTruncatedParameters()
    */
-  public Map getTruncatedParameters() {
+  public Map<String, Object> getTruncatedParameters() {
     return m_requestToProxy.getTruncatedParameters();
   }
 
@@ -328,7 +328,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getResponseCookies()
    */
-  public java.util.HashMap getResponseCookies() {
+  public java.util.HashMap<String, String> getResponseCookies() {
     return m_requestToProxy.getResponse().getCookies();
   }
 
@@ -336,7 +336,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#setResponseCookies(java.util.HashMap)
    */
-  public void setResponseCookies(java.util.HashMap cookies) {
+  public void setResponseCookies(java.util.HashMap<String, String> cookies) {
     m_requestToProxy.getResponse().setCookies(cookies);
   }
 
@@ -424,7 +424,7 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   // see IPSRequestContext
-  public List getUserRoles(String provider, String providerInstance, String name) {
+  public List<String> getUserRoles(String provider, String providerInstance, String name) {
     PSSubject subject = new PSGlobalSubject(name, PSSubject.SUBJECT_TYPE_USER, null);
 
     return getSubjectRoles(subject);
@@ -543,7 +543,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getSubjectRoles(java.lang.String)
    */
-  public List getSubjectRoles(String subjectName) {
+  public List<String> getSubjectRoles(String subjectName) {
     return PSRoleManager.getInstance()
         .memberRoleList(m_requestToProxy.getUserSession(), subjectName);
   }
@@ -562,23 +562,29 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   // see IPSRequestContext for a description
-  public Set getRoleEmailAddresses(String roleName, String emailAttributeName, String community) {
+  public Set<String> getRoleEmailAddresses(
+      String roleName, String emailAttributeName, String community) {
     return getRoleEmailAddresses(roleName, emailAttributeName, community, null);
   }
 
   // see IPSRequestContext for a description
-  public Set getRoleEmailAddresses(
-      String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
+  public Set<String> getRoleEmailAddresses(
+      String roleName,
+      String emailAttributeName,
+      String community,
+      Set<String> subjectsWithoutEmail) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
 
     roleName = roleName.trim();
     if (roleName.length() == 0) throw new IllegalArgumentException("roleName cannot be empty");
 
-    Set emails = new TreeSet();
+    Set<String> emails = new TreeSet<>();
 
-    emails.addAll(
+    for (PSNotificationEmailAddress addr :
         PSRoleManager.getInstance()
-            .getRoleEmailAddresses(roleName, emailAttributeName, community, subjectsWithoutEmail));
+            .getRoleEmailAddresses(roleName, emailAttributeName, community, null)) {
+      if (addr != null && addr.getEmail() != null) emails.add(addr.getEmail());
+    }
 
     return emails;
   }
@@ -616,7 +622,7 @@ public class PSRequestContext implements IPSRequestContext {
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getRoles()
    */
-  public List getRoles() {
+  public List<String> getRoles() {
     return PSRoleManager.getInstance().getRoles();
   }
 
@@ -718,7 +724,7 @@ public class PSRequestContext implements IPSRequestContext {
       if (s.getName().equalsIgnoreCase(subject.getName()) && s.getType() == subject.getType()) {
         PSAttributeList alist = s.getAttributes();
         if (alist != null) {
-          Iterator attrsIter = alist.iterator();
+          Iterator<?> attrsIter = alist.iterator();
           while (attrsIter.hasNext()) {
             PSAttribute a = (PSAttribute) attrsIter.next();
             attrs.add(a.getName());
@@ -743,15 +749,17 @@ public class PSRequestContext implements IPSRequestContext {
    * @see com.percussion.server.IPSRequestContext#getRoleMembers(java.lang.String, int, int)
    * @deprecated
    */
-  public List getRoleMembers(String roleName, int flags, int memberFlags) {
-    return getRoleSubjects(roleName, memberFlags, null);
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public List<String> getRoleMembers(String roleName, int flags, int memberFlags) {
+    // Historical contract returns role subjects under a List<String> facade.
+    return (List) getRoleSubjects(roleName, memberFlags, null);
   }
 
   /*
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getSubjects(java.lang.String)
    */
-  public List getSubjects(String subjectNameFilter) {
+  public List<PSSubject> getSubjects(String subjectNameFilter) {
     return getRoleSubjects(null, PSSubject.SUBJECT_TYPE_USER, subjectNameFilter);
   }
 
@@ -843,7 +851,7 @@ public class PSRequestContext implements IPSRequestContext {
    * Wrapper method that calls {@link #getInternalRequest(String, Map, boolean)
    * getInternalRequest(resource, null, true)}.
    */
-  public IPSInternalRequest getInternalRequest(String resource, Map extraParams) {
+  public IPSInternalRequest getInternalRequest(String resource, Map<String, Object> extraParams) {
     return getInternalRequest(resource, extraParams, true);
   }
 
@@ -852,7 +860,7 @@ public class PSRequestContext implements IPSRequestContext {
    * @see com.percussion.server.IPSRequestContext#getInternalRequest(java.lang.String, java.util.Map, boolean)
    */
   public IPSInternalRequest getInternalRequest(
-      String resource, Map extraParams, boolean inheritCurrentParams) {
+      String resource, Map<String, Object> extraParams, boolean inheritCurrentParams) {
     PSInternalRequest ir =
         PSServer.getInternalRequest(resource, m_requestToProxy, extraParams, inheritCurrentParams);
 
@@ -889,7 +897,7 @@ public class PSRequestContext implements IPSRequestContext {
   /* (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getHeaders()
    */
-  public Enumeration getHeaders() {
+  public Enumeration<String> getHeaders() {
     return m_requestToProxy.getServletRequest().getHeaderNames();
   }
 

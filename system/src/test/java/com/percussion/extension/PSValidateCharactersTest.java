@@ -139,7 +139,7 @@ public class PSValidateCharactersTest {
       return null;
     }
 
-    public Enumeration getHeaders() {
+    public Enumeration<String> getHeaders() {
 
       return null;
     }
@@ -265,7 +265,7 @@ public class PSValidateCharactersTest {
       return null;
     }
 
-    public HashMap getResponseCookies() {
+    public HashMap<String, String> getResponseCookies() {
 
       return null;
     }
@@ -275,13 +275,17 @@ public class PSValidateCharactersTest {
       return null;
     }
 
-    public Set getRoleEmailAddresses(String roleName, String emailAttributeName, String community) {
+    public Set<String> getRoleEmailAddresses(
+        String roleName, String emailAttributeName, String community) {
 
       return null;
     }
 
-    public Set getRoleEmailAddresses(
-        String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
+    public Set<String> getRoleEmailAddresses(
+        String roleName,
+        String emailAttributeName,
+        String community,
+        Set<String> subjectsWithoutEmail) {
 
       return null;
     }
@@ -331,7 +335,7 @@ public class PSValidateCharactersTest {
       return null;
     }
 
-    public Set getSubjectEmailAddresses(
+    public Set<com.percussion.security.PSNotificationEmailAddress> getSubjectEmailAddresses(
         String subjectName, String emailAttributeName, String community) {
 
       return null;
@@ -506,7 +510,7 @@ public class PSValidateCharactersTest {
     public void setResponseCookie(
         String name, String value, String path, String domain, Date expires, boolean secure) {}
 
-    public void setResponseCookies(HashMap cookies) {}
+    public void setResponseCookies(HashMap<String, String> cookies) {}
 
     public boolean setResponseHeader(String name, String value) {
 

@@ -19,6 +19,7 @@ package com.percussion.testing;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSRuntimeException;
+import com.percussion.security.PSNotificationEmailAddress;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
@@ -198,12 +199,12 @@ public class PSMockRequestContext implements IPSRequestContext {
 
   }
 
-  public HashMap getResponseCookies() {
+  public HashMap<String, String> getResponseCookies() {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public void setResponseCookies(HashMap cookies) {
+  public void setResponseCookies(HashMap<String, String> cookies) {
     // TODO Auto-generated method stub
 
   }
@@ -455,24 +456,28 @@ public class PSMockRequestContext implements IPSRequestContext {
     return null;
   }
 
-  public Set getRoleEmailAddresses(String roleName, String emailAttributeName, String community) {
+  public Set<String> getRoleEmailAddresses(
+      String roleName, String emailAttributeName, String community) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Set getRoleEmailAddresses(
-      String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
+  public Set<String> getRoleEmailAddresses(
+      String roleName,
+      String emailAttributeName,
+      String community,
+      Set<String> subjectsWithoutEmail) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Set getSubjectEmailAddresses(
+  public Set<PSNotificationEmailAddress> getSubjectEmailAddresses(
       String subjectName, String emailAttributeName, String community) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Enumeration getHeaders() {
+  public Enumeration<String> getHeaders() {
     // TODO Auto-generated method stub
     return null;
   }
