@@ -181,6 +181,54 @@ Content-type detail may still include **extra** per-item gaps (for example contr
 failures); those remain on the detail payload only. Structured `{ code, message }` entries apply
 on the Content Type / Template / Slot detail paths described above.
 
+## Content Explorer folders (Rhythmyx path façade)
+
+Public REST for **Rhythmyx** folder operations used by Content Explorer integrators and (later)
+Explorer mutation clients. Base path: **`/Rhythmyx/rest/content-explorer/folders`**.
+
+This surface is a thin façade over classic **`IPSContentWs`** folder methods (same domain path as
+SOAP content folder ops). It is **not** the CM1 site/asset `/rest/folders` resource and **not**
+pathmanagement browse/pagination (`/services/pathmanagement/path/*`).
+
+### Path forms
+
+Accept either repository form or a documented single-slash form; the server normalizes:
+
+| Client form | Normalized for WS |
+|-------------|-------------------|
+| `//Folders/...`, `//Sites/...` | kept |
+| `/Folders/...`, `/Sites/...` | promoted to `//…` |
+| `Folders/...`, `Sites/...` | promoted to `//…` |
+| `/` | root listing (`Folders` + `Sites`) |
+
+### Endpoints (v1)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/content-explorer/folders/by-path/{path}` | Load folder by RX path |
+| `GET` | `/content-explorer/folders/by-id/{id}` | Load folder by guid / content id |
+| `GET` | `…/by-id/{id}/children` | Direct children (items + folders) |
+| `GET` | `…/by-path/{path}/children` | Direct children by path |
+| `GET` | `…/by-id/{id}/child-folders` | Folder children only |
+| `GET` | `…/by-path/{path}/child-folders` | Folder children only by path |
+| `POST` | `/content-explorer/folders` | Add folder (`name` + `parentPath`) |
+| `POST` | `/content-explorer/folders/tree` | Add missing path segments (`path`) |
+| `PUT` | `/content-explorer/folders/by-id/{id}` | Save name / description / community / locale / properties |
+| `POST` | `/content-explorer/folders/move-children` | Multi-child move |
+| `POST` | `/content-explorer/folders/add-children` | Multi-child attach |
+| `POST` | `/content-explorer/folders/remove-children` | Multi-child detach (`purgeItems` optional) |
+| `DELETE` | `/content-explorer/folders/by-id/{id}?purge=false` | Recursive delete; optional purge |
+
+Prefer the generated **OpenAPI** schema for wire field names. Auth and folder ACLs of the underlying
+content web service still apply.
+
+### Migration notes
+
+- Content Explorer **browse / pagination** remains on pathmanagement until a deliberate client
+  switch; this façade ships for integrators and for a later dual-run mutation flag.
+- Do not confuse with foldermanagement workflow assignment (`/services/folders`) or CM1
+  `FoldersResource` section APIs.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the
@@ -192,3 +240,4 @@ on the Content Type / Template / Slot detail paths described above.
 
 - [Extensions & packages](id:developer-extensions)
 - [Build from source](id:developer-build-source)
+- [Content Explorer](id:admin-content-explorer)
