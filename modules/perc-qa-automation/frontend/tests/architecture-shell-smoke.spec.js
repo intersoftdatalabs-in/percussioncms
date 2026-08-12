@@ -94,6 +94,7 @@ test.describe("Architecture SPA shell (#3094)", () => {
     });
     const newSite = page.getByTestId("architecture-action-new-site");
     await expect(newSite).toBeVisible();
+    await expect(newSite).toBeEnabled();
     await expect(newSite).toContainText(/New Site/i);
     await newSite.click();
     await expect(page.getByTestId("architecture-new-site-panel")).toBeVisible();

@@ -66,6 +66,7 @@ import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
 import { ARCH_MSG } from "./messages";
+import { useDialogEscape } from "./useDialogEscape";
 
 export interface ArchitectureShellProps {
   /**
@@ -149,6 +150,50 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     target: string;
   } | null>(null);
   const [showNewSite, setShowNewSite] = useState(false);
+  const newSiteToggleRef = useRef<HTMLButtonElement>(null);
+  const newSitePanelRef = useRef<HTMLElement>(null);
+
+  useDialogEscape(showNewSite, mutationBusy, () => setShowNewSite(false));
+
+  useEffect(() => {
+    if (!showNewSite) {
+      return;
+    }
+    const root = newSitePanelRef.current;
+    if (!root) {
+      return;
+    }
+    const focusables = (): HTMLElement[] =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+    focusables()[0]?.focus();
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusables();
+      if (list.length === 0) {
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => {
+      root.removeEventListener("keydown", onKey);
+      newSiteToggleRef.current?.focus();
+    };
+  }, [showNewSite]);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -158,28 +203,41 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     }
   }, [initialSite]);
 
+  const applySiteNames = useCallback(
+    (names: string[], preferSite?: string | null) => {
+      setSitesState({ status: "ready", names });
+      const preferred = preferSite != null ? String(preferSite).trim() : "";
+      setSelectedSite((prev) => {
+        if (preferred && names.includes(preferred)) return preferred;
+        if (prev && names.includes(prev)) return prev;
+        if (prev && names.length === 0) return prev;
+        if (prev && !names.includes(prev) && names.length > 0) {
+          return prev;
+        }
+        if (!prev && names.length > 0) return names[0];
+        return prev;
+      });
+    },
+    [],
+  );
+
+  const loadSiteNames = useCallback(async (): Promise<string[]> => {
+    const list = await fetchSites();
+    return list
+      .map((s) => (s.name != null ? String(s.name).trim() : ""))
+      .filter((n) => n.length > 0)
+      .sort((a, b) => a.localeCompare(b));
+  }, []);
+
   // Load site list once
   useEffect(() => {
     let cancelled = false;
     setSitesState({ status: "loading" });
     void (async () => {
       try {
-        const list = await fetchSites();
+        const names = await loadSiteNames();
         if (cancelled) return;
-        const names = list
-          .map((s) => (s.name != null ? String(s.name).trim() : ""))
-          .filter((n) => n.length > 0)
-          .sort((a, b) => a.localeCompare(b));
-        setSitesState({ status: "ready", names });
-        setSelectedSite((prev) => {
-          if (prev && names.includes(prev)) return prev;
-          if (prev && names.length === 0) return prev;
-          if (prev && !names.includes(prev) && names.length > 0) {
-            return prev;
-          }
-          if (!prev && names.length > 0) return names[0];
-          return prev;
-        });
+        applySiteNames(names);
       } catch (err) {
         if (cancelled) return;
         if (isSessionRedirectError(err)) return;
@@ -192,7 +250,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [applySiteNames, loadSiteNames]);
 
   // Load tree when site or refresh changes
   useEffect(() => {
@@ -228,29 +286,30 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     setRefreshToken((n) => n + 1);
   }, []);
 
-  const reloadSites = useCallback(async (preferSite?: string | null) => {
-    try {
-      const list = await fetchSites();
-      const names = list
-        .map((s) => (s.name != null ? String(s.name).trim() : ""))
-        .filter((n) => n.length > 0)
-        .sort((a, b) => a.localeCompare(b));
-      setSitesState({ status: "ready", names });
+  const reloadSites = useCallback(
+    async (preferSite?: string | null) => {
       const preferred = preferSite != null ? String(preferSite).trim() : "";
-      setSelectedSite((prev) => {
-        if (preferred && names.includes(preferred)) return preferred;
-        if (prev && names.includes(prev)) return prev;
-        if (!prev && names.length > 0) return names[0];
-        return prev;
-      });
-    } catch (err) {
-      if (isSessionRedirectError(err)) return;
-      setSitesState({
-        status: "error",
-        message: formatApiError(err, ARCH_MSG.SITES_ERROR),
-      });
-    }
-  }, []);
+      try {
+        const names = await loadSiteNames();
+        applySiteNames(names, preferred);
+        if (preferred) {
+          setMutationError(null);
+        }
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setSitesState({
+          status: "error",
+          message: formatApiError(err, ARCH_MSG.SITES_ERROR),
+        });
+        if (preferred) {
+          setMutationError(
+            ARCH_MSG.NEW_SITE_RELOAD_ERROR.split("{0}").join(preferred),
+          );
+        }
+      }
+    },
+    [applySiteNames, loadSiteNames],
+  );
 
   const treeRoot =
     treeState.status === "ready" ? treeState.root : null;
@@ -657,9 +716,13 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         {allowNewSite ? (
           <button
             type="button"
+            ref={newSiteToggleRef}
             data-testid="architecture-action-new-site"
             aria-expanded={showNewSite}
-            aria-controls="architecture-new-site-panel"
+            aria-haspopup="dialog"
+            aria-controls={
+              showNewSite ? "architecture-new-site-panel" : undefined
+            }
             onClick={() => setShowNewSite((open) => !open)}
             style={{
               padding: "0.4rem 0.85rem",
@@ -676,10 +739,27 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         ) : null}
       </section>
 
+      {mutationError ? (
+        <p
+          role="alert"
+          data-testid="architecture-mutation-error"
+          style={{
+            margin: "0 0 12px",
+            color: catalogColors.error,
+            fontSize: "0.9rem",
+          }}
+        >
+          {mutationError}
+        </p>
+      ) : null}
+
       {allowNewSite && showNewSite ? (
         <section
           id="architecture-new-site-panel"
-          role="region"
+          ref={newSitePanelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="architecture-new-site-title"
           aria-label={ARCH_MSG.NEW_SITE_REGION}
           data-testid="architecture-new-site-panel"
           style={{
@@ -700,6 +780,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             }}
           >
             <h2
+              id="architecture-new-site-title"
               style={{ margin: 0, fontSize: "1.05rem", color: "#1a202c" }}
               data-testid="architecture-new-site-title"
             >
@@ -877,20 +958,6 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               data-testid="architecture-select-hint"
             >
               {ARCH_MSG.SELECT_HINT}
-            </p>
-          ) : null}
-
-          {mutationError ? (
-            <p
-              role="alert"
-              data-testid="architecture-mutation-error"
-              style={{
-                margin: "0 0 8px",
-                color: catalogColors.error,
-                fontSize: "0.9rem",
-              }}
-            >
-              {mutationError}
             </p>
           ) : null}
 

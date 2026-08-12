@@ -36,7 +36,10 @@ async function openPreferences(page) {
   await expect(page.getByTestId("perc-profile-shell")).toBeVisible({
     timeout: 30_000,
   });
-  await page.getByTestId("perc-profile-nav-preferences").click();
+  const prefsNav = page.getByTestId("perc-profile-nav-preferences");
+  await expect(prefsNav).toBeVisible({ timeout: 20_000 });
+  await expect(prefsNav).toBeEnabled();
+  await prefsNav.click();
   const landing = page.getByTestId("perc-profile-preferences-landing");
   await expect(landing).toBeVisible({ timeout: 20_000 });
   return landing;
@@ -44,7 +47,18 @@ async function openPreferences(page) {
 
 async function saveLanding(page, value) {
   const landing = await openPreferences(page);
-  await landing.selectOption(value);
+  const optionValues = await landing.locator("option").evaluateAll((els) =>
+    els.map((o) => o.value),
+  );
+  const target = optionValues.includes(value)
+    ? value
+    : optionValues.includes("Home")
+      ? "Home"
+      : optionValues[0];
+  if (target == null) {
+    throw new Error("Landing select has no options to restore");
+  }
+  await landing.selectOption(target);
   const save = page.getByTestId("perc-profile-preferences-save");
   if (await save.isEnabled()) {
     await save.click();
@@ -52,7 +66,7 @@ async function saveLanding(page, value) {
       page.getByTestId("perc-profile-preferences-success"),
     ).toBeVisible({ timeout: 15_000 });
   } else {
-    await expect(landing).toHaveValue(value);
+    await expect(landing).toHaveValue(target);
   }
 }
 
@@ -66,36 +80,48 @@ test.describe("Homepage Navigation landing (#3219)", () => {
 
     await loginAsAdmin(page);
 
-    const landing = await openPreferences(page);
-    const optionValues = await landing.locator("option").evaluateAll((els) =>
-      els.map((o) => o.value),
-    );
-    expect(optionValues).toContain("Architecture");
+    let restoreTo = "";
+    try {
+      const landing = await openPreferences(page);
+      restoreTo = await landing.inputValue();
+      const optionValues = await landing.locator("option").evaluateAll((els) =>
+        els.map((o) => o.value),
+      );
+      expect(optionValues).toContain("Architecture");
 
-    await saveLanding(page, "Architecture");
+      await saveLanding(page, "Architecture");
 
-    await page.goto(`${BASE_URL}/Rhythmyx/logout`, {
-      waitUntil: "domcontentloaded",
-    });
+      await page.goto(`${BASE_URL}/Rhythmyx/logout`, {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(page.getByTestId("perc-logout-page")).toBeVisible({
+        timeout: 20_000,
+      });
 
-    await page.goto(`${BASE_URL}/Rhythmyx/login`, {
-      waitUntil: "domcontentloaded",
-    });
-    const redirect = page.getByTestId("perc-login-redirect");
-    await expect(redirect).toBeAttached({ timeout: 20_000 });
-    await expect(redirect).toHaveValue("/cm/app/");
+      await page.goto(`${BASE_URL}/Rhythmyx/login`, {
+        waitUntil: "domcontentloaded",
+      });
+      const redirect = page.getByTestId("perc-login-redirect");
+      await expect(redirect).toBeAttached({ timeout: 20_000 });
+      await expect(redirect).toHaveValue("/cm/app/");
 
-    await loginAsAdmin(page);
+      await loginAsAdmin(page);
 
-    await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
-      timeout: 40_000,
-    });
-    await expect(page.getByTestId("architecture-action-new-site")).toBeVisible();
-    const url = page.url();
-    expect(url).toMatch(/architecture|entry=architecture|view=arch/i);
-    expect(url).not.toMatch(/\/home(\/|$|\?)/);
-
-    await saveLanding(page, "");
+      await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
+        timeout: 40_000,
+      });
+      await expect(page.getByTestId("architecture-action-new-site")).toBeVisible();
+      const url = page.url();
+      expect(url).toMatch(/architecture|entry=architecture|view=arch/i);
+      expect(url).not.toMatch(/\/home(\/|$|\?)/);
+    } finally {
+      try {
+        await loginAsAdmin(page);
+        await saveLanding(page, restoreTo);
+      } catch {
+        // Best-effort restore; do not mask the original assertion.
+      }
+    }
 
     expect(pageErrors, pageErrors.join("\n")).toEqual([]);
   });

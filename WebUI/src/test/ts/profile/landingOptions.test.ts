@@ -43,6 +43,16 @@ describe("profileLandingOptions", () => {
     expect(arch?.labelKey).toMatch(/Navigation/i);
   });
 
+  it("hides Architecture (Navigation) landing for non-designers", () => {
+    expect(isProfileLandingAllowed(HOMEPAGE_TYPES.ARCHITECTURE, {})).toBe(
+      false,
+    );
+    const opts = profileLandingOptions({});
+    expect(
+      opts.some((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE),
+    ).toBe(false);
+  });
+
   it("opens Design for designers and Administration for admins", () => {
     expect(
       isProfileLandingAllowed(HOMEPAGE_TYPES.DESIGNER, { isDesigner: true }),

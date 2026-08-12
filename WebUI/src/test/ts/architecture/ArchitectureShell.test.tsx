@@ -595,10 +595,63 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       /New Site/i,
     );
     expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+    expect(screen.getByTestId("architecture-new-site-panel").getAttribute("role")).toBe(
+      "dialog",
+    );
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-new-site-panel")).toBeNull();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-new-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-new-site-panel")).toBeTruthy();
+    });
     fireEvent.click(screen.getByTestId("architecture-new-site-close"));
     await waitFor(() => {
       expect(screen.queryByTestId("architecture-new-site-panel")).toBeNull();
     });
+  });
+
+  it("keeps a create-success mutation error when site reload fails (#3219)", async () => {
+    const fetchSites = vi.spyOn(homeApi, "fetchSites").mockResolvedValue([]);
+    const siteCreate = await import(
+      "../../../main/ts/api/contentExplorer/siteCreateApi"
+    );
+    vi.spyOn(siteCreate, "listBaseTemplates").mockResolvedValue([
+      { name: "perc.base.plain", label: "Plain" },
+    ]);
+    vi.spyOn(siteCreate, "createTraditionalSite").mockResolvedValue({
+      name: "Acme",
+    });
+
+    render(<ArchitectureShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-new-site")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-new-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("site-create-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("site-create-name"), {
+      target: { value: "Acme" },
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    await waitFor(() => {
+      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fetchSites.mockRejectedValue(new Error("catalog down"));
+    fireEvent.click(screen.getByTestId("site-create-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-mutation-error").textContent).toMatch(
+        /Acme.*could not be refreshed/i,
+      );
+    });
+    expect(screen.queryByTestId("architecture-new-site-panel")).toBeNull();
+    expect(screen.getByTestId("architecture-sites-error").textContent).toMatch(
+      /catalog down/i,
+    );
   });
 
   it("hides New Site when allowNewSite is false", async () => {

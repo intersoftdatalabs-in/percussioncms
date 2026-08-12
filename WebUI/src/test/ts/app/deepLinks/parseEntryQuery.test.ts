@@ -79,7 +79,7 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/design/templates").section).toBe("templates");
   });
 
-  it("maps architecture entry, arch alias, and site (#3094)", () => {
+  it("maps architecture, arch, and navigation aliases plus site (#3094/#3219)", () => {
     expect(parseEntryQuery("?entry=architecture").entry).toBe("architecture");
     expect(parseEntryQuery("?entry=architecture").clientPath).toBe(
       "/architecture",
@@ -97,6 +97,11 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/architecture").entry).toBe("architecture");
     expect(parseClientPath("/architecture/Demo").site).toBe("Demo");
     expect(parseClientPath("/architecture/Demo").clientPath).toBe(
+      "/architecture/Demo",
+    );
+    expect(parseClientPath("/navigation/Demo").entry).toBe("architecture");
+    expect(parseClientPath("/navigation/Demo").site).toBe("Demo");
+    expect(parseClientPath("/navigation/Demo").clientPath).toBe(
       "/architecture/Demo",
     );
   });

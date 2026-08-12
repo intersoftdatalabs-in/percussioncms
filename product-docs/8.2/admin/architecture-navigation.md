@@ -57,9 +57,10 @@ The navigation tree follows the ARIA tree pattern:
 | **Home / End** | Jump to the first or last visible node. |
 | **Enter / Space** | Select the focused section (and toggle expand on branches). |
 
-Structure dialogs (create, rename, landing page, section link, external link, and the
-section picker) are modal (`role="dialog"`, `aria-modal`). **Escape** closes the open
-dialog when a mutation is not in progress. Primary structure actions live in a toolbar
+Structure dialogs (create, rename, landing page, section link, external link, the
+section picker, and **New Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
+closes the open dialog when a mutation is not in progress. Closing **New Site**
+returns keyboard focus to the **New Site** button. Primary structure actions live in a toolbar
 with an accessible name (**Structure actions**).
 
 Chrome strings (shell, tree states, actions, dialogs, validation) use the

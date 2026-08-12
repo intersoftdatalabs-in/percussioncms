@@ -192,9 +192,11 @@ describe("PR-8 delete obsolete product host JSPs", () => {
     // Classic host file is gone; comment may still mention the name historically
     expect(existsSync(resolve(webappRoot, "rxlogin-classic.jsp"))).toBe(false);
     // #3219: default sys_redirect is the dispatcher (homepage resolve), not Home
-    expect(text).toContain('String defaultRedirect = "/cm/app/";');
-    expect(text).not.toContain(
-      'String defaultRedirect = "/cm/app/spa.jsp?entry=home"',
+    expect(text.replace(/\s+/g, " ")).toMatch(
+      /String defaultRedirect\s*=\s*"\/cm\/app\/"\s*;/,
+    );
+    expect(text).not.toMatch(
+      /String defaultRedirect\s*=\s*"\/cm\/app\/spa\.jsp\?entry=home"/,
     );
   });
 

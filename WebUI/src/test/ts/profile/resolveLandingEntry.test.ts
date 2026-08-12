@@ -57,8 +57,17 @@ describe("resolveHomepageToSpaEntry (#3219)", () => {
     expect(resolveHomepageToSpaEntry(HOMEPAGE_TYPES.WIDGET_BUILDER)).toBe(
       "widget-builder",
     );
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.HOME)).toBe("/home");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.DASHBOARD)).toBe("/home");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.EDITOR)).toBe("/home");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.DESIGNER)).toBe("/design");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.PUBLISH)).toBe("/publish");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.WORKFLOW)).toBe("/admin");
     expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.WIDGET_BUILDER)).toBe(
       "/widget-builder",
     );
+    expect(resolveHomepageToClientPath("explorer")).toBe("/explorer");
+    expect(resolveHomepageToClientPath("profile")).toBe("/profile");
+    expect(resolveHomepageToClientPath("developer")).toBe("/developer");
   });
 });
