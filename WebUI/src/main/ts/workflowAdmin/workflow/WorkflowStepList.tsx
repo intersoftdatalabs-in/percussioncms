@@ -209,8 +209,10 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
                 {message(WF_ADMIN_MSG.STEP_ROLES)}
               </label>
               <div style={{ maxHeight: "150px", overflowY: "auto", border: "1px solid #ccc", padding: "8px" }}>
-                {availableRoles.length === 0 ? (
-                  <span style={{ color: "#666" }}>{message(WF_ADMIN_MSG.NO_ROLES_AVAILABLE)}</span>
+                {(Array.isArray(availableRoles) ? availableRoles : []).length === 0 ? (
+                  <span style={{ color: "#666" }}>
+                    {message(WF_ADMIN_MSG.NO_ROLES_AVAILABLE)}
+                  </span>
                 ) : (
                   availableRoles.map((role) => (
                     <label key={role} style={{ display: "block", marginBottom: "4px" }}>

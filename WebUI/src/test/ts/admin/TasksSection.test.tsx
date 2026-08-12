@@ -60,6 +60,31 @@ describe("TasksSection", () => {
     expect(screen.getByText("0 0 12 * * ?")).toBeTruthy();
   });
 
+  it("unwraps WRAP_ROOT task list without crashing (#3202)", async () => {
+    vi.mocked(client.get).mockImplementation(async (url: string) => {
+      if (url.includes("templates")) {
+        return { NotificationTemplate: [] };
+      }
+      return {
+        ScheduledTask: [
+          {
+            id: "task-wrap",
+            name: "Wrapped Task",
+            cronSpecification: "0 0 * * * ?",
+            extensionName: "com.percussion.services.schedule.impl.PSPurgeScheduledTaskLog",
+          },
+        ],
+      };
+    });
+
+    render(<TasksSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-tasks-section")).toBeDefined();
+    });
+    expect(screen.getByText("Wrapped Task")).toBeTruthy();
+  });
+
   it("opens create dialog when create button is clicked", async () => {
     vi.mocked(client.get).mockImplementation(async (url: string) => {
       if (url.includes("templates")) {

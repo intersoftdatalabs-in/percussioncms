@@ -104,6 +104,28 @@ describe("WorkflowSection", () => {
     expect(getUrls.some((u) => u.includes("user/roles") || u.endsWith("/roles"))).toBe(true);
   });
 
+  it("unwraps nested Workflow WRAP_ROOT without throwing (#3202)", async () => {
+    mockGets({
+      Workflow: {
+        Workflow: [
+          {
+            workflowName: "Default Workflow",
+            defaultWorkflow: true,
+            stagingRoleNames: "Editor",
+          },
+        ],
+      },
+    });
+
+    render(<WorkflowSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-workflow-section")).toBeTruthy();
+      expect(screen.getByTestId("workflow-row-Default Workflow")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
   it("unwraps Jackson Workflow root wrapper without throwing (#2959)", async () => {
     mockGets({
       Workflow: [

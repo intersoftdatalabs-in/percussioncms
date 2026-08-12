@@ -58,6 +58,23 @@ describe("RolesSection", () => {
     expect(screen.getByTestId("role-card-Contributor")).toBeTruthy();
   });
 
+  it("does not crash when RoleList.roles is a single string (#3202)", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      RoleList: { roles: "Admin" },
+    });
+    vi.mocked(client.post).mockResolvedValue({
+      Role: { name: "Admin", description: "Administrator", users: "admin" },
+    });
+
+    render(<RolesSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("role-card-Admin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("perc-roles-section")).toBeTruthy();
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
   it("opens editor when create role button clicked", async () => {
     vi.mocked(client.get).mockResolvedValue({ RoleList: { roles: [] } });
 

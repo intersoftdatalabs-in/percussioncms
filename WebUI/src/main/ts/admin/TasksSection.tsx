@@ -16,6 +16,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { get, post, put, del } from "../api/client";
+import { asObjectArray } from "../api/jsonList";
 import { PATHS } from "../api/paths";
 import { message } from "../i18n/message";
 import { ADMIN_MSG } from "./messages";
@@ -50,11 +51,11 @@ export const TasksSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const resTasks = await get<ScheduledTask[]>(PATHS.SCHEDULED_TASKS);
-      const resTemplates = await get<NotificationTemplate[]>(`${PATHS.SCHEDULED_TASKS}/templates`);
+      const resTasks = await get<unknown>(PATHS.SCHEDULED_TASKS);
+      const resTemplates = await get<unknown>(`${PATHS.SCHEDULED_TASKS}/templates`);
       if (isMountedRef.current) {
-        setTasks(resTasks || []);
-        setTemplates(resTemplates || []);
+        setTasks(asObjectArray(resTasks) as ScheduledTask[]);
+        setTemplates(asObjectArray(resTemplates) as NotificationTemplate[]);
       }
     } catch (err: any) {
       if (isMountedRef.current) {
