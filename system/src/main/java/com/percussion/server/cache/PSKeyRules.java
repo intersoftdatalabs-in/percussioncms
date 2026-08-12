@@ -110,7 +110,7 @@ public class PSKeyRules {
       }
 
       // get the list of the rules
-      List ruleList = new ArrayList();
+      List<PSRule> ruleList = new ArrayList<>();
       Element ruleEl = tree.getNextElement(PSRule.XML_NODE_NAME, firstFlags);
 
       // must have at least one rule
@@ -156,7 +156,7 @@ public class PSKeyRules {
 
     boolean result = true;
 
-    PSRuleListEvaluator eval = (PSRuleListEvaluator) m_evaluators.get(key);
+    PSRuleListEvaluator eval = m_evaluators.get(key);
     if (eval != null) {
       PSExecutionData data = new PSExecutionData(null, null, req);
       result = eval.isMatch(data);
@@ -169,7 +169,7 @@ public class PSKeyRules {
    * value is a <code>PSRuleListEvaluator</code> for that key. Never <code>null</code> or modified
    * after construction.
    */
-  private Map m_evaluators = new HashMap();
+  private Map<String, PSRuleListEvaluator> m_evaluators = new HashMap<>();
 
   // private xml elements and attributes
   private static final String XML_NODE_NAME = "PSXKeyRules";

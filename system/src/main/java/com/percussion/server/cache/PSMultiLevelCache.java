@@ -124,24 +124,25 @@ public class PSMultiLevelCache {
     if (size < 0) throw new IllegalArgumentException("size may not be less than 0");
     if (type == null) throw new IllegalArgumentException("type may not be null");
 
-    Map cacheMap = getCache();
+    Map<Object, Object> cacheMap = getCache();
     if (cacheMap != null) {
       // create item and add modified listeners
       PSCacheItem cacheItem = new PSCacheItem(m_cacheId, item, keys, size);
-      Iterator listeners = m_cacheModifiedListeners.iterator();
-      while (listeners.hasNext())
-        cacheItem.addCacheModifiedListener((IPSCacheModifiedListener) listeners.next());
+      for (IPSCacheModifiedListener listener : m_cacheModifiedListeners) {
+        cacheItem.addCacheModifiedListener(listener);
+      }
 
       for (int i = 0; i < keys.length; i++) {
         // if on last key, need to handle the item
         if (i == keys.length - 1) {
           synchronized (cacheMap) {
-            Map itemMap = (Map) cacheMap.get(keys[i]);
+            @SuppressWarnings("unchecked")
+            Map<String, PSCacheItem> itemMap = (Map<String, PSCacheItem>) cacheMap.get(keys[i]);
             if (itemMap == null) {
-              itemMap = new ConcurrentHashMap();
+              itemMap = new ConcurrentHashMap<>();
               cacheMap.put(keys[i], itemMap);
             }
-            PSCacheItem oldItem = (PSCacheItem) itemMap.put(type, cacheItem);
+            PSCacheItem oldItem = itemMap.put(type, cacheItem);
             if (oldItem != null) {
               //                   notifiy listeners of flush event and release the item
               oldItem.release();
@@ -153,14 +154,16 @@ public class PSMultiLevelCache {
           }
         } else {
           // need to see if we have a map for this key already
-          Map nextMap;
+          Map<Object, Object> nextMap;
           Object next = cacheMap.get(keys[i]);
-          if (next instanceof Map)
+          if (next instanceof Map) {
             // have a map, so use it
-            nextMap = (Map) next;
-          else {
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> castNext = (Map<Object, Object>) next;
+            nextMap = castNext;
+          } else {
             // no entry at this level, so add a map for this key
-            nextMap = new ConcurrentHashMap();
+            nextMap = new ConcurrentHashMap<>();
             synchronized (cacheMap) {
               cacheMap.put(keys[i], nextMap);
             }
@@ -187,7 +190,7 @@ public class PSMultiLevelCache {
     validateKeys(keys, false);
 
     Object item = null;
-    Map cacheMap = getCache();
+    Map<Object, Object> cacheMap = getCache();
     PSCacheItem cacheItem = null;
     if (cacheMap != null) {
       for (int i = 0; i < keys.length; i++) {
@@ -197,12 +200,15 @@ public class PSMultiLevelCache {
 
         if (i == keys.length - 1) {
           // on last key, must be the item map
-          Map itemMap = (Map) o;
-          cacheItem = (PSCacheItem) itemMap.get(type);
+          @SuppressWarnings("unchecked")
+          Map<String, PSCacheItem> itemMap = (Map<String, PSCacheItem>) o;
+          cacheItem = itemMap.get(type);
           if (cacheItem != null) item = cacheItem.getObject();
         } else {
           // get the next map
-          cacheMap = (Map) o;
+          @SuppressWarnings("unchecked")
+          Map<Object, Object> next = (Map<Object, Object>) o;
+          cacheMap = next;
         }
       }
 
@@ -230,7 +236,7 @@ public class PSMultiLevelCache {
   public void flush(Object[] keys) {
     validateKeys(keys, true);
 
-    Map cache = getCache();
+    Map<Object, Object> cache = getCache();
     if (cache != null) flush(cache, keys, 0);
   }
 
@@ -243,7 +249,7 @@ public class PSMultiLevelCache {
    * @param level The index into the <code>keys</code> array of the key that is currently being
    *     processed.
    */
-  private void flush(Map cacheMap, Object[] keys, int level) {
+  private void flush(Map<Object, Object> cacheMap, Object[] keys, int level) {
     // if passed a null key for this level, need to traverse all entries at
     // this level and flush those "branches"
     if (keys[level] == null) {
@@ -264,8 +270,8 @@ public class PSMultiLevelCache {
    *
    * @return The main cache object, will be <code>null</code> if cache is shutting down.
    */
-  private Map getCache() {
-    Map cache = null;
+  private Map<Object, Object> getCache() {
+    Map<Object, Object> cache = null;
     synchronized (m_cacheMonitor) {
       if (!m_shutdown) cache = m_cache;
     }
@@ -284,17 +290,15 @@ public class PSMultiLevelCache {
    * @param level The index into the <code>keys</code> array of the key that is currently being
    *     processed.
    */
-  private void flushEntry(Map cacheMap, Object[] keys, Object key, int level) {
+  private void flushEntry(Map<Object, Object> cacheMap, Object[] keys, Object key, int level) {
 
     if (level == keys.length - 1) {
       // key identifies the item itself, flush it
-      Object o;
       synchronized (cacheMap) {
-        Map itemMap = (Map) cacheMap.remove(key);
+        @SuppressWarnings("unchecked")
+        Map<String, PSCacheItem> itemMap = (Map<String, PSCacheItem>) cacheMap.remove(key);
         if (itemMap != null) {
-          Iterator items = itemMap.values().iterator();
-          while (items.hasNext()) {
-            PSCacheItem item = (PSCacheItem) items.next();
+          for (PSCacheItem item : itemMap.values()) {
             item.release();
             notifyModifiedListeners(PSCacheEvent.CACHE_ITEM_REMOVED, item);
           }
@@ -304,7 +308,8 @@ public class PSMultiLevelCache {
       // flush from this branch down
       Object o = cacheMap.get(key);
       if (o instanceof Map) {
-        Map nextMap = (Map) o;
+        @SuppressWarnings("unchecked")
+        Map<Object, Object> nextMap = (Map<Object, Object>) o;
         flush(nextMap, keys, level + 1);
       }
     }
@@ -407,9 +412,7 @@ public class PSMultiLevelCache {
   private void notifyAccessListeners(int action, Object object) {
     if (!m_cacheAccessListeners.isEmpty()) {
       PSCacheEvent event = new PSCacheEvent(action, object);
-      Iterator i = m_cacheAccessListeners.iterator();
-      while (i.hasNext()) {
-        IPSCacheAccessedListener listener = (IPSCacheAccessedListener) i.next();
+      for (IPSCacheAccessedListener listener : m_cacheAccessListeners) {
         listener.cacheAccessed(event);
       }
     }
@@ -424,9 +427,7 @@ public class PSMultiLevelCache {
   private void notifyModifiedListeners(int action, Object object) {
     if (!m_cacheModifiedListeners.isEmpty()) {
       PSCacheEvent event = new PSCacheEvent(action, object);
-      Iterator i = m_cacheModifiedListeners.iterator();
-      while (i.hasNext()) {
-        IPSCacheModifiedListener listener = (IPSCacheModifiedListener) i.next();
+      for (IPSCacheModifiedListener listener : m_cacheModifiedListeners) {
         listener.cacheModified(event);
       }
     }
@@ -463,19 +464,19 @@ public class PSMultiLevelCache {
    * object, otherwise it is another Map whose key is the second key object, and the value is either
    * the item or another Map depending on the keysize, etc. Never <code>null</code>.
    */
-  private Map m_cache = new ConcurrentHashMap();
+  private Map<Object, Object> m_cache = new ConcurrentHashMap<>();
 
   /**
    * List of <code>IPSCacheAccessedListener</code> objects that should be informed of unsuccessful
    * attempts to retrieve an item. Never <code>null</code>, may be empty.
    */
-  private List m_cacheAccessListeners = new ArrayList();
+  private List<IPSCacheAccessedListener> m_cacheAccessListeners = new ArrayList<>();
 
   /**
    * List of <code>IPSCacheModifiedListener</code> objects that should be informed when items are
    * added to or flushed from the cache. Never <code>null</code>, may be empty.
    */
-  private List m_cacheModifiedListeners = new ArrayList();
+  private List<IPSCacheModifiedListener> m_cacheModifiedListeners = new ArrayList<>();
 
   /**
    * Flag to indicate if cache is shutting down. If <code>true</code>, cache has begun shutdown,

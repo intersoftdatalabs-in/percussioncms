@@ -115,10 +115,10 @@ public class PSContentItemDependencyTree {
    * @throws SQLException if SQL error occurs. *
    * @throws PSException if any other error occurs.
    */
-  private Map initDependencyMap() throws SQLException, PSException, NamingException {
-    Map dependencyMap = new ConcurrentHashMap();
+  private Map<Integer, List<PSItemDependency>> initDependencyMap() throws SQLException, PSException, NamingException {
+    Map<Integer, List<PSItemDependency>> dependencyMap = new ConcurrentHashMap<>();
     Integer key = null;
-    List value = null;
+    List<PSItemDependency> value = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
     Connection conn = null;
@@ -156,10 +156,9 @@ public class PSContentItemDependencyTree {
         // then fill the dependency map
         if (key == null || key.intValue() != relatedContentId) {
           key = Integer.valueOf(relatedContentId);
-          Object test = dependencyMap.get(key);
-          if (test != null) value = (List) test;
-          else {
-            value = new ArrayList();
+          value = dependencyMap.get(key);
+          if (value == null) {
+            value = new ArrayList<>();
             dependencyMap.put(key, value);
           }
         }
@@ -251,14 +250,13 @@ public class PSContentItemDependencyTree {
    * @return the dependency map initialized, never <code>null</code>, may be empty.
    * @deprecated This should not be used, it is too slow. Use {@link #initDependencyMap()} instead.
    */
-  private Map initDependencyMap(PSRelationshipSet relationships) {
-    Map dependencyMap = new ConcurrentHashMap();
+  private Map<Integer, List<PSItemDependency>> initDependencyMap(PSRelationshipSet relationships) {
+    Map<Integer, List<PSItemDependency>> dependencyMap = new ConcurrentHashMap<>();
 
     Integer key = null;
-    List value = null;
-    Iterator iterator = relationships.iterator();
-    while (iterator.hasNext()) {
-      PSRelationship relationship = (PSRelationship) iterator.next();
+    List<PSItemDependency> value = null;
+    for (Object relObj : relationships) {
+      PSRelationship relationship = (PSRelationship) relObj;
 
       /** We are only interested in relationship changes for Active Assembly categorys. */
       String category = relationship.getConfig().getCategory();
@@ -275,10 +273,9 @@ public class PSContentItemDependencyTree {
         // then fill the dependency map
         if (key == null || key.intValue() != relatedContentId) {
           key = Integer.valueOf(relatedContentId);
-          Object test = dependencyMap.get(key);
-          if (test != null) value = (List) test;
-          else {
-            value = new ArrayList();
+          value = dependencyMap.get(key);
+          if (value == null) {
+            value = new ArrayList<>();
             dependencyMap.put(key, value);
           }
         }
@@ -317,21 +314,18 @@ public class PSContentItemDependencyTree {
    *     array, [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>
    *     null</code>, may be empty.
    */
-  List addDependency(
-      int sysId, int contentId, int revisionId, int relatedId, int variantId, Map done) {
+  List<String[]> addDependency(
+      int sysId, int contentId, int revisionId, int relatedId, int variantId, Map<Integer, Integer> done) {
     if (done == null) throw new IllegalArgumentException("done may not be null.");
 
     ItemSet result = new ItemSet();
 
     Integer key = Integer.valueOf(relatedId);
-    List value = null;
+    List<PSItemDependency> value = m_dependencyMap.get(key);
 
     // adding to the dependency map
-    Object test = m_dependencyMap.get(key);
-    if (test != null) {
-      value = (List) test;
-    } else {
-      value = new ArrayList();
+    if (value == null) {
+      value = new ArrayList<>();
       m_dependencyMap.put(key, value);
     }
 
@@ -352,12 +346,10 @@ public class PSContentItemDependencyTree {
    * @return The converted list. Each element in the list is a <code>String[2]</code> object, where
    *     [0] is the contentid and [1] is the revision number. Never <code>null</code>, may be empty.
    */
-  private List convertSetToList(Set resultSet) {
-    List result = new ArrayList();
+  private List<String[]> convertSetToList(Set<Item> resultSet) {
+    List<String[]> result = new ArrayList<>();
 
-    Iterator items = resultSet.iterator();
-    while (items.hasNext()) {
-      Item item = (Item) items.next();
+    for (Item item : resultSet) {
       String[] entry = {String.valueOf(item.m_id), String.valueOf(item.m_rev)};
       result.add(entry);
     }
@@ -378,18 +370,16 @@ public class PSContentItemDependencyTree {
    *     with a 2-dimensional array, [0] the contentid and [1] the revisionid, both specified as
    *     Strings. Never <code>null</code>, may be empty.
    */
-  List removeDependency(int sysId, Map done) {
+  List<String[]> removeDependency(int sysId, Map<Integer, Integer> done) {
     if (done == null) throw new IllegalArgumentException("done may not be null.");
 
     ItemSet result = new ItemSet();
 
-    Iterator dependencies = new HashSet(m_dependencyMap.values()).iterator();
-    while (dependencies.hasNext()) {
-      List itemList = (List) dependencies.next();
+    for (List<PSItemDependency> itemList : new HashSet<>(m_dependencyMap.values())) {
       if (itemList != null) {
-        Iterator items = itemList.iterator();
+        Iterator<PSItemDependency> items = itemList.iterator();
         while (items.hasNext()) {
-          PSItemDependency item = (PSItemDependency) items.next();
+          PSItemDependency item = items.next();
           if (item.getSysId() == sysId) {
             Integer cid = Integer.valueOf(item.getRelatedContentid());
             Integer rid = Integer.valueOf(-1);
@@ -421,21 +411,21 @@ public class PSContentItemDependencyTree {
    *     [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>null
    *     </code>, may be empty.
    */
-  List updateDependency(
-      int sysId, int contentId, int revisionId, int relatedId, int variantId, Map done) {
+  List<String[]> updateDependency(
+      int sysId, int contentId, int revisionId, int relatedId, int variantId, Map<Integer, Integer> done) {
     if (done == null) throw new IllegalArgumentException("done may not be null.");
 
     // update the dependency map
     Integer cid = Integer.valueOf(relatedId);
 
-    List value = (List) m_dependencyMap.get(cid);
+    List<PSItemDependency> value = m_dependencyMap.get(cid);
     if (value == null) {
-      value = new ArrayList();
+      value = new ArrayList<>();
       m_dependencyMap.put(cid, value);
       value.add(new PSItemDependency(contentId, revisionId, relatedId, sysId, variantId));
     } else {
       for (int i = 0; i < value.size(); i++) {
-        PSItemDependency item = (PSItemDependency) value.get(i);
+        PSItemDependency item = value.get(i);
         if (sysId == item.getSysId()) {
           value.set(i, new PSItemDependency(contentId, revisionId, relatedId, sysId, variantId));
           break;
@@ -473,23 +463,18 @@ public class PSContentItemDependencyTree {
    *     [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>null
    *     </code>, may be empty.
    */
-  List getDependentItems(int contentId, int revisionId, int variantId) {
+  List<String[]> getDependentItems(int contentId, int revisionId, int variantId) {
     ItemSet result = new ItemSet(contentId, revisionId);
 
-    Map done = new ConcurrentHashMap<>();
+    Map<Integer, Integer> done = new ConcurrentHashMap<>();
     if (contentId >= 0) {
       Integer cid = contentId;
-      Integer rid = null;
-      rid = revisionId;
+      Integer rid = revisionId;
       add(cid, rid, result, done);
     } else if (variantId >= 0) {
-      PSItemDependency item = null;
-      Iterator dependencies = new HashSet(m_dependencyMap.values()).iterator();
-      while (dependencies.hasNext()) {
-        List items = (List) dependencies.next();
+      for (List<PSItemDependency> items : new HashSet<>(m_dependencyMap.values())) {
         if (items != null) {
-          for (int i = 0; i < items.size(); i++) {
-            item = (PSItemDependency) items.get(i);
+          for (PSItemDependency item : items) {
             if (item.getVariantId() == variantId) {
               Integer cid = item.getRelatedContentid();
               Integer rid = -1;
@@ -540,17 +525,15 @@ public class PSContentItemDependencyTree {
    * @return An iterator over zero or more owner ids in <code>Integer</code> objects, never <code>
    *     null</code>.
    */
-  public Iterator getOwners(Integer contentid) {
-    List ownerList = (List) m_dependencyMap.get(contentid);
+  public Iterator<Integer> getOwners(Integer contentid) {
+    List<PSItemDependency> ownerList = m_dependencyMap.get(contentid);
     if (ownerList != null) {
-      Iterator items = ownerList.iterator();
-      List ids = new ArrayList();
-      while (items.hasNext()) {
-        PSItemDependency item = (PSItemDependency) items.next();
+      List<Integer> ids = new ArrayList<>();
+      for (PSItemDependency item : ownerList) {
         ids.add(Integer.valueOf(item.getContentId()));
       }
       return ids.iterator();
-    } else return Collections.emptyList().iterator();
+    } else return Collections.<Integer>emptyList().iterator();
   }
 
   /**
@@ -563,10 +546,8 @@ public class PSContentItemDependencyTree {
     StringBuilder buf = new StringBuilder();
 
     buf.append("Dependencies(");
-    Iterator keys = m_dependencyMap.keySet().iterator();
-    while (keys.hasNext()) {
-      Integer key = (Integer) keys.next();
-      List dependency = (List) m_dependencyMap.get(key);
+    for (Integer key : m_dependencyMap.keySet()) {
+      List<PSItemDependency> dependency = m_dependencyMap.get(key);
       buf.append("key= ");
       buf.append(key.toString());
       buf.append(" value= ");
@@ -706,7 +687,7 @@ public class PSContentItemDependencyTree {
   /**
    * Inner class to create a set of <code>Item</code> objects returned by various interface methods.
    */
-  private class ItemSet extends HashSet {
+  private class ItemSet extends HashSet<Item> {
     /** Generated serial number */
     private static final long serialVersionUID = -9072684561956368546L;
 
