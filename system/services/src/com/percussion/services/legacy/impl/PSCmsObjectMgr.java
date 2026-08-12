@@ -191,7 +191,7 @@ public class PSCmsObjectMgr
       {"CONTENTSTATUS", "RXLOCALE", "RXLOCALEFORMAT"};
       String[] pks =
       {"CONTENTID", "LOCALEID", "LANGUAGESTRING"};
-      Class clazz[] =
+      Class<?> clazz[] =
       {PSComponentSummary.class, PSLocale.class, PSLocaleFormat.class};
 
       PSServer.addInitListener(new PSHibernateEvictionTableUpdateHandler(tables, pks, clazz));
@@ -1008,7 +1008,7 @@ public class PSCmsObjectMgr
       return rval.stream();
    }
 
-   public void handleDataEviction(Class clazz, Serializable id) throws PSORMException
+   public void handleDataEviction(Class<?> clazz, Serializable id) throws PSORMException
    {
       Session s = getSession();
 

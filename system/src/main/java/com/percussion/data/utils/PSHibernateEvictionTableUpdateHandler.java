@@ -43,7 +43,7 @@ public class PSHibernateEvictionTableUpdateHandler extends PSTableUpdateHandlerB
   private String[] m_keys;
 
   /** The classes that correspond to the tables */
-  private Class[] m_classes;
+  private Class<?>[] m_classes;
 
   /**
    * Ctor
@@ -57,7 +57,7 @@ public class PSHibernateEvictionTableUpdateHandler extends PSTableUpdateHandlerB
    *     class from the cache, useful when objects specify a compound key.
    */
   public PSHibernateEvictionTableUpdateHandler(
-      String tables[], String pkcolumns[], Class persistenceClasses[]) {
+      String tables[], String pkcolumns[], Class<?> persistenceClasses[]) {
     super(tables);
     if (pkcolumns == null) {
       throw new IllegalArgumentException("pkcolumns may not be null");
@@ -89,7 +89,7 @@ public class PSHibernateEvictionTableUpdateHandler extends PSTableUpdateHandlerB
 
     if (i < 0) return;
 
-    Class clazz = m_classes[i];
+    Class<?> clazz = m_classes[i];
     String keycol = m_keys[i];
     Serializable data = null;
     if (keycol != null) {

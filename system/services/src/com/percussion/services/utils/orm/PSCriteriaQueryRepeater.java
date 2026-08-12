@@ -129,7 +129,7 @@ public abstract class PSCriteriaQueryRepeater<E>
             throw new IllegalStateException("createQuery must not return null");
          }
 
-         List dbResults = query.list();
+         List<E> dbResults = query.list();
          if (dbResults != null)
             results.addAll(dbResults);
       }

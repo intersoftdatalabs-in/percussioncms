@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +77,7 @@ public class PSAssemblyServiceUtils
     */
 
    public static IPSAssemblyResult getAssembledDocumentResult(
-      String url, Map extraParams) throws PSRequestParsingException,
+      String url, Map<String, ?> extraParams) throws PSRequestParsingException,
       PSAssemblyException, PSCmsException,
       ItemNotFoundException, PSFilterException,
       RepositoryException, PSTemplateNotImplementedException
@@ -87,25 +86,22 @@ public class PSAssemblyServiceUtils
       .getAssemblyService();
       IPSAssemblyItem item = service.createAssemblyItem();
 
-      Map params;
-
       /* The HashMap returned by the parseParameters method has an overridden
        * put method which creates ArrayLists for key values if the key already
        * exists in the map, so create a new HashMap with the mappings in order
        * to use putAll with expected behavior.
        */
-      params = new HashMap(PSParseUrlQueryString.parseParameters(url));
+      Map<String, Object> params =
+         new HashMap<>(PSParseUrlQueryString.parseParameters(url));
       if(extraParams != null && !extraParams.isEmpty())
         params.putAll(extraParams);
 
-      Iterator iter = params.keySet().iterator();
-      while (iter.hasNext())
+      for (Map.Entry<String, Object> entry : params.entrySet())
       {
-        Object param = iter.next();
-        Object obj = params.get(param);
+        Object obj = entry.getValue();
         String value = (obj == null) ? "" : obj.toString();
         if (!StringUtils.isBlank(value))
-           item.setParameterValue(param.toString(), value);
+           item.setParameterValue(entry.getKey(), value);
       }
 
       item.normalize();
@@ -137,7 +133,7 @@ public class PSAssemblyServiceUtils
     * @throws UnsupportedEncodingException if the charset is not supported
     */
    public static String getAssembledDocument(
-      String url, Map extraParams) throws PSRequestParsingException,
+      String url, Map<String, ?> extraParams) throws PSRequestParsingException,
    PSAssemblyException, PSCmsException,
    ItemNotFoundException, PSFilterException,
    RepositoryException, PSTemplateNotImplementedException,

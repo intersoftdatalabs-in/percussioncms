@@ -19,6 +19,7 @@ package com.percussion.services.security;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 
+import com.percussion.security.shim.acl.AclEntry;
 import com.percussion.security.shim.acl.NotOwnerException;
 import com.percussion.security.shim.acl.Permission;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class PSAclUtils
          throw new IllegalArgumentException("source cannot be null.");
       if (target == null)
          throw new IllegalArgumentException("target cannot be null.");
-      Enumeration enumEntries = source.entries();
+      Enumeration<? extends AclEntry> enumEntries = source.entries();
       while (enumEntries.hasMoreElements())
       {
          IPSAclEntry entry = (IPSAclEntry) enumEntries.nextElement();
@@ -66,10 +67,10 @@ public class PSAclUtils
             // Already has the entry so just modify the
             // permissions
             tEntry.clearPermissions();
-            Enumeration enumPerms = entry.permissions();
+            Enumeration<Permission> enumPerms = entry.permissions();
             while (enumPerms.hasMoreElements())
             {
-               Permission perm = (Permission) enumPerms.nextElement();
+               Permission perm = enumPerms.nextElement();
                tEntry.addPermission(perm);
             }
          }
@@ -78,10 +79,10 @@ public class PSAclUtils
             // Need to add the entry
             IPSAclEntry newEntry = target
                .createEntry(entry.getTypedPrincipal());
-            Enumeration enumPerms = entry.permissions();
+            Enumeration<Permission> enumPerms = entry.permissions();
             while (enumPerms.hasMoreElements())
             {
-               Permission perm = (Permission) enumPerms.nextElement();
+               Permission perm = enumPerms.nextElement();
                newEntry.addPermission(perm);
             }
             try
@@ -107,7 +108,7 @@ public class PSAclUtils
       if (acl == null)
          throw new IllegalArgumentException("acl cannot be null.");
       List<IPSAclEntry> removeList = new ArrayList<>();
-      Enumeration enumEntries = acl.entries();
+      Enumeration<? extends AclEntry> enumEntries = acl.entries();
       while (enumEntries.hasMoreElements())
       {
          IPSAclEntry entry = (IPSAclEntry) enumEntries.nextElement();
@@ -158,7 +159,7 @@ public class PSAclUtils
    {
       removeAllEntries(acl, PrincipalTypes.COMMUNITY);
       // Find the system community entry and set permission
-      Enumeration enumEntries = acl.entries();
+      Enumeration<? extends AclEntry> enumEntries = acl.entries();
       while (enumEntries.hasMoreElements())
       {
          IPSAclEntry entry = (IPSAclEntry) enumEntries.nextElement();
@@ -180,7 +181,7 @@ public class PSAclUtils
    public static void removeVisibilityOnSystemCommunityEntry(IPSAcl acl)
    {
       // Find the system community entry and remove permission
-      Enumeration enumEntries = acl.entries();
+      Enumeration<? extends AclEntry> enumEntries = acl.entries();
       while (enumEntries.hasMoreElements())
       {
          IPSAclEntry entry = (IPSAclEntry) enumEntries.nextElement();
