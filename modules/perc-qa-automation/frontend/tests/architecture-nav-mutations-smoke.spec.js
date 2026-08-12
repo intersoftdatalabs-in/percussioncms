@@ -68,7 +68,7 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
       timeout: 20_000,
     });
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
-      /Architecture/i,
+      /Navigation/i,
     );
     await expect(page.getByTestId("architecture-toolbar")).toBeVisible({
       timeout: 15_000,

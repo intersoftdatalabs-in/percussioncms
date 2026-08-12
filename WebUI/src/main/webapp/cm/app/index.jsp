@@ -80,6 +80,7 @@
             "developer",
             "arch",
             "architecture",
+            "navigation",
             "dash"
     };
 
@@ -87,6 +88,8 @@
     String[] adminViews = new String[]{
             "design",
             "arch",
+            "architecture",
+            "navigation",
             "publish",
             "workflow",
             "widgetbuilder",
@@ -98,6 +101,8 @@
     String[] designerViews = new String[]{
             "design",
             "arch",
+            "architecture",
+            "navigation",
             "publish",
             "widgetbuilder",
             "developer"
@@ -233,8 +238,9 @@
         else if ("workflow".equals(view))
             // #3088: fold legacy Workflow admin view into unified Admin shell
             entry = "admin";
-        else if ("arch".equals(view) || "architecture".equals(view))
-            // #3094: Architecture homepage / view=arch → SPA Architecture shell
+        else if ("arch".equals(view) || "architecture".equals(view)
+                || "navigation".equals(view))
+            // #3094 / #3219: Architecture homepage / Navigation → SPA shell
             entry = "architecture";
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
@@ -308,9 +314,10 @@
             if (section != null)
                 qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
         }
-        else if ("arch".equals(view) || "architecture".equals(view))
+        else if ("arch".equals(view) || "architecture".equals(view)
+                || "navigation".equals(view))
         {
-            // Optional site context for Architecture SPA (#3094)
+            // Optional site context for Architecture SPA (#3094 / #3219)
             String site = request.getParameter("site");
             if (site != null && !site.isBlank() && site.length() <= 128
                     && !site.contains("://") && !site.contains("..") && !site.contains("/"))

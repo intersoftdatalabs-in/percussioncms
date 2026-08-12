@@ -68,7 +68,7 @@ test.describe("Architecture nav landing & links (#3097)", () => {
       timeout: 20_000,
     });
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
-      /Architecture/i,
+      /Navigation/i,
     );
 
     const sitesEmpty = page.getByTestId("architecture-sites-empty");

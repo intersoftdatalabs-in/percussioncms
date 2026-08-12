@@ -254,8 +254,22 @@ public class PSSiteSectionRestService {
   public PSSectionNode loadTree(@PathParam("siteName") String siteName)
       throws IPSSiteSectionService.PSSiteSectionException, PSNotFoundException {
     try {
-      return siteSectionService.loadTree(siteName);
-    } catch (IPSSiteSectionService.PSSiteSectionException | PSNotFoundException e) {
+      PSSectionNode tree = siteSectionService.loadTree(siteName);
+      if (tree == null) {
+        return PSSectionNode.emptyTree(siteName, null);
+      }
+      if (tree.getChildNodes() == null) {
+        tree.setChildNodes(java.util.Collections.emptyList());
+      }
+      return tree;
+    } catch (IPSSiteSectionService.PSSiteSectionException e) {
+      if (PSSiteSectionService.isMissingNavTreeMessage(e.getMessage())) {
+        log.info("Site '{}' has no navigation tree; returning empty section tree", siteName);
+        return PSSectionNode.emptyTree(siteName, null);
+      }
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    } catch (PSNotFoundException e) {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw e;
     }

@@ -18,6 +18,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
+  isMissingNavTreeError,
   loadSectionTree,
   sectionRootUrl,
   sectionTreeUrl,
@@ -67,5 +68,47 @@ describe("sectionApi (#3095)", () => {
   it("loadSectionTree returns null for empty payload", async () => {
     vi.spyOn(client, "get").mockResolvedValue(null);
     await expect(loadSectionTree("Demo")).resolves.toBeNull();
+  });
+
+  it("loadSectionTree returns null for empty SectionNode without id (#3218)", async () => {
+    vi.spyOn(client, "get").mockResolvedValue({
+      SectionNode: { title: "BareSite", childNodes: [] },
+    });
+    await expect(loadSectionTree("BareSite")).resolves.toBeNull();
+  });
+
+  it("loadSectionTree treats missing-navtree 500 as empty (#3218)", async () => {
+    vi.spyOn(client, "get").mockRejectedValue({
+      status: 500,
+      statusText: "Server Error",
+      body: { message: "Cannot find navigation tree for site: BareSite" },
+    });
+    await expect(loadSectionTree("BareSite")).resolves.toBeNull();
+  });
+
+  it("loadSectionTree still throws unrelated 500s", async () => {
+    vi.spyOn(client, "get").mockRejectedValue({
+      status: 500,
+      statusText: "Server Error",
+      body: { message: "database unavailable" },
+    });
+    await expect(loadSectionTree("Demo")).rejects.toMatchObject({ status: 500 });
+  });
+
+  it("isMissingNavTreeError matches server empty-state text", () => {
+    expect(
+      isMissingNavTreeError({
+        status: 500,
+        statusText: "Server Error",
+        body: { message: "Cannot find navigation tree for site: X" },
+      }),
+    ).toBe(true);
+    expect(
+      isMissingNavTreeError({
+        status: 500,
+        statusText: "Server Error",
+        body: { message: "Cannot get guid for nav-id" },
+      }),
+    ).toBe(false);
   });
 });

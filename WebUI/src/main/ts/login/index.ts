@@ -22,6 +22,7 @@ export {
   buildSpaEntryRedirect,
   sanitizeLoginRedirect,
   DEFAULT_SPA_ENTRY_REDIRECT,
+  DEFAULT_POST_LOGIN_REDIRECT,
 } from "./redirect";
 export type {
   LoginBootstrap,

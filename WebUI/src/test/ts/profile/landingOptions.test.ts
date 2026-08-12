@@ -21,6 +21,7 @@ import {
   profileLandingOptions,
 } from "../../../main/ts/profile/landingOptions";
 import { HOMEPAGE_TYPES } from "../../../main/ts/api/user/userHomepageApi";
+import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 
 describe("profileLandingOptions", () => {
   it("allows Home and Editor for any user", () => {
@@ -29,6 +30,28 @@ describe("profileLandingOptions", () => {
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.EDITOR, {})).toBe(true);
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.DESIGNER, {})).toBe(false);
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.WORKFLOW, {})).toBe(false);
+  });
+
+  it("includes Architecture (Navigation) landing for designers", () => {
+    expect(
+      isProfileLandingAllowed(HOMEPAGE_TYPES.ARCHITECTURE, {
+        isDesigner: true,
+      }),
+    ).toBe(true);
+    const opts = profileLandingOptions({ isDesigner: true });
+    const arch = opts.find((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(arch).toBeTruthy();
+    expect(arch?.labelKey).toMatch(/Navigation/i);
+  });
+
+  it("hides Architecture (Navigation) landing for non-designers", () => {
+    expect(isProfileLandingAllowed(HOMEPAGE_TYPES.ARCHITECTURE, {})).toBe(
+      false,
+    );
+    const opts = profileLandingOptions({});
+    expect(
+      opts.some((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE),
+    ).toBe(false);
   });
 
   it("opens Design for designers and Administration for admins", () => {
@@ -46,5 +69,13 @@ describe("profileLandingOptions", () => {
   it("keeps current value when no longer allowed", () => {
     const opts = profileLandingOptions({}, HOMEPAGE_TYPES.DESIGNER);
     expect(opts.some((o) => o.value === HOMEPAGE_TYPES.DESIGNER)).toBe(true);
+  });
+
+  it("labels the Architecture homepage type as Navigation (#3217)", () => {
+    const opt = profileLandingOptions({ isDesigner: true }).find(
+      (o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE,
+    );
+    expect(opt).toBeTruthy();
+    expect(fallbackLabelFromKey(opt!.labelKey)).toBe("Navigation");
   });
 });

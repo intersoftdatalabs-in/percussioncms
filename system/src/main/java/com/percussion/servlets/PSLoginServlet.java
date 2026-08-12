@@ -299,6 +299,7 @@ public class PSLoginServlet extends HttpServlet {
       return;
     }
 
+    String formRedirect = null;
     if (request.getMethod().equalsIgnoreCase("POST")) {
       PSRequest psreq = (PSRequest) getRequestInfo(KEY_PSREQUEST);
 
@@ -312,6 +313,9 @@ public class PSLoginServlet extends HttpServlet {
         uid = psreq.getParameter("j_username");
         pwd = psreq.getParameter("j_password");
         locale = psreq.getParameter("j_locale");
+        // Multipart login form: servlet getParameter() does not see body
+        // fields — take sys_redirect from the parsed PSRequest (#3219).
+        formRedirect = psreq.getParameter(IPSHtmlParameters.SYS_REDIRECT);
 
         if (locale != null) {
           request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, locale);
@@ -326,7 +330,9 @@ public class PSLoginServlet extends HttpServlet {
 
     String redirect =
         PSRedirectValidation.decodeOverEncodedRedirect(
-            request.getParameter(IPSHtmlParameters.SYS_REDIRECT));
+            !StringUtils.isBlank(formRedirect)
+                ? formRedirect
+                : request.getParameter(IPSHtmlParameters.SYS_REDIRECT));
     if (isValidRedirectUri(request, redirect)) {
       request.getSession().setAttribute(REDIRECT_URL, redirect);
     }
@@ -627,7 +633,8 @@ public class PSLoginServlet extends HttpServlet {
    * <p>Path-absolute SPA entry (query contract). See pure-react-spa design: never use hash
    * fragments on server redirects. Form posts may also supply {@code sys_redirect}.
    */
-  private static final String CMS_INDEX_PAGE = "/cm/app/spa.jsp?entry=home";
+  /** Dispatcher so {@code getUserHomepage()} can land Navigation / Architecture (#3219). */
+  private static final String CMS_INDEX_PAGE = "/cm/app/";
 
   private static final String USER_DIR = "user";
 

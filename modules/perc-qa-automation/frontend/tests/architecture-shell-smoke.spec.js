@@ -43,9 +43,12 @@ test.describe("Architecture SPA shell (#3094)", () => {
     await loginAsAdmin(page);
   });
 
-  test("deep link and TopNav open shell empty state @smoke @ui", async ({
+  test("deep link and TopNav open Navigation shell @smoke @ui", async ({
     page,
   }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
     await page.goto(architectureUrl(), { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("perc-spa-topnav")).toBeVisible({
@@ -54,13 +57,19 @@ test.describe("Architecture SPA shell (#3094)", () => {
     await expect(page.getByTestId("nav-architecture")).toBeVisible({
       timeout: 20_000,
     });
+    await expect(page.getByTestId("nav-architecture")).toHaveText(/Navigation/i);
     await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
       timeout: 20_000,
     });
-    await expect(page.getByTestId("architecture-empty-state")).toBeVisible();
+    // Demo-site QA cells auto-select a site (picker/tree); empty H2 cells show empty-state.
+    const emptyState = page.getByTestId("architecture-empty-state");
+    const picker = page.getByTestId("architecture-site-picker");
+    const tree = page.getByTestId("architecture-tree-panel");
+    await expect(emptyState.or(picker).or(tree)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
-      /Architecture/i,
+      /Navigation/i,
     );
+    expect(pageErrors, "uncaught pageerror on Navigation shell").toEqual([]);
 
     // Top-nav Architecture is SPA NavLink (not legacy ?view=arch)
     const href = await page
@@ -78,5 +87,27 @@ test.describe("Architecture SPA shell (#3094)", () => {
     await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
       timeout: 20_000,
     });
+  });
+
+  test("New Site affordance opens the create-site wizard @smoke @ui", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await page.goto(architectureUrl(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
+      timeout: 20_000,
+    });
+    const newSite = page.getByTestId("architecture-action-new-site");
+    await expect(newSite).toBeVisible();
+    await expect(newSite).toBeEnabled();
+    await expect(newSite).toContainText(/New Site/i);
+    await newSite.click();
+    await expect(page.getByTestId("architecture-new-site-panel")).toBeVisible();
+    await expect(page.getByTestId("site-create-step-details")).toBeVisible();
+    await page.getByTestId("architecture-new-site-close").click();
+    await expect(page.getByTestId("architecture-new-site-panel")).toHaveCount(0);
+    expect(pageErrors, pageErrors.join("\n")).toEqual([]);
   });
 });

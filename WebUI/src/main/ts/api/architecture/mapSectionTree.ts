@@ -115,6 +115,21 @@ function normalizeSectionType(raw: unknown): SectionType {
 }
 
 /**
+ * True when the wire node is an empty/missing nav tree (#3218): no section
+ * id and no children. Title/folderPath alone (site name) is not a tree.
+ */
+export function isEmptySectionTreeWire(wire: SectionNodeWire | null): boolean {
+  if (wire == null) {
+    return true;
+  }
+  const id = asNullableString(wire.id);
+  const children = normalizeChildNodes(
+    wire.childNodes ?? wire.ChildNodes ?? wire.SectionNode ?? null,
+  );
+  return id == null && children.length === 0;
+}
+
+/**
  * Map a wire {@link SectionNodeWire} to a {@link NavTreeNode} tree.
  * Skips cycles (same id already on path) and nodes without a usable id.
  */

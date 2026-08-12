@@ -570,7 +570,25 @@
       <tuv xml:lang="zh-cn"><seg>家</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>家</seg></tuv>
     <tuv xml:lang="ru"><seg>Дом</seg></tuv><tuv xml:lang="he"><seg>בַּיִת</seg></tuv><tuv xml:lang="uk"><seg>додому</seg></tuv><tuv xml:lang="lou"><seg>Lakay</seg></tuv><tuv xml:lang="pl"><seg>Dom</seg></tuv><tuv xml:lang="tr"><seg>Ev</seg></tuv></tu>
+    <!-- #3217: tuid suffix stays @Architecture for residual JSP (mainnav / navigationTemplates / template_layout). en-us text is Navigation. -->
     <tu tuid="perc.ui.navMenu.architecture@Architecture">
+      <tuv xml:lang="en-us"><seg>Navigation</seg></tuv>
+      <tuv xml:lang="ar"><seg>ملاحة</seg></tuv>
+      <tuv xml:lang="bn"><seg>নেভিগেশন</seg></tuv>
+      <tuv xml:lang="de"><seg>Navigation</seg></tuv>
+      <tuv xml:lang="es"><seg>Navegación</seg></tuv>
+      <tuv xml:lang="fr"><seg>Navigation</seg></tuv>
+      <tuv xml:lang="hi"><seg>मार्गदर्शन</seg></tuv>
+      <tuv xml:lang="it"><seg>Navigazione</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>ナビゲーション</seg></tuv>
+      <tuv xml:lang="nl"><seg>Navigatie</seg></tuv>
+      <tuv xml:lang="pt"><seg>Navegação</seg></tuv>
+      <tuv xml:lang="te"><seg>నావిగేషన్</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>导航</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>导航</seg></tuv>
+    <tuv xml:lang="ru"><seg>Навигация</seg></tuv><tuv xml:lang="he"><seg>ניווט</seg></tuv><tuv xml:lang="uk"><seg>Навігація</seg></tuv><tuv xml:lang="lou"><seg>Navigasyon</seg></tuv><tuv xml:lang="pl"><seg>Nawigacja</seg></tuv><tuv xml:lang="tr"><seg>Navigasyon</seg></tuv></tu>
+    <!-- #3217: canonical SPA key (MSG.NAV_ARCHITECTURE). Must coexist with @Architecture above — JSP still binds the old tuid. -->
+    <tu tuid="perc.ui.navMenu.architecture@Navigation">
       <tuv xml:lang="en-us"><seg>Navigation</seg></tuv>
       <tuv xml:lang="ar"><seg>ملاحة</seg></tuv>
       <tuv xml:lang="bn"><seg>নেভিগেশন</seg></tuv>
@@ -27093,15 +27111,18 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
       <tuv xml:lang="en-us"><seg>Server</seg></tuv>
     <tuv xml:lang="lou"><seg>Server</seg></tuv><tuv xml:lang="tr"><seg>Sunucu</seg></tuv></tu>
 
-    <!-- Architecture SPA chrome (#3098 Slice F) — feature keys only (en-us). -->
-    <tu tuid="perc.ui.architecture.modern@Architecture">
-      <tuv xml:lang="en-us"><seg>Architecture</seg></tuv>
+    <!-- Architecture SPA chrome (#3098 Slice F, #3217). Canonical title tuid is @Navigation (ARCH_MSG_KEYS.TITLE). -->
+    <tu tuid="perc.ui.architecture.modern@Navigation">
+      <tuv xml:lang="en-us"><seg>Navigation</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.">
       <tuv xml:lang="en-us"><seg>Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Loading Architecture…">
-      <tuv xml:lang="en-us"><seg>Loading Architecture…</seg></tuv>
+      <tuv xml:lang="en-us"><seg>Loading Navigation…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Loading Navigation…">
+      <tuv xml:lang="en-us"><seg>Loading Navigation…</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Site">
       <tuv xml:lang="en-us"><seg>Site</seg></tuv>
@@ -27120,6 +27141,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     </tu>
     <tu tuid="perc.ui.architecture.modern@Could not load the site list.">
       <tuv xml:lang="en-us"><seg>Could not load the site list.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Site {0} was created, but the site list could not be refreshed.">
+      <tuv xml:lang="en-us"><seg>Site {0} was created, but the site list could not be refreshed.</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@No sites are available. Create a site to browse its navigation tree.">
       <tuv xml:lang="en-us"><seg>No sites are available. Create a site to browse its navigation tree.</seg></tuv>
@@ -27349,8 +27373,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)">
       <tuv xml:lang="en-us"><seg>Enter a valid URL (for example https://example.com or /path)</seg></tuv>
     </tu>
-    <tu tuid="perc.ui.architecture.modern@Site navigation (Architecture)">
-      <tuv xml:lang="en-us"><seg>Site navigation (Architecture)</seg></tuv>
+    <!-- #3217: tooltip tuid is @Site navigation (MSG.NAV_ARCHITECTURE_TITLE). -->
+    <tu tuid="perc.ui.architecture.modern@Site navigation">
+      <tuv xml:lang="en-us"><seg>Site navigation</seg></tuv>
     </tu>
 
   </body>
