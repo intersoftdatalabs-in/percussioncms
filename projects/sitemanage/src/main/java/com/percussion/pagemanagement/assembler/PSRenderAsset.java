@@ -29,9 +29,13 @@ import javax.jcr.Node;
  */
 public class PSRenderAsset extends PSAsset implements IPSLinkableItem {
 
-  private Node node;
+  /** JCR node is a runtime handle — not Java-serializable. */
+  private transient Node node;
+
   private String folderPath;
-  private IPSGuid ownerId;
+
+  /** Runtime owner guid — not required for DTO wire serialization. */
+  private transient IPSGuid ownerId;
 
   public Node getNode() {
     return node;

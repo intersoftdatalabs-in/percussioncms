@@ -1,8 +1,8 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-11 (operator reality-check reconcile #3109 / parent [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102); prior closeout #2794 / #2827 / #2828 / #2829 on 2026-08-10)  
-**Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.  
+**Evidence date:** 2026-08-11 (Views + Inbox **Missing** #3108; false-Present→Partial reconcile #3109 / parent [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102); prior closeout #2794 / #2827 / #2828 / #2829 on 2026-08-10)  
+**Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry. Silent omission is not allowed — unplanned capabilities must be **Missing**, **Partial**, **Present**, or signed **OUT**.  
 **QA gate:** **Present** requires closed human QA (or an explicit defend note). Open **Failed** / open QA on a row → keep **Partial** until pass. Agent merge alone is insufficient (#3102 / #3109).
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
@@ -21,6 +21,8 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) · **Defend:** no Failed QA on multi-select itself; clipboard row separate |
 | Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Partial** (merged; human QA Failed under shell) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
 | View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Partial** (merged; human QA open) | #2731 · #2733 · [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) · [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) |
+| **Views (DCE navigation category)** | DCE system category **Views** (`ContentExplorer.xml` → `sys_cxSupport/Views.html`; My / Community / … view categories 1–4) | **Not on product Explorer route.** Matrix already covers **View menu chrome** + **display formats** + **saved searches** — those are **not** the design **Views catalog tree**. Developer Views (UI-07 / `#1690`) may catalog Views outside CE; that is **not** DCE navigation parity. No product IN/OUT sign-off yet — treat as unplanned **Missing**, not silent omission and **not** invented **OUT**. | **Missing** | Operator symptoms [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · matrix docs [#3108](https://github.com/intersoftdatalabs-in/percussioncms/issues/3108) · implement backlog map [#3110](https://github.com/intersoftdatalabs-in/percussioncms/issues/3110) · research [views-inbox-missing-disposition.md](../research/views-inbox-missing-disposition.md) |
+| **Inbox** | DCE Inbox (operator inbox / assignment surface in CE navigation) | **No operator-visible Inbox equivalent** on SPA Explorer product route. Not previously listed on this matrix. No product IN / OUT / REDESIGN sign-off — disposition required before implement or signed OUT. | **Missing** | Operator symptoms [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · matrix docs [#3108](https://github.com/intersoftdatalabs-in/percussioncms/issues/3108) · implement backlog map [#3110](https://github.com/intersoftdatalabs-in/percussioncms/issues/3110) · research [views-inbox-missing-disposition.md](../research/views-inbox-missing-disposition.md) |
 
 ## Search
 
@@ -62,6 +64,29 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Content-locale session context (path APIs re-issued under content locale) | **OUT** signed #2829 — per-item locale + create-variant sufficient; session model is redesign. Same OUT note. |
 
 ## Implementation notes
+
+### 2026-08-11 Views + Inbox Missing rows (#3108 / #3102)
+
+**Problem:** Operator reality-check [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) found that **Views (DCE tree category)** and **Inbox** were **silent omissions** on this matrix. Chrome rows for View **menu** / display formats / saved searches do **not** cover the design Views catalog navigation, and Inbox had no row at all.
+
+**Disposition (docs only — no product sign-off invent):**
+
+| Capability | Status | Why not OUT |
+|------------|--------|-------------|
+| Views (DCE navigation category) | **Missing** | Product has not signed IN / OUT / REDESIGN. Overnight agents must **not** invent OUT. Until product decides, track as Missing and plan via #3110. |
+| Inbox | **Missing** | Same rule — silent omission banned; no implement without product IN or signed OUT. |
+
+**Do not confuse with Partial/Present chrome:**
+
+| Matrix row | What it is | What it is not |
+|-------------|------------|----------------|
+| View options / refresh | Menu chrome (Refresh, panel toggles) | Not design Views catalog tree |
+| Display formats for columns | Column DF selector | Not Views navigation category |
+| Saved searches catalog + run | CE saved searches | Views are a **separate** catalog (see [saved-search-execute-disposition.md](../research/saved-search-execute-disposition.md): *Views are a separate catalog (Developer Views / UI-07)*) |
+
+**Research note:** [views-inbox-missing-disposition.md](../research/views-inbox-missing-disposition.md) — maps operator symptoms → matrix rows → related QA/bugs → product decision options.
+
+**Next (not this PR):** Product IN/OUT on Views + Inbox (#3102 acceptance); if IN, PR-sized implement children via #3110. Sibling #3109 reconciles false Present vs Failed human QA on other rows.
 
 ### 2026-08-11 false Present vs open Failed QA reconcile (#3109 / #3102)
 

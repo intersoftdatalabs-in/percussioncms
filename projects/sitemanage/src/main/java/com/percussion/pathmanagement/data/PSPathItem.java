@@ -48,7 +48,8 @@ public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPS
   @XmlElement private String path;
   private PSFolderPermission.Access accessLevel;
 
-  @XmlTransient private Object relatedObject;
+  /** Runtime association only — not part of Java serialization. */
+  @XmlTransient private transient Object relatedObject;
 
   @XmlElement(name = "columnData")
   @XmlJavaTypeAdapter(PSMapAdapter.class)

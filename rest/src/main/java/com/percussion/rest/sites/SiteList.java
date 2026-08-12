@@ -20,12 +20,22 @@ package com.percussion.rest.sites;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/** List wrapper for Site objects. Sunny Sal: "Site list ka boss!" */
+/**
+ * List wrapper for Site objects. Sunny Sal: "Site list ka boss!"
+ *
+ * <p>{@link XmlSeeAlso} registers {@link Site} in the JAXB context so GET {@code /services/sites}
+ * can marshal list elements. Without it, the Developer Sites catalog fails with {@code
+ * JAXBException}: {@code Site nor any of its super class is known to this context} (#3090). Peer
+ * pattern: {@code UserPreferenceList} (#2746), {@code RoleList}, {@code CommunityList}, ACL list
+ * wrappers.
+ */
 @XmlRootElement(name = "SiteList")
 @ArraySchema(schema = @Schema(implementation = Site.class))
+@XmlSeeAlso(Site.class)
 public class SiteList extends ArrayList<Site> {
 
   private static final long serialVersionUID = 1L;

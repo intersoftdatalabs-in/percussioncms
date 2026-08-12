@@ -87,13 +87,13 @@
 
 **Close #2400 only when all of the following are true:**
 
-1. **Gap matrix** has no **Missing** rows for in-scope Explorer parity, and every intentional non-goal is under **Explicit OUT** (or cross-epic pointer, not silent debt).
+1. **Gap matrix** has **no silent omissions**: every known DCE capability is Present / Partial / **Missing** / Explicit OUT (or cross-epic pointer). **Missing** rows (as of 2026-08-11: Views DCE category + Inbox — #3108 / [views-inbox-missing-disposition.md](./views-inbox-missing-disposition.md)) must reach product IN/OUT/REDESIGN (then implement or Explicit OUT) before epic close — not agent invent OUT.
 2. **No open agent implement children** under #2400 that are still required for Present rows (chrome, search execute, translation Present surface, etc.).
-3. **Open work is human QA and/or product decisions only** — QA (`qa task`) issues assigned for UAT, or OUT/redesign tracked as product (not agent invent).
+3. **Open work is human QA, product decisions, and any product-IN Missing implement children** — QA (`qa task`) issues assigned for UAT, or OUT/redesign tracked as product (not agent invent).
 4. **Human product owner** accepts that residual OUT rows (including P-Trans in-flight/session) do not block research-epic close, **or** reopens them as new prioritized children.
 5. Optionally: primary human QA handoffs for first-wave Present surfaces have pass/fail disposition (close or fail-fix residuals) — not a hard code gate for this docs residual, but preferred before labeling the program “done.”
 
-**Do not keep #2400 open solely to “track” OUT rows** once documented. Prefer close when implement children are done and only QA/product OUT remain, **or** leave open explicitly for the open QA set (current state as of 2026-08-10).
+**Do not keep #2400 open solely to “track” OUT rows** once documented. Prefer close when implement children are done and only QA/product OUT remain, **or** leave open explicitly for the open QA set + dispositioned Missing rows (current state as of 2026-08-11).
 
 **#2411 close criteria:**
 
@@ -120,3 +120,4 @@
 | Date | Note |
 |------|------|
 | 2026-08-10 | #2829 residual: formal OUT for in-flight + session; epic remaining-open criteria for #2400; link inventory + gap-matrix. |
+| 2026-08-11 | Epic remaining-open criteria clarified for **Missing** Views + Inbox (#3108); silent omission still banned; product IN/OUT required. |

@@ -21,13 +21,16 @@ package com.percussion.monitor.service;
 import com.percussion.share.data.PSMapWrapper;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
  * Implementation of {@link IPSMonitor}. Sunny Sal says: "Monitor class: keeping an eye on your
  * stats!"
  */
 @XmlRootElement
-public class PSMonitor implements IPSMonitor {
+public class PSMonitor implements IPSMonitor, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private static final String MESSAGE_DESIGNATOR = "message";
   private static final String STATUS_DESIGNATOR = "status";

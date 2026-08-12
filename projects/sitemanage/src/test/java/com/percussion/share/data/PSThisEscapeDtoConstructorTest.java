@@ -260,4 +260,56 @@ class PSThisEscapeDtoConstructorTest {
     var path = new PSPathItem();
     assertFalse(path.isFolder());
   }
+
+  @Test
+  void widgetBuilderSummaryAndDefinitionSeedFromDao() {
+    var dao = new com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition();
+    dao.setWidgetBuilderDefinitionId(42L);
+    dao.setAuthor("author-a");
+    dao.setLabel("My Widget");
+    dao.setPrefix("perc");
+    dao.setPublisherUrl("https://example.test");
+    dao.setDescription("desc");
+    dao.setVersion("1.0.0");
+    dao.setResponsive(true);
+    dao.setToolTipMessage("tip");
+    dao.setWidgetTrayCustomizedIconPath("/icons/w.png");
+    dao.setWidgetHtml("<div>hi</div>");
+
+    var summary = new com.percussion.widgetbuilder.data.PSWidgetBuilderSummaryData(dao);
+    assertEquals(42L, summary.getWidgetId());
+    assertEquals("42", summary.getId());
+    assertEquals("author-a", summary.getAuthor());
+    assertEquals("My Widget", summary.getLabel());
+    assertEquals("perc", summary.getPrefix());
+    assertEquals("https://example.test", summary.getPublisherUrl());
+    assertEquals("desc", summary.getDescription());
+    assertEquals("1.0.0", summary.getVersion());
+    assertTrue(summary.isResponsive());
+    assertEquals("tip", summary.getToolTipMessage());
+    assertEquals("/icons/w.png", summary.getWidgetTrayCustomizedIconPath());
+
+    var def = new com.percussion.widgetbuilder.data.PSWidgetBuilderDefinitionData(dao);
+    assertEquals(42L, def.getWidgetId());
+    assertEquals("<div>hi</div>", def.getWidgetHtml());
+    assertEquals("My Widget", def.getLabel());
+  }
+
+  @Test
+  void widgetBuilderSummaryRejectsNullDao() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new com.percussion.widgetbuilder.data.PSWidgetBuilderSummaryData(
+            (com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition) null));
+  }
+
+  @Test
+  void regionParserAdapterParsesAfterFullConstruction() {
+    // Lazy parser init must work after the subclass ctor finishes (this-escape mitigation).
+    var html = "<div class=\"perc-region\" id=\"container\">body</div>";
+    var tree =
+        com.percussion.pagemanagement.parser.PSTemplateRegionParser.parse(Map.of(), html);
+    assertEquals("container", tree.getRegions().get("container").getRegionId());
+    assertFalse(tree.getRootNode().getChildren().isEmpty());
+  }
 }

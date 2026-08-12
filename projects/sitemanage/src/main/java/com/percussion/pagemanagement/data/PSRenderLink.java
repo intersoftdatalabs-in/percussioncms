@@ -21,6 +21,7 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDe
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
 import java.util.Objects;
 
 // removed Optional import: getter now returns nullable value
@@ -31,7 +32,9 @@ import java.util.Objects;
  * @author adamgent
  */
 @XmlRootElement(name = "RenderLink")
-public class PSRenderLink {
+public class PSRenderLink implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   protected String url;
   private transient PSResourceDefinition resourceDefinition;

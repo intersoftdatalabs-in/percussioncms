@@ -265,7 +265,12 @@ public class PSMetadataProperty {
  * Class that represents a composite key for PSMetadataProperty. The composite key for a metadata
  * property consists of a metadata entry (which the property belongs to) and the property name.
  */
+/**
+ * JPA composite key. {@code metadataEntry} is a non-serializable entity association required by
+ * Hibernate identity; Java serialization is not used for this embeddable (serial-field residual).
+ */
 @Embeddable
+@SuppressWarnings("serial")
 class PropertyId implements Serializable {
   private static final long serialVersionUID = 1L;
 
