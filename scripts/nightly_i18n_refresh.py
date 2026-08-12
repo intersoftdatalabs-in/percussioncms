@@ -9,6 +9,13 @@ Usage:
     python3 scripts/nightly_i18n_refresh.py --locale de
     python3 scripts/nightly_i18n_refresh.py --locale ar --dry-run
     python3 scripts/nightly_i18n_refresh.py --locale fr --verbose
+    python3 scripts/nightly_i18n_refresh.py --locale tr --resume
+
+``--resume`` continues an interrupted locale run: it keeps the worktree on
+the existing ``chore/nightly-i18n-refresh-<locale>`` branch (including a
+dirty tree / partial TMX + cache), skips the clean-tree and main-branch
+preflight, and re-runs translation. The translate scripts already resume
+via the on-disk cache and by only filling missing ``<tuv>`` rows.
 
 Note: This wrapper intentionally does NOT run ``mvnw spotless:apply``. The
 perc-i18n spotless config targets JSON (which we excluded due to the 4 MB
@@ -127,8 +134,43 @@ def run(
     )
 
 
-def ensure_worktree(worktree: Path, logger: logging.Logger) -> bool:
-    """Ensure the dedicated worktree exists and is on main branch."""
+def worktree_registered(worktree: Path) -> bool:
+    """Return True if ``worktree`` exists and is registered with git."""
+    if not worktree.exists():
+        return False
+    worktree_list = run(["git", "worktree", "list", "--porcelain"])
+    resolved = worktree.resolve()
+    for line in worktree_list.stdout.splitlines():
+        if line.startswith("worktree ") and resolved == Path(line[9:]).resolve():
+            return True
+    return False
+
+
+def ensure_worktree(
+    worktree: Path,
+    logger: logging.Logger,
+    *,
+    resume: bool = False,
+) -> bool:
+    """Ensure the dedicated worktree exists and is ready for a fresh run.
+
+    Fresh runs (``resume=False``) fetch ``origin/main`` and move the worktree
+    to detached HEAD at ``origin/main`` so the job starts clean.
+
+    Resume mode only verifies the worktree path is a registered git worktree
+    and leaves the current branch + dirty tree untouched (partial TMX/cache
+    progress from an interrupted translation).
+    """
+    if resume:
+        if not worktree_registered(worktree):
+            if worktree.exists():
+                logger.warning(f"Path {worktree} exists but is not a git worktree")
+            else:
+                logger.error(f"Resume worktree does not exist: {worktree}")
+            return False
+        logger.info(f"Resume mode: keeping worktree state at {worktree}")
+        return True
+
     worktree_list = run(["git", "worktree", "list", "--porcelain"])
 
     if worktree.exists():
@@ -622,14 +664,31 @@ def is_on_main_or_detached(worktree: Path) -> bool:
     return False
 
 
-def run_preflight_checks(logger: logging.Logger, worktree: Path) -> bool:
-    """Run all pre-flight checks. Returns True if all pass."""
+def run_preflight_checks(
+    logger: logging.Logger,
+    worktree: Path,
+    *,
+    resume: bool = False,
+) -> bool:
+    """Run all pre-flight checks. Returns True if all pass.
+
+    Resume mode skips the clean-tree and main-branch checks so an interrupted
+    locale run (dirty TMX/cache on ``chore/nightly-i18n-refresh-<locale>``)
+    can continue.
+    """
     checks: list[tuple[str, "callable[[], bool]"]] = [
         ("trans on PATH", check_trans_available),
-        (f"working tree clean ({worktree})", lambda: is_working_tree_clean_worktree(worktree)),
-        (f"on main branch ({worktree})", lambda: is_on_main_or_detached(worktree)),
         ("gh authenticated", check_gh_auth),
     ]
+    if not resume:
+        checks.insert(
+            1,
+            (f"working tree clean ({worktree})", lambda: is_working_tree_clean_worktree(worktree)),
+        )
+        checks.insert(
+            2,
+            (f"on main branch ({worktree})", lambda: is_on_main_or_detached(worktree)),
+        )
     all_passed, _failures = _evaluate_preflight_checks(
         checks,
         log=lambda msg, *a, **kw: (
@@ -688,11 +747,24 @@ def main(argv: Optional[list[str]] = None) -> int:
         default=DEFAULT_WORKTREE,
         help="Path to the dedicated worktree (default: ~/.kilo/worktrees/nightly-i18n-refresh)",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Continue an interrupted locale run: do not reset the worktree to "
+            "origin/main, allow a dirty tree, and stay on "
+            "chore/nightly-i18n-refresh-<locale> (requires --locale)"
+        ),
+    )
 
     args = parser.parse_args(argv)
 
     logger = setup_logging(args.verbose)
     logger.info("Starting nightly i18n refresh")
+
+    if args.resume and not args.locale:
+        logger.error("--resume requires --locale <code> (e.g. --locale tr)")
+        return 1
 
     lock_fd = acquire_lock(LOCK_FILE)
     if lock_fd is None:
@@ -702,11 +774,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     try:
         worktree = args.worktree.resolve()
         logger.info(f"Using worktree: {worktree}")
+        if args.resume:
+            logger.info("Resume mode enabled")
 
-        if not ensure_worktree(worktree, logger):
+        if not ensure_worktree(worktree, logger, resume=args.resume):
             return 1
 
-        if not run_preflight_checks(logger, worktree):
+        if not run_preflight_checks(logger, worktree, resume=args.resume):
             logger.error("Pre-flight checks failed, aborting")
             return 1
 
@@ -716,7 +790,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         locale = select_locale(args.locale)
         logger.info(f"Selected locale: {locale}")
 
-        run(["git", "fetch", "origin", "main"], cwd=worktree)
+        if not args.resume:
+            run(["git", "fetch", "origin", "main"], cwd=worktree)
 
         branch_name = f"chore/nightly-i18n-refresh-{locale}"
 
@@ -725,27 +800,52 @@ def main(argv: Optional[list[str]] = None) -> int:
             logger.info(f"Open PR #{open_pr} exists for {branch_name}, skipping")
             return 0
 
-        local_branch_exists = get_branch_head_commit(branch_name, worktree) is not None
-        if local_branch_exists:
-            age = branch_age_days(branch_name, worktree)
-            logger.debug(f"Branch {branch_name} exists, age: {age} days")
-            if is_branch_stale(age, threshold_days=7):
-                if has_unpushed_commits(branch_name, worktree):
-                    logger.warning(
-                        f"Branch {branch_name} is stale (>7 days) but has unpushed "
-                        f"commits; keeping for manual recovery"
-                    )
+        if args.resume:
+            current = get_current_branch_worktree(worktree)
+            if current == branch_name:
+                logger.info(f"Resume: already on {branch_name}")
+            else:
+                local_exists = get_branch_head_commit(branch_name, worktree) is not None
+                if local_exists:
+                    logger.info(f"Resume: checking out existing branch {branch_name}")
+                    cp = run(["git", "checkout", branch_name], cwd=worktree)
+                    if cp.returncode != 0:
+                        logger.error(
+                            f"Resume: cannot checkout {branch_name} (dirty tree may "
+                            f"conflict): {cp.stderr}"
+                        )
+                        return 1
                 else:
-                    logger.info(f"Branch {branch_name} is stale (>7 days), deleting")
-                    delete_branch(branch_name, worktree)
-                    local_branch_exists = False
-
-        if local_branch_exists:
-            logger.info(f"Reusing existing branch: {branch_name}")
-            run(["git", "checkout", branch_name], cwd=worktree)
+                    logger.info(
+                        f"Resume: creating {branch_name} from current HEAD "
+                        f"(preserving uncommitted progress)"
+                    )
+                    cp = run(["git", "checkout", "-b", branch_name], cwd=worktree)
+                    if cp.returncode != 0:
+                        logger.error(f"Resume: failed to create branch: {cp.stderr}")
+                        return 1
         else:
-            logger.info(f"Creating new branch: {branch_name}")
-            run(["git", "checkout", "-b", branch_name, "origin/main"], cwd=worktree)
+            local_branch_exists = get_branch_head_commit(branch_name, worktree) is not None
+            if local_branch_exists:
+                age = branch_age_days(branch_name, worktree)
+                logger.debug(f"Branch {branch_name} exists, age: {age} days")
+                if is_branch_stale(age, threshold_days=7):
+                    if has_unpushed_commits(branch_name, worktree):
+                        logger.warning(
+                            f"Branch {branch_name} is stale (>7 days) but has unpushed "
+                            f"commits; keeping for manual recovery"
+                        )
+                    else:
+                        logger.info(f"Branch {branch_name} is stale (>7 days), deleting")
+                        delete_branch(branch_name, worktree)
+                        local_branch_exists = False
+
+            if local_branch_exists:
+                logger.info(f"Reusing existing branch: {branch_name}")
+                run(["git", "checkout", branch_name], cwd=worktree)
+            else:
+                logger.info(f"Creating new branch: {branch_name}")
+                run(["git", "checkout", "-b", branch_name, "origin/main"], cwd=worktree)
 
         logger.info(f"Running translation (target: {locale})")
         result1 = run_translate(locale, args.dry_run, worktree, fix_matching=False)
