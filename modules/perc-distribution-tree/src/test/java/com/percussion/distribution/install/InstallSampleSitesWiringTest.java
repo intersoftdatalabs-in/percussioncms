@@ -147,6 +147,91 @@ class InstallSampleSitesWiringTest {
     assertTrue(
         siteNames.stream().anyMatch(n -> n.toLowerCase(Locale.ROOT).contains("corporate")),
         "expected Corporate Investments sample site name in RXSITES, found " + siteNames);
+
+    // Sample / Rhythmyx sites are NOT page-based; CM1 sites are. Listing must not require T (#2989).
+    for (int i = 0; i < rows.getLength(); i++) {
+      Element row = (Element) rows.item(i);
+      String pageBased = columnValue(row, "IS_PAGE_BASED");
+      assertTrue(
+          pageBased != null
+              && ("F".equalsIgnoreCase(pageBased.trim())
+                  || "false".equalsIgnoreCase(pageBased.trim())
+                  || "0".equals(pageBased.trim())
+                  || "N".equalsIgnoreCase(pageBased.trim())),
+          "RXSITES sample row must set IS_PAGE_BASED false (not CM1 page-based); was: "
+              + pageBased
+              + " site="
+              + columnValue(row, "SITENAME"));
+      String folderRoot = columnValue(row, "FOLDER_ROOT");
+      assertTrue(
+          folderRoot != null && folderRoot.startsWith("//Sites/"),
+          "RXSITES FOLDER_ROOT must be under //Sites/; was: " + folderRoot);
+    }
+  }
+
+  @Test
+  void sampleDataDeclaresSiteRootFoldersUnderSites()
+      throws IOException, ParserConfigurationException, SAXException {
+    assertTrue(Files.isRegularFile(SAMPLE_DATA), "missing " + SAMPLE_DATA);
+    Document doc = parseXml(SAMPLE_DATA);
+    Element contentStatus = findTable(doc, "CONTENTSTATUS");
+    if (contentStatus == null) {
+      fail("RxffTableData.xml must declare CONTENTSTATUS for sample site folders");
+    }
+    Set<String> titles = new LinkedHashSet<>();
+    NodeList rows = contentStatus.getElementsByTagName("row");
+    for (int i = 0; i < rows.getLength(); i++) {
+      String title = columnValue((Element) rows.item(i), "TITLE");
+      if (title != null && !title.isBlank()) {
+        titles.add(title.trim());
+      }
+    }
+    assertTrue(
+        titles.contains("EnterpriseInvestments"),
+        "CONTENTSTATUS must include EnterpriseInvestments folder matching FOLDER_ROOT; found "
+            + titles);
+    assertTrue(
+        titles.contains("CorporateInvestments"),
+        "CONTENTSTATUS must include CorporateInvestments folder matching FOLDER_ROOT; found "
+            + titles);
+
+    Element rels = findTable(doc, "PSX_OBJECTRELATIONSHIP");
+    if (rels == null) {
+      fail("RxffTableData.xml must declare PSX_OBJECTRELATIONSHIP for site folder graph");
+    }
+    boolean hasSiteChild = false;
+    NodeList relRows = rels.getElementsByTagName("row");
+    for (int i = 0; i < relRows.getLength(); i++) {
+      Element row = (Element) relRows.item(i);
+      String owner = columnValue(row, "OWNER_ID");
+      String dep = columnValue(row, "DEPENDENT_ID");
+      // Sites system folder is contentid 2
+      if ("2".equals(owner) && ("350".equals(dep) || "351".equals(dep))) {
+        hasSiteChild = true;
+        break;
+      }
+    }
+    assertTrue(
+        hasSiteChild,
+        "PSX_OBJECTRELATIONSHIP must link Sites (owner 2) to sample site root folders 350/351");
+  }
+
+  @Test
+  void installSampleSitesDoesNotForcePageBasedTrue()
+      throws IOException, ParserConfigurationException, SAXException {
+    assertTrue(Files.isRegularFile(INSTALL_REPOSITORY_XML), "missing " + INSTALL_REPOSITORY_XML);
+    Document installDoc = parseXml(INSTALL_REPOSITORY_XML);
+    Element sampleSitesTarget = findNamedTarget(installDoc, "installSampleSites");
+    if (sampleSitesTarget == null) {
+      fail("installSampleSites target must exist in installRepository.xml");
+    }
+    String targetBody = elementTextSnapshot(sampleSitesTarget);
+    // Must not force sample / Rhythmyx sites to page-based=true (#2989 product correction).
+    assertFalse(
+        targetBody.matches("(?s).*IS_PAGE_BASED\\s*=\\s*'T'.*")
+            || targetBody.matches("(?s).*IS_PAGE_BASED\\s*=\\s*\"T\".*"),
+        "installSampleSites must not UPDATE sample RXSITES IS_PAGE_BASED to T"
+            + " (samples are Rhythmyx, not CM1 page-based)");
   }
 
   @Test

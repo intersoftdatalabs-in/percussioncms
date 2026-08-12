@@ -359,20 +359,28 @@ public class PSPathService extends PSDispatchingPathService
     }
   }
 
+  /**
+   * REST path/folder children. Returns a map {@code {"PathItem":[...]}} via Jackson (not a bare
+   * {@code List&lt;PSPathItem&gt;} / JAXB collection write). Non-empty Sites listings previously
+   * failed with IllegalAnnotationExceptions on the List return type while paginatedFolder
+   * (PSPagedItemList wrapper) worked (#2989).
+   */
   @GET
   @Path("/folder/{path:.*}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSPathItem> findChildren(@PathParam("path") String path)
+  public jakarta.ws.rs.core.Response findFolderPathChildren(@PathParam("path") String path)
       throws PSPathServiceException {
     try {
       if (!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH))
         throw new PSPathServiceException("Invalid path.");
 
-      // check child types
       PSPathOptions.setShouldCheckChildTypes(true);
-      return new PSPathItemList(
+      List<PSPathItem> items =
           findChildren(path, null, null, null, null, null, null, null, null, false)
-              .getChildrenInPage());
+              .getChildrenInPage();
+      return jakarta.ws.rs.core.Response.ok(new PSPathItemList(items))
+          .type(MediaType.APPLICATION_JSON)
+          .build();
     } catch (PSPathServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -385,15 +393,21 @@ public class PSPathService extends PSDispatchingPathService
   @GET
   @Path("/childFolders/{path:.*}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSPathItem> findChildFolders(@PathParam("path") String path)
+  public jakarta.ws.rs.core.Response findChildFolders(@PathParam("path") String path)
       throws PSPathServiceException {
     try {
       if (!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH))
         throw new PSPathServiceException("Invalid path.");
 
-      // get folders only
       PSPathOptions.setFolderChildrenOnly(true);
-      return findChildren(path);
+      List<PSPathItem> items = findChildren(path);
+      return jakarta.ws.rs.core.Response.ok(new PSPathItemList(items))
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+    } catch (PSPathServiceException e) {
+      throw e;
+    } catch (PSDataServiceException e) {
+      throw new PSPathServiceException(e);
     } finally {
       PSPathOptions.setFolderChildrenOnly(false);
     }

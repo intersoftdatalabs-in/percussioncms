@@ -108,6 +108,78 @@
 			<column name="LOCALE">en-us</column>
 			<column name="OBJECTTYPE">2</column>
 		</row>
+		<!-- Site root folders matching RXSITES.FOLDER_ROOT (#2989). Without these,
+		     path/folder Sites can list sites but getIdByPath(folderRoot) fails. -->
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">350</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">EnterpriseInvestments</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">351</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">CorporateInvestments</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
 	</table>
 	<table name="CONTENTTYPES" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4346,6 +4418,16 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="REVISIONID">1</column>
 			<column name="DESCRIPTION"/>
 		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">350</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Enterprise Investments site root</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">351</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Corporate Investments site root</column>
+		</row>
 	</table>
 	<table name="PSX_OBJECTACL" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4396,6 +4478,38 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="NAME">admin1</column>
 			<column name="PERMISSIONS">7</column>
 		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">350</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2001</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">350</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2002</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">351</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2003</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">351</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2004</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
 	</table>
 	<table name="PSX_PROPERTIES" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4418,6 +4532,22 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="CONTENTID">303</column>
 			<column name="REVISIONID">1</column>
 			<column name="SYSID">1003</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">350</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2001</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">351</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">2002</column>
 			<column name="PROPERTYNAME">sys_displayformat</column>
 			<column name="PROPERTYVALUE">0</column>
 			<column name="DESCRIPTION"/>
@@ -4446,6 +4576,23 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="OWNER_ID">301</column>
 			<column name="OWNER_REVISION">-1</column>
 			<column name="DEPENDENT_ID">303</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<!-- Sites (contentid 2) children for sample site roots (#2989) -->
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">350</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">2</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">350</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">351</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">2</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">351</column>
 			<column name="DEPENDENT_REVISION">-1</column>
 		</row>
 	</table>
@@ -8685,6 +8832,9 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="DEFAULT_DOCUMENT">index.html</column>
 			<column name="CANONICAL_DIST">pages</column>
 			<column name="IS_CANONICAL_REPLACE">T</column>
+			<!-- Sample / Rhythmyx FastForward sites are NOT page-based (CM1 sites are).
+			     Listing must not require IS_PAGE_BASED=T (#2989). -->
+			<column name="IS_PAGE_BASED">F</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">
 			<column name="SITEID">303</column>
@@ -8709,6 +8859,8 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="DEFAULT_DOCUMENT">index.html</column>
 			<column name="CANONICAL_DIST">pages</column>
 			<column name="IS_CANONICAL_REPLACE">T</column>
+			<!-- Sample / Rhythmyx FastForward sites are NOT page-based (CM1 sites are). -->
+			<column name="IS_PAGE_BASED">F</column>
 		</row>
 	</table>
 	<table name="RXSLOTCONTENT" onCreateOnly="no">

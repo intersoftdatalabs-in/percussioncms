@@ -1,6 +1,6 @@
 // REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,31 @@
 
 package com.percussion.pathmanagement.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Represents a list of path items. Used for REST API responses. Sunny Sal says: "PathItemList:
- * because one path is never enough!"
+ * JSON body for path/folder children: {@code {"PathItem":[...]}} (same shape as {@code
+ * PSSiteSummaryList} / {@code {"SiteSummary":[...]}}).
+ *
+ * <p>Returned from REST via {@code Response.ok(list).type(APPLICATION_JSON)} so Jackson writes the
+ * list. Returning {@code List&lt;PSPathItem&gt;} as the resource method type previously selected a
+ * JAXB collection writer that failed with IllegalAnnotationExceptions for non-empty Sites (#2989).
+ * No JAXB {@code @XmlRootElement} on this ArrayList subclass.
  */
-@XmlRootElement(name = "PathItemList")
 @ArraySchema(schema = @Schema(implementation = PSPathItem.class))
-@JsonRootName("PathItemList")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.DEFAULT)
+@JsonRootName("PathItem")
 public class PSPathItemList extends ArrayList<PSPathItem> {
   private static final long serialVersionUID = 1L;
+
+  public PSPathItemList() {
+    super();
+  }
 
   public PSPathItemList(Collection<? extends PSPathItem> c) {
     super(c);

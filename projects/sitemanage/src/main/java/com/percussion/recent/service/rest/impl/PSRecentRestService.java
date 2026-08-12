@@ -23,7 +23,6 @@ import com.percussion.pagemanagement.data.PSTemplateSummaryList;
 import com.percussion.pagemanagement.data.PSWidgetContentType;
 import com.percussion.pagemanagement.data.PSWidgetContentTypeList;
 import com.percussion.pathmanagement.data.PSPathItem;
-import com.percussion.pathmanagement.data.PSPathItemList;
 import com.percussion.recent.service.rest.IPSRecentRestService;
 import com.percussion.recent.service.rest.IPSRecentService;
 import com.percussion.security.error.PSExceptionUtils;
@@ -90,14 +89,14 @@ public class PSRecentRestService implements IPSRecentRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Path("/site-folder/{siteName}")
   public List<PSPathItem> findRecentSiteFolder(@PathParam("siteName") String siteName) {
-    return new PSPathItemList(recentService.findRecentSiteFolder(siteName));
+    return recentService.findRecentSiteFolder(siteName);
   }
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Path("/asset-folder")
   public List<PSPathItem> findRecentAssetFolder() {
-    return new PSPathItemList(recentService.findRecentAssetFolder());
+    return recentService.findRecentAssetFolder();
   }
 
   @GET
