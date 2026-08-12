@@ -138,6 +138,23 @@ These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They 
 writable via `PUT` — rule write/save and full control property editors remain Workbench /
 future design APIs. `designGaps` on detail still calls out write and catalog gaps.
 
+## Display formats (design catalog)
+
+Content Explorer **display format** definitions (Developer **Display Formats**) are exposed
+under `/services/displayformats`. Responses include a nested `guid` object and a plain
+`guidString` (`host-type-uuid`) so clients can load **Object ACL** via
+`GET /services/acls/object/{guid}`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
+| `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
+
+JSON may wrap the list as `DisplayFormatList` and a single item as `DisplayFormat`. Integrators
+should read `guid.stringValue` or `guidString` (never assume the GUID is missing when
+`displayId` is present). See [Users, roles & security](id:admin-users-roles) for the operator
+Object ACL steps.
+
 ## Views (design catalog)
 
 Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) are exposed under

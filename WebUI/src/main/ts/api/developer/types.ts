@@ -400,6 +400,8 @@ export interface DisplayFormatColumn {
 /** CX display format (UI-05). */
 export interface DisplayFormat {
   guid?: RestGuid;
+  /** Plain host-type-uuid from adaptor when nested Guid is hard to bind (#3200). */
+  guidString?: string;
   name?: string;
   label?: string;
   displayName?: string;

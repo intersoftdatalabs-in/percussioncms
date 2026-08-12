@@ -7,6 +7,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -67,5 +68,14 @@ class DisplayFormatAdaptorSafeKeyTest {
     // PSGuid#toString form host-type-uuid; uuid part is display id 301
     assertTrue(sv.endsWith("-301"), "unexpected guid form: " + sv);
     assertEquals(301, out.getGuid().getUuid());
+    assertEquals(sv, out.getGuidString(), "guidString must match guid.stringValue for SPA bind");
+  }
+
+  @Test
+  void findDisplayFormatByKey_returnsNullWhenDesignWsMisses() throws Exception {
+    IPSUiDesignWs designWs = mock(IPSUiDesignWs.class);
+    when(designWs.findDisplayFormat(eq("Missing"))).thenReturn(null);
+    DisplayFormatAdaptor adaptor = new DisplayFormatAdaptor(designWs);
+    assertNull(adaptor.findDisplayFormatByKey("Missing"));
   }
 }

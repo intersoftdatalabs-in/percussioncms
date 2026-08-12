@@ -16,7 +16,7 @@
 
 /**
  * Shared Display Format GUID wire helpers used by both Developer and Content
- * Explorer {@code displayFormatsApi} modules (issues #2689 / #2951).
+ * Explorer {@code displayFormatsApi} modules (issues #2689 / #2951 / #3200).
  *
  * <p>Keep a single implementation so synthesis / nested-Guid rules cannot drift
  * between the two REST clients.
@@ -25,11 +25,56 @@
 import type { DisplayFormat, RestGuid } from "./developer/types";
 
 /**
+ * {@code PSTypeEnum.DISPLAY_FORMAT} numeric type. Used only when the wire
+ * omits Guid parts but still has {@code displayId}.
+ */
+export const DISPLAY_FORMAT_TYPE = 31;
+
+function firstNonBlankString(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || undefined;
+  }
+  return undefined;
+}
+
+function readOptionalLikeString(value: unknown): string | undefined {
+  const direct = firstNonBlankString(value);
+  if (direct) {
+    return direct;
+  }
+  if (Array.isArray(value) && value.length > 0) {
+    return readOptionalLikeString(value[0]);
+  }
+  if (value != null && typeof value === "object") {
+    const opt = value as Record<string, unknown>;
+    return (
+      firstNonBlankString(opt.value) ||
+      firstNonBlankString(opt.stringValue) ||
+      firstNonBlankString(opt.present === true ? opt.value : undefined)
+    );
+  }
+  return undefined;
+}
+
+function asFiniteNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim()) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
+}
+
+/**
  * Extract a usable object GUID string from REST Guid wire shapes.
  *
  * <p>Handles plain strings, {@code { stringValue }}, nested {@code { Guid: … }}
- * wraps, and synthesis from {@code hostId-type-uuid} when {@code stringValue} is
- * missing (issue #2951 residual after #2689 root unwrap).
+ * wraps, Optional-like objects, snake_case aliases, and synthesis from
+ * {@code hostId-type-uuid} when {@code stringValue} is missing
+ * (issues #2951 / #3200).
  */
 export function objectGuidString(guid: unknown): string | undefined {
   if (guid == null) {
@@ -44,32 +89,29 @@ export function objectGuidString(guid: unknown): string | undefined {
   }
 
   let g = guid as Record<string, unknown>;
-  // Nested root-style wrap (rare): { Guid: { stringValue / parts } }
   const nestedGuid = g.Guid ?? g.guid;
   if (
     nestedGuid != null &&
     typeof nestedGuid === "object" &&
     !Array.isArray(nestedGuid) &&
     g.stringValue == null &&
+    g.string_value == null &&
     g.hostId == null &&
+    g.host_id == null &&
     g.uuid == null
   ) {
     g = nestedGuid as Record<string, unknown>;
   }
 
-  const sv = g.stringValue;
-  if (typeof sv === "string" && sv.trim()) {
-    return sv.trim();
-  }
-  // Accidental Optional-like object (defensive)
-  if (sv != null && typeof sv === "object" && !Array.isArray(sv)) {
-    const opt = sv as Record<string, unknown>;
-    if (typeof opt.value === "string" && opt.value.trim()) {
-      return opt.value.trim();
-    }
+  const fromString =
+    readOptionalLikeString(g.stringValue) ||
+    readOptionalLikeString(g.string_value) ||
+    readOptionalLikeString(g.STRING_VALUE);
+  if (fromString) {
+    return fromString;
   }
 
-  const hostId = g.hostId;
+  const hostId = g.hostId ?? g.host_id;
   const type = g.type;
   const uuid = g.uuid;
   const hostOk = typeof hostId === "number" || typeof hostId === "string";
@@ -83,22 +125,68 @@ export function objectGuidString(guid: unknown): string | undefined {
 }
 
 /**
+ * Synthesize {@code 0-31-{displayId}} when the server omitted Guid but still
+ * sent the native display format id ({@link DISPLAY_FORMAT_TYPE}).
+ */
+export function synthesizeDisplayFormatGuidFromDisplayId(
+  displayId: unknown,
+): string | undefined {
+  const n = asFiniteNumber(displayId);
+  if (n == null || n <= 0) {
+    return undefined;
+  }
+  return `0-${DISPLAY_FORMAT_TYPE}-${n}`;
+}
+
+/**
+ * Resolve the GUID the Developer detail header / Object ACL should use.
+ *
+ * <p>Order: nested Guid → plain {@code guidString} → catalog list fallback →
+ * {@code displayId} synthesis. Never returns a blank string.
+ */
+export function resolveDisplayFormatObjectGuid(
+  df: DisplayFormat | null | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  if (df != null) {
+    const fromGuid = objectGuidString(df.guid);
+    if (fromGuid) {
+      return fromGuid;
+    }
+    const fromPlain = firstNonBlankString(df.guidString);
+    if (fromPlain) {
+      return fromPlain;
+    }
+  }
+  const fromCatalog = firstNonBlankString(catalogGuid);
+  if (fromCatalog) {
+    return fromCatalog;
+  }
+  return synthesizeDisplayFormatGuidFromDisplayId(df?.displayId);
+}
+
+/**
  * Ensure {@link DisplayFormat.guid}.stringValue is populated when the wire
- * Guid only carried numeric parts (or was a plain string).
+ * Guid only carried numeric parts (or was a plain string). Also copies
+ * {@code guidString} when that is the only usable form (#3200).
  */
 export function normalizeDisplayFormatGuid(df: DisplayFormat): DisplayFormat {
-  const gs = objectGuidString(df.guid);
+  const gs =
+    objectGuidString(df.guid) ||
+    firstNonBlankString(df.guidString) ||
+    synthesizeDisplayFormatGuidFromDisplayId(df.displayId);
   if (!gs) {
     return df;
   }
+  const nextGuidString = firstNonBlankString(df.guidString) || gs;
   if (df.guid != null && typeof df.guid === "object" && !Array.isArray(df.guid)) {
     const existing = df.guid as RestGuid;
-    if (existing.stringValue === gs) {
+    if (existing.stringValue === gs && df.guidString === nextGuidString) {
       return df;
     }
-    return { ...df, guid: { ...existing, stringValue: gs } };
+    return { ...df, guidString: nextGuidString, guid: { ...existing, stringValue: gs } };
   }
-  return { ...df, guid: { stringValue: gs } };
+  return { ...df, guidString: nextGuidString, guid: { stringValue: gs } };
 }
 
 /**
@@ -129,8 +217,58 @@ export function unwrapDisplayFormat(payload: unknown): DisplayFormat {
       body = root as DisplayFormat;
     }
   } else {
-    // Flat body (WRAP_ROOT_VALUE off or already unwrapped)
     body = root as DisplayFormat;
   }
   return normalizeDisplayFormatGuid(body);
+}
+
+function looksLikeDisplayFormat(obj: Record<string, unknown>): boolean {
+  return (
+    obj.name != null ||
+    obj.internalName != null ||
+    obj.guid != null ||
+    obj.guidString != null ||
+    obj.displayId != null ||
+    obj.label != null
+  );
+}
+
+function flattenDisplayFormatPayload(payload: unknown): unknown[] {
+  if (payload == null) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    const out: unknown[] = [];
+    for (const item of payload) {
+      out.push(...flattenDisplayFormatPayload(item));
+    }
+    return out;
+  }
+  if (typeof payload !== "object") {
+    return [];
+  }
+  const obj = payload as Record<string, unknown>;
+  const listWrap = obj.DisplayFormatList ?? obj.displayFormatList;
+  if (listWrap != null) {
+    return flattenDisplayFormatPayload(listWrap);
+  }
+  const nested = obj.DisplayFormat ?? obj.displayFormat;
+  if (Array.isArray(nested)) {
+    return flattenDisplayFormatPayload(nested);
+  }
+  if (nested != null && typeof nested === "object") {
+    return flattenDisplayFormatPayload(nested);
+  }
+  if (looksLikeDisplayFormat(obj)) {
+    return [obj];
+  }
+  return [];
+}
+
+/**
+ * Unwrap list envelopes: bare array, {@code DisplayFormat:[…]}, nested
+ * {@code DisplayFormatList:{DisplayFormat:[…]}} (#3200).
+ */
+export function unwrapDisplayFormatList(payload: unknown): DisplayFormat[] {
+  return flattenDisplayFormatPayload(payload).map((item) => unwrapDisplayFormat(item));
 }

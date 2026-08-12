@@ -87,10 +87,10 @@ public class DisplayFormatResource {
     try {
       List<DisplayFormat> list = requireAdaptor().findAllDisplayFormats();
       if (list == null || list.isEmpty()) {
-        return List.of();
+        return new DisplayFormatList();
       }
       if (validForFolder == null && validForViewsAndSearches == null) {
-        return list;
+        return asDisplayFormatList(list);
       }
       List<DisplayFormat> filtered = new ArrayList<>(list.size());
       for (DisplayFormat df : list) {
@@ -111,7 +111,7 @@ public class DisplayFormatResource {
         }
         filtered.add(df);
       }
-      return filtered;
+      return asDisplayFormatList(filtered);
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
@@ -147,6 +147,17 @@ public class DisplayFormatResource {
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  /**
+   * Return a {@link DisplayFormatList} so Jackson uses this package's {@code
+   * JacksonContextResolver} (WRAP_ROOT_VALUE) instead of a raw {@code ArrayList} mapper.
+   */
+  private static DisplayFormatList asDisplayFormatList(List<DisplayFormat> list) {
+    if (list instanceof DisplayFormatList displayFormatList) {
+      return displayFormatList;
+    }
+    return new DisplayFormatList(list);
   }
 
   private IDisplayFormatAdaptor requireAdaptor() {

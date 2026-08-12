@@ -27,6 +27,8 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.*;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
@@ -114,10 +116,32 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     ret.setDescription(f.getDescription());
     ret.setDisplayName(f.getDisplayName());
     // Always map GUID so Developer detail / Object ACL can bind objectGuid
-    // (issues #2689 / #2951). PSDisplayFormat#getGUID is expected non-null for
-    // persisted formats; copyGuid still accepts null defensively.
-    ret.setGuid(copyGuid(f.getGUID()));
+    // (issues #2689 / #2951 / #3200). PSDisplayFormat#getGUID is expected
+    // non-null for persisted formats; copyGuid still accepts null defensively.
+    Guid mapped = copyGuid(f.getGUID());
+    ret.setGuid(mapped);
+    ret.setGuidString(plainGuidString(mapped, f.getDisplayId()));
     return ret;
+  }
+
+  /**
+   * Plain {@code host-type-uuid} for SPA binding when nested Guid JSON is hard to read.
+   *
+   * @param mapped REST Guid from {@link #copyGuid}; may be null
+   * @param displayId native display id; used when mapped string is blank
+   * @return wire string, or {@code null} when neither source has a usable id
+   */
+  private static String plainGuidString(Guid mapped, int displayId) {
+    if (mapped != null && mapped.getStringValue().isPresent()) {
+      String sv = mapped.getStringValue().get();
+      if (sv != null && !sv.isBlank()) {
+        return sv.trim();
+      }
+    }
+    if (displayId > 0) {
+      return new PSGuid(PSTypeEnum.DISPLAY_FORMAT, displayId).toString();
+    }
+    return null;
   }
 
   /**
@@ -187,13 +211,15 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   @Override
   public DisplayFormat findDisplayFormat(IPSGuid id)
       throws PSCmsException, PSUnknownNodeTypeException {
-    return copyDisplayFormat(designWs.findDisplayFormat(id));
+    PSDisplayFormat f = designWs.findDisplayFormat(id);
+    return f == null ? null : copyDisplayFormat(f);
   }
 
   @Override
   public DisplayFormat findDisplayFormat(String name)
       throws PSCmsException, PSUnknownNodeTypeException {
-    return copyDisplayFormat(designWs.findDisplayFormat(name));
+    PSDisplayFormat f = designWs.findDisplayFormat(name);
+    return f == null ? null : copyDisplayFormat(f);
   }
 
   @Override

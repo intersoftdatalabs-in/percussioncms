@@ -10,24 +10,17 @@ import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormat
 import { DisplayFormatsPanel } from "../../../main/ts/developer/DisplayFormatsPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
-  listDisplayFormats: vi.fn(),
-  getDisplayFormatDetail: vi.fn(),
-  normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
-  objectGuidString: (guid: unknown) => {
-    if (guid == null) return undefined;
-    if (typeof guid === "string") {
-      const t = guid.trim();
-      return t || undefined;
-    }
-    if (typeof guid !== "object" || Array.isArray(guid)) return undefined;
-    const g = guid as { stringValue?: string };
-    if (typeof g.stringValue === "string" && g.stringValue.trim()) {
-      return g.stringValue.trim();
-    }
-    return undefined;
-  },
-}));
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/displayFormatsApi")
+  >();
+  return {
+    ...actual,
+    listDisplayFormats: vi.fn(),
+    getDisplayFormatDetail: vi.fn(),
+    normalizeColumns: (c: unknown) => (Array.isArray(c) ? c : []),
+  };
+});
 
 const listDisplayFormats = displayFormatsApi.listDisplayFormats as ReturnType<typeof vi.fn>;
 const getDisplayFormatDetail = displayFormatsApi.getDisplayFormatDetail as ReturnType<

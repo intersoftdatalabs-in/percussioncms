@@ -361,8 +361,16 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     });
     if (!opened) return;
 
-    // Issue #2951: detail header must render a real GUID (not em-dash) so
-    // ObjectAclSection receives objectGuid — catalog fallback + wire normalize.
+    await assertDisplayFormatDetailGuidAndAcl(page);
+  });
+
+  /**
+   * Issue #3200 / #2951 / #2689: header GUID is real; Object ACL is table,
+   * empty-create, or a real ACL error — never the no-guid shell when the
+   * server has a display format id.
+   * @param {import('@playwright/test').Page} page
+   */
+  async function assertDisplayFormatDetailGuidAndAcl(page) {
     const guidCell = page.locator('[data-testid="developer-df-detail-guid"]');
     await expect(guidCell).toBeVisible({ timeout: 15_000 });
     const guidText = (await guidCell.innerText()).trim();
@@ -370,7 +378,6 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       guidText && guidText !== "—" && guidText !== "-",
       `display-format detail GUID must be synthesized/normalized (got "${guidText}")`,
     ).toBeTruthy();
-    // host-type-uuid wire form or other non-empty string from REST
     expect(guidText.length).toBeGreaterThan(2);
 
     const mode = await assertLayeredObjectAcl(
@@ -378,12 +385,63 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       "developer-df-acl",
       "display-format",
     );
-    // Issue #2689: detail client must unwrap Jackson DisplayFormat root so
-    // objectGuid is present — no-guid shell is a product defect for DF detail.
     expect(
       ["table", "empty"],
       `display-format Object ACL must load with GUID (got mode=${mode})`,
     ).toContain(mode);
+  }
+
+  test("By_Author and one peer Display Format show GUID and Object ACL (#3200)", async ({
+    page,
+  }) => {
+    await page.goto(developerSectionUrl("display-formats"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-display-formats"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const panel = page.locator('[data-testid="developer-df-panel"]');
+    const empty = page.locator('[data-testid="developer-df-empty"]');
+    const error = page.locator('[data-testid="developer-df-error"]');
+    await expect(panel.or(empty).or(error).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    if (await error.isVisible()) {
+      throw new Error(`display formats catalog error: ${(await error.innerText()).trim()}`);
+    }
+    if (await empty.isVisible()) {
+      test.skip(true, "No display formats in CMS");
+      return;
+    }
+
+    const openButtons = page.locator('[data-testid="developer-df-open"]');
+    const count = await openButtons.count();
+    expect(count, "catalog should list at least one display format").toBeGreaterThan(0);
+
+    const names = [];
+    for (let i = 0; i < count; i++) {
+      names.push((await openButtons.nth(i).innerText()).trim());
+    }
+    const byAuthor = names.find((n) => /^By_Author$/i.test(n));
+    const peer = names.find((n) => n && n !== byAuthor);
+    const toOpen = [byAuthor, peer].filter(Boolean);
+    expect(
+      toOpen.length,
+      `need By_Author and/or a peer in catalog (got ${names.join(", ")})`,
+    ).toBeGreaterThan(0);
+
+    for (const name of toOpen) {
+      await page.locator('[data-testid="developer-df-open"]', { hasText: name }).click();
+      await expect(page.locator('[data-testid="developer-df-detail"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await assertDisplayFormatDetailGuidAndAcl(page);
+      await page.locator('[data-testid="developer-df-back"]').click();
+      await expect(page.locator('[data-testid="developer-df-panel"]')).toBeVisible({
+        timeout: 15_000,
+      });
+    }
   });
 
   test("preferences default ACL template shows Design/Runtime column groups", async ({
