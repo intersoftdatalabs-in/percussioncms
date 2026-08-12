@@ -41,6 +41,10 @@ export const DEV_MSG_KEYS = {
   ACL_OWNER_NAME: "perc.ui.developer@Owner principal",
   ACL_OWNER_NAME_PLACEHOLDER: "perc.ui.developer@User or role that owns the ACL",
   ACL_NO_GUID: "perc.ui.developer@Object GUID not available - cannot load ACL.",
+  ACL_NO_GUID_SITE:
+    "perc.ui.developer@This site has no object GUID — ACL cannot be loaded.",
+  ACL_NO_GUID_DISPLAY_FORMAT:
+    "perc.ui.developer@This display format has no object GUID — ACL cannot be loaded.",
   ACL_NO_ENTRIES: "perc.ui.developer@No ACL entries yet - add a principal below.",
   ACL_COL_ENTRY: "perc.ui.developer@Principal / name",
   ACL_COL_TYPE: "perc.ui.developer@Type",
@@ -717,6 +721,7 @@ export const DEV_MSG_KEYS = {
   SITE_HINT:
     "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL, defaults, and Virtual Site source. Full site create/delete remains outside this catalog.",
   SITE_COL_NAME: "perc.ui.developer@Name",
+  SITE_COL_GUID: "perc.ui.developer@GUID",
   SITE_COL_DESC: "perc.ui.developer@Description",
   SITE_COL_URL: "perc.ui.developer@Base URL",
   SITE_COL_FLAGS: "perc.ui.developer@Flags",

@@ -44,7 +44,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Sites & content structure](id:admin-sites)
 - [Content Explorer](id:admin-content-explorer)
 - [Navigation & site structure](id:admin-architecture-navigation)
-- [Users, roles & security](id:admin-users-roles)
+- [Users, roles & security](id:admin-users-roles) (includes Developer Object ACL for Sites and Display Formats)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)
 

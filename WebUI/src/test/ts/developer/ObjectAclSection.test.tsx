@@ -146,7 +146,7 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(siteSection.getAttribute("data-acl-show-runtime")).toBe("true");
     expect(siteSection.getAttribute("data-acl-has-guid")).toBe("false");
     expect(screen.getByTestId("developer-site-acl-no-guid").textContent).toMatch(
-      /GUID not available|cannot load ACL/i,
+      /This site has no object GUID|cannot load ACL/i,
     );
     unmount();
 
@@ -162,6 +162,25 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(kwSection.getAttribute("data-acl-object-kind")).toBe("keyword");
     expect(kwSection.getAttribute("data-acl-show-runtime")).toBe("false");
     expect(kwSection.getAttribute("data-acl-has-guid")).toBe("false");
+    expect(screen.getByTestId("developer-kw-acl-no-guid").textContent).toMatch(
+      /Object GUID not available|cannot load ACL/i,
+    );
+  });
+
+  it("uses display-format kind-aware no-guid copy (#3203)", () => {
+    render(
+      <ObjectAclSection
+        objectGuid={null}
+        objectKind="display-format"
+        testIdPrefix="developer-df-acl"
+      />,
+    );
+    const section = screen.getByTestId("developer-df-acl-section");
+    expect(section.getAttribute("data-acl-object-kind")).toBe("display-format");
+    expect(section.getAttribute("data-acl-show-runtime")).toBe("true");
+    expect(screen.getByTestId("developer-df-acl-no-guid").textContent).toMatch(
+      /This display format has no object GUID|cannot load ACL/i,
+    );
   });
 
   it("groups permission columns under Design access and Runtime visibility (CD-19)", async () => {

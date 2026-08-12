@@ -191,6 +191,18 @@ function structureEqual(a: DraftEntry[], b: DraftEntry[]): boolean {
   return true;
 }
 
+/** Kind-aware empty copy when the parent panel cannot supply an object GUID. */
+export function noGuidCopy(objectKind?: AclDesignObjectKind | null): string {
+  switch (objectKind) {
+    case "site":
+      return DEV_MSG.ACL_NO_GUID_SITE;
+    case "display-format":
+      return DEV_MSG.ACL_NO_GUID_DISPLAY_FORMAT;
+    default:
+      return DEV_MSG.ACL_NO_GUID;
+  }
+}
+
 /** i18n label for a known REST permission column (Workbench wording). */
 function permissionColumnLabel(perm: AclPermissionName): string {
   switch (perm) {
@@ -600,7 +612,7 @@ export function ObjectAclSection({
       >
         <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
         <p style={{ color: catalogColors.empty }} data-testid={`${testIdPrefix}-no-guid`}>
-          {DEV_MSG.ACL_NO_GUID}
+          {noGuidCopy(objectKind)}
         </p>
       </section>
     );

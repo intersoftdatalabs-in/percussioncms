@@ -140,7 +140,7 @@ async function openFirstCatalogDetail(page, ids) {
  * @param {import('@playwright/test').Page} page
  * @param {string} prefix e.g. developer-ct-acl / developer-site-acl
  * @param {string} objectKind expected data-acl-object-kind
- * @returns {Promise<"table"|"no-guid"|"empty">}
+ * @returns {Promise<"table"|"no-guid"|"empty"|"no-entries">}
  */
 async function assertLayeredObjectAcl(page, prefix, objectKind) {
   const expectRuntime = RUNTIME_RELEVANT_OBJECT_KINDS.has(objectKind);
@@ -154,6 +154,7 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   const noGuid = page.locator(`[data-testid="${prefix}-no-guid"]`);
   const aclError = page.locator(`[data-testid="${prefix}-error"]`);
   const aclEmpty = page.locator(`[data-testid="${prefix}-empty"]`);
+  const aclNoEntries = page.locator(`[data-testid="${prefix}-no-entries"]`);
   const aclTable = page.locator(`[data-testid="${prefix}-table"]`);
   const aclLoading = page.locator(`[data-testid="${prefix}-loading"]`);
 
@@ -164,14 +165,16 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
       "data-acl-show-runtime",
       expectRuntime ? "true" : "false",
     );
-    await expect(noGuid).toContainText(/GUID not available|cannot load ACL/i);
+    await expect(noGuid).toContainText(
+      /GUID not available|cannot load ACL|has no object GUID/i,
+    );
     return "no-guid";
   }
 
   // Fallback for older bundles that only put message text in section
   const sectionText = (await aclSection.innerText()).trim();
   if (
-    /GUID not available|cannot load ACL/i.test(sectionText) &&
+    /GUID not available|cannot load ACL|has no object GUID/i.test(sectionText) &&
     !(await aclTable.isVisible().catch(() => false))
   ) {
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
@@ -179,7 +182,9 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   }
 
   await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-  await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+  await expect(
+    aclTable.or(aclEmpty).or(aclError).or(aclNoEntries).first(),
+  ).toBeVisible({
     timeout: 30_000,
   });
 
@@ -192,6 +197,16 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
     // Create-first empty state still proves mount + kind on section
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
     return "empty";
+  }
+
+  if (await aclNoEntries.isVisible()) {
+    // ACL document exists but has no principals yet — still readable/editable
+    // (add specials / add entry). Live By_Author often serializes without
+    // aclEntries (#3203 / #2672).
+    await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+    await expect(aclSection).toHaveAttribute("data-acl-has-guid", "true");
+    await expect(aclNoEntries).toContainText(/No ACL entries yet/i);
+    return "no-entries";
   }
 
   await expect(aclTable).toBeVisible();
@@ -334,9 +349,21 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     });
     if (!opened) return;
 
+    const guidCell = page.locator('[data-testid="developer-site-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
     const mode = await assertLayeredObjectAcl(page, "developer-site-acl", "site");
-    // site is RUNTIME_RELEVANT — show-runtime must be true (table or no-guid shell)
-    expect(["table", "no-guid", "empty"]).toContain(mode);
+    // Site list GUID is normalized (stringValue or host-type-uuid). When a GUID
+    // is present, Object ACL must load — no-guid is only valid if the catalog
+    // row truly omitted guid parts (#3203 / #2672).
+    if (guidText && guidText !== "—" && guidText !== "-") {
+      expect(
+        ["table", "empty", "no-entries"],
+        `site Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+      ).toContain(mode);
+    } else {
+      expect(["table", "no-guid", "empty", "no-entries"]).toContain(mode);
+    }
   });
 
   test("display-format peer ACL mounts objectKind with kind-aware Runtime columns (B4)", async ({
@@ -381,7 +408,7 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     // Issue #2689: detail client must unwrap Jackson DisplayFormat root so
     // objectGuid is present — no-guid shell is a product defect for DF detail.
     expect(
-      ["table", "empty"],
+      ["table", "empty", "no-entries"],
       `display-format Object ACL must load with GUID (got mode=${mode})`,
     ).toContain(mode);
   });
