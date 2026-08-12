@@ -16,7 +16,7 @@
  */
 package com.percussion.util;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.percussion.design.objectstore.ObjectStoreErrorCode;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlUtil;
 import java.util.ArrayList;
@@ -161,7 +161,7 @@ public class PSXMLDomUtil {
 
     if (nodeName != null && !nodeName.equals(name)) {
       Object[] args = {name, nodeName};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCode.XML_ELEMENT_WRONG_TYPE, args);
     }
   }
 
@@ -185,7 +185,7 @@ public class PSXMLDomUtil {
     String val = el.getAttribute(name);
     if (required && (val == null || val.trim().length() == 0)) {
       Object[] args = {el.getNodeName(), name, val};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCode.XML_ELEMENT_INVALID_ATTR, args);
     }
     return (val == null) ? "" : val;
   }
@@ -338,7 +338,7 @@ public class PSXMLDomUtil {
       if (!found) {
         String parentName = el.getNodeName();
         Object[] args = {parentName, attrName, data};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCode.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
     return index;
