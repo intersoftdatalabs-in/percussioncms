@@ -384,8 +384,11 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
     String trimmed = key.trim();
     Exception first = null;
+    boolean searchCatalogOk = false;
+    boolean viewCatalogOk = false;
     try {
       PSSearch found = matchLoaded(loadAllSearches(), trimmed);
+      searchCatalogOk = true;
       if (found != null) {
         return found;
       }
@@ -395,6 +398,7 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
     try {
       PSSearch found = matchLoaded(loadAllViews(), trimmed);
+      viewCatalogOk = true;
       if (found != null) {
         return found;
       }
@@ -404,7 +408,8 @@ public class SearchAdaptor implements ISearchAdaptor {
         first = e;
       }
     }
-    if (first != null) {
+    // Only 500 when both catalogs failed. One healthy catalog + miss is 404.
+    if (first != null && !searchCatalogOk && !viewCatalogOk) {
       throw new IllegalStateException("Failed to resolve search", first);
     }
     return null;

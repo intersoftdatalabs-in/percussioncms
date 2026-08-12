@@ -29,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * CX search design catalog (UI-06 list/detail) plus design-search execute façade for Explorer.
  *
- * <p>Views (UI-07) remain a separate catalog.
+ * <p>Developer list is searches-only. Explorer saved-search picker uses {@code
+ * includeViews=true} so CX views (including {@code View_All}) appear. Dedicated view
+ * management remains on {@code /services/views}.
  */
 @PSSiteManageBean(value = "restSearchResource")
 @Path("/searches")

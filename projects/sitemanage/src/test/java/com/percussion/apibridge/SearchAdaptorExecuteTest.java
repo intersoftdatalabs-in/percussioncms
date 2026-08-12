@@ -152,6 +152,44 @@ class SearchAdaptorExecuteTest {
   }
 
   @Test
+  void executeSearch_viewAllWhenSearchCatalogThrows() throws Exception {
+    PSSearch viewAll = mockSearch("View_All", false, false);
+    when(viewAll.getLabel()).thenReturn("All");
+    when(viewAll.isCustomView()).thenReturn(false);
+    when(viewAll.getDisplayFormatId()).thenReturn("0-1-1");
+    when(viewAll.getMaximumResultSize()).thenReturn(25);
+    when(viewAll.clone()).thenReturn(viewAll);
+    when(designWs.findSearches(isNull(), isNull()))
+        .thenThrow(new IllegalStateException("PSAction missing"));
+    stubLoadedViews(List.of(viewAll));
+    doReturn(List.of(item("id-a", "Welcome"))).when(adaptor).runDesignSearch(any(PSSearch.class));
+
+    SearchExecuteResult byName = adaptor.executeSearch("View_All", new SearchExecuteRequest());
+    assertNotNull(byName);
+    assertEquals("View_All", byName.getSearchName());
+  }
+
+  @Test
+  void executeSearch_missingAfterSearchCatalogThrowReturnsNull() throws Exception {
+    when(designWs.findSearches(isNull(), isNull()))
+        .thenThrow(new IllegalStateException("PSAction missing"));
+    when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
+
+    assertNull(adaptor.executeSearch("Missing", new SearchExecuteRequest()));
+  }
+
+  @Test
+  void matchLoaded_prefersNameOverLabel() {
+    PSSearch named = mockSearch("View_All", false, false);
+    when(named.getLabel()).thenReturn("All");
+    PSSearch other = mockSearch("My Pages", false, true);
+    when(other.getLabel()).thenReturn("All");
+    assertEquals(named, SearchAdaptor.matchLoaded(List.of(other, named), "View_All"));
+    // First label match wins when no internal name equals the key.
+    assertEquals(other, SearchAdaptor.matchLoaded(List.of(other, named), "All"));
+  }
+
+  @Test
   void executeSearch_resolvesDefaultViewAllFromViewCatalog() throws Exception {
     PSSearch viewAll = mockSearch("View_All", false, false);
     when(viewAll.getLabel()).thenReturn("All");

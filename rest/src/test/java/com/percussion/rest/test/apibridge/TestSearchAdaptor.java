@@ -30,7 +30,19 @@ public class TestSearchAdaptor implements ISearchAdaptor {
 
   @Override
   public List<SearchDef> listSearches() {
-    return List.of();
+    return listSearches(false);
+  }
+
+  @Override
+  public List<SearchDef> listSearches(boolean includeViews) {
+    if (!includeViews) {
+      return List.of();
+    }
+    SearchDef viewAll = new SearchDef();
+    viewAll.setName("View_All");
+    viewAll.setLabel("All");
+    viewAll.setType("View");
+    return List.of(viewAll);
   }
 
   @Override

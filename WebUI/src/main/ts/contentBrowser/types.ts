@@ -67,7 +67,8 @@ export interface ContentBrowserProps {
    */
   search?: (criteria: PSSearchCriteria) => Promise<PSSearchResults>;
   /**
-   * Test / host seam: saved-search catalog (default SearchPanel → listSearches).
+   * Test / host seam: saved-search catalog (default SearchPanel →
+   * listExplorerSavedSearches / includeViews).
    */
   listSavedSearches?: () => Promise<SearchDef[]>;
   /**
