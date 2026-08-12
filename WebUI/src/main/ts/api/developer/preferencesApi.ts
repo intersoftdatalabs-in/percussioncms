@@ -16,8 +16,10 @@
  */
 
 import {
+  getAllUserPreferences,
   loadUserPreference,
   saveUserPreference,
+  unwrapUserPreference,
   type UserPreference,
 } from "../preferences/preferencesApi";
 import {
@@ -41,17 +43,67 @@ export type LoadDefaultAclTemplateResult = {
   fromPreference: boolean;
 };
 
+function isDefaultAclTemplatePref(pref: UserPreference): boolean {
+  return (
+    (pref.name || "").trim().toLowerCase() ===
+    DEFAULT_ACL_TEMPLATE_PREF_NAME.toLowerCase()
+  );
+}
+
+/**
+ * Parse a stored preference into a template. Accepts a JSON string or an
+ * already-parsed object so reload does not drop Runtime visibility (#3204).
+ */
+export function templateFromPreferenceValue(
+  pref: UserPreference | null | undefined,
+): DefaultAclTemplate | null {
+  if (!pref) {
+    return null;
+  }
+  const raw = pref.value as unknown;
+  if (raw == null || raw === "") {
+    return null;
+  }
+  if (typeof raw === "string") {
+    return parseDefaultAclTemplate(raw);
+  }
+  if (typeof raw === "object") {
+    return parseDefaultAclTemplate(raw as Record<string, unknown>);
+  }
+  return parseDefaultAclTemplate(String(raw));
+}
+
 /**
  * Load the Developer default ACL template preference, or system default.
+ *
+ * <p>GET {@code /preferences/{name}} is the primary path. When that returns
+ * 404, an empty value, or a body that production unwrap rejects as flat
+ * ({@code acceptFlat: false}), fall back to GET {@code /preferences/} so a
+ * successful Save still reloads Design/Runtime visibility (#2948 / #3204).
  */
 export async function loadDefaultAclTemplate(): Promise<LoadDefaultAclTemplateResult> {
-  const pref = await loadUserPreference(DEFAULT_ACL_TEMPLATE_PREF_NAME);
-  if (pref?.value) {
-    const parsed = parseDefaultAclTemplate(pref.value);
-    if (parsed) {
-      return { template: parsed, fromPreference: true };
+  const named = await loadUserPreference(DEFAULT_ACL_TEMPLATE_PREF_NAME);
+  const fromNamed = templateFromPreferenceValue(named);
+  if (fromNamed) {
+    return { template: fromNamed, fromPreference: true };
+  }
+
+  const listed = await getAllUserPreferences();
+  const match = listed.find(isDefaultAclTemplatePref);
+  const fromList = templateFromPreferenceValue(match);
+  if (fromList) {
+    return { template: fromList, fromPreference: true };
+  }
+
+  // Last resort: list item present but GET-by-name unwrap was too strict.
+  if (match) {
+    const loosened = unwrapUserPreference(match, { acceptFlat: true });
+    const fromLoose = templateFromPreferenceValue(loosened);
+    if (fromLoose) {
+      return { template: fromLoose, fromPreference: true };
     }
   }
+
   return { template: systemDefaultAclTemplate(), fromPreference: false };
 }
 

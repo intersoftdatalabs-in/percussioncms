@@ -98,6 +98,22 @@ describe("defaultAclTemplate helpers", () => {
     expect(parseDefaultAclTemplate(JSON.stringify({ entries: "x" }))).toBeNull();
   });
 
+  /**
+   * #3204 — GET may leave value as a parsed object. String(obj) would become
+   * "[object Object]" and reload would fall back to system default (no Visible).
+   */
+  it("parses an already-decoded object payload (#3204)", () => {
+    const template = cloneDefaultAclTemplate(systemDefaultAclTemplate());
+    template.entries[0].permissions.push("RUNTIME_VISIBLE");
+    const parsed = parseDefaultAclTemplate({
+      version: 1,
+      entries: template.entries,
+    });
+    expect(parsed).not.toBeNull();
+    expect(parsed!.entries[0].permissions).toContain("RUNTIME_VISIBLE");
+    expect(defaultAclTemplatesEqual(parsed!, template)).toBe(true);
+  });
+
   it("parse drops invalid entries and normalizes types/permissions", () => {
     const parsed = parseDefaultAclTemplate(
       JSON.stringify({
