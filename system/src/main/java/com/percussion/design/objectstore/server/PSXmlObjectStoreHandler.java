@@ -131,7 +131,7 @@ import org.xml.sax.SAXException;
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSXmlObjectStoreHandler extends PSObjectFactory
-    implements IPSObjectStoreHandler, IPSObjectStoreErrors, IPSValidateSession {
+    implements IPSObjectStoreHandler, IPSValidateSession {
   /**
    * Constructs a PSXmlObjectStore object, using the specified directory as the object store.
    *
@@ -187,7 +187,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
       String arg1 = ioe.toString() + " in PSXmlObjectStoreHandler/init";
       Object[] args = {fileName, arg1};
-      throw new PSServerException(HANDLER_IO_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode(), args);
     }
 
     PSServerConfiguration conf = getServerConfigurationObject();
@@ -218,7 +218,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
               app.getRequestRoot(), new File(PSServer.getRxDir(), app.getRequestRoot()));
         } catch (IllegalArgumentException ex) {
           Object[] args = new Object[] {app.getName(), PSExceptionUtils.getMessageForLog(ex)};
-          PSLogManager.write(new PSLogServerWarning(APP_LOAD_EXCEPTION, args, true, "ObjectStore"));
+          PSLogManager.write(new PSLogServerWarning(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args, true, "ObjectStore"));
         }
       }
     } // end loop over all apps
@@ -440,7 +440,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
               myClass.getMethod("saveHibernateDialectConfig", xmlClass),
               PSAclEntry.SACE_ADMINISTER_SERVER));
     } catch (Exception e) {
-      throw new PSRuntimeException(HANDLER_UNEXPECTED_EXCEPTION, e.toString());
+      throw new PSRuntimeException(ObjectStoreErrorCodes.HANDLER_UNEXPECTED_EXCEPTION.numericCode(), e.toString());
     }
 
     return apps;
@@ -574,17 +574,17 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
             Object[] args = new Object[] {app.getName(), ex.toString()};
             PSLogManager.write(
-                new PSLogServerWarning(APP_LOAD_EXCEPTION, args, true, "ObjectStore"));
+                new PSLogServerWarning(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args, true, "ObjectStore"));
           }
         } catch (IOException ioe) {
           Object[] args = new Object[] {app.getName(), ioe.toString()};
-          PSLogManager.write(new PSLogServerWarning(APP_LOAD_EXCEPTION, args, true, "ObjectStore"));
+          PSLogManager.write(new PSLogServerWarning(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args, true, "ObjectStore"));
         } catch (PSNotFoundException e) {
           Object[] args = new Object[] {app.getName(), e.toString()};
-          PSLogManager.write(new PSLogServerWarning(APP_LOAD_EXCEPTION, args, true, "ObjectStore"));
+          PSLogManager.write(new PSLogServerWarning(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args, true, "ObjectStore"));
         } catch (PSServerException e) {
           Object[] args = new Object[] {app.getName(), e.toString()};
-          PSLogManager.write(new PSLogServerWarning(APP_LOAD_EXCEPTION, args, true, "ObjectStore"));
+          PSLogManager.write(new PSLogServerWarning(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args, true, "ObjectStore"));
         }
       } // end if needs renumbering
     } // end loop over all apps
@@ -657,15 +657,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSLockedException,
           PSUnknownDocTypeException,
           PSNotFoundException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtendAppLock);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtendAppLock);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtendAppLock);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtendAppLock);
 
     // make sure we got the correct root node tag
     if (false == ms_RootExtendAppLock.equals(root.getNodeName())) {
       Object[] args = {ms_RootExtendAppLock, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     /* build the response doc */
@@ -732,15 +732,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSLockedException,
           PSNotFoundException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppLoad);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppLoad);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppLoad);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppLoad);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -846,15 +846,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthorizationException,
           PSAuthenticationFailedException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppList);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppList);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppList);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppList);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppList.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppList, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String hiddenAtt = root.getAttribute("showHidden");
@@ -990,15 +990,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       throws PSUnknownDocTypeException {
     if (req == null) throw new IllegalArgumentException("req may not be null");
 
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppListFiles);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppListFiles);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppListFiles);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppListFiles);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppListFiles.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppListFiles, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String appRoot = root.getAttribute("appRoot");
@@ -1049,15 +1049,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthenticationFailedException,
           PSLockedException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppRemove);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppRemove);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppRemove);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppRemove);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppRemove.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppRemove, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try {
@@ -1115,15 +1115,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotFoundException,
           PSUnknownDocTypeException {
 
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppRename);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppRename);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppRename);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppRename);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppRename.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppRename, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try { // and process the request
@@ -1269,7 +1269,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     Element root = inDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootGetConnectionDetail);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootGetConnectionDetail);
 
     String dsName = root.getAttribute("dsName");
 
@@ -1521,12 +1521,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   private void validateRootElement(Document inDoc, String rootElement)
       throws PSUnknownDocTypeException {
     // get the root node and make sure it is the correct type
-    if (null == inDoc) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootElement);
+    if (null == inDoc) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootElement);
     Element root = inDoc.getDocumentElement();
-    if (null == root) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootElement);
+    if (null == root) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootElement);
     if (!rootElement.equals(root.getNodeName())) {
       Object[] args = {rootElement, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
   }
 
@@ -1562,15 +1562,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSSystemValidationException,
           PSUnknownDocTypeException {
 
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppSave);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppSave);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppSave);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppSave);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppSave.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppSave, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     /* build the response doc */
@@ -1655,7 +1655,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
         // we have a version conflict
         Object[] args = new Object[] {name, "" + inMajor, "" + inMinor, "" + major, "" + minor};
 
-        throw new PSVersionConflictException(APP_VERSION_DOES_NOT_MATCH, args);
+        throw new PSVersionConflictException(ObjectStoreErrorCodes.APP_VERSION_DOES_NOT_MATCH.numericCode(), args);
       }
 
       doSaveApplication(app, bReleaseLock, bValidate, bCreateNew, req, uniqueId, changeDesc);
@@ -1691,15 +1691,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotFoundException,
           PSUnknownDocTypeException {
     try {
-      if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtSave);
+      if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtSave);
 
       Element root = inDoc.getDocumentElement();
-      if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtSave);
+      if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtSave);
 
       // make sure we got the correct root node tag
       if (!ms_RootExtSave.equals(root.getNodeName())) {
         Object[] args = {ms_RootExtSave, root.getNodeName()};
-        throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       // deserialize extension def
@@ -1712,7 +1712,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       Element extensionEl = tree.getNextElement("Extension", firstFlag);
       if (extensionEl == null) {
         // TODO: better exception type
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, "Extension");
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "Extension");
       }
 
       PSExtensionDefFactory factory = new PSExtensionDefFactory();
@@ -1777,22 +1777,22 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSExtensionException,
           PSNotFoundException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtLoad);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtLoad);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtLoad);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtLoad);
 
     // make sure we got the correct root node tag
     if (!ms_RootExtLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootExtLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try {
       String extName = root.getAttribute("name");
       if (extName == null) {
         // TODO: better exception type
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, "name");
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "name");
       }
 
       PSExtensionRef ref = new PSExtensionRef(extName);
@@ -1821,22 +1821,22 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSExtensionException,
           PSNotFoundException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtRemove);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtRemove);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootExtRemove);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootExtRemove);
 
     // make sure we got the correct root node tag
     if (!ms_RootExtRemove.equals(root.getNodeName())) {
       Object[] args = {ms_RootExtRemove, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try {
       String extName = root.getAttribute("name");
       if (extName == null) {
         // TODO: better exception type
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, "name");
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "name");
       }
 
       PSExtensionRef ref = new PSExtensionRef(extName);
@@ -1872,15 +1872,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthorizationException,
           PSAuthenticationFailedException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigLoad);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigLoad);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigLoad);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigLoad);
 
     // make sure we got the correct root node tag
     if (false == ms_RootUserConfigLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootUserConfigLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -1888,7 +1888,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     String name = walker.getElementData("name");
     if ((name == null) || (name.length() == 0)) {
       Object[] args = {ms_RootUserConfigLoad, "PSXUserConfiguration/name", ""};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     boolean authenticated = false;
@@ -1954,12 +1954,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (req == null) throw new IllegalArgumentException("req may not be null.");
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootRxConfigLoad);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootRxConfigLoad);
 
     // make sure we got the correct root node tag
     if (false == ms_RootRxConfigLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootRxConfigLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     Document respDoc;
@@ -2005,12 +2005,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (req == null) throw new IllegalArgumentException("req may not be null.");
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootRxConfigSave);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootRxConfigSave);
 
     // make sure we got the correct root node tag
     if (false == ms_RootRxConfigSave.equals(root.getNodeName())) {
       Object[] args = {ms_RootRxConfigSave, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     Document respDoc;
@@ -2052,18 +2052,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSUnknownDocTypeException,
           PSNotFoundException {
     if (inDoc == null) {
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootCharacterSetMapLoad);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootCharacterSetMapLoad);
     }
 
     Element root = inDoc.getDocumentElement();
     if (root == null) {
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootCharacterSetMapLoad);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootCharacterSetMapLoad);
     }
 
     // make sure we got the correct root node tag
     if (false == ms_RootCharacterSetMapLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootCharacterSetMapLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     try {
@@ -2100,16 +2100,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSUnknownDocTypeException,
           PSNotFoundException {
     if (inDoc == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigRemove);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigRemove);
 
     Element root = inDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigRemove);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigRemove);
 
     // make sure we got the correct root node tag
     if (false == ms_RootUserConfigRemove.equals(root.getNodeName())) {
       Object[] args = {ms_RootUserConfigRemove, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -2161,15 +2161,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthorizationException,
           PSAuthenticationFailedException,
           PSUnknownDocTypeException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigSave);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigSave);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootUserConfigSave);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootUserConfigSave);
 
     // make sure we got the correct root node tag
     if (false == ms_RootUserConfigSave.equals(root.getNodeName())) {
       Object[] args = {ms_RootUserConfigSave, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -2217,16 +2217,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   public Document getServerConfiguration(Document inDoc, PSRequest req)
       throws PSServerException, PSUnknownDocTypeException {
     if (inDoc == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigLoad);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigLoad);
 
     Element root = inDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigLoad);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigLoad);
 
     // make sure we got the correct root node tag
     if (false == ms_RootServerConfigLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootServerConfigLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // if the cfg is to be opened in edit mode, attempt to acquire a lock on it
@@ -2274,16 +2274,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   public Document saveServerConfiguration(Document inDoc, PSRequest req)
       throws PSUnknownDocTypeException, PSLockedException {
     if (inDoc == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigSave);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigSave);
 
     Element root = inDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigSave);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigSave);
 
     // make sure we got the correct root node tag
     if (false == ms_RootServerConfigSave.equals(root.getNodeName())) {
       Object[] args = {ms_RootServerConfigSave, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -2333,12 +2333,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     try {
       Element root = inDoc.getDocumentElement();
       if (root == null)
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootRoleConfigSave);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootRoleConfigSave);
 
       // make sure we got the correct root node tag
       if (false == ms_RootRoleConfigSave.equals(root.getNodeName())) {
         Object[] args = {ms_RootRoleConfigSave, root.getNodeName()};
-        throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -2408,16 +2408,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSLockedException,
           PSUnknownDocTypeException {
     if (inDoc == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigLock);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigLock);
 
     Element root = inDoc.getDocumentElement();
     if (root == null)
-      throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigLock);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigLock);
 
     // make sure we got the correct root node tag
     if (false == ms_RootServerConfigLock.equals(root.getNodeName())) {
       Object[] args = {ms_RootServerConfigLock, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
@@ -2479,21 +2479,21 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthenticationFailedException,
           PSNotFoundException {
 
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileSave);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileSave);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileSave);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileSave);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppFileSave.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppFileSave, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String appName = root.getAttribute("application");
     if (appName == null || appName.length() == 0) {
       Object[] args = {ms_RootAppFileLoad, "application", appName};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     boolean dontLockApp = false;
@@ -2523,7 +2523,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     PSXmlTreeWalker walker = new PSXmlTreeWalker(inDoc);
     Element appFileEl = walker.getNextElement("PSXApplicationFile");
     if (appFileEl == null) {
-      if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, "PSXApplicationFile");
+      if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, "PSXApplicationFile");
     }
     try {
       appFile.fromXml(appFileEl, null, null);
@@ -2610,15 +2610,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotLockedException,
           PSUnknownDocTypeException,
           PSNotFoundException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileLoad);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileLoad);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileLoad);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileLoad);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppFileLoad.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppFileLoad, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     /* We have to figure out what application has been specified, get
@@ -2633,7 +2633,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     String appName = root.getAttribute("application");
     if (appName == null || appName.length() == 0) {
       Object[] args = {ms_RootAppFileLoad, "application", appName};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     // build an appFile from the request document, so we can get the
@@ -2671,7 +2671,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       returnFile.toXml(returnDoc);
     } catch (IllegalArgumentException iae) {
       Object[] args = new Object[] {appFile.getFileName().getPath(), iae.getLocalizedMessage()};
-      throw new PSServerException(APP_FILE_IO_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_IO_ERROR.numericCode(), args);
     } finally {
       if (in != null)
         try {
@@ -2704,15 +2704,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotLockedException,
           PSUnknownDocTypeException,
           PSNotFoundException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileRemove);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileRemove);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileRemove);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileRemove);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppFileRemove.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppFileRemove, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     boolean dontLockApp = false;
@@ -2731,7 +2731,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     String appName = root.getAttribute("application");
     if (appName == null || appName.length() == 0) {
       Object[] args = {ms_RootAppFileLoad, "application", appName};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
     try {
@@ -2764,7 +2764,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // supposedly created it)
     if (sum == null) {
       Object[] args = {appName};
-      throw new PSNotFoundException(APP_ROOT_REQD, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), args);
     }
 
     String appRoot = sum.getAppRoot();
@@ -2775,7 +2775,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // then error
     if (!appDir.exists() || !appDir.isDirectory()) {
       Object[] args = {ms_RootAppFileLoad, appName, appDir.getPath()};
-      throw new PSNotFoundException(APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
 
     // build an appFile from the request document, so we can get the
@@ -2793,7 +2793,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     File appFileName = new File(appDir, appFile.getFileName().getPath());
     if (!appFileName.exists()) {
       Object[] args = {appName, appFileName.getPath()};
-      throw new PSNotFoundException(APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
     }
 
     printMsg("Deleting application file " + appFileName.toString());
@@ -2825,7 +2825,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       reqStats.setFailure();
       String arg1 = "Could not delete " + appFileName.toString();
       Object[] args = {appFileName.getName(), arg1};
-      respDoc = fillErrorResponse(new PSServerException(HANDLER_IO_ERROR, args));
+      respDoc = fillErrorResponse(new PSServerException(ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode(), args));
     }
 
     return respDoc;
@@ -2852,15 +2852,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotLockedException,
           PSUnknownDocTypeException,
           PSNotFoundException {
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileRename);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileRename);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootAppFileRename);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootAppFileRename);
 
     // make sure we got the correct root node tag
     if (false == ms_RootAppFileRename.equals(root.getNodeName())) {
       Object[] args = {ms_RootAppFileRename, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // get the name of the application
@@ -2911,19 +2911,19 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     final File appFileName = getAbsoluteFileName(appName, appFile);
     if (!appFileName.exists()) {
       Object[] args = {appName, appFileName.getPath()};
-      throw new PSNotFoundException(APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
     }
 
     // cannot rename if an appfile with the new name already exists
     final File targetFileName = getAbsoluteFileName(targetAppName, targetAppFile);
     if (targetFileName.exists()) {
       Object[] args = {appFileName.toString(), targetFileName.toString()};
-      throw new PSServerException(APP_FILE_EXISTS_RENAME_ERROR, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_FILE_EXISTS_RENAME_ERROR.numericCode(), args);
     }
     // ... or its parent directory does not exist
     if (!targetFileName.getParentFile().exists()) {
       Object[] args = {appName, targetFileName.getParentFile().getPath()};
-      throw new PSNotFoundException(APP_FILE_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_FILE_NOT_FOUND.numericCode(), args);
     }
 
     printMsg(
@@ -2940,7 +2940,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       String arg1 =
           "Could not rename " + appFileName.toString() + "to " + targetFileName.toString();
       Object[] args = {appFileName.getName(), arg1};
-      respDoc = fillErrorResponse(new PSServerException(HANDLER_IO_ERROR, args));
+      respDoc = fillErrorResponse(new PSServerException(ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode(), args));
     }
 
     return respDoc;
@@ -2983,7 +2983,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     final String appName = root.getAttribute(attributeName);
     if (appName == null || appName.length() == 0) {
       Object[] args = {ms_RootAppFileLoad, attributeName, appName};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     return appName;
   }
@@ -2999,7 +2999,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // then error
     if (!(appDir.exists() && appDir.isDirectory())) {
       Object[] args = {ms_RootAppFileLoad, appName, appDir.getPath()};
-      throw new PSNotFoundException(APP_DIR_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_DIR_NOT_FOUND.numericCode(), args);
     }
     return appDir;
   }
@@ -3024,7 +3024,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     // supposedly created it)
     if (sum == null) {
       Object[] args = {appName};
-      throw new PSNotFoundException(APP_ROOT_REQD, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_ROOT_REQD.numericCode(), args);
     }
     return sum;
   }
@@ -3087,7 +3087,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       /* build the response */
       PSResponse resp = request.getResponse();
       if (resp == null) {
-        thrownError = new PSServerException(MALFORMED_RESPONSE_DOCUMENT);
+        thrownError =
+            new PSServerException(
+                ObjectStoreErrorCodes.MALFORMED_RESPONSE_DOCUMENT.numericCode());
         respDoc = fillErrorResponse(thrownError);
       }
 
@@ -3116,7 +3118,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
         } else {
           PSLogManager.write(
               new PSLogServerWarning(
-                  HANDLER_IO_ERROR,
+                  ObjectStoreErrorCodes.HANDLER_IO_ERROR.numericCode(),
                   new Object[] {"processRequest", thrownError.toString()},
                   true,
                   "ObjectStore"));
@@ -3150,10 +3152,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       return retApp;
     } catch (PSUnknownDocTypeException e) {
       Object[] args = new Object[] {app, e.toString()};
-      throw new PSServerException(APP_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
     } catch (PSUnknownNodeTypeException e) {
       Object[] args = new Object[] {app, e.toString()};
-      throw new PSServerException(APP_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
     }
   }
 
@@ -3169,9 +3171,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       config.fromXml(doc);
       return config;
     } catch (PSUnknownDocTypeException e) {
-      throw new PSServerException(SERVER_CFG_LOAD_EXCEPTION, e.toString());
+      throw new PSServerException(ObjectStoreErrorCodes.SERVER_CFG_LOAD_EXCEPTION.numericCode(), e.toString());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSServerException(SERVER_CFG_LOAD_EXCEPTION, e.toString());
+      throw new PSServerException(ObjectStoreErrorCodes.SERVER_CFG_LOAD_EXCEPTION.numericCode(), e.toString());
     }
   }
 
@@ -3197,12 +3199,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     try {
       Element root = inDoc.getDocumentElement();
       if (root == null)
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, ms_RootServerConfigLoad);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, ms_RootServerConfigLoad);
 
       // make sure we got the correct root node tag
       if (false == ms_RootRoleConfigLoad.equals(root.getNodeName())) {
         Object[] args = {ms_RootRoleConfigLoad, root.getNodeName()};
-        throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       // if the cfg is to be opened in edit mode, attempt to acquire a lock
@@ -3276,7 +3278,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           if (!app.getName().equalsIgnoreCase(appName)) {
             PSLogManager.write(
                 new PSLogServerWarning(
-                    APP_FILE_ROOT_MISMATCH,
+                    ObjectStoreErrorCodes.APP_FILE_ROOT_MISMATCH.numericCode(),
                     new Object[] {apps[i], app.getName()},
                     true,
                     "ObjectStore"));
@@ -3287,7 +3289,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
         } catch (Exception e) {
           PSLogManager.write(
               new PSLogServerWarning(
-                  APP_LOAD_EXCEPTION, new Object[] {appName, e.toString()}, true, "ObjectStore"));
+                  ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), new Object[] {appName, e.toString()}, true, "ObjectStore"));
         }
       }
     }
@@ -3338,7 +3340,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     } catch (Exception e) {
       PSLogManager.write(
           new PSLogServerWarning(
-              VALIDATION_UNEXPECTED_EXCEPTION,
+              ObjectStoreErrorCodes.VALIDATION_UNEXPECTED_EXCEPTION.numericCode(),
               new Object[] {app.getName(), e.toString()},
               true,
               "ObjectStore"));
@@ -3392,7 +3394,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       throws PSServerException, PSLockedException, PSNotFoundException, PSLockAcquisitionException {
     PSApplicationSummary sum = m_appSums.getSummary(applid);
     if (sum == null) {
-      throw new PSNotFoundException(APP_NOT_FOUND, "id=" + applid);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), "id=" + applid);
     }
 
     extendApplicationLock(req, sum.getName(), uniqueId, lockMins, overrideSameUser);
@@ -3434,7 +3436,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       throws PSServerException, PSNotFoundException {
     PSApplicationSummary sum = m_appSums.getSummary(applid);
     if (sum == null) {
-      throw new PSNotFoundException(APP_NOT_FOUND, "id=" + applid);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), "id=" + applid);
     }
 
     releaseApplicationLock(sum.getName(), req, uniqueId);
@@ -3646,7 +3648,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       // get the current application object and change its internal name
       PSApplication app = getApplicationObject(appName);
       if (app == null) {
-        throw new PSNotFoundException(APP_NOT_FOUND, appName);
+        throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
       }
 
       try {
@@ -3668,11 +3670,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     } catch (PSNotLockedException e) {
       PSLogManager.write(
           new PSLogServerWarning(
-              HANDLER_UNEXPECTED_EXCEPTION, new Object[] {e.toString()}, true, "ObjectStore"));
+              ObjectStoreErrorCodes.HANDLER_UNEXPECTED_EXCEPTION.numericCode(), new Object[] {e.toString()}, true, "ObjectStore"));
     } catch (PSSystemValidationException e) {
       PSLogManager.write(
           new PSLogServerWarning(
-              HANDLER_UNEXPECTED_EXCEPTION, new Object[] {e.toString()}, true, "ObjectStore"));
+              ObjectStoreErrorCodes.HANDLER_UNEXPECTED_EXCEPTION.numericCode(), new Object[] {e.toString()}, true, "ObjectStore"));
     } finally {
       // release a lock on the old name of the application
       releaseApplicationLock(appId, req, uniqueId);
@@ -3702,7 +3704,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     String appName = app.getName();
     if ((appName == null) || (appName.length() == 0)) {
       Object[] args = {ms_RootAppSave, "PSXApplication/name", ""};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     File appFile = getApplicationFile(appName);
@@ -3717,7 +3719,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     try {
       /* if we're in create only mode, it better not exist already */
       if (fileExists && (createNewApp || app.getId() < 1)) {
-        throw new PSNonUniqueException(APP_NAME_ALREADY_EXISTS, appName);
+        throw new PSNonUniqueException(ObjectStoreErrorCodes.APP_NAME_ALREADY_EXISTS.numericCode(), appName);
       }
 
       lockId = getEffectiveLockerId(req, uniqueId);
@@ -3798,7 +3800,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       throw e;
     } catch (Exception e) {
       Object[] args = {appFile.getName(), e.toString()};
-      throw new PSServerException(APP_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
     }
   }
 
@@ -3811,10 +3813,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       fIn = lockInputStream(appFile);
       doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
     } catch (FileNotFoundException e) {
-      throw new PSNotFoundException(APP_NOT_FOUND, appFile.getName());
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appFile.getName());
     } catch (Exception e) {
       Object[] args = {appFile.getName(), e.toString()};
-      throw new PSServerException(APP_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
     } finally {
       if (fIn != null) {
         try {
@@ -3842,7 +3844,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           IOException {
     if (cfgTree == null) {
       Object[] args = {ms_RootUserConfigSave, "PSXUserConfiguration", ""};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(cfgTree);
@@ -3850,7 +3852,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     String cfgName = walker.getElementData("name");
     if ((cfgName == null) || (cfgName.length() == 0)) {
       Object[] args = {ms_RootUserConfigSave, "PSXUserConfiguration/name", ""};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     boolean authenticated = false;
@@ -3888,7 +3890,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   private Document loadUserConfig(String name) throws PSNotFoundException, PSServerException {
     File cfgFile = getUserConfigFile(name);
     if (!cfgFile.exists()) {
-      throw new PSNotFoundException(USER_CFG_NOT_FOUND, name);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.USER_CFG_NOT_FOUND.numericCode(), name);
     }
 
     Document doc = null;
@@ -3897,10 +3899,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       fIn = lockInputStream(cfgFile);
       doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
     } catch (FileNotFoundException e) {
-      throw new PSNotFoundException(USER_CFG_NOT_FOUND, name);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.USER_CFG_NOT_FOUND.numericCode(), name);
     } catch (Exception e) {
       Object[] args = {name, e.toString()};
-      throw new PSServerException(USER_CFG_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.USER_CFG_LOAD_EXCEPTION.numericCode(), args);
     } finally {
       if (fIn != null) {
         try {
@@ -3957,7 +3959,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   Document loadServerConfig() throws PSServerException {
     File cfgFile = getServerConfigFile();
     if (!cfgFile.exists()) {
-      throw new PSServerException(SERVER_CFG_NOT_FOUND);
+      throw new PSServerException(ObjectStoreErrorCodes.SERVER_CFG_NOT_FOUND.numericCode());
     }
 
     Document doc = null;
@@ -3966,10 +3968,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       fIn = lockInputStream(cfgFile);
       doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
     } catch (FileNotFoundException e) {
-      throw new PSServerException(SERVER_CFG_NOT_FOUND);
+      throw new PSServerException(ObjectStoreErrorCodes.SERVER_CFG_NOT_FOUND.numericCode());
     } catch (Exception e) {
       Object[] args = {e.toString()};
-      throw new PSServerException(SERVER_CFG_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.SERVER_CFG_LOAD_EXCEPTION.numericCode(), args);
     } finally {
       if (fIn != null) {
         try {
@@ -4008,7 +4010,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     File csMapFile = new File(fileName);
     if (!csMapFile.exists()) {
       Object[] args = {fileName};
-      throw new PSNotFoundException(CHARACTER_SET_MAP_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.CHARACTER_SET_MAP_NOT_FOUND.numericCode(), args);
     }
 
     Document doc = null;
@@ -4018,10 +4020,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
     } catch (FileNotFoundException e) {
       Object[] args = {fileName};
-      throw new PSNotFoundException(CHARACTER_SET_MAP_NOT_FOUND, args);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.CHARACTER_SET_MAP_NOT_FOUND.numericCode(), args);
     } catch (Exception e) {
       Object[] args = {fileName};
-      throw new PSServerException(CHARACTER_SET_LOAD_EXCEPTION, args);
+      throw new PSServerException(ObjectStoreErrorCodes.CHARACTER_SET_LOAD_EXCEPTION.numericCode(), args);
     } finally {
       if (fIn != null) {
         try {
@@ -4112,7 +4114,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     }
 
     if (appName == null) {
-      throw new PSNotFoundException(APP_NOT_FOUND, "root=" + appName);
+      throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), "root=" + appName);
     }
 
     PSAclHandler aclHandler = loadAclHandler(appName);
@@ -4169,7 +4171,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     } catch (Exception e) {
       // wrap exception
       Object[] args = {e.toString()};
-      PSServerException es = new PSServerException(FEATURE_SET_LOAD_EXCEPTION, args);
+      PSServerException es =
+          new PSServerException(
+              ObjectStoreErrorCodes.FEATURE_SET_LOAD_EXCEPTION.numericCode(), args);
       throw es;
     } finally {
       if (fIn != null)
@@ -4212,15 +4216,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXGetJndiDatasourcesRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
@@ -4279,15 +4283,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXSaveJndiDatasourcesRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
@@ -4311,7 +4315,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       PSXmlTreeWalker tree = new PSXmlTreeWalker(root);
       Element dsEl = tree.getNextElement(dataSourceNodeName, tree.GET_NEXT_ALLOW_CHILDREN);
 
-      if (dsEl == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, dataSourceNodeName);
+      if (dsEl == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, dataSourceNodeName);
 
       List<IPSJndiDatasource> dsList = new ArrayList<IPSJndiDatasource>();
       while (dsEl != null) {
@@ -4363,15 +4367,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXGetDatasourceConfigsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
@@ -4427,15 +4431,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXSaveDatasourceConfigsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
     PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
@@ -4458,7 +4462,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           tree.getNextElement(IPSBeanConfig.BEAN_NODE_NAME, tree.GET_NEXT_ALLOW_CHILDREN);
 
       if (dsEl == null)
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, IPSBeanConfig.BEAN_NODE_NAME);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, IPSBeanConfig.BEAN_NODE_NAME);
 
       IPSDatasourceResolver resolver =
           PSContainerUtilsFactory.getInstance().getDatasourceResolver();
@@ -4505,15 +4509,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXGetHibernateDialectsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
@@ -4570,15 +4574,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXSaveHibernateDialectsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
     PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
@@ -4601,7 +4605,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           tree.getNextElement(IPSBeanConfig.BEAN_NODE_NAME, tree.GET_NEXT_ALLOW_CHILDREN);
 
       if (cfgEl == null)
-        throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, IPSBeanConfig.BEAN_NODE_NAME);
+        throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, IPSBeanConfig.BEAN_NODE_NAME);
 
       PSHibernateDialectConfig config = new PSHibernateDialectConfig();
       config.fromXml(cfgEl);
@@ -4650,15 +4654,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXGetCatalogerConfigsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
@@ -4728,15 +4732,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     if (request == null) throw new IllegalArgumentException("request may not be null");
 
     String rootNodeName = "PSXSaveCatalogerConfigsRequest";
-    if (inDoc == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (inDoc == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     Element root = inDoc.getDocumentElement();
-    if (root == null) throw new PSUnknownDocTypeException(XML_ELEMENT_NULL, rootNodeName);
+    if (root == null) throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_NULL, rootNodeName);
 
     // make sure we got the correct root node tag
     if (!rootNodeName.equals(root.getNodeName())) {
       Object[] args = {rootNodeName, root.getNodeName()};
-      throw new PSUnknownDocTypeException(XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownDocTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     String uniqueId = root.getAttribute(ATTR_UNIQUEID);
     PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
@@ -4804,7 +4808,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSAuthenticationFailedException,
           PSNotFoundException,
           PSServerException {
-    if (appName == null) throw new PSNotFoundException(APP_NOT_FOUND, "null");
+    if (appName == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), "null");
 
     PSAclHandler aclHandler = loadAclHandler(appName);
     if (aclHandler != null) {
@@ -4887,7 +4891,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
           PSNotFoundException,
           PSServerException {
     String appName = getApplicationNameFromId(id);
-    if (appName == null) throw new PSNotFoundException(APP_NOT_FOUND, appName);
+    if (appName == null) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     return checkApplicationSecurity(appName, accessLevel, req);
   }
@@ -4905,7 +4909,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     /* Try the application summary guys first */
     appFile = getApplicationFile(appName);
-    if (!appFile.exists()) throw new PSNotFoundException(APP_NOT_FOUND, appName);
+    if (!appFile.exists()) throw new PSNotFoundException(ObjectStoreErrorCodes.APP_NOT_FOUND.numericCode(), appName);
 
     doc = loadApplicationFromFile(appFile);
 
@@ -4914,10 +4918,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
         app = new PSApplication(doc);
       } catch (com.percussion.design.objectstore.PSUnknownNodeTypeException e) {
         Object[] args = new Object[] {appName, e.toString()};
-        throw new PSServerException(APP_LOAD_EXCEPTION, args);
+        throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
       } catch (com.percussion.design.objectstore.PSUnknownDocTypeException e) {
         Object[] args = new Object[] {appName, e.toString()};
-        throw new PSServerException(APP_LOAD_EXCEPTION, args);
+        throw new PSServerException(ObjectStoreErrorCodes.APP_LOAD_EXCEPTION.numericCode(), args);
       }
 
     PSApplicationSummary sum = m_appSums.getSummary(appName);
