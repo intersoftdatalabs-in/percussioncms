@@ -24,6 +24,7 @@
  *   - Kind-aware Design vs Runtime: data-acl-object-kind + data-acl-show-runtime
  *     (table when ACL loads; section shell when object guid is missing)
  *   - Developer Preferences default-ACL template: layered Design / Runtime columns
+ *   - Preferences persist: Runtime Visible survives Save + reload (#3204 / #2643)
  *
  * Kind-aware runtime columns mirror WebUI objectAclPermissionModel.ts
  * RUNTIME_RELEVANT_OBJECT_KINDS — peers in that set show Runtime visibility;
@@ -37,7 +38,7 @@
  * QA mode:
  *   perc-devctl qa-up → TEST_CMS_URL=… npm run test:surface -- --path tests/developer-object-acl-product-path.spec.js → qa-down
  *
- * Refs #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
+ * Refs #3204, #2643, #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -437,5 +438,75 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       'input[type="checkbox"][data-testid^="developer-prefs-acl-perm-"][data-testid$="-RUNTIME_VISIBLE"]',
     );
     await expect(runtimeBoxes.first()).toBeVisible();
+  });
+
+  test("preferences Runtime visibility persists after save and reload (#3204)", async ({
+    page,
+  }) => {
+    const jsErrors = [];
+    page.on("pageerror", (err) => jsErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      // GET /preferences/{name} 404 is the empty-store path; chrome 404s
+      // (favicon / leftover hashed chunks) are not product defects.
+      if (/404|Failed to load resource/i.test(text)) {
+        return;
+      }
+      jsErrors.push(text);
+    });
+
+    await page.goto(developerSectionUrl("preferences"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-preferences"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const table = page.locator('[data-testid="developer-prefs-acl-table"]');
+    const loading = page.locator('[data-testid="developer-prefs-acl-loading"]');
+    await expect(loading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(table).toBeVisible({ timeout: 20_000 });
+
+    const defaultRuntime = page.locator(
+      '[data-testid="developer-prefs-acl-table"] tr[data-acl-principal="Default"] input[type="checkbox"][data-testid$="-RUNTIME_VISIBLE"]',
+    );
+    await expect(defaultRuntime).toBeVisible({ timeout: 10_000 });
+
+    const wasChecked = await defaultRuntime.isChecked();
+    await defaultRuntime.click();
+    await expect(defaultRuntime).toBeChecked({ checked: !wasChecked });
+
+    const saveBtn = page.locator('[data-testid="developer-prefs-acl-save"]');
+    await expect(saveBtn).toBeEnabled({ timeout: 10_000 });
+    await saveBtn.click();
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-notice"]'),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-source"]'),
+    ).toContainText(/saved/i);
+
+    await page.goto(developerSectionUrl("preferences"), {
+      waitUntil: "networkidle",
+    });
+    await expect(loading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(table).toBeVisible({ timeout: 20_000 });
+
+    const reloaded = page.locator(
+      '[data-testid="developer-prefs-acl-table"] tr[data-acl-principal="Default"] input[type="checkbox"][data-testid$="-RUNTIME_VISIBLE"]',
+    );
+    await expect(reloaded).toBeVisible({ timeout: 10_000 });
+    await expect(reloaded).toBeChecked({ checked: !wasChecked });
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-source"]'),
+    ).toContainText(/saved/i);
+
+    expect(
+      jsErrors,
+      `JS console/page errors on prefs persist path: ${jsErrors.join(" | ")}`,
+    ).toEqual([]);
   });
 });

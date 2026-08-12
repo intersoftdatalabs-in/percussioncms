@@ -419,6 +419,8 @@ export function DeveloperPreferencesPanel(): React.ReactElement {
                     <tr
                       key={r.clientKey}
                       data-testid={`developer-prefs-acl-row-${r.clientKey}`}
+                      data-acl-principal={r.name}
+                      data-acl-principal-type={r.type}
                       style={{
                         borderBottom: `1px solid ${catalogColors.softBorder}`,
                       }}

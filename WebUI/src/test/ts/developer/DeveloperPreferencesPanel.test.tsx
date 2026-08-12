@@ -125,6 +125,10 @@ describe("DeveloperPreferencesPanel", () => {
         "developer-prefs-acl-perm-row:0:Default:USER-RUNTIME_VISIBLE",
       ),
     ).toBeTruthy();
+
+    const defaultRow = screen.getByTestId("developer-prefs-acl-row-row:0:Default:USER");
+    expect(defaultRow.getAttribute("data-acl-principal")).toBe("Default");
+    expect(defaultRow.getAttribute("data-acl-principal-type")).toBe("USER");
   });
 
   it("saves dirty template via preferences API", async () => {

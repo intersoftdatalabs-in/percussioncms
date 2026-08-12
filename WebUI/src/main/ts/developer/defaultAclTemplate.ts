@@ -122,16 +122,25 @@ function normalizeEntry(raw: unknown): DefaultAclTemplateEntry | null {
 /**
  * Parse a preference value into a template. Returns null when empty/invalid
  * (caller should fall back to {@link systemDefaultAclTemplate}).
+ *
+ * <p>Accepts a JSON string or an already-parsed object. Some GET paths leave
+ * {@code UserPreference.value} as a parsed object (or {@code String(obj)} would
+ * become {@code [object Object]} and drop Runtime visibility on reload).
  */
 export function parseDefaultAclTemplate(
-  raw: string | null | undefined,
+  raw: string | Record<string, unknown> | null | undefined,
 ): DefaultAclTemplate | null {
-  if (raw == null || !String(raw).trim()) return null;
+  if (raw == null) return null;
   let data: unknown;
-  try {
-    data = JSON.parse(String(raw));
-  } catch {
-    return null;
+  if (typeof raw === "object") {
+    data = raw;
+  } else {
+    if (!String(raw).trim()) return null;
+    try {
+      data = JSON.parse(String(raw));
+    } catch {
+      return null;
+    }
   }
   const o = asRecord(data);
   if (!o) return null;

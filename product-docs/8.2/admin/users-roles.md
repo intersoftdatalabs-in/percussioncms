@@ -72,6 +72,15 @@ to `/cm/app/` so the dispatcher applies this preference.
 
 See [Architecture & site navigation](id:admin-architecture-navigation).
 
+## Object ACL (design objects)
+
+Developer catalog objects use a layered **Object ACL** (Design access vs Runtime
+visibility). Operators set a **default ACL template** under
+**Developer → Preferences → Security**. After **Save default ACL template**,
+**Runtime visibility → Visible** must still match after a page reload.
+
+See [Object ACL & default template](id:admin-object-acl).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.
