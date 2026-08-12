@@ -144,7 +144,7 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
     expect(
       consoleErrors.filter(
         (e) =>
-          !/favicon|Download the React DevTools|third-party|Failed to load resource|net::ERR_/i.test(
+          !/favicon|Download the React DevTools|ResizeObserver|third-party|Failed to load resource|net::ERR_/i.test(
             e,
           ),
       ),

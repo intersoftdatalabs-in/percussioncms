@@ -399,6 +399,9 @@ export function isValidSectionLinkTarget(
  * Validate external link URL (non-empty; basic scheme or path).
  * Returns error message or {@code null} when valid.
  */
+/** Schemes that must never be stored as external link targets (XSS / drive-by). */
+const BLOCKED_EXTERNAL_SCHEMES = /^(javascript|data|vbscript|file)\s*:/i;
+
 export function validateExternalUrl(url: string): string | null {
   const t = url.trim();
   if (!t) {
@@ -407,6 +410,12 @@ export function validateExternalUrl(url: string): string | null {
   if (t.length > 2048) {
     return message(
       "perc.ui.architecture.modern@URL is too long (max 2048 characters)",
+    );
+  }
+  // Block dangerous schemes even when they match a generic scheme: pattern.
+  if (BLOCKED_EXTERNAL_SCHEMES.test(t)) {
+    return message(
+      "perc.ui.architecture.modern@URL scheme is not allowed (use http(s) or a site path)",
     );
   }
   // Accept absolute http(s), protocol-relative, or site-relative paths

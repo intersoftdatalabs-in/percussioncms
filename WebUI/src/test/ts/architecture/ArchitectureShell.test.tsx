@@ -268,6 +268,39 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("move down calls moveSiteSection with reordered index", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-move-down",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-move-down"));
+    await waitFor(() => {
+      expect(moveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: "c1",
+          targetId: "root",
+          targetIndex: 1,
+        }),
+      );
+    });
+  });
+
   it("opens external link create dialog from action bar (#3097)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);

@@ -112,4 +112,35 @@ describe("ExternalLinkDialog (#3097)", () => {
       ).value,
     ).toBe("_top");
   });
+
+  it("submits edited values in edit mode", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ExternalLinkDialog
+        open
+        mode="edit"
+        parentTitle="Home"
+        busy={false}
+        initial={{
+          linkTitle: "Old",
+          externalUrl: "https://old.test",
+          target: "_self",
+        }}
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("architecture-external-link-text"), {
+      target: { value: "New Title" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-external-link-url"), {
+      target: { value: "https://new.example" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-external-link-submit"));
+    expect(onSubmit).toHaveBeenCalledWith({
+      linkTitle: "New Title",
+      externalUrl: "https://new.example",
+      target: "_self",
+    });
+  });
 });

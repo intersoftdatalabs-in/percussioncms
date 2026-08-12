@@ -163,4 +163,40 @@ describe("SectionLinkDialog (#3097)", () => {
     });
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it("disables browse/submit while busy", () => {
+    render(
+      <SectionLinkDialog
+        open
+        mode="create"
+        parentId="root"
+        parentTitle="Home"
+        treeRoot={tree}
+        busy
+        onCancel={() => undefined}
+        onSubmit={() => undefined}
+      />,
+    );
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-section-link-submit",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-section-link-browse",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-section-link-cancel",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
 });

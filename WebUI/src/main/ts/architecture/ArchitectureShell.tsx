@@ -422,10 +422,22 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       if (!selectedNode) return;
       void runMutation(async () => {
         const loaded = await loadSection(selectedNode.id);
+        // Prefer wire folderPath; fall back to tree node path so we never POST
+        // an empty folderPath that would re-parent the link to site root.
+        const parentForPath =
+          findSiblingPlacement(treeRoot, selectedNode.id)?.parent ??
+          treeRoot ??
+          null;
+        const folderPath =
+          (loaded.folderPath && String(loaded.folderPath).trim()) ||
+          (selectedNode.folderPath && String(selectedNode.folderPath).trim()) ||
+          (selectedSite
+            ? resolveCreateParentFolderPath(parentForPath, selectedSite)
+            : "");
         await updateExternalLink(selectedNode.id, {
           linkTitle: values.linkTitle,
           externalUrl: values.externalUrl,
-          folderPath: loaded.folderPath || "",
+          folderPath,
           sectionType: "externallink",
           target: values.target,
           cssClassNames: loaded.cssClassNames,
@@ -433,7 +445,14 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         setExternalLinkOpen(false);
       });
     },
-    [externalLinkMode, selectedSite, createParent, selectedNode, runMutation],
+    [
+      externalLinkMode,
+      selectedSite,
+      createParent,
+      selectedNode,
+      treeRoot,
+      runMutation,
+    ],
   );
 
   const openEditLink = useCallback(() => {

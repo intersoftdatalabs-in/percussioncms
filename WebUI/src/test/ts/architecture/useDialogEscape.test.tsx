@@ -56,4 +56,38 @@ describe("useDialogEscape (#3098)", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onCancel).not.toHaveBeenCalled();
   });
+
+  it("removes keydown listener when open goes false or unmounts", () => {
+    const onCancel = vi.fn();
+    const addSpy = vi.spyOn(window, "addEventListener");
+    const removeSpy = vi.spyOn(window, "removeEventListener");
+    const { rerender, unmount } = render(
+      <Harness open busy={false} onCancel={onCancel} />,
+    );
+    expect(
+      addSpy.mock.calls.some(
+        (c) => c[0] === "keydown" && typeof c[1] === "function",
+      ),
+    ).toBe(true);
+    const handler = addSpy.mock.calls.find((c) => c[0] === "keydown")?.[1];
+    rerender(<Harness open={false} busy={false} onCancel={onCancel} />);
+    expect(
+      removeSpy.mock.calls.some(
+        (c) => c[0] === "keydown" && c[1] === handler,
+      ),
+    ).toBe(true);
+    // Re-open then unmount to prove cleanup path again
+    addSpy.mockClear();
+    removeSpy.mockClear();
+    rerender(<Harness open busy={false} onCancel={onCancel} />);
+    const handler2 = addSpy.mock.calls.find((c) => c[0] === "keydown")?.[1];
+    unmount();
+    expect(
+      removeSpy.mock.calls.some(
+        (c) => c[0] === "keydown" && c[1] === handler2,
+      ),
+    ).toBe(true);
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
 });

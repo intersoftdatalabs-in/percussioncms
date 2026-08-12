@@ -141,6 +141,53 @@ describe("sectionApi mutations (#3096)", () => {
       templateId: "",
       folderPath: "//Sites/D",
     })).rejects.toThrow(/template/i);
+    await expect(
+      createSiteSection({
+        pageTitle: "x",
+        pageLinkTitle: "x",
+        pageName: "x",
+        pageUrlIdentifier: "x",
+        templateId: "tpl",
+        folderPath: "  ",
+      }),
+    ).rejects.toThrow(/folder path/i);
     await expect(deleteSiteSection("  ")).rejects.toThrow(/id/i);
+    await expect(loadSectionProperties(" ")).rejects.toThrow(/id/i);
+    await expect(
+      updateSiteSection({ id: "", title: "t", folderName: "f" }),
+    ).rejects.toThrow(/id/i);
+    await expect(
+      updateSiteSection({ id: "g1", title: "  ", folderName: "f" }),
+    ).rejects.toThrow(/title/i);
+    await expect(
+      updateSiteSection({ id: "g1", title: "t", folderName: " " }),
+    ).rejects.toThrow(/folder name/i);
+    await expect(
+      moveSiteSection({
+        sourceId: " ",
+        targetId: "root",
+        targetIndex: 0,
+      }),
+    ).rejects.toThrow(/source and target/i);
+    await expect(
+      moveSiteSection({
+        sourceId: "a",
+        targetId: " ",
+        targetIndex: 0,
+      }),
+    ).rejects.toThrow(/source and target/i);
+    await expect(
+      moveSiteSection({
+        sourceId: "a",
+        targetId: "root",
+        targetIndex: Number.NaN,
+      }),
+    ).rejects.toThrow(/target index/i);
+    await expect(deleteSectionLink(" ", "parent")).rejects.toThrow(
+      /section and parent/i,
+    );
+    await expect(deleteSectionLink("sec", " ")).rejects.toThrow(
+      /section and parent/i,
+    );
   });
 });
