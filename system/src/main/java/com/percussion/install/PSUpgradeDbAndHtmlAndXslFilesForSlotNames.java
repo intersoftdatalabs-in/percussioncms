@@ -443,14 +443,13 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     source.setLogWriter(new OutputStreamWriter(logStream));
     StringBuilder sbOld = new StringBuilder();
     StringBuilder sbNew = new StringBuilder();
-    List allStartTags = source.findAllStartTags();
-    for (Object tagObj : allStartTags) {
-      StartTag sTag = (StartTag) tagObj;
+    List<StartTag> allStartTags = source.findAllStartTags();
+    for (StartTag sTag : allStartTags) {
       Attributes attributes = sTag.getAttributes();
 
       if (attributes == null) continue;
 
-      Iterator attrs = attributes.iterator();
+      Iterator<Attribute> attrs = attributes.iterator();
 
       sbOld.setLength(0);
       sbNew.setLength(0);
@@ -463,7 +462,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
 
       boolean modifiedAttrs = false;
       while (attrs.hasNext()) {
-        Attribute attr = (Attribute) attrs.next();
+        Attribute attr = attrs.next();
         String value = getModifiedValue(attr, sTag);
         if (value == null) value = attr.getValue();
         else modifiedAttrs = true;

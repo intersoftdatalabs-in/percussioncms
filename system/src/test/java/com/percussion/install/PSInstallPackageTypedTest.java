@@ -190,4 +190,90 @@ class PSInstallPackageTypedTest {
         IllegalArgumentException.class,
         () -> PSUpgradeDbAndHtmlAndXslFilesForSlotNames.convertSlotName(null));
   }
+
+  @Test
+  @DisplayName("PsxCTTemplate sqlEscapedTemplateName escapes quotes after modifyName")
+  void psxCtTemplateSqlEscapedName() {
+    assertEquals("My_Template", PSUpgradePluginPsxCTTemplate.sqlEscapedTemplateName("My Template"));
+    assertEquals("O''Brien_Tpl", PSUpgradePluginPsxCTTemplate.sqlEscapedTemplateName("O'Brien Tpl"));
+    assertEquals(null, PSUpgradePluginPsxCTTemplate.sqlEscapedTemplateName(null));
+  }
+
+  @Test
+  @DisplayName("CopyImagesToLocales collects non-English locale dirs")
+  void copyImagesCollectsNonEnglishLocaleDirs() throws Exception {
+    java.nio.file.Path root = java.nio.file.Files.createTempDirectory("img-locales");
+    try {
+      java.io.File en = root.resolve("en-us").toFile();
+      java.io.File fr = root.resolve("fr-fr").toFile();
+      java.io.File de = root.resolve("de-de").toFile();
+      java.io.File notDir = root.resolve("readme.txt").toFile();
+      assertTrue(en.mkdirs());
+      assertTrue(fr.mkdirs());
+      assertTrue(de.mkdirs());
+      assertTrue(notDir.createNewFile());
+
+      List<java.io.File> locales =
+          PSUpgradePluginCopyImagesToLocales.collectNonEnglishLocaleDirs(root.toFile().listFiles());
+      assertEquals(2, locales.size());
+      Set<String> names = new HashSet<>();
+      for (java.io.File f : locales) {
+        names.add(f.getName());
+      }
+      assertTrue(names.contains("fr-fr"));
+      assertTrue(names.contains("de-de"));
+      assertFalse(names.contains("en-us"));
+    } finally {
+      java.nio.file.Files.walk(root)
+          .sorted(java.util.Comparator.reverseOrder())
+          .forEach(
+              p -> {
+                try {
+                  java.nio.file.Files.deleteIfExists(p);
+                } catch (Exception ignored) {
+                }
+              });
+    }
+  }
+
+  @Test
+  @DisplayName("CopyImagesToLocales handles null listing")
+  void copyImagesNullListing() {
+    assertTrue(PSUpgradePluginCopyImagesToLocales.collectNonEnglishLocaleDirs(null).isEmpty());
+  }
+
+  @Test
+  @DisplayName("MigrateControlDependencies matches control dep name regex")
+  void migrateControlDependencyName() {
+    String control = com.percussion.design.objectstore.PSControlDependencyMap.CONTROL;
+    String dep = com.percussion.design.objectstore.PSControlDependencyMap.DEP;
+    String ctrlRegEx = control + ".*" + dep + ".*";
+    assertTrue(
+        PSUpgradePluginMigrateControlDependencies.isControlDependencyName(
+            control + "foo" + dep + "bar", ctrlRegEx));
+    assertFalse(
+        PSUpgradePluginMigrateControlDependencies.isControlDependencyName("plainProp", ctrlRegEx));
+    assertFalse(PSUpgradePluginMigrateControlDependencies.isControlDependencyName(null, ctrlRegEx));
+  }
+
+  @Test
+  @DisplayName("Relationship reverseConfigNameMap and getNewRelName are typed")
+  void relationshipConfigNameHelpers() {
+    java.util.Map<String, String> newToOld = new java.util.HashMap<>();
+    newToOld.put("ActiveAssembly", "Active Assembly");
+    newToOld.put("FolderContent", "Folder Content");
+
+    java.util.Map<String, String> oldToNew =
+        PSUpgradePluginRelationship.reverseConfigNameMap(newToOld);
+    assertEquals("ActiveAssembly", oldToNew.get("Active Assembly"));
+    assertEquals("FolderContent", oldToNew.get("Folder Content"));
+
+    assertEquals(
+        "ActiveAssembly",
+        PSUpgradePluginRelationship.getNewRelName("Active Assembly", newToOld));
+    assertEquals(
+        "ActiveAssembly",
+        PSUpgradePluginRelationship.getNewRelName("active assembly", newToOld));
+    assertEquals(null, PSUpgradePluginRelationship.getNewRelName("Unknown", newToOld));
+  }
 }

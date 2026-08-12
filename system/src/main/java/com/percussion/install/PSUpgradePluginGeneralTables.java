@@ -157,7 +157,7 @@ public class PSUpgradePluginGeneralTables implements IPSUpgradePlugin {
     PSJdbcTableSchemaCollection collSchema = new PSJdbcTableSchemaCollection();
     PSJdbcTableSchema tableSchema = null;
     PSJdbcTableData tableData = null;
-    ArrayList<PSJdbcTableSchema> schemasToSort = new ArrayList();
+    ArrayList<PSJdbcTableSchema> schemasToSort = new ArrayList<>();
     for (int i = 0; i < tableList.size(); i++) {
       config.getLogStream().println("catalogging table: " + tableList.get(i).toString());
       tableSchema =

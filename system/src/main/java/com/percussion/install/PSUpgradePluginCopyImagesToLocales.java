@@ -42,25 +42,20 @@ public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
     m_config = config;
     log("Performing locale image copy");
 
-    List localeDirs = new ArrayList();
     File en_usImagesDir = new File(RxUpgrade.getRxRoot() + ENGLISH_LOCALE_IMAGES);
     File imagesDir = en_usImagesDir.getParentFile();
     File[] imagesFiles = imagesDir.listFiles();
-    for (int i = 0; i < imagesFiles.length; i++) {
-      File f = imagesFiles[i];
-      if (f.isDirectory() && !f.getName().equals("en-us")) {
-        log("Additional image directory found for locale " + f.getName());
-        localeDirs.add(f);
-      }
+    List<File> localeDirs = collectNonEnglishLocaleDirs(imagesFiles);
+    for (File f : localeDirs) {
+      log("Additional image directory found for locale " + f.getName());
     }
 
-    if (localeDirs.size() == 0) {
+    if (localeDirs.isEmpty()) {
       log("No additional locales were found, image copy not required");
     } else {
       log("Copying images from locale en-us to additional locale image " + "directories");
 
-      for (int i = 0; i < localeDirs.size(); i++) {
-        File localeDir = (File) localeDirs.get(i);
+      for (File localeDir : localeDirs) {
         copyImageFiles(en_usImagesDir, localeDir);
       }
 
@@ -68,6 +63,26 @@ public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
     }
 
     return null;
+  }
+
+  /**
+   * Collects image subdirectories that are not the English locale folder. Package-visible for unit
+   * tests.
+   *
+   * @param imagesFiles children of the images directory, may be <code>null</code>
+   * @return non-English locale directories, never <code>null</code>
+   */
+  static List<File> collectNonEnglishLocaleDirs(File[] imagesFiles) {
+    List<File> localeDirs = new ArrayList<>();
+    if (imagesFiles == null) {
+      return localeDirs;
+    }
+    for (File f : imagesFiles) {
+      if (f != null && f.isDirectory() && !f.getName().equals("en-us")) {
+        localeDirs.add(f);
+      }
+    }
+    return localeDirs;
   }
 
   /**

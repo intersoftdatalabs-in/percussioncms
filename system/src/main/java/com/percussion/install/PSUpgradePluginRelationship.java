@@ -71,7 +71,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import org.w3c.dom.Document;
@@ -243,7 +242,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
     // fix up relationship configurations & gets the mapper
     // which maps new to old relationship name
-    Map configNames = fixupRelationshipConfigNameIds(logger, configSet, 50);
+    Map<String, String> configNames = fixupRelationshipConfigNameIds(logger, configSet, 50);
 
     addKnownExecutionContexts(logger, configSet);
     removeExpirationProperty(logger, configSet);
@@ -279,17 +278,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param configNames the map of new to old configuration names, assumed never <code>null</code>
    */
   private void fixProcessChecks(
-      PrintStream logger, PSRelationshipConfigSet configSet, Map configNames) {
+      PrintStream logger, PSRelationshipConfigSet configSet, Map<String, String> configNames) {
     // Reverse the config name map
-    Map oldToNew = new HashMap();
-    Iterator eiter = configNames.entrySet().iterator();
-    while (eiter.hasNext()) {
-      Entry entry = (Entry) eiter.next();
-      oldToNew.put(entry.getValue(), entry.getKey());
-    }
-    Iterator citer = configSet.getConfigList().iterator();
-    while (citer.hasNext()) {
-      fixProcessChecks(logger, (PSRelationshipConfig) citer.next(), oldToNew);
+    Map<String, String> oldToNew = reverseConfigNameMap(configNames);
+    for (PSRelationshipConfig config : configSet.getConfigList()) {
+      fixProcessChecks(logger, config, oldToNew);
     }
   }
 
@@ -301,8 +294,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param config the configuration, assumed never <code>null</code>
    * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
-  private void fixProcessChecks(PrintStream logger, PSRelationshipConfig config, Map oldToNew) {
-    Iterator iter = config.getProcessChecks();
+  private void fixProcessChecks(
+      PrintStream logger, PSRelationshipConfig config, Map<String, String> oldToNew) {
+    Iterator<?> iter = config.getProcessChecks();
     while (iter.hasNext()) {
       fixProcessCheck(logger, (PSProcessCheck) iter.next(), oldToNew);
     }
@@ -316,8 +310,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param check the process check, assumed never <code>null</code>
    * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
-  private void fixProcessCheck(PrintStream logger, PSProcessCheck check, Map oldToNew) {
-    Iterator ruleiter = check.getConditions();
+  private void fixProcessCheck(
+      PrintStream logger, PSProcessCheck check, Map<String, String> oldToNew) {
+    Iterator<?> ruleiter = check.getConditions();
     while (ruleiter.hasNext()) {
       fixRule(logger, (PSRule) ruleiter.next(), oldToNew);
     }
@@ -330,15 +325,15 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param rule the rule, assumed never <code>null</code>
    * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
-  private void fixRule(PrintStream logger, PSRule rule, Map oldToNew) {
+  private void fixRule(PrintStream logger, PSRule rule, Map<String, String> oldToNew) {
     PSExtensionCallSet callSet = rule.getExtensionRules();
     if (callSet != null) {
-      Iterator call = callSet.iterator();
+      Iterator<?> call = callSet.iterator();
       while (call.hasNext()) {
         fixCall(logger, (PSExtensionCall) call.next(), oldToNew);
       }
     }
-    Iterator citer = rule.getConditionalRules();
+    Iterator<?> citer = rule.getConditionalRules();
     while (citer.hasNext()) {
       fixConditional(logger, (PSConditional) citer.next(), oldToNew);
     }
@@ -351,7 +346,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param conditional the conditional, assumed never <code>null</code>
    * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
-  private void fixConditional(PrintStream logger, PSConditional conditional, Map oldToNew) {
+  private void fixConditional(
+      PrintStream logger, PSConditional conditional, Map<String, String> oldToNew) {
     fixReplacementValue(logger, oldToNew, conditional.getValue());
     fixReplacementValue(logger, oldToNew, conditional.getVariable());
   }
@@ -363,7 +359,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param call the call, assumed never <code>null</code>
    * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
-  private void fixCall(PrintStream logger, PSExtensionCall call, Map oldToNew) {
+  private void fixCall(PrintStream logger, PSExtensionCall call, Map<String, String> oldToNew) {
     PSExtensionParamValue values[] = call.getParamValues();
     for (int i = 0; i < values.length; i++) {
       fixReplacementValue(logger, oldToNew, values[i].getValue());
@@ -378,10 +374,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param value the value that may reference an old relationship name, assumed never <code>null
    *     </code>
    */
-  private void fixReplacementValue(PrintStream logger, Map oldToNew, IPSReplacementValue value) {
+  private void fixReplacementValue(
+      PrintStream logger, Map<String, String> oldToNew, IPSReplacementValue value) {
     if (value instanceof PSTextLiteral) {
       PSTextLiteral tl = (PSTextLiteral) value;
-      String mapped = (String) oldToNew.get(tl.getText());
+      String mapped = oldToNew.get(tl.getText());
       if (mapped != null) {
         logger.println(
             "Updating relationship config, replaced old "
@@ -419,7 +416,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
-  private void upgradeSystemDef(PrintStream logger, Map nameMap) throws Exception {
+  private void upgradeSystemDef(PrintStream logger, Map<String, String> nameMap) throws Exception {
     FileInputStream in = null;
     FileOutputStream out = null;
     Document doc = null;
@@ -532,14 +529,21 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @return the new relationship name, it may be <code>null</code> if cannot find the related new
    *     name.
    */
-  private String getNewRelName(String oldName, Map nameMap) {
-    Iterator entries = nameMap.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
-      if (oldName.equalsIgnoreCase((String) entry.getValue())) return (String) entry.getKey();
+  /** Package-visible for unit tests: maps old relationship name to new (case-insensitive). */
+  static String getNewRelName(String oldName, Map<String, String> nameMap) {
+    for (Map.Entry<String, String> entry : nameMap.entrySet()) {
+      if (oldName.equalsIgnoreCase(entry.getValue())) return entry.getKey();
     }
-
     return null;
+  }
+
+  /** Package-visible for unit tests: reverse new->old map to old->new. */
+  static Map<String, String> reverseConfigNameMap(Map<String, String> configNames) {
+    Map<String, String> oldToNew = new HashMap<>();
+    for (Map.Entry<String, String> entry : configNames.entrySet()) {
+      oldToNew.put(entry.getValue(), entry.getKey());
+    }
+    return oldToNew;
   }
 
   /**
@@ -550,13 +554,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
-  private void updateSlotTable(PrintStream logger, Connection conn, Map configNames)
-      throws Exception {
-    Iterator names = configNames.entrySet().iterator();
-    while (names.hasNext()) {
-      Map.Entry entry = (Map.Entry) names.next();
-      String newName = (String) entry.getKey();
-      String oldName = (String) entry.getValue();
+  private void updateSlotTable(
+      PrintStream logger, Connection conn, Map<String, String> configNames) throws Exception {
+    for (Map.Entry<String, String> entry : configNames.entrySet()) {
+      String newName = entry.getKey();
+      String oldName = entry.getValue();
       if (!oldName.equals(newName)) {
         String sqlStmt =
             "update "
@@ -581,7 +583,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
-  private void updateMenuActionTable(PrintStream logger, Connection conn, Map configNames)
+  private void updateMenuActionTable(
+      PrintStream logger, Connection conn, Map<String, String> configNames)
       throws Exception {
     PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(m_dbProps);
     PSJdbcTableSchema tableSchema = getTableSchema(conn, dbmsDef, MENUACTION_TABLE);
@@ -601,8 +604,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
       return; // do nothing if there is no action defined
     }
 
-    List updatedRows = new ArrayList();
-    Iterator rows = tableData.getRows();
+    List<PSJdbcRowData> updatedRows = new ArrayList<>();
+    Iterator<?> rows = tableData.getRows();
     while (rows.hasNext()) {
       PSJdbcRowData srcRow = (PSJdbcRowData) rows.next();
       PSJdbcRowData tgtRow = getUpdatedRow(srcRow, configNames, MENUACTION_TABLE);
@@ -640,7 +643,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @return the updated row. It may be <code>null</code> if the source row does not need to be
    *     updated.
    */
-  private PSJdbcRowData getUpdatedRow(PSJdbcRowData srcRow, Map configNames, String table) {
+  private PSJdbcRowData getUpdatedRow(
+      PSJdbcRowData srcRow, Map<String, String> configNames, String table) {
     PSJdbcColumnData col = srcRow.getColumn("URL");
     String url = col.getValue();
     if (url == null || url.trim().length() == 0) return null;
@@ -664,7 +668,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     url = url.replaceAll(SYS_RELATIONSHIP_TYPE_EQ + name, SYS_RELATIONSHIP_TYPE_EQ + newName);
     col.setValue(url);
 
-    List columns = new ArrayList();
+    List<PSJdbcColumnData> columns = new ArrayList<>();
     columns.add(srcRow.getColumn("ACTIONID"));
     columns.add(col);
 
@@ -685,7 +689,10 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @throws Exception if an error occurs.
    */
   private void createRelationshipViews(
-      PrintStream logger, Connection conn, PSRelationshipConfigSet configSet, Map nameMap)
+      PrintStream logger,
+      Connection conn,
+      PSRelationshipConfigSet configSet,
+      Map<String, String> nameMap)
       throws Exception {
     // create the view to map to the old relationship main table
 
@@ -759,16 +766,16 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param nameMap it maps new relationship name to old once, never <code>null</code>.
    * @return the created partial SELECT clause, never <code>null</code> or empty.
    */
-  private String getSelectConfigName(PSRelationshipConfigSet configSet, Map nameMap) {
+  private String getSelectConfigName(
+      PSRelationshipConfigSet configSet, Map<String, String> nameMap) {
     StringBuilder caseBuf = new StringBuilder();
     boolean hasMismatchName = false;
     caseBuf.append("CASE RN.CONFIG_NAME ");
-    String cname;
-    Iterator configs = configSet.iterator();
+    Iterator<?> configs = configSet.iterator();
     while (configs.hasNext()) {
-      cname = ((PSRelationshipConfig) configs.next()).getName();
+      String cname = ((PSRelationshipConfig) configs.next()).getName();
 
-      if (!cname.equals((String) nameMap.get(cname))) {
+      if (!cname.equals(nameMap.get(cname))) {
         hasMismatchName = true;
         caseBuf.append("WHEN '" + cname + "' ");
         caseBuf.append("THEN '" + nameMap.get(cname) + "' ");
@@ -887,14 +894,10 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    */
   private void updateCustomProperties(
       PrintStream logger, Connection conn, PSRelationshipConfigSet configSet) throws Exception {
-    Iterator configs = configSet.iterator();
-    PSRelationshipConfig config;
-    Iterator propNames;
+    Iterator<?> configs = configSet.iterator();
     while (configs.hasNext()) {
-      config = (PSRelationshipConfig) configs.next();
-      propNames = config.getCustomPropertyNames().iterator();
-      while (propNames.hasNext()) {
-        String propName = (String) propNames.next();
+      PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
+      for (String propName : config.getCustomPropertyNames()) {
         String sqlStmt =
             "INSERT INTO "
                 + getNewRelPropTable()
@@ -1319,14 +1322,15 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @throws Exception if an error occurs.
    */
   private void saveRelationshipConfigNameIds(
-      PrintStream logger, Connection conn, PSRelationshipConfigSet configSet, Map configNames)
+      PrintStream logger,
+      Connection conn,
+      PSRelationshipConfigSet configSet,
+      Map<String, String> configNames)
       throws Exception {
     // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
     // Modify the config names in (old) PSX_RELATIONSHIPS table for later use
     // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-    Iterator entries = configNames.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
+    for (Map.Entry<String, String> entry : configNames.entrySet()) {
       if (!entry.getKey().equals(entry.getValue())) {
         String sqlStmt =
             "UPDATE "
@@ -1345,7 +1349,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     // Add a list of unknown ids & names into the name table
     // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 
-    Iterator configs = configSet.iterator();
+    Iterator<?> configs = configSet.iterator();
     while (configs.hasNext()) {
       PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
       if (config.getId() > PSRelationshipConfig.ID_TRANSLATION_MANDATORY) {
@@ -1374,18 +1378,17 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   private void addKnownExecutionContexts(PrintStream logger, PSRelationshipConfigSet configSet) {
-    Iterator configs = configSet.iterator();
-    PSRelationshipConfig config;
+    Iterator<?> configs = configSet.iterator();
     while (configs.hasNext()) {
-      config = (PSRelationshipConfig) configs.next();
-      Iterator effects = config.getEffects();
+      PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
+      Iterator<?> effects = config.getEffects();
       while (effects.hasNext()) {
         PSConditionalEffect effect = (PSConditionalEffect) effects.next();
         PSExtensionCall ext = effect.getEffect();
         String fullName = ext.getExtensionRef().getFQN();
 
         if (ms_knownExeCtx.get(fullName) != null) {
-          effect.setExecutionContexts((Collection) ms_knownExeCtx.get(fullName));
+          effect.setExecutionContexts(ms_knownExeCtx.get(fullName));
           logger.println(
               "Added known execution contexts for '"
                   + fullName
@@ -1406,10 +1409,10 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @return a mapper that maps new relationship name to its original (old) name, never <code>null
    *     </code>.
    */
-  private Map fixupRelationshipConfigNameIds(
+  private Map<String, String> fixupRelationshipConfigNameIds(
       PrintStream logger, PSRelationshipConfigSet configSet, int startId) {
-    Map configName = new HashMap();
-    Iterator configs = configSet.iterator();
+    Map<String, String> configName = new HashMap<>();
+    Iterator<?> configs = configSet.iterator();
     PSRelationshipConfig config;
     while (configs.hasNext()) {
       config = (PSRelationshipConfig) configs.next();
@@ -1471,10 +1474,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   private void removeExpirationProperty(PrintStream logger, PSRelationshipConfigSet configSet) {
-    Iterator configs = configSet.iterator();
-    PSRelationshipConfig config;
+    Iterator<?> configs = configSet.iterator();
     while (configs.hasNext()) {
-      config = (PSRelationshipConfig) configs.next();
+      PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
       if (config.removeSysProperty("rs_expirationtime"))
         logger.println(
             "Removed 'rs_expirationtime' system property from '"
@@ -1485,47 +1487,47 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
   /** Populate {@link #ms_knownExeCtx} */
   private static void initKnownExeCtx() {
-    ms_knownExeCtx = new HashMap();
+    ms_knownExeCtx = new HashMap<>();
 
     String name = "Java/global/percussion/relationship/effect/sys_TouchParentFolderEffect";
-    List exeCtxs = new ArrayList();
+    List<Integer> exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_DESTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/fastforward/managednav/rxs_NavFolderEffect";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_DESTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_isCloneExists";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CLONE));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_PublishMandatory";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_UnpublishMandatory";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_Promote";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_POST_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_AddCloneToFolder";
-    exeCtxs = new ArrayList();
+    exeCtxs = new ArrayList<>();
     exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
   }
@@ -1546,11 +1548,10 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     PSCloneOverrideFieldList src = newCopy.getCloneOverrideFieldList();
     PSCloneOverrideFieldList target = new PSCloneOverrideFieldList();
 
-    Iterator srcIt = src.iterator();
-    PSCloneOverrideField overrideField;
+    Iterator<?> srcIt = src.iterator();
     boolean isAdded = false;
     while (srcIt.hasNext()) {
-      overrideField = (PSCloneOverrideField) srcIt.next();
+      PSCloneOverrideField overrideField = (PSCloneOverrideField) srcIt.next();
       if (overrideField.getName().equalsIgnoreCase(IPSHtmlParameters.SYS_COMMUNITYID)) {
         // replacing 1st and skip the rest.
         if (!isAdded) {
@@ -1609,27 +1610,23 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    */
   protected void updateActiveAssemblyProperties(
       PrintStream logger, PSRelationshipConfigSet configSet) {
-    final Collection rqdNames = PSRelationshipConfig.getPreDefinedUserPropertyNames();
+    final Collection<String> rqdNames = PSRelationshipConfig.getPreDefinedUserPropertyNames();
 
-    Iterator aaConfigs =
-        configSet.getConfigListByCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY).iterator();
-    while (aaConfigs.hasNext()) {
-      PSRelationshipConfig config = (PSRelationshipConfig) aaConfigs.next();
-      Set userPropNames = config.getUserProperties().keySet();
+    for (PSRelationshipConfig config :
+        configSet.getConfigListByCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY)) {
+      Set<String> userPropNames = config.getUserProperties().keySet();
       if (!userPropNames.containsAll(rqdNames)) {
         // get the missing names
-        List missingNames = new ArrayList(rqdNames);
+        List<String> missingNames = new ArrayList<>(rqdNames);
         missingNames.removeAll(userPropNames);
 
         // get the current properties
         PSPropertySet userProps = new PSPropertySet();
-        Iterator props = config.getUserDefProperties();
+        Iterator<?> props = config.getUserDefProperties();
         while (props.hasNext()) userProps.add(props.next());
 
         // add the missing properties
-        Iterator names = missingNames.iterator();
-        while (names.hasNext()) {
-          String propName = (String) names.next();
+        for (String propName : missingNames) {
           PSProperty prop = new PSProperty(propName);
           userProps.add(prop);
 
@@ -1660,7 +1657,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    */
   private void removeNonNumericPropertyValues(PrintStream logger, Connection conn, String property)
       throws Exception {
-    List invalidRows = new ArrayList();
+    List<Integer> invalidRows = new ArrayList<>();
     PreparedStatement stmt = null;
     ResultSet rs = null;
     int rowCount = 0;
@@ -1694,8 +1691,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         }
       }
 
-      for (int i = 0; i < invalidRows.size(); i++) {
-        int invalidRID = ((Integer) invalidRows.get(i)).intValue();
+      for (Integer ridObj : invalidRows) {
+        int invalidRID = ridObj.intValue();
         sqlStmt =
             "DELETE FROM "
                 + getOldRelPropTable()
@@ -1744,9 +1741,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    *     </code>.
    * @throws Exception if an error occurs.
    */
-  private void updateMenuActionParamTable(PrintStream logger, Connection conn, Map configNames)
-      throws Exception {
-    Map updateVals = new HashMap();
+  private void updateMenuActionParamTable(
+      PrintStream logger, Connection conn, Map<String, String> configNames) throws Exception {
+    Map<Integer, String> updateVals = new HashMap<>();
     PreparedStatement stmt = null;
     ResultSet rs = null;
     int rowCount = 0;
@@ -1778,11 +1775,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         updateVals.put(Integer.valueOf(actionid), newValue);
       }
 
-      Set keys = updateVals.keySet();
-      Iterator iter = keys.iterator();
-      while (iter.hasNext()) {
-        Integer aid = (Integer) iter.next();
-        String val = (String) updateVals.get(aid);
+      for (Map.Entry<Integer, String> e : updateVals.entrySet()) {
+        Integer aid = e.getKey();
+        String val = e.getValue();
         sqlStmt =
             "UPDATE "
                 + getMenuActionParamTable()
@@ -1828,7 +1823,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * It maps the effect (full) name to its known execution contexts. Init when the class is loaded.
    */
-  private static Map ms_knownExeCtx;
+  private static Map<String, List<Integer>> ms_knownExeCtx;
 
   static {
     initKnownExeCtx();
