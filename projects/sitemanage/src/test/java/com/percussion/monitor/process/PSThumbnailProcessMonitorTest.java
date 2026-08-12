@@ -31,18 +31,19 @@ public class PSThumbnailProcessMonitorTest {
   void testThumbnailMonitor() {
     var mon = new PSThumbnailProcessMonitor();
     assertEquals(0L, mon.getCurrentCount());
-    mon.incrementCount();
+    // Static counters: qualify by type name (not via instance expression).
+    PSThumbnailProcessMonitor.incrementCount();
     assertEquals(1L, mon.getCurrentCount());
-    mon.incrementCount();
+    PSThumbnailProcessMonitor.incrementCount();
     assertEquals(2L, mon.getCurrentCount());
-    mon.decrementCount();
+    PSThumbnailProcessMonitor.decrementCount();
     assertEquals(1L, mon.getCurrentCount());
-    mon.incrementCount(5);
+    PSThumbnailProcessMonitor.incrementCount(5);
     assertEquals(6L, mon.getCurrentCount());
-    mon.decrementCount(4);
+    PSThumbnailProcessMonitor.decrementCount(4);
     assertEquals(2L, mon.getCurrentCount());
-    mon.decrementCount(2);
+    PSThumbnailProcessMonitor.decrementCount(2);
     assertEquals(0L, mon.getCurrentCount());
-    mon.decrementCount();
+    PSThumbnailProcessMonitor.decrementCount();
   }
 }

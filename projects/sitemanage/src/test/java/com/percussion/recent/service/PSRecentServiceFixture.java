@@ -115,7 +115,7 @@ public class PSRecentServiceFixture {
     PSSpringWebApplicationContextUtils.injectDependencies(this);
     PSRequestInfo.resetRequestInfo();
     var req = PSRequest.getContextForRequest();
-    PSRequestInfo.initRequestInfo((Map) null);
+    PSRequestInfo.initRequestInfo(new java.util.HashMap<String, Object>());
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, req);
     setSecurityWs(PSSecurityWsLocator.getSecurityWebservice());
     securityWs.login(request, response, uid, pwd, null, community, null);

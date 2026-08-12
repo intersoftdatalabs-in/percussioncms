@@ -42,12 +42,14 @@ public class PSObjectRestClient extends PSRestClient {
 
   public PSObjectRestClient() {
     super();
-    getRequestHeaders().put("Accept", "text/xml");
+    // Direct field seed (protected requestHeaders) — avoids this-escape method calls.
+    requestHeaders.put("Accept", "text/xml");
   }
 
   public PSObjectRestClient(String baseUrl) {
-    this();
-    setUrl(baseUrl);
+    super(baseUrl);
+    // Headers map is shared with the client created in super(baseUrl).
+    requestHeaders.put("Accept", "text/xml");
   }
 
   public void switchCommunity(Integer id) {
@@ -162,7 +164,7 @@ public class PSObjectRestClient extends PSRestClient {
     try {
       var context = JAXBContext.newInstance(type);
       var u = context.createUnmarshaller();
-      return (T) u.unmarshal(new StringReader(response));
+      return type.cast(u.unmarshal(new StringReader(response)));
     } catch (JAXBException e) {
       throw new DataRestClientMarshalException("Error unmarshaling", e);
     }
@@ -195,15 +197,16 @@ public class PSObjectRestClient extends PSRestClient {
 
   public static class DataValidationRestClientException extends DataRestClientException {
     private static final long serialVersionUID = 1L;
-    private PSValidationErrors errors;
+    /** Parsed validation payload; not part of Java serialization of the exception. */
+    private transient PSValidationErrors errors;
 
     public DataValidationRestClientException(RestClientException cause) {
       super(cause);
     }
 
     @Override
-    protected void setErrorResponse(String response) {
-      setErrors(fromXml(response));
+    protected final void setErrorResponse(String response) {
+      setValidationErrors(fromValidationXml(response));
     }
 
     @Override
@@ -211,12 +214,11 @@ public class PSObjectRestClient extends PSRestClient {
       return errors;
     }
 
-    public void setErrors(PSValidationErrors errors) {
+    public final void setValidationErrors(PSValidationErrors errors) {
       this.errors = errors;
     }
 
-    @Override
-    protected PSValidationErrors fromXml(String xml) {
+    protected final PSValidationErrors fromValidationXml(String xml) {
       try {
         return JAXB.unmarshal(new StringReader(xml), PSValidationErrors.class);
       } catch (Exception e) {
@@ -230,37 +232,56 @@ public class PSObjectRestClient extends PSRestClient {
 
   public static class DataRestClientException extends RestClientException {
     private static final long serialVersionUID = 1L;
-    private PSErrors errors;
+    /** Parsed error payload; not part of Java serialization of the exception. */
+    private transient PSErrors errors;
     private RestClientException restClientException;
 
+    /**
+     * Parses response body into structured errors. Polymorphic parse hook may run before subclass
+     * fields finish init — justified for intentional Throwable construction (same pattern as main
+     * PSErrorsExceptionDecorator).
+     */
+    @SuppressWarnings("this-escape")
     public DataRestClientException(RestClientException cause) {
       super(cause);
       restClientException = cause;
       if (cause.getResponseBody() != null) {
         setErrorResponse(cause.getResponseBody());
-      } else {
-        fillInStackTrace();
+      }
+      // else: super() already filled the stack; do not call fillInStackTrace() (this-escape).
+    }
+
+    /** Chains nested error causes; {@code initCause} is intentional Throwable API use. */
+    @SuppressWarnings("this-escape")
+    public DataRestClientException(DataRestClientException parent, PSErrorCause ec) {
+      restClientException = parent.restClientException;
+      initFromErrorCause(ec);
+    }
+
+    protected final void initFromErrorCause(PSErrorCause ec) {
+      applyStackTrace(ec.getStackTrace());
+      var child = ec.getErrorCause();
+      initFromChildCause(child);
+    }
+
+    protected final void initFromChildCause(PSErrorCause child) {
+      if (child != null) {
+        initCause(new DataRestClientException(this, child));
+      } else if (restClientException != null) {
+        initCause(restClientException);
       }
     }
 
-    public DataRestClientException(DataRestClientException parent, PSErrorCause ec) {
-      restClientException = parent.restClientException;
-      init(ec);
+    protected final void applyStackTrace(PSErrorCause ec) {
+      if (ec != null) {
+        setStackTrace(ec.getStackTrace());
+      }
     }
 
-    protected void init(PSErrorCause ec) {
-      setStackTrace(ec.getStackTrace());
-      var child = ec.getErrorCause();
-      initCause(child);
-    }
-
-    protected void initCause(PSErrorCause child) {
-      if (child != null) initCause(new DataRestClientException(this, child));
-      else if (restClientException != null) initCause(restClientException);
-    }
-
-    protected void setStackTrace(PSErrorCause ec) {
-      if (ec != null) setStackTrace(ec.getStackTrace());
+    protected final void applyStackTrace(StackTraceElement[] stack) {
+      if (stack != null) {
+        setStackTrace(stack);
+      }
     }
 
     @Override
@@ -285,15 +306,15 @@ public class PSObjectRestClient extends PSRestClient {
       return errors;
     }
 
-    protected void setErrors(PSErrors errors) {
+    protected final void setErrors(PSErrors errors) {
       this.errors = errors;
       if (hasException()) {
-        setStackTrace(errors.getGlobalError().getCause());
-        initCause(errors.getGlobalError().getCause().getErrorCause());
+        applyStackTrace(errors.getGlobalError().getCause());
+        initFromChildCause(errors.getGlobalError().getCause().getErrorCause());
       }
     }
 
-    protected PSErrors fromXml(String xml) {
+    protected final PSErrors fromXml(String xml) {
       try {
         return JAXB.unmarshal(new StringReader(xml), PSErrors.class);
       } catch (Exception e) {

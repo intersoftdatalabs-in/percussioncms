@@ -140,7 +140,9 @@ class ContentTranslationsAdaptorTest {
     assertEquals(ContentTranslationsAdaptor.ROLE_TRANSLATION, out.getCreated().get(0).getRole());
     assertEquals(Long.valueOf(100L), out.getCreated().get(0).getSourceContentId());
 
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<List<IPSGuid>> guidsCap = ArgumentCaptor.forClass(List.class);
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSAutoTranslation>> settingsCap = ArgumentCaptor.forClass(List.class);
     verify(contentWs)
         .newTranslations(guidsCap.capture(), settingsCap.capture(), isNull(), eq(true));

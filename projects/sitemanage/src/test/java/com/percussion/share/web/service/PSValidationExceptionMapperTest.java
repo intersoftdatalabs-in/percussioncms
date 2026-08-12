@@ -18,12 +18,16 @@ class PSValidationExceptionMapperTest {
       new PSSpringValidationExceptionMapper();
 
   private static final class DummyValidationException extends PSValidationException {
+    private static final long serialVersionUID = 1L;
+
     DummyValidationException(String message) {
       super(message);
     }
   }
 
   private static final class DummySpringValidationException extends PSSpringValidationException {
+    private static final long serialVersionUID = 1L;
+
     DummySpringValidationException(String message) {
       super(message);
     }

@@ -33,7 +33,8 @@ public class PSFolderServiceRestClient extends PSDataServiceRestClient<PSFolderI
 
   public PSFolderServiceRestClient(String url) {
     super(PSFolderItem.class, url, "/Rhythmyx/services/foldermanagement/folders");
-    setPostContentType(MediaType.APPLICATION_XML);
+    // Direct field seed — avoids this-escape on overridable/setter path.
+    this.postContentType = MediaType.APPLICATION_XML;
   }
 
   public List<PSFolderItem> getAssociatedFolders(

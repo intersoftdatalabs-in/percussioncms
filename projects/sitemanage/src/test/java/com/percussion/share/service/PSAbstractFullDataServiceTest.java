@@ -38,8 +38,9 @@ public class PSAbstractFullDataServiceTest {
   IPSDataItemSummaryService dataItemSummaryService;
 
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void setUp() {
-    dao = Mockito.mock(IPSGenericDao.class);
+    dao = (IPSGenericDao<Object, String>) Mockito.mock(IPSGenericDao.class);
     dataItemSummaryService = Mockito.mock(IPSDataItemSummaryService.class);
     sut = new TestFullDataService(dataItemSummaryService, dao);
   }

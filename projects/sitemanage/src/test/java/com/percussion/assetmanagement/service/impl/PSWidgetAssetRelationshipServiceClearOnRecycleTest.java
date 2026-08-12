@@ -105,9 +105,11 @@ class PSWidgetAssetRelationshipServiceClearOnRecycleTest {
         mockRelationship(false, PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
     PSRelationship localRel = mockRelationship(false, PSRelationshipConfig.TYPE_LOCAL_CONTENT);
 
-    // loadRelationships is called twice (shared filter then local filter)
+    // loadRelationships is called twice (shared filter then local filter).
+    // Chain thenReturn to avoid unchecked generic array creation for varargs.
     when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
-        .thenReturn(List.of(sharedWidgetRel), List.of(localRel));
+        .thenReturn(List.of(sharedWidgetRel))
+        .thenReturn(List.of(localRel));
 
     int cleared = service.clearAssetWidgetRelationshipsForAsset(ASSET_ID);
 
@@ -130,7 +132,8 @@ class PSWidgetAssetRelationshipServiceClearOnRecycleTest {
 
     // Shared path: both returned from AA filter; service keeps only non-inline
     when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
-        .thenReturn(List.of(inline, widget), Collections.emptyList());
+        .thenReturn(List.of(inline, widget))
+        .thenReturn(Collections.emptyList());
 
     int cleared = service.clearAssetWidgetRelationshipsForAsset(ASSET_ID);
 
@@ -146,7 +149,8 @@ class PSWidgetAssetRelationshipServiceClearOnRecycleTest {
   void clear_whenNoBindings_isIdempotent() throws Exception {
     stubAssetGuid();
     when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
-        .thenReturn(Collections.emptyList(), Collections.emptyList());
+        .thenReturn(Collections.emptyList())
+        .thenReturn(Collections.emptyList());
 
     int cleared = service.clearAssetWidgetRelationshipsForAsset(ASSET_ID);
 
@@ -160,7 +164,8 @@ class PSWidgetAssetRelationshipServiceClearOnRecycleTest {
 
     PSRelationship shared = mockRelationship(false, PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
     when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
-        .thenReturn(List.of(shared), Collections.emptyList());
+        .thenReturn(List.of(shared))
+        .thenReturn(Collections.emptyList());
 
     int cleared = service.clearAssetWidgetRelationshipsForAsset(ASSET_ID);
 

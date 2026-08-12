@@ -124,48 +124,64 @@ class PSAbstractWorkflowExtensionConcurrencyTest {
    * simple-name equality without putting those libraries on the test compile classpath.
    */
   static final class LockAcquisitionException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     LockAcquisitionException(String m) {
       super(m);
     }
   }
 
   static final class OptimisticLockException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     OptimisticLockException(String m) {
       super(m);
     }
   }
 
   static final class PessimisticLockException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     PessimisticLockException(String m) {
       super(m);
     }
   }
 
   static final class ConcurrencyFailureException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     ConcurrencyFailureException(String m) {
       super(m);
     }
   }
 
   static final class CannotAcquireLockException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     CannotAcquireLockException(String m) {
       super(m);
     }
   }
 
   static final class ObjectOptimisticLockingFailureException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     ObjectOptimisticLockingFailureException(String m) {
       super(m);
     }
   }
 
   static final class StaleObjectStateException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     StaleObjectStateException(String m) {
       super(m);
     }
   }
 
   static final class StaleStateException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     StaleStateException(String m) {
       super(m);
     }

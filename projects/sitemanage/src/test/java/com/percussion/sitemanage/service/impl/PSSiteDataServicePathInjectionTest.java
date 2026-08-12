@@ -18,14 +18,13 @@ package com.percussion.sitemanage.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.percussion.security.io.PSPathInjectionGuard;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import sun.misc.Unsafe;
 
 /**
  * Regression tests for {@link PSSiteDataService} focused on the {@code java/path-injection} finding
@@ -37,25 +36,23 @@ import sun.misc.Unsafe;
  * the cache directory and reach File construction with attacker-controlled traversal sequences.
  *
  * <p>The fix adds {@link PSPathInjectionGuard#requireSafeFileName} on both names BEFORE any File
- * construction. To invoke the private {@code updateThumbnailCache} without the 21-arg public
- * constructor we use {@link Unsafe#allocateInstance} (which skips constructors and field
- * initializers), then reflectively call the method. Because the validator runs FIRST in the
- * post-fix code, malicious payloads surface as {@link IllegalArgumentException} from the validator,
- * not as a later {@link NullPointerException} from the un-initialized {@code PSServer.getRxDir()}
- * call.
+ * construction. To invoke the private {@code updateThumbnailCache} without the multi-arg public
+ * constructor we use a Mockito mock shell (constructor not invoked) and reflectively call the
+ * method. Because the validator runs after static logging and before {@code PSServer.getRxDir()},
+ * malicious payloads surface as {@link IllegalArgumentException} from the validator, not as a later
+ * {@link NullPointerException} from un-initialized collaborators.
+ *
+ * <p>No {@code sun.misc.Unsafe} — private methods are not intercepted by Mockito, so {@code
+ * Method.invoke} runs the real production body on the mock instance.
  */
 public class PSSiteDataServicePathInjectionTest {
 
   private static final String METHOD_NAME = "updateThumbnailCache";
 
-  private static final Unsafe UNSAFE;
   private static final Method UPDATE_METHOD;
 
   static {
     try {
-      Field f = Unsafe.class.getDeclaredField("theUnsafe");
-      f.setAccessible(true);
-      UNSAFE = (Unsafe) f.get(null);
       UPDATE_METHOD =
           PSSiteDataService.class.getDeclaredMethod(METHOD_NAME, String.class, String.class);
       UPDATE_METHOD.setAccessible(true);
@@ -65,13 +62,13 @@ public class PSSiteDataServicePathInjectionTest {
   }
 
   /**
-   * Reflectively invokes the private {@code updateThumbnailCache} on an uninitialized instance
-   * (skipping the 21-arg public constructor). The validator must run BEFORE any PSServer.getRxDir()
-   * call, so traversal payloads must surface as IllegalArgumentException.
+   * Reflectively invokes the private {@code updateThumbnailCache} on a Mockito shell instance
+   * (constructor skipped). The validator must run BEFORE any PSServer.getRxDir() call, so traversal
+   * payloads must surface as IllegalArgumentException.
    */
   private static void invokeUpdateThumbnailCache(String oldSiteName, String newSiteName)
       throws Exception {
-    Object instance = UNSAFE.allocateInstance(PSSiteDataService.class);
+    PSSiteDataService instance = mock(PSSiteDataService.class);
     try {
       UPDATE_METHOD.invoke(instance, oldSiteName, newSiteName);
     } catch (InvocationTargetException ite) {
