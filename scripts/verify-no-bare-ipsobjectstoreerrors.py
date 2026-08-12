@@ -14,11 +14,11 @@ Allow-list classes
 ------------------
 1. **Interface definition** — ``IPSObjectStoreErrors`` itself
 2. **Dual-write / typed peer bridge** — utils ``ObjectStoreErrorCode`` enum
-3. **Documented residual production call-sites** until sibling retypes land
-   (legacy ``implements IPSObjectStoreErrors`` on Handler — #3177).
+3. **Documented residual production call-sites** — currently empty.
    Desktop CX PSNode (#3141), Design ACL PSAclEntry (#3142), deployer
-   production (#3149 / #3174), and LockManager (#3176) retypes have landed;
-   those paths are no longer allow-listed (#3175 / #3176).
+   production (#3149 / #3174), LockManager (#3176), and Handler (#3177)
+   retypes have landed; those paths are no longer allow-listed
+   (#3175 / #3176 / #3177).
 
 Tests and comment/javadoc-only mentions are ignored.
 
@@ -71,15 +71,9 @@ ALWAYS_ALLOW_EXACT: frozenset[str] = frozenset(
 # new file under the same tree fails the gate until explicitly allow-listed with
 # an issue link. Shrink as retypes merge.
 # Cleared: Desktop CX PSNode (#3141), Design ACL PSAclEntry (#3142), deployer
-# production (#3149 / #3165 / #3174), LockManager (#3176). Remaining: Handler (#3177).
-RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset(
-    {
-        # Legacy implements IPSObjectStoreErrors (unqualified constant use).
-        # LockManager cleared in #3176 — keep Handler for sibling #3177.
-        "system/src/main/java/com/percussion/design/objectstore/server/"
-        "PSXmlObjectStoreHandler.java",
-    }
-)
+# production (#3149 / #3165 / #3174), LockManager (#3176), Handler (#3177).
+# Empty — no residual production implements/bare sites remain.
+RESIDUAL_ALLOW_EXACT: frozenset[str] = frozenset()
 
 # Optional path prefixes (rare). Prefer RESIDUAL_ALLOW_EXACT. Do not grow without
 # an issue link. Empty at land so new trees are not silently allowed.

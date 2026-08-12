@@ -90,8 +90,8 @@ def test_list_allowlist_exits_zero() -> None:
     assert "PSAclEntry.java" not in combined
     # LockManager residual cleared in #3176 — not allow-listed.
     assert "PSXmlObjectStoreLockManager.java" not in combined
-    # Remaining documented residual: Handler implements (#3177).
-    assert "PSXmlObjectStoreHandler.java" in combined
+    # Handler residual cleared in #3177 — not allow-listed.
+    assert "PSXmlObjectStoreHandler.java" not in combined
 
 
 def test_clean_repo_passes() -> None:
