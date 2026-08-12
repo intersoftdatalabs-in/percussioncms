@@ -20,6 +20,42 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ReplaceLandingPageDialog } from "../../../main/ts/architecture/ReplaceLandingPageDialog";
 
+vi.mock("../../../main/ts/contentBrowser/ContentBrowser", () => ({
+  ContentBrowser: (props: {
+    onConfirm?: (selection: {
+      items: Array<{ id: string; name: string; path: string }>;
+    }) => void;
+    onCancel?: () => void;
+  }) => (
+    <div data-testid="mock-content-browser">
+      <button
+        type="button"
+        data-testid="mock-content-browser-confirm"
+        onClick={() =>
+          props.onConfirm?.({
+            items: [
+              {
+                id: "cb-page-99",
+                name: "Picked Page",
+                path: "//Sites/Demo/page",
+              },
+            ],
+          })
+        }
+      >
+        Confirm pick
+      </button>
+      <button
+        type="button"
+        data-testid="mock-content-browser-cancel"
+        onClick={() => props.onCancel?.()}
+      >
+        Cancel pick
+      </button>
+    </div>
+  ),
+}));
+
 describe("ReplaceLandingPageDialog (#3097)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -73,5 +109,24 @@ describe("ReplaceLandingPageDialog (#3097)", () => {
     });
     fireEvent.click(screen.getByTestId("architecture-landing-submit"));
     expect(onSubmit).toHaveBeenCalledWith("page-guid-1");
+  });
+
+  it("product ContentBrowser mode submits selection from browser confirm", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ReplaceLandingPageDialog
+        open
+        siteName="Demo"
+        sectionTitle="About"
+        busy={false}
+        useContentBrowser
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    expect(screen.getByTestId("mock-content-browser")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("mock-content-browser-confirm"));
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    expect(onSubmit).toHaveBeenCalledWith("cb-page-99");
   });
 });

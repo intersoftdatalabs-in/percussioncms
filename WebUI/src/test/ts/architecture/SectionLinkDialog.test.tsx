@@ -163,4 +163,45 @@ describe("SectionLinkDialog (#3097)", () => {
     });
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it("edit mode can submit a new non-child target", async () => {
+    const onSubmit = vi.fn();
+    render(
+      <SectionLinkDialog
+        open
+        mode="edit"
+        parentId="root"
+        parentTitle="Home"
+        treeRoot={tree}
+        linkSectionId="link-old"
+        busy={false}
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("architecture-section-link-browse"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-tree-picker-dialog")).toBeTruthy();
+    });
+    const toggle = screen.queryByTestId("nav-tree-toggle-b");
+    if (toggle) {
+      fireEvent.click(toggle);
+    }
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-b1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-b1"));
+    fireEvent.click(screen.getByTestId("architecture-tree-picker-confirm"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-section-link-target",
+          ) as HTMLInputElement
+        ).value,
+      ).toMatch(/Press/i);
+    });
+    fireEvent.click(screen.getByTestId("architecture-section-link-submit"));
+    expect(onSubmit).toHaveBeenCalledWith("b1");
+  });
 });

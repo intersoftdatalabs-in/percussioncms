@@ -89,6 +89,8 @@ export function CreateSectionDialog({
 }: CreateSectionDialogProps): React.ReactElement | null {
   const [title, setTitle] = useState("");
   const [urlName, setUrlName] = useState("");
+  /** When true, stop auto-mirroring title → URL so manual URL edits stick. */
+  const [urlNameTouched, setUrlNameTouched] = useState(false);
   const [templateId, setTemplateId] = useState("");
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -101,6 +103,7 @@ export function CreateSectionDialog({
     }
     setTitle("");
     setUrlName("");
+    setUrlNameTouched(false);
     setTemplateId("");
     setLocalError(null);
     setTemplatesError(null);
@@ -134,8 +137,11 @@ export function CreateSectionDialog({
 
   const onTitleChange = (v: string) => {
     setTitle(v);
-    const base = titleToPageFileName(v).replace(/\.html$/i, "");
-    setUrlName(sanitizeFileNameInput(base));
+    setLocalError(null);
+    if (!urlNameTouched) {
+      const base = titleToPageFileName(v).replace(/\.html$/i, "");
+      setUrlName(sanitizeFileNameInput(base));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -195,9 +201,13 @@ export function CreateSectionDialog({
           {ARCH_MSG.CREATE_PARENT_LABEL}: {parentTitle}
         </p>
         <form onSubmit={handleSubmit}>
-          <label style={{ display: "block", fontSize: "0.9rem" }}>
+          <label
+            htmlFor="architecture-create-title-input"
+            style={{ display: "block", fontSize: "0.9rem" }}
+          >
             {ARCH_MSG.CREATE_TITLE_LABEL}
             <input
+              id="architecture-create-title-input"
               data-testid="architecture-create-title-input"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
@@ -207,20 +217,29 @@ export function CreateSectionDialog({
               autoFocus
             />
           </label>
-          <label style={{ display: "block", fontSize: "0.9rem" }}>
+          <label
+            htmlFor="architecture-create-url-input"
+            style={{ display: "block", fontSize: "0.9rem" }}
+          >
             {ARCH_MSG.CREATE_URL_LABEL}
             <input
+              id="architecture-create-url-input"
               data-testid="architecture-create-url-input"
               value={urlName}
-              onChange={(e) =>
-                setUrlName(sanitizeFileNameInput(e.target.value))
-              }
+              onChange={(e) => {
+                setUrlNameTouched(true);
+                setLocalError(null);
+                setUrlName(sanitizeFileNameInput(e.target.value));
+              }}
               required
               disabled={busy}
               style={fieldStyle}
             />
           </label>
-          <label style={{ display: "block", fontSize: "0.9rem" }}>
+          <label
+            htmlFor="architecture-create-template-select"
+            style={{ display: "block", fontSize: "0.9rem" }}
+          >
             {ARCH_MSG.CREATE_TEMPLATE_LABEL}
             {templatesLoading ? (
               <span
@@ -236,9 +255,13 @@ export function CreateSectionDialog({
               </span>
             ) : (
               <select
+                id="architecture-create-template-select"
                 data-testid="architecture-create-template-select"
                 value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
+                onChange={(e) => {
+                  setLocalError(null);
+                  setTemplateId(e.target.value);
+                }}
                 required
                 disabled={busy || templates.length === 0}
                 style={fieldStyle}

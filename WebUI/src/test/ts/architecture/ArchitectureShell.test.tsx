@@ -380,5 +380,75 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       );
     });
   });
+
+  it("edit external link loads section and submits updateExternalLink (#3097)", async () => {
+    const extTree = {
+      ...treeFixture,
+      children: [
+        {
+          id: "ext-1",
+          title: "Partner",
+          folderPath: "//Sites/Demo/Partner",
+          sectionType: "externallink" as const,
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(extTree);
+    vi.spyOn(sectionApi, "loadSection").mockResolvedValue({
+      id: "ext-1",
+      title: "Partner",
+      folderPath: "//Sites/Demo/Partner",
+      externalLinkUrl: "https://old.partner",
+      target: "_self",
+      sectionType: "externallink",
+    } as never);
+    const updateSpy = vi
+      .spyOn(sectionApi, "updateExternalLink")
+      .mockResolvedValue({});
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-ext-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-ext-1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-edit-link",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-edit-link"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-external-link-url") as HTMLInputElement)
+          .value,
+      ).toBe("https://old.partner");
+    });
+    fireEvent.change(screen.getByTestId("architecture-external-link-url"), {
+      target: { value: "https://new.partner" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-external-link-submit"));
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        "ext-1",
+        expect.objectContaining({
+          externalUrl: "https://new.partner",
+          sectionType: "externallink",
+        }),
+      );
+    });
+  });
 });
 

@@ -15,7 +15,13 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import {
   createExternalLinkSection,
@@ -332,7 +338,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       setMutationError(ARCH_MSG.DELETE_ROOT_BLOCKED);
       return;
     }
-    const msg = ARCH_MSG.DELETE_CONFIRM.replace("{0}", selectedNode.title);
+    // Avoid String#replace $`/$& injection from user-controlled titles.
+    const msg = ARCH_MSG.DELETE_CONFIRM.split("{0}").join(selectedNode.title);
     if (!confirmAction(msg)) {
       return;
     }
@@ -436,6 +443,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     [externalLinkMode, selectedSite, createParent, selectedNode, runMutation],
   );
 
+  const externalEditLoadGen = useRef(0);
+
   const openEditLink = useCallback(() => {
     if (!selectedNode) return;
     setMutationError(null);
@@ -448,15 +457,22 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       setExternalLinkMode("edit");
       setExternalInitial(null);
       setExternalLinkOpen(true);
+      const nodeId = selectedNode.id;
+      const fallbackTitle = selectedNode.title;
+      const gen = ++externalEditLoadGen.current;
       void (async () => {
         try {
-          const loaded = await loadSection(selectedNode.id);
+          const loaded = await loadSection(nodeId);
+          if (gen !== externalEditLoadGen.current) {
+            return; // superseded by a later edit click or cancel
+          }
           setExternalInitial({
-            linkTitle: loaded.title || selectedNode.title,
+            linkTitle: loaded.title || fallbackTitle,
             externalUrl: loaded.externalLinkUrl || "",
             target: loaded.target || "_self",
           });
         } catch (err) {
+          if (gen !== externalEditLoadGen.current) return;
           if (isSessionRedirectError(err)) return;
           setMutationError(formatApiError(err, ARCH_MSG.MUTATION_ERROR));
           setExternalLinkOpen(false);
@@ -476,17 +492,18 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const treeError =
     treeState.status === "error" ? treeState.message : null;
 
+  const selectedSiblingPlace = useMemo(() => {
+    if (!selectedNode || !treeRoot) return null;
+    return findSiblingPlacement(treeRoot, selectedNode.id);
+  }, [selectedNode, treeRoot]);
+
   const sectionLinkParentId =
-    sectionLinkMode === "edit" && selectedNode && treeRoot
-      ? findSiblingPlacement(treeRoot, selectedNode.id)?.parent.id ??
-        createParent?.id ??
-        ""
+    sectionLinkMode === "edit"
+      ? selectedSiblingPlace?.parent.id ?? createParent?.id ?? ""
       : createParent?.id ?? "";
   const sectionLinkParentTitle =
-    sectionLinkMode === "edit" && selectedNode && treeRoot
-      ? findSiblingPlacement(treeRoot, selectedNode.id)?.parent.title ??
-        createParent?.title ??
-        ""
+    sectionLinkMode === "edit"
+      ? selectedSiblingPlace?.parent.title ?? createParent?.title ?? ""
       : createParent?.title ?? "";
 
   return (
@@ -662,7 +679,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               }}
               data-testid="architecture-site-hint"
             >
-              {ARCH_MSG.SITE_HINT.replace("{0}", selectedSite)}
+              {ARCH_MSG.SITE_HINT.split("{0}").join(selectedSite)}
             </p>
           </div>
 

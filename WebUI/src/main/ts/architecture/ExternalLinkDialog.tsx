@@ -91,13 +91,21 @@ export function ExternalLinkDialog({
   const [target, setTarget] = useState<SectionTarget>("_self");
   const [localError, setLocalError] = useState<string | null>(null);
 
+  // Seed fields when the dialog opens or when async edit initial arrives after
+  // open (externalInitial starts null). Do not re-seed on unrelated re-renders
+  // once the user is typing with stable initial values.
+  const seedKey = open
+    ? `${initial?.linkTitle ?? ""}|${initial?.externalUrl ?? ""}|${initial?.target ?? ""}`
+    : "";
   useEffect(() => {
     if (!open) return;
     setLinkTitle(initial?.linkTitle ?? "");
     setExternalUrl(initial?.externalUrl ?? "");
     setTarget(initial?.target ?? "_self");
     setLocalError(null);
-  }, [open, initial?.linkTitle, initial?.externalUrl, initial?.target]);
+    // seedKey collapses open + initial payload so late async initial still applies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, seedKey]);
 
   if (!open) {
     return null;
