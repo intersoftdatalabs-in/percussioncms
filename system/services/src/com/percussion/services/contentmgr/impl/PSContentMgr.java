@@ -503,7 +503,7 @@ public class PSContentMgr  implements IPSContentMgr
             + " from PSComponentSummary c where c.m_contentTypeId = :ctid";
 
 
-      List<Object[]> results = getSession().createQuery(query).setParameter(
+      List<Object[]> results = getSession().createQuery(query, Object[].class).setParameter(
             "ctid", psdef.getRawContentType()).list();
 
       for (Object[] result : results)
@@ -645,7 +645,7 @@ public class PSContentMgr  implements IPSContentMgr
             PSLegacyGuid lg = (PSLegacyGuid) i;
             cids.add(lg.getContentId());
          }
-         List<Object[]> results = getSession().createQuery(query).setParameter(
+         List<Object[]> results = getSession().createQuery(query, Object[].class).setParameter(
                "ids", cids).list();
          // Build a map
          Map<Integer,IPSGuid> idToType = new HashMap<>();
