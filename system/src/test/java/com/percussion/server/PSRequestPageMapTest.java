@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2026 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class PSRequestPageMapTest {
   private static PSRequestPageMap buildMapWithHtmlMimeOnly(String requestPage) throws Exception {
     PSRequestor requestor = new PSRequestor();
     requestor.setRequestPage(requestPage);
-    HashMap mime = new HashMap();
+    HashMap<String, PSTextLiteral> mime = new HashMap<>();
     mime.put("html", new PSTextLiteral("text/html"));
     mime.put("htm", new PSTextLiteral("text/html"));
     requestor.setMimeProperties(mime);
