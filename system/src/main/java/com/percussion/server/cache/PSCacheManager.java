@@ -383,7 +383,7 @@ public class PSCacheManager implements IPSHandlerInitListener {
 
     Iterator<PSCacheHandler> handlers = getCacheHandlers();
     while (handlers.hasNext()) {
-      PSCacheHandler handler = (PSCacheHandler) handlers.next();
+      PSCacheHandler handler = handlers.next();
       handler.flush();
     }
   }
@@ -399,14 +399,14 @@ public class PSCacheManager implements IPSHandlerInitListener {
    * @throws IllegalStateException if the <code>init()</code> method has not been called.
    * @see PSCacheHandler and any derived classes for more information.
    */
-  public void flush(Map keys) {
+  public void flush(Map<String, ?> keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
 
     checkInit();
 
-    Iterator handlers = getCacheHandlers();
+    Iterator<PSCacheHandler> handlers = getCacheHandlers();
     while (handlers.hasNext()) {
-      PSCacheHandler handler = (PSCacheHandler) handlers.next();
+      PSCacheHandler handler = handlers.next();
       handler.flush(keys);
     }
   }
@@ -424,9 +424,9 @@ public class PSCacheManager implements IPSHandlerInitListener {
 
     checkInit();
 
-    Iterator handlers = getCacheHandlers();
+    Iterator<PSCacheHandler> handlers = getCacheHandlers();
     while (handlers.hasNext()) {
-      PSCacheHandler handler = (PSCacheHandler) handlers.next();
+      PSCacheHandler handler = handlers.next();
       handler.flushApplication(appName);
     }
   }
@@ -445,9 +445,9 @@ public class PSCacheManager implements IPSHandlerInitListener {
 
     checkInit();
 
-    Iterator handlers = getCacheHandlers();
+    Iterator<PSCacheHandler> handlers = getCacheHandlers();
     while (handlers.hasNext()) {
-      PSCacheHandler handler = (PSCacheHandler) handlers.next();
+      PSCacheHandler handler = handlers.next();
       handler.flushSession(sessionId);
     }
   }

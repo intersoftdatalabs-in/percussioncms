@@ -916,10 +916,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
       throw new IllegalStateException("m_items must be initialized before this is called");
 
     // gather all folder ids
-    Iterator items = m_items.values().iterator();
-    List idList = new ArrayList();
-    while (items.hasNext()) {
-      PSItemEntry item = (PSItemEntry) items.next();
+    List<Integer> idList = new ArrayList<>();
+    for (PSItemEntry item : m_items.values()) {
       if (item.isFolder()) idList.add(item.getContentId());
     }
 
@@ -936,13 +934,11 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    *     assumed not <code>null</code>, may be empty.
    * @throws PSCacheException if an error occurs.
    */
-  private void loadFolderAcls(List idList) throws PSCacheException {
-    int[] ids = new int[idList.size()];
-    for (int i = 0; i < idList.size(); i++) {
-      Integer id = (Integer) idList.get(i);
-      ids[i++] = id;
-    }
-
+  private void loadFolderAcls(List<Integer> idList) throws PSCacheException {
+    // idList is used only for EMPTY-acl population below. Folder ACLs are loaded in bulk
+    // (null = all). Prior dead code built an unused int[] with a latent double-increment:
+    //   for (int i = 0; i < idList.size(); i++) { Integer id = (Integer) idList.get(i); ids[i++] = id; }
+    // That conversion never affected runtime (ids was never passed to loadFolderAcls).
     PSFolderAcl[] acls = null;
     try {
       acls = PSFolderSecurityManager.loadFolderAcls(null);
@@ -1095,10 +1091,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     int totalFolders = 0;
 
     totalItems = m_items.size();
-    Iterator it = m_items.values().iterator();
-    PSItemEntry item;
-    while (it.hasNext()) {
-      item = (PSItemEntry) it.next();
+    for (PSItemEntry item : m_items.values()) {
       if (item.isFolder()) totalFolders++;
     }
 

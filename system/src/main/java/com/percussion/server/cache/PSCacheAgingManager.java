@@ -79,7 +79,7 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
 
                       if (m_cachedItems.isEmpty()) m_cachedItems.wait();
 
-                      itemToExpire = (PSCacheItem) m_cachedItems.get(0);
+                      itemToExpire = m_cachedItems.get(0);
 
                       diff =
                           itemToExpire.getCreatedDate().getTime()
@@ -114,12 +114,12 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
                   synchronized (m_queuedItems) {
                     if (m_queuedItems.isEmpty()) m_queuedItems.wait();
 
-                    event = (PSCacheEvent) m_queuedItems.removeFirst();
+                    event = m_queuedItems.removeFirst();
                   }
 
                   synchronized (m_cachedItems) {
                     if (event.getAction() == PSCacheEvent.CACHE_ITEM_ADDED) {
-                      m_cachedItems.add(event.getObject());
+                      m_cachedItems.add((PSCacheItem) event.getObject());
                       m_cachedItems.notifyAll();
                     } else m_cachedItems.remove(event.getObject());
                   }
@@ -244,7 +244,7 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
    * adds/removes the items to/from the list when queue thread processes the item added/removed
    * events queue.
    */
-  private List m_cachedItems = new ArrayList();
+  private List<PSCacheItem> m_cachedItems = new ArrayList<>();
 
   /**
    * The list of {@link PSCacheEvent}s whose action is either {@link PSCacheEvent#CACHE_ITEM_ADDED}
@@ -252,7 +252,7 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
    * the list when {@link #cacheModified} is called with the above mentioned events. The events get
    * removed from the list when the queue thread processes that event.
    */
-  private LinkedList m_queuedItems = new LinkedList();
+  private LinkedList<PSCacheEvent> m_queuedItems = new LinkedList<>();
 
   /** The constant to use to convert minutes to milli seconds. */
   private static final long MIN_TO_MILLISEC = 60000;

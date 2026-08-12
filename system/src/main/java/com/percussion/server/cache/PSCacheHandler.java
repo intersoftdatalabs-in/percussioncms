@@ -361,7 +361,7 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
    *     the call is silently ignored.
    * @throws IllegalArgumentException if <code>keys</code> is <code>null</code>.
    */
-  abstract void flush(Map keys);
+  abstract void flush(Map<String, ?> keys);
 
   /**
    * Flushes all pages cached by the supplied application.

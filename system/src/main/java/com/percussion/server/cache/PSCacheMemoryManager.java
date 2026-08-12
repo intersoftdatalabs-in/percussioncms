@@ -81,7 +81,7 @@ class PSCacheMemoryManager extends Thread
         synchronized (m_eventQueue) {
           if (m_eventQueue.isEmpty()) m_eventQueue.wait();
 
-          event = (PSCacheEvent) m_eventQueue.removeFirst();
+          event = m_eventQueue.removeFirst();
         }
         handleEvent(event);
 
@@ -268,7 +268,7 @@ class PSCacheMemoryManager extends Thread
   private void freeMemory(long amount) {
     long marker = m_usedMemorySpace - amount;
     while (!m_itemsInMemory.isEmpty() && m_usedMemorySpace > marker) {
-      PSCacheItem item = (PSCacheItem) m_itemsInMemory.removeFirst();
+      PSCacheItem item = m_itemsInMemory.removeFirst();
       if (item != null) {
         m_usedMemorySpace -= item.getSize();
 
@@ -323,7 +323,7 @@ class PSCacheMemoryManager extends Thread
   private void freeDisk(long amount) {
     long marker = m_usedDiskSpace - amount;
     while (!m_itemsOnDisk.isEmpty() && m_usedDiskSpace > marker) {
-      PSCacheItem item = (PSCacheItem) m_itemsOnDisk.removeFirst();
+      PSCacheItem item = m_itemsOnDisk.removeFirst();
       if (item != null) {
         flushItem(item);
         m_usedDiskSpace -= item.getSize();
@@ -562,7 +562,7 @@ class PSCacheMemoryManager extends Thread
    * @param item the item to flush, assumed not <code>null</code>.
    */
   private void flushItem(PSCacheItem item) {
-    PSMultiLevelCache cache = (PSMultiLevelCache) m_caches.get(Integer.valueOf(item.getCacheId()));
+    PSMultiLevelCache cache = m_caches.get(Integer.valueOf(item.getCacheId()));
 
     cache.flush(item.getKeys());
   }
@@ -609,7 +609,7 @@ class PSCacheMemoryManager extends Thread
    * All events are queued in this list and then processed later. A list of <code>PSCacheEvent
    * </code> objects, never <code>null</code>, may be empty.
    */
-  private LinkedList m_eventQueue = new LinkedList();
+  private LinkedList<PSCacheEvent> m_eventQueue = new LinkedList<>();
 
   /**
    * A flag to indicate that caching is enabled or disabled. Initialized in the contructor, never
@@ -640,21 +640,21 @@ class PSCacheMemoryManager extends Thread
    * #setCache()}. The keys are Integers of the cache id and the values are <code>PSMultiLevelCache
    * </code> objects. Never <code>null</code>, might be empty.
    */
-  private Map m_caches = new HashMap();
+  private Map<Integer, PSMultiLevelCache> m_caches = new HashMap<>();
 
   /**
    * A list of all cached items (<code>PSCacheItem</code>) that are currently in memory. The list is
    * always ordered by accessed time, the oldest item being first. Never <code>null</code>, may be
    * empty.
    */
-  private LinkedList m_itemsInMemory = new LinkedList();
+  private LinkedList<PSCacheItem> m_itemsInMemory = new LinkedList<>();
 
   /**
    * A list of all cached items (<code>PSCacheItem</code>) that are currently on disk. The list is
    * always ordered by accessed time, the oldest item beeing first. Never <code>null</code>, may be
    * empty.
    */
-  private LinkedList m_itemsOnDisk = new LinkedList();
+  private LinkedList<PSCacheItem> m_itemsOnDisk = new LinkedList<>();
 
   /** Object used to synchronize on the memory manager, never <code>null</code>. */
   private Object m_monitor = new Object();

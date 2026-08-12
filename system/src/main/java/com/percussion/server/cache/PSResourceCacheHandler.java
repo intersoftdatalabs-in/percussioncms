@@ -127,7 +127,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
    * </code> or empty.
    * @throws PSSystemValidationException if the validation fails.
    */
-  public void validateKeys(Map keys) throws PSSystemValidationException {
+  public void validateKeys(Map<String, ?> keys) throws PSSystemValidationException {
     if (keys == null) throw new IllegalArgumentException("keys may not be null.");
 
     int numKeys = KEY_ENUM.length;
@@ -240,7 +240,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
    *
    * <p>See base class for more info.
    */
-  void flush(Map keys) {
+  void flush(Map<String, ?> keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
 
     // Check that the supplied keys are valid for this handler and flush them
@@ -368,10 +368,8 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     buf.append(KEY_SEP);
 
     // add all other html params, sorted by name, case-sensitive
-    Map sortedParams = new TreeMap<>(request.getParameters());
-    Iterator params = sortedParams.entrySet().iterator();
-    while (params.hasNext()) {
-      Map.Entry entry = (Map.Entry) params.next();
+    Map<?, ?> sortedParams = new TreeMap<>(request.getParameters());
+    for (Map.Entry<?, ?> entry : sortedParams.entrySet()) {
       String key = entry.getKey().toString();
 
       buf.append(key);
@@ -383,9 +381,9 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     // add any addtional keys specified
     try {
       PSExecutionData data = context.getExecutionData();
-      Iterator extractors = m_depTree.getExtractors(appName, datasetName);
+      Iterator<IPSDataExtractor> extractors = m_depTree.getExtractors(appName, datasetName);
       while (extractors.hasNext()) {
-        IPSDataExtractor extractor = (IPSDataExtractor) extractors.next();
+        IPSDataExtractor extractor = extractors.next();
         IPSReplacementValue[] vals = extractor.getSource();
         if (vals != null) {
           for (int i = 0; i < vals.length; i++) {
@@ -414,11 +412,11 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
    * @param dsKeys A list of <code>PSDataSetKey</code> objects. Assumed not <code>null</code>, may
    *     be empty.
    */
-  private void flushDependencies(PSMultiLevelCache cache, Iterator dsKeys) {
+  private void flushDependencies(PSMultiLevelCache cache, Iterator<PSDataSetKey> dsKeys) {
     Object keys[] = new Object[KEY_SIZE];
 
     while (dsKeys.hasNext()) {
-      PSDataSetKey dsKey = (PSDataSetKey) dsKeys.next();
+      PSDataSetKey dsKey = dsKeys.next();
       keys[KEY_APP_INDEX] = dsKey.getAppName();
       keys[KEY_DATASET_INDEX] = dsKey.getDataSetName();
       logFlushMessage(keys);
@@ -721,7 +719,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * @return An interator over zero or more <code>PSDataSetKey</code> objects, never <code>null
      *     </code>.
      */
-    public Iterator getDatasetKeys(String tableName) {
+    public Iterator<PSDataSetKey> getDatasetKeys(String tableName) {
       List<PSDataSetKey> result = new ArrayList<>();
 
       // get list of dataset names to flush for given table update.
@@ -772,7 +770,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * @return An iterator over zero or more <code>IPSDataExtractor</code> objects, never <code>null
      *     </code>.
      */
-    public Iterator getExtractors(String appName, String dsName) {
+    public Iterator<IPSDataExtractor> getExtractors(String appName, String dsName) {
       if (appName == null || appName.trim().length() == 0)
         throw new IllegalArgumentException("appName may not be null or empty");
 
@@ -807,12 +805,9 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
         String resourceName = m_resourceMap.get(dsKey);
         if (resourceName != null) {
           // get parent datasets
-          List parentList = m_parentMap.get(resourceName);
+          List<PSDataSetKey> parentList = m_parentMap.get(resourceName);
           if (parentList != null) {
-            Iterator parents = parentList.iterator();
-            while (parents.hasNext()) {
-              PSDataSetKey parent = (PSDataSetKey) parents.next();
-
+            for (PSDataSetKey parent : parentList) {
               // add if it is cached
               if (m_settingsMap.containsKey(parent)) result.add(parent);
 
@@ -835,16 +830,15 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * @param value The object to remove from the list contained by the value of each entry in the
      *     supplied <code>map</code>. May be <code>null</code>.
      */
-    private void removeFromMapEntryList(Map map, Object value) {
-      List removalList = new ArrayList();
-      for (Object o : map.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
-        List values = (List) entry.getValue();
+    private void removeFromMapEntryList(Map<String, List<PSDataSetKey>> map, PSDataSetKey value) {
+      List<String> removalList = new ArrayList<>();
+      for (Map.Entry<String, List<PSDataSetKey>> entry : map.entrySet()) {
+        List<PSDataSetKey> values = entry.getValue();
         values.remove(value);
         if (values.isEmpty()) removalList.add(entry.getKey()); // avoid concurrent mods
       }
 
-      for (Object o : removalList) map.remove(o);
+      for (String key : removalList) map.remove(key);
     }
 
     /**

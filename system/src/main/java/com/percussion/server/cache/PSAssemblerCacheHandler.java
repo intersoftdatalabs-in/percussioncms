@@ -243,7 +243,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    *
    * <p>See base class for more info.
    */
-  void flush(Map keys) {
+  void flush(Map<String, ?> keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
 
     // Check that the supplied keys are valid for this handler and flush them
@@ -312,9 +312,9 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
       throw new IllegalArgumentException("tableName may not be null or empty");
 
     Iterator columns = null;
-    Map actionMap = m_updateTables.get(tableName);
+    Map<Integer, List<String>> actionMap = m_updateTables.get(tableName);
     if (actionMap != null) {
-      List colList = (List) actionMap.get(actionType);
+      List<String> colList = actionMap.get(actionType);
       if (colList != null) columns = colList.iterator();
     }
 
@@ -379,9 +379,9 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     PSMultiLevelCache cache = getCache();
     if (cache == null) return;
 
-    List depKeys;
-    Map done = new ConcurrentHashMap<>();
-    List allKeys = new ArrayList();
+    List<String[]> depKeys;
+    Map<Integer, Integer> done = new ConcurrentHashMap<>();
+    List<String[]> allKeys = new ArrayList<>();
     /** We are only interested in relationship changes for Active Assembly categories. */
     for (PSRelationship psRelationship : (Iterable<PSRelationship>) event.getRelationships()) {
       PSRelationship relationship = psRelationship;
@@ -447,7 +447,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * @param columns the columns to test, assumed not <code>null</code>.
    * @return <code>true</code> if this is addressing a variant id row, <code>false</code> otherwise.
    */
-  boolean isVariantIdRow(Map columns) {
+  boolean isVariantIdRow(Map<?, ?> columns) {
     String propertyName = (String) columns.get(IPSConstants.RS_PROPERTYNAME);
 
     return (propertyName != null && propertyName.equals(IPSHtmlParameters.SYS_VARIANTID));
@@ -470,7 +470,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * @throws IllegalArgumentException if keys is <code>null</code>.
    * @throws PSSystemValidationException if the validation fails.
    */
-  public void validateKeys(Map keys) throws PSSystemValidationException {
+  public void validateKeys(Map<String, ?> keys) throws PSSystemValidationException {
     if (keys == null) throw new IllegalArgumentException("keys may not be null.");
 
     int numKeys = KEY_ENUM.length;
@@ -614,12 +614,10 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    *     </code> where the first entry is the contentid and the second is the revisionid. Assumed
    *     not <code>null</code>, may be empty.
    */
-  private void flushDependencies(PSMultiLevelCache cache, List deps) {
+  private void flushDependencies(PSMultiLevelCache cache, List<String[]> deps) {
     Object[] keys = new Object[KEY_SIZE];
 
-    Iterator i = deps.iterator();
-    while (i.hasNext()) {
-      String[] depKeys = (String[]) i.next();
+    for (String[] depKeys : deps) {
       keys[KEY_CONTENTID_INDEX] = depKeys[0];
       keys[KEY_REVISIONID_INDEX] = depKeys[1];
       logFlushMessage(keys);
@@ -707,10 +705,8 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     buf.append(KEY_SEP);
 
     // add all other params, sorted by name, case-sensitive
-    Map sortedParams = new TreeMap(request.getParameters());
-    Iterator params = sortedParams.entrySet().iterator();
-    while (params.hasNext()) {
-      Map.Entry entry = (Map.Entry) params.next();
+    Map<?, ?> sortedParams = new TreeMap<>(request.getParameters());
+    for (Map.Entry<?, ?> entry : sortedParams.entrySet()) {
       String key = entry.getKey().toString();
 
       // exclude session id and psredirect, also skip all params already used
@@ -764,7 +760,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    *     and the value is the assembly url as a <code>String</code>. Assumed not <code>null</code>.
    * @throws PSCacheException if there is an problem making the request to the backend.
    */
-  private void loadContentVariants(Map variantMap) throws PSCacheException {
+  private void loadContentVariants(Map<String, String> variantMap) throws PSCacheException {
     // clear the map
     variantMap.clear();
 
@@ -846,7 +842,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    *
    * @return The map, never <code>null</code>.
    */
-  private Map getVariantsMap() {
+  private Map<String, String> getVariantsMap() {
     return m_variants;
   }
 
@@ -862,7 +858,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * the assembly request as a <code>String</code> in the form <appname>/<requestpage>. Never <code>
    * null</code>.
    */
-  private Map m_variants = new ConcurrentHashMap();
+  private Map<String, String> m_variants = new ConcurrentHashMap<>();
 
   /**
    * Key rules used to determine if optional keys should be used for a particular request. Currently

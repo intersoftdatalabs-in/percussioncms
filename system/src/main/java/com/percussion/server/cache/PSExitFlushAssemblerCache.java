@@ -96,7 +96,7 @@ public class PSExitFlushAssemblerCache extends PSDefaultExtension
     String[] keys = handler.getKeyNames();
     int numKeys = keys.length;
 
-    Map keyMap = new HashMap(numKeys);
+    Map<String, String> keyMap = new HashMap<>(numKeys);
     for (int i = 0; i < numKeys; i++) {
       keyMap.put(keys[i], "");
     }

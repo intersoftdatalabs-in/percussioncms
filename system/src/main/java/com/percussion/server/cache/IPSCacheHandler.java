@@ -160,7 +160,7 @@ public interface IPSCacheHandler {
    * @throws PSSystemValidationException if <code>keys</code> does not have an entry for each named
    *     key expected by the handler, or if any keys with required values are <code>null</code>.
    */
-  public void validateKeys(Map keys) throws PSSystemValidationException;
+  public void validateKeys(Map<String, ?> keys) throws PSSystemValidationException;
 
   /**
    * Gets the type of caching the handler will perform. Each handler must return a unique value.
