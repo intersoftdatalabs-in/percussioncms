@@ -662,7 +662,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
     m_modified = true;
 
-    Collection<?> resultAclEntries = aclEditorDlg.getResultAclEntries();
+    Collection<PSObjectAclEntry> resultAclEntries = aclEditorDlg.getResultAclEntries();
 
     aclListModel.removeAllElements();
 
@@ -681,7 +681,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * @param aclNewEntries a collection of ACL Entries to add to the list, never <code>null</code>,
    *     may be <code>empty</code>.
    */
-  private void addUniqueListAclEntries(Collection<?> aclNewEntries) {
+  private void addUniqueListAclEntries(Collection<PSObjectAclEntry> aclNewEntries) {
     if (aclNewEntries == null) throw new IllegalArgumentException("aclEntries may not be null");
 
     if (aclNewEntries.isEmpty()) return;
@@ -689,11 +689,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
     DefaultListModel<PSObjectAclEntry> aclListModel =
         (DefaultListModel<PSObjectAclEntry>) m_aclList.getModel();
 
-    for (Object objNewAcl : aclNewEntries) {
-      if (!(objNewAcl instanceof PSObjectAclEntry)) {
-        continue;
-      }
-      PSObjectAclEntry entry = (PSObjectAclEntry) objNewAcl;
+    for (PSObjectAclEntry entry : aclNewEntries) {
       // see if list already has this one
       if (!aclListModel.contains(entry)) {
         aclListModel.addElement(entry);
