@@ -58,6 +58,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
           "widget-builder",
           "developer",
           "design",
+          "architecture",
           "explorer",
           "profile",
           "unavailable");
@@ -209,6 +210,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if ("widgetbuilder".equals(entry)) {
       entry = "widget-builder";
     }
+    if ("arch".equals(entry)) {
+      entry = "architecture";
+    }
     if (!SPA_ENTRIES.contains(entry)) {
       return null;
     }
@@ -225,6 +229,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
         forward.append("&section=").append(urlEncode(second));
       } else if ("workflow".equals(entry) || "admin".equals(entry)) {
         forward.append("&tab=").append(urlEncode(second));
+      } else if ("architecture".equals(entry)) {
+        // Site name path segment (#3094) → query site=
+        forward.append("&site=").append(urlEncode(second));
       }
       // explorer / widget-builder / unavailable: ignore extra path segments
     }

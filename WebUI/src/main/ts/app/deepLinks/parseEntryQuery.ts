@@ -18,6 +18,7 @@
 import {
   isSpaEntry,
   normalizeAdminTab,
+  normalizeArchitectureSite,
   normalizeDesignSection,
   normalizeDeveloperSection,
   normalizeExplorerPath,
@@ -41,6 +42,8 @@ export interface ParsedSpaEntry {
   siteId?: string;
   serverId?: string;
   path?: string;
+  /** Architecture site name (path or query; #3094). */
+  site?: string;
 }
 
 /**
@@ -54,9 +57,12 @@ export function parseEntryQuery(
   const params = new URLSearchParams(q);
 
   let entryRaw = (params.get("entry") || "home").trim().toLowerCase();
-  // Legacy alias
+  // Legacy aliases
   if (entryRaw === "widgetbuilder") {
     entryRaw = "widget-builder";
+  }
+  if (entryRaw === "arch") {
+    entryRaw = "architecture";
   }
   const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
 
@@ -65,6 +71,7 @@ export function parseEntryQuery(
   const siteId = normalizeId(params.get("siteId"));
   const serverId = normalizeId(params.get("serverId"));
   const path = normalizeExplorerPath(params.get("path"));
+  const site = normalizeArchitectureSite(params.get("site"));
 
   switch (entry) {
     case "home": {
@@ -120,6 +127,17 @@ export function parseEntryQuery(
         clientPath: section ? `/design/${section}` : "/design",
       };
     }
+    case "architecture": {
+      // Prefer path segment when site is a simple token; else query site=
+      if (site) {
+        return {
+          entry,
+          site,
+          clientPath: `/architecture/${encodeURIComponent(site)}`,
+        };
+      }
+      return { entry, clientPath: "/architecture" };
+    }
     case "explorer": {
       let clientPath = "/explorer";
       if (path) {
@@ -148,6 +166,7 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.siteId) params.set("siteId", parsed.siteId);
   if (parsed.serverId) params.set("serverId", parsed.serverId);
   if (parsed.path) params.set("path", parsed.path);
+  if (parsed.site) params.set("site", parsed.site);
   return `/cm/app/spa.jsp?${params.toString()}`;
 }
 
@@ -181,6 +200,9 @@ export function parseClientPath(
   let entryRaw = (segments[0] || "home").toLowerCase();
   if (entryRaw === "widgetbuilder") {
     entryRaw = "widget-builder";
+  }
+  if (entryRaw === "arch") {
+    entryRaw = "architecture";
   }
   const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
   const second = segments[1];
@@ -238,6 +260,21 @@ export function parseClientPath(
         section,
         clientPath: section ? `/developer/${section}` : "/developer",
       };
+    }
+    case "architecture": {
+      const siteFromPath = normalizeArchitectureSite(
+        second != null ? decodeURIComponent(second) : undefined,
+      );
+      const siteFromQuery = normalizeArchitectureSite(params.get("site"));
+      const site = siteFromPath ?? siteFromQuery;
+      if (site) {
+        return {
+          entry,
+          site,
+          clientPath: `/architecture/${encodeURIComponent(site)}`,
+        };
+      }
+      return { entry, clientPath: "/architecture" };
     }
     case "explorer": {
       let cp = "/explorer";

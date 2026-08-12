@@ -20,6 +20,7 @@ import { Navigate, Route, Routes } from "react-router";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminRoute } from "./routes/AdminRoute";
+import { ArchitectureRoute } from "./routes/ArchitectureRoute";
 import { DesignRoute } from "./routes/DesignRoute";
 import { DeveloperRoute } from "./routes/DeveloperRoute";
 import { ExplorerRoute } from "./routes/ExplorerRoute";
@@ -52,6 +53,8 @@ export function AppRoutes(): React.ReactElement {
         <Route path="developer/:section" element={<DeveloperRoute />} />
         <Route path="design" element={<DesignRoute />} />
         <Route path="design/:section" element={<DesignRoute />} />
+        <Route path="architecture" element={<ArchitectureRoute />} />
+        <Route path="architecture/:site" element={<ArchitectureRoute />} />
         <Route path="explorer" element={<ExplorerRoute />} />
         <Route path="profile" element={<ProfileRoute />} />
         <Route

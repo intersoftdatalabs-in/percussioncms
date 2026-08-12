@@ -111,6 +111,8 @@ const loaders: Record<string, Loader> = {
     import("./developer").then((m) => ({ default: m.DeveloperShell })),
   DesignShell: () =>
     import("./design").then((m) => ({ default: m.DesignShell })),
+  ArchitectureShell: () =>
+    import("./architecture").then((m) => ({ default: m.ArchitectureShell })),
 };
 
 const cache = new Map<string, Promise<ComponentType<any>>>();

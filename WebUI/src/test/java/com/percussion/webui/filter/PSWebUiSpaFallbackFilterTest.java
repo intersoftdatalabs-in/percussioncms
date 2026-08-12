@@ -95,6 +95,20 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void forwardsArchitectureWithOptionalSite() {
+    assertEquals(
+        "/cm/app/spa.jsp?entry=architecture",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/architecture", null));
+    assertEquals(
+        "/cm/app/spa.jsp?entry=architecture&site=Demo",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/architecture/Demo", null));
+    // Legacy first segment alias
+    assertEquals(
+        "/cm/app/spa.jsp?entry=architecture",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/arch", null));
+  }
+
+  @Test
   public void dualTreePagesAppSupported() {
     assertEquals(
         "/cm/pages/app/spa.jsp?entry=home&section=recent",
