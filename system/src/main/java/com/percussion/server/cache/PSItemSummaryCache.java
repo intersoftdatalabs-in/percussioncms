@@ -936,8 +936,9 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    */
   private void loadFolderAcls(List<Integer> idList) throws PSCacheException {
     // idList is used only for EMPTY-acl population below. Folder ACLs are loaded in bulk
-    // (null = all); a prior int[] conversion of idList was dead code and had a latent
-    // double-increment (ids[i++] inside a for-i loop) that never affected runtime.
+    // (null = all). Prior dead code built an unused int[] with a latent double-increment:
+    //   for (int i = 0; i < idList.size(); i++) { Integer id = (Integer) idList.get(i); ids[i++] = id; }
+    // That conversion never affected runtime (ids was never passed to loadFolderAcls).
     PSFolderAcl[] acls = null;
     try {
       acls = PSFolderSecurityManager.loadFolderAcls(null);
