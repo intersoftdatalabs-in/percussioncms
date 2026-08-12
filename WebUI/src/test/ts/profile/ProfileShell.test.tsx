@@ -182,12 +182,16 @@ describe("ProfileShell", () => {
       expect(screen.getByTestId("perc-profile-preferences")).toBeTruthy();
       expect(screen.getByTestId("perc-profile-avatar")).toBeTruthy();
     });
-    expect(screen.queryByText("Coming soon")).toBeNull();
+    // Scope to section status testids — avoid document-wide "Coming soon" text match.
     expect(PROFILE_MSG.COMING_SOON).toContain("Coming soon");
-    expect(screen.queryByTestId("perc-profile-section-account-status")).toBeNull();
-    expect(screen.queryByTestId("perc-profile-section-security-status")).toBeNull();
-    expect(screen.queryByTestId("perc-profile-section-preferences-status")).toBeNull();
-    expect(screen.queryByTestId("perc-profile-section-avatar-status")).toBeNull();
+    for (const statusId of [
+      "perc-profile-section-account-status",
+      "perc-profile-section-security-status",
+      "perc-profile-section-preferences-status",
+      "perc-profile-section-avatar-status",
+    ]) {
+      expect(screen.queryByTestId(statusId)).toBeNull();
+    }
   });
 
   it("makes section landmarks focusable skip targets (tabIndex=-1)", async () => {
