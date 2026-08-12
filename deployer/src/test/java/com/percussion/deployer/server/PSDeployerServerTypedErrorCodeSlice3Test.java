@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import com.percussion.conn.PSServerException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.error.PSDeployException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -56,5 +58,26 @@ public class PSDeployerServerTypedErrorCodeSlice3Test {
         assertThrows(PSUnknownNodeTypeException.class, () -> new PSDependencyMap(wrong));
     assertEquals(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE.numericCode(), ex.getErrorCode());
     assertSame(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
+  }
+
+  /**
+   * Mirrors {@link PSDeploymentHandler#getFeatureSet} exception wrap: {@code PSServerException}
+   * has no {@code IPSErrorCode}-aware constructor, so the call site must pass {@link
+   * ObjectStoreErrorCodes#FEATURE_SET_LOAD_EXCEPTION}{@code .numericCode()}. If the enum's
+   * numeric value drifts, or a typed ctor is added and this bridge is removed without updating
+   * callers, this assertion fails.
+   */
+  @Test
+  public void featureSetLoadExceptionNumericBridgeMatchesTypedEnum() {
+    int expected = ObjectStoreErrorCodes.FEATURE_SET_LOAD_EXCEPTION.numericCode();
+    PSServerException se =
+        new PSServerException(expected, new Object[] {"synthetic feature-set load failure"});
+    assertEquals(expected, se.getErrorCode());
+    // Same wrap shape as getFeatureSet catch: PSDeployException(PSException)
+    PSDeployException de = new PSDeployException(se);
+    assertEquals(expected, de.getErrorCode());
+    // Enum constant remains the typed contract source for the numeric bridge.
+    assertEquals(
+        ObjectStoreErrorCodes.FEATURE_SET_LOAD_EXCEPTION.numericCode(), de.getErrorCode());
   }
 }

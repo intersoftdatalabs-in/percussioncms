@@ -133,9 +133,18 @@ def _norm_path(path: str) -> str:
 
 
 def _is_test_path(path: str) -> bool:
+    """True for test / it / testFixtures sources under any module layout.
+
+    Detects ``src/test``, ``src/it``, and ``src/testFixtures`` as consecutive
+    path segments so both module-prefixed paths (``deployer/src/test/...``) and
+    repo-root layouts (``src/test/...``) classify as tests. A leading-slash
+    substring check alone would miss the latter.
+    """
     norm = _norm_path(path)
-    if "/src/test/" in norm or "/src/it/" in norm or "/src/testFixtures/" in norm:
-        return True
+    parts = Path(norm).parts
+    for i in range(len(parts) - 1):
+        if parts[i] == "src" and parts[i + 1] in ("test", "it", "testFixtures"):
+            return True
     name = Path(norm).name
     if name.endswith("Test.java") or name.endswith("Tests.java"):
         return True
