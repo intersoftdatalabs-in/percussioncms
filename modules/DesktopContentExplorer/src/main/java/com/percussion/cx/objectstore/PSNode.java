@@ -16,11 +16,11 @@
  */
 package com.percussion.cx.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.cms.objectstore.PSFolderPermissions;
 import com.percussion.cms.objectstore.PSObjectPermissions;
 import com.percussion.cx.IPSConstants;
 import com.percussion.cx.PSNavigationTree;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSEntrySet;
@@ -127,7 +127,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
-      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_name = sourceNode.getAttribute(NAME_ATTR);
@@ -139,7 +139,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     if (hint != null && hint.length() > 0) {
       if (!ms_helpTypeHints.contains(hint)) {
         Object[] args = {XML_NODE_NAME, HELP_TYPE_HINT_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
       m_helpTypeHint = hint;
     }
@@ -151,14 +151,14 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
       String permissions = sourceNode.getAttribute(PERMISSIONS_ATTR);
       if ((permissions == null) || (permissions.trim().length() < 1)) {
         Object[] args = {XML_NODE_NAME, PERMISSIONS_ATTR, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
 
       try {
         m_permissions = new PSFolderPermissions(Integer.parseInt(permissions.trim()));
       } catch (NumberFormatException e) {
         String[] args = {XML_NODE_NAME, PERMISSIONS_ATTR, permissions};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
 
@@ -1094,14 +1094,14 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
       if (!TABLEMETA_NODE.equals(sourceNode.getNodeName())) {
         Object[] args = {TABLEMETA_NODE, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       // PSComponentUtils.getChildElements returns a raw Iterator of Element nodes.
       Iterator<?> columns = PSComponentUtils.getChildElements(sourceNode, COLUMN_NODE);
       if (!columns.hasNext()) {
         Object[] args = {TABLEMETA_NODE, COLUMN_NODE, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       while (columns.hasNext()) {
@@ -1236,14 +1236,14 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
       if (!ROWDATA_NODE.equals(sourceNode.getNodeName())) {
         Object[] args = {ROWDATA_NODE, sourceNode.getNodeName()};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
       }
 
       // PSComponentUtils.getChildElements returns a raw Iterator of Element nodes.
       Iterator<?> columns = PSComponentUtils.getChildElements(sourceNode, COLDATA_NODE);
       if (!columns.hasNext()) {
         Object[] args = {ROWDATA_NODE, "null"};
-        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       while (columns.hasNext()) {
