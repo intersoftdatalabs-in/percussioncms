@@ -952,7 +952,8 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
      * Get a list of child ids from a XML element. The format of the XML is specified in <code>
      * ChildIds</code> element in the sys_FolderParameters.xsd. All <code>ChildIds</code> elements
      * must either have the <code>name</code> attribute or not have the attribute. It cannot be
-     * mixed.
+     * mixed. Each entry is either a {@link PSLocator} or a {@link PSLocatorWithName} (never mixed
+     * in one request).
      *
      * @param childIdsEl The XML element that contains a list of child ids. Assume it is not <code>
      *     null</code>
@@ -962,10 +963,6 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
      *     objects. Never contain mixed objects, <code>null</code> or empty.
      * @throws PSException if some <code>ChildIds</code> element has <code>name</code> attribute,
      *     but not others, or other error occurs.
-     */
-    /**
-     * Parse child ids. Each entry is either a {@link PSLocator} or a {@link PSLocatorWithName}
-     * (never mixed in one request).
      */
     private List<?> getChildLocators(Element childIdsEl, String action) throws PSException {
       Set<Object> childIds = new HashSet<>();
@@ -1027,14 +1024,12 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
     }
 
     /**
-     * Get a list of the child locators. All revision id is default to <code>1</code>.
+     * Get a list of the child locators. All revision id is default to <code>1</code>. Used by copy
+     * paths that need override names ({@link PSLocator} and/or {@link PSLocatorWithName}, never
+     * mixed in one request).
      *
      * @return A list over <code>PSLocator</code> or <code>PSLocatorWithName</code> objects. It
      *     never contains mixed objects. Never <code>null</code> or empty.
-     */
-    /**
-     * Child locators as {@link PSLocator} and/or {@link PSLocatorWithName} (never mixed in one
-     * request). Used by copy paths that need override names.
      */
     private List<?> getChildLocators() {
       return m_childIds;
