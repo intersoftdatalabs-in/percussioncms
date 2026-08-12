@@ -17,6 +17,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   executeSearch,
+  listExplorerSavedSearches,
+  listSearches,
   unwrapSearchExecuteResult,
 } from "../../../main/ts/api/developer/searchesApi";
 import { PATHS } from "../../../main/ts/api/paths";
@@ -54,6 +56,40 @@ describe("unwrapSearchExecuteResult", () => {
   it("returns empty shape for null / non-object", () => {
     expect(unwrapSearchExecuteResult(null).children).toEqual([]);
     expect(unwrapSearchExecuteResult("x").children).toEqual([]);
+  });
+});
+
+describe("listSearches", () => {
+  it("GETs /searches without includeViews by default", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ name: "My Pages" }]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const out = await listSearches();
+    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(PATHS.SEARCHES);
+    expect(out).toHaveLength(1);
+    expect(out[0]?.name).toBe("My Pages");
+  });
+
+  it("Explorer helper requests includeViews=true", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          SearchDef: [
+            { name: "View_All", label: "All" },
+            { name: "My Pages" },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const out = await listExplorerSavedSearches();
+    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(
+      `${PATHS.SEARCHES}?includeViews=true`,
+    );
+    expect(out.map((s) => s.name)).toEqual(["View_All", "My Pages"]);
   });
 });
 

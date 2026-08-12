@@ -11,6 +11,18 @@ public interface ISearchAdaptor {
 
   List<SearchDef> listSearches();
 
+  /**
+   * List CX search definitions, optionally merging CX views (Explorer saved-search picker).
+   *
+   * <p>Default implementation ignores {@code includeViews} and delegates to {@link
+   * #listSearches()} so existing test stubs stay source-compatible.
+   *
+   * @param includeViews when true, include view definitions (for example {@code View_All})
+   */
+  default List<SearchDef> listSearches(boolean includeViews) {
+    return listSearches();
+  }
+
   /** Resolve by name or GUID string. Returns null if missing/unsafe. */
   SearchDef findSearchByKey(String idOrName);
 

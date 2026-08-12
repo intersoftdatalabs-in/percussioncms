@@ -129,7 +129,7 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     // Probe REST catalog so we know a runnable key before UI drive; soft-skip
     // when QA H2 fixture has no design searches (documented acceptance).
     const headers = adminBasicAuthHeaders();
-    const catalogUrl = searchesCatalogUrl(BASE_URL);
+    const catalogUrl = searchesCatalogUrl(BASE_URL, { includeViews: true });
     let restStatus = 0;
     let restBody = null;
     try {
@@ -248,7 +248,7 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
   }) => {
     test.setTimeout(45_000);
     const headers = adminBasicAuthHeaders();
-    const res = await request.get(searchesCatalogUrl(BASE_URL), {
+    const res = await request.get(searchesCatalogUrl(BASE_URL, { includeViews: true }), {
       headers: { ...headers, Accept: "application/json" },
     });
     // 200 = catalog; 401/403 still prove webapp auth surface; 5xx is hard fail.
@@ -265,6 +265,19 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
       // Structural unwrap never throws on common shapes.
       const defs = unwrapSearchDefs(body);
       expect(Array.isArray(defs)).toBe(true);
+      // Default CX All view must appear when views are included (#3205 / #3199).
+      const names = defs
+        .map((d) => (d && d.name != null ? String(d.name) : ""))
+        .filter(Boolean);
+      if (names.length > 0) {
+        const hasViewAll = names.some(
+          (n) => n.toLowerCase() === "view_all" || n.toLowerCase() === "all",
+        );
+        expect(
+          hasViewAll,
+          `includeViews catalog should expose View_All (names=${names.join(",")})`,
+        ).toBe(true);
+      }
     }
   });
 });

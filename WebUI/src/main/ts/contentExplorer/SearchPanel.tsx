@@ -49,7 +49,7 @@ import {
 } from "../api/contentExplorer/searchApi";
 import {
   executeSearch as executeSearchApi,
-  listSearches as listSearchesApi,
+  listExplorerSavedSearches,
 } from "../api/developer/searchesApi";
 import type {
   SearchDef,
@@ -69,7 +69,7 @@ export interface SearchPanelProps {
   search?: (criteria: PSSearchCriteria) => Promise<PSSearchResults>;
   /**
    * Override for the saved-search catalog load
-   * (default: {@link listSearchesApi}).
+   * (default: {@link listExplorerSavedSearches}, includeViews).
    */
   listSavedSearches?: () => Promise<SearchDef[]>;
   /**
@@ -148,7 +148,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     initialQuery = "",
     initialCriteria = {},
     search = searchExtended,
-    listSavedSearches = listSearchesApi,
+    listSavedSearches = listExplorerSavedSearches,
     executeSavedSearch = executeSearchApi,
     onOpen,
     onReveal,

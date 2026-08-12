@@ -60,11 +60,14 @@ function explorerEntryUrl(baseUrl, opts = {}) {
  * @param {string} baseUrl
  * @returns {string}
  */
-function searchesCatalogUrl(baseUrl) {
+function searchesCatalogUrl(baseUrl, opts = {}) {
   const root = String(baseUrl || "")
     .trim()
     .replace(/\/+$/, "");
-  return `${root}${PATH_SEARCHES}`;
+  const includeViews = opts.includeViews === true;
+  return includeViews
+    ? `${root}${PATH_SEARCHES}?includeViews=true`
+    : `${root}${PATH_SEARCHES}`;
 }
 
 /**
@@ -170,8 +173,22 @@ function isCustomUrlSearch(def) {
  * @param {unknown} payload raw REST body or SearchDef[]
  * @returns {{ key: string, label: string, def: Record<string, unknown> } | null}
  */
+function isDefaultAllView(def) {
+  if (def == null || typeof def !== "object") {
+    return false;
+  }
+  const name = def.name != null ? String(def.name).trim() : "";
+  const label = searchDefLabel(def);
+  return (
+    name.toLowerCase() === "view_all" ||
+    (name.toLowerCase() === "all" && String(def.type || "").toLowerCase() === "view") ||
+    (label.toLowerCase() === "all" && String(def.type || "").toLowerCase() === "view")
+  );
+}
+
 function pickRunnableSavedSearch(payload) {
   const defs = unwrapSearchDefs(payload);
+  let first = null;
   for (const def of defs) {
     if (isCustomUrlSearch(def)) {
       continue;
@@ -180,9 +197,15 @@ function pickRunnableSavedSearch(payload) {
     if (!key) {
       continue;
     }
-    return { key, label: searchDefLabel(def) || key, def };
+    const picked = { key, label: searchDefLabel(def) || key, def };
+    if (isDefaultAllView(def)) {
+      return picked;
+    }
+    if (first == null) {
+      first = picked;
+    }
   }
-  return null;
+  return first;
 }
 
 /**
@@ -251,6 +274,7 @@ module.exports = {
   explorerEntryUrl,
   searchesCatalogUrl,
   searchesExecuteUrl,
+  isDefaultAllView,
   unwrapSearchDefs,
   searchDefKey,
   searchDefLabel,

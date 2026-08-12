@@ -78,23 +78,40 @@ public class SearchAdaptor implements ISearchAdaptor {
 
   @Override
   public List<SearchDef> listSearches() {
+    return listSearches(false);
+  }
+
+  /**
+   * Developer catalog is searches-only. Explorer saved-search picker passes {@code
+   * includeViews=true} so the default All view ({@code View_All}) is listed and executable.
+   */
+  @Override
+  public List<SearchDef> listSearches(boolean includeViews) {
+    List<SearchDef> out = new ArrayList<>();
+    Exception searchFailure = null;
     try {
-      List<PSSearch> loaded = loadAllSearches();
-      List<SearchDef> out = new ArrayList<>();
-      for (PSSearch s : loaded) {
-        if (s != null) {
-          // REST-GAPS-02: list rows omit identical designGaps; detail re-attaches them.
-          out.add(toDef(s, false));
-        }
-      }
-      out.sort(
-          Comparator.comparing(
-              SearchDef::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-      return out;
+      addSearchDefs(out, loadAllSearches());
     } catch (Exception e) {
+      searchFailure = e;
       log.error("Failed to list searches", e);
-      throw new IllegalStateException("Failed to list searches", e);
     }
+    Exception viewFailure = null;
+    if (includeViews) {
+      try {
+        addSearchDefs(out, loadAllViews());
+      } catch (Exception e) {
+        viewFailure = e;
+        log.error("Failed to list views for the Explorer search catalog", e);
+      }
+    }
+    if (out.isEmpty() && (searchFailure != null || viewFailure != null)) {
+      Exception cause = searchFailure != null ? searchFailure : viewFailure;
+      throw new IllegalStateException("Failed to list searches", cause);
+    }
+    out.sort(
+        Comparator.comparing(
+            SearchDef::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    return out;
   }
 
   @Override
@@ -122,7 +139,7 @@ public class SearchAdaptor implements ISearchAdaptor {
       if (design == null) {
         return null;
       }
-      if (design.isCustomSearch()) {
+      if (design.isCustomSearch() || design.isCustomView()) {
         throw new IllegalArgumentException(
             "Custom URL searches cannot be executed via this endpoint");
       }
@@ -317,7 +334,16 @@ public class SearchAdaptor implements ISearchAdaptor {
   }
 
   private List<PSSearch> loadAllSearches() throws Exception {
-    List<IPSCatalogSummary> summaries = designWs.findSearches(null, null);
+    return loadCatalog(false);
+  }
+
+  private List<PSSearch> loadAllViews() throws Exception {
+    return loadCatalog(true);
+  }
+
+  private List<PSSearch> loadCatalog(boolean views) throws Exception {
+    List<IPSCatalogSummary> summaries =
+        views ? designWs.findViews(null, null) : designWs.findSearches(null, null);
     if (summaries == null || summaries.isEmpty()) {
       return List.of();
     }
@@ -332,41 +358,94 @@ public class SearchAdaptor implements ISearchAdaptor {
     }
     String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
     String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-    List<PSSearch> loaded = designWs.loadSearches(guids, false, false, currentSession, currentUser);
+    List<PSSearch> loaded =
+        views
+            ? designWs.loadViews(guids, false, false, currentSession, currentUser)
+            : designWs.loadSearches(guids, false, false, currentSession, currentUser);
     return loaded != null ? loaded : List.of();
   }
 
-  /** Resolve design search by name, GUID string, or numeric id. */
+  private static void addSearchDefs(List<SearchDef> out, List<PSSearch> loaded) {
+    if (loaded == null) {
+      return;
+    }
+    for (PSSearch s : loaded) {
+      if (s != null) {
+        // REST-GAPS-02: list rows omit identical designGaps; detail re-attaches them.
+        out.add(toDef(s, false));
+      }
+    }
+  }
+
+  /** Resolve design search or view by name, label, GUID string, or numeric id. */
   PSSearch findPsSearchByKey(String key) {
+    if (!isSafeSearchKey(key)) {
+      return null;
+    }
+    String trimmed = key.trim();
+    Exception first = null;
+    boolean searchCatalogOk = false;
+    boolean viewCatalogOk = false;
     try {
-      List<PSSearch> loaded = loadAllSearches();
-      for (PSSearch s : loaded) {
-        if (s == null) {
-          continue;
-        }
-        if (key.equalsIgnoreCase(s.getName())) {
+      PSSearch found = matchLoaded(loadAllSearches(), trimmed);
+      searchCatalogOk = true;
+      if (found != null) {
+        return found;
+      }
+    } catch (Exception e) {
+      first = e;
+      log.error("Failed to resolve search {} from search catalog", trimmed, e);
+    }
+    try {
+      PSSearch found = matchLoaded(loadAllViews(), trimmed);
+      viewCatalogOk = true;
+      if (found != null) {
+        return found;
+      }
+    } catch (Exception e) {
+      log.error("Failed to resolve search {} from view catalog", trimmed, e);
+      if (first == null) {
+        first = e;
+      }
+    }
+    // Only 500 when both catalogs failed. One healthy catalog + miss is 404.
+    if (first != null && !searchCatalogOk && !viewCatalogOk) {
+      throw new IllegalStateException("Failed to resolve search", first);
+    }
+    return null;
+  }
+
+  static PSSearch matchLoaded(List<PSSearch> loaded, String key) {
+    if (loaded == null || StringUtils.isBlank(key)) {
+      return null;
+    }
+    PSSearch labelMatch = null;
+    for (PSSearch s : loaded) {
+      if (s == null) {
+        continue;
+      }
+      if (key.equalsIgnoreCase(s.getName())) {
+        return s;
+      }
+      if (s.getGUID() != null) {
+        // IPSGuid has no Optional string; guard blank/sentinel toString before match
+        String gsv = s.getGUID().toString();
+        if (StringUtils.isNotBlank(gsv) && key.equalsIgnoreCase(gsv)) {
           return s;
         }
-        if (s.getGUID() != null) {
-          // IPSGuid has no Optional string; guard blank/sentinel toString before match
-          String gsv = s.getGUID().toString();
-          if (StringUtils.isNotBlank(gsv) && key.equalsIgnoreCase(gsv)) {
-            return s;
-          }
-          String untyped = s.getGUID().toStringUntyped();
-          if (StringUtils.isNotBlank(untyped) && key.equalsIgnoreCase(untyped)) {
-            return s;
-          }
-        }
-        if (String.valueOf(s.getId()).equals(key)) {
+        String untyped = s.getGUID().toStringUntyped();
+        if (StringUtils.isNotBlank(untyped) && key.equalsIgnoreCase(untyped)) {
           return s;
         }
       }
-      return null;
-    } catch (Exception e) {
-      log.error("Failed to resolve search {}", key, e);
-      throw new IllegalStateException("Failed to resolve search", e);
+      if (String.valueOf(s.getId()).equals(key)) {
+        return s;
+      }
+      if (labelMatch == null && key.equalsIgnoreCase(s.getLabel())) {
+        labelMatch = s;
+      }
     }
+    return labelMatch;
   }
 
   /** Maps design search meta; includes designGaps by default (detail / unit-test path). */
@@ -392,7 +471,8 @@ public class SearchAdaptor implements ISearchAdaptor {
     d.setParentCategory(s.getParentCategory());
     d.setMaximumResultSize(s.getMaximumResultSize());
     d.setUserSearch(s.isUserSearch());
-    d.setCustomSearch(s.isCustomSearch());
+    // Custom views are URL-backed like custom searches — picker must not execute them.
+    d.setCustomSearch(s.isCustomSearch() || s.isCustomView());
     d.setStandardSearch(s.isStandardSearch());
     d.setUserCustomizable(s.isUserCustomizable());
     d.setCaseSensitive(s.isCaseSensitive());

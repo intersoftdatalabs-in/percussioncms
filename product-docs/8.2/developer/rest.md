@@ -193,6 +193,29 @@ Content-type detail may still include **extra** per-item gaps (for example contr
 failures); those remain on the detail payload only. Structured `{ code, message }` entries apply
 on the Content Type / Template / Slot detail paths described above.
 
+## Searches catalog and execute
+
+CX design **searches** (and optionally **views**) are exposed under `/services/searches`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/searches` | List search definitions (Developer catalog; views omitted) |
+| `GET` | `/services/searches?includeViews=true` | List searches **and** views (Explorer saved-search picker) |
+| `GET` | `/services/searches/{idOrName}` | Load one search or view by name, label, GUID, or numeric id |
+| `POST` | `/services/searches/{idOrName}/execute` | Execute a standard/user search or view (not a custom URL) |
+
+`includeViews=true` is required for the Explorer Search panel so the default **All** view
+(`View_All`) is in the picker. Developer **Searches** remains searches-only; views stay on
+`/services/views`.
+
+If the search catalog fails independently of views (or the reverse), `includeViews=true`
+still returns whichever side loaded so the picker is not a silent empty list or 500 for
+the default All view.
+
+Execute looks up the same combined catalog (searches first, then views). Keys accepted:
+internal name (`View_All`), display label (`All`), GUID string, or numeric id. Custom URL
+searches and custom views return **400**.
+
 ## Content Explorer folders (Rhythmyx path façade)
 
 Public REST for **Rhythmyx** folder operations used by Content Explorer integrators and (later)

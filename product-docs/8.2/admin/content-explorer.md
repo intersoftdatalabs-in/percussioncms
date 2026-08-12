@@ -107,6 +107,9 @@ When the panel is open you can:
 1. Enter free-text criteria (scoped to the current folder path when a folder is active).
 2. Submit the search and open a hit or reveal it in its parent folder.
 3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
+   The picker includes CX **searches and views**. The default **All** view (`View_All`) is
+   listed when that design object exists on the server. Custom URL searches stay listed
+   but cannot be run from Explorer.
 
 Closing **View → Search** (or **Content → Search**) again hides the panel. Revealing a
 result in its folder also closes the panel so the tree/list can show the destination.
