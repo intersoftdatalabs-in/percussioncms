@@ -384,7 +384,8 @@ var $perc_newSiteDialogLayout;
       type: "POST",
       data: JSON.stringify(fielddata),
       success: function (data, textstatus) {
-        // Redirect to architecture tab for the new site
+        // After site create, callers own navigation. URL_ARCHITECTURE is SPA
+        // view=arch (#3099); do not land on retired siteArchitecture.jsp.
         // $.perc_redirect($.perc_paths.URL_ARCHITECTURE, {site: fields.sitename});
 
         // Invoke the callback handler with the sitename as a parameter and unblock UI

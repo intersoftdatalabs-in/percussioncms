@@ -90,7 +90,7 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       // Legacy exits preserved (dash moved to SPA Home gadgets in PR-7)
       expect(text).toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
       expect(text).toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
-      // #3094: Architecture is SPA entry, not legacyViews arch → siteArchitecture.jsp
+      // #3094 / #3099: Architecture is SPA entry, not legacyViews arch → siteArchitecture.jsp
       expect(text).not.toMatch(
         /legacyViews\.put\("arch",\s*"siteArchitecture\.jsp"\)/,
       );
@@ -98,6 +98,33 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(text).toMatch(/"architecture"/);
       expect(text).toMatch(/entry\s*=\s*"architecture"|entry = "architecture"/);
     }
+  });
+
+  it("siteArchitecture.jsp hard-redirects to SPA Architecture (#3099)", () => {
+    const hosts = [
+      resolve(webappRoot, "cm/app/siteArchitecture.jsp"),
+      resolve(webappRoot, "cm/pages/app/siteArchitecture.jsp"),
+    ];
+    for (const jsp of hosts) {
+      expect(existsSync(jsp), jsp).toBe(true);
+      const text = read(jsp);
+      // Retired host: redirect stub only (no site map widget / packed assets)
+      expect(text).toMatch(/setStatus\s*\(\s*301\s*\)/);
+      expect(text).toContain('view=arch');
+      expect(text).toContain("Location");
+      expect(text).not.toContain("perc_architecture.packed");
+      expect(text).not.toContain("perc_site_map");
+      expect(text).not.toMatch(/perc_site_map\s*\(/);
+    }
+  });
+
+  it("does not pack retired perc_architecture bundles (#3099)", () => {
+    const bundles = resolve(
+      __dirname,
+      "../../../main/resources/minify/static-bundles.json",
+    );
+    const text = read(bundles);
+    expect(text).not.toContain("perc_architecture.packed");
   });
 
   it("uses proxyURL prefix on SPA redirects", () => {

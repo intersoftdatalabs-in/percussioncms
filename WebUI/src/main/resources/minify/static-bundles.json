@@ -42,44 +42,6 @@
 
     {
       "type": "js",
-      "name": "jslibMin/perc_architecture.packed.js",
-      "files": [
-        "../target/minify-common/shared-common.js",
-        "../target/minify-common/shared-finder.js",
-        "services/perc_sectionServiceClient.js",
-        "services/PercSiteService.js",
-        "plugins/PercEditSectionLinksDialog.js",
-        "plugins/PercSectionTreeDialog.js",
-        "plugins/PercCopySiteDialog.js",
-        "services/PercFolderService.js",
-        "services/PercCompareService.js",
-        "plugins/perc_newSectionDialog.js",
-        "plugins/perc_editSectionDialog.js",
-        "plugins/perc_editSiteSectionDialog.js",
-        "widgets/perc_site_map.js",
-        "widgets/perc_save_as.js",
-        "plugins/perc_ChangePwDialog.js",
-        "plugins/perc_ChangeUserEmailDialog.js",
-        "plugins/perc_newsitedialog.js"
-      ]
-    },
-    {
-      "type": "css",
-      "name": "cssMin/perc_architecture.packed.css",
-      "files": [
-        "../target/minify-common/shared-common.css",
-        "css/perc_mcol.css",
-        "css/styles.css",
-        "css/perc_site_map.css",
-        "css/perc_newSectionDialog.css",
-        "css/perc_newsitedialog.css",
-        "css/perc_new_page_button.css",
-        "css/perc_save_as_dialog.css",
-        "css/perc_ChangePw.css"
-      ]
-    },
-    {
-      "type": "js",
       "name": "jslibMin/perc_webmgt.packed.js",
       "files": [
         "../target/minify-common/shared-common.js",

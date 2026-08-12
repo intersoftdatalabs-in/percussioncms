@@ -16,8 +16,7 @@ export default defineConfig({
     lib: {
       entry: {
         "jslibMin/perc_dashboard.packed.min": "src/main/bundles/perc_dashboard.bundle.js",
-        "jslibMin/perc_architecture.packed.min":
-          "src/main/bundles/perc_architecture.bundle.js",
+        // perc_architecture exclusive pack retired (#3099) — siteArchitecture.jsp redirects to SPA
         "jslibMin/perc_webmgt.packed.min": "src/main/bundles/perc_webmgt.bundle.js",
         // perc_publish exclusive Minuet UI retired (feature 990 / PR #1370); pack via static-bundles.json services only
         "jslibMin/perc_users.packed.min": "src/main/bundles/perc_users.bundle.js",
