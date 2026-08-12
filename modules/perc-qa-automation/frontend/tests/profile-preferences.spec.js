@@ -26,8 +26,9 @@
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
  * Covers: Preferences form mounts (no #2746 load JAXB / retry error);
- * change default landing; reload persists.
+ * change default landing; reload persists (#3207).
  * Axe: zero serious/critical on [data-testid="perc-profile-preferences"].
+ * Console/pageerror + prefs/homepage 4xx/5xx must stay clean on this surface.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -38,7 +39,46 @@ const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const PREFERENCES_FORM_SCOPE = '[data-testid="perc-profile-preferences"]';
 
 function profileDeepLink() {
-  return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=profile&_=${Date.now()}`;
+  return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=profile&_=${Date.now()}#perc-profile-preferences`;
+}
+
+/**
+ * @param {import('@playwright/test').Page} page
+ * @returns {{ jsErrors: string[], httpErrors: string[] }}
+ */
+function attachSurfaceErrorCollectors(page) {
+  const jsErrors = [];
+  const httpErrors = [];
+  page.on("pageerror", (err) => {
+    jsErrors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("console", (msg) => {
+    if (msg.type() !== "error") {
+      return;
+    }
+    const text = msg.text();
+    // Chrome logs 404 fetches as console.error (empty prefs, maps, favicon).
+    // Those are not uncaught page errors — gate on pageerror + 4xx/5xx below.
+    if (/Failed to load resource:.*\b404\b/i.test(text)) {
+      return;
+    }
+    jsErrors.push(text);
+  });
+  page.on("response", (response) => {
+    const url = response.url();
+    const status = response.status();
+    // 404 on GET /preferences/ means no stored entries (empty list).
+    if (status < 400 || status === 404) {
+      return;
+    }
+    const isPrefs =
+      url.includes("/services/preferences") ||
+      url.includes("/user/user/homepage");
+    if (isPrefs) {
+      httpErrors.push(`${status} ${url}`);
+    }
+  });
+  return { jsErrors, httpErrors };
 }
 
 /**
@@ -74,10 +114,12 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     page,
   }) => {
     test.setTimeout(90_000);
+    const { jsErrors, httpErrors } = attachSurfaceErrorCollectors(page);
     await loginAsAdmin(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
     await expectPreferencesMounted(page);
+    await page.getByTestId("perc-profile-nav-preferences").click();
 
     const landing = page.getByTestId("perc-profile-preferences-landing");
     await expect(landing).toBeEnabled();
@@ -87,6 +129,8 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     await expect(
       page.getByTestId("perc-profile-preferences-count"),
     ).toBeVisible();
+    expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+    expect(httpErrors, httpErrors.join("\n")).toEqual([]);
   });
 
   /**
@@ -132,10 +176,12 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     page,
   }) => {
     test.setTimeout(120_000);
+    const { jsErrors, httpErrors } = attachSurfaceErrorCollectors(page);
     await loginAsAdmin(page);
 
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
     await expectPreferencesMounted(page);
+    await page.getByTestId("perc-profile-nav-preferences").click();
 
     const landing = page.getByTestId("perc-profile-preferences-landing");
     await expect(landing).toBeVisible();
@@ -154,6 +200,7 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     // Reload profile hub — value must come back from server
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
     await expectPreferencesMounted(page);
+    await page.getByTestId("perc-profile-nav-preferences").click();
     await expect(
       page.getByTestId("perc-profile-preferences-landing"),
     ).toHaveValue(next, { timeout: 30_000 });
@@ -167,5 +214,7 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
         page.getByTestId("perc-profile-preferences-success"),
       ).toBeVisible({ timeout: 30_000 });
     }
+    expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+    expect(httpErrors, httpErrors.join("\n")).toEqual([]);
   });
 });

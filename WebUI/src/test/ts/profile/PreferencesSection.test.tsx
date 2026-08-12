@@ -72,7 +72,10 @@ describe("PreferencesSection", () => {
   });
 
   it("saves dirty landing and shows success", async () => {
-    const loadLanding = vi.fn().mockResolvedValue("");
+    const loadLanding = vi
+      .fn()
+      .mockResolvedValueOnce("")
+      .mockResolvedValue("Editor");
     const saveLanding = vi.fn().mockResolvedValue("Editor");
     const loadPreferenceCount = vi.fn().mockResolvedValue(0);
     renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
@@ -95,6 +98,51 @@ describe("PreferencesSection", () => {
       expect(screen.getByTestId("perc-profile-preferences-success")).toBeTruthy();
     });
     expect(select.value).toBe("Editor");
+    expect(loadLanding).toHaveBeenCalledTimes(2);
+  });
+
+  it("still loads landing when preference stack count fails (#3207)", async () => {
+    const loadLanding = vi.fn().mockResolvedValue("Home");
+    const loadPreferenceCount = vi
+      .fn()
+      .mockRejectedValue({ status: 500, statusText: "err", body: null });
+    renderPrefs({ loadLanding, loadPreferenceCount });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences-landing")).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId("perc-profile-preferences-load-error"),
+    ).toBeNull();
+    const select = screen.getByTestId(
+      "perc-profile-preferences-landing",
+    ) as HTMLSelectElement;
+    expect(select.value).toBe("Home");
+    expect(screen.getByTestId("perc-profile-preferences-count").textContent).toContain(
+      "0",
+    );
+  });
+
+  it("shows save error when reload does not persist the landing (#3207)", async () => {
+    const loadLanding = vi.fn().mockResolvedValue("");
+    const saveLanding = vi.fn().mockResolvedValue("Editor");
+    const loadPreferenceCount = vi.fn().mockResolvedValue(0);
+    renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-preferences-landing")).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-preferences-landing",
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "Editor" } });
+    fireEvent.click(screen.getByTestId("perc-profile-preferences-save"));
+
+    await waitFor(() => {
+      expect(saveLanding).toHaveBeenCalledWith("Editor");
+      expect(screen.getByTestId("perc-profile-preferences-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("perc-profile-preferences-success")).toBeNull();
   });
 
   it("shows load error and retries", async () => {
