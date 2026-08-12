@@ -8,7 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -113,5 +115,78 @@ public class ViewResourceTest {
         assertThrows(WebApplicationException.class, () -> resource.getView("My View"));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void executeViewSuccess() {
+    ViewExecuteRequest req = new ViewExecuteRequest();
+    req.setStartIndex(1);
+    req.setMaxResults(10);
+    ViewExecuteResult expected = new ViewExecuteResult();
+    expected.setViewName("All Content");
+    expected.setTotalCount(0);
+    when(adaptor.executeView(eq("All Content"), eq(req))).thenReturn(expected);
+
+    ViewExecuteResult out = resource.executeView("All Content", req);
+    assertSame(expected, out);
+    assertEquals("All Content", out.getViewName());
+    verify(adaptor).executeView("All Content", req);
+  }
+
+  @Test
+  public void executeViewNullBodyDelegates() {
+    ViewExecuteResult expected = new ViewExecuteResult();
+    expected.setViewName("All Content");
+    when(adaptor.executeView(eq("All Content"), isNull())).thenReturn(expected);
+
+    assertEquals("All Content", resource.executeView("All Content", null).getViewName());
+    verify(adaptor).executeView("All Content", null);
+  }
+
+  @Test
+  public void executeViewNotFoundIsGeneric404() {
+    when(adaptor.executeView(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.executeView("missing", new ViewExecuteRequest()));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("View not found", ex.getMessage());
+  }
+
+  @Test
+  public void executeViewMapsIllegalArgumentTo400() {
+    when(adaptor.executeView(eq("Inbox"), any()))
+        .thenThrow(
+            new IllegalArgumentException(
+                "Custom URL views cannot be executed via this endpoint"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.executeView("Inbox", new ViewExecuteRequest()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("Custom URL"));
+  }
+
+  @Test
+  public void executeViewWrapsUnexpectedAs500() {
+    IllegalStateException boom = new IllegalStateException("engine down");
+    when(adaptor.executeView(eq("All Content"), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.executeView("All Content", new ViewExecuteRequest()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnExecute() {
+    ViewResource bare = new ViewResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.executeView("any", new ViewExecuteRequest()));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }

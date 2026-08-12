@@ -138,6 +138,59 @@ These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They 
 writable via `PUT` — rule write/save and full control property editors remain Workbench /
 future design APIs. `designGaps` on detail still calls out write and catalog gaps.
 
+## Views (design catalog)
+
+Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) are exposed under
+`/services/views` (public servlet path `/rest/views`). This is a **separate catalog** from saved
+**searches** (`/services/searches`). Do not execute a view through the search execute endpoint.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL) |
+| `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string |
+| `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view |
+
+### Execute request / response
+
+Optional JSON body (all fields optional):
+
+| Field | Meaning |
+|-------|---------|
+| `folderPath` | Scope results to a folder path; recurse defaults on when set |
+| `startIndex` | 1-based page start (must be ≥ 1) |
+| `maxResults` | Page size (must be ≥ 1); omitted uses the view design max or a product default |
+| `sortColumn` | `sys_title` / `title` / `name`, `type`, or `folderPath` |
+| `sortOrder` | `asc` or `desc` |
+
+Successful response is a paged envelope: `children[]` (Explorer-ready rows with `id`, `name`,
+`title`, `folderPath`, `type`), `totalCount`, `startIndex`, `viewName`, `displayFormatId`.
+
+### Status codes
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | List / get / execute success |
+| `400` | Invalid execute body, or the view is a **custom URL** view |
+| `404` | View not found or unsafe key (blank, path separators, `..`) |
+| `500` | Design or execute engine failure |
+| `503` | Views adaptor not configured (deployment miswire) |
+
+### Custom URL views (Inbox family)
+
+Views flagged as **custom** (`customView` / Inbox, Outbox, Recent, and peers that run a classic
+application URL rather than field criteria) **cannot** be executed on this façade. The server
+returns **`400`** with a message that custom URL views are unsupported here. That family is
+deferred to a dedicated Inbox runner — it is **not** a silent empty result.
+
+Standard field-criteria views (`standardView`) execute with the same design operators, display
+format, max results, and case sensitivity stored on the view design.
+
+### Integrator notes
+
+- Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
+- Create / update / delete of view designs is not supported on this API (`designGaps` on detail).
+- The Developer SPA lists views via `GET`; Explorer run-from-tree is a later product slice.
+
 ## Design capability gaps (`designGaps`)
 
 Some Developer detail payloads include a **`designGaps`** array so clients know what the REST

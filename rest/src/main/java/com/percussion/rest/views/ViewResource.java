@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -23,14 +25,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Read-only CX view catalog for the Developer module (UI-07 list/detail).
+ * CX view design catalog (UI-07 list/detail) plus standard-view execute façade for Explorer.
  *
- * <p>Searches (UI-06) remain a separate catalog.
+ * <p>Searches (UI-06) remain a separate catalog. Custom-URL views (Inbox family) are not executed
+ * here — they return 400 (see Inbox / #3118).
  */
 @PSSiteManageBean(value = "restViewResource")
 @Path("/views")
 @XmlRootElement
-@Tag(name = "Views", description = "CX view design catalog (read-only)")
+@Tag(name = "Views", description = "CX view design catalog and standard-view execute")
 public class ViewResource {
 
   private final IViewAdaptor adaptor;
@@ -96,6 +99,50 @@ public class ViewResource {
     } catch (WebApplicationException e) {
       // Preserve mapped HTTP errors (e.g. 503 misconfiguration from requireAdaptor)
       throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Execute a standard field-criteria design view. Path is multi-segment so it does not collide
+   * with {@code GET /{idOrName}} catalog detail. Custom URL views return 400.
+   */
+  @POST
+  @Path("/{idOrName}/execute")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Execute a standard design view",
+      description =
+          "Loads the CX view design by name, GUID, or id from the views catalog (not searches)"
+              + " and executes it server-side with design field operators, display format, max"
+              + " results, and case sensitivity. Optional body may override folder scope, paging,"
+              + " and sort. Custom URL views (Inbox / Outbox / Recent) return 400; use the Inbox"
+              + " runner when that surface ships.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ViewExecuteResult.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid body or unsupported view type"),
+        @ApiResponse(responseCode = "404", description = "View not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ViewExecuteResult executeView(
+      @PathParam("idOrName") String idOrName, ViewExecuteRequest body) {
+    try {
+      ViewExecuteResult result = requireAdaptor().executeView(idOrName, body);
+      if (result == null) {
+        throw new WebApplicationException("View not found", 404);
+      }
+      return result;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid execute request", 400);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
