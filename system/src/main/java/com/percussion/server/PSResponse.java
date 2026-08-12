@@ -36,8 +36,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.SocketException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
@@ -135,10 +135,10 @@ public class PSResponse extends PSBaseResponse {
    *     </code> if it wasn't, in which case it may be a response or entity header field
    */
   public boolean setGeneralHeader(String header, String value) {
-    String useHdr = (String) ms_GeneralHeaders.get(header.toLowerCase());
+    String useHdr = ms_GeneralHeaders.get(header.toLowerCase());
     if (useHdr == null) return false;
 
-    if (m_generalHeaders == null) m_generalHeaders = new HashMap();
+    if (m_generalHeaders == null) m_generalHeaders = new HashMap<>();
 
     m_generalHeaders.put(useHdr, value);
     return true;
@@ -153,14 +153,14 @@ public class PSResponse extends PSBaseResponse {
    *     </code> if it wasn't, in which case it may be a general or entity header field
    */
   public boolean setResponseHeader(String header, String value) {
-    String useHdr = (String) ms_ResponseHeaders.get(header.toLowerCase());
+    String useHdr = ms_ResponseHeaders.get(header.toLowerCase());
     if (useHdr == null) return false;
 
     // *TODO* we should add a check to see if this is a cookie, in
     // which case we need to parse the name and value and call the
     // setCookie method
 
-    if (m_responseHeaders == null) m_responseHeaders = new HashMap();
+    if (m_responseHeaders == null) m_responseHeaders = new HashMap<>();
 
     m_responseHeaders.put(useHdr, value);
     return true;
@@ -175,11 +175,11 @@ public class PSResponse extends PSBaseResponse {
    *     </code> if it wasn't, in which case it may be a general or response header field
    */
   public boolean setEntityHeader(String header, String value) {
-    String useHdr = (String) ms_EntityHeaders.get(header.toLowerCase());
+    String useHdr = ms_EntityHeaders.get(header.toLowerCase());
     if (useHdr == null) // treat this as an entity extension
     useHdr = header;
 
-    if (m_entityHeaders == null) m_entityHeaders = new HashMap();
+    if (m_entityHeaders == null) m_entityHeaders = new HashMap<>();
 
     m_entityHeaders.put(useHdr, value);
     return true;
@@ -187,12 +187,12 @@ public class PSResponse extends PSBaseResponse {
 
   public String getEntityHeader(String header) {
     String ret = null;
-    String useHdr = (String) ms_EntityHeaders.get(header.toLowerCase());
+    String useHdr = ms_EntityHeaders.get(header.toLowerCase());
     if (useHdr == null) // treat this as an entity extension
     useHdr = header;
 
     if (m_entityHeaders != null) {
-      ret = (String) m_entityHeaders.get(useHdr);
+      ret = m_entityHeaders.get(useHdr);
     }
     return ret;
   }
@@ -205,7 +205,7 @@ public class PSResponse extends PSBaseResponse {
    * @param value the cookie's value (including any optional data)
    */
   public void setCookie(String name, String value) {
-    if (m_cookies == null) m_cookies = new HashMap();
+    if (m_cookies == null) m_cookies = new HashMap<>();
 
     m_cookies.put(name, value);
   }
@@ -213,12 +213,12 @@ public class PSResponse extends PSBaseResponse {
   /**
    * @return the cookies
    */
-  public HashMap getCookies() {
+  public HashMap<String, String> getCookies() {
     return m_cookies;
   }
 
   /* protected call to set cookies, used by PSRequestContext */
-  void setCookies(HashMap cookies) {
+  void setCookies(HashMap<String, String> cookies) {
     m_cookies = cookies;
   }
 
@@ -559,19 +559,15 @@ public class PSResponse extends PSBaseResponse {
    *     <p>* @param headers the headers to write
    * @exception IOException if an i/o error occurs
    */
-  private void writeHeaders(BufferedOutputStream buf, HashMap headers) throws IOException {
+  private void writeHeaders(BufferedOutputStream buf, HashMap<String, String> headers)
+      throws IOException {
     if (headers != null)
       if (headers.size() > 0) {
-        /* go through each header and write it out */
-        Iterator keys = headers.keySet().iterator();
-        Iterator values = headers.values().iterator();
-
-        for (; keys.hasNext(); ) {
-          String key = (String) keys.next();
-          String value = (String) values.next();
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+          String key = entry.getKey();
+          String value = entry.getValue();
 
           buf.write(key.getBytes("US-ASCII"));
-          ;
           buf.write(HEADER_VALUE_BREAK);
           buf.write(value.getBytes("US-ASCII"));
           buf.write(CR_LF);
@@ -588,13 +584,9 @@ public class PSResponse extends PSBaseResponse {
   private void writeCookies(BufferedOutputStream buf) throws IOException {
     if (m_cookies != null)
       if (m_cookies.size() > 0) {
-        /* go through each header and write it out */
-        Iterator keys = m_cookies.keySet().iterator();
-        Iterator values = m_cookies.values().iterator();
-
-        for (; keys.hasNext(); ) {
-          String key = (String) keys.next();
-          String value = (String) values.next();
+        for (Map.Entry<String, String> entry : m_cookies.entrySet()) {
+          String key = entry.getKey();
+          String value = entry.getValue();
 
           buf.write(RHDR_SET_COOKIE.getBytes("US-ASCII"));
           buf.write(HEADER_VALUE_BREAK);

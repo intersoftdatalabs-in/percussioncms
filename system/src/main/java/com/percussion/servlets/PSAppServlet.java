@@ -36,9 +36,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -131,10 +129,10 @@ public class PSAppServlet extends HttpServlet {
       outputHeaders(res, psresp.getEntityHeaders());
       outputHeaders(res, psresp.getResponseHeaders());
       if (filename != null && filename != "") {
-        Map headers = new HashMap();
+        Map<String, String> headers = new HashMap<>();
         String contentType = null;
         if (psresp.getEntityHeaders() != null) {
-          contentType = (String) psresp.getEntityHeaders().get("Content-Type");
+          contentType = psresp.getEntityHeaders().get("Content-Type");
         }
 
         if (contentType != null
@@ -184,13 +182,10 @@ public class PSAppServlet extends HttpServlet {
    * @param headers the headers, assumed not <code>null</code>
    */
   @SuppressWarnings(value = {"unchecked"})
-  private void outputHeaders(HttpServletResponse res, Map headers) {
+  private void outputHeaders(HttpServletResponse res, Map<String, String> headers) {
     if (headers == null) return;
-    Iterator entryiter = headers.entrySet().iterator();
-
-    while (entryiter.hasNext()) {
-      Map.Entry entry = (Entry) entryiter.next();
-      res.setHeader((String) entry.getKey(), (String) entry.getValue());
+    for (Map.Entry<String, String> entry : headers.entrySet()) {
+      res.setHeader(entry.getKey(), entry.getValue());
     }
   }
 

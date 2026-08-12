@@ -81,7 +81,6 @@ import org.w3c.dom.Document;
  * This version of the PSRequest object is simply a wrapper on a standard <code>HttpServletRequest
  * </code>.
  */
-@SuppressWarnings(value = {"unchecked"})
 public class PSRequest {
   private static final Logger log = LogManager.getLogger(PSRequest.class);
 
@@ -125,9 +124,8 @@ public class PSRequest {
 
     // Process request parameters
     for (Map.Entry<String, String[]> stringEntry : req.getParameterMap().entrySet()) {
-      Map.Entry ent = stringEntry;
-      String paramName = (String) ent.getKey();
-      String[] arr = (String[]) ent.getValue();
+      String paramName = stringEntry.getKey();
+      String[] arr = stringEntry.getValue();
       for (String s : arr) {
         appendParameter(paramName, s);
       }
@@ -145,7 +143,7 @@ public class PSRequest {
     m_logHandler = lh;
     m_stats = new PSRequestStatistics();
     m_appHandler = null;
-    setPrivateObject(ASSEMBLY_RECURSION_MAP_KEY, new HashMap());
+    setPrivateObject(ASSEMBLY_RECURSION_MAP_KEY, new HashMap<String, Set<String>>());
     m_requestTimer = new PSStopwatch();
     m_requestTimer.start();
   }
@@ -199,15 +197,18 @@ public class PSRequest {
    */
   public PSRequest cloneRequest() {
     HashMap<String, Object> htmlParams =
-        m_params == null ? null : (HashMap<String, Object>) new HashMap<>(m_params).clone();
+        m_params == null ? null : new HashMap<>(m_params);
 
     /* Some htmlParam entries can be ArrayList instead of string, these must
     be cloned individually for safety */
     if (htmlParams != null) {
-      for (Map.Entry<String, Object> stringObjectEntry : htmlParams.entrySet()) {
-        Map.Entry ent = (Map.Entry) stringObjectEntry;
+      for (Map.Entry<String, Object> ent : htmlParams.entrySet()) {
         Object value = ent.getValue();
-        if (value instanceof ArrayList) ent.setValue(((ArrayList) value).clone());
+        if (value instanceof ArrayList) {
+          @SuppressWarnings("unchecked")
+          ArrayList<Object> cloned = (ArrayList<Object>) ((ArrayList<?>) value).clone();
+          ent.setValue(cloned);
+        }
       }
     }
 
@@ -889,7 +890,7 @@ public class PSRequest {
            * checked as ArrayList instance, not a List instance make an
            * array list.
            */
-          retValue = new ArrayList(valList.subList(0, size));
+          retValue = new ArrayList<>(valList.subList(0, size));
         } else {
           List<Object> balanceList;
           if (listSize > 0) {
@@ -1218,12 +1219,12 @@ public class PSRequest {
    * @param params an iterator over <code>Map.Entry</code> objects with the key as parameter name
    *     and the value as parameter value, not <code>null</code>, may be empty.
    */
-  public void setParameters(Iterator params) {
+  public void setParameters(Iterator<? extends Map.Entry<String, Object>> params) {
     if (params == null) throw new IllegalArgumentException("params can not be null");
 
     m_params = Collections.synchronizedMap(new HashMap<>());
     while (params.hasNext()) {
-      Map.Entry<String, Object> entry = (Map.Entry<String, Object>) params.next();
+      Map.Entry<String, Object> entry = params.next();
       m_params.put(entry.getKey(), entry.getValue());
     }
 
@@ -1601,10 +1602,7 @@ public class PSRequest {
    */
   public void saveParams() {
     if (m_params != null && isSavedParams() == false)
-      m_savedParams =
-          (Map<String, Object>)
-              Collections.synchronizedMap(
-                  (Map<String, Object>) new HashMap<String, Object>(m_params).clone());
+      m_savedParams = Collections.synchronizedMap(new HashMap<>(m_params));
   }
 
   /** Restores previously saved request params by {@link #saveParams()} call */

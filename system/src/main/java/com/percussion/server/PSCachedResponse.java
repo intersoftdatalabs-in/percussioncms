@@ -77,7 +77,7 @@ public class PSCachedResponse extends PSBaseResponse implements Serializable {
       try {
         response.setContent(
             PSXmlDocumentBuilder.createXmlDocument(new ByteArrayInputStream(m_content), false),
-            (String) m_entityHeaders.get(EHDR_CONT_TYPE));
+            m_entityHeaders.get(EHDR_CONT_TYPE));
       } catch (IOException e) {
         /**
          * This cannot happen. The source is buildt in the constructor and never changed after that.

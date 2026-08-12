@@ -77,9 +77,9 @@ public abstract class PSBaseResponse implements Serializable {
     if (resp == null) throw new IllegalArgumentException("response cannot be null");
 
     m_statusLine = resp.m_statusLine;
-    if (resp.m_generalHeaders != null) m_generalHeaders = new HashMap(resp.m_generalHeaders);
-    if (resp.m_responseHeaders != null) m_responseHeaders = new HashMap(resp.m_responseHeaders);
-    if (resp.m_entityHeaders != null) m_entityHeaders = new HashMap(resp.m_entityHeaders);
+    if (resp.m_generalHeaders != null) m_generalHeaders = new HashMap<>(resp.m_generalHeaders);
+    if (resp.m_responseHeaders != null) m_responseHeaders = new HashMap<>(resp.m_responseHeaders);
+    if (resp.m_entityHeaders != null) m_entityHeaders = new HashMap<>(resp.m_entityHeaders);
     m_isContentDoc = resp.m_isContentDoc;
     m_contentLength = resp.m_contentLength;
     m_contentStream = resp.m_contentStream;
@@ -140,14 +140,14 @@ public abstract class PSBaseResponse implements Serializable {
   /**
    * @return Returns the entityHeaders.
    */
-  public HashMap getEntityHeaders() {
+  public HashMap<String, String> getEntityHeaders() {
     return m_entityHeaders;
   }
 
   /**
    * @return Returns the generalHeaders.
    */
-  public HashMap getGeneralHeaders() {
+  public HashMap<String, String> getGeneralHeaders() {
     return m_generalHeaders;
   }
 
@@ -175,7 +175,7 @@ public abstract class PSBaseResponse implements Serializable {
   /**
    * @return Returns the responseHeaders.
    */
-  public HashMap getResponseHeaders() {
+  public HashMap<String, String> getResponseHeaders() {
     return m_responseHeaders;
   }
 
@@ -230,16 +230,16 @@ public abstract class PSBaseResponse implements Serializable {
   protected int m_statusCode = IPSHttpErrors.HTTP_OK;
 
   /** The general headers for the current response, might be <code>null</code>. */
-  protected HashMap m_generalHeaders = null;
+  protected HashMap<String, String> m_generalHeaders = null;
 
   /** The response headers for the current response, might be <code>null</code>. */
-  protected HashMap m_responseHeaders = null;
+  protected HashMap<String, String> m_responseHeaders = null;
 
   /** The entity headers for the current response, might be <code>null</code>. */
-  protected HashMap m_entityHeaders = null;
+  protected HashMap<String, String> m_entityHeaders = null;
 
   /** Container for all cookies of this response, might be <code>null</code>. */
-  protected HashMap m_cookies = null;
+  protected HashMap<String, String> m_cookies = null;
 
   /**
    * Flag to indicate whether this is a normal text response or a document response. If <code>true
@@ -354,19 +354,19 @@ public abstract class PSBaseResponse implements Serializable {
    * A static map containing all general headers. The key is the lower cased header value, while the
    * value is the proper cased header value. Initialized once, never changed after that.
    */
-  protected static final HashMap ms_GeneralHeaders;
+  protected static final HashMap<String, String> ms_GeneralHeaders;
 
   /**
    * A static map containing all response headers. The key is the lower cased header value, while
    * the value is the proper cased header value. Initialized once, never changed after that.
    */
-  protected static final HashMap ms_ResponseHeaders;
+  protected static final HashMap<String, String> ms_ResponseHeaders;
 
   /**
    * A static map containing all entity headers. The key is the lower cased header value, while the
    * value is the proper cased header value. Initialized once, never changed after that.
    */
-  protected static final HashMap ms_EntityHeaders;
+  protected static final HashMap<String, String> ms_EntityHeaders;
 
   /** Initialize static members. */
   static {
@@ -380,7 +380,7 @@ public abstract class PSBaseResponse implements Serializable {
     }
 
     // init general header map
-    ms_GeneralHeaders = new HashMap();
+    ms_GeneralHeaders = new HashMap<>();
     ms_GeneralHeaders.put(GHDR_CACHE_CONTROL.toLowerCase(), GHDR_CACHE_CONTROL);
     ms_GeneralHeaders.put(GHDR_CONNECTION.toLowerCase(), GHDR_CONNECTION);
     ms_GeneralHeaders.put(GHDR_DATE.toLowerCase(), GHDR_DATE);
@@ -390,7 +390,7 @@ public abstract class PSBaseResponse implements Serializable {
     ms_GeneralHeaders.put(GHDR_VIA.toLowerCase(), GHDR_VIA);
 
     // init response header map
-    ms_ResponseHeaders = new HashMap();
+    ms_ResponseHeaders = new HashMap<>();
     ms_ResponseHeaders.put(RHDR_AGE.toLowerCase(), RHDR_AGE);
     ms_ResponseHeaders.put(RHDR_LOCATION.toLowerCase(), RHDR_LOCATION);
     ms_ResponseHeaders.put(RHDR_PROXY_AUTH.toLowerCase(), RHDR_PROXY_AUTH);
@@ -403,7 +403,7 @@ public abstract class PSBaseResponse implements Serializable {
     ms_ResponseHeaders.put(RHDR_WWW_AUTH.toLowerCase(), RHDR_WWW_AUTH);
 
     // init entity header map
-    ms_EntityHeaders = new HashMap();
+    ms_EntityHeaders = new HashMap<>();
     ms_EntityHeaders.put(EHDR_ALLOW.toLowerCase(), EHDR_ALLOW);
     ms_EntityHeaders.put(EHDR_CONT_BASE.toLowerCase(), EHDR_CONT_BASE);
     ms_EntityHeaders.put(EHDR_CONT_ENC.toLowerCase(), EHDR_CONT_ENC);

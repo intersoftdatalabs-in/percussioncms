@@ -20,7 +20,9 @@ package com.percussion.server;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -62,7 +64,7 @@ public class PSRequestTest {
   @Test
   public void testClone() throws Exception {
     // build parameter map
-    HashMap params = new HashMap();
+    HashMap<String, Object> params = new HashMap<>();
     params.put("alpha", "beta");
     params.put("foo", "bar");
 
@@ -88,6 +90,57 @@ public class PSRequestTest {
     assertEquals("bar", clone.getParameter("bar"));
     assertNull(request.getParameter("bar"));
     assertTrue(!clone.getParameters().equals(request.getParameters()));
+  }
+
+  @Test
+  public void testResponseCookiesAndHeadersTyped() {
+    PSRequest request = getEmptyRequest();
+    PSResponse response = request.getResponse();
+    assertNotNull(response);
+
+    response.setCookie("session", "abc123");
+    HashMap<String, String> cookies = response.getCookies();
+    assertEquals("abc123", cookies.get("session"));
+
+    HashMap<String, String> replacement = new HashMap<>();
+    replacement.put("theme", "dark");
+    response.setCookies(replacement);
+    assertEquals("dark", response.getCookies().get("theme"));
+    assertNull(response.getCookies().get("session"));
+
+    assertTrue(response.setGeneralHeader(PSBaseResponse.GHDR_CONNECTION, "close"));
+    assertEquals("close", response.getGeneralHeaders().get(PSBaseResponse.GHDR_CONNECTION));
+
+    assertTrue(response.setEntityHeader(PSBaseResponse.EHDR_CONT_TYPE, "text/plain"));
+    assertEquals("text/plain", response.getEntityHeader(PSBaseResponse.EHDR_CONT_TYPE));
+    assertEquals("text/plain", response.getEntityHeaders().get(PSBaseResponse.EHDR_CONT_TYPE));
+
+    PSRequestContext ctx = new PSRequestContext(request);
+    HashMap<String, String> viaContext = new HashMap<>();
+    viaContext.put("locale", "en-US");
+    ctx.setResponseCookies(viaContext);
+    assertEquals("en-US", ctx.getResponseCookies().get("locale"));
+  }
+
+  @Test
+  public void testCloneDeepCopiesListParams() {
+    HashMap<String, Object> params = new HashMap<>();
+    ArrayList<String> multi = new ArrayList<>();
+    multi.add("one");
+    multi.add("two");
+    params.put("multi", multi);
+
+    PSRequest request = getEmptyRequest();
+    request.setParameters(params);
+
+    PSRequest clone = request.cloneRequest();
+    @SuppressWarnings("unchecked")
+    ArrayList<String> clonedList = (ArrayList<String>) clone.getParameters().get("multi");
+    assertNotNull(clonedList);
+    assertNotSame(multi, clonedList);
+    clonedList.add("three");
+    assertEquals(2, ((List<?>) request.getParameters().get("multi")).size());
+    assertEquals(3, clonedList.size());
   }
 
   /** */
