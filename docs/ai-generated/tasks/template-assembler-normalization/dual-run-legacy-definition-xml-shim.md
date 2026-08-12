@@ -46,7 +46,7 @@ Hard order for a package root or definition id:
 
 | Surface | Path / class | Role today | Dual-run note |
 |---------|--------------|------------|---------------|
-| Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; dual-run selection via `PSLegacyDefinitionXmlShim` (#3024) | Prefer modern when `widgetDao.modernPackageRoots` has a matching `component-package.json`; selection kind test-visible; XML content remains install wire / customer fallback |
+| Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; dual-run selection via `PSLegacyDefinitionXmlShim` (#3024) | Prefer modern when `widgetDao.modernPackageRoots` has a matching `component-package.json`; **defaults (#3130):** blank property → `${rxdeploydir}/Packages/Modern` (+ classpath materialize); selection kind test-visible; XML content remains install wire / customer fallback |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
 | Gadget registry | `WebUI/.../GadgetRegistry` dual-load (`gadget-catalog.json` preferred, `GadgetRegistry.xml` fallback) | Product ships modern catalog; legacy XML kept for dual-run | Prefer modern (#2788); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); do not delete fallback (#2852) |
@@ -57,7 +57,7 @@ Hard order for a package root or definition id:
 - `PSLegacyDefinitionXmlShim.selectByPresence(...)` — pure flags (tests / metrics)
 - `PSLegacyDefinitionXmlShim.selectForPackageRoot(Path)` — package directory
 - `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, widgetsDir, pagesDir, gadgetsDir)` — dual-run by id
-- **Production wire (#3024):** `PSWidgetDao.selectDefinitionSource(id)` and poll-time `recordSelectionKinds` call `selectDefinition`; optional Spring `widgetDao.modernPackageRoots` (`File.pathSeparator` list); `getLastSelectionKind()` / `getSelectionKindsById()` for tests and support.
+- **Production wire (#3024 / #3130):** `PSWidgetDao.selectDefinitionSource(id)` and poll-time `recordSelectionKinds` call `selectDefinition`; Spring `widgetDao.modernPackageRoots` (`File.pathSeparator` list) **or blank → product defaults** via `PSModernPackageRootDefaults` (`Packages/Modern` under `${rxdeploydir}`, classpath materialize when empty); `getLastSelectionKind()` / `getSelectionKindsById()` for tests and support.
 
 ## Time box / deprecation
 
@@ -84,6 +84,17 @@ Hard order for a package root or definition id:
 5. **Remove** legacy XML after smoke/parity for converted definitions.
 6. **Exit dual-run** when no required customer definitions rely on the XML path (Phase 5).
 
+### Product / H2 default modern roots (#3130)
+
+| Knob | Default / behavior |
+|------|--------------------|
+| `widgetDao.modernPackageRoots` | **Blank by default** — no Spring surgery required for product / H2 `qa-up` |
+| Install tree | `${rxdeploydir}/Packages/Modern/<packageName>/widgets/<stem>/component-package.json` staged by distribution packaging |
+| Classpath fallback | If `Packages/Modern` is empty at first resolve, materialize modern `widgets/` from `perc-packages` classpath `Packages/*` |
+| Explicit override | Set `widgetDao.modernPackageRoots` to a `File.pathSeparator`-separated list of package roots |
+| Legacy-only | Omit modern trees (or point property at empty list programmatically); customer-only Widget XML still selects `LEGACY_WIDGET_XML` |
+| Shim | **Keep** `PSLegacyDefinitionXmlShim` until Phase 5 criteria (#2852) |
+
 ## Exit criteria (shim retirement)
 
 The dual-run window ends when **all** of the following hold. **Authoritative metrics, test gates, time-box, and 2026-08-10 inventory:** [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835).
@@ -91,7 +102,7 @@ The dual-run window ends when **all** of the following hold. **Authoritative met
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` are **not** authored as `*.templateDef` (#2786; native install mode #2806 — dual-ship roots off).
 - [ ] Remaining product packages in repo/install are **not** authored as Page / Widget / Gadget definition XML (ADR-004 ship bar) — Baseline page templates done; **widget dual-ship batch A** modern roots landed (#2831, 8 widgets); remaining ~40 product widgets still dual-ship XML as install authoring until further batches + native install. **Inventory detail:** product Widget definition XMLs under Packages (`sys__UserDependency--rxconfig/Widgets`) — see [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md).
 - [ ] Customer upgrade path documented and used for remaining XML (window still open for 8.2 dual-run).
-- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot (#3024):** `PSWidgetDao` logs dual-run counts and exposes selection kinds; M2 still open until modern roots are configured in product installs and legacy rate is zero/waived. **Snapshot (#3025):** WebUI `GadgetRegistry` logs INFO dual-load metrics (`modern=` / `legacyRegistryXml=` / `none=`) and exposes `getLastLoadSource()` / `getLastLoadEntryCount()`; product classpath prefers modern; legacy fallback retained until #2852.
+- [ ] Runtime metrics (or support inventory) show no production dependence on legacy definition XML loads — or remaining cases are explicitly waived. **Snapshot (#3024):** `PSWidgetDao` logs dual-run counts and exposes selection kinds. **Snapshot (#3130):** product/H2 default `Packages/Modern` (+ classpath materialize) so modern-first selection without Spring surgery; M2 still open until runtime legacy rate is zero/waived. **Snapshot (#3025):** WebUI `GadgetRegistry` logs INFO dual-load metrics (`modern=` / `legacyRegistryXml=` / `none=`) and exposes `getLastLoadSource()` / `getLastLoadEntryCount()`; product classpath prefers modern; legacy fallback retained until #2852.
 - [ ] Phase 5 (#2632) removes or hard-disables the shim and updates help — **blocked** until criteria doc M1–M3 + G1–G6 pass; residual tracks the deletion PR.
 
 **Do not** mass-delete the customer-facing shim while any box above is open.

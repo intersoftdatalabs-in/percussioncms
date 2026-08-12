@@ -244,6 +244,18 @@
 			</fileset>
 		</copy>
 
+		<!-- Dual-run modern package roots for product/H2 installs (#3130 / parent #2630).
+			PSWidgetDao defaults to Packages/Modern when widgetDao.modernPackageRoots is blank
+			so modern-first selection works without Spring property surgery. Layout:
+			Packages/Modern/<packageName>/widgets/<stem>/component-package.json -->
+		<mkdir dir="${assembly-directory}/Packages/Modern" />
+		<copy todir="${assembly-directory}/Packages/Modern" includeemptydirs="false">
+			<fileset
+				dir="${basedir}/../../modules/perc-packages/src/main/resources/Packages">
+				<include name="*/widgets/**" />
+			</fileset>
+		</copy>
+
 
 		<mkdir dir="${assembly-directory}/DTD" />
 		<copy todir="${assembly-directory}/DTD">
