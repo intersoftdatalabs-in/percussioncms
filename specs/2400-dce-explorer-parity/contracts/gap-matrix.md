@@ -1,8 +1,9 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-10 (closeout re-audit #2794 against `origin/main` after #2748 / #2773 / #2775 / #2777 / #2782; re-confirmed #2827 after #2792/#2793 merges; Object ACL cross-epic pointer #2828; P-Trans OUT sign-off #2829)  
-**Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.
+**Evidence date:** 2026-08-11 (operator reality-check reconcile #3109 / parent [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102); prior closeout #2794 / #2827 / #2828 / #2829 on 2026-08-10)  
+**Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry.  
+**QA gate:** **Present** requires closed human QA (or an explicit defend note). Open **Failed** / open QA on a row → keep **Partial** until pass. Agent merge alone is insufficient (#3102 / #3109).
 
 Legend: **Present** | **Partial** | **Missing** | **OUT**
 
@@ -10,25 +11,25 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
-| Sites/folders tree | `PSNavigationTree` | `ExplorerTree` + path APIs | Present | — |
-| Detail list of children | Main list | `DetailList` + `paginatedFolder` | Present | — |
-| Full product shell composition | Frame + panels | Shell composes search, menus, DF, security on product route | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) (merged) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) |
-| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | `ExplorerMenuBar` on product shell (nested Content/View/Help; view tools under View) | **Present** | #2731 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · nested ActionToolbar also #2730 / [PR #2782](https://github.com/intersoftdatalabs-in/percussioncms/pull/2782) |
-| Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` (nested MENU dropdowns) + `ContextMenu` + `actionMenuApi` wired in shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · nested dropdown #2730 / #2731 |
+| Sites/folders tree | `PSNavigationTree` | `ExplorerTree` + path APIs | **Partial** (code on route; Sites sample load/create still p1) | Code present · operator/QA [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) (Sites not loaded / no create) · dual-run folder QA [#3101](https://github.com/intersoftdatalabs-in/percussioncms/issues/3101) |
+| Detail list of children | Main list | `DetailList` + `paginatedFolder` | Present | — (list chrome present; useful content depends on tree/Sites #2989) |
+| Full product shell composition | Frame + panels | Shell composes search, menus, DF, security on product route | **Partial** (merged; human QA Failed) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) (merged) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| Menu bar (Content / View / Help) | `ContentExplorerMenu.xml` | `ExplorerMenuBar` on product shell (nested Content/View/Help; view tools under View) | **Partial** (merged; human QA open) | #2731 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) open · preview/refresh residual QA [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) |
+| Server-driven toolbar/context menus | Action manager + server menus | `ActionToolbar` (nested MENU dropdowns) + `ContextMenu` + `actionMenuApi` wired in shell | **Partial** (merged; human QA open — operators still report flat labels) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · nested #2730 / [PR #2782](https://github.com/intersoftdatalabs-in/percussioncms/pull/2782) · QA [#2783](https://github.com/intersoftdatalabs-in/percussioncms/issues/2783) · [#2856](https://github.com/intersoftdatalabs-in/percussioncms/issues/2856) · [#2988](https://github.com/intersoftdatalabs-in/percussioncms/issues/2988) |
 | Reduced create/rename/move/copy/delete | Folder actions | `ReducedActions` in shell | Present | — |
-| Open / preview item | Open handlers | `openInEditor` + product `openPreviewItem` (page render / asset view URL) from selection | **Present** | #2733 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) |
-| Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) |
-| Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
-| View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Present** | #2731 · #2733 · [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) |
+| Open / preview item | Open handlers | `openInEditor` + product `openPreviewItem` (page render / asset view URL) from selection | **Partial** (merged; human QA open) | #2733 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) open |
+| Multi-select list | Selection model | `multiSelectedIds` / `DetailList` multi-select in shell | **Present** | #2408 · [PR #2522](https://github.com/intersoftdatalabs-in/percussioncms/pull/2522) (merged) · **Defend:** no Failed QA on multi-select itself; clipboard row separate |
+| Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Partial** (merged; human QA Failed under shell) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Partial** (merged; human QA open) | #2731 · #2733 · [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) · [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) |
 
 ## Search
 
 | Capability | DCE source | Explorer / REST today | Status | Slice |
 |------------|------------|------------------------|--------|-------|
-| Simple / extended search | `PSSearchDialog` | `SearchPanel` toggle in product shell | **Present** | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) |
-| Open / reveal from results | Search results | Callbacks on panel | Present | #2407 |
-| Saved searches catalog + run | CE saved search | Catalog `GET /rest/searches` + execute façade `POST /services/searches/{idOrName}/execute` + `SearchPanel` picker/run on product shell | **Present** | #2409 · A–D #2504–#2507 · [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579) / [#2592](https://github.com/intersoftdatalabs-in/percussioncms/pull/2592) / [#2606](https://github.com/intersoftdatalabs-in/percussioncms/pull/2606) / [#2644](https://github.com/intersoftdatalabs-in/percussioncms/pull/2644) |
-| Search in ContentBrowser hosts | Dialogs | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch` (asset picker host on); catalog + free-text + saved execute reuse Explorer APIs | **Present** | #2793 · [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) (merged) |
+| Simple / extended search | `PSSearchDialog` | `SearchPanel` toggle in product shell | **Partial** (merged; human QA Failed under shell) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| Open / reveal from results | Search results | Callbacks on panel | Present | #2407 · **Defend:** panel callbacks remain code-present; operator value gated by search/saved-search QA |
+| Saved searches catalog + run | CE saved search | Catalog `GET /rest/searches` + execute façade `POST /services/searches/{idOrName}/execute` + `SearchPanel` picker/run on product shell | **Partial** (merged; human QA Failed/open) | #2409 · A–D #2504–#2507 · [PR #2579](https://github.com/intersoftdatalabs-in/percussioncms/pull/2579) / [#2592](https://github.com/intersoftdatalabs-in/percussioncms/pull/2592) / [#2606](https://github.com/intersoftdatalabs-in/percussioncms/pull/2606) / [#2644](https://github.com/intersoftdatalabs-in/percussioncms/pull/2644) · QA [#2607](https://github.com/intersoftdatalabs-in/percussioncms/issues/2607) **Failed** · [#2645](https://github.com/intersoftdatalabs-in/percussioncms/issues/2645) open · [#2729](https://github.com/intersoftdatalabs-in/percussioncms/issues/2729) **Failed** |
+| Search in ContentBrowser hosts | Dialogs | `ContentBrowser` mounts shared `SearchPanel` when `enableSearch` (asset picker host on); catalog + free-text + saved execute reuse Explorer APIs | **Present** | #2793 · [PR #2798](https://github.com/intersoftdatalabs-in/percussioncms/pull/2798) (merged) · QA [#2799](https://github.com/intersoftdatalabs-in/percussioncms/issues/2799) To Be Tested · **Defend Present (host mount only):** #3102/#3109 did not cite host-picker failure; product-shell search/saved-search remain Partial above |
 
 ## Security & properties
 
@@ -61,6 +62,40 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Content-locale session context (path APIs re-issued under content locale) | **OUT** signed #2829 — per-item locale + create-variant sufficient; session model is redesign. Same OUT note. |
 
 ## Implementation notes
+
+### 2026-08-11 false Present vs open Failed QA reconcile (#3109 / #3102)
+
+**Parent reality-check:** [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · **This slice:** [#3109](https://github.com/intersoftdatalabs-in/percussioncms/issues/3109)  
+**Research note:** [false-present-qa-reconcile.md](../research/false-present-qa-reconcile.md)
+
+Operator/QA evidence showed several gap-matrix rows still **Present** while human QA was **Failed** or still open. Per #3102 rule — *Present without closed human QA is not release-ready* — those rows are flipped to **Partial** with QA links. No Explorer chrome re-implement in this docs slice.
+
+| Capability | Was | Now | QA / operator evidence (2026-08-11) |
+|------------|-----|-----|-------------------------------------|
+| Sites/folders tree | Present | **Partial** | [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) p1 Sites not loaded / no create; related folder QA [#3101](https://github.com/intersoftdatalabs-in/percussioncms/issues/3101) |
+| Full product shell composition | Present | **Partial** | [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| Display formats for columns | Present | **Partial** | Same shell QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| Simple / extended search | Present | **Partial** | Same shell QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
+| Menu bar (Content / View / Help) | Present | **Partial** | [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) open |
+| View options / refresh | Present | **Partial** | [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) · [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) open |
+| Open / preview item | Present | **Partial** | [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) open |
+| Server-driven toolbar/context menus | Present | **Partial** | [#2783](https://github.com/intersoftdatalabs-in/percussioncms/issues/2783) · [#2856](https://github.com/intersoftdatalabs-in/percussioncms/issues/2856) · [#2988](https://github.com/intersoftdatalabs-in/percussioncms/issues/2988) open; operators still report flat label buttons |
+| Saved searches catalog + run | Present | **Partial** | [#2607](https://github.com/intersoftdatalabs-in/percussioncms/issues/2607) **Failed** · [#2645](https://github.com/intersoftdatalabs-in/percussioncms/issues/2645) open · [#2729](https://github.com/intersoftdatalabs-in/percussioncms/issues/2729) **Failed** |
+
+**Explicitly defended Present (not flipped this slice):**
+
+| Capability | Why still Present |
+|------------|-------------------|
+| Multi-select list | #3102 symptoms target toolbar/tree/search, not multi-select selection model; no Failed QA tracker cited for multi-select alone |
+| Detail list of children | List chrome remains; Sites hierarchy failure is tracked on tree row (#2989), not a separate false Present for `DetailList` |
+| Open / reveal from results | Callback wiring; operator outcome gated by Partial search/saved-search rows |
+| Search in ContentBrowser hosts | Host `enableSearch` mount not cited as Failed in #3102; shell search/saved-search already Partial |
+| Reduced create/rename/move/copy/delete | Not in #3102 false-Present table |
+| Clipboard / site-subfolder wizards / dependency / relationships | Not in #3102 false-Present table for this slice (separate open QA may exist; re-audit if Failed) |
+| Translation workflow (locales + create) | Intentional Present + Explicit OUT (#2829); human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649) Blocked — do not re-open OUT rows here |
+| Object ACL editor (full) | Already **Partial** cross-epic (#2828) |
+
+**Do not:** close human QA issues from this docs PR; re-implement Explorer chrome; flip back to Present until the linked QA issues pass (or product re-defends with evidence).
 
 ### 2026-08-10 Object ACL cross-epic disposition (#2828)
 

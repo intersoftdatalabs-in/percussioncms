@@ -8,7 +8,7 @@
 
 | Deliverable | Status |
 |-------------|--------|
-| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-10 incl. #2829 P-Trans OUT) |
+| `spec.md` / `plan.md` / `gap-matrix.md` | **Done** (package on `main`; matrix refreshed 2026-08-11 #3109 false-Present→Partial vs open Failed QA; prior #2829 P-Trans OUT) |
 | Child GH issues for first backlog | **Done** (#2407–#2411 + #2409→#2504–#2507 + #2411→#2428–#2430) |
 | Link package + slices on #2400 | **Done** (maintain `## Agent progress` on issue body) |
 
@@ -35,7 +35,7 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Folder-valid display format list | `GET /rest/displayformats?validForFolder=true` | **Done** (PR #2412) |
 | Column cell data | Use `PSPathItem.displayProperties` / `columnData` when `displayFormatId` set on paginatedFolder | **Done** for shell path (PR #2412) |
 | Workflow / modified columns empty | If still empty after format id, extend path list DTO in sitemanage (not invent on client) | Open if QA finds empty columns |
-| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | **Done** A–D (#2504–#2507); matrix Present; open human QA #2607 / #2645 |
+| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | **Done** A–D (#2504–#2507); matrix **Partial** until human QA passes (#3109) — QA #2607 Failed / #2645 open / #2729 Failed |
 | Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428); REST **Done** (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)); Explorer UI **Done** (#2430 / [PR #2648](https://github.com/intersoftdatalabs-in/percussioncms/pull/2648)); in-flight + session **OUT** signed (#2829 / [p-trans-out-disposition.md](./research/p-trans-out-disposition.md)); human QA #2649 |
 
 ## Phase 3 — Action / workflow depth
@@ -57,12 +57,14 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 ## Active implementation order (do not re-audit from scratch)
 
-**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** over inventing new implement slices.
+**Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices.
 
-1. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
-2. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
-3. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
-4. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row)
+1. **#3102 / #3109** — gap matrix no longer claims **Present** for shell/DF/search, menu, toolbar, saved search, Sites tree while QA is Failed/open; see [false-present-qa-reconcile.md](./research/false-present-qa-reconcile.md)  
+2. **#2989** (and related folder QA) — Sites/hierarchy p1 before new chrome features  
+3. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
+4. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
+5. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
+6. Phase 4 / redesign only when product prioritizes (including any reopened P-Trans OUT row; Views/Inbox disposition #3108/#3110)
 
 ### Epic #2400 remaining-open criteria (research program)
 
