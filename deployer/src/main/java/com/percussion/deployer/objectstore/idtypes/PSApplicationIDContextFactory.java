@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore.idtypes;
 
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
@@ -60,7 +60,7 @@ public class PSApplicationIDContextFactory {
       case PSBindingIdContext.XML_NODE_NAME -> new PSBindingIdContext(sourceNode);
       default ->
           throw new PSUnknownNodeTypeException(
-              IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+              ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
               new Object[] {"PSXApplicationIDContext", nodeName});
     };
   }

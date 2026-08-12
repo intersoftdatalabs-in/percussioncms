@@ -19,7 +19,7 @@ package com.percussion.deployer.objectstore.idtypes;
 
 import com.percussion.deployer.objectstore.IPSDeployComponent;
 import com.percussion.deployer.objectstore.PSDeployComponentUtils;
-import com.percussion.design.objectstore.IPSObjectStoreErrors;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -201,7 +201,7 @@ public final class PSBindingParamIdContext extends PSApplicationIdContext {
 
     if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
       throw new PSUnknownNodeTypeException(
-          IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+          ObjectStoreErrorCodes.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
 
@@ -213,7 +213,7 @@ public final class PSBindingParamIdContext extends PSApplicationIdContext {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+                        ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR,
                         new Object[] {XML_NODE_NAME, XML_ATTR_INDEX, strIndex}));
 
     var strOccur = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OCCUR);
@@ -224,7 +224,7 @@ public final class PSBindingParamIdContext extends PSApplicationIdContext {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+                        ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR,
                         new Object[] {XML_NODE_NAME, XML_ATTR_OCCUR, strOccur}));
 
     m_paramName =
@@ -238,7 +238,7 @@ public final class PSBindingParamIdContext extends PSApplicationIdContext {
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+                        ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD,
                         new Object[] {XML_NODE_NAME, "null", "null"}));
     m_param = new PSTextLiteral(paramEl, null, null);
 
