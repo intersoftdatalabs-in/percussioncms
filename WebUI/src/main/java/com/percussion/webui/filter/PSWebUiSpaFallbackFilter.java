@@ -210,7 +210,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if ("widgetbuilder".equals(entry)) {
       entry = "widget-builder";
     }
-    if ("arch".equals(entry)) {
+    if ("arch".equals(entry) || "navigation".equals(entry)) {
       entry = "architecture";
     }
     if (!SPA_ENTRIES.contains(entry)) {

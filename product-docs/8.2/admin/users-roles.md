@@ -62,6 +62,16 @@ still apply. Client-side checks require a non-empty password of at least six cha
 and a matching confirmation before submit. Success and failure messages are announced
 to assistive technology via a live region.
 
+## Default landing (homepage)
+
+In **My profile → Preferences**, or **Admin → Users** when editing a user, set
+**Default landing page**. Choose **Navigation** (stored as homepage type
+`Architecture`) to open the site Navigation SPA after sign-in. Leave **Use role
+default** to keep the role homepage. Login without a deep-link return URL posts
+to `/cm/app/` so the dispatcher applies this preference.
+
+See [Architecture & site navigation](id:admin-architecture-navigation).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.

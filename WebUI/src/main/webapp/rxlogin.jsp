@@ -62,15 +62,22 @@
         autocomplete = "off";
     }
 
-    // Default post-login SPA entry (query contract — never use # fragments).
-    String defaultRedirect = "/cm/app/spa.jsp?entry=home";
+    // Default post-login: index.jsp dispatcher resolves homepage preference
+    // (Architecture / Navigation → SPA architecture). Explicit return URLs
+    // still win. Query contract only — never # fragments. (#3219)
+    String defaultRedirect = "/cm/app/";
     String returnParam = request.getParameter("return");
-    if (returnParam != null
-            && returnParam.startsWith("/cm/app/spa.jsp")
+    boolean allowedReturn = returnParam != null
+            && (returnParam.startsWith("/cm/app/spa.jsp")
+                || "/cm/app".equals(returnParam)
+                || "/cm/app/".equals(returnParam)
+                || returnParam.startsWith("/cm/app?")
+                || returnParam.startsWith("/cm/app/?"))
             && !returnParam.contains("..")
             && !returnParam.contains("://")
             && !returnParam.contains("#")
-            && returnParam.length() < 2048) {
+            && returnParam.length() < 2048;
+    if (allowedReturn) {
         defaultRedirect = returnParam;
     }
 

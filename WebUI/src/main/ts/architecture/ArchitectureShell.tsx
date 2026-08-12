@@ -55,6 +55,7 @@ import {
 } from "../api/architecture/sectionMutations";
 import type { NavTreeNode } from "../api/architecture/types";
 import { fetchSites } from "../api/home/homeApi";
+import { SiteCreateWizard } from "../contentExplorer/wizards/SiteCreateWizard";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
@@ -85,6 +86,11 @@ export interface ArchitectureShellProps {
    * (unit tests). Default true.
    */
   useLandingContentBrowser?: boolean;
+  /**
+   * Show New Site (Explorer SiteCreateWizard) for entitled roles.
+   * Default true — Architecture is already Admin/Designer gated (#3219).
+   */
+  allowNewSite?: boolean;
 }
 
 type SitesLoadState =
@@ -107,6 +113,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   embedded = false,
   confirmFn,
   useLandingContentBrowser = true,
+  allowNewSite = true,
 }) => {
   const confirmAction = useCallback(
     (msg: string) => (confirmFn ? confirmFn(msg) : window.confirm(msg)),
@@ -141,6 +148,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     externalUrl: string;
     target: string;
   } | null>(null);
+  const [showNewSite, setShowNewSite] = useState(false);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -218,6 +226,30 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
 
   const onRefresh = useCallback(() => {
     setRefreshToken((n) => n + 1);
+  }, []);
+
+  const reloadSites = useCallback(async (preferSite?: string | null) => {
+    try {
+      const list = await fetchSites();
+      const names = list
+        .map((s) => (s.name != null ? String(s.name).trim() : ""))
+        .filter((n) => n.length > 0)
+        .sort((a, b) => a.localeCompare(b));
+      setSitesState({ status: "ready", names });
+      const preferred = preferSite != null ? String(preferSite).trim() : "";
+      setSelectedSite((prev) => {
+        if (preferred && names.includes(preferred)) return preferred;
+        if (prev && names.includes(prev)) return prev;
+        if (!prev && names.length > 0) return names[0];
+        return prev;
+      });
+    } catch (err) {
+      if (isSessionRedirectError(err)) return;
+      setSitesState({
+        status: "error",
+        message: formatApiError(err, ARCH_MSG.SITES_ERROR),
+      });
+    }
   }, []);
 
   const treeRoot =
@@ -622,7 +654,80 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         >
           {ARCH_MSG.REFRESH}
         </button>
+        {allowNewSite ? (
+          <button
+            type="button"
+            data-testid="architecture-action-new-site"
+            aria-expanded={showNewSite}
+            aria-controls="architecture-new-site-panel"
+            onClick={() => setShowNewSite((open) => !open)}
+            style={{
+              padding: "0.4rem 0.85rem",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: 4,
+              background: showNewSite ? "#e8eef8" : "#fff",
+              color: "#222",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {ARCH_MSG.ACTION_NEW_SITE}
+          </button>
+        ) : null}
       </section>
+
+      {allowNewSite && showNewSite ? (
+        <section
+          id="architecture-new-site-panel"
+          role="region"
+          aria-label={ARCH_MSG.NEW_SITE_REGION}
+          data-testid="architecture-new-site-panel"
+          style={{
+            border: `1px solid ${catalogColors.headerBorder}`,
+            borderRadius: 8,
+            padding: "1rem 1.25rem",
+            marginBottom: "12px",
+            background: "#fff",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <h2
+              style={{ margin: 0, fontSize: "1.05rem", color: "#1a202c" }}
+              data-testid="architecture-new-site-title"
+            >
+              {ARCH_MSG.ACTION_NEW_SITE}
+            </h2>
+            <button
+              type="button"
+              data-testid="architecture-new-site-close"
+              onClick={() => setShowNewSite(false)}
+              style={{
+                padding: "0.3rem 0.7rem",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: 4,
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              {ARCH_MSG.NEW_SITE_CLOSE}
+            </button>
+          </div>
+          <SiteCreateWizard
+            onCreated={({ siteName }) => {
+              setShowNewSite(false);
+              void reloadSites(siteName);
+            }}
+          />
+        </section>
+      ) : null}
 
       {!selectedSite ? (
         <section

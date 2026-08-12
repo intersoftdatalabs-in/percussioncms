@@ -52,7 +52,7 @@
         if ("widgetbuilder".equals(n)) {
             return "widget-builder";
         }
-        if ("arch".equals(n)) {
+        if ("arch".equals(n) || "navigation".equals(n)) {
             return "architecture";
         }
         if ("home".equals(n) || "publish".equals(n) || "workflow".equals(n)

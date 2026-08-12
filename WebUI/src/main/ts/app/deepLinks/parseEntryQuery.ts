@@ -61,7 +61,7 @@ export function parseEntryQuery(
   if (entryRaw === "widgetbuilder") {
     entryRaw = "widget-builder";
   }
-  if (entryRaw === "arch") {
+  if (entryRaw === "arch" || entryRaw === "navigation") {
     entryRaw = "architecture";
   }
   const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
@@ -201,7 +201,7 @@ export function parseClientPath(
   if (entryRaw === "widgetbuilder") {
     entryRaw = "widget-builder";
   }
-  if (entryRaw === "arch") {
+  if (entryRaw === "arch" || entryRaw === "navigation") {
     entryRaw = "architecture";
   }
   const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";

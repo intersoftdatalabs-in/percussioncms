@@ -45,6 +45,9 @@ const KEYS = {
   TREE_STRUCTURE_NOTE:
     "perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.",
   REFRESH: "perc.ui.architecture.modern@Refresh",
+  ACTION_NEW_SITE: "perc.ui.architecture.modern@New Site",
+  NEW_SITE_CLOSE: "perc.ui.architecture.modern@Close",
+  NEW_SITE_REGION: "perc.ui.architecture.modern@New Site panel",
   // Kept for older tests / deep links that still assert empty-shell keys
   EMPTY_TITLE: "perc.ui.architecture.modern@No site selected",
   EMPTY_BODY:
@@ -182,6 +185,9 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   TREE_PANEL_TITLE: message(KEYS.TREE_PANEL_TITLE),
   TREE_STRUCTURE_NOTE: message(KEYS.TREE_STRUCTURE_NOTE),
   REFRESH: message(KEYS.REFRESH),
+  ACTION_NEW_SITE: message(KEYS.ACTION_NEW_SITE),
+  NEW_SITE_CLOSE: message(KEYS.NEW_SITE_CLOSE),
+  NEW_SITE_REGION: message(KEYS.NEW_SITE_REGION),
   EMPTY_TITLE: message(KEYS.EMPTY_TITLE),
   EMPTY_BODY: message(KEYS.EMPTY_BODY),
   ACTIONS_LABEL: message(KEYS.ACTIONS_LABEL),

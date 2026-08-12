@@ -22,6 +22,14 @@
  */
 export const DEFAULT_SPA_ENTRY_REDIRECT = "/cm/app/spa.jsp?entry=home";
 
+/**
+ * Unauthenticated login default ({@code sys_redirect}) when the user has no
+ * explicit return URL. {@code /cm/app/} is the index.jsp dispatcher — it
+ * applies {@code getUserHomepage()} so Architecture / Navigation land on
+ * the Navigation SPA instead of Home (#3219 / parent #3197).
+ */
+export const DEFAULT_POST_LOGIN_REDIRECT = "/cm/app/";
+
 const ALLOWED_ENTRIES = new Set([
   "home",
   "publish",
@@ -76,9 +84,19 @@ export function buildSpaEntryRedirect(
  * @param candidate - raw redirect from bootstrap or query
  * @param fallback - used when candidate is invalid
  */
+function isAllowedAppRedirect(raw: string): boolean {
+  if (raw.startsWith("/cm/app/spa.jsp")) {
+    return true;
+  }
+  if (raw === "/cm/app" || raw === "/cm/app/") {
+    return true;
+  }
+  return raw.startsWith("/cm/app?") || raw.startsWith("/cm/app/?");
+}
+
 export function sanitizeLoginRedirect(
   candidate: string | null | undefined,
-  fallback: string = DEFAULT_SPA_ENTRY_REDIRECT,
+  fallback: string = DEFAULT_POST_LOGIN_REDIRECT,
 ): string {
   if (candidate == null || !String(candidate).trim()) {
     return fallback;
@@ -91,8 +109,8 @@ export function sanitizeLoginRedirect(
   if (!raw.startsWith("/") || raw.includes("..")) {
     return fallback;
   }
-  // Prefer SPA entry; also allow /cm/app for transitional landings
-  if (raw.startsWith("/cm/app/spa.jsp") || raw === "/cm/app" || raw.startsWith("/cm/app?")) {
+  // Prefer SPA entry; also allow /cm/app dispatcher (homepage resolve)
+  if (isAllowedAppRedirect(raw)) {
     return raw.length > 2048 ? fallback : raw;
   }
   return fallback;

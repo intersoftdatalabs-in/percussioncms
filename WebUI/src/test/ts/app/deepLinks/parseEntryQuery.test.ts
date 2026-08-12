@@ -85,6 +85,11 @@ describe("parseEntryQuery", () => {
       "/architecture",
     );
     expect(parseEntryQuery("?entry=arch").entry).toBe("architecture");
+    expect(parseEntryQuery("?entry=navigation").entry).toBe("architecture");
+    expect(parseEntryQuery("?entry=navigation").clientPath).toBe(
+      "/architecture",
+    );
+    expect(parseClientPath("/navigation").entry).toBe("architecture");
     expect(parseEntryQuery("?entry=architecture&site=Demo").site).toBe("Demo");
     expect(parseEntryQuery("?entry=architecture&site=Demo").clientPath).toBe(
       "/architecture/Demo",

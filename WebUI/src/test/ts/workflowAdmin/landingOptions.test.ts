@@ -39,6 +39,8 @@ describe("landingOptionsForRoles", () => {
     expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    const arch = opts.find((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(arch?.labelKey).toMatch(/Navigation/i);
   });
 
   it("includes Administration (Workflow) for Admin role", () => {

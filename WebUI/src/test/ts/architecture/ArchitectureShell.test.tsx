@@ -572,4 +572,41 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     expect(delSecSpy).not.toHaveBeenCalled();
   });
+
+  it("shows New Site for entitled users and opens the create wizard (#3219)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([]);
+    const siteCreate = await import(
+      "../../../main/ts/api/contentExplorer/siteCreateApi"
+    );
+    vi.spyOn(siteCreate, "listBaseTemplates").mockResolvedValue([
+      { name: "perc.base.plain", label: "Plain" },
+    ]);
+
+    render(<ArchitectureShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-new-site")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("architecture-new-site-panel")).toBeNull();
+    fireEvent.click(screen.getByTestId("architecture-action-new-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-new-site-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("architecture-new-site-title").textContent).toMatch(
+      /New Site/i,
+    );
+    expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("architecture-new-site-close"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-new-site-panel")).toBeNull();
+    });
+  });
+
+  it("hides New Site when allowNewSite is false", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([]);
+    render(<ArchitectureShell embedded allowNewSite={false} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-sites-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("architecture-action-new-site")).toBeNull();
+  });
 });
