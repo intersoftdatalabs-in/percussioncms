@@ -15,7 +15,7 @@ Unattended overnight worker:
 5. **Peer PR review** (optional, default on) - independent code review of open PRs **missing reviews** that are **co-authored by another model** or have **no `model:*` labels** (agent-shaped only); **APPROVE** when solid; **squash-merge** when checks green + threads clear (`allow_peer_squash_merge`, default true)  
 6. **Work** sequential implement or split - **claim-check** maintainer author + safety + **In Progress** just before start; **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count); **Maven build gates** (below)  
 7. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
-8. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR  
+8. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR. **Required:** standalone `mvnw clean install` (compile + tests) of **every Maven module touched** by the absorb **before** opening the cluster PR or closing absorbed PRs. Cycle verify later is not a substitute.  
 9. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
 10. **Cycle verify** (optional, default on) - Maven clean install of this-run modules + H2 `qa-up` Playwright. Failures become unassigned **p1** `[night-issues: Cycle Verify]` residuals that **lead the next cycle**. Never assigns human QA.  
 11. **Human QA** (optional, default on) - **only after Cycle verify**. Create a **`qa task`** and assign **`vijaya-boddipudi`** only if Q1–Q8 pass. Work and Cycle verify never assign humans.  
@@ -386,9 +386,27 @@ When many **owned** open PRs all edit the same hot paths (classic: `developer-ca
 3. If group size ≥ `cluster_min_prs` (or ≥2 CONFLICTING on shared paths):  
    - Branch `cluster/night-issue-<YYYYMMDD>-<topic>` from `night-issue-prs-main` (synced to `origin/main`) in the dedicated worktree  
    - Absorb PRs **oldest-first** (merge/cherry-pick) with **union** conflict resolution  
-   - Open **one** PR to `main` with a **Supersedes** table  
-   - Comment + **close** fully absorbed PRs (do **not** merge them)  
+   - **Build gate (HARD)** on the **final union tip** before push/open/close (below)  
+   - Open **one** PR to `main` with a **Supersedes** table **only if** that gate is green  
+   - Comment + **close** fully absorbed PRs (do **not** merge them) only after the gate is green  
 4. Leaves the cluster PR open for human morning review (no bot merge/approve)
+
+#### Cluster Maven gate (HARD)
+
+Cycle verify runs later and can be skipped. The cluster PR is the merge candidate, so it must compile and test **before** it exists.
+
+| Gate | Requirement |
+|------|-------------|
+| **B1 — touched modules** | Every Maven module whose sources, tests, resources, or `pom.xml` were touched by any absorbed PR or by conflict-resolution edits: standalone `mvnw clean install` from the module dir (testCompile + module tests). **No** `-DskipTests`, compile-only, or single-class `-Dtest`. |
+| **B2 — API shape** | If the union changes `final`/`sealed` or public/protected (or package-visible cross-module) signatures: Work C2 reverse-dep greps + clean install. |
+| **B3 — evidence** | Structured result + cluster PR body must include `modules_built` and `build_evidence` (exact commands + `BUILD SUCCESS` + `Tests run: N`). Docs-only unions use `modules_built=none`. |
+| **Host fail-close** | If the agent returns `cluster_opened` without `modules_built` and `BUILD SUCCESS` in `build_evidence`, the host rewrites status to `failed` / `blocked=missing_build_evidence`. |
+
+Hard bans:
+
+* Open a cluster PR or close absorbed PRs when any touched module failed install.
+* Treat Cycle verify or GitHub Actions as the cluster compile/test gate.
+* Claim `cluster_opened` with empty `build_evidence`.
 
 Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`). Disable with `include_pr_cluster: false`. Raise `cluster_min_prs` if you want fewer automatic clusters.
 
