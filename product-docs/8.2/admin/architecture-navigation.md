@@ -42,11 +42,20 @@ dispatcher applies that preference and opens the Navigation SPA — not Home.
 6. Use **New Site** (Admin or Designer) to open the same traditional-site wizard
    used in Content Explorer. After a successful create, the new site is selected
    in this shell.
+7. Use **Copy Site** (Admin or Designer) with a site selected to open the
+   existing site-copy wizard (same sitemanage copy service as Explorer). The
+   source is prefilled from the current site. A copy already in progress blocks
+   a new copy until it finishes. After a successful copy, the site list
+   refreshes and the new site is selected.
+8. Use **Delete Site** (Admin or Designer) with a site selected. Confirm the
+   prompt. Delete is blocked while a site copy is in progress or while the site
+   is still importing. After a successful delete, the site picker refreshes and
+   selects another remaining site (or the empty state if none remain).
 
 Empty, loading, and error states are shown explicitly when the site list or tree
 cannot be loaded, or when a site has no sections. **New Site** remains available
 when the site list is empty so operators can create the first site from this
-screen.
+screen. **Copy Site** and **Delete Site** stay disabled until a site is selected.
 
 ### Site without a navigation tree
 
@@ -78,10 +87,10 @@ The navigation tree follows the ARIA tree pattern:
 | **Enter / Space** | Select the focused section (and toggle expand on branches). |
 
 Structure dialogs (create, rename, landing page, section link, external link, the
-section picker, and **New Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
-closes the open dialog when a mutation is not in progress. Closing **New Site**
-returns keyboard focus to the **New Site** button. Primary structure actions live in a toolbar
-with an accessible name (**Structure actions**).
+section picker, **New Site**, and **Copy Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
+closes the open dialog when a mutation is not in progress. Closing **New Site** or
+**Copy Site** returns keyboard focus to the matching toolbar button. Primary
+structure actions live in a toolbar with an accessible name (**Structure actions**).
 
 Chrome strings (shell, tree states, actions, dialogs, validation) use the
 `perc.ui.architecture.modern` message catalog so they follow the session locale when
@@ -124,6 +133,8 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Role gate (Admin / Designer) | **Available** |
 | Site picker | **Available** |
 | New Site (Explorer create-site wizard) | **Available** |
+| Copy Site (existing sitemanage copy wizard) | **Available** |
+| Delete Site (confirm + picker refresh) | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Landing page / section-link / external-link parity | **Available** |

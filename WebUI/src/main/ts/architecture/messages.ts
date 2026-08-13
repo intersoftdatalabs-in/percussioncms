@@ -53,6 +53,26 @@ const KEYS = {
   NEW_SITE_REGION: "perc.ui.architecture.modern@New Site panel",
   NEW_SITE_RELOAD_ERROR:
     "perc.ui.architecture.modern@Site {0} was created, but the site list could not be refreshed.",
+  ACTION_COPY_SITE: "perc.ui.architecture.modern@Copy Site",
+  ACTION_DELETE_SITE: "perc.ui.architecture.modern@Delete Site",
+  COPY_SITE_REGION: "perc.ui.architecture.modern@Copy Site panel",
+  COPY_SITE_CLOSE: "perc.ui.architecture.modern@Close",
+  COPY_SITE_IN_PROGRESS:
+    "perc.ui.architecture.modern@A site copy is already in progress. Wait for it to finish before copying or deleting a site.",
+  COPY_SITE_ERROR: "perc.ui.architecture.modern@Could not copy the site.",
+  COPY_SITE_RELOAD_ERROR:
+    "perc.ui.architecture.modern@Site {0} was copied, but the site list could not be refreshed.",
+  COPY_SITE_NEED_SELECTION:
+    "perc.ui.architecture.modern@Select a site before copying.",
+  DELETE_SITE_CONFIRM:
+    "perc.ui.architecture.modern@Delete site \"{0}\"? This removes the site and cannot be undone.",
+  DELETE_SITE_ERROR: "perc.ui.architecture.modern@Could not delete the site.",
+  DELETE_SITE_IMPORTING:
+    "perc.ui.architecture.modern@This site is still being imported and cannot be deleted.",
+  DELETE_SITE_NEED_SELECTION:
+    "perc.ui.architecture.modern@Select a site before deleting.",
+  DELETE_SITE_RELOAD_ERROR:
+    "perc.ui.architecture.modern@Site {0} was deleted, but the site list could not be refreshed.",
   // Kept for older tests / deep links that still assert empty-shell keys
   EMPTY_TITLE: "perc.ui.architecture.modern@No site selected",
   EMPTY_BODY:
@@ -196,6 +216,19 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   NEW_SITE_CLOSE: message(KEYS.NEW_SITE_CLOSE),
   NEW_SITE_REGION: message(KEYS.NEW_SITE_REGION),
   NEW_SITE_RELOAD_ERROR: message(KEYS.NEW_SITE_RELOAD_ERROR),
+  ACTION_COPY_SITE: message(KEYS.ACTION_COPY_SITE),
+  ACTION_DELETE_SITE: message(KEYS.ACTION_DELETE_SITE),
+  COPY_SITE_REGION: message(KEYS.COPY_SITE_REGION),
+  COPY_SITE_CLOSE: message(KEYS.COPY_SITE_CLOSE),
+  COPY_SITE_IN_PROGRESS: message(KEYS.COPY_SITE_IN_PROGRESS),
+  COPY_SITE_ERROR: message(KEYS.COPY_SITE_ERROR),
+  COPY_SITE_RELOAD_ERROR: message(KEYS.COPY_SITE_RELOAD_ERROR),
+  COPY_SITE_NEED_SELECTION: message(KEYS.COPY_SITE_NEED_SELECTION),
+  DELETE_SITE_CONFIRM: message(KEYS.DELETE_SITE_CONFIRM),
+  DELETE_SITE_ERROR: message(KEYS.DELETE_SITE_ERROR),
+  DELETE_SITE_IMPORTING: message(KEYS.DELETE_SITE_IMPORTING),
+  DELETE_SITE_NEED_SELECTION: message(KEYS.DELETE_SITE_NEED_SELECTION),
+  DELETE_SITE_RELOAD_ERROR: message(KEYS.DELETE_SITE_RELOAD_ERROR),
   EMPTY_TITLE: message(KEYS.EMPTY_TITLE),
   EMPTY_BODY: message(KEYS.EMPTY_BODY),
   ACTIONS_LABEL: message(KEYS.ACTIONS_LABEL),

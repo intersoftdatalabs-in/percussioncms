@@ -54,7 +54,17 @@ import {
   resolveCreateParentFolderPath,
 } from "../api/architecture/sectionMutations";
 import type { NavTreeNode } from "../api/architecture/types";
+import {
+  copyManagedSite,
+  deleteManagedSite,
+  isSiteBeingImported,
+  isSiteCopyInProgress,
+  loadSiteCopyInfo,
+  suggestCopySiteName,
+} from "../api/architecture/siteAdminApi";
+import type { PSSiteCopyRequest } from "../api/contentExplorer/types";
 import { fetchSites } from "../api/home/homeApi";
+import { SiteCopyWizard } from "../contentExplorer/wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "../contentExplorer/wizards/SiteCreateWizard";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
@@ -88,8 +98,8 @@ export interface ArchitectureShellProps {
    */
   useLandingContentBrowser?: boolean;
   /**
-   * Show New Site (Explorer SiteCreateWizard) for entitled roles.
-   * Default true — Architecture is already Admin/Designer gated (#3219).
+   * Show New / Copy / Delete Site for entitled roles.
+   * Default true — Architecture is already Admin/Designer gated (#3219 / #3303).
    */
   allowNewSite?: boolean;
 }
@@ -150,10 +160,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     target: string;
   } | null>(null);
   const [showNewSite, setShowNewSite] = useState(false);
+  const [showCopySite, setShowCopySite] = useState(false);
   const newSiteToggleRef = useRef<HTMLButtonElement>(null);
   const newSitePanelRef = useRef<HTMLElement>(null);
+  const copySiteToggleRef = useRef<HTMLButtonElement>(null);
+  const copySitePanelRef = useRef<HTMLElement>(null);
+  const copyTargetRef = useRef<string | null>(null);
 
   useDialogEscape(showNewSite, mutationBusy, () => setShowNewSite(false));
+  useDialogEscape(showCopySite, mutationBusy, () => setShowCopySite(false));
 
   useEffect(() => {
     if (!showNewSite) {
@@ -194,6 +209,46 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       newSiteToggleRef.current?.focus();
     };
   }, [showNewSite]);
+
+  useEffect(() => {
+    if (!showCopySite) {
+      return;
+    }
+    const root = copySitePanelRef.current;
+    if (!root) {
+      return;
+    }
+    const focusables = (): HTMLElement[] =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+    focusables()[0]?.focus();
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusables();
+      if (list.length === 0) {
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => {
+      root.removeEventListener("keydown", onKey);
+      copySiteToggleRef.current?.focus();
+    };
+  }, [showCopySite]);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -287,7 +342,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   }, []);
 
   const reloadSites = useCallback(
-    async (preferSite?: string | null) => {
+    async (
+      preferSite?: string | null,
+      reloadErrorTemplate: string = ARCH_MSG.NEW_SITE_RELOAD_ERROR,
+    ) => {
       const preferred = preferSite != null ? String(preferSite).trim() : "";
       try {
         const names = await loadSiteNames();
@@ -302,13 +360,40 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           message: formatApiError(err, ARCH_MSG.SITES_ERROR),
         });
         if (preferred) {
-          setMutationError(
-            ARCH_MSG.NEW_SITE_RELOAD_ERROR.split("{0}").join(preferred),
-          );
+          setMutationError(reloadErrorTemplate.split("{0}").join(preferred));
         }
       }
     },
     [applySiteNames, loadSiteNames],
+  );
+
+  const reloadSitesAfterDelete = useCallback(
+    async (deletedName: string) => {
+      const gone = deletedName.trim();
+      try {
+        const names = await loadSiteNames();
+        const remaining = names.filter((n) => n !== gone);
+        setSitesState({ status: "ready", names: remaining });
+        setSelectedSite((prev) => {
+          if (prev && remaining.includes(prev)) {
+            return prev;
+          }
+          return remaining[0] ?? null;
+        });
+        setMutationError(null);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setSitesState({
+          status: "error",
+          message: formatApiError(err, ARCH_MSG.SITES_ERROR),
+        });
+        setSelectedSite((prev) => (prev === gone ? null : prev));
+        setMutationError(
+          ARCH_MSG.DELETE_SITE_RELOAD_ERROR.split("{0}").join(gone),
+        );
+      }
+    },
+    [loadSiteNames],
   );
 
   const treeRoot =
@@ -451,6 +536,98 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       setSelectedNodeId(null);
     });
   }, [selectedNode, treeRoot, confirmAction, runMutation]);
+
+  const onCopySite = useCallback(() => {
+    if (!selectedSite) {
+      setMutationError(ARCH_MSG.COPY_SITE_NEED_SELECTION);
+      return;
+    }
+    if (mutationBusy) {
+      return;
+    }
+    setMutationBusy(true);
+    setMutationError(null);
+    void (async () => {
+      try {
+        const info = await loadSiteCopyInfo();
+        if (isSiteCopyInProgress(info)) {
+          setMutationError(ARCH_MSG.COPY_SITE_IN_PROGRESS);
+          return;
+        }
+        setShowNewSite(false);
+        setShowCopySite(true);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.COPY_SITE_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    })();
+  }, [selectedSite, mutationBusy]);
+
+  const submitCopySite = useCallback(
+    async (req: PSSiteCopyRequest) => {
+      const dest = String(req.targetSite ?? "").trim();
+      copyTargetRef.current = dest;
+      await copyManagedSite({
+        sourceSite: req.sourceSite ?? selectedSite ?? "",
+        targetSite: dest,
+        targetFolder: req.targetFolder,
+      });
+    },
+    [selectedSite],
+  );
+
+  const onCopySiteSettled = useCallback(
+    (ok: boolean) => {
+      if (!ok) {
+        return;
+      }
+      setShowCopySite(false);
+      const dest = copyTargetRef.current || selectedSite;
+      void reloadSites(dest, ARCH_MSG.COPY_SITE_RELOAD_ERROR);
+    },
+    [reloadSites, selectedSite],
+  );
+
+  const onDeleteSite = useCallback(() => {
+    if (!selectedSite) {
+      setMutationError(ARCH_MSG.DELETE_SITE_NEED_SELECTION);
+      return;
+    }
+    if (mutationBusy) {
+      return;
+    }
+    const name = selectedSite;
+    const msg = ARCH_MSG.DELETE_SITE_CONFIRM.split("{0}").join(name);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    setMutationBusy(true);
+    setMutationError(null);
+    void (async () => {
+      try {
+        const info = await loadSiteCopyInfo();
+        if (isSiteCopyInProgress(info)) {
+          setMutationError(ARCH_MSG.COPY_SITE_IN_PROGRESS);
+          return;
+        }
+        if (await isSiteBeingImported(name)) {
+          setMutationError(ARCH_MSG.DELETE_SITE_IMPORTING);
+          return;
+        }
+        await deleteManagedSite(name);
+        setShowCopySite(false);
+        setShowNewSite(false);
+        await reloadSitesAfterDelete(name);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.DELETE_SITE_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    })();
+  }, [selectedSite, mutationBusy, confirmAction, reloadSitesAfterDelete]);
 
   const onLandingSubmit = useCallback(
     (newLandingPageId: string) => {
@@ -723,7 +900,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             aria-controls={
               showNewSite ? "architecture-new-site-panel" : undefined
             }
-            onClick={() => setShowNewSite((open) => !open)}
+            onClick={() => {
+              setShowCopySite(false);
+              setShowNewSite((open) => !open);
+            }}
             style={{
               padding: "0.4rem 0.85rem",
               border: `1px solid ${catalogColors.softBorder}`,
@@ -735,6 +915,52 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             }}
           >
             {ARCH_MSG.ACTION_NEW_SITE}
+          </button>
+        ) : null}
+        {allowNewSite ? (
+          <button
+            type="button"
+            ref={copySiteToggleRef}
+            data-testid="architecture-action-copy-site"
+            aria-expanded={showCopySite}
+            aria-haspopup="dialog"
+            aria-controls={
+              showCopySite ? "architecture-copy-site-panel" : undefined
+            }
+            disabled={!selectedSite || mutationBusy}
+            onClick={onCopySite}
+            style={{
+              padding: "0.4rem 0.85rem",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: 4,
+              background: showCopySite ? "#e8eef8" : "#fff",
+              color: !selectedSite || mutationBusy ? "#999" : "#222",
+              cursor:
+                !selectedSite || mutationBusy ? "not-allowed" : "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {ARCH_MSG.ACTION_COPY_SITE}
+          </button>
+        ) : null}
+        {allowNewSite ? (
+          <button
+            type="button"
+            data-testid="architecture-action-delete-site"
+            disabled={!selectedSite || mutationBusy}
+            onClick={onDeleteSite}
+            style={{
+              padding: "0.4rem 0.85rem",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: 4,
+              background: "#fff",
+              color: !selectedSite || mutationBusy ? "#999" : "#a11",
+              cursor:
+                !selectedSite || mutationBusy ? "not-allowed" : "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {ARCH_MSG.ACTION_DELETE_SITE}
           </button>
         ) : null}
       </section>
@@ -806,6 +1032,64 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               setShowNewSite(false);
               void reloadSites(siteName);
             }}
+          />
+        </section>
+      ) : null}
+
+      {allowNewSite && showCopySite && selectedSite ? (
+        <section
+          id="architecture-copy-site-panel"
+          ref={copySitePanelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="architecture-copy-site-title"
+          aria-label={ARCH_MSG.COPY_SITE_REGION}
+          data-testid="architecture-copy-site-panel"
+          style={{
+            border: `1px solid ${catalogColors.headerBorder}`,
+            borderRadius: 8,
+            padding: "1rem 1.25rem",
+            marginBottom: "12px",
+            background: "#fff",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <h2
+              id="architecture-copy-site-title"
+              style={{ margin: 0, fontSize: "1.05rem", color: "#1a202c" }}
+              data-testid="architecture-copy-site-title"
+            >
+              {ARCH_MSG.ACTION_COPY_SITE}
+            </h2>
+            <button
+              type="button"
+              data-testid="architecture-copy-site-close"
+              onClick={() => setShowCopySite(false)}
+              style={{
+                padding: "0.3rem 0.7rem",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: 4,
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              {ARCH_MSG.COPY_SITE_CLOSE}
+            </button>
+          </div>
+          <SiteCopyWizard
+            key={selectedSite}
+            initialSource={selectedSite}
+            initialTarget={suggestCopySiteName(selectedSite)}
+            submit={submitCopySite}
+            onSettled={onCopySiteSettled}
           />
         </section>
       ) : null}
