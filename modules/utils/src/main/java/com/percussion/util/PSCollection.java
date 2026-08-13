@@ -53,9 +53,9 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @param className the name of the class which this collection's members must be or extend
    * @exception ClassNotFoundException if the specified class cannot be found
    */
-  @SuppressWarnings("unchecked")
   public PSCollection(String className) throws ClassNotFoundException {
-    this((Class<? extends E>) Class.forName(className));
+    super();
+    m_memberClass = Class.forName(className);
   }
 
   /**

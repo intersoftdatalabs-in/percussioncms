@@ -48,6 +48,17 @@ public class PSCollectionTypedTest {
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
+  public void classNameCtorLoadsMemberClassWithoutUncheckedCast() throws ClassNotFoundException {
+    PSCollection<String> coll = new PSCollection<>(String.class.getName());
+    assertEquals(String.class, coll.getMemberClassType());
+    assertTrue(coll.add("ok"));
+    PSCollection raw = coll;
+    assertThrows(ClassCastException.class, () -> raw.add(Integer.valueOf(1)));
+    assertThrows(ClassNotFoundException.class, () -> new PSCollection("no.such.Type" + System.nanoTime()));
+  }
+
+  @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void addAllRejectsWrongElementType() {
     PSCollection<String> coll = new PSCollection<>(String.class);
     coll.add("ok");

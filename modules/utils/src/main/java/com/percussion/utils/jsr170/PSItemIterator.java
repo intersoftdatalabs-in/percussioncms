@@ -84,9 +84,7 @@ public abstract class PSItemIterator<M> {
     // declaration; the cast to M is safe per the iteration contract documented on m_map.
     List<M> values = new ArrayList<>();
     for (Object v : m_map.values()) {
-      @SuppressWarnings("unchecked")
-      M m = (M) v;
-      values.add(m);
+      values.add(asItem(v));
     }
     if (m_filter != null) {
       FilterIterator<M> fi = new FilterIterator<>(values.iterator(), m_filter);
@@ -102,10 +100,8 @@ public abstract class PSItemIterator<M> {
       Collection<? extends M> collection;
       if (value instanceof Collection<?>) {
         // Per the iteration contract, the collection's elements are M. The unchecked cast is
-        // documented on the field declaration; this site is the single rewrap that needs it.
-        @SuppressWarnings("unchecked")
-        Collection<? extends M> typed = (Collection<? extends M>) value;
-        collection = typed;
+        // isolated in {@link #asItem(Object)} (same residual as simple-map values).
+        collection = asItem(value);
       } else if (value == null) {
         collection = null;
       } else {
@@ -116,6 +112,19 @@ public abstract class PSItemIterator<M> {
       multi.put(e.getKey(), collection);
     }
     return multi;
+  }
+
+  /**
+   * Reinterpret a {@code Map<?, ?>} value (or multi-map {@code Collection}) as {@code T}. The
+   * iterator contract documents that simple-map values are {@code M} and multi-map values are
+   * {@code Collection<? extends M>}; this is the single unchecked residual for that contract.
+   *
+   * @param value map payload, may be {@code null}
+   * @return {@code value} as {@code T}
+   */
+  @SuppressWarnings("unchecked")
+  private static <T> T asItem(Object value) {
+    return (T) value;
   }
 
   // Type and ParameterizedType imports removed; no longer used.
