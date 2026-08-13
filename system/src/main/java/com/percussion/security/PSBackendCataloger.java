@@ -31,7 +31,6 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -205,8 +204,7 @@ public class PSBackendCataloger {
     }
 
     PSAttributeList attribs = getAttributes(el);
-    @SuppressWarnings("unchecked")
-    Iterator<PSAttribute> iter = attribs.iterator();
+    Iterator<PSAttribute> iter = PSCatalogerTypes.attributes(attribs);
     while (iter.hasNext()) results.add(iter.next());
 
     return results;
@@ -385,15 +383,12 @@ public class PSBackendCataloger {
    *    </code>.
    * @throws PSSecurityException If any of a Subject's attributes are not valid.
    */
-  @SuppressWarnings("unchecked")
   protected static Set<PSSubject> processCatalogedSubjects(
       Element parent, boolean includeEmptySubjects) {
     if (parent == null) throw new IllegalArgumentException("parent cannot be null");
 
     // use set to remove dups introduced with the fix for Rx-01-10-0104
-    Comparator<PSSubject> subjectComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    TreeSet<PSSubject> results = new TreeSet<>(subjectComparator);
+    TreeSet<PSSubject> results = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
 
     Map<String, PSSubject> subjectMap = new LinkedHashMap<>();
 
@@ -460,15 +455,12 @@ public class PSBackendCataloger {
    *     empty to get all attributes.
    * @return a set of <code>PSSubject</code> objects with the requested attributes.
    */
-  @SuppressWarnings("unchecked")
   protected static Set<PSSubject> getSubjects(
       Map<String, String> filters, Collection<?> attributeNames) {
     if (filters == null) throw new IllegalArgumentException("filters cannot be null");
 
     // use treeset to prevent duplicates and enforce ordering
-    Comparator<PSSubject> subjectComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    TreeSet<PSSubject> sortedSet = new TreeSet<>(subjectComparator);
+    TreeSet<PSSubject> sortedSet = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
 
     Document doc = getCatalogDocument("sys_catalogOuterJoinSubjectAttributes", filters);
     sortedSet.addAll(processSubjectAttributes(doc, true));

@@ -152,8 +152,7 @@ public abstract class PSCataloger {
     }
 
     // load and validate all referenced directories/authentications
-    @SuppressWarnings("unchecked")
-    Iterator<PSReference> directoryRefs = m_directorySet.iterator();
+    Iterator<PSReference> directoryRefs = PSCatalogerTypes.directoryRefs(m_directorySet);
     while (directoryRefs.hasNext()) {
       PSReference directoryRef = directoryRefs.next();
       PSDirectory directory = config.getDirectory(directoryRef.getName());
@@ -376,8 +375,8 @@ public abstract class PSCataloger {
   private static Map<String, IPSGroupProviderInstance> getGroupProviderInstances(
       PSServerConfiguration config) {
     Map<String, IPSGroupProviderInstance> result = new HashMap<>();
-    @SuppressWarnings("unchecked")
-    Iterator<IPSGroupProviderInstance> i = config.getGroupProviderInstances().iterator();
+    Iterator<IPSGroupProviderInstance> i =
+        PSCatalogerTypes.groupProviderInstances(config.getGroupProviderInstances());
     while (i.hasNext()) {
       IPSGroupProviderInstance inst = i.next();
       result.put(inst.getName(), inst);
@@ -398,7 +397,6 @@ public abstract class PSCataloger {
    * @return a collection with <code>PSSubject</code> objects, each subject with the requested
    *     attributes. Never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
   protected Collection<PSSubject> getSubjects(
       PSDirectoryDefinition directory, Map<String, ?> filter, Collection<?> attributeNames) {
     Collection<PSSubject> resultList = new ArrayList<>();

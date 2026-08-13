@@ -78,8 +78,7 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
 
     PSSubject subject = getMatchingSubject(user.getName(), attributeNames);
     if (subject != null) {
-      @SuppressWarnings("unchecked")
-      Iterator<PSAttribute> attrs = subject.getAttributes().iterator();
+      Iterator<PSAttribute> attrs = PSCatalogerTypes.attributes(subject.getAttributes());
       while (attrs.hasNext()) {
         PSAttribute attr = attrs.next();
         userAttributes.setAttribute(attr.getName(), attr.getValues());
