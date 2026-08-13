@@ -13,6 +13,10 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   getVirtualSiteProperties: vi.fn(),
   updateVirtualSiteProperties: vi.fn(),
   buildVirtualSite: vi.fn(),
+  getVirtualSitePreviewStatus: vi.fn(),
+  virtualSitePreviewContentHref: vi.fn(
+    (name: string, home: string) => `/services/sites/${encodeURIComponent(name)}/virtual/preview/${home}`,
+  ),
   listSites: vi.fn(),
   SITE_DESIGN_GAPS: [],
 }));
@@ -20,6 +24,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
 const getVirtual = sitesApi.getVirtualSiteProperties as ReturnType<typeof vi.fn>;
 const updateVirtual = sitesApi.updateVirtualSiteProperties as ReturnType<typeof vi.fn>;
 const buildVirtual = sitesApi.buildVirtualSite as ReturnType<typeof vi.fn>;
+const previewStatus = sitesApi.getVirtualSitePreviewStatus as ReturnType<typeof vi.fn>;
 
 describe("VirtualSiteSourcePanel", () => {
   beforeEach(() => {
@@ -29,6 +34,7 @@ describe("VirtualSiteSourcePanel", () => {
     getVirtual.mockReset();
     updateVirtual.mockReset();
     buildVirtual.mockReset();
+    previewStatus.mockReset();
   });
 
   it("shows loading then success form for traditional (repository) site", async () => {
@@ -51,6 +57,7 @@ describe("VirtualSiteSourcePanel", () => {
     // Repository sites must not show Build chrome
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
     expect(getVirtual).toHaveBeenCalledWith("Corporate");
   });
 
@@ -298,5 +305,54 @@ describe("VirtualSiteSourcePanel", () => {
       );
     });
     expect(buildVirtual).not.toHaveBeenCalled();
+  });
+
+  it("shows Preview chrome for virtual sites and opens home when available", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("Help");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows empty preview state when no assembled site exists", async () => {
+    window.open = vi.fn();
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: false,
+      message: "No assembled Virtual Site to preview. Run Build Virtual Site first.",
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview-error").textContent).toContain(
+        "No assembled",
+      );
+    });
+    expect(window.open).not.toHaveBeenCalled();
   });
 });

@@ -85,4 +85,18 @@ public class SitesTestAdaptor implements ISiteAdaptor {
     }
     return result;
   }
+
+  @Override
+  public VirtualSitePreviewStatus getVirtualSitePreviewStatus(String nameOrId) {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview.");
+    return status;
+  }
+
+  @Override
+  public VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath) {
+    throw new jakarta.ws.rs.WebApplicationException(
+        "No assembled Virtual Site to preview.", jakarta.ws.rs.core.Response.Status.NOT_FOUND);
+  }
 }
