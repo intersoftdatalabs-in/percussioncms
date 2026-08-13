@@ -50,7 +50,9 @@ import { PATHS } from "../paths";
 import type {
   PSPathItem,
   PSPagedResult,
+  PSFolderPermission,
   PSFolderProperties,
+  PSPrincipal,
   PSRenameFolderItem,
   PSMoveFolderItem,
 } from "./types";
@@ -253,14 +255,65 @@ export function unwrapFolderProperties(
   }
   const nested = asRecord(root[FOLDER_PROPERTIES_ROOT]);
   if (nested && (typeof nested.id === "string" || typeof nested.name === "string")) {
-    return nested as unknown as PSFolderProperties;
+    return normalizeFolderProperties(nested);
   }
   // Flat body (unit tests, already-unwrapped). Require an id so a bare
   // envelope mis-shape is not treated as success.
   if (typeof root.id === "string" || typeof root.name === "string") {
-    return root as unknown as PSFolderProperties;
+    return normalizeFolderProperties(root);
   }
   return null;
+}
+
+/**
+ * JAXB+Jackson may wrap principal lists as {@code { Principal: [...] }} or a
+ * single object. Folder Security maps these lists — a non-array crashes the
+ * panel (#3206).
+ */
+export function unwrapPrincipalList(value: unknown): PSPrincipal[] {
+  if (value == null) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.filter(isPrincipalLike);
+  }
+  const rec = asRecord(value);
+  if (!rec) {
+    return [];
+  }
+  const wrapped = rec.Principal ?? rec.principal;
+  if (wrapped != null) {
+    return unwrapPrincipalList(wrapped);
+  }
+  if (isPrincipalLike(rec)) {
+    return [rec as PSPrincipal];
+  }
+  return [];
+}
+
+function isPrincipalLike(value: unknown): value is PSPrincipal {
+  if (value == null || typeof value !== "object") {
+    return false;
+  }
+  const name = (value as PSPrincipal).name;
+  return typeof name === "string" && name.length > 0;
+}
+
+function normalizeFolderProperties(
+  raw: Record<string, unknown>,
+): PSFolderProperties {
+  const props = { ...raw } as unknown as PSFolderProperties;
+  const permRaw = asRecord(raw.permission);
+  if (permRaw) {
+    props.permission = {
+      ...(permRaw as unknown as PSFolderPermission),
+      adminPrincipals: unwrapPrincipalList(permRaw.adminPrincipals),
+      writePrincipals: unwrapPrincipalList(permRaw.writePrincipals),
+      readPrincipals: unwrapPrincipalList(permRaw.readPrincipals),
+      viewPrincipals: unwrapPrincipalList(permRaw.viewPrincipals),
+    };
+  }
+  return props;
 }
 
 /**

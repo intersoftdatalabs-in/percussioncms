@@ -36,8 +36,25 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  loginAsAdmin,
+  BASE_URL,
+  adminBasicAuthHeaders,
+} = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+
+function flattenPrincipals(raw) {
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+  if (raw && Array.isArray(raw.Principal)) {
+    return raw.Principal;
+  }
+  if (raw && raw.Principal) {
+    return [raw.Principal];
+  }
+  return [];
+}
 
 /**
  * Build the pilot page URL with a per-test cache-buster so consecutive
@@ -127,8 +144,9 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await page.goto(explorerUrl, { waitUntil: "networkidle" });
     const shell = page.locator('[data-testid="content-explorer-shell"]');
     await expect(shell).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
     const toggle = page.locator('[data-testid="explorer-toggle-security"]');
-    await expect(toggle).toBeVisible();
+    await expect(toggle).toBeVisible({ timeout: 10_000 });
     await toggle.click();
     // Either the security panel region or the select-folder hint is shown.
     const panelOrHint = page.locator(
@@ -145,6 +163,10 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await expect(
       page.locator('[data-testid="content-explorer-shell"]'),
     ).toBeVisible({ timeout: 15_000 });
+    await page.locator('[data-testid="explorer-menu-view"]').click();
+    await expect(page.locator('[data-testid="explorer-toggle-security"]')).toBeVisible({
+      timeout: 10_000,
+    });
     await page.locator('[data-testid="explorer-toggle-security"]').click();
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
   });
@@ -155,12 +177,134 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
    * only outcome. Loading, ready panel, or a structured error (invalid id)
    * are all acceptable; the security panel region must remain mounted.
    */
+  test("REST: Folders child folderProperties lists ROLE identities and locale (#3206)", async ({
+    request,
+  }) => {
+    test.setTimeout(30_000);
+    const headers = adminBasicAuthHeaders();
+    const itemRes = await request.get(
+      `${BASE_URL}/Rhythmyx/services/pathmanagement/path/item/Sites`,
+      { headers },
+    );
+    const itemText = await itemRes.text();
+    expect(
+      itemRes.status(),
+      `findItemByPath Sites: ${itemText.slice(0, 400)}`,
+    ).toBe(200);
+    const itemBody = JSON.parse(itemText);
+    const item = itemBody.PathItem || itemBody;
+    expect(item.id, itemText.slice(0, 400)).toBeTruthy();
+    const propsRes = await request.get(
+      `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folderProperties/${encodeURIComponent(item.id)}`,
+      { headers },
+    );
+    const propsText = await propsRes.text();
+    expect(
+      propsRes.status(),
+      `folderProperties: ${propsText.slice(0, 500)}`,
+    ).toBe(200);
+    expect(propsText).not.toContain("The validated object is null");
+    const propsBody = JSON.parse(propsText);
+    const props = propsBody.FolderProperties || propsBody;
+    expect(props.name || props.id).toBeTruthy();
+    const admins = flattenPrincipals(props.permission && props.permission.adminPrincipals);
+    const names = admins.map((pr) => pr && pr.name).filter(Boolean);
+    expect(
+      names,
+      `admin principals should include Admin role: ${propsText.slice(0, 800)}`,
+    ).toContain("Admin");
+  });
+
+  test("Explorer Folder Security shows properties and Admin identity (#3206)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource/i.test(text)) {
+        return;
+      }
+      pageErrors.push(text);
+    });
+
+    const explorerUrl = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
+    await page.goto(explorerUrl, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 20_000 });
+    const tree = page.locator('[data-testid="explorer-tree"]');
+    await expect(tree).toBeVisible({ timeout: 15_000 });
+
+    const foldersNode = tree.locator(
+      '[data-testid="tree-node-/Folders/"], [data-testid="tree-node-/Folders"]',
+    );
+    await expect(foldersNode.first()).toBeVisible({ timeout: 20_000 });
+    await foldersNode.first().locator('[role="treeitem"]').click();
+    const systemNode = tree.locator(
+      '[data-testid="tree-node-/Folders/$/"], [data-testid="tree-node-/Folders/$"]',
+    );
+    const systemRow = page.locator('[data-testid="detail-row-16777215-101-4"]');
+    if ((await systemNode.count()) > 0) {
+      await systemNode.first().locator('[role="treeitem"]').click();
+    } else if ((await systemRow.count()) > 0) {
+      await systemRow.first().click();
+    } else {
+      const anyRow = page.locator('[data-testid^="detail-row-"]');
+      await expect(anyRow.first()).toBeVisible({ timeout: 15_000 });
+      await anyRow.first().click();
+    }
+
+    await page.locator('[data-testid="explorer-menu-view"]').click();
+    const toggle = page.locator('[data-testid="explorer-toggle-security"]');
+    await expect(toggle).toBeVisible({ timeout: 10_000 });
+    await toggle.click();
+
+    const panel = page.locator('[data-testid="folder-security-panel"]');
+    await expect(panel).toBeVisible({ timeout: 25_000 });
+    await expect(page.locator('[data-testid="folder-properties"]')).toBeVisible();
+    await expect(page.locator('[data-testid="folder-props-locale"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="folder-security-list-adminPrincipals"]'),
+    ).toBeVisible();
+    const adminRemove = page.locator(
+      '[data-testid="folder-security-list-adminPrincipals-remove-Admin"]',
+    );
+    await expect(adminRemove).toBeVisible();
+
+    const locale = page.locator('[data-testid="folder-props-locale"]');
+    const currentLocale = await locale.inputValue();
+    const nextLocale = currentLocale || "en-us";
+    await locale.fill(`${nextLocale}-x`);
+    await expect(page.locator('[data-testid="folder-security-dirty"]')).toHaveText(
+      "●",
+    );
+    await locale.fill(nextLocale);
+    const save = page.locator('[data-testid="folder-security-save"]');
+    await expect(save).toBeEnabled();
+    await save.click();
+    await expect(page.locator('[data-testid="folder-security-error"]')).toHaveCount(
+      0,
+    );
+    await expect(page.locator('[data-testid="folder-security-dirty"]')).toHaveText(
+      "○",
+      { timeout: 20_000 },
+    );
+    expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+      [],
+    );
+  });
+
   test("FolderSecurityPanel with folderId stays mounted (no chrome crash) (#2749)", async ({
     page,
   }) => {
     // Use a plausible legacy guid shape; H2 QA may 400/500 for unknown ids —
     // assert mount + absence of miller-column, not a successful ACL payload.
-    await page.goto(aclUrl("16777215-101-703"), { waitUntil: "networkidle" });
+    await page.goto(aclUrl("16777215-101-4"), { waitUntil: "networkidle" });
     const root = page.locator('[data-testid="perc-folder-security-root"]');
     await expect(root).toBeVisible({ timeout: 15_000 });
     await expect(page.locator(".perc-mcol")).toHaveCount(0);

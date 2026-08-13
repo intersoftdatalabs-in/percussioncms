@@ -221,7 +221,14 @@ list after a client-handled command (for example a workflow transition).
 
 From the **View** menu you can also toggle:
 
-- **Folder security** — ACL / properties for the selected folder
+- **Folder security** — ACL and folder properties for the **selected folder** (tree or
+  list). The panel shows community, community id, locale, display format, and workflow
+  id, plus named **user and role** identities on the Admin / Write / Read / View lists
+  (seed folders typically list the **Admin** and **Designer** roles). Administrators can
+  add or remove principals and edit locale (and other persistable fields), then **Save**.
+  Removing your own user name or a role you hold from a list prompts a self-lockout
+  confirmation before save. Without a selected folder the shell shows a select-folder
+  hint instead of a blank panel.
 - **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
   suitable item is selected
 - **Clipboard** — multi-select copy/cut staging when items are selected

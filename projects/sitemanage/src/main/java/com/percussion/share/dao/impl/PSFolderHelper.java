@@ -329,6 +329,7 @@ public class PSFolderHelper implements IPSFolderHelper {
 
     PSFolder folder = contentWs.loadFolder(idMapper.getGuid(folderProps.getId()), false);
     folder.setName(folderProps.getName());
+    applyPersistableFolderProperties(folder, folderProps);
     // Permission may be omitted by partial clients; only apply ACL when present
     // so setFolderPermission does not Validate.notNull(null) (#2749).
     if (folderProps.getPermission() != null) {
@@ -362,6 +363,21 @@ public class PSFolderHelper implements IPSFolderHelper {
     }
 
     contentWs.saveFolder(folder);
+  }
+
+  /**
+   * Copy locale and community id from the Folder Security DTO onto the persisted folder. Community
+   * name and display-format name are transient on {@link PSFolder} and are not written here
+   * (#3206).
+   */
+  static void applyPersistableFolderProperties(PSFolder folder, PSFolderProperties folderProps) {
+    if (folder == null || folderProps == null) {
+      return;
+    }
+    if (StringUtils.isNotBlank(folderProps.getLocale())) {
+      folder.setLocale(folderProps.getLocale().trim());
+    }
+    folder.setCommunityId(folderProps.getCommunityId());
   }
 
   /**

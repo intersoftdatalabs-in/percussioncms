@@ -61,6 +61,10 @@ class PSFolderPermissionUtilsTest {
     PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
     assertNotNull(permission);
     assertEquals(Access.ADMIN, permission.getAccessLevel());
+    assertNotNull(permission.getAdminPrincipals());
+    assertTrue(
+        permission.getAdminPrincipals().stream()
+            .anyMatch(pr -> "Admin".equals(pr.getName()) && pr.getType() == PrincipalType.ROLE));
   }
 
   @Test
@@ -88,8 +92,10 @@ class PSFolderPermissionUtilsTest {
                 PSFolderPermissionUtils.ADMIN_ACCESS));
     PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
     assertNotNull(permission.getAdminPrincipals());
-    assertEquals(1, permission.getAdminPrincipals().size());
-    assertEquals("EditorUser", permission.getAdminPrincipals().get(0).getName());
+    assertTrue(
+        permission.getAdminPrincipals().stream()
+            .anyMatch(pr -> "EditorUser".equals(pr.getName())),
+        "USER EditorUser must remain listed alongside ROLE identities (#3206)");
   }
 
   @Test
@@ -133,6 +139,53 @@ class PSFolderPermissionUtilsTest {
     PSFolderPermission reread = PSFolderPermissionUtils.getFolderPermission(folder);
     assertEquals(Access.READ, reread.getAccessLevel());
     assertNull(reread.getWritePrincipals());
-    assertNull(reread.getAdminPrincipals());
+    // Built-in Admin / Designer ROLE entries remain (product invariant).
+    assertNotNull(reread.getAdminPrincipals());
+    assertTrue(
+        reread.getAdminPrincipals().stream()
+            .anyMatch(
+                pr ->
+                    "Admin".equals(pr.getName())
+                        && pr.getType() == PrincipalType.ROLE));
+  }
+
+  @Test
+  void getFolderPermission_roleAdminPrincipal_listed() {
+    PSFolder folder = newFolder();
+    folder
+        .getAcl()
+        .add(
+            new PSObjectAclEntry(
+                PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE,
+                "Admin",
+                PSFolderPermissionUtils.ADMIN_ACCESS));
+    PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
+    assertNotNull(permission.getAdminPrincipals());
+    assertTrue(
+        permission.getAdminPrincipals().stream()
+            .anyMatch(
+                pr ->
+                    "Admin".equals(pr.getName())
+                        && pr.getType() == PrincipalType.ROLE),
+        "ROLE Admin must appear so Folder Security lockout identities are not empty (#3206)");
+  }
+
+  @Test
+  void setFolderPermission_rolePrincipal_roundTrip() {
+    PSFolder folder = newFolder();
+    PSFolderPermission perm = new PSFolderPermission();
+    perm.setAccessLevel(Access.ADMIN);
+    Principal role = new Principal();
+    role.setName("Contributor");
+    role.setType(PrincipalType.ROLE);
+    perm.setWritePrincipals(Collections.singletonList(role));
+
+    PSFolderPermissionUtils.setFolderPermission(folder, perm);
+
+    PSFolderPermission reread = PSFolderPermissionUtils.getFolderPermission(folder);
+    assertNotNull(reread.getWritePrincipals());
+    assertEquals(1, reread.getWritePrincipals().size());
+    assertEquals("Contributor", reread.getWritePrincipals().get(0).getName());
+    assertEquals(PrincipalType.ROLE, reread.getWritePrincipals().get(0).getType());
   }
 }
