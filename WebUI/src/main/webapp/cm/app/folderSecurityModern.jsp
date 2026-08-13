@@ -79,7 +79,12 @@
                 return;
             }
             var url = new URL(window.location.href);
-            var folderId = url.searchParams.get("folderId") || "";
+            var folderId = (url.searchParams.get("folderId") || "").trim();
+            if (!folderId) {
+                /* Keep the server-rendered no-folder placeholder. A
+                   failed mount would overwrite it with an error. */
+                return;
+            }
             try {
                 window.PercModernUI.mount("perc-folder-security-root", "FolderSecurityHost", {
                     folderId: folderId,

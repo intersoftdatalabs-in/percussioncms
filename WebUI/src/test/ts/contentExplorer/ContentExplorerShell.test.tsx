@@ -111,14 +111,11 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("explorer-view-tools")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-view-tool-search")).toBeInTheDocument();
     expect(
-      screen.getByTestId("explorer-view-tool-security"),
-    ).toBeInTheDocument();
-    expect(
       screen.getByTestId("explorer-view-tool-search").getAttribute(
         "aria-expanded",
       ),
     ).toBe("false");
-    // Always-visible Security residual (#3268 / #2410) — product Playwright
+    // Always-visible Security (#3268 / #2410) — product Playwright
     // locates explorer-toggle-security without opening View.
     expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     openViewMenu();
@@ -172,7 +169,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("opens Search under the header from the always-visible view-tool toggle (#3208)", async () => {
     stubPathFetch();
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => []}
@@ -196,6 +193,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         .getByTestId("explorer-side-panels")
         .contains(screen.getByTestId("explorer-search-panel")),
     ).toBe(true);
+    await renderA11yGate(container);
 
     fireEvent.click(screen.getByTestId("explorer-view-tool-search"));
     await waitFor(() => {
@@ -206,7 +204,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("surfaces display-format load error without removing the selector (#3208)", async () => {
     stubPathFetch();
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         loadDisplayFormats={async () => {
           throw new Error("formats down");
@@ -222,6 +220,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         screen.getByTestId("explorer-display-format-error"),
       ).toBeInTheDocument();
     });
+    await renderA11yGate(container);
   });
 
   it("uses injected loaders only (no real network for menus/formats)", async () => {
@@ -732,7 +731,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
   it("security toggle is visible without opening the View menu (#3268)", async () => {
     stubPathFetch();
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
@@ -749,6 +748,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
           screen.queryByTestId("explorer-security-panel"),
       ).toBeTruthy();
     });
+    await renderA11yGate(container);
   });
 
   it("security toggle shows hint when no folder id is available (#2410)", async () => {

@@ -22,7 +22,7 @@ const TEST_IDS = Object.freeze({
   displayFormatError: "explorer-display-format-error",
   viewTools: "explorer-view-tools",
   viewToolSearch: "explorer-view-tool-search",
-  viewToolSecurity: "explorer-view-tool-security",
+  viewToolSecurity: "explorer-toggle-security",
   sidePanels: "explorer-side-panels",
   contentSearch: "explorer-menu-content-search",
   searchPanelHost: "explorer-search-panel",

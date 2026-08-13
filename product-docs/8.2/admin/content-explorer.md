@@ -19,7 +19,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 |--------|---------|
 | **Menu bar** (Content / View / Help) | Product commands: search, create site, clipboard, site/subfolder copy, view tools |
 | **Display format** | Column layout for the folder list (`validForFolder` formats). Always shown next to the menu bar; a short error stays next to the selector if the catalog cannot be loaded |
-| **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**) |
+| **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |

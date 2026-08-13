@@ -1035,9 +1035,13 @@ export function ContentExplorerShell({
             >
               {message(EXPLORER_MSG.SEARCH_TITLE)}
             </button>
+            {/* Always-visible Folder Security (#3268 / #2410). View menu
+                keeps explorer-menu-view-security (#2731). Playwright
+                us4-acl locates explorer-toggle-security without opening
+                the View dropdown — one toolbar control, not two. */}
             <button
               type="button"
-              data-testid="explorer-view-tool-security"
+              data-testid="explorer-toggle-security"
               aria-pressed={showSecurity}
               aria-expanded={showSecurity}
               aria-controls="explorer-security-panel"
@@ -1055,22 +1059,6 @@ export function ContentExplorerShell({
               onClick={handleRefreshList}
             >
               {message(EXPLORER_MSG.ACTION_REFRESH)}
-            </button>
-            {/* Always-visible Security residual (#3268 / #2410); View menu
-                also has Folder Security (#2731). Product Playwright
-                (us4-acl) requires explorer-toggle-security on the Explorer
-                route without opening the View dropdown. */}
-            <button
-              type="button"
-              data-testid="explorer-toggle-security"
-              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
-              title={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
-              aria-pressed={showSecurity}
-              aria-expanded={showSecurity}
-              aria-controls="explorer-security-panel"
-              onClick={() => handleMenuBarCommand("view-security")}
-            >
-              {message(EXPLORER_MSG.SECURITY_TITLE)}
             </button>
           </div>
         </div>

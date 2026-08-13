@@ -135,6 +135,10 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
       );
       await expect(searchTool).toBeVisible();
       await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await expect(searchTool).toHaveAttribute(
+        "aria-controls",
+        "explorer-search-panel",
+      );
       await searchTool.click();
       await expect(searchTool).toHaveAttribute("aria-expanded", "true");
       await expect(
@@ -144,7 +148,7 @@ test.describe("Explorer shell chrome composition (#2850 / #2407)", () => {
         `[data-testid="${TEST_IDS.searchPanelHost}"]`,
       );
       await expect(panel).toBeVisible({ timeout: 10_000 });
-      await expect(panel).toBeInViewport();
+      await expect(panel).toBeInViewport({ timeout: 10_000 });
       await expect(
         page.locator(`[data-testid="${TEST_IDS.searchInput}"]`),
       ).toBeVisible();

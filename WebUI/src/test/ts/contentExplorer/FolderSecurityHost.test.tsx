@@ -74,16 +74,45 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
 
   it("FolderSecurityMountBoundary surfaces render-time child errors", () => {
     const boom = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    function Boom(): never {
-      throw new Error("panel render failed");
+    try {
+      function Boom(): never {
+        throw new Error("panel render failed");
+      }
+      render(
+        <FolderSecurityMountBoundary>
+          <Boom />
+        </FolderSecurityMountBoundary>,
+      );
+      expect(screen.getByTestId("folder-security-error")).toBeTruthy();
+      expect(screen.getByText("panel render failed")).toBeTruthy();
+    } finally {
+      boom.mockRestore();
     }
+  });
+
+  it("mounts FolderSecurityPanel when load resolves", async () => {
     render(
-      <FolderSecurityMountBoundary>
-        <Boom />
-      </FolderSecurityMountBoundary>,
+      <FolderSecurityHost
+        folderId="16777215-101-703"
+        currentUserIdentities={["Admin"]}
+        load={async () => ({
+          id: "16777215-101-703",
+          name: "Sites",
+          permission: {
+            accessLevel: "ADMIN",
+            adminPrincipals: [{ type: "USER", name: "Admin" }],
+            writePrincipals: [],
+            readPrincipals: [],
+            viewPrincipals: [],
+          },
+        })}
+      />,
     );
-    expect(screen.getByTestId("folder-security-error")).toBeTruthy();
-    expect(screen.getByText("panel render failed")).toBeTruthy();
-    boom.mockRestore();
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("folder-security-loading")).toBeNull();
+    expect(screen.queryByTestId("folder-security-error")).toBeNull();
+    expect(screen.getByText(/Sites/)).toBeTruthy();
   });
 });

@@ -40,6 +40,7 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL, ADMIN_USERNAME } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const { TEST_IDS } = require("./helpers/explorer-shell-chrome");
 
 const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 
@@ -91,7 +92,7 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
       page.locator('[data-testid="explorer-view-tool-search"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="explorer-view-tool-security"]'),
+      page.locator('[data-testid="explorer-toggle-security"]'),
     ).toBeVisible();
     await expect(
       page.locator('[data-testid="explorer-server-actions"]'),
@@ -106,7 +107,7 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
       page.locator('[data-testid="explorer-toggle-search"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="explorer-toggle-security"]'),
+      page.locator('[data-testid="explorer-menu-view-security"]'),
     ).toBeVisible();
   });
 
@@ -214,25 +215,40 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     ).toBeVisible();
   });
 
-  test("Explorer view-tool Search opens panel under header chrome (#3208)", async ({
-    page,
-  }) => {
-    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
-    const shell = page.locator('[data-testid="content-explorer-shell"]');
-    await expect(shell).toBeVisible({ timeout: 15_000 });
-    const searchTool = page.locator('[data-testid="explorer-view-tool-search"]');
-    await expect(searchTool).toBeVisible();
-    await searchTool.click();
-    const panel = page.locator('[data-testid="explorer-search-panel"]');
-    await expect(panel).toBeVisible();
-    await expect(
-      page.locator('[data-testid="explorer-side-panels"]'),
-    ).toBeVisible();
-    await expect(page.locator('[data-testid="search-panel-input"]')).toBeVisible();
-    await expect(panel).toBeInViewport();
-    await searchTool.click();
-    await expect(panel).toHaveCount(0);
-  });
+  test(
+    "Explorer view-tool Search opens panel under header chrome (#3208)",
+    { tag: ["@explorer-shell-chrome", "@explorer", "@search", "@smoke"] },
+    async ({ page }) => {
+      await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+      const searchTool = page.locator(
+        `[data-testid="${TEST_IDS.viewToolSearch}"]`,
+      );
+      await expect(searchTool).toBeVisible();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await expect(searchTool).toHaveAttribute(
+        "aria-controls",
+        "explorer-search-panel",
+      );
+      await searchTool.click();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "true");
+      const panel = page.locator(
+        `[data-testid="${TEST_IDS.searchPanelHost}"]`,
+      );
+      await expect(panel).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.sidePanels}"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.searchInput}"]`),
+      ).toBeVisible();
+      await expect(panel).toBeInViewport({ timeout: 10_000 });
+      await searchTool.click();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await expect(panel).toHaveCount(0);
+    },
+  );
 
   test("no miller-column Finder chrome loads for the modern entry", async ({
     page,
