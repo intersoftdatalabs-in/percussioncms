@@ -45,6 +45,38 @@ describe("isFolder (#3001 site nodes)", () => {
     ).toBe(true);
   });
 
+  it("treats trailing-slash paths as folders when type is omitted (#3330 $System$)", () => {
+    expect(
+      isFolder({
+        id: "3",
+        name: "$System$",
+        path: "/Folders/$System$/",
+        leaf: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("treats pathmanagement Folder / FSFolder as folders even with id and leaf (#3330)", () => {
+    expect(
+      isFolder({
+        id: "16777215-101-1",
+        name: "New-Folder",
+        path: "/Folders/New-Folder/",
+        type: "Folder",
+        leaf: true,
+      }),
+    ).toBe(true);
+    expect(
+      isFolder({
+        id: "2",
+        name: "css",
+        path: "/Design/css/",
+        type: "FSFolder",
+        leaf: true,
+      }),
+    ).toBe(true);
+  });
+
   it("does not treat leaf pages as folders", () => {
     expect(
       isFolder({

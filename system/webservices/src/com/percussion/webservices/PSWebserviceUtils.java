@@ -1822,17 +1822,39 @@ public class PSWebserviceUtils
    }
 
    /**
+    * Folders and other non-workflowed CMS objects use {@code -1} (or {@code 0})
+    * as the workflow-id sentinel. Those ids are not loadable GUIDs.
+    *
+    * @param workflowId candidate workflow application id
+    * @return {@code true} when {@link #getWorkflow(int)} may attempt a load
+    */
+   public static boolean isLoadableWorkflowId(int workflowId)
+   {
+      return workflowId > 0;
+   }
+
+   /**
     * Loads the workflow with the specified workflow id.
     *
     * @param workflowId the workflow id.
     *
     * @return the specified workflow, never <code>null</code>.
     *
-    * @throws PSErrorException if failed to load the specified workflow.
+    * @throws IllegalArgumentException if {@code workflowId} is {@code <= 0}
+    *            (maps to HTTP 400 via {@code PSRuntimeExceptionMapper})
+    * @throws PSErrorException if failed to load a positive but missing workflow
     */
    public static PSWorkflow getWorkflow(int workflowId)
       throws PSErrorException
    {
+      if (!isLoadableWorkflowId(workflowId))
+      {
+         throw new IllegalArgumentException(
+               "Workflow id is not loadable: "
+                     + workflowId
+                     + " (folders and non-workflowed objects use -1)");
+      }
+
       IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
       PSWorkflow wf = null;

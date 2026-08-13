@@ -94,7 +94,8 @@ import {
   type ReducedActionHandlers,
 } from "./ReducedActions";
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
-import { EMPTY_SELECTION, type Selection } from "./selection";
+import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
+import { isWorkflowEligibleItem } from "./workflowEligibility";
 import { resolveFolderPathFromSelection } from "./folderPath";
 import { resolveSiteNameFromSelection } from "./sitePath";
 import {
@@ -283,14 +284,6 @@ function parseContentId(id: string | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** True when the selection can receive workflow transitions (not a folder). */
-function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
-  if (!item) return false;
-  if (item.type === "folder") return false;
-  const id = item.id != null ? String(item.id).trim() : "";
-  return id.length > 0;
-}
-
 /**
  * Load the server action catalog for the current selection (#2849 / #2972).
  *
@@ -307,7 +300,8 @@ function isWorkflowEligibleItem(item: PSPathItem | null | undefined): boolean {
 async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
-  const contentId = parseContentId(item?.id);
+  const contentId =
+    item && isWorkflowEligibleItem(item) ? parseContentId(item.id) : null;
   if (contentId != null) {
     try {
       const menus = await findAllowedContentTypeMenus([contentId]);
@@ -464,7 +458,7 @@ export function ContentExplorerShell({
     ...defaultReducedActionHandlers(),
     ...actionHandlers,
     onOpen: (item) => {
-      if (item.type === "folder" || (item.leaf === false && item.id == null)) {
+      if (isFolder(item)) {
         setSelection({ folderPath: item.path, item: null });
         return;
       }
@@ -814,7 +808,7 @@ export function ContentExplorerShell({
   const hasFolderContext = sourceFolderPathForCopy != null;
   const hasDependencyItem =
     selection.item != null &&
-    selection.item.type !== "folder" &&
+    !isFolder(selection.item) &&
     selection.item.id != null &&
     String(selection.item.id).trim().length > 0;
   const hasOpenSidePanel =
@@ -899,7 +893,7 @@ export function ContentExplorerShell({
   );
 
   const folderForActions: PSPathItem | null =
-    selection.item?.type === "folder"
+    selection.item && isFolder(selection.item)
       ? selection.item
       : selection.folderPath
         ? ({
@@ -918,7 +912,7 @@ export function ContentExplorerShell({
   useEffect(() => {
     let cancelled = false;
     async function resolve(): Promise<void> {
-      if (selection.item?.type === "folder" && selection.item.id) {
+      if (selection.item && isFolder(selection.item) && selection.item.id) {
         if (!cancelled) setSecurityFolderId(String(selection.item.id));
         return;
       }
@@ -1154,7 +1148,7 @@ export function ContentExplorerShell({
                 ? {
                     path: selection.folderPath,
                     accessLevel:
-                      selection.item?.type === "folder"
+                      selection.item && isFolder(selection.item)
                         ? selection.item.accessLevel
                         : "WRITE",
                   }

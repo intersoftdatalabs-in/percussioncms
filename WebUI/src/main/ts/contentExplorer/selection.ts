@@ -36,16 +36,26 @@ export const EMPTY_SELECTION: Selection = {
   item: null,
 };
 
+/**
+ * Server {@code IPSItemSummary} types that are folders (not workflowed items).
+ * Pathmanagement sends {@code Folder} / {@code FSFolder} (capital F), not
+ * the lowercase {@code folder} the SPA historically used (#3330 / #3329).
+ */
+const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
+
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
-  // Site nodes from pathmanagement (TYPE_SITE = "site") are expandable
-  // containers under /Sites (#3001). Treat like folders when leaf is unset.
-  if (item.type === "folder" || item.type === "site") return true;
+  const type = (item.type ?? "").trim().toLowerCase();
+  if (FOLDER_TYPE_KEYS.has(type)) return true;
+  const category = (item.category ?? "").trim().toLowerCase();
+  if (category === "folder") return true;
+  // Server PSPathItem.setPath appends '/' only for folders. $System$ and
+  // similar under /Folders/ may omit type but still use a folder path (#3330).
+  const path = (item.path ?? "").trim();
+  if (path.endsWith("/")) return true;
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
-  // Fallback heuristic: folders lack an "id" with content semantics; they
-  // expose hasFolderChildren / hasItemChildren flags in PSPathItem.
-  return Boolean(item.hasFolderChildren) || item.category === "folder";
+  return Boolean(item.hasFolderChildren);
 }
 
 export function canRead(item: PSPathItem | null): boolean {
