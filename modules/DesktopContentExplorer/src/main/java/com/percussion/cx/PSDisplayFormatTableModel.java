@@ -272,13 +272,14 @@ public class PSDisplayFormatTableModel extends PSTableModel {
   @Override
   public Iterator<Object> getData() {
     List<Object> data = new ArrayList<>();
-
-    for (Object rowObj : getDataVector()) {
-      @SuppressWarnings("unchecked")
-      Vector<Object> rowData = (Vector<Object>) rowObj;
-      if (!rowData.isEmpty()) data.add(rowData.get(0));
+    // Prefer TableModel cell access over DefaultTableModel#getDataVector() so we
+    // do not need an unchecked cast of each raw row Vector.
+    int rowCount = getRowCount();
+    if (getColumnCount() > 0) {
+      for (int row = 0; row < rowCount; row++) {
+        data.add(getValueAt(row, 0));
+      }
     }
-
     return data.iterator();
   }
 

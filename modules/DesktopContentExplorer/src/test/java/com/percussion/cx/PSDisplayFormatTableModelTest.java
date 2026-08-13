@@ -70,6 +70,13 @@ public class PSDisplayFormatTableModelTest {
   }
 
   @Test
+  public void getDataOnEmptyModelReturnsEmptyIterator() {
+    PSDisplayFormatTableModel model = newModel();
+    Iterator<Object> data = model.getData();
+    assertFalse(data.hasNext());
+  }
+
+  @Test
   public void setRootWithoutDisplayFormatUsesNameColumnAndNodeData() {
     PSDisplayFormatTableModel model = newModel();
     PSNode parent = folder("p", "Parent");

@@ -229,11 +229,9 @@ public class PSMainDisplayPanel extends JScrollPane
               // save sorting info if we have any
               PSNode root = getDataModel().getRoot();
               if (root != null) {
-                // PSTableSorter still exposes raw List of Integer column indices
-                @SuppressWarnings("unchecked")
-                List<Integer> sortCols =
-                    (List<Integer>) m_childViewTableModel.getSortingColumns();
-                root.setLastSortColumns(sortCols);
+                // PSTableSorter still exposes a raw List of Integer column indices
+                root.setLastSortColumns(
+                    copySortColumnIndexes(m_childViewTableModel.getSortingColumns()));
                 root.setLastSortedAsc(m_childViewTableModel.isAscending());
               }
             }
@@ -1483,6 +1481,29 @@ public class PSMainDisplayPanel extends JScrollPane
    * through calls to <code>
    * setData(PSNode, PSNode)</code>.
    */
+  /**
+   * Copies sort-column indexes from {@link PSTableSorter#getSortingColumns()} (raw {@link List} of
+   * {@link Integer}) into a typed list. Non-{@link Integer} entries are skipped.
+   *
+   * <p>Package-private static for unit tests (no instance state).
+   *
+   * @param columns the sorter's column-index list, may be {@code null}
+   * @return a new typed list, never {@code null}; empty when {@code columns} is {@code null} or
+   *     empty
+   */
+  static List<Integer> copySortColumnIndexes(List<?> columns) {
+    if (columns == null || columns.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Integer> copy = new ArrayList<>(columns.size());
+    for (Object col : columns) {
+      if (col instanceof Integer index) {
+        copy.add(index);
+      }
+    }
+    return copy;
+  }
+
   PSTableSorter m_childViewTableModel;
 
   /**
