@@ -69,8 +69,10 @@ folder in the tree), matching the Search panel result actions.
 **Inbox** is always listed under **Views → My Content** (the Desktop Content Explorer
 path `//Views//MyContent/Inbox`, not a separate Explorer root). Selecting **Inbox**
 runs it with the same view execute service as standard views
-(`POST /services/views/{idOrName}/execute`) and shows assignment rows, or an empty
-state when you have no Inbox items.
+(`POST /services/views/{idOrName}/execute`, body wrapped as `ViewExecuteRequest`)
+and shows assignment rows, or an empty state when you have no Inbox items. A
+Retry button appears only for a real execute failure — not for a request-envelope
+mismatch.
 
 Other **custom URL** views (for example Outbox or Recent) stay listed so you can see
 them in the catalog, but they cannot be executed from this Explorer release. Those

@@ -137,6 +137,23 @@ describe("executeView", () => {
     expect(result.viewName).toBe("View_All");
   });
 
+  it("POSTs Inbox paging overrides under ViewExecuteRequest (#3323)", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ children: [], totalCount: 0, startIndex: 1 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await executeView("Inbox", { startIndex: 1, maxResults: 50 });
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toBe(
+      `${PATHS.VIEWS}/${encodeURIComponent("Inbox")}/execute`,
+    );
+    const body = JSON.parse(String(init?.body));
+    expect(body.ViewExecuteRequest).toEqual({ startIndex: 1, maxResults: 50 });
+    expect(body.startIndex).toBeUndefined();
+  });
+
   it("POSTs an empty ViewExecuteRequest envelope when overrides are omitted", async () => {
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response(JSON.stringify({ children: [], totalCount: 0, startIndex: 1 }), {

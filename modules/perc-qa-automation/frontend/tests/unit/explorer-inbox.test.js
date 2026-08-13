@@ -39,6 +39,7 @@ const {
   findInboxView,
   inboxLeafSelector,
   inboxResultsSelector,
+  isViewExecuteJaxbError,
   missingInboxSkipMessage,
   noAssignmentsSkipMessage,
 } = require("../helpers/explorer-inbox");
@@ -138,6 +139,21 @@ describe("explorer-inbox helpers (#3241)", () => {
     assert.match(results, /explorer-view-results-loading/);
     assert.match(results, /explorer-view-results-error/);
     assert.doesNotMatch(results, /data-testid="explorer-view-results"/);
+  });
+
+  it("isViewExecuteJaxbError matches Inbox 400 envelope failures (#3323)", () => {
+    assert.equal(isViewExecuteJaxbError(""), false);
+    assert.equal(isViewExecuteJaxbError("timeout"), false);
+    assert.equal(
+      isViewExecuteJaxbError(
+        'JAXBException occurred: unexpected element (uri:"", local:"startIndex"). Expected elements are <{}ViewExecuteRequest>.',
+      ),
+      true,
+    );
+    assert.equal(
+      isViewExecuteJaxbError("Failed to run view: unexpected element startIndex / ViewExecuteRequest"),
+      true,
+    );
   });
 
   it("skip messages mention leaf vs empty assignments", () => {

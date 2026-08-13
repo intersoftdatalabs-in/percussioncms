@@ -53,6 +53,9 @@ class CatalogRestJaxrsRegistrationTest {
     "restContentExplorerFoldersResource",
   };
 
+  /** Inbox execute #3323 — must precede jacksonProvider on rest-jax-rs. */
+  private static final String VIEW_EXECUTE_JSON_READER = "viewExecuteRequestJsonReader";
+
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
     Path root = resolveRepoRoot();
@@ -75,6 +78,38 @@ class CatalogRestJaxrsRegistrationTest {
           restBlock.contains("bean=\"" + bean + "\""),
           "rest-jax-rs serviceBeans must ref " + bean + " (missing → CXF 404 for catalog REST)");
     }
+  }
+
+  @Test
+  void restJaxRsProvidersIncludeViewExecuteRequestJsonReaderBeforeJackson() throws Exception {
+    Path root = resolveRepoRoot();
+    Path beans =
+        root.resolve(
+            "projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/"
+                + "rxapp.ear/rxapp.war/WEB-INF/config/spring/projects/sitemanage-beans.xml");
+    assertTrue(Files.isRegularFile(beans), "missing sitemanage-beans.xml at " + beans);
+
+    String xml = Files.readString(beans, StandardCharsets.UTF_8);
+    int restServer = xml.indexOf("id=\"rest-jax-rs\"");
+    assertTrue(restServer >= 0, "rest-jax-rs server must exist in sitemanage-beans.xml");
+    int end = xml.indexOf("</jaxrs:server>", restServer);
+    assertTrue(end > restServer, "rest-jax-rs server block must close");
+    String restBlock = xml.substring(restServer, end);
+    int providers = restBlock.indexOf("<jaxrs:providers>");
+    int providersEnd = restBlock.indexOf("</jaxrs:providers>");
+    assertTrue(providers >= 0 && providersEnd > providers, "rest-jax-rs providers block");
+    String providerBlock = restBlock.substring(providers, providersEnd);
+    int reader = providerBlock.indexOf("bean=\"" + VIEW_EXECUTE_JSON_READER + "\"");
+    int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
+    assertTrue(
+        reader >= 0,
+        "rest-jax-rs providers must ref "
+            + VIEW_EXECUTE_JSON_READER
+            + " (missing → Inbox flat startIndex 400)");
+    assertTrue(jackson >= 0, "rest-jax-rs providers must still ref jacksonProvider");
+    assertTrue(
+        reader < jackson,
+        VIEW_EXECUTE_JSON_READER + " must be listed before jacksonProvider");
   }
 
   private static Path resolveRepoRoot() {
