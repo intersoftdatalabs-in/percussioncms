@@ -20,7 +20,9 @@
  * <p>Coverage:</p>
  * <ul>
  *   <li>REST: {@code path/folder/Sites} is 200; non-empty when fixture has sites</li>
+ *   <li>REST: expanding a sample site (folderPath / sitename) lists children (#3326)</li>
  *   <li>UI: Sites tree expands to child site nodes when list is non-empty</li>
+ *   <li>UI: selecting a sample site shows folder children, not LIST_EMPTY (#3326)</li>
  *   <li>Create Site: Content menu always exposes Create Site; wizard details →
  *       template → confirm chrome; optional live submit when affordance present</li>
  * </ul>
@@ -56,6 +58,8 @@ const {
   TEST_IDS,
   explorerSpaUrl,
   sitesFolderUrl,
+  siteChildListPath,
+  folderChildrenUrl,
   openContentMenu,
   sitesTreeRootLocator,
   sitesTreeDescendantsLocator,
@@ -149,6 +153,43 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
   );
 
   test(
+    "REST: sample site folder children are non-empty (#3326)",
+    { tag: ["@explorer-sites-list-create", "@explorer", "@sites", "@smoke"] },
+    async ({ request }) => {
+      test.setTimeout(30_000);
+      const headers = adminBasicAuthHeaders();
+      const sitesRes = await request.get(SITES_URL, { headers });
+      expect(sitesRes.status()).toBe(200);
+      const body = await sitesRes.json();
+      const items = Array.isArray(body.PathItem)
+        ? body.PathItem
+        : Array.isArray(body)
+          ? body
+          : [];
+      const names = pathItemNames(body);
+      if (gateSitesListOrSoftSkip(names) === "soft-empty") {
+        return;
+      }
+      const sample =
+        items.find((it) =>
+          hasAnyExpectedSampleSite([
+            it && typeof it.name === "string" ? it.name : "",
+          ]),
+        ) || items[0];
+      expect(sample, "expected at least one site PathItem").toBeTruthy();
+      const listPath = siteChildListPath(sample);
+      const childUrl = folderChildrenUrl(BASE_URL, listPath);
+      const childRes = await request.get(childUrl, { headers });
+      expect(childRes.status(), `GET ${childUrl}`).toBe(200);
+      const childNames = pathItemNames(await childRes.json());
+      expect(
+        childNames.length,
+        `site children at ${childUrl}: ${JSON.stringify(childNames)}`,
+      ).toBeGreaterThan(0);
+    },
+  );
+
+  test(
     "UI: Content Explorer Sites expands to child site nodes when non-empty",
     { tag: ["@explorer-sites-list-create", "@explorer", "@sites"] },
     async ({ page }) => {
@@ -195,6 +236,56 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
           `explorer tree missing sample sites; children=${JSON.stringify(childNames)}`,
         ).toBe(true);
       }
+    },
+  );
+
+  test(
+    "UI: expanding a sample site shows folder children not LIST_EMPTY (#3326)",
+    { tag: ["@explorer-sites-list-create", "@explorer", "@sites"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const probe = await page.request.get(SITES_URL, {
+        headers: adminBasicAuthHeaders(),
+      });
+      expect(probe.status()).toBe(200);
+      const restNames = pathItemNames(await probe.json());
+      if (gateSitesListOrSoftSkip(restNames) === "soft-empty") {
+        return;
+      }
+
+      const jsErrors = [];
+      page.on("pageerror", (err) => jsErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          jsErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+      await page.goto(explorerSpaUrl(BASE_URL), { waitUntil: "networkidle" });
+
+      const tree = page.locator(`[data-testid="${TEST_IDS.tree}"]`);
+      await expect(tree).toBeVisible({ timeout: 20_000 });
+      const sitesRoot = sitesTreeRootLocator(page);
+      await expect(sitesRoot.first()).toBeVisible({ timeout: 20_000 });
+      await sitesRoot.first().click();
+
+      const descendants = sitesTreeDescendantsLocator(page);
+      await expect(descendants.first()).toBeVisible({ timeout: 20_000 });
+      await descendants.first().locator('[role="treeitem"]').first().click();
+
+      const detail = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
+      await expect(detail).toBeVisible({ timeout: 15_000 });
+      await expect(detail.locator('[data-testid="detail-list-empty"]')).toHaveCount(
+        0,
+        { timeout: 20_000 },
+      );
+      await expect(detail.locator('[data-testid^="detail-row-"]').first()).toBeVisible({
+        timeout: 20_000,
+      });
+      expect(jsErrors, `console/page errors: ${jsErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 

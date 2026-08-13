@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import type { PSPathItem } from "../api/contentExplorer/types";
+import { normalizeExplorerFolderPath } from "./folderPath";
+
 /**
  * CMS Explorer path helpers for site-scoped chrome (#2767 / parent #2400).
  *
@@ -61,4 +64,28 @@ export function resolveSiteNameFromSelection(
     resolveSiteNameFromExplorerPath(itemPath) ??
     resolveSiteNameFromExplorerPath(folderPath)
   );
+}
+
+/**
+ * Path used to list children of a site/folder PathItem.
+ *
+ * <p>Sample Rhythmyx sites use {@code SITENAME} {@code Corporate_Investments}
+ * but {@code FOLDER_ROOT} {@code //Sites/CorporateInvestments} (#3326).
+ * pathmanagement {@code PathItem.folderPath} is the repository folder;
+ * {@code PathItem.path} is the finder id (often the site name). Prefer
+ * {@code folderPath} so expand/list hits the seeded site folder.</p>
+ */
+export function resolveExplorerListPath(
+  item: Pick<PSPathItem, "path" | "folderPath"> | null | undefined,
+  fallback?: string | null,
+): string | null {
+  const fromFolder = normalizeExplorerFolderPath(item?.folderPath);
+  if (fromFolder != null) {
+    return fromFolder;
+  }
+  const fromPath = normalizeExplorerFolderPath(item?.path);
+  if (fromPath != null) {
+    return fromPath;
+  }
+  return normalizeExplorerFolderPath(fallback);
 }

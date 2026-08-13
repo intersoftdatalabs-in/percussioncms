@@ -180,6 +180,148 @@
 			<column name="LOCALE">en-us</column>
 			<column name="OBJECTTYPE">2</column>
 		</row>
+		<!-- Browseable children under sample site roots (#3326). Empty 350/351
+		     made Explorer expand show LIST_EMPTY after Sites listed. -->
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">352</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">Pages</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">353</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">Files</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">354</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">Pages</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">355</column>
+			<column name="HIB_VER">0</column>
+			<column name="CONTENTSTATEID">1</column>
+			<column name="CONTENTCHECKOUTUSERNAME"/>
+			<column name="CONTENTLASTMODIFIER">admin1</column>
+			<column name="CONTENTLASTMODIFIEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="CONTENTTYPEID">101</column>
+			<column name="CONTENTCREATEDDATE">2007-04-08 15:08:22.0</column>
+			<column name="LASTTRANSITIONDATE"/>
+			<column name="NEXTAGINGDATE"/>
+			<column name="CONTENTCREATEDBY">admin1</column>
+			<column name="CONTENTSTARTDATE"/>
+			<column name="CONTENTEXPIRYDATE"/>
+			<column name="CONTENTAGINGTIME"/>
+			<column name="CONTENTPUBLISHDATE"/>
+			<column name="CONTENTPOSTDATE"/>
+			<column name="CONTENTPOSTDATETZ"/>
+			<column name="CONTENTPATHNAME"/>
+			<column name="CONTENTSUFFIX"/>
+			<column name="WORKFLOWAPPID">-1</column>
+			<column name="TITLE">Files</column>
+			<column name="CURRENTREVISION">1</column>
+			<column name="TIPREVISION">1</column>
+			<column name="EDITREVISION">1</column>
+			<column name="REVISIONLOCK"/>
+			<column name="CLONEDPARENT"/>
+			<column name="REMINDERDATE"/>
+			<column name="STATEENTEREDDATE"/>
+			<column name="NEXTAGINGTRANSITION"/>
+			<column name="REPEATEDAGINGTRANSSTARTDATE"/>
+			<column name="COMMUNITYID">-1</column>
+			<column name="LOCALE">en-us</column>
+			<column name="OBJECTTYPE">2</column>
+		</row>
 	</table>
 	<table name="CONTENTTYPES" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4428,6 +4570,26 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="REVISIONID">1</column>
 			<column name="DESCRIPTION">Corporate Investments site root</column>
 		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">352</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Enterprise Investments Pages</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">353</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Enterprise Investments Files</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">354</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Corporate Investments Pages</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">355</column>
+			<column name="REVISIONID">1</column>
+			<column name="DESCRIPTION">Corporate Investments Files</column>
+		</row>
 	</table>
 	<table name="PSX_OBJECTACL" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4510,6 +4672,70 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="NAME">Admin</column>
 			<column name="PERMISSIONS">7</column>
 		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">352</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92005</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">352</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92006</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">353</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92007</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">353</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92008</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">354</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92009</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">354</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92010</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">355</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92011</column>
+			<column name="TYPE">2</column>
+			<column name="NAME">Everyone</column>
+			<column name="PERMISSIONS">1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">355</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92012</column>
+			<column name="TYPE">1</column>
+			<column name="NAME">Admin</column>
+			<column name="PERMISSIONS">7</column>
+		</row>
 	</table>
 	<table name="PSX_PROPERTIES" onCreateOnly="no">
 		<row action="r" onTableCreateOnly="no">
@@ -4548,6 +4774,38 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="CONTENTID">351</column>
 			<column name="REVISIONID">1</column>
 			<column name="SYSID">92002</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">352</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92003</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">353</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92004</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">354</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92005</column>
+			<column name="PROPERTYNAME">sys_displayformat</column>
+			<column name="PROPERTYVALUE">0</column>
+			<column name="DESCRIPTION"/>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="CONTENTID">355</column>
+			<column name="REVISIONID">1</column>
+			<column name="SYSID">92006</column>
 			<column name="PROPERTYNAME">sys_displayformat</column>
 			<column name="PROPERTYVALUE">0</column>
 			<column name="DESCRIPTION"/>
@@ -4593,6 +4851,39 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="OWNER_ID">2</column>
 			<column name="OWNER_REVISION">-1</column>
 			<column name="DEPENDENT_ID">351</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<!-- Sample site folder children (#3326) -->
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">352</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">350</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">352</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">353</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">350</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">353</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">354</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">351</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">354</column>
+			<column name="DEPENDENT_REVISION">-1</column>
+		</row>
+		<row action="r" onTableCreateOnly="no">
+			<column name="RID">355</column>
+			<column name="CONFIG_ID">3</column>
+			<column name="OWNER_ID">351</column>
+			<column name="OWNER_REVISION">-1</column>
+			<column name="DEPENDENT_ID">355</column>
 			<column name="DEPENDENT_REVISION">-1</column>
 		</row>
 	</table>

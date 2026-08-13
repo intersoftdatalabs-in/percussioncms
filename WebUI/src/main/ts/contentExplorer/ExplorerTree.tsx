@@ -28,7 +28,8 @@ import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
-import { isStrictCmsPathDescendant } from "./folderPath";
+import { isSafeExplorerTreeChild } from "./folderPath";
+import { resolveExplorerListPath } from "./sitePath";
 import { isFolder } from "./selection";
 import {
   emptyStateStyle,
@@ -81,26 +82,30 @@ export function ExplorerTree({
     [initialPath]: EMPTY_STATE,
   }));
 
-  const ensureLoaded = useCallback(async (path: string) => {
-    setNodes((prev) => {
-      const cur = prev[path] ?? EMPTY_STATE;
-      if (cur.loaded || cur.loading) return prev;
-      return { ...prev, [path]: { ...cur, loading: true, error: null } };
-    });
-    try {
-      const children = await findChildren(path);
-      setNodes((prev) => ({
-        ...prev,
-        [path]: { loaded: true, loading: false, error: null, children },
-      }));
-    } catch (err) {
-      const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
-      setNodes((prev) => ({
-        ...prev,
-        [path]: { loaded: true, loading: false, error: msg, children: [] },
-      }));
-    }
-  }, []);
+  const ensureLoaded = useCallback(
+    async (path: string, folder?: PSPathItem | null) => {
+      setNodes((prev) => {
+        const cur = prev[path] ?? EMPTY_STATE;
+        if (cur.loaded || cur.loading) return prev;
+        return { ...prev, [path]: { ...cur, loading: true, error: null } };
+      });
+      try {
+        const listPath = resolveExplorerListPath(folder, path) ?? path;
+        const children = await findChildren(listPath);
+        setNodes((prev) => ({
+          ...prev,
+          [path]: { loaded: true, loading: false, error: null, children },
+        }));
+      } catch (err) {
+        const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
+        setNodes((prev) => ({
+          ...prev,
+          [path]: { loaded: true, loading: false, error: msg, children: [] },
+        }));
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     void ensureLoaded(initialPath);
@@ -110,7 +115,7 @@ export function ExplorerTree({
     (path: string, folder: PSPathItem) => {
       setExpanded((prev) => ({ ...prev, [path]: !prev[path] }));
       if (!nodes[path]?.loaded) {
-        void ensureLoaded(path);
+        void ensureLoaded(path, folder);
       }
       onActivate?.(path, folder);
     },
@@ -124,7 +129,10 @@ export function ExplorerTree({
     const path = folder.path;
     const isOpen = expanded[path] ?? false;
     const state = nodes[path] ?? EMPTY_STATE;
-    const selected = selectedPath === path;
+    const listPath = resolveExplorerListPath(folder, path);
+    const selected =
+      selectedPath === path ||
+      (listPath != null && selectedPath === listPath);
     const folderish = isFolder(folder);
 
     return (
@@ -179,9 +187,11 @@ export function ExplorerTree({
           isOpen &&
           state.children
             // Guard against self-path or ancestor cycles from a bad API payload
-            // (would recurse forever in render). Normalize //Sites vs /Sites and
-            // trailing slashes so site id children are not dropped (#3001).
-            .filter((child) => isStrictCmsPathDescendant(path, child.path))
+            // (would recurse forever in render). Accept name vs FOLDER_ROOT
+            // prefix mismatch on sample sites (#3001 / #3326).
+            .filter((child) =>
+              isSafeExplorerTreeChild(path, folder.folderPath, child.path),
+            )
             .map((child) => renderNode(child, depth + 1))}
       </div>
     );

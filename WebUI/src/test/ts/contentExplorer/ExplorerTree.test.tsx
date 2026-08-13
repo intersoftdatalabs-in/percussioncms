@@ -197,6 +197,69 @@ describe("ExplorerTree", () => {
     expect(childCalls).toBe(1);
   });
 
+  it("lists site children using folderPath not sitename (#3326)", async () => {
+    const SITE_CHILD: PSPathItem = {
+      id: "Corporate_Investments",
+      path: "/Sites/Corporate_Investments/",
+      folderPath: "//Sites/CorporateInvestments",
+      name: "Corporate_Investments",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    const PAGES: PSPathItem = {
+      id: "pages-1",
+      path: "/Sites/CorporateInvestments/Pages",
+      name: "Pages",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    const requested: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      requested.push(url);
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        return pathItemListResponse([SITE_CHILD]);
+      }
+      if (url.endsWith("/pathmanagement/path/folder/Sites/CorporateInvestments")) {
+        return pathItemListResponse([PAGES]);
+      }
+      return pathItemListResponse([]);
+    });
+    render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath={null}
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
+      ).toBeInTheDocument(),
+    );
+    const node = screen.getByTestId("tree-node-/Sites/Corporate_Investments/");
+    const toggle = node.querySelector('[aria-hidden="true"]');
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      requested.some((u) =>
+        u.endsWith("/pathmanagement/path/folder/Sites/CorporateInvestments"),
+      ),
+    ).toBe(true);
+    expect(
+      requested.some((u) =>
+        u.endsWith(
+          "/pathmanagement/path/folder/Sites/Corporate_Investments",
+        ),
+      ),
+    ).toBe(false);
+  });
+
   it("fires onSelectFolder when a row is activated", async () => {
     mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     let selected: string | null = null;
