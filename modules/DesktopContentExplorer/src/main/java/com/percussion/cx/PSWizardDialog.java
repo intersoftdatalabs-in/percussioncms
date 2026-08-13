@@ -39,8 +39,13 @@ import javax.swing.JPanel;
  *
  * <p>Pure typing helpers live on {@link com.percussion.wizard.PSWizardDialog} so both CX and
  * wizard-package dialogs share one tested implementation.
+ *
+ * <p>Declared {@code final} so Swing/UI initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborator fields that
+ * are not {@link java.io.Serializable} are {@code transient} (dialogs are never serialized in
+ * practice).
  */
-public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
+public final class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   /**
    * Construct a new wizard dialog for the supplied pages.
    *
@@ -282,14 +287,14 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    * 0) while the map value is the page as <code>IPSWizardPanel</code>. Initialized in {@link
    * #createMainPanel(Object[][])}, never changed after that.
    */
-  private final Map<Integer, IPSWizardPanel> m_pages = new TreeMap<>();
+  private final transient Map<Integer, IPSWizardPanel> m_pages = new TreeMap<>();
 
   /**
    * The map used to keep track of skipped wizard pages. The map key is an <code>Integer</code> with
    * the page index (starting at 0) while the map value is the page as <code>IPSWizardPanel</code>.
    * Initialized to an empty map, updated on calls to {@link #onNext()} or {@link #onBack()}.
    */
-  private final Map<Integer, IPSWizardPanel> m_skippedPages = new TreeMap<>();
+  private final transient Map<Integer, IPSWizardPanel> m_skippedPages = new TreeMap<>();
 
   /** The card layout used for the wizards main panel. */
   private final CardLayout m_cards = new CardLayout();
@@ -304,7 +309,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    * The wizards command panel, initialized during construction, never <code>null</code> or changed
    * after that.
    */
-  private PSWizardCommandPanel m_wizardCommands = null;
+  private transient PSWizardCommandPanel m_wizardCommands = null;
 
   /** The index of the page panel for the page array as supplied in constructor. */
   private static final int PAGE_PANEL = 0;
@@ -315,6 +320,9 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   /** The index of the page instruction for the page array as supplied in constructor. */
   private static final int PAGE_INSTRUCTION = 2;
 
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
+
   /** A reference back to the applet that initiated this action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

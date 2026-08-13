@@ -55,8 +55,15 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.StringUtils;
 
-/** The top-level action bar for the applet. */
-public class PSActionBar extends JPanel
+/**
+ * The top-level action bar for the applet.
+ *
+ * <p>Declared {@code final} so Swing/UI initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborator fields that
+ * are not {@link java.io.Serializable} are {@code transient} (the bar is never serialized in
+ * practice).
+ */
+public final class PSActionBar extends JPanel
     implements IPSSelectionListener, ItemListener, IPSSearchListener {
   /**
    * Constructs the action bar with supplied view.
@@ -142,7 +149,7 @@ public class PSActionBar extends JPanel
       rsPanel.add(rsLabel);
       rsPanel.add(makeFillerOpaque(Box.createHorizontalStrut(5)));
 
-      m_rsCombo = new JComboBox();
+      m_rsCombo = new JComboBox<>();
       rsLabel.setLabelFor(m_rsCombo); // Associate label with combobox
       if (mnemonic != 0) {
         rsLabel.setDisplayedMnemonic(mnemonic);
@@ -150,9 +157,11 @@ public class PSActionBar extends JPanel
       focusBorder.addToComponent(m_rsCombo, false);
       m_rsCombo.setRenderer(
           new DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public Component getListCellRendererComponent(
-                JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
               super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
               if (value instanceof PSRelationshipInfo) {
                 PSRelationshipInfo relInfo = (PSRelationshipInfo) value;
@@ -173,7 +182,9 @@ public class PSActionBar extends JPanel
       m_rsCombo.setMaximumSize(new Dimension(180, 20));
       m_rsCombo.addItemListener(this);
 
-      Iterator<PSRelationshipInfo> relationships = relationshipSet.getComponents();
+      @SuppressWarnings("unchecked")
+      Iterator<PSRelationshipInfo> relationships =
+          (Iterator<PSRelationshipInfo>) relationshipSet.getComponents();
       List<PSRelationshipInfo> orderedRels = new ArrayList<PSRelationshipInfo>();
       if (!relationships.hasNext()) throw new IllegalStateException("No relationships found");
       while (relationships.hasNext()) {
@@ -349,7 +360,7 @@ public class PSActionBar extends JPanel
     PSNode node = null;
 
     if (selection.getNodeListSize() == 1) {
-      node = (PSNode) selection.getNodeList().next();
+      node = selection.getNodeList().next();
     }
 
     if (node != null && node.getSearchResultCount() >= 0) {
@@ -387,9 +398,8 @@ public class PSActionBar extends JPanel
       props.setProperty(
           IPSConstants.PROPERTY_REVISION, String.valueOf(m_contentItem.getRevision()));
 
-      Iterator viewChangeListeners = m_viewChangeListeners.iterator();
-      while (viewChangeListeners.hasNext()) {
-        ((IPSViewChangeListener) viewChangeListeners.next()).viewDataChanged(props);
+      for (IPSViewChangeListener viewChangeListener : m_viewChangeListeners) {
+        viewChangeListener.viewDataChanged(props);
       }
 
       // Update accessibility information on combobox
@@ -447,13 +457,13 @@ public class PSActionBar extends JPanel
    * view. Initialized in <code>
    * init(JMenuBar)</code> and never <code>null</code> or modified after that.
    */
-  private PSLocator m_contentItem;
+  private transient PSLocator m_contentItem;
 
   /**
    * The container applet to get the applet context and its parameters, initialized in the ctor and
    * never <code>null</code> or modified after that.
    */
-  PSContentExplorerApplet m_applet;
+  transient PSContentExplorerApplet m_applet;
 
   /**
    * The current view of UI, initialized in the constructor and never <code>
@@ -480,7 +490,7 @@ public class PSActionBar extends JPanel
    * relationship to view its dependencies, initialized in the <code>init(JMenuBar)</code> in case
    * of <code>PSUiMode.TYPE_VIEW_DT</code> and never <code>null</code> or modified after that.
    */
-  private JComboBox m_rsCombo;
+  private JComboBox<PSRelationshipInfo> m_rsCombo;
 
   /**
    * The list of listeners that are interested in their view changes when any action is executed in
@@ -488,7 +498,7 @@ public class PSActionBar extends JPanel
    * addViewChangeListener(IPSViewChangeListener)</code>, never <code>
    * null</code>, may be empty.
    */
-  private List m_viewChangeListeners = new ArrayList();
+  private final transient List<IPSViewChangeListener> m_viewChangeListeners = new ArrayList<>();
 
   /**
    * Name of the image file to separate the content path and the menu bar. Image is loaded on
@@ -512,5 +522,8 @@ public class PSActionBar extends JPanel
    * Current selection in the nav tree, intially <code>null</code>, modified by calls to {@link
    * #selectionChanged(PSSelection)}.
    */
-  PSSelection m_navSelection = null;
+  transient PSSelection m_navSelection = null;
+
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
 }
