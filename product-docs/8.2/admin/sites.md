@@ -160,6 +160,20 @@ Integrators can call the same operation over REST:
 [Site configuration reference](id:reference-site-config) and
 [Virtual Sites (developer)](id:developer-virtual-sites).
 
+### Publish a Virtual Site to the Site filesystem target
+
+Build output under `{install}/tmp/virtual-sites/` is **staging**. To deliver a navigable static
+site to the Site's configured filesystem publish location:
+
+1. Set the Site **publishing filesystem root** (Site root / `IPSSite.root`) to a dedicated
+   directory on the CMS host (not the Markdown `virtual.rootPath`).
+2. As **Admin**, call `POST /sites/{nameOrId}/virtual/publish`.
+3. The server **builds then copies** HTML/assets to that Site root and returns `publishPath`
+   and `filesCopied`. Missing or unsafe Site root, overlap with the source tree, or a
+   non-virtual Site returns **400** with a readable message (not HTTP 500 / silent no-op).
+
+See [Publishing](id:admin-publishing) for the operator checklist.
+
 Offline scripts (`scripts/build-cms-docs.*`) remain available for developer workstations
 without a running CMS.
 

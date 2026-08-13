@@ -144,6 +144,27 @@ assembled file stream). Missing output returns status `available=false` (HTTP 20
 404 — not 500. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).
 
+## CMS-integrated publish (Site filesystem target)
+
+Build writes a **staging** tree. To publish that tree to the Site's configured filesystem
+location (`IPSSite.root` / Site publishing root), an **Admin** calls:
+
+```http
+POST /sites/{nameOrId}/virtual/publish
+```
+
+The server:
+
+1. Validates the Site is a Git-filesystem Virtual Site.
+2. Selects the Site filesystem publish root (must be configured, safe after NIO normalize, and
+   distinct from `virtual.rootPath`).
+3. Runs the same build as `POST …/virtual/build`.
+4. Copies assembled HTML/assets (not `_meta`) to the Site root using portable `java.nio.file.Path`.
+
+The response includes `publishPath`, `buildOutputPath`, `pagesWritten`, `filesCopied`, and
+link-problem fields. Failures return **400/403/404** with an operator-readable message (never a
+silent no-op). See [Publishing](id:admin-publishing).
+
 ## What is not in Phase 1
 
 - CMS UI editing of Virtual items as normal content types

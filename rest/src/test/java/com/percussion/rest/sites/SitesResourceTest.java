@@ -241,6 +241,30 @@ public class SitesResourceTest {
     verify(adaptor, never()).buildVirtualSite(any(), any());
   }
 
+  @Test
+  public void publishVirtualSiteDelegates() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("Help");
+    published.setPagesWritten(3);
+    published.setFilesCopied(5);
+    published.setPublishPath("C:/pub/help");
+    when(adaptor.publishVirtualSite("Help")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("Help");
+    assertEquals(3, out.getPagesWritten().intValue());
+    assertEquals(5, out.getFilesCopied().intValue());
+    assertEquals("C:/pub/help", out.getPublishPath().orElse(null));
+    verify(adaptor).publishVirtualSite("Help");
+  }
+
+  @Test
+  public void publishVirtualSiteBlankName400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).publishVirtualSite(any());
+  }
+
   /**
    * CodeQL #1949: Jackson/JAXB JSON/XML DTO return must keep same-line {@code // codeql[java/xss]}
    * on the updateVirtual sink (not HTML body construction).
@@ -266,6 +290,9 @@ public class SitesResourceTest {
     assertTrue(
         text.contains(".build(); // codeql[java/xss]"),
         "previewVirtualSiteFile Response.ok sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains("return requireAdaptor().publishVirtualSite(nameOrId); // codeql[java/xss]"),
+        "publishVirtualSite return sink must carry same-line codeql[java/xss]");
   }
 
   @Test

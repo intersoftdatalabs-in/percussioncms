@@ -72,6 +72,7 @@ Integrators can read and write these keys via public Site REST:
 - `POST /sites/{nameOrId}/virtual/build` (optional JSON body: `outputRoot`)
 - `GET /sites/{nameOrId}/virtual/preview` (last-build preview status)
 - `GET /sites/{nameOrId}/virtual/preview/{relPath}` (assembled file stream)
+- `POST /sites/{nameOrId}/virtual/publish` (build then copy to Site filesystem root)
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required root path when virtual, portable
@@ -110,6 +111,20 @@ Admin-only. Reports whether the last build output can be opened (`available`, `h
 resolution, no `..` after normalize). HTML root-relative `href`/`src` values are rewritten to
 the preview prefix so the assembled site is navigable in the browser. Missing files return
 **404**. The Developer UI **Preview assembled site** control uses these endpoints.
+
+#### Publish Virtual Site (`POST …/virtual/publish`)
+
+Runs the same build, then copies the assembled tree to the Site **filesystem publish location**
+(`IPSSite.root`). Requires **Admin**. Staging `_meta` is not copied.
+
+| Status | When |
+|--------|------|
+| `200` | Published; response includes `publishPath`, `filesCopied`, `pagesWritten`, `hasLinkProblems` |
+| `400` | Not a Virtual Site, Site root missing/unsafe/not a directory, or overlap with `virtual.rootPath` / build output |
+| `403` | Caller is not Admin |
+| `404` | Site not found |
+
+Configure a dedicated Site root (not the Markdown source path). See [Publishing](id:admin-publishing).
 
 ## Related
 

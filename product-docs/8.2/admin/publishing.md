@@ -34,7 +34,32 @@ channels (static files, FTP, database, custom locations).
 For Git/filesystem Virtual Sites such as product documentation:
 
 - Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session.
-- Runtime virtual assemble paths (when configured on a Site) participate in normal Site-level publishing configuration where applicable.
+- **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
+  `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`).
+- **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
+  assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
+  publishing root). Staging `_meta` files are not copied.
+
+### Publish a Virtual Site to the Site filesystem target
+
+1. Sign in as **Admin**.
+2. Configure the Site as a Git-filesystem Virtual Site (see [Sites](id:admin-sites)).
+3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
+   host. Do **not** point it at `virtual.rootPath` (the Markdown source tree).
+4. Confirm the source root exists on the host and that the publish directory is writable.
+5. Call `POST /services/sites/{nameOrId}/virtual/publish` (or run **Build Virtual Site** first if
+   you only want staging output).
+6. On success, the JSON result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
+   link problems (`hasLinkProblems` can be true with HTTP 200).
+7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root.
+
+**Clear operator errors (HTTP 400, not a silent no-op):**
+
+- Site is not Virtual (`virtual.sourceKind` blank or `repository`)
+- Site filesystem publish root is not configured
+- Publish root is unsafe (`..` after normalize) or is a file rather than a directory
+- Publish root overlaps `virtual.rootPath` or the build staging tree
+- Caller is not Admin (403)
 
 See [Virtual Sites](id:developer-virtual-sites) and [Build product docs](id:developer-build-source#product-docs-build).
 

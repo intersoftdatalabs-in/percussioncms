@@ -99,4 +99,16 @@ public class SitesTestAdaptor implements ISiteAdaptor {
     throw new jakarta.ws.rs.WebApplicationException(
         "No assembled Virtual Site to preview.", jakarta.ws.rs.core.Response.Status.NOT_FOUND);
   }
+
+  @Override
+  public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
+    VirtualSitePublishResult result = new VirtualSitePublishResult();
+    result.setSiteName(nameOrId);
+    result.setSiteKey(nameOrId);
+    result.setPagesWritten(0);
+    result.setFilesCopied(0);
+    result.setLinkProblemCount(0);
+    result.setHasLinkProblems(false);
+    return result;
+  }
 }

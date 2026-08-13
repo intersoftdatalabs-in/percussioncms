@@ -28,6 +28,7 @@ import com.percussion.rest.sites.VirtualSiteBuildResult;
 import com.percussion.rest.sites.VirtualSitePreviewFile;
 import com.percussion.rest.sites.VirtualSitePreviewStatus;
 import com.percussion.rest.sites.VirtualSiteProperties;
+import com.percussion.rest.sites.VirtualSitePublishResult;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -40,7 +41,9 @@ import com.percussion.services.virtualsite.PSGitFilesystemVirtualSiteSource;
 import com.percussion.services.virtualsite.PSInMemoryVirtualParticipantService;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
+import com.percussion.services.virtualsite.PSVirtualSiteFilesystemPublisher;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
+import com.percussion.services.virtualsite.PSVirtualSitePublishCopyResult;
 import com.percussion.services.virtualsite.VirtualSiteConfig;
 import com.percussion.services.virtualsite.VirtualSiteConfigLoader;
 import com.percussion.services.virtualsite.VirtualSiteException;
@@ -386,6 +389,69 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
   }
 
+  @Override
+  public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
+    requireAdmin();
+    IPSSite site = requireSite(nameOrId);
+
+    if (!PSVirtualSiteHelper.isVirtual(site)) {
+      throw new WebApplicationException(
+          "Site '"
+              + site.getName()
+              + "' is not a Virtual Site (virtual.sourceKind is blank or '"
+              + PSVirtualSiteHelper.SOURCE_KIND_REPOSITORY
+              + "'). Configure virtual.* properties before publishing.",
+          Response.Status.BAD_REQUEST);
+    }
+
+    Path publishRoot;
+    try {
+      publishRoot = PSVirtualSiteFilesystemPublisher.selectFilesystemTarget(site);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    }
+    Path safePublishRoot = requireSafeOutputRoot(publishRoot);
+
+    VirtualSiteBuildResult built = buildVirtualSite(nameOrId, null);
+    Path buildOutput =
+        built.getOutputPath()
+            .filter(StringUtils::isNotBlank)
+            .map(Path::of)
+            .orElseThrow(
+                () ->
+                    new WebApplicationException(
+                        "Virtual Site build did not report an output path.",
+                        Response.Status.INTERNAL_SERVER_ERROR));
+
+    try {
+      PSVirtualSitePublishCopyResult copied =
+          PSVirtualSiteFilesystemPublisher.copyBuildToTarget(buildOutput, safePublishRoot);
+      return toWirePublishResult(site.getName(), PSVirtualSiteHelper.siteKey(site), built, copied);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (IOException e) {
+      log.error(
+          "Virtual Site publish I/O failed for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(
+          "Virtual Site publish failed: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Virtual Site publish failed for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(
+          "Virtual Site publish failed: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   private PSVirtualSiteBuildResult runBuild(
       VirtualSiteConfig config, Path outputRoot, Path metaDir) throws Exception {
     if (buildRunner != null) {
@@ -710,11 +776,11 @@ public class SitesAdaptor implements ISiteAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to build Virtual Sites", Response.Status.FORBIDDEN);
+          "Admin role required to build or publish Virtual Sites", Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to build Virtual Sites", Response.Status.FORBIDDEN);
+          "Admin role required to build or publish Virtual Sites", Response.Status.FORBIDDEN);
     }
   }
 
@@ -812,6 +878,28 @@ public class SitesAdaptor implements ISiteAdaptor {
     dto.setHasLinkProblems(!problems.isEmpty());
     dto.setLinkProblems(truncate(problems, MAX_RESULT_LINES));
     dto.setWrittenFiles(truncate(built.writtenFiles(), MAX_RESULT_LINES));
+    return dto;
+  }
+
+  static VirtualSitePublishResult toWirePublishResult(
+      String siteName,
+      String siteKey,
+      VirtualSiteBuildResult built,
+      PSVirtualSitePublishCopyResult copied) {
+    VirtualSitePublishResult dto = new VirtualSitePublishResult();
+    dto.setSiteName(siteName);
+    dto.setSiteKey(siteKey);
+    if (copied != null && copied.publishRoot() != null) {
+      dto.setPublishPath(copied.publishRoot().toAbsolutePath().normalize().toString());
+    }
+    if (built != null) {
+      built.getOutputPath().ifPresent(dto::setBuildOutputPath);
+      dto.setPagesWritten(built.getPagesWritten());
+      dto.setLinkProblemCount(built.getLinkProblemCount());
+      dto.setHasLinkProblems(built.getHasLinkProblems());
+      dto.setLinkProblems(built.getLinkProblems());
+    }
+    dto.setFilesCopied(copied != null ? copied.filesCopied() : 0);
     return dto;
   }
 
