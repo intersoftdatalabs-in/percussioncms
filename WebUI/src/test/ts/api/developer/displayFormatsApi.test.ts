@@ -157,6 +157,17 @@ describe("unwrapDisplayFormatList", () => {
     expect(list[0].guid?.stringValue).toBe("0-31-5");
     expect(list[1].guid?.stringValue).toBe("0-31-2");
   });
+
+  it("dedupes repeated By_Author GUID/name rows (#3269)", () => {
+    const list = unwrapDisplayFormatList({
+      DisplayFormat: [
+        { name: "By_Author", guid: { hostId: 0, type: 31, uuid: 5 } },
+        { name: "By_Author", guidString: "0-31-5" },
+        { name: "Default", displayId: 2 },
+      ],
+    });
+    expect(list.map((d) => d.name)).toEqual(["By_Author", "Default"]);
+  });
 });
 
 describe("getDisplayFormatDetail", () => {

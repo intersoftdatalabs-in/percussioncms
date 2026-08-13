@@ -126,12 +126,15 @@ export function DisplayFormatsPanel(): React.ReactElement {
           return {
             key: resolveDisplayFormatObjectGuid(f) || f.name || `df-${index}`,
             onClick: interactive ? () => openFormat(f) : undefined,
+            // Exact name on the row — Playwright must not use hasText substring (#3269).
+            dataAttrs: openKey ? { "data-df-name": openKey } : undefined,
             cells: [
               interactive ? (
                 <button
                   key="open"
                   type="button"
                   data-testid="developer-df-open"
+                  data-df-name={openKey}
                   aria-label={`Open ${f.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();

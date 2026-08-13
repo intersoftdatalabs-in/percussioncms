@@ -70,6 +70,39 @@ describe("DisplayFormatsPanel", () => {
     });
   });
 
+  it("exposes unique data-df-name so By_Author is one row (#3269)", async () => {
+    listDisplayFormats.mockResolvedValue([
+      { name: "By_Author", label: "By Author" },
+      { name: "By_Author_And_Date", label: "By Author and Date" },
+      { name: "Default", label: "Default View" },
+    ]);
+    getDisplayFormatDetail.mockResolvedValue({
+      name: "By_Author",
+      label: "By Author",
+      columns: [],
+    });
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    const openExact = document.querySelectorAll(
+      '[data-testid="developer-df-open"][data-df-name="By_Author"]',
+    );
+    expect(openExact).toHaveLength(1);
+    const rowExact = document.querySelectorAll('tr[data-df-name="By_Author"]');
+    expect(rowExact).toHaveLength(1);
+    expect(rowExact[0].getAttribute("data-testid")).toMatch(/^developer-df-row-\d+$/);
+    expect(
+      document.querySelectorAll('[data-testid="developer-df-open"][data-df-name="By_Author_And_Date"]'),
+    ).toHaveLength(1);
+    // Substring text match is ambiguous (the #3269 Playwright failure mode).
+    expect(screen.getAllByText(/By_Author/).length).toBeGreaterThan(1);
+    fireEvent.click(openExact[0]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail")).toBeTruthy();
+    });
+  });
+
   it("shows empty state when API returns no display formats", async () => {
     listDisplayFormats.mockResolvedValue([]);
     render(<DisplayFormatsPanel />);

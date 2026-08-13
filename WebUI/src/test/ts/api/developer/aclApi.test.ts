@@ -20,16 +20,19 @@ import * as client from "../../../../main/ts/api/client";
 import {
   createObjectAcl,
   getAclForObject,
+  saveObjectAcl,
   unwrapObjectAcl,
 } from "../../../../main/ts/api/developer/aclApi";
 
 vi.mock("../../../../main/ts/api/client", () => ({
   get: vi.fn(),
   post: vi.fn(),
+  put: vi.fn(),
 }));
 
 const get = client.get as ReturnType<typeof vi.fn>;
 const post = client.post as ReturnType<typeof vi.fn>;
+const put = client.put as ReturnType<typeof vi.fn>;
 
 describe("unwrapObjectAcl", () => {
   it("unwraps Jackson Acl root so entries are reachable (#3200 / #3203)", () => {
@@ -92,5 +95,60 @@ describe("createObjectAcl", () => {
     const acl = await createObjectAcl("0-20-1", { name: "Admin", type: "ROLE" });
     expect(acl.id).toBe(4);
     expect(acl.aclEntries).toHaveLength(1);
+  });
+});
+
+describe("saveObjectAcl", () => {
+  beforeEach(() => {
+    put.mockReset();
+    put.mockResolvedValue(undefined);
+  });
+
+  it("PUTs /acls/bulk with flattened AclEntry and UserAccessLevel arrays", async () => {
+    await saveObjectAcl({
+      id: 7,
+      name: "By_Author ACL",
+      objectGuid: { stringValue: "0-31-5" },
+      aclEntries: {
+        AclEntry: [
+          {
+            name: "Admin",
+            type: { type: "ROLE" },
+            permissions: {
+              UserAccessLevel: [{ permission: "READ" }, { permission: "UPDATE" }],
+            },
+          },
+        ],
+      } as unknown as [],
+    });
+    expect(put).toHaveBeenCalledTimes(1);
+    const [url, body] = put.mock.calls[0] as [string, Array<Record<string, unknown>>];
+    expect(url).toMatch(/\/acls\/bulk$/);
+    expect(Array.isArray(body)).toBe(true);
+    expect(body).toHaveLength(1);
+    const entries = body[0].aclEntries as Array<Record<string, unknown>>;
+    expect(entries).toHaveLength(1);
+    expect(entries[0].name).toBe("Admin");
+    expect(entries[0].permissions).toEqual([
+      { permission: "READ" },
+      { permission: "UPDATE" },
+    ]);
+  });
+
+  it("passes through already-flat entries", async () => {
+    await saveObjectAcl({
+      id: 1,
+      name: "site",
+      aclEntries: [
+        {
+          name: "Editor",
+          permissions: [{ permission: "READ" }],
+        },
+      ],
+    });
+    const body = put.mock.calls[0][1] as Array<Record<string, unknown>>;
+    const entries = body[0].aclEntries as Array<Record<string, unknown>>;
+    expect(entries[0].name).toBe("Editor");
+    expect(entries[0].permissions).toEqual([{ permission: "READ" }]);
   });
 });

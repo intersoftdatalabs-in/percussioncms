@@ -270,5 +270,21 @@ function flattenDisplayFormatPayload(payload: unknown): unknown[] {
  * {@code DisplayFormatList:{DisplayFormat:[…]}} (#3200).
  */
 export function unwrapDisplayFormatList(payload: unknown): DisplayFormat[] {
-  return flattenDisplayFormatPayload(payload).map((item) => unwrapDisplayFormat(item));
+  const raw = flattenDisplayFormatPayload(payload).map((item) => unwrapDisplayFormat(item));
+  // Exact-name catalog: drop duplicate GUID/name rows so By_Author is unique (#3269).
+  const seen = new Set<string>();
+  const unique: DisplayFormat[] = [];
+  for (const df of raw) {
+    const key =
+      objectGuidString(df.guid) ||
+      (typeof df.guidString === "string" ? df.guidString.trim() : "") ||
+      (typeof df.name === "string" ? df.name : "") ||
+      (typeof df.internalName === "string" ? df.internalName : "");
+    if (!key || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    unique.push(df);
+  }
+  return unique;
 }
