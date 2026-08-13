@@ -70,9 +70,9 @@ public class PSCloneCommunityExit extends PSCloneBase {
     if (sourceCommunityId > 0) {
 
       String rolename = request.getParameter("rolename", "").trim();
-      Map qrParams = new HashMap();
+      Map<String, Object> qrParams = new HashMap<>();
       qrParams.put(IPSHtmlParameters.SYS_COMMUNITYID, Integer.toString(sourceCommunityId));
-      Map upParams = new HashMap();
+      Map<String, Object> upParams = new HashMap<>();
       upParams.put("DBActionType", "INSERT");
       // Call the base class cloneChildObjects method to clone the states,
       // roles and others.
@@ -97,7 +97,7 @@ public class PSCloneCommunityExit extends PSCloneBase {
       }
 
       if (roleId.length() > 0) {
-        Map roleParams = new HashMap();
+        Map<String, Object> roleParams = new HashMap<>();
         roleParams.put("DBActionType", "INSERT");
         roleParams.put("roleid", roleId);
         roleParams.put("communityid", targetCommunityId);

@@ -271,9 +271,9 @@ public class PSFormContentParser extends PSContentParser {
       if (contentType.toLowerCase().startsWith("content-type:"))
         contentTypeValue = contentType.substring(contentType.indexOf(':') + 1);
       else contentTypeValue = contentType;
-      Map contentParams = new HashMap();
+      Map<String, String> contentParams = new HashMap<>();
       String type = PSBaseHttpUtils.parseContentType(contentTypeValue, contentParams);
-      boundary = (String) contentParams.get("boundary");
+      boundary = contentParams.get("boundary");
       if (null == boundary)
         // always throws
         contentTypeError(contentType);
@@ -542,7 +542,7 @@ public class PSFormContentParser extends PSContentParser {
     String contentType = ""; // the content-type header value
     line = line.toLowerCase();
     if (line.startsWith("content-type:")) {
-      HashMap contentParams = new HashMap();
+      Map<String, String> contentParams = new HashMap<>();
       try {
         contentType = line.substring(line.indexOf(':') + 1);
         mimeType = PSBaseHttpUtils.parseContentType(contentType, contentParams);
@@ -574,7 +574,7 @@ public class PSFormContentParser extends PSContentParser {
 
       // If it's text and not xml see if it has a charset specification
       if (isText && !isXml) {
-        charsetName = (String) contentParams.get("charset");
+        charsetName = contentParams.get("charset");
         if (charsetName != null && charsetName.length() < 1) {
           charsetName = null; // an empty string is as good as null
         }

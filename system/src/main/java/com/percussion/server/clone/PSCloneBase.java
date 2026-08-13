@@ -85,9 +85,9 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
    *     should match with the length of updateResources array.
    * @param updateResources String array of update resources AppName/ResName. The length of this
    *     array should match with the length of updateResources array.
-   * @param queryParams Map of name and value pair of paramesters that will be used while making an
+   * @param queryParams Map of name and value pair of parameters that will be used while making an
    *     internal request to query resources.
-   * @param updateParams Map of name and value pair of paramesters that will be used while making an
+   * @param updateParams Map of name and value pair of parameters that will be used while making an
    *     internal request to update resources.
    * @throws PSExtensionProcessingException when there is an error while making an internal request
    *     to query resources or update resources.
@@ -98,8 +98,8 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
       String keyElementValue,
       String[] queryResources,
       String[] updateResources,
-      Map queryParams,
-      Map updateParams)
+      Map<String, Object> queryParams,
+      Map<String, Object> updateParams)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
     if (queryResources.length != updateResources.length)
@@ -156,13 +156,13 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
    *
    * @param request IPSRequestContext object must not be <code>null</code>.
    * @param updateResourceName Name of the update resource must not be <code>null</code> or empty
-   * @param updateParams Map of name and value pair of paramesters that will be used while making an
+   * @param updateParams Map of name and value pair of parameters that will be used while making an
    *     internal request to update resources.
    * @throws PSExtensionProcessingException when there is an error while making an internal request
    *     to query resources or update resources.
    */
   protected void updateContent(
-      IPSRequestContext request, String updateResourceName, Map updateParams)
+      IPSRequestContext request, String updateResourceName, Map<String, Object> updateParams)
       throws PSExtensionProcessingException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
     if (updateResourceName == null || updateResourceName.trim().length() < 1)

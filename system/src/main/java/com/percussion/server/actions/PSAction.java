@@ -80,7 +80,7 @@ public class PSAction {
     }
 
     if (m_extensions != null) {
-      m_extensionInstances = new ArrayList(m_extensions.size());
+      m_extensionInstances = new ArrayList<>(m_extensions.size());
       for (int i = 0; i < m_extensions.size(); i++) {
         PSExtensionCall call = (PSExtensionCall) m_extensions.get(i);
         PSExtensionRef ref = call.getExtensionRef();
@@ -200,7 +200,7 @@ public class PSAction {
    *
    * @return an iterator of PSExtensionRunner objects, never <code>null</code> but may be empty.
    */
-  public Iterator getExtensionRunners() {
+  public Iterator<PSExtensionRunner> getExtensionRunners() {
     if (m_extensionInstances != null) return m_extensionInstances.iterator();
     else return PSIteratorUtils.emptyIterator();
   }
@@ -274,7 +274,7 @@ public class PSAction {
    * m_extensions</code> during the init method. Will be <code>null</code> if <code>m_extensions
    * </code> is <code>null</code>.
    */
-  private List m_extensionInstances = null;
+  private List<PSExtensionRunner> m_extensionInstances = null;
 
   /**
    * Determines whether an action set should stop executing if this action generates an exception.

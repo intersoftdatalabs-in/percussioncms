@@ -54,12 +54,12 @@ public class PSActionSetResult {
 
     m_actionSetName = actionSet.getName();
     m_originalHref = contentEditorUrl;
-    m_actionNames = new ArrayList();
-    m_actionResults = new HashMap();
+    m_actionNames = new ArrayList<>();
+    m_actionResults = new HashMap<>();
 
-    Iterator actions = actionSet.getActions();
+    Iterator<PSAction> actions = actionSet.getActions();
     while (actions.hasNext()) {
-      PSAction action = (PSAction) actions.next();
+      PSAction action = actions.next();
       m_actionNames.add(action.getName());
       setSkipped(action.getName());
     }
@@ -140,9 +140,8 @@ public class PSActionSetResult {
     Element root = PSXmlDocumentBuilder.createRoot(doc, "StoredActionResults");
     root.setAttribute("actionSetName", m_actionSetName);
     root.setAttribute("originalHref", m_originalHref);
-    for (Object m_actionName : m_actionNames) {
-      String actionName = (String) m_actionName;
-      ActionResult result = (ActionResult) m_actionResults.get(actionName);
+    for (String actionName : m_actionNames) {
+      ActionResult result = m_actionResults.get(actionName);
       Element actionEl = doc.createElement("ActionResult");
       actionEl.setAttribute("actionName", actionName);
       actionEl.setAttribute("status", result.getStatusString());
@@ -240,7 +239,7 @@ public class PSActionSetResult {
       throw new IllegalArgumentException(
           "action '" + actionName + "' is not part of this result set.");
 
-    return (ActionResult) m_actionResults.get(actionName);
+    return m_actionResults.get(actionName);
   }
 
   /**
@@ -354,11 +353,11 @@ public class PSActionSetResult {
    * </code>, as both a status flag and a status object need to be maintained. Assigned in the ctor,
    * and never <code>null</code> after.
    */
-  private Map m_actionResults;
+  private Map<String, ActionResult> m_actionResults;
 
   /**
    * Maintains the correct order of the actions (since a <code>Map</code> does not) so the results
    * can be generated in the correct order. Assigned in the ctor, and never <code>null</code> after.
    */
-  private List m_actionNames;
+  private List<String> m_actionNames;
 }

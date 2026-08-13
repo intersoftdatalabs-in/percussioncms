@@ -57,9 +57,9 @@ public class PSCloneWorkflowExit extends PSCloneBase {
 
     if (sourceWorkflowId > 0) {
 
-      Map qrParams = new HashMap();
+      Map<String, Object> qrParams = new HashMap<>();
       qrParams.put(IPSHtmlParameters.SYS_WORKFLOWID, Integer.toString(sourceWorkflowId));
-      Map upParams = new HashMap();
+      Map<String, Object> upParams = new HashMap<>();
       upParams.put("DBActionType", "INSERT");
 
       // Call the base class cloneChildObjects method to clone the states and
