@@ -27163,6 +27163,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.">
       <tuv xml:lang="en-us"><seg>Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.">
+      <tuv xml:lang="en-us"><seg>Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@Refresh">
       <tuv xml:lang="en-us"><seg>Refresh</seg></tuv>
     </tu>
@@ -27177,6 +27180,12 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     </tu>
     <tu tuid="perc.ui.architecture.modern@Create section">
       <tuv xml:lang="en-us"><seg>Create section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Create section from folder">
+      <tuv xml:lang="en-us"><seg>Create section from folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Convert to folder">
+      <tuv xml:lang="en-us"><seg>Convert to folder</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Create section link">
       <tuv xml:lang="en-us"><seg>Create section link</seg></tuv>
@@ -27249,6 +27258,57 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     </tu>
     <tu tuid="perc.ui.architecture.modern@Select a regular section (not a section or external link) as the parent.">
       <tuv xml:lang="en-us"><seg>Select a regular section (not a section or external link) as the parent.</seg></tuv>
+    </tu>
+    <tu tuid='perc.ui.architecture.modern@Convert section "{0}" to a folder? The section and all sub-sections will be removed from Navigation. Folder content stays in the site.'>
+      <tuv xml:lang="en-us"><seg>Convert section "{0}" to a folder? The section and all sub-sections will be removed from Navigation. Folder content stays in the site.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Convert to folder is only available for a regular non-root section.">
+      <tuv xml:lang="en-us"><seg>Convert to folder is only available for a regular non-root section.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@The site root section cannot be converted to a folder.">
+      <tuv xml:lang="en-us"><seg>The site root section cannot be converted to a folder.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Choose an existing site folder and a landing page in that folder. A navon is created and the folder is attached under the selected parent section.">
+      <tuv xml:lang="en-us"><seg>Choose an existing site folder and a landing page in that folder. A navon is created and the folder is attached under the selected parent section.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Source folder path">
+      <tuv xml:lang="en-us"><seg>Source folder path</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page name">
+      <tuv xml:lang="en-us"><seg>Landing page name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Browse folder…">
+      <tuv xml:lang="en-us"><seg>Browse folder…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Browse landing page…">
+      <tuv xml:lang="en-us"><seg>Browse landing page…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select folder">
+      <tuv xml:lang="en-us"><seg>Select folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select landing page in folder">
+      <tuv xml:lang="en-us"><seg>Select landing page in folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a folder before creating the section.">
+      <tuv xml:lang="en-us"><seg>Select a folder before creating the section.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a landing page before creating the section.">
+      <tuv xml:lang="en-us"><seg>Select a landing page before creating the section.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Folder path is required">
+      <tuv xml:lang="en-us"><seg>Folder path is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Folder path must be a site folder under /Sites/">
+      <tuv xml:lang="en-us"><seg>Folder path must be a site folder under /Sites/</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page name is required">
+      <tuv xml:lang="en-us"><seg>Landing page name is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page name is too long (max 255 characters)">
+      <tuv xml:lang="en-us"><seg>Landing page name is too long (max 255 characters)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page name must be a file name, not a path">
+      <tuv xml:lang="en-us"><seg>Landing page name must be a file name, not a path</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Replace landing page">
       <tuv xml:lang="en-us"><seg>Replace landing page</seg></tuv>

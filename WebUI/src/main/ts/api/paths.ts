@@ -183,6 +183,13 @@ export const PATHS = {
     return `${SERVICES_ROOT}/sitemanage/section/convertToFolder`;
   },
   /**
+   * Create a section from an existing folder — {@code POST} body root
+   * {@code CreateSectionFromFolderRequest} / {@code PSCreateSectionFromFolderRequest}.
+   */
+  get SECTION_CREATE_FROM_FOLDER() {
+    return `${SERVICES_ROOT}/sitemanage/section/createSectionFromFolder`;
+  },
+  /**
    * Replace section landing page — {@code POST} body root {@code ReplaceLandingPage}.
    * Architecture Slice E (#3097).
    */

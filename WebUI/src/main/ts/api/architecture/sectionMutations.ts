@@ -27,6 +27,7 @@ import { toRepositoryCmsPath } from "../../home/create/filenameUtils";
 import { message } from "../../i18n/message";
 import type {
   CreateExternalLinkFields,
+  CreateSectionFromFolderFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
@@ -361,6 +362,81 @@ export function canReplaceLandingPage(node: NavTreeNode | null): boolean {
 }
 
 /**
+ * Regular non-root navon may be converted to a plain folder.
+ * Root, blogs, section links, and external links are blocked (matches docs).
+ */
+export function canConvertSectionToFolder(
+  root: NavTreeNode | null | undefined,
+  node: NavTreeNode | null,
+): boolean {
+  if (!root || !node) return false;
+  if (isRootNavNode(root, node.id)) return false;
+  const t = String(node.sectionType || "section").toLowerCase();
+  return t === "section";
+}
+
+/**
+ * Validate a landing page file name used by create-from-folder.
+ * Returns an error message or {@code null} when valid.
+ */
+export function validateLandingPageName(name: string): string | null {
+  const t = name.trim();
+  if (!t) {
+    return message("perc.ui.architecture.modern@Landing page name is required");
+  }
+  if (t.length > 255) {
+    return message(
+      "perc.ui.architecture.modern@Landing page name is too long (max 255 characters)",
+    );
+  }
+  if (t.includes("/") || t.includes("\\")) {
+    return message(
+      "perc.ui.architecture.modern@Landing page name must be a file name, not a path",
+    );
+  }
+  return null;
+}
+
+/**
+ * Validate a source folder path for create-from-folder.
+ */
+export function validateSourceFolderPath(path: string): string | null {
+  const t = path.trim();
+  if (!t) {
+    return message("perc.ui.architecture.modern@Folder path is required");
+  }
+  const repo = toRepositoryCmsPath(t);
+  const parts = repo.split("/").filter(Boolean);
+  if (
+    parts.length < 3 ||
+    parts[0].toLowerCase() !== "sites"
+  ) {
+    return message(
+      "perc.ui.architecture.modern@Folder path must be a site folder under /Sites/",
+    );
+  }
+  return null;
+}
+
+/**
+ * Split a CMS page path into parent folder + file name.
+ * Accepts {@code /Sites/...} or {@code //Sites/...}.
+ */
+export function splitCmsPagePath(
+  path: string,
+): { folderPath: string; pageName: string } | null {
+  const repo = toRepositoryCmsPath(path.trim());
+  if (!repo) return null;
+  const trimmed = repo.replace(/\/+$/, "");
+  const slash = trimmed.lastIndexOf("/");
+  if (slash <= 1) return null;
+  const pageName = trimmed.slice(slash + 1).trim();
+  const folderPath = trimmed.slice(0, slash);
+  if (!pageName || !folderPath) return null;
+  return { folderPath, pageName };
+}
+
+/**
  * Whether the selected node can open the edit-link dialog (section or external).
  */
 export function canEditLinkNode(node: NavTreeNode | null): boolean {
@@ -538,4 +614,25 @@ export function buildCreateSectionLinkPath(
   const parent = parentSectionId.trim();
   if (!target || !parent) return null;
   return `${encodeURIComponent(target)}/${encodeURIComponent(parent)}`;
+}
+
+/**
+ * Build Jackson-rooted body for {@code POST /section/createSectionFromFolder}.
+ * Sends both historic CM1 XML root and {@code @JsonRootName}.
+ */
+export function buildCreateSectionFromFolderBody(
+  fields: CreateSectionFromFolderFields,
+): {
+  CreateSectionFromFolderRequest: CreateSectionFromFolderFields;
+  PSCreateSectionFromFolderRequest: CreateSectionFromFolderFields;
+} {
+  const payload: CreateSectionFromFolderFields = {
+    sourceFolderPath: toRepositoryCmsPath(fields.sourceFolderPath),
+    pageName: fields.pageName.trim(),
+    parentFolderPath: toRepositoryCmsPath(fields.parentFolderPath),
+  };
+  return {
+    CreateSectionFromFolderRequest: payload,
+    PSCreateSectionFromFolderRequest: payload,
+  };
 }

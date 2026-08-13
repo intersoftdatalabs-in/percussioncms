@@ -678,4 +678,90 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     expect(screen.queryByTestId("architecture-action-new-site")).toBeNull();
   });
+
+  it("convert to folder confirms and calls convertSectionToFolder (#3302)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const convertSpy = vi
+      .spyOn(sectionApi, "convertSectionToFolder")
+      .mockResolvedValue({});
+    const confirmFn = vi.fn(() => true);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={confirmFn}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-convert-to-folder",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-convert-to-folder"));
+    expect(confirmFn).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(convertSpy).toHaveBeenCalledWith("c1");
+    });
+    await waitFor(() => {
+      expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it("create section from folder posts and refreshes tree (#3302)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const createSpy = vi
+      .spyOn(sectionApi, "createSectionFromFolder")
+      .mockResolvedValue({});
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-action-create-from-folder"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-create-from-folder"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-from-folder-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-from-folder-path"), {
+      target: { value: "//Sites/Demo/Folder" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-from-folder-page"), {
+      target: { value: "index.html" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-from-folder-submit"));
+    await waitFor(() => {
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceFolderPath: "//Sites/Demo/Folder",
+          pageName: "index.html",
+          parentFolderPath: "//Sites/Demo",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
 });

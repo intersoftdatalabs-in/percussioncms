@@ -164,3 +164,13 @@ export interface UpdateSectionLinkFields {
   newSectionId: string;
   parentSectionId: string;
 }
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/createSectionFromFolder}
+ * ({@code CreateSectionFromFolderRequest} / {@code PSCreateSectionFromFolderRequest}).
+ */
+export interface CreateSectionFromFolderFields {
+  sourceFolderPath: string;
+  pageName: string;
+  parentFolderPath: string;
+}

@@ -18,11 +18,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
+  convertSectionToFolder,
+  createSectionFromFolder,
   createSiteSection,
   deleteSectionLink,
   deleteSiteSection,
   loadSectionProperties,
   moveSiteSection,
+  sectionConvertToFolderUrl,
   sectionDeleteLinkUrl,
   sectionDeleteUrl,
   sectionPropertiesUrl,
@@ -46,6 +49,9 @@ describe("sectionApi mutations (#3096)", () => {
     expect(sectionDeleteUrl("abc")).toBe(`${PATHS.SECTION}/abc`);
     expect(sectionDeleteLinkUrl("s1", "p1")).toBe(
       `${PATHS.SECTION_DELETE_SECTION_LINK}/s1/p1`,
+    );
+    expect(sectionConvertToFolderUrl("guid/1")).toBe(
+      `${PATHS.SECTION_CONVERT_TO_FOLDER}/${encodeURIComponent("guid/1")}`,
     );
   });
 
@@ -121,6 +127,36 @@ describe("sectionApi mutations (#3096)", () => {
     );
   });
 
+  it("convertSectionToFolder DELETEs convertToFolder/{id}", async () => {
+    const delSpy = vi.spyOn(client, "del").mockResolvedValue({});
+    await convertSectionToFolder("sec-9");
+    expect(delSpy).toHaveBeenCalledWith(
+      `${PATHS.SECTION_CONVERT_TO_FOLDER}/sec-9`,
+    );
+  });
+
+  it("createSectionFromFolder posts dual-root body", async () => {
+    const postSpy = vi.spyOn(client, "post").mockResolvedValue({ ok: true });
+    await createSectionFromFolder({
+      sourceFolderPath: "/Sites/Demo/Folder",
+      pageName: "index.html",
+      parentFolderPath: "/Sites/Demo",
+    });
+    expect(postSpy).toHaveBeenCalledWith(
+      PATHS.SECTION_CREATE_FROM_FOLDER,
+      expect.objectContaining({
+        CreateSectionFromFolderRequest: expect.objectContaining({
+          sourceFolderPath: "//Sites/Demo/Folder",
+          pageName: "index.html",
+          parentFolderPath: "//Sites/Demo",
+        }),
+        PSCreateSectionFromFolderRequest: expect.objectContaining({
+          sourceFolderPath: "//Sites/Demo/Folder",
+        }),
+      }),
+    );
+  });
+
   it("deleteSiteSection and deleteSectionLink call correct methods", async () => {
     const delSpy = vi.spyOn(client, "del").mockResolvedValue({});
     const getSpy = vi.spyOn(client, "get").mockResolvedValue({});
@@ -189,5 +225,27 @@ describe("sectionApi mutations (#3096)", () => {
     await expect(deleteSectionLink("sec", " ")).rejects.toThrow(
       /section and parent/i,
     );
+    await expect(convertSectionToFolder("  ")).rejects.toThrow(/id/i);
+    await expect(
+      createSectionFromFolder({
+        sourceFolderPath: " ",
+        pageName: "index.html",
+        parentFolderPath: "//Sites/D",
+      }),
+    ).rejects.toThrow(/source folder/i);
+    await expect(
+      createSectionFromFolder({
+        sourceFolderPath: "//Sites/D/F",
+        pageName: " ",
+        parentFolderPath: "//Sites/D",
+      }),
+    ).rejects.toThrow(/landing page/i);
+    await expect(
+      createSectionFromFolder({
+        sourceFolderPath: "//Sites/D/F",
+        pageName: "index.html",
+        parentFolderPath: "  ",
+      }),
+    ).rejects.toThrow(/parent folder/i);
   });
 });
