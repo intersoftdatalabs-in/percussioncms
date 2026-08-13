@@ -5046,57 +5046,27 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     locators to the root.
    * @throws PSCmsException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
   public List<List<PSLocator>> getFolderLocatorPaths(PSLocator itemLocator) throws PSCmsException {
     if (itemLocator == null) throw new IllegalArgumentException("itemLocator cannot be null");
-    return (List<List<PSLocator>>) getFolderLocatorPaths(itemLocator, null);
+    return PSFolderLocatorPaths.collect(itemLocator, this::lookupImmediateFolderParents);
   }
 
   /**
-   * The utility method used by {@link #getFolderLocatorPaths(PSLocator)}. See {@link
-   * #getFolderLocatorPaths(PSLocator)} for detail.
-   *
-   * @param itemLocator the locator of an item or folder, assume not <code>null</code> and it is a
-   *     folder locator if the <code>parents</code> is not <code>null</code>.
-   * @param parents the parent locators. It is used to collect all parent locators for the supplied
-   *     folder if it is not <code>null</code>.
-   * @return a list of locator paths if <code>parents</code> is <code>null</code>; otherwise returns
-   *     the <code>parents</code>. Never <code>null</code>, may be empty.
-   * @throws PSCmsException if an error occurs.
+   * Looks up immediate folder-relationship owners of {@code itemLocator} (community filtering off).
    */
-  private List<?> getFolderLocatorPaths(PSLocator itemLocator, List<PSLocator> parents)
-      throws PSCmsException {
-    // get immediate parents
+  private List<PSLocator> lookupImmediateFolderParents(PSLocator itemLocator) throws PSCmsException {
     PSRelationshipFilter filter = new PSRelationshipFilter();
     filter.setName(FOLDER_RELATE_TYPE);
     filter.setDependent(itemLocator);
     filter.setCommunityFiltering(false);
 
     PSRelationshipSet relSet = PSRelationshipProcessor.getInstance().getRelationships(filter);
-    Iterator<?> rels = relSet.iterator();
-    PSRelationship rel;
-    if (parents == null) // 1st time come in, get paths for an item/folder
-    {
-      // get the folder paths (may be more than one) for the item locator.
-      List<List<PSLocator>> idPaths = new ArrayList<>(relSet.size());
-      while (rels.hasNext()) {
-        rel = (PSRelationship) rels.next();
-        parents = new ArrayList<>();
-        parents.add(rel.getOwner());
-        idPaths.add((List<PSLocator>) getFolderLocatorPaths(rel.getOwner(), parents));
-      }
-      return idPaths;
+    List<PSLocator> owners = new ArrayList<>(relSet.size());
+    Iterator<PSRelationship> rels = relSet.iterator();
+    while (rels.hasNext()) {
+      owners.add(rels.next().getOwner());
     }
-
-    // get one folder path to the root.
-    if (rels.hasNext()) {
-      // folder has only one immediate folder parent
-      rel = (PSRelationship) rels.next();
-      parents.add(rel.getOwner());
-      getFolderLocatorPaths(rel.getOwner(), parents);
-    }
-
-    return parents;
+    return owners;
   }
 
   /**
