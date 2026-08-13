@@ -227,6 +227,15 @@ public class PSWorkflowService
     */
    private static final String WORKFLOW_ID_COLUMN = "WORKFLOWAPPID";
 
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String LOAD_WORKFLOWS_HQL = "from PSWorkflow where name like :name";
+
+   public static final String WORKFLOW_VERSION_HQL =
+         "select w.version from PSWorkflow w where w.id = :id";
+
+   public static final String UPDATE_WORKFLOW_VERSION_HQL =
+         "update PSWorkflow w set w.version = :version where w.id = :id";
+
    /**
     * Cache service, used to invalidate site information
     */
@@ -700,13 +709,12 @@ public class PSWorkflowService
     *         been loaded - call {@link #forceLazyLoad(PSWorkflow)} to load
     *         them.
     */
-   @SuppressWarnings(value = {"unchecked"})
    private List<PSWorkflow> loadWorkflows(String name)
    {
       if (StringUtils.isBlank(name))
          name = "%";
-      return getSession().createQuery(
-            "from PSWorkflow where name like :name").setParameter("name", name).list();
+      return getSession().createQuery(LOAD_WORKFLOWS_HQL, PSWorkflow.class)
+            .setParameter("name", name).list();
    }
 
    /*
@@ -1464,8 +1472,11 @@ public class PSWorkflowService
          version = 0;
       }
 
-         jakarta.persistence.Query q = entityManager.createQuery(
-               "update PSWorkflow w set w.version = :version where w.id = :id");
+         // Stay on EntityManager.createQuery+executeUpdate (pre-#3265 path).
+         // jakarta.persistence.EntityManager on this compile classpath has no
+         // createMutationQuery; Session.createMutationQuery would change flush
+         // / listener pipeline for this bulk UPDATE.
+         jakarta.persistence.Query q = entityManager.createQuery(UPDATE_WORKFLOW_VERSION_HQL);
          q.setParameter("version", version);
          q.setParameter("id", uuid);
          q.executeUpdate();
@@ -1562,9 +1573,8 @@ public class PSWorkflowService
 
    private List<Integer> getWorkflowVersionForId(long id)
    {
-      return getSession().createQuery(
-            "select w.version from PSWorkflow w " +
-            "where w.id = :id").setParameter("id", id).list();
+      return getSession().createQuery(WORKFLOW_VERSION_HQL, Integer.class)
+            .setParameter("id", id).list();
    }
 
    /**

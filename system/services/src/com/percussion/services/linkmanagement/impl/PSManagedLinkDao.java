@@ -27,6 +27,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,9 +172,9 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
        Session session = getSession();
        try
        {
-          Query q = session.createQuery("DELETE FROM PSManagedLink ml WHERE ml.childId NOT IN (select m_contentId from PSComponentSummary)");
+          MutationQuery q = session.createMutationQuery(DELETE_ORPHAN_CHILD_HQL);
           q.executeUpdate();
-          q = session.createQuery("DELETE FROM PSManagedLink ml WHERE ml.parentId NOT IN (select m_contentId from PSComponentSummary)");
+          q = session.createMutationQuery(DELETE_ORPHAN_PARENT_HQL);
           q.executeUpdate();
        }
        catch (HibernateException e)
@@ -193,7 +194,8 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
     {
         Session session = getSession();
 
-            Query query = session.createQuery("from PSManagedLink where parentid = :parentId");
+            Query<PSManagedLink> query =
+                  session.createQuery(FIND_BY_PARENT_HQL, PSManagedLink.class);
             query.setParameter("parentId", parentId);
 
 
@@ -231,10 +233,9 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
    {
       Session session = getSession();
 
-         Query query = session
-               .createQuery("from PSManagedLink where parentid in (" + join(parentIds, ",") + ") ");
-         List<PSManagedLink> results = query.list();
-         return results;
+         Query<PSManagedLink> query =
+               session.createQuery(findByParentIdsHql(parentIds), PSManagedLink.class);
+         return query.list();
 
 
    }
@@ -244,10 +245,34 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
    {
       Session session = getSession();
 
-     Query query = session
-           .createQuery("from PSManagedLink where childid = :childId ");
+     Query<PSManagedLink> query =
+           session.createQuery(FIND_BY_CHILD_HQL, PSManagedLink.class);
      query.setParameter("childId", childId);
      return  query.list();
+   }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DELETE_ORPHAN_CHILD_HQL =
+         "DELETE FROM PSManagedLink ml WHERE ml.childId NOT IN (select m_contentId from PSComponentSummary)";
+
+   public static final String DELETE_ORPHAN_PARENT_HQL =
+         "DELETE FROM PSManagedLink ml WHERE ml.parentId NOT IN (select m_contentId from PSComponentSummary)";
+
+   public static final String FIND_BY_PARENT_HQL = "from PSManagedLink where parentid = :parentId";
+
+   public static final String FIND_BY_CHILD_HQL = "from PSManagedLink where childid = :childId ";
+
+   /**
+    * Build the parent-id IN HQL. {@code parentIds} must be non-null and
+    * non-empty; an empty {@code IN ()} clause is invalid HQL.
+    */
+   public static String findByParentIdsHql(List<Integer> parentIds)
+   {
+      if (parentIds == null || parentIds.isEmpty())
+      {
+         throw new IllegalArgumentException("parentIds must not be empty");
+      }
+      return "from PSManagedLink where parentid in (" + join(parentIds, ",") + ") ";
    }
 
 }

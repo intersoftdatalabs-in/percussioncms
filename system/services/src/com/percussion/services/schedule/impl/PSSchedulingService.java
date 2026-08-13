@@ -32,6 +32,7 @@ import com.percussion.services.schedule.data.PSScheduledTaskLog;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.quartz.CronScheduleBuilder;
@@ -436,8 +437,7 @@ public class PSSchedulingService implements IPSSchedulingService {
 
       Session sess = getSession();
 
-         String sql = "delete from PSNotificationTemplate t where t.id = :id";
-         Query hql = sess.createQuery(sql);
+         MutationQuery hql = sess.createMutationQuery(DELETE_NOTIFICATION_TEMPLATE_HQL);
          hql.setParameter("id", templateId.longValue());
          hql.executeUpdate();
 
@@ -544,8 +544,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       Session sess = getSession();
 
-         String sql = "delete from PSScheduledTaskLog e where e.log_id = :logid";
-         Query hql = sess.createQuery(sql);
+         MutationQuery hql = sess.createMutationQuery(DELETE_TASK_LOG_HQL);
          for (IPSGuid id : ids)
          {
             hql.setParameter("logid", id.longValue());
@@ -613,9 +612,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       Session sess = getSession();
 
-         String sql = "delete from PSScheduledTaskLog";
-         Query hql = sess.createQuery(sql);
-         hql.executeUpdate();
+         sess.createMutationQuery(DELETE_ALL_TASK_LOGS_HQL).executeUpdate();
 
    }
 
@@ -630,12 +627,23 @@ public class PSSchedulingService implements IPSSchedulingService {
 
       Session session = getSession();
 
-         String sql = "delete from PSScheduledTaskLog t where t.end_time < :endTime";
-         Query hql = session.createQuery(sql);
+         MutationQuery hql = session.createMutationQuery(DELETE_TASK_LOGS_BY_DATE_HQL);
          hql.setParameter("endTime", beforeDate);
-
+         hql.executeUpdate();
 
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DELETE_NOTIFICATION_TEMPLATE_HQL =
+         "delete from PSNotificationTemplate t where t.id = :id";
+
+   public static final String DELETE_TASK_LOG_HQL =
+         "delete from PSScheduledTaskLog e where e.log_id = :logid";
+
+   public static final String DELETE_ALL_TASK_LOGS_HQL = "delete from PSScheduledTaskLog";
+
+   public static final String DELETE_TASK_LOGS_BY_DATE_HQL =
+         "delete from PSScheduledTaskLog t where t.end_time < :endTime";
 
    /**
     * Quartz job group name for the quartz jobs used by this class.

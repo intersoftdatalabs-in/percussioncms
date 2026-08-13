@@ -138,7 +138,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
       appendDependentJoinCriteria();
       appendRestCriterias();
 
-      return (List<PSRelationshipData>) getQuery(sess).list();
+      return getQuery(sess).list();
    }
 
    /**
@@ -457,18 +457,19 @@ class PSHQLQueryHelper  implements IPSQueryHelper
     * @param sess the session to create the query with, assumed not <code>null</code>
     * @return the created HQL object, never <code>null</code>.
     */
-   private Query getQuery(Session sess)
+   private Query<PSRelationshipData> getQuery(Session sess)
    {
       String[] pnames = new String[m_paramNames.size()];
       m_paramNames.toArray(pnames);
       Object[] pvalues = new Object[m_paramValues.size()];
       m_paramValues.toArray(pvalues);
 
-      Query qry = sess.createQuery(m_qryBuffer.toString());
+      Query<PSRelationshipData> qry =
+            sess.createQuery(m_qryBuffer.toString(), PSRelationshipData.class);
       for (int i = 0; i < pnames.length; i++)
       {
          if (pvalues[i] instanceof Collection)
-            qry.setParameterList(pnames[i], (Collection) pvalues[i]);
+            qry.setParameterList(pnames[i], (Collection<?>) pvalues[i]);
          else
             qry.setParameter(pnames[i], pvalues[i]);
       }

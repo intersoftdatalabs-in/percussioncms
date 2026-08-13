@@ -31,6 +31,7 @@ import jakarta.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.Collections;
 import org.hibernate.Session;
+import org.hibernate.query.MutationQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -89,10 +90,7 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   @SuppressWarnings("unchecked")
   void updateContentStatusState_returnsRowsUpdated() {
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(1);
+    MutationQuery mockQuery = stubMutationQuery(1);
     // Stub the SessionFactory → Cache chain that updateContentStatusState touches when
     // updated > 0, so the cache.evictEntityData call doesn't NPE.
     org.hibernate.SessionFactory mockFactory = mock(org.hibernate.SessionFactory.class);
@@ -127,10 +125,7 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   @SuppressWarnings("unchecked")
   void updateContentStatusState_returnsZeroWhenNoRowMatches() {
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(0);
+    stubMutationQuery(0);
     // No SessionFactory stub — updated = 0 must short-circuit before the cache.evictEntityData
     // call.
 
@@ -157,10 +152,7 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   @SuppressWarnings("unchecked")
   void updateContentStatusState_jpqlAndParameters() {
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(1);
+    MutationQuery mockQuery = stubMutationQuery(1);
     // Stub the SessionFactory → Cache chain that updateContentStatusState touches when
     // updated > 0, so the cache.evictEntityData call doesn't NPE.
     org.hibernate.SessionFactory mockFactory = mock(org.hibernate.SessionFactory.class);
@@ -186,7 +178,7 @@ public class PSSystemServicePhase4d1bWritesTest {
         new java.util.Date());
 
     ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
-    verify(session).createQuery(jpql.capture());
+    verify(session).createMutationQuery(jpql.capture());
     String q = jpql.getValue();
     // All 14 columns must be set in the JPQL update.
     assertContains(q, "m_contentStateId = :stateId");
@@ -208,6 +200,14 @@ public class PSSystemServicePhase4d1bWritesTest {
     verify(mockQuery).setParameter("stateId", 11);
     verify(mockQuery).setParameter("contentId", 7);
     verify(mockQuery).setParameter("revisionLock", 'Y');
+  }
+
+  private MutationQuery stubMutationQuery(int rows) {
+    MutationQuery mockQuery = mock(MutationQuery.class);
+    when(session.createMutationQuery(anyString())).thenReturn(mockQuery);
+    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(rows);
+    return mockQuery;
   }
 
   private static void assertContains(String haystack, String needle) {
@@ -257,16 +257,13 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   @SuppressWarnings("unchecked")
   void deleteContentAdhocUsers_jpqlAndParameters() {
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(2);
+    MutationQuery mockQuery = stubMutationQuery(2);
 
     int n = service.deleteContentAdhocUsers(7);
 
     assertEquals(2, n);
     ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
-    verify(session).createQuery(jpql.capture());
+    verify(session).createMutationQuery(jpql.capture());
     assertContains(jpql.getValue(), "delete from PSContentAdhocUser");
     assertContains(jpql.getValue(), "where contentId = :cid");
     verify(mockQuery).setParameter("cid", 7);
@@ -299,16 +296,13 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   @SuppressWarnings("unchecked")
   void deleteContentApprovals_jpqlAndParameters() {
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(3);
+    MutationQuery mockQuery = stubMutationQuery(3);
 
     int n = service.deleteContentApprovals(7, 4, 5, 13);
 
     assertEquals(3, n);
     ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
-    verify(session).createQuery(jpql.capture());
+    verify(session).createMutationQuery(jpql.capture());
     String q = jpql.getValue();
     assertContains(q, "delete from PSContentApproval");
     assertContains(q, "where contentId = :cid and workflowId = :wf");
@@ -334,16 +328,13 @@ public class PSSystemServicePhase4d1bWritesTest {
     // completion path must delete by contentId only (legacy semantics) — not the
     // narrower 4-tuple filter. This test pins the JPQL string so the regression
     // cannot re-emerge.
-    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
-    when(session.createQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(5);
+    MutationQuery mockQuery = stubMutationQuery(5);
 
     int n = service.deleteContentApprovals(7);
 
     assertEquals(5, n);
     ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
-    verify(session).createQuery(jpql.capture());
+    verify(session).createMutationQuery(jpql.capture());
     String q = jpql.getValue();
     assertContains(q, "delete from PSContentApproval");
     assertContains(q, "where contentId = :cid");

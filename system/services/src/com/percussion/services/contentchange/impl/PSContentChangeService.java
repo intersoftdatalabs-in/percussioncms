@@ -42,6 +42,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.query.MutationQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -175,14 +176,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
         var session = getSession();
 
         try {
-            var queryBuilder = new StringBuilder("DELETE FROM PSContentChangeEvent ")
-                .append("WHERE contentId = :contentId AND changeType = :changeType");
-
-            if (siteId != -1) {
-                queryBuilder.append(" AND siteId = :siteId");
-            }
-
-            var query = session.createQuery(queryBuilder.toString());
+            MutationQuery query = session.createMutationQuery(deleteChangeEventsHql(siteId != -1));
             query.setParameter("contentId", contentId);
             query.setParameter("changeType", changeType.name());
 
@@ -209,7 +203,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
         var session = getSession();
 
         try {
-            var query = session.createQuery("DELETE FROM PSContentChangeEvent WHERE siteId = :siteId");
+            MutationQuery query = session.createMutationQuery(DELETE_CHANGE_EVENTS_FOR_SITE_HQL);
             query.setParameter("siteId", siteId);
 
             var deletedCount = query.executeUpdate();
@@ -231,9 +225,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
         var session = getSession();
 
         try {
-            var query = session.createQuery(
-                "DELETE FROM PSContentChangeEvent WHERE siteId = :siteId AND changeType = :changeType"
-            );
+            MutationQuery query = session.createMutationQuery(DELETE_CHANGE_EVENTS_FOR_SITE_TYPE_HQL);
             query.setParameter("siteId", siteId);
             query.setParameter("changeType", changeType.name());
 
@@ -398,5 +390,22 @@ public final class PSContentChangeService implements IPSContentChangeService,
      */
     private String createCacheKey(int contentId, long siteId, PSContentChangeType changeType) {
         return String.format("%d:%d:%s", contentId, siteId, changeType.name());
+    }
+
+    /** HQL for typed unit tests (issue #3265). */
+    public static final String DELETE_CHANGE_EVENTS_HQL =
+          "DELETE FROM PSContentChangeEvent WHERE contentId = :contentId AND changeType = :changeType";
+
+    public static final String DELETE_CHANGE_EVENTS_FOR_SITE_HQL =
+          "DELETE FROM PSContentChangeEvent WHERE siteId = :siteId";
+
+    public static final String DELETE_CHANGE_EVENTS_FOR_SITE_TYPE_HQL =
+          "DELETE FROM PSContentChangeEvent WHERE siteId = :siteId AND changeType = :changeType";
+
+    public static String deleteChangeEventsHql(boolean includeSite) {
+        if (includeSite) {
+            return DELETE_CHANGE_EVENTS_HQL + " AND siteId = :siteId";
+        }
+        return DELETE_CHANGE_EVENTS_HQL;
     }
 }

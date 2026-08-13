@@ -63,6 +63,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -555,7 +556,7 @@ public class PSSystemService
               + "where m_contentId = :contentId";
       int updated =
           getSession()
-              .createQuery(jpql)
+              .createMutationQuery(jpql)
               .setParameter("stateId", stateId)
               .setParameter("checkOutUserName", checkOutUserName == null ? "" : checkOutUserName)
               .setParameter("currentRevision", currentRevision)
@@ -613,7 +614,7 @@ public class PSSystemService
 
       int n =
           getSession()
-              .createQuery("delete from PSContentAdhocUser where contentId = :cid")
+              .createMutationQuery(DELETE_ADHOC_USERS_HQL)
               .setParameter("cid", contentId)
               .executeUpdate();
       return n;
@@ -651,10 +652,7 @@ public class PSSystemService
 
       int n =
           getSession()
-              .createQuery(
-                  "delete from PSContentApproval "
-                      + "where contentId = :cid and workflowId = :wf "
-                      + "and transitionId = :tid and stateId = :sid")
+              .createMutationQuery(DELETE_CONTENT_APPROVALS_TUPLE_HQL)
               .setParameter("cid", contentId)
               .setParameter("wf", workflowId)
               .setParameter("tid", transitionId)
@@ -677,7 +675,7 @@ public class PSSystemService
 
       int n =
           getSession()
-              .createQuery("delete from PSContentApproval where contentId = :cid")
+              .createMutationQuery(DELETE_CONTENT_APPROVALS_BY_CONTENT_HQL)
               .setParameter("cid", contentId)
               .executeUpdate();
       return n;
@@ -950,7 +948,7 @@ public class PSSystemService
 
       try
       {
-         Query q = s.createQuery(queryString);
+         Query<Integer> q = s.createQuery(queryString, Integer.class);
          if (cids.size() < MAX_IDS)
          {
             q.setParameterList("contentId", cids);
@@ -961,7 +959,7 @@ public class PSSystemService
             q.setParameter("idset", idset);
          }
 
-         List<Integer> countList = (idset != 0) ? (List)executeQuery(q) : q.list();
+         List<Integer> countList = (idset != 0) ? executeQuery(q) : q.list();
 
          List<Long> convertList = new ArrayList<>();
          for(int val:countList)
@@ -1560,6 +1558,18 @@ public class PSSystemService
     * <code>null</code> after that.
     */
    private IPSDatasourceManager m_dsMgr;
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DELETE_ADHOC_USERS_HQL =
+         "delete from PSContentAdhocUser where contentId = :cid";
+
+   public static final String DELETE_CONTENT_APPROVALS_TUPLE_HQL =
+         "delete from PSContentApproval "
+               + "where contentId = :cid and workflowId = :wf "
+               + "and transitionId = :tid and stateId = :sid";
+
+   public static final String DELETE_CONTENT_APPROVALS_BY_CONTENT_HQL =
+         "delete from PSContentApproval where contentId = :cid";
 
    /**
     * Logger to use, never <code>null</code>.

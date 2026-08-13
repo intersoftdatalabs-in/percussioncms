@@ -89,7 +89,8 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       PSSiteImportSummary summary = null;
       Session session = getSession();
 
-          Query query = session.createQuery("from PSSiteImportSummary where summaryId = :summaryId");
+          Query<PSSiteImportSummary> query =
+                session.createQuery(FIND_BY_SUMMARY_ID_HQL, PSSiteImportSummary.class);
           query.setParameter("summaryId", summaryId);
 
           List<PSSiteImportSummary> results = query.list();
@@ -110,7 +111,8 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       PSSiteImportSummary summary = null;
       Session session = getSession();
 
-          Query query = session.createQuery("from PSSiteImportSummary where siteId = :siteId");
+          Query<PSSiteImportSummary> query =
+                session.createQuery(FIND_BY_SITE_ID_HQL, PSSiteImportSummary.class);
           query.setParameter("siteId", siteId);
 
 
@@ -153,5 +155,11 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
    {
        m_guidMgr = guidMgr;
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String FIND_BY_SUMMARY_ID_HQL =
+         "from PSSiteImportSummary where summaryId = :summaryId";
+
+   public static final String FIND_BY_SITE_ID_HQL = "from PSSiteImportSummary where siteId = :siteId";
 
 }

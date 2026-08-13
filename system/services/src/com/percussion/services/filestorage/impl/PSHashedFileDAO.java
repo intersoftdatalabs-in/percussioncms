@@ -28,6 +28,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
@@ -106,10 +107,11 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    public PSBinaryMetaKey findOrCreateMetaKey(String name, boolean enabled)
    {
 
-      Query query = getSession().createQuery("select o " + "from PSBinaryMetaKey o " + "where o.name = :name")
+      Query<PSBinaryMetaKey> query = getSession()
+            .createQuery(FIND_META_KEY_BY_NAME_HQL, PSBinaryMetaKey.class)
             .setParameter("name", name);
 
-      PSBinaryMetaKey obj = (PSBinaryMetaKey) query.uniqueResult();
+      PSBinaryMetaKey obj = query.uniqueResult();
 
       if (obj == null)
       {
@@ -129,10 +131,10 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       if (hash != null && StringUtils.isNotBlank(hash))
       {
 
-         Query query = getSession().createQuery(
-               "select count(bf.hash) " + "from PSBinary bf " + "where bf.hash = :hash").setParameter("hash", hash);
-         long count = (Long)query.uniqueResult();
-         return (count>0);
+         Query<Long> query = getSession().createQuery(
+               COUNT_BY_HASH_HQL, Long.class).setParameter("hash", hash);
+         Long count = query.uniqueResult();
+         return count != null && count > 0;
       }
       return false;
    }
@@ -174,10 +176,11 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       long result = 0;
       Date testDate = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -days);
 
-      Query query = getSession().createQuery(
-            "select count(*) " + "from PSBinary " + "where lastAccessedDate < :testDate").setParameter("testDate", testDate);
+      Query<Long> query = getSession().createQuery(
+            COUNT_OLDER_THAN_HQL, Long.class).setParameter("testDate", testDate);
 
-      result = (Long) query.uniqueResult();
+      Long counted = query.uniqueResult();
+      result = counted != null ? counted : 0L;
 
       return result;
    }
@@ -191,18 +194,15 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
       Date testDate = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -days);
 
-      int deleteddata =  getSession().createQuery(
-            "delete from PSBinaryData data " + "where data.id in (select b.id from PSBinary b where b.lastAccessedDate < :testDate )")
+      int deleteddata =  getSession().createMutationQuery(DELETE_BINARY_DATA_OLDER_HQL)
             .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
-      int deletedmetadata =  getSession().createQuery(
-            "delete from PSBinaryMetaEntry meta " + "where meta.binary in (select b from PSBinary b where b.lastAccessedDate < :testDate )")
+      int deletedmetadata =  getSession().createMutationQuery(DELETE_BINARY_META_OLDER_HQL)
             .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
-      int deletedEntities =  getSession().createQuery(
-            "delete from PSBinary b where (b.lastAccessedDate < :testDate )")
+      int deletedEntities =  getSession().createMutationQuery(DELETE_BINARY_OLDER_HQL)
             .setParameter("testDate", testDate)
             .executeUpdate();
 
@@ -268,7 +268,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
                + column.getColumnName() + " is not null";
       }
       if (columns.size()>0) {
-         results = getSession().createNativeQuery(sql).getResultList();
+         results = getSession().createNativeQuery(sql, String.class).getResultList();
       }
       return results;
    }
@@ -282,7 +282,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       if (hashes != null && hashes.size() > 0)
       {
 
-         Query query = getSession().createQuery("update PSBinary set lastAccessedDate = :date where hash in (:hashes)")
+         MutationQuery query = getSession().createMutationQuery(TOUCH_HASHES_HQL)
                .setParameterList("hashes", hashes).setParameter("date", today);
          int rowCount = query.executeUpdate();
          log.debug("Updated batch with " + rowCount + " updates");
@@ -422,5 +422,27 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    {
       return org.hibernate.engine.jdbc.proxy.BlobProxy.generateProxy(is, l);
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String FIND_META_KEY_BY_NAME_HQL =
+         "select o from PSBinaryMetaKey o where o.name = :name";
+
+   public static final String COUNT_BY_HASH_HQL =
+         "select count(bf.hash) from PSBinary bf where bf.hash = :hash";
+
+   public static final String COUNT_OLDER_THAN_HQL =
+         "select count(*) from PSBinary where lastAccessedDate < :testDate";
+
+   public static final String DELETE_BINARY_DATA_OLDER_HQL =
+         "delete from PSBinaryData data where data.id in (select b.id from PSBinary b where b.lastAccessedDate < :testDate )";
+
+   public static final String DELETE_BINARY_META_OLDER_HQL =
+         "delete from PSBinaryMetaEntry meta where meta.binary in (select b from PSBinary b where b.lastAccessedDate < :testDate )";
+
+   public static final String DELETE_BINARY_OLDER_HQL =
+         "delete from PSBinary b where (b.lastAccessedDate < :testDate )";
+
+   public static final String TOUCH_HASHES_HQL =
+         "update PSBinary set lastAccessedDate = :date where hash in (:hashes)";
 
 }

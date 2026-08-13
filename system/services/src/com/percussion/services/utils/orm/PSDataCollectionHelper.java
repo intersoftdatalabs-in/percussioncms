@@ -137,6 +137,9 @@ public class PSDataCollectionHelper
     */
    public static final int MAX_IDS = 650;
 
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String CLEAR_ID_SET_HQL = "delete from PSTempId tid where tid.pk.id = :id";
+
    /**
     * Clear the id set formed by an earlier call to
     *  within the same transaction. The id
@@ -163,7 +166,7 @@ public class PSDataCollectionHelper
       ms_rwlock.writeLock().lock();
       try
       {
-          session.createQuery("delete from PSTempId tid where tid.pk.id = :id").setParameter("id", idset).executeUpdate();
+          session.createMutationQuery(CLEAR_ID_SET_HQL).setParameter("id", idset).executeUpdate();
       }
       finally
       {
