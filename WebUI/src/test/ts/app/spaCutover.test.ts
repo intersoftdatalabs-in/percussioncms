@@ -112,8 +112,12 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(existsSync(jsp), jsp).toBe(true);
       const text = read(jsp);
       expect(text).toMatch(/setStatus\s*\(\s*301\s*\)/);
-      expect(text).toContain("view=design");
+      expect(text).toContain("PSLegacyViewRedirect");
+      expect(text).toContain('buildLocation("design"');
+      expect(text).toContain("escapeHtmlAttribute");
+      expect(text).toContain("htmlTarget");
       expect(text).toContain("Location");
+      expect(text).not.toMatch(/target\s*=\s*"\/cm\/app\/\?"\s*\+\s*qs/);
       expect(text).not.toContain("PercTemplateLibraryWidget");
       expect(text).not.toContain("perc-assigned-templates");
     }

@@ -60,6 +60,23 @@ test.describe("Design legacy list entry retirement (#3306)", () => {
     expect(pageErrors, "uncaught pageerror on Design redirect").toEqual([]);
   });
 
+  test("admin.jsp?view=admin still lands on SPA Design @smoke @ui", async ({
+    page,
+  }) => {
+    const pageErrors = attachPageErrorGate(page);
+    const url = `${BASE_URL}/Rhythmyx/cm/app/admin.jsp?view=admin&_=${Date.now()}`;
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.locator("#perc-assigned-templates")).toHaveCount(0);
+    const finalUrl = page.url();
+    expect(finalUrl).toMatch(/design|entry=design|view=design/i);
+    expect(finalUrl).not.toMatch(/[?&]view=admin(?:&|$)/i);
+    expect(pageErrors, "uncaught pageerror on view= override").toEqual([]);
+  });
+
   test("?view=design deep link lands on SPA Design @smoke @ui", async ({
     page,
   }) => {
