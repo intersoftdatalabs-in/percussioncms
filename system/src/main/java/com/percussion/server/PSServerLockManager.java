@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
 public class PSServerLockManager {
   /** Private ctor to enforce singleton pattern. */
   private PSServerLockManager() {
-    m_locks = new HashMap();
+    m_locks = new HashMap<>();
     m_dateFormat = FastDateFormat.getInstance("yyyyMMdd' 'HH':'mm':'ss");
   }
 
@@ -83,22 +83,21 @@ public class PSServerLockManager {
    */
   public synchronized PSServerLockResult acquireLock(int flags, String locker) {
     PSServerLockResult result;
-    List conflicts = new ArrayList();
-    List lockedResourceList = new ArrayList();
-    Iterator resources = ms_resourceMap.keySet().iterator();
-    while (resources.hasNext()) {
-      int flag = ((Integer) resources.next()).intValue();
+    List<PSServerLock> conflicts = new ArrayList<>();
+    List<Integer> lockedResourceList = new ArrayList<>();
+    for (Integer resourceFlag : ms_resourceMap.keySet()) {
+      int flag = resourceFlag.intValue();
       if ((flag & flags) == flag) {
         PSServerLock lock = getCurrentLock(flag);
         if (lock != null) conflicts.add(lock);
-        lockedResourceList.add(Integer.valueOf(flag));
+        lockedResourceList.add(resourceFlag);
       }
     }
 
     // create locked resource array
     int[] lockedResources = new int[lockedResourceList.size()];
     for (int i = 0; i < lockedResources.length; i++)
-      lockedResources[i] = ((Integer) lockedResourceList.get(i)).intValue();
+      lockedResources[i] = lockedResourceList.get(i).intValue();
 
     int lockId = conflicts.isEmpty() ? m_nextLockId++ : -1;
     PSServerLock lock = new PSServerLock(lockId, locker, lockedResources);
@@ -147,9 +146,9 @@ public class PSServerLockManager {
       throw new IllegalArgumentException("invalid lock resource: " + resource);
 
     PSServerLock lock = null;
-    Iterator locks = getAllLocks();
+    Iterator<PSServerLock> locks = getAllLocks();
     while (locks.hasNext() && lock == null) {
-      PSServerLock test = (PSServerLock) locks.next();
+      PSServerLock test = locks.next();
       if (test.isResourceLocked(resource)) lock = test;
     }
 
@@ -163,10 +162,10 @@ public class PSServerLockManager {
    *     </code>. Iterator is over a snapshot of the current list of locks, so that it may be used
    *     by the caller while locks coninue to be acquired and released.
    */
-  public synchronized Iterator getAllLocks() {
+  public synchronized Iterator<PSServerLock> getAllLocks() {
     // copy list so caller can traverse without concurrent modification
     // exceptions
-    List locks = new ArrayList(m_locks.values());
+    List<PSServerLock> locks = new ArrayList<>(m_locks.values());
     return locks.iterator();
   }
 
@@ -186,9 +185,9 @@ public class PSServerLockManager {
     Element serverLocks = doc.createElement("ServerLocks");
 
     // use getAllLocks to get point in time copy of list of locks
-    Iterator locks = getAllLocks();
+    Iterator<PSServerLock> locks = getAllLocks();
     while (locks.hasNext()) {
-      PSServerLock lock = (PSServerLock) locks.next();
+      PSServerLock lock = locks.next();
       Element lockEl = PSXmlDocumentBuilder.addEmptyElement(doc, serverLocks, "Lock");
       lockEl.setAttribute("id", String.valueOf(lock.getLockId()));
       lockEl.setAttribute("locker", lock.getLocker());
@@ -214,7 +213,7 @@ public class PSServerLockManager {
    *     </code>.
    */
   public static String getResourceName(int resource) {
-    String key = (String) ms_resourceMap.get(Integer.valueOf(resource));
+    String key = ms_resourceMap.get(Integer.valueOf(resource));
     if (key != null) {
       try {
         key = PSServer.getRes().getString(RESOURCE_NAME_PREFIX + key);
@@ -235,7 +234,7 @@ public class PSServerLockManager {
    * after that. Locks are added by <code>acquireLock()</code> and removed by <code>releaseLock()
    * </code>.
    */
-  private Map m_locks;
+  private Map<Integer, PSServerLock> m_locks;
 
   /**
    * Date format used to format status messages. Initialized during construction, never <code>null
@@ -258,13 +257,13 @@ public class PSServerLockManager {
    * prepending {@link #RESOURCE_NAME_PREFIX} to create the actual key. Initialized and entries are
    * added in the static initializer, which must be maintained as new resource flags are added.
    */
-  private static Map ms_resourceMap;
+  private static Map<Integer, String> ms_resourceMap;
 
   /** Prefix prepended onto resource keys to ensure uniqueness in the server's resource bundle. */
   private static final String RESOURCE_NAME_PREFIX = "serverLockManager_";
 
   static {
-    ms_resourceMap = new HashMap(1);
+    ms_resourceMap = new HashMap<>(1);
     ms_resourceMap.put(Integer.valueOf(RESOURCE_PUBLISHER), "publisher");
   }
 }

@@ -36,7 +36,7 @@ public class PSServerLockResult {
    *     more resources requested by the supplied <code>lock</code> object. May not be <code>null
    *     </code> or empty.
    */
-  PSServerLockResult(PSServerLock lock, List conflicts) {
+  PSServerLockResult(PSServerLock lock, List<PSServerLock> conflicts) {
     if (lock == null) throw new IllegalArgumentException("lock may not be null");
 
     if (lock.getLockId() != -1) throw new IllegalArgumentException("lock id must be -1");
@@ -62,7 +62,7 @@ public class PSServerLockResult {
     if (lock.getLockId() < 0) throw new IllegalArgumentException("lock id must be > 0");
 
     m_lock = lock;
-    m_conflicts = new ArrayList();
+    m_conflicts = new ArrayList<>();
   }
 
   /**
@@ -94,7 +94,7 @@ public class PSServerLockResult {
    *     true</code>.
    */
   public int[] getLockedResources() {
-    List locks = new ArrayList();
+    List<Integer> locks = new ArrayList<>();
     if (m_lockerMap != null) {
       int[] requested = m_lock.getLockedResources();
       for (int i = 0; i < requested.length; i++) {
@@ -104,7 +104,7 @@ public class PSServerLockResult {
     }
 
     int[] locked = new int[locks.size()];
-    for (int i = 0; i < locks.size(); i++) locked[i] = ((Integer) locks.get(i)).intValue();
+    for (int i = 0; i < locks.size(); i++) locked[i] = locks.get(i).intValue();
 
     return locked;
   }
@@ -149,7 +149,7 @@ public class PSServerLockResult {
    * @return An iterator over zero or more <code>PSServerLock</code> objects. Will only be empty if
    *     {@link #wasLockAcquired()} returns <code>true</code>.
    */
-  public Iterator getConflicts() {
+  public Iterator<PSServerLock> getConflicts() {
     return m_conflicts.iterator();
   }
 
@@ -184,7 +184,7 @@ public class PSServerLockResult {
    */
   private PSServerLock getConflictLock(int resource) {
     PSServerLock lock = null;
-    if (m_lockerMap != null) lock = (PSServerLock) m_lockerMap.get(Integer.valueOf(resource));
+    if (m_lockerMap != null) lock = m_lockerMap.get(Integer.valueOf(resource));
 
     return lock;
   }
@@ -197,15 +197,19 @@ public class PSServerLockResult {
    *     <code>PSServerLock</code> object that has that resource locked, never <code>null</code>,
    *     may be empty.
    */
-  private Map getLockerMap(List conflictList) {
-    Map map = new HashMap();
-    Iterator conflicts = conflictList.iterator();
-    while (conflicts.hasNext()) {
-      PSServerLock conflict = (PSServerLock) conflicts.next();
+  static Map<Integer, PSServerLock> lockerMapFromConflicts(List<PSServerLock> conflictList) {
+    Map<Integer, PSServerLock> map = new HashMap<>();
+    for (PSServerLock conflict : conflictList) {
       int[] resources = conflict.getLockedResources();
-      for (int i = 0; i < resources.length; i++) map.put(Integer.valueOf(resources[i]), conflict);
+      for (int i = 0; i < resources.length; i++) {
+        map.put(Integer.valueOf(resources[i]), conflict);
+      }
     }
     return map;
+  }
+
+  private Map<Integer, PSServerLock> getLockerMap(List<PSServerLock> conflictList) {
+    return lockerMapFromConflicts(conflictList);
   }
 
   /**
@@ -219,7 +223,7 @@ public class PSServerLockResult {
    * <code>null</code> after that, will be empty only if this result indicates a successful lock was
    * acquired ({@link #wasLockAcquired()} returns <code>true</code>).
    */
-  private List m_conflicts = null;
+  private List<PSServerLock> m_conflicts = null;
 
   /**
    * Map of locked resources, where the key is the resource as an <code>Integer</code> and the value
@@ -227,5 +231,5 @@ public class PSServerLockResult {
    * lock was successfully acquired, otherwise initialized during construction, and not <code>null
    * </code> or empty. Never modified after construction.
    */
-  private Map m_lockerMap = null;
+  private Map<Integer, PSServerLock> m_lockerMap = null;
 }
