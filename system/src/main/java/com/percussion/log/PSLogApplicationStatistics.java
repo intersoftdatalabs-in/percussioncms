@@ -62,34 +62,34 @@ public class PSLogApplicationStatistics extends PSLogInformation {
    * @param id the id of the application these statistics represent
    * @param stats the statistics to be reported
    */
-  public PSLogApplicationStatistics(int id, Map stats) {
+  public PSLogApplicationStatistics(int id, Map<String, String> stats) {
     super(LOG_TYPE, id);
 
-    String elapsedTime = (String) stats.get("elapsedTime");
+    String elapsedTime = stats.get("elapsedTime");
     if (elapsedTime == null) elapsedTime = "";
 
-    String eventsProcessed = (String) stats.get("eventsProcessed");
+    String eventsProcessed = stats.get("eventsProcessed");
     if (eventsProcessed == null) eventsProcessed = "";
 
-    String eventsPending = (String) stats.get("eventsPending");
+    String eventsPending = stats.get("eventsPending");
     if (eventsPending == null) eventsPending = "";
 
-    String eventsFailed = (String) stats.get("eventsFailed");
+    String eventsFailed = stats.get("eventsFailed");
     if (eventsFailed == null) eventsFailed = "";
 
-    String cacheHits = (String) stats.get("cacheHits");
+    String cacheHits = stats.get("cacheHits");
     if (cacheHits == null) cacheHits = "";
 
-    String cacheMisses = (String) stats.get("cacheMisses");
+    String cacheMisses = stats.get("cacheMisses");
     if (cacheMisses == null) cacheMisses = "";
 
-    String minProcTime = (String) stats.get("minProcTime");
+    String minProcTime = stats.get("minProcTime");
     if (minProcTime == null) minProcTime = "";
 
-    String maxProcTime = (String) stats.get("maxProcTime");
+    String maxProcTime = stats.get("maxProcTime");
     if (maxProcTime == null) maxProcTime = "";
 
-    String avgProcTime = (String) stats.get("avgProcTime");
+    String avgProcTime = stats.get("avgProcTime");
     if (avgProcTime == null) avgProcTime = "";
 
     m_subs = new PSLogSubMessage[9];

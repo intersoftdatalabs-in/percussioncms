@@ -138,7 +138,7 @@ public class PSRequestHandlerConfiguration {
   public PSRequestHandlerConfiguration() throws PSServerException {
     try {
       // load the config file
-      m_handlerDefs = new ArrayList();
+      m_handlerDefs = new ArrayList<>();
       Document cfgDoc = getConfig();
 
       // if no config file, we're done
@@ -194,7 +194,7 @@ public class PSRequestHandlerConfiguration {
           rhConfigFile = new File(rhConfigDir, cfgFileName);
 
         // get the roots
-        HashMap roots = new HashMap();
+        HashMap<String, ArrayList<String>> roots = new HashMap<>();
         String rootsElName = "RequestRoots";
 
         Element rootsEl = tree.getNextElement(rootsElName, firstFlags);
@@ -220,7 +220,7 @@ public class PSRequestHandlerConfiguration {
           if (rootName.startsWith("/")) rootName = rootName.substring(1);
 
           // get its methods
-          ArrayList methods = new ArrayList();
+          ArrayList<String> methods = new ArrayList<>();
           String typeElName = "RequestType";
           Element typeEl = tree.getNextElement(typeElName, firstFlags);
 
@@ -248,10 +248,10 @@ public class PSRequestHandlerConfiguration {
                 handlerName, className, rhConfigFile, roots.keySet().iterator());
 
         // add the methods
-        Iterator i = roots.keySet().iterator();
+        Iterator<String> i = roots.keySet().iterator();
         while (i.hasNext()) {
-          String rootName = (String) i.next();
-          def.addRequestMethods(rootName, ((ArrayList) roots.get(rootName)).iterator());
+          String rootName = i.next();
+          def.addRequestMethods(rootName, roots.get(rootName).iterator());
         }
 
         // add it to the list
@@ -272,7 +272,7 @@ public class PSRequestHandlerConfiguration {
   }
 
   /** Returns an iterator over zero or more PSRequestHandlerDef objects. */
-  public Iterator getHandlerDefs() {
+  public Iterator<PSRequestHandlerDef> getHandlerDefs() {
     return m_handlerDefs.iterator();
   }
 
@@ -307,7 +307,7 @@ public class PSRequestHandlerConfiguration {
    * List of request handler definitions. Initialized in constructor, never <code>null</code> after
    * that.
    */
-  private ArrayList m_handlerDefs = null;
+  private ArrayList<PSRequestHandlerDef> m_handlerDefs = null;
 
   /** Directory off the Rhythmyx root where the config file is located. */
   private static final String CONFIG_DIR = "rxconfig/Server";

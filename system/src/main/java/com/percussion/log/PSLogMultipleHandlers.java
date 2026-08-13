@@ -59,17 +59,17 @@ public class PSLogMultipleHandlers extends PSLogInformation {
    * @param applId the application containing the handlers
    * @param info the information to be reported
    */
-  public PSLogMultipleHandlers(int applId, ConcurrentHashMap info) {
+  public PSLogMultipleHandlers(int applId, ConcurrentHashMap<String, String> info) {
     super(LOG_TYPE, applId);
 
     String sessId = "";
     String dataSetNames = "";
 
     if (info != null) {
-      String sTemp = (String) info.get(PROP_SESS_ID);
+      String sTemp = info.get(PROP_SESS_ID);
       if (sTemp != null) sessId = sTemp;
 
-      sTemp = (String) info.get(PROP_DATASET_NAMES);
+      sTemp = info.get(PROP_DATASET_NAMES);
       if (sTemp != null) dataSetNames = sTemp;
     }
 
