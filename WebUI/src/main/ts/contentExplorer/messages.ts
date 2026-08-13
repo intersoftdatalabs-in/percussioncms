@@ -64,6 +64,8 @@ export const EXPLORER_MSG = {
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
   ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+  BOOTSTRAP_UNAVAILABLE:
+    "perc.ui.explorer@Content Explorer could not start because the application session is not available. Reload the page or sign in again.",
 
   // US7 P-Adv / clipboard / wizards / dependency / relationships (FR-021–FR-029, SC-011)
   CLIPBOARD_TITLE: "perc.ui.explorer@Clipboard",

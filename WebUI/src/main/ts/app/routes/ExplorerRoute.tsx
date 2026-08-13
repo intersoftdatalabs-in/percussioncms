@@ -18,6 +18,11 @@
 import React, { lazy, useMemo } from "react";
 import { useLocation } from "react-router";
 import { normalizeExplorerPath } from "../deepLinks/allowlists";
+import {
+  BootstrapProvider,
+  useSpaBootstrapOptional,
+} from "../bootstrap/BootstrapContext";
+import { loadSpaBootstrap } from "../bootstrap/loadBootstrap";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
 import styles from "./ExplorerRoute.module.css";
@@ -33,25 +38,29 @@ const ContentExplorerShellLazy = lazy(() =>
  */
 export function ExplorerRoute(): React.ReactElement {
   const location = useLocation();
+  const fromContext = useSpaBootstrapOptional();
+  const bootstrap = fromContext ?? loadSpaBootstrap();
   const initialPath = useMemo(() => {
     const params = new URLSearchParams(location.search);
     return normalizeExplorerPath(params.get("path")) ?? "/";
   }, [location.search]);
 
   return (
-    <LazyRouteFrame
-      label="Content Explorer"
-      fallback={
-        <div
-          className={styles.loading}
-          data-testid="explorer-route-loading"
-          role="status"
-        >
-          Loading Content Explorer…
-        </div>
-      }
-    >
-      <ContentExplorerShellLazy initialPath={initialPath} />
-    </LazyRouteFrame>
+    <BootstrapProvider value={bootstrap}>
+      <LazyRouteFrame
+        label="Content Explorer"
+        fallback={
+          <div
+            className={styles.loading}
+            data-testid="explorer-route-loading"
+            role="status"
+          >
+            Loading Content Explorer…
+          </div>
+        }
+      >
+        <ContentExplorerShellLazy initialPath={initialPath} />
+      </LazyRouteFrame>
+    </BootstrapProvider>
   );
 }

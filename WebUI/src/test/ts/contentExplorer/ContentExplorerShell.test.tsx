@@ -1772,3 +1772,23 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
   });
 });
+
+describe("ContentExplorerShell missing BootstrapProvider (#3331)", () => {
+  it("renders an error state without throwing useContext", async () => {
+    stubPathFetch();
+    expect(() =>
+      render(
+        <ContentExplorerShell
+          initialPath="/Folders"
+          loadDisplayFormats={async () => []}
+          loadMenuActions={async () => []}
+        />,
+      ),
+    ).not.toThrow();
+    const alert = screen.getByTestId("explorer-bootstrap-unavailable");
+    expect(alert).toBeInTheDocument();
+    expect(alert.textContent).toMatch(/application session is not available/i);
+    expect(screen.queryByTestId("explorer-nav")).toBeNull();
+    await renderA11yGate(screen.getByTestId("content-explorer-shell"));
+  });
+});
