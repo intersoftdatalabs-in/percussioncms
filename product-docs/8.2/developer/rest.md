@@ -116,6 +116,23 @@ Example create body:
 An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty list JSON is the
 only empty-catalog case. See [Sites & content structure](id:admin-sites).
 
+## Templates (design catalog)
+
+Assembly templates used by the [Design SPA](id:admin-design-templates) are exposed under
+`/services/templates`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/templates` | List template summaries (label, name, id, description) |
+| `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, assembler, `designGaps`) |
+| `PUT` | `/services/templates/{idOrName}` | Update label, description, templateSource, assembler, bindings, and/or slots |
+| `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
+| `POST` | `/services/templates/summaries-by-filter` | List summaries matching a `TemplateFilter` |
+
+`PUT` omits unchanged fields. Name/id and delete remain unsupported (`designGaps`).
+Create (`POST /services/templates`) is the Design **Create template** contract when that
+slice is on the server; otherwise create stays on residual classic hosts.
+
 ## Content types (design catalog)
 
 | Operation | Path | Notes |

@@ -15,6 +15,7 @@ tags: [reference]
 | **Asset** | Shared content fragment referenced by pages |
 | **CM1** | Marketing name historically used for the modern Percussion CMS product line |
 | **CMS** | Content Management System — this product |
+| **Design (SPA)** | Product top-nav surface for the modern assembly template library |
 | **Content repository** | Traditional storage of CMS items (pages, assets, design objects) |
 | **DTS** | Delivery Tier Service — dynamic microservices for published sites |
 | **Edition / publish job** | Configured publishing unit of work |

@@ -32,7 +32,9 @@ This section covers how to obtain, install, upgrade, and take first steps with P
    There is no **Dashboard** top-nav item. Administrators see a single **Admin**
    item that opens **Admin tools** (`/admin`). See [Administration](id:admin).
 4. Create or open a **Site**, confirm Finder navigation, and open the Web UI editor.
-5. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.
+5. Open **Design** to list assembly templates and edit source, JEXL bindings, assembler,
+   and slots. See [Design templates](id:admin-design-templates).
+6. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.
 
 ## Related
 
