@@ -410,7 +410,7 @@ function SavedSearchPicker(props: {
       <p
         role="status"
         data-testid="search-panel-saved-empty"
-        style={{ marginTop: 10, color: "#888" }}
+        style={{ marginTop: 10, color: "#595959" }}
       >
         {message(EXPLORER_MSG.SEARCH_SAVED_EMPTY)}
       </p>

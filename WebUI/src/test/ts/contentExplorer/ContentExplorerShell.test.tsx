@@ -107,9 +107,20 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
     // Always-visible refresh residual (#2733) — not only under View menu.
     expect(screen.getByTestId("explorer-refresh-list")).toBeInTheDocument();
+    // #3208: Search / Folder Security are first-class view-tool chrome (QA #2588).
+    expect(screen.getByTestId("explorer-view-tools")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-view-tool-search")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("explorer-view-tool-search").getAttribute(
+        "aria-expanded",
+      ),
+    ).toBe("false");
+    // Always-visible Security (#3268 / #2410) — product Playwright
+    // locates explorer-toggle-security without opening View.
+    expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     openViewMenu();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
-    expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-view-security")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-toggle-translations"),
     ).toBeInTheDocument();
@@ -149,6 +160,67 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     fireEvent.change(select, { target: { value: "3" } });
     expect(select.value).toBe("3");
+    expect(
+      screen.getByTestId("explorer-view-tool-search").getAttribute(
+        "aria-expanded",
+      ),
+    ).toBe("true");
+  });
+
+  it("opens Search under the header from the always-visible view-tool toggle (#3208)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+      />,
+    );
+
+    expect(screen.queryByTestId("explorer-side-panels")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-view-tool-search"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-side-panels")).toBeInTheDocument();
+      expect(screen.getByTestId("explorer-search-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument();
+    });
+    const searchTool = screen.getByTestId("explorer-view-tool-search");
+    expect(searchTool.getAttribute("aria-expanded")).toBe("true");
+    expect(searchTool.getAttribute("aria-pressed")).toBe("true");
+    expect(
+      screen
+        .getByTestId("explorer-side-panels")
+        .contains(screen.getByTestId("explorer-search-panel")),
+    ).toBe(true);
+    await renderA11yGate(container);
+
+    fireEvent.click(screen.getByTestId("explorer-view-tool-search"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-search-panel")).toBeNull();
+      expect(screen.queryByTestId("explorer-side-panels")).toBeNull();
+    });
+  });
+
+  it("surfaces display-format load error without removing the selector (#3208)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => {
+          throw new Error("formats down");
+        }}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("explorer-display-format-error"),
+      ).toBeInTheDocument();
+    });
+    await renderA11yGate(container);
   });
 
   it("uses injected loaders only (no real network for menus/formats)", async () => {
@@ -530,6 +602,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       EXPLORER_MSG.TRANSLATIONS_TITLE,
       EXPLORER_MSG.TRANSLATIONS_SELECT_ITEM,
       EXPLORER_MSG.SECURITY_SELECT_FOLDER,
+      EXPLORER_MSG.SECURITY_HOST_NO_FOLDER,
       EXPLORER_MSG.FOLDER_PROPS_TITLE,
       EXPLORER_MSG.FOLDER_PROPS_COMMUNITY,
       EXPLORER_MSG.FOLDER_PROPS_LOCALE,
@@ -656,6 +729,28 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("security toggle is visible without opening the View menu (#3268)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-menu-view-dropdown")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("explorer-security-hint") ??
+          screen.queryByTestId("explorer-security-panel"),
+      ).toBeTruthy();
+    });
+    await renderA11yGate(container);
+  });
+
   it("security toggle shows hint when no folder id is available (#2410)", async () => {
     stubPathFetch();
     renderShell(
@@ -665,7 +760,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         resolveFolderId={async () => undefined}
       />,
     );
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -1108,7 +1202,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         }}
       />,
     );
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -1167,7 +1260,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
 
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(resolveFolderId).toHaveBeenCalled();

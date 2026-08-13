@@ -40,6 +40,7 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL, ADMIN_USERNAME } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const { TEST_IDS } = require("./helpers/explorer-shell-chrome");
 
 const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 
@@ -73,27 +74,41 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-copy"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-delete"]')).toBeVisible();
-    // #2400 / #2731 product shell: DCE menu bar + server actions; view tools nest under View.
+    // #2400 / #2731 / #3208: DCE menu bar + labeled Server actions +
+    // always-visible Search / Folder Security / Display format chrome.
     await expect(
       page.locator('[data-testid="explorer-menu-bar"]'),
     ).toBeVisible();
     await expect(
       page.locator('[data-testid="explorer-menu-view"]'),
     ).toBeVisible();
-    await page.locator('[data-testid="explorer-menu-view"]').click();
     await expect(
-      page.locator('[data-testid="explorer-toggle-search"]'),
+      page.locator('[data-testid="explorer-display-format"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-view-tools"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-view-tool-search"]'),
     ).toBeVisible();
     await expect(
       page.locator('[data-testid="explorer-toggle-security"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="explorer-display-format"]'),
-    ).toBeVisible();
-    await expect(
       page.locator('[data-testid="explorer-server-actions"]'),
     ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-server-actions-label"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
+    // View menu still hosts the same Search / Security commands (#2731).
+    await page.locator('[data-testid="explorer-menu-view"]').click();
+    await expect(
+      page.locator('[data-testid="explorer-toggle-search"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-menu-view-security"]'),
+    ).toBeVisible();
   });
 
   test("server action toolbar mounts; detail list supports context menu (#2849)", async ({
@@ -162,13 +177,15 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
       page.locator(`[data-testid="action-toolbar-item-${DESKTOP_ONLY_NAME}"]`),
     ).toHaveCount(0);
 
-    const row = page.locator('[data-testid^="detail-row-"]').first();
+    const row = page
+      .locator('[data-testid^="detail-row-"]:not([aria-disabled="true"])')
+      .first();
     if ((await row.count()) === 0) {
-      // Empty folder: still assert chrome; context menu needs a row.
+      // Empty folder or only disabled root rows: still assert chrome.
       test.info().annotations.push({
         type: "note",
         description:
-          "No detail rows on this CMS folder; skipped context-menu click path",
+          "No enabled detail rows on this CMS folder; skipped context-menu click path",
       });
       return;
     }
@@ -193,7 +210,45 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(
       page.locator('[data-testid="explorer-search-panel"]'),
     ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="explorer-side-panels"]'),
+    ).toBeVisible();
   });
+
+  test(
+    "Explorer view-tool Search opens panel under header chrome (#3208)",
+    { tag: ["@explorer-shell-chrome", "@explorer", "@search", "@smoke"] },
+    async ({ page }) => {
+      await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+      const searchTool = page.locator(
+        `[data-testid="${TEST_IDS.viewToolSearch}"]`,
+      );
+      await expect(searchTool).toBeVisible();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await expect(searchTool).toHaveAttribute(
+        "aria-controls",
+        "explorer-search-panel",
+      );
+      await searchTool.click();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "true");
+      const panel = page.locator(
+        `[data-testid="${TEST_IDS.searchPanelHost}"]`,
+      );
+      await expect(panel).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.sidePanels}"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.searchInput}"]`),
+      ).toBeVisible();
+      await expect(panel).toBeInViewport({ timeout: 10_000 });
+      await searchTool.click();
+      await expect(searchTool).toHaveAttribute("aria-expanded", "false");
+      await expect(panel).toHaveCount(0);
+    },
+  );
 
   test("no miller-column Finder chrome loads for the modern entry", async ({
     page,

@@ -37,6 +37,28 @@ export const shellStyle: CSSProperties = {
   background: "#fff",
 };
 
+/**
+ * When a Search / Security / other side panel is open, insert a full-width
+ * row under the header so the panel is visible without scrolling past the
+ * tree/list (#3208 / parent #2588).
+ */
+export const shellStyleWithPanels: CSSProperties = {
+  ...shellStyle,
+  gridTemplateRows: "auto auto 1fr",
+  gridTemplateAreas: '"header header" "panels panels" "tree list"',
+};
+
+/** Host for open Explorer side panels (search, security, wizards). */
+export const sidePanelsRegionStyle: CSSProperties = {
+  gridArea: "panels",
+  display: "flex",
+  flexDirection: "column",
+  maxHeight: "40vh",
+  overflow: "auto",
+  borderTop: "1px solid #ddd",
+  background: "#fcfcfc",
+};
+
 export const headerStyle: CSSProperties = {
   gridArea: "header",
   display: "flex",

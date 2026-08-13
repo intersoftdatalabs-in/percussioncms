@@ -66,6 +66,8 @@ export interface ExplorerMenuBarProps {
   hasFolderContext?: boolean;
   displayFormats: ReadonlyArray<DisplayFormat>;
   selectedFormatKey: string;
+  /** Non-fatal catalog load failure; selector remains mounted (#3208). */
+  displayFormatLoadError?: string | null;
   onSelectFormat: (key: string) => void;
   onCommand: (id: ExplorerMenuCommandId) => void;
   className?: string;
@@ -169,6 +171,18 @@ function isToggleChecked(
   }
 }
 
+/**
+ * Menu-item test ids. View → Security keeps a distinct menu id so the
+ * always-visible toolbar can own {@code explorer-toggle-security} (#3268 /
+ * #2410) without duplicate testids when the View dropdown is open.
+ */
+function menuItemTestId(item: ExplorerMenuBarItem): string {
+  if (item.id === "view-security") {
+    return "explorer-menu-view-security";
+  }
+  return item.testId ?? `explorer-menu-item-${item.id}`;
+}
+
 function isItemDisabled(
   item: ExplorerMenuBarItem,
   multiSelectedCount: number,
@@ -209,6 +223,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     hasFolderContext = false,
     displayFormats,
     selectedFormatKey,
+    displayFormatLoadError = null,
     onSelectFormat,
     onCommand,
     className,
@@ -392,9 +407,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                                 : "explorer-subfolder-copy-hint"
                                               : undefined
                           }
-                          data-testid={
-                            item.testId ?? `explorer-menu-item-${item.id}`
-                          }
+                          data-testid={menuItemTestId(item)}
                           style={disabled ? itemDisabledStyle : itemStyle}
                           onClick={() => activateItem(item)}
                           onKeyDown={(e) => {
@@ -456,6 +469,16 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
             );
           })}
         </select>
+        {displayFormatLoadError ? (
+          <span
+            data-testid="explorer-display-format-error"
+            role="status"
+            aria-live="polite"
+            style={{ color: "#b00020", fontSize: "0.85em" }}
+          >
+            {message(EXPLORER_MSG.DISPLAY_FORMAT_LOAD_ERROR)}
+          </span>
+        ) : null}
       </label>
       {multiSelectedCount > 0 ? (
         <span

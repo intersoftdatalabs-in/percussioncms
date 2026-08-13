@@ -39,7 +39,17 @@
     </p>
     <div id="perc-folder-security-root"
          data-testid="perc-folder-security-root"
-         style="min-height: 320px;"></div>
+         style="min-height: 320px;"><%
+        /* First paint before perc-modern-ui.js: folder-id hosts must expose a
+           folder-security-* surface (#3268 / #2749) without miller-column chrome. */
+        if (folderId.isEmpty()) {
+    %>
+        <p data-testid="perc-folder-security-no-folder">No folderId supplied. Append ?folderId=&lt;id&gt; to this URL.</p><%
+        } else {
+    %>
+        <div role="status" data-testid="folder-security-loading">Loading permissions</div><%
+        }
+    %></div>
     <pre id="perc-folder-security-result"
          data-testid="perc-folder-security-result"
          style="margin-top:16px; padding:12px; background:#fff; border:1px solid #ddd; font-size:0.85rem; white-space:pre-wrap;"></pre>
@@ -52,30 +62,43 @@
             s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
             document.head.appendChild(s);
         }
+        function paintMountError(detail) {
+            var el = document.getElementById("perc-folder-security-root");
+            if (!el) return;
+            if (el.querySelector("[data-testid='folder-security-panel'], [data-testid='folder-security-error']")) {
+                return;
+            }
+            var msg = detail ? String(detail) : "Failed to mount folder security";
+            el.innerHTML = "<div role=\"alert\" data-testid=\"folder-security-error\"><p></p></div>";
+            var p = el.querySelector("p");
+            if (p) p.textContent = msg;
+        }
         function mountSecurity() {
             if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
                 window.setTimeout(mountSecurity, 50);
                 return;
             }
             var url = new URL(window.location.href);
-            var folderId = url.searchParams.get("folderId");
+            var folderId = (url.searchParams.get("folderId") || "").trim();
             if (!folderId) {
-                // No folder selected — show a placeholder; this is the
-                // no-folder case for the dev CMS image (no folders).
-                document.getElementById("perc-folder-security-root").innerHTML =
-                    "<p data-testid=\"perc-folder-security-no-folder\">No folderId supplied. Append ?folderId=&lt;id&gt; to this URL.</p>";
+                /* Keep the server-rendered no-folder placeholder. A
+                   failed mount would overwrite it with an error. */
                 return;
             }
-            window.PercModernUI.mount("perc-folder-security-root", "FolderSecurityPanel", {
-                folderId: folderId,
-                currentUserIdentities: ["Admin"],
-                onSaved: function (props) {
-                    var out = document.getElementById("perc-folder-security-result");
-                    if (out) {
-                        out.textContent = "Saved: " + JSON.stringify({ id: props.id, name: props.name }, null, 2);
-                    }
-                },
-            });
+            try {
+                window.PercModernUI.mount("perc-folder-security-root", "FolderSecurityHost", {
+                    folderId: folderId,
+                    currentUserIdentities: ["Admin"],
+                    onSaved: function (props) {
+                        var out = document.getElementById("perc-folder-security-result");
+                        if (out) {
+                            out.textContent = "Saved: " + JSON.stringify({ id: props.id, name: props.name }, null, 2);
+                        }
+                    },
+                });
+            } catch (err) {
+                paintMountError(err && err.message ? err.message : err);
+            }
         }
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", mountSecurity);

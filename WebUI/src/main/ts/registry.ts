@@ -93,6 +93,10 @@ const loaders: Record<string, Loader> = {
     import("./contentExplorer/FolderSecurityPanel").then((m) => ({
       default: m.FolderSecurityPanel,
     })),
+  FolderSecurityHost: () =>
+    import("./contentExplorer/FolderSecurityHost").then((m) => ({
+      default: m.FolderSecurityHost,
+    })),
   ActionToolbar: () =>
     import("./contentExplorer/ActionToolbar").then((m) => ({
       default: m.ActionToolbar,

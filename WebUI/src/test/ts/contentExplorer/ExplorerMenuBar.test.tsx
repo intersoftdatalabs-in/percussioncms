@@ -56,6 +56,13 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(screen.getByTestId("explorer-menu-help")).toBeTruthy();
     // Display format is adjacent shell chrome (always present).
     expect(screen.getByTestId("explorer-display-format")).toBeTruthy();
+    expect(screen.queryByTestId("explorer-display-format-error")).toBeNull();
+  });
+
+  it("keeps the display-format selector when catalog load failed (#3208)", () => {
+    renderBar({ displayFormatLoadError: "formats down" });
+    expect(screen.getByTestId("explorer-display-format")).toBeTruthy();
+    expect(screen.getByTestId("explorer-display-format-error")).toBeTruthy();
   });
 
   it("opens View dropdown with nested toggles (not flat multi-row chrome)", () => {
@@ -64,7 +71,7 @@ describe("ExplorerMenuBar (#2731)", () => {
     fireEvent.click(screen.getByTestId("explorer-menu-view"));
     expect(screen.getByTestId("explorer-menu-view-dropdown")).toBeTruthy();
     expect(screen.getByTestId("explorer-toggle-search")).toBeTruthy();
-    expect(screen.getByTestId("explorer-toggle-security")).toBeTruthy();
+    expect(screen.getByTestId("explorer-menu-view-security")).toBeTruthy();
     expect(screen.getByTestId("explorer-toggle-relationships")).toBeTruthy();
     fireEvent.click(screen.getByTestId("explorer-toggle-search"));
     expect(onCommand).toHaveBeenCalledWith("view-search");
@@ -82,6 +89,13 @@ describe("ExplorerMenuBar (#2731)", () => {
     );
     fireEvent.click(contentSearch);
     expect(onCommand).toHaveBeenCalledWith("content-search");
+  });
+
+  it("View → Folder Security menu item invokes view-security (#3268)", () => {
+    const { onCommand } = renderBar();
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    fireEvent.click(screen.getByTestId("explorer-menu-view-security"));
+    expect(onCommand).toHaveBeenCalledWith("view-security");
   });
 
   it("View → IA Relationships toggle invokes view-relationships (#2769)", () => {

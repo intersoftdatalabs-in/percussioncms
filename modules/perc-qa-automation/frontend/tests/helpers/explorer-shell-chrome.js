@@ -19,6 +19,11 @@ const {
 const TEST_IDS = Object.freeze({
   ...MENU_TEST_IDS,
   displayFormat: "explorer-display-format",
+  displayFormatError: "explorer-display-format-error",
+  viewTools: "explorer-view-tools",
+  viewToolSearch: "explorer-view-tool-search",
+  viewToolSecurity: "explorer-toggle-security",
+  sidePanels: "explorer-side-panels",
   contentSearch: "explorer-menu-content-search",
   searchPanelHost: "explorer-search-panel",
   searchPanel: "search-panel",

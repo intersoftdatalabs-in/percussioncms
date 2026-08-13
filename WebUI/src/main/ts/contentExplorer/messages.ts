@@ -182,6 +182,9 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Custom URL searches cannot be run from Explorer",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
+  /** Non-fatal catalog load failure — selector stays mounted (#3208). */
+  DISPLAY_FORMAT_LOAD_ERROR:
+    "perc.ui.explorer@Could not load display formats",
   /** Product shell: server-driven action toolbar (US3 / #2400 / #2972). */
   SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
   /** Visible chrome label so QA/operators can identify the toolbar region. */
@@ -209,6 +212,9 @@ export const EXPLORER_MSG = {
   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
   SECURITY_SELECT_FOLDER:
     "perc.ui.explorer@Open or select a folder to edit security and properties.",
+  /** Residual JSP host when folderSecurityModern.jsp has no folderId. */
+  SECURITY_HOST_NO_FOLDER:
+    "perc.ui.explorer@No folderId supplied. Append ?folderId=<id> to this URL.",
   SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
   SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
   SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",

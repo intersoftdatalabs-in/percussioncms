@@ -18,7 +18,8 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | Chrome | Purpose |
 |--------|---------|
 | **Menu bar** (Content / View / Help) | Product commands: search, create site, clipboard, site/subfolder copy, view tools |
-| **Display format** | Column layout for the folder list (`validForFolder` formats) |
+| **Display format** | Column layout for the folder list (`validForFolder` formats). Always shown next to the menu bar; a short error stays next to the selector if the catalog cannot be loaded |
+| **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
@@ -165,12 +166,16 @@ missing on a minimal H2 cell.
 
 ## Search panel
 
-Use **Search** from either:
+Use **Search** from any of:
 
-- **View → Search**, or
+- the always-visible **Search** button on the Explorer view-tools row
+- **View → Search**
 - **Content → Search**
 
-Both commands toggle the same **Search panel** on the product Explorer route.
+All three commands toggle the same **Search panel**. The panel opens in a
+full-width region **directly under the header chrome** (menu bar, reduced
+actions, Server actions, view tools) so it is visible without scrolling past
+the folder tree and detail list.
 
 When the panel is open you can:
 
@@ -181,8 +186,9 @@ When the panel is open you can:
    listed when that design object exists on the server. Custom URL searches stay listed
    but cannot be run from Explorer.
 
-Closing **View → Search** (or **Content → Search**) again hides the panel. Revealing a
-result in its folder also closes the panel so the tree/list can show the destination.
+Closing **Search** again (view-tools button, **View → Search**, or **Content → Search**)
+hides the panel. Revealing a result in its folder also closes the panel so the
+tree/list can show the destination.
 
 Extended search uses the same sitemanage search services as other product hosts; on
 minimal fixtures without a search index, free-text may show an error state while the
@@ -217,13 +223,30 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).
 
+## Folder security
+
+Open folder ACL and properties from either:
+
+- The **Security** button on the Explorer view-tools toolbar (always visible next to
+  **Refresh**), or
+- **View → Folder Security**
+
+Both commands toggle the same **Folder security** panel. When a folder is selected
+(or the tree folder id can be resolved), the panel loads that folder’s permissions.
+When no folder is in context, Explorer shows a short hint to select a folder first.
+
+The panel is product React chrome on `spa.jsp?entry=explorer`. It does not open the
+legacy miller-column Finder. Site admins with ADMIN access on the folder can edit
+principal lists; other users see a read-only view.
+
 ## Other View tools
 
 From the **View** menu you can also toggle:
 
-- **Folder security** — ACL and folder properties for the **selected folder** (tree or
-  list). The panel shows community, community id, locale, display format, and workflow
-  id, plus named **user and role** identities on the Admin / Write / Read / View lists
+- **Folder security** — same panel as the view-tools **Security** button (see
+  **Folder security** above). ACL and folder properties for the **selected folder**
+  (tree or list): community, community id, locale, display format, and workflow id,
+  plus named **user and role** identities on the Admin / Write / Read / View lists
   (seed folders typically list the **Admin** and **Designer** roles). Administrators can
   add or remove principals and edit locale (and other persistable fields), then **Save**.
   Removing your own user name or a role you hold from a list prompts a self-lockout
