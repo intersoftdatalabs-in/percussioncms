@@ -234,7 +234,8 @@
         //Site architecture paths
         SITE_ARCHITECTURE : SERVICES.SITEMGT + "/siteArchitecture",
         // URLS for ui tabs
-        URL_ADMIN        : PERC_ROOT + "/app/admin.jsp",
+        // #3306: classic admin.jsp Design list retired → SPA Design entry
+        URL_ADMIN        : PERC_ROOT + "/app/?view=design",
         // #3099: classic siteArchitecture.jsp retired → SPA Architecture entry
         URL_ARCHITECTURE : PERC_ROOT + "/app/?view=arch",
         URL_DASHBOARD    : PERC_ROOT + "/app/dashboard.jsp",

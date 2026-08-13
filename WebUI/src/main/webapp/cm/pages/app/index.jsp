@@ -63,7 +63,7 @@
     // PR-7: dash is no longer legacy — gadgets live on Home (see dash → SPA below).
     Map<String, String> legacyViews = new HashMap<String, String>();
     legacyViews.put("editAsset", "editAsset.jsp");
-    legacyViews.put("design", "admin.jsp");
+    // design → SPA entry=design (#3306); admin.jsp hard-redirects (editTemplate.jsp stays)
     // arch / Architecture → SPA entry=architecture (#3094); siteArchitecture.jsp hard-redirects (#3099)
     legacyViews.put("editor", "webmgt.jsp");
     legacyViews.put("editTemplate", "editTemplate.jsp");
@@ -71,6 +71,7 @@
     // Modern SPA entries (query contract — never hash). *Modern.jsp is not product path.
     // "dash" is handled as SPA Home gadgets (PR-7 product lock).
     // "arch" / "architecture" → Architecture SPA shell (#3094).
+    // "design" → Design SPA template library (#3306 / parent #2631).
     String[] spaViews = new String[]{
             "home",
             "publish",
@@ -81,6 +82,7 @@
             "arch",
             "architecture",
             "navigation",
+            "design",
             "dash"
     };
 
@@ -242,6 +244,9 @@
                 || "navigation".equals(view))
             // #3094 / #3219: Architecture homepage / Navigation → SPA shell
             entry = "architecture";
+        else if ("design".equals(view))
+            // #3306: Design template list → SPA shell
+            entry = "design";
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
                 || "developer".equals(view))
@@ -324,6 +329,17 @@
             {
                 qs.append("&site=").append(URLEncoder.encode(site.trim(), "UTF-8"));
             }
+        }
+        else if ("design".equals(view))
+        {
+            // #3306: optional Design section (templates is the accepted list)
+            String section = firstAllowlisted(
+                    request.getParameter("section"),
+                    request.getParameter("tab"),
+                    DESIGN_SECTIONS,
+                    DESIGN_SECTION_ALIASES);
+            if (section != null)
+                qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
         }
 
         // Canonical SPA document lives under /cm/app/ (both trees redirect here)
@@ -708,6 +724,16 @@
             "ctypes", "content-types",
             "pipeline", "pipelines",
             "applications", "pipelines"
+    );
+    /** Design SPA sections — lockstep with allowlists.ts DESIGN_SECTIONS (#3306). */
+    private static final String[] DESIGN_SECTIONS = new String[]{
+            "templates"
+    };
+    private static final Map<String, String> DESIGN_SECTION_ALIASES = Map.of(
+            "template", "templates",
+            "tpl", "templates",
+            "library", "templates",
+            "template-library", "templates"
     );
 
     //Bad Developers ... NO Coffee for you....

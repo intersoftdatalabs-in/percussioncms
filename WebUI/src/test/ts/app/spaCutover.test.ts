@@ -89,7 +89,10 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       );
       // Legacy exits preserved (dash moved to SPA Home gadgets in PR-7)
       expect(text).toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
-      expect(text).toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
+      // #3306: Design template list is SPA entry, not legacyViews design → admin.jsp
+      expect(text).not.toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
+      expect(text).toMatch(/"design"/);
+      expect(text).toMatch(/entry\s*=\s*"design"|entry = "design"/);
       // #3094 / #3099: Architecture is SPA entry, not legacyViews arch → siteArchitecture.jsp
       expect(text).not.toMatch(
         /legacyViews\.put\("arch",\s*"siteArchitecture\.jsp"\)/,
@@ -97,6 +100,26 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(text).toMatch(/"arch"/);
       expect(text).toMatch(/"architecture"/);
       expect(text).toMatch(/entry\s*=\s*"architecture"|entry = "architecture"/);
+    }
+  });
+
+  it("admin.jsp hard-redirects to SPA Design (#3306)", () => {
+    const hosts = [
+      resolve(webappRoot, "cm/app/admin.jsp"),
+      resolve(webappRoot, "cm/pages/app/admin.jsp"),
+    ];
+    for (const jsp of hosts) {
+      expect(existsSync(jsp), jsp).toBe(true);
+      const text = read(jsp);
+      expect(text).toMatch(/setStatus\s*\(\s*301\s*\)/);
+      expect(text).toContain("PSLegacyViewRedirect");
+      expect(text).toContain('buildLocation("design"');
+      expect(text).toContain("escapeHtmlAttribute");
+      expect(text).toContain("htmlTarget");
+      expect(text).toContain("Location");
+      expect(text).not.toMatch(/target\s*=\s*"\/cm\/app\/\?"\s*\+\s*qs/);
+      expect(text).not.toContain("PercTemplateLibraryWidget");
+      expect(text).not.toContain("perc-assigned-templates");
     }
   });
 
@@ -147,6 +170,7 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(text).toContain('"widget-builder"');
     expect(text).toContain('"developer"');
     expect(text).toContain("DEVELOPER_SECTIONS");
+    expect(text).toContain("DESIGN_SECTIONS");
     // PR-7: dash maps to Home gadgets, not legacy dashboard.jsp
     expect(text).toContain('"gadgets"');
     expect(text).toMatch(/"dash"/);
