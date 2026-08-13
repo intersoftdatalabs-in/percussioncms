@@ -22,7 +22,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
-| **Tree + detail list** | Folder navigation and list of children; optional display-format columns |
+| **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
@@ -44,6 +44,12 @@ service (roles may hide Design/Recycling for some users):
 Explorer. Use it when you need the full repository folder hierarchy rather than only the
 Assets or Sites shortcuts. Expanding **Folders** loads children from the server; folder
 visibility still respects folder ACLs.
+
+The detail list always shows a **type icon** in its own column (before Name / display-format
+columns). Repository folders — including **`$System$`** and user-created folders — use a
+folder icon (open when that row is the current selection). Click the folder icon, or
+double-click the row, to browse into the folder. Multi-select **checkboxes** remain in a
+separate column when you are selecting several items; they do not replace the folder icon.
 
 Below the folder roots, Explorer lists a **Views** system category. Expand **Views**
 to see the same four groups as Desktop Content Explorer:

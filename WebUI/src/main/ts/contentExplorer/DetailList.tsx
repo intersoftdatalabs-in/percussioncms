@@ -22,6 +22,11 @@
  * 50 to bound render cost; the user paginates forward/back via the
  * controls below the list.</p>
  *
+ * <p>#3328: a dedicated type-icon column always precedes the display-format
+ * columns. Folders (including {@code $System$} and user folders) show a
+ * folder/open icon that activates browse. Multi-select checkboxes stay in
+ * their own column and do not replace the folder affordance.</p>
+ *
  * <p>FR-027 / T092b: when a `displayFormat` is supplied, the list honours
  * the column ordering + selection defined by the format. When absent
  * (default), the list falls back to Name + Type + Path. Supported column
@@ -207,10 +212,14 @@ export function columnHeaderLabel(
   }
 }
 import { message } from "../i18n/message";
-import { canRead } from "./selection";
+import { canRead, isFolder } from "./selection";
 import {
   emptyStateStyle,
   errorStateStyle,
+  folderIconButtonStyle,
+  iconTdCellStyle,
+  iconThCellStyle,
+  itemIconStyle,
   listStyle,
   rowStyle,
   tableStyle,
@@ -221,6 +230,32 @@ import {
 import { EXPLORER_MSG } from "./messages";
 
 const PAGE_SIZE = 50;
+
+function FolderClosedGlyph(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M1 4a1 1 0 0 1 1-1h4l1 1.5h7a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1z" />
+    </svg>
+  );
+}
+
+function FolderOpenGlyph(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path fill="currentColor" opacity="0.7" d="M1 4a1 1 0 0 1 1-1h4l1 1.5h5.5a1 1 0 0 1 1 1V7H2.2z" />
+      <path fill="currentColor" d="M1 7h10.2a1 1 0 0 1 .95.7L14 14H2.5A1.5 1.5 0 0 1 1 12.5z" />
+    </svg>
+  );
+}
+
+function ItemGlyph(): React.ReactElement {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M4 1.5h5.2L13 5.3V14.5H4z" />
+      <path fill="#fff" d="M9.2 1.7v3.6H12.8" />
+    </svg>
+  );
+}
 
 export interface DetailListProps {
   /** Folder path whose children to list. null disables the list. */
@@ -372,7 +407,11 @@ export function DetailList({
 
   if (!folderPath) {
     return (
-      <div style={listStyle} data-testid="detail-list">
+      <div
+        style={listStyle}
+        data-testid="detail-list"
+        data-folder-path={folderPath ?? ""}
+      >
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -381,7 +420,11 @@ export function DetailList({
   }
   if (error) {
     return (
-      <div style={listStyle} data-testid="detail-list">
+      <div
+        style={listStyle}
+        data-testid="detail-list"
+        data-folder-path={folderPath ?? ""}
+      >
         <div style={errorStateStyle} role="alert">
           {message(EXPLORER_MSG.LIST_LOAD_ERROR)}: {error}
         </div>
@@ -390,14 +433,22 @@ export function DetailList({
   }
   if (loading && children.length === 0) {
     return (
-      <div style={listStyle} data-testid="detail-list">
+      <div
+        style={listStyle}
+        data-testid="detail-list"
+        data-folder-path={folderPath ?? ""}
+      >
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_LOADING)}</div>
       </div>
     );
   }
   if (!loading && children.length === 0) {
     return (
-      <div style={listStyle} data-testid="detail-list">
+      <div
+        style={listStyle}
+        data-testid="detail-list"
+        data-folder-path={folderPath ?? ""}
+      >
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -406,7 +457,11 @@ export function DetailList({
   }
 
   return (
-    <div style={listStyle} data-testid="detail-list">
+    <div
+      style={listStyle}
+      data-testid="detail-list"
+      data-folder-path={folderPath ?? ""}
+    >
       <table style={tableStyle}>
         <thead style={theadStyle}>
           <tr>
@@ -446,6 +501,11 @@ export function DetailList({
                 />
               </th>
             ) : null}
+            <th
+              style={iconThCellStyle}
+              data-testid="detail-col-header-icon"
+              aria-label={message(EXPLORER_MSG.ICON_COLUMN_LABEL)}
+            />
             {columnsToRender.map((c) => (
               <th
                 key={c}
@@ -463,10 +523,13 @@ export function DetailList({
             const idKey = item.id ?? item.path;
             const isChecked = multiSelectEnabled && multiSelected.has(idKey);
             const visible = canRead(item);
+            const folderish = isFolder(item);
+            const folderOpen = folderish && selected;
             return (
               <tr
                 key={idKey}
                 data-testid={`detail-row-${idKey}`}
+                data-row-kind={folderish ? "folder" : "item"}
                 data-selected={isChecked ? "true" : undefined}
                 style={rowStyle(selected)}
                 role="row"
@@ -501,6 +564,36 @@ export function DetailList({
                     />
                   </td>
                 ) : null}
+                <td style={iconTdCellStyle} data-testid={`detail-cell-icon-${idKey}`}>
+                  {folderish ? (
+                    <button
+                      type="button"
+                      style={folderIconButtonStyle}
+                      data-testid={`detail-folder-icon-${idKey}`}
+                      data-kind="folder"
+                      data-folder-state={folderOpen ? "open" : "closed"}
+                      aria-label={message(EXPLORER_MSG.OPEN_FOLDER_LABEL)}
+                      title={message(EXPLORER_MSG.OPEN_FOLDER_LABEL)}
+                      disabled={!visible}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (visible) onActivateItem?.(item);
+                      }}
+                    >
+                      {folderOpen ? <FolderOpenGlyph /> : <FolderClosedGlyph />}
+                    </button>
+                  ) : (
+                    <span
+                      style={itemIconStyle}
+                      data-testid={`detail-item-icon-${idKey}`}
+                      data-kind="item"
+                      aria-hidden="true"
+                      title={message(EXPLORER_MSG.ITEM_ICON_LABEL)}
+                    >
+                      <ItemGlyph />
+                    </span>
+                  )}
+                </td>
                 {columnsToRender.map((c) => (
                   <td
                     key={c}
