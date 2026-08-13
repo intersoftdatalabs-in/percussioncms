@@ -65,7 +65,11 @@ test.describe("Architecture SPA shell (#3094)", () => {
     const emptyState = page.getByTestId("architecture-empty-state");
     const picker = page.getByTestId("architecture-site-picker");
     const tree = page.getByTestId("architecture-tree-panel");
-    await expect(emptyState.or(picker).or(tree)).toBeVisible({ timeout: 15_000 });
+    // Demo-site cells show picker + tree together; Playwright .or() is strict
+    // when more than one locator matches.
+    await expect(emptyState.or(picker).or(tree).first()).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(page.getByTestId("architecture-shell-title")).toContainText(
       /Navigation/i,
     );

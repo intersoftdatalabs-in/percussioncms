@@ -15,14 +15,15 @@
  */
 
 /**
- * Architecture landing + section-link chrome smoke (#3097 / parent #3092).
+ * Architecture convert-to-folder + create-from-folder chrome smoke
+ * (#3302 / parent #3092).
  *
  * Surface-filtered only:
- *   npm run test:surface -- --path tests/architecture-nav-links-smoke.spec.js
+ *   npm run test:surface -- --path tests/architecture-nav-folder-smoke.spec.js
  *
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
- * Entry: spa.jsp?entry=architecture (link / landing actions when sites exist).
+ * Entry: spa.jsp?entry=architecture.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -37,13 +38,13 @@ function architectureUrl(extra = {}) {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Architecture nav landing & links (#3097)", () => {
+test.describe("Architecture convert / create-from-folder (#3302)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
-  test("landing and link actions are present with tree panel @smoke @ui", async ({
+  test("convert and create-from-folder actions are present @smoke @ui", async ({
     page,
   }) => {
     const consoleErrors = [];
@@ -67,9 +68,6 @@ test.describe("Architecture nav landing & links (#3097)", () => {
     await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
       timeout: 20_000,
     });
-    await expect(page.getByTestId("architecture-shell-title")).toContainText(
-      /Navigation/i,
-    );
 
     const sitesEmpty = page.getByTestId("architecture-sites-empty");
     const sitesError = page.getByTestId("architecture-sites-error");
@@ -92,66 +90,33 @@ test.describe("Architecture nav landing & links (#3097)", () => {
         page.getByTestId("architecture-structure-actions"),
       ).toBeVisible({ timeout: 15_000 });
       await expect(
-        page.getByTestId("architecture-action-create-section-link"),
+        page.getByTestId("architecture-action-create-from-folder"),
       ).toBeVisible();
       await expect(
-        page.getByTestId("architecture-action-create-external-link"),
+        page.getByTestId("architecture-action-convert-to-folder"),
       ).toBeVisible();
-      await expect(page.getByTestId("architecture-action-landing")).toBeVisible();
 
-      // #3304 — open landing picker and cancel (no POST / no 500)
-      const firstSection = page.locator("[data-testid^='nav-tree-item-']").first();
-      if (await firstSection.isVisible().catch(() => false)) {
-        await firstSection.click();
-        const landingBtn = page.getByTestId("architecture-action-landing");
-        if (await landingBtn.isEnabled().catch(() => false)) {
-          await landingBtn.click();
-          await expect(
-            page.getByTestId("architecture-landing-dialog"),
-          ).toBeVisible({ timeout: 10_000 });
-          await page.getByTestId("architecture-landing-cancel").click();
-          await expect(
-            page.getByTestId("architecture-landing-dialog"),
-          ).toHaveCount(0);
-        }
-      }
-      await expect(
-        page.getByTestId("architecture-action-edit-link"),
-      ).toBeVisible();
-      await expect(page.getByTestId("architecture-blog-note")).toBeVisible();
-
-      // Open external link dialog (create parent is root when nothing selected)
-      const createExt = page.getByTestId(
-        "architecture-action-create-external-link",
+      const createFromFolder = page.getByTestId(
+        "architecture-action-create-from-folder",
       );
-      if (await createExt.isEnabled().catch(() => false)) {
-        await createExt.click();
+      if (await createFromFolder.isEnabled().catch(() => false)) {
+        await createFromFolder.click();
         await expect(
-          page.getByTestId("architecture-external-link-dialog"),
+          page.getByTestId("architecture-from-folder-dialog"),
         ).toBeVisible({ timeout: 10_000 });
-        await page.getByTestId("architecture-external-link-cancel").click();
         await expect(
-          page.getByTestId("architecture-external-link-dialog"),
-        ).toHaveCount(0);
-      }
-
-      const createLink = page.getByTestId(
-        "architecture-action-create-section-link",
-      );
-      if (await createLink.isEnabled().catch(() => false)) {
-        await createLink.click();
+          page.getByTestId("architecture-from-folder-browse-folder"),
+        ).toBeVisible();
         await expect(
-          page.getByTestId("architecture-section-link-dialog"),
-        ).toBeVisible({ timeout: 10_000 });
-        await page.getByTestId("architecture-section-link-cancel").click();
+          page.getByTestId("architecture-from-folder-browse-page"),
+        ).toBeVisible();
+        await page.getByTestId("architecture-from-folder-cancel").click();
         await expect(
-          page.getByTestId("architecture-section-link-dialog"),
+          page.getByTestId("architecture-from-folder-dialog"),
         ).toHaveCount(0);
       }
     }
 
-    // Zero uncaught page errors; ignore common network 404 console noise
-    // (favicon, optional assets) that is not feature-related.
     expect(
       consoleErrors.filter(
         (e) =>

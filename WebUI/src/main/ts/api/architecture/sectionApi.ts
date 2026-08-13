@@ -20,7 +20,8 @@
  * (#3095 / #3096 / #3097).
  *
  * <p>Read: {@code GET /sitemanage/section/tree/{siteName}}.
- * Mutations: create / properties / update / move / delete / landing / links.</p>
+ * Mutations: create / properties / update / move / delete / convert /
+ * create-from-folder / landing / links.</p>
  */
 
 import { del, extractRestErrorMessage, get, isApiError, post } from "../client";
@@ -32,10 +33,12 @@ import {
 } from "./mapSectionTree";
 import {
   buildCreateExternalLinkBody,
+  buildCreateSectionFromFolderBody,
   buildCreateSectionLinkPath,
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
   buildReplaceLandingPageBody,
+  parseReplaceLandingPagePayload,
   buildUpdateSectionLinkBody,
   buildUpdateSiteSectionBody,
   parseSiteSectionPayload,
@@ -43,10 +46,12 @@ import {
 } from "./sectionMutations";
 import type {
   CreateExternalLinkFields,
+  CreateSectionFromFolderFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
   ReplaceLandingPageFields,
+  ReplaceLandingPageResult,
   SiteSectionPropertiesWire,
   SiteSectionWire,
   UpdateSectionLinkFields,
@@ -310,6 +315,26 @@ export async function convertSectionToFolder(
 }
 
 /**
+ * Create a navon from an existing site folder
+ * ({@code POST /section/createSectionFromFolder}).
+ */
+export async function createSectionFromFolder(
+  fields: CreateSectionFromFolderFields,
+): Promise<unknown> {
+  if (!fields.sourceFolderPath?.trim()) {
+    throw new Error("Source folder path is required");
+  }
+  if (!fields.pageName?.trim()) {
+    throw new Error("Landing page name is required");
+  }
+  if (!fields.parentFolderPath?.trim()) {
+    throw new Error("Parent folder path is required");
+  }
+  const body = buildCreateSectionFromFolderBody(fields);
+  return post<unknown>(PATHS.SECTION_CREATE_FROM_FOLDER, body);
+}
+
+/**
  * Load one section by id ({@code GET /section/{id}}).
  * Used when editing external / section links (#3097).
  */
@@ -334,12 +359,13 @@ export async function loadSection(
  */
 export async function replaceLandingPage(
   fields: ReplaceLandingPageFields,
-): Promise<unknown> {
+): Promise<ReplaceLandingPageResult> {
   if (!fields.sectionId?.trim() || !fields.newLandingPageId?.trim()) {
     throw new Error("Section id and new landing page id are required");
   }
   const body = buildReplaceLandingPageBody(fields);
-  return post<unknown>(PATHS.SECTION_REPLACE_LANDING_PAGE, body);
+  const payload = await post<unknown>(PATHS.SECTION_REPLACE_LANDING_PAGE, body);
+  return parseReplaceLandingPagePayload(payload, fields);
 }
 
 /**
@@ -416,6 +442,7 @@ export async function updateExternalLink(
 
 export type {
   CreateExternalLinkFields,
+  CreateSectionFromFolderFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,

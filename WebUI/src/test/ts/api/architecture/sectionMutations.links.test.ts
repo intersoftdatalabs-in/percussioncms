@@ -20,6 +20,7 @@ import {
   buildCreateExternalLinkBody,
   buildCreateSectionLinkPath,
   buildReplaceLandingPageBody,
+  parseReplaceLandingPagePayload,
   buildUpdateSectionLinkBody,
   canEditLinkNode,
   canReplaceLandingPage,
@@ -111,6 +112,60 @@ describe("sectionMutations links & landing (#3097)", () => {
     expect(landing.ReplaceLandingPage).toEqual({
       sectionId: "sec-1",
       newLandingPageId: "page-9",
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        {
+          ReplaceLandingPage: {
+            sectionId: "sec-1",
+            newLandingPageId: "page-9",
+            newLandingPageName: "Home",
+            oldLandingPageName: "index",
+          },
+        },
+        { sectionId: "sec-1", newLandingPageId: "page-9" },
+      ),
+    ).toEqual({
+      sectionId: "sec-1",
+      newLandingPageId: "page-9",
+      newLandingPageName: "Home",
+      oldLandingPageName: "index",
+    });
+
+    const fallback = { sectionId: "fb-sec", newLandingPageId: "fb-page" };
+    expect(parseReplaceLandingPagePayload(null, fallback)).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(parseReplaceLandingPagePayload([], fallback)).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        { sectionId: "bare", newLandingPageId: "p2", newLandingPageName: "  " },
+        fallback,
+      ),
+    ).toEqual({
+      sectionId: "bare",
+      newLandingPageId: "p2",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        { replaceLandingPage: { newLandingPageName: "Lower" } },
+        fallback,
+      ),
+    ).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: "Lower",
+      oldLandingPageName: null,
     });
 
     const ext = buildCreateExternalLinkBody({

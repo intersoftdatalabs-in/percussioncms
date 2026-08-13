@@ -26,6 +26,8 @@ import { ARCH_MSG } from "./messages";
 export interface StructureActionBarProps {
   busy: boolean;
   canCreate: boolean;
+  canCreateFromFolder: boolean;
+  canConvertToFolder: boolean;
   canCreateSectionLink: boolean;
   canCreateExternalLink: boolean;
   canLanding: boolean;
@@ -35,6 +37,8 @@ export interface StructureActionBarProps {
   canMoveDown: boolean;
   canDelete: boolean;
   onCreate: () => void;
+  onCreateFromFolder: () => void;
+  onConvertToFolder: () => void;
   onCreateSectionLink: () => void;
   onCreateExternalLink: () => void;
   onLanding: () => void;
@@ -68,6 +72,8 @@ function buttonStyle(enabled: boolean): React.CSSProperties {
 export function StructureActionBar({
   busy,
   canCreate,
+  canCreateFromFolder,
+  canConvertToFolder,
   canCreateSectionLink,
   canCreateExternalLink,
   canLanding,
@@ -77,6 +83,8 @@ export function StructureActionBar({
   canMoveDown,
   canDelete,
   onCreate,
+  onCreateFromFolder,
+  onConvertToFolder,
   onCreateSectionLink,
   onCreateExternalLink,
   onLanding,
@@ -87,6 +95,8 @@ export function StructureActionBar({
   onDelete,
 }: StructureActionBarProps): React.ReactElement {
   const createEnabled = canCreate && !busy;
+  const createFromFolderEnabled = canCreateFromFolder && !busy;
+  const convertEnabled = canConvertToFolder && !busy;
   const sectionLinkEnabled = canCreateSectionLink && !busy;
   const externalLinkEnabled = canCreateExternalLink && !busy;
   const landingEnabled = canLanding && !busy;
@@ -111,6 +121,15 @@ export function StructureActionBar({
         style={buttonStyle(createEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-create-from-folder"
+        disabled={!createFromFolderEnabled}
+        onClick={onCreateFromFolder}
+        style={buttonStyle(createFromFolderEnabled)}
+      >
+        {ARCH_MSG.ACTION_CREATE_FROM_FOLDER}
       </button>
       <button
         type="button"
@@ -174,6 +193,15 @@ export function StructureActionBar({
         style={buttonStyle(downEnabled)}
       >
         {ARCH_MSG.ACTION_MOVE_DOWN}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-convert-to-folder"
+        disabled={!convertEnabled}
+        onClick={onConvertToFolder}
+        style={buttonStyle(convertEnabled)}
+      >
+        {ARCH_MSG.ACTION_CONVERT_TO_FOLDER}
       </button>
       <button
         type="button"

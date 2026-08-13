@@ -143,6 +143,16 @@ export interface ReplaceLandingPageFields {
 }
 
 /**
+ * Parsed {@code ReplaceLandingPage} response after a successful replace.
+ */
+export interface ReplaceLandingPageResult {
+  sectionId: string;
+  newLandingPageId: string;
+  newLandingPageName: string | null;
+  oldLandingPageName: string | null;
+}
+
+/**
  * Wire fields for {@code POST /sitemanage/section/createExternalLinkSection}
  * and update external link ({@code CreateExternalLinkSection}).
  */
@@ -163,4 +173,14 @@ export interface UpdateSectionLinkFields {
   oldSectionId: string;
   newSectionId: string;
   parentSectionId: string;
+}
+
+/**
+ * Wire fields for {@code POST /sitemanage/section/createSectionFromFolder}
+ * ({@code CreateSectionFromFolderRequest} / {@code PSCreateSectionFromFolderRequest}).
+ */
+export interface CreateSectionFromFolderFields {
+  sourceFolderPath: string;
+  pageName: string;
+  parentFolderPath: string;
 }

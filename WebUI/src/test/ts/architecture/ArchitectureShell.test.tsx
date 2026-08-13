@@ -677,5 +677,351 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       expect(screen.getByTestId("architecture-sites-empty")).toBeTruthy();
     });
     expect(screen.queryByTestId("architecture-action-new-site")).toBeNull();
+    expect(screen.queryByTestId("architecture-action-copy-site")).toBeNull();
+    expect(screen.queryByTestId("architecture-action-delete-site")).toBeNull();
+  });
+
+  it("opens Copy Site wizard after copysiteinfo is idle (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({ entries: {} });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-copy-site") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-copy-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-copy-site-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("site-copy-wizard")).toBeTruthy();
+    expect(
+      (screen.getByTestId("site-copy-source") as HTMLInputElement).value,
+    ).toBe("Demo");
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    expect(
+      (screen.getByTestId("site-copy-target") as HTMLInputElement).value,
+    ).toBe("Demo-copy");
+    fireEvent.click(screen.getByTestId("architecture-copy-site-close"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-copy-site-panel")).toBeNull();
+    });
+  });
+
+  it("blocks Copy Site when a copy is already in progress (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({
+      psmap: { entries: { src: "Other" } },
+    });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-copy-site")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-copy-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-mutation-error").textContent).toMatch(
+        /copy is already in progress/i,
+      );
+    });
+    expect(screen.queryByTestId("architecture-copy-site-panel")).toBeNull();
+  });
+
+  it("confirms Delete Site, calls delete, and refreshes the picker (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    const fetchSites = vi
+      .spyOn(homeApi, "fetchSites")
+      .mockResolvedValue([{ name: "Demo" }, { name: "Keep" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({ entries: {} });
+    vi.spyOn(siteAdmin, "isSiteBeingImported").mockResolvedValue(false);
+    const delSpy = vi
+      .spyOn(siteAdmin, "deleteManagedSite")
+      .mockResolvedValue(undefined);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => true}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId(
+          "architecture-action-delete-site",
+        ) as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    fetchSites.mockResolvedValue([{ name: "Keep" }]);
+    fireEvent.click(screen.getByTestId("architecture-action-delete-site"));
+    await waitFor(() => {
+      expect(delSpy).toHaveBeenCalledWith("Demo");
+    });
+    await waitFor(() => {
+      const picker = screen.getByTestId(
+        "architecture-site-select",
+      ) as HTMLSelectElement;
+      expect(picker.value).toBe("Keep");
+      expect(picker.textContent).not.toMatch(/Demo/);
+    });
+  });
+
+  it("does not delete when the operator cancels confirmation (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const delSpy = vi.spyOn(siteAdmin, "deleteManagedSite");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-delete-site")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-delete-site"));
+    expect(delSpy).not.toHaveBeenCalled();
+  });
+
+  it("convert to folder confirms and calls convertSectionToFolder (#3302)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const convertSpy = vi
+      .spyOn(sectionApi, "convertSectionToFolder")
+      .mockResolvedValue({});
+    const confirmFn = vi.fn(() => true);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={confirmFn}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-convert-to-folder",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-convert-to-folder"));
+    expect(confirmFn).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(convertSpy).toHaveBeenCalledWith("c1");
+    });
+    await waitFor(() => {
+      expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it("create section from folder posts and refreshes tree (#3302)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const loadSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const createSpy = vi
+      .spyOn(sectionApi, "createSectionFromFolder")
+      .mockResolvedValue({});
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-action-create-from-folder"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-create-from-folder"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-from-folder-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-from-folder-path"), {
+      target: { value: "//Sites/Demo/Folder" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-from-folder-page"), {
+      target: { value: "index.html" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-from-folder-submit"));
+    await waitFor(() => {
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceFolderPath: "//Sites/Demo/Folder",
+          pageName: "index.html",
+          parentFolderPath: "//Sites/Demo",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it("replace landing page posts, keeps selection, and shows assigned name (#3304)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const treeSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage").mockResolvedValue({
+      sectionId: "c1",
+      newLandingPageId: "page-guid-1",
+      newLandingPageName: "Picked Page",
+      oldLandingPageName: "index",
+    });
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-landing") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-page-id")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-landing-page-id"), {
+      target: { value: "page-guid-1" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    await waitFor(() => {
+      expect(replaceSpy).toHaveBeenCalledWith({
+        sectionId: "c1",
+        newLandingPageId: "page-guid-1",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-landing-dialog")).toBeNull();
+    });
+    await waitFor(() => {
+      expect(treeSpy.mock.calls.length).toBeGreaterThan(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-current").textContent).toMatch(
+        /Picked Page/,
+      );
+    });
+    expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+  });
+
+  it("clears landing status when a later replace fails (#3304)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const replaceSpy = vi
+      .spyOn(sectionApi, "replaceLandingPage")
+      .mockResolvedValueOnce({
+        sectionId: "c1",
+        newLandingPageId: "page-guid-1",
+        newLandingPageName: "Picked Page",
+        oldLandingPageName: "index",
+      })
+      .mockRejectedValueOnce(new Error("replace failed"));
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-page-id")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-landing-page-id"), {
+      target: { value: "page-guid-1" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-current").textContent).toMatch(
+        /Picked Page/,
+      );
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-page-id")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-landing-page-id"), {
+      target: { value: "page-guid-2" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    await waitFor(() => {
+      expect(replaceSpy).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-mutation-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("architecture-landing-current")).toBeNull();
+  });
+
+  it("landing cancel does not call replaceLandingPage (#3304)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-cancel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-landing-dialog")).toBeNull();
+    });
+    expect(replaceSpy).not.toHaveBeenCalled();
   });
 });

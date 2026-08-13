@@ -24,7 +24,9 @@ import React, {
 } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import {
+  convertSectionToFolder,
   createExternalLinkSection,
+  createSectionFromFolder,
   createSectionLink,
   createSiteSection,
   deleteSectionLink,
@@ -41,6 +43,7 @@ import {
 import {
   applyTitleToProperties,
   buildSiblingReorderMove,
+  canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
   canEditLinkNode,
@@ -54,10 +57,21 @@ import {
   resolveCreateParentFolderPath,
 } from "../api/architecture/sectionMutations";
 import type { NavTreeNode } from "../api/architecture/types";
+import {
+  copyManagedSite,
+  deleteManagedSite,
+  isSiteBeingImported,
+  isSiteCopyInProgress,
+  loadSiteCopyInfo,
+  suggestCopySiteName,
+} from "../api/architecture/siteAdminApi";
+import type { PSSiteCopyRequest } from "../api/contentExplorer/types";
 import { fetchSites } from "../api/home/homeApi";
+import { SiteCopyWizard } from "../contentExplorer/wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "../contentExplorer/wizards/SiteCreateWizard";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
+import { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
@@ -65,6 +79,7 @@ import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
 import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
+import { canPostReplaceLandingPage } from "./landingPagePicker";
 import { ARCH_MSG } from "./messages";
 import { useDialogEscape } from "./useDialogEscape";
 
@@ -88,8 +103,8 @@ export interface ArchitectureShellProps {
    */
   useLandingContentBrowser?: boolean;
   /**
-   * Show New Site (Explorer SiteCreateWizard) for entitled roles.
-   * Default true — Architecture is already Admin/Designer gated (#3219).
+   * Show New / Copy / Delete Site for entitled roles.
+   * Default true — Architecture is already Admin/Designer gated (#3219 / #3303).
    */
   allowNewSite?: boolean;
 }
@@ -107,7 +122,8 @@ type TreeLoadState =
 
 /**
  * Architecture / Navigation SPA shell
- * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links).
+ * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links
+ * + #3304 landing picker/replace).
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
@@ -130,10 +146,18 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   });
   const [treeState, setTreeState] = useState<TreeLoadState>({ status: "idle" });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const selectedNodeIdRef = useRef<string | null>(null);
+  selectedNodeIdRef.current = selectedNodeId;
+  const [landingStatus, setLandingStatus] = useState<{
+    sectionId: string;
+    pageId: string;
+    pageName: string;
+  } | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
   const [mutationBusy, setMutationBusy] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createFromFolderOpen, setCreateFromFolderOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [landingOpen, setLandingOpen] = useState(false);
   const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
@@ -150,10 +174,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     target: string;
   } | null>(null);
   const [showNewSite, setShowNewSite] = useState(false);
+  const [showCopySite, setShowCopySite] = useState(false);
   const newSiteToggleRef = useRef<HTMLButtonElement>(null);
   const newSitePanelRef = useRef<HTMLElement>(null);
+  const copySiteToggleRef = useRef<HTMLButtonElement>(null);
+  const copySitePanelRef = useRef<HTMLElement>(null);
+  const copyTargetRef = useRef<string | null>(null);
 
   useDialogEscape(showNewSite, mutationBusy, () => setShowNewSite(false));
+  useDialogEscape(showCopySite, mutationBusy, () => setShowCopySite(false));
 
   useEffect(() => {
     if (!showNewSite) {
@@ -194,6 +223,46 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       newSiteToggleRef.current?.focus();
     };
   }, [showNewSite]);
+
+  useEffect(() => {
+    if (!showCopySite) {
+      return;
+    }
+    const root = copySitePanelRef.current;
+    if (!root) {
+      return;
+    }
+    const focusables = (): HTMLElement[] =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+    focusables()[0]?.focus();
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusables();
+      if (list.length === 0) {
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => {
+      root.removeEventListener("keydown", onKey);
+      copySiteToggleRef.current?.focus();
+    };
+  }, [showCopySite]);
 
   // Honor route/deep-link site when prop changes
   useEffect(() => {
@@ -252,22 +321,30 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     };
   }, [applySiteNames, loadSiteNames]);
 
+  // Drop selection when the site changes (not on every tree refresh).
+  useEffect(() => {
+    setSelectedNodeId(null);
+    setLandingStatus(null);
+  }, [selectedSite]);
+
   // Load tree when site or refresh changes
   useEffect(() => {
     if (!selectedSite) {
       setTreeState({ status: "idle" });
-      setSelectedNodeId(null);
       return;
     }
     let cancelled = false;
     setTreeState({ status: "loading" });
-    setSelectedNodeId(null);
     setMutationError(null);
     void (async () => {
       try {
         const root = await loadSectionTree(selectedSite);
         if (cancelled) return;
         setTreeState({ status: "ready", root });
+        const keep = selectedNodeIdRef.current;
+        if (keep && root && !findNavNodeById(root, keep)) {
+          setSelectedNodeId(null);
+        }
       } catch (err) {
         if (cancelled) return;
         if (isSessionRedirectError(err)) return;
@@ -287,7 +364,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   }, []);
 
   const reloadSites = useCallback(
-    async (preferSite?: string | null) => {
+    async (
+      preferSite?: string | null,
+      reloadErrorTemplate: string = ARCH_MSG.NEW_SITE_RELOAD_ERROR,
+    ) => {
       const preferred = preferSite != null ? String(preferSite).trim() : "";
       try {
         const names = await loadSiteNames();
@@ -302,13 +382,40 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           message: formatApiError(err, ARCH_MSG.SITES_ERROR),
         });
         if (preferred) {
-          setMutationError(
-            ARCH_MSG.NEW_SITE_RELOAD_ERROR.split("{0}").join(preferred),
-          );
+          setMutationError(reloadErrorTemplate.split("{0}").join(preferred));
         }
       }
     },
     [applySiteNames, loadSiteNames],
+  );
+
+  const reloadSitesAfterDelete = useCallback(
+    async (deletedName: string) => {
+      const gone = deletedName.trim();
+      try {
+        const names = await loadSiteNames();
+        const remaining = names.filter((n) => n !== gone);
+        setSitesState({ status: "ready", names: remaining });
+        setSelectedSite((prev) => {
+          if (prev && remaining.includes(prev)) {
+            return prev;
+          }
+          return remaining[0] ?? null;
+        });
+        setMutationError(null);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setSitesState({
+          status: "error",
+          message: formatApiError(err, ARCH_MSG.SITES_ERROR),
+        });
+        setSelectedSite((prev) => (prev === gone ? null : prev));
+        setMutationError(
+          ARCH_MSG.DELETE_SITE_RELOAD_ERROR.split("{0}").join(gone),
+        );
+      }
+    },
+    [loadSiteNames],
   );
 
   const treeRoot =
@@ -332,6 +439,9 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   }, [selectedNode, treeRoot]);
 
   const canCreate = !!selectedSite && !!createParent && !mutationBusy;
+  const canCreateFromFolder = canCreate;
+  const canConvertToFolder =
+    canConvertSectionToFolder(treeRoot, selectedNode) && !mutationBusy;
   const canCreateSectionLink = canCreate;
   const canCreateExternalLink = canCreate;
   const canLanding =
@@ -358,6 +468,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     async (work: () => Promise<void>) => {
       setMutationBusy(true);
       setMutationError(null);
+      setLandingStatus(null);
       try {
         await work();
         setRefreshToken((n) => n + 1);
@@ -425,6 +536,46 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     [selectedNodeId, treeRoot, runMutation],
   );
 
+  const onConvertToFolder = useCallback(() => {
+    if (!selectedNode || !treeRoot) return;
+    if (!canConvertSectionToFolder(treeRoot, selectedNode)) {
+      setMutationError(
+        selectedNode.id === treeRoot.id
+          ? ARCH_MSG.CONVERT_ROOT_BLOCKED
+          : ARCH_MSG.CONVERT_BLOCKED,
+      );
+      return;
+    }
+    const msg = ARCH_MSG.CONVERT_CONFIRM.split("{0}").join(selectedNode.title);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    const nodeId = selectedNode.id;
+    void runMutation(async () => {
+      await convertSectionToFolder(nodeId);
+      setSelectedNodeId(null);
+    });
+  }, [selectedNode, treeRoot, confirmAction, runMutation]);
+
+  const onCreateFromFolderSubmit = useCallback(
+    (input: { sourceFolderPath: string; pageName: string }) => {
+      if (!selectedSite || !createParent) return;
+      const parentFolderPath = resolveCreateParentFolderPath(
+        createParent,
+        selectedSite,
+      );
+      void runMutation(async () => {
+        await createSectionFromFolder({
+          sourceFolderPath: input.sourceFolderPath,
+          pageName: input.pageName,
+          parentFolderPath,
+        });
+        setCreateFromFolderOpen(false);
+      });
+    },
+    [selectedSite, createParent, runMutation],
+  );
+
   const onDelete = useCallback(() => {
     if (!selectedNode || !treeRoot) return;
     if (!canDeleteNavNode(treeRoot, selectedNode)) {
@@ -452,13 +603,115 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     });
   }, [selectedNode, treeRoot, confirmAction, runMutation]);
 
+  const onCopySite = useCallback(() => {
+    if (!selectedSite) {
+      setMutationError(ARCH_MSG.COPY_SITE_NEED_SELECTION);
+      return;
+    }
+    if (mutationBusy) {
+      return;
+    }
+    setMutationBusy(true);
+    setMutationError(null);
+    void (async () => {
+      try {
+        const info = await loadSiteCopyInfo();
+        if (isSiteCopyInProgress(info)) {
+          setMutationError(ARCH_MSG.COPY_SITE_IN_PROGRESS);
+          return;
+        }
+        setShowNewSite(false);
+        setShowCopySite(true);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.COPY_SITE_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    })();
+  }, [selectedSite, mutationBusy]);
+
+  const submitCopySite = useCallback(
+    async (req: PSSiteCopyRequest) => {
+      const dest = String(req.targetSite ?? "").trim();
+      copyTargetRef.current = dest;
+      await copyManagedSite({
+        sourceSite: req.sourceSite ?? selectedSite ?? "",
+        targetSite: dest,
+        targetFolder: req.targetFolder,
+      });
+    },
+    [selectedSite],
+  );
+
+  const onCopySiteSettled = useCallback(
+    (ok: boolean) => {
+      if (!ok) {
+        return;
+      }
+      setShowCopySite(false);
+      const dest = copyTargetRef.current || selectedSite;
+      void reloadSites(dest, ARCH_MSG.COPY_SITE_RELOAD_ERROR);
+    },
+    [reloadSites, selectedSite],
+  );
+
+  const onDeleteSite = useCallback(() => {
+    if (!selectedSite) {
+      setMutationError(ARCH_MSG.DELETE_SITE_NEED_SELECTION);
+      return;
+    }
+    if (mutationBusy) {
+      return;
+    }
+    const name = selectedSite;
+    const msg = ARCH_MSG.DELETE_SITE_CONFIRM.split("{0}").join(name);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    setMutationBusy(true);
+    setMutationError(null);
+    void (async () => {
+      try {
+        const info = await loadSiteCopyInfo();
+        if (isSiteCopyInProgress(info)) {
+          setMutationError(ARCH_MSG.COPY_SITE_IN_PROGRESS);
+          return;
+        }
+        if (await isSiteBeingImported(name)) {
+          setMutationError(ARCH_MSG.DELETE_SITE_IMPORTING);
+          return;
+        }
+        await deleteManagedSite(name);
+        setShowCopySite(false);
+        setShowNewSite(false);
+        await reloadSitesAfterDelete(name);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        setMutationError(formatApiError(err, ARCH_MSG.DELETE_SITE_ERROR));
+      } finally {
+        setMutationBusy(false);
+      }
+    })();
+  }, [selectedSite, mutationBusy, confirmAction, reloadSitesAfterDelete]);
+
   const onLandingSubmit = useCallback(
     (newLandingPageId: string) => {
       if (!selectedNode) return;
+      const pageId = newLandingPageId.trim();
+      if (!canPostReplaceLandingPage(selectedNode.id, pageId)) {
+        setMutationError(ARCH_MSG.LANDING_NO_PAGE);
+        return;
+      }
       void runMutation(async () => {
-        await replaceLandingPage({
+        const result = await replaceLandingPage({
           sectionId: selectedNode.id,
-          newLandingPageId,
+          newLandingPageId: pageId,
+        });
+        setLandingStatus({
+          sectionId: result.sectionId || selectedNode.id,
+          pageId: result.newLandingPageId || pageId,
+          pageName: result.newLandingPageName || pageId,
         });
         setLandingOpen(false);
       });
@@ -723,7 +976,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             aria-controls={
               showNewSite ? "architecture-new-site-panel" : undefined
             }
-            onClick={() => setShowNewSite((open) => !open)}
+            onClick={() => {
+              setShowCopySite(false);
+              setShowNewSite((open) => !open);
+            }}
             style={{
               padding: "0.4rem 0.85rem",
               border: `1px solid ${catalogColors.softBorder}`,
@@ -735,6 +991,52 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             }}
           >
             {ARCH_MSG.ACTION_NEW_SITE}
+          </button>
+        ) : null}
+        {allowNewSite ? (
+          <button
+            type="button"
+            ref={copySiteToggleRef}
+            data-testid="architecture-action-copy-site"
+            aria-expanded={showCopySite}
+            aria-haspopup="dialog"
+            aria-controls={
+              showCopySite ? "architecture-copy-site-panel" : undefined
+            }
+            disabled={!selectedSite || mutationBusy}
+            onClick={onCopySite}
+            style={{
+              padding: "0.4rem 0.85rem",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: 4,
+              background: showCopySite ? "#e8eef8" : "#fff",
+              color: !selectedSite || mutationBusy ? "#999" : "#222",
+              cursor:
+                !selectedSite || mutationBusy ? "not-allowed" : "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {ARCH_MSG.ACTION_COPY_SITE}
+          </button>
+        ) : null}
+        {allowNewSite ? (
+          <button
+            type="button"
+            data-testid="architecture-action-delete-site"
+            disabled={!selectedSite || mutationBusy}
+            onClick={onDeleteSite}
+            style={{
+              padding: "0.4rem 0.85rem",
+              border: `1px solid ${catalogColors.softBorder}`,
+              borderRadius: 4,
+              background: "#fff",
+              color: !selectedSite || mutationBusy ? "#999" : "#a11",
+              cursor:
+                !selectedSite || mutationBusy ? "not-allowed" : "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {ARCH_MSG.ACTION_DELETE_SITE}
           </button>
         ) : null}
       </section>
@@ -806,6 +1108,64 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               setShowNewSite(false);
               void reloadSites(siteName);
             }}
+          />
+        </section>
+      ) : null}
+
+      {allowNewSite && showCopySite && selectedSite ? (
+        <section
+          id="architecture-copy-site-panel"
+          ref={copySitePanelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="architecture-copy-site-title"
+          aria-label={ARCH_MSG.COPY_SITE_REGION}
+          data-testid="architecture-copy-site-panel"
+          style={{
+            border: `1px solid ${catalogColors.headerBorder}`,
+            borderRadius: 8,
+            padding: "1rem 1.25rem",
+            marginBottom: "12px",
+            background: "#fff",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <h2
+              id="architecture-copy-site-title"
+              style={{ margin: 0, fontSize: "1.05rem", color: "#1a202c" }}
+              data-testid="architecture-copy-site-title"
+            >
+              {ARCH_MSG.ACTION_COPY_SITE}
+            </h2>
+            <button
+              type="button"
+              data-testid="architecture-copy-site-close"
+              onClick={() => setShowCopySite(false)}
+              style={{
+                padding: "0.3rem 0.7rem",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: 4,
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              {ARCH_MSG.COPY_SITE_CLOSE}
+            </button>
+          </div>
+          <SiteCopyWizard
+            key={selectedSite}
+            initialSource={selectedSite}
+            initialTarget={suggestCopySiteName(selectedSite)}
+            submit={submitCopySite}
+            onSettled={onCopySiteSettled}
           />
         </section>
       ) : null}
@@ -895,6 +1255,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           <StructureActionBar
             busy={mutationBusy}
             canCreate={canCreate}
+            canCreateFromFolder={canCreateFromFolder}
+            canConvertToFolder={canConvertToFolder}
             canCreateSectionLink={canCreateSectionLink}
             canCreateExternalLink={canCreateExternalLink}
             canLanding={canLanding}
@@ -911,6 +1273,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               }
               setCreateOpen(true);
             }}
+            onCreateFromFolder={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setCreateFromFolderOpen(true);
+            }}
+            onConvertToFolder={onConvertToFolder}
             onCreateSectionLink={() => {
               setMutationError(null);
               if (!createParent) {
@@ -959,6 +1330,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             >
               {ARCH_MSG.SELECT_HINT}
             </p>
+          ) : landingStatus &&
+            landingStatus.sectionId === selectedNodeId ? (
+            <p
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.muted,
+                fontSize: "0.85rem",
+              }}
+              data-testid="architecture-landing-current"
+            >
+              {ARCH_MSG.LANDING_ASSIGNED.split("{0}").join(
+                landingStatus.pageName,
+              )}
+            </p>
           ) : null}
 
           <NavTree
@@ -1003,6 +1388,17 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           if (!mutationBusy) setCreateOpen(false);
         }}
         onSubmit={onCreateSubmit}
+      />
+      <CreateSectionFromFolderDialog
+        open={createFromFolderOpen}
+        siteName={selectedSite ?? ""}
+        parentTitle={createParent?.title ?? ""}
+        busy={mutationBusy}
+        useContentBrowser={useLandingContentBrowser}
+        onCancel={() => {
+          if (!mutationBusy) setCreateFromFolderOpen(false);
+        }}
+        onSubmit={onCreateFromFolderSubmit}
       />
       <RenameSectionDialog
         open={renameOpen}
