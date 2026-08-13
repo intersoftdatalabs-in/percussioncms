@@ -96,14 +96,26 @@ With a site selected, use the structure action bar above the tree:
 | **Create section** | Opens a dialog to add a regular section (title, URL name, template) under the selected section, or under the site root when nothing is selected. Requires a site template. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
-| **Landing page** | Opens the content page picker so you can assign a different landing page to the selected regular section. |
+| **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent. |
 | **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
 
 Server errors from create, rename, move, delete, landing-page, or link mutations are
-shown in the panel (no silent failure). The tree reloads after a successful mutation.
+shown in the panel (no silent failure). The tree reloads after a successful mutation
+and keeps the previously selected section when it still exists.
+
+### Replace a section landing page
+
+1. Select a **regular section** in the Navigation tree (not a section link, external
+   link, or blog).
+2. Choose **Landing page**. The page picker opens on that site under `//Sites/{site}`.
+3. Select a **page** and confirm. The shell posts the replace request and reloads
+   the tree. The selected section stays selected and shows **Landing page is now …**.
+4. **Cancel** (picker or dialog) closes without changing the section.
+5. If no page is selected, **Replace landing page** stays disabled and the dialog
+   shows **No page selected** — the server is not called.
 
 ### Blog sections
 
@@ -127,6 +139,7 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
+| Landing page picker + replace (`replaceLandingPage`) | **Available** |
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |

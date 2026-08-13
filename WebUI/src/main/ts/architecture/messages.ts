@@ -103,6 +103,12 @@ const KEYS = {
   LANDING_PICKER_TITLE: "perc.ui.architecture.modern@Select landing page",
   LANDING_NO_PAGE:
     "perc.ui.architecture.modern@Select a page before replacing the landing page.",
+  LANDING_NOT_A_PAGE:
+    "perc.ui.architecture.modern@Select a site page (not a folder or asset).",
+  LANDING_EMPTY_STATE:
+    "perc.ui.architecture.modern@No page selected.",
+  LANDING_ASSIGNED:
+    "perc.ui.architecture.modern@Landing page is now {0}.",
   LANDING_BLOCKED:
     "perc.ui.architecture.modern@Landing page can only be set on a regular section.",
   // Section link (#3097)
@@ -234,6 +240,9 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   LANDING_CANCEL: message(KEYS.LANDING_CANCEL),
   LANDING_PICKER_TITLE: message(KEYS.LANDING_PICKER_TITLE),
   LANDING_NO_PAGE: message(KEYS.LANDING_NO_PAGE),
+  LANDING_NOT_A_PAGE: message(KEYS.LANDING_NOT_A_PAGE),
+  LANDING_EMPTY_STATE: message(KEYS.LANDING_EMPTY_STATE),
+  LANDING_ASSIGNED: message(KEYS.LANDING_ASSIGNED),
   LANDING_BLOCKED: message(KEYS.LANDING_BLOCKED),
   SECTION_LINK_DIALOG_TITLE: message(KEYS.SECTION_LINK_DIALOG_TITLE),
   SECTION_LINK_EDIT_TITLE: message(KEYS.SECTION_LINK_EDIT_TITLE),

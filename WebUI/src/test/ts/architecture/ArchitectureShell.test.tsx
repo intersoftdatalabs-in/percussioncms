@@ -678,4 +678,88 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     expect(screen.queryByTestId("architecture-action-new-site")).toBeNull();
   });
+
+  it("replace landing page posts, keeps selection, and shows assigned name (#3304)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const treeSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage").mockResolvedValue({
+      sectionId: "c1",
+      newLandingPageId: "page-guid-1",
+      newLandingPageName: "Picked Page",
+      oldLandingPageName: "index",
+    });
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-landing") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-page-id")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-landing-page-id"), {
+      target: { value: "page-guid-1" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    await waitFor(() => {
+      expect(replaceSpy).toHaveBeenCalledWith({
+        sectionId: "c1",
+        newLandingPageId: "page-guid-1",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-landing-dialog")).toBeNull();
+    });
+    await waitFor(() => {
+      expect(treeSpy.mock.calls.length).toBeGreaterThan(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-current").textContent).toMatch(
+        /Picked Page/,
+      );
+    });
+    expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+  });
+
+  it("landing cancel does not call replaceLandingPage (#3304)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-landing"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-landing-cancel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-landing-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-landing-dialog")).toBeNull();
+    });
+    expect(replaceSpy).not.toHaveBeenCalled();
+  });
 });

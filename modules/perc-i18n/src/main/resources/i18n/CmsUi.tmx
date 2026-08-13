@@ -27265,6 +27265,15 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Select a page before replacing the landing page.">
       <tuv xml:lang="en-us"><seg>Select a page before replacing the landing page.</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a site page (not a folder or asset).">
+      <tuv xml:lang="en-us"><seg>Select a site page (not a folder or asset).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@No page selected.">
+      <tuv xml:lang="en-us"><seg>No page selected.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Landing page is now {0}.">
+      <tuv xml:lang="en-us"><seg>Landing page is now {0}.</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@Landing page can only be set on a regular section.">
       <tuv xml:lang="en-us"><seg>Landing page can only be set on a regular section.</seg></tuv>
     </tu>

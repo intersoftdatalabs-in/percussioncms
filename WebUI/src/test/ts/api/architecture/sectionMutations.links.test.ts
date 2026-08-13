@@ -20,6 +20,7 @@ import {
   buildCreateExternalLinkBody,
   buildCreateSectionLinkPath,
   buildReplaceLandingPageBody,
+  parseReplaceLandingPagePayload,
   buildUpdateSectionLinkBody,
   canEditLinkNode,
   canReplaceLandingPage,
@@ -111,6 +112,24 @@ describe("sectionMutations links & landing (#3097)", () => {
     expect(landing.ReplaceLandingPage).toEqual({
       sectionId: "sec-1",
       newLandingPageId: "page-9",
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        {
+          ReplaceLandingPage: {
+            sectionId: "sec-1",
+            newLandingPageId: "page-9",
+            newLandingPageName: "Home",
+            oldLandingPageName: "index",
+          },
+        },
+        { sectionId: "sec-1", newLandingPageId: "page-9" },
+      ),
+    ).toEqual({
+      sectionId: "sec-1",
+      newLandingPageId: "page-9",
+      newLandingPageName: "Home",
+      oldLandingPageName: "index",
     });
 
     const ext = buildCreateExternalLinkBody({

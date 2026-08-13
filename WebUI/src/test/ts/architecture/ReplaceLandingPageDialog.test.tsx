@@ -56,7 +56,7 @@ vi.mock("../../../main/ts/contentBrowser/ContentBrowser", () => ({
   ),
 }));
 
-describe("ReplaceLandingPageDialog (#3097)", () => {
+describe("ReplaceLandingPageDialog (#3097 / #3304)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -128,5 +128,42 @@ describe("ReplaceLandingPageDialog (#3097)", () => {
     fireEvent.click(screen.getByTestId("mock-content-browser-confirm"));
     fireEvent.click(screen.getByTestId("architecture-landing-submit"));
     expect(onSubmit).toHaveBeenCalledWith("cb-page-99");
+  });
+
+  it("cancel from ContentBrowser closes without submit", () => {
+    const onSubmit = vi.fn();
+    const onCancel = vi.fn();
+    render(
+      <ReplaceLandingPageDialog
+        open
+        siteName="Demo"
+        sectionTitle="About"
+        busy={false}
+        useContentBrowser
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("mock-content-browser-cancel"));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("shows empty state and does not submit without a page", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ReplaceLandingPageDialog
+        open
+        siteName="Demo"
+        sectionTitle="About"
+        busy={false}
+        useContentBrowser={false}
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    expect(screen.getByTestId("architecture-landing-empty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("architecture-landing-submit"));
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

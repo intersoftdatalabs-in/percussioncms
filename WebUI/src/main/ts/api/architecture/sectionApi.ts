@@ -36,6 +36,7 @@ import {
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
   buildReplaceLandingPageBody,
+  parseReplaceLandingPagePayload,
   buildUpdateSectionLinkBody,
   buildUpdateSiteSectionBody,
   parseSiteSectionPayload,
@@ -47,6 +48,7 @@ import type {
   MoveSiteSectionFields,
   NavTreeNode,
   ReplaceLandingPageFields,
+  ReplaceLandingPageResult,
   SiteSectionPropertiesWire,
   SiteSectionWire,
   UpdateSectionLinkFields,
@@ -334,12 +336,13 @@ export async function loadSection(
  */
 export async function replaceLandingPage(
   fields: ReplaceLandingPageFields,
-): Promise<unknown> {
+): Promise<ReplaceLandingPageResult> {
   if (!fields.sectionId?.trim() || !fields.newLandingPageId?.trim()) {
     throw new Error("Section id and new landing page id are required");
   }
   const body = buildReplaceLandingPageBody(fields);
-  return post<unknown>(PATHS.SECTION_REPLACE_LANDING_PAGE, body);
+  const payload = await post<unknown>(PATHS.SECTION_REPLACE_LANDING_PAGE, body);
+  return parseReplaceLandingPagePayload(payload, fields);
 }
 
 /**

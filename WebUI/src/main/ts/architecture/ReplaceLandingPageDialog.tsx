@@ -16,15 +16,19 @@
  */
 
 /**
- * Replace landing page dialog for Architecture (#3097).
+ * Replace landing page dialog for Architecture (#3097 / #3304).
  * Embeds ContentBrowser page picker when available; falls back to page id
- * entry for tests / minimal hosts.
+ * entry for tests / minimal hosts. Empty or cancel never calls onSubmit.
  */
 
 import React, { useEffect, useState } from "react";
 import type { SelectionResult } from "../api/contentExplorer/types";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import { catalogColors } from "../developer/catalogStyles";
+import {
+  LANDING_PAGE_ALLOWED_TYPES,
+  resolveLandingPagePick,
+} from "./landingPagePicker";
 import { ARCH_MSG } from "./messages";
 import { useDialogEscape } from "./useDialogEscape";
 
@@ -98,16 +102,27 @@ export function ReplaceLandingPageDialog({
     ? `//Sites/${siteName.trim()}`
     : "//Sites";
 
+  const applyPick = (selection: SelectionResult | null | undefined): boolean => {
+    const pick = resolveLandingPagePick(selection);
+    if (!pick.ok) {
+      setLocalError(
+        pick.error === "notPage"
+          ? ARCH_MSG.LANDING_NOT_A_PAGE
+          : ARCH_MSG.LANDING_NO_PAGE,
+      );
+      return false;
+    }
+    setPageId(pick.id);
+    setPageLabel(pick.label);
+    setLocalError(null);
+    return true;
+  };
+
   const handleBrowserConfirm = (selection: SelectionResult) => {
-    const item = selection.items?.[0];
-    if (!item?.id) {
-      setLocalError(ARCH_MSG.LANDING_NO_PAGE);
+    if (!applyPick(selection)) {
       return;
     }
-    setPageId(item.id);
-    setPageLabel(item.name || item.path || item.id);
     setBrowserOpen(false);
-    setLocalError(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -169,13 +184,14 @@ export function ReplaceLandingPageDialog({
               multiSelect={false}
               allowFolderSelect={false}
               allowItemSelect
+              allowedTypes={[...LANDING_PAGE_ALLOWED_TYPES]}
               roots="sites"
               initialPath={initialPath}
               enablePreview={false}
               enableSearch={false}
               title={ARCH_MSG.LANDING_PICKER_TITLE}
               onConfirm={handleBrowserConfirm}
-              onCancel={() => setBrowserOpen(false)}
+              onCancel={onCancel}
             />
           </div>
         ) : (
@@ -187,7 +203,18 @@ export function ReplaceLandingPageDialog({
               >
                 {pageLabel}
               </p>
-            ) : null}
+            ) : (
+              <p
+                data-testid="architecture-landing-empty"
+                style={{
+                  margin: "0 0 12px",
+                  color: catalogColors.muted,
+                  fontSize: "0.9rem",
+                }}
+              >
+                {ARCH_MSG.LANDING_EMPTY_STATE}
+              </p>
+            )}
             {!useContentBrowser ? (
               <>
                 <label
