@@ -40,7 +40,7 @@ describe("nav-tree-live helpers (#3218)", () => {
   it("treats H2 empty SectionNode as empty tree", () => {
     const body = JSON.stringify({
       SectionNode: {
-        childNodes: "",
+        childNodes: [],
         requiresLogin: false,
         sectionType: "section",
         title: "Corporate_Investments",
@@ -69,5 +69,19 @@ describe("nav-tree-live helpers (#3218)", () => {
 
   it("rejects non-JSON as not empty-tree (caller treats as error body)", () => {
     assert.equal(isEmptyTreePayload("<html>error</html>"), false);
+  });
+
+  it("rejects unrecognized 200 JSON without SectionNode wrapper", () => {
+    assert.equal(isEmptyTreePayload(JSON.stringify({})), false);
+    assert.equal(isEmptyTreePayload(JSON.stringify({ title: "x" })), false);
+    assert.equal(isEmptyTreePayload(JSON.stringify([])), false);
+    assert.equal(isEmptyTreePayload("null"), false);
+  });
+
+  it("accepts lowercase sectionNode wrapper", () => {
+    const body = JSON.stringify({
+      sectionNode: { title: "BareSite", childNodes: [] },
+    });
+    assert.equal(isEmptyTreePayload(body), true);
   });
 });

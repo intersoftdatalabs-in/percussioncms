@@ -42,9 +42,12 @@ function isEmptyTreePayload(bodyText) {
   } catch {
     return false;
   }
-  const node = json.SectionNode || json.sectionNode || json;
-  if (!node || typeof node !== "object") {
-    return true;
+  if (!json || typeof json !== "object" || Array.isArray(json)) {
+    return false;
+  }
+  const node = json.SectionNode || json.sectionNode;
+  if (!node || typeof node !== "object" || Array.isArray(node)) {
+    return false;
   }
   const id = node.id != null ? String(node.id).trim() : "";
   const children = node.childNodes;
