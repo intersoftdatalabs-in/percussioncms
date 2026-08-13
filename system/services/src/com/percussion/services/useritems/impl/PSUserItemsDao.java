@@ -68,7 +68,8 @@ public class PSUserItemsDao implements IPSUserItemsDao
          return userItem;
       Session session = getSession();
 
-          Query query = session.createQuery("from PSUserItem where itemId = :itemId and userName = :userName");
+          Query<PSUserItem> query =
+                session.createQuery(FIND_BY_USER_AND_ITEM_HQL, PSUserItem.class);
           query.setParameter("itemId", itemId);
           query.setParameter("userName", userName);
 
@@ -122,7 +123,8 @@ public class PSUserItemsDao implements IPSUserItemsDao
          return userItems;
       Session session = getSession();
 
-          Query query = session.createQuery("from PSUserItem where userName = :userName");
+          Query<PSUserItem> query =
+                session.createQuery(FIND_BY_USER_HQL, PSUserItem.class);
           query.setParameter("userName", userName);
 
           userItems = query.list();
@@ -140,7 +142,8 @@ public class PSUserItemsDao implements IPSUserItemsDao
       List<PSUserItem> userItems;
       Session session = getSession();
 
-          Query query = session.createQuery("from PSUserItem where itemId = :itemId");
+          Query<PSUserItem> query =
+                session.createQuery(FIND_BY_ITEM_HQL, PSUserItem.class);
           query.setParameter("itemId", itemId);
           userItems = query.list();
           return userItems;
@@ -175,5 +178,13 @@ public class PSUserItemsDao implements IPSUserItemsDao
    {
        m_guidMgr = guidMgr;
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String FIND_BY_USER_AND_ITEM_HQL =
+         "from PSUserItem where itemId = :itemId and userName = :userName";
+
+   public static final String FIND_BY_USER_HQL = "from PSUserItem where userName = :userName";
+
+   public static final String FIND_BY_ITEM_HQL = "from PSUserItem where itemId = :itemId";
 
 }

@@ -28,6 +28,7 @@ import com.percussion.system.utils.PSBaseBean;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.hibernate.Session;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -214,7 +215,8 @@ public class PSSystemAuditLogRepository implements AuditLogRepository, Initializ
         writeTransactionTemplate.execute(
             status ->
                 entityManager
-                    .createQuery("DELETE FROM PSSystemAuditLogEntry e WHERE e.eventTime < :before")
+                    .unwrap(Session.class)
+                    .createMutationQuery(DELETE_OLDER_THAN_HQL)
                     .setParameter("before", Date.from(before))
                     .executeUpdate());
     return deleted == null ? 0 : deleted;
@@ -431,6 +433,10 @@ public class PSSystemAuditLogRepository implements AuditLogRepository, Initializ
     }
     return new QueryParts(where.toString(), params);
   }
+
+  /** HQL for typed unit tests (issue #3265). */
+  public static final String DELETE_OLDER_THAN_HQL =
+      "DELETE FROM PSSystemAuditLogEntry e WHERE e.eventTime < :before";
 
   private static final class QueryParts {
     final String where;

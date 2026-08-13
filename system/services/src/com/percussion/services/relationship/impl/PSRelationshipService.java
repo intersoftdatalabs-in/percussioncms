@@ -35,6 +35,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
@@ -562,18 +563,11 @@ public class PSRelationshipService implements IPSRelationshipService {
       int count;
 
 
-      StringBuilder sqlBuffer = new StringBuilder();
-
-      // delete from {@link IPSConstants#PSX_RELATIONSHIPPROPERTIES}
-      sqlBuffer.append("delete from PSRelationshipPropertyData p where p.m_rid = :rid");
-      Query sql = sess.createQuery(sqlBuffer.toString());
+      MutationQuery sql = sess.createMutationQuery(DELETE_PROPERTIES_BY_RID_HQL);
       sql.setParameter("rid", rid);
       sql.executeUpdate();
 
-      // delete from IPSConstants#PSX_RELATIONSHIPS
-      sqlBuffer = new StringBuilder();
-      sqlBuffer.append("delete from PSRelationshipData r where r.rid = :rid");
-      sql = sess.createQuery(sqlBuffer.toString());
+      sql = sess.createMutationQuery(DELETE_RELATIONSHIP_BY_RID_HQL);
       sql.setParameter("rid", rid);
       count = sql.executeUpdate();
 
@@ -645,8 +639,8 @@ public class PSRelationshipService implements IPSRelationshipService {
       Session session = getSession();
 
       // Hibernate 6 HQL: property name dependentId (not column dependent_id)
-      Query query = session
-              .createQuery("from PSRelationshipData where dependentId = :dependentId")
+      Query<PSRelationshipData> query = session
+              .createQuery(FIND_BY_DEPENDENT_ID_HQL, PSRelationshipData.class)
               .setParameter("dependentId", dependentId);
       return  query.list();
    }
@@ -666,10 +660,8 @@ public class PSRelationshipService implements IPSRelationshipService {
       // execute the query and load the data
       Session sess = getSession();
 
-      String qryBuffer = "select r from PSRelationshipPropertyData r where " +
-              "r.m_rid = :rid";
-
-      Query qry = sess.createQuery(qryBuffer);
+      Query<PSRelationshipPropertyData> qry =
+            sess.createQuery(FIND_PROPERTIES_BY_RID_HQL, PSRelationshipPropertyData.class);
       qry.setParameter("rid", rid);
       return  qry.list();
    }
@@ -959,9 +951,8 @@ public class PSRelationshipService implements IPSRelationshipService {
       Session session = getSession();
 
       // Hibernate 6 HQL: property names dependentId / configId (not SQL columns)
-      Query query = session
-              .createQuery(
-                  "from PSRelationshipData where dependentId = :dependentId and configId = :configId")
+      Query<PSRelationshipData> query = session
+              .createQuery(FIND_BY_DEPENDENT_AND_CONFIG_HQL, PSRelationshipData.class)
               .setParameter("dependentId", dependentId)
               .setParameter("configId", configId);
       return query.list();
@@ -977,4 +968,20 @@ public class PSRelationshipService implements IPSRelationshipService {
    public int deleteRelationshipById(int relationshipId) {
       return deleteRelationshipByRid(relationshipId);
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DELETE_PROPERTIES_BY_RID_HQL =
+         "delete from PSRelationshipPropertyData p where p.m_rid = :rid";
+
+   public static final String DELETE_RELATIONSHIP_BY_RID_HQL =
+         "delete from PSRelationshipData r where r.rid = :rid";
+
+   public static final String FIND_BY_DEPENDENT_ID_HQL =
+         "from PSRelationshipData where dependentId = :dependentId";
+
+   public static final String FIND_PROPERTIES_BY_RID_HQL =
+         "select r from PSRelationshipPropertyData r where r.m_rid = :rid";
+
+   public static final String FIND_BY_DEPENDENT_AND_CONFIG_HQL =
+         "from PSRelationshipData where dependentId = :dependentId and configId = :configId";
 }

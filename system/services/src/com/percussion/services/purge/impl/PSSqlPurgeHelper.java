@@ -1011,7 +1011,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
       // Clean up managed links for item
       getSession()
-            .createQuery("DELETE FROM PSManagedLink ml WHERE ml.childId IN (:ids) or ml.parentId in (:ids)")
+            .createMutationQuery(DELETE_MANAGED_LINKS_HQL)
             .setParameterList("ids", ids)
             .executeUpdate();
 
@@ -1208,6 +1208,10 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
      * The relationship type for the recycled content.
      */
    private static final String RECYCLE_RELATE_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DELETE_MANAGED_LINKS_HQL =
+         "DELETE FROM PSManagedLink ml WHERE ml.childId IN (:ids) or ml.parentId in (:ids)";
 
    /**
     * Private data holder class

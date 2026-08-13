@@ -195,9 +195,8 @@ return pubServer;
    {
       notNull(siteId);
 
-      return getSession().createQuery(
-            "from PSPubServer where siteId = :siteid").setParameter("siteid",
-            siteId.longValue()).list();
+      return getSession().createQuery(FIND_BY_SITE_HQL, PSPubServer.class)
+            .setParameter("siteid", siteId.longValue()).list();
 
    }
 
@@ -266,4 +265,7 @@ return pubServer;
       return getSession().get(PSPubServer.class,
             serverId.longValue());
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String FIND_BY_SITE_HQL = "from PSPubServer where siteId = :siteid";
 }

@@ -1220,7 +1220,7 @@ public class PSSiteManager implements IPSSiteManager {
    public List<String> findDistinctSiteVariableNames()
    {
       List<String> names =
-              getSession().createQuery("select distinct name from PSSiteProperty")
+              getSession().createQuery(DISTINCT_SITE_PROPERTY_NAMES_HQL, String.class)
               .list();
 
       return names != null ? names : Collections.emptyList();
@@ -1299,7 +1299,7 @@ public class PSSiteManager implements IPSSiteManager {
    public Map<Integer, String> getContextNameMap()
    {
       List<Object[]> values = getSession()
-         .createQuery("select id, name from PSPublishingContext").list();
+         .createQuery(CONTEXT_ID_NAME_HQL, Object[].class).list();
       Map<Integer, String> rval = new HashMap<>();
       for(Object[] row : values)
       {
@@ -1416,4 +1416,10 @@ public class PSSiteManager implements IPSSiteManager {
 
       return siteToTemplateIds;
    }
+
+   /** HQL for typed unit tests (issue #3265). */
+   public static final String DISTINCT_SITE_PROPERTY_NAMES_HQL =
+         "select distinct name from PSSiteProperty";
+
+   public static final String CONTEXT_ID_NAME_HQL = "select id, name from PSPublishingContext";
 }
