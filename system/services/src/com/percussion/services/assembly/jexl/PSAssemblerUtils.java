@@ -39,6 +39,7 @@ import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSSlotContentFinder;
 import com.percussion.services.assembly.IPSTemplateSlot;
+import com.percussion.services.assembly.PSAssemblyBindingMaps;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.data.PSSlotLayoutStyles;
@@ -570,19 +571,14 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       {
          // Parse the query
          String pairs[] = urlquery.split("&");
-         Map<String, Object> urlmap = new HashMap<>();
+         Map<String, List<String>> collected = new HashMap<>();
          for (String pair : pairs)
          {
             String parts[] = pair.split("=");
             if (parts.length == 2)
             {
                String key = parts[0];
-               List<String> value = (List<String>) urlmap.get(key);
-               if (value == null)
-               {
-                  value = new ArrayList<>();
-                  urlmap.put(key, value);
-               }
+               List<String> value = collected.computeIfAbsent(key, k -> new ArrayList<>());
                value.add(parts[1]);
             }
             else if (StringUtils.isNotBlank(pair))
@@ -593,17 +589,12 @@ public class PSAssemblerUtils extends PSJexlUtilBase
             }
          }
 
-         // Walk the map and convert to array elements
-         for (String key : urlmap.keySet())
+         Map<String, Object> extra = new HashMap<>();
+         for (Map.Entry<String, List<String>> entry : collected.entrySet())
          {
-            List<String> value = (List<String>) urlmap.get(key);
-            String arr[] = new String[value.size()];
-            value.toArray(arr);
-            urlmap.put(key, arr);
+            extra.put(entry.getKey(), entry.getValue().toArray(String[]::new));
          }
-
-         Map<String, Object> casted = urlmap;
-         return combine(input, casted);
+         return combine(input, extra);
       }
       finally
       {
@@ -999,14 +990,42 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    private HashMap<String, PSStopwatch> getTimers(IPSAssemblyItem item)
    {
-      HashMap<String,Object> sys = (HashMap<String,Object>)item.getBindings().get("$sys");
-      HashMap<String,PSStopwatch> timers = (HashMap<String,PSStopwatch>)sys.get("percTimers");
-      if (timers == null)
+      Map<String, Object> bindings = item.getBindings();
+      Object sysObj = bindings.get("$sys");
+      Map<String, Object> sys;
+      if (sysObj == null)
       {
-         timers = new HashMap<>();
-         sys.put("percTimers",timers);
+         sys = new HashMap<>();
+         bindings.put("$sys", sys);
       }
+      else
+      {
+         sys = PSAssemblyBindingMaps.liveStringObjectMap(sysObj);
+         if (sys == null)
+         {
+            throw new IllegalStateException("$sys is not a map");
+         }
+      }
+      HashMap<String, PSStopwatch> timers = copyTimers(sys.get("percTimers"));
+      sys.put("percTimers", timers);
+      return timers;
+   }
 
+   static HashMap<String, PSStopwatch> copyTimers(Object timersObj)
+   {
+      HashMap<String, PSStopwatch> timers = new HashMap<>();
+      if (!(timersObj instanceof Map<?, ?> raw))
+      {
+         return timers;
+      }
+      for (Map.Entry<?, ?> entry : raw.entrySet())
+      {
+         if (entry.getKey() instanceof String key
+               && entry.getValue() instanceof PSStopwatch watch)
+         {
+            timers.put(key, watch);
+         }
+      }
       return timers;
    }
 

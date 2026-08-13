@@ -211,13 +211,7 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
 
             // Add nav properties. Copy from Map<?,?> (PSItemIterator.getMap) into a
             // typed HashMap — diamond + wildcard source does not infer K=String.
-            Map<String, Property> map = new HashMap<>();
-            for (Map.Entry<?, ?> e : iter.getMap().entrySet())
-            {
-               @SuppressWarnings("unchecked")
-               Map.Entry<String, Property> entry = (Map.Entry<String, Property>) e;
-               map.put(entry.getKey(), entry.getValue());
-            }
+            Map<String, Property> map = copyPropertyMap(iter.getMap());
             for(String prop : NAV_PROPERTIES)
             {
                Property p = getNavProperty((Node) proxy, prop);
@@ -473,6 +467,27 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
     * @throws PSCmsException
     * @throws RepositoryException
     */
+   /**
+    * Copy a JCR property iterator backing map into a typed {@code Map<String, Property>}
+    * without an unchecked {@link Map.Entry} cast.
+    */
+   static Map<String, Property> copyPropertyMap(Map<?, ?> source)
+   {
+      Map<String, Property> map = new HashMap<>();
+      if (source == null)
+      {
+         return map;
+      }
+      for (Map.Entry<?, ?> entry : source.entrySet())
+      {
+         if (entry.getKey() instanceof String key && entry.getValue() instanceof Property property)
+         {
+            map.put(key, property);
+         }
+      }
+      return map;
+   }
+
    private Property loadLandingPage() throws PSCmsException,
          RepositoryException
    {

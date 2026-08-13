@@ -22,7 +22,6 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 
 import java.io.InputStream;
-import java.util.Map;
 
 import javax.jcr.Property;
 import javax.jcr.Value;
@@ -45,48 +44,18 @@ public class PSBinaryAssembler extends PSAssemblerBase
    {
       // Use the bound values $sys.binary and $sys.mimetype to
       // process the result
-      Map<String, Object> bindings = item.getBindings();
-      Object sys = bindings.get("$sys");
-
-      if (!(sys instanceof Map))
+      PSBinaryAssemblerSupport.ResolvedSys resolved =
+            PSBinaryAssemblerSupport.resolveSys(item.getBindings());
+      if (!resolved.success())
       {
-         return getFailureResult(item, "$sys was not bound to a map.");
+         return getFailureResult(item, resolved.error());
       }
 
-      @SuppressWarnings("unchecked")
-      Map<String, Object> sysmap = (Map<String, Object>) sys;
-      Object mtype = sysmap.get("mimetype");
-      Object data = sysmap.get("binary");
-      String mimetype;
-      
+      Object data = resolved.data();
+      String mimetype = resolved.mimetype();
 
       try
       {
-         if (mtype == null)
-         {
-            return getFailureResult(item, "$sys.mimetype was not bound");
-         }
-
-         if (data == null)
-         {
-            return getFailureResult(item, "$sys.binary was not bound");
-         }
-
-         if (mtype instanceof Property)
-         {
-            mimetype = ((Property) mtype).getString();
-         }
-         else if (mtype instanceof String)
-         {
-            mimetype = (String) mtype;
-         }
-         else
-         {
-            return getFailureResult(item,
-                  "$sys.mimetype must be bound to a property"
-                        + " or string value");
-         }
-
          if (data instanceof Property)
          {
             PSRequest req = (PSRequest) PSRequestInfo

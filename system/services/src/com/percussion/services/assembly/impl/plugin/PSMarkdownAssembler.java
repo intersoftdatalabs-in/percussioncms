@@ -21,7 +21,6 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.services.assembly.impl.plugin.PSTextAssemblerSupport.TextAssembleOutcome;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,14 +41,12 @@ public class PSMarkdownAssembler extends PSAssemblerBase {
   private static final Logger log = LogManager.getLogger(PSMarkdownAssembler.class);
 
   @Override
-  @SuppressWarnings("unchecked")
   public IPSAssemblyResult assembleSingle(IPSAssemblyItem item) {
     try {
       String fallback =
           item.getTemplate() != null ? item.getTemplate().getTemplate() : null;
       TextAssembleOutcome outcome =
-          PSTextAssemblerSupport.assembleMarkdown(
-              (Map<String, Object>) item.getBindings(), fallback);
+          PSTextAssemblerSupport.assembleMarkdown(item.getBindings(), fallback);
       if (!outcome.success()) {
         return getFailureResult(item, outcome.errorMessage());
       }

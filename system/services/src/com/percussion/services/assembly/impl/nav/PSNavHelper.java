@@ -239,6 +239,24 @@ public class PSNavHelper
       return params;
    }
 
+   /**
+    * Copy {@code $sys.variables[variableName]} onto {@code navmap.base} using a typed
+    * {@code Map<?,?>} read (no unchecked cast of JEXL evaluate).
+    */
+   static void putNavBaseFromVariables(Map<String, Object> navmap, Object variables,
+         String variableName)
+   {
+      if (navmap == null || variableName == null || !(variables instanceof Map<?, ?> vars))
+      {
+         return;
+      }
+      Object value = vars.get(variableName);
+      if (value != null)
+      {
+         navmap.put("base", value);
+      }
+   }
+
    public static void init()
    {
       if (!m_isInited)
@@ -480,14 +498,8 @@ public class PSNavHelper
       {
          try
          {
-            Map<String, String> variables = (Map<String, String>) eval
-                  .evaluate(VARIABLES);
-            if (variables != null)
-            {
-               String value = variables.get(basevar.getString());
-               if (value != null)
-                  navmap.put("base", value);
-            }
+            putNavBaseFromVariables(navmap, eval.evaluate(VARIABLES),
+                  basevar.getString());
          }
          catch (Exception e)
          {
@@ -551,7 +563,7 @@ public class PSNavHelper
       boolean found = false;
       for (int i = folders.size() - 1; i >= 0; i--)
       {
-            final PSLocator folder = (PSLocator) folders.get(i);
+            final PSLocator folder = folders.get(i);
             PSLocator item = folderCache.findChildOfType(folder, m_navCtypes);
             if (item!=null)
             {
