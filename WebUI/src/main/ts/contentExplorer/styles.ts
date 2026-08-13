@@ -204,6 +204,45 @@ export const tdCellStyle: CSSProperties = {
   maxWidth: 320,
 };
 
+/** Narrow type-icon column (#3328) — checkboxes stay in their own column. */
+export const iconThCellStyle: CSSProperties = {
+  ...thCellStyle,
+  width: 28,
+  padding: "6px 4px",
+};
+
+export const iconTdCellStyle: CSSProperties = {
+  ...tdCellStyle,
+  width: 28,
+  maxWidth: 36,
+  padding: "4px 6px",
+  textAlign: "center",
+  overflow: "visible",
+};
+
+export const folderIconButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 22,
+  height: 22,
+  padding: 0,
+  border: "none",
+  background: "transparent",
+  color: "#c9922a",
+  cursor: "pointer",
+  borderRadius: 3,
+};
+
+export const itemIconStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 16,
+  height: 16,
+  color: "#5f6368",
+};
+
 export const emptyStateStyle: CSSProperties = {
   padding: "24px 16px",
   color: "#777",
