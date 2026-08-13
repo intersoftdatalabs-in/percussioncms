@@ -32,6 +32,7 @@ import com.percussion.rest.sites.Site;
 import com.percussion.rest.sites.VirtualSiteBuildRequest;
 import com.percussion.rest.sites.VirtualSiteBuildResult;
 import com.percussion.rest.sites.VirtualSiteProperties;
+import com.percussion.rest.sites.VirtualSitePublishResult;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -367,6 +368,79 @@ class SitesAdaptorTest {
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
     assertTrue(Files.isRegularFile(out.resolve("8.2").resolve("index.html")));
     assertTrue(Files.isRegularFile(out.resolve("link-report.txt")));
+  }
+
+  @Test
+  void publishVirtualSite_rejectsRepositorySite() {
+    PSSite site = new PSSite();
+    site.setName("Corp");
+    site.setGUID(siteGuid);
+    site.setRoot(tempDir.resolve("pub").toString());
+    when(siteManager.findSite("Corp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("Corp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("not a virtual"));
+  }
+
+  @Test
+  void publishVirtualSite_rejectsMissingSiteRoot() {
+    Path siteRoot = tempDir.resolve("src-no-root");
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toString());
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("Help"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("not configured"));
+  }
+
+  @Test
+  void publishVirtualSite_forbiddenWhenNotAdmin() {
+    SitesAdaptor denied =
+        new SitesAdaptor(siteManager, () -> false, SitesAdaptor::defaultOutputRootForSiteKey, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.publishVirtualSite("Help"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_buildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalVirtualTree(tempDir.resolve("pub-src"));
+    Path staging = tempDir.resolve("pub-staging");
+    Path publishTo = tempDir.resolve("pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("Help");
+    assertEquals("Help", result.getSiteName().orElse(null));
+    assertEquals("help-docs", result.getSiteKey().orElse(null));
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    assertTrue(Files.isRegularFile(publishTo.resolve("8.2").resolve("index.html")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath().isPresent());
   }
 
   @Test

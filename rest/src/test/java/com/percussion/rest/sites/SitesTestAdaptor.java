@@ -85,4 +85,16 @@ public class SitesTestAdaptor implements ISiteAdaptor {
     }
     return result;
   }
+
+  @Override
+  public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
+    VirtualSitePublishResult result = new VirtualSitePublishResult();
+    result.setSiteName(nameOrId);
+    result.setSiteKey(nameOrId);
+    result.setPagesWritten(0);
+    result.setFilesCopied(0);
+    result.setLinkProblemCount(0);
+    result.setHasLinkProblems(false);
+    return result;
+  }
 }

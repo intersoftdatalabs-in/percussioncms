@@ -70,6 +70,7 @@ Integrators can read and write these keys via public Site REST:
 - `GET /sites/{nameOrId}/virtual`
 - `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
 - `POST /sites/{nameOrId}/virtual/build` (optional JSON body: `outputRoot`)
+- `POST /sites/{nameOrId}/virtual/publish` (build then copy to Site filesystem root)
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required root path when virtual, portable
@@ -94,6 +95,20 @@ the output root) without failing the HTTP status when the build itself succeeds.
 
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind is
 Virtual (never for traditional repository Sites). See [Sites & content structure](id:admin-sites).
+
+#### Publish Virtual Site (`POST …/virtual/publish`)
+
+Runs the same build, then copies the assembled tree to the Site **filesystem publish location**
+(`IPSSite.root`). Requires **Admin**. Staging `_meta` is not copied.
+
+| Status | When |
+|--------|------|
+| `200` | Published; response includes `publishPath`, `filesCopied`, `pagesWritten`, `hasLinkProblems` |
+| `400` | Not a Virtual Site, Site root missing/unsafe/not a directory, or overlap with `virtual.rootPath` / build output |
+| `403` | Caller is not Admin |
+| `404` | Site not found |
+
+Configure a dedicated Site root (not the Markdown source path). See [Publishing](id:admin-publishing).
 
 ## Related
 

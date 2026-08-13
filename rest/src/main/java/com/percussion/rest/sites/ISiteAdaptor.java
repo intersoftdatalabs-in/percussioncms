@@ -107,4 +107,20 @@ public interface ISiteAdaptor {
    *     path issues, 403 when not authorized, 404 when site not found
    */
   VirtualSiteBuildResult buildVirtualSite(String nameOrId, VirtualSiteBuildRequest request);
+
+  /**
+   * Builds a Virtual Site and copies the static output to the Site filesystem publish root ({@code
+   * IPSSite.getRoot()}).
+   *
+   * <p>Publish-includes-build: operators get a published docs tree at the configured Site
+   * publishing location, not only {@code tmp/virtual-sites}. Failures are operator-facing 4xx (not
+   * a silent no-op). Requires Admin.
+   *
+   * @param nameOrId site name or GUID string, not blank
+   * @return publish summary (never null)
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the Site is not virtual, publish root is
+   *     missing/unsafe, or the source tree overlaps the target; 403 when not authorized; 404 when
+   *     site not found
+   */
+  VirtualSitePublishResult publishVirtualSite(String nameOrId);
 }

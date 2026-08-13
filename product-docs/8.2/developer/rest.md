@@ -109,6 +109,7 @@ Example create body:
 | Detail | `GET /services/sites/{nameOrId}` | Site detail including `virtual.*` when configured |
 | Virtual properties | `GET` / `PUT /services/sites/{nameOrId}/virtual` | Virtual Site source bag |
 | Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; Git-filesystem Virtual Sites |
+| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; build then copy to Site filesystem root |
 
 An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty list JSON is the
 only empty-catalog case. See [Sites & content structure](id:admin-sites).

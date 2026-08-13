@@ -286,6 +286,54 @@ public class SitesResource {
     }
   }
 
+  /**
+   * Builds a Virtual Site and publishes the static output to the Site filesystem publish root.
+   *
+   * @param nameOrId site name or GUID
+   * @return pages written, files copied, and publish path
+   */
+  @POST
+  @Path("/{nameOrId}/virtual/publish")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Publish Virtual Site to Site filesystem target",
+      description =
+          "Runs the Phase 1 Virtual Site static build (same as POST …/virtual/build) then copies"
+              + " assembled HTML/assets to the Site publishing filesystem location (IPSSite.root)."
+              + " Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
+              + " overlap with virtual.rootPath return 4xx with an operator-readable message"
+              + " (never a silent no-op).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Published (check hasLinkProblems / filesCopied)",
+            content = @Content(schema = @Schema(implementation = VirtualSitePublishResult.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Not virtual / missing Site root / unsafe path / overlap"),
+        @ApiResponse(responseCode = "403", description = "Not authorized (Admin required)"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public VirtualSitePublishResult publishVirtualSite(@PathParam("nameOrId") String nameOrId) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      // JSON/XML DTO via Jackson/JAXB/CXF — not HTML body (see suppressions.md)
+      return requireAdaptor().publishVirtualSite(nameOrId); // codeql[java/xss]
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to publish virtual site '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   private Site resolveSite(String nameOrId) {
     ISiteAdaptor a = requireAdaptor();
     Site byName = a.findByName(nameOrId);
