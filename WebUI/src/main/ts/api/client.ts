@@ -320,8 +320,10 @@ export async function putPlainText<T>(
 ): Promise<T> {
   const response = await fetch(url, {
     method: "PUT",
+    // Omit charset — some JAX-RS @Consumes(TEXT_PLAIN) matchers reject
+    // text/plain;charset=UTF-8 with 415 on homepage PUT (#3207).
     headers: buildHeaders(
-      { "Content-Type": "text/plain;charset=UTF-8", ...headers },
+      { "Content-Type": "text/plain", ...headers },
       false,
     ),
     credentials: "same-origin",

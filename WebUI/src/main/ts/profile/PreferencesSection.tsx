@@ -82,19 +82,30 @@ export function PreferencesSection({
     setFormError(null);
     setSuccessMessage(null);
     try {
-      const [landing, preferenceCount] = await Promise.all([
+      // Landing persist is independent of PreferenceResource. A prefs-list
+      // 4xx/5xx must not blank the Default landing page (#3207 / #2746).
+      const landingSettled = await Promise.allSettled([
         loadLanding(),
         loadPreferenceCount(),
       ]);
+      const landingResult = landingSettled[0];
+      const countResult = landingSettled[1];
+      if (landingResult.status === "rejected") {
+        throw landingResult.reason;
+      }
+      const landing = landingResult.value;
+      const preferenceCount =
+        countResult.status === "fulfilled" &&
+        typeof countResult.value === "number" &&
+        countResult.value >= 0
+          ? countResult.value
+          : 0;
       const normalized = landing == null ? "" : String(landing).trim();
       setLandingDraft(normalized);
       setLoadState({
         status: "ready",
         landing: normalized,
-        preferenceCount:
-          typeof preferenceCount === "number" && preferenceCount >= 0
-            ? preferenceCount
-            : 0,
+        preferenceCount,
       });
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -135,12 +146,30 @@ export function PreferencesSection({
       const saved = await saveLanding(landingDraft);
       const normalized = saved == null ? "" : String(saved).trim();
       // Blank clear may return ""; treat empty draft as clear.
-      const effective =
+      const expected =
         landingDraft === "" ? "" : normalized || landingDraft.trim();
-      setLandingDraft(effective);
+      let confirmed = expected;
+      try {
+        const reloaded = await loadLanding();
+        confirmed = reloaded == null ? "" : String(reloaded).trim();
+      } catch {
+        // PUT succeeded; treat GET flake as the saved value.
+        confirmed = expected;
+      }
+      if (confirmed !== expected) {
+        setLandingDraft(confirmed);
+        setLoadState({
+          status: "ready",
+          landing: confirmed,
+          preferenceCount: loadState.preferenceCount,
+        });
+        setFormError(message(PROFILE_MSG.PREF_SAVE_ERROR));
+        return;
+      }
+      setLandingDraft(expected);
       setLoadState({
         status: "ready",
-        landing: effective,
+        landing: expected,
         preferenceCount: loadState.preferenceCount,
       });
       setSuccessMessage(message(PROFILE_MSG.PREF_SAVE_SUCCESS));

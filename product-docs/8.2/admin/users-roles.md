@@ -62,15 +62,26 @@ still apply. Client-side checks require a non-empty password of at least six cha
 and a matching confirmation before submit. Success and failure messages are announced
 to assistive technology via a live region.
 
-## Default landing (homepage)
+## My profile — Preferences (default landing)
 
-In **My profile → Preferences**, or **Admin → Users** when editing a user, set
-**Default landing page**. Choose **Navigation** (stored as homepage type
-`Architecture`) to open the site Navigation SPA after sign-in. Leave **Use role
-default** to keep the role homepage. Login without a deep-link return URL posts
-to `/cm/app/` so the dispatcher applies this preference.
+On the same **My profile** hub, open **Preferences** (or deep-link
+`spa.jsp?entry=profile#perc-profile-preferences`). Admins can also set a user's
+landing from **Admin → Users**.
 
-See [Architecture & site navigation](id:admin-architecture-navigation).
+| Control | What it does |
+|---------|----------------|
+| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open (Home, Editor, **Navigation**, and additional screens when your roles include Designer or Admin). **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Use role default** clears your personal override so the role homepage applies. |
+| **Save preferences** | Writes the landing override for the signed-in user only. The value is reloaded from the server after save so a failed persist is not shown as success. |
+
+The stored-preference count is informational (existing preference entries for your
+account). A problem loading that list does **not** block changing the landing page.
+
+Login without a deep-link return URL posts to `/cm/app/` so the dispatcher applies
+this preference.
+
+Language and density controls are not product-backed yet. Navigation **site**
+section landing pages (Architecture tree) are a separate site-structure setting —
+not this profile control. See [Architecture & site navigation](id:admin-architecture-navigation).
 
 ## Hardening checklist
 
@@ -84,3 +95,4 @@ See [Architecture & site navigation](id:admin-architecture-navigation).
 
 - [Server operations](id:admin-server-ops)
 - [Sites & content structure](id:admin-sites)
+- [Architecture & navigation](id:admin-architecture-navigation) (site section landing pages)

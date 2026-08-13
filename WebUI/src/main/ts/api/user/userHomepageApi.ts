@@ -21,7 +21,7 @@
  * Empty string means no override (role homepage resolve → Home).</p>
  */
 
-import { del, get, putPlainText } from "../client";
+import { del, get, isApiError, putPlainText } from "../client";
 import { PATHS } from "../paths";
 
 /** Canonical product types accepted by the server (PascalCase). */
@@ -47,14 +47,84 @@ function homepageUrl(userName?: string): string {
   return `${base}/${encodeURIComponent(userName.trim())}`;
 }
 
-function asPlainString(data: unknown): string {
+/** Prefer TEXT_PLAIN so CXF does not JSON-quote the product type string. */
+const HOMEPAGE_ACCEPT: HeadersInit = { Accept: "text/plain, */*" };
+
+function isNotFound(err: unknown): boolean {
+  return isApiError(err) && err.status === 404;
+}
+
+/**
+ * Unwrap a homepage GET/PUT body to a trimmed string.
+ *
+ * <p>Handles raw {@code text/plain}, leftover JSON-quoted {@code "Editor"},
+ * and small object wrappers ({@code homepage}/{@code value}/{@code data}).</p>
+ */
+export function asPlainHomepageString(data: unknown): string {
   if (data == null) {
     return "";
   }
   if (typeof data === "string") {
-    return data.trim();
+    let s = data.trim();
+    if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+      try {
+        const parsed: unknown = JSON.parse(s);
+        if (typeof parsed === "string") {
+          s = parsed.trim();
+        }
+      } catch {
+        /* keep trimmed original */
+      }
+    }
+    return s;
+  }
+  if (typeof data === "object" && !Array.isArray(data)) {
+    const o = data as Record<string, unknown>;
+    for (const key of ["homepage", "value", "data", "homepageType"]) {
+      if (typeof o[key] === "string") {
+        return asPlainHomepageString(o[key]);
+      }
+    }
   }
   return String(data).trim();
+}
+
+const HOMEPAGE_ALIAS: Record<string, HomepageType> = {
+  home: HOMEPAGE_TYPES.HOME,
+  dash: HOMEPAGE_TYPES.DASHBOARD,
+  dashboard: HOMEPAGE_TYPES.DASHBOARD,
+  editor: HOMEPAGE_TYPES.EDITOR,
+  pageeditor: HOMEPAGE_TYPES.EDITOR,
+  webmgt: HOMEPAGE_TYPES.EDITOR,
+  design: HOMEPAGE_TYPES.DESIGNER,
+  designer: HOMEPAGE_TYPES.DESIGNER,
+  siteadmin: HOMEPAGE_TYPES.DESIGNER,
+  admin: HOMEPAGE_TYPES.DESIGNER,
+  arch: HOMEPAGE_TYPES.ARCHITECTURE,
+  architecture: HOMEPAGE_TYPES.ARCHITECTURE,
+  navigation: HOMEPAGE_TYPES.ARCHITECTURE,
+  site_arch: HOMEPAGE_TYPES.ARCHITECTURE,
+  sitearch: HOMEPAGE_TYPES.ARCHITECTURE,
+  publish: HOMEPAGE_TYPES.PUBLISH,
+  workflow: HOMEPAGE_TYPES.WORKFLOW,
+  widgetbuilder: HOMEPAGE_TYPES.WIDGET_BUILDER,
+  "widget-builder": HOMEPAGE_TYPES.WIDGET_BUILDER,
+  widget_builder: HOMEPAGE_TYPES.WIDGET_BUILDER,
+};
+
+/**
+ * Canonical product homepage type (PascalCase) or {@code ""} when unset.
+ * Unknown non-empty values are returned trimmed (server validates on PUT).
+ */
+export function canonicalizeHomepageType(raw: unknown): string {
+  const s = asPlainHomepageString(raw);
+  if (!s) {
+    return "";
+  }
+  if ((Object.values(HOMEPAGE_TYPES) as string[]).includes(s)) {
+    return s;
+  }
+  return HOMEPAGE_ALIAS[s.toLowerCase()] ?? s;
 }
 
 /**
@@ -64,8 +134,16 @@ function asPlainString(data: unknown): string {
 export async function getUserHomepageOverride(
   userName?: string,
 ): Promise<string> {
-  const data = await get<unknown>(homepageUrl(userName));
-  return asPlainString(data);
+  try {
+    const data = await get<unknown>(homepageUrl(userName), HOMEPAGE_ACCEPT);
+    return canonicalizeHomepageType(data);
+  } catch (err) {
+    // Unset override is empty, not a hard failure for the Preferences select.
+    if (isNotFound(err)) {
+      return "";
+    }
+    throw err;
+  }
 }
 
 /**
@@ -79,18 +157,35 @@ export async function setUserHomepageOverride(
 ): Promise<string> {
   const body = homepage == null ? "" : String(homepage).trim();
   if (!body) {
-    await clearUserHomepageOverride(userName);
+    try {
+      await clearUserHomepageOverride(userName);
+    } catch (err) {
+      if (!isNotFound(err)) {
+        throw err;
+      }
+    }
     return "";
   }
-  const data = await putPlainText<unknown>(homepageUrl(userName), body);
-  return asPlainString(data) || body;
+  const canonical = canonicalizeHomepageType(body) || body;
+  const data = await putPlainText<unknown>(
+    homepageUrl(userName),
+    canonical,
+    HOMEPAGE_ACCEPT,
+  );
+  return canonicalizeHomepageType(data) || canonical;
 }
 
 /** DELETE override for a named user (or self when name omitted). */
 export async function clearUserHomepageOverride(
   userName?: string,
 ): Promise<void> {
-  await del(homepageUrl(userName));
+  try {
+    await del(homepageUrl(userName), HOMEPAGE_ACCEPT);
+  } catch (err) {
+    if (!isNotFound(err)) {
+      throw err;
+    }
+  }
 }
 
 /** GET self default landing override (no user name on path — no IDOR). */
