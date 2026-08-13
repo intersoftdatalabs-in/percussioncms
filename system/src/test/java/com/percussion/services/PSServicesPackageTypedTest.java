@@ -135,4 +135,31 @@ class PSServicesPackageTypedTest {
     item.setBindings(bindings);
     assertEquals(null, item.getMetaData());
   }
+
+  @Test
+  @DisplayName("PSAssemblyWorkItem.getMetaData mutations write through $sys.metadata")
+  void assemblyWorkItemMetadataWriteThrough() {
+    PSAssemblyWorkItem item = new PSAssemblyWorkItem();
+    Map<String, Object> bindings = new HashMap<>();
+    Map<String, Object> sys = new HashMap<>();
+    Map<String, Object> meta = new HashMap<>();
+    sys.put("metadata", meta);
+    bindings.put("$sys", sys);
+    item.setBindings(bindings);
+
+    item.getMetaData().put("type", "page");
+    assertEquals("page", meta.get("type"));
+  }
+
+  @Test
+  @DisplayName("PSAssemblyWorkItem.getMetaData returns null when metadata is not a Map")
+  void assemblyWorkItemRejectsNonMapMetadata() {
+    PSAssemblyWorkItem item = new PSAssemblyWorkItem();
+    Map<String, Object> bindings = new HashMap<>();
+    Map<String, Object> sys = new HashMap<>();
+    sys.put("metadata", "nope");
+    bindings.put("$sys", sys);
+    item.setBindings(bindings);
+    assertEquals(null, item.getMetaData());
+  }
 }

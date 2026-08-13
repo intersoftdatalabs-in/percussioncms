@@ -22,6 +22,7 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
+import com.percussion.services.assembly.PSAssemblyBindingMaps;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSContentFinder;
@@ -232,7 +233,6 @@ public abstract class PSContentFinderBase<T extends Object>
     *         The set must be ordered if the containers are to be ordered. Use
     *         {@link ContentItemOrder} to order the items in the set.
     */   
-   @SuppressWarnings({"cast"})
    abstract protected Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem,
          T slot, Map<String, Object> params) throws PSNotFoundException, RepositoryException, PSFilterException, PSAssemblyException;
 
@@ -283,7 +283,7 @@ public abstract class PSContentFinderBase<T extends Object>
          items.add(clone);
          index++;
       }
-      Map<String, Object> sys = (Map<String, Object>) sourceItem.getBindings().get("$sys");
+      Map<String, Object> sys = PSAssemblyBindingMaps.sysMap(sourceItem.getBindings());
       if (sys != null)
       {
          sys.put("hasMore", had_more);

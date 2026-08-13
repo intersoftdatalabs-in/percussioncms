@@ -27,6 +27,7 @@ import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.PSAssemblyBindingMaps;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.impl.PSInlineLinkProcessor;
 import com.percussion.services.assembly.impl.nav.PSNavHelper;
@@ -641,32 +642,29 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     */
    public Map<String, Object> getMetaData()
    {
-      Object sys = getBindings().get("$sys");
-      if (sys==null)
+      Map<String, Object> bindings = getBindings();
+      Object sys = bindings.get("$sys");
+      if (sys == null)
+      {
          return null;
-
-      if (!(sys instanceof Map))
+      }
+      if (!(sys instanceof Map<?, ?> sysmap))
       {
          ms_log.error("$sys is not a map");
          return null;
       }
-      @SuppressWarnings("unchecked")
-      Map<String, Object> sysmap = (Map<String, Object>) sys;
-
-
-      Object metadata = sysmap.get("metadata");
-
-      if (metadata==null)
-         return null;
-
-      if (metadata instanceof Map)
+      Object rawMeta = sysmap.get("metadata");
+      if (rawMeta == null)
       {
-         return (Map<String, Object>)metadata;
-      } else {
-         ms_log.error("$sys.metadata is not a map");
+         return null;
       }
-
-      return null;
+      Map<String, Object> metadata = PSAssemblyBindingMaps.liveStringObjectMap(rawMeta);
+      if (metadata == null)
+      {
+         ms_log.error("$sys.metadata is not a map");
+         return null;
+      }
+      return metadata;
 
 
    }
