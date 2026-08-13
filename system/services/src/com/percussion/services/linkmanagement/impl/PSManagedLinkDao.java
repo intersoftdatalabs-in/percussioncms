@@ -262,8 +262,16 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
 
    public static final String FIND_BY_CHILD_HQL = "from PSManagedLink where childid = :childId ";
 
+   /**
+    * Build the parent-id IN HQL. {@code parentIds} must be non-null and
+    * non-empty; an empty {@code IN ()} clause is invalid HQL.
+    */
    public static String findByParentIdsHql(List<Integer> parentIds)
    {
+      if (parentIds == null || parentIds.isEmpty())
+      {
+         throw new IllegalArgumentException("parentIds must not be empty");
+      }
       return "from PSManagedLink where parentid in (" + join(parentIds, ",") + ") ";
    }
 

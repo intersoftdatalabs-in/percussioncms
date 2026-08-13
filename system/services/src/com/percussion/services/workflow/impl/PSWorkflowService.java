@@ -68,7 +68,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1473,7 +1472,11 @@ public class PSWorkflowService
          version = 0;
       }
 
-         MutationQuery q = getSession().createMutationQuery(UPDATE_WORKFLOW_VERSION_HQL);
+         // Stay on EntityManager.createQuery+executeUpdate (pre-#3265 path).
+         // jakarta.persistence.EntityManager on this compile classpath has no
+         // createMutationQuery; Session.createMutationQuery would change flush
+         // / listener pipeline for this bulk UPDATE.
+         jakarta.persistence.Query q = entityManager.createQuery(UPDATE_WORKFLOW_VERSION_HQL);
          q.setParameter("version", version);
          q.setParameter("id", uuid);
          q.executeUpdate();

@@ -18,6 +18,7 @@ package com.percussion.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.audit.impl.PSSystemAuditLogRepository;
@@ -35,6 +36,7 @@ import com.percussion.services.useritems.impl.PSUserItemsDao;
 import com.percussion.services.utils.orm.PSDataCollectionHelper;
 import com.percussion.services.workflow.impl.PSWorkflowService;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -83,6 +85,15 @@ class PSServicesRemainingTypedTest {
     assertTrue(hql.startsWith("from PSManagedLink where parentid in ("));
     assertTrue(hql.contains("10,20,30") || hql.contains("10, 20, 30"));
     assertFalse(hql.contains(":"));
+  }
+
+  @Test
+  @DisplayName("managed-link parent-id IN HQL rejects empty and null lists")
+  void managedLinkParentIdsHqlRejectsEmpty() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSManagedLinkDao.findByParentIdsHql(Collections.emptyList()));
+    assertThrows(IllegalArgumentException.class, () -> PSManagedLinkDao.findByParentIdsHql(null));
   }
 
   @Test
