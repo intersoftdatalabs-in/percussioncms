@@ -147,7 +147,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
   }
 
   // see IPSRootedHandler for documentation
-  public Iterator getRequestRoots() {
+  public Iterator<String> getRequestRoots() {
     return requestRoots.iterator();
   }
 
@@ -179,7 +179,7 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
           IPSServerErrors.ACTION_SET_MISSING_REQUIRED_PARAMS,
           new Object[] {IPSHtmlParameters.SYS_CONTENTID, IPSHtmlParameters.SYS_CONTENTTYPEID});
 
-    Map params = new HashMap(2);
+    Map<String, Object> params = new HashMap<>(2);
     params.put(IPSHtmlParameters.SYS_CONTENTTYPEID, contenttypeid);
     params.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
 

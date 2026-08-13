@@ -54,9 +54,9 @@ public class PSCloneVariantExit extends PSCloneBase {
     }
     if (sourceVariantId > 0) {
 
-      Map qrParams = new HashMap();
+      Map<String, Object> qrParams = new HashMap<>();
       qrParams.put(IPSHtmlParameters.SYS_VARIANTID, Integer.toString(sourceVariantId));
-      Map upParams = new HashMap();
+      Map<String, Object> upParams = new HashMap<>();
       upParams.put("DBActionType", "INSERT");
 
       // Call the base class cloneChildObjects method to clone the states and

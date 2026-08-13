@@ -181,11 +181,10 @@ public class PSConsoleCommandParser {
       if (cmdBase.length() == 0) cmdBase = cmdName;
       else cmdBase += " " + cmdName;
 
-      if (cmdObject instanceof java.lang.Class) {
+      if (cmdObject instanceof Class) {
         try {
-          Constructor c =
-              ((Class) cmdObject).getConstructor(new Class[] {Class.forName("java.lang.String")});
-          return (IPSConsoleCommand) c.newInstance(new Object[] {cmdArgs});
+          Constructor<?> c = ((Class<?>) cmdObject).getConstructor(String.class);
+          return (IPSConsoleCommand) c.newInstance(cmdArgs);
         } catch (Throwable t) {
           // if the constructor throw an exception, set t to it
           if (t instanceof java.lang.reflect.InvocationTargetException)
@@ -220,11 +219,11 @@ public class PSConsoleCommandParser {
    *
    * <p>Search for the key "" to get the list of valid base commands.
    */
-  private static final ConcurrentHashMap ms_cmdSet;
+  private static final ConcurrentHashMap<String, Object> ms_cmdSet;
 
   static {
     // and this is the ConcurrentHashMap containing the sub commands
-    ms_cmdSet = new ConcurrentHashMap();
+    ms_cmdSet = new ConcurrentHashMap<>();
 
     // in case they use an invalid base command, store the base list
     ms_cmdSet.put(

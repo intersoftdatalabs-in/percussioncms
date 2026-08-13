@@ -65,7 +65,7 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
    * @param keys the cache keys to be used for flushing, may be <code>null
    * </code>
    */
-  protected void flushCache(Map keys) {
+  protected void flushCache(Map<String, ?> keys) {
     PSCacheManager cacheManager = PSCacheManager.getInstance();
 
     if (keys == null) cacheManager.flush();

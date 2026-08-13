@@ -120,8 +120,7 @@ public class PSActionSet {
     }
 
     // prep each child action
-    for (Iterator iter = m_actions.iterator(); iter.hasNext(); ) {
-      PSAction action = (PSAction) iter.next();
+    for (PSAction action : m_actions) {
       action.init(extMgr);
     }
   }
@@ -169,7 +168,7 @@ public class PSActionSet {
       throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     } else {
       // make sure each action name is unique by using a set
-      Set actionNames = new HashSet();
+      Set<String> actionNames = new HashSet<>();
 
       while (elem != null) {
         PSAction action = new PSAction(elem);
@@ -214,7 +213,7 @@ public class PSActionSet {
    *
    * @return iterator of <code>PSAction</code> objects; never <code>null</code> or empty.
    */
-  public Iterator getActions() {
+  public Iterator<PSAction> getActions() {
     return m_actions.iterator();
   }
 
@@ -272,7 +271,7 @@ public class PSActionSet {
     if (originalReq == null) throw new IllegalArgumentException("Request may not be null");
 
     PSActionSetResult actionSetResult = new PSActionSetResult(this, ceUrl);
-    Iterator actions = m_actions.iterator();
+    Iterator<PSAction> actions = m_actions.iterator();
 
     // if there is a content id but no revision id specified in the request,
     // add one
@@ -285,7 +284,7 @@ public class PSActionSet {
     Exception error = null;
     String itemValidationError = null;
     while (actions.hasNext() && error == null && itemValidationError == null) {
-      PSAction action = (PSAction) actions.next();
+      PSAction action = actions.next();
       Document resultDoc = null; // assigned if action is a query
       PSExecutionData execData = null;
       try {
@@ -343,14 +342,14 @@ public class PSActionSet {
       if (error == null && itemValidationError == null) {
         // completed with no errors, process this action's extensions
         // resultDoc will be null if update command, not null if query
-        Iterator iter = action.getExtensionRunners();
+        Iterator<PSExtensionRunner> iter = action.getExtensionRunners();
         try {
           /* Build a new execution data from the context of the just
             completed action resolve any replacement values in the exits.
           */
           execData = new PSExecutionData(null, handler, actionContext);
           while (iter.hasNext()) {
-            PSExtensionRunner runner = (PSExtensionRunner) iter.next();
+            PSExtensionRunner runner = iter.next();
             resultDoc = runner.processResultDoc(execData, resultDoc);
           }
 
@@ -550,7 +549,7 @@ public class PSActionSet {
    * List of <code>PSAction</code> objects, populated by the <code>fromXml
    * </code> method. Never <code>null</code> or empty.
    */
-  private List m_actions = new ArrayList();
+  private List<PSAction> m_actions = new ArrayList<>();
 
   /**
    * The redirect URL, returned to browser after successfully processing all actions. Never <code>

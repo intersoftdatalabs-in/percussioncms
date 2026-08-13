@@ -20,22 +20,21 @@ package com.percussion.server.actions;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /** Tests the basic functionality of the <code>PSActionSetResult</code> class. */
 public class PSActionSetResultTest {
-  /**
-   * Constructs an instance of this class to run the test implemented by the named method.
-   *
-   * @param methodName name of the method that implements a test
-   */
-
-  /** Collects all the tests implemented by this class into a single suite. */
 
   /**
    * Performs basic tests of the results. Make sure ctor rejects invalid parameters. Make sure ctor
    * can properly init state from provided PSActionSet. Make sure the set methods perform correctly.
    */
+  @Test
+  @DisplayName("typed action result map seeds skips and updates one action at a time")
   public void testIt() throws Exception {
     PSActionSetResult resultSet;
 
@@ -107,5 +106,21 @@ public class PSActionSetResultTest {
     result = resultSet.getResult("action0");
     assertEquals(PSActionSetResult.SKIPPED_STATUS, result.getStatus());
     assertEquals(null, result.getResult());
+
+    PSActionSetResult xmlSet =
+        new PSActionSetResult(
+            PSActionSetTest.newActionSet(PSActionSet.XML_NODE_NAME, "test", "a.htm", numActions),
+            "ceurl.htm");
+    xmlSet.setFailed("action1", e);
+    xmlSet.setSuccess("action2", null);
+    Document xml = xmlSet.toXml();
+    Element root = xml.getDocumentElement();
+    assertEquals("StoredActionResults", root.getNodeName());
+    assertEquals("test", root.getAttribute("actionSetName"));
+    NodeList results = root.getElementsByTagName("ActionResult");
+    assertEquals(numActions, results.getLength());
+    assertEquals("skipped", ((Element) results.item(0)).getAttribute("status"));
+    assertEquals("failed", ((Element) results.item(1)).getAttribute("status"));
+    assertEquals("succeeded", ((Element) results.item(2)).getAttribute("status"));
   }
 }
