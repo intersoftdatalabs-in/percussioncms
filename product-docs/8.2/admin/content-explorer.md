@@ -58,7 +58,7 @@ to see the same four groups as Desktop Content Explorer:
 |-------|------------------|
 | **My Content** | Views in parent category 1 (including system views such as Inbox) |
 | **Community Content** | Views in parent category 2 |
-| **All Content** | Views in parent category 3 |
+| **All Content** | Views in parent category 3. Each **logical** view appears once (same internal name or GUID is not listed repeatedly). Distinct views that share the display label **All** show the internal name in parentheses so you can tell them apart. |
 | **Other Content** | Views in parent category 4 (and any view without a known category) |
 
 Selecting a **group** only expands or collapses its children. Selecting a **standard**

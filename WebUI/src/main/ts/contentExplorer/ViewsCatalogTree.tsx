@@ -16,7 +16,7 @@
  */
 
 /**
- * Product Explorer Views catalog tree (#3116).
+ * Product Explorer Views catalog tree (#3116 / #3325).
  *
  * <p>System category <strong>Views</strong> with My / Community / All /
  * Other groups from {@code GET /services/views} grouped by
@@ -49,7 +49,7 @@ import {
   isInboxView,
   type ViewParentCategory,
   viewKey,
-  viewLabel,
+  viewTreeLabel,
 } from "./viewCatalog";
 
 export interface ViewsCatalogTreeProps {
@@ -219,7 +219,7 @@ export function ViewsCatalogTree({
                     const inbox = isInboxView(def);
                     const label = inbox
                       ? message(EXPLORER_MSG.VIEWS_INBOX)
-                      : viewLabel(def);
+                      : viewTreeLabel(def, children);
                     return (
                       <div
                         key={key}
