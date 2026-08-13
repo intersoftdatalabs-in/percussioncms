@@ -106,9 +106,9 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
           if (cacheHandler == null) {
             String typeList = "";
             String delim = "";
-            Iterator types = mgr.getCacheTypes();
+            Iterator<String> types = mgr.getCacheTypes();
             while (types.hasNext()) {
-              typeList += (delim + (String) types.next());
+              typeList += (delim + types.next());
               delim = ", ";
             }
 

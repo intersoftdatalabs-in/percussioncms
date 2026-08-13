@@ -30,6 +30,9 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.w3c.dom.Document;
@@ -54,8 +57,8 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
 
     java.util.Date since = null;
     java.util.Date until = null;
-    java.util.List queryTypes = new java.util.ArrayList();
-    java.util.List applications = new java.util.ArrayList();
+    List<Integer> queryTypes = new ArrayList<>();
+    List<Integer> applications = new ArrayList<>();
 
     /* this may contain the following tokens (they're all optional):
      *
@@ -209,8 +212,8 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
   private PSLogDumpFilter createMailFilter(
       java.util.Date since,
       java.util.Date until,
-      java.util.List queryTypes,
-      java.util.List applications)
+      List<Integer> queryTypes,
+      List<Integer> applications)
       throws PSIllegalArgumentException {
     PSServerConfiguration conf = PSServer.getServerConfiguration();
     if (conf == null) {
@@ -240,9 +243,8 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
     msg.setFrom(from);
     msg.setSubject(ms_cmdName);
 
-    int size = m_recipients.size();
-    for (int i = 0; i < size; i++) {
-      msg.addSendTo(m_recipients.get(i).toString());
+    for (String recipient : m_recipients) {
+      msg.addSendTo(recipient);
     }
 
     try {
@@ -267,8 +269,38 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
     return FastDateFormat.getInstance("yyyyMMdd HH:mm:ss").format(date);
   }
 
+  /**
+   * Converts a typed integer list to a primitive array. Empty input becomes {@code null} so log
+   * readers treat "no filter" as unrestricted.
+   *
+   * @param values query types or application ids; {@code null} or empty means unrestricted
+   * @return a new array of the same values, or {@code null} when {@code values} is null or empty
+   */
+  static int[] toIntArray(List<Integer> values) {
+    if (values == null || values.isEmpty()) {
+      return null;
+    }
+    int[] result = new int[values.size()];
+    for (int i = 0; i < values.size(); i++) {
+      result[i] = values.get(i).intValue();
+    }
+    return result;
+  }
+
+  int[] getFilterEntryTypes() {
+    return m_filter == null ? null : m_filter.getEntryTypes();
+  }
+
+  int[] getFilterApplicationIds() {
+    return m_filter == null ? null : m_filter.getApplicationIds();
+  }
+
+  List<String> getRecipients() {
+    return Collections.unmodifiableList(m_recipients);
+  }
+
   /** the people we email */
-  private java.util.List m_recipients = new java.util.ArrayList();
+  private List<String> m_recipients = new ArrayList<>();
 
   /** the filter which places the messages into the message/xml doc */
   private PSLogDumpFilter m_filter = null;
@@ -280,24 +312,12 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
     protected PSLogDumpFilter(
         java.util.Date since,
         java.util.Date until,
-        java.util.List queryTypes,
-        java.util.List applications) {
+        List<Integer> queryTypes,
+        List<Integer> applications) {
       m_since = since;
       m_until = until;
-
-      int size = queryTypes.size();
-      if (size == 0) m_queryTypes = null;
-      else {
-        m_queryTypes = new int[size];
-        for (int i = 0; i < size; i++) m_queryTypes[i] = ((Integer) queryTypes.get(i)).intValue();
-      }
-
-      size = applications.size();
-      if (size == 0) m_appIds = null;
-      else {
-        m_appIds = new int[size];
-        for (int i = 0; i < size; i++) m_appIds[i] = ((Integer) applications.get(i)).intValue();
-      }
+      m_queryTypes = toIntArray(queryTypes);
+      m_appIds = toIntArray(applications);
     }
 
     public int[] getApplicationIds() {
@@ -340,8 +360,8 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
     PSMailLogDumpFilter(
         java.util.Date since,
         java.util.Date until,
-        java.util.List queryTypes,
-        java.util.List applications,
+        List<Integer> queryTypes,
+        List<Integer> applications,
         PSMailProvider prov,
         PSMailMessage msg)
         throws java.io.IOException {
@@ -463,8 +483,8 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
     PSXmlLogDumpFilter(
         java.util.Date since,
         java.util.Date until,
-        java.util.List queryTypes,
-        java.util.List applications) {
+        List<Integer> queryTypes,
+        List<Integer> applications) {
       super(since, until, queryTypes, applications);
     }
 
