@@ -22,7 +22,17 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
 
 // ObjectAclSection loads ACL via separate API; stub so detail-load stays isolated.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
-  ObjectAclSection: () => <div data-testid="developer-tpl-acl-stub" />,
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
 }));
 
 const getTemplateDetailMock = vi.mocked(getTemplateDetail);
@@ -179,6 +189,90 @@ describe("TemplateDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
     });
+  });
+
+  it("mounts ObjectAclSection with template kind and object guid (#3319)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      guid: { stringValue: "0-4-42" },
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-stub")).toBeTruthy();
+    });
+    const acl = screen.getByTestId("developer-tpl-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("template");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-4-42");
+    expect(screen.getByTestId("developer-tpl-detail-guid").textContent).toBe("0-4-42");
+  });
+
+  it("uses catalogGuid fallback when detail guid has no stringValue (#3319)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+    });
+    render(
+      <TemplateDetailPanel
+        idOrName="perc.page"
+        catalogGuid="0-4-7"
+        onBack={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-detail-guid").textContent).toBe("0-4-7");
+    expect(screen.getByTestId("developer-tpl-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-4-7",
+    );
+  });
+
+  it("uses guidString when nested guid is absent (#3319)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: "0-4-19",
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-detail-guid").textContent).toBe("0-4-19");
+    expect(screen.getByTestId("developer-tpl-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-4-19",
+    );
+  });
+
+  it("synthesizes object guid from templateId when guid is omitted (#3319)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: undefined,
+      templateId: 12,
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-detail-guid").textContent).toBe("0-4-12");
+    expect(screen.getByTestId("developer-tpl-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-4-12",
+    );
+  });
+
+  it("passes empty guid to ObjectAclSection when none can be resolved (#3319)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.empty",
+      label: "Empty",
+      guid: undefined,
+      guidString: undefined,
+    });
+    render(<TemplateDetailPanel idOrName="perc.empty" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-detail-guid").textContent).toBe("—");
+    expect(screen.getByTestId("developer-tpl-acl-stub").getAttribute("data-object-guid")).toBe("");
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

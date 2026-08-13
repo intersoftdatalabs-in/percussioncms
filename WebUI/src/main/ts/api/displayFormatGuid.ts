@@ -30,6 +30,12 @@ import type { DisplayFormat, RestGuid } from "./developer/types";
  */
 export const DISPLAY_FORMAT_TYPE = 31;
 
+/** {@code PSTypeEnum.NODEDEF} — content type GUID type. */
+export const CONTENT_TYPE_TYPE = 2;
+
+/** {@code PSTypeEnum.TEMPLATE} — assembly template GUID type. */
+export const TEMPLATE_TYPE = 4;
+
 function firstNonBlankString(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -131,11 +137,112 @@ export function objectGuidString(guid: unknown): string | undefined {
 export function synthesizeDisplayFormatGuidFromDisplayId(
   displayId: unknown,
 ): string | undefined {
-  const n = asFiniteNumber(displayId);
+  return synthesizeTypedObjectGuid(DISPLAY_FORMAT_TYPE, displayId);
+}
+
+/**
+ * Synthesize {@code 0-{type}-{uuid}} when the wire omitted Guid but still
+ * sent a native numeric id (content type typeId, templateId, displayId).
+ */
+export function synthesizeTypedObjectGuid(
+  type: number,
+  uuid: unknown,
+): string | undefined {
+  const n = asFiniteNumber(uuid);
   if (n == null || n <= 0) {
     return undefined;
   }
-  return `0-${DISPLAY_FORMAT_TYPE}-${n}`;
+  return `0-${type}-${n}`;
+}
+
+/** Shared detail / list shapes that may carry a nested Guid or plain guidString. */
+export type DesignObjectGuidSource = {
+  guid?: unknown;
+  guidString?: string | null;
+};
+
+/**
+ * Resolve the GUID Object ACL / detail header should use (CT, template, peers).
+ *
+ * <p>Order: nested Guid ({@link objectGuidString}) → plain {@code guidString}
+ * → catalog list fallback. Never returns a blank string. Issue #3319 / #3200.
+ */
+export function resolveDesignObjectGuid(
+  obj: DesignObjectGuidSource | null | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  if (obj != null) {
+    const fromGuid = objectGuidString(obj.guid);
+    if (fromGuid) {
+      return fromGuid;
+    }
+    const fromPlain = firstNonBlankString(obj.guidString);
+    if (fromPlain) {
+      return fromPlain;
+    }
+  }
+  return firstNonBlankString(catalogGuid);
+}
+
+/**
+ * Content type Object ACL GUID: detail Guid / guidString, then catalog, then
+ * {@code 0-2-{uuid}} when only the type id is present (#3319).
+ */
+export function resolveContentTypeObjectGuid(
+  ct: DesignObjectGuidSource | null | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(ct, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  const guid = ct?.guid;
+  if (guid != null && typeof guid === "object" && !Array.isArray(guid)) {
+    const uuid = (guid as RestGuid).uuid;
+    return synthesizeTypedObjectGuid(CONTENT_TYPE_TYPE, uuid);
+  }
+  return undefined;
+}
+
+/**
+ * Template Object ACL GUID: detail Guid / guidString, then catalog, then
+ * {@code 0-4-{templateId}} from the list/detail native id (#3319).
+ */
+export function resolveTemplateObjectGuid(
+  tpl:
+    | (DesignObjectGuidSource & { templateId?: number | null })
+    | null
+    | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(tpl, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  return synthesizeTypedObjectGuid(TEMPLATE_TYPE, tpl?.templateId);
+}
+
+/**
+ * Ensure {@code guid.stringValue} / {@code guidString} are populated from
+ * nested Guid parts or a catalog fallback (same contract as display format).
+ */
+export function normalizeDesignObjectGuid<T extends DesignObjectGuidSource>(
+  obj: T,
+  catalogGuid?: string | null,
+): T {
+  const gs = resolveDesignObjectGuid(obj, catalogGuid);
+  if (!gs) {
+    return obj;
+  }
+  const nextGuidString = firstNonBlankString(obj.guidString) || gs;
+  if (obj.guid != null && typeof obj.guid === "object" && !Array.isArray(obj.guid)) {
+    const existing = obj.guid as RestGuid;
+    if (existing.stringValue === gs && obj.guidString === nextGuidString) {
+      return obj;
+    }
+    return { ...obj, guidString: nextGuidString, guid: { ...existing, stringValue: gs } };
+  }
+  return { ...obj, guidString: nextGuidString, guid: { stringValue: gs } };
 }
 
 /**

@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useState } from "react";
+import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import { listContentTypes } from "../api/developer/contentTypesApi";
 import type { ContentTypeSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -25,17 +26,17 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
 function displayId(ct: ContentTypeSummary): string {
-  const g = ct.guid;
-  if (!g) return "—";
-  if (g.stringValue) return g.stringValue;
-  if (g.uuid != null) return String(g.uuid);
-  if (g.longValue != null) return String(g.longValue);
-  return "—";
+  return resolveContentTypeObjectGuid(ct) || "—";
 }
 
 function selectionKey(ct: ContentTypeSummary): string {
-  return ct.name || ct.guid?.stringValue || displayId(ct);
+  return ct.name || resolveContentTypeObjectGuid(ct) || displayId(ct);
 }
+
+type SelectedContentType = {
+  idOrName: string;
+  catalogGuid?: string;
+};
 
 /**
  * P0.1 list + P0.2 read-only field catalog detail.
@@ -43,7 +44,7 @@ function selectionKey(ct: ContentTypeSummary): string {
 export function ContentTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<ContentTypeSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<SelectedContentType | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,10 +68,20 @@ export function ContentTypesPanel(): React.ReactElement {
     };
   }, []);
 
+  function openContentType(ct: ContentTypeSummary) {
+    const idOrName = selectionKey(ct);
+    if (!idOrName || idOrName === "—") return;
+    setSelected({
+      idOrName,
+      catalogGuid: resolveContentTypeObjectGuid(ct),
+    });
+  }
+
   if (selected) {
     return (
       <ContentTypeDetailPanel
-        idOrName={selected}
+        idOrName={selected.idOrName}
+        catalogGuid={selected.catalogGuid}
         onBack={() => setSelected(null)}
       />
     );
@@ -111,15 +122,16 @@ export function ContentTypesPanel(): React.ReactElement {
           DEV_MSG.CT_COL_DESCRIPTION,
         ]}
         rows={sorted.map((ct) => {
+          const resolved = resolveContentTypeObjectGuid(ct);
           const key =
-            ct.guid?.stringValue ||
+            resolved ||
             ct.name ||
             `${ct.label ?? "ct"}-${displayId(ct)}`;
           const openKey = selectionKey(ct);
           const interactive = openKey !== "—";
           return {
             key,
-            onClick: interactive ? () => setSelected(openKey) : undefined,
+            onClick: interactive ? () => openContentType(ct) : undefined,
             cells: [
               interactive ? (
                 <button
@@ -129,7 +141,7 @@ export function ContentTypesPanel(): React.ReactElement {
                   aria-label={`Open ${ct.label || ct.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelected(openKey);
+                    openContentType(ct);
                   }}
                 >
                   {ct.label || "—"}

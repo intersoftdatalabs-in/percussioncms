@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
+import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -31,10 +32,15 @@ function selectionKey(t: TemplateSummary): string | null {
   return null;
 }
 
+type SelectedTemplate = {
+  idOrName: string;
+  catalogGuid?: string;
+};
+
 export function TemplatesPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<SelectedTemplate | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,9 +69,22 @@ export function TemplatesPanel(): React.ReactElement {
     );
   }, [items]);
 
+  function openTemplate(t: TemplateSummary) {
+    const idOrName = selectionKey(t);
+    if (!idOrName) return;
+    setSelected({
+      idOrName,
+      catalogGuid: resolveTemplateObjectGuid(t),
+    });
+  }
+
   if (selected) {
     return (
-      <TemplateDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+      <TemplateDetailPanel
+        idOrName={selected.idOrName}
+        catalogGuid={selected.catalogGuid}
+        onBack={() => setSelected(null)}
+      />
     );
   }
 
@@ -98,7 +117,7 @@ export function TemplatesPanel(): React.ReactElement {
                   type="button"
                   style={openButtonStyle}
                   aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
-                  onClick={() => setSelected(openKey)}
+                  onClick={() => openTemplate(t)}
                 >
                   {t.templateLabel || "—"}
                 </button>

@@ -29,8 +29,12 @@ those system principals.
 3. Open a catalog that supports Object ACL:
    - **Content types** → first type → **Open**
    - **Templates** → first template → **Open**
-4. On the detail panel, expand **Object ACL**.
-5. Confirm the table shows **Design access** and **Runtime visibility** column groups
+4. On the detail panel, confirm the header **GUID** (content type or template) is
+   populated when the object has an id — the product uses the nested Guid,
+   a plain `guidString`, the catalog list GUID, or (for templates) `0-4-{templateId}`.
+5. Expand **Object ACL**. When that GUID is present, the table (or empty create
+   path) loads — it must **not** say “Object GUID not available”.
+6. Confirm the table shows **Design access** and **Runtime visibility** column groups
    (runtime-relevant object kinds such as content type and template always show
    **Visible**).
 

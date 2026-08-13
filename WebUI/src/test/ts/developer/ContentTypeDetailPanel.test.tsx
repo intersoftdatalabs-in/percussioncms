@@ -17,7 +17,17 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
 
 // ObjectAclSection loads ACL via separate API; stub so detail success path stays isolated.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
-  ObjectAclSection: () => <div data-testid="developer-ct-acl-stub" />,
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
 }));
 
 const getContentTypeDetail = contentTypesApi.getContentTypeDetail as ReturnType<typeof vi.fn>;
@@ -127,6 +137,84 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-detail-error").textContent).toBe(
       DEV_MSG.CT_DETAIL_ERROR,
     );
+  });
+
+  it("mounts ObjectAclSection with content-type kind and object guid (#3319)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+    });
+    const acl = screen.getByTestId("developer-ct-acl-stub");
+    expect(acl.getAttribute("data-object-kind")).toBe("content-type");
+    expect(acl.getAttribute("data-object-guid")).toBe("0-2-301");
+    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-301");
+  });
+
+  it("uses catalogGuid fallback when detail guid has no stringValue (#3319)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+    });
+    render(
+      <ContentTypeDetailPanel
+        idOrName="percPage"
+        catalogGuid="0-2-9"
+        onBack={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-9");
+    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-2-9",
+    );
+  });
+
+  it("uses guidString when nested guid is absent (#3319)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: "0-2-88",
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-88");
+    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-2-88",
+    );
+  });
+
+  it("synthesizes object guid from host/type/uuid parts on detail (#3319)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: { hostId: 0, type: 2, uuid: 301 },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("0-2-301");
+    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-2-301",
+    );
+  });
+
+  it("passes empty guid to ObjectAclSection when none can be resolved (#3319)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: undefined,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-guid").textContent).toBe("—");
+    expect(screen.getByTestId("developer-ct-acl-stub").getAttribute("data-object-guid")).toBe("");
   });
 
   it("renders structured designGaps message with data-gap-code (REST-GAPS-01)", async () => {

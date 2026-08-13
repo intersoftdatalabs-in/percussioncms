@@ -38,7 +38,7 @@
  * QA mode:
  *   perc-devctl qa-up → TEST_CMS_URL=… npm run test:surface -- --path tests/developer-object-acl-product-path.spec.js → qa-down
  *
- * Refs #3204, #2643, #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
+ * Refs #3319, #3204, #2643, #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -294,15 +294,29 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       empty: "developer-ct-empty",
       error: "developer-ct-error",
       detail: "developer-ct-detail",
+      detailLoading: "developer-ct-detail-loading",
+      detailError: "developer-ct-detail-error",
       catalogLabel: "content types",
     });
     if (!opened) return;
 
+    const guidCell = page.locator('[data-testid="developer-ct-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
     const mode = await assertLayeredObjectAcl(
       page,
       "developer-ct-acl",
       "content-type",
     );
+    // Detail / catalog GUID resolver (#3319): when a GUID is present, ACL must load.
+    if (guidText && guidText !== "—" && guidText !== "-") {
+      expect(
+        ["table", "empty", "no-entries"],
+        `content-type Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+      ).toContain(mode);
+    } else {
+      expect(["table", "no-guid", "empty", "no-entries"]).toContain(mode);
+    }
     if (mode === "table") {
       await expect(
         page.locator('[data-testid="developer-ct-acl-special-hint"]'),
@@ -326,11 +340,25 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       empty: "developer-tpl-empty",
       error: "developer-tpl-error",
       detail: "developer-tpl-detail",
+      detailLoading: "developer-tpl-detail-loading",
+      detailError: "developer-tpl-detail-error",
       catalogLabel: "templates",
     });
     if (!opened) return;
 
-    await assertLayeredObjectAcl(page, "developer-tpl-acl", "template");
+    const guidCell = page.locator('[data-testid="developer-tpl-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
+    const mode = await assertLayeredObjectAcl(page, "developer-tpl-acl", "template");
+    // templateId / Guid / catalog fallback (#3319): when a GUID is present, ACL must load.
+    if (guidText && guidText !== "—" && guidText !== "-") {
+      expect(
+        ["table", "empty", "no-entries"],
+        `template Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+      ).toContain(mode);
+    } else {
+      expect(["table", "no-guid", "empty", "no-entries"]).toContain(mode);
+    }
   });
 
   test("site peer ACL mounts objectKind=site with runtime-relevant Design/Runtime policy (B4)", async ({

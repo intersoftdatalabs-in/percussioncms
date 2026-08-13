@@ -120,6 +120,12 @@ only empty-catalog case. See [Sites & content structure](id:admin-sites).
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
 
+JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
+SPA unwrap that envelope and read `guid.stringValue` (or synthesize
+`hostId-type-uuid` when `stringValue` is omitted) before calling
+`GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
+fallback when detail omits Guid parts.
+
 ### Field rule expressions (read-only)
 
 Content type **detail** field rows include boolean rule **flags** and, when rules exist,
