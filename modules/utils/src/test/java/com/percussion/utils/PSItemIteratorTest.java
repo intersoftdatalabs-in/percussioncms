@@ -17,6 +17,7 @@
 package com.percussion.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.utils.jsr170.PSItemIterator;
@@ -262,5 +263,18 @@ public class PSItemIteratorTest {
     assertTrue(result.contains("aa"));
     assertTrue(result.contains("ab"));
     assertTrue(result.contains("ac"));
+  }
+
+  /**
+   * Non-{@link HashMap} sources are treated as multi-maps. A value that is not a {@link
+   * java.util.Collection} must fail fast rather than being silently treated as a single item.
+   */
+  @Test
+  public void multiMapRejectsNonCollectionValues() {
+    Map<String, Object> notAMulti = new java.util.TreeMap<>();
+    notAMulti.put("aa", new TestItem("aa"));
+    ClassCastException thrown =
+        assertThrows(ClassCastException.class, () -> new TestItemIterator(notAMulti, null));
+    assertTrue(thrown.getMessage().contains("Collection"), thrown.getMessage());
   }
 }

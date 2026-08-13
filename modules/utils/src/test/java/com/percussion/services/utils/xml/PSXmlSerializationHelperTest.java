@@ -304,6 +304,22 @@ class PSXmlSerializationHelperTest {
   }
 
   @Test
+  void readFromXmlAcceptsExplicitClassWildcard() throws Exception {
+    PSJacksonXmlSerializationHelperTest.SampleKeyword original = jacksonPilotKeyword();
+    String xml = PSXmlSerializationHelper.writeToXml(original);
+    Class<?> type = PSJacksonXmlSerializationHelperTest.SampleKeyword.class;
+    Object restored = PSXmlSerializationHelper.readFromXML(xml, type);
+    assertNotNull(restored);
+    assertTrue(restored instanceof PSJacksonXmlSerializationHelperTest.SampleKeyword);
+    PSJacksonXmlSerializationHelperTest.SampleKeyword keyword =
+        (PSJacksonXmlSerializationHelperTest.SampleKeyword) restored;
+    assertEquals(original.getLabel(), keyword.getLabel());
+    assertEquals(original.getValue(), keyword.getValue());
+    assertEquals(1, keyword.getChoices().size());
+    assertEquals("ACT", keyword.getChoices().get(0).getLabel());
+  }
+
+  @Test
   void addTypeRegistersOnJacksonHelper() {
     class LocalMarker {
       // marker type for registry only
