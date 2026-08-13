@@ -256,6 +256,14 @@ From the **View** menu you can also toggle:
   suitable item is selected
 - **Clipboard** — multi-select copy/cut staging when items are selected
 
+## If Content Explorer cannot start
+
+If the Explorer area shows a short error that the **application session is not
+available** instead of the tree and list, the page did not receive the usual
+authenticated SPA session. Reload the page, or sign out and sign in again, then
+open **Explorer** from the product navigation. Do not use a bookmarked editor
+URL that embeds Explorer without the SPA shell.
+
 ## Related
 
 - [Sites & content structure](id:admin-sites)

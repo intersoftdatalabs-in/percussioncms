@@ -18,20 +18,40 @@
 import React, { createContext, useContext } from "react";
 import { DEFAULT_SPA_BOOTSTRAP, type SpaBootstrap } from "./types";
 
-const BootstrapContext = createContext<SpaBootstrap>(DEFAULT_SPA_BOOTSTRAP);
+/**
+ * {@code null} default so a missing provider is distinguishable from a real
+ * {@link DEFAULT_SPA_BOOTSTRAP} value. Callers that only need identity flags
+ * should use {@link useSpaBootstrap} (falls back). Explorer uses
+ * {@link useSpaBootstrapOptional} so a missing provider is an error state
+ * instead of a {@code useContext} crash (#3331 / parent #3329).
+ */
+const BootstrapContext = createContext<SpaBootstrap | null>(null);
 
 export function BootstrapProvider({
   value,
   children,
 }: {
   value: SpaBootstrap;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }): React.ReactElement {
   return (
     <BootstrapContext.Provider value={value}>{children}</BootstrapContext.Provider>
   );
 }
 
+/**
+ * Read SPA bootstrap without throwing when the provider is absent or React's
+ * dispatcher is unset (bridge remount / dual-React). Returns {@code null} in
+ * those cases — do not treat as {@link DEFAULT_SPA_BOOTSTRAP}.
+ */
+export function useSpaBootstrapOptional(): SpaBootstrap | null {
+  try {
+    return useContext(BootstrapContext);
+  } catch {
+    return null;
+  }
+}
+
 export function useSpaBootstrap(): SpaBootstrap {
-  return useContext(BootstrapContext);
+  return useSpaBootstrapOptional() ?? DEFAULT_SPA_BOOTSTRAP;
 }
