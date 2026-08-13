@@ -34,6 +34,7 @@ const {
   explorerEntryUrl,
   viewsCatalogUrl,
   viewsExecuteUrl,
+  wrapViewExecuteRequest,
   unwrapViewDefs,
   viewDefKey,
   viewDefLabel,
@@ -71,6 +72,17 @@ describe("explorer-views helpers (#3117)", () => {
     assert.equal(
       explorerEntryUrl("http://localhost:9992/", { cacheBuster: "a b" }),
       "http://localhost:9992/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=a%20b",
+    );
+  });
+
+  it("wrapViewExecuteRequest uses the JAXB ViewExecuteRequest root (#3318)", () => {
+    assert.deepEqual(wrapViewExecuteRequest({ startIndex: 1, maxResults: 50 }), {
+      ViewExecuteRequest: { startIndex: 1, maxResults: 50 },
+    });
+    assert.deepEqual(wrapViewExecuteRequest(null), { ViewExecuteRequest: {} });
+    assert.deepEqual(
+      wrapViewExecuteRequest({ ViewExecuteRequest: { startIndex: 2 } }),
+      { ViewExecuteRequest: { startIndex: 2 } },
     );
   });
 

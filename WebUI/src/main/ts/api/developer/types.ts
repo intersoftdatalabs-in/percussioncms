@@ -547,6 +547,7 @@ export interface ViewDef {
 /**
  * Optional overrides for {@code POST /services/views/{idOrName}/execute}.
  * Mirrors {@code com.percussion.rest.views.ViewExecuteRequest} (V1 / #3115).
+ * The SPA wraps this under the JAXB root {@code ViewExecuteRequest} (#3318).
  */
 export interface ViewExecuteRequest {
   folderPath?: string;
