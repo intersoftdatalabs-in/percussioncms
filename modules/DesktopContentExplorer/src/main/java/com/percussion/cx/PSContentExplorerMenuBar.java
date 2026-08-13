@@ -26,8 +26,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPopupMenu;
 
-/** The class that represents top-level menu bar in the applet. */
-public class PSContentExplorerMenuBar extends JMenuBar implements IPSSelectionListener {
+/**
+ * The class that represents top-level menu bar in the applet.
+ *
+ * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborators are
+ * {@code transient} (the menu bar is never serialized).
+ */
+public final class PSContentExplorerMenuBar extends JMenuBar implements IPSSelectionListener {
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs the global menu bar with supplied parameters.
    *
@@ -62,18 +69,18 @@ public class PSContentExplorerMenuBar extends JMenuBar implements IPSSelectionLi
 
   /** Create all menus for this menu bar */
   private void createMenus() {
-    Iterator actions = m_menuBar.getActions();
-    PSMenuAction action = null;
+    Iterator<?> actions = m_menuBar.getActions();
 
     while (actions.hasNext()) {
-      action = (PSMenuAction) actions.next();
-      if (action != null) {
-        PSContentExplorerMenu menu = new PSContentExplorerMenu(action, m_menuSource, m_actManager);
-        m_menus.add(menu);
-        m_menuActions.add(action);
-
-        add(menu.getMenu());
+      Object next = actions.next();
+      if (!(next instanceof PSMenuAction action)) {
+        continue;
       }
+      PSContentExplorerMenu menu = new PSContentExplorerMenu(action, m_menuSource, m_actManager);
+      m_menus.add(menu);
+      m_menuActions.add(action);
+
+      add(menu.getMenu());
     }
   }
 
@@ -99,22 +106,22 @@ public class PSContentExplorerMenuBar extends JMenuBar implements IPSSelectionLi
   }
 
   /** The underlying PS menu bar, may be <code>null</code>. */
-  private PSMenuBar m_menuBar;
+  private transient PSMenuBar m_menuBar;
 
   /** The source used to populate the menu bar dynamically. */
-  private PSMenuSource m_menuSource;
+  private transient PSMenuSource m_menuSource;
 
   /** The action manager used to look up menu actions. */
-  private PSActionManager m_actManager;
+  private transient PSActionManager m_actManager;
 
   /** The list of menus in the menu bar, may be <code>null</code>. */
-  private List<PSContentExplorerMenu> m_menus;
+  private transient List<PSContentExplorerMenu> m_menus;
 
   /**
    * The list of <code>PSContentExplorerMenu</code>s that represent that exists in this menu bar,
    * initialized and filled in the constructor and never <code>null</code> or modified after that.
    */
-  private List<PSMenuAction> m_menuActions = new ArrayList<PSMenuAction>();
+  private transient List<PSMenuAction> m_menuActions = new ArrayList<PSMenuAction>();
 
   /**
    * Notification event that the selection has changed in main view of applet. Updates the default

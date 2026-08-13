@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Display Format Option object from the XML document
  * and to get XML document from the Display Format object.
  */
-public class PSDisplayFormatOption implements IPSClientObjects {
+public final class PSDisplayFormatOption implements IPSClientObjects {
   static Logger log = LogManager.getLogger(PSDisplayFormatOption.class);
 
   /** Empty constructor. */

@@ -85,9 +85,15 @@ import org.json.JSONObject;
  * The LoginPanel creates the applets/applications first dialog shown to the user. It askes for
  * server name, user Id and password and provides a login button. AppletMainDialog will be started
  * on successful login.
+ *
+ * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborators that are
+ * not {@link java.io.Serializable} are {@code transient} (the login frame is never serialized).
  */
 ////////////////////////////////////////////////////////////////////////////////
-public class PSContentExplorerLoginPanel extends JFrame {
+public final class PSContentExplorerLoginPanel extends JFrame {
+  private static final long serialVersionUID = 1L;
+
   static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
 
   /**
@@ -100,7 +106,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
   public static final String LAST_USER = "last_user_name";
 
   /** The content explorer applet this panel is associated with. */
-  public PSContentExplorerApplet applet;
+  public transient PSContentExplorerApplet applet;
 
   /** The bold font used by labels in the panel. */
   Font boldTextFont = new Font("Arial", Font.BOLD, 18);
@@ -404,7 +410,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
    */
   public void onOk() {
 
-    this.setCursor(getCursor().getPredefinedCursor(Cursor.WAIT_CURSOR));
+    this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     this.m_login.setEnabled(false);
     if (m_userId.getText() == null || m_userId.getText().trim().length() == 0) {
       JOptionPane.showMessageDialog(
@@ -412,7 +418,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
           ErrorDialogs.cropErrorMessage(m_res.getString("missUserId")),
           m_res.getString("error"),
           JOptionPane.ERROR_MESSAGE);
-      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       m_statusBar.setText(m_res.getString("disconnectedStatus"));
       m_userId.requestFocus();
       this.m_login.setEnabled(true);
@@ -425,7 +431,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
           ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
           m_res.getString("error"),
           JOptionPane.ERROR_MESSAGE);
-      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       m_statusBar.setText(m_res.getString("disconnectedStatus"));
       m_password.requestFocus();
       this.m_login.setEnabled(true);
@@ -438,7 +444,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
           ErrorDialogs.cropErrorMessage(m_res.getString("missLocale")),
           m_res.getString("error"),
           JOptionPane.ERROR_MESSAGE);
-      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       m_statusBar.setText(m_res.getString("disconnectedStatus"));
       m_locale.requestFocus();
       this.m_login.setEnabled(true);
@@ -472,7 +478,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
           ErrorDialogs.cropErrorMessage("Invalid URI. Please correct URI"),
           m_res.getString("error"),
           JOptionPane.ERROR_MESSAGE);
-      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       this.m_login.setEnabled(true);
       return;
     }
@@ -716,22 +722,23 @@ public class PSContentExplorerLoginPanel extends JFrame {
     return locales;
   }
 
-  class PSLocaleRenderer extends BasicComboBoxRenderer {
+  private static final class PSLocaleRenderer extends BasicComboBoxRenderer {
+    private static final long serialVersionUID = 1L;
+
+    @Override
     public Component getListCellRendererComponent(
-        JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
       super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-      if (value != null) {
-        PSLocale item = (PSLocale) value;
-
+      if (value instanceof PSLocale item) {
         setText(item.getLabel());
       }
       return this;
     }
   }
 
-  private JComboBox createLocaleComboBox() {
-    final JComboBox cbox = new JComboBox();
+  private JComboBox<Object> createLocaleComboBox() {
+    final JComboBox<Object> cbox = new JComboBox<>();
 
     cbox.setRenderer(new PSLocaleRenderer());
 
@@ -774,7 +781,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
 
   //////////////////////////////////////////////////////////////////////////////
   /** the parent frame */
-  private PSContentExplorerFrame m_parent = null;
+  private transient PSContentExplorerFrame m_parent = null;
 
   /** editable text field for server url */
   private JTextField m_url = new JTextField("");
@@ -789,19 +796,19 @@ public class PSContentExplorerLoginPanel extends JFrame {
   private JButton m_login = null;
 
   /** the locale */
-  private JComboBox m_locale = null;
+  private JComboBox<Object> m_locale = null;
 
   /** THe currently selected locale */
-  private PSLocale selectedLocale = null;
+  private transient PSLocale selectedLocale = null;
 
   /** status bar, informing the user about the applets/applications state */
   private JLabel m_statusBar = null;
 
   /** Admin properties gets initialized in <code>initPanel</code> */
-  private PSProperties m_adminProps = null;
+  private transient PSProperties m_adminProps = null;
 
   /** Resources */
-  private ResourceBundle m_res = null;
+  private transient ResourceBundle m_res = null;
 
   /**
    * The main application. It is created after a successful login. Its valid until the user quits

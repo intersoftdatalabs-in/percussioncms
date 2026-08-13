@@ -18,7 +18,9 @@ package com.percussion.cx;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,6 +28,16 @@ import org.junit.jupiter.api.Test;
  * live {@link PSActionManager} HTTP session).
  */
 public class PSNavigationTreeTest {
+
+  @Test
+  public void treeAndNodeClassesAreFinal() {
+    assertTrue(
+        Modifier.isFinal(PSNavigationTree.class.getModifiers()),
+        "PSNavigationTree must be final to avoid this-escape in the ctor");
+    assertTrue(
+        Modifier.isFinal(PSNavigationTree.PSTreeNode.class.getModifiers()),
+        "PSTreeNode must be final to avoid this-escape in the ctor");
+  }
 
   @Test
   public void getRefreshNodeTypeMapsKnownHints() {

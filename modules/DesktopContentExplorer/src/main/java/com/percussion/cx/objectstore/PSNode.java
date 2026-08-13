@@ -37,8 +37,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/** The class that is used to represent menu actions as defined by 'sys_Node.dtd'. */
-public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTreeNodeAssociation {
+/**
+ * The class that is used to represent menu actions as defined by 'sys_Node.dtd'.
+ *
+ * <p>Declared {@code final} so constructors can call {@link #fromXml(Element)} and folder-type
+ * helpers without javac {@code this-escape} (no subclass can observe a partially constructed
+ * instance).
+ */
+public final class PSNode
+    implements IPSComponent, Cloneable, PSNavigationTree.IPSTreeNodeAssociation {
   // see PSNavigationTree.IPSTreeNodeAssociation
   public PSNavigationTree.PSTreeNode getAssociatedTreeNode() {
     return m_parentNode;
@@ -69,7 +76,6 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @throws IllegalArgumentException if <code>name</code> or <code>label</code> or <code>type
    *     </code> or <code>permissions</code> is invalid
    */
-  @SuppressWarnings("this-escape")
   public PSNode(
       String name,
       String label,
@@ -96,8 +102,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     m_childrenURL = (childrenURL == null) ? "" : childrenURL;
     m_isExpand = expand;
 
-    // isAnyFolderType() is overridable; intentional for legacy subclass wiring.
-    if (isAnyFolderType()) {
+    if (isAnyFolderType(type)) {
       if (permissions < 0)
         throw new IllegalArgumentException("Invalid permissions for folder : " + name);
       m_permissions = new PSFolderPermissions(permissions);
@@ -112,11 +117,9 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
-  @SuppressWarnings("this-escape")
   public PSNode(Element element) throws PSUnknownNodeTypeException {
     if (element == null) throw new IllegalArgumentException("element may not be null.");
 
-    // fromXml is overridable; intentional for legacy subclass wiring.
     fromXml(element);
   }
 
@@ -861,7 +864,18 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return <code>true</code> if it is of type system folder, <code>false</code> otherwise.
    */
   public boolean isSystemFolderType() {
-    return ms_systemFolderTypes.contains(getType());
+    return isSystemFolderType(getType());
+  }
+
+  /**
+   * Determine if the specified type is a system folder type ({@link #TYPE_SYS_FOLDERS} or {@link
+   * #TYPE_SYS_SITES}).
+   *
+   * @param type the type to check, may be {@code null} or empty
+   * @return {@code true} if {@code type} is a system folder type
+   */
+  public static boolean isSystemFolderType(String type) {
+    return type != null && ms_systemFolderTypes.contains(type);
   }
 
   /**
@@ -900,7 +914,18 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
    * @return <code>true</code> if it is of any folder type, <code>false</code> otherwise.
    */
   public boolean isAnyFolderType() {
-    return isSystemFolderType() || isFolderType();
+    return isAnyFolderType(getType());
+  }
+
+  /**
+   * Determine if the specified type is any folder type (system folder or {@link
+   * #isFolderType(String)}).
+   *
+   * @param type the type to check, may be {@code null} or empty
+   * @return {@code true} if {@code type} is any folder type
+   */
+  public static boolean isAnyFolderType(String type) {
+    return isSystemFolderType(type) || (StringUtils.isNotBlank(type) && isFolderType(type));
   }
 
   /**

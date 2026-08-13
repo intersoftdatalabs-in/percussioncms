@@ -20,12 +20,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /** Behavioral tests for typed expanded-path option APIs used by the nav tree. */
 public class PSExpandedOptionTest {
+
+  @Test
+  public void optionClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSExpandedOption.class.getModifiers()),
+        "PSExpandedOption must be final to avoid this-escape in constructors");
+  }
 
   @Test
   public void constructorAndGetPathsPreserveTypedPaths() {

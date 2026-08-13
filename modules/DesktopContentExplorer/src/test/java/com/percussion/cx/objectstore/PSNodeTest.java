@@ -19,6 +19,7 @@ package com.percussion.cx.objectstore;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
+import java.lang.reflect.Modifier;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSEntrySet;
@@ -48,6 +49,33 @@ public class PSNodeTest {
    *
    * @throws Exception if there are any errors
    */
+  @Test
+  public void nodeClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSNode.class.getModifiers()),
+        "PSNode must be final to avoid this-escape in constructors");
+  }
+
+  @Test
+  public void staticFolderTypeHelpersMatchInstance() {
+    PSNode folder = new PSNode("p", "Parent", PSNode.TYPE_FOLDER, "url", null, false, 1);
+    PSNode item = new PSNode("i", "Item", PSNode.TYPE_ITEM, "", null, false, -1);
+    PSNode sys = new PSNode("s", "Sites", PSNode.TYPE_SYS_SITES, "url", null, false, 1);
+
+    assertTrue(PSNode.isAnyFolderType(PSNode.TYPE_FOLDER));
+    assertTrue(PSNode.isFolderType(PSNode.TYPE_SITE));
+    assertTrue(PSNode.isSystemFolderType(PSNode.TYPE_SYS_SITES));
+    assertTrue(PSNode.isAnyFolderType(PSNode.TYPE_SYS_FOLDERS));
+    assertFalse(PSNode.isAnyFolderType(PSNode.TYPE_ITEM));
+    assertFalse(PSNode.isAnyFolderType(null));
+    assertFalse(PSNode.isSystemFolderType(null));
+
+    assertTrue(folder.isAnyFolderType());
+    assertFalse(item.isAnyFolderType());
+    assertTrue(sys.isSystemFolderType());
+    assertTrue(sys.isAnyFolderType());
+  }
+
   @Test
   public void testClone() throws Exception {
     PSNode node1 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", "iconKey", true, 1);
