@@ -78,6 +78,24 @@ describe("landingPagePicker (#3304)", () => {
     });
   });
 
+  it("rejects type names that only contain the substring page", () => {
+    expect(
+      resolveLandingPagePick({
+        items: [{ id: "h1", name: "Home", type: "homepage" }],
+      }),
+    ).toEqual({ ok: false, error: "notPage" });
+    expect(
+      resolveLandingPagePick({
+        items: [{ id: "pl1", name: "Let", type: "pagelet" }],
+      }),
+    ).toEqual({ ok: false, error: "notPage" });
+    expect(
+      resolveLandingPagePick({
+        items: [{ id: "np", name: "X", type: "notpage" }],
+      }),
+    ).toEqual({ ok: false, error: "notPage" });
+  });
+
   it("blocks replace POST without section or page id", () => {
     expect(canPostReplaceLandingPage("sec", "page")).toBe(true);
     expect(canPostReplaceLandingPage("  ", "page")).toBe(false);

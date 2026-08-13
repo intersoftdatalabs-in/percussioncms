@@ -191,7 +191,7 @@ export function ReplaceLandingPageDialog({
               enableSearch={false}
               title={ARCH_MSG.LANDING_PICKER_TITLE}
               onConfirm={handleBrowserConfirm}
-              onCancel={onCancel}
+              onCancel={() => setBrowserOpen(false)}
             />
           </div>
         ) : (

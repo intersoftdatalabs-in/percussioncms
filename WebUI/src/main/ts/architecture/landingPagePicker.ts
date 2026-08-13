@@ -53,10 +53,7 @@ function isPageKind(kind: string): boolean {
   if (!kind) {
     return true;
   }
-  if (kind === "folder" || kind === "asset" || kind === "site") {
-    return false;
-  }
-  return kind === "page" || kind.includes("page");
+  return kind === "page" || kind === "percpage";
 }
 
 /**

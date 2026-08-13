@@ -132,6 +132,42 @@ describe("sectionMutations links & landing (#3097)", () => {
       oldLandingPageName: "index",
     });
 
+    const fallback = { sectionId: "fb-sec", newLandingPageId: "fb-page" };
+    expect(parseReplaceLandingPagePayload(null, fallback)).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(parseReplaceLandingPagePayload([], fallback)).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        { sectionId: "bare", newLandingPageId: "p2", newLandingPageName: "  " },
+        fallback,
+      ),
+    ).toEqual({
+      sectionId: "bare",
+      newLandingPageId: "p2",
+      newLandingPageName: null,
+      oldLandingPageName: null,
+    });
+    expect(
+      parseReplaceLandingPagePayload(
+        { replaceLandingPage: { newLandingPageName: "Lower" } },
+        fallback,
+      ),
+    ).toEqual({
+      sectionId: "fb-sec",
+      newLandingPageId: "fb-page",
+      newLandingPageName: "Lower",
+      oldLandingPageName: null,
+    });
+
     const ext = buildCreateExternalLinkBody({
       externalUrl: " https://example.com ",
       linkTitle: " Partner ",

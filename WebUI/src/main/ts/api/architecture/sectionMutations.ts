@@ -470,14 +470,19 @@ export function parseReplaceLandingPagePayload(
     return empty;
   }
   const obj = payload as Record<string, unknown>;
-  const root =
-    (obj.ReplaceLandingPage as unknown) ??
-    (obj.replaceLandingPage as unknown) ??
-    payload;
+  const wrapped = obj.ReplaceLandingPage ?? obj.replaceLandingPage;
+  const root = wrapped !== undefined ? wrapped : payload;
   if (root == null || typeof root !== "object" || Array.isArray(root)) {
     return empty;
   }
   const rec = root as Record<string, unknown>;
+  const optionalName = (value: unknown): string | null => {
+    if (value == null) {
+      return null;
+    }
+    const trimmed = String(value).trim();
+    return trimmed ? trimmed : null;
+  };
   const sectionId =
     rec.sectionId != null ? String(rec.sectionId).trim() : empty.sectionId;
   const newLandingPageId =
@@ -487,14 +492,8 @@ export function parseReplaceLandingPagePayload(
   return {
     sectionId: sectionId || empty.sectionId,
     newLandingPageId: newLandingPageId || empty.newLandingPageId,
-    newLandingPageName:
-      rec.newLandingPageName != null && String(rec.newLandingPageName).trim()
-        ? String(rec.newLandingPageName).trim()
-        : null,
-    oldLandingPageName:
-      rec.oldLandingPageName != null && String(rec.oldLandingPageName).trim()
-        ? String(rec.oldLandingPageName).trim()
-        : null,
+    newLandingPageName: optionalName(rec.newLandingPageName),
+    oldLandingPageName: optionalName(rec.oldLandingPageName),
   };
 }
 

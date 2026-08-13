@@ -130,7 +130,7 @@ describe("ReplaceLandingPageDialog (#3097 / #3304)", () => {
     expect(onSubmit).toHaveBeenCalledWith("cb-page-99");
   });
 
-  it("cancel from ContentBrowser closes without submit", () => {
+  it("cancel from ContentBrowser dismisses picker only", () => {
     const onSubmit = vi.fn();
     const onCancel = vi.fn();
     render(
@@ -145,8 +145,11 @@ describe("ReplaceLandingPageDialog (#3097 / #3304)", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("mock-content-browser-cancel"));
-    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onCancel).not.toHaveBeenCalled();
     expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId("architecture-landing-dialog")).toBeTruthy();
+    expect(screen.queryByTestId("mock-content-browser")).toBeNull();
+    expect(screen.getByTestId("architecture-landing-reopen-browser")).toBeTruthy();
   });
 
   it("shows empty state and does not submit without a page", () => {

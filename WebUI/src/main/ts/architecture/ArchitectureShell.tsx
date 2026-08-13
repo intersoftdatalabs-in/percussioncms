@@ -375,6 +375,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     async (work: () => Promise<void>) => {
       setMutationBusy(true);
       setMutationError(null);
+      setLandingStatus(null);
       try {
         await work();
         setRefreshToken((n) => n + 1);
