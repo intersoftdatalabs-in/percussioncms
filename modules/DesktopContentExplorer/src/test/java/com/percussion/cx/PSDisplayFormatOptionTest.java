@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -30,6 +31,13 @@ import org.w3c.dom.NodeList;
 
 /** Behavioral tests for typed {@link PSDisplayFormatOption} map after rawtypes cleanup (#2939). */
 public class PSDisplayFormatOptionTest {
+
+  @Test
+  public void optionClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSDisplayFormatOption.class.getModifiers()),
+        "PSDisplayFormatOption must be final to avoid this-escape in the Element ctor");
+  }
 
   @Test
   public void emptyOptionHasNoDisplayFormats() {

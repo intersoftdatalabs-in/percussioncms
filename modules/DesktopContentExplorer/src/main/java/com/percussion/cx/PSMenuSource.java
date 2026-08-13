@@ -19,7 +19,7 @@ package com.percussion.cx;
 /**
  * The class that holds selection source for a menu and context selection source for a context menu.
  */
-public class PSMenuSource {
+public final class PSMenuSource {
 
   /** Default constructor for this object that represents no selection. */
   public PSMenuSource() {}

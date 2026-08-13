@@ -33,7 +33,7 @@ import org.w3c.dom.Text;
  * This class provides a way of constructing the Expanded object from the XML document and to get
  * XML document from the Expanded object.
  */
-public class PSExpandedOption implements IPSClientObjects {
+public final class PSExpandedOption implements IPSClientObjects {
   static Logger log = LogManager.getLogger(PSExpandedOption.class);
 
   /**
@@ -98,7 +98,7 @@ public class PSExpandedOption implements IPSClientObjects {
     Iterator<String> iter = m_paths.iterator();
     while (iter.hasNext()) {
       el = doc.createElement(ELEM_PATH);
-      StringNode = doc.createTextNode((String) iter.next());
+      StringNode = doc.createTextNode(iter.next());
 
       el.appendChild(StringNode);
       root.appendChild(el);

@@ -64,8 +64,12 @@ import org.apache.logging.log4j.Logger;
  * com.percussion.cx.objectstore.PSNode } for more information. Uses {@link
  * com.percussion.cx.PSNavTreeNodeRenderer } to render the nodes of the tree. Displays pop-up menu
  * for right-click on a node.
+ *
+ * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}).
  */
-public class PSNavigationTree extends JTree implements DragGestureListener, DropTargetListener {
+public final class PSNavigationTree extends JTree
+    implements DragGestureListener, DropTargetListener {
   static Logger log = LogManager.getLogger(PSNavigationTree.class);
 
   /** Serializable id */
@@ -83,7 +87,6 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
    * @param ignoreRoot supply <code>true</code> to not to show the root node in the tree and do not
    *     consider the root in the path, otherwise supply <code>false</code>
    */
-  @SuppressWarnings("this-escape") // Swing selection model / listeners registered in ctor
   public PSNavigationTree(PSNode root, String view, PSActionManager manager, boolean ignoreRoot) {
     if (root == null) throw new IllegalArgumentException("root may not be null.");
 
@@ -957,7 +960,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
   }
 
   /** Constructs the dyanmic tree node that loads children when it is expanded only. */
-  public class PSTreeNode extends JTree.DynamicUtilTreeNode implements Accessible {
+  public final class PSTreeNode extends JTree.DynamicUtilTreeNode implements Accessible {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -968,7 +971,6 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @param node the user object of the node, may not be <code>null</code>
      * @throws IllegalArgumentException if node is <code>null</code>
      */
-    @SuppressWarnings("this-escape") // associates this node with user object after super()
     public PSTreeNode(PSNode node) {
       super(node, new Vector<>());
 
@@ -1086,6 +1088,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @see javax.accessibility.Accessible#getAccessibleContext()
      */
     public AccessibleContext getAccessibleContext() {
+      if (m_accessibleContext == null) {
+        m_accessibleContext = new PSTreeNodeAccContext(PSNavigationTree.this, this);
+      }
       return m_accessibleContext;
     }
 
@@ -1114,10 +1119,8 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
       super.setUserObject(userObject);
     }
 
-    /** Create the accessible context for this node */
-    @SuppressWarnings("this-escape") // accessibility context needs outer/this refs
-    private final transient AccessibleContext m_accessibleContext =
-        new PSTreeNodeAccContext(PSNavigationTree.this, this);
+    /** Accessible context, created on first {@link #getAccessibleContext()} (avoids ctor leak). */
+    private transient AccessibleContext m_accessibleContext;
 
     /**
      * The flag to indicate that whether this node is currently under drag movement to represent a

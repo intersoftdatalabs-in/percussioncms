@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Column Widths Option object from the XML document
  * and to get XML document from the Column Width object.
  */
-public class PSColumnWidthsOption implements IPSClientObjects {
+public final class PSColumnWidthsOption implements IPSClientObjects {
   static Logger log = LogManager.getLogger(PSColumnWidthsOption.class);
 
   /** Empty constructor. */

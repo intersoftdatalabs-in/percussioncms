@@ -64,8 +64,12 @@ import org.apache.logging.log4j.Logger;
  * The main host frame for the Percussion Content Explorer. Provides the Swing and applet-stub
  * infrastructure used by the embedded {@link PSContentExplorerApplet} and acts as the top-level
  * window for the JavaFX application launch.
+ *
+ * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). Session-only collaborators are
+ * {@code transient}. Does not remove the legacy {@code java.applet} stub/context surfaces.
  */
-public class PSContentExplorerFrame extends PSDesktopExplorerWindow
+public final class PSContentExplorerFrame extends PSDesktopExplorerWindow
     implements AppletStub, AppletContext {
 
   private static final long serialVersionUID = 1L;
@@ -73,13 +77,13 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
   static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
 
   /** Helper instance used to resolve resources and helper methods. */
-  private PSContentExplorerHelper helper = new PSContentExplorerHelper();
+  private transient PSContentExplorerHelper helper = new PSContentExplorerHelper();
 
   /** Hashmap containing all parameters needed for the applet. */
-  Map<String, String> parameters = new HashMap<String, String>();
+  private transient Map<String, String> parameters = new HashMap<>();
 
   /** The login panel containing all GUI elements for the login dialog, may be <code>null</code>. */
-  private PSContentExplorerLoginPanel loginPanel = null;
+  private transient PSContentExplorerLoginPanel loginPanel = null;
 
   /** The URI of the Rhythmyx server, may be <code>null</code>. */
   private URI serverUri = null;

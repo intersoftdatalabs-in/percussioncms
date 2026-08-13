@@ -31,14 +31,17 @@ import org.apache.logging.log4j.Logger;
 /**
  * The top banner panel of the desktop content explorer. Shows the user/community/role/locale
  * information and exposes keyboard focus management for accessibility.
+ *
+ * <p>Declared {@code final} so Swing initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}).
  */
-public class PSContentExplorerHeader extends JPanel {
+public final class PSContentExplorerHeader extends JPanel {
   static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
 
   private static final long serialVersionUID = 1L;
 
   /** The content explorer applet this header is associated with. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 
   /**
    * Constructs the header panel and initializes the sub-components for the supplied applet.
@@ -56,7 +59,7 @@ public class PSContentExplorerHeader extends JPanel {
   }
 
   /** Initializes the header layout, banner and info sub-panels using the configured options. */
-  protected void init() {
+  private void init() {
 
     this.setFont(m_applet.getOptionsManager().getDisplayOptions().getMenuFont());
 

@@ -22,12 +22,20 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Behavioral tests for typed column-width option map used by the applet display panels. */
 public class PSColumnWidthsOptionTest {
+
+  @Test
+  public void optionClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSColumnWidthsOption.class.getModifiers()),
+        "PSColumnWidthsOption must be final to avoid this-escape in the Element ctor");
+  }
 
   @Test
   public void addGetAndRemoveItemColumnWidths() {
