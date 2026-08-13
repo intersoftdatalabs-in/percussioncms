@@ -167,13 +167,10 @@ public final class PSSearchConfig extends PSComponent {
     if (!m_properties.isEmpty()) {
       Element propsEl = doc.createElement(PROPERTIES_ELEM);
       search.appendChild(propsEl);
-      Iterator propNames = m_properties.keySet().iterator();
-      while (propNames.hasNext()) {
-        String propName = (String) propNames.next();
+      for (Map.Entry<String, String> entry : m_properties.entrySet()) {
         Element prop =
-            PSXmlDocumentBuilder.addElement(
-                doc, propsEl, PROPERTY_ELEM, (String) m_properties.get(propName));
-        prop.setAttribute(NAME_ATTR, propName);
+            PSXmlDocumentBuilder.addElement(doc, propsEl, PROPERTY_ELEM, entry.getValue());
+        prop.setAttribute(NAME_ATTR, entry.getKey());
       }
     }
     Element resultProcExEl = doc.createElement(RESULTPROCESSINGEXITS_ELEM);
@@ -342,7 +339,7 @@ public final class PSSearchConfig extends PSComponent {
 
     setAdminMaster(config.isAdminMaster());
     setMaxSearchResult(config.getMaxSearchResult());
-    m_properties = (HashMap) config.getCustomProps();
+    m_properties = new HashMap<>(config.getCustomProps());
     m_resultProcessingExitSet =
         (PSExtensionCallSet) config.getSearchResultProcessingExtensions().clone();
     Map<String, PSExtensionCall> amap = config.getAnalyzers();
@@ -484,7 +481,7 @@ public final class PSSearchConfig extends PSComponent {
     if (null == name || name.trim().length() == 0) {
       throw new IllegalArgumentException("name cannot be null or empty");
     }
-    return (String) m_properties.get(name);
+    return m_properties.get(name);
   }
 
   /**
@@ -494,9 +491,8 @@ public final class PSSearchConfig extends PSComponent {
    *     </code> value. Never <code>null</code>, may be empty. Caller takes ownership of the
    *     returned object.
    */
-  public Map getCustomProps() {
-    // since keys and values are immutable, we don't need to do anything else
-    return (Map) m_properties.clone();
+  public Map<String, String> getCustomProps() {
+    return new HashMap<>(m_properties);
   }
 
   /**
@@ -524,7 +520,7 @@ public final class PSSearchConfig extends PSComponent {
     if (null == name || name.trim().length() == 0) {
       throw new IllegalArgumentException("name cannot be null or empty");
     }
-    return (String) m_properties.remove(name);
+    return m_properties.remove(name);
   }
 
   /** Clears the set of custom properties currently held by this object. */
@@ -609,7 +605,7 @@ public final class PSSearchConfig extends PSComponent {
     // Must configure to enable full-text search
     m_ftsEnabled = false;
     m_adminMaster = false;
-    m_properties = new HashMap();
+    m_properties = new HashMap<>();
   }
 
   /**
@@ -660,7 +656,7 @@ public final class PSSearchConfig extends PSComponent {
    * null</code>. Modified by {@link #addCustomProp(String, String)}, {@link
    * #removeCustomProp(String)} and {@link #removeAllCustomProps()}.
    */
-  private HashMap m_properties;
+  private HashMap<String, String> m_properties;
 
   /** Search results processing extension set. Never <code>null</code> may be empty. */
   PSExtensionCallSet m_resultProcessingExitSet = new PSExtensionCallSet();

@@ -388,7 +388,6 @@ public class PSServer {
    * @return <code>true</code> if the server is successfully initialized, <code>false</code>
    *     otherwise.
    */
-  @SuppressWarnings(value = "unchecked")
   public static boolean init(ServletConfig config, String[] args, int toInit) {
 
     if (args == null) throw new IllegalArgumentException("args may not be null");
@@ -847,7 +846,11 @@ public class PSServer {
    *     the correct format; or if <code>request</code> is <code>null</code>.
    */
   public static PSInternalRequest getInternalRequest(
-      String path, PSRequest request, Map extraParams, boolean inheritParams, Document inputDoc) {
+      String path,
+      PSRequest request,
+      Map<String, ?> extraParams,
+      boolean inheritParams,
+      Document inputDoc) {
     if (path == null || path.trim().length() == 0)
       throw new IllegalArgumentException("Path may not be null or empty");
     if (request == null) throw new IllegalArgumentException("Request may not be null");
@@ -857,8 +860,8 @@ public class PSServer {
     // make copy of provided request, as we will be mutating the parameters
     PSRequest clonedRequest = request.cloneRequest();
 
-    if (!inheritParams) clonedRequest.setParameters(new HashMap());
-    if (extraParams != null) clonedRequest.putAllParameters(extraParams);
+    if (!inheritParams) clonedRequest.setParameters(new HashMap<>());
+    if (extraParams != null) clonedRequest.putAllParameters(copyRequestExtraParams(extraParams));
     if (null != inputDoc) clonedRequest.setInputDocument(inputDoc);
 
     // see if this request has query parameters
@@ -910,7 +913,7 @@ public class PSServer {
     // add params from query string
     if (queryParams != null) {
       try {
-        HashMap params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
 
         PSFormContentParser.parseParameterString(params, queryParams);
         clonedRequest.putAllParameters(params);
@@ -940,7 +943,7 @@ public class PSServer {
   public static PSInternalRequest getInternalRequest(
       String path,
       IPSRequestContext ctx,
-      Map extraParams,
+      Map<String, ?> extraParams,
       boolean inheritParams,
       Document inputDoc) {
     if (!(ctx instanceof PSRequestContext)) {
@@ -964,7 +967,7 @@ public class PSServer {
 
   /** Convenience method that calls the other 5 parameter version. */
   public static PSInternalRequest getInternalRequest(
-      String path, PSRequest request, Map extraParams, boolean inheritParams) {
+      String path, PSRequest request, Map<String, ?> extraParams, boolean inheritParams) {
     return getInternalRequest(path, request, extraParams, inheritParams, null);
   }
 
@@ -1178,11 +1181,12 @@ public class PSServer {
         if (pos > 0) requestPage = requestPage.substring(0, pos);
         PSApplication app = ah.getApplicationDefinition();
         String resource = null;
-        Iterator<?> datasets = app.getDataSets().iterator();
-        while (datasets.hasNext() && resource == null) {
-          PSDataSet dataset = (PSDataSet) datasets.next();
-          if (dataset.getRequestor().getRequestPage().equalsIgnoreCase(requestPage))
+        for (Object rawDataset : app.getDataSets()) {
+          if (rawDataset instanceof PSDataSet dataset
+              && dataset.getRequestor().getRequestPage().equalsIgnoreCase(requestPage)) {
             resource = dataset.getName();
+            break;
+          }
         }
 
         if (resource != null) irh = ah.getInternalRequestHandler(resource);
@@ -1566,7 +1570,6 @@ public class PSServer {
    * @throws PSServerException if the server is not responding.
    * @throws PSNotFoundException if the server configuration is not be found.
    */
-  @SuppressWarnings(value = "unchecked")
   private static boolean initObjectStoreHandler() throws PSServerException, PSNotFoundException {
     try {
       ms_objectStore = new PSXmlObjectStoreHandler(ms_objectStoreProps);
@@ -2132,7 +2135,6 @@ public class PSServer {
    * @throws PSUnknownNodeTypeException for invalid XML macro definitions.
    * @throws SAXException for XML parsing exceptions.
    */
-  @SuppressWarnings(value = "unchecked")
   private static void initMacros() throws IOException, PSUnknownNodeTypeException, SAXException {
     PSConsole.printInfoMsg("Server", IPSServerErrors.MACROS_INIT, (Object[]) null);
 
@@ -2161,13 +2163,7 @@ public class PSServer {
       }
 
       ms_macros = new PSMacroDefinitionSet();
-      ms_macros.addAll(systemMacros);
-
-      for (int i = 0; i < userMacros.size(); i++) {
-        PSMacroDefinition userMacro = (PSMacroDefinition) userMacros.get(i);
-        if (systemMacros.getMacroDefinition(userMacro.getName()) == null) ms_macros.add(userMacro);
-        else ms_macros.set(i, userMacro);
-      }
+      mergeUserMacros(ms_macros, systemMacros, userMacros);
     } catch (FileNotFoundException e) {
       // no macros specified
       ms_macros = new PSMacroDefinitionSet();
@@ -2179,7 +2175,6 @@ public class PSServer {
    *
    * @return <code>true</code> if it is successfully initialized, <code>false</code> otherwise.
    */
-  @SuppressWarnings(value = "unchecked")
   private static boolean initLogHandling() {
     PSConsole.printInfoMsg("Server", IPSServerErrors.LOG_MGR_INIT, (Object[]) null);
 
@@ -3233,39 +3228,120 @@ public class PSServer {
    *     empty.
    * @return value of the given attribute, may be <code>null</code>, never empty.
    */
-  @SuppressWarnings(value = "unchecked")
   private static String getUserRoleAttribute(PSRequest req, String srcAttrName) {
-    String attrValue = null;
-
     // user request context as it provides convenience methods.
     PSRequestContext request = new PSRequestContext(req);
-    List roles = request.getSubjectRoles();
-    Object role = null;
-    List roleAttribs = null;
-    PSAttribute attr = null;
-    List attrList = null;
-    String attrName = null;
-    boolean found = false;
-    for (int i = 0; roles != null && i < roles.size() && !found; i++) {
-      role = roles.get(i);
-      if (role == null) continue;
-      roleAttribs = request.getRoleAttributes(role.toString().trim());
-      for (int j = 0; roleAttribs != null && j < roleAttribs.size() && !found; j++) {
-        attr = (PSAttribute) roleAttribs.get(j);
-        if (attr == null) continue;
-        attrName = attr.getName();
-        if (attrName.equals(srcAttrName)) {
-          attrList = attr.getValues();
-          if (attrList != null && attrList.size() > 0) {
-            // we take only the first attribute
-            attrValue = (String) attrList.get(0);
-          }
-        }
-        if (attrValue != null && attrValue.length() > 0) found = true;
+    List<String> roles = request.getSubjectRoles();
+    if (roles == null) {
+      return null;
+    }
+    for (String role : roles) {
+      if (role == null) {
+        continue;
+      }
+      String attrValue =
+          firstNonEmptyAttributeValue(request.getRoleAttributes(role.trim()), srcAttrName);
+      if (attrValue != null) {
+        return attrValue;
       }
     }
+    return null;
+  }
 
-    return attrValue;
+  /**
+   * Returns the first non-empty value of {@code srcAttrName} from the supplied role attributes.
+   *
+   * @param roleAttribs attributes for one role, may be <code>null</code>
+   * @param srcAttrName name to match, assumed not <code>null</code>
+   * @return first non-empty value, or <code>null</code>
+   */
+  static String firstNonEmptyAttributeValue(List<PSAttribute> roleAttribs, String srcAttrName) {
+    if (roleAttribs == null) {
+      return null;
+    }
+    for (PSAttribute attr : roleAttribs) {
+      if (attr == null) {
+        continue;
+      }
+      if (srcAttrName.equals(attr.getName())) {
+        List<String> attrList = attr.getValues();
+        if (attrList != null && !attrList.isEmpty()) {
+          String attrValue = attrList.get(0);
+          if (attrValue != null && attrValue.length() > 0) {
+            return attrValue;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Merges user macros onto a copy of the system macros. When a user macro replaces a system macro,
+   * the user entry is written at the user-set index (historical {@code set(i)} behavior).
+   *
+   * @param target destination set, never <code>null</code>
+   * @param systemMacros system macros, never <code>null</code>
+   * @param userMacros user macros, never <code>null</code>
+   */
+  static void mergeUserMacros(
+      PSMacroDefinitionSet target,
+      PSMacroDefinitionSet systemMacros,
+      PSMacroDefinitionSet userMacros) {
+    target.addAll(systemMacros);
+    for (int i = 0; i < userMacros.size(); i++) {
+      Object item = userMacros.get(i);
+      if (!(item instanceof PSMacroDefinition userMacro)) {
+        continue;
+      }
+      if (systemMacros.getMacroDefinition(userMacro.getName()) == null) {
+        target.add(userMacro);
+      } else {
+        target.set(i, userMacro);
+      }
+    }
+  }
+
+  /**
+   * Copies extra internal-request parameters into a {@code Map<String, Object>} suitable for {@link
+   * PSRequest#putAllParameters(Map)}.
+   *
+   * @param extraParams source parameters, never <code>null</code>
+   * @return a mutable copy, never <code>null</code>
+   */
+  static Map<String, Object> copyRequestExtraParams(Map<String, ?> extraParams) {
+    Map<String, Object> copy = new HashMap<>();
+    for (Map.Entry<String, ?> entry : extraParams.entrySet()) {
+      copy.put(entry.getKey(), entry.getValue());
+    }
+    return copy;
+  }
+
+  /**
+   * Builds Lucene search-engine properties from the server search configuration, including a typed
+   * copy of custom properties.
+   *
+   * @param searchConfig server search configuration, never <code>null</code>
+   * @return properties ready for {@link PSSearchEngine#getInstance(Properties)}, never <code>null
+   *     </code>
+   */
+  static Properties buildSearchEngineProperties(PSSearchConfig searchConfig) {
+    Properties props = new Properties();
+    props.setProperty(
+        PSSearchEngine.PROP_CLASSNAME, "com.percussion.search.lucene.PSSearchEngineImpl");
+    Map<String, String> customProps = searchConfig.getCustomProps();
+    if (customProps == null) {
+      return props;
+    }
+    for (Map.Entry<String, String> entry : customProps.entrySet()) {
+      String name = entry.getKey();
+      if (name == null) {
+        continue;
+      }
+      Object value = entry.getValue();
+      props.setProperty(name, value == null ? "" : value.toString());
+    }
+    return props;
   }
 
   /**
@@ -3342,21 +3418,11 @@ public class PSServer {
    *     content types. The array may be <code>null</code>.
    * @throws PSSearchException if there are any errors.
    */
-  @SuppressWarnings(value = "unchecked")
   private static void initSearch(PSApplication[] apps) throws PSSearchException {
     PSSearchConfig searchConfig = getServerConfiguration().getSearchConfig();
 
     PSConsole.printMsg("Server", "Initializing search engine");
-    Properties props = new Properties();
-    props.setProperty(
-        PSSearchEngine.PROP_CLASSNAME, "com.percussion.search.lucene.PSSearchEngineImpl");
-
-    Map customProps = searchConfig.getCustomProps();
-    Iterator propIter = customProps.keySet().iterator();
-    while (propIter.hasNext()) {
-      String prop = (String) propIter.next();
-      props.setProperty(prop, customProps.get(prop).toString());
-    }
+    Properties props = buildSearchEngineProperties(searchConfig);
 
     PSSearchException se = null;
     try {
@@ -3391,10 +3457,8 @@ public class PSServer {
           if (app != null) {
             PSCollection datasets = app.getDataSets();
             if (datasets != null) {
-              for (Iterator iter = datasets.iterator(); iter.hasNext(); ) {
-                PSDataSet dataset = (PSDataSet) iter.next();
-                if (dataset instanceof PSContentEditor) {
-                  PSContentEditor ce = (PSContentEditor) dataset;
+              for (Object rawDataset : datasets) {
+                if (rawDataset instanceof PSContentEditor ce) {
                   knownContentTypeIds.add(ce.getContentType());
                 }
               }
