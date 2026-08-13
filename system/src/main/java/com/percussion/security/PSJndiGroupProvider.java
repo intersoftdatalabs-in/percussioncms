@@ -78,8 +78,7 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     m_directoryDef = directoryDef;
     m_userObjectAttrName = userObjectAttrName;
 
-    @SuppressWarnings("unchecked")
-    Iterator<String> nodes = m_groupProviderInstance.getGroupNodes();
+    Iterator<String> nodes = PSCatalogerTypes.strings(m_groupProviderInstance.getGroupNodes());
     while (nodes.hasNext()) {
       String node = nodes.next();
       m_groupLocationInfo.add(new GroupLocationInfo(node));
@@ -572,8 +571,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (foundOcs.isEmpty()) return groupMembers;
 
     // walk supported object classes and see if in the list
-    @SuppressWarnings("unchecked")
-    Iterator<String> defOcs = m_groupProviderInstance.getObjectClassesNames();
+    Iterator<String> defOcs =
+        PSCatalogerTypes.strings(m_groupProviderInstance.getObjectClassesNames());
     while (defOcs.hasNext()) {
       String defOc = defOcs.next();
       if (foundOcs.contains(defOc.toLowerCase())) {
@@ -857,8 +856,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (foundOcs.isEmpty()) return false;
 
     // walk supported object classes and see if in the list
-    @SuppressWarnings("unchecked")
-    Iterator<String> defOcs = m_groupProviderInstance.getObjectClassesNames();
+    Iterator<String> defOcs =
+        PSCatalogerTypes.strings(m_groupProviderInstance.getObjectClassesNames());
     while (defOcs.hasNext()) {
       String defOc = defOcs.next();
       if (foundOcs.contains(defOc.toLowerCase())) {
@@ -1112,8 +1111,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   private String getGroupsSearchFilter() {
     if (m_groupsSearchFilter == null) {
       StringBuilder buf = new StringBuilder();
-      @SuppressWarnings("unchecked")
-      Iterator<String> ocs = m_groupProviderInstance.getObjectClassesNames();
+      Iterator<String> ocs =
+          PSCatalogerTypes.strings(m_groupProviderInstance.getObjectClassesNames());
       while (ocs.hasNext()) {
         String oc = ocs.next();
         if (buf.length() == 0) buf.append("(|");
@@ -1143,8 +1142,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   private String[] getMemberListAttributes() {
     if (m_memberListAttributes == null) {
       List<String> attrs = new ArrayList<>();
-      @SuppressWarnings("unchecked")
-      Iterator<String> ocs = m_groupProviderInstance.getObjectClassesNames();
+      Iterator<String> ocs =
+          PSCatalogerTypes.strings(m_groupProviderInstance.getObjectClassesNames());
       while (ocs.hasNext()) {
         String oc = ocs.next();
         attrs.add(m_groupProviderInstance.getMemberAttribute(oc));

@@ -283,8 +283,7 @@ public class PSThreadRequestUtils {
             PSUserContextExtractor.getUserContextInformation(userCtx, getPSRequest(), null);
 
     if (userSet != null) {
-      @SuppressWarnings("unchecked")
-      Iterator<PSLiteral> userNames = userSet.iterator();
+      Iterator<PSLiteral> userNames = PSCatalogerTypes.literals(userSet);
 
       while (userNames.hasNext() && !isInternalUser) {
         String userName = userNames.next().getValueText();

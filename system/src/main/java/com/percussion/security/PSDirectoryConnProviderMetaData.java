@@ -119,8 +119,7 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
           directorySet.getRequiredAttributeName(PSDirectorySet.OBJECT_ATTRIBUTE_KEY);
       String[] attrIDs = {objectAttributeName};
 
-      @SuppressWarnings("unchecked")
-      Iterator<PSReference> references = directorySet.iterator();
+      Iterator<PSReference> references = PSCatalogerTypes.directoryRefs(directorySet);
       while (references.hasNext()) {
         PSReference reference = references.next();
         PSDirectory directory = config.getDirectory(reference.getName());

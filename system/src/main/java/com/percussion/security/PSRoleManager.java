@@ -36,7 +36,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -400,9 +399,7 @@ public class PSRoleManager {
     for (PSSubject subject : subjects) {
       // pattern match on all attributes
       PSAttributeList newAttrs = new PSAttributeList();
-      // objectstore PSAttributeList.iterator() is raw; narrow at the boundary
-      @SuppressWarnings("unchecked")
-      Iterator<PSAttribute> attrs = subject.getAttributes().iterator();
+      Iterator<PSAttribute> attrs = PSCatalogerTypes.attributes(subject.getAttributes());
       while (attrs.hasNext()) {
         PSAttribute attr = attrs.next();
         if (!patternMatch.doesMatchPattern(attr.getName())) continue;
@@ -754,9 +751,8 @@ public class PSRoleManager {
       }
 
       // Prefer role attributes: only add global attributes that role subject does not define.
-      // objectstore PSAttributeList.iterator() is raw; narrow at the boundary.
-      @SuppressWarnings("unchecked")
-      Iterator<PSAttribute> globalAttrs = globalSubject.getAttributes().iterator();
+      Iterator<PSAttribute> globalAttrs =
+          PSCatalogerTypes.attributes(globalSubject.getAttributes());
       while (globalAttrs.hasNext()) {
         PSAttribute attr = globalAttrs.next();
         if (existing.getAttributes().getAttribute(attr.getName()) == null) {
@@ -846,11 +842,7 @@ public class PSRoleManager {
       boolean includeEmptySubjects,
       String communityId) {
     // use treeset to prevent duplicates and enforce ordering
-    // objectstore comparator is raw; narrow at the boundary
-    @SuppressWarnings("unchecked")
-    Comparator<PSSubject> subjectIdComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    Set<PSSubject> subjects = new TreeSet<>(subjectIdComparator);
+    Set<PSSubject> subjects = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
 
     // add all subjects from all security providers
     subjects.addAll(
@@ -891,11 +883,7 @@ public class PSRoleManager {
       String communityId,
       boolean includeEmpty) {
     // use treeset to prevent duplicates and enforce ordering
-    // objectstore comparator is raw; narrow at the boundary
-    @SuppressWarnings("unchecked")
-    Comparator<PSSubject> subjectIdComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    Set<PSSubject> results = new TreeSet<>(subjectIdComparator);
+    Set<PSSubject> results = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
 
     // add all subjects from all security providers
     results.addAll(
@@ -959,11 +947,7 @@ public class PSRoleManager {
     if (roleName.length() == 0) throw new IllegalArgumentException("roleName cannot be empty");
 
     // use treeset to prevent duplicates and enforce ordering
-    // objectstore comparator is raw; narrow at the boundary
-    @SuppressWarnings("unchecked")
-    Comparator<PSSubject> subjectIdComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    Set<PSSubject> subjects = new TreeSet<>(subjectIdComparator);
+    Set<PSSubject> subjects = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
 
     // add all subjects from all security providers
     subjects.addAll(

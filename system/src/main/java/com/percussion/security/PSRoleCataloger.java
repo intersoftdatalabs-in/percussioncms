@@ -25,7 +25,6 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -251,7 +250,6 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    * @see IPSInternalRoleCataloger
    */
   @Override
-  @SuppressWarnings("unchecked")
   public Set<PSSubject> getSubjects(
       String roleName,
       String subjectNameFilter,
@@ -262,9 +260,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     if (subjectType == PSSubject.SUBJECT_TYPE_GROUP) return new HashSet<>();
 
     // use treeset to prevent duplicates and enforce ordering
-    Comparator<PSSubject> subjectComparator =
-        (Comparator<PSSubject>) PSSubject.getSubjectIdentifierComparator();
-    Set<PSSubject> results = new TreeSet<>(subjectComparator);
+    Set<PSSubject> results = new TreeSet<>(PSCatalogerTypes.subjectIdentifierComparator());
     String plainRoleName = roleName;
     if (roleName != null && m_roleProvider.isDelimited()) {
       roleName = "*" + roleName + "*";

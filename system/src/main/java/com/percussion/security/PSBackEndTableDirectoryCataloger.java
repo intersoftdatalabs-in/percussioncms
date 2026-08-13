@@ -125,8 +125,7 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
       result = stmt.executeQuery();
 
       if (result.next()) {
-        @SuppressWarnings("unchecked")
-        Iterator<PSAttribute> attrs = attributes.iterator();
+        Iterator<PSAttribute> attrs = PSCatalogerTypes.attributes(attributes);
         while (attrs.hasNext()) {
           PSAttribute attr = attrs.next();
 
