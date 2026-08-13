@@ -12,6 +12,8 @@ const assert = require("node:assert/strict");
 const {
   catalogRowsSelector,
   catalogRowSelector,
+  catalogOpenByExactName,
+  catalogRowByExactName,
 } = require("../helpers/developer-catalog-selectors");
 
 describe("catalogRowsSelector", () => {
@@ -53,5 +55,46 @@ describe("catalogRowSelector", () => {
   it("rejects negative or non-integer index", () => {
     assert.throws(() => catalogRowSelector("developer-ct-row", -1), TypeError);
     assert.throws(() => catalogRowSelector("developer-ct-row", 1.5), TypeError);
+  });
+});
+
+describe("catalogOpenByExactName (#3269)", () => {
+  it("targets By_Author open without matching By_Author_And_Date substring", () => {
+    const sel = catalogOpenByExactName(
+      "developer-df-open",
+      "data-df-name",
+      "By_Author",
+    );
+    assert.equal(
+      sel,
+      '[data-testid="developer-df-open"][data-df-name="By_Author"]',
+    );
+    assert.ok(!sel.includes("hasText"));
+    const peer = catalogOpenByExactName(
+      "developer-df-open",
+      "data-df-name",
+      "By_Author_And_Date",
+    );
+    assert.notEqual(sel, peer);
+  });
+
+  it("rejects empty name or non data-* attr", () => {
+    assert.throws(
+      () => catalogOpenByExactName("developer-df-open", "data-df-name", ""),
+      TypeError,
+    );
+    assert.throws(
+      () => catalogOpenByExactName("developer-df-open", "df-name", "By_Author"),
+      TypeError,
+    );
+  });
+});
+
+describe("catalogRowByExactName (#3269)", () => {
+  it("targets the unique data-df-name row", () => {
+    assert.equal(
+      catalogRowByExactName("data-df-name", "By_Author"),
+      'tr[data-df-name="By_Author"]',
+    );
   });
 });

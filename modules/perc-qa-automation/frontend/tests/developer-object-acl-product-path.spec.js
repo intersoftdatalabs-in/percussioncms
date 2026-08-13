@@ -45,6 +45,8 @@ const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   catalogRowSelector,
+  catalogOpenByExactName,
+  catalogRowByExactName,
 } = require("./helpers/developer-catalog-selectors");
 
 /**
@@ -450,10 +452,15 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
 
     const names = [];
     for (let i = 0; i < count; i++) {
-      names.push((await openButtons.nth(i).innerText()).trim());
+      names.push(
+        (
+          (await openButtons.nth(i).getAttribute("data-df-name")) ||
+          (await openButtons.nth(i).innerText())
+        ).trim(),
+      );
     }
-    const byAuthor = names.find((n) => /^By_Author$/i.test(n));
-    const peer = names.find((n) => n && n !== byAuthor);
+    const byAuthor = names.find((n) => n === "By_Author");
+    const peer = names.find((n) => n && n !== "By_Author");
     const toOpen = [byAuthor, peer].filter(Boolean);
     expect(
       toOpen.length,
@@ -461,7 +468,16 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     ).toBeGreaterThan(0);
 
     for (const name of toOpen) {
-      await page.locator('[data-testid="developer-df-open"]', { hasText: name }).click();
+      // Exact data-df-name — not hasText substring (#3269 / #3200).
+      const openExact = page.locator(
+        catalogOpenByExactName("developer-df-open", "data-df-name", name),
+      );
+      await expect(openExact, `unique open for ${name}`).toHaveCount(1);
+      await expect(
+        page.locator(catalogRowByExactName("data-df-name", name)),
+        `unique row for ${name}`,
+      ).toHaveCount(1);
+      await openExact.click();
       await expect(page.locator('[data-testid="developer-df-detail"]')).toBeVisible({
         timeout: 20_000,
       });

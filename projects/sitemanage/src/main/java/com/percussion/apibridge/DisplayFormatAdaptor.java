@@ -27,15 +27,16 @@ import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.rest.Guid;
 import com.percussion.rest.displayformat.*;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -71,17 +72,33 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   @Override
   public List<DisplayFormat> findAllDisplayFormats()
       throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
-    var ret = new ArrayList<DisplayFormat>();
-    var displayFormats = designWs.findDisplayFormats(null, null);
-    var guids = new ArrayList<IPSGuid>();
-    for (var c : displayFormats) {
-      guids.add(c.getGUID());
+    // Catalog identity comes from find summaries (unique INTERNALNAME). Bulk
+    // loadDisplayFormats(all GUIDs) can replay the first format (By_Author)
+    // for every row (#3269 / #3200). Prefer a name-matched load; fall back to
+    // the summary when load returns a different name.
+    var summaries = designWs.findDisplayFormats(null, null);
+    var uniqueByName = new LinkedHashMap<String, IPSCatalogSummary>();
+    if (summaries != null) {
+      for (var summary : summaries) {
+        if (summary == null) {
+          continue;
+        }
+        String name = summary.getName();
+        if (name == null || name.isBlank()) {
+          continue;
+        }
+        uniqueByName.putIfAbsent(name, summary);
+      }
     }
-    var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-    var currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-    var dfs = designWs.loadDisplayFormats(guids, false, false, currentSession, currentUser);
-    for (var f : dfs) {
-      ret.add(copyDisplayFormat(f));
+    var ret = new ArrayList<DisplayFormat>(uniqueByName.size());
+    for (var summary : uniqueByName.values()) {
+      String name = summary.getName();
+      PSDisplayFormat loaded = designWs.findDisplayFormat(name);
+      if (loaded != null && name.equalsIgnoreCase(loaded.getName())) {
+        ret.add(copyDisplayFormat(loaded));
+      } else {
+        ret.add(copyFromCatalogSummary(summary));
+      }
     }
     return ret;
   }
@@ -89,6 +106,32 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   private DisplayFormatPropertyList copyDisplayFormatProps(PSDFProperties props) {
     // TODO: Implement property copying if needed.
     return new DisplayFormatPropertyList(new ArrayList<>());
+  }
+
+  /**
+   * Catalog row from {@code findDisplayFormats} when full load replayed another format.
+   *
+   * @param summary unique-name catalog hit; never {@code null}
+   * @return REST row with name/label/guid from the summary
+   */
+  private DisplayFormat copyFromCatalogSummary(IPSCatalogSummary summary) {
+    var ret = new DisplayFormat();
+    ret.setName(summary.getName());
+    ret.setInternalName(summary.getName());
+    ret.setLabel(summary.getLabel());
+    ret.setDisplayName(summary.getLabel());
+    ret.setDescription(summary.getDescription());
+    Guid mapped = copyGuid(summary.getGUID());
+    ret.setGuid(mapped);
+    int displayId = 0;
+    if (summary.getGUID() != null) {
+      displayId = summary.getGUID().getUUID();
+    }
+    if (displayId > 0) {
+      ret.setDisplayId(displayId);
+    }
+    ret.setGuidString(plainGuidString(mapped, displayId));
+    return ret;
   }
 
   private DisplayFormat copyDisplayFormat(PSDisplayFormat f)

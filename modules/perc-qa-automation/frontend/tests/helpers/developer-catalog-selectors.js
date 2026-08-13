@@ -48,7 +48,66 @@ function catalogRowSelector(rowTestIdBase, index) {
   return `[data-testid="${rowTestIdBase.trim()}-${index}"]`;
 }
 
+/**
+ * Escape a value for use inside a double-quoted CSS attribute selector.
+ * Prefer CSS.escape when present (browsers); Node unit tests use a fallback.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+function cssAttrEscape(value) {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/**
+ * Exact-name catalog open control (not Playwright hasText substring).
+ * Example: catalogOpenByExactName("developer-df-open", "data-df-name", "By_Author")
+ * → [data-testid="developer-df-open"][data-df-name="By_Author"]
+ *
+ * @param {string} openTestId e.g. developer-df-open
+ * @param {string} dataNameAttr e.g. data-df-name
+ * @param {string} name exact catalog name
+ * @returns {string}
+ */
+function catalogOpenByExactName(openTestId, dataNameAttr, name) {
+  if (typeof openTestId !== "string" || !openTestId.trim()) {
+    throw new TypeError("openTestId must be a non-empty string");
+  }
+  if (typeof dataNameAttr !== "string" || !dataNameAttr.startsWith("data-")) {
+    throw new TypeError("dataNameAttr must be a data-* attribute name");
+  }
+  if (typeof name !== "string" || !name) {
+    throw new TypeError("name must be a non-empty string");
+  }
+  return `[data-testid="${openTestId.trim()}"][${dataNameAttr}="${cssAttrEscape(name)}"]`;
+}
+
+/**
+ * Exact-name catalog row via data-* identity (indexed testid still present).
+ * Example: catalogRowByExactName("data-df-name", "By_Author")
+ * → tr[data-df-name="By_Author"]
+ *
+ * @param {string} dataNameAttr
+ * @param {string} name
+ * @returns {string}
+ */
+function catalogRowByExactName(dataNameAttr, name) {
+  if (typeof dataNameAttr !== "string" || !dataNameAttr.startsWith("data-")) {
+    throw new TypeError("dataNameAttr must be a data-* attribute name");
+  }
+  if (typeof name !== "string" || !name) {
+    throw new TypeError("name must be a non-empty string");
+  }
+  return `tr[${dataNameAttr}="${cssAttrEscape(name)}"]`;
+}
+
 module.exports = {
   catalogRowsSelector,
   catalogRowSelector,
+  catalogOpenByExactName,
+  catalogRowByExactName,
+  cssAttrEscape,
 };

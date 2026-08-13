@@ -50,7 +50,24 @@ export type SimpleCatalogRow = {
   cells: React.ReactNode[];
   /** When set, row is clickable (pointer cursor + keyboard + onClick). */
   onClick?: () => void;
+  /**
+   * Optional `data-*` attributes on the `<tr>` for exact catalog identity
+   * (e.g. `data-df-name="By_Author"`). Keys that do not start with `data-` are ignored.
+   */
+  dataAttrs?: Record<string, string>;
 };
+
+/** Copy only `data-*` keys so catalog identity attrs cannot inject arbitrary props. */
+function rowDataProps(attrs?: Record<string, string>): Record<string, string> {
+  if (!attrs) return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k.startsWith("data-") && v != null) {
+      out[k] = v;
+    }
+  }
+  return out;
+}
 
 /**
  * Shared list-catalog chrome used by Developer *Panel* browse tables.
@@ -93,6 +110,7 @@ export function SimpleCatalogTable({
               <tr
                 key={r.key}
                 data-testid={`${rowTestId}-${index}`}
+                {...rowDataProps(r.dataAttrs)}
                 style={{
                   ...tableRow,
                   cursor: clickable ? "pointer" : undefined,
