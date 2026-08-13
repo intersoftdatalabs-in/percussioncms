@@ -95,7 +95,10 @@ unavailable). Link problems are reported in the JSON result (and in `link-report
 the output root) without failing the HTTP status when the build itself succeeds.
 
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind is
-Virtual (never for traditional repository Sites). See [Sites & content structure](id:admin-sites).
+Virtual (never for traditional repository Sites). When `hasLinkProblems` is true, the result
+panel shows the problem **count** and an expandable list of `linkProblems` (same text as
+`link-report.txt`). A clean build does not show that banner. See
+[Sites & content structure](id:admin-sites).
 
 #### Preview assembled Virtual Site (`GET …/virtual/preview`)
 

@@ -15,11 +15,12 @@
  */
 
 /**
- * Developer Sites → Virtual Site source panel (#2956 / #3020 / epic #2678).
+ * Developer Sites → Virtual Site source panel (#2956 / #3020 / #3300 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
  * with source-kind control (repository default), save chrome, and Build Virtual
  * Site chrome only when source kind is virtual (never for repository).
+ * Also intercepts build REST to prove link-problem detail lines render on HTTP 200.
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -163,5 +164,141 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
 
     const jsErrors = page.__virtPageErrors || [];
     expect(jsErrors, `uncaught page errors: ${jsErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("build result lists linkProblems on HTTP 200", async ({ page }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      // Mocked catalog site has no GUID; ACL GET 404 is expected host noise, not a JS exception.
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/build", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          siteKey: "product-docs",
+          outputPath: "C:/tmp/virtual-sites/product-docs",
+          pagesWritten: 3,
+          linkProblemCount: 2,
+          hasLinkProblems: true,
+          linkProblems: [
+            "broken id:missing-page from 8.2/index.md",
+            "unresolved relative ./gone.md",
+          ],
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "git-filesystem",
+          rootPath: "C:/docs",
+          configFile: "_config.yaml",
+          siteKey: "product-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — Virtual Site link-problem list requires a site row",
+      });
+      return;
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-build-link-problems"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-build-link-line"]'),
+    ).toHaveCount(2);
+    await page.locator('[data-testid="developer-site-virtual-build-link-toggle"]').click();
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-build-link-line"]').nth(0),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="developer-site-virtual-build-link-line"]').nth(0),
+    ).toHaveText("broken id:missing-page from 8.2/index.md");
+    expect(consoleErrors).toEqual([]);
   });
 });

@@ -29,6 +29,30 @@ export function shouldShowVirtualBuildChrome(
 }
 
 /**
+ * Trim and drop empty {@code linkProblems} lines from a build result.
+ * HTTP 200 + {@code hasLinkProblems} is still a completed build — this is
+ * presentation only (same text as {@code link-report.txt}).
+ */
+export function normalizeVirtualSiteLinkProblems(
+  result: VirtualSiteBuildResult | null | undefined,
+): string[] {
+  if (!result || !Array.isArray(result.linkProblems)) {
+    return [];
+  }
+  const lines: string[] = [];
+  for (const raw of result.linkProblems) {
+    if (typeof raw !== "string") {
+      continue;
+    }
+    const line = raw.trim();
+    if (line.length > 0) {
+      lines.push(line);
+    }
+  }
+  return lines;
+}
+
+/**
  * Build a short operator-facing success summary from a build result DTO.
  * Pure helper for Vitest and the panel (no i18n — callers prefix labels).
  */
@@ -37,6 +61,7 @@ export function formatVirtualSiteBuildSummary(result: VirtualSiteBuildResult): {
   outputLine: string | null;
   linkLine: string | null;
   hasLinkProblems: boolean;
+  linkProblems: string[];
 } {
   const pages =
     typeof result.pagesWritten === "number" && Number.isFinite(result.pagesWritten)
@@ -49,22 +74,23 @@ export function formatVirtualSiteBuildSummary(result: VirtualSiteBuildResult): {
       ? result.outputPath.trim()
       : null;
 
+  const linkProblems = normalizeVirtualSiteLinkProblems(result);
   const linkCount =
     typeof result.linkProblemCount === "number" && Number.isFinite(result.linkProblemCount)
       ? result.linkProblemCount
       : 0;
   const hasLinkProblems =
-    result.hasLinkProblems === true ||
-    linkCount > 0 ||
-    (Array.isArray(result.linkProblems) && result.linkProblems.length > 0);
+    result.hasLinkProblems === true || linkCount > 0 || linkProblems.length > 0;
 
-  const linkLine = hasLinkProblems ? String(linkCount > 0 ? linkCount : result.linkProblems?.length ?? 0) : null;
+  const resolvedCount = linkCount > 0 ? linkCount : linkProblems.length;
+  const linkLine = hasLinkProblems ? String(resolvedCount) : null;
 
   return {
     pagesLine,
     outputLine: output,
     linkLine,
     hasLinkProblems,
+    linkProblems,
   };
 }
 
