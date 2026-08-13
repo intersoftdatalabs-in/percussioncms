@@ -1056,6 +1056,22 @@ export function ContentExplorerShell({
             >
               {message(EXPLORER_MSG.ACTION_REFRESH)}
             </button>
+            {/* Always-visible Security residual (#3268 / #2410); View menu
+                also has Folder Security (#2731). Product Playwright
+                (us4-acl) requires explorer-toggle-security on the Explorer
+                route without opening the View dropdown. */}
+            <button
+              type="button"
+              data-testid="explorer-toggle-security"
+              aria-label={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
+              title={message(EXPLORER_MSG.TOGGLE_SECURITY_ARIA)}
+              aria-pressed={showSecurity}
+              aria-expanded={showSecurity}
+              aria-controls="explorer-security-panel"
+              onClick={() => handleMenuBarCommand("view-security")}
+            >
+              {message(EXPLORER_MSG.SECURITY_TITLE)}
+            </button>
           </div>
         </div>
       </header>

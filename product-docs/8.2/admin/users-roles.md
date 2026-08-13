@@ -128,6 +128,18 @@ visibility). Operators set a **default ACL template** under
 
 See [Object ACL & default template](id:admin-object-acl).
 
+## Folder ACL (Content Explorer)
+
+Site admins edit **folder** access lists from Content Explorer:
+
+1. Open **Explorer** (`spa.jsp?entry=explorer`).
+2. Select the folder in the tree or list.
+3. Choose **Security** on the view-tools toolbar, or **View → Folder Security**.
+
+The panel shows Admin / Write / Read / View principals. Saving with yourself
+removed from every grant prompts a self-lockout confirmation. See
+[Content Explorer](id:admin-content-explorer).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.
