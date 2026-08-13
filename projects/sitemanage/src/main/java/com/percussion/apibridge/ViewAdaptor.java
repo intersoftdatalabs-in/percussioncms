@@ -28,23 +28,33 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.data.PSInternalRequestCallException;
+import com.percussion.server.PSInternalRequest;
+import com.percussion.server.PSServer;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.ui.IPSUiDesignWs;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
- * CX view definition catalog (UI-07) plus standard-view execute façade for Explorer (#3115 / #3110
- * V1). Loads designs via {@link IPSUiDesignWs#findViews} / {@link IPSUiDesignWs#loadViews} — not
- * the search catalog.
+ * CX view definition catalog (UI-07) plus view execute façade for Explorer (#3115 / #3239). Loads
+ * designs via {@link IPSUiDesignWs#findViews} / {@link IPSUiDesignWs#loadViews} — not the search
+ * catalog. Standard views use the design search runner; Inbox-family custom URLs invoke {@code
+ * sys_cxViews/*} and map {@code Item} rows to Explorer items.
  */
 @PSSiteManageBean
 @Lazy
@@ -56,19 +66,24 @@ public class ViewAdaptor implements IViewAdaptor {
   static final int DEFAULT_PAGE_SIZE = 25;
 
   /**
-   * Explicit 400 for Inbox-family custom URL views. Dedicated runner is #3118 — this façade must
-   * not silently no-op.
+   * Classic CX custom-view pages that this runner will invoke. Other custom URLs stay an explicit
+   * 400 (never a silent empty list or 500).
    */
-  static final String CUSTOM_VIEW_EXECUTE_UNSUPPORTED =
-      "Custom URL views cannot be executed via this endpoint. Inbox and other custom-URL views"
-          + " require a dedicated runner (issue #3118)";
+  static final Set<String> SUPPORTED_CX_VIEW_PAGES =
+      Set.of("inbox", "outbox", "recent", "session", "checkedoutbyme", "duplicatefolderpaths");
+
+  /** Explicit 400 when a custom-view URL is blank or not a supported {@code sys_cxViews} page. */
+  static final String CUSTOM_VIEW_URL_UNSUPPORTED =
+      "Unsupported custom URL view. Supported classic resources are sys_cxViews/inbox,"
+          + " sys_cxViews/outbox, sys_cxViews/recent, sys_cxViews/session,"
+          + " sys_cxViews/checkedoutbyme, and sys_cxViews/duplicatefolderpaths.";
 
   /** Catalog-level capability notes. Attached on detail only (REST-GAPS-02 list dedup). */
   static final List<String> DESIGN_GAPS =
       List.of(
           "View create / update / delete not supported via this API",
           "View field criterion editing not supported via this API",
-          "Custom URL views (Inbox family) cannot be executed via this API; see Inbox / #3118",
+          "Custom URL views outside the sys_cxViews Inbox family cannot be executed via this API",
           "Searches are a separate catalog (Developer Searches / UI-06)");
 
   private static final List<String> RESULT_COLUMNS =
@@ -132,29 +147,17 @@ public class ViewAdaptor implements IViewAdaptor {
       if (design == null) {
         return null;
       }
+      List<ViewResultItem> allItems;
       if (design.isCustomView()) {
-        throw new IllegalArgumentException(CUSTOM_VIEW_EXECUTE_UNSUPPORTED);
+        allItems = runCustomUrlView(design, effective);
+      } else {
+        // Clone so folder/max overrides do not dirty a shared design instance
+        PSSearch search = (PSSearch) design.clone();
+        applyExecuteOverrides(search, effective);
+        allItems = runDesignView(search);
       }
-
-      // Clone so folder/max overrides do not dirty a shared design instance
-      PSSearch search = (PSSearch) design.clone();
-      applyExecuteOverrides(search, effective);
-
-      List<ViewResultItem> allItems = runDesignView(search);
       sortItems(allItems, effective.getSortColumn(), effective.getSortOrder());
-
-      int startIndex = effective.getStartIndex() != null ? effective.getStartIndex() : 1;
-      Integer maxResults = effective.getMaxResults();
-      PSPagedObjectList<ViewResultItem> page =
-          PSPagedObjectList.getPage(allItems, startIndex, maxResults);
-
-      ViewExecuteResult result = new ViewExecuteResult();
-      result.setChildren(new ArrayList<>(page.getChildrenInPage()));
-      result.setTotalCount(page.getChildrenCount() != null ? page.getChildrenCount() : allItems.size());
-      result.setStartIndex(page.getStartIndex() != null ? page.getStartIndex() : startIndex);
-      result.setViewName(design.getName());
-      result.setDisplayFormatId(design.getDisplayFormatId());
-      return result;
+      return toExecuteResult(design, effective, allItems);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
@@ -238,6 +241,144 @@ public class ViewAdaptor implements IViewAdaptor {
     items.sort(cmp);
   }
 
+  static ViewExecuteResult toExecuteResult(
+      PSSearch design, ViewExecuteRequest effective, List<ViewResultItem> allItems) {
+    int startIndex = effective.getStartIndex() != null ? effective.getStartIndex() : 1;
+    Integer maxResults = effective.getMaxResults();
+    PSPagedObjectList<ViewResultItem> page =
+        PSPagedObjectList.getPage(allItems, startIndex, maxResults);
+
+    ViewExecuteResult result = new ViewExecuteResult();
+    result.setChildren(new ArrayList<>(page.getChildrenInPage()));
+    result.setTotalCount(
+        page.getChildrenCount() != null ? page.getChildrenCount() : allItems.size());
+    result.setStartIndex(page.getStartIndex() != null ? page.getStartIndex() : startIndex);
+    result.setViewName(design.getName());
+    result.setDisplayFormatId(design.getDisplayFormatId());
+    return result;
+  }
+
+  /**
+   * Execute an Inbox-family custom URL view by invoking the classic {@code sys_cxViews} resource
+   * and mapping {@code Item/@sys_contentid} rows to Explorer items. Package-visible for spies.
+   */
+  List<ViewResultItem> runCustomUrlView(PSSearch design, ViewExecuteRequest request)
+      throws Exception {
+    String resource = resolveCustomViewResource(design != null ? design.getUrl() : null);
+    Document doc = fetchCustomViewDocument(resource);
+    List<ViewResultItem> items = mapCustomViewDocument(doc);
+    int cap = resolveCustomViewCap(design, request);
+    if (cap > 0 && items.size() > cap) {
+      return new ArrayList<>(items.subList(0, cap));
+    }
+    return items;
+  }
+
+  static int resolveCustomViewCap(PSSearch design, ViewExecuteRequest request) {
+    if (request != null && request.getMaxResults() != null && request.getMaxResults() >= 1) {
+      return request.getMaxResults();
+    }
+    if (design != null && design.getMaximumResultSize() > 0) {
+      return design.getMaximumResultSize();
+    }
+    return DEFAULT_PAGE_SIZE;
+  }
+
+  /**
+   * Normalize a custom-view URL (typical {@code ../sys_cxViews/inbox.xml}) to an internal request
+   * resource ({@code sys_cxViews/inbox}). Rejects blank, traversal, and non-whitelisted apps/pages.
+   */
+  static String resolveCustomViewResource(String rawUrl) {
+    if (StringUtils.isBlank(rawUrl)) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    }
+    String url = rawUrl.trim();
+    int query = url.indexOf('?');
+    if (query >= 0) {
+      url = url.substring(0, query);
+    }
+    if (url.indexOf('\\') >= 0 || url.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    }
+    while (url.startsWith("../")) {
+      url = url.substring(3);
+    }
+    if (url.startsWith("./")) {
+      url = url.substring(2);
+    }
+    while (url.startsWith("/")) {
+      url = url.substring(1);
+    }
+    String lower = url.toLowerCase(Locale.ROOT);
+    if (lower.startsWith("rhythmyx/")) {
+      url = url.substring("rhythmyx/".length());
+      lower = url.toLowerCase(Locale.ROOT);
+    }
+    if (lower.endsWith(".xml")) {
+      url = url.substring(0, url.length() - 4);
+    }
+    if (url.contains("..") || url.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    }
+    String[] parts = url.split("/");
+    if (parts.length != 2 || !"sys_cxviews".equals(parts[0].toLowerCase(Locale.ROOT))) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    }
+    String page = parts[1].toLowerCase(Locale.ROOT);
+    if (!SUPPORTED_CX_VIEW_PAGES.contains(page)) {
+      throw new IllegalArgumentException(CUSTOM_VIEW_URL_UNSUPPORTED);
+    }
+    return "sys_cxViews/" + page;
+  }
+
+  /**
+   * Invoke the classic app resource. Package-visible so tests can stub without a live CMS request
+   * context.
+   */
+  Document fetchCustomViewDocument(String resource) {
+    var request = PSWebserviceUtils.getRequest();
+    if (request == null) {
+      throw new WebApplicationException(
+          "View execute backend unavailable (no request context)",
+          Response.Status.SERVICE_UNAVAILABLE);
+    }
+    PSInternalRequest internal = PSServer.getInternalRequest(resource, request, null, true);
+    if (internal == null) {
+      throw new WebApplicationException(
+          "Custom view resource is not available: " + resource,
+          Response.Status.SERVICE_UNAVAILABLE);
+    }
+    try {
+      return internal.getResultDoc();
+    } catch (PSInternalRequestCallException e) {
+      log.error("Failed to execute custom view {}", resource, e);
+      throw new WebApplicationException(
+          "Custom view backend failed: " + resource, Response.Status.SERVICE_UNAVAILABLE);
+    }
+  }
+
+  List<ViewResultItem> mapCustomViewDocument(Document doc) {
+    List<ViewResultItem> out = new ArrayList<>();
+    if (doc == null) {
+      return out;
+    }
+    NodeList rows = doc.getElementsByTagName("Item");
+    for (int i = 0; i < rows.getLength(); i++) {
+      if (!(rows.item(i) instanceof Element itemEl)) {
+        continue;
+      }
+      String contentId = itemEl.getAttribute("sys_contentid");
+      if (StringUtils.isBlank(contentId)) {
+        continue;
+      }
+      ViewResultItem mapped = mapContentIdToItem(contentId.trim());
+      if (mapped != null) {
+        out.add(mapped);
+      }
+    }
+    return out;
+  }
+
   /**
    * Execute the design view ({@link PSSearch} of type view) via the local executable search path
    * (operators preserved). Package-visible for unit tests that subclass/spy can override.
@@ -283,9 +424,28 @@ public class ViewAdaptor implements IViewAdaptor {
     item.setName(title);
     item.setTitle(title);
     item.setType(type);
+    return enrichItemFromContentId(item, contentId.trim());
+  }
 
+  ViewResultItem mapContentIdToItem(String contentId) {
+    if (StringUtils.isBlank(contentId)) {
+      return null;
+    }
+    ViewResultItem item = new ViewResultItem();
+    item.setId(contentId);
+    item.setName(contentId);
+    item.setTitle(contentId);
+    return enrichItemFromContentId(item, contentId);
+  }
+
+  /**
+   * Resolve content id to Explorer id / folder / type. Returns {@code null} when the id is not
+   * numeric or the item is not in a folder.
+   */
+  ViewResultItem enrichItemFromContentId(ViewResultItem item, String contentId) {
     try {
-      var myGuid = PSGuidUtils.makeGuid(Integer.parseInt(contentId.trim()), PSTypeEnum.LEGACY_CONTENT);
+      var myGuid =
+          PSGuidUtils.makeGuid(Integer.parseInt(contentId.trim()), PSTypeEnum.LEGACY_CONTENT);
       String stringId = idMapper.getString(myGuid);
       item.setId(stringId);
       if (folderHelper.getParentFolderId(myGuid, false) == null) {
@@ -297,10 +457,12 @@ public class ViewAdaptor implements IViewAdaptor {
       PSItemProperties props = folderHelper.findItemPropertiesById(stringId);
       if (props != null) {
         item.setId(props.getId() != null ? props.getId() : stringId);
-        item.setName(StringUtils.defaultIfBlank(props.getName(), title));
+        String fallbackName = StringUtils.defaultIfBlank(item.getName(), contentId);
+        item.setName(StringUtils.defaultIfBlank(props.getName(), fallbackName));
         item.setTitle(
             StringUtils.defaultIfBlank(
-                props.getSummary(), StringUtils.defaultIfBlank(props.getName(), title)));
+                props.getSummary(),
+                StringUtils.defaultIfBlank(props.getName(), fallbackName)));
         item.setFolderPath(props.getPath());
         if (StringUtils.isNotBlank(props.getType())) {
           item.setType(props.getType());
@@ -315,7 +477,9 @@ public class ViewAdaptor implements IViewAdaptor {
       } else {
         log.debug("Could not enrich view result for content id {}: {}", contentId, e.toString());
       }
-      item.setId(contentId);
+      if (StringUtils.isBlank(item.getId())) {
+        item.setId(contentId);
+      }
     }
     return item;
   }

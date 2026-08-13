@@ -155,17 +155,49 @@ public class ViewResourceTest {
   }
 
   @Test
+  public void executeViewInboxCustomUrlSuccess() {
+    ViewExecuteResult expected = new ViewExecuteResult();
+    expected.setViewName("Inbox");
+    ViewResultItem row = new ViewResultItem();
+    row.setId("guid-1");
+    row.setName("Assignment");
+    row.setTitle("Assignment");
+    row.setFolderPath("//Sites/Demo");
+    row.setType("Page");
+    expected.setChildren(List.of(row));
+    expected.setTotalCount(1);
+    when(adaptor.executeView(eq("Inbox"), any())).thenReturn(expected);
+
+    ViewExecuteResult out = resource.executeView("Inbox", new ViewExecuteRequest());
+    assertSame(expected, out);
+    assertEquals(1, out.getChildren().size());
+    assertEquals("Assignment", out.getChildren().get(0).getTitle());
+    verify(adaptor).executeView(eq("Inbox"), any());
+  }
+
+  @Test
   public void executeViewMapsIllegalArgumentTo400() {
-    when(adaptor.executeView(eq("Inbox"), any()))
-        .thenThrow(
-            new IllegalArgumentException(
-                "Custom URL views cannot be executed via this endpoint"));
+    when(adaptor.executeView(eq("Custom"), any()))
+        .thenThrow(new IllegalArgumentException("Unsupported custom URL view"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.executeView("Custom", new ViewExecuteRequest()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("Unsupported custom URL"));
+  }
+
+  @Test
+  public void executeViewRethrowsServiceUnavailable() {
+    WebApplicationException mapped =
+        new WebApplicationException("View execute backend unavailable", 503);
+    when(adaptor.executeView(eq("Inbox"), any())).thenThrow(mapped);
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.executeView("Inbox", new ViewExecuteRequest()));
-    assertEquals(400, ex.getResponse().getStatus());
-    assertTrue(ex.getMessage().contains("Custom URL"));
+    assertSame(mapped, ex);
+    assertEquals(503, ex.getResponse().getStatus());
   }
 
   @Test

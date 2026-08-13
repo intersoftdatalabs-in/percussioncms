@@ -148,7 +148,7 @@ Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) a
 |--------|------|---------|
 | `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL) |
 | `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string |
-| `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view |
+| `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or an Inbox-family **custom URL** view |
 
 ### Execute request / response
 
@@ -170,20 +170,34 @@ Successful response is a paged envelope: `children[]` (Explorer-ready rows with 
 | Status | Typical meaning |
 |--------|-----------------|
 | `200` | List / get / execute success |
-| `400` | Invalid execute body, or the view is a **custom URL** view |
+| `400` | Invalid execute body, or an **unsupported** custom URL view |
 | `404` | View not found or unsafe key (blank, path separators, `..`) |
-| `500` | Design or execute engine failure |
-| `503` | Views adaptor not configured (deployment miswire) |
+| `500` | Design or execute engine failure (standard views) |
+| `503` | Views adaptor not configured, or custom-view backend unavailable |
 
 ### Custom URL views (Inbox family)
 
-Views flagged as **custom** (`customView` / Inbox, Outbox, Recent, and peers that run a classic
-application URL rather than field criteria) **cannot** be executed on this façade. The server
-returns **`400`** with a message that custom URL views are unsupported here. That family is
-deferred to a dedicated Inbox runner — it is **not** a silent empty result.
+Views flagged as **custom** (`customView`) store a classic application URL instead of field
+criteria. `POST /services/views/{idOrName}/execute` **runs** the documented Inbox family by
+invoking the classic resource and mapping `Item` rows to Explorer items (`id`, `name`, `title`,
+`folderPath`, `type`):
 
-Standard field-criteria views (`standardView`) execute with the same design operators, display
-format, max results, and case sensitivity stored on the view design.
+| View (typical name) | Classic resource |
+|---------------------|------------------|
+| Inbox | `sys_cxViews/inbox` (`../sys_cxViews/inbox.xml`) |
+| Outbox | `sys_cxViews/outbox` |
+| Recent | `sys_cxViews/recent` |
+| Session | `sys_cxViews/session` |
+| Checked out by me | `sys_cxViews/checkedoutbyme` |
+| Duplicate folder paths | `sys_cxViews/duplicatefolderpaths` |
+
+An empty Inbox is a **`200`** with `children: []` — not an error. Custom URLs **outside** that
+allow-list (blank URL, another application, unknown page, path traversal) return **`400`** with a
+clear message. Missing or unsafe view keys remain **`404`**. A missing request context or
+unavailable `sys_cxViews` resource returns **`503`**, not **`500`**.
+
+Standard field-criteria views (`standardView`) still execute with the same design operators,
+display format, max results, and case sensitivity stored on the view design.
 
 ### Integrator notes
 

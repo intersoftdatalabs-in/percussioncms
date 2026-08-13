@@ -25,15 +25,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * CX view design catalog (UI-07 list/detail) plus standard-view execute façade for Explorer.
+ * CX view design catalog (UI-07 list/detail) plus view execute façade for Explorer.
  *
- * <p>Searches (UI-06) remain a separate catalog. Custom-URL views (Inbox family) are not executed
- * here — they return 400 (see Inbox / #3118).
+ * <p>Searches (UI-06) remain a separate catalog. Inbox-family custom-URL views ({@code
+ * sys_cxViews/inbox} and documented peers) are executed on this same path; other custom URLs
+ * return 400.
  */
 @PSSiteManageBean(value = "restViewResource")
 @Path("/views")
 @XmlRootElement
-@Tag(name = "Views", description = "CX view design catalog and standard-view execute")
+@Tag(name = "Views", description = "CX view design catalog and view execute")
 public class ViewResource {
 
   private final IViewAdaptor adaptor;
@@ -105,21 +106,23 @@ public class ViewResource {
   }
 
   /**
-   * Execute a standard field-criteria design view. Path is multi-segment so it does not collide
-   * with {@code GET /{idOrName}} catalog detail. Custom URL views return 400.
+   * Execute a design view (standard field-criteria or Inbox-family custom URL). Path is
+   * multi-segment so it does not collide with {@code GET /{idOrName}} catalog detail.
    */
   @POST
   @Path("/{idOrName}/execute")
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
-      summary = "Execute a standard design view",
+      summary = "Execute a design view",
       description =
           "Loads the CX view design by name, GUID, or id from the views catalog (not searches)"
-              + " and executes it server-side with design field operators, display format, max"
-              + " results, and case sensitivity. Optional body may override folder scope, paging,"
-              + " and sort. Custom URL views (Inbox / Outbox / Recent) return 400; use the Inbox"
-              + " runner when that surface ships.",
+              + " and executes it server-side. Standard views use design field operators, display"
+              + " format, max results, and case sensitivity. Custom URL views in the Inbox family"
+              + " (sys_cxViews/inbox, outbox, recent, session, checkedoutbyme,"
+              + " duplicatefolderpaths) invoke the classic app resource and return Explorer rows."
+              + " Optional body may override folder scope (standard views), paging, and sort."
+              + " Unsupported custom URLs return 400.",
       responses = {
         @ApiResponse(
             responseCode = "200",
