@@ -154,11 +154,6 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.clearIdSe
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQuery;
 import static com.percussion.utils.request.PSRequestInfoBase.KEY_PSREQUEST;
 import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
-import static org.hibernate.type.StandardBasicTypes.BOOLEAN;
-import static org.hibernate.type.StandardBasicTypes.DATE;
-import static org.hibernate.type.StandardBasicTypes.INTEGER;
-import static org.hibernate.type.StandardBasicTypes.LONG;
-import static org.hibernate.type.StandardBasicTypes.STRING;
 
 
 /**
@@ -1022,8 +1017,10 @@ public class PSContentRepository
             {
                 query.append(" order by sys_sortrank asc");
             }
+            Class<?> childImpl = child.getImplementingClasses().get(0)
+                    .getImplementingClass();
             List<?> children = getSession().createQuery(
-                    query.toString()).setParameter("cid",content_id).setParameter("rev",revision).list();
+                    query.toString(), childImpl).setParameter("cid",content_id).setParameter("rev",revision).list();
             for (Object rep : children)
             {
                 PSLegacyGuid legacyguid=null;
@@ -2013,7 +2010,7 @@ public class PSContentRepository
      * @throws InvalidQueryException if failed to prepare the query.
      */
 
-    private Query prepareQuery(PSQuery psquery, Long typeid, Session s,
+    private Query<Map> prepareQuery(PSQuery psquery, Long typeid, Session s,
                                IPSQueryNode internalwhere, int maxresults,
                                Map<String, ? extends Object> params) throws InvalidQueryException
     {
@@ -2095,25 +2092,25 @@ public class PSContentRepository
         if (ms_log.isDebugEnabled())
             ms_log.debug("[{}] HQL Query execution: {}" , Thread.currentThread().getId(), querystr);
 
-        Query q = s.createQuery(querystr.toString());
+        Query<Map> q = s.createQuery(querystr.toString(), Map.class);
         Map<String, Object> qparams = wherebuilder.getQueryParams();
         for (Map.Entry<String, Object> pname : qparams.entrySet())
         {
             Object value = pname.getValue();
             logParameter(pname.getKey(), value);
 
-            if(value instanceof Boolean) {
-                q.setParameter(pname.getKey(), value, BOOLEAN);
-            }else if (value instanceof Integer) {
-                q.setParameter(pname.getKey(), value, INTEGER);
-            }else if(value instanceof String){
-                q.setParameter(pname.getKey(), value, STRING);
-            }else if(value instanceof Date) {
-                q.setParameter(pname.getKey(), value, DATE);
-            }else if(value instanceof Long) {
-                q.setParameter(pname.getKey(), value, LONG);
-            }else{
-                q.setParameter(pname.getKey(),value);
+            if (value instanceof Boolean boolVal) {
+                q.setParameter(pname.getKey(), boolVal, Boolean.class);
+            } else if (value instanceof Integer intVal) {
+                q.setParameter(pname.getKey(), intVal, Integer.class);
+            } else if (value instanceof String strVal) {
+                q.setParameter(pname.getKey(), strVal, String.class);
+            } else if (value instanceof Date dateVal) {
+                q.setParameter(pname.getKey(), dateVal, Date.class);
+            } else if (value instanceof Long longVal) {
+                q.setParameter(pname.getKey(), longVal, Long.class);
+            } else {
+                q.setParameter(pname.getKey(), value);
             }
         }
         if (maxresults > 0)
@@ -2132,20 +2129,49 @@ public class PSContentRepository
      * not <code>null</code>.
      */
 
-    private void gatherQueryResults(List<Map<String, Object>> results, PSQueryResult rval)
+    private void gatherQueryResults(List<Map> results, PSQueryResult rval)
     {
         // The results are a map. Create a row for each result
-        for (Map<String, Object> result : results)
+        for (Map result : results)
         {
-            // Handle folder info, replace "sys_folderid" with "rx:sys_folderid"
-            Integer fid = (Integer) result.get(IPSHtmlParameters.SYS_FOLDERID);
-            if (fid != null)
-            {
-                result.remove(IPSHtmlParameters.SYS_FOLDERID);
-                result.put(IPSContentPropertyConstants.RX_SYS_FOLDERID, fid);
-            }
-            rval.addRow(new PSRow(result));
+            rval.addRow(new PSRow(remapFolderId(result)));
         }
+    }
+
+    /**
+     * Copies a Hibernate {@code new map(...)} projection row into a typed map.
+     */
+    static Map<String, Object> asStringObjectMap(Map<?, ?> raw)
+    {
+        Map<String, Object> typed = new HashMap<>();
+        if (raw == null)
+        {
+            return typed;
+        }
+        for (Map.Entry<?, ?> entry : raw.entrySet())
+        {
+            Object key = entry.getKey();
+            if (key != null)
+            {
+                typed.put(String.valueOf(key), entry.getValue());
+            }
+        }
+        return typed;
+    }
+
+    /**
+     * Copies a projection row and remaps {@code sys_folderid} to {@code rx:sys_folderid}.
+     */
+    static Map<String, Object> remapFolderId(Map<?, ?> raw)
+    {
+        Map<String, Object> row = asStringObjectMap(raw);
+        Object fid = row.get(IPSHtmlParameters.SYS_FOLDERID);
+        if (fid != null)
+        {
+            row.remove(IPSHtmlParameters.SYS_FOLDERID);
+            row.put(IPSContentPropertyConstants.RX_SYS_FOLDERID, fid);
+        }
+        return row;
     }
 
     /**
@@ -2274,22 +2300,13 @@ public class PSContentRepository
             for (Long typeid : typeids)
             {
 
-                    Query q = prepareQuery(psquery, typeid, s, internalwhere, maxresults, params);
+                    Query<Map> q = prepareQuery(psquery, typeid, s, internalwhere, maxresults, params);
                     if (q == null)
                         continue;
 
                     PSStopwatch sw = new PSStopwatch();
                     sw.start();
-                    List<Map<String, Object>> results;
-                    if (!collectionIds.isEmpty()) {
-                        @SuppressWarnings("unchecked")
-                        List<Map<String, Object>> tmp = (List<Map<String, Object>>) executeQuery(q);
-                        results = tmp;
-                    } else {
-                      @SuppressWarnings("unchecked")
-                      List<Map<String, Object>> tmp = q.list();
-                      results = tmp;
-                   }
+                    List<Map> results = !collectionIds.isEmpty() ? executeQuery(q) : q.list();
 
                     sw.stop();
 
@@ -2431,7 +2448,7 @@ public class PSContentRepository
                     query.append(" where ab.sys_id.sys_contentid = :cid ").append(
                             "and ab.sys_id.sys_revision = :rev");
 
-                    List<?> datas = s.createQuery(query.toString()).setParameter("cid",id.getSys_contentid())
+                    List<?> datas = s.createQuery(query.toString(), ic).setParameter("cid",id.getSys_contentid())
                             .setParameter("rev", id.getSys_revision()).setResultTransformer(Transformers.aliasToBean(ic)).list();
 
                     if (datas.isEmpty()) continue;
@@ -2451,7 +2468,7 @@ public class PSContentRepository
                         "and sys_revision = :rev and sys_sysid = :child";
 
                 List<?> children = getSession().createQuery(
-                                query).setParameter("cid", pg.getContentId())
+                                query, ic).setParameter("cid", pg.getContentId())
                         .setParameter("rev", pg.getRevision())
                         .setParameter("child", lg.getContentId()).list();
                 if (children.isEmpty()) continue;

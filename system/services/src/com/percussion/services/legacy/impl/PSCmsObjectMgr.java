@@ -98,6 +98,7 @@ import org.hibernate.Cache;
 import org.hibernate.CacheMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,11 +226,11 @@ public class PSCmsObjectMgr
     public Optional<LocalDateTime> getFirstPublishDate(Integer contentId){
         Date postDate  = null;
         Session session = getSession();
-        Query q = session.getNamedQuery("getPostDate");
+        Query<Date> q = session.createNamedQuery("getPostDate", Date.class);
         q.setParameter("contentId", contentId);
-        List result = q.list();
+        List<Date> result = q.list();
         if(result != null && !result.isEmpty())
-            postDate = (Date) result.get(0);
+            postDate = result.get(0);
         if (postDate == null) return Optional.empty();
         return Optional.of(LocalDateTime.ofInstant(postDate.toInstant(), java.time.ZoneId.systemDefault()));
     }
@@ -308,9 +309,8 @@ public class PSCmsObjectMgr
         List<int[]> pairs = new ArrayList<>();
         Session session = getSession();
         try {
-            @SuppressWarnings("unchecked")
             List<Object[]> rows =
-                    session.createNativeQuery(ACTION_MENU_RELATION_SQL).getResultList();
+                    session.createNativeQuery(ACTION_MENU_RELATION_SQL, Object[].class).getResultList();
             if (rows != null) {
                 for (Object[] row : rows) {
                     if (row == null || row.length < 2 || row[0] == null || row[1] == null) {
@@ -348,6 +348,38 @@ public class PSCmsObjectMgr
                     + ACTION_MENU_RELATION_CHILD_COL
                     + " from "
                     + ACTION_MENU_RELATION_TABLE;
+
+    /**
+     * Builds the HQL for {@link #findLocales(String, String)}. Package-visible for unit tests.
+     */
+    static String buildLocaleFindHql(String lang, String label)
+    {
+       String queryString = "from PSLocale locale ";
+       if (!StringUtils.isBlank(lang))
+       {
+          queryString += "where locale.m_languageString = :lang ";
+       }
+       if (!StringUtils.isBlank(label))
+       {
+          queryString += StringUtils.isBlank(lang) ? "where " : "and ";
+          queryString += "locale.m_displayName like :label ";
+       }
+       queryString += "order by locale.m_displayName asc";
+       return queryString;
+    }
+
+    /**
+     * Builds the mutation HQL for {@link #updateSummaryDateFieldBatch}. Package-visible for tests.
+     */
+    static String formatUpdateDateHql(String fieldName, boolean updateExisting)
+    {
+       String queryToUse = String.format(UPDATE_DATE_HQL, fieldName);
+       if (!updateExisting)
+       {
+          queryToUse += String.format(WHERE_NULL, fieldName);
+       }
+       return queryToUse;
+    }
 
     public List<PSActionMenu> findActionMenusByType(String type) {
         Session session = getSession();
@@ -477,33 +509,25 @@ public class PSCmsObjectMgr
          List<PSLocale> locales = new ArrayList<>();
 
          Map<String, String> paramMap = new LinkedHashMap<>();
-         String queryString = "from PSLocale locale ";
+         String queryString = buildLocaleFindHql(lang, label);
 
          if (!StringUtils.isBlank(lang))
          {
-            queryString += "where locale.m_languageString = :lang ";
             paramMap.put("lang", lang);
          }
 
          if (!StringUtils.isBlank(label))
          {
-            if (paramMap.isEmpty())
-               queryString += "where ";
-            else
-               queryString += "and ";
-
-            queryString += "locale.m_displayName like :label ";
             paramMap.put("label", label);
          }
 
-         queryString += "order by locale.m_displayName asc";
-         Query query = session.createQuery(queryString);
+         Query<PSLocale> query = session.createQuery(queryString, PSLocale.class);
          for (Map.Entry<String, String> entry : paramMap.entrySet())
          {
             query.setParameter(entry.getKey(), entry.getValue());
          }
 
-         locales = (List<PSLocale>) query.list();
+         locales = query.list();
 
          return locales.stream();
 
@@ -516,9 +540,9 @@ public class PSCmsObjectMgr
 
          List<PSLocale> locales = new ArrayList<>();
 
-         Query query = session.createQuery("from PSLocale locale " + "order by locale.m_displayName asc");
+         Query<PSLocale> query = session.createQuery("from PSLocale locale " + "order by locale.m_displayName asc", PSLocale.class);
 
-         locales = (List<PSLocale>) query.list();
+         locales = query.list();
 
          return locales.stream();
 
@@ -621,7 +645,8 @@ public class PSCmsObjectMgr
 
       return getSession()
             .createQuery(
-                  "from PSPersistentPropertyMeta pm where pm.userName like :name").setParameter(
+                  "from PSPersistentPropertyMeta pm where pm.userName like :name",
+                  PSPersistentPropertyMeta.class).setParameter(
                   "name", name).list();
 
    }
@@ -654,7 +679,8 @@ public class PSCmsObjectMgr
 
       return getSession()
             .createQuery(
-                  "from PSPersistentProperty p where p.m_userName like :name").setParameter(
+                  "from PSPersistentProperty p where p.m_userName like :name",
+                  PSPersistentProperty.class).setParameter(
                   "name", userName).list();
    }
 
@@ -843,7 +869,7 @@ public class PSCmsObjectMgr
       Session s = getSession();
 
          List<PSComponentSummary> summaries = s
-               .createQuery("from PSComponentSummary c where c.m_checkoutUserName in (:users)")
+               .createQuery("from PSComponentSummary c where c.m_checkoutUserName in (:users)", PSComponentSummary.class)
                .setParameterList("users", users).list();
          fixupLocators(summaries);
          return summaries.stream();
@@ -855,7 +881,7 @@ public class PSCmsObjectMgr
    {
       List<PSComponentSummary> summaries = getSession()
             .createQuery(
-                  "from PSComponentSummary c where c.m_contentTypeId = :type").setParameter(
+                  "from PSComponentSummary c where c.m_contentTypeId = :type", PSComponentSummary.class).setParameter(
                   "type", contentType).list();
       fixupLocators(summaries);
       return summaries.stream();
@@ -864,21 +890,21 @@ public class PSCmsObjectMgr
 
    public Stream<Integer> findContentIdsByType(long contentType) throws PSORMException
    {
-      return ((List<Integer>) getSession()
+      return getSession()
             .createQuery(
                   "select c.m_contentId "
-                        + "from PSComponentSummary c where c.m_contentTypeId = :type").setParameter(
-                  "type", contentType).list()).stream();
+                        + "from PSComponentSummary c where c.m_contentTypeId = :type", Integer.class).setParameter(
+                  "type", contentType).list().stream();
    }
 
 
    public Stream<Integer> findContentIdsByWorkflow(int workflowid) throws PSORMException
    {
-      return ((List<Integer>) getSession()
+      return getSession()
             .createQuery(
                   "select c.m_contentId "
-                        + "from PSComponentSummary c where c.m_workflowAppId = :workflowid").setParameter(
-                  "workflowid", workflowid).list()).stream();
+                        + "from PSComponentSummary c where c.m_workflowAppId = :workflowid", Integer.class).setParameter(
+                  "workflowid", workflowid).list().stream();
    }
 
 
@@ -886,13 +912,13 @@ public class PSCmsObjectMgr
    {
 
 
-      return ((List<Integer>) getSession()
+      return getSession()
             .createQuery(
                   "select c.m_contentId "
                         + "from PSComponentSummary c where c.m_workflowAppId = :workflowid " +
-                        "and c.m_contentStateId = :stateid")
+                        "and c.m_contentStateId = :stateid", Integer.class)
               .setParameter("workflowid",workflowid).setParameter("stateid",stateid)
-              .list()).stream();
+              .list().stream();
 
    }
 
@@ -961,12 +987,12 @@ public class PSCmsObjectMgr
 
       try
       {
-         Query q;
+         Query<Integer> q;
          if (cids.size() < MAX_IDS)
          {
             q = s.createQuery("SELECT c.m_contentId " + "FROM PSComponentSummary c, PSState s "
                   + "WHERE c.m_contentId in (:ids) AND " + "c.m_workflowAppId = s.workflowId AND "
-                  + "c.m_contentStateId = s.stateId AND " + "s.contentValidValue in (:flags)");
+                  + "c.m_contentStateId = s.stateId AND " + "s.contentValidValue in (:flags)", Integer.class);
             q.setParameterList("ids", cids);
             q.setParameterList("flags", flags);
          }
@@ -976,12 +1002,11 @@ public class PSCmsObjectMgr
             q = s.createQuery("SELECT c.m_contentId " + "FROM PSComponentSummary c, PSState s, PSTempId t "
                   + "WHERE c.m_contentId = t.pk.itemId AND " + "t.pk.id = :idset AND "
                   + "c.m_workflowAppId = s.workflowId AND " + "c.m_contentStateId = s.stateId AND "
-                  + "s.contentValidValue in (:flags)");
+                  + "s.contentValidValue in (:flags)", Integer.class);
             q.setParameter("idset", idset);
             q.setParameterList("flags", flags);
          }
-         //
-         List<Integer> results = (idset != 0) ? (List) executeQuery(q) : q.list();
+         List<Integer> results = (idset != 0) ? executeQuery(q) : q.list();
          Set<Integer> passedcids = new HashSet<>();
          for (Integer cid : results)
          {
@@ -1523,9 +1548,9 @@ public class PSCmsObjectMgr
    {
       Session session = getSession();
 
-         Query query = session.createQuery("from PSCmsObject");
+         Query<PSCmsObject> query = session.createQuery("from PSCmsObject", PSCmsObject.class);
 
-         return ((List<PSCmsObject>) query.list()).stream();
+         return query.list().stream();
 
    }
 
@@ -1799,11 +1824,13 @@ public class PSCmsObjectMgr
       return itemEntry;
    }
 
-   private static final String itemQuery = "select c.m_contentId, c.m_name, c.m_communityId, " +
+   static final String itemQuery = "select c.m_contentId, c.m_name, c.m_communityId, " +
            "c.m_contentTypeId, c.m_objectType, c.m_contentCreatedBy, " +
            "c.m_contentLastModifiedDate, c.m_contentPostDate, c.m_contentCreatedDate, " +
            "c.m_workflowAppId, c.m_contentStateId, c.m_tipRevision, c.m_currRevision, " +
            "c.m_publicRevision, c.m_contentLastModifier, c.m_checkoutUserName, c.m_contentPublishDate from PSComponentSummary c";
+
+   static final String ITEM_ENTRY_BY_ID_HQL = itemQuery + " where c.m_contentId = :id";
 
            private static final int DEFAULT_MAX_SUMMARY_CACHE_SIZE = -1;
            private String CUSTOMIZED_MAX_SUMMARY_CACHE_SIZE;
@@ -1818,7 +1845,7 @@ public class PSCmsObjectMgr
    {
 
          Session session = getSession();
-         Query q = session.createQuery(itemQuery);
+         Query<Object[]> q = session.createQuery(itemQuery, Object[].class);
          q.setCacheable(true);
          q.setCacheMode(CacheMode.NORMAL);
          q.setCacheRegion("PSComponentSummary");
@@ -1863,7 +1890,8 @@ public class PSCmsObjectMgr
     {
         Session session = getSession();
 
-        Query q = session.createQuery(itemQuery + " where c.m_contentId=" + id);
+        Query<Object[]> q = session.createQuery(ITEM_ENTRY_BY_ID_HQL, Object[].class)
+                .setParameter("id", id);
         List<Object[]> listItems = q.list();
 
         Map<Integer, Map<Integer, String>> wfStateIdNameMap = new HashMap<>();
@@ -2340,11 +2368,9 @@ public class PSCmsObjectMgr
     {
         Session s = getSession();
 
-            String queryToUse = String.format(UPDATE_DATE_HQL, fieldName);
-            if (!updateExisting)
-                queryToUse+=String.format(WHERE_NULL, fieldName);
+            String queryToUse = formatUpdateDateHql(fieldName, updateExisting);
 
-            Query query = s.createQuery(queryToUse).setParameter("dateToSet", dateToSet)
+            MutationQuery query = s.createMutationQuery(queryToUse).setParameter("dateToSet", dateToSet)
                     .setParameterList("ids", ids);
             int result = query.executeUpdate();
         PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
