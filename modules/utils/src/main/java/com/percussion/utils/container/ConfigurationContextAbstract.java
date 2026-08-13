@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * Abstract base class for configuration contexts.
@@ -72,13 +72,11 @@ public abstract class ConfigurationContextAbstract<
 
   @Override
   public void load() {
-    // CRTP residual: subclasses are typed as ConfigurationContextAbstract<Self, U>
     load(self());
   }
 
   @Override
   public void save() {
-    // CRTP residual: subclasses are typed as ConfigurationContextAbstract<Self, U>
     save(self());
   }
 
@@ -89,7 +87,6 @@ public abstract class ConfigurationContextAbstract<
    */
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {
     try {
-      // BeanUtils.cloneBean returns Object; config type is U by construction of this hierarchy.
       this.config = cloneConfig(from.getConfig());
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -97,26 +94,25 @@ public abstract class ConfigurationContextAbstract<
   }
 
   /**
-   * CRTP self-view. Concrete contexts extend {@code ConfigurationContextAbstract<Self, U>} so this
-   * cast is the single residual for load/save without a class-level blanket suppress.
+   * CRTP self-view. Concrete contexts implement this as {@code return this} so {@link #load()} /
+   * {@link #save()} stay typed without an unchecked {@code (T) this} cast.
    *
    * @return {@code this} as {@code T}
    */
-  @SuppressWarnings("unchecked")
-  private T self() {
-    return (T) this;
-  }
+  protected abstract T self();
 
   /**
-   * Clone a config bean. {@link BeanUtils#cloneBean(Object)} returns {@link Object}; the cast is
-   * scoped here.
+   * Clone a config bean. Instantiates via this context's {@link #ctor} (same supplier used at
+   * construction) and copies properties with {@link PropertyUtils#copyProperties(Object, Object)},
+   * matching {@code BeanUtils.cloneBean} without an unchecked {@code (U)} cast.
    *
    * @param source config to clone, never {@code null}
    * @return cloned config as {@code U}
-   * @throws Exception if BeanUtils fails
+   * @throws Exception if property copy fails
    */
-  @SuppressWarnings("unchecked")
   private U cloneConfig(U source) throws Exception {
-    return (U) BeanUtils.cloneBean(source);
+    U copy = ctor.get();
+    PropertyUtils.copyProperties(copy, source);
+    return copy;
   }
 }
