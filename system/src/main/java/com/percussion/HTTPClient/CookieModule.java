@@ -31,6 +31,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ProtocolException;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -114,14 +115,38 @@ public class CookieModule implements HTTPClientModule {
         String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
         ois.setObjectInputFilter(Config.createFilter(filterSpec));
 
-        @SuppressWarnings("unchecked")
-        ConcurrentHashMap<Cookie, Cookie> loaded =
-            (ConcurrentHashMap<Cookie, Cookie>) ois.readObject();
-        cookie_cntxt_list.put(HTTPConnection.getDefaultContext(), loaded);
+        cookie_cntxt_list.put(HTTPConnection.getDefaultContext(), readCookieJar(ois));
       } catch (IOException | ClassNotFoundException e) {
         cookie_jar = null;
       }
     }
+  }
+
+  /**
+   * Reads a cookie jar written by {@link #saveCookies()}. Rebuilds a typed map from runtime-checked
+   * entries so {@link ObjectInputStream#readObject()} does not require an unchecked cast.
+   *
+   * @param ois stream positioned at the serialized map, never {@code null}
+   * @return typed cookie map, never {@code null} (may be empty)
+   * @throws IOException if the payload is not a {@link ConcurrentHashMap} of {@link Cookie} entries
+   * @throws ClassNotFoundException if a serialized class cannot be resolved
+   */
+  static ConcurrentHashMap<Cookie, Cookie> readCookieJar(ObjectInputStream ois)
+      throws IOException, ClassNotFoundException {
+    Object raw = ois.readObject();
+    if (!(raw instanceof ConcurrentHashMap<?, ?> rawMap)) {
+      throw new IOException("cookie jar is not a ConcurrentHashMap");
+    }
+    ConcurrentHashMap<Cookie, Cookie> loaded = new ConcurrentHashMap<>();
+    for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+      Object key = entry.getKey();
+      Object value = entry.getValue();
+      if (!(key instanceof Cookie cookieKey) || !(value instanceof Cookie cookieValue)) {
+        throw new IOException("cookie jar contains a non-Cookie entry");
+      }
+      loaded.put(cookieKey, cookieValue);
+    }
+    return loaded;
   }
 
   private static void saveCookies() {
