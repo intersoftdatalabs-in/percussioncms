@@ -65,6 +65,7 @@ import com.percussion.guitools.ErrorDialogs;
 import com.percussion.guitools.PSAboutDialog;
 import com.percussion.guitools.UTBrowserControl;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
+import com.percussion.search.PSSearchFieldFilter;
 import com.percussion.search.PSSearchFieldFilterMap;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSFormatVersion;
@@ -217,35 +218,39 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /**
-   * Adapts a raw menu-action children iterator from {@link PSMenuAction#getChildren()} (system API
-   * still raw) into a typed iterator for local use.
+   * Typed view of {@link PSMenuAction#getChildren()}. Inherent: system API still returns a raw
+   * {@link Iterator} of {@link PSMenuAction}.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Iterator<PSMenuAction> asMenuActions(Iterator children) {
-    return children;
+  static Iterator<PSMenuAction> asMenuActions(PSMenuAction action) {
+    if (action == null) {
+      return Collections.emptyIterator();
+    }
+    return action.getChildren();
   }
 
   /**
-   * Adapts a raw node iterator from managers / older APIs into {@code Iterator<PSNode>}.
+   * Typed view of {@link PSParameters#getParamKeys()}. Inherent: system API still returns a raw
+   * {@link Iterator} of {@link String} keys (backing map is {@code Map<String, String>}).
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Iterator<PSNode> asNodes(Iterator children) {
-    return children;
+  static Iterator<String> asParamKeys(PSParameters params) {
+    if (params == null) {
+      return Collections.emptyIterator();
+    }
+    return params.getParamKeys();
   }
 
   private static Iterator<PSNode> asNodeListIterator(List<PSNode> results) {
     return results == null ? Collections.emptyIterator() : results.iterator();
   }
 
-  /** Adapts a raw display-format iterator into a typed iterator. */
+  /**
+   * Typed wrapper around raw {@link PSMenuAction#setChildren(Iterator)}. Inherent: system API is
+   * not parameterized.
+   */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Iterator<PSDisplayFormat> asDisplayFormats(Iterator formats) {
-    return formats;
-  }
-
-  /** Typed wrapper around raw {@link PSMenuAction#setChildren(Iterator)}. */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static void setMenuChildren(PSMenuAction action, Iterator<PSMenuAction> children) {
+  static void setMenuChildren(PSMenuAction action, Iterator<PSMenuAction> children) {
     action.setChildren(children);
   }
 
@@ -667,7 +672,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     PSMenuAction filterAction = filter((PSMenuAction) action.clone(), selection, isTestMultiSelect);
     if (filterAction == null || !filterAction.getChildren().hasNext()) {
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      setMenuChildren(action, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
+      setMenuChildren(action, PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label)));
     } else action = filterAction;
 
     return action;
@@ -685,13 +690,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     List<PSMenuAction> childActions = new ArrayList<>();
 
     Iterator<PSDisplayFormat> dispFormats = null;
-    if (selection.isFolderType()) dispFormats = asDisplayFormats(m_folderMgr.getDisplayFormats());
+    if (selection.isFolderType()) dispFormats = m_folderMgr.getDisplayFormats();
     else if (selection.isOfType(PSNode.TYPE_NEW_SRCH)
         || selection.isOfType(PSNode.TYPE_SAVE_SRCH)
         || selection.isOfType(PSNode.TYPE_CUSTOM_SRCH)
         || selection.isOfType(PSNode.TYPE_STANDARD_SRCH)
         || selection.isOfType(PSNode.TYPE_VIEW)) {
-      dispFormats = asDisplayFormats(m_searchViewMgr.getDisplayFormats());
+      dispFormats = m_searchViewMgr.getDisplayFormats();
     }
 
     if (dispFormats != null && dispFormats.hasNext()) {
@@ -781,7 +786,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       retAction = new PSMenuAction("parent", "parent");
       retAction.setType(PSMenuAction.TYPE_MENU);
       String label = m_applet.getResourceString(getClass(), "No Entries");
-      setMenuChildren(retAction, asMenuActions(PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label))));
+      setMenuChildren(retAction, PSIteratorUtils.iterator(new PSMenuAction(ACTION_NO_ENTRIES, label)));
 
       // Update the action to return for context menu if we found action
       // children based on mode and uicontext of the selection.
@@ -789,7 +794,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         PSMenuAction filterAction = filter((PSMenuAction) action.clone(), selection, true);
         if (filterAction != null) {
           // Modified to populate initially and do not wait for selection
-          Iterator<PSMenuAction> children = asMenuActions(filterAction.getChildren());
+          Iterator<PSMenuAction> children = asMenuActions(filterAction);
           if (children.hasNext()) {
             poplateDynamic(children, selection);
           }
@@ -816,7 +821,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         String url = makeUrl(action, selection);
         Iterator<PSMenuAction> childActions = getActionChildren(action, url, selection);
         setMenuChildren(action, childActions);
-        poplateDynamic(asMenuActions(action.getChildren()), selection);
+        poplateDynamic(asMenuActions(action), selection);
         action.setURL("");
       }
     }
@@ -1201,7 +1206,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           if (propValue != null) child.getProperties().setProperty(prop, propValue);
         }
       } else if (child.getType().equalsIgnoreCase("MENU")) {
-        setPassThruParams(asMenuActions(child.getChildren()), passThruParamValues);
+        setPassThruParams(asMenuActions(child), passThruParamValues);
       }
     }
   }
@@ -1369,7 +1374,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     List<PSMenuAction> keep = new ArrayList<PSMenuAction>();
     PSMenuAction childAction = null;
-    Iterator<PSMenuAction> iter = asMenuActions(action.getChildren());
+    Iterator<PSMenuAction> iter = asMenuActions(action);
     if (iter.hasNext()) {
       while (iter.hasNext()) {
         childAction = iter.next();
@@ -1483,8 +1488,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     boolean hasRevision = false;
     PSParameters actionParams = action.getParameters();
     if (actionParams != null) {
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      Iterator<String> iter = actionParams.getParamKeys();
+      Iterator<String> iter = asParamKeys(actionParams);
       String matchParam = "$" + IPSHtmlParameters.SYS_REVISION;
       while (iter.hasNext() && !hasRevision) {
         String key = iter.next();
@@ -1821,14 +1825,14 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
          * the folder API.
          */
         if (node.isAnyFolderType()) {
-          children = asNodes(m_folderMgr.loadChildren(node));
+          children = m_folderMgr.loadChildren(node);
         }
         /**
          * If the node type is related to a "Search" or "View" load the children using the Search
          * View Manager.
          */
         else if (node.isSearchType()) {
-          children = asNodes(m_searchViewMgr.loadChildren(node));
+          children = m_searchViewMgr.loadChildren(node);
         } else {
           String sUrl = node.getChildrenURL();
           if (sUrl.trim().length() < 1) {
@@ -2484,7 +2488,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         boolean isRcSearch = m_newSearchNode.getSlotId().length() > 0;
         // prepare the search fields filter and pass it to the
         // PSSearchDialog
-        Map<?, ?> searchFieldFilterMap = prepareSearchFilterMap(m_newSearchNode);
+        Map<String, PSSearchFieldFilter> searchFieldFilterMap =
+            prepareSearchFilterMap(m_newSearchNode);
         // see the NOTE above
         Runtime.getRuntime().gc();
         PSSearchDialog dlg =
@@ -2529,7 +2534,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           boolean isRcSearch = searchNode.getSlotId().length() > 0;
           // prepare the search fields filter and pass it to the
           // PSSearchDialog
-          Map<?, ?> searchFieldFilterMap = prepareSearchFilterMap(searchNode);
+          Map<String, PSSearchFieldFilter> searchFieldFilterMap =
+              prepareSearchFilterMap(searchNode);
           // see the NOTE above
           Runtime.getRuntime().gc();
           PSSearchDialog dlg =
@@ -3903,8 +3909,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     if (tgtNode == null) return actionUrl;
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    Iterator<String> keys = actionParams.getParamKeys();
+    Iterator<String> keys = asParamKeys(actionParams);
     String key, value, paramName = null;
     while (keys.hasNext()) {
       key = keys.next();
@@ -4126,8 +4131,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     String key = null;
     String value = null;
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    Iterator<String> iter = actionParams.getParamKeys();
+    Iterator<String> iter = asParamKeys(actionParams);
     while (iter.hasNext()) {
       key = iter.next();
       value = actionParams.getParameter(key);
@@ -4176,8 +4180,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     String value = null;
     PSProperties nodeProps = node.getProperties();
     if (nodeProps != null) {
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      Iterator<String> iter = actionParams.getParamKeys();
+      Iterator<String> iter = asParamKeys(actionParams);
       while (iter.hasNext()) {
         key = iter.next();
         value = actionParams.getParameter(key);
@@ -4639,7 +4642,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     null</code>.
    */
   private PSMenuAction findChildActionByName(PSMenuAction actionParent, String actionName) {
-    Iterator<PSMenuAction> children = asMenuActions(actionParent.getChildren());
+    Iterator<PSMenuAction> children = asMenuActions(actionParent);
     PSMenuAction action = null;
     while (children.hasNext()) {
       action = children.next();
@@ -4860,17 +4863,16 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *
    * @param searchNode for which filter map is needed.
    * @return Map The key in the map is search field name and corresponding value is <code>
-   *     PSSearchFieldFilter</code> object. Returns <code>null</code> if no filter needs to be
+   *     PSSearchFieldFilter</code> object. Never <code>null</code>; empty if no filter needs to be
    *     applied.
    * @throws PSContentExplorerException
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private Map<?, ?> prepareSearchFilterMap(PSNode searchNode) throws PSContentExplorerException {
-
-    Map fm = new HashMap();
+  Map<String, PSSearchFieldFilter> prepareSearchFilterMap(PSNode searchNode)
+      throws PSContentExplorerException {
     if (searchNode == null) {
       throw new IllegalArgumentException("searchNode must not be null");
     }
+    Map<String, PSSearchFieldFilter> fm = new HashMap<>();
     try {
       // Slot Content Types Filter
       if (searchNode.getSlotId().trim().length() > 0) {
