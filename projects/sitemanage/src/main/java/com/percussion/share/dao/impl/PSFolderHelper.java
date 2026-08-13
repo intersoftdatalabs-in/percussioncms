@@ -20,6 +20,7 @@ package com.percussion.share.dao.impl;
 
 import static com.percussion.share.dao.PSFolderPermissionUtils.getFolderPermission;
 import static com.percussion.share.dao.PSFolderPermissionUtils.getUserAcl;
+import static com.percussion.share.dao.PSFolderPermissionUtils.hasEveryoneAdminAccess;
 import static com.percussion.share.dao.PSFolderPermissionUtils.setFolderPermission;
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
@@ -36,6 +37,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAclEntry;
+import com.percussion.cms.objectstore.PSObjectAclNextNumberReconciler;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCharacterInFolderNameException;
@@ -1072,13 +1074,32 @@ public class PSFolderHelper implements IPSFolderHelper {
   public void setDefaultPermissions(String path) {
     notEmpty(path, "path");
 
+    // Seed NEXTNR=1000 allocates SYSID 1001, already used by cmsTableData Everyone (#3282).
+    boolean advanced = PSObjectAclNextNumberReconciler.reconcileOnServer();
+    if (advanced) {
+      log.info("Advanced PSX_OBJECTACL NEXTNUMBER past existing SYSID values before ACL persist");
+    }
+
     IPSGuid id = contentWs.getIdByPath(path);
     PSFolder folder = contentWs.loadFolder(id, false);
+
+    if (shouldSkipDefaultAclRewrite(folder)) {
+      log.info("Skipping default ACL rewrite for {} — Everyone already has ADMIN", path);
+      return;
+    }
 
     // Set ADMIN for everyone
     setFolderPermission(folder, PSFolderPermission.Access.ADMIN);
 
     contentWs.saveFolder(folder);
+  }
+
+  /**
+   * Default asset-root ACL rewrite is idempotent when virtual Everyone already has ADMIN. Adding
+   * Admin/Designer ROLE rows on every start would allocate new SYSIDs.
+   */
+  static boolean shouldSkipDefaultAclRewrite(PSFolder folder) {
+    return hasEveryoneAdminAccess(folder);
   }
 
   /**
