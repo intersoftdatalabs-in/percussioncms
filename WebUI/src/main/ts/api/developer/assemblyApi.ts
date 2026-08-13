@@ -87,7 +87,14 @@ export function wrapTemplateDetailForWire(
   body: Partial<
     Pick<
       TemplateDetail,
-      "label" | "description" | "templateSource" | "assembler" | "bindings" | "slots"
+      | "name"
+      | "label"
+      | "description"
+      | "templateSource"
+      | "assembler"
+      | "mimeType"
+      | "bindings"
+      | "slots"
     >
   >,
 ): Record<string, typeof body> {
@@ -180,6 +187,30 @@ export async function updateTemplateDetail(
   const key = encodeURIComponent(idOrName);
   const payload = await put<unknown>(
     `${PATHS.TEMPLATES}/${key}`,
+    wrapTemplateDetailForWire(body),
+  );
+  return unwrapTemplateDetail(payload);
+}
+
+/** Fields accepted on POST /services/templates (modern create — no Widget XML). */
+export type TemplateCreateBody = Partial<
+  Pick<
+    TemplateDetail,
+    "name" | "label" | "description" | "assembler" | "templateSource" | "mimeType"
+  >
+> & {
+  name: string;
+};
+
+/**
+ * POST /services/templates — create a modern assembly template.
+ * Request is root-wrapped; response is unwrapped like GET/PUT.
+ */
+export async function createTemplate(
+  body: TemplateCreateBody,
+): Promise<TemplateDetail> {
+  const payload = await post<unknown>(
+    PATHS.TEMPLATES,
     wrapTemplateDetailForWire(body),
   );
   return unwrapTemplateDetail(payload);

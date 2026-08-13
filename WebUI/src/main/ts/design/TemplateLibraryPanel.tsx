@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
-import { listTemplates } from "../api/developer/assemblyApi";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createTemplate,
+  listTemplates,
+} from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
 import {
   extractRestErrorMessage,
@@ -28,7 +31,13 @@ import {
   CatalogStatus,
   SimpleCatalogTable,
 } from "../developer/CatalogTable";
-import { monoCell, mutedCell, openButtonStyle } from "../developer/catalogStyles";
+import {
+  catalogColors,
+  monoCell,
+  mutedCell,
+  openButtonStyle,
+} from "../developer/catalogStyles";
+import { CreateTemplateDialog } from "./CreateTemplateDialog";
 import { DESIGN_MSG } from "./messages";
 import { TemplateSourceEditor } from "./TemplateSourceEditor";
 
@@ -51,16 +60,25 @@ function listErrMsg(err: unknown, fallback: string): string {
 }
 
 /**
- * Design template library (#2808 list + #2809 source/JEXL + #2810 assembler/slots):
- * browse catalog, empty/error states, open row to edit via public REST.
+ * Design template library (#2808 list + #2809 source/JEXL + #2810 assembler/slots
+ * + #3305 create without Widget XML).
  */
 export function TemplateLibraryPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createBusy, setCreateBusy] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const reload = useCallback(() => {
+    setReloadTick((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    setError(null);
     listTemplates()
       .then((list) => {
         if (!cancelled) setItems(list);
@@ -73,7 +91,7 @@ export function TemplateLibraryPanel(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadTick]);
 
   const sorted = useMemo(() => {
     if (!items) return [];
@@ -95,11 +113,77 @@ export function TemplateLibraryPanel(): React.ReactElement {
     );
   }
 
+  const toolbar = (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        marginBottom: 12,
+      }}
+    >
+      <button
+        type="button"
+        data-testid="design-tpl-create"
+        aria-label={DESIGN_MSG.TPL_CREATE_ARIA}
+        style={{
+          background: catalogColors.accent,
+          color: "#fff",
+          border: "none",
+          borderRadius: 4,
+          padding: "8px 14px",
+          cursor: "pointer",
+          font: "inherit",
+        }}
+        onClick={() => {
+          setCreateError(null);
+          setCreateOpen(true);
+        }}
+      >
+        {DESIGN_MSG.TPL_CREATE}
+      </button>
+    </div>
+  );
+
+  const dialog = (
+    <CreateTemplateDialog
+      open={createOpen}
+      busy={createBusy}
+      error={createError}
+      onCancel={() => {
+        if (!createBusy) setCreateOpen(false);
+      }}
+      onSubmit={(input) => {
+        setCreateBusy(true);
+        setCreateError(null);
+        createTemplate({
+          name: input.name,
+          label: input.label || input.name,
+          description: input.description,
+          assembler: input.assembler,
+        })
+          .then(() => {
+            setCreateOpen(false);
+            reload();
+          })
+          .catch((e: unknown) => {
+            setCreateError(listErrMsg(e, DESIGN_MSG.TPL_CREATE_ERROR));
+          })
+          .finally(() => {
+            setCreateBusy(false);
+          });
+      }}
+    />
+  );
+
   if (error) {
     return (
-      <CatalogStatus testId="design-tpl-error" error>
-        {error}
-      </CatalogStatus>
+      <div data-testid="design-tpl-panel">
+        {toolbar}
+        <CatalogStatus testId="design-tpl-error" error>
+          {error}
+        </CatalogStatus>
+        {dialog}
+      </div>
     );
   }
   if (items == null) {
@@ -109,12 +193,18 @@ export function TemplateLibraryPanel(): React.ReactElement {
   }
   if (items.length === 0) {
     return (
-      <CatalogStatus testId="design-tpl-empty">{DESIGN_MSG.TPL_EMPTY}</CatalogStatus>
+      <div data-testid="design-tpl-panel">
+        {toolbar}
+        <CatalogHint>{DESIGN_MSG.TPL_HINT}</CatalogHint>
+        <CatalogStatus testId="design-tpl-empty">{DESIGN_MSG.TPL_EMPTY}</CatalogStatus>
+        {dialog}
+      </div>
     );
   }
 
   return (
     <div data-testid="design-tpl-panel">
+      {toolbar}
       <CatalogHint>{DESIGN_MSG.TPL_HINT}</CatalogHint>
       <SimpleCatalogTable
         tableTestId="design-tpl-table"
@@ -158,6 +248,7 @@ export function TemplateLibraryPanel(): React.ReactElement {
           };
         })}
       />
+      {dialog}
     </div>
   );
 }

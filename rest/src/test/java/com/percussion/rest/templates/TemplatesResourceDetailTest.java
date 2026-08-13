@@ -163,4 +163,35 @@ public class TemplatesResourceDetailTest {
         "Java/global/percussion/assembly/htmlAssembler",
         resource.updateTemplate("perc.page", body).getAssembler());
   }
+
+  @Test
+  public void createTemplateSuccess() {
+    TemplateDetail body = new TemplateDetail();
+    body.setName("site.html.snippet");
+    TemplateDetail created = new TemplateDetail();
+    created.setName("site.html.snippet");
+    created.setAssembler("Java/global/percussion/assembly/htmlAssembler");
+    when(adaptor.createTemplate(any(), any())).thenReturn(created);
+    TemplateDetail out = resource.createTemplate(body);
+    assertEquals("site.html.snippet", out.getName());
+    assertEquals("Java/global/percussion/assembly/htmlAssembler", out.getAssembler());
+  }
+
+  @Test
+  public void createTemplateBadRequest() {
+    when(adaptor.createTemplate(any(), any()))
+        .thenThrow(new IllegalArgumentException("name is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createTemplate(null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createTemplateWrapsFailures() {
+    when(adaptor.createTemplate(any(), any())).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createTemplate(new TemplateDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
 }

@@ -30,11 +30,13 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn(),
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
+  createTemplate: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),
 }));
 
 const listTemplates = assemblyApi.listTemplates as ReturnType<typeof vi.fn>;
+const createTemplate = assemblyApi.createTemplate as ReturnType<typeof vi.fn>;
 const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
   typeof vi.fn
 >;
@@ -56,6 +58,7 @@ describe("TemplateLibraryPanel (#2808)", () => {
       message: (key: string) => key,
     };
     listTemplates.mockReset();
+    createTemplate.mockReset();
     getTemplateDetail.mockReset();
     getSlotDetail.mockReset();
     getSlotDetail.mockResolvedValue({
@@ -162,6 +165,68 @@ describe("TemplateLibraryPanel (#2808)", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("design-tpl-editor")).toBeNull();
       expect(screen.getByTestId("design-tpl-table")).toBeTruthy();
+    });
+  });
+
+  it("creates a template and refreshes the list", async () => {
+    listTemplates
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          templateId: 101,
+          templateName: "site.html.snippet",
+          templateLabel: "site.html.snippet",
+        },
+      ]);
+    createTemplate.mockResolvedValue({
+      name: "site.html.snippet",
+      assembler: "Java/global/percussion/assembly/htmlAssembler",
+    });
+    render(<TemplateLibraryPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-create"));
+    fireEvent.change(screen.getByTestId("design-tpl-create-name"), {
+      target: { value: "site.html.snippet" },
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-create-submit"));
+    await waitFor(() => {
+      expect(createTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "site.html.snippet",
+          assembler: "Java/global/percussion/assembly/htmlAssembler",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("design-tpl-create-dialog")).toBeNull();
+      expect(screen.getByTestId("design-tpl-table").textContent).toContain(
+        "site.html.snippet",
+      );
+    });
+  });
+
+  it("shows operator-facing create errors", async () => {
+    listTemplates.mockResolvedValue([]);
+    createTemplate.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "template name already exists: site.html.snippet" },
+    });
+    render(<TemplateLibraryPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-create"));
+    fireEvent.change(screen.getByTestId("design-tpl-create-name"), {
+      target: { value: "site.html.snippet" },
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-create-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-create-error").textContent).toContain(
+        "already exists",
+      );
     });
   });
 });

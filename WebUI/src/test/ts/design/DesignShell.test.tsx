@@ -27,6 +27,10 @@ import {
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn(),
   getTemplateDetail: vi.fn(),
+  createTemplate: vi.fn(),
+  updateTemplateDetail: vi.fn(),
+  getSlotDetail: vi.fn(),
+  updateSlotDetail: vi.fn(),
 }));
 
 const listTemplates = assemblyApi.listTemplates as ReturnType<typeof vi.fn>;

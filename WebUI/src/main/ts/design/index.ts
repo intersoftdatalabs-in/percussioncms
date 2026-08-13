@@ -18,6 +18,9 @@
 export { DesignShell, normalizeDesignSection } from "./DesignShell";
 export type { DesignShellProps, DesignSection } from "./DesignShell";
 export { TemplateLibraryPanel, templateSelectionKey } from "./TemplateLibraryPanel";
+export { CreateTemplateDialog } from "./CreateTemplateDialog";
+export { validateTemplateCreateInput } from "./templateCreate";
+export { DEFAULT_CREATE_ASSEMBLER } from "./assemblerOptions";
 export { TemplateDetailDrawer } from "./TemplateDetailDrawer";
 export { TemplateSourceEditor } from "./TemplateSourceEditor";
 export { AssemblerPicker } from "./AssemblerPicker";

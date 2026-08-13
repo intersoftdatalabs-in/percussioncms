@@ -60,10 +60,14 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
 
   private static final Logger log = LogManager.getLogger(TemplateAdaptor.class);
 
+  /** Default assembler for Design SPA / REST create (HTML-first, no Widget XML). */
+  public static final String DEFAULT_CREATE_ASSEMBLER =
+      "Java/global/percussion/assembly/htmlAssembler";
+
   /** API capability notes shared by every detail payload (not per-template data). */
   static final List<DesignGap> TEMPLATE_DESIGN_GAPS =
       List.of(
-          DesignGap.of("TPL_CREATE_DELETE_LOCK", "Create / delete / lock not supported via this API"),
+          DesignGap.of("TPL_DELETE_LOCK", "Delete / lock not supported via this API"),
           DesignGap.of(
               "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
@@ -174,6 +178,95 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e.getMessage(),
           e);
       throw new IllegalStateException("Failed to update template", e);
+    }
+  }
+
+  @Override
+  public TemplateDetail createTemplate(URI baseUri, TemplateDetail body) {
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String name = validateCreateName(body.getName());
+    if (templateNameExists(name)) {
+      throw new IllegalArgumentException("template name already exists: " + name);
+    }
+    String assembler =
+        StringUtils.isNotBlank(body.getAssembler())
+            ? body.getAssembler().trim()
+            : DEFAULT_CREATE_ASSEMBLER;
+    if (StringUtils.isBlank(assembler)) {
+      throw new IllegalArgumentException("assembler must not be blank when provided");
+    }
+    String label =
+        StringUtils.isNotBlank(body.getLabel()) ? body.getLabel().trim() : name;
+    try {
+      IPSAssemblyTemplate t = asmSvc.createTemplate();
+      t.setName(name);
+      t.setLabel(label);
+      if (body.getDescription() != null) {
+        t.setDescription(body.getDescription());
+      }
+      t.setAssembler(assembler);
+      t.setMimeType(
+          StringUtils.isNotBlank(body.getMimeType()) ? body.getMimeType().trim() : "text/html");
+      t.setOutputFormat(IPSAssemblyTemplate.OutputFormat.Snippet);
+      t.setTemplateType(IPSAssemblyTemplate.TemplateType.Shared);
+      if (body.getTemplateSource() != null) {
+        t.setTemplate(body.getTemplateSource());
+      } else {
+        t.setTemplate("");
+      }
+      if (body.getBindings() != null) {
+        t.setBindings(toBindings(body.getBindings()));
+      }
+      if (body.getSlots() != null) {
+        t.setSlots(toSlots(body.getSlots()));
+      }
+      asmSvc.saveTemplate(t);
+      IPSAssemblyTemplate reloaded = resolveTemplate(name);
+      return reloaded != null ? toDetail(reloaded) : toDetail(t);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSAssemblyException e) {
+      log.error("Failed to create template {}: {}", name, e.getMessage(), e);
+      throw new IllegalStateException("Failed to create template", e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to create template {} ({}): {}",
+          name,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to create template", e);
+    }
+  }
+
+  /**
+   * Unique assembly-template name: required, trimmed, no whitespace. Starts with a letter; then
+   * letters, digits, {@code .}, {@code _}, or {@code -}.
+   */
+  static String validateCreateName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    String name = raw.trim();
+    if (name.chars().anyMatch(Character::isWhitespace)) {
+      throw new IllegalArgumentException("name cannot contain spaces");
+    }
+    if (!name.matches("[A-Za-z][A-Za-z0-9._-]*")) {
+      throw new IllegalArgumentException(
+          "name must start with a letter and contain only letters, digits, '.', '_' or '-'");
+    }
+    return name;
+  }
+
+  private boolean templateNameExists(String name) {
+    try {
+      return asmSvc.findTemplateByName(name) != null;
+    } catch (PSAssemblyException e) {
+      return false;
+    } catch (PSNotFoundException e) {
+      return false;
     }
   }
 

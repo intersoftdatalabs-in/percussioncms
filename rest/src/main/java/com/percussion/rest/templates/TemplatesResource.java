@@ -182,8 +182,8 @@ public class TemplatesResource {
   @Operation(
       summary = "Get template design detail",
       description =
-          "Read-only template detail including bindings and slots. Source is included when"
-              + " present. Create/update/delete/lock not supported (see designGaps).",
+          "Template detail including bindings and slots. Source is included when present."
+              + " Create is POST /templates. Delete/lock remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -217,7 +217,7 @@ public class TemplatesResource {
           "Updates mutable template fields: label, description, templateSource, and/or"
               + " assembler. When assembler is present it must be non-blank. When bindings or"
               + " slots is present (including empty), replaces that collection. Omit fields to"
-              + " leave unchanged. Name/id and create/delete remain unsupported (see designGaps).",
+              + " leave unchanged. Name/id and delete remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -233,6 +233,46 @@ public class TemplatesResource {
       TemplateDetail detail = adaptor.updateTemplate(uriInfo.getBaseUri(), idOrName, body);
       if (detail == null) {
         throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Creates a modern assembly template (no Widget definition XML).
+   *
+   * @param body TemplateDetail; {@code name} required
+   * @return created TemplateDetail
+   */
+  @POST
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create assembly template",
+      description =
+          "Creates a template via the modern assembly catalog (package/manifest). Name is"
+              + " required and must be unique with no spaces. Optional label, description,"
+              + " assembler (defaults to HTML-first), and templateSource. Does not write Widget"
+              + " definition XML.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input or duplicate name"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail createTemplate(TemplateDetail body) {
+    try {
+      TemplateDetail detail = adaptor.createTemplate(uriInfo.getBaseUri(), body);
+      if (detail == null) {
+        throw new WebApplicationException("Failed to create template", 500);
       }
       return detail;
     } catch (WebApplicationException e) {

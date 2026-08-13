@@ -58,10 +58,21 @@ public interface ITemplatesAdaptor {
    * Update mutable template design fields (label, description, source, assembler) and optionally
    * bindings / contained slots. When {@code body.assembler} is non-null, sets the assembler
    * extension name (must be non-blank). When {@code body.bindings} or {@code body.slots} is
-   * non-null, that collection is fully replaced (empty list clears). Name/id and create/delete
-   * remain out of scope.
+   * non-null, that collection is fully replaced (empty list clears). Name/id and delete remain
+   * out of scope.
    *
    * @return updated detail, or {@code null} if not found
    */
   TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body);
+
+  /**
+   * Create a modern assembly template (package/manifest model — no Widget definition XML).
+   *
+   * <p>{@code body.name} is required (no spaces; unique). Optional label, description, assembler,
+   * and templateSource. When assembler is omitted, the adaptor uses the HTML-first default.
+   *
+   * @return created detail (never {@code null})
+   * @throws IllegalArgumentException when the name is invalid or already exists
+   */
+  TemplateDetail createTemplate(URI baseUri, TemplateDetail body);
 }
