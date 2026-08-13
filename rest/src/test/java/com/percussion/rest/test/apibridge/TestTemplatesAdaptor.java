@@ -50,4 +50,9 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
   public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
     return null;
   }
+
+  @Override
+  public TemplateDetail createTemplate(URI baseUri, TemplateDetail body) {
+    return null;
+  }
 }

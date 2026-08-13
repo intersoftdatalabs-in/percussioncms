@@ -25,11 +25,28 @@ import { message } from "../i18n/message";
 const KEYS = {
   TITLE: "perc.ui.design.modern@Design",
   INTRO:
-    "perc.ui.design.modern@Browse modern templates from the design catalog. Open a row to edit assembler, slots, source, and JEXL bindings.",
+    "perc.ui.design.modern@Browse modern templates from the design catalog. Create a new template without Widget XML, or open a row to edit assembler, slots, source, and JEXL bindings.",
   SHELL_LOADING: "perc.ui.design.modern@Loading Design…",
   TAB_TEMPLATES: "perc.ui.design.modern@Templates",
   TPL_HINT:
-    "perc.ui.design.modern@Assembly templates available in this CMS. Open a template to edit assembler, slots (layout/styles), source, and JEXL bindings.",
+    "perc.ui.design.modern@Assembly templates available in this CMS. Create a modern template (no Widget XML) or open a row to edit assembler, slots, source, and JEXL bindings.",
+  TPL_CREATE: "perc.ui.design.modern@Create template",
+  TPL_CREATE_ARIA: "perc.ui.design.modern@Create a new assembly template",
+  TPL_CREATE_TITLE: "perc.ui.design.modern@Create template",
+  TPL_CREATE_HINT:
+    "perc.ui.design.modern@Creates a modern assembly template in the catalog. No Widget definition XML is written.",
+  TPL_CREATE_NAME: "perc.ui.design.modern@Name",
+  TPL_CREATE_LABEL: "perc.ui.design.modern@Label",
+  TPL_CREATE_DESCRIPTION: "perc.ui.design.modern@Description",
+  TPL_CREATE_ASSEMBLER: "perc.ui.design.modern@Assembler",
+  TPL_CREATE_SUBMIT: "perc.ui.design.modern@Create",
+  TPL_CREATE_CANCEL: "perc.ui.design.modern@Cancel",
+  TPL_CREATE_ERROR: "perc.ui.design.modern@Could not create template.",
+  TPL_CREATE_NAME_REQUIRED: "perc.ui.design.modern@Name is required.",
+  TPL_CREATE_NAME_SPACES: "perc.ui.design.modern@Name cannot contain spaces.",
+  TPL_CREATE_NAME_FORMAT:
+    "perc.ui.design.modern@Name must start with a letter and use only letters, digits, '.', '_' or '-'.",
+  TPL_CREATE_ASSEMBLER_REQUIRED: "perc.ui.design.modern@Choose an assembler.",
   TPL_LOADING: "perc.ui.design.modern@Loading templates…",
   TPL_EMPTY: "perc.ui.design.modern@No templates found.",
   TPL_ERROR: "perc.ui.design.modern@Could not load templates.",

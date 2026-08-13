@@ -61,8 +61,8 @@ class DesignGapsStructuredTest {
   void templateDesignGaps_areStructured() {
     assertEquals(2, TemplateAdaptor.TEMPLATE_DESIGN_GAPS.size());
     DesignGap first = TemplateAdaptor.TEMPLATE_DESIGN_GAPS.get(0);
-    assertEquals("TPL_CREATE_DELETE_LOCK", first.getCode());
-    assertTrue(first.getMessage().contains("Create"));
+    assertEquals("TPL_DELETE_LOCK", first.getCode());
+    assertTrue(first.getMessage().contains("Delete"));
   }
 
   @Test

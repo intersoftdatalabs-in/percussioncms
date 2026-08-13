@@ -138,6 +138,40 @@ These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They 
 writable via `PUT` — rule write/save and full control property editors remain Workbench /
 future design APIs. `designGaps` on detail still calls out write and catalog gaps.
 
+## Templates (assembly catalog)
+
+Assembly templates used by Design and Developer are exposed under `/services/templates`.
+Create uses the modern package/manifest model — **no Widget definition XML**.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/templates` | List template summaries (design catalog) |
+| `POST` | `/services/templates/summaries-by-filter` | Filter summaries (for example by content id) |
+| `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
+| `PUT` | `/services/templates/{idOrName}` | Update label, description, source, assembler, bindings, slots |
+| `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
+
+Create body is a Jackson-wrapped `TemplateDetail`:
+
+```json
+{
+  "TemplateDetail": {
+    "name": "site.html.snippet",
+    "label": "HTML snippet",
+    "description": "Modern HTML-first template",
+    "assembler": "Java/global/percussion/assembly/htmlAssembler"
+  }
+}
+```
+
+When `assembler` is omitted, the server defaults to HTML-first
+(`Java/global/percussion/assembly/htmlAssembler`). `400` is returned for a missing or
+invalid name or a duplicate name. Delete and lock remain out of scope (`designGaps` code
+`TPL_DELETE_LOCK`).
+
+The Design SPA **Create template** action uses this POST. See
+[Design templates](id:admin-design-templates).
+
 ## Display formats (design catalog)
 
 Content Explorer **display format** definitions (Developer **Display Formats**) are exposed

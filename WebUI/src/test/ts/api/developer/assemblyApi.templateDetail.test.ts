@@ -18,6 +18,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   TEMPLATE_DETAIL_ROOT,
+  createTemplate,
   getTemplateDetail,
   unwrapTemplateDetail,
   updateTemplateDetail,
@@ -130,5 +131,33 @@ describe("getTemplateDetail / updateTemplateDetail wire binding (#3039)", () => 
     expect(sent).toEqual({
       TemplateDetail: { templateSource: savedSource },
     });
+  });
+
+  it("createTemplate wraps request and unwraps response", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        TemplateDetail: {
+          name: "site.html.snippet",
+          assembler: "Java/global/percussion/assembly/htmlAssembler",
+        },
+      }),
+    );
+
+    const out = await createTemplate({
+      name: "site.html.snippet",
+      assembler: "Java/global/percussion/assembly/htmlAssembler",
+    });
+    expect(out.name).toBe("site.html.snippet");
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    const sent = JSON.parse(String(init.body));
+    expect(sent).toEqual({
+      TemplateDetail: {
+        name: "site.html.snippet",
+        assembler: "Java/global/percussion/assembly/htmlAssembler",
+      },
+    });
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.TEMPLATES);
   });
 });

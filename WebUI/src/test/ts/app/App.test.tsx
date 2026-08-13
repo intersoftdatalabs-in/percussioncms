@@ -89,6 +89,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn().mockResolvedValue([]),
   getTemplateDetail: vi.fn().mockResolvedValue({ templateName: "x" }),
+  createTemplate: vi.fn(),
+  updateTemplateDetail: vi.fn(),
   listSlots: vi.fn().mockResolvedValue([]),
   getSlotDetail: vi.fn().mockResolvedValue({}),
   listCommunities: vi.fn().mockResolvedValue([]),

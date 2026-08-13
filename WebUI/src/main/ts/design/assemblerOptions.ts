@@ -34,6 +34,9 @@ export interface AssemblerOption {
 
 const PREFIX = "Java/global/percussion/assembly/";
 
+/** Default assembler for Design SPA create (matches TemplateAdaptor). */
+export const DEFAULT_CREATE_ASSEMBLER = `${PREFIX}htmlAssembler`;
+
 export const ASSEMBLER_OPTIONS: readonly AssemblerOption[] = [
   {
     value: `${PREFIX}htmlAssembler`,
