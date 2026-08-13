@@ -65,7 +65,8 @@ import type {
   ViewExecuteRequest,
   ViewExecuteResult,
 } from "../api/developer/types";
-import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
+import { useSpaBootstrapOptional } from "../app/bootstrap/BootstrapContext";
+import type { SpaBootstrap } from "../app/bootstrap/types";
 import { message } from "../i18n/message";
 import {
   filterContextMenuActions,
@@ -97,7 +98,10 @@ import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import { resolveFolderPathFromSelection } from "./folderPath";
-import { resolveSiteNameFromSelection } from "./sitePath";
+import {
+  resolveExplorerListPath,
+  resolveSiteNameFromSelection,
+} from "./sitePath";
 import {
   errorStateStyle,
   headerStyle,
@@ -367,7 +371,37 @@ async function defaultResolveFolderId(
   }
 }
 
-export function ContentExplorerShell({
+function ExplorerBootstrapUnavailable(): React.ReactElement {
+  return (
+    <div
+      data-testid="content-explorer-shell"
+      role="alert"
+      aria-live="assertive"
+      style={errorStateStyle}
+    >
+      <p data-testid="explorer-bootstrap-unavailable" style={{ margin: 0 }}>
+        {message(EXPLORER_MSG.BOOTSTRAP_UNAVAILABLE)}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Product Explorer entry. Reads bootstrap optionally so a missing
+ * {@code BootstrapProvider} (legacy bridge remount) is an error state, not a
+ * {@code useContext} throw (#3331).
+ */
+export function ContentExplorerShell(
+  props: ContentExplorerShellProps,
+): React.ReactElement {
+  const bootstrap = useSpaBootstrapOptional();
+  if (!bootstrap) {
+    return <ExplorerBootstrapUnavailable />;
+  }
+  return <ContentExplorerShellInner {...props} bootstrap={bootstrap} />;
+}
+
+function ContentExplorerShellInner({
   initialPath = "/",
   onOpenItem = openInEditor,
   actionHandlers,
@@ -384,8 +418,8 @@ export function ContentExplorerShell({
   executeSavedSearch,
   listViews = listViewsApi,
   executeView = executeViewApi,
-}: ContentExplorerShellProps): React.ReactElement {
-  const bootstrap = useSpaBootstrap();
+  bootstrap,
+}: ContentExplorerShellProps & { bootstrap: SpaBootstrap }): React.ReactElement {
   const currentUserIdentities = useMemo(() => {
     if (currentUserIdentitiesProp) {
       return [...currentUserIdentitiesProp];
@@ -565,7 +599,10 @@ export function ContentExplorerShell({
 
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {
-      setSelection({ folderPath: path, item: null });
+      setSelection({
+        folderPath: resolveExplorerListPath(folder, path) ?? path,
+        item: null,
+      });
       // Reset multi-select when the folder changes: stale ids are not
       // present in the new list so the checkbox column would otherwise
       // show phantom selections until the next user click.
@@ -581,7 +618,10 @@ export function ContentExplorerShell({
 
   const handleActivate = useCallback(
     (path: string, folder: PSPathItem) => {
-      setSelection({ folderPath: path, item: null });
+      setSelection({
+        folderPath: resolveExplorerListPath(folder, path) ?? path,
+        item: null,
+      });
       setMultiSelectedIds(new Set<string>());
       setMultiSelectedItems(new Map<string, PSPathItem>());
       setContextMenu(null);

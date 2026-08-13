@@ -89,6 +89,25 @@ describe("ViewsCatalogTree (#3116)", () => {
     expect(listViews).toHaveBeenCalledTimes(2);
   });
 
+  it("renders one All leaf for seven catalog copies of View_All (#3325)", async () => {
+    const copies: ViewDef[] = Array.from({ length: 7 }, (_, i) => ({
+      name: "View_All",
+      label: "All",
+      parentCategory: 3,
+      id: i + 10,
+      standardView: true,
+    }));
+    render(<ViewsCatalogTree listViews={async () => copies} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-group-3")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-group-3-row"));
+    const leaves = screen.getAllByTestId("explorer-views-leaf-View_All");
+    expect(leaves).toHaveLength(1);
+    expect(leaves[0].textContent).toContain("All");
+    expect(leaves[0].textContent).not.toMatch(/All.*All/);
+  });
+
   it("always shows an Inbox leaf under My Content when catalog is empty (#3240)", async () => {
     const { container } = render(
       <ViewsCatalogTree listViews={async () => []} />,

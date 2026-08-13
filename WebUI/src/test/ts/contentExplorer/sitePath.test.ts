@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  resolveExplorerListPath,
   resolveSiteNameFromExplorerPath,
   resolveSiteNameFromSelection,
 } from "../../../main/ts/contentExplorer/sitePath";
@@ -75,5 +76,26 @@ describe("resolveSiteNameFromSelection (#2767)", () => {
     expect(
       resolveSiteNameFromSelection("/Sites/FolderSite/sub", "/Assets/x"),
     ).toBe("FolderSite");
+  });
+});
+
+describe("resolveExplorerListPath (#3326)", () => {
+  it("prefers folderPath over finder site-name path", () => {
+    expect(
+      resolveExplorerListPath({
+        path: "/Sites/Corporate_Investments/",
+        folderPath: "//Sites/CorporateInvestments",
+      }),
+    ).toBe("/Sites/CorporateInvestments");
+  });
+
+  it("falls back to path then explicit fallback", () => {
+    expect(
+      resolveExplorerListPath({ path: "/Sites/Demo/", folderPath: undefined }),
+    ).toBe("/Sites/Demo/");
+    expect(resolveExplorerListPath(null, "/Sites/Fallback")).toBe(
+      "/Sites/Fallback",
+    );
+    expect(resolveExplorerListPath(null, null)).toBeNull();
   });
 });

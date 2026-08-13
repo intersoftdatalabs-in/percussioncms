@@ -26,13 +26,19 @@ vi.mock("../../../../main/ts/registry", () => ({
     if (name !== "ContentExplorerShell") {
       throw new Error(`unexpected component: ${name}`);
     }
-    return function FakeExplorerShell(): React.ReactElement {
-      return <div data-testid="content-explorer-shell">explorer</div>;
+    return function StubExplorer({
+      initialPath,
+    }: {
+      initialPath?: string;
+    }): React.ReactElement {
+      return (
+        <div data-testid="content-explorer-shell">stub:{initialPath}</div>
+      );
     };
   },
 }));
 
-describe("ExplorerRoute loading chrome (#3332)", () => {
+describe("ExplorerRoute (#3331 / #3332)", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
@@ -50,5 +56,22 @@ describe("ExplorerRoute loading chrome (#3332)", () => {
       expect(screen.getByTestId("content-explorer-shell")).toBeTruthy();
     });
     expect(screen.queryByTestId("explorer-route-loading")).toBeNull();
+  });
+
+  it("renders the explorer shell without an outer BootstrapProvider", async () => {
+    expect(() =>
+      render(
+        <MemoryRouter initialEntries={["/explorer?path=/Folders"]}>
+          <Routes>
+            <Route path="/explorer" element={<ExplorerRoute />} />
+          </Routes>
+        </MemoryRouter>,
+      ),
+    ).not.toThrow();
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell").textContent).toBe(
+        "stub:/Folders",
+      );
+    });
   });
 });

@@ -25,6 +25,8 @@
 
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { BootstrapProvider } from "./app/bootstrap/BootstrapContext";
+import { loadSpaBootstrap } from "./app/bootstrap/loadBootstrap";
 import { isRegisteredComponent, loadComponent } from "./registry";
 
 declare global {
@@ -87,7 +89,13 @@ export function mountReactComponent(
       }
       unmountRootOnly(elementId);
       const root = createRoot(el);
-      root.render(React.createElement(Component, props));
+      root.render(
+        React.createElement(
+          BootstrapProvider,
+          { value: loadSpaBootstrap() },
+          React.createElement(Component, props),
+        ),
+      );
       activeRoots.set(elementId, root);
     })
     .catch((err) => {

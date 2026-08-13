@@ -64,6 +64,8 @@ export const EXPLORER_MSG = {
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
   ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+  BOOTSTRAP_UNAVAILABLE:
+    "perc.ui.explorer@Content Explorer could not start because the application session is not available. Reload the page or sign in again.",
 
   // US7 P-Adv / clipboard / wizards / dependency / relationships (FR-021–FR-029, SC-011)
   CLIPBOARD_TITLE: "perc.ui.explorer@Clipboard",
@@ -243,6 +245,12 @@ export const EXPLORER_MSG = {
   // US7 P-Adv / multi-select + clipboard panel (FR-026, #2400 #2408).
   SELECT_COLUMN_HEADER: "perc.ui.explorer@Select",
   SELECT_ROW_LABEL: "perc.ui.explorer@Select item",
+  /** Type-icon column (#3328) — folder/open affordance, not a checkbox. */
+  ICON_COLUMN_LABEL: "perc.ui.explorer@Item type",
+  OPEN_FOLDER_LABEL: "perc.ui.explorer@Open folder",
+  FOLDER_ICON_CLOSED: "perc.ui.explorer@Folder",
+  FOLDER_ICON_OPEN: "perc.ui.explorer@Open folder",
+  ITEM_ICON_LABEL: "perc.ui.explorer@Item",
   SELECT_ALL_LABEL: "perc.ui.explorer@Select all items on this page",
   SELECT_ALL_CLEAR_LABEL: "perc.ui.explorer@Clear all items on this page",
   SELECTED_COUNT_SINGULAR: "perc.ui.explorer@1 item selected",
