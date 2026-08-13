@@ -46,6 +46,23 @@ describe("preferencesApi (PreferenceResource)", () => {
     await expect(getAllUserPreferences()).resolves.toEqual([]);
   });
 
+  it("getAllUserPreferences unwraps JAXB UserPreferenceList envelope (#3204)", async () => {
+    const getSpy = vi.spyOn(client, "get");
+    getSpy.mockResolvedValueOnce({
+      UserPreferenceList: {
+        UserPreference: [
+          {
+            name: "developer.defaultObjectAclTemplate",
+            value: '{"version":1,"entries":[]}',
+          },
+        ],
+      },
+    });
+    const list = await getAllUserPreferences();
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe("developer.defaultObjectAclTemplate");
+  });
+
   it("loadUserPreference returns null on 404", async () => {
     vi.spyOn(client, "get").mockRejectedValueOnce({
       status: 404,

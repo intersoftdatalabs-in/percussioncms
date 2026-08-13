@@ -3,8 +3,10 @@
  */
 
 import { get, post, put } from "../client";
+import { objectGuidString } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type {
+  RestGuid,
   SiteDef,
   VirtualSiteBuildRequest,
   VirtualSiteBuildResult,
@@ -131,9 +133,17 @@ function normalizeSiteRow(raw: unknown): SiteDef {
   }
   const obj = raw as Record<string, unknown>;
   const name = coerceDisplayString(obj.name);
+  const guidString = objectGuidString(obj.guid);
+  let guid = obj.guid as RestGuid | undefined;
+  if (guidString) {
+    const existing =
+      guid != null && typeof guid === "object" && !Array.isArray(guid) ? guid : {};
+    guid = { ...existing, stringValue: guidString };
+  }
   return {
     ...(obj as SiteDef),
     name: name || undefined,
+    guid,
   };
 }
 

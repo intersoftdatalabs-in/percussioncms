@@ -75,7 +75,16 @@ the server (for example after **Install sample sites**).
 1. Sign in as an administrator (or a role that can open **Developer**).
 2. Open **Developer** → **Sites** (SPA entry `spa.jsp?entry=developer&section=sites`).
 3. Confirm the catalog table shows site **name**, **description**, **base URL**, and flags.
-4. Choose a row to open **Site detail** (URL defaults and Virtual Site source).
+4. Choose a row to open **Site detail** (URL defaults, object GUID, Virtual Site source,
+   and **Object ACL**).
+
+The **Object ACL** section on Site detail uses the site GUID from the catalog payload
+(`guid.stringValue`, or `hostId-type-uuid` when `stringValue` is omitted). When a GUID
+is present, the ACL table (or empty create path) is readable and editable — Design
+access plus Runtime visibility. When the catalog row has no GUID parts, the section
+still mounts with site-specific empty copy and does not crash the page. See
+[Users, roles & security](id:admin-users-roles) for the same Object ACL behavior on
+Display Formats.
 
 Empty state (**No sites returned**) appears only when the list API has **zero** Sites. A
 successful HTTP 200 with Site entries must populate the table (never a silent blank). Load

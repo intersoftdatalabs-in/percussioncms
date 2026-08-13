@@ -24,6 +24,7 @@
  *   - Kind-aware Design vs Runtime: data-acl-object-kind + data-acl-show-runtime
  *     (table when ACL loads; section shell when object guid is missing)
  *   - Developer Preferences default-ACL template: layered Design / Runtime columns
+ *   - Preferences persist: Runtime Visible survives Save + reload (#3204 / #2643)
  *
  * Kind-aware runtime columns mirror WebUI objectAclPermissionModel.ts
  * RUNTIME_RELEVANT_OBJECT_KINDS — peers in that set show Runtime visibility;
@@ -37,7 +38,7 @@
  * QA mode:
  *   perc-devctl qa-up → TEST_CMS_URL=… npm run test:surface -- --path tests/developer-object-acl-product-path.spec.js → qa-down
  *
- * Refs #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
+ * Refs #3204, #2643, #2642, #2605, #2604, #2639, #2274, #2262, #1690 (builds on #2283 / PR #2342).
  */
 
 const { test, expect } = require("@playwright/test");
@@ -140,7 +141,7 @@ async function openFirstCatalogDetail(page, ids) {
  * @param {import('@playwright/test').Page} page
  * @param {string} prefix e.g. developer-ct-acl / developer-site-acl
  * @param {string} objectKind expected data-acl-object-kind
- * @returns {Promise<"table"|"no-guid"|"empty">}
+ * @returns {Promise<"table"|"no-guid"|"empty"|"no-entries">}
  */
 async function assertLayeredObjectAcl(page, prefix, objectKind) {
   const expectRuntime = RUNTIME_RELEVANT_OBJECT_KINDS.has(objectKind);
@@ -154,6 +155,7 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   const noGuid = page.locator(`[data-testid="${prefix}-no-guid"]`);
   const aclError = page.locator(`[data-testid="${prefix}-error"]`);
   const aclEmpty = page.locator(`[data-testid="${prefix}-empty"]`);
+  const aclNoEntries = page.locator(`[data-testid="${prefix}-no-entries"]`);
   const aclTable = page.locator(`[data-testid="${prefix}-table"]`);
   const aclLoading = page.locator(`[data-testid="${prefix}-loading"]`);
 
@@ -164,14 +166,16 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
       "data-acl-show-runtime",
       expectRuntime ? "true" : "false",
     );
-    await expect(noGuid).toContainText(/GUID not available|cannot load ACL/i);
+    await expect(noGuid).toContainText(
+      /GUID not available|cannot load ACL|has no object GUID/i,
+    );
     return "no-guid";
   }
 
   // Fallback for older bundles that only put message text in section
   const sectionText = (await aclSection.innerText()).trim();
   if (
-    /GUID not available|cannot load ACL/i.test(sectionText) &&
+    /GUID not available|cannot load ACL|has no object GUID/i.test(sectionText) &&
     !(await aclTable.isVisible().catch(() => false))
   ) {
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
@@ -179,7 +183,10 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   }
 
   await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-  await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+  await aclSection.scrollIntoViewIfNeeded().catch(() => {});
+  await expect(
+    aclTable.or(aclEmpty).or(aclError).or(aclNoEntries).first(),
+  ).toBeVisible({
     timeout: 30_000,
   });
 
@@ -192,6 +199,16 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
     // Create-first empty state still proves mount + kind on section
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
     return "empty";
+  }
+
+  if (await aclNoEntries.isVisible()) {
+    // ACL document exists but has no principals yet — still readable/editable
+    // (add specials / add entry). Live By_Author often serializes without
+    // aclEntries (#3203 / #2672).
+    await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
+    await expect(aclSection).toHaveAttribute("data-acl-has-guid", "true");
+    await expect(aclNoEntries).toContainText(/No ACL entries yet/i);
+    return "no-entries";
   }
 
   await expect(aclTable).toBeVisible();
@@ -334,9 +351,21 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     });
     if (!opened) return;
 
+    const guidCell = page.locator('[data-testid="developer-site-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
     const mode = await assertLayeredObjectAcl(page, "developer-site-acl", "site");
-    // site is RUNTIME_RELEVANT — show-runtime must be true (table or no-guid shell)
-    expect(["table", "no-guid", "empty"]).toContain(mode);
+    // Site list GUID is normalized (stringValue or host-type-uuid). When a GUID
+    // is present, Object ACL must load — no-guid is only valid if the catalog
+    // row truly omitted guid parts (#3203 / #2672).
+    if (guidText && guidText !== "—" && guidText !== "-") {
+      expect(
+        ["table", "empty", "no-entries"],
+        `site Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+      ).toContain(mode);
+    } else {
+      expect(["table", "no-guid", "empty", "no-entries"]).toContain(mode);
+    }
   });
 
   test("display-format peer ACL mounts objectKind with kind-aware Runtime columns (B4)", async ({
@@ -361,8 +390,16 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     });
     if (!opened) return;
 
-    // Issue #2951: detail header must render a real GUID (not em-dash) so
-    // ObjectAclSection receives objectGuid — catalog fallback + wire normalize.
+    await assertDisplayFormatDetailGuidAndAcl(page);
+  });
+
+  /**
+   * Issue #3200 / #2951 / #2689: header GUID is real; Object ACL is table,
+   * empty-create, or a real ACL error — never the no-guid shell when the
+   * server has a display format id.
+   * @param {import('@playwright/test').Page} page
+   */
+  async function assertDisplayFormatDetailGuidAndAcl(page) {
     const guidCell = page.locator('[data-testid="developer-df-detail-guid"]');
     await expect(guidCell).toBeVisible({ timeout: 15_000 });
     const guidText = (await guidCell.innerText()).trim();
@@ -370,7 +407,6 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       guidText && guidText !== "—" && guidText !== "-",
       `display-format detail GUID must be synthesized/normalized (got "${guidText}")`,
     ).toBeTruthy();
-    // host-type-uuid wire form or other non-empty string from REST
     expect(guidText.length).toBeGreaterThan(2);
 
     const mode = await assertLayeredObjectAcl(
@@ -378,12 +414,63 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       "developer-df-acl",
       "display-format",
     );
-    // Issue #2689: detail client must unwrap Jackson DisplayFormat root so
-    // objectGuid is present — no-guid shell is a product defect for DF detail.
     expect(
-      ["table", "empty"],
+      ["table", "empty", "no-entries"],
       `display-format Object ACL must load with GUID (got mode=${mode})`,
     ).toContain(mode);
+  }
+
+  test("By_Author and one peer Display Format show GUID and Object ACL (#3200)", async ({
+    page,
+  }) => {
+    await page.goto(developerSectionUrl("display-formats"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-display-formats"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const panel = page.locator('[data-testid="developer-df-panel"]');
+    const empty = page.locator('[data-testid="developer-df-empty"]');
+    const error = page.locator('[data-testid="developer-df-error"]');
+    await expect(panel.or(empty).or(error).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    if (await error.isVisible()) {
+      throw new Error(`display formats catalog error: ${(await error.innerText()).trim()}`);
+    }
+    if (await empty.isVisible()) {
+      test.skip(true, "No display formats in CMS");
+      return;
+    }
+
+    const openButtons = page.locator('[data-testid="developer-df-open"]');
+    const count = await openButtons.count();
+    expect(count, "catalog should list at least one display format").toBeGreaterThan(0);
+
+    const names = [];
+    for (let i = 0; i < count; i++) {
+      names.push((await openButtons.nth(i).innerText()).trim());
+    }
+    const byAuthor = names.find((n) => /^By_Author$/i.test(n));
+    const peer = names.find((n) => n && n !== byAuthor);
+    const toOpen = [byAuthor, peer].filter(Boolean);
+    expect(
+      toOpen.length,
+      `need By_Author and/or a peer in catalog (got ${names.join(", ")})`,
+    ).toBeGreaterThan(0);
+
+    for (const name of toOpen) {
+      await page.locator('[data-testid="developer-df-open"]', { hasText: name }).click();
+      await expect(page.locator('[data-testid="developer-df-detail"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await assertDisplayFormatDetailGuidAndAcl(page);
+      await page.locator('[data-testid="developer-df-back"]').click();
+      await expect(page.locator('[data-testid="developer-df-panel"]')).toBeVisible({
+        timeout: 15_000,
+      });
+    }
   });
 
   test("preferences default ACL template shows Design/Runtime column groups", async ({
@@ -437,5 +524,75 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       'input[type="checkbox"][data-testid^="developer-prefs-acl-perm-"][data-testid$="-RUNTIME_VISIBLE"]',
     );
     await expect(runtimeBoxes.first()).toBeVisible();
+  });
+
+  test("preferences Runtime visibility persists after save and reload (#3204)", async ({
+    page,
+  }) => {
+    const jsErrors = [];
+    page.on("pageerror", (err) => jsErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      // GET /preferences/{name} 404 is the empty-store path; chrome 404s
+      // (favicon / leftover hashed chunks) are not product defects.
+      if (/404|Failed to load resource/i.test(text)) {
+        return;
+      }
+      jsErrors.push(text);
+    });
+
+    await page.goto(developerSectionUrl("preferences"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-preferences"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const table = page.locator('[data-testid="developer-prefs-acl-table"]');
+    const loading = page.locator('[data-testid="developer-prefs-acl-loading"]');
+    await expect(loading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(table).toBeVisible({ timeout: 20_000 });
+
+    const defaultRuntime = page.locator(
+      '[data-testid="developer-prefs-acl-table"] tr[data-acl-principal="Default"] input[type="checkbox"][data-testid$="-RUNTIME_VISIBLE"]',
+    );
+    await expect(defaultRuntime).toBeVisible({ timeout: 10_000 });
+
+    const wasChecked = await defaultRuntime.isChecked();
+    await defaultRuntime.click();
+    await expect(defaultRuntime).toBeChecked({ checked: !wasChecked });
+
+    const saveBtn = page.locator('[data-testid="developer-prefs-acl-save"]');
+    await expect(saveBtn).toBeEnabled({ timeout: 10_000 });
+    await saveBtn.click();
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-notice"]'),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-source"]'),
+    ).toContainText(/saved/i);
+
+    await page.goto(developerSectionUrl("preferences"), {
+      waitUntil: "networkidle",
+    });
+    await expect(loading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+    await expect(table).toBeVisible({ timeout: 20_000 });
+
+    const reloaded = page.locator(
+      '[data-testid="developer-prefs-acl-table"] tr[data-acl-principal="Default"] input[type="checkbox"][data-testid$="-RUNTIME_VISIBLE"]',
+    );
+    await expect(reloaded).toBeVisible({ timeout: 10_000 });
+    await expect(reloaded).toBeChecked({ checked: !wasChecked });
+    await expect(
+      page.locator('[data-testid="developer-prefs-acl-source"]'),
+    ).toContainText(/saved/i);
+
+    expect(
+      jsErrors,
+      `JS console/page errors on prefs persist path: ${jsErrors.join(" | ")}`,
+    ).toEqual([]);
   });
 });

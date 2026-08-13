@@ -18,10 +18,12 @@
 package com.percussion.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Behavioral tests for {@link Guid} construction after the this-escape real fix (direct field
@@ -45,6 +47,19 @@ class GuidTest {
   @Test
   void stringConstructorRejectsNull() {
     assertThrows(NullPointerException.class, () -> new Guid(null));
+  }
+
+  @Test
+  void jacksonSerializesStringValueAsJsonString() {
+    Guid guid = new Guid("0-31-12");
+    ObjectMapper mapper = new JacksonContextResolver().getContext(Guid.class);
+    String json = mapper.writeValueAsString(guid);
+    assertTrue(
+        json.contains("\"stringValue\":\"0-31-12\"")
+            || json.contains("\"stringValue\" : \"0-31-12\""),
+        json);
+    assertFalse(json.contains("\"empty\""), json);
+    assertFalse(json.contains("Optional["), json);
   }
 
   @Test

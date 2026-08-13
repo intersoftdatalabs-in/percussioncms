@@ -65,6 +65,7 @@ describe("SiteDetailPanel", () => {
     const acl = screen.getByTestId("developer-site-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("site");
     expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
+    expect(screen.getByTestId("developer-site-detail-guid").textContent).toBe("0-10-1");
     const virt = screen.getByTestId("developer-site-virtual-stub");
     expect(virt.getAttribute("data-site-name")).toBe("Corporate");
     const back = screen.getByTestId("developer-site-back");
@@ -97,6 +98,30 @@ describe("SiteDetailPanel", () => {
     expect(detail.textContent).toMatch(/—/);
     expect(screen.getByTestId("developer-site-gaps").textContent).toContain(
       DEV_MSG.SITE_GAP_WRITE,
+    );
+  });
+
+  it("synthesizes object guid from host/type/uuid parts for Object ACL (#3203)", () => {
+    const site: SiteDef = {
+      name: "PartsOnly",
+      guid: { hostId: 0, type: 20, uuid: 99 },
+    };
+    render(<SiteDetailPanel site={site} onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-site-detail-guid").textContent).toBe("0-20-99");
+    expect(screen.getByTestId("developer-site-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-20-99",
+    );
+  });
+
+  it("omits object guid when the list payload has none (#3203)", () => {
+    const site: SiteDef = { name: "NoGuid" };
+    render(<SiteDetailPanel site={site} onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-site-detail-guid").textContent).toBe("—");
+    expect(screen.getByTestId("developer-site-acl-stub").getAttribute("data-object-guid")).toBe(
+      "",
+    );
+    expect(screen.getByTestId("developer-site-acl-stub").getAttribute("data-object-kind")).toBe(
+      "site",
     );
   });
 });

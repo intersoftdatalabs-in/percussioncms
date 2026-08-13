@@ -70,6 +70,25 @@ public class TestDisplayFormat {
     assertTrue(
         json.contains("\"guid\":{") || json.contains("\"guid\" : {"),
         "guid should be a nested object, not re-wrapped: " + json);
+    // #3200: stringValue must be a JSON string, not an Optional object
+    assertTrue(
+        json.contains("\"stringValue\":\"0-11-5\"") || json.contains("\"stringValue\" : \"0-11-5\""),
+        "stringValue must serialize as a JSON string: " + json);
+  }
+
+  @Test
+  public void jacksonContextResolver_serializesGuidStringCompanion() {
+    DisplayFormat f = new DisplayFormat();
+    f.setName("By_Author");
+    f.setGuid(new Guid("0-31-5"));
+    f.setGuidString("0-31-5");
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(DisplayFormat.class);
+    String json = mapper.writeValueAsString(f);
+
+    assertTrue(
+        json.contains("\"guidString\":\"0-31-5\"") || json.contains("\"guidString\" : \"0-31-5\""),
+        json);
   }
 
   @Test

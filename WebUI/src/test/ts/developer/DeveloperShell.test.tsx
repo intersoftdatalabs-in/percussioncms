@@ -397,17 +397,22 @@ vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   }),
 }));
 
-vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
-  listDisplayFormats: vi.fn().mockResolvedValue([
-    { name: "Default", label: "Default View", columns: [] },
-  ]),
-  getDisplayFormatDetail: vi.fn().mockResolvedValue({
-    name: "Default",
-    columns: [],
-  }),
-  normalizeColumns: () => [],
-  objectGuidString: () => undefined,
-}));
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../main/ts/api/developer/displayFormatsApi")
+  >();
+  return {
+    ...actual,
+    listDisplayFormats: vi.fn().mockResolvedValue([
+      { name: "Default", label: "Default View", columns: [] },
+    ]),
+    getDisplayFormatDetail: vi.fn().mockResolvedValue({
+      name: "Default",
+      columns: [],
+    }),
+    normalizeColumns: () => [],
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   listActionMenus: vi.fn().mockResolvedValue([

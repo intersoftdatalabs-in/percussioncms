@@ -54,6 +54,7 @@ public class DisplayFormatResourceTest {
     List<DisplayFormat> out = resource.listDisplayFormats(null, null);
     assertEquals(1, out.size());
     assertEquals("Default", out.get(0).getName());
+    assertInstanceOf(DisplayFormatList.class, out);
   }
 
   @Test

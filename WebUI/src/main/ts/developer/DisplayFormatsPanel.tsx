@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   listDisplayFormats,
   normalizeColumns,
-  objectGuidString,
+  resolveDisplayFormatObjectGuid,
 } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -70,11 +70,11 @@ export function DisplayFormatsPanel(): React.ReactElement {
   }, [items]);
 
   const openFormat = (f: DisplayFormat) => {
-    const idOrName = f.name || f.internalName || objectGuidString(f.guid) || "";
+    const idOrName = f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
     if (!idOrName) return;
     setSelected({
       idOrName,
-      catalogGuid: objectGuidString(f.guid),
+      catalogGuid: resolveDisplayFormatObjectGuid(f),
     });
   };
 
@@ -116,7 +116,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
         ]}
         rows={sorted.map((f, index) => {
           const openKey =
-            f.name || f.internalName || objectGuidString(f.guid) || "";
+            f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
           const interactive = openKey.length > 0;
           const colCount = normalizeColumns(f.columns).length;
           const usage: string[] = [];
@@ -124,7 +124,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
           if (f.validForViewsAndSearches) usage.push(DEV_MSG.DF_USAGE_VIEWS);
           if (f.validForRelatedContent) usage.push(DEV_MSG.DF_USAGE_RELATED);
           return {
-            key: objectGuidString(f.guid) || f.name || `df-${index}`,
+            key: resolveDisplayFormatObjectGuid(f) || f.name || `df-${index}`,
             onClick: interactive ? () => openFormat(f) : undefined,
             cells: [
               interactive ? (

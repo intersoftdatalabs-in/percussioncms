@@ -83,6 +83,51 @@ Language and density controls are not product-backed yet. Navigation **site**
 section landing pages (Architecture tree) are a separate site-structure setting —
 not this profile control. See [Architecture & site navigation](id:admin-architecture-navigation).
 
+## Design-object ACL (Developer)
+
+System Definition (**Developer**) shows an **Object ACL** section on securable design
+objects, including **Display Formats** and **Sites**.
+
+### Display Formats
+
+1. Open **Developer → Display Formats**.
+2. Open a format such as **By_Author** (or any other listed format).
+3. The detail header **GUID** field shows the object GUID when the server has one
+   (never a silent dash when a GUID exists).
+4. **Object ACL** below the column list:
+   - Shows the ACL table when entries exist (Design access and Runtime visibility).
+   - Shows an empty create path when the object has no ACL yet.
+   - Shows an explicit load error if the ACL service fails.
+   - Does **not** say “Object GUID not available” when the header GUID is present.
+   - If the object truly has no GUID, the section still mounts with kind-aware copy
+     (display format) and does not crash the detail page.
+
+Use this section to inspect and edit design-time and runtime visibility permissions
+for that display format.
+
+### Sites
+
+1. Open **Developer → Sites**.
+2. Open a Site row (catalog from `GET /services/sites`).
+3. The detail header **GUID** field shows the site object GUID when the list payload
+   includes `guid.stringValue` or synthesizable `hostId` / `type` / `uuid` parts.
+4. **Object ACL** on Site detail:
+   - Loads and is readable/editable when a GUID is present (same Design / Runtime
+     columns as other runtime-relevant objects).
+   - If the catalog row has no GUID parts, the section still mounts with site-specific
+     empty copy and does not crash Site detail.
+
+See also [Sites & content structure](id:admin-sites).
+
+## Object ACL (design objects)
+
+Developer catalog objects use a layered **Object ACL** (Design access vs Runtime
+visibility). Operators set a **default ACL template** under
+**Developer → Preferences → Security**. After **Save default ACL template**,
+**Runtime visibility → Visible** must still match after a page reload.
+
+See [Object ACL & default template](id:admin-object-acl).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.

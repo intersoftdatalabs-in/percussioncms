@@ -62,9 +62,22 @@ describe("normalizeDisplayFormatGuid", () => {
     expect(out.guid?.uuid).toBe(301);
   });
 
-  it("returns same reference when stringValue already matches", () => {
-    const df = { name: "x", guid: { stringValue: "0-11-1", uuid: 1 } };
+  it("returns same reference when stringValue and guidString already match", () => {
+    const df = {
+      name: "x",
+      guid: { stringValue: "0-11-1", uuid: 1 },
+      guidString: "0-11-1",
+    };
     expect(normalizeDisplayFormatGuid(df)).toBe(df);
+  });
+
+  it("fills guidString from guid when companion is missing (#3200)", () => {
+    const out = normalizeDisplayFormatGuid({
+      name: "x",
+      guid: { stringValue: "0-11-1", uuid: 1 },
+    });
+    expect(out.guidString).toBe("0-11-1");
+    expect(out.guid?.stringValue).toBe("0-11-1");
   });
 });
 
@@ -110,7 +123,10 @@ describe("unwrapDisplayFormat", () => {
       name: "FolderList",
       guid: { stringValue: "0-11-2" },
     };
-    expect(unwrapDisplayFormat(flat)).toEqual(flat);
+    expect(unwrapDisplayFormat(flat)).toEqual({
+      ...flat,
+      guidString: "0-11-2",
+    });
   });
 
   it("takes first element when envelope holds a singleton array", () => {

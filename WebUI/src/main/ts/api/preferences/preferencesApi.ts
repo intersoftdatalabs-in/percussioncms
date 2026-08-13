@@ -68,23 +68,57 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
-function asPreferenceArray(data: unknown): UserPreference[] {
-  if (Array.isArray(data)) {
-    return data.filter(isUserPreferenceShape);
+function collectPreferenceShapes(value: unknown): UserPreference[] {
+  if (Array.isArray(value)) {
+    return value.filter(isUserPreferenceShape);
   }
-  if (data != null && typeof data === "object") {
-    const root = data as Record<string, unknown>;
-    for (const key of [
-      "UserPreferenceList",
-      "userPreferenceList",
-      "list",
-      "items",
-    ]) {
-      const nested = root[key];
-      if (Array.isArray(nested)) {
-        return nested.filter(isUserPreferenceShape);
+  return [];
+}
+
+/**
+ * Normalize GET {@code /preferences/} payloads.
+ *
+ * <p>Jackson {@code WRAP_ROOT_VALUE} may emit a bare array, a
+ * {@code UserPreferenceList} array envelope, or a JAXB-style nested
+ * {@code { UserPreferenceList: { UserPreference: [...] } }}. Missing the
+ * nested form made list fallback miss {@code developer.defaultObjectAclTemplate}
+ * after Save (#3204 / #2643).
+ */
+function asPreferenceArray(data: unknown): UserPreference[] {
+  const direct = collectPreferenceShapes(data);
+  if (direct.length > 0) {
+    return direct;
+  }
+  const root = asRecord(data);
+  if (!root) {
+    return [];
+  }
+  for (const key of [
+    "UserPreferenceList",
+    "userPreferenceList",
+    "list",
+    "items",
+  ]) {
+    const nested = root[key];
+    const fromNested = collectPreferenceShapes(nested);
+    if (fromNested.length > 0) {
+      return fromNested;
+    }
+    const nestedObj = asRecord(nested);
+    if (nestedObj) {
+      for (const innerKey of ["UserPreference", "userPreference", "items", "list"]) {
+        const fromInner = collectPreferenceShapes(nestedObj[innerKey]);
+        if (fromInner.length > 0) {
+          return fromInner;
+        }
       }
     }
+  }
+  const fromRootItems = collectPreferenceShapes(
+    root.UserPreference ?? root.userPreference,
+  );
+  if (fromRootItems.length > 0) {
+    return fromRootItems;
   }
   return [];
 }
