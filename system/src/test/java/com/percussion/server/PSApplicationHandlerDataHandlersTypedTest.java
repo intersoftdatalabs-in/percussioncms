@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 
 import com.percussion.log.PSLogApplicationStatistics;
 import com.percussion.log.PSLogMultipleHandlers;
@@ -162,13 +164,30 @@ class PSApplicationHandlerDataHandlersTypedTest {
   }
 
   @Test
-  @DisplayName("getApplicationHandler returns only PSApplicationHandler entries")
-  void getApplicationHandlerIgnoresNonAppEntries() {
+  @DisplayName("getApplicationHandler returns null for missing apps and CCE for wrong types")
+  void getApplicationHandlerFailFastOnWrongType() {
     IPSRequestHandler dummy = new NoopRequestHandler();
     PSServer.ms_RequestHandlers.put("data-foo", dummy);
-    assertNull(PSServer.getApplicationHandler("foo"));
+    assertNull(PSServer.getApplicationHandler("missing"));
+    assertThrows(ClassCastException.class, () -> PSServer.getApplicationHandler("foo"));
     assertFalse(PSServer.isApplicationActive("missing"));
     assertTrue(PSServer.isApplicationActive("foo"));
+  }
+
+  @Test
+  @DisplayName("getInternalRequestHandler returns null when missing and CCE for wrong types")
+  void getInternalRequestHandlerFailFastOnWrongType() throws Exception {
+    PSApplicationHandler ah = mock(PSApplicationHandler.class, CALLS_REAL_METHODS);
+    ConcurrentHashMap<String, IPSRequestHandler> handlers = new ConcurrentHashMap<>();
+    Field dataHandlers = PSApplicationHandler.class.getDeclaredField("m_dataHandlers");
+    dataHandlers.setAccessible(true);
+    dataHandlers.set(ah, handlers);
+
+    assertNull(ah.getInternalRequestHandler("missing"));
+    handlers.put("ds", new NoopRequestHandler());
+    assertThrows(ClassCastException.class, () -> ah.getInternalRequestHandler("ds"));
+    assertThrows(IllegalArgumentException.class, () -> ah.getInternalRequestHandler(""));
+    assertThrows(IllegalArgumentException.class, () -> ah.getInternalRequestHandler((String) null));
   }
 
   @Test

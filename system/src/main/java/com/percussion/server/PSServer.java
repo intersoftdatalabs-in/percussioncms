@@ -1285,13 +1285,17 @@ public class PSServer {
    * Get the application handler for the specified application.
    *
    * @param appName the name of the app to locate
-   * @return the application handler
+   * @return the application handler, or <code>null</code> if no handler is registered for that
+   *     application name
+   * @throws ClassCastException if a handler is registered under the application key but is not a
+   *     {@link PSApplicationHandler} (fail-fast; same as the pre-generics cast)
    */
   public static PSApplicationHandler getApplicationHandler(String appName) {
     if (ms_RequestHandlers == null) return null; // Only for unit testing
 
-    IPSRequestHandler handler = ms_RequestHandlers.get("data-" + appName.toLowerCase());
-    return handler instanceof PSApplicationHandler ? (PSApplicationHandler) handler : null;
+    // Explicit cast: missing keys stay null; wrong types fail immediately
+    // (ClassCastException) instead of a deferred NPE at callers.
+    return (PSApplicationHandler) ms_RequestHandlers.get("data-" + appName.toLowerCase());
   }
 
   public static PSApplicationSummary[] getApplicationSummaries(PSRequest req) {

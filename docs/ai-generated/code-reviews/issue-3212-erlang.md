@@ -11,7 +11,7 @@
 
 ## Gate
 
-No bugs found. Behavioral tests cover request-root maps, handler-state merge, status XML, and log map keys. No filesystem path I/O in this change (cross-platform path checklist N/A).
+No bugs found. Behavioral tests cover request-root maps, handler-state merge, status XML, log map keys, and fail-fast `ClassCastException` on wrong-type handler map entries. No filesystem path I/O in this change (cross-platform path checklist N/A).
 
 ## Issues
 
@@ -19,5 +19,5 @@ None.
 
 ## Notes
 
-- `getInternalRequestHandler(String)` and `PSServer.getApplicationHandler` now return `null` instead of throwing `ClassCastException` when the map value is the wrong interface. Safer; production puts still implement the expected types.
+- `getInternalRequestHandler(String)` and `PSServer.getApplicationHandler` keep the pre-generics explicit cast so wrong-type map entries throw `ClassCastException` immediately instead of a deferred NPE. Missing keys still return `null`.
 - Residual Xlint remains on `PSServer` (`init`, objectstore/macros/log/search, role attributes) and `#3213` content/clone/actions — out of scope.

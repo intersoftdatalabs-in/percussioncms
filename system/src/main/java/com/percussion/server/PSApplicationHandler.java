@@ -184,15 +184,16 @@ public class PSApplicationHandler implements IPSRootedHandler {
    * @return The internal request handler associated with this request name, or <code>null</code> if
    *     a handler could not be located.
    * @throws IllegalArgumentException if the request string is invalid
+   * @throws ClassCastException if a map entry exists but is not an {@link
+   *     IPSInternalRequestHandler} (fail-fast; same as the pre-generics cast)
    */
   public IPSInternalRequestHandler getInternalRequestHandler(String request) {
     if (request == null || request.length() == 0)
       throw new IllegalArgumentException("Invalid request name");
 
-    IPSRequestHandler handler = m_dataHandlers.get(request.toLowerCase());
-    return handler instanceof IPSInternalRequestHandler
-        ? (IPSInternalRequestHandler) handler
-        : null;
+    // Explicit cast: missing keys stay null; wrong types fail immediately
+    // (ClassCastException) instead of a deferred NPE at callers.
+    return (IPSInternalRequestHandler) m_dataHandlers.get(request.toLowerCase());
   }
 
   /**
