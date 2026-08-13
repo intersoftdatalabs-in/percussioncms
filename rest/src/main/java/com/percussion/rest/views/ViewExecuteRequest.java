@@ -17,6 +17,7 @@
 
 package com.percussion.rest.views;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -30,6 +31,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * and Searches stay distinct public contracts.
  */
 @XmlRootElement(name = "ViewExecuteRequest")
+@JsonRootName("ViewExecuteRequest")
 @Schema(description = "Optional overrides when executing a CX design view by id or name")
 public class ViewExecuteRequest {
 
