@@ -122,6 +122,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="validationExceptionMapper" />
             <ref bean="constraintsViolatedExceptionMapper" />
             <ref bean="runtimeExceptionMapper" />
+            <!-- Inbox #3323: bind flat startIndex before jackson UNWRAP_ROOT_VALUE -->
+            <ref bean="viewExecuteRequestJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

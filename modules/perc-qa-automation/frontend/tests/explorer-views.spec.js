@@ -58,6 +58,9 @@ const {
   unwrapViewDefs,
   isCustomUrlView,
   isInboxView,
+  viewParentCategory,
+  viewDefKey,
+  viewDefLabel,
   pickRunnableStandardView,
   noViewsChromeSkipMessage,
   noRunnableViewSkipMessage,
@@ -281,6 +284,58 @@ test.describe("Explorer Views Playwright + a11y (#3117 / #3110)", () => {
     await expectNoSeriousA11yViolations(page, {
       scope: `[data-testid="${TEST_IDS.viewsTree}"], [data-testid="${TEST_IDS.results}"]`,
     });
+
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test("All Content lists unique view leaves (no seven All dups) @explorer-views @views @3325", async ({
+    page,
+    request,
+  }) => {
+    const consoleErrors = attachConsoleErrorCollector(page);
+    const headers = adminBasicAuthHeaders();
+    let restAllLabels = [];
+    try {
+      const res = await request.get(viewsCatalogUrl(BASE_URL), {
+        headers: { ...headers, Accept: "application/json" },
+      });
+      if (res.ok()) {
+        const defs = unwrapViewDefs(await res.json().catch(() => null));
+        restAllLabels = defs
+          .filter((d) => viewParentCategory(d) === 3)
+          .map((d) => viewDefLabel(d) || viewDefKey(d));
+      }
+    } catch {
+      restAllLabels = [];
+    }
+
+    await page.goto(explorerEntryUrl(BASE_URL), { waitUntil: "networkidle" });
+    await expect(page.getByTestId(TEST_IDS.shell)).toBeVisible({
+      timeout: 30_000,
+    });
+
+    const hasChrome = await viewsChromeVisible(page);
+    if (!hasChrome) {
+      test.skip(true, noViewsChromeSkipMessage());
+      return;
+    }
+
+    await expandViewsGroup(page, 3);
+    const group = page.getByTestId(TEST_IDS.group(3));
+    const leafLabels = await group.locator('[role="treeitem"][data-testid^="explorer-views-leaf-"]').allTextContents();
+    const trimmed = leafLabels.map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+    const allExact = trimmed.filter((s) => /^all$/i.test(s));
+    expect(
+      allExact.length,
+      `All Content should not list seven identical All leaves (ui=${JSON.stringify(trimmed)} rest=${JSON.stringify(restAllLabels)})`,
+    ).toBeLessThanOrEqual(1);
+
+    const keys = await group.locator('[data-testid^="explorer-views-leaf-"]').evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-testid")),
+    );
+    expect(new Set(keys).size, `duplicate leaf testids: ${keys.join(",")}`).toBe(
+      keys.length,
+    );
 
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });

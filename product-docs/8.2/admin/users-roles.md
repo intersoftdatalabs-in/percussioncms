@@ -59,8 +59,12 @@ Authenticated users open **My profile** from the header user menu (or deep link
 
 Password rules enforced by the server (complexity / history filters when configured)
 still apply. Client-side checks require a non-empty password of at least six characters
-and a matching confirmation before submit. Success and failure messages are announced
-to assistive technology via a live region.
+and a matching confirmation before submit. After a **successful** change the Security
+section shows a success confirmation (not an error); the current session stays signed
+in, and the new password is required at the next sign-in. Failed validation (too short,
+mismatch, or a server-side rule) stays an error and does not change the stored
+password. Success and failure messages are announced to assistive technology via a
+live region.
 
 ## My profile — Preferences (default landing)
 

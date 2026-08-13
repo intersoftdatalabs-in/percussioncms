@@ -1,7 +1,7 @@
 ---
 id: admin-design-templates
 title: Design templates
-description: Create and edit modern assembly templates in the Design SPA without Widget definition XML
+description: Create and edit modern assembly templates in the Design SPA; classic list bookmarks redirect here
 version: "8.2"
 order: 44
 tags: [admin, design, templates, ui]
@@ -13,8 +13,8 @@ tags: [admin, design, templates, ui]
 administrators list existing templates and **create new templates** using the public REST
 catalog (`/services/templates`). Create does **not** author Widget definition XML.
 
-The product name is **Design**. The SPA route is `/design` (and
-`spa.jsp?entry=design&section=templates`).
+In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The classic
+`admin.jsp` Design page and `?view=design` bookmarks hard-redirect into the SPA.
 
 ## Open Design (SPA)
 
@@ -83,6 +83,10 @@ return to the library.
 
 Content-type associations, delete, and lock are not available on this REST surface yet
 (see `designGaps` on the template detail payload).
+
+The visual layout editor may still open residual classic hosts (`editTemplate.jsp` and
+related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmarks to the
+**list** still land on the SPA.
 
 ## Related
 

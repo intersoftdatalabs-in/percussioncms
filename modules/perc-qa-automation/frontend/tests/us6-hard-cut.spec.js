@@ -65,9 +65,11 @@ const SHELLS = [
   },
   {
     name: "admin",
+    // #3306: classic Design list JSP hard-redirects to SPA Design (not explorer mount)
     path: "/Rhythmyx/cm/app/admin.jsp",
-    asserted: true, // T031 complete on 2026-07-19
-    expectModernShell: true,
+    asserted: true,
+    expectModernShell: false,
+    expectDesignSpa: true,
   },
   {
     name: "editAsset",
@@ -143,6 +145,12 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
       if (shell.expectArchitectureSpa) {
         // #3099: siteArchitecture.jsp → SPA Architecture shell (multi-hop redirect)
         await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
+          timeout: 30_000,
+        });
+      }
+      if (shell.expectDesignSpa) {
+        // #3306: admin.jsp → SPA Design template library (multi-hop redirect)
+        await expect(page.getByTestId("perc-design-shell")).toBeVisible({
           timeout: 30_000,
         });
       }

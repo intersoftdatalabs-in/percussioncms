@@ -31,6 +31,9 @@ This section covers how to obtain, install, upgrade, and take first steps with P
 3. Confirm the SPA top navigation starts with **Home**, then **Explorer** (adjacent).
    There is no **Dashboard** top-nav item. Administrators see a single **Admin**
    item that opens **Admin tools** (`/admin`). See [Administration](id:admin).
+   **Design** (Admin or Designer) opens the SPA template library — classic
+   `?view=design` / `admin.jsp` bookmarks redirect there. See
+   [Design templates](id:admin-design-templates).
 4. Create or open a **Site**, confirm Finder navigation, and open the Web UI editor.
 5. Open **Design** to list assembly templates and edit source, JEXL bindings, assembler,
    and slots. See [Design templates](id:admin-design-templates).

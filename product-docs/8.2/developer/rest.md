@@ -234,10 +234,11 @@ with the execute call below.
 
 ### Execute request / response
 
-The execute body must use the Jackson / JAXB root name `ViewExecuteRequest`. A
-bare `{ "startIndex": 1, "maxResults": 50 }` object is rejected (`unexpected
-element startIndex`). An empty body is allowed when you need design defaults
-only; if you send JSON, wrap the fields:
+The preferred execute body uses the Jackson / JAXB root name `ViewExecuteRequest`.
+Explorer Inbox and other clients should send that envelope. The server also
+accepts a flat `{ "startIndex": 1, "maxResults": 50 }` object (same fields) so
+Inbox execute is not rejected as `unexpected element startIndex`. An empty body
+is allowed when you need design defaults only. Recommended JSON:
 
 ```json
 {

@@ -20,7 +20,8 @@
  * - Explorer immediately after Home
  * - Single consolidated Admin labeled "Admin" (not "Administration")
  * - Admin lands on working Admin tools shell (/admin); workflow/roles/users/
- *   categories are in-shell tabs (sibling chrome removed in #3088)
+ *   categories are in-shell tabs (sibling chrome removed in #3088).
+ *   #3340 is not a revert: do not restore admin-sibling-workflow-link.
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/top-nav-restructure.spec.js
@@ -104,7 +105,7 @@ test.describe("Top nav restructure (#2702 / #3201)", () => {
     );
     await expect(page.getByTestId("tab-tools")).toBeVisible();
     await expect(page.getByTestId("tab-tasks")).toBeVisible();
-    // No sibling cross-links; workflow is an Admin tab (#3088)
+    // No sibling cross-links; workflow is an Admin tab (#3088 / #3340)
     await expect(page.getByTestId("admin-sibling-workflow-link")).toHaveCount(0);
     await expect(page.getByTestId("admin-sibling-tools-link")).toHaveCount(0);
     await expect(page.getByTestId("tab-workflow")).toBeVisible();

@@ -16,7 +16,7 @@
  */
 
 /**
- * Pure grouping helpers for the Explorer Views catalog (#3116 / #3240).
+ * Pure grouping helpers for the Explorer Views catalog (#3116 / #3240 / #3325).
  *
  * <p>DCE {@code sys_category} / {@code PSSearch.ParentCategory} values
  * 1–4 map to My / Community / All / Other. Unknown categories fall into
@@ -24,6 +24,12 @@
  *
  * <p>Inbox is a system custom-URL view at {@code //Views//MyContent/Inbox},
  * never a free-floating Explorer root (#3118 slice 2 / #3240).</p>
+ *
+ * <p>#3325: {@link groupViewsByParentCategory} collapses catalog rows that
+ * are the same logical view (same name / guid / id). Distinct names and
+ * guids stay as separate leaves; unlabeled duplicates are omitted. Shared
+ * display labels (for example seven {@code All} rows) are disambiguated
+ * with the internal name when the keys differ.</p>
  */
 
 import type { ViewDef } from "../api/developer/types";
@@ -52,7 +58,8 @@ export function viewKey(def: ViewDef): string {
   return (
     def.name ||
     def.guid?.stringValue ||
-    (def.id != null ? String(def.id) : "")
+    def.guid?.untypedString ||
+    (def.id != null && Number(def.id) !== 0 ? String(def.id) : "")
   ).trim();
 }
 
@@ -60,13 +67,137 @@ export function viewLabel(def: ViewDef): string {
   return (def.label || def.name || viewKey(def) || "—").trim();
 }
 
-export function normalizeViewParentCategory(
-  raw: number | undefined | null,
-): ViewParentCategory {
-  if (raw === 1 || raw === 2 || raw === 3 || raw === 4) {
+/** Coerce JSON parentCategory (number or numeric string) to a finite int. */
+export function coerceViewParentCategory(
+  raw: unknown,
+): number | undefined {
+  if (typeof raw === "number" && Number.isFinite(raw)) {
     return raw;
   }
+  if (typeof raw === "string" && raw.trim() !== "") {
+    const n = Number.parseInt(raw, 10);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return undefined;
+}
+
+export function normalizeViewParentCategory(
+  raw: number | string | undefined | null,
+): ViewParentCategory {
+  const n = coerceViewParentCategory(raw);
+  if (n === 1 || n === 2 || n === 3 || n === 4) {
+    return n;
+  }
   return 4;
+}
+
+/**
+ * Identity for catalog dedupe (#3325). Prefers internal name, then guid,
+ * then non-zero id. Empty when the row cannot be distinguished.
+ */
+export function viewCatalogIdentity(def: ViewDef): string {
+  const name = (def.name ?? "").trim().toLowerCase();
+  if (name) {
+    return `name:${name}`;
+  }
+  const guid = (
+    def.guid?.stringValue ||
+    def.guid?.untypedString ||
+    ""
+  )
+    .trim()
+    .toLowerCase();
+  if (guid) {
+    return `guid:${guid}`;
+  }
+  if (def.id != null && Number(def.id) !== 0) {
+    return `id:${String(def.id).trim()}`;
+  }
+  return "";
+}
+
+function unlabeledStamp(def: ViewDef): string {
+  const label = viewLabel(def).toLowerCase();
+  const cat = normalizeViewParentCategory(def.parentCategory);
+  return `unlabeled:${cat}:${label}`;
+}
+
+function preferRicherView(a: ViewDef, b: ViewDef): ViewDef {
+  const aScore =
+    (a.label ? 1 : 0) + (a.description ? 1 : 0) + (a.guid ? 1 : 0);
+  const bScore =
+    (b.label ? 1 : 0) + (b.description ? 1 : 0) + (b.guid ? 1 : 0);
+  return bScore > aScore ? b : a;
+}
+
+/**
+ * Collapse duplicate catalog rows that represent one logical view.
+ * Distinct {@link viewCatalogIdentity} values are kept. Rows with no
+ * name/guid/id are kept once per (category, label) and otherwise dropped.
+ */
+export function dedupeViewCatalog(
+  views: readonly ViewDef[] | null | undefined,
+): ViewDef[] {
+  if (!Array.isArray(views) || views.length === 0) {
+    return [];
+  }
+  const byIdentity = new Map<string, ViewDef>();
+  const unlabeledSeen = new Set<string>();
+  const order: string[] = [];
+  for (const def of views) {
+    if (def == null) {
+      continue;
+    }
+    const identity = viewCatalogIdentity(def);
+    if (!identity) {
+      const stamp = unlabeledStamp(def);
+      if (unlabeledSeen.has(stamp)) {
+        continue;
+      }
+      unlabeledSeen.add(stamp);
+      const key = `anon:${stamp}`;
+      byIdentity.set(key, def);
+      order.push(key);
+      continue;
+    }
+    const existing = byIdentity.get(identity);
+    if (existing == null) {
+      byIdentity.set(identity, def);
+      order.push(identity);
+    } else {
+      byIdentity.set(identity, preferRicherView(existing, def));
+    }
+  }
+  return order.map((k) => byIdentity.get(k)).filter((d): d is ViewDef => d != null);
+}
+
+/**
+ * Leaf label for the Views tree. When several distinct views in the same
+ * group share a display label, append the internal name (or guid) so
+ * operators can tell them apart (#3325).
+ */
+export function viewTreeLabel(def: ViewDef, group: readonly ViewDef[]): string {
+  const base = viewLabel(def);
+  if (!group || group.length < 2) {
+    return base;
+  }
+  const same = group.filter(
+    (d) => viewLabel(d).toLowerCase() === base.toLowerCase(),
+  );
+  if (same.length < 2) {
+    return base;
+  }
+  const name = (def.name ?? "").trim();
+  if (name && name.toLowerCase() !== base.toLowerCase()) {
+    return `${base} (${name})`;
+  }
+  const guid = (def.guid?.stringValue || def.guid?.untypedString || "").trim();
+  if (guid) {
+    return `${base} (${guid})`;
+  }
+  return base;
 }
 
 /** True when the view is a custom-URL design view (Inbox family / #3118). */
@@ -145,26 +276,33 @@ export function emptyViewCatalogGroups(): ViewCatalogGroups {
 
 /**
  * Group catalog rows by {@link ViewDef.parentCategory} (1–4).
- * Rows without a usable key are omitted. Each group is sorted by label.
+ * Duplicate logical views are collapsed (#3325). Rows without a usable
+ * key are omitted. Each group is sorted by tree label.
  */
 export function groupViewsByParentCategory(
   views: readonly ViewDef[] | null | undefined,
 ): ViewCatalogGroups {
   const groups = emptyViewCatalogGroups();
-  const list = ensureInboxInMyContent(views);
+  const list = ensureInboxInMyContent(dedupeViewCatalog(views));
   for (const def of list) {
     const key = viewKey(def);
     if (!key) {
       continue;
     }
-    const placed = isInboxView(def) ? { ...def, parentCategory: 1 } : def;
+    const cat = normalizeViewParentCategory(def.parentCategory);
+    const placed = isInboxView(def)
+      ? { ...def, parentCategory: 1 }
+      : { ...def, parentCategory: cat };
     groups[normalizeViewParentCategory(placed.parentCategory)].push(placed);
   }
   for (const cat of VIEW_PARENT_CATEGORIES) {
+    groups[cat] = dedupeViewCatalog(groups[cat]);
     groups[cat].sort((a, b) =>
-      viewLabel(a).localeCompare(viewLabel(b), undefined, {
-        sensitivity: "base",
-      }),
+      viewTreeLabel(a, groups[cat]).localeCompare(
+        viewTreeLabel(b, groups[cat]),
+        undefined,
+        { sensitivity: "base" },
+      ),
     );
   }
   return groups;

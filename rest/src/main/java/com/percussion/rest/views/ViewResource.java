@@ -121,7 +121,8 @@ public class ViewResource {
               + " format, max results, and case sensitivity. Custom URL views in the Inbox family"
               + " (sys_cxViews/inbox, outbox, recent, session, checkedoutbyme,"
               + " duplicatefolderpaths) invoke the classic app resource and return Explorer rows."
-              + " Optional body may override folder scope (standard views), paging, and sort."
+              + " Optional body may override folder scope (standard views), paging, and sort"
+              + " as a ViewExecuteRequest envelope or a flat startIndex/maxResults object."
               + " Unsupported custom URLs return 400.",
       responses = {
         @ApiResponse(

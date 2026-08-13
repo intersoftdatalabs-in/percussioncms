@@ -102,6 +102,24 @@ class PSVirtualSiteFilesystemPublisherTest {
   }
 
   @Test
+  void copyBuildFileCountToTarget_matchesCopyResultCount() throws Exception {
+    Path build = tempDir.resolve("build-count");
+    Path pub = tempDir.resolve("published-count");
+    Path html = build.resolve("page.html");
+    Files.createDirectories(build);
+    Files.writeString(html, "n", StandardCharsets.UTF_8);
+    Path meta = build.resolve("_meta").resolve("skip.json");
+    Files.createDirectories(meta.getParent());
+    Files.writeString(meta, "{}", StandardCharsets.UTF_8);
+
+    int count = PSVirtualSiteFilesystemPublisher.copyBuildFileCountToTarget(build, pub);
+
+    assertEquals(1, count);
+    assertTrue(Files.isRegularFile(pub.resolve("page.html")));
+    assertFalse(Files.exists(pub.resolve("_meta")));
+  }
+
+  @Test
   void copyBuildToTarget_rejectsMissingBuildDir() {
     VirtualSiteException ex =
         assertThrows(

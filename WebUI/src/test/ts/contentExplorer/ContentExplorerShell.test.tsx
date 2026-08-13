@@ -1658,6 +1658,68 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("Inbox default executeView POSTs ViewExecuteRequest envelope (#3323)", async () => {
+    const executeBodies: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [],
+              childrenCount: 0,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (/\/views\/[^/]+\/execute/i.test(url) && String(init?.method) === "POST") {
+        executeBodies.push(String(init?.body ?? ""));
+        return new Response(
+          JSON.stringify({
+            children: [],
+            totalCount: 0,
+            startIndex: 1,
+            viewName: "Inbox",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listViews={async () => [
+          { name: "Inbox", label: "Inbox", parentCategory: 1, customView: true },
+        ]}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-leaf-Inbox")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-Inbox"));
+    await waitFor(() => {
+      expect(executeBodies.length).toBeGreaterThan(0);
+    });
+    const parsed = JSON.parse(executeBodies[0] ?? "{}");
+    expect(parsed.ViewExecuteRequest).toEqual({
+      startIndex: 1,
+      maxResults: 50,
+    });
+    expect(parsed.startIndex).toBeUndefined();
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-view-results-empty")).toBeInTheDocument();
+    });
+  });
+
   it("running Inbox POSTs view execute and shows results (#3240)", async () => {
     stubPathFetch();
     const listViews = vi.fn(async () => [
@@ -1770,5 +1832,25 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("explorer-view-results-error").textContent).toMatch(
       /Custom URL views cannot be run/i,
     );
+  });
+});
+
+describe("ContentExplorerShell missing BootstrapProvider (#3331)", () => {
+  it("renders an error state without throwing useContext", async () => {
+    stubPathFetch();
+    expect(() =>
+      render(
+        <ContentExplorerShell
+          initialPath="/Folders"
+          loadDisplayFormats={async () => []}
+          loadMenuActions={async () => []}
+        />,
+      ),
+    ).not.toThrow();
+    const alert = screen.getByTestId("explorer-bootstrap-unavailable");
+    expect(alert).toBeInTheDocument();
+    expect(alert.textContent).toMatch(/application session is not available/i);
+    expect(screen.queryByTestId("explorer-nav")).toBeNull();
+    await renderA11yGate(screen.getByTestId("content-explorer-shell"));
   });
 });

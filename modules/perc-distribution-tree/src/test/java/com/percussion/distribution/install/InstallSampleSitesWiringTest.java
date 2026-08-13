@@ -214,6 +214,24 @@ class InstallSampleSitesWiringTest {
     assertTrue(
         hasSiteChild,
         "PSX_OBJECTRELATIONSHIP must link Sites (owner 2) to sample site root folders 350/351");
+
+    Set<String> childDeps = new LinkedHashSet<>();
+    for (int i = 0; i < relRows.getLength(); i++) {
+      Element row = (Element) relRows.item(i);
+      String owner = columnValue(row, "OWNER_ID");
+      String dep = columnValue(row, "DEPENDENT_ID");
+      if (("350".equals(owner) || "351".equals(owner)) && dep != null && !dep.isBlank()) {
+        childDeps.add(owner + ":" + dep.trim());
+      }
+    }
+    assertTrue(
+        childDeps.contains("350:352") && childDeps.contains("350:353"),
+        "EnterpriseInvestments (350) must have Pages/Files children 352/353 (#3326); found "
+            + childDeps);
+    assertTrue(
+        childDeps.contains("351:354") && childDeps.contains("351:355"),
+        "CorporateInvestments (351) must have Pages/Files children 354/355 (#3326); found "
+            + childDeps);
   }
 
   @Test

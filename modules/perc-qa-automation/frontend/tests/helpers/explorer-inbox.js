@@ -218,6 +218,23 @@ function missingInboxSkipMessage(detail = {}) {
  * @param {{ restStatus?: number }} [detail]
  * @returns {string}
  */
+/**
+ * True when Inbox execute failed on the JAXB / ViewExecuteRequest envelope
+ * (#3323). That is a product defect — do not soft-skip.
+ *
+ * @param {string} text
+ * @returns {boolean}
+ */
+function isViewExecuteJaxbError(text) {
+  const raw = String(text ?? "");
+  if (!raw.trim()) {
+    return false;
+  }
+  const jaxb = /JAXBException|unexpected element/i.test(raw);
+  const envelope = /startIndex/i.test(raw) && /ViewExecuteRequest/i.test(raw);
+  return jaxb || envelope;
+}
+
 function noAssignmentsSkipMessage(detail = {}) {
   const parts = [
     "Inbox surface present but H2 fixture has no assignment rows.",
@@ -242,6 +259,7 @@ module.exports = {
   findInboxView,
   inboxLeafSelector,
   inboxResultsSelector,
+  isViewExecuteJaxbError,
   missingInboxSkipMessage,
   noAssignmentsSkipMessage,
 };

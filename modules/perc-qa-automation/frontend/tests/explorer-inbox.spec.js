@@ -53,6 +53,7 @@ const {
   findInboxView,
   inboxLeafSelector,
   inboxResultsSelector,
+  isViewExecuteJaxbError,
   missingInboxSkipMessage,
   noAssignmentsSkipMessage,
 } = require("./helpers/explorer-inbox");
@@ -179,6 +180,14 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
       return;
     }
 
+    const executeBodies = [];
+    page.on("request", (req) => {
+      if (req.method() !== "POST") return;
+      const reqUrl = req.url();
+      if (!/\/services\/views\/[^/]+\/execute(?:\?|$)/i.test(reqUrl)) return;
+      executeBodies.push(req.postData() || "");
+    });
+
     await inboxLeaf.first().click();
 
     const results = page.locator(inboxResultsSelector());
@@ -205,8 +214,27 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
       await expect(loading).toBeHidden({ timeout: 30_000 });
     }
 
+    if (executeBodies.length > 0) {
+      for (const raw of executeBodies) {
+        const parsed = JSON.parse(raw);
+        expect(
+          parsed.ViewExecuteRequest,
+          "JAXB root ViewExecuteRequest required (#3323)",
+        ).toBeTruthy();
+        expect(
+          parsed.startIndex,
+          "bare startIndex must not be the JSON root",
+        ).toBeUndefined();
+      }
+    }
+
     const err = page.locator(`[data-testid="${TEST_IDS.resultsError}"]`);
     if (await err.isVisible().catch(() => false)) {
+      const errText = (await err.textContent().catch(() => "")) || "";
+      expect(
+        isViewExecuteJaxbError(errText),
+        `Inbox must not fail JAXB startIndex / ViewExecuteRequest (#3323): ${errText}`,
+      ).toBe(false);
       expect(pageErrors, "uncaught pageerror on Inbox execute error").toEqual(
         [],
       );

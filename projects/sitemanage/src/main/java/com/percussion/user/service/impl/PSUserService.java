@@ -797,15 +797,7 @@ public class PSUserService implements IPSUserService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSUser changePassword(PSUser user) throws PSDataServiceException {
-    log.debug("changing password for user {}", user);
-
-    // the result
-    PSUser rvalue = null;
-
-    PSUserProviderType provider = fromProvider(user.getName());
-    user.setProviderType(provider);
-
-    // parameter validation
+    // Validate before any lookup so a null body is 400, not NPE 500.
     PSParameterValidationUtils.validateParameters("changePassword")
         .rejectIfNull("user", user)
         .throwIfInvalid();
@@ -816,8 +808,24 @@ public class PSUserService implements IPSUserService {
         .rejectIfBlank("name", user.getName())
         .throwIfInvalid();
 
-    // can only change password of self
     String userName = user.getName();
+    log.debug("changing password for user {}", userName);
+
+    PSUserProviderType provider = fromProvider(userName);
+    user.setProviderType(provider);
+    if (provider != PSUserProviderType.INTERNAL) {
+      PSParameterValidationUtils.validateParameters("changePassword")
+          .rejectField(
+              "password",
+              "Password can only be changed for internal users",
+              userName)
+          .throwIfInvalid();
+    }
+
+    // Load the session user once *before* the credential write. Reloading
+    // getCurrentUser()/find() after USERLOGIN is updated can fail (session
+    // subject refresh) and would map to HTTP 500 even though the password
+    // already persisted — issue #3338.
     PSCurrentUser currentUser = getCurrentUser();
     if (currentUser == null || !userName.equalsIgnoreCase(currentUser.getName())) {
       String emsg = "Can only change the password of the current user";
@@ -827,33 +835,47 @@ public class PSUserService implements IPSUserService {
           .throwIfInvalid();
     }
 
-    // only update if there is a password supplied
-    // and its an internal user.
-    if (provider == PSUserProviderType.INTERNAL && isNotBlank(user.getPassword())) {
-      PSUserLogin login = new PSUserLogin();
-      login.setUserid(user.getName());
-      String cryptPW =
-          (passwordFilter == null)
-              ? user.getPassword()
-              : passwordFilter.encrypt(user.getPassword());
-      login.setPassword(cryptPW);
+    PSUserLogin login = new PSUserLogin();
+    login.setUserid(userName);
+    String cryptPW =
+        (passwordFilter == null)
+            ? user.getPassword()
+            : passwordFilter.encrypt(user.getPassword());
+    login.setPassword(cryptPW);
+    userLoginDao.save(login);
 
-      // save changes
-      userLoginDao.save(login);
-
-      try {
-        rvalue = user.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new PSDataServiceException(e);
-      }
-      rvalue.setRoles(currentUser.getRoles());
-      rvalue.setProviderType(provider);
-      rvalue.setPassword(null);
+    try {
+      PSSystemAuditLogger.userUpdate(
+          currentServletRequest(), AuditOutcome.SUCCESS, userName, "changepw");
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
+    // Never return null (CXF JSON/XML writers 500 on a null entity). Build a
+    // fresh DTO from the pre-loaded session user — do not clone the request
+    // body (BeanUtils.cloneBean) and do not re-fetch after persist.
+    PSUser rvalue = passwordChangeResult(currentUser);
     // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
     // not HTML body (alert #755)
     return rvalue; // codeql[java/xss]
+  }
+
+  /**
+   * Wire DTO for a successful self-service password change. Password is always
+   * cleared. Roles/email come from the user loaded before persist.
+   */
+  private static PSUser passwordChangeResult(PSCurrentUser currentUser) {
+    PSUser rvalue = new PSUser();
+    rvalue.setName(currentUser.getName());
+    rvalue.setEmail(currentUser.getEmail() == null ? "" : currentUser.getEmail());
+    rvalue.setProviderType(PSUserProviderType.INTERNAL);
+    rvalue.setPassword(null);
+    List<String> roles = currentUser.getRoles();
+    if (roles != null) {
+      rvalue.setRoles(new ArrayList<>(roles));
+    }
+    return rvalue;
   }
 
   @Override

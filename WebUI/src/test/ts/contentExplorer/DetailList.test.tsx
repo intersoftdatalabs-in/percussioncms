@@ -432,6 +432,173 @@ describe("DetailList", () => {
     await renderA11yGate(container);
   });
 });
+
+const FOLDER_CHILDREN: PSPathItem[] = [
+  {
+    id: "sys-1",
+    path: "/Folders/$System$/",
+    name: "$System$",
+    accessLevel: "READ",
+    leaf: false,
+  },
+  {
+    id: "uf-1",
+    path: "/Folders/New-Folder/",
+    name: "New-Folder",
+    type: "Folder",
+    accessLevel: "WRITE",
+  },
+  {
+    id: "p-page",
+    path: "/Folders/Welcome",
+    name: "Welcome",
+    type: "page",
+    accessLevel: "WRITE",
+    leaf: true,
+  },
+];
+
+function mockFolderPage(children: PSPathItem[] = FOLDER_CHILDREN): void {
+  mockFetch(async () =>
+    new Response(
+      JSON.stringify({
+        PagedItemList: {
+          childrenInPage: children,
+          childrenCount: children.length,
+          startIndex: 0,
+        },
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    ),
+  );
+}
+
+describe("DetailList folder row chrome (#3328)", () => {
+  it("shows folder icons for $System$ and user folders, not checkboxes in the icon column", async () => {
+    mockFolderPage();
+    render(
+      <DetailList
+        folderPath="/Folders"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-sys-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-col-header-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("detail-col-header-select")).toBeInTheDocument();
+
+    const systemIcon = screen.getByTestId("detail-folder-icon-sys-1");
+    expect(systemIcon).toHaveAttribute("data-kind", "folder");
+    expect(systemIcon).toHaveAttribute("data-folder-state", "closed");
+    expect(screen.getByTestId("detail-row-sys-1")).toHaveAttribute(
+      "data-row-kind",
+      "folder",
+    );
+
+    const userIcon = screen.getByTestId("detail-folder-icon-uf-1");
+    expect(userIcon).toHaveAttribute("data-kind", "folder");
+    expect(userIcon).toHaveAttribute("data-folder-state", "closed");
+
+    expect(screen.getByTestId("detail-item-icon-p-page")).toHaveAttribute(
+      "data-kind",
+      "item",
+    );
+    expect(screen.queryByTestId("detail-folder-icon-p-page")).toBeNull();
+
+    expect(screen.getByTestId("detail-select-sys-1")).toBeInTheDocument();
+    expect(screen.getByTestId("detail-select-uf-1")).toBeInTheDocument();
+  });
+
+  it("uses the open folder icon when a folder row is selected", async () => {
+    mockFolderPage();
+    render(
+      <DetailList
+        folderPath="/Folders"
+        selectedItemId="sys-1"
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-folder-icon-sys-1")).toHaveAttribute(
+      "data-folder-state",
+      "open",
+    );
+    expect(screen.getByTestId("detail-folder-icon-uf-1")).toHaveAttribute(
+      "data-folder-state",
+      "closed",
+    );
+  });
+
+  it("activates browse when the folder icon is clicked without toggling the checkbox", async () => {
+    mockFolderPage();
+    const activated: string[] = [];
+    const toggled: string[] = [];
+    render(
+      <DetailList
+        folderPath="/Folders"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        onActivateItem={(item) => {
+          activated.push(item.id ?? "");
+        }}
+        selectedItemIds={new Set<string>()}
+        onToggleSelectItem={(item) => {
+          toggled.push(item.id ?? "");
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-icon-uf-1")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("detail-folder-icon-uf-1"));
+    expect(activated).toEqual(["uf-1"]);
+    expect(toggled).toEqual([]);
+  });
+
+  it("still renders folder icons when multi-select checkboxes are off", async () => {
+    mockFolderPage();
+    render(
+      <DetailList
+        folderPath="/Folders"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId("detail-col-header-select")).toBeNull();
+    expect(screen.getByTestId("detail-col-header-icon")).toBeInTheDocument();
+  });
+
+  it("passes the zero serious/critical axe-core gate (folder rows + checkboxes)", async () => {
+    mockFolderPage();
+    const { container } = render(
+      <DetailList
+        folderPath="/Folders"
+        selectedItemId="sys-1"
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+        selectedItemIds={new Set<string>(["sys-1"])}
+        onToggleSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-icon-sys-1")).toBeInTheDocument(),
+    );
+    await renderA11yGate(container);
+  });
+});
+
 describe("T092b / FR-027: display-format column resolution", () => {
   const sample: PSPathItem = {
     id: "p-1",

@@ -71,7 +71,7 @@ function renderShell(ui: React.ReactElement) {
 }
 
 describe("AdminShell", () => {
-  it("renders unified Admin title without sibling Workflow link (#3088)", () => {
+  it("renders unified Admin title without sibling Workflow link (#3088 / #3340)", () => {
     renderShell(<AdminShell />);
     expect(screen.getByTestId("perc-admin-shell")).toBeDefined();
     expect(screen.getByTestId("mock-tasks-section")).toBeDefined();
@@ -79,9 +79,11 @@ describe("AdminShell", () => {
     expect(screen.getByTestId("perc-admin-shell-title").textContent).toMatch(
       /Admin tools/i,
     );
-    // Sibling cross-links removed when Workflow admin folded into Admin (#3088)
+    // Sibling chrome is not product (#3088 / #3340). Do not restore
+    // Administration / Admin tools cross-links.
     expect(screen.queryByTestId("admin-sibling-workflow-link")).toBeNull();
     expect(screen.queryByTestId("admin-sibling-tools-link")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Administration" })).toBeNull();
   });
 
   it("exposes responsive tablist chrome for narrow / portrait layouts", () => {

@@ -17,6 +17,7 @@
 
 package com.percussion.rest.views;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
  * not share a catalog identity on the wire.
  */
 @XmlRootElement(name = "ViewExecuteResult")
+@JsonRootName("ViewExecuteResult")
 @Schema(description = "Paged Explorer-ready results from executing a CX design view")
 public class ViewExecuteResult {
 

@@ -64,7 +64,6 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSXmlSerializationHelper {
   /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
@@ -251,7 +250,7 @@ public class PSXmlSerializationHelper {
    * @throws IOException
    * @throws SAXException
    */
-  public static synchronized Object readFromXML(String xmlString, Class clazz)
+  public static synchronized Object readFromXML(String xmlString, Class<?> clazz)
       throws IOException, SAXException {
     if (StringUtils.isBlank(xmlString)) {
       throw new IllegalArgumentException("xmlString may not be null or empty");
@@ -265,7 +264,7 @@ public class PSXmlSerializationHelper {
    * @param xmlString never blank
    * @param clazz target type, may be {@code null} (resolved from root via type map)
    */
-  private static Object readFromXMLJackson(String xmlString, Class clazz)
+  private static Object readFromXMLJackson(String xmlString, Class<?> clazz)
       throws IOException, SAXException {
     Class<?> target = clazz;
     String parseXml = rewriteLegacyNullRoot(xmlString, target);
