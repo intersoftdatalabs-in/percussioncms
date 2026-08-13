@@ -39,6 +39,11 @@ public class DefaultConfigurationContextImpl
     this.encKey = key;
   }
 
+  @Override
+  protected DefaultConfigurationContextImpl self() {
+    return this;
+  }
+
   public Path getRootDir() {
     return rootDir;
   }
