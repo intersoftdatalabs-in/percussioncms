@@ -42,6 +42,9 @@
 //   allow_peer_squash_merge bool - if true (default), peer review may squash-merge eligible PRs
 //   max_prs             int    - max open PRs to babysit per follow-up pass (default 6, cap 12)
 //   include_pr_cluster  bool   - after POST follow-up, absorb same-file thrash PRs into one cluster PR (default true)
+//                                cluster_opened REQUIRES standalone mvnw clean install (compile+tests)
+//                                of every Maven module touched by the absorb. Host rejects missing
+//                                modules_built / BUILD SUCCESS evidence (does not un-open a leaked PR).
 //   cluster_min_prs     int    - min owned open PRs sharing thrash files to form a cluster (default 3, range 2-8)
 //   include_security_audit bool - after PR cluster: CodeQL open-alert pass (default true).
 //                                If open code-scanning alerts exist on the default branch analysis:
@@ -110,7 +113,7 @@ let meta = #{
         #{ title: "Peer PR review", detail: "review other-model/no-model open PRs; squash-merge if clean" },
         #{ title: "Work", detail: "claim-check author/safety/In Progress; implement/split; parent GH progress" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
-        #{ title: "PR cluster", detail: "same-file thrash: interim branch + superseding PR" },
+        #{ title: "PR cluster", detail: "same-file thrash: absorb + required module clean install + superseding PR" },
         #{ title: "Security audit", detail: "CodeQL open alerts → one Audit Fix Pass issue + mitigation PRs" },
         #{ title: "Cycle verify", detail: "this-run Maven + H2 Playwright; failures → next-cycle p1 residuals" },
         #{ title: "Human QA", detail: "after cycle verify only: assign QA if Q1–Q8 pass" },
@@ -204,6 +207,9 @@ let peer_pr_review_schema = #{
     },
 };
 
+// Cluster result. When status=cluster_opened, agents MUST fill modules_built + build_evidence
+// (same meaning as Work C1/C3). The host fail-closes cluster_opened without BUILD SUCCESS
+// (or modules_built=none for a docs-only union).
 let pr_cluster_schema = #{
     "type": "object",
     "required": ["status", "summary"],
@@ -216,6 +222,8 @@ let pr_cluster_schema = #{
         "thrash_files": #{ "type": "string" },
         "prs_absorbed": #{ "type": "integer" },
         "blocked": #{ "type": "string" },
+        "modules_built": #{ "type": "string" },
+        "build_evidence": #{ "type": "string" },
     },
 };
 
@@ -1656,6 +1664,8 @@ if include_pr_cluster {
             thrash_files: "",
             prs_absorbed: 0,
             blocked: "budget",
+            modules_built: "",
+            build_evidence: "",
         };
     } else {
         let cl_prompt = "";
@@ -1681,7 +1691,9 @@ if include_pr_cluster {
         cl_prompt += "2) Only owned open PRs: author is active gh user OR head matches\n";
         cl_prompt += "   fix/issue- OR feat/issue- OR fix/installer-.\n";
         cl_prompt += "3) Do NOT merge. Do NOT approve. Do NOT touch other humans' PRs.\n";
-        cl_prompt += "4) Do NOT poll CI. Conflicts + content union only.\n\n";
+        cl_prompt += "4) Do NOT poll GitHub CI / Actions. Local Maven clean install of every\n";
+        cl_prompt += "   Maven module touched by the absorb IS required (gate B1). GitHub checks\n";
+        cl_prompt += "   are not a substitute. Cycle verify later is not a substitute.\n\n";
 
         cl_prompt += "DETECT thrash groups:\n";
         cl_prompt += "D1) List ALL owned open PRs (number, head, createdAt, mergeable, files via gh pr view --json files).\n";
@@ -1711,30 +1723,58 @@ if include_pr_cluster {
         cl_prompt += "      * smoke/REST matrices: table-driven union of endpoints/tests\n";
         cl_prompt += "      * package.json test:unit: union of unit test paths + keep extra scripts\n";
         cl_prompt += "      * TMX / i18n: union keys\n";
-        cl_prompt += "    After each absorb: standalone mvnw clean install for each touched Maven module (HARD).\n";
-        cl_prompt += "C4) Push cluster branch; open ONE PR to " + base_branch + " with labels\n";
+        cl_prompt += "    After-each-absorb clean install is recommended for bisection; it does NOT\n";
+        cl_prompt += "    replace B1 on the final union tip.\n";
+        cl_prompt += "C4) BUILD GATE (HARD — same as Work C1; do this BEFORE push / open / close):\n";
+        cl_prompt += "    B1) On the final cluster tip, identify EVERY Maven module whose sources,\n";
+        cl_prompt += "        tests, resources, or pom.xml were touched by any absorbed PR or by\n";
+        cl_prompt += "        conflict-resolution edits on this branch.\n";
+        cl_prompt += "    B2) For EACH such module: standalone `cd <module> && <repo-root>/mvnw clean install`\n";
+        cl_prompt += "        (Windows: mvnw.cmd). Includes testCompile + the module test suite.\n";
+        cl_prompt += "        NO -DskipTests / -Dmaven.test.skip. NO compile-only. NO single-class -Dtest.\n";
+        cl_prompt += "    B3) If the union changed final/sealed/public/protected (or package-visible\n";
+        cl_prompt += "        cross-module) API shape: also reverse-dep greps + clean install known\n";
+        cl_prompt += "        reverse-deps (Work C2). Record in build_evidence.\n";
+        cl_prompt += "    B4) If ANY install fails: status=failed, blocked=build_failed. Do NOT push\n";
+        cl_prompt += "        a cluster PR. Do NOT close absorbed PRs. Leave the cluster branch\n";
+        cl_prompt += "        unpushed or push only if useful for a human, but do not open/close PRs.\n";
+        cl_prompt += "        If you already opened a cluster PR before noticing failure: close it\n";
+        cl_prompt += "        and do not close the absorbed PRs.\n";
+        cl_prompt += "    B5) Docs/workflow-only union (no Maven module sources/tests/poms touched):\n";
+        cl_prompt += "        modules_built=none ; build_evidence=docs-only (allowed).\n";
+        cl_prompt += "    B6) Fill modules_built (comma-separated module dirs actually installed, or none)\n";
+        cl_prompt += "        and build_evidence (exact commands + BUILD SUCCESS + Tests run: N per module).\n";
+        cl_prompt += "        status=cluster_opened without both is ILLEGAL. The host will rewrite it to failed.\n";
+        cl_prompt += "C5) Only after B1 is green: push cluster branch; open ONE PR to " + base_branch + " with labels\n";
         cl_prompt += "    operator:grok, operator:night-issue-prs, model:grok-4.5.\n";
-        cl_prompt += "C5) Cluster PR body MUST include:\n";
+        cl_prompt += "C6) Cluster PR body MUST include:\n";
         cl_prompt += "    - Summary of thrash problem + thrash file list\n";
         cl_prompt += "    - Table: Supersedes | Original PR | Head | Absorbed (yes/partial) | Notes\n";
-        cl_prompt += "    - Test plan / gates evidence\n";
+        cl_prompt += "    - modules_built + build_evidence (commands + BUILD SUCCESS / Tests run: N)\n";
         cl_prompt += "    - Operator: Grok: night-issue-prs (model grok-4.5)\n";
-        cl_prompt += "C6) For each fully absorbed PR: comment on that PR linking the cluster PR:\n";
+        cl_prompt += "C7) For each fully absorbed PR: comment on that PR linking the cluster PR:\n";
         cl_prompt += "    \"Superseded by <cluster PR url> — same-file thrash absorption; do not merge this PR.\"\n";
         cl_prompt += "    Then close it (gh pr close) — do NOT merge the superseded PR.\n";
-        cl_prompt += "    Only close when content is actually in the cluster (or truly obsolete).\n";
-        cl_prompt += "C7) Leave cluster PR open for human review. Do not merge/approve.\n";
-        cl_prompt += "C8) Return to " + sync_branch + " clean (or leave on cluster branch only if clean).\n\n";
+        cl_prompt += "    Only close when content is actually in the cluster (or truly obsolete)\n";
+        cl_prompt += "    AND B1 was green.\n";
+        cl_prompt += "C8) Leave cluster PR open for human review. Do not merge/approve.\n";
+        cl_prompt += "C9) Return to " + sync_branch + " clean (or leave on cluster branch only if clean).\n\n";
 
         cl_prompt += "HARD BANS:\n";
         cl_prompt += "- Do not invent product scope beyond unioning the thrash group.\n";
         cl_prompt += "- Do not force-push bare --force (force-with-lease only if rewriting cluster history).\n";
         cl_prompt += "- Do not close a PR that was NOT absorbed.\n";
-        cl_prompt += "- Do not cluster unrelated PRs just to reduce count.\n\n";
+        cl_prompt += "- Do not cluster unrelated PRs just to reduce count.\n";
+        cl_prompt += "- Do not open a cluster PR or close absorbed PRs unless B1 is green for every\n";
+        cl_prompt += "  touched Maven module (or modules_built=none for a docs-only union).\n";
+        cl_prompt += "- Do not treat Cycle verify or GitHub CI as the cluster compile/test gate.\n";
+        cl_prompt += "- Do not use -DskipTests / compile-only / a single focused -Dtest as B1.\n\n";
 
         cl_prompt += "Return structured status: skipped | cluster_opened | failed.\n";
         cl_prompt += "superseded_prs = space-separated PR numbers or URLs.\n";
         cl_prompt += "thrash_files = space-separated paths.\n";
+        cl_prompt += "cluster_opened MUST include modules_built + build_evidence with BUILD SUCCESS\n";
+        cl_prompt += "(or modules_built=none for docs-only).\n";
 
         let cl_agent = agent(cl_prompt, #{
             label: "pr-cluster",
@@ -1744,7 +1784,37 @@ if include_pr_cluster {
 
         if cl_agent != () && cl_agent.success && cl_agent.output != () {
             pr_cluster_result = cl_agent.output;
-            log("PR cluster: " + pr_cluster_result.summary);
+            // Host fail-close: cluster_opened is illegal without install evidence.
+            // Cycle verify is later and optional; it must not be the only compile gate.
+            if pr_cluster_result.status != () && pr_cluster_result.status == "cluster_opened" {
+                let cl_mb = pr_cluster_result.modules_built;
+                let cl_ev = pr_cluster_result.build_evidence;
+                let cl_ok = false;
+                if cl_mb != () && cl_mb != "" && cl_ev != () && cl_ev != "" {
+                    if cl_mb == "none" {
+                        cl_ok = true;
+                    } else if type_of(cl_ev) == "string" {
+                        let cl_idx = cl_ev.index_of("BUILD SUCCESS");
+                        if cl_idx >= 0 {
+                            cl_ok = true;
+                        }
+                    }
+                }
+                if cl_ok == false {
+                    pr_cluster_result.status = "failed";
+                    pr_cluster_result.blocked = "missing_build_evidence";
+                    let old_sum = pr_cluster_result.summary;
+                    if old_sum == () {
+                        old_sum = "";
+                    }
+                    pr_cluster_result.summary = "Host rejected cluster_opened: missing modules_built/BUILD SUCCESS. " + old_sum;
+                    log("PR cluster host reject: missing_build_evidence");
+                } else {
+                    log("PR cluster: " + pr_cluster_result.summary);
+                }
+            } else {
+                log("PR cluster: " + pr_cluster_result.summary);
+            }
         } else {
             pr_cluster_result = #{
                 status: "failed",
@@ -1755,6 +1825,8 @@ if include_pr_cluster {
                 thrash_files: "",
                 prs_absorbed: 0,
                 blocked: "agent_failed",
+                modules_built: "",
+                build_evidence: "",
             };
             log("PR cluster agent failed");
         }
@@ -1770,6 +1842,8 @@ if include_pr_cluster {
         thrash_files: "",
         prs_absorbed: 0,
         blocked: "",
+        modules_built: "",
+        build_evidence: "",
     };
 }
 
