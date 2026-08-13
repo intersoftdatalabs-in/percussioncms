@@ -131,7 +131,7 @@ function ViewRunBody(props: {
         role="status"
         aria-live="polite"
         data-testid="explorer-view-results-empty"
-        style={{ padding: 12, color: "#888" }}
+        style={{ padding: 12, color: "#444" }}
       >
         {message(EXPLORER_MSG.VIEWS_RUN_EMPTY)}
       </p>

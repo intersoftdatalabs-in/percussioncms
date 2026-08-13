@@ -20,13 +20,16 @@ import type { ViewDef } from "../../../main/ts/api/developer/types";
 import {
   PATH_MY_CONTENT_INBOX,
   canExecuteView,
+  dedupeViewCatalog,
   ensureInboxInMyContent,
   groupViewsByParentCategory,
   isCustomUrlView,
   isInboxView,
   normalizeViewParentCategory,
+  viewCatalogIdentity,
   viewKey,
   viewLabel,
+  viewTreeLabel,
 } from "../../../main/ts/contentExplorer/viewCatalog";
 
 function v(
@@ -99,5 +102,72 @@ describe("viewCatalog grouping (#3116)", () => {
       { name: "Inbox", parentCategory: 4, customView: true },
     ]);
     expect(ensured[0].parentCategory).toBe(1);
+  });
+});
+
+describe("viewCatalog dedupe (#3325)", () => {
+  it("collapses seven All rows that share one name / logical view", () => {
+    const copies = Array.from({ length: 7 }, (_, i) =>
+      v({
+        name: "View_All",
+        label: "All",
+        parentCategory: 3,
+        id: i + 1,
+        standardView: true,
+      }),
+    );
+    const grouped = groupViewsByParentCategory(copies);
+    expect(grouped[3]).toHaveLength(1);
+    expect(grouped[3][0].name).toBe("View_All");
+    expect(viewTreeLabel(grouped[3][0], grouped[3])).toBe("All");
+    expect(dedupeViewCatalog(copies)).toHaveLength(1);
+  });
+
+  it("keeps distinct name/guid views and disambiguates shared All labels", () => {
+    const grouped = groupViewsByParentCategory([
+      v({
+        name: "View_All",
+        label: "All",
+        parentCategory: 3,
+        guid: { stringValue: "guid-all" },
+      }),
+      v({
+        name: "All_Sites",
+        label: "All",
+        parentCategory: 3,
+        guid: { stringValue: "guid-sites" },
+      }),
+    ]);
+    expect(grouped[3]).toHaveLength(2);
+    const labels = grouped[3].map((d) => viewTreeLabel(d, grouped[3])).sort();
+    expect(labels).toEqual(["All (All_Sites)", "All (View_All)"]);
+  });
+
+  it("drops unlabeled duplicates and ignores id 0 as an identity", () => {
+    const grouped = groupViewsByParentCategory([
+      { label: "All", parentCategory: 3, id: 0 },
+      { label: "All", parentCategory: 3, id: 0 },
+      { label: "All", parentCategory: 3 },
+    ]);
+    expect(grouped[3]).toHaveLength(0);
+    expect(viewCatalogIdentity({ label: "All", id: 0 })).toBe("");
+    expect(viewKey({ id: 0 })).toBe("");
+  });
+
+  it("coerces string parentCategory 3 into All Content", () => {
+    const grouped = groupViewsByParentCategory([
+      v({ name: "View_All", label: "All", parentCategory: "3" as unknown as number }),
+    ]);
+    expect(grouped[3].map((d) => d.name)).toEqual(["View_All"]);
+    expect(normalizeViewParentCategory("3")).toBe(3);
+    expect(normalizeViewParentCategory("x")).toBe(4);
+  });
+
+  it("does not collapse distinct keys that only share a blank-looking label after name fallback", () => {
+    const grouped = groupViewsByParentCategory([
+      v({ name: "Alpha", parentCategory: 3 }),
+      v({ name: "Beta", parentCategory: 3 }),
+    ]);
+    expect(grouped[3].map((d) => d.name)).toEqual(["Alpha", "Beta"]);
   });
 });
