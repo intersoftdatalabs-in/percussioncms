@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   ADMIN_NAV_LANDING,
   ARCHITECTURE_NAV_LANDING,
+  adminTopNavLabel,
   isAdminNavPath,
   topNavItemIds,
 } from "../../../../main/ts/app/layout/topNavConfig";
@@ -82,10 +83,24 @@ describe("topNavItemIds (#2702)", () => {
   });
 });
 
-describe("ADMIN_NAV_LANDING (#2784)", () => {
+describe("ADMIN_NAV_LANDING (#2784 / #3201)", () => {
   it("points consolidated Admin top-nav at Admin tools shell", () => {
     expect(ADMIN_NAV_LANDING).toBe("/admin");
     expect(isAdminNavPath(ADMIN_NAV_LANDING)).toBe(true);
+  });
+});
+
+describe("adminTopNavLabel (#3201)", () => {
+  it("normalizes English Administration leftover to Admin", () => {
+    expect(adminTopNavLabel("Administration")).toBe("Admin");
+    expect(adminTopNavLabel("  Administration  ")).toBe("Admin");
+    expect(adminTopNavLabel("")).toBe("Admin");
+  });
+
+  it("keeps TMX Admin and non-English labels", () => {
+    expect(adminTopNavLabel("Admin")).toBe("Admin");
+    expect(adminTopNavLabel("Administrateur")).toBe("Administrateur");
+    expect(adminTopNavLabel("Beheerder")).toBe("Beheerder");
   });
 });
 

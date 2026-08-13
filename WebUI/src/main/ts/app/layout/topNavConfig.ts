@@ -16,15 +16,16 @@
  */
 
 /**
- * Primary product top-nav order and role gates (issue #2702 / #2784 / #3088).
+ * Primary product top-nav order and role gates (issue #2702 / #2784 / #3088 / #3201).
  *
  * Dashboard is intentionally omitted from top chrome (gadgets remain on Home
  * via deep link {@code /home/gadgets}). Administration + Admin tools collapse
- * to a single {@code admin} item.
+ * to a single {@code admin} item labeled <strong>Admin</strong>.
  *
- * <p>Landing is the unified <strong>Admin</strong> shell at {@code /admin}
- * (#2784 / #3088). Workflow / roles / users / categories are Admin tabs;
- * legacy {@code /workflow} paths redirect into {@code /admin/*}.</p>
+ * <p>Landing is the unified <strong>Admin tools</strong> shell at {@code /admin}
+ * (#2784 / #3088 / #3201) — not a Workflow-only hub. Workflow / roles / users /
+ * categories are Admin tabs; legacy {@code /workflow} paths redirect into
+ * {@code /admin/*}.</p>
  */
 
 export type TopNavItemId =
@@ -49,6 +50,23 @@ export interface TopNavGates {
  * Unified Admin shell (tasks, tools, workflow, roles, users, categories).
  */
 export const ADMIN_NAV_LANDING = "/admin";
+
+/**
+ * Visible top-nav label for the consolidated Admin item (#2702 / #3201).
+ *
+ * TMX tuid {@code perc.ui.navMenu.admin@Administration} already ships en-us
+ * {@code Admin}. When TMX is missing, the SPA message helper falls back to
+ * the {@code @Administration} suffix — operators then see the old dual-entry
+ * word. Normalize that English leftover so chrome always reads Admin.
+ * Non-English TMX strings are left unchanged.
+ */
+export function adminTopNavLabel(resolved: string): string {
+  const t = (resolved || "").trim();
+  if (!t || t === "Administration") {
+    return "Admin";
+  }
+  return t;
+}
 
 /**
  * Client path for Navigation top-nav NavLink and homepage SPA landing (#3094).

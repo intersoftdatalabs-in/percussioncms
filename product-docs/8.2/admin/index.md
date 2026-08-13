@@ -12,10 +12,26 @@ tags: [admin]
 Operator and administrator topics for Percussion CMS 8.2 — Sites, security, publishing, and
 day-two server operations.
 
+## Product top navigation (SPA)
+
+For roles that can see the full chrome, the application top navigation is:
+
+1. **Home**
+2. **Explorer** (immediately after Home)
+3. Editor, Navigation, Design, Developer, Publish (role-gated)
+4. **Admin** (administrators only — one item)
+5. Widget Builder (when that feature is active)
+
+**Dashboard** is not a top-nav item. Dashboard gadgets remain on Home
+(`/home/gadgets`) and via homepage preference; they are not a separate
+primary destination.
+
 ## Product Admin navigation (SPA)
 
-The top navigation exposes a **single Admin** item for administrators. Admin opens one
-unified **Admin** product shell with tabs for:
+The top navigation exposes a **single Admin** item for administrators (not
+separate **Administration** and **Admin tools** entries). **Admin** opens the
+working **Admin tools** shell (`/admin`) — not a Workflow-only hub. The shell
+title is **Admin tools**, with tabs for:
 
 | Tab | Purpose |
 |-----|---------|

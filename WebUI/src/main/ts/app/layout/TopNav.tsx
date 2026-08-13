@@ -24,6 +24,7 @@ import { UserMenu } from "./UserMenu";
 import styles from "./AppLayout.module.css";
 import {
   ADMIN_NAV_LANDING,
+  adminTopNavLabel,
   isAdminNavPath,
   topNavItemIds,
 } from "./topNavConfig";
@@ -32,7 +33,7 @@ import {
  * Product top navigation for the SPA shell.
  * SPA routes use client NavLink; unmigrated surfaces are full-page legacy exits.
  *
- * Order / labels: Home → Explorer → … → single Admin (issue #2702).
+ * Order / labels: Home → Explorer → … → single Admin (issue #2702 / #3201).
  * Dashboard is not a top-nav item (gadgets remain under Home / deep link).
  */
 export function TopNav(): React.ReactElement {
@@ -155,8 +156,8 @@ export function TopNav(): React.ReactElement {
                 </li>
               );
             case "admin":
-              // Consolidated Admin entry (#2702 / #2784 / #3088).
-              // Landing: unified Admin shell; legacy /workflow* redirects into /admin*.
+              // Consolidated Admin entry (#2702 / #2784 / #3088 / #3201).
+              // Landing: Admin tools shell (/admin), not Workflow-only hub.
               return (
                 <li key={id}>
                   <NavLink
@@ -172,7 +173,7 @@ export function TopNav(): React.ReactElement {
                     aria-current={adminActive ? "page" : undefined}
                     {...i18nKeyAttr(MSG.NAV_ADMIN)}
                   >
-                    {message(MSG.NAV_ADMIN)}
+                    {adminTopNavLabel(message(MSG.NAV_ADMIN))}
                   </NavLink>
                 </li>
               );
