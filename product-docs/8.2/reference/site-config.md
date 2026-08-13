@@ -70,6 +70,8 @@ Integrators can read and write these keys via public Site REST:
 - `GET /sites/{nameOrId}/virtual`
 - `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
 - `POST /sites/{nameOrId}/virtual/build` (optional JSON body: `outputRoot`)
+- `GET /sites/{nameOrId}/virtual/preview` (last-build preview status)
+- `GET /sites/{nameOrId}/virtual/preview/{relPath}` (assembled file stream)
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required root path when virtual, portable
@@ -94,6 +96,17 @@ the output root) without failing the HTTP status when the build itself succeeds.
 
 The Developer Sites UI exposes this operation as **Build Virtual Site** when source kind is
 Virtual (never for traditional repository Sites). See [Sites & content structure](id:admin-sites).
+
+#### Preview assembled Virtual Site (`GET …/virtual/preview`)
+
+Admin-only. Reports whether the last build output can be opened (`available`, `homePath`,
+`outputPath`). Missing or failed builds return **200** with `available=false` and a message
+(not 500). Traditional repository Sites return **400**.
+
+`GET …/virtual/preview/{relPath}` streams one file from that last output root (portable NIO
+resolution, no `..` after normalize). HTML root-relative `href`/`src` values are rewritten to
+the preview prefix so the assembled site is navigable in the browser. Missing files return
+**404**. The Developer UI **Preview assembled site** control uses these endpoints.
 
 ## Related
 

@@ -130,7 +130,12 @@ invalid/missing virtual configuration return **400**.
 
 Operators can run the same operation from **Developer → Sites → Site detail → Build Virtual Site**
 (visible only when source kind is Virtual). Save Virtual Site source before building so the server
-uses the latest properties. See [Sites & content structure](id:admin-sites) and
+uses the latest properties.
+
+After a successful build, **Preview assembled site** opens the last output home in a new tab
+(`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
+assembled file stream). Missing output returns status `available=false` (HTTP 200) or file HTTP
+404 — not 500. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).
 
 ## What is not in Phase 1

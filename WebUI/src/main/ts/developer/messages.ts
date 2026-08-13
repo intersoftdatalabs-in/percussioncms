@@ -776,6 +776,12 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_BUILD_LINK_PROBLEMS: "perc.ui.developer@Link problems",
   SITE_VIRT_BUILD_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
+  SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
+  SITE_VIRT_PREVIEW_HINT:
+    "perc.ui.developer@Opens the last assembled documentation home in a new tab (same-origin preview of the build output). Requires Admin.",
+  SITE_VIRT_PREVIEW_MISSING:
+    "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
+  SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

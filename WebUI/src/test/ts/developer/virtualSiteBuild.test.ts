@@ -5,6 +5,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatVirtualSiteBuildSummary,
+  sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
 } from "../../../main/ts/developer/virtualSiteBuild";
 
@@ -46,5 +47,15 @@ describe("virtualSiteBuild helpers", () => {
     expect(missing.pagesLine).toBe("0");
     expect(missing.outputLine).toBeNull();
     expect(missing.hasLinkProblems).toBe(false);
+  });
+
+  it("sanitizeVirtualPreviewHomePath rejects traversal and absolute paths", () => {
+    expect(sanitizeVirtualPreviewHomePath("8.2/index.html")).toBe("8.2/index.html");
+    expect(sanitizeVirtualPreviewHomePath(" /8.2/admin/index.html ")).toBe("8.2/admin/index.html");
+    expect(sanitizeVirtualPreviewHomePath("../etc/passwd")).toBeNull();
+    expect(sanitizeVirtualPreviewHomePath("C:/tmp/out/index.html")).toBeNull();
+    expect(sanitizeVirtualPreviewHomePath("https://evil.example/x")).toBeNull();
+    expect(sanitizeVirtualPreviewHomePath("")).toBeNull();
+    expect(sanitizeVirtualPreviewHomePath(null)).toBeNull();
   });
 });

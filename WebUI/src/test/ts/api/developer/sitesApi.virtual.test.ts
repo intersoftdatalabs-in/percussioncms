@@ -6,10 +6,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
   buildVirtualSite,
+  getVirtualSitePreviewStatus,
   getVirtualSiteProperties,
   parseVirtualSiteBuildResult,
+  parseVirtualSitePreviewStatus,
   parseVirtualSiteProperties,
   updateVirtualSiteProperties,
+  virtualSitePreviewContentHref,
 } from "../../../../main/ts/api/developer/sitesApi";
 
 vi.mock("../../../../main/ts/api/client", () => ({
@@ -146,5 +149,37 @@ describe("sitesApi virtual properties", () => {
       expect.stringMatching(/\/sites\/Help\/virtual\/build$/),
       { outputRoot: "C:/custom/out" },
     );
+  });
+
+  it("parseVirtualSitePreviewStatus handles wrap and missing payload", () => {
+    expect(
+      parseVirtualSitePreviewStatus({
+        available: true,
+        homePath: "8.2/index.html",
+      }),
+    ).toEqual(
+      expect.objectContaining({ available: true, homePath: "8.2/index.html" }),
+    );
+    expect(
+      parseVirtualSitePreviewStatus({
+        VirtualSitePreviewStatus: { available: false, message: "none" },
+      }),
+    ).toEqual(expect.objectContaining({ available: false, message: "none" }));
+    expect(parseVirtualSitePreviewStatus(null)).toEqual({});
+  });
+
+  it("getVirtualSitePreviewStatus GETs /virtual/preview", async () => {
+    get.mockResolvedValue({ available: false, message: "none" });
+    const out = await getVirtualSitePreviewStatus("Help Docs");
+    expect(get).toHaveBeenCalledWith(
+      expect.stringMatching(/\/sites\/Help%20Docs\/virtual\/preview$/),
+    );
+    expect(out.available).toBe(false);
+  });
+
+  it("virtualSitePreviewContentHref encodes site and relative home", () => {
+    const href = virtualSitePreviewContentHref("Help Docs", "8.2/index.html");
+    expect(href).toMatch(/\/sites\/Help%20Docs\/virtual\/preview\/8.2\/index.html$/);
+    expect(virtualSitePreviewContentHref("Help", "../secret")).not.toContain("..");
   });
 });

@@ -49,6 +49,9 @@ function developerSectionUrl(section) {
 test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+    page.__virtPageErrors = pageErrors;
     await loginAsAdmin(page);
   });
 
@@ -127,7 +130,19 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build-hint"]')).toBeVisible();
+
+      // Preview without a last build: in-panel empty/error (no 500 / no crash)
+      await page.locator('[data-testid="developer-site-virtual-preview"]').click();
+      const previewChrome = page.locator(
+        [
+          '[data-testid="developer-site-virtual-preview-error"]',
+          '[data-testid="developer-site-virtual-build-error"]',
+        ].join(", "),
+      );
+      await expect(previewChrome.first()).toBeVisible({ timeout: 20_000 });
 
       // Optional: click Build without save — expect client validation or API error chrome
       // (H2 QA rarely has a saved virtual root; do not require full build success)
@@ -145,5 +160,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await kind.selectOption("repository");
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
     }
+
+    const jsErrors = page.__virtPageErrors || [];
+    expect(jsErrors, `uncaught page errors: ${jsErrors.join(" | ")}`).toEqual([]);
   });
 });

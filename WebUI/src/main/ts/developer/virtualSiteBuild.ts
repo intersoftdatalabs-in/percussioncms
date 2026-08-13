@@ -67,3 +67,30 @@ export function formatVirtualSiteBuildSummary(result: VirtualSiteBuildResult): {
     hasLinkProblems,
   };
 }
+
+/**
+ * Safe relative home path for the preview stream. Rejects empty, absolute, and {@code ..}
+ * segments so the UI never opens a traversal URL.
+ */
+export function sanitizeVirtualPreviewHomePath(
+  homePath: string | null | undefined,
+): string | null {
+  if (typeof homePath !== "string") {
+    return null;
+  }
+  const trimmed = homePath.trim().replace(/\\/g, "/");
+  if (!trimmed) {
+    return null;
+  }
+  if (trimmed.includes("://") || /^[a-zA-Z]:/.test(trimmed)) {
+    return null;
+  }
+  const parts = trimmed.split("/").filter((seg) => seg.length > 0);
+  if (parts.length === 0) {
+    return null;
+  }
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    return null;
+  }
+  return parts.join("/");
+}

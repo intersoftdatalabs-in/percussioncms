@@ -132,6 +132,25 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
    - **Error** — clear message when the Site is not virtual, the root is missing/invalid,
      or the caller lacks Admin (for example 400/403 from REST).
 
+### Preview the assembled Virtual Site
+
+After a successful **Build Virtual Site**, operators can open the assembled documentation
+home from the same Site detail panel (no CLI, no `file://` path).
+
+1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
+2. Choose **Preview assembled site**.
+3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
+   when present) in a new tab. Navigation stays on the same-origin preview URL
+   (`GET /services/sites/{name}/virtual/preview/{path}`).
+4. If no build has been run yet (or the last output is missing), the panel shows a clear
+   empty state — **No assembled site to preview. Run Build Virtual Site first.** — and
+   does not return HTTP 500.
+
+The preview stream reads the last recorded `outputPath` from the build (default
+`{install}/tmp/virtual-sites/{siteKey}`). It is **Admin-only**, path-traversal safe, and
+does not invent a second assembler. Traditional **Repository** Sites do not show Preview
+chrome.
+
 Integrators can call the same operation over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
 [Site configuration reference](id:reference-site-config) and

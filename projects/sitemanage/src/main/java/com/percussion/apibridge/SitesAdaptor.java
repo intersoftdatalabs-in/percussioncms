@@ -25,6 +25,8 @@ import com.percussion.rest.sites.Site;
 import com.percussion.rest.sites.SiteList;
 import com.percussion.rest.sites.VirtualSiteBuildRequest;
 import com.percussion.rest.sites.VirtualSiteBuildResult;
+import com.percussion.rest.sites.VirtualSitePreviewFile;
+import com.percussion.rest.sites.VirtualSitePreviewStatus;
 import com.percussion.rest.sites.VirtualSiteProperties;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
@@ -55,11 +57,15 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -80,6 +86,14 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /** Max link-problem / written-file lines returned on the wire (full report is on disk). */
   static final int MAX_RESULT_LINES = 200;
+
+  /** Sidecar under default output {@code _meta} pointing at the last successful build root. */
+  static final String LAST_OUTPUT_POINTER_FILE = "last-output-root.txt";
+
+  static final String MISSING_PREVIEW_MESSAGE =
+      "No assembled Virtual Site to preview. Run Build Virtual Site first.";
+
+  static final long MAX_PREVIEW_FILE_BYTES = 20L * 1024 * 1024;
 
   @Autowired private IPSPublishingWs publishingWs;
 
@@ -345,6 +359,7 @@ public class SitesAdaptor implements ISiteAdaptor {
 
       VirtualSiteConfig config = VirtualSiteConfigLoader.load(siteRoot, configFile, siteKey);
       PSVirtualSiteBuildResult built = runBuild(config, outputRoot, metaDir);
+      recordLastOutputRoot(siteKey, outputRoot);
       return toWireResult(site.getName(), siteKey, built);
     } catch (VirtualSiteException e) {
       throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
@@ -432,6 +447,258 @@ public class SitesAdaptor implements ISiteAdaptor {
         .ifPresent(v::setSiteKey);
     v.setVirtual(PSVirtualSiteHelper.isVirtual(site));
     return v;
+  }
+
+  @Override
+  public VirtualSitePreviewStatus getVirtualSitePreviewStatus(String nameOrId) {
+    IPSSite site = requireVirtualAdminSite(nameOrId);
+    String siteKey = PSVirtualSiteHelper.siteKey(site);
+    Path outputRoot = resolveLastOutputRoot(siteKey);
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    if (outputRoot != null) {
+      status.setOutputPath(outputRoot.toAbsolutePath().normalize().toString());
+    }
+    String home = outputRoot == null ? null : findHomeRelativePath(outputRoot);
+    if (home == null) {
+      status.setAvailable(false);
+      status.setMessage(MISSING_PREVIEW_MESSAGE);
+      return status;
+    }
+    status.setAvailable(true);
+    status.setHomePath(home);
+    return status;
+  }
+
+  @Override
+  public VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath) {
+    IPSSite site = requireVirtualAdminSite(nameOrId);
+    String siteKey = PSVirtualSiteHelper.siteKey(site);
+    Path outputRoot = resolveLastOutputRoot(siteKey);
+    if (outputRoot == null || !Files.isDirectory(outputRoot)) {
+      throw new WebApplicationException(MISSING_PREVIEW_MESSAGE, Response.Status.NOT_FOUND);
+    }
+    String rel = blankToNull(relativePath);
+    if (rel == null) {
+      String home = findHomeRelativePath(outputRoot);
+      if (home == null) {
+        throw new WebApplicationException(MISSING_PREVIEW_MESSAGE, Response.Status.NOT_FOUND);
+      }
+      rel = home;
+    }
+    Path file = resolvePreviewFile(outputRoot, rel);
+    if (file == null) {
+      throw new WebApplicationException(
+          "Preview file not found: " + rel, Response.Status.NOT_FOUND);
+    }
+    try {
+      long size = Files.size(file); // codeql[java/path-injection]
+      if (size > MAX_PREVIEW_FILE_BYTES) {
+        throw new WebApplicationException(
+            "Preview file is too large to stream", Response.Status.BAD_REQUEST);
+      }
+      byte[] bytes = Files.readAllBytes(file); // codeql[java/path-injection]
+      return new VirtualSitePreviewFile(mediaTypeFor(file), toWirePath(outputRoot, file), bytes);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IOException e) {
+      throw new WebApplicationException(
+          "Could not read preview file", Response.Status.NOT_FOUND);
+    }
+  }
+
+  /**
+   * Admin + Virtual Site gate shared by preview status/file (missing output is handled by callers).
+   */
+  IPSSite requireVirtualAdminSite(String nameOrId) {
+    requireAdmin();
+    IPSSite site = requireSite(nameOrId);
+    if (!PSVirtualSiteHelper.isVirtual(site)) {
+      throw new WebApplicationException(
+          "Site '"
+              + site.getName()
+              + "' is not a Virtual Site (virtual.sourceKind is blank or '"
+              + PSVirtualSiteHelper.SOURCE_KIND_REPOSITORY
+              + "'). Configure virtual.* properties before previewing.",
+          Response.Status.BAD_REQUEST);
+    }
+    try {
+      PSVirtualSiteHelper.validate(site);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    }
+    return site;
+  }
+
+  /**
+   * Persist the last successful build output root so preview can reuse {@code result.outputPath}
+   * (including custom {@code outputRoot}).
+   */
+  void recordLastOutputRoot(String siteKey, Path outputRoot) {
+    Path pointerDir =
+        defaultOutputRootResolver.apply(safePathSegment(siteKey)).resolve("_meta");
+    try {
+      Path safeOut = requireSafeOutputRoot(outputRoot.toAbsolutePath().normalize());
+      Files.createDirectories(pointerDir); // codeql[java/path-injection]
+      Files.writeString(
+          pointerDir.resolve(LAST_OUTPUT_POINTER_FILE),
+          safeOut.toString(),
+          StandardCharsets.UTF_8); // codeql[java/path-injection]
+    } catch (RuntimeException | IOException e) {
+      log.debug("Could not record last Virtual Site output path: {}", e.getMessage());
+    }
+  }
+
+  /**
+   * Last recorded output root when the pointer is a safe existing directory; otherwise the default
+   * output directory when it exists.
+   */
+  Path resolveLastOutputRoot(String siteKey) {
+    Path defaultRoot =
+        requireSafeOutputRoot(defaultOutputRootResolver.apply(safePathSegment(siteKey)));
+    Path pointer = defaultRoot.resolve("_meta").resolve(LAST_OUTPUT_POINTER_FILE);
+    if (Files.isRegularFile(pointer)) {
+      try {
+        String raw = Files.readString(pointer, StandardCharsets.UTF_8).trim(); // codeql[java/path-injection]
+        if (!raw.isEmpty()) {
+          Path candidate = Path.of(raw).toAbsolutePath().normalize();
+          if (PSVirtualSiteHelper.isSafeRootPath(candidate) && Files.isDirectory(candidate)) {
+            return candidate;
+          }
+        }
+      } catch (RuntimeException | IOException e) {
+        log.debug("Ignoring invalid last-output pointer: {}", e.getMessage());
+      }
+    }
+    if (Files.isDirectory(defaultRoot)) {
+      return defaultRoot;
+    }
+    return null;
+  }
+
+  static String findHomeRelativePath(Path outputRoot) {
+    if (outputRoot == null || !Files.isDirectory(outputRoot)) {
+      return null;
+    }
+    Path root = outputRoot.toAbsolutePath().normalize();
+    if (Files.isRegularFile(root.resolve("index.html"))) {
+      return "index.html";
+    }
+    if (Files.isRegularFile(root.resolve("8.2").resolve("index.html"))) {
+      return "8.2/index.html";
+    }
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(root)) {
+      List<Path> dirs = new ArrayList<>();
+      for (Path p : stream) {
+        if (Files.isDirectory(p)) {
+          dirs.add(p);
+        }
+      }
+      dirs.sort(Comparator.comparing(p -> p.getFileName().toString()));
+      for (Path dir : dirs) {
+        Path idx = dir.resolve("index.html");
+        if (Files.isRegularFile(idx)) {
+          return toWirePath(root, idx);
+        }
+      }
+    } catch (IOException e) {
+      return null;
+    }
+    return null;
+  }
+
+  static Path resolvePreviewFile(Path outputRoot, String relativePath) {
+    Path root = requireSafeOutputRoot(outputRoot.toAbsolutePath().normalize());
+    Path rel = requireSafeRelativePreviewPath(relativePath);
+    Path resolved = root.resolve(rel).normalize(); // codeql[java/path-injection]
+    if (!resolved.startsWith(root)) {
+      throw new WebApplicationException(
+          "Preview path is outside the build output", Response.Status.BAD_REQUEST);
+    }
+    if (Files.isDirectory(resolved)) {
+      Path index = resolved.resolve("index.html").normalize(); // codeql[java/path-injection]
+      if (!index.startsWith(root) || !Files.isRegularFile(index)) {
+        return null;
+      }
+      return index;
+    }
+    if (!Files.isRegularFile(resolved)) {
+      return null;
+    }
+    return resolved;
+  }
+
+  static Path requireSafeRelativePreviewPath(String relativePath) {
+    if (relativePath == null || relativePath.isBlank() || relativePath.indexOf('\0') >= 0) {
+      throw new WebApplicationException("Preview path is required", Response.Status.BAD_REQUEST);
+    }
+    String cleaned = relativePath.trim().replace('\\', '/');
+    while (cleaned.startsWith("/")) {
+      cleaned = cleaned.substring(1);
+    }
+    Path path;
+    try {
+      path = Path.of(cleaned).normalize();
+    } catch (InvalidPathException e) {
+      throw new WebApplicationException("Preview path is not valid", Response.Status.BAD_REQUEST);
+    }
+    if (path.isAbsolute()) {
+      throw new WebApplicationException(
+          "Preview path must be relative", Response.Status.BAD_REQUEST);
+    }
+    for (Path part : path) {
+      String name = part.toString();
+      if ("..".equals(name) || name.isEmpty()) {
+        throw new WebApplicationException(
+            "Preview path must not contain '..'", Response.Status.BAD_REQUEST);
+      }
+    }
+    return path;
+  }
+
+  static String toWirePath(Path outputRoot, Path file) {
+    Path root = outputRoot.toAbsolutePath().normalize();
+    Path resolved = file.toAbsolutePath().normalize();
+    Path rel = root.relativize(resolved);
+    return rel.toString().replace('\\', '/');
+  }
+
+  static String mediaTypeFor(Path file) {
+    String name = file.getFileName() != null ? file.getFileName().toString() : "";
+    String lower = name.toLowerCase(Locale.ROOT);
+    if (lower.endsWith(".html") || lower.endsWith(".htm")) {
+      return "text/html; charset=UTF-8";
+    }
+    if (lower.endsWith(".css")) {
+      return "text/css; charset=UTF-8";
+    }
+    if (lower.endsWith(".js")) {
+      return "application/javascript; charset=UTF-8";
+    }
+    if (lower.endsWith(".json")) {
+      return "application/json; charset=UTF-8";
+    }
+    if (lower.endsWith(".svg")) {
+      return "image/svg+xml";
+    }
+    if (lower.endsWith(".png")) {
+      return "image/png";
+    }
+    if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+      return "image/jpeg";
+    }
+    if (lower.endsWith(".gif")) {
+      return "image/gif";
+    }
+    if (lower.endsWith(".woff2")) {
+      return "font/woff2";
+    }
+    if (lower.endsWith(".woff")) {
+      return "font/woff";
+    }
+    if (lower.endsWith(".txt")) {
+      return "text/plain; charset=UTF-8";
+    }
+    return "application/octet-stream";
   }
 
   private void requireAdmin() {
