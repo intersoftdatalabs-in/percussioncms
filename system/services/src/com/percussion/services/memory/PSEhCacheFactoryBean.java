@@ -87,9 +87,13 @@ public class PSEhCacheFactoryBean implements FactoryBean<Cache<Serializable, Ser
         return cache;
     }
 
+    /**
+     * Matches {@link FactoryBean#getObjectType()} ({@code Class<?>}). Returning the raw
+     * {@code Cache} class object is required by type erasure; do not use {@code Class<?
+     * extends Cache>} (that form is itself a raw type).
+     */
     @Override
-    @SuppressWarnings("rawtypes")
-    public Class<? extends Cache> getObjectType() {
+    public Class<?> getObjectType() {
         return Cache.class;
     }
 

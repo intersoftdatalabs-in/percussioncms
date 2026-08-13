@@ -462,12 +462,6 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
    }
 
    /**
-    * Finds the landing page and returns it as Property object.
-    * @return landing page property may be <code>null</code>.
-    * @throws PSCmsException
-    * @throws RepositoryException
-    */
-   /**
     * Copy a JCR property iterator backing map into a typed {@code Map<String, Property>}
     * without an unchecked {@link Map.Entry} cast.
     */
@@ -488,6 +482,13 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
       return map;
    }
 
+   /**
+    * Finds the landing page and returns it as Property object.
+    *
+    * @return landing page property may be <code>null</code>.
+    * @throws PSCmsException
+    * @throws RepositoryException
+    */
    private Property loadLandingPage() throws PSCmsException,
          RepositoryException
    {

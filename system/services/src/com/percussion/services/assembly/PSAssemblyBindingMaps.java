@@ -83,8 +83,10 @@ public final class PSAssemblyBindingMaps {
   }
 
   /**
-   * Write-through view. The single residual unchecked conversion is isolated here: JEXL stores
-   * {@code HashMap} / {@code LinkedHashMap} nodes that accept {@link String} keys.
+   * Write-through view. The single residual unchecked conversion for assembly leftover #3291
+   * (after #3280) is isolated here: JEXL stores {@code HashMap} / {@code LinkedHashMap} nodes
+   * that accept {@link String} keys. A fully typed write-through {@code Map<String, Object>}
+   * cannot be built from {@code Map<?,?>} without this inherent cast.
    */
   static final class LiveStringObjectMap extends AbstractMap<String, Object> {
     private final Map<Object, Object> delegate;
