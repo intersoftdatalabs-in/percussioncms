@@ -31,8 +31,12 @@ import javax.swing.JPanel;
 /**
  * This class provides a command panel as used in wizard dialogs. It will handle the wizard buttons
  * 'Next', 'Back', 'Finish' and 'Cancel'.
+ *
+ * <p>Declared {@code final} so Swing/UI initialization from the constructor cannot observe a
+ * partially constructed subclass (javac {@code this-escape}). The dialog collaborator is {@code
+ * transient} (panels are never serialized in practice).
  */
-public class PSWizardCommandPanel extends JPanel implements ActionListener {
+public final class PSWizardCommandPanel extends JPanel implements ActionListener {
   /* (non-Javadoc)
    * @see ActionListener#actionPerformed(ActionEvent)
    */
@@ -188,11 +192,14 @@ public class PSWizardCommandPanel extends JPanel implements ActionListener {
     return panel;
   }
 
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * A reference to the wizard dialog which contains this panel. Initialized during construction,
    * never <code>null</code> or changed after that.
    */
-  private IPSWizardDialog m_dialog = null;
+  private transient IPSWizardDialog m_dialog = null;
 
   /**
    * The command panel 'Back' button, initialized in {@link #initPanel()}, never <code>null</code>

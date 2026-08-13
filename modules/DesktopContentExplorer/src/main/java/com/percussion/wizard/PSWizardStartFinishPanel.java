@@ -18,8 +18,13 @@ package com.percussion.wizard;
 
 import com.percussion.cx.PSContentExplorerApplet;
 
-/** A standard wizard start or finish panel which does only show user instructions. */
-public class PSWizardStartFinishPanel extends PSWizardPanel {
+/**
+ * A standard wizard start or finish panel which does only show user instructions.
+ *
+ * <p>Declared {@code final} so constructor {@link #initPanel(JPanel)} cannot observe a partially
+ * constructed subclass (javac {@code this-escape}).
+ */
+public final class PSWizardStartFinishPanel extends PSWizardPanel {
 
   /**
    * Instantiates with applet to make config options from applet available to the panel.
@@ -35,4 +40,7 @@ public class PSWizardStartFinishPanel extends PSWizardPanel {
   public PSWizardStartFinishPanel() {
     initPanel(null);
   }
+
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
 }

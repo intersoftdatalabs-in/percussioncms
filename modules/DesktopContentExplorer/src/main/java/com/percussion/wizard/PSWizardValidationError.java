@@ -18,8 +18,13 @@ package com.percussion.wizard;
 
 import com.percussion.error.PSException;
 
-/** This exception must be thrown for wizard page validation errors. */
-public class PSWizardValidationError extends PSException {
+/**
+ * This exception must be thrown for wizard page validation errors.
+ *
+ * <p>Declared {@code final} so constructors cannot observe a partially constructed subclass (javac
+ * {@code this-escape}).
+ */
+public final class PSWizardValidationError extends PSException {
   /**
    * Constructs the exception with the supplied code and argument.
    *
@@ -39,4 +44,7 @@ public class PSWizardValidationError extends PSException {
   public PSWizardValidationError(int code, Object[] args) {
     super(code, args);
   }
+
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
 }

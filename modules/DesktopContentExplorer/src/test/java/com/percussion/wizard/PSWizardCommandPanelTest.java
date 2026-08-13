@@ -16,8 +16,12 @@
  */
 package com.percussion.wizard;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import org.junit.jupiter.api.Test;
 
 /** Construction / type validation coverage for {@link PSWizardCommandPanel}. */
@@ -26,5 +30,26 @@ public class PSWizardCommandPanelTest {
   @Test
   public void constructorRejectsNullDialog() {
     assertThrows(IllegalArgumentException.class, () -> new PSWizardCommandPanel(null));
+  }
+
+  @Test
+  public void commandPanelClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSWizardCommandPanel.class.getModifiers()),
+        "PSWizardCommandPanel must be final to avoid this-escape in the ctor");
+  }
+
+  @Test
+  public void commandPanelDeclaresSerialVersionUid() throws Exception {
+    Field uid = PSWizardCommandPanel.class.getDeclaredField("serialVersionUID");
+    assertTrue(Modifier.isStatic(uid.getModifiers()));
+    assertTrue(Modifier.isFinal(uid.getModifiers()));
+    assertNotNull(uid);
+  }
+
+  @Test
+  public void dialogCollaboratorIsTransient() throws Exception {
+    Field f = PSWizardCommandPanel.class.getDeclaredField("m_dialog");
+    assertTrue(Modifier.isTransient(f.getModifiers()), "m_dialog must be transient");
   }
 }

@@ -19,13 +19,17 @@ package com.percussion.wizard;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
@@ -109,6 +113,31 @@ public class PSWizardDialogTest {
 
     assertArrayEquals(new Object[] {"d0", "d1"}, PSWizardDialog.collectPageData(pages));
     assertThrows(IllegalArgumentException.class, () -> PSWizardDialog.collectPageData(null));
+  }
+
+  @Test
+  public void wizardDialogClassIsFinal() {
+    assertTrue(
+        Modifier.isFinal(PSWizardDialog.class.getModifiers()),
+        "PSWizardDialog must be final to avoid this-escape in the ctor");
+  }
+
+  @Test
+  public void wizardDialogDeclaresSerialVersionUid() throws Exception {
+    Field uid = PSWizardDialog.class.getDeclaredField("serialVersionUID");
+    assertTrue(Modifier.isStatic(uid.getModifiers()));
+    assertTrue(Modifier.isFinal(uid.getModifiers()));
+    assertNotNull(uid);
+  }
+
+  @Test
+  public void wizardDialogCollaboratorsAreTransient() throws Exception {
+    for (String name : Set.of("m_applet", "m_wizardCommands", "m_pages", "m_skippedPages")) {
+      Field f = PSWizardDialog.class.getDeclaredField(name);
+      assertTrue(
+          Modifier.isTransient(f.getModifiers()),
+          () -> name + " must be transient (non-serializable collaborator)");
+    }
   }
 
   private static IPSWizardPanel stubPanel(String summary, Object data) {

@@ -32,8 +32,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-/** The wizard page to request the new site name and site folder name from the user. */
-public class PSCopySiteNamePage extends PSWizardPanel {
+/**
+ * The wizard page to request the new site name and site folder name from the user.
+ *
+ * <p>Declared {@code final} so constructor {@link #initPanel(JPanel)} cannot observe a partially
+ * constructed subclass (javac {@code this-escape}).
+ */
+public final class PSCopySiteNamePage extends PSWizardPanel {
   /**
    * Instantiate with applet to make config options from applet available to panel.
    *
@@ -356,7 +361,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
    * This combo box shows all site definitions that are referenced by the source site folder being
    * copied. The user can select the one that will be copied together with the site folder.
    */
-  private JComboBox m_siteSelector = new JComboBox();
+  private final JComboBox<PSSite> m_siteSelector = new JComboBox<>();
 
   /** A text field to request the new site name from the user, never <code>null</code>. */
   private JTextField m_siteName = new JTextField();
@@ -368,5 +373,8 @@ public class PSCopySiteNamePage extends PSWizardPanel {
    * The input data, set with the first call to {@link setData(Object)}, never <code>null</code>
    * after that.
    */
-  private InputData m_input = null;
+  private transient InputData m_input = null;
+
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
 }

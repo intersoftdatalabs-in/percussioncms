@@ -28,6 +28,10 @@ import javax.swing.JTextArea;
 /**
  * An abstract base class that can be used to derive all wizard pages from. It creates the correct
  * layout and provides the controls to display the user instuctions.
+ *
+ * <p>Not {@code final}: copy-site and start/finish pages must subclass this type. Leaf pages are
+ * made {@code final} to close javac {@code this-escape}. Session-only applet collaborator is {@code
+ * transient} (panels are never serialized in practice).
  */
 public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
   /**
@@ -46,10 +50,13 @@ public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
    * Creates the panel for the supplied main panel. The panel constructed shows an instruction panel
    * on top and the supplied main panel on the botton.
    *
+   * <p>Final so subclass constructors calling this helper cannot observe overridable layout hooks
+   * (javac {@code this-escape}).
+   *
    * @param mainPanel the main panel to be displayed at the bottom, may be <code>null</code> for the
    *     start and finish pages in which case a picture panel is shown to the left.
    */
-  protected void initPanel(JPanel mainPanel) {
+  protected final void initPanel(JPanel mainPanel) {
     m_instructions.setTabSize(2);
     m_mainPanel = mainPanel;
 
@@ -172,7 +179,7 @@ public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
    * The panel data with which it will be initialized, set during construction, may be <code>null
    * </code> after that.
    */
-  protected Object m_data = null;
+  protected transient Object m_data = null;
 
   /**
    * The instructions shown to the user on every wizard page, never <code>null</code>, may be empty.
@@ -185,6 +192,9 @@ public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
    */
   protected JPanel m_mainPanel = null;
 
+  /** Default serialVersionUID to satisfy {@code -Xlint:serial}. */
+  private static final long serialVersionUID = 1L;
+
   /** A reference back to the applet that initiated this action manager. */
-  protected PSContentExplorerApplet m_applet;
+  protected transient PSContentExplorerApplet m_applet;
 }
