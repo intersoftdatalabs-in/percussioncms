@@ -40,6 +40,10 @@ import java.util.Set;
  * tree's {@code spa.jsp} with an allowlisted {@code entry} (and section/tab when present). Real
  * JSPs, static assets, and non-SPA first segments pass through unchanged.
  *
+ * <p>Misplaced editor/chrome images under {@code /cm/app/images/**} or {@code
+ * /cm/pages/app/images/**} are remapped to {@code /cm/images/**} so those URLs return 200 instead
+ * of 404 (#3332).
+ *
  * <p>Server deep links and login return remain the query contract ({@code spa.jsp?entry=…}); this
  * filter only supports clean client path URLs after first paint.
  */
@@ -65,6 +69,8 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
   private static final String APP_PREFIX = "/cm/app";
   private static final String PAGES_PREFIX = "/cm/pages/app";
+  /** Canonical static image tree (not under the SPA mount). */
+  private static final String CANONICAL_IMAGES = "/cm/images";
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -90,6 +96,15 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     }
 
     String pathWithinContext = pathWithinContext(httpReq);
+    String imageRemap = buildStaticImageRemapPath(pathWithinContext);
+    if (imageRemap != null) {
+      RequestDispatcher remapDispatcher = request.getRequestDispatcher(imageRemap);
+      if (remapDispatcher != null) {
+        remapDispatcher.forward(request, response);
+        return;
+      }
+    }
+
     String forward = buildSpaForwardPath(pathWithinContext, httpReq.getQueryString());
     if (forward == null) {
       chain.doFilter(request, response);
@@ -126,6 +141,59 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       return "/";
     }
     return uri;
+  }
+
+  /**
+   * Remap misplaced SPA-mount image URLs onto the real {@code /cm/images} tree.
+   *
+   * <p>Editor chrome historically requested {@code /cm/pages/app/images/icons/editor/*.png} (and
+   * {@code /cm/app/images/...}) after a dual-tree rewrite. Those paths 404 because assets live at
+   * {@code /cm/images/...}. Returning a forward path here serves the file without waiting on JSP
+   * callers to be updated.
+   *
+   * @return canonical {@code /cm/images/...} path, or {@code null} when this is not a remappable
+   *     image request
+   */
+  static String buildStaticImageRemapPath(String pathWithinContext) {
+    if (pathWithinContext == null || pathWithinContext.isEmpty()) {
+      return null;
+    }
+    String lower = pathWithinContext.toLowerCase(Locale.ROOT);
+    String misplacedPrefix;
+    if (lower.startsWith(PAGES_PREFIX + "/images/")) {
+      misplacedPrefix = PAGES_PREFIX + "/images";
+    } else if (lower.startsWith(APP_PREFIX + "/images/")) {
+      misplacedPrefix = APP_PREFIX + "/images";
+    } else {
+      return null;
+    }
+    if (!isRemappableImageExtension(lower)) {
+      return null;
+    }
+    String rest = pathWithinContext.substring(misplacedPrefix.length());
+    if (rest.isEmpty() || "/".equals(rest)) {
+      return null;
+    }
+    String[] segments = rest.split("/");
+    for (String seg : segments) {
+      if (seg.isEmpty()) {
+        continue;
+      }
+      if (isUnsafePathSegment(seg)) {
+        return null;
+      }
+    }
+    return CANONICAL_IMAGES + rest;
+  }
+
+  private static boolean isRemappableImageExtension(String lowerPath) {
+    return lowerPath.endsWith(".png")
+        || lowerPath.endsWith(".gif")
+        || lowerPath.endsWith(".jpg")
+        || lowerPath.endsWith(".jpeg")
+        || lowerPath.endsWith(".svg")
+        || lowerPath.endsWith(".ico")
+        || lowerPath.endsWith(".webp");
   }
 
   /**

@@ -151,6 +151,39 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void remapsMisplacedSpaMountEditorIconsToCanonicalImages() {
+    assertEquals(
+        "/cm/images/icons/editor/delete.png",
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/pages/app/images/icons/editor/delete.png"));
+    assertEquals(
+        "/cm/images/icons/editor/edit.png",
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/pages/app/images/icons/editor/edit.png"));
+    assertEquals(
+        "/cm/images/icons/editor/delete.png",
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/app/images/icons/editor/delete.png"));
+  }
+
+  @Test
+  public void remapsSpaMountImagesRejectsTraversalAndNonImages() {
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/pages/app/images/../WEB-INF/web.xml"));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/pages/app/images/icons/%2e%2e/secret.png"));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath("/cm/pages/app/images/icons/editor/"));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildStaticImageRemapPath(
+            "/cm/pages/app/images/icons/editor/delete.js"));
+    assertNull(PSWebUiSpaFallbackFilter.buildStaticImageRemapPath("/cm/images/icons/editor/delete.png"));
+    assertNull(PSWebUiSpaFallbackFilter.buildStaticImageRemapPath("/cm/app/home"));
+  }
+
+  @Test
   public void dropsDuplicateEntryFromQuery() {
     String forward =
         PSWebUiSpaFallbackFilter.buildSpaForwardPath(

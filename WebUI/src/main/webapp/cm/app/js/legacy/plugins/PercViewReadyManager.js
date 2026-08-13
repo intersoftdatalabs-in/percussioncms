@@ -19,6 +19,8 @@
   $.PercViewReadyManager = {
     wrappers: [],
     isInitialized: false,
+    /** Clear stuck editor/explorer overlay if components never report complete (#3332). */
+    READY_TIMEOUT_MS: 10000,
     init: function () {
       this.isInitialized = true;
     },
@@ -40,10 +42,27 @@
         .addClass("perc-ui-view-processing");
       this.wrappers.push(wrappertoset);
       wrappertoset.init();
+      this.scheduleReadyTimeout(wrappertoset);
       this.logMessage(
         "Added wrapper '" + wrappertoset.wrapperName + "' to manager",
       );
       return true;
+    },
+    scheduleReadyTimeout: function (wrapper) {
+      var self = this;
+      var timeoutMs = self.READY_TIMEOUT_MS || 10000;
+      window.setTimeout(function () {
+        if (!wrapper || wrapper.isWrapperComplete()) {
+          return;
+        }
+        var pending = wrapper.components || [];
+        for (var i = 0; i < pending.length; i++) {
+          var name = pending[i];
+          if ($.inArray(name, wrapper.processedComponents) === -1) {
+            wrapper.handleComponentProgress(name, "complete");
+          }
+        }
+      }, timeoutMs);
     },
     setProcessingFlag: function () {
       $("#perc-ui-view-indicator")
