@@ -53,18 +53,26 @@ export type SimpleCatalogRow = {
   /**
    * Optional `data-*` attributes on the `<tr>` for exact catalog identity
    * (e.g. `data-df-name="By_Author"`). Keys that do not start with `data-` are ignored.
+   * `data-testid` is reserved for the indexed row contract and is never copied.
    */
   dataAttrs?: Record<string, string>;
 };
 
-/** Copy only `data-*` keys so catalog identity attrs cannot inject arbitrary props. */
+/**
+ * Copy only `data-*` identity keys. Skip `data-testid` so callers cannot overwrite
+ * the programmatic `${rowTestId}-${index}` selector used by Vitest and Playwright.
+ */
 function rowDataProps(attrs?: Record<string, string>): Record<string, string> {
   if (!attrs) return {};
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(attrs)) {
-    if (k.startsWith("data-") && v != null) {
-      out[k] = v;
+    if (!k.startsWith("data-") || v == null) {
+      continue;
     }
+    if (k.toLowerCase() === "data-testid") {
+      continue;
+    }
+    out[k] = v;
   }
   return out;
 }
@@ -109,8 +117,8 @@ export function SimpleCatalogTable({
             return (
               <tr
                 key={r.key}
-                data-testid={`${rowTestId}-${index}`}
                 {...rowDataProps(r.dataAttrs)}
+                data-testid={`${rowTestId}-${index}`}
                 style={{
                   ...tableRow,
                   cursor: clickable ? "pointer" : undefined,

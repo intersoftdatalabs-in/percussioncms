@@ -124,4 +124,25 @@ describe("CatalogTable helpers", () => {
     expect(exact[0].getAttribute("onclick")).toBeNull();
     expect(document.querySelectorAll('tr[data-df-name="By_Author_And_Date"]')).toHaveLength(1);
   });
+
+  it("SimpleCatalogTable keeps programmatic row testid when dataAttrs injects data-testid", () => {
+    render(
+      <SimpleCatalogTable
+        tableTestId="cat-table"
+        rowTestId="cat-row"
+        columns={["Name"]}
+        rows={[
+          {
+            key: "injected",
+            dataAttrs: { "data-testid": "injected", "data-df-name": "By_Author" },
+            cells: ["By_Author"],
+          },
+        ]}
+      />,
+    );
+    const row = screen.getByTestId("cat-row-0");
+    expect(row.getAttribute("data-testid")).toBe("cat-row-0");
+    expect(row.getAttribute("data-df-name")).toBe("By_Author");
+    expect(screen.queryByTestId("injected")).toBeNull();
+  });
 });
