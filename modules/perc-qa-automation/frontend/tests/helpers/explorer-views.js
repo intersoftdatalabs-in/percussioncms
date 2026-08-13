@@ -106,6 +106,25 @@ function viewsExecuteUrl(baseUrl, idOrName) {
 }
 
 /**
+ * JAXB / Jackson root envelope for POST /views/{id}/execute (#3318 / QA #3244).
+ * Do not POST a bare { startIndex, maxResults } object.
+ *
+ * @param {Record<string, unknown> | null | undefined} request
+ * @returns {{ ViewExecuteRequest: Record<string, unknown> }}
+ */
+function wrapViewExecuteRequest(request) {
+  if (
+    request != null &&
+    typeof request === "object" &&
+    request.ViewExecuteRequest != null &&
+    typeof request.ViewExecuteRequest === "object"
+  ) {
+    return { ViewExecuteRequest: request.ViewExecuteRequest };
+  }
+  return { ViewExecuteRequest: request && typeof request === "object" ? request : {} };
+}
+
+/**
  * Unwrap Jackson / list wrappers for {@code ViewDef[]} catalog payloads.
  *
  * @param {unknown} payload
@@ -365,6 +384,7 @@ module.exports = {
   explorerEntryUrl,
   viewsCatalogUrl,
   viewsExecuteUrl,
+  wrapViewExecuteRequest,
   unwrapViewDefs,
   viewDefKey,
   viewDefLabel,

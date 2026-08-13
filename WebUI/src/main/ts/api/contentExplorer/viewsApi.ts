@@ -37,6 +37,43 @@ import type {
 export { listViews };
 
 /**
+ * Jackson / JAXB root for {@link ViewExecuteRequest}
+ * ({@code @XmlRootElement(name = "ViewExecuteRequest")}). CXF
+ * {@code UNWRAP_ROOT_VALUE} rejects a bare {@code startIndex} field
+ * (QA #3244 / #3318).
+ */
+export const VIEW_EXECUTE_REQUEST_ROOT = "ViewExecuteRequest";
+
+/** Wire envelope required by WRAP_ROOT_VALUE / JAXB on view execute. */
+export type ViewExecuteRequestEnvelope = {
+  ViewExecuteRequest: ViewExecuteRequest;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/**
+ * Wrap execute overrides under {@link VIEW_EXECUTE_REQUEST_ROOT}.
+ * Does not double-wrap an already-enveloped payload.
+ */
+export function wrapViewExecuteRequest(
+  request?: ViewExecuteRequest | ViewExecuteRequestEnvelope | null,
+): ViewExecuteRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[VIEW_EXECUTE_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      return { ViewExecuteRequest: nested as ViewExecuteRequest };
+    }
+  }
+  return { ViewExecuteRequest: (request as ViewExecuteRequest) ?? {} };
+}
+
+/**
  * Unwrap Jackson root-name wrapping for {@link ViewExecuteResult}
  * ({@code ViewExecuteResult} / camelCase aliases) while accepting a flat
  * payload when root wrapping is off.
@@ -85,10 +122,9 @@ export async function executeView(
     throw new Error("View id or name is required");
   }
   const pathKey = encodeURIComponent(key);
-  const body = request ?? {};
   const payload = await post<unknown>(
     `${PATHS.VIEWS}/${pathKey}/execute`,
-    body,
+    wrapViewExecuteRequest(request),
   );
   return unwrapViewExecuteResult(payload);
 }

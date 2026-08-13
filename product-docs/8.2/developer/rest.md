@@ -208,7 +208,22 @@ with the execute call below.
 
 ### Execute request / response
 
-Optional JSON body (all fields optional):
+The execute body must use the Jackson / JAXB root name `ViewExecuteRequest`. A
+bare `{ "startIndex": 1, "maxResults": 50 }` object is rejected (`unexpected
+element startIndex`). An empty body is allowed when you need design defaults
+only; if you send JSON, wrap the fields:
+
+```json
+{
+  "ViewExecuteRequest": {
+    "folderPath": "/Sites/Demo",
+    "startIndex": 1,
+    "maxResults": 50
+  }
+}
+```
+
+All fields inside `ViewExecuteRequest` are optional:
 
 | Field | Meaning |
 |-------|---------|

@@ -19,11 +19,45 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   executeView,
   unwrapViewExecuteResult,
+  wrapViewExecuteRequest,
 } from "../../../main/ts/api/contentExplorer/viewsApi";
 import { PATHS } from "../../../main/ts/api/paths";
 
 afterEach(() => {
   vi.restoreAllMocks();
+});
+
+describe("wrapViewExecuteRequest", () => {
+  it("wraps flat overrides under ViewExecuteRequest for JAXB", () => {
+    expect(
+      wrapViewExecuteRequest({
+        folderPath: "/Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      }),
+    ).toEqual({
+      ViewExecuteRequest: {
+        folderPath: "/Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      },
+    });
+  });
+
+  it("sends an empty ViewExecuteRequest root when overrides are omitted", () => {
+    expect(wrapViewExecuteRequest()).toEqual({ ViewExecuteRequest: {} });
+    expect(wrapViewExecuteRequest(null)).toEqual({ ViewExecuteRequest: {} });
+  });
+
+  it("does not double-wrap an already enveloped body", () => {
+    expect(
+      wrapViewExecuteRequest({
+        ViewExecuteRequest: { startIndex: 2, maxResults: 10 },
+      }),
+    ).toEqual({
+      ViewExecuteRequest: { startIndex: 2, maxResults: 10 },
+    });
+  });
 });
 
 describe("unwrapViewExecuteResult", () => {
@@ -92,13 +126,27 @@ describe("executeView", () => {
     );
     expect(init?.method).toBe("POST");
     expect(JSON.parse(String(init?.body))).toEqual({
-      folderPath: "/Sites/Foo",
-      startIndex: 1,
-      maxResults: 25,
+      ViewExecuteRequest: {
+        folderPath: "/Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      },
     });
     expect(result.children).toHaveLength(1);
     expect(result.children?.[0]?.title).toBe("Welcome");
     expect(result.viewName).toBe("View_All");
+  });
+
+  it("POSTs an empty ViewExecuteRequest envelope when overrides are omitted", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ children: [], totalCount: 0, startIndex: 1 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await executeView("Inbox");
+    const [, init] = fetchMock.mock.calls[0] ?? [];
+    expect(JSON.parse(String(init?.body))).toEqual({ ViewExecuteRequest: {} });
   });
 
   it("rejects blank idOrName without calling the network", async () => {

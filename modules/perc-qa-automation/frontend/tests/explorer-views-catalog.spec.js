@@ -97,10 +97,27 @@ test.describe("Explorer Views catalog tree (#3116)", () => {
       "//Views//MyContent/Inbox",
     );
 
+    const executeBodies = [];
+    page.on("request", (req) => {
+      if (req.method() !== "POST") return;
+      const url = req.url();
+      if (!/\/services\/views\/[^/]+\/execute(?:\?|$)/i.test(url)) return;
+      executeBodies.push(req.postData() || "");
+    });
+
     await inboxLeaf.click();
     await expect(page.getByTestId(TEST_IDS.results)).toBeVisible({
       timeout: 20_000,
     });
+    expect(executeBodies.length, "Inbox execute should POST").toBeGreaterThan(0);
+    for (const raw of executeBodies) {
+      const parsed = JSON.parse(raw);
+      expect(
+        parsed.ViewExecuteRequest,
+        "JAXB root ViewExecuteRequest required (#3318 / QA #3244)",
+      ).toBeTruthy();
+      expect(parsed.startIndex, "bare startIndex must not be the JSON root").toBeUndefined();
+    }
     const unsupported = page.getByTestId(TEST_IDS.resultsError);
     if (await unsupported.count()) {
       await expect(unsupported).not.toContainText(
