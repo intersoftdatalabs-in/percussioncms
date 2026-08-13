@@ -27,6 +27,10 @@ import {
   validateLandingPageName,
   validateSourceFolderPath,
 } from "../api/architecture/sectionMutations";
+import {
+  parentCmsPath,
+  toRepositoryCmsPath,
+} from "../home/create/filenameUtils";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import { catalogColors } from "../developer/catalogStyles";
 import { ARCH_MSG } from "./messages";
@@ -141,6 +145,8 @@ export function CreateSectionFromFolderDialog({
       setPageName(fromPage.pageName);
     } else if (item.name) {
       setPageName(item.name);
+      const parent = parentCmsPath(item.path || "");
+      setFolderPath(parent ? toRepositoryCmsPath(parent) : "");
     } else {
       setLocalError(ARCH_MSG.CREATE_FROM_FOLDER_NO_PAGE);
       return;

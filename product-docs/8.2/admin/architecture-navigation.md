@@ -111,7 +111,8 @@ shown in the panel (no silent failure). The tree reloads after a successful muta
 
 Blog-type sections appear in the navigation tree (type badge). Full blog post
 authoring remains outside this Navigation editor; treat blog structure as
-visible but limited in this surface.
+visible but limited in this surface. **Convert to folder** applies only to
+regular (non-root) sections — not blogs, section links, or external links.
 
 ### Still later
 

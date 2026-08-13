@@ -27298,6 +27298,9 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Folder path is required">
       <tuv xml:lang="en-us"><seg>Folder path is required</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@Folder path must be a site folder under /Sites/">
+      <tuv xml:lang="en-us"><seg>Folder path must be a site folder under /Sites/</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@Landing page name is required">
       <tuv xml:lang="en-us"><seg>Landing page name is required</seg></tuv>
     </tu>

@@ -362,8 +362,8 @@ export function canReplaceLandingPage(node: NavTreeNode | null): boolean {
 }
 
 /**
- * Regular (or blog) navon may be converted to a plain folder.
- * Root, section links, and external links are blocked.
+ * Regular non-root navon may be converted to a plain folder.
+ * Root, blogs, section links, and external links are blocked (matches docs).
  */
 export function canConvertSectionToFolder(
   root: NavTreeNode | null | undefined,
@@ -372,7 +372,7 @@ export function canConvertSectionToFolder(
   if (!root || !node) return false;
   if (isRootNavNode(root, node.id)) return false;
   const t = String(node.sectionType || "section").toLowerCase();
-  return t === "section" || t === "blog";
+  return t === "section";
 }
 
 /**
@@ -404,6 +404,16 @@ export function validateSourceFolderPath(path: string): string | null {
   const t = path.trim();
   if (!t) {
     return message("perc.ui.architecture.modern@Folder path is required");
+  }
+  const repo = toRepositoryCmsPath(t);
+  const parts = repo.split("/").filter(Boolean);
+  if (
+    parts.length < 3 ||
+    parts[0].toLowerCase() !== "sites"
+  ) {
+    return message(
+      "perc.ui.architecture.modern@Folder path must be a site folder under /Sites/",
+    );
   }
   return null;
 }

@@ -104,6 +104,12 @@ test.describe("Architecture convert / create-from-folder (#3302)", () => {
         await expect(
           page.getByTestId("architecture-from-folder-dialog"),
         ).toBeVisible({ timeout: 10_000 });
+        await expect(
+          page.getByTestId("architecture-from-folder-browse-folder"),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId("architecture-from-folder-browse-page"),
+        ).toBeVisible();
         await page.getByTestId("architecture-from-folder-cancel").click();
         await expect(
           page.getByTestId("architecture-from-folder-dialog"),

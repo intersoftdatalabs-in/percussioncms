@@ -107,6 +107,12 @@ describe("sectionMutations (#3096)", () => {
     expect(
       canConvertSectionToFolder(sampleTree, findNavNodeById(sampleTree, "c")),
     ).toBe(false);
+    const withBlog: NavTreeNode = node("root", "Home", [
+      node("blog1", "News", [], { sectionType: "blog" }),
+    ]);
+    expect(
+      canConvertSectionToFolder(withBlog, findNavNodeById(withBlog, "blog1")),
+    ).toBe(false);
     expect(canConvertSectionToFolder(null, findNavNodeById(sampleTree, "a"))).toBe(
       false,
     );
@@ -115,6 +121,9 @@ describe("sectionMutations (#3096)", () => {
   it("validates create-from-folder fields and splits page paths (#3302)", () => {
     expect(validateSourceFolderPath("")).toMatch(/required/i);
     expect(validateSourceFolderPath("  //Sites/Demo/F  ")).toBeNull();
+    expect(validateSourceFolderPath("not-a-sites-path")).toMatch(/Sites/i);
+    expect(validateSourceFolderPath("//Sites")).toMatch(/Sites/i);
+    expect(validateSourceFolderPath("/Assets/x")).toMatch(/Sites/i);
     expect(validateLandingPageName("")).toMatch(/required/i);
     expect(validateLandingPageName("index.html")).toBeNull();
     expect(validateLandingPageName("a/b")).toMatch(/file name/i);

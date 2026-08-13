@@ -127,6 +127,8 @@ const KEYS = {
   CREATE_FROM_FOLDER_CANCEL: "perc.ui.architecture.modern@Cancel",
   VALIDATION_FOLDER_PATH_REQUIRED:
     "perc.ui.architecture.modern@Folder path is required",
+  VALIDATION_FOLDER_PATH_SITES:
+    "perc.ui.architecture.modern@Folder path must be a site folder under /Sites/",
   VALIDATION_PAGE_NAME_REQUIRED:
     "perc.ui.architecture.modern@Landing page name is required",
   VALIDATION_PAGE_NAME_TOO_LONG:
@@ -295,6 +297,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   VALIDATION_FOLDER_PATH_REQUIRED: message(
     KEYS.VALIDATION_FOLDER_PATH_REQUIRED,
   ),
+  VALIDATION_FOLDER_PATH_SITES: message(KEYS.VALIDATION_FOLDER_PATH_SITES),
   VALIDATION_PAGE_NAME_REQUIRED: message(KEYS.VALIDATION_PAGE_NAME_REQUIRED),
   VALIDATION_PAGE_NAME_TOO_LONG: message(KEYS.VALIDATION_PAGE_NAME_TOO_LONG),
   VALIDATION_PAGE_NAME_PATH: message(KEYS.VALIDATION_PAGE_NAME_PATH),
