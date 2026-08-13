@@ -48,7 +48,8 @@ interface BoundaryState {
   errorMessage: string | null;
 }
 
-class FolderSecurityMountBoundary extends React.Component<
+/** Exported for unit tests that throw during child render. */
+export class FolderSecurityMountBoundary extends React.Component<
   { children: React.ReactNode },
   BoundaryState
 > {
@@ -91,7 +92,7 @@ export function FolderSecurityHost(
   if (!id) {
     return (
       <p data-testid="perc-folder-security-no-folder">
-        No folderId supplied. Append ?folderId=&lt;id&gt; to this URL.
+        {message(EXPLORER_MSG.SECURITY_HOST_NO_FOLDER)}
       </p>
     );
   }

@@ -209,6 +209,9 @@ export const EXPLORER_MSG = {
   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
   SECURITY_SELECT_FOLDER:
     "perc.ui.explorer@Open or select a folder to edit security and properties.",
+  /** Residual JSP host when folderSecurityModern.jsp has no folderId. */
+  SECURITY_HOST_NO_FOLDER:
+    "perc.ui.explorer@No folderId supplied. Append ?folderId=<id> to this URL.",
   SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
   SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
   SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",

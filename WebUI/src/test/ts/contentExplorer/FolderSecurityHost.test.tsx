@@ -16,13 +16,22 @@
  */
 
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { FolderSecurityHost } from "../../../main/ts/contentExplorer/FolderSecurityHost";
+import { describe, expect, it, vi } from "vitest";
+import {
+  FolderSecurityHost,
+  FolderSecurityMountBoundary,
+} from "../../../main/ts/contentExplorer/FolderSecurityHost";
+import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
+import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 
 describe("FolderSecurityHost (#3268 / #2749)", () => {
   it("shows the no-folder placeholder when folderId is missing", () => {
     render(<FolderSecurityHost folderId="" currentUserIdentities={["Admin"]} />);
-    expect(screen.getByTestId("perc-folder-security-no-folder")).toBeTruthy();
+    const hint = screen.getByTestId("perc-folder-security-no-folder");
+    expect(hint).toBeTruthy();
+    expect(hint.textContent).toBe(
+      fallbackLabelFromKey(EXPLORER_MSG.SECURITY_HOST_NO_FOLDER),
+    );
     expect(screen.queryByTestId("folder-security-loading")).toBeNull();
     expect(screen.queryByTestId("folder-security-panel")).toBeNull();
   });
@@ -61,5 +70,20 @@ describe("FolderSecurityHost (#3268 / #2749)", () => {
       expect(screen.getByTestId("folder-security-error")).toBeTruthy();
     });
     expect(screen.queryByTestId("folder-security-loading")).toBeNull();
+  });
+
+  it("FolderSecurityMountBoundary surfaces render-time child errors", () => {
+    const boom = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    function Boom(): never {
+      throw new Error("panel render failed");
+    }
+    render(
+      <FolderSecurityMountBoundary>
+        <Boom />
+      </FolderSecurityMountBoundary>,
+    );
+    expect(screen.getByTestId("folder-security-error")).toBeTruthy();
+    expect(screen.getByText("panel render failed")).toBeTruthy();
+    boom.mockRestore();
   });
 });
