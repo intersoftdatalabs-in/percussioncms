@@ -17,6 +17,7 @@
 import React, { useState } from "react";
 import { message } from "../../i18n/message";
 import { ADMIN_MSG } from "../messages";
+import { AdminSectionErrorBoundary } from "../AdminSectionErrorBoundary";
 import { ConsistencyChecker } from "./ConsistencyChecker";
 import { SecurityAuditLogViewer } from "./SecurityAuditLogViewer";
 
@@ -100,7 +101,11 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
           aria-labelledby="tab-security-audit"
           data-testid="panel-security-audit"
         >
-          <SecurityAuditLogViewer />
+          <AdminSectionErrorBoundary
+            label={message(ADMIN_MSG.TOOL_SECURITY_AUDIT)}
+          >
+            <SecurityAuditLogViewer />
+          </AdminSectionErrorBoundary>
         </div>
       )}
       {activeTool === "consistency" && (
@@ -110,7 +115,11 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
           aria-labelledby="tab-consistency"
           data-testid="panel-consistency"
         >
-          <ConsistencyChecker />
+          <AdminSectionErrorBoundary
+            label={message(ADMIN_MSG.TOOL_CONSISTENCY)}
+          >
+            <ConsistencyChecker />
+          </AdminSectionErrorBoundary>
         </div>
       )}
     </div>

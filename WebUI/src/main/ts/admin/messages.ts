@@ -21,8 +21,6 @@ export const ADMIN_MSG = {
    * (not "Administration") when top-nav Admin lands on {@code /admin}.
    */
   ADMIN_TITLE: "perc.ui.dashboard.modern@Admin tools",
-  SECTION_LOAD_FAILED:
-    "perc.ui.admin@Unable to load {0}. Try another Admin tab or reload.",
   TAB_TASKS: "perc.ui.admin@Scheduled Tasks",
   TAB_LOGS: "perc.ui.admin@Execution Logs",
   TAB_NOTIFICATIONS: "perc.ui.admin@Notification Settings",
@@ -66,6 +64,11 @@ export const ADMIN_MSG = {
   TAB_TOOLS: "perc.ui.admin@System Tools",
   TOOL_CONSISTENCY: "perc.ui.admin.tools@Consistency Checker",
   TOOL_SECURITY_AUDIT: "perc.ui.admin.tools@Security Audit Log",
+  /**
+   * Isolated tab/tool failure (#3195 / peer #3229). Arg {0} is the section label.
+   */
+  SECTION_LOAD_FAILED:
+    "perc.ui.admin@Unable to load {0}. Other Admin tabs remain available.",
 
   /** Security Audit Log viewer (Phase 4 / #2619) */
   AUDIT_TITLE: "perc.ui.admin.auditlog@Security Audit Log",

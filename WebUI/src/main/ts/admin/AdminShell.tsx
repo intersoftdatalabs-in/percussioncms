@@ -21,12 +21,15 @@ import { WF_ADMIN_MSG } from "../workflowAdmin/messages";
 import { TasksSection } from "./TasksSection";
 import { TaskLogsSection } from "./TaskLogsSection";
 import { TaskNotifications } from "./TaskNotifications";
+import { AdminSectionErrorBoundary } from "./AdminSectionErrorBoundary";
 import { ToolsSection } from "./tools/ToolsSection";
 import { WorkflowSection } from "../workflowAdmin/workflow/WorkflowSection";
 import { RolesSection } from "../workflowAdmin/role/RolesSection";
 import { UsersSection } from "../workflowAdmin/user/UsersSection";
 import { CategoriesSection } from "../workflowAdmin/category/CategoriesSection";
 import styles from "./AdminChrome.module.css";
+
+export { AdminSectionErrorBoundary };
 
 /**
  * Unified Admin product shell tabs (#3088).
@@ -73,54 +76,6 @@ export interface AdminShellProps {
    * Reserved for layout tweaks; no BrandBar today.
    */
   embedded?: boolean;
-}
-
-interface AdminSectionBoundaryProps {
-  label: string;
-  children: React.ReactNode;
-}
-
-interface AdminSectionBoundaryState {
-  error: Error | null;
-}
-
-/**
- * Isolates a single Admin tab. A TypeError in Workflow/Tasks must not replace
- * the whole Admin route with RouteErrorBoundary (#3202 / #3195 shared shell).
- */
-export class AdminSectionErrorBoundary extends React.Component<
-  AdminSectionBoundaryProps,
-  AdminSectionBoundaryState
-> {
-  state: AdminSectionBoundaryState = { error: null };
-
-  static getDerivedStateFromError(error: Error): AdminSectionBoundaryState {
-    return { error };
-  }
-
-  componentDidCatch(error: Error, info: React.ErrorInfo): void {
-    console.error(
-      `[PercModernUI] Admin section failed (${this.props.label})`,
-      error,
-      info.componentStack,
-    );
-  }
-
-  render(): React.ReactNode {
-    if (this.state.error) {
-      return (
-        <div data-testid="admin-section-error" role="alert">
-          <p>
-            {message(ADMIN_MSG.SECTION_LOAD_FAILED).replace(
-              "{0}",
-              this.props.label,
-            )}
-          </p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
 }
 
 function tabPanel(tab: AdminTab, node: React.ReactNode): React.ReactElement {

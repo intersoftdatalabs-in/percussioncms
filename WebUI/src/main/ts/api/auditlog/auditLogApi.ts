@@ -72,13 +72,66 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
+function asFiniteNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim()) {
+    const n = Number(value);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return undefined;
+}
+
 function isAuditPageShape(o: Record<string, unknown>): boolean {
   return (
-    Array.isArray(o.entries) ||
+    o.entries != null ||
     typeof o.total === "number" ||
+    typeof o.total === "string" ||
     typeof o.offset === "number" ||
     typeof o.limit === "number"
   );
+}
+
+/**
+ * Coerce Jackson list envelopes to a flat {@link SystemAuditLogEntry} array.
+ *
+ * <p>WRAP_ROOT_VALUE / JAXB one-item lists often arrive as
+ * {@code { SystemAuditLogEntry: [ {...}, ... ] }}, a single wrapped object,
+ * or a non-array. Mapping those as arrays throws {@code TypeError: map is not
+ * a function} and blanks Admin → System Tools (#3195, same class as #3202).
+ */
+export function asAuditLogEntries(raw: unknown): SystemAuditLogEntry[] {
+  if (raw == null) {
+    return [];
+  }
+  if (Array.isArray(raw)) {
+    const out: SystemAuditLogEntry[] = [];
+    for (const row of raw) {
+      const entry = unwrapSystemAuditLogEntry(row);
+      if (entry) {
+        out.push(entry);
+      } else if (row != null && typeof row === "object") {
+        out.push(row as SystemAuditLogEntry);
+      }
+    }
+    return out;
+  }
+  const rec = asRecord(raw);
+  if (!rec) {
+    return [];
+  }
+  const wrapped =
+    rec[SYSTEM_AUDIT_LOG_ENTRY_ROOT] ??
+    rec.systemAuditLogEntry ??
+    rec.entry;
+  if (wrapped != null && wrapped !== raw) {
+    return asAuditLogEntries(wrapped);
+  }
+  const single = unwrapSystemAuditLogEntry(raw);
+  return single ? [single] : [];
 }
 
 function isAuditEntryShape(o: Record<string, unknown>): boolean {
@@ -91,37 +144,56 @@ function isAuditEntryShape(o: Record<string, unknown>): boolean {
   );
 }
 
+function pageFromBody(body: Record<string, unknown>): SystemAuditLogPage {
+  const entries = asAuditLogEntries(body.entries);
+  return {
+    entries,
+    total: asFiniteNumber(body.total) ?? entries.length,
+    offset: asFiniteNumber(body.offset) ?? 0,
+    limit: asFiniteNumber(body.limit) ?? 50,
+  };
+}
+
 /**
  * Normalize a list response to a flat {@link SystemAuditLogPage}.
  *
- * <p>Prefers {@code {"SystemAuditLogPage":{…}}} (production WRAP_ROOT_VALUE); also accepts a
- * flat body (unit tests / proxies that already unwrapped).
+ * <p>Prefers {@code {"SystemAuditLogPage":{…}}} (production WRAP_ROOT_VALUE),
+ * including nested WRAP_ROOT envelopes; also accepts a flat body. {@code
+ * entries} is always an array after unwrap (#3195).
  */
 export function unwrapSystemAuditLogPage(payload: unknown): SystemAuditLogPage {
-  if (payload == null || typeof payload !== "object") {
-    return { entries: [], total: 0, offset: 0, limit: 50 };
+  return unwrapSystemAuditLogPageInner(payload, 0);
+}
+
+function unwrapSystemAuditLogPageInner(
+  payload: unknown,
+  depth: number,
+): SystemAuditLogPage {
+  const empty: SystemAuditLogPage = {
+    entries: [],
+    total: 0,
+    offset: 0,
+    limit: 50,
+  };
+  if (payload == null || typeof payload !== "object" || depth > 6) {
+    return empty;
   }
   const root = asRecord(payload);
   if (!root) {
-    return { entries: [], total: 0, offset: 0, limit: 50 };
+    return empty;
   }
-  const nested = asRecord(
-    root[SYSTEM_AUDIT_LOG_PAGE_ROOT] ?? root.systemAuditLogPage,
-  );
-  const body = nested && isAuditPageShape(nested) ? nested : isAuditPageShape(root) ? root : null;
-  if (!body) {
-    return { entries: [], total: 0, offset: 0, limit: 50 };
+  const nestedRaw = root[SYSTEM_AUDIT_LOG_PAGE_ROOT] ?? root.systemAuditLogPage;
+  const nested = asRecord(nestedRaw);
+  if (nested) {
+    const fromNested = unwrapSystemAuditLogPageInner(nested, depth + 1);
+    if ((fromNested.entries?.length ?? 0) > 0 || isAuditPageShape(nested)) {
+      return isAuditPageShape(nested) ? pageFromBody(nested) : fromNested;
+    }
   }
-  const rawEntries = body.entries;
-  const entries: SystemAuditLogEntry[] = Array.isArray(rawEntries)
-    ? rawEntries.map((row) => unwrapSystemAuditLogEntry(row) ?? (row as SystemAuditLogEntry))
-    : [];
-  return {
-    entries,
-    total: typeof body.total === "number" ? body.total : entries.length,
-    offset: typeof body.offset === "number" ? body.offset : 0,
-    limit: typeof body.limit === "number" ? body.limit : 50,
-  };
+  if (isAuditPageShape(root)) {
+    return pageFromBody(root);
+  }
+  return empty;
 }
 
 /**

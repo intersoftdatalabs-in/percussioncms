@@ -19,6 +19,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   formatAuditPageSummary,
+  formatEventTime,
   SecurityAuditLogViewer,
   truncate,
 } from "../../../main/ts/admin/tools/SecurityAuditLogViewer";
@@ -57,6 +58,34 @@ describe("SecurityAuditLogViewer", () => {
     expect(formatAuditPageSummary(1, 50, 120)).toContain("1");
     expect(formatAuditPageSummary(1, 50, 120)).toContain("50");
     expect(formatAuditPageSummary(1, 50, 120)).toContain("120");
+  });
+
+  it("formatEventTime never returns a non-string (Instant objects)", () => {
+    expect(formatEventTime(undefined)).toBe("—");
+    expect(formatEventTime("2026-08-09T15:00:00Z")).not.toBe("—");
+    expect(typeof formatEventTime({ epochSecond: 1_786_291_200, nano: 0 })).toBe(
+      "string",
+    );
+    expect(formatEventTime({ epochSecond: 1_786_291_200, nano: 0 })).not.toBe(
+      "—",
+    );
+  });
+
+  it("renders without TypeError when query returns a non-array entries envelope", async () => {
+    vi.mocked(auditApi.queryAuditLogEntries).mockResolvedValue({
+      entries: { SystemAuditLogEntry: [sampleEntry] } as unknown as typeof sampleEntry[],
+      total: 1,
+      offset: 0,
+      limit: 50,
+    });
+
+    render(<SecurityAuditLogViewer />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-security-audit-log")).toBeDefined();
+    });
+    expect(screen.getByTestId("audit-log-table")).toBeDefined();
+    expect(screen.queryByTestId("route-error")).toBeNull();
   });
 
   it("truncate keeps max chars then ellipsis (no off-by-one)", () => {

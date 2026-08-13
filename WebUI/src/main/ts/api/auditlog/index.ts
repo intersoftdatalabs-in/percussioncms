@@ -16,6 +16,7 @@
 
 export {
   AuditLogForbiddenError,
+  asAuditLogEntries,
   getAuditLogEntry,
   queryAuditLogEntries,
   SYSTEM_AUDIT_LOG_ENTRY_ROOT,

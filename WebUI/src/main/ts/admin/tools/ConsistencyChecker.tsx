@@ -33,6 +33,34 @@ export interface ConsistencyJobStatus {
   issues?: ConsistencyIssue[];
 }
 
+/**
+ * Jackson one-item / WRAP_ROOT lists are objects; never call {@code .map} on
+ * {@code issues} until it is an array (#3195).
+ */
+export function asConsistencyIssues(raw: unknown): ConsistencyIssue[] {
+  if (raw == null) {
+    return [];
+  }
+  if (Array.isArray(raw)) {
+    return raw as ConsistencyIssue[];
+  }
+  if (typeof raw === "object") {
+    const rec = raw as Record<string, unknown>;
+    const wrapped =
+      rec.issues ?? rec.ConsistencyIssue ?? rec.consistencyIssue;
+    if (wrapped != null && wrapped !== raw) {
+      return asConsistencyIssues(wrapped);
+    }
+    if (
+      typeof rec.issueId === "string" ||
+      typeof rec.description === "string"
+    ) {
+      return [raw as ConsistencyIssue];
+    }
+  }
+  return [];
+}
+
 export const ConsistencyChecker: React.FC = () => {
   const [jobStatus, setJobStatus] = useState<ConsistencyJobStatus | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,7 +80,10 @@ export const ConsistencyChecker: React.FC = () => {
     try {
       const res: ConsistencyJobStatus = await post(PATHS.CONSISTENCY_CHECK, {});
       if (isMountedRef.current) {
-        setJobStatus(res);
+        setJobStatus({
+          ...res,
+          issues: asConsistencyIssues(res.issues),
+        });
         pollJobStatus(res.jobId);
       }
     } catch (err: any) {
@@ -68,7 +99,10 @@ export const ConsistencyChecker: React.FC = () => {
     try {
       const res: ConsistencyJobStatus = await get(`${PATHS.CONSISTENCY_CHECK}/${jobId}`);
       if (isMountedRef.current) {
-        setJobStatus(res);
+        setJobStatus({
+          ...res,
+          issues: asConsistencyIssues(res.issues),
+        });
         if (res.status === "RUNNING") {
           setTimeout(() => pollJobStatus(jobId), 1000);
         } else {
@@ -155,11 +189,11 @@ export const ConsistencyChecker: React.FC = () => {
 
           <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "0 0 12px 0" }}>Reported Issues</h3>
 
-          {(!jobStatus.issues || jobStatus.issues.length === 0) ? (
+          {asConsistencyIssues(jobStatus.issues).length === 0 ? (
             <p style={{ color: "#166534", margin: 0 }}>No consistency issues found. System is fully aligned.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {jobStatus.issues.map((issue) => (
+              {asConsistencyIssues(jobStatus.issues).map((issue) => (
                 <div
                   key={issue.issueId}
                   style={{
