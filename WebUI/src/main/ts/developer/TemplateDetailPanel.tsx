@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import {
   getTemplateDetail,
   listSlots,
@@ -199,9 +200,12 @@ function slotsEqual(a: Set<string>, b: Set<string>): boolean {
 
 export function TemplateDetailPanel({
   idOrName,
+  catalogGuid,
   onBack,
 }: {
   idOrName: string;
+  /** GUID from catalog list (templateId synthesis) when detail omits Guid (#3319). */
+  catalogGuid?: string | null;
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<TemplateDetail | null>(null);
@@ -279,6 +283,8 @@ export function TemplateDetailPanel({
       source !== (detail.templateSource || "") ||
       !bindingsEqual(bindings, initialBindings) ||
       !slotsEqual(slotKeys, initialSlotKeys));
+
+  const objectGuid = resolveTemplateObjectGuid(detail, catalogGuid);
 
   function updateBinding(index: number, patch: Partial<TemplateBindingSummary>) {
     setBindings((prev) => prev.map((b, i) => (i === index ? { ...b, ...patch } : b)));
@@ -469,7 +475,8 @@ export function TemplateDetailPanel({
               <span style={monoCell}>
                 {detail.name}
                 {detail.templateId != null ? ` · ${detail.templateId}` : ""}
-                {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+                {" · "}
+                <span data-testid="developer-tpl-detail-guid">{objectGuid || "—"}</span>
               </span>
             </div>
             <div style={{ marginTop: "12px" }}>
@@ -816,7 +823,7 @@ export function TemplateDetailPanel({
           </div>
 
           <ObjectAclSection
-            objectGuid={detail.guid?.stringValue}
+            objectGuid={objectGuid}
             objectKind="template"
             testIdPrefix="developer-tpl-acl"
           />

@@ -16,8 +16,12 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  normalizeDesignObjectGuid,
   normalizeDisplayFormatGuid,
   objectGuidString,
+  resolveContentTypeObjectGuid,
+  resolveTemplateObjectGuid,
+  synthesizeTypedObjectGuid,
   unwrapDisplayFormat,
 } from "../../../main/ts/api/displayFormatGuid";
 
@@ -47,6 +51,32 @@ describe("objectGuidString", () => {
     expect(objectGuidString(undefined)).toBeUndefined();
     expect(objectGuidString({})).toBeUndefined();
     expect(objectGuidString("")).toBeUndefined();
+  });
+});
+
+describe("resolveContentTypeObjectGuid / resolveTemplateObjectGuid (#3319)", () => {
+  it("prefers nested guid then guidString then catalog then type-uuid", () => {
+    expect(
+      resolveContentTypeObjectGuid({ guid: { stringValue: "0-2-1" }, guidString: "0-2-9" }),
+    ).toBe("0-2-1");
+    expect(resolveContentTypeObjectGuid({ guidString: "0-2-9" })).toBe("0-2-9");
+    expect(resolveContentTypeObjectGuid({}, "0-2-3")).toBe("0-2-3");
+    expect(resolveContentTypeObjectGuid({ guid: { uuid: 5 } })).toBe("0-2-5");
+  });
+
+  it("synthesizes template GUID from templateId", () => {
+    expect(resolveTemplateObjectGuid({ templateId: 12 })).toBe("0-4-12");
+    expect(resolveTemplateObjectGuid({ guidString: "0-4-8", templateId: 12 })).toBe("0-4-8");
+    expect(synthesizeTypedObjectGuid(4, 12)).toBe("0-4-12");
+    expect(synthesizeTypedObjectGuid(2, 0)).toBeUndefined();
+  });
+
+  it("normalizeDesignObjectGuid fills stringValue and guidString", () => {
+    const out = normalizeDesignObjectGuid({
+      guid: { hostId: 0, type: 2, uuid: 301 },
+    });
+    expect(out.guid?.stringValue).toBe("0-2-301");
+    expect(out.guidString).toBe("0-2-301");
   });
 });
 

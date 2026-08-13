@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useState } from "react";
+import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   getContentTypeDetail,
   updateContentTypeDetail,
@@ -137,9 +138,12 @@ function toRefPayload(list: NamedObjectRef[]): NamedObjectRef[] {
 
 export function ContentTypeDetailPanel({
   idOrName,
+  catalogGuid,
   onBack,
 }: {
   idOrName: string;
+  /** GUID from catalog list row when detail wire omits stringValue (#3319). */
+  catalogGuid?: string | null;
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
@@ -207,6 +211,8 @@ export function ContentTypeDetailPanel({
       fieldsDirty ||
       workflowsDirty ||
       templatesDirty);
+
+  const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -370,7 +376,8 @@ export function ContentTypeDetailPanel({
             </h2>
             <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
               {detail.name}
-              {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+              {" · "}
+              <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
             </div>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
@@ -781,7 +788,7 @@ export function ContentTypeDetailPanel({
           </div>
 
           <ObjectAclSection
-            objectGuid={detail.guid?.stringValue}
+            objectGuid={objectGuid}
             objectKind="content-type"
             testIdPrefix="developer-ct-acl"
           />

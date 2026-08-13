@@ -86,7 +86,20 @@ not this profile control. See [Architecture & site navigation](id:admin-architec
 ## Design-object ACL (Developer)
 
 System Definition (**Developer**) shows an **Object ACL** section on securable design
-objects, including **Display Formats** and **Sites**.
+objects, including **Content types**, **Templates**, **Display Formats**, and **Sites**.
+
+### Content types and Templates
+
+1. Open **Developer → Content types** or **Developer → Templates**.
+2. Open a catalog row.
+3. The detail header **GUID** field shows the object GUID when the server has one
+   (nested `guid.stringValue`, synthesizable `hostId` / `type` / `uuid`, list-row
+   fallback, or — for templates — `0-4-{templateId}` when only the numeric id is
+   present).
+4. **Object ACL** below the detail form:
+   - Shows the ACL table when entries exist (Design access and Runtime visibility).
+   - Shows an empty create path when the object has no ACL yet.
+   - Does **not** say “Object GUID not available” when the header GUID is present.
 
 ### Display Formats
 

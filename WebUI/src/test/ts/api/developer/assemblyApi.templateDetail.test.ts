@@ -62,6 +62,24 @@ describe("unwrapTemplateDetail / wrapTemplateDetailForWire (#3039)", () => {
     expect(unwrapTemplateDetail(null)).toEqual({});
   });
 
+  it("fills guid.stringValue from parts and templateId (#3319)", () => {
+    const fromParts = unwrapTemplateDetail({
+      TemplateDetail: {
+        name: "perc.page",
+        guid: { hostId: 0, type: 4, uuid: 42 },
+      },
+    });
+    expect(fromParts.guid?.stringValue).toBe("0-4-42");
+    expect(fromParts.guidString).toBe("0-4-42");
+
+    const fromId = unwrapTemplateDetail({
+      name: "perc.page",
+      templateId: 12,
+    });
+    expect(fromId.guid?.stringValue).toBe("0-4-12");
+    expect(fromId.guidString).toBe("0-4-12");
+  });
+
   it("wrapTemplateDetailForWire nests under TemplateDetail root", () => {
     const body = { templateSource: "#new\n", label: "L" };
     expect(wrapTemplateDetailForWire(body)).toEqual({

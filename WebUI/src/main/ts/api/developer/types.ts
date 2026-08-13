@@ -33,6 +33,8 @@ export interface RestGuid {
 /** Content type summary from {@code GET /services/contenttypes}. */
 export interface ContentTypeSummary {
   guid?: RestGuid;
+  /** Plain host-type-uuid when nested Guid is hard to bind (#3319). */
+  guidString?: string;
   objectType?: RestGuid;
   name?: string;
   label?: string;
@@ -77,6 +79,8 @@ export interface NamedObjectRef {
 /** Read-only design detail for one content type. */
 export interface ContentTypeDetail {
   guid?: RestGuid;
+  /** Plain host-type-uuid when nested Guid is hard to bind (#3319). */
+  guidString?: string;
   name?: string;
   label?: string;
   description?: string;
@@ -111,6 +115,8 @@ export interface KeywordSummary {
 
 export interface TemplateSummary {
   templateId?: number;
+  /** Plain host-type-uuid when the list omits nested Guid (#3319). */
+  guidString?: string;
   templateName?: string;
   templateLabel?: string;
   templateDescription?: string;
@@ -131,6 +137,8 @@ export interface TemplateSlotSummary {
 
 export interface TemplateDetail {
   guid?: RestGuid;
+  /** Plain host-type-uuid when nested Guid is hard to bind (#3319). */
+  guidString?: string;
   templateId?: number;
   name?: string;
   label?: string;

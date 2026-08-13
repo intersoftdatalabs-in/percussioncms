@@ -16,6 +16,10 @@
  */
 
 import { get, post, put } from "../client";
+import {
+  normalizeDesignObjectGuid,
+  resolveTemplateObjectGuid,
+} from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type {
   CommunityDetail,
@@ -55,6 +59,11 @@ function asRecord(value: unknown): Record<string, unknown> | null {
  * <p>Prefers {@code { "TemplateDetail": { … } }}; also accepts a flat body
  * (unit tests / proxies that already unwrapped).
  */
+function normalizeTemplateDetail(body: TemplateDetail): TemplateDetail {
+  const catalog = resolveTemplateObjectGuid(body);
+  return normalizeDesignObjectGuid(body, catalog);
+}
+
 export function unwrapTemplateDetail(payload: unknown): TemplateDetail {
   const root = asRecord(payload);
   if (!root) {
@@ -62,7 +71,7 @@ export function unwrapTemplateDetail(payload: unknown): TemplateDetail {
   }
   const nested = asRecord(root[TEMPLATE_DETAIL_ROOT] ?? root.templateDetail);
   if (nested) {
-    return nested as TemplateDetail;
+    return normalizeTemplateDetail(nested as TemplateDetail);
   }
   // Flat body: only treat as detail when it looks like one (has template identity
   // or source/bindings fields). Bare error envelopes stay empty.
@@ -71,9 +80,11 @@ export function unwrapTemplateDetail(payload: unknown): TemplateDetail {
     "templateId" in root ||
     "templateSource" in root ||
     "label" in root ||
-    "bindings" in root
+    "bindings" in root ||
+    "guid" in root ||
+    "guidString" in root
   ) {
-    return root as TemplateDetail;
+    return normalizeTemplateDetail(root as TemplateDetail);
   }
   return {};
 }

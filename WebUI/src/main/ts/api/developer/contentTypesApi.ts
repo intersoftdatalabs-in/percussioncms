@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import { normalizeDesignObjectGuid } from "../displayFormatGuid";
 import { get, put } from "../client";
 import { PATHS } from "../paths";
 import type {
@@ -25,6 +26,20 @@ import type {
   NamedObjectRef,
 } from "./types";
 
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeDetail}. */
+export const CONTENT_TYPE_DETAIL_ROOT = "ContentTypeDetail";
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+function normalizeContentTypeSummary(item: ContentTypeSummary): ContentTypeSummary {
+  return normalizeDesignObjectGuid(item);
+}
+
 /**
  * Normalize list responses that may be a bare array or a JAXB envelope.
  */
@@ -33,7 +48,7 @@ export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
     return [];
   }
   if (Array.isArray(payload)) {
-    return payload as ContentTypeSummary[];
+    return (payload as ContentTypeSummary[]).map(normalizeContentTypeSummary);
   }
   if (typeof payload === "object") {
     const env = payload as ContentTypeListEnvelope & {
@@ -43,9 +58,40 @@ export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
     if (raw == null) {
       return [];
     }
-    return Array.isArray(raw) ? raw : [raw];
+    const list = Array.isArray(raw) ? raw : [raw];
+    return list.map(normalizeContentTypeSummary);
   }
   return [];
+}
+
+/**
+ * Normalize a content-type GET/PUT response to a flat {@link ContentTypeDetail}.
+ *
+ * <p>Prefers {@code { "ContentTypeDetail": { … } }} (Jackson WRAP_ROOT_VALUE);
+ * also accepts a flat body. Fills {@code guid.stringValue} / {@code guidString}
+ * from nested Guid parts (#3319).
+ */
+export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[CONTENT_TYPE_DETAIL_ROOT] ?? root.contentTypeDetail);
+  let body: ContentTypeDetail;
+  if (nested) {
+    body = nested as ContentTypeDetail;
+  } else if (
+    "name" in root ||
+    "guid" in root ||
+    "guidString" in root ||
+    "fields" in root ||
+    "label" in root
+  ) {
+    body = root as ContentTypeDetail;
+  } else {
+    return {};
+  }
+  return normalizeDesignObjectGuid(body);
 }
 
 /**
@@ -69,7 +115,8 @@ export async function getContentTypeDetail(
   idOrName: string,
 ): Promise<ContentTypeDetail> {
   const key = encodeURIComponent(idOrName);
-  return get<ContentTypeDetail>(`${PATHS.CONTENT_TYPES}/${key}`);
+  const payload = await get<unknown>(`${PATHS.CONTENT_TYPES}/${key}`);
+  return unwrapContentTypeDetail(payload);
 }
 
 export type ContentTypeUpdateBody = {
@@ -95,5 +142,6 @@ export async function updateContentTypeDetail(
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
   const key = encodeURIComponent(idOrName);
-  return put<ContentTypeDetail>(`${PATHS.CONTENT_TYPES}/${key}`, body);
+  const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
+  return unwrapContentTypeDetail(payload);
 }
