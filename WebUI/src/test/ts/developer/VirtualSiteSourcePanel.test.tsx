@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as sitesApi from "../../../main/ts/api/developer/sitesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
+import * as sourceViewer from "../../../main/ts/developer/templateSourceViewer";
 import { VirtualSiteSourcePanel } from "../../../main/ts/developer/VirtualSiteSourcePanel";
 
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
@@ -232,6 +233,61 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
       "product-docs",
     );
+    expect(screen.queryByTestId("developer-site-virtual-build-link-problems")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-link-list")).toBeNull();
+  });
+
+  it("lists link problem details on HTTP 200 with hasLinkProblems", async () => {
+    const copySpy = vi.spyOn(sourceViewer, "copyTextToClipboard").mockResolvedValue(true);
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "product-docs",
+      outputPath: "C:/tmp/virtual-sites/product-docs",
+      pagesWritten: 4,
+      linkProblemCount: 2,
+      hasLinkProblems: true,
+      linkProblems: [
+        "broken id:missing-page from 8.2/index.md",
+        "  unresolved relative ./gone.md  ",
+      ],
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-build-success")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build-link-problems").textContent).toContain(
+      DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-build-link-problems").textContent).toContain(
+      "2",
+    );
+    expect(screen.getByTestId("developer-site-virtual-build-link-report-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_BUILD_LINK_REPORT_HINT,
+    );
+    const lines = screen.getAllByTestId("developer-site-virtual-build-link-line");
+    expect(lines).toHaveLength(2);
+    expect(lines[0].textContent).toBe("broken id:missing-page from 8.2/index.md");
+    expect(lines[1].textContent).toBe("unresolved relative ./gone.md");
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build-link-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-link-copied").textContent).toContain(
+        DEV_MSG.SITE_VIRT_BUILD_LINK_COPIED,
+      );
+    });
+    expect(copySpy).toHaveBeenCalledWith(
+      "broken id:missing-page from 8.2/index.md\nunresolved relative ./gone.md",
+    );
+    copySpy.mockRestore();
   });
 
   it("surfaces build API errors", async () => {

@@ -30,6 +30,7 @@ import {
 } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { copyTextToClipboard } from "./templateSourceViewer";
 import {
   formatVirtualSiteBuildSummary,
   shouldShowVirtualBuildChrome,
@@ -148,6 +149,7 @@ export function VirtualSiteSourcePanel({
   const [isVirtual, setIsVirtual] = useState(false);
   const [buildError, setBuildError] = useState<string | null>(null);
   const [buildResult, setBuildResult] = useState<VirtualSiteBuildResult | null>(null);
+  const [linkCopyNotice, setLinkCopyNotice] = useState<string | null>(null);
 
   const load = useCallback(() => {
     if (!siteName.trim()) {
@@ -162,6 +164,7 @@ export function VirtualSiteSourcePanel({
     setSavedNotice(null);
     setBuildError(null);
     setBuildResult(null);
+    setLinkCopyNotice(null);
     getVirtualSiteProperties(siteName)
       .then((props) => {
         if (cancelled) return;
@@ -222,6 +225,7 @@ export function VirtualSiteSourcePanel({
     setBuilding(true);
     setBuildError(null);
     setBuildResult(null);
+    setLinkCopyNotice(null);
     setFormError(null);
     try {
       const result = await buildVirtualSite(siteName);
@@ -231,6 +235,14 @@ export function VirtualSiteSourcePanel({
     } finally {
       setBuilding(false);
     }
+  }
+
+  async function onCopyLinkProblems(lines: string[]): Promise<void> {
+    if (lines.length === 0) {
+      return;
+    }
+    const ok = await copyTextToClipboard(lines.join("\n"));
+    setLinkCopyNotice(ok ? DEV_MSG.SITE_VIRT_BUILD_LINK_COPIED : null);
   }
 
   const virtualMode = isVirtualSourceKind(form.sourceKind);
@@ -439,9 +451,74 @@ export function VirtualSiteSourcePanel({
                   {buildSummary.hasLinkProblems && buildSummary.linkLine ? (
                     <div
                       data-testid="developer-site-virtual-build-link-problems"
-                      style={{ marginTop: "4px", color: catalogColors.error }}
+                      style={{ marginTop: "8px", color: catalogColors.error }}
                     >
-                      {DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS}: {buildSummary.linkLine}
+                      <div>
+                        {DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS}: {buildSummary.linkLine}
+                      </div>
+                      <p
+                        style={{ ...mutedHintText, margin: "6px 0 0", color: catalogColors.error }}
+                        data-testid="developer-site-virtual-build-link-report-hint"
+                      >
+                        {DEV_MSG.SITE_VIRT_BUILD_LINK_REPORT_HINT}
+                      </p>
+                      {buildSummary.linkProblems.length > 0 ? (
+                        <details
+                          data-testid="developer-site-virtual-build-link-details"
+                          style={{ marginTop: "8px" }}
+                        >
+                          <summary
+                            data-testid="developer-site-virtual-build-link-toggle"
+                            style={{ cursor: "pointer" }}
+                          >
+                            {DEV_MSG.SITE_VIRT_BUILD_LINK_DETAILS}
+                          </summary>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "12px",
+                              alignItems: "center",
+                              marginTop: "8px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              data-testid="developer-site-virtual-build-link-copy"
+                              style={secondaryButton}
+                              onClick={() =>
+                                void onCopyLinkProblems(buildSummary.linkProblems)
+                              }
+                            >
+                              {DEV_MSG.SITE_VIRT_BUILD_LINK_COPY}
+                            </button>
+                            {linkCopyNotice ? (
+                              <span data-testid="developer-site-virtual-build-link-copied">
+                                {linkCopyNotice}
+                              </span>
+                            ) : null}
+                          </div>
+                          <ul
+                            data-testid="developer-site-virtual-build-link-list"
+                            style={{
+                              ...buildResultMono,
+                              margin: "8px 0 0",
+                              paddingLeft: "1.25rem",
+                              maxHeight: "16rem",
+                              overflow: "auto",
+                            }}
+                          >
+                            {buildSummary.linkProblems.map((line, index) => (
+                              <li
+                                key={`${index}:${line}`}
+                                data-testid="developer-site-virtual-build-link-line"
+                              >
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>

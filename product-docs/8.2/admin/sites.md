@@ -127,8 +127,12 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
 5. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
-   - **Link problems** — reported in the result panel when internal links fail
-     (the build may still complete with HTTP 200).
+   - **Link problems** — a count appears when internal `id:` or relative links fail.
+     Expand **Show link problem details** to read the same lines written to
+     `link-report.txt` in the output directory. **Copy link problems** puts those
+     lines on the clipboard. The build still completes with HTTP 200
+     (`hasLinkProblems=true`); this is not a 500 and is not a failed save.
+     A clean build does **not** show a link-problem banner.
    - **Error** — clear message when the Site is not virtual, the root is missing/invalid,
      or the caller lacks Admin (for example 400/403 from REST).
 

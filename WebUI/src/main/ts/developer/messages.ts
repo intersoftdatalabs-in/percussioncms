@@ -774,6 +774,11 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_BUILD_PAGES: "perc.ui.developer@Pages written",
   SITE_VIRT_BUILD_OUTPUT: "perc.ui.developer@Output path",
   SITE_VIRT_BUILD_LINK_PROBLEMS: "perc.ui.developer@Link problems",
+  SITE_VIRT_BUILD_LINK_DETAILS: "perc.ui.developer@Show link problem details",
+  SITE_VIRT_BUILD_LINK_COPY: "perc.ui.developer@Copy link problems",
+  SITE_VIRT_BUILD_LINK_COPIED: "perc.ui.developer@Copied.",
+  SITE_VIRT_BUILD_LINK_REPORT_HINT:
+    "perc.ui.developer@Same lines as link-report.txt under the output directory. Link problems do not fail the build (HTTP 200).",
   SITE_VIRT_BUILD_SAVE_FIRST:
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",

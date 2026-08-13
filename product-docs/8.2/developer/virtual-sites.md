@@ -128,6 +128,12 @@ The body is optional. Without `outputRoot`, the server writes under
 `pagesWritten`, link problems, and the absolute `outputPath`. Traditional repository Sites and
 invalid/missing virtual configuration return **400**.
 
+A successful assemble with unresolved internal links still returns **HTTP 200** with
+`hasLinkProblems=true` and a `linkProblems` array (the same lines as `link-report.txt` under
+the output root). The Sites UI lists those lines in an expandable **Link problems** block so
+operators do not have to open the report file on the server. Do not treat that 200 as a
+server error.
+
 Operators can run the same operation from **Developer → Sites → Site detail → Build Virtual Site**
 (visible only when source kind is Virtual). Save Virtual Site source before building so the server
 uses the latest properties. See [Sites & content structure](id:admin-sites) and
