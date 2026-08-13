@@ -18,10 +18,12 @@
 import { describe, expect, it } from "vitest";
 import {
   applyTitleToProperties,
+  buildCreateSectionFromFolderBody,
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
   buildSiblingReorderMove,
   buildUpdateSiteSectionBody,
+  canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
   canMoveNavNodeDown,
@@ -32,8 +34,11 @@ import {
   isSectionLinkType,
   parseSiteSectionPropertiesPayload,
   resolveCreateParentFolderPath,
+  splitCmsPagePath,
+  validateLandingPageName,
   validateSectionFolderName,
   validateSectionTitle,
+  validateSourceFolderPath,
 } from "../../../../main/ts/api/architecture/sectionMutations";
 import type { NavTreeNode } from "../../../../main/ts/api/architecture/types";
 
@@ -94,6 +99,33 @@ describe("sectionMutations (#3096)", () => {
     expect(canMoveNavNodeDown(sampleTree, "a")).toBe(true);
   });
 
+  it("gates convert-to-folder to regular non-root navons (#3302)", () => {
+    expect(canConvertSectionToFolder(sampleTree, sampleTree)).toBe(false);
+    expect(
+      canConvertSectionToFolder(sampleTree, findNavNodeById(sampleTree, "a")),
+    ).toBe(true);
+    expect(
+      canConvertSectionToFolder(sampleTree, findNavNodeById(sampleTree, "c")),
+    ).toBe(false);
+    expect(canConvertSectionToFolder(null, findNavNodeById(sampleTree, "a"))).toBe(
+      false,
+    );
+  });
+
+  it("validates create-from-folder fields and splits page paths (#3302)", () => {
+    expect(validateSourceFolderPath("")).toMatch(/required/i);
+    expect(validateSourceFolderPath("  //Sites/Demo/F  ")).toBeNull();
+    expect(validateLandingPageName("")).toMatch(/required/i);
+    expect(validateLandingPageName("index.html")).toBeNull();
+    expect(validateLandingPageName("a/b")).toMatch(/file name/i);
+    const split = splitCmsPagePath("/Sites/Demo/Folder/index.html");
+    expect(split).toEqual({
+      folderPath: "//Sites/Demo/Folder",
+      pageName: "index.html",
+    });
+    expect(splitCmsPagePath("   ")).toBeNull();
+  });
+
   it("builds create / update / move Jackson bodies", () => {
     const create = buildCreateSiteSectionBody({
       pageTitle: " Products ",
@@ -122,6 +154,21 @@ describe("sectionMutations (#3096)", () => {
       sourceParentId: "root",
     });
     expect(move.MoveSiteSection.targetIndex).toBe(2);
+
+    const fromFolder = buildCreateSectionFromFolderBody({
+      sourceFolderPath: "/Sites/Demo/Folder",
+      pageName: " index.html ",
+      parentFolderPath: "/Sites/Demo",
+    });
+    expect(fromFolder.CreateSectionFromFolderRequest.sourceFolderPath).toBe(
+      "//Sites/Demo/Folder",
+    );
+    expect(fromFolder.CreateSectionFromFolderRequest.pageName).toBe(
+      "index.html",
+    );
+    expect(fromFolder.PSCreateSectionFromFolderRequest.parentFolderPath).toBe(
+      "//Sites/Demo",
+    );
   });
 
   it("builds sibling reorder moves", () => {

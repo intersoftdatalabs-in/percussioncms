@@ -77,7 +77,7 @@ The navigation tree follows the ARIA tree pattern:
 | **Home / End** | Jump to the first or last visible node. |
 | **Enter / Space** | Select the focused section (and toggle expand on branches). |
 
-Structure dialogs (create, rename, landing page, section link, external link, the
+Structure dialogs (create, create from folder, rename, landing page, section link, external link, the
 section picker, and **New Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
 closes the open dialog when a mutation is not in progress. Closing **New Site**
 returns keyboard focus to the **New Site** button. Primary structure actions live in a toolbar
@@ -94,15 +94,17 @@ With a site selected, use the structure action bar above the tree:
 | Action | Behavior |
 |--------|----------|
 | **Create section** | Opens a dialog to add a regular section (title, URL name, template) under the selected section, or under the site root when nothing is selected. Requires a site template. |
+| **Create section from folder** | Promotes an existing site folder to a section under the selected parent (or site root). Choose the folder and a landing page that already exists in that folder. The server creates a navon and attaches the folder. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
 | **Landing page** | Opens the content page picker so you can assign a different landing page to the selected regular section. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent. |
+| **Convert to folder** | After confirmation, removes the selected regular (non-root) section and its sub-sections from Navigation. The folder and its pages stay in the site. |
 | **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
 
-Server errors from create, rename, move, delete, landing-page, or link mutations are
+Server errors from create, convert, create-from-folder, rename, move, delete, landing-page, or link mutations are
 shown in the panel (no silent failure). The tree reloads after a successful mutation.
 
 ### Blog sections
@@ -113,7 +115,7 @@ visible but limited in this surface.
 
 ### Still later
 
-Convert folder to section, full section security / ACL preferences, and
+Full section security / ACL preferences, blog type editor, and
 retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 
 ## Current status (migration)
@@ -126,6 +128,7 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | New Site (Explorer create-site wizard) | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
+| Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |

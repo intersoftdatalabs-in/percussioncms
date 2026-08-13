@@ -46,7 +46,7 @@ const KEYS = {
     "perc.ui.architecture.modern@A site can exist without a NavTree. Add a navigation tree at the site root in Explorer, then refresh, or choose another site.",
   TREE_PANEL_TITLE: "perc.ui.architecture.modern@Navigation tree",
   TREE_STRUCTURE_NOTE:
-    "perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.",
+    "perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.",
   REFRESH: "perc.ui.architecture.modern@Refresh",
   ACTION_NEW_SITE: "perc.ui.architecture.modern@New Site",
   NEW_SITE_CLOSE: "perc.ui.architecture.modern@Close",
@@ -60,6 +60,9 @@ const KEYS = {
   // Structure actions (#3096 / #3097)
   ACTIONS_LABEL: "perc.ui.architecture.modern@Structure actions",
   ACTION_CREATE: "perc.ui.architecture.modern@Create section",
+  ACTION_CREATE_FROM_FOLDER:
+    "perc.ui.architecture.modern@Create section from folder",
+  ACTION_CONVERT_TO_FOLDER: "perc.ui.architecture.modern@Convert to folder",
   ACTION_CREATE_SECTION_LINK: "perc.ui.architecture.modern@Create section link",
   ACTION_CREATE_EXTERNAL_LINK:
     "perc.ui.architecture.modern@Create external link",
@@ -93,6 +96,43 @@ const KEYS = {
     "perc.ui.architecture.modern@The site root section cannot be deleted.",
   CREATE_PARENT_BLOCKED:
     "perc.ui.architecture.modern@Select a regular section (not a section or external link) as the parent.",
+  CONVERT_CONFIRM:
+    "perc.ui.architecture.modern@Convert section \"{0}\" to a folder? The section and all sub-sections will be removed from Navigation. Folder content stays in the site.",
+  CONVERT_BLOCKED:
+    "perc.ui.architecture.modern@Convert to folder is only available for a regular non-root section.",
+  CONVERT_ROOT_BLOCKED:
+    "perc.ui.architecture.modern@The site root section cannot be converted to a folder.",
+  CREATE_FROM_FOLDER_DIALOG_TITLE:
+    "perc.ui.architecture.modern@Create section from folder",
+  CREATE_FROM_FOLDER_HINT:
+    "perc.ui.architecture.modern@Choose an existing site folder and a landing page in that folder. A navon is created and the folder is attached under the selected parent section.",
+  CREATE_FROM_FOLDER_FOLDER_LABEL:
+    "perc.ui.architecture.modern@Source folder path",
+  CREATE_FROM_FOLDER_PAGE_LABEL:
+    "perc.ui.architecture.modern@Landing page name",
+  CREATE_FROM_FOLDER_BROWSE_FOLDER:
+    "perc.ui.architecture.modern@Browse folder…",
+  CREATE_FROM_FOLDER_BROWSE_PAGE:
+    "perc.ui.architecture.modern@Browse landing page…",
+  CREATE_FROM_FOLDER_PICKER_FOLDER:
+    "perc.ui.architecture.modern@Select folder",
+  CREATE_FROM_FOLDER_PICKER_PAGE:
+    "perc.ui.architecture.modern@Select landing page in folder",
+  CREATE_FROM_FOLDER_NO_FOLDER:
+    "perc.ui.architecture.modern@Select a folder before creating the section.",
+  CREATE_FROM_FOLDER_NO_PAGE:
+    "perc.ui.architecture.modern@Select a landing page before creating the section.",
+  CREATE_FROM_FOLDER_SUBMIT:
+    "perc.ui.architecture.modern@Create section from folder",
+  CREATE_FROM_FOLDER_CANCEL: "perc.ui.architecture.modern@Cancel",
+  VALIDATION_FOLDER_PATH_REQUIRED:
+    "perc.ui.architecture.modern@Folder path is required",
+  VALIDATION_PAGE_NAME_REQUIRED:
+    "perc.ui.architecture.modern@Landing page name is required",
+  VALIDATION_PAGE_NAME_TOO_LONG:
+    "perc.ui.architecture.modern@Landing page name is too long (max 255 characters)",
+  VALIDATION_PAGE_NAME_PATH:
+    "perc.ui.architecture.modern@Landing page name must be a file name, not a path",
   // Landing page (#3097)
   LANDING_DIALOG_TITLE: "perc.ui.architecture.modern@Replace landing page",
   LANDING_SECTION_LABEL: "perc.ui.architecture.modern@Section",
@@ -200,6 +240,8 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   EMPTY_BODY: message(KEYS.EMPTY_BODY),
   ACTIONS_LABEL: message(KEYS.ACTIONS_LABEL),
   ACTION_CREATE: message(KEYS.ACTION_CREATE),
+  ACTION_CREATE_FROM_FOLDER: message(KEYS.ACTION_CREATE_FROM_FOLDER),
+  ACTION_CONVERT_TO_FOLDER: message(KEYS.ACTION_CONVERT_TO_FOLDER),
   ACTION_CREATE_SECTION_LINK: message(KEYS.ACTION_CREATE_SECTION_LINK),
   ACTION_CREATE_EXTERNAL_LINK: message(KEYS.ACTION_CREATE_EXTERNAL_LINK),
   ACTION_LANDING: message(KEYS.ACTION_LANDING),
@@ -227,6 +269,35 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   DELETE_CONFIRM: message(KEYS.DELETE_CONFIRM),
   DELETE_ROOT_BLOCKED: message(KEYS.DELETE_ROOT_BLOCKED),
   CREATE_PARENT_BLOCKED: message(KEYS.CREATE_PARENT_BLOCKED),
+  CONVERT_CONFIRM: message(KEYS.CONVERT_CONFIRM),
+  CONVERT_BLOCKED: message(KEYS.CONVERT_BLOCKED),
+  CONVERT_ROOT_BLOCKED: message(KEYS.CONVERT_ROOT_BLOCKED),
+  CREATE_FROM_FOLDER_DIALOG_TITLE: message(
+    KEYS.CREATE_FROM_FOLDER_DIALOG_TITLE,
+  ),
+  CREATE_FROM_FOLDER_HINT: message(KEYS.CREATE_FROM_FOLDER_HINT),
+  CREATE_FROM_FOLDER_FOLDER_LABEL: message(
+    KEYS.CREATE_FROM_FOLDER_FOLDER_LABEL,
+  ),
+  CREATE_FROM_FOLDER_PAGE_LABEL: message(KEYS.CREATE_FROM_FOLDER_PAGE_LABEL),
+  CREATE_FROM_FOLDER_BROWSE_FOLDER: message(
+    KEYS.CREATE_FROM_FOLDER_BROWSE_FOLDER,
+  ),
+  CREATE_FROM_FOLDER_BROWSE_PAGE: message(KEYS.CREATE_FROM_FOLDER_BROWSE_PAGE),
+  CREATE_FROM_FOLDER_PICKER_FOLDER: message(
+    KEYS.CREATE_FROM_FOLDER_PICKER_FOLDER,
+  ),
+  CREATE_FROM_FOLDER_PICKER_PAGE: message(KEYS.CREATE_FROM_FOLDER_PICKER_PAGE),
+  CREATE_FROM_FOLDER_NO_FOLDER: message(KEYS.CREATE_FROM_FOLDER_NO_FOLDER),
+  CREATE_FROM_FOLDER_NO_PAGE: message(KEYS.CREATE_FROM_FOLDER_NO_PAGE),
+  CREATE_FROM_FOLDER_SUBMIT: message(KEYS.CREATE_FROM_FOLDER_SUBMIT),
+  CREATE_FROM_FOLDER_CANCEL: message(KEYS.CREATE_FROM_FOLDER_CANCEL),
+  VALIDATION_FOLDER_PATH_REQUIRED: message(
+    KEYS.VALIDATION_FOLDER_PATH_REQUIRED,
+  ),
+  VALIDATION_PAGE_NAME_REQUIRED: message(KEYS.VALIDATION_PAGE_NAME_REQUIRED),
+  VALIDATION_PAGE_NAME_TOO_LONG: message(KEYS.VALIDATION_PAGE_NAME_TOO_LONG),
+  VALIDATION_PAGE_NAME_PATH: message(KEYS.VALIDATION_PAGE_NAME_PATH),
   LANDING_DIALOG_TITLE: message(KEYS.LANDING_DIALOG_TITLE),
   LANDING_SECTION_LABEL: message(KEYS.LANDING_SECTION_LABEL),
   LANDING_HINT: message(KEYS.LANDING_HINT),

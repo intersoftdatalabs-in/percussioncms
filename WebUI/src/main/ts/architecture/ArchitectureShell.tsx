@@ -24,7 +24,9 @@ import React, {
 } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import {
+  convertSectionToFolder,
   createExternalLinkSection,
+  createSectionFromFolder,
   createSectionLink,
   createSiteSection,
   deleteSectionLink,
@@ -41,6 +43,7 @@ import {
 import {
   applyTitleToProperties,
   buildSiblingReorderMove,
+  canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
   canEditLinkNode,
@@ -58,6 +61,7 @@ import { fetchSites } from "../api/home/homeApi";
 import { SiteCreateWizard } from "../contentExplorer/wizards/SiteCreateWizard";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
+import { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
@@ -134,6 +138,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [mutationBusy, setMutationBusy] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createFromFolderOpen, setCreateFromFolderOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [landingOpen, setLandingOpen] = useState(false);
   const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
@@ -332,6 +337,9 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   }, [selectedNode, treeRoot]);
 
   const canCreate = !!selectedSite && !!createParent && !mutationBusy;
+  const canCreateFromFolder = canCreate;
+  const canConvertToFolder =
+    canConvertSectionToFolder(treeRoot, selectedNode) && !mutationBusy;
   const canCreateSectionLink = canCreate;
   const canCreateExternalLink = canCreate;
   const canLanding =
@@ -423,6 +431,46 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       });
     },
     [selectedNodeId, treeRoot, runMutation],
+  );
+
+  const onConvertToFolder = useCallback(() => {
+    if (!selectedNode || !treeRoot) return;
+    if (!canConvertSectionToFolder(treeRoot, selectedNode)) {
+      setMutationError(
+        selectedNode.id === treeRoot.id
+          ? ARCH_MSG.CONVERT_ROOT_BLOCKED
+          : ARCH_MSG.CONVERT_BLOCKED,
+      );
+      return;
+    }
+    const msg = ARCH_MSG.CONVERT_CONFIRM.split("{0}").join(selectedNode.title);
+    if (!confirmAction(msg)) {
+      return;
+    }
+    const nodeId = selectedNode.id;
+    void runMutation(async () => {
+      await convertSectionToFolder(nodeId);
+      setSelectedNodeId(null);
+    });
+  }, [selectedNode, treeRoot, confirmAction, runMutation]);
+
+  const onCreateFromFolderSubmit = useCallback(
+    (input: { sourceFolderPath: string; pageName: string }) => {
+      if (!selectedSite || !createParent) return;
+      const parentFolderPath = resolveCreateParentFolderPath(
+        createParent,
+        selectedSite,
+      );
+      void runMutation(async () => {
+        await createSectionFromFolder({
+          sourceFolderPath: input.sourceFolderPath,
+          pageName: input.pageName,
+          parentFolderPath,
+        });
+        setCreateFromFolderOpen(false);
+      });
+    },
+    [selectedSite, createParent, runMutation],
   );
 
   const onDelete = useCallback(() => {
@@ -895,6 +943,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           <StructureActionBar
             busy={mutationBusy}
             canCreate={canCreate}
+            canCreateFromFolder={canCreateFromFolder}
+            canConvertToFolder={canConvertToFolder}
             canCreateSectionLink={canCreateSectionLink}
             canCreateExternalLink={canCreateExternalLink}
             canLanding={canLanding}
@@ -911,6 +961,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               }
               setCreateOpen(true);
             }}
+            onCreateFromFolder={() => {
+              setMutationError(null);
+              if (!createParent) {
+                setMutationError(ARCH_MSG.CREATE_PARENT_BLOCKED);
+                return;
+              }
+              setCreateFromFolderOpen(true);
+            }}
+            onConvertToFolder={onConvertToFolder}
             onCreateSectionLink={() => {
               setMutationError(null);
               if (!createParent) {
@@ -1003,6 +1062,17 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           if (!mutationBusy) setCreateOpen(false);
         }}
         onSubmit={onCreateSubmit}
+      />
+      <CreateSectionFromFolderDialog
+        open={createFromFolderOpen}
+        siteName={selectedSite ?? ""}
+        parentTitle={createParent?.title ?? ""}
+        busy={mutationBusy}
+        useContentBrowser={useLandingContentBrowser}
+        onCancel={() => {
+          if (!mutationBusy) setCreateFromFolderOpen(false);
+        }}
+        onSubmit={onCreateFromFolderSubmit}
       />
       <RenameSectionDialog
         open={renameOpen}
