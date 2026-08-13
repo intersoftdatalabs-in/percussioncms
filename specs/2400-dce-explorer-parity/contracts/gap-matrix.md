@@ -1,7 +1,7 @@
 # Gap matrix: Desktop Content Explorer → SPA Explorer
 
 **Parent:** #2400  
-**Evidence date:** 2026-08-11 (Views + Inbox **Missing** #3108; false-Present→Partial reconcile #3109 / parent [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102); prior closeout #2794 / #2827 / #2828 / #2829 on 2026-08-10)  
+**Evidence date:** 2026-08-12 (Inbox row still **Missing** — execute + leaf not both on product route; docs/Playwright #3241; Views + Inbox **Missing** #3108; false-Present→Partial reconcile #3109 / parent [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102); prior closeout #2794 / #2827 / #2828 / #2829 on 2026-08-10)  
 **Rule:** Status reflects **product route** (`ExplorerRoute` → `ContentExplorerShell`), not isolated components in the registry. Silent omission is not allowed — unplanned capabilities must be **Missing**, **Partial**, **Present**, or signed **OUT**.  
 **QA gate:** **Present** requires closed human QA (or an explicit defend note). Open **Failed** / open QA on a row → keep **Partial** until pass. Agent merge alone is insufficient (#3102 / #3109).
 
@@ -22,7 +22,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Display formats for columns | Display format catalog | `GET /rest/displayformats?validForFolder=true` + shell selector + `displayProperties` | **Partial** (merged; human QA Failed under shell) | #2407 · [PR #2412](https://github.com/intersoftdatalabs-in/percussioncms/pull/2412) · QA [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** |
 | View options / refresh | View menu | `ExplorerMenuBar` View → Refresh + panel toggles + display format; always-visible refresh residual | **Partial** (merged; human QA open) | #2731 · #2733 · [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2741](https://github.com/intersoftdatalabs-in/percussioncms/issues/2741) · [#2745](https://github.com/intersoftdatalabs-in/percussioncms/issues/2745) |
 | **Views (DCE navigation category)** | DCE system category **Views** (`ContentExplorer.xml` → `sys_cxSupport/Views.html`; My / Community / … view categories 1–4) | **Not on product Explorer route.** Matrix already covers **View menu chrome** + **display formats** + **saved searches** — those are **not** the design **Views catalog tree**. Developer Views (UI-07 / `#1690`) may catalog Views outside CE; that is **not** DCE navigation parity. No product IN/OUT sign-off yet — treat as unplanned **Missing**, not silent omission and **not** invented **OUT**. | **Missing** | Operator symptoms [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · matrix docs [#3108](https://github.com/intersoftdatalabs-in/percussioncms/issues/3108) · implement backlog map [#3110](https://github.com/intersoftdatalabs-in/percussioncms/issues/3110) · research [views-inbox-missing-disposition.md](../research/views-inbox-missing-disposition.md) |
-| **Inbox** | DCE Inbox (operator inbox / assignment surface in CE navigation) | **No operator-visible Inbox equivalent** on SPA Explorer product route. Not previously listed on this matrix. No product IN / OUT / REDESIGN sign-off — disposition required before implement or signed OUT. | **Missing** | Operator symptoms [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · matrix docs [#3108](https://github.com/intersoftdatalabs-in/percussioncms/issues/3108) · implement backlog map [#3110](https://github.com/intersoftdatalabs-in/percussioncms/issues/3110) · research [views-inbox-missing-disposition.md](../research/views-inbox-missing-disposition.md) |
+| **Inbox** | DCE Inbox (operator inbox / assignment surface in CE navigation). **IA:** system custom view at `//Views//MyContent/Inbox` (`sys_cxViews/inbox`) — **not** a CE root. | Product **IN** (#3118). Operator docs describe **Views → My Content → Inbox**. Custom-URL execute C1 ([#3239](https://github.com/intersoftdatalabs-in/percussioncms/issues/3239) / [PR #3245](https://github.com/intersoftdatalabs-in/percussioncms/pull/3245)) and Explorer leaf ([#3240](https://github.com/intersoftdatalabs-in/percussioncms/issues/3240)) are **not both on the product route** yet — do **not** mark **Partial** until execute **and** leaf exist on `ContentExplorerShell`. Never **Present** without closed human QA. Playwright `explorer-inbox.spec.js` (#3241) soft-skips when the leaf/assignments are missing. | **Missing** | Operator symptoms [#3102](https://github.com/intersoftdatalabs-in/percussioncms/issues/3102) · matrix docs [#3108](https://github.com/intersoftdatalabs-in/percussioncms/issues/3108) · implement [#3118](https://github.com/intersoftdatalabs-in/percussioncms/issues/3118) / C1 [#3239](https://github.com/intersoftdatalabs-in/percussioncms/issues/3239) / leaf [#3240](https://github.com/intersoftdatalabs-in/percussioncms/issues/3240) / docs+PW [#3241](https://github.com/intersoftdatalabs-in/percussioncms/issues/3241) · research [views-inbox-ia-api-map.md](../research/views-inbox-ia-api-map.md) |
 
 ## Search
 
@@ -64,6 +64,19 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Content-locale session context (path APIs re-issued under content locale) | **OUT** signed #2829 — per-item locale + create-variant sufficient; session model is redesign. Same OUT note. |
 
 ## Implementation notes
+
+### 2026-08-12 Inbox docs + Playwright (#3241 / #3118) — still Missing
+
+**Rule:** Inbox may move **Missing → Partial** only when **both** custom-URL execute (C1) **and** the Explorer **Views → My Content → Inbox** leaf are on the product route. **Never Present** from agent merge or docs/Playwright alone (#3102 / #3109 QA gate).
+
+| Evidence (2026-08-12) | On `main` product route? |
+|-----------------------|--------------------------|
+| Operator docs (this slice) | Yes — `product-docs/8.2/admin/content-explorer.md` + REST Inbox-family notes |
+| C1 `POST /services/views/{idOrName}/execute` Inbox family | In-flight [#3239](https://github.com/intersoftdatalabs-in/percussioncms/issues/3239) / [PR #3245](https://github.com/intersoftdatalabs-in/percussioncms/pull/3245) — **not** both merged with leaf |
+| Explorer Inbox leaf | Open [#3240](https://github.com/intersoftdatalabs-in/percussioncms/issues/3240) |
+| Surface Playwright | `modules/perc-qa-automation/frontend/tests/explorer-inbox.spec.js` — soft-skip when leaf or assignments missing |
+
+**Status stays Missing** until execute + leaf exist together. After that merge, flip this row to **Partial** (not Present) and keep human QA open.
 
 ### 2026-08-11 Views + Inbox Missing rows (#3108 / #3102)
 

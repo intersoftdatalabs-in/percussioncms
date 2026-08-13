@@ -542,6 +542,42 @@ export interface ViewDef {
   designGaps?: string[];
 }
 
+/**
+ * Optional overrides for {@code POST /services/views/{idOrName}/execute}.
+ * Mirrors {@code com.percussion.rest.views.ViewExecuteRequest} (V1 / #3115).
+ */
+export interface ViewExecuteRequest {
+  folderPath?: string;
+  startIndex?: number;
+  maxResults?: number;
+  sortColumn?: string;
+  sortOrder?: string;
+}
+
+/**
+ * One result row from design-view execute.
+ * Mirrors {@code com.percussion.rest.views.ViewResultItem}.
+ */
+export interface ViewResultItem {
+  id?: string;
+  name?: string;
+  title?: string;
+  folderPath?: string;
+  type?: string;
+}
+
+/**
+ * Paged result envelope for design-view execute.
+ * Mirrors {@code com.percussion.rest.views.ViewExecuteResult}.
+ */
+export interface ViewExecuteResult {
+  children?: ViewResultItem[];
+  totalCount?: number;
+  startIndex?: number;
+  viewName?: string;
+  displayFormatId?: string;
+}
+
 /** Server extension from GET /services/extensions/catalog. */
 export interface ExtensionDef {
   handlerName?: string;

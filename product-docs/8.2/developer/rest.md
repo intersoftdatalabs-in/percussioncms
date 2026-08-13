@@ -144,6 +144,10 @@ Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) a
 `/services/views` (public servlet path `/rest/views`). This is a **separate catalog** from saved
 **searches** (`/services/searches`). Do not execute a view through the search execute endpoint.
 
+Operators open Inbox from Explorer **Views → My Content → Inbox** (see
+[Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
+with the execute call below.
+
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL) |
@@ -203,7 +207,8 @@ display format, max results, and case sensitivity stored on the view design.
 
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
 - Create / update / delete of view designs is not supported on this API (`designGaps` on detail).
-- The Developer SPA lists views via `GET`; Explorer run-from-tree is a later product slice.
+- The Developer SPA lists views via `GET`. Operator Inbox run-from-tree is Explorer
+  **Views → My Content → Inbox**, not a free-floating Inbox root.
 
 ## Design capability gaps (`designGaps`)
 

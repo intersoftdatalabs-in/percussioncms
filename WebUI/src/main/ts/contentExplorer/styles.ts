@@ -79,6 +79,23 @@ export const treeStyle: CSSProperties = {
   background: "#fafafa",
 };
 
+/** Left nav column: folder tree + Views catalog (#3116). */
+export const navColumnStyle: CSSProperties = {
+  gridArea: "tree",
+  display: "flex",
+  flexDirection: "column",
+  minHeight: 200,
+  overflow: "auto",
+  background: "#fafafa",
+};
+
+/** Views catalog tree below the folder tree (no second grid-area). */
+export const viewsTreeStyle: CSSProperties = {
+  borderTop: "1px solid #ddd",
+  padding: "8px 0",
+  flex: "0 0 auto",
+};
+
 export const listStyle: CSSProperties = {
   gridArea: "list",
   overflow: "auto",
@@ -100,6 +117,20 @@ export const nodeRowStyle = (
   borderLeft: selected ? "3px solid #1a73e8" : "3px solid transparent",
   fontSize: "0.9rem",
 });
+
+/** DCE-style Inbox glyph next to the My Content Inbox leaf (#3240). */
+export const inboxIconStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 14,
+  height: 14,
+  flex: "0 0 14px",
+  fontSize: 11,
+  lineHeight: "14px",
+  color: "#1a73e8",
+  userSelect: "none",
+};
 
 export const toggleStyle: CSSProperties = {
   display: "inline-block",
