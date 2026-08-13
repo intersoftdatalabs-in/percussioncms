@@ -79,6 +79,7 @@ import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
 import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
+import { canPostReplaceLandingPage } from "./landingPagePicker";
 import { ARCH_MSG } from "./messages";
 import { useDialogEscape } from "./useDialogEscape";
 
@@ -121,7 +122,8 @@ type TreeLoadState =
 
 /**
  * Architecture / Navigation SPA shell
- * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links).
+ * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links
+ * + #3304 landing picker/replace).
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
@@ -144,6 +146,13 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   });
   const [treeState, setTreeState] = useState<TreeLoadState>({ status: "idle" });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const selectedNodeIdRef = useRef<string | null>(null);
+  selectedNodeIdRef.current = selectedNodeId;
+  const [landingStatus, setLandingStatus] = useState<{
+    sectionId: string;
+    pageId: string;
+    pageName: string;
+  } | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
   const [mutationBusy, setMutationBusy] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
@@ -312,22 +321,30 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     };
   }, [applySiteNames, loadSiteNames]);
 
+  // Drop selection when the site changes (not on every tree refresh).
+  useEffect(() => {
+    setSelectedNodeId(null);
+    setLandingStatus(null);
+  }, [selectedSite]);
+
   // Load tree when site or refresh changes
   useEffect(() => {
     if (!selectedSite) {
       setTreeState({ status: "idle" });
-      setSelectedNodeId(null);
       return;
     }
     let cancelled = false;
     setTreeState({ status: "loading" });
-    setSelectedNodeId(null);
     setMutationError(null);
     void (async () => {
       try {
         const root = await loadSectionTree(selectedSite);
         if (cancelled) return;
         setTreeState({ status: "ready", root });
+        const keep = selectedNodeIdRef.current;
+        if (keep && root && !findNavNodeById(root, keep)) {
+          setSelectedNodeId(null);
+        }
       } catch (err) {
         if (cancelled) return;
         if (isSessionRedirectError(err)) return;
@@ -451,6 +468,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     async (work: () => Promise<void>) => {
       setMutationBusy(true);
       setMutationError(null);
+      setLandingStatus(null);
       try {
         await work();
         setRefreshToken((n) => n + 1);
@@ -680,10 +698,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const onLandingSubmit = useCallback(
     (newLandingPageId: string) => {
       if (!selectedNode) return;
+      const pageId = newLandingPageId.trim();
+      if (!canPostReplaceLandingPage(selectedNode.id, pageId)) {
+        setMutationError(ARCH_MSG.LANDING_NO_PAGE);
+        return;
+      }
       void runMutation(async () => {
-        await replaceLandingPage({
+        const result = await replaceLandingPage({
           sectionId: selectedNode.id,
-          newLandingPageId,
+          newLandingPageId: pageId,
+        });
+        setLandingStatus({
+          sectionId: result.sectionId || selectedNode.id,
+          pageId: result.newLandingPageId || pageId,
+          pageName: result.newLandingPageName || pageId,
         });
         setLandingOpen(false);
       });
@@ -1301,6 +1329,20 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               data-testid="architecture-select-hint"
             >
               {ARCH_MSG.SELECT_HINT}
+            </p>
+          ) : landingStatus &&
+            landingStatus.sectionId === selectedNodeId ? (
+            <p
+              style={{
+                margin: "0 0 8px",
+                color: catalogColors.muted,
+                fontSize: "0.85rem",
+              }}
+              data-testid="architecture-landing-current"
+            >
+              {ARCH_MSG.LANDING_ASSIGNED.split("{0}").join(
+                landingStatus.pageName,
+              )}
             </p>
           ) : null}
 

@@ -40,6 +40,17 @@ export type {
 } from "./ExternalLinkDialog";
 export { SectionTreePickerDialog } from "./SectionTreePickerDialog";
 export type { SectionTreePickerDialogProps } from "./SectionTreePickerDialog";
+export {
+  canPostReplaceLandingPage,
+  LANDING_PAGE_ALLOWED_TYPES,
+  resolveLandingPagePick,
+} from "./landingPagePicker";
+export type {
+  LandingPagePick,
+  LandingPagePickError,
+  LandingPagePickItem,
+  LandingPageSelection,
+} from "./landingPagePicker";
 export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 export type { ArchitectureMsgKey } from "./messages";
 export {

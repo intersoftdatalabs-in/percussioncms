@@ -50,8 +50,14 @@ describe("sectionApi landing & links (#3097)", () => {
   });
 
   it("replaceLandingPage posts ReplaceLandingPage body", async () => {
-    const postSpy = vi.spyOn(client, "post").mockResolvedValue({ ok: true });
-    await replaceLandingPage({
+    const postSpy = vi.spyOn(client, "post").mockResolvedValue({
+      ReplaceLandingPage: {
+        sectionId: "sec-1",
+        newLandingPageId: "page-2",
+        newLandingPageName: "About",
+      },
+    });
+    const result = await replaceLandingPage({
       sectionId: "sec-1",
       newLandingPageId: "page-2",
     });
@@ -64,6 +70,15 @@ describe("sectionApi landing & links (#3097)", () => {
         },
       }),
     );
+    expect(result.newLandingPageName).toBe("About");
+  });
+
+  it("replaceLandingPage does not POST when page id is empty (#3304)", async () => {
+    const postSpy = vi.spyOn(client, "post").mockResolvedValue({});
+    await expect(
+      replaceLandingPage({ sectionId: "sec-1", newLandingPageId: "  " }),
+    ).rejects.toThrow(/landing page id/i);
+    expect(postSpy).not.toHaveBeenCalled();
   });
 
   it("createSectionLink uses GET mutation", async () => {

@@ -32,6 +32,7 @@ import type {
   MoveSiteSectionFields,
   NavTreeNode,
   ReplaceLandingPageFields,
+  ReplaceLandingPageResult,
   SiblingPlacement,
   SiteSectionPropertiesWire,
   SiteSectionWire,
@@ -525,6 +526,50 @@ export function buildReplaceLandingPageBody(
       sectionId: fields.sectionId.trim(),
       newLandingPageId: fields.newLandingPageId.trim(),
     },
+  };
+}
+
+/**
+ * Unwrap Jackson {@code ReplaceLandingPage} (or a bare object) after POST.
+ */
+export function parseReplaceLandingPagePayload(
+  payload: unknown,
+  fallback: ReplaceLandingPageFields,
+): ReplaceLandingPageResult {
+  const empty: ReplaceLandingPageResult = {
+    sectionId: fallback.sectionId.trim(),
+    newLandingPageId: fallback.newLandingPageId.trim(),
+    newLandingPageName: null,
+    oldLandingPageName: null,
+  };
+  if (payload == null || typeof payload !== "object") {
+    return empty;
+  }
+  const obj = payload as Record<string, unknown>;
+  const wrapped = obj.ReplaceLandingPage ?? obj.replaceLandingPage;
+  const root = wrapped !== undefined ? wrapped : payload;
+  if (root == null || typeof root !== "object" || Array.isArray(root)) {
+    return empty;
+  }
+  const rec = root as Record<string, unknown>;
+  const optionalName = (value: unknown): string | null => {
+    if (value == null) {
+      return null;
+    }
+    const trimmed = String(value).trim();
+    return trimmed ? trimmed : null;
+  };
+  const sectionId =
+    rec.sectionId != null ? String(rec.sectionId).trim() : empty.sectionId;
+  const newLandingPageId =
+    rec.newLandingPageId != null
+      ? String(rec.newLandingPageId).trim()
+      : empty.newLandingPageId;
+  return {
+    sectionId: sectionId || empty.sectionId,
+    newLandingPageId: newLandingPageId || empty.newLandingPageId,
+    newLandingPageName: optionalName(rec.newLandingPageName),
+    oldLandingPageName: optionalName(rec.oldLandingPageName),
   };
 }
 

@@ -143,6 +143,16 @@ export interface ReplaceLandingPageFields {
 }
 
 /**
+ * Parsed {@code ReplaceLandingPage} response after a successful replace.
+ */
+export interface ReplaceLandingPageResult {
+  sectionId: string;
+  newLandingPageId: string;
+  newLandingPageName: string | null;
+  oldLandingPageName: string | null;
+}
+
+/**
  * Wire fields for {@code POST /sitemanage/section/createExternalLinkSection}
  * and update external link ({@code CreateExternalLinkSection}).
  */
