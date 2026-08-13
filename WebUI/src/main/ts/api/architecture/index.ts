@@ -43,6 +43,21 @@ export {
   sectionLoadUrl,
 } from "./sectionApi";
 export {
+  buildSiteCopyRequestBody,
+  copyManagedSite,
+  deleteManagedSite,
+  isSiteBeingImported,
+  isSiteCopyInProgress,
+  loadSiteCopyInfo,
+  normalizeCopyAssetFolder,
+  siteCopyInfoUrl,
+  siteCopyUrl,
+  siteDeleteUrl,
+  siteImportingUrl,
+  suggestCopySiteName,
+} from "./siteAdminApi";
+export type { SiteCopyFields } from "./siteAdminApi";
+export {
   countNavTreeNodes,
   flattenNavTree,
   isNavBranch,

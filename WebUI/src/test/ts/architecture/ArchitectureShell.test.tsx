@@ -677,6 +677,128 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       expect(screen.getByTestId("architecture-sites-empty")).toBeTruthy();
     });
     expect(screen.queryByTestId("architecture-action-new-site")).toBeNull();
+    expect(screen.queryByTestId("architecture-action-copy-site")).toBeNull();
+    expect(screen.queryByTestId("architecture-action-delete-site")).toBeNull();
+  });
+
+  it("opens Copy Site wizard after copysiteinfo is idle (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({ entries: {} });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-copy-site") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-copy-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-copy-site-panel")).toBeTruthy();
+    });
+    expect(screen.getByTestId("site-copy-wizard")).toBeTruthy();
+    expect(
+      (screen.getByTestId("site-copy-source") as HTMLInputElement).value,
+    ).toBe("Demo");
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    expect(
+      (screen.getByTestId("site-copy-target") as HTMLInputElement).value,
+    ).toBe("Demo-copy");
+    fireEvent.click(screen.getByTestId("architecture-copy-site-close"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-copy-site-panel")).toBeNull();
+    });
+  });
+
+  it("blocks Copy Site when a copy is already in progress (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({
+      psmap: { entries: { src: "Other" } },
+    });
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-copy-site")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-copy-site"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-mutation-error").textContent).toMatch(
+        /copy is already in progress/i,
+      );
+    });
+    expect(screen.queryByTestId("architecture-copy-site-panel")).toBeNull();
+  });
+
+  it("confirms Delete Site, calls delete, and refreshes the picker (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    const fetchSites = vi
+      .spyOn(homeApi, "fetchSites")
+      .mockResolvedValue([{ name: "Demo" }, { name: "Keep" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(siteAdmin, "loadSiteCopyInfo").mockResolvedValue({ entries: {} });
+    vi.spyOn(siteAdmin, "isSiteBeingImported").mockResolvedValue(false);
+    const delSpy = vi
+      .spyOn(siteAdmin, "deleteManagedSite")
+      .mockResolvedValue(undefined);
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => true}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId(
+          "architecture-action-delete-site",
+        ) as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    fetchSites.mockResolvedValue([{ name: "Keep" }]);
+    fireEvent.click(screen.getByTestId("architecture-action-delete-site"));
+    await waitFor(() => {
+      expect(delSpy).toHaveBeenCalledWith("Demo");
+    });
+    await waitFor(() => {
+      const picker = screen.getByTestId(
+        "architecture-site-select",
+      ) as HTMLSelectElement;
+      expect(picker.value).toBe("Keep");
+      expect(picker.textContent).not.toMatch(/Demo/);
+    });
+  });
+
+  it("does not delete when the operator cancels confirmation (#3303)", async () => {
+    const siteAdmin = await import(
+      "../../../main/ts/api/architecture/siteAdminApi"
+    );
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const delSpy = vi.spyOn(siteAdmin, "deleteManagedSite");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        confirmFn={() => false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-action-delete-site")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-delete-site"));
+    expect(delSpy).not.toHaveBeenCalled();
   });
 
   it("convert to folder confirms and calls convertSectionToFolder (#3302)", async () => {
