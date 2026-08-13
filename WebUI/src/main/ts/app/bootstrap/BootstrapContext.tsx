@@ -40,15 +40,37 @@ export function BootstrapProvider({
 }
 
 /**
+ * True when {@code useContext} failed because React has no hook dispatcher
+ * (dual-React remount / hook called outside a component). Other errors must
+ * surface so real bugs are not swallowed.
+ */
+export function isBootstrapHookEnvironmentError(err: unknown): boolean {
+  if (!(err instanceof Error)) {
+    return false;
+  }
+  const msg = err.message;
+  return (
+    msg.includes("Invalid hook call") ||
+    /Cannot read propert(?:y|ies) of null \(reading ['"]useContext['"]\)/i.test(
+      msg,
+    )
+  );
+}
+
+/**
  * Read SPA bootstrap without throwing when the provider is absent or React's
  * dispatcher is unset (bridge remount / dual-React). Returns {@code null} in
- * those cases — do not treat as {@link DEFAULT_SPA_BOOTSTRAP}.
+ * those cases — do not treat as {@link DEFAULT_SPA_BOOTSTRAP}. Unexpected
+ * errors from {@code useContext} are rethrown.
  */
 export function useSpaBootstrapOptional(): SpaBootstrap | null {
   try {
     return useContext(BootstrapContext);
-  } catch {
-    return null;
+  } catch (err) {
+    if (isBootstrapHookEnvironmentError(err)) {
+      return null;
+    }
+    throw err;
   }
 }
 

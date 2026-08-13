@@ -20,6 +20,7 @@ import React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   BootstrapProvider,
+  isBootstrapHookEnvironmentError,
   useSpaBootstrap,
   useSpaBootstrapOptional,
 } from "../../../../main/ts/app/bootstrap/BootstrapContext";
@@ -73,5 +74,27 @@ describe("BootstrapContext (#3331)", () => {
     );
     expect(screen.getByTestId("optional").textContent).toBe("Admin");
     expect(screen.getByTestId("required").textContent).toBe("Admin");
+  });
+
+  it("classifies only null-dispatcher / invalid-hook errors as environment", () => {
+    expect(
+      isBootstrapHookEnvironmentError(
+        new Error(
+          "Invalid hook call. Hooks can only be called inside of the body of a function component.",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      isBootstrapHookEnvironmentError(
+        new TypeError("Cannot read properties of null (reading 'useContext')"),
+      ),
+    ).toBe(true);
+    expect(
+      isBootstrapHookEnvironmentError(new Error("Cannot read property of null (reading 'useContext')")),
+    ).toBe(true);
+    expect(isBootstrapHookEnvironmentError(new Error("Maximum update depth exceeded"))).toBe(
+      false,
+    );
+    expect(isBootstrapHookEnvironmentError("not-an-error")).toBe(false);
   });
 });
