@@ -43,7 +43,6 @@ import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
 import com.percussion.services.virtualsite.PSVirtualSiteFilesystemPublisher;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
-import com.percussion.services.virtualsite.PSVirtualSitePublishCopyResult;
 import com.percussion.services.virtualsite.VirtualSiteConfig;
 import com.percussion.services.virtualsite.VirtualSiteConfigLoader;
 import com.percussion.services.virtualsite.VirtualSiteException;
@@ -423,9 +422,17 @@ public class SitesAdaptor implements ISiteAdaptor {
                         Response.Status.INTERNAL_SERVER_ERROR));
 
     try {
-      PSVirtualSitePublishCopyResult copied =
-          PSVirtualSiteFilesystemPublisher.copyBuildToTarget(buildOutput, safePublishRoot);
-      return toWirePublishResult(site.getName(), PSVirtualSiteHelper.siteKey(site), built, copied);
+      // Do not mention PSVirtualSitePublishCopyResult here: Spring lookup-method
+      // resolution loads every declared parameter type while creating sitesAdaptor.
+      int filesCopied =
+          PSVirtualSiteFilesystemPublisher.copyBuildFileCountToTarget(
+              buildOutput, safePublishRoot);
+      return toWirePublishResult(
+          site.getName(),
+          PSVirtualSiteHelper.siteKey(site),
+          built,
+          safePublishRoot,
+          filesCopied);
     } catch (VirtualSiteException e) {
       throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
     } catch (IOException e) {
@@ -958,12 +965,13 @@ public class SitesAdaptor implements ISiteAdaptor {
       String siteName,
       String siteKey,
       VirtualSiteBuildResult built,
-      PSVirtualSitePublishCopyResult copied) {
+      Path publishRoot,
+      int filesCopied) {
     VirtualSitePublishResult dto = new VirtualSitePublishResult();
     dto.setSiteName(siteName);
     dto.setSiteKey(siteKey);
-    if (copied != null && copied.publishRoot() != null) {
-      dto.setPublishPath(copied.publishRoot().toAbsolutePath().normalize().toString());
+    if (publishRoot != null) {
+      dto.setPublishPath(publishRoot.toAbsolutePath().normalize().toString());
     }
     if (built != null) {
       built.getOutputPath().ifPresent(dto::setBuildOutputPath);
@@ -972,7 +980,7 @@ public class SitesAdaptor implements ISiteAdaptor {
       dto.setHasLinkProblems(built.getHasLinkProblems());
       dto.setLinkProblems(built.getLinkProblems());
     }
-    dto.setFilesCopied(copied != null ? copied.filesCopied() : 0);
+    dto.setFilesCopied(Math.max(filesCopied, 0));
     return dto;
   }
 

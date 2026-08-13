@@ -447,6 +447,30 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void toWirePublishResult_mapsRestDtoWithoutSystemCopyRecord() {
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setOutputPath(tempDir.resolve("staging").toString());
+    built.setPagesWritten(3);
+    built.setLinkProblemCount(1);
+    built.setHasLinkProblems(true);
+    built.setLinkProblems(List.of("missing id:foo"));
+
+    Path publishRoot = tempDir.resolve("published-root");
+    VirtualSitePublishResult dto =
+        SitesAdaptor.toWirePublishResult("Help", "help-docs", built, publishRoot, 7);
+
+    assertEquals("Help", dto.getSiteName().orElse(null));
+    assertEquals("help-docs", dto.getSiteKey().orElse(null));
+    assertEquals(publishRoot.toAbsolutePath().normalize().toString(), dto.getPublishPath().orElse(null));
+    assertEquals(built.getOutputPath().orElse(null), dto.getBuildOutputPath().orElse(null));
+    assertEquals(3, dto.getPagesWritten().intValue());
+    assertEquals(7, dto.getFilesCopied().intValue());
+    assertEquals(1, dto.getLinkProblemCount().intValue());
+    assertTrue(Boolean.TRUE.equals(dto.getHasLinkProblems()));
+    assertEquals(List.of("missing id:foo"), dto.getLinkProblems());
+  }
+
+  @Test
   void safePathSegment_stripsSeparators() {
     assertEquals("a_b_c", SitesAdaptor.safePathSegment("a/b\\c"));
     assertEquals("default", SitesAdaptor.safePathSegment(".."));

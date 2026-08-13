@@ -147,6 +147,23 @@ public final class PSVirtualSiteFilesystemPublisher {
     return new PSVirtualSitePublishCopyResult(destAbs, copied);
   }
 
+  /**
+   * Copy assembled static files and return only the file count.
+   *
+   * <p>Callers that must not mention {@link PSVirtualSitePublishCopyResult} in method signatures
+   * (Spring lookup-method resolution / {@code sitesAdaptor} bean load) should use this entry.
+   *
+   * @param buildOutput directory written by {@link PSVirtualSiteBuildService}
+   * @param target Site filesystem publish root
+   * @return number of regular files written
+   * @throws VirtualSiteException when inputs are missing, unsafe, or overlap
+   * @throws IOException on filesystem I/O failure
+   */
+  public static int copyBuildFileCountToTarget(Path buildOutput, Path target)
+      throws VirtualSiteException, IOException {
+    return copyBuildToTarget(buildOutput, target).filesCopied();
+  }
+
   static boolean isMetaTree(Path relative) {
     if (relative == null || relative.getNameCount() < 1) {
       return false;
