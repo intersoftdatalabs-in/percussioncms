@@ -217,13 +217,30 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).
 
+## Folder security
+
+Open folder ACL and properties from either:
+
+- The **Security** button on the Explorer view-tools toolbar (always visible next to
+  **Refresh**), or
+- **View → Folder Security**
+
+Both commands toggle the same **Folder security** panel. When a folder is selected
+(or the tree folder id can be resolved), the panel loads that folder’s permissions.
+When no folder is in context, Explorer shows a short hint to select a folder first.
+
+The panel is product React chrome on `spa.jsp?entry=explorer`. It does not open the
+legacy miller-column Finder. Site admins with ADMIN access on the folder can edit
+principal lists; other users see a read-only view.
+
 ## Other View tools
 
 From the **View** menu you can also toggle:
 
-- **Folder security** — ACL and folder properties for the **selected folder** (tree or
-  list). The panel shows community, community id, locale, display format, and workflow
-  id, plus named **user and role** identities on the Admin / Write / Read / View lists
+- **Folder security** — same panel as the view-tools **Security** button (see
+  **Folder security** above). ACL and folder properties for the **selected folder**
+  (tree or list): community, community id, locale, display format, and workflow id,
+  plus named **user and role** identities on the Admin / Write / Read / View lists
   (seed folders typically list the **Admin** and **Designer** roles). Administrators can
   add or remove principals and edit locale (and other persistable fields), then **Save**.
   Removing your own user name or a role you hold from a list prompts a self-lockout

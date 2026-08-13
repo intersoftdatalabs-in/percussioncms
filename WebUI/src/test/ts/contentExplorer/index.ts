@@ -25,7 +25,7 @@
  * <ul>
  *   <li>US1: {@code pathApi.test.ts}, {@code ExplorerTree.test.tsx}, {@code DetailList.test.tsx}, {@code reducedActions.test.tsx}, {@code sc005-perf-regression.test.tsx}</li>
  *   <li>US3: {@code actionMenuApi.test.ts}, {@code actionEnablement.test.ts}, {@code ContextMenu.test.tsx}, {@code ActionToolbar.test.tsx}</li>
- *   <li>US4: {@code aclLockout.test.ts}, {@code FolderSecurityPanel.test.tsx}, {@code currentUserIdentities.test.ts}</li>
+ *   <li>US4: {@code aclLockout.test.ts}, {@code FolderSecurityPanel.test.tsx}, {@code FolderSecurityHost.test.tsx}, {@code currentUserIdentities.test.ts}</li>
  *   <li>US5: {@code searchApi.test.ts}, {@code SearchPanel.test.tsx}</li>
  *   <li>US7: {@code clipboard.test.ts}, {@code wizards/}, {@code views/}</li>
  * </ul>

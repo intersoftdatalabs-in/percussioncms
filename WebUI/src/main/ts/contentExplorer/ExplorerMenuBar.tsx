@@ -169,6 +169,18 @@ function isToggleChecked(
   }
 }
 
+/**
+ * Menu-item test ids. View → Security keeps a distinct menu id so the
+ * always-visible toolbar can own {@code explorer-toggle-security} (#3268 /
+ * #2410) without duplicate testids when the View dropdown is open.
+ */
+function menuItemTestId(item: ExplorerMenuBarItem): string {
+  if (item.id === "view-security") {
+    return "explorer-menu-view-security";
+  }
+  return item.testId ?? `explorer-menu-item-${item.id}`;
+}
+
 function isItemDisabled(
   item: ExplorerMenuBarItem,
   multiSelectedCount: number,
@@ -392,9 +404,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                                 : "explorer-subfolder-copy-hint"
                                               : undefined
                           }
-                          data-testid={
-                            item.testId ?? `explorer-menu-item-${item.id}`
-                          }
+                          data-testid={menuItemTestId(item)}
                           style={disabled ? itemDisabledStyle : itemStyle}
                           onClick={() => activateItem(item)}
                           onKeyDown={(e) => {

@@ -83,6 +83,18 @@ Language and density controls are not product-backed yet. Navigation **site**
 section landing pages (Architecture tree) are a separate site-structure setting —
 not this profile control. See [Architecture & site navigation](id:admin-architecture-navigation).
 
+## Folder ACL (Content Explorer)
+
+Site admins edit **folder** access lists from Content Explorer:
+
+1. Open **Explorer** (`spa.jsp?entry=explorer`).
+2. Select the folder in the tree or list.
+3. Choose **Security** on the view-tools toolbar, or **View → Folder Security**.
+
+The panel shows Admin / Write / Read / View principals. Saving with yourself
+removed from every grant prompts a self-lockout confirmation. See
+[Content Explorer](id:admin-content-explorer).
+
 ## Hardening checklist
 
 - [ ] Change default/install admin passwords immediately.

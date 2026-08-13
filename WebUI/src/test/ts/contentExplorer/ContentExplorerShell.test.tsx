@@ -107,9 +107,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("explorer-display-format")).toBeInTheDocument();
     // Always-visible refresh residual (#2733) — not only under View menu.
     expect(screen.getByTestId("explorer-refresh-list")).toBeInTheDocument();
+    // Always-visible Security residual (#3268 / #2410) — product Playwright
+    // locates explorer-toggle-security without opening View.
+    expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
     openViewMenu();
     expect(screen.getByTestId("explorer-toggle-search")).toBeInTheDocument();
-    expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-menu-view-security")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-toggle-translations"),
     ).toBeInTheDocument();
@@ -656,6 +659,27 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("security toggle is visible without opening the View menu (#3268)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-toggle-security")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-menu-view-dropdown")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-toggle-security"));
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("explorer-security-hint") ??
+          screen.queryByTestId("explorer-security-panel"),
+      ).toBeTruthy();
+    });
+  });
+
   it("security toggle shows hint when no folder id is available (#2410)", async () => {
     stubPathFetch();
     renderShell(
@@ -665,7 +689,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         resolveFolderId={async () => undefined}
       />,
     );
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -1108,7 +1131,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         }}
       />,
     );
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(screen.getByTestId("explorer-security-hint")).toBeInTheDocument();
@@ -1167,7 +1189,6 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       />,
     );
 
-    openViewMenu();
     fireEvent.click(screen.getByTestId("explorer-toggle-security"));
     await waitFor(() => {
       expect(resolveFolderId).toHaveBeenCalled();
