@@ -215,7 +215,7 @@ public class DisplayFormat {
         && validForFolder == that.validForFolder
         && displayId == that.displayId
         && Objects.equals(guid, that.guid)
-        && Objects.equals(guidString, that.guidString)
+        // guidString is derived from guid; omit so unset companions stay equal
         && Objects.equals(name, that.name)
         && Objects.equals(label, that.label)
         && Objects.equals(sortedColumnNames, that.sortedColumnNames)
@@ -232,7 +232,6 @@ public class DisplayFormat {
   public int hashCode() {
     return Objects.hash(
         guid,
-        guidString,
         name,
         label,
         validForRelatedContent,

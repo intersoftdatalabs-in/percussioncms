@@ -32,13 +32,17 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +78,9 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
     // Catalog identity comes from find summaries (unique INTERNALNAME). Bulk
     // loadDisplayFormats(all GUIDs) can replay the first format (By_Author)
-    // for every row (#3269 / #3200). Prefer a name-matched load; fall back to
-    // the summary when load returns a different name.
+    // for every row (#3269 / #3200). Prefer the single bulk call when every
+    // loaded name is unique and matches the summary; otherwise per-name load
+    // (then GUID load) and last a summary-only row.
     var summaries = designWs.findDisplayFormats(null, null);
     var uniqueByName = new LinkedHashMap<String, IPSCatalogSummary>();
     if (summaries != null) {
@@ -90,17 +95,90 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         uniqueByName.putIfAbsent(name, summary);
       }
     }
+    if (uniqueByName.isEmpty()) {
+      return new ArrayList<>();
+    }
+    List<DisplayFormat> fromBulk = tryCopyBulkLoad(uniqueByName);
+    if (fromBulk != null) {
+      return fromBulk;
+    }
     var ret = new ArrayList<DisplayFormat>(uniqueByName.size());
     for (var summary : uniqueByName.values()) {
-      String name = summary.getName();
-      PSDisplayFormat loaded = designWs.findDisplayFormat(name);
-      if (loaded != null && name.equalsIgnoreCase(loaded.getName())) {
-        ret.add(copyDisplayFormat(loaded));
-      } else {
-        ret.add(copyFromCatalogSummary(summary));
-      }
+      ret.add(copyUniqueSummary(summary));
     }
     return ret;
+  }
+
+  /**
+   * One {@code loadDisplayFormats} when every row is a distinct named format.
+   *
+   * @return copied rows, or {@code null} to use the per-name path (replay / miss)
+   */
+  private List<DisplayFormat> tryCopyBulkLoad(LinkedHashMap<String, IPSCatalogSummary> uniqueByName)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    var guids = new ArrayList<IPSGuid>(uniqueByName.size());
+    for (var summary : uniqueByName.values()) {
+      if (summary.getGUID() == null) {
+        return null;
+      }
+      guids.add(summary.getGUID());
+    }
+    List<PSDisplayFormat> loaded;
+    try {
+      var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+      var currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      loaded = designWs.loadDisplayFormats(guids, false, false, currentSession, currentUser);
+    } catch (PSErrorResultsException | RuntimeException e) {
+      log.debug("Bulk display-format load failed, using per-name path: {}", e.toString());
+      return null;
+    }
+    if (loaded == null || loaded.size() != uniqueByName.size()) {
+      return null;
+    }
+    var expectedNames = new ArrayList<>(uniqueByName.keySet());
+    Set<String> seen = new HashSet<>();
+    var ret = new ArrayList<DisplayFormat>(loaded.size());
+    for (int i = 0; i < loaded.size(); i++) {
+      PSDisplayFormat format = loaded.get(i);
+      if (format == null) {
+        return null;
+      }
+      String loadedName = format.getName();
+      if (loadedName == null
+          || loadedName.isBlank()
+          || !seen.add(loadedName.toLowerCase(Locale.ROOT))) {
+        return null;
+      }
+      if (!namesMatchIgnoreCase(expectedNames.get(i), loadedName)) {
+        return null;
+      }
+      ret.add(copyDisplayFormat(format));
+    }
+    return ret;
+  }
+
+  /**
+   * Name-matched load, then GUID load, then summary-only identity. Name match
+   * requires a non-null loaded name (avoids {@code equalsIgnoreCase(null)} NPE).
+   */
+  private DisplayFormat copyUniqueSummary(IPSCatalogSummary summary)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    String name = summary.getName();
+    PSDisplayFormat loaded = designWs.findDisplayFormat(name);
+    if (loaded != null && namesMatchIgnoreCase(name, loaded.getName())) {
+      return copyDisplayFormat(loaded);
+    }
+    if (summary.getGUID() != null) {
+      PSDisplayFormat byGuid = designWs.findDisplayFormat(summary.getGUID());
+      if (byGuid != null && namesMatchIgnoreCase(name, byGuid.getName())) {
+        return copyDisplayFormat(byGuid);
+      }
+    }
+    return copyFromCatalogSummary(summary);
+  }
+
+  private static boolean namesMatchIgnoreCase(String expected, String actual) {
+    return expected != null && actual != null && expected.equalsIgnoreCase(actual);
   }
 
   private DisplayFormatPropertyList copyDisplayFormatProps(PSDFProperties props) {
@@ -109,7 +187,10 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
   }
 
   /**
-   * Catalog row from {@code findDisplayFormats} when full load replayed another format.
+   * Last-resort catalog row when name and GUID loads missed or replayed another
+   * format. {@code IPSCatalogSummary} does not expose columns, community, or
+   * valid-for flags — those stay Java defaults. Detail GET by name still loads
+   * the full format.
    *
    * @param summary unique-name catalog hit; never {@code null}
    * @return REST row with name/label/guid from the summary

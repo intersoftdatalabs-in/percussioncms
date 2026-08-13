@@ -152,6 +152,9 @@ public class DisplayFormatResource {
   /**
    * Return a {@link DisplayFormatList} so Jackson uses this package's {@code
    * JacksonContextResolver} (WRAP_ROOT_VALUE) instead of a raw {@code ArrayList} mapper.
+   * Empty catalogs use the same envelope ({@code {"DisplayFormatList":[]}}), not a bare
+   * {@code []}. Clients should unwrap {@code DisplayFormatList} (Developer SPA already
+   * does).
    */
   private static DisplayFormatList asDisplayFormatList(List<DisplayFormat> list) {
     if (list instanceof DisplayFormatList displayFormatList) {

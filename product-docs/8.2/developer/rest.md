@@ -150,10 +150,11 @@ under `/services/displayformats`. Responses include a nested `guid` object and a
 | `GET` | `/services/displayformats` | List formats (optional `validForFolder` / `validForViewsAndSearches`) |
 | `GET` | `/services/displayformats/{idOrName}` | Load one format by internal name or GUID string |
 
-JSON may wrap the list as `DisplayFormatList` and a single item as `DisplayFormat`. Integrators
-should read `guid.stringValue` or `guidString` (never assume the GUID is missing when
-`displayId` is present). See [Users, roles & security](id:admin-users-roles) for the operator
-Object ACL steps.
+JSON wraps the list as `DisplayFormatList` (`{"DisplayFormatList":[…]}`) including the empty
+catalog (`{"DisplayFormatList":[]}`, not a bare `[]`) and a single item as `DisplayFormat`.
+Integrators should unwrap those envelopes and read `guid.stringValue` or `guidString` (never
+assume the GUID is missing when `displayId` is present). See [Users, roles & security](id:admin-users-roles)
+for the operator Object ACL steps.
 
 ## Views (design catalog)
 

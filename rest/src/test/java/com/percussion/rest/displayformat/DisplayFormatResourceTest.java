@@ -60,7 +60,17 @@ public class DisplayFormatResourceTest {
   @Test
   public void listDisplayFormatsNullSafe() throws Exception {
     when(adaptor.findAllDisplayFormats()).thenReturn(null);
-    assertTrue(resource.listDisplayFormats(null, null).isEmpty());
+    List<DisplayFormat> out = resource.listDisplayFormats(null, null);
+    assertTrue(out.isEmpty());
+    assertInstanceOf(DisplayFormatList.class, out);
+  }
+
+  @Test
+  public void listDisplayFormatsEmptyUsesWrappedListEnvelope() throws Exception {
+    when(adaptor.findAllDisplayFormats()).thenReturn(List.of());
+    List<DisplayFormat> out = resource.listDisplayFormats(null, null);
+    assertTrue(out.isEmpty());
+    assertInstanceOf(DisplayFormatList.class, out);
   }
 
   @Test

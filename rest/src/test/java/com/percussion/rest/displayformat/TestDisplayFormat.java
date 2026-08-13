@@ -77,6 +77,19 @@ public class TestDisplayFormat {
   }
 
   @Test
+  public void equalsIgnoresUnsetGuidStringCompanion() {
+    DisplayFormat withCompanion = new DisplayFormat();
+    withCompanion.setName("By_Author");
+    withCompanion.setDisplayId(5);
+    withCompanion.setGuidString("0-31-5");
+    DisplayFormat withoutCompanion = new DisplayFormat();
+    withoutCompanion.setName("By_Author");
+    withoutCompanion.setDisplayId(5);
+    assertEquals(withCompanion, withoutCompanion);
+    assertEquals(withCompanion.hashCode(), withoutCompanion.hashCode());
+  }
+
+  @Test
   public void jacksonContextResolver_serializesGuidStringCompanion() {
     DisplayFormat f = new DisplayFormat();
     f.setName("By_Author");
