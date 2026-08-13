@@ -61,8 +61,8 @@
 <div id='perc_asset_library' class='perc-template-container perc-hidden' style="float:unset;">
     <div class="perc-orphan-assets-menu perc-orphan-assets-menu-left" style="z-index: 4330; float: left; margin-left: -27px; border-right: 1px solid rgb(210, 209, 205);"></div>
     <div class="perc-orphan-assets-menu perc-orphan-assets-menu-right">
-        <img src="/cm/pages/app/images/icons/editor/delete.png" class="perc-ui-menu-icon perc-ui-delete-asset" alt="Delete local content" title="Delete Asset" style="padding-right:4px; margin-top:-4px; float:right; cursor:pointer; padding-left: 1px;"></img>
-        <img src="/cm/pages/app/images/icons/editor/edit.png" class="perc-ui-menu-icon perc-ui-edit-asset" alt="Edit local content" title="Edit Asset" style="margin-top:-4px;float:right; cursor:pointer; padding-left: 1px;"></img>
+        <img src="/cm/images/icons/editor/delete.png" class="perc-ui-menu-icon perc-ui-delete-asset" alt="Delete local content" title="Delete Asset" style="padding-right:4px; margin-top:-4px; float:right; cursor:pointer; padding-left: 1px;" onerror="this.style.visibility='hidden'"></img>
+        <img src="/cm/images/icons/editor/edit.png" class="perc-ui-menu-icon perc-ui-edit-asset" alt="Edit local content" title="Edit Asset" style="margin-top:-4px;float:right; cursor:pointer; padding-left: 1px;" onerror="this.style.visibility='hidden'"></img>
     </div>
     <!-- Explore Orphan Assets Tray-->
     <div class='perc-orphan-assets-list'>

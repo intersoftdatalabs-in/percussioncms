@@ -42,7 +42,13 @@ export function ExplorerRoute(): React.ReactElement {
     <LazyRouteFrame
       label="Content Explorer"
       fallback={
-        <div className={styles.loading}>Loading Content Explorer…</div>
+        <div
+          className={styles.loading}
+          data-testid="explorer-route-loading"
+          role="status"
+        >
+          Loading Content Explorer…
+        </div>
       }
     >
       <ContentExplorerShellLazy initialPath={initialPath} />
