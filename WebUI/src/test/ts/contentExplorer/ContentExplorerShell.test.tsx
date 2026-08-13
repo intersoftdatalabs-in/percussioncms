@@ -571,6 +571,128 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("activating a pathmanagement Folder stays in Explorer browse (#3330)", async () => {
+    const onOpenItem = vi.fn();
+    const loadWorkflowMenuActions = vi.fn(async (item) => {
+      // Folders must not request transitions; default returns null (#3330).
+      if (item && String(item.type).toLowerCase() === "folder") {
+        return null;
+      }
+      return null;
+    });
+    const folderRow = {
+      id: "16777215-101-1",
+      name: "New-Folder",
+      path: "/Folders/New-Folder/",
+      type: "Folder",
+      leaf: true,
+      accessLevel: "WRITE" as const,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        const listingFolders = url.includes("/Folders") && !url.includes("New-Folder");
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: listingFolders ? [folderRow] : [],
+              childrenCount: listingFolders ? 1 : 0,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Folders"
+        onOpenItem={onOpenItem}
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={loadWorkflowMenuActions}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-16777215-101-1")).toBeInTheDocument();
+    });
+    fireEvent.doubleClick(screen.getByTestId("detail-row-16777215-101-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+      expect(screen.getByTestId("detail-list")).toBeInTheDocument();
+    });
+    expect(onOpenItem).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("detail-row-16777215-101-1")).toBeNull();
+    for (const call of loadWorkflowMenuActions.mock.calls) {
+      const arg = call[0] as { type?: string } | null;
+      if (arg) {
+        expect(arg.type).not.toBe("Folder");
+      }
+    }
+  });
+
+  it("activating a page still opens the editor host (#3330)", async () => {
+    const onOpenItem = vi.fn();
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "55",
+                  name: "page-one",
+                  path: "/Sites/Demo/page-one",
+                  type: "page",
+                  leaf: true,
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        onOpenItem={onOpenItem}
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-55")).toBeInTheDocument();
+    });
+    fireEvent.doubleClick(screen.getByTestId("detail-row-55"));
+    await waitFor(() => {
+      expect(onOpenItem).toHaveBeenCalled();
+    });
+    const opened = onOpenItem.mock.calls[0][0] as { id?: string; type?: string };
+    expect(opened.id).toBe("55");
+    expect(opened.type).toBe("page");
+  });
+
   it("chrome labels are EXPLORER_MSG / message() keys (i18n FR-026)", () => {
     // Product chrome must use perc.ui.explorer@ keys — not bare English.
     const chromeKeys = [

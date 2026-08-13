@@ -22,10 +22,18 @@
  */
 
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { isFolder } from "./selection";
 
 const EDITOR_BASE = "/cm/app/?view=editor";
 
+/**
+ * Open a content item in the product editor. Folders stay in Explorer
+ * browse — they are not workflowed pages (#3330).
+ */
 export function openInEditor(item: PSPathItem): void {
+  if (isFolder(item)) {
+    return;
+  }
   const path = (item.path ?? "").trim();
   const id = (item.id ?? "").trim();
   if (path) {
