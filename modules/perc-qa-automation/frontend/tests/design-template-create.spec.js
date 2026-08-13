@@ -77,6 +77,9 @@ test.describe("Design template create (#3305)", () => {
     await expect(
       page.locator('[data-testid="design-tpl-create-dialog"]'),
     ).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.locator('[data-testid="design-tpl-create-dialog"]'),
+    ).toHaveAttribute("aria-describedby", "design-tpl-create-hint");
     await page.locator('[data-testid="design-tpl-create-name"]').fill(name);
     await page.locator('[data-testid="design-tpl-create-submit"]').click();
 

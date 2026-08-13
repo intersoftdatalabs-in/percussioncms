@@ -111,12 +111,16 @@ export function CreateTemplateDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="design-tpl-create-title"
+      aria-describedby="design-tpl-create-hint"
     >
       <div style={panelStyle}>
         <h2 id="design-tpl-create-title" style={{ marginTop: 0 }}>
           {DESIGN_MSG.TPL_CREATE_TITLE}
         </h2>
-        <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+        <p
+          id="design-tpl-create-hint"
+          style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+        >
           {DESIGN_MSG.TPL_CREATE_HINT}
         </p>
         <label htmlFor="design-tpl-create-name">

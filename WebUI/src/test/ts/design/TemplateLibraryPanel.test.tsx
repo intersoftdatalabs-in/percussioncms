@@ -187,6 +187,9 @@ describe("TemplateLibraryPanel (#2808)", () => {
       expect(screen.getByTestId("design-tpl-create")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("design-tpl-create"));
+    expect(
+      screen.getByTestId("design-tpl-create-dialog").getAttribute("aria-describedby"),
+    ).toBe("design-tpl-create-hint");
     fireEvent.change(screen.getByTestId("design-tpl-create-name"), {
       target: { value: "site.html.snippet" },
     });

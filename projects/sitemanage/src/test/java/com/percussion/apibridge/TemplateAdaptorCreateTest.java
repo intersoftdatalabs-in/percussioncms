@@ -130,4 +130,46 @@ class TemplateAdaptorCreateTest {
     verify(created).setAssembler("Java/global/percussion/assembly/markdownAssembler");
     verify(asm).saveTemplate(created);
   }
+
+  @Test
+  void createTemplate_lookupFailureIsNotTreatedAsAvailable() throws Exception {
+    IPSAssemblyService asm = mock(IPSAssemblyService.class);
+    IPSContentWs contentWs = mock(IPSContentWs.class);
+    when(asm.findTemplateByName("site.html.snippet"))
+        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, "db down"));
+
+    TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
+    TemplateDetail body = new TemplateDetail();
+    body.setName("site.html.snippet");
+
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.createTemplate(null, body));
+    assertEquals("Failed to look up template name: site.html.snippet", ex.getMessage());
+    verify(asm, never()).createTemplate();
+    verify(asm, never()).saveTemplate(org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  void createTemplate_saveRaceMapsDuplicateTo400() throws Exception {
+    IPSAssemblyService asm = mock(IPSAssemblyService.class);
+    IPSContentWs contentWs = mock(IPSContentWs.class);
+    PSAssemblyTemplate created = mockTemplate("site.html.snippet");
+    PSAssemblyTemplate existing = mockTemplate("site.html.snippet");
+    when(asm.createTemplate()).thenReturn(created);
+    when(asm.findTemplateByName("site.html.snippet"))
+        .thenThrow(new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "site.html.snippet"))
+        .thenReturn(existing);
+    org.mockito.Mockito.doThrow(
+            new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, "constraint"))
+        .when(asm)
+        .saveTemplate(created);
+
+    TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
+    TemplateDetail body = new TemplateDetail();
+    body.setName("site.html.snippet");
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.createTemplate(null, body));
+    assertEquals("template name already exists: site.html.snippet", ex.getMessage());
+  }
 }

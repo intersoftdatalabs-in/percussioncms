@@ -18,7 +18,10 @@
 import { isValidAssemblerValue } from "./assemblerOptions";
 import { DESIGN_MSG } from "./messages";
 
-/** Same rules as TemplateAdaptor.validateCreateName. */
+/**
+ * Must stay identical to {@code TemplateAdaptor.validateCreateName}
+ * Java regex {@code [A-Za-z][A-Za-z0-9._-]*} (backend is the source of truth).
+ */
 const NAME_RE = /^[A-Za-z][A-Za-z0-9._-]*$/;
 
 export type TemplateCreateFieldError = "name" | "assembler" | null;
