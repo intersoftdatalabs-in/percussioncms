@@ -1,7 +1,7 @@
 ---
 id: admin-design-templates
 title: Design templates
-description: Create and edit modern assembly templates in the Design SPA without Widget definition XML
+description: Create and edit modern assembly templates in the Design SPA; classic list bookmarks redirect here
 version: "8.2"
 order: 44
 tags: [admin, design, templates, ui]
@@ -13,13 +13,22 @@ tags: [admin, design, templates, ui]
 administrators list existing templates and **create new templates** using the public REST
 catalog (`/services/templates`). Create does **not** author Widget definition XML.
 
+In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The classic
+`admin.jsp` Design page and `?view=design` bookmarks hard-redirect into the SPA.
+
 ## Open Design (SPA)
 
 1. Sign in as an **Admin** or **Designer**.
 2. Choose **Design** in the product top navigation, or open:
    - Query contract: `spa.jsp?entry=design&section=templates`
    - Path route: `/cm/app/design` or `/cm/app/design/templates`
+   - Legacy bookmarks: `/cm/app/?view=design` and `/cm/app/admin.jsp` redirect here
 3. The **Templates** tab lists assembly templates (label, name, id, description).
+
+Default landing can also be set to **Design** for a user or role. After sign-in
+with no deep-link return URL, the login form posts to `/cm/app/` so the
+dispatcher applies that preference and opens the Design SPA — not the retired
+classic template list.
 
 ## Create a template (no Widget XML)
 
@@ -53,8 +62,14 @@ Use the template editor on the same Design tab to:
 
 Content-type associations, delete, and lock are not available on this REST surface yet.
 
+The visual layout editor may still open residual classic hosts (`editTemplate.jsp` and
+related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmarks to the
+**list** still land on the SPA.
+
 ## Related
 
 - [REST API](id:developer-rest) — `GET`/`POST`/`PUT /services/templates`
 - [Extensions & packages](id:developer-extensions)
 - [Navigation & site structure](id:admin-architecture-navigation)
+- [Administration](id:admin)
+- [Content Explorer](id:admin-content-explorer)
