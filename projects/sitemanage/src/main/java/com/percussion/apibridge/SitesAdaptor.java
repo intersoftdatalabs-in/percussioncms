@@ -66,7 +66,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -610,7 +609,10 @@ public class SitesAdaptor implements ISiteAdaptor {
           safeOut.toString(),
           StandardCharsets.UTF_8); // codeql[java/path-injection]
     } catch (RuntimeException | IOException e) {
-      log.debug("Could not record last Virtual Site output path: {}", e.getMessage());
+      log.warn(
+          "Could not record last Virtual Site output path for site '{}': {}",
+          siteKey,
+          e.getMessage());
     }
   }
 
@@ -659,8 +661,11 @@ public class SitesAdaptor implements ISiteAdaptor {
           dirs.add(p);
         }
       }
-      dirs.sort(Comparator.comparing(p -> p.getFileName().toString()));
+      dirs.sort(SitesAdaptor::compareHomeCandidateDirectories);
       for (Path dir : dirs) {
+        if (isSkippedHomeDirectory(dir)) {
+          continue;
+        }
         Path idx = dir.resolve("index.html");
         if (Files.isRegularFile(idx)) {
           return toWirePath(root, idx);
@@ -670,6 +675,74 @@ public class SitesAdaptor implements ISiteAdaptor {
       return null;
     }
     return null;
+  }
+
+  /** Skip assembler sidecar dirs that are never a product-docs home. */
+  static boolean isSkippedHomeDirectory(Path dir) {
+    Path name = dir == null ? null : dir.getFileName();
+    return name != null && "_meta".equals(name.toString());
+  }
+
+  /**
+   * Version directories ({@code 8.2}, {@code 10.0}) newest-first; other names last,
+   * alphabetically. Avoids lexical {@code 10.0} before {@code 9.0}.
+   */
+  static int compareHomeCandidateDirectories(Path left, Path right) {
+    String a = fileNameOrEmpty(left);
+    String b = fileNameOrEmpty(right);
+    int[] va = parseDottedVersionParts(a);
+    int[] vb = parseDottedVersionParts(b);
+    if (va != null && vb != null) {
+      int n = Math.max(va.length, vb.length);
+      for (int i = 0; i < n; i++) {
+        int ai = i < va.length ? va[i] : 0;
+        int bi = i < vb.length ? vb[i] : 0;
+        int cmp = Integer.compare(bi, ai);
+        if (cmp != 0) {
+          return cmp;
+        }
+      }
+      return 0;
+    }
+    if (va != null) {
+      return -1;
+    }
+    if (vb != null) {
+      return 1;
+    }
+    return a.compareTo(b);
+  }
+
+  static int[] parseDottedVersionParts(String name) {
+    if (name == null || name.isEmpty()) {
+      return null;
+    }
+    String[] bits = name.split("\\.", -1);
+    int[] parts = new int[bits.length];
+    for (int i = 0; i < bits.length; i++) {
+      String bit = bits[i];
+      if (bit.isEmpty()) {
+        return null;
+      }
+      for (int c = 0; c < bit.length(); c++) {
+        if (!Character.isDigit(bit.charAt(c))) {
+          return null;
+        }
+      }
+      try {
+        parts[i] = Integer.parseInt(bit);
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+    return parts;
+  }
+
+  private static String fileNameOrEmpty(Path path) {
+    if (path == null || path.getFileName() == null) {
+      return "";
+    }
+    return path.getFileName().toString();
   }
 
   static Path resolvePreviewFile(Path outputRoot, String relativePath) {

@@ -16,6 +16,7 @@
  */
 package com.percussion.apibridge;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -590,6 +591,29 @@ class SitesAdaptorTest {
     assertEquals("8.2/index.html", SitesAdaptor.findHomeRelativePath(out));
     Files.writeString(out.resolve("index.html"), "root");
     assertEquals("index.html", SitesAdaptor.findHomeRelativePath(out));
+  }
+
+  @Test
+  void findHomeRelativePath_picksHighestNumericVersionNotLexical() throws Exception {
+    Path out = tempDir.resolve("homes-versions");
+    Files.createDirectories(out.resolve("9.0"));
+    Files.createDirectories(out.resolve("10.0"));
+    Files.createDirectories(out.resolve("_meta"));
+    Files.writeString(out.resolve("9.0").resolve("index.html"), "nine");
+    Files.writeString(out.resolve("10.0").resolve("index.html"), "ten");
+    Files.writeString(out.resolve("_meta").resolve("index.html"), "meta");
+    assertEquals("10.0/index.html", SitesAdaptor.findHomeRelativePath(out));
+    assertTrue(SitesAdaptor.compareHomeCandidateDirectories(out.resolve("10.0"), out.resolve("9.0")) < 0);
+  }
+
+  @Test
+  void recordLastOutputRoot_doesNotThrowWhenPointerUnwritable() throws Exception {
+    Path defaultOut = tempDir.resolve("pointer-blocked");
+    Files.createDirectories(defaultOut);
+    Files.writeString(defaultOut.resolve("_meta"), "not-a-directory");
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    assertDoesNotThrow(() -> previewing.recordLastOutputRoot("help-docs", defaultOut));
   }
 
   private PSSite virtualHelpSite() {

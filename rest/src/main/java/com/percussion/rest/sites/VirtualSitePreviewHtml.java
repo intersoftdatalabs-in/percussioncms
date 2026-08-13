@@ -27,9 +27,17 @@ import java.util.regex.Pattern;
  */
 public final class VirtualSitePreviewHtml {
 
+  /**
+   * Match standalone {@code href}/{@code src} attributes, not {@code data-href}, {@code data-src},
+   * or {@code xlink:href} (word-boundary {@code \\b} is true between {@code -} / {@code :} and the
+   * following letter).
+   */
   private static final Pattern ROOT_HREF_SRC =
-      Pattern.compile("(?i)(\\b(?:href|src)\\s*=\\s*[\"'])/(?!/)");
-  private static final Pattern ROOT_CSS_URL = Pattern.compile("(?i)(url\\(\\s*)/(?!/)");
+      Pattern.compile("(?i)(?<![\\w:-])((?:href|src)\\s*=\\s*[\"'])/(?!/)");
+
+  /** Unquoted {@code url(/path)} and quoted {@code url("/path")} / {@code url('/path')}. */
+  private static final Pattern ROOT_CSS_URL =
+      Pattern.compile("(?i)(url\\(\\s*(?:[\"'])?)/(?!/)");
 
   private VirtualSitePreviewHtml() {}
 

@@ -33,7 +33,12 @@ public class VirtualSitePreviewHtmlTest {
         "<a href=\"/8.2/index.html\">Home</a>"
             + "<img src='/assets/logo.png'/>"
             + "<style>body{background:url(/assets/bg.png)}</style>"
-            + "<a href=\"//cdn.example/x\">ext</a>";
+            + "<style>div{background:url(\"/assets/quoted.png\")}</style>"
+            + "<style>span{background:url('/assets/single.png')}</style>"
+            + "<a href=\"//cdn.example/x\">ext</a>"
+            + "<a data-href=\"/8.2/x.html\">keep</a>"
+            + "<img data-src=\"/8.2/y.png\"/>"
+            + "<use xlink:href=\"/8.2/icon.svg#mark\"></use>";
     byte[] out =
         VirtualSitePreviewHtml.rewriteRootRelative(
             html.getBytes(StandardCharsets.UTF_8), "/services/sites/Help/virtual/preview");
@@ -41,7 +46,17 @@ public class VirtualSitePreviewHtmlTest {
     assertTrue(text.contains("href=\"/services/sites/Help/virtual/preview/8.2/index.html\""), text);
     assertTrue(text.contains("src='/services/sites/Help/virtual/preview/assets/logo.png'"), text);
     assertTrue(text.contains("url(/services/sites/Help/virtual/preview/assets/bg.png)"), text);
+    assertTrue(
+        text.contains("url(\"/services/sites/Help/virtual/preview/assets/quoted.png\")"), text);
+    assertTrue(
+        text.contains("url('/services/sites/Help/virtual/preview/assets/single.png')"), text);
     assertTrue(text.contains("href=\"//cdn.example/x\""), text);
+    assertTrue(text.contains("data-href=\"/8.2/x.html\""), text);
+    assertFalse(text.contains("data-href=\"/services/"), text);
+    assertTrue(text.contains("data-src=\"/8.2/y.png\""), text);
+    assertFalse(text.contains("data-src=\"/services/"), text);
+    assertTrue(text.contains("xlink:href=\"/8.2/icon.svg#mark\""), text);
+    assertFalse(text.contains("xlink:href=\"/services/"), text);
   }
 
   @Test
