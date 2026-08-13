@@ -33,6 +33,13 @@ final class PSFolderLocatorPaths {
   /** Immediate folder parents of a locator (community filtering is the caller's concern). */
   @FunctionalInterface
   interface FolderParentLookup {
+    /**
+     * Immediate folder parents of {@code locator}.
+     *
+     * @param locator item or folder locator, never {@code null}
+     * @return parent locators; never {@code null} (empty when the locator has no folder parent).
+     *     {@link #collect} and the ancestor walk treat a {@code null} return as empty.
+     */
     List<PSLocator> getImmediateParents(PSLocator locator) throws PSCmsException;
   }
 
@@ -54,7 +61,7 @@ final class PSFolderLocatorPaths {
     if (parentLookup == null) {
       throw new IllegalArgumentException("parentLookup cannot be null");
     }
-    List<PSLocator> immediate = parentLookup.getImmediateParents(itemLocator);
+    List<PSLocator> immediate = parentsOrEmpty(parentLookup.getImmediateParents(itemLocator));
     List<List<PSLocator>> idPaths = new ArrayList<>(immediate.size());
     for (PSLocator parent : immediate) {
       List<PSLocator> path = new ArrayList<>();
@@ -72,11 +79,16 @@ final class PSFolderLocatorPaths {
   private static void appendAncestors(
       PSLocator folderLocator, List<PSLocator> path, FolderParentLookup parentLookup)
       throws PSCmsException {
-    List<PSLocator> immediate = parentLookup.getImmediateParents(folderLocator);
+    List<PSLocator> immediate = parentsOrEmpty(parentLookup.getImmediateParents(folderLocator));
     if (!immediate.isEmpty()) {
       PSLocator owner = immediate.get(0);
       path.add(owner);
       appendAncestors(owner, path, parentLookup);
     }
+  }
+
+  /** Treats a null lookup result as no parents so callers cannot NPE on {@code size()}/{@code isEmpty()}. */
+  private static List<PSLocator> parentsOrEmpty(List<PSLocator> immediate) {
+    return immediate == null ? List.of() : immediate;
   }
 }

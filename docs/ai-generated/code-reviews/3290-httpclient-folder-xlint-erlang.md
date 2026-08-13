@@ -37,6 +37,16 @@ None (blocking).
 - `PSFolderLocatorPaths.collect` NPEs if `parentLookup` returns `null`; production lookup always returns a list. Could treat null as empty if a future caller is sloppy.
 - Folder ancestor walk still recurses without cycle detection (same as the previous private helper).
 
+## Re-review (2026-08-13, PR #3293 kilo thread)
+
+Kilo flagged `collect` NPE if `FolderParentLookup.getImmediateParents` returns null. Follow-up:
+
+- `parentsOrEmpty` coerces null to `List.of()` at both `collect` and `appendAncestors` call sites.
+- Interface `@return` documents never-null; collect still treats null as empty (defense in depth).
+- Tests: `collect_nullImmediateParents_empty`, `collect_nullAncestorParents_stopsWalk`.
+
+**Recommendation:** approve. **May commit/push: yes.** No blocking bugs. Cycle-detection still a non-blocking suggestion.
+
 ## Tests / build
 
 - `CookieModuleCookieJarTest` — 4 tests

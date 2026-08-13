@@ -53,6 +53,26 @@ class PSServerFolderProcessorLocatorPathsTest {
   }
 
   @Test
+  @DisplayName("null immediate-parent list is treated as empty")
+  void collect_nullImmediateParents_empty() throws PSCmsException {
+    PSLocator item = new PSLocator(100, 1);
+    List<List<PSLocator>> paths = PSFolderLocatorPaths.collect(item, locator -> null);
+    assertTrue(paths.isEmpty());
+  }
+
+  @Test
+  @DisplayName("null ancestor-parent list stops the walk without NPE")
+  void collect_nullAncestorParents_stopsWalk() throws PSCmsException {
+    PSLocator item = new PSLocator(100, 1);
+    PSLocator folder = new PSLocator(10, 1);
+    List<List<PSLocator>> paths =
+        PSFolderLocatorPaths.collect(
+            item, locator -> locator.getId() == item.getId() ? List.of(folder) : null);
+    assertEquals(1, paths.size());
+    assertEquals(List.of(folder), paths.get(0));
+  }
+
+  @Test
   @DisplayName("item with no folder parents yields an empty path list")
   void collect_noParents_empty() throws PSCmsException {
     PSLocator item = new PSLocator(100, 1);
