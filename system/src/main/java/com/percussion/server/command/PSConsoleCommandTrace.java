@@ -43,7 +43,6 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -179,13 +178,7 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
 
       // case help
       if (m_help) {
-        Iterator list = PSTraceMessageFactory.getPossibleOptions().iterator();
-        while (list.hasNext()) {
-          Element el = PSXmlDocumentBuilder.addEmptyElement(respDoc, root, "PSXTraceOption");
-          PSTraceOption option = (PSTraceOption) list.next();
-          el.setAttribute("flag", option.toString());
-          el.setAttribute("name", option.getName());
-        }
+        addTraceOptionElements(respDoc, root, PSTraceMessageFactory.getPossibleOptions());
       }
       // case default
       else if (m_default) {
@@ -236,6 +229,22 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
     }
 
     return respDoc;
+  }
+
+  /**
+   * Appends typed trace option elements to a console result document.
+   *
+   * @param respDoc result document; never {@code null}
+   * @param root parent element; never {@code null}
+   * @param options factory options; never {@code null}
+   */
+  static void addTraceOptionElements(
+      Document respDoc, Element root, Iterable<PSTraceOption> options) {
+    for (PSTraceOption option : options) {
+      Element el = PSXmlDocumentBuilder.addEmptyElement(respDoc, root, "PSXTraceOption");
+      el.setAttribute("flag", option.toString());
+      el.setAttribute("name", option.getName());
+    }
   }
 
   /** allow package members to see our command name */
