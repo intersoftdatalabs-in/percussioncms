@@ -16,12 +16,16 @@
  */
 package com.percussion.legacy.security.deprecated;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.percussion.security.PSEncryptor;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.HexFormat;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assertions.*;
@@ -46,6 +50,23 @@ public class PSLegacyEncrypterTest {
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
+
+  /**
+   * Public upgrade-compat constants must keep their historical values after the GHAS split. Assert
+   * SHA-256 fingerprints so the test source does not re-embed the full password-shaped literals.
+   */
+  @Test
+  public void publicLegacyConstantsMatchHistoricalFingerprints() throws Exception {
+    assertSha256(
+        "8bdc1448fbe7864157a8701758e8e8144cd5aa52dac595579ab358a7058199bc",
+        PSLegacyEncrypter.PUBSERVER_ENCRYPTION_KEY);
+    assertSha256(
+        "8010424bedf79dfd02799ab2f80f0db3bb8ca8c3d9788d6334a7c4585f61d66f",
+        PSLegacyEncrypter.LEGACY_USER_PWD_ENC);
+    assertEquals("demo", PSLegacyEncrypter.LEGACY_USER_PWD);
+    assertEquals(16, PSLegacyEncrypter.PUBSERVER_ENCRYPTION_KEY.length());
+    assertEquals(40, PSLegacyEncrypter.LEGACY_USER_PWD_ENC.length());
   }
 
   /**
@@ -125,6 +146,13 @@ public class PSLegacyEncrypterTest {
         enc, PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).encrypt(pwd, key));
   }
 
+  private static void assertSha256(String expectedHex, String value) throws Exception {
+    MessageDigest sha = MessageDigest.getInstance("SHA-256");
+    String actual =
+        HexFormat.of().formatHex(sha.digest(value.getBytes(StandardCharsets.US_ASCII)));
+    assertEquals(expectedHex, actual);
+  }
+
   /**
    * Attempts to convert the supplied <code>BigInteger</code> to a byte array
    * which has been padded if necessary, verifying that the array has been
@@ -135,6 +163,7 @@ public class PSLegacyEncrypterTest {
    * <code>null<code>.
    *
    */
+
   private void testToByteArray(BigInteger bigInt) {
     byte[] convertedBytes =
         PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).toByteArray(bigInt);
