@@ -7,7 +7,8 @@
  * Workflow / Roles / Users / Categories must unwrap before .map so the
  * Admin shell loads without RouteErrorBoundary.
  *
- * #3088: Workflow admin lives under unified AdminShell (not sibling Workflow shell).
+ * #3088 / #3340: Workflow admin lives under unified AdminShell
+ * (not a sibling Administration shell / admin-sibling-workflow-link).
  *
  * Tags: @workflow-admin @administration @smoke @bug-2959 @bug-3202
  *

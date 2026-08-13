@@ -142,16 +142,16 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 | Vitest (component + a11y gate) | `WebUI/src/test/ts/{contentExplorer,contentBrowser}/` | `cd WebUI/src/main/frontend && npx vitest run`       |
 | Playwright (E2E + a11y gate)   | `modules/perc-qa-automation/frontend/tests/`          | `cd modules/perc-qa-automation/frontend && npm test` |
 
-## Modern Unified Workflow & Admin UI (feature 993)
+## Modern Unified Workflow & Admin UI (feature 993 / #3088 / #3201)
 
-Modern React replacement for the legacy Workflow, Role, User, Category, and Admin UI screens. Integrated within `WorkflowAdminShell` and `AdminShell`.
+Modern React replacement for the legacy Workflow, Role, User, Category, and Admin UI screens. **One product shell:** `AdminShell` titled **Admin tools**. Workflow, roles, users, and categories are in-shell tabs — there is no separate Administration sibling (`admin-sibling-workflow-link`, #3340). `WorkflowAdminShell` is a redirect stub into `/admin/:tab`.
 
 ### Entry points (SPA — PR-5/PR-8)
 
 |      Page      |               URL               |                                       Component(s)                                        |
 |----------------|---------------------------------|-------------------------------------------------------------------------------------------|
-| Workflow Admin | `cm/app/spa.jsp?entry=workflow` | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories)         |
-| Admin          | `cm/app/spa.jsp?entry=admin`    | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
+| Admin tools    | `cm/app/spa.jsp?entry=admin`    | `AdminShell` (tasks, logs, notifications, tools, workflow, roles, users, categories)      |
+| Legacy workflow entry | `cm/app/spa.jsp?entry=workflow` | Redirects into `AdminShell` workflow tab (`/admin/workflow`)                         |
 
 Former product hosts `adminWorkflowModern.jsp` / `adminModern.jsp` were removed in PR-8.
 
@@ -159,14 +159,14 @@ Former product hosts `adminWorkflowModern.jsp` / `adminModern.jsp` were removed 
 
 |          Component          |      Mount path      |                                       Role                                       |
 |-----------------------------|----------------------|----------------------------------------------------------------------------------|
-| `WorkflowAdminShell`        | SPA `entry=workflow` | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
-| `WorkflowsSection`          | inside Shell         | Workflow list, creation, editing, state & transition management                  |
-| `WorkflowAssignmentSection` | inside Shell         | Site-to-workflow mapping, contentType & publishing default template rules        |
-| `RolesSection`              | inside Shell         | Role list, creation, member management with dual list picker                     |
-| `UsersSection`              | inside Shell         | User list, user creation, role & group assignment                                |
-| `CategoriesSection`         | inside Shell         | Category tree explorer, node creation, lock management                           |
+| `AdminShell`                | SPA `entry=admin`    | Unified Admin tools (tasks, logs, notifications, tools + workflow/roles/users/categories) |
+| `WorkflowAdminShell`        | redirect only        | Legacy name; `Navigate` to `/admin/:tab` (#3088)                                 |
+| `WorkflowsSection`          | Admin tab            | Workflow list, creation, editing, state & transition management                  |
+| `WorkflowAssignmentSection` | inside Workflow tab  | Site-to-workflow mapping, contentType & publishing default template rules        |
+| `RolesSection`              | Admin tab            | Role list, creation, member management with dual list picker                     |
+| `UsersSection`              | Admin tab            | User list, user creation, role & group assignment                                |
+| `CategoriesSection`         | Admin tab            | Category tree explorer, node creation, lock management                           |
 | `InContextTransitionButton` | standalone / editor  | Action button for executing item workflow state transitions                      |
-| `AdminShell`                | SPA `entry=admin`    | System administration shell (Tasks, Logs, Notifications, System Tools)           |
 | `TasksSection`              | inside AdminShell    | Scheduled task list, schedule builder, trigger actions                           |
 | `TaskLogsSection`           | inside AdminShell    | Task execution logs, status filter, detail viewer                                |
 | `TaskNotifications`         | inside AdminShell    | Email notification template manager                                              |
