@@ -32,8 +32,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -58,6 +60,8 @@ public class SitesResource {
   static Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
   private final ISiteAdaptor adaptor;
+
+  @Context private UriInfo uriInfo;
 
   public SitesResource() {
     this.adaptor = null;
@@ -278,6 +282,154 @@ public class SitesResource {
     } catch (Exception e) {
       log.error(
           "Failed to build virtual site '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Last-build preview availability (JSON). Missing assembled output is HTTP 200 with {@code
+   * available=false}.
+   *
+   * @param nameOrId site name or GUID
+   * @return preview status
+   */
+  @GET
+  @Path("/{nameOrId}/virtual/preview")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Virtual Site preview status",
+      description =
+          "Reports whether the last Admin Virtual Site build can be opened from the product UI."
+              + " Uses the last build output path (default {install}/tmp/virtual-sites/{siteKey})."
+              + " Missing or failed builds return 200 with available=false (not 500). Requires"
+              + " Admin. Traditional repository Sites return 400.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Status (check available / homePath)",
+            content = @Content(schema = @Schema(implementation = VirtualSitePreviewStatus.class))),
+        @ApiResponse(responseCode = "400", description = "Not virtual / validation failure"),
+        @ApiResponse(responseCode = "403", description = "Not authorized (Admin required)"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public VirtualSitePreviewStatus getVirtualSitePreviewStatus(
+      @PathParam("nameOrId") String nameOrId) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      // JSON/XML DTO via Jackson/JAXB/CXF — not HTML body (see suppressions.md)
+      return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to load virtual site preview status '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Streams one assembled file from the last Virtual Site build (navigable preview).
+   *
+   * @param nameOrId site name or GUID
+   * @param relPath path under the output root; blank uses assembled home
+   * @return file bytes
+   */
+  @GET
+  @Path("/{nameOrId}/virtual/preview/{relPath:.*}")
+  @Produces(MediaType.WILDCARD)
+  @Operation(
+      summary = "Preview Virtual Site file",
+      description =
+          "Streams a file from the last Virtual Site build output. Paths are resolved with portable"
+              + " NIO Path under the last output root (no '..' after normalize). HTML root-relative"
+              + " href/src/url() values are rewritten to this preview prefix so navigation works."
+              + " Requires Admin. Missing files return 404 (not 500).",
+      responses = {
+        @ApiResponse(responseCode = "200", description = "File bytes"),
+        @ApiResponse(responseCode = "400", description = "Not virtual / unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Not authorized (Admin required)"),
+        @ApiResponse(responseCode = "404", description = "Site or file not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response previewVirtualSiteFile(
+      @PathParam("nameOrId") String nameOrId, @PathParam("relPath") String relPath) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      VirtualSitePreviewFile file = requireAdaptor().previewVirtualSiteFile(nameOrId, relPath);
+      byte[] body = file.getContent();
+      if (file.isHtml()) {
+        String base = uriInfo != null ? uriInfo.getBaseUri().getPath() : "/services/";
+        String prefix = VirtualSitePreviewHtml.previewPrefix(base, nameOrId);
+        body = VirtualSitePreviewHtml.rewriteRootRelative(body, prefix);
+      }
+      return Response.ok(body, file.getMediaType())
+          .header("Cache-Control", "no-store")
+          .build(); // codeql[java/xss]
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to preview virtual site file '{}' path='{}' ({}): {}",
+          nameOrId,
+          relPath,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Builds a Virtual Site and publishes the static output to the Site filesystem publish root.
+   *
+   * @param nameOrId site name or GUID
+   * @return pages written, files copied, and publish path
+   */
+  @POST
+  @Path("/{nameOrId}/virtual/publish")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Publish Virtual Site to Site filesystem target",
+      description =
+          "Runs the Phase 1 Virtual Site static build (same as POST …/virtual/build) then copies"
+              + " assembled HTML/assets to the Site publishing filesystem location (IPSSite.root)."
+              + " Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
+              + " overlap with virtual.rootPath return 4xx with an operator-readable message"
+              + " (never a silent no-op).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Published (check hasLinkProblems / filesCopied)",
+            content = @Content(schema = @Schema(implementation = VirtualSitePublishResult.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Not virtual / missing Site root / unsafe path / overlap"),
+        @ApiResponse(responseCode = "403", description = "Not authorized (Admin required)"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public VirtualSitePublishResult publishVirtualSite(@PathParam("nameOrId") String nameOrId) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      // JSON/XML DTO via Jackson/JAXB/CXF — not HTML body (see suppressions.md)
+      return requireAdaptor().publishVirtualSite(nameOrId); // codeql[java/xss]
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to publish virtual site '{}' ({}): {}",
           nameOrId,
           e.getClass().getName(),
           e.getMessage(),

@@ -760,3 +760,15 @@ export interface VirtualSiteBuildResult {
   writtenFiles?: string[] | null;
 }
 
+/**
+ * Last-build preview availability ({@code GET /services/sites/{nameOrId}/virtual/preview}).
+ * Missing output is HTTP 200 with {@code available=false} (not 500).
+ */
+export interface VirtualSitePreviewStatus {
+  available?: boolean | null;
+  /** Relative home under the output root, e.g. {@code 8.2/index.html}. */
+  homePath?: string | null;
+  outputPath?: string | null;
+  message?: string | null;
+}
+

@@ -10,6 +10,7 @@ import type {
   SiteDef,
   VirtualSiteBuildRequest,
   VirtualSiteBuildResult,
+  VirtualSitePreviewStatus,
   VirtualSiteProperties,
 } from "./types";
 
@@ -258,6 +259,52 @@ export async function buildVirtualSite(
       : {};
   const payload = await post<unknown>(`${PATHS.SITES}/${key}/virtual/build`, body);
   return parseVirtualSiteBuildResult(payload);
+}
+
+/**
+ * Normalize Virtual Site preview status (Jackson root wrap or plain DTO).
+ */
+export function parseVirtualSitePreviewStatus(payload: unknown): VirtualSitePreviewStatus {
+  if (payload == null || typeof payload !== "object") {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const root =
+    (obj.VirtualSitePreviewStatus as Record<string, unknown> | undefined) ??
+    (obj.virtualSitePreviewStatus as Record<string, unknown> | undefined) ??
+    obj;
+  return {
+    available: typeof root.available === "boolean" ? root.available : undefined,
+    homePath: asNullableString(root.homePath),
+    outputPath: asNullableString(root.outputPath),
+    message: asNullableString(root.message),
+  };
+}
+
+/** GET /services/sites/{nameOrId}/virtual/preview — last-build availability (Admin). */
+export async function getVirtualSitePreviewStatus(
+  nameOrId: string,
+): Promise<VirtualSitePreviewStatus> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await get<unknown>(`${PATHS.SITES}/${key}/virtual/preview`);
+  return parseVirtualSitePreviewStatus(payload);
+}
+
+/**
+ * Browser URL for the assembled preview file stream (same-origin cookies).
+ * {@code homePath} must be a relative path such as {@code 8.2/index.html}.
+ */
+export function virtualSitePreviewContentHref(nameOrId: string, homePath: string): string {
+  const key = encodeURIComponent(nameOrId.trim());
+  const rel = homePath
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .split("/")
+    .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+  return `${PATHS.SITES}/${key}/virtual/preview/${rel}`;
 }
 
 function asNullableString(value: unknown): string | null | undefined {

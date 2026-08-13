@@ -16,6 +16,7 @@
  */
 package com.percussion.apibridge;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +32,10 @@ import static org.mockito.Mockito.when;
 import com.percussion.rest.sites.Site;
 import com.percussion.rest.sites.VirtualSiteBuildRequest;
 import com.percussion.rest.sites.VirtualSiteBuildResult;
+import com.percussion.rest.sites.VirtualSitePreviewFile;
+import com.percussion.rest.sites.VirtualSitePreviewStatus;
 import com.percussion.rest.sites.VirtualSiteProperties;
+import com.percussion.rest.sites.VirtualSitePublishResult;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -370,6 +374,79 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_rejectsRepositorySite() {
+    PSSite site = new PSSite();
+    site.setName("Corp");
+    site.setGUID(siteGuid);
+    site.setRoot(tempDir.resolve("pub").toString());
+    when(siteManager.findSite("Corp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("Corp"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("not a virtual"));
+  }
+
+  @Test
+  void publishVirtualSite_rejectsMissingSiteRoot() {
+    Path siteRoot = tempDir.resolve("src-no-root");
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toString());
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("Help"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).toLowerCase().contains("not configured"));
+  }
+
+  @Test
+  void publishVirtualSite_forbiddenWhenNotAdmin() {
+    SitesAdaptor denied =
+        new SitesAdaptor(siteManager, () -> false, SitesAdaptor::defaultOutputRootForSiteKey, null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.publishVirtualSite("Help"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_buildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalVirtualTree(tempDir.resolve("pub-src"));
+    Path staging = tempDir.resolve("pub-staging");
+    Path publishTo = tempDir.resolve("pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("Help");
+    assertEquals("Help", result.getSiteName().orElse(null));
+    assertEquals("help-docs", result.getSiteKey().orElse(null));
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    assertTrue(Files.isRegularFile(publishTo.resolve("8.2").resolve("index.html")));
+    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath().isPresent());
+  }
+
+  @Test
   void safePathSegment_stripsSeparators() {
     assertEquals("a_b_c", SitesAdaptor.safePathSegment("a/b\\c"));
     assertEquals("default", SitesAdaptor.safePathSegment(".."));
@@ -412,6 +489,141 @@ class SitesAdaptorTest {
     VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
     req.setOutputRoot(out.toString());
     assertEquals(out, adaptor.resolveOutputRoot(req, "help").normalize());
+  }
+
+  @Test
+  void previewStatus_missingBuildIsUnavailableNot500() {
+    Path defaultOut = tempDir.resolve("preview-default-empty");
+    PSSite site = virtualHelpSite();
+    when(siteManager.findSite("Help")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("Help");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertTrue(status.getMessage().orElse("").contains("No assembled"));
+  }
+
+  @Test
+  void previewStatus_findsVersionHomeAfterPointer() throws Exception {
+    Path defaultOut = tempDir.resolve("preview-default");
+    Path built = tempDir.resolve("preview-built");
+    Files.createDirectories(built.resolve("8.2"));
+    Files.writeString(built.resolve("8.2").resolve("index.html"), "<html>home</html>");
+
+    PSSite site = virtualHelpSite();
+    when(siteManager.findSite("Help")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("help-docs", built);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("Help");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath().orElse(null));
+  }
+
+  @Test
+  void previewFile_servesHtmlAndRejectsTraversal() throws Exception {
+    Path defaultOut = tempDir.resolve("preview-files");
+    Files.createDirectories(defaultOut.resolve("8.2"));
+    Files.writeString(
+        defaultOut.resolve("8.2").resolve("index.html"), "<html><a href=\"/8.2/x.html\">x</a>");
+
+    PSSite site = virtualHelpSite();
+    when(siteManager.findSite("Help")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("Help", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    assertTrue(new String(file.getContent(), StandardCharsets.UTF_8).contains("href="));
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("Help", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("Help", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void preview_forbiddenWhenNotAdmin() {
+    SitesAdaptor denied =
+        new SitesAdaptor(siteManager, () -> false, SitesAdaptor::defaultOutputRootForSiteKey, null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.getVirtualSitePreviewStatus("Help"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void preview_rejectsRepositorySite() {
+    PSSite site = new PSSite();
+    site.setName("Corp");
+    site.setGUID(siteGuid);
+    when(siteManager.findSite("Corp")).thenReturn(site);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.getVirtualSitePreviewStatus("Corp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
+    WebApplicationException dots =
+        assertThrows(
+            WebApplicationException.class,
+            () -> SitesAdaptor.requireSafeRelativePreviewPath("a/../../etc/passwd"));
+    assertEquals(400, dots.getResponse().getStatus());
+  }
+
+  @Test
+  void findHomeRelativePath_prefersRootThen82() throws Exception {
+    Path out = tempDir.resolve("homes");
+    Files.createDirectories(out.resolve("8.2"));
+    Files.writeString(out.resolve("8.2").resolve("index.html"), "v");
+    assertEquals("8.2/index.html", SitesAdaptor.findHomeRelativePath(out));
+    Files.writeString(out.resolve("index.html"), "root");
+    assertEquals("index.html", SitesAdaptor.findHomeRelativePath(out));
+  }
+
+  @Test
+  void findHomeRelativePath_picksHighestNumericVersionNotLexical() throws Exception {
+    Path out = tempDir.resolve("homes-versions");
+    Files.createDirectories(out.resolve("9.0"));
+    Files.createDirectories(out.resolve("10.0"));
+    Files.createDirectories(out.resolve("_meta"));
+    Files.writeString(out.resolve("9.0").resolve("index.html"), "nine");
+    Files.writeString(out.resolve("10.0").resolve("index.html"), "ten");
+    Files.writeString(out.resolve("_meta").resolve("index.html"), "meta");
+    assertEquals("10.0/index.html", SitesAdaptor.findHomeRelativePath(out));
+    assertTrue(SitesAdaptor.compareHomeCandidateDirectories(out.resolve("10.0"), out.resolve("9.0")) < 0);
+  }
+
+  @Test
+  void recordLastOutputRoot_doesNotThrowWhenPointerUnwritable() throws Exception {
+    Path defaultOut = tempDir.resolve("pointer-blocked");
+    Files.createDirectories(defaultOut);
+    Files.writeString(defaultOut.resolve("_meta"), "not-a-directory");
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    assertDoesNotThrow(() -> previewing.recordLastOutputRoot("help-docs", defaultOut));
+  }
+
+  private PSSite virtualHelpSite() {
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("virt-root").toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    return site;
   }
 
   private static Path createMinimalVirtualTree(Path siteRoot) throws Exception {

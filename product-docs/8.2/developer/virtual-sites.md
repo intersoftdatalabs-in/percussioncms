@@ -128,10 +128,42 @@ The body is optional. Without `outputRoot`, the server writes under
 `pagesWritten`, link problems, and the absolute `outputPath`. Traditional repository Sites and
 invalid/missing virtual configuration return **400**.
 
+A successful assemble with unresolved internal links still returns **HTTP 200** with
+`hasLinkProblems=true` and a `linkProblems` array (the same lines as `link-report.txt` under
+the output root). The Sites UI lists those lines in an expandable **Link problems** block so
+operators do not have to open the report file on the server. Do not treat that 200 as a
+server error.
+
 Operators can run the same operation from **Developer → Sites → Site detail → Build Virtual Site**
 (visible only when source kind is Virtual). Save Virtual Site source before building so the server
-uses the latest properties. See [Sites & content structure](id:admin-sites) and
+uses the latest properties.
+
+After a successful build, **Preview assembled site** opens the last output home in a new tab
+(`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
+assembled file stream). Missing output returns status `available=false` (HTTP 200) or file HTTP
+404 — not 500. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).
+
+## CMS-integrated publish (Site filesystem target)
+
+Build writes a **staging** tree. To publish that tree to the Site's configured filesystem
+location (`IPSSite.root` / Site publishing root), an **Admin** calls:
+
+```http
+POST /sites/{nameOrId}/virtual/publish
+```
+
+The server:
+
+1. Validates the Site is a Git-filesystem Virtual Site.
+2. Selects the Site filesystem publish root (must be configured, safe after NIO normalize, and
+   distinct from `virtual.rootPath`).
+3. Runs the same build as `POST …/virtual/build`.
+4. Copies assembled HTML/assets (not `_meta`) to the Site root using portable `java.nio.file.Path`.
+
+The response includes `publishPath`, `buildOutputPath`, `pagesWritten`, `filesCopied`, and
+link-problem fields. Failures return **400/403/404** with an operator-readable message (never a
+silent no-op). See [Publishing](id:admin-publishing).
 
 ## What is not in Phase 1
 

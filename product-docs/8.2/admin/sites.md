@@ -127,15 +127,52 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
 5. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
-   - **Link problems** — reported in the result panel when internal links fail
-     (the build may still complete with HTTP 200).
+   - **Link problems** — a count appears when internal `id:` or relative links fail.
+     Expand **Show link problem details** to read the same lines written to
+     `link-report.txt` in the output directory. **Copy link problems** puts those
+     lines on the clipboard. The build still completes with HTTP 200
+     (`hasLinkProblems=true`); this is not a 500 and is not a failed save.
+     A clean build does **not** show a link-problem banner.
    - **Error** — clear message when the Site is not virtual, the root is missing/invalid,
      or the caller lacks Admin (for example 400/403 from REST).
+
+### Preview the assembled Virtual Site
+
+After a successful **Build Virtual Site**, operators can open the assembled documentation
+home from the same Site detail panel (no CLI, no `file://` path).
+
+1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
+2. Choose **Preview assembled site**.
+3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
+   when present) in a new tab. Navigation stays on the same-origin preview URL
+   (`GET /services/sites/{name}/virtual/preview/{path}`).
+4. If no build has been run yet (or the last output is missing), the panel shows a clear
+   empty state — **No assembled site to preview. Run Build Virtual Site first.** — and
+   does not return HTTP 500.
+
+The preview stream reads the last recorded `outputPath` from the build (default
+`{install}/tmp/virtual-sites/{siteKey}`). It is **Admin-only**, path-traversal safe, and
+does not invent a second assembler. Traditional **Repository** Sites do not show Preview
+chrome.
 
 Integrators can call the same operation over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
 [Site configuration reference](id:reference-site-config) and
 [Virtual Sites (developer)](id:developer-virtual-sites).
+
+### Publish a Virtual Site to the Site filesystem target
+
+Build output under `{install}/tmp/virtual-sites/` is **staging**. To deliver a navigable static
+site to the Site's configured filesystem publish location:
+
+1. Set the Site **publishing filesystem root** (Site root / `IPSSite.root`) to a dedicated
+   directory on the CMS host (not the Markdown `virtual.rootPath`).
+2. As **Admin**, call `POST /sites/{nameOrId}/virtual/publish`.
+3. The server **builds then copies** HTML/assets to that Site root and returns `publishPath`
+   and `filesCopied`. Missing or unsafe Site root, overlap with the source tree, or a
+   non-virtual Site returns **400** with a readable message (not HTTP 500 / silent no-op).
+
+See [Publishing](id:admin-publishing) for the operator checklist.
 
 Offline scripts (`scripts/build-cms-docs.*`) remain available for developer workstations
 without a running CMS.

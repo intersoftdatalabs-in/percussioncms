@@ -18,8 +18,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   buildVirtualSite,
+  getVirtualSitePreviewStatus,
   getVirtualSiteProperties,
   updateVirtualSiteProperties,
+  virtualSitePreviewContentHref,
 } from "../api/developer/sitesApi";
 import type { VirtualSiteBuildResult } from "../api/developer/types";
 import {
@@ -30,8 +32,10 @@ import {
 } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { copyTextToClipboard } from "./templateSourceViewer";
 import {
   formatVirtualSiteBuildSummary,
+  sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
 } from "./virtualSiteBuild";
 import {
@@ -148,6 +152,9 @@ export function VirtualSiteSourcePanel({
   const [isVirtual, setIsVirtual] = useState(false);
   const [buildError, setBuildError] = useState<string | null>(null);
   const [buildResult, setBuildResult] = useState<VirtualSiteBuildResult | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [linkCopyNotice, setLinkCopyNotice] = useState<string | null>(null);
 
   const load = useCallback(() => {
     if (!siteName.trim()) {
@@ -162,6 +169,8 @@ export function VirtualSiteSourcePanel({
     setSavedNotice(null);
     setBuildError(null);
     setBuildResult(null);
+    setPreviewError(null);
+    setLinkCopyNotice(null);
     getVirtualSiteProperties(siteName)
       .then((props) => {
         if (cancelled) return;
@@ -222,6 +231,8 @@ export function VirtualSiteSourcePanel({
     setBuilding(true);
     setBuildError(null);
     setBuildResult(null);
+    setPreviewError(null);
+    setLinkCopyNotice(null);
     setFormError(null);
     try {
       const result = await buildVirtualSite(siteName);
@@ -231,6 +242,39 @@ export function VirtualSiteSourcePanel({
     } finally {
       setBuilding(false);
     }
+  }
+
+  async function onPreview(): Promise<void> {
+    setPreviewBusy(true);
+    setPreviewError(null);
+    try {
+      const status = await getVirtualSitePreviewStatus(siteName);
+      if (status.available !== true) {
+        setPreviewError(
+          status.message?.trim() || DEV_MSG.SITE_VIRT_PREVIEW_MISSING,
+        );
+        return;
+      }
+      const home = sanitizeVirtualPreviewHomePath(status.homePath);
+      if (!home) {
+        setPreviewError(DEV_MSG.SITE_VIRT_PREVIEW_MISSING);
+        return;
+      }
+      const href = virtualSitePreviewContentHref(siteName, home);
+      window.open(href, "_blank", "noopener,noreferrer");
+    } catch (e: unknown) {
+      setPreviewError(panelErrMsg(e, DEV_MSG.SITE_VIRT_PREVIEW_ERROR));
+    } finally {
+      setPreviewBusy(false);
+    }
+  }
+
+  async function onCopyLinkProblems(lines: string[]): Promise<void> {
+    if (lines.length === 0) {
+      return;
+    }
+    const ok = await copyTextToClipboard(lines.join("\n"));
+    setLinkCopyNotice(ok ? DEV_MSG.SITE_VIRT_BUILD_LINK_COPIED : null);
   }
 
   const virtualMode = isVirtualSourceKind(form.sourceKind);
@@ -391,15 +435,32 @@ export function VirtualSiteSourcePanel({
               <p style={{ ...mutedHintText, margin: "0 0 10px" }} data-testid="developer-site-virtual-build-save-first">
                 {DEV_MSG.SITE_VIRT_BUILD_SAVE_FIRST}
               </p>
-              <button
-                type="button"
-                data-testid="developer-site-virtual-build"
-                style={busy ? disabledSecondaryButton : secondaryButton}
-                disabled={busy}
-                onClick={() => void onBuild()}
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  type="button"
+                  data-testid="developer-site-virtual-build"
+                  style={busy ? disabledSecondaryButton : secondaryButton}
+                  disabled={busy}
+                  onClick={() => void onBuild()}
+                >
+                  {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-site-virtual-preview"
+                  style={busy || previewBusy ? disabledSecondaryButton : secondaryButton}
+                  disabled={busy || previewBusy}
+                  onClick={() => void onPreview()}
+                >
+                  {DEV_MSG.SITE_VIRT_PREVIEW}
+                </button>
+              </div>
+              <p
+                style={{ ...mutedHintText, margin: "8px 0 0" }}
+                data-testid="developer-site-virtual-preview-hint"
               >
-                {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
-              </button>
+                {DEV_MSG.SITE_VIRT_PREVIEW_HINT}
+              </p>
 
               {building ? (
                 <div data-testid="developer-site-virtual-build-busy" style={{ ...mutedText, marginTop: "10px" }}>
@@ -414,6 +475,16 @@ export function VirtualSiteSourcePanel({
                   style={{ ...errorAlert, marginTop: "10px" }}
                 >
                   {buildError}
+                </div>
+              ) : null}
+
+              {previewError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-site-virtual-preview-error"
+                  style={{ ...errorAlert, marginTop: "10px" }}
+                >
+                  {previewError}
                 </div>
               ) : null}
 
@@ -439,9 +510,74 @@ export function VirtualSiteSourcePanel({
                   {buildSummary.hasLinkProblems && buildSummary.linkLine ? (
                     <div
                       data-testid="developer-site-virtual-build-link-problems"
-                      style={{ marginTop: "4px", color: catalogColors.error }}
+                      style={{ marginTop: "8px", color: catalogColors.error }}
                     >
-                      {DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS}: {buildSummary.linkLine}
+                      <div>
+                        {DEV_MSG.SITE_VIRT_BUILD_LINK_PROBLEMS}: {buildSummary.linkLine}
+                      </div>
+                      <p
+                        style={{ ...mutedHintText, margin: "6px 0 0", color: catalogColors.error }}
+                        data-testid="developer-site-virtual-build-link-report-hint"
+                      >
+                        {DEV_MSG.SITE_VIRT_BUILD_LINK_REPORT_HINT}
+                      </p>
+                      {buildSummary.linkProblems.length > 0 ? (
+                        <details
+                          data-testid="developer-site-virtual-build-link-details"
+                          style={{ marginTop: "8px" }}
+                        >
+                          <summary
+                            data-testid="developer-site-virtual-build-link-toggle"
+                            style={{ cursor: "pointer" }}
+                          >
+                            {DEV_MSG.SITE_VIRT_BUILD_LINK_DETAILS}
+                          </summary>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "12px",
+                              alignItems: "center",
+                              marginTop: "8px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              data-testid="developer-site-virtual-build-link-copy"
+                              style={secondaryButton}
+                              onClick={() =>
+                                void onCopyLinkProblems(buildSummary.linkProblems)
+                              }
+                            >
+                              {DEV_MSG.SITE_VIRT_BUILD_LINK_COPY}
+                            </button>
+                            {linkCopyNotice ? (
+                              <span data-testid="developer-site-virtual-build-link-copied">
+                                {linkCopyNotice}
+                              </span>
+                            ) : null}
+                          </div>
+                          <ul
+                            data-testid="developer-site-virtual-build-link-list"
+                            style={{
+                              ...buildResultMono,
+                              margin: "8px 0 0",
+                              paddingLeft: "1.25rem",
+                              maxHeight: "16rem",
+                              overflow: "auto",
+                            }}
+                          >
+                            {buildSummary.linkProblems.map((line, index) => (
+                              <li
+                                key={`${index}:${line}`}
+                                data-testid="developer-site-virtual-build-link-line"
+                              >
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>

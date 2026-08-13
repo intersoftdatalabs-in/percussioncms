@@ -107,4 +107,44 @@ public interface ISiteAdaptor {
    *     path issues, 403 when not authorized, 404 when site not found
    */
   VirtualSiteBuildResult buildVirtualSite(String nameOrId, VirtualSiteBuildRequest request);
+
+  /**
+   * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
+   *
+   * <p>Missing output is {@code available=false} with a message (not a 500). Requires Admin.
+   *
+   * @param nameOrId site name or GUID string, not blank
+   * @return status (never null)
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the site is not Virtual, 403 when not
+   *     authorized, 404 when site not found
+   */
+  VirtualSitePreviewStatus getVirtualSitePreviewStatus(String nameOrId);
+
+  /**
+   * Streams one file from the last Virtual Site build output (path-traversal safe).
+   *
+   * @param nameOrId site name or GUID string, not blank
+   * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled
+   *     home
+   * @return file bytes and media type (never null)
+   * @throws jakarta.ws.rs.WebApplicationException 400 unsafe path / not virtual, 403 not Admin, 404
+   *     site or file missing
+   */
+  VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath);
+
+  /**
+   * Builds a Virtual Site and copies the static output to the Site filesystem publish root ({@code
+   * IPSSite.getRoot()}).
+   *
+   * <p>Publish-includes-build: operators get a published docs tree at the configured Site
+   * publishing location, not only {@code tmp/virtual-sites}. Failures are operator-facing 4xx (not
+   * a silent no-op). Requires Admin.
+   *
+   * @param nameOrId site name or GUID string, not blank
+   * @return publish summary (never null)
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the Site is not virtual, publish root is
+   *     missing/unsafe, or the source tree overlaps the target; 403 when not authorized; 404 when
+   *     site not found
+   */
+  VirtualSitePublishResult publishVirtualSite(String nameOrId);
 }

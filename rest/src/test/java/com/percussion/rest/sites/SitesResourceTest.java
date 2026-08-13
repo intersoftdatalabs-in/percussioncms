@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -188,11 +189,80 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegates() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("Help")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("Help");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath().orElse(null));
+    verify(adaptor).getVirtualSitePreviewStatus("Help");
+  }
+
+  @Test
+  public void previewStatusBlankName400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getVirtualSitePreviewStatus(" "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).getVirtualSitePreviewStatus(any());
+  }
+
+  @Test
+  public void previewFileDelegatesAndRewritesHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("Help"), eq("8.2/index.html")))
+        .thenReturn(new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("Help", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(text.contains("/services/sites/Help/virtual/preview/8.2/index.html"), text);
+    verify(adaptor).previewVirtualSiteFile("Help", "8.2/index.html");
+  }
+
+  @Test
+  public void previewFileBlankName400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.previewVirtualSiteFile(" ", "index.html"));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).previewVirtualSiteFile(any(), any());
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
     assertEquals(400, ex.getResponse().getStatus());
     verify(adaptor, never()).buildVirtualSite(any(), any());
+  }
+
+  @Test
+  public void publishVirtualSiteDelegates() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("Help");
+    published.setPagesWritten(3);
+    published.setFilesCopied(5);
+    published.setPublishPath("C:/pub/help");
+    when(adaptor.publishVirtualSite("Help")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("Help");
+    assertEquals(3, out.getPagesWritten().intValue());
+    assertEquals(5, out.getFilesCopied().intValue());
+    assertEquals("C:/pub/help", out.getPublishPath().orElse(null));
+    verify(adaptor).publishVirtualSite("Help");
+  }
+
+  @Test
+  public void publishVirtualSiteBlankName400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).publishVirtualSite(any());
   }
 
   /**
@@ -213,6 +283,16 @@ public class SitesResourceTest {
         text.contains(
             "return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]"),
         "buildVirtualSite return sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains(
+            "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),
+        "getVirtualSitePreviewStatus return sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains(".build(); // codeql[java/xss]"),
+        "previewVirtualSiteFile Response.ok sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains("return requireAdaptor().publishVirtualSite(nameOrId); // codeql[java/xss]"),
+        "publishVirtualSite return sink must carry same-line codeql[java/xss]");
   }
 
   @Test
