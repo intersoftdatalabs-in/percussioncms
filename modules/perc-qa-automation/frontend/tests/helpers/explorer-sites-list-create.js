@@ -73,6 +73,47 @@ function sitesFolderUrl(baseUrl) {
 }
 
 /**
+ * Encode a CMS finder path as a path/folder URL suffix (no leading slash).
+ * @param {string} cmsPath
+ * @returns {string}
+ */
+function encodeFolderListPath(cmsPath) {
+  return String(cmsPath || "")
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^[A-Za-z]:/, "")
+    .replace(/^\/+/, "")
+    .split("/")
+    .filter((seg) => seg.length > 0)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+}
+
+/**
+ * Prefer PathItem.folderPath (FOLDER_ROOT) over finder name path (#3326).
+ * @param {{ path?: string, folderPath?: string } | null | undefined} item
+ * @returns {string}
+ */
+function siteChildListPath(item) {
+  const folder = item && item.folderPath ? String(item.folderPath).trim() : "";
+  if (folder.length > 0) {
+    return folder;
+  }
+  return item && item.path ? String(item.path) : "";
+}
+
+/**
+ * @param {string} baseUrl
+ * @param {string} cmsPath
+ * @returns {string}
+ */
+function folderChildrenUrl(baseUrl, cmsPath) {
+  const suffix = encodeFolderListPath(cmsPath);
+  const root = pathFolderServiceUrl(baseUrl);
+  return suffix ? `${root}/${suffix}` : `${root}/`;
+}
+
+/**
  * Open Content menu dropdown.
  * @param {import('@playwright/test').Page} page
  */
@@ -173,6 +214,9 @@ module.exports = {
   explorerSpaUrl,
   pathFolderServiceUrl,
   sitesFolderUrl,
+  encodeFolderListPath,
+  siteChildListPath,
+  folderChildrenUrl,
   openContentMenu,
   sitesTreeRootLocator,
   sitesTreeDescendantsLocator,

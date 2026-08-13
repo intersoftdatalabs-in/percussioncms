@@ -28,6 +28,9 @@ const {
   explorerSpaUrl,
   pathFolderServiceUrl,
   sitesFolderUrl,
+  encodeFolderListPath,
+  siteChildListPath,
+  folderChildrenUrl,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
@@ -65,6 +68,27 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(
       sitesFolderUrl("http://127.0.0.1:9992"),
       "http://127.0.0.1:9992/Rhythmyx/services/pathmanagement/path/folder/Sites",
+    );
+  });
+
+  it("prefers folderPath for site-child list URL (#3326)", () => {
+    assert.equal(
+      siteChildListPath({
+        path: "/Sites/Corporate_Investments/",
+        folderPath: "//Sites/CorporateInvestments",
+      }),
+      "//Sites/CorporateInvestments",
+    );
+    assert.equal(
+      encodeFolderListPath("//Sites/CorporateInvestments"),
+      "Sites/CorporateInvestments",
+    );
+    assert.equal(
+      folderChildrenUrl(
+        "http://127.0.0.1:9992",
+        "//Sites/CorporateInvestments",
+      ),
+      "http://127.0.0.1:9992/Rhythmyx/services/pathmanagement/path/folder/Sites/CorporateInvestments",
     );
   });
 

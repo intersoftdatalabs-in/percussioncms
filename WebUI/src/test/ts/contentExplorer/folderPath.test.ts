@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  isSafeExplorerTreeChild,
   isStrictCmsPathDescendant,
   normalizeExplorerFolderPath,
   resolveFolderPathFromSelection,
@@ -74,6 +75,30 @@ describe("isStrictCmsPathDescendant (#3001)", () => {
   it("treats any non-root path as a child of root", () => {
     expect(isStrictCmsPathDescendant("/", "/Sites/")).toBe(true);
     expect(isStrictCmsPathDescendant("/", "/")).toBe(false);
+  });
+
+  it("accepts name vs FOLDER_ROOT children as safe tree kids (#3326)", () => {
+    expect(
+      isSafeExplorerTreeChild(
+        "/Sites/Corporate_Investments/",
+        "//Sites/CorporateInvestments",
+        "/Sites/CorporateInvestments/Pages",
+      ),
+    ).toBe(true);
+    expect(
+      isSafeExplorerTreeChild(
+        "/Sites/Corporate_Investments/",
+        "//Sites/CorporateInvestments",
+        "/Sites/Corporate_Investments/Pages",
+      ),
+    ).toBe(true);
+    expect(
+      isSafeExplorerTreeChild(
+        "/Sites/Corporate_Investments/",
+        "//Sites/CorporateInvestments",
+        "/Sites/Corporate_Investments/",
+      ),
+    ).toBe(false);
   });
 
   it("accepts classic Folders root and children under / (#3044)", () => {

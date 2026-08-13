@@ -373,7 +373,9 @@ export function DetailList({
   if (!folderPath) {
     return (
       <div style={listStyle} data-testid="detail-list">
-        <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_EMPTY)}</div>
+        <div style={emptyStateStyle} data-testid="detail-list-empty">
+          {message(EXPLORER_MSG.LIST_EMPTY)}
+        </div>
       </div>
     );
   }
@@ -396,7 +398,9 @@ export function DetailList({
   if (!loading && children.length === 0) {
     return (
       <div style={listStyle} data-testid="detail-list">
-        <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_EMPTY)}</div>
+        <div style={emptyStateStyle} data-testid="detail-list-empty">
+          {message(EXPLORER_MSG.LIST_EMPTY)}
+        </div>
       </div>
     );
   }

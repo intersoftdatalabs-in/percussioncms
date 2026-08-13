@@ -103,6 +103,54 @@ export function isStrictCmsPathDescendant(
 }
 
 /**
+ * Whether {@code childPath} is safe to render under a tree node.
+ *
+ * <p>Drops self/ancestor cycles. Accepts children whose finder path uses
+ * the site <em>name</em> while the node stores {@code folderPath} (or the
+ * reverse) so sample sites {@code Corporate_Investments} vs folder
+ * {@code CorporateInvestments} are not filtered to empty (#3326).</p>
+ */
+export function isSafeExplorerTreeChild(
+  parentPath: string | null | undefined,
+  parentFolderPath: string | null | undefined,
+  childPath: string | null | undefined,
+): boolean {
+  if (childPath == null || String(childPath).trim().length === 0) {
+    return false;
+  }
+  const childNorm = normalizeExplorerFolderPath(childPath);
+  const parentNorm = normalizeExplorerFolderPath(parentPath);
+  const folderNorm = normalizeExplorerFolderPath(parentFolderPath);
+  if (childNorm != null && parentNorm != null && childNorm === parentNorm) {
+    return false;
+  }
+  if (childNorm != null && folderNorm != null && childNorm === folderNorm) {
+    return false;
+  }
+  // Child that is an ancestor of the parent would recurse forever.
+  if (isStrictCmsPathDescendant(childPath, parentPath)) {
+    return false;
+  }
+  if (
+    parentFolderPath != null &&
+    isStrictCmsPathDescendant(childPath, parentFolderPath)
+  ) {
+    return false;
+  }
+  if (isStrictCmsPathDescendant(parentPath, childPath)) {
+    return true;
+  }
+  if (
+    parentFolderPath != null &&
+    isStrictCmsPathDescendant(parentFolderPath, childPath)
+  ) {
+    return true;
+  }
+  // Name vs folder-root prefix mismatch — still render (not a cycle).
+  return true;
+}
+
+/**
  * Resolve the source folder path for Subfolder Copy.
  *
  * <p>Prefer a selected folder row path; otherwise the active tree folder

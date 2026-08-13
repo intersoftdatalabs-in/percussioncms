@@ -96,7 +96,10 @@ import {
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { EMPTY_SELECTION, type Selection } from "./selection";
 import { resolveFolderPathFromSelection } from "./folderPath";
-import { resolveSiteNameFromSelection } from "./sitePath";
+import {
+  resolveExplorerListPath,
+  resolveSiteNameFromSelection,
+} from "./sitePath";
 import {
   errorStateStyle,
   headerStyle,
@@ -571,7 +574,10 @@ export function ContentExplorerShell({
 
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {
-      setSelection({ folderPath: path, item: null });
+      setSelection({
+        folderPath: resolveExplorerListPath(folder, path) ?? path,
+        item: null,
+      });
       // Reset multi-select when the folder changes: stale ids are not
       // present in the new list so the checkbox column would otherwise
       // show phantom selections until the next user click.
@@ -587,7 +593,10 @@ export function ContentExplorerShell({
 
   const handleActivate = useCallback(
     (path: string, folder: PSPathItem) => {
-      setSelection({ folderPath: path, item: null });
+      setSelection({
+        folderPath: resolveExplorerListPath(folder, path) ?? path,
+        item: null,
+      });
       setMultiSelectedIds(new Set<string>());
       setMultiSelectedItems(new Map<string, PSPathItem>());
       setContextMenu(null);

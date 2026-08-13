@@ -34,7 +34,7 @@ service (roles may hide Design/Recycling for some users):
 
 | Root | Maps to | Purpose |
 |------|---------|---------|
-| **Sites** | `//Sites` | Traditional site folders and pages |
+| **Sites** | `//Sites` | Traditional site folders and pages. Expand a site to list its folders (sample sites include **Pages** and **Files**) |
 | **Folders** | `//Folders` | Classic Rhythmyx folder tree (including `$System$` and other repository folders) |
 | **Assets** | `//Folders/$System$/Assets` | Shared asset library (CM1 convenience root) |
 | **Design** | Design file-system area | Templates, themes, web resources (Admin/Designer) |
