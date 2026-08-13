@@ -315,8 +315,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
     List<Integer> contentIdList = new ArrayList<>();
     List<Integer> dirtyIds = new ArrayList<>();
     List<Integer> refreshIds = null;
-    @SuppressWarnings("unchecked")
-    List<Integer> origContentIdList = (List<Integer>) getContentIdList();
+    List<Integer> origContentIdList = copyContentIdList(getContentIdList());
     Map<String, String> origSearchState = null;
 
     boolean expandSynonyms = false;
@@ -667,9 +666,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
      * Generate a property set to add to node. The set is the static set
      * for the search type combined with the display columns.
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    Set<String> propList =
-        isRCSearch ? new HashSet<String>(ms_cxRCPropSet) : new HashSet<String>(ms_cxPropSet);
+    Set<String> propList = copySearchPropSet(isRCSearch);
     /*
      * With Rhythmyx 5.6, every display column by internal name is eleigible
      * to be submitted to server if a server action is configured to do so by
@@ -813,6 +810,41 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    */
   static Comparator<PSNode> categoryLabelComparator() {
     return (o1, o2) -> o1.toString().compareTo(o2.toString());
+  }
+
+  /**
+   * Copies a raw content-id list (from {@code getContentIdList()}) into a typed list. {@code null}
+   * is preserved so callers can distinguish "no id filter" from an empty filter.
+   *
+   * <p>Package-private static for unit tests (no instance state).
+   *
+   * @param ids may be {@code null}; non-{@link Integer} entries are skipped
+   * @return {@code null} if {@code ids} is {@code null}, otherwise a new typed list
+   */
+  static List<Integer> copyContentIdList(List<?> ids) {
+    if (ids == null) {
+      return null;
+    }
+    List<Integer> copy = new ArrayList<>(ids.size());
+    for (Object id : ids) {
+      if (id instanceof Integer contentId) {
+        copy.add(contentId);
+      }
+    }
+    return copy;
+  }
+
+  /**
+   * Mutable copy of the static CX or related-content property name set used when building search
+   * result nodes.
+   *
+   * <p>Package-private static for unit tests (no instance state).
+   *
+   * @param isRCSearch {@code true} for related-content property names
+   * @return a new {@link HashSet}, never {@code null}
+   */
+  static Set<String> copySearchPropSet(boolean isRCSearch) {
+    return isRCSearch ? new HashSet<>(ms_cxRCPropSet) : new HashSet<>(ms_cxPropSet);
   }
 
   /**

@@ -18,14 +18,17 @@ package com.percussion.cx;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cx.objectstore.PSNode;
+import com.percussion.search.PSBaseExecutableSearch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -93,5 +96,37 @@ public class PSExecutableSearchTest {
     // items are not reordered (first child is not TYPE_CATEGORY)
     assertEquals("Beta", kids.next().getLabel());
     assertEquals("Alpha", kids.next().getLabel());
+  }
+
+  @Test
+  public void copyContentIdListNullReturnsNull() {
+    assertNull(PSExecutableSearch.copyContentIdList(null));
+  }
+
+  @Test
+  public void copyContentIdListCopiesIntegersAndSkipsNonIntegers() {
+    List<Object> raw = new ArrayList<>();
+    raw.add(Integer.valueOf(7));
+    raw.add("not-an-id");
+    raw.add(Integer.valueOf(9));
+    List<Integer> copy = PSExecutableSearch.copyContentIdList(raw);
+    assertEquals(Arrays.asList(7, 9), copy);
+    copy.add(11);
+    assertEquals(3, raw.size());
+    assertFalse(raw.contains(11));
+  }
+
+  @Test
+  public void copySearchPropSetUsesCxAndRelatedContentBases() {
+    Set<String> cx = PSExecutableSearch.copySearchPropSet(false);
+    Set<String> rc = PSExecutableSearch.copySearchPropSet(true);
+    assertTrue(cx.containsAll(PSBaseExecutableSearch.ms_cxPropSet));
+    assertTrue(rc.containsAll(PSBaseExecutableSearch.ms_cxRCPropSet));
+    assertTrue(cx.contains("sys_contentid"));
+    assertTrue(rc.contains("sys_variantid"));
+    cx.add("extra-cx");
+    rc.add("extra-rc");
+    assertFalse(PSBaseExecutableSearch.ms_cxPropSet.contains("extra-cx"));
+    assertFalse(PSBaseExecutableSearch.ms_cxRCPropSet.contains("extra-rc"));
   }
 }
