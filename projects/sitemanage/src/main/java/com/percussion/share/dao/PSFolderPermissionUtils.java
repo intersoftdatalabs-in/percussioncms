@@ -376,6 +376,20 @@ public class PSFolderPermissionUtils {
   }
 
   /**
+   * {@code true} when the folder already has a virtual Everyone entry with ADMIN — used to skip the
+   * CORE_SERVER_INITIALIZED default-ACL rewrite so we do not insert a second Everyone row (#3282).
+   *
+   * @param folder may be {@code null}
+   */
+  public static boolean hasEveryoneAdminAccess(PSFolder folder) {
+    if (folder == null) {
+      return false;
+    }
+    var everyone = getVirtualAcl(folder.getAcl());
+    return everyone != null && everyone.hasAdminAccess();
+  }
+
+  /**
    * Gets the virtual ACL entry contained in the specified ACL.
    *
    * @param acl the ACL that may contain a virtual entry, it may be <code>null</code>.

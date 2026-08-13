@@ -125,13 +125,14 @@
             <column name="KEYNAME">displayformatid</column>
             <column name="NEXTNR">1000</column>
         </row>
+        <!-- NEXTNR last-issued; createId = NEXTNR+1. Must be >= max seed SYSID (#3282). -->
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">PSX_PROPERTIES</column>
-            <column name="NEXTNR">1000</column>
+            <column name="NEXTNR">2000</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">PSX_OBJECTACL</column>
-            <column name="NEXTNR">1000</column>
+            <column name="NEXTNR">2000</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">log_seq_id</column>

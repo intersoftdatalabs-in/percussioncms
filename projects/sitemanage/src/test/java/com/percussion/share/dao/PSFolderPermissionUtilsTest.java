@@ -17,6 +17,7 @@
 package com.percussion.share.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -187,5 +188,37 @@ class PSFolderPermissionUtilsTest {
     assertEquals(1, reread.getWritePrincipals().size());
     assertEquals("Contributor", reread.getWritePrincipals().get(0).getName());
     assertEquals(PrincipalType.ROLE, reread.getWritePrincipals().get(0).getType());
+  }
+
+  @Test
+  void hasEveryoneAdminAccess_emptyAcl_false() {
+    assertFalse(PSFolderPermissionUtils.hasEveryoneAdminAccess(newFolder()));
+    assertFalse(PSFolderPermissionUtils.hasEveryoneAdminAccess(null));
+  }
+
+  @Test
+  void hasEveryoneAdminAccess_readEveryone_false() {
+    PSFolder folder = newFolder();
+    folder
+        .getAcl()
+        .add(
+            new PSObjectAclEntry(
+                PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL,
+                PSObjectAclEntry.ACL_ENTRY_EVERYONE,
+                PSObjectAclEntry.ACCESS_READ));
+    assertFalse(PSFolderPermissionUtils.hasEveryoneAdminAccess(folder));
+  }
+
+  @Test
+  void hasEveryoneAdminAccess_adminEveryone_true() {
+    PSFolder folder = newFolder();
+    folder
+        .getAcl()
+        .add(
+            new PSObjectAclEntry(
+                PSObjectAclEntry.ACL_ENTRY_TYPE_VIRTUAL,
+                PSObjectAclEntry.ACL_ENTRY_EVERYONE,
+                PSFolderPermissionUtils.ADMIN_ACCESS));
+    assertTrue(PSFolderPermissionUtils.hasEveryoneAdminAccess(folder));
   }
 }
