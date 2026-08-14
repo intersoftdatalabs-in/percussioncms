@@ -23,6 +23,7 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { TemplateDetailPanel } from "./TemplateDetailPanel";
 
 /** Open-key for detail route; null when the row is not selectable. */
@@ -80,11 +81,16 @@ export function TemplatesPanel(): React.ReactElement {
 
   if (selected) {
     return (
-      <TemplateDetailPanel
-        idOrName={selected.idOrName}
-        catalogGuid={selected.catalogGuid}
-        onBack={() => setSelected(null)}
-      />
+      <DeveloperSectionErrorBoundary
+        label={DEV_MSG.TAB_TEMPLATES}
+        testId="developer-tpl-panel-error"
+      >
+        <TemplateDetailPanel
+          idOrName={selected.idOrName}
+          catalogGuid={selected.catalogGuid}
+          onBack={() => setSelected(null)}
+        />
+      </DeveloperSectionErrorBoundary>
     );
   }
 

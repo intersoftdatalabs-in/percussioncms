@@ -246,6 +246,79 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     expect(rt.checked).toBe(false);
   });
 
+  it("shows Runtime Visible column on empty ACL for runtime-relevant kinds (#3377)", async () => {
+    getAclForObject.mockResolvedValue({
+      id: 4,
+      name: "empty-acl",
+      guid: { stringValue: "0-2-301" },
+      aclEntries: [],
+    });
+    render(
+      <ObjectAclSection
+        objectGuid="0-2-301"
+        objectKind="content-type"
+        testIdPrefix="t-acl"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("t-acl-table")).toBeTruthy();
+    });
+
+    expect(screen.getByTestId("t-acl-no-entries").textContent).toMatch(
+      /No ACL entries yet/i,
+    );
+    expect(screen.getByTestId("t-acl-section").getAttribute("data-acl-show-runtime")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("t-acl-table").getAttribute("data-acl-show-runtime")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("t-acl-layer-design")).toBeTruthy();
+    expect(screen.getByTestId("t-acl-layer-runtime").textContent).toMatch(
+      /Runtime visibility/i,
+    );
+    expect(screen.getByTestId("t-acl-perm-header-RUNTIME_VISIBLE").textContent).toMatch(
+      /Visible/i,
+    );
+    expect(screen.getByTestId("t-acl-perm-header-READ")).toBeTruthy();
+    expect(screen.queryAllByTestId(/^t-acl-row-/)).toHaveLength(0);
+  });
+
+  it("shows empty-table Runtime headers for template and display-format (#3377)", async () => {
+    getAclForObject.mockResolvedValue({
+      id: 5,
+      name: "empty-acl",
+      aclEntries: [],
+    });
+    const { unmount } = render(
+      <ObjectAclSection
+        objectGuid="0-4-12"
+        objectKind="template"
+        testIdPrefix="tpl-acl"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("tpl-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("tpl-acl-layer-runtime")).toBeTruthy();
+    expect(screen.getByTestId("tpl-acl-perm-header-RUNTIME_VISIBLE")).toBeTruthy();
+    unmount();
+
+    render(
+      <ObjectAclSection
+        objectGuid="0-31-5"
+        objectKind="display-format"
+        testIdPrefix="df-acl"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("df-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("df-acl-layer-runtime")).toBeTruthy();
+    expect(screen.getByTestId("df-acl-perm-header-RUNTIME_VISIBLE")).toBeTruthy();
+  });
+
   it("hides Runtime visibility columns for non-runtime-relevant object kinds", async () => {
     getAclForObject.mockResolvedValue(aclWithDefaultOnly);
     render(

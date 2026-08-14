@@ -40,7 +40,9 @@ those system principals.
    path) loads — it must **not** say “Object GUID not available”.
 6. Confirm the table shows **Design access** and **Runtime visibility** column groups
    (runtime-relevant object kinds such as content type, template, and display
-   format always show **Visible**).
+   format always show **Visible**). Those layer headers stay visible even when
+   the ACL has **no entries yet** (no draft row required) — only the body is empty
+   until you add a principal.
 7. To persist permissions: add **Default**, **AnyCommunity**, and any extra USER
    or ROLE principal, then click **Save**. Reopen the same object — those entries
    must still be present. If the object has no ACL yet, create one first (owner

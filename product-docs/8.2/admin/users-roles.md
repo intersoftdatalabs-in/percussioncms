@@ -103,6 +103,9 @@ objects, including **Content types**, **Templates**, **Display Formats**, **Site
    present).
 4. **Object ACL** below the detail form:
    - Shows the ACL table when entries exist (Design access and Runtime visibility).
+   - When an ACL document exists but has **no principals yet**, the table headers
+     (including **Runtime visibility → Visible** for content types and templates)
+     still appear; add a principal below the empty body.
    - Shows an empty create path when the object has no ACL yet.
    - Does **not** say “Object GUID not available” when the header GUID is present.
 

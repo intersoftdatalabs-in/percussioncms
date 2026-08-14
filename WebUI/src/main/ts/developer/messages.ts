@@ -26,6 +26,11 @@ import { message } from "../i18n/message";
 export const DEV_MSG_KEYS = {
   TITLE: "perc.ui.developer@Developer",
   SHELL_LOADING: "perc.ui.developer@Loading Developer...",
+  /**
+   * Isolated tab/detail failure (#3377 / peer Admin #3195). Arg {0} is the section label.
+   */
+  SECTION_LOAD_FAILED:
+    "perc.ui.developer@Unable to load {0}. Other Developer tabs remain available.",
   INTRO: "perc.ui.developer@Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.",
   SESSION_REDIRECT: "perc.ui.developer@Session expired - redirecting to login...",
   ACL_TITLE: "perc.ui.developer@Object ACL",
