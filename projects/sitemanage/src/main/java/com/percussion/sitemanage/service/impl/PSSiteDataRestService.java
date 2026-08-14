@@ -19,6 +19,8 @@ package com.percussion.sitemanage.service.impl;
 
 import static com.percussion.share.web.service.PSRestServicePathConstants.*;
 
+import com.percussion.fastforward.managednav.IPSNavigationErrors;
+import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.security.error.PSExceptionUtils;
@@ -40,6 +42,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -151,10 +154,57 @@ public class PSSiteDataRestService {
     } catch (PSParametersValidationException pve) {
       throw pve;
     } catch (PSDataServiceException e) {
+      if (isInvalidNavTreeCreate(e)) {
+        throw new WebApplicationException(
+            invalidNavTreeCreateMessage(e), Response.Status.BAD_REQUEST);
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  /**
+   * True when {@code t} (or a cause) is a NavTree create rejected because the
+   * folder already has a Navon or NavTree. Those are client errors, not 500s.
+   */
+  static boolean isInvalidNavTreeCreate(Throwable t) {
+    PSNavException nav = findNavException(t);
+    if (nav == null) {
+      return false;
+    }
+    int code = nav.getErrorCode();
+    return code == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON
+        || code
+            == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE;
+  }
+
+  static String invalidNavTreeCreateMessage(Throwable t) {
+    PSNavException nav = findNavException(t);
+    if (nav == null) {
+      return "Cannot add a NavTree to this folder.";
+    }
+    int code = nav.getErrorCode();
+    if (code
+        == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON) {
+      return "Cannot add a NavTree to a folder that already has a navigation item.";
+    }
+    if (code
+        == IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE) {
+      return "Cannot add a NavTree to a folder that already has a NavTree.";
+    }
+    return PSExceptionUtils.getMessageForLog(nav);
+  }
+
+  static PSNavException findNavException(Throwable t) {
+    Throwable cur = t;
+    while (cur != null) {
+      if (cur instanceof PSNavException nav) {
+        return nav;
+      }
+      cur = cur.getCause();
+    }
+    return null;
   }
 
   @POST

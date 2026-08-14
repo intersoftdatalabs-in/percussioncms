@@ -396,7 +396,6 @@ public class PSManagedNavService implements IPSManagedNavService {
 
     PSComponentSummary navSummary = findNavSummary(path);
     if (navSummary != null) {
-      String msg;
       if (getNavonContentTypeIds().contains(navSummary.getContentTypeId())) {
         throw new PSNavException(
             IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVON);
@@ -407,7 +406,12 @@ public class PSManagedNavService implements IPSManagedNavService {
     }
 
     try {
-      PSCoreItem coreItem = contentWs.createItems(getNavTreeContentTypeNames().get(0), 1).get(0);
+      List<String> typeNames = getNavTreeContentTypeNames();
+      if (typeNames == null || typeNames.isEmpty()) {
+        throw new PSNavException(
+            IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
+      }
+      PSCoreItem coreItem = contentWs.createItems(typeNames.get(0), 1).get(0);
       coreItem.setTextField("sys_title", navTreeName);
       coreItem.setTextField("displaytitle", navTreeTitle);
       PSItemField startDate = coreItem.getFieldByName("sys_contentstartdate");
@@ -419,14 +423,30 @@ public class PSManagedNavService implements IPSManagedNavService {
         coreItem.setTextField("sys_workflowid", String.valueOf(workflowId));
       }
 
-      List<IPSGuid> guids = contentWs.saveItems(Collections.singletonList(coreItem), false, true);
+      // Save without check-in. Default / sample-site workflows can NPE in
+      // sys_wfPerformTransition during check-in (m_nextAgingTransition).
+      // saveItems(..., checkin=true) then throws PSErrorResultsException even
+      // after the item row exists, so Create Site maps to HTTP 500 (#3364).
+      // Do not call checkinItems here either: a failed check-in marks the
+      // surrounding Spring transaction rollback-only, and homepage/template
+      // save then fails with UnexpectedRollbackException.
+      // The item is a valid nav root once it is a folder child (#3352).
+      List<IPSGuid> guids = contentWs.saveItems(Collections.singletonList(coreItem), false, false);
+      if (guids == null || guids.isEmpty() || guids.get(0) == null) {
+        throw new PSNavException(
+            IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER);
+      }
       contentWs.addFolderChildren(path, guids);
 
       return guids.get(0);
+    } catch (PSNavException ne) {
+      throw ne;
     } catch (Exception ex) {
       PSNavException ne =
           new PSNavException(
-              IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER, ex);
+              IPSNavigationErrors.NAVIGATION_SERVICE_ERROR_ADDING_NAVTREE_TO_FOLDER,
+              new Object[] {path, navTreeName},
+              ex);
       if (ex instanceof PSErrorException) {
         ne = new PSNavException(ex);
       }

@@ -16,6 +16,8 @@
  */
 package com.percussion.sitemanage.dao.impl;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.fastforward.managednav.IPSManagedNavService;
+import com.percussion.fastforward.managednav.IPSNavigationErrors;
+import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
@@ -105,6 +109,22 @@ class PSSiteContentDaoManagedNavTest {
 
     verify(navService)
         .addNavTreeToFolder("//Sites/Bare", "Bare-NavTree", "Home", 1);
+  }
+
+  @Test
+  void rethrowsInvalidNavTreeCreateWithoutWrapping() throws Exception {
+    PSSite site = traditionalSite();
+    PSNavException already =
+        new PSNavException(
+            IPSNavigationErrors.NAVIGATION_SERVICE_NAVTREE_CANNOT_BE_ADDED_TO_FOLDER_WITH_NAVTREE);
+    when(navService.findNavSummary("//Sites/Bare")).thenReturn(null);
+    when(pageDaoHelper.getWorkflowIdForPath(anyString())).thenReturn(1);
+    when(navService.addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt()))
+        .thenThrow(already);
+
+    PSNavException thrown =
+        assertThrows(PSNavException.class, () -> dao.createRelatedItems(site));
+    assertSame(already, thrown);
   }
 
   private static PSSite traditionalSite() {
