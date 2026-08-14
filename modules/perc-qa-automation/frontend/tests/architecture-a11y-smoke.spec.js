@@ -188,6 +188,10 @@ test.describe("Architecture a11y hardening (#3098)", () => {
             await expect(second).toBeFocused();
             await second.press("ArrowUp");
             await expect(first).toBeFocused();
+            await first.press("End");
+            await expect(treeItems.nth(itemCount - 1)).toBeFocused();
+            await treeItems.nth(itemCount - 1).press("Home");
+            await expect(first).toBeFocused();
           }
 
           const createBtn = page.getByTestId("architecture-action-create");
