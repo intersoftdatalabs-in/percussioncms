@@ -27,6 +27,7 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** List of {@link Acl} objects. */
 @XmlRootElement(name = "AclList")
@@ -34,6 +35,7 @@ import java.util.Objects;
 @XmlSeeAlso(Acl.class)
 @ArraySchema(schema = @Schema(implementation = Acl.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonDeserialize(using = AclListDeserializer.class)
 public class AclList extends ArrayList<Acl> {
   /** Safe to serialize. */
   private static final long serialVersionUID = 1L;

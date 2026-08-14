@@ -124,7 +124,19 @@ public class ApiUtils {
     if (guid == null) {
       return null;
     }
-    return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
+    String raw = guid.getStringValue().orElse(null);
+    if (raw != null && !raw.isBlank()) {
+      return PSGuidManagerLocator.getGuidMgr().makeGuid(raw);
+    }
+    // SPA GET often serializes hostId/type/uuid without stringValue. makeGuid(null)
+    // throws "raw may not be blank" (#3391 persist after AclList bind).
+    if (guid.getType() != 0 && guid.getUuid() != 0) {
+      PSTypeEnum type = PSTypeEnum.valueOf(guid.getType());
+      if (type != null) {
+        return new PSGuid(guid.getHostId(), type, guid.getUuid());
+      }
+    }
+    return null;
   }
 
   /**

@@ -227,6 +227,13 @@ Design-time ACLs use `/services/acls`. Production JSON uses Jackson
 | `POST` | `/services/acls/` | Request `{"CreateAclRequest":{"objectGuid":{"stringValue":"…"},"owner":{"name":"Admin","type":"USER"}}}` |
 | `PUT` | `/services/acls/bulk` | Request `{"AclList":[{…}]}` — **not** a bare JSON array |
 
+The server binds that `{"AclList":[…]}` envelope (or a bare JSON array) to an
+`AclList` instance (not a raw `java.util.ArrayList`). A JAX-RS reader, a Jackson
+deserializer, and a string-body bind all accept the SPA save shape so Display Format
+Object ACL Save is HTTP 200, not `ClassCastException: Cannot cast java.util.ArrayList
+to AclList`. Nested `guid` / `objectGuid` objects may omit `stringValue` when
+`type` and `uuid` are present.
+
 Each ACL in the list should include `objectGuid` (and `objectType` / `objectId` when known),
 plus the ACL `id` / `guid` when the object already has an ACL. The server **merges** that
 payload onto the existing `PSX_ACLS` row (same SYSID / object identity) instead of inserting

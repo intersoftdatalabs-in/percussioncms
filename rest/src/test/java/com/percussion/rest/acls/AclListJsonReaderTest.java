@@ -89,6 +89,23 @@ public class AclListJsonReaderTest {
   public void isReadableOnlyForAclList() {
     AclListJsonReader reader = new AclListJsonReader();
     assertTrue(reader.isReadable(AclList.class, AclList.class, null, null));
+    assertTrue(
+        reader.isReadable(
+            AclList.class, AclList.class, null, jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE));
+    assertTrue(
+        reader.isReadable(
+            AclList.class,
+            AclList.class,
+            null,
+            jakarta.ws.rs.core.MediaType.valueOf("application/json; charset=UTF-8")));
     assertTrue(!reader.isReadable(Acl.class, Acl.class, null, null));
+  }
+
+  @Test
+  public void parseNodeAcceptsEnvelope() {
+    AclList list = AclListJsonReader.parseNode(
+        tools.jackson.databind.json.JsonMapper.builder().build().readTree(DF_SAVE));
+    assertEquals(1, list.size());
+    assertEquals(3, list.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
   }
 }

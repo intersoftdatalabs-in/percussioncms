@@ -210,16 +210,30 @@ public class AclResource {
   }
 
   /**
-   * Persists the supplied ACL list.
+   * Persists the supplied ACL list JSON.
    *
-   * @param aclList the ACL list to save
+   * <p>The body is parsed by {@link AclListJsonReader} so CXF Jackson/Jettison cannot bind a raw
+   * {@code ArrayList} (HTTP 400 ClassCast, #3391) or reject a bare JSON array (org.json
+   * ParseError). Accepts {@code {"AclList":[…]}} and {@code [{…}]}.
+   *
+   * @param json the ACL list JSON to save
    * @return the save status
    */
   @PUT
   @Path("/bulk")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Status saveAcls(AclList aclList) {
+  public Status saveAcls(String json) {
+    return persistAcls(AclListJsonReader.parse(json));
+  }
+
+  /**
+   * Persists an already-bound ACL list (unit tests and {@link #saveAcls(String)}).
+   *
+   * @param aclList the ACL list to save
+   * @return the save status
+   */
+  Status persistAcls(AclList aclList) {
     var ret = new Status(200, "OK");
     try {
       adaptor.saveAcls(aclList);

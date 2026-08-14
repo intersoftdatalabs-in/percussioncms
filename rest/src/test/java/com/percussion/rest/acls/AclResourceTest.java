@@ -62,9 +62,24 @@ public class AclResourceTest {
     acl.setName("By_Author ACL");
     list.add(acl);
 
-    Status status = resource.saveAcls(list);
+    Status status = resource.persistAcls(list);
     assertEquals(200, status.getStatusCode());
     verify(adaptor).saveAcls(eq(list));
+  }
+
+  @Test
+  public void saveAclsJsonParsesEnvelope() throws Exception {
+    Status status =
+        resource.saveAcls("{\"AclList\":[{\"name\":\"By_Author ACL\",\"objectType\":31}]}");
+    assertEquals(200, status.getStatusCode());
+    verify(adaptor).saveAcls(any(AclList.class));
+  }
+
+  @Test
+  public void saveAclsJsonParsesBareArray() throws Exception {
+    Status status = resource.saveAcls("[{\"name\":\"By_Author ACL\",\"objectType\":31}]");
+    assertEquals(200, status.getStatusCode());
+    verify(adaptor).saveAcls(any(AclList.class));
   }
 
   @Test
@@ -73,7 +88,7 @@ public class AclResourceTest {
     doThrow(new RuntimeException("denied")).when(adaptor).saveAcls(any());
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.saveAcls(list));
+        assertThrows(WebApplicationException.class, () -> resource.persistAcls(list));
     assertEquals(500, ex.getResponse().getStatus());
   }
 

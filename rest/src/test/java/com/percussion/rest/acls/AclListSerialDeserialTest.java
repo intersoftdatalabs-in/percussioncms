@@ -145,6 +145,16 @@ public class AclListSerialDeserialTest {
   }
 
   @Test
+  public void productionJavaTypeIsAclListNotRawArrayList() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(AclList.class);
+    String clientBody =
+        "{\"AclList\":[{\"id\":7,\"name\":\"By_Author ACL\",\"objectType\":31,\"aclEntries\":[]}]}";
+    Object raw = mapper.readValue(clientBody, mapper.getTypeFactory().constructType(AclList.class));
+    assertTrue(raw instanceof AclList, "expected AclList, got " + (raw == null ? "null" : raw.getClass()));
+    assertEquals(1, ((AclList) raw).size());
+  }
+
+  @Test
   public void productionMapperAcceptsClientAclListEnvelope() {
     ObjectMapper mapper = new JacksonContextResolver().getContext(AclList.class);
     String clientBody =

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.acls.AclListJsonReader;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.rest.errors.WebApplicationExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
@@ -156,7 +157,12 @@ public class MainTest {
       factory.setExtensionMappings(extensionMap);
       factory.setBus(ctx.getBean(SpringBus.class));
       factory.setProviders(
-          Arrays.asList(exceptionMapper, waeMapper, jacksonProvider, contextResolver));
+          Arrays.asList(
+              exceptionMapper,
+              waeMapper,
+              new AclListJsonReader(),
+              jacksonProvider,
+              contextResolver));
       factory.setResourceProviders(resourceProviders);
       factory.setAddress(endpoint);
       try {

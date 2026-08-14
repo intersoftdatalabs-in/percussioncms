@@ -124,7 +124,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="runtimeExceptionMapper" />
             <!-- Inbox #3323: bind flat startIndex before jackson UNWRAP_ROOT_VALUE -->
             <ref bean="viewExecuteRequestJsonReader" />
-            <!-- #3378: AclList ArrayList subclass must not ClassCast after UNWRAP -->
+            <!-- #3378 / #3391: AclList ArrayList subclass must not ClassCast after UNWRAP.
+                 Rest jar also has AclListDeserializer so a stale filesystem beans.xml
+                 (hot-deploy jars only) still binds {"AclList":[…]} as AclList. -->
             <ref bean="aclListJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
