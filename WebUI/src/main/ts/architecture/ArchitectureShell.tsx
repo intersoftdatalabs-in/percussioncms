@@ -53,6 +53,7 @@ import {
   canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
+  canRenameNavNode,
   canReplaceLandingPage,
   findNavNodeById,
   findSiblingPlacement,
@@ -466,11 +467,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     !!selectedNode && canReplaceLandingPage(selectedNode) && !mutationBusy;
   const canEditLink =
     !!selectedNode && canEditLinkNode(selectedNode) && !mutationBusy;
-  const canRename =
-    !!selectedNode &&
-    String(selectedNode.sectionType || "section").toLowerCase() ===
-      "section" &&
-    !mutationBusy;
+  const canRename = canRenameNavNode(selectedNode) && !mutationBusy;
   const canProperties =
     canEditSectionProperties(selectedNode) && !mutationBusy;
   const canMove =
