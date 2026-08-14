@@ -483,7 +483,11 @@ public class ApiUtils {
 
     p_acl.setId(acl.getId());
     p_acl.setDescription(orNull(acl.getDescription()));
-    p_acl.setName(orNull(acl.getName()));
+    String name = orNull(acl.getName());
+    if (name == null || name.isBlank()) {
+      name = "ACL";
+    }
+    p_acl.setName(name);
     var convertedGuid = convertGuid(orNull(acl.getGuid()));
     if (convertedGuid != null) {
       p_acl.setGUID(convertedGuid);
@@ -682,22 +686,13 @@ public class ApiUtils {
 
   public static List<IPSAcl> convertAcls(AclList aclList) {
     var p_acls = new ArrayList<IPSAcl>();
+    if (aclList == null) {
+      return p_acls;
+    }
     for (var a : aclList) {
-      var p_a = new PSAclImpl();
-      applyAclObjectIdentity(a, p_a);
-      var convertedGuid = convertGuid(orNull(a.getGuid()));
-      if (convertedGuid != null) {
-        p_a.setGUID(convertedGuid);
+      if (a != null) {
+        p_acls.add(convertAcl(a));
       }
-      String name = orNull(a.getName());
-      if (name == null || name.isBlank()) {
-        name = "ACL";
-      }
-      p_a.setName(name);
-      p_a.setId(a.getId());
-      p_a.setEntries(convertAclEntries(orNull(a.getAclEntries())));
-      p_a.setDescription(orNull(a.getDescription()));
-      p_acls.add(p_a);
     }
     return p_acls;
   }

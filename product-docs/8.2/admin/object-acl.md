@@ -43,8 +43,10 @@ those system principals.
    format always show **Visible**).
 7. To persist permissions: add **Default**, **AnyCommunity**, and any extra USER
    or ROLE principal, then click **Save**. Reopen the same object — those entries
-   must still be present. If the object has no ACL yet, create one first (owner
-   principal) and then save the additional entries.
+   must still be present (Default, AnyCommunity, and the USER you added). The
+   product updates the existing object ACL; it does not create a second empty
+   ACL. If the object has no ACL yet, create one first (owner principal) and then
+   save the additional entries.
 
 Deep links:
 

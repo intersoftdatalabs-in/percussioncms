@@ -29,11 +29,13 @@ import com.percussion.security.PSSecurityException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
+import com.percussion.services.security.PSAclPersistMerger;
 import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.NotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -144,7 +146,64 @@ public class AclAdaptor implements IAclAdaptor {
 
   @Override
   public void saveAcls(AclList aclList) throws PSServiceSecurityException {
-    aclService.saveAcls(ApiUtils.convertAcls(aclList));
+    if (aclList == null) {
+      aclService.saveAcls(null);
+      return;
+    }
+    List<IPSAcl> toSave = new ArrayList<>();
+    for (Acl restAcl : aclList) {
+      if (restAcl == null) {
+        continue;
+      }
+      PSAclImpl incoming = ApiUtils.convertAcl(restAcl);
+      IPSAcl existing = loadExistingAclForSave(incoming);
+      if (existing instanceof PSAclImpl persistent && persistent.getId() != 0) {
+        toSave.add(PSAclPersistMerger.mergeOntoExisting(persistent, incoming));
+      } else {
+        toSave.add(incoming);
+      }
+    }
+    aclService.saveAcls(toSave);
+  }
+
+  /**
+   * Load the persisted ACL for this object or ACL SYSID so save merges entries
+   * onto that identity (#3384).
+   */
+  private IPSAcl loadExistingAclForSave(PSAclImpl incoming) {
+    if (incoming == null) {
+      return null;
+    }
+    IPSGuid objectGuid = incoming.getObjectGuid();
+    if (objectGuid != null) {
+      try {
+        IPSAcl byObject = aclService.loadAclForObjectModifiable(objectGuid);
+        if (byObject != null) {
+          return byObject;
+        }
+      } catch (PSServiceSecurityException e) {
+        log.debug("No existing ACL for objectGuid {}", objectGuid, e);
+      }
+    }
+    if (incoming.getId() != 0) {
+      try {
+        IPSGuid aclGuid = incoming.getGUID();
+        if (aclGuid != null) {
+          List<IPSAcl> loaded = aclService.loadAclsModifiable(List.of(aclGuid));
+          if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+            return loaded.get(0);
+          }
+        }
+      } catch (PSServiceSecurityException e) {
+        log.debug("No existing ACL for id {}", incoming.getId(), e);
+      }
+    }
+    return null;
+  }
+
+  /** Package-visible for unit tests. */
+  void setAclService(IPSAclService aclService) {
+    this.aclService = aclService;
   }
 
   @Override

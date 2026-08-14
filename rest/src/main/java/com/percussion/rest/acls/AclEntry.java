@@ -18,13 +18,19 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
 /** REST representation of an ACL entry. */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 @Schema(description = "AclEntry")
 public class AclEntry {
 
@@ -32,16 +38,16 @@ public class AclEntry {
   private long id;
 
   /** Human-readable name of the entry. */
-  private String name;
+  @XmlElement @JsonProperty private String name;
 
   /** Principal associated with the entry, may be {@code null}. */
-  private Principal principal;
+  @XmlElement @JsonProperty private Principal principal;
 
   /** Typed principal classification. */
-  private TypedPrincipal type;
+  @XmlElement @JsonProperty private TypedPrincipal type;
 
   /** Permission set granted by this entry. */
-  private UserAccessLevelList permissions;
+  @XmlElement @JsonProperty private UserAccessLevelList permissions;
 
   /** Identifier of the owning ACL. */
   private long aclId;
@@ -115,6 +121,7 @@ public class AclEntry {
    *
    * @return the name, may be empty
    */
+  @JsonIgnore
   public Optional<String> getName() {
     return Optional.ofNullable(name);
   }
@@ -133,6 +140,7 @@ public class AclEntry {
    *
    * @return the principal, may be empty
    */
+  @JsonIgnore
   public Optional<Principal> getPrincipal() {
     return Optional.ofNullable(principal);
   }
@@ -151,6 +159,7 @@ public class AclEntry {
    *
    * @return the type, may be empty
    */
+  @JsonIgnore
   public Optional<TypedPrincipal> getType() {
     return Optional.ofNullable(type);
   }
@@ -169,6 +178,7 @@ public class AclEntry {
    *
    * @return the permissions, may be empty
    */
+  @JsonIgnore
   public Optional<UserAccessLevelList> getPermissions() {
     return Optional.ofNullable(permissions);
   }

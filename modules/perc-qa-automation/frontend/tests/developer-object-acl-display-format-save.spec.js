@@ -15,11 +15,12 @@
  */
 
 /**
- * Display Format Object ACL Save must persist (not HTTP 400) (#3378 / QA #2640).
+ * Display Format Object ACL Save must persist (#3384 / #3378 / QA #2640).
  *
  * Opens Developer → Display Formats (By_Author when present), adds Default +
  * AnyCommunity + a USER principal when missing, Save, then Back + reopen.
- * Entries must still be present. Save must not surface "Could not save object ACL. (400)".
+ * Reopen must show those three rows (not an empty no-entries table). Save must
+ * be HTTP 200 (not 400 / 500).
  *
  * Surface filter (H2 QA / agent path):
  *   cd modules/perc-qa-automation/frontend
@@ -28,7 +29,7 @@
  * QA mode:
  *   perc-devctl qa-up → TEST_CMS_URL=… npm run test:surface -- --path tests/developer-object-acl-display-format-save.spec.js → qa-down
  *
- * Refs #3378, #2640, #2604, #2274.
+ * Refs #3384, #3378, #2640, #2604, #2274.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -196,7 +197,7 @@ async function ensureSpecialsAndUser(page) {
   }
 }
 
-test.describe("Display Format Object ACL save (#3378) @object-acl-df-save", () => {
+test.describe("Display Format Object ACL save (#3384) @object-acl-df-save", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(120_000);
     await loginAsAdmin(page);
@@ -235,15 +236,15 @@ test.describe("Display Format Object ACL save (#3378) @object-acl-df-save", () =
         const respBody = await res.text().catch(() => "");
         expect(
           res.status(),
-          `ACL save must not be HTTP 400 (#3378). status=${res.status()} body=${reqBody.slice(0, 500)} resp=${respBody.slice(0, 500)}`,
-        ).not.toBe(400);
+          `ACL save must be HTTP 200 (#3384). status=${res.status()} body=${reqBody.slice(0, 500)} resp=${respBody.slice(0, 500)}`,
+        ).toBe(200);
       }
     }
 
     const aclError = page.locator(`[data-testid="${PREFIX}-error"]`);
     if (await aclError.isVisible()) {
       const msg = (await aclError.innerText()).trim();
-      expect(msg, `Save must not be HTTP 400: ${msg}`).not.toMatch(/\(400\)/);
+      expect(msg, `Save must succeed: ${msg}`).not.toMatch(/\((400|500)\)/);
     }
 
     await page.locator('[data-testid="developer-df-back"]').click();
@@ -256,13 +257,22 @@ test.describe("Display Format Object ACL save (#3378) @object-acl-df-save", () =
     }
     await ensureAclTable(page);
 
-    // #3378 hard gate is Save !== 400. Reopen may still show no-entries when GET
-    // omits aclEntries (#3203 / #2672) even after a 200 save.
+    // #3384: reopen must show Default + AnyCommunity + USER (not empty GET).
     const defaultAfter = page.locator(
       `[data-testid^="${PREFIX}-row-"][data-special-acl="default"]`,
     );
+    const anyAfter = page.locator(
+      `[data-testid^="${PREFIX}-row-"][data-special-acl="any-community"]`,
+    );
     const noEntries = page.locator(`[data-testid="${PREFIX}-no-entries"]`);
-    await expect(defaultAfter.or(noEntries).first()).toBeVisible({ timeout: 15_000 });
+    await expect(noEntries).toHaveCount(0);
+    await expect(defaultAfter).toHaveCount(1, { timeout: 15_000 });
+    await expect(anyAfter).toHaveCount(1, { timeout: 15_000 });
+    const labelsAfter = await page.locator(`[data-testid^="${PREFIX}-label-"]`).allInnerTexts();
+    expect(
+      labelsAfter.some((t) => /\bAdmin\b/i.test(t)),
+      `reopen must include USER Admin; labels=${labelsAfter.join(",")}`,
+    ).toBeTruthy();
 
     const related = consoleErrors.filter(
       (e) => /uncaught/i.test(e) && !/favicon|sourcemap/i.test(e),

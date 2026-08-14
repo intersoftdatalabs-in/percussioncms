@@ -17,14 +17,20 @@
 
 package com.percussion.rest.acls;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
 /** REST representation of an access control list. */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 @Schema(description = "Acl")
 public class Acl {
 
@@ -32,25 +38,25 @@ public class Acl {
   private long id;
 
   /** Optional GUID identifying the ACL. */
-  private Guid guid;
+  @XmlElement @JsonProperty private Guid guid;
 
   /** Human-readable name of the ACL. */
-  private String name;
+  @XmlElement @JsonProperty private String name;
 
   /** Identifier of the secured object. */
   private long objectId;
 
   /** Free-form description of the ACL. */
-  private String description;
+  @XmlElement @JsonProperty private String description;
 
   /** Entries that make up the ACL. */
-  private AclEntryList aclEntries;
+  @XmlElement @JsonProperty private AclEntryList aclEntries;
 
   /** Type identifier of the secured object. */
   private int objectType;
 
   /** Optional GUID of the secured object. */
-  private Guid objectGuid; // fixed typo
+  @XmlElement @JsonProperty private Guid objectGuid;
 
   /** No-op constructor. */
   public Acl() {}
@@ -109,6 +115,7 @@ public class Acl {
    *
    * @return the GUID, may be empty
    */
+  @JsonIgnore
   public Optional<Guid> getGuid() {
     return Optional.ofNullable(guid);
   }
@@ -127,6 +134,7 @@ public class Acl {
    *
    * @return the name, may be empty
    */
+  @JsonIgnore
   public Optional<String> getName() {
     return Optional.ofNullable(name);
   }
@@ -163,6 +171,7 @@ public class Acl {
    *
    * @return the description, may be empty
    */
+  @JsonIgnore
   public Optional<String> getDescription() {
     return Optional.ofNullable(description);
   }
@@ -181,6 +190,7 @@ public class Acl {
    *
    * @return the entries, may be empty
    */
+  @JsonIgnore
   public Optional<AclEntryList> getAclEntries() {
     return Optional.ofNullable(aclEntries);
   }
@@ -217,6 +227,7 @@ public class Acl {
    *
    * @return the object GUID, may be empty
    */
+  @JsonIgnore
   public Optional<Guid> getObjectGuid() {
     return Optional.ofNullable(objectGuid);
   }

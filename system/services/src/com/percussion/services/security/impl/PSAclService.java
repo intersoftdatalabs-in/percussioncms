@@ -32,6 +32,7 @@ import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.IPSSecurityErrors;
+import com.percussion.services.security.PSAclPersistMerger;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
@@ -348,7 +349,9 @@ public class PSAclService implements IPSAclService
             Root<PSAclImpl> critRoot = criteria.from(PSAclImpl.class);
 
             if (guid != null)
-               criteria.where(builder.equal(critRoot.get("objectId"), (long) guid.getUUID()));
+               criteria.where(
+                   builder.equal(critRoot.get("objectId"), (long) guid.getUUID()),
+                   builder.equal(critRoot.get("objectType"), guid.getType()));
 
             List<PSAclImpl> results =  entityManager.createQuery(criteria).getResultList();
             if(results != null && !results.isEmpty()) {
@@ -664,6 +667,9 @@ public class PSAclService implements IPSAclService
          if(iacl != null) {
             try {
                ms_logger.debug("Saving ACL: {}" , iacl);
+               if (iacl instanceof PSAclImpl src) {
+                  iacl = PSAclPersistMerger.mergeOntoExisting(findExistingPersistIdentity(src), src);
+               }
               iacl = (IPSAcl) getSession().merge(iacl);
                updatedList.add(iacl);
                 ms_logger.debug("Save complete.");
@@ -673,13 +679,64 @@ public class PSAclService implements IPSAclService
                } catch (Exception e) {
                   ms_logger.error("Error persisting Acl: {} " , iacl.getId());
                }
+               throw new PSServiceSecurityException(
+                  IPSSecurityErrors.ACL_SAVE_ERROR, ex, iacl.getId(), ex.getLocalizedMessage());
             }
          }
       }
 
       getSession().flush();
+      for (IPSAcl saved : updatedList) {
+         evictAclSecondLevelCache(saved);
+      }
 
       return updatedList;
+   }
+
+   /** Stale L2/collection cache would make GET after save look empty (#3384). */
+   private void evictAclSecondLevelCache(IPSAcl acl) {
+      if (acl == null) {
+         return;
+      }
+      try {
+         var cache = getSession().getSessionFactory().getCache();
+         if (cache != null) {
+            cache.evictEntityData(PSAclImpl.class, acl.getId());
+            cache.evictCollectionData(PSAclImpl.class.getName() + ".entries", acl.getId());
+         }
+      } catch (RuntimeException e) {
+         ms_logger.debug("ACL L2 cache evict skipped for id {}", acl.getId(), e);
+      }
+   }
+
+   /**
+    * Load the persisted {@link PSAclImpl} for this SYSID or object GUID so
+    * Hibernate updates that row instead of inserting a duplicate {@code PK_PSX_ACLS}.
+    */
+   private PSAclImpl findExistingPersistIdentity(PSAclImpl src)
+   {
+      if (src == null)
+      {
+         return null;
+      }
+      if (src.getId() != 0)
+      {
+         PSAclImpl byId = getSession().get(PSAclImpl.class, src.getId());
+         if (byId != null)
+         {
+            return byId;
+         }
+      }
+      IPSGuid objectGuid = src.getObjectGuid();
+      if (objectGuid != null)
+      {
+         IPSAcl byObject = loadAclForObjectModifiable(objectGuid);
+         if (byObject instanceof PSAclImpl impl)
+         {
+            return impl;
+         }
+      }
+      return null;
    }
 
    @Override
