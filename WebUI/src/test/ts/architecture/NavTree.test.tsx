@@ -19,6 +19,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NavTree } from "../../../main/ts/architecture/NavTree";
+import { ARCH_MSG_KEYS } from "../../../main/ts/architecture/messages";
 import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
 
 const sampleRoot: NavTreeNode = {
@@ -47,7 +48,7 @@ const sampleRoot: NavTreeNode = {
   ],
 };
 
-describe("NavTree (#3095)", () => {
+describe("NavTree (#3095 / #3354)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -76,6 +77,11 @@ describe("NavTree (#3095)", () => {
     const secure = screen.getByTestId("nav-tree-secure-ext-1");
     expect(secure).toBeTruthy();
     expect(secure.getAttribute("title")).toMatch(/requires login/i);
+    expect(secure.getAttribute("aria-label")).toMatch(/requires login/i);
+    expect(secure.getAttribute("data-i18n-key")).toBe(ARCH_MSG_KEYS.SECURE_TITLE);
+    expect(secure.getAttribute("data-i18n-badge-key")).toBe(
+      ARCH_MSG_KEYS.SECURE_BADGE,
+    );
     expect(secure.textContent).toMatch(/secure/i);
   });
 
@@ -97,6 +103,46 @@ describe("NavTree (#3095)", () => {
     );
     fireEvent.keyDown(rootItem, { key: "ArrowLeft" });
     expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
+  });
+
+  it("moves focus with Home/End and Arrow Right into a child", () => {
+    render(
+      <NavTree root={sampleRoot} selectedId="root" onSelect={() => undefined} />,
+    );
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    rootItem.focus();
+    fireEvent.keyDown(rootItem, { key: "End" });
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "nav-tree-item-ext-1",
+    );
+    fireEvent.keyDown(screen.getByTestId("nav-tree-item-ext-1"), {
+      key: "Home",
+    });
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "nav-tree-item-root",
+    );
+    fireEvent.keyDown(screen.getByTestId("nav-tree-item-root"), {
+      key: "ArrowRight",
+    });
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "nav-tree-item-link-1",
+    );
+    expect(screen.getByTestId("nav-tree-item-root").getAttribute("tabindex")).toBe(
+      "-1",
+    );
+    expect(screen.getByTestId("nav-tree-item-link-1").getAttribute("tabindex")).toBe(
+      "0",
+    );
+  });
+
+  it("does not trap Tab (default is not prevented)", () => {
+    render(
+      <NavTree root={sampleRoot} selectedId="root" onSelect={() => undefined} />,
+    );
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    rootItem.focus();
+    expect(fireEvent.keyDown(rootItem, { key: "Tab" })).toBe(true);
+    expect(fireEvent.keyDown(rootItem, { key: "ArrowDown" })).toBe(false);
   });
 
   it("reports selection and collapses via toggle", () => {

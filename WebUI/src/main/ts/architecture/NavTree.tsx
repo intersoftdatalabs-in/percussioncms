@@ -16,11 +16,11 @@
  */
 
 /**
- * Accessible navigation tree for Architecture (#3095 / #3096).
+ * Accessible navigation tree for Architecture (#3095 / #3096 / #3354).
  *
- * <p>Uses ARIA tree / treeitem + keyboard expand/collapse and focus movement
- * (peer: ExplorerTree). Structure mutations are driven from the shell toolbar
- * against the selected node.</p>
+ * <p>Uses ARIA tree / treeitem + APG keyboard (Tab in, arrows, Home/End,
+ * no trap). Structure mutations are driven from the shell toolbar against
+ * the selected node.</p>
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -29,7 +29,8 @@ import { catalogColors } from "../developer/catalogStyles";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import type { SectionType } from "../api/architecture/types";
 import { isNavBranch } from "./treeModel";
-import { ARCH_MSG } from "./messages";
+import { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
+import { collectVisibleNavNodes, resolveNavTreeKey } from "./navTreeKeyboard";
 
 /** i18n type badge for nav tree rows (#3098). */
 function typeBadgeLabel(sectionType: SectionType | string): string | null {
@@ -97,9 +98,18 @@ function nodeRowStyle(
       : "3px solid transparent",
     fontSize: "0.95rem",
     lineHeight: 1.35,
-    outline: "none",
   };
 }
+
+const TREE_ITEM_FOCUS_CSS = `
+.perc-architecture-nav-tree-item:focus {
+  outline: none;
+}
+.perc-architecture-nav-tree-item:focus-visible {
+  outline: 2px solid ${catalogColors.accent};
+  outline-offset: -2px;
+}
+`;
 
 const toggleStyle: React.CSSProperties = {
   display: "inline-flex",
@@ -123,36 +133,6 @@ const badgeStyle: React.CSSProperties = {
   background: "#fff",
 };
 
-/** Flatten visible nodes in document order for arrow up/down. */
-function collectVisible(
-  node: NavTreeNode,
-  expanded: Record<string, boolean>,
-  out: NavTreeNode[] = [],
-): NavTreeNode[] {
-  out.push(node);
-  if (isNavBranch(node) && (expanded[node.id] ?? false)) {
-    for (const child of node.children) {
-      collectVisible(child, expanded, out);
-    }
-  }
-  return out;
-}
-
-/** Parent id map for ArrowLeft focus-to-parent. */
-function buildParentMap(
-  node: NavTreeNode,
-  parentId: string | null = null,
-  map: Map<string, string | null> = new Map(),
-): Map<string, string | null> {
-  map.set(node.id, parentId);
-  if (node.children?.length) {
-    for (const child of node.children) {
-      buildParentMap(child, node.id, map);
-    }
-  }
-  return map;
-}
-
 /**
  * Site navigation tree (navons / sections) with selection for structure actions.
  */
@@ -164,6 +144,9 @@ export function NavTree({
   onSelect,
 }: NavTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [focusedId, setFocusedId] = useState<string | null>(
+    selectedId ?? root?.id ?? null,
+  );
   const treeRef = useRef<HTMLDivElement | null>(null);
 
   const rootId = root?.id ?? null;
@@ -174,6 +157,21 @@ export function NavTree({
       );
     }
   }, [rootId]);
+
+  useEffect(() => {
+    setFocusedId(selectedId ?? rootId);
+  }, [rootId, selectedId]);
+
+  useEffect(() => {
+    if (!root || !focusedId) return;
+    const visible = collectVisibleNavNodes(root, expanded);
+    if (visible.some((n) => n.id === focusedId)) {
+      return;
+    }
+    const selectedVisible =
+      selectedId != null && visible.some((n) => n.id === selectedId);
+    setFocusedId(selectedVisible ? selectedId : (visible[0]?.id ?? root.id));
+  }, [root, expanded, focusedId, selectedId]);
 
   const toggle = useCallback((id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -186,6 +184,7 @@ export function NavTree({
   }, []);
 
   const focusItem = useCallback((id: string) => {
+    setFocusedId(id);
     const el = treeRef.current?.querySelector<HTMLElement>(
       `[data-testid="nav-tree-item-${id}"]`,
     );
@@ -195,69 +194,32 @@ export function NavTree({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, node: NavTreeNode) => {
       if (!root) return;
-      const branch = isNavBranch(node);
-      const open = expanded[node.id] ?? false;
-      const visible = collectVisible(root, expanded);
-      const parentMap = buildParentMap(root);
-      const idx = visible.findIndex((n) => n.id === node.id);
-
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
+      const result = resolveNavTreeKey(e.key, node, root, expanded);
+      if (result.action === "none") {
+        return;
+      }
+      e.preventDefault();
+      if (result.action === "prevent") {
+        return;
+      }
+      if (result.action === "select") {
         onSelect?.(node);
-        if (branch) toggle(node.id);
+        setFocusedId(node.id);
+        if (result.toggleExpand) toggle(node.id);
         return;
       }
-
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        if (branch && !open) {
-          setExpandedOpen(node.id, true);
-          return;
-        }
-        if (branch && open && node.children.length > 0) {
-          focusItem(node.children[0].id);
-        }
+      if (result.action === "expand") {
+        setExpandedOpen(result.id, true);
+        setFocusedId(result.id);
         return;
       }
-
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (branch && open) {
-          setExpandedOpen(node.id, false);
-          return;
-        }
-        const parentId = parentMap.get(node.id);
-        if (parentId) {
-          focusItem(parentId);
-        }
+      if (result.action === "collapse") {
+        setExpandedOpen(result.id, false);
+        setFocusedId(result.id);
         return;
       }
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (idx >= 0 && idx < visible.length - 1) {
-          focusItem(visible[idx + 1].id);
-        }
-        return;
-      }
-
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (idx > 0) {
-          focusItem(visible[idx - 1].id);
-        }
-        return;
-      }
-
-      if (e.key === "Home") {
-        e.preventDefault();
-        if (visible.length > 0) focusItem(visible[0].id);
-        return;
-      }
-
-      if (e.key === "End") {
-        e.preventDefault();
-        if (visible.length > 0) focusItem(visible[visible.length - 1].id);
+      if (result.action === "focus") {
+        focusItem(result.id);
       }
     },
     [root, expanded, onSelect, toggle, setExpandedOpen, focusItem],
@@ -271,10 +233,12 @@ export function NavTree({
     const open = expanded[node.id] ?? false;
     const selected = selectedId === node.id;
     const typeBadge = typeBadgeLabel(node.sectionType);
-    // Roving tabindex: selected item, else root when nothing selected
+    // Roving tabindex follows last focused item (Tab lands there; others -1).
     const isTabStop =
-      selected ||
-      (selectedId == null && root != null && node.id === root.id);
+      focusedId != null
+        ? node.id === focusedId
+        : selected ||
+          (selectedId == null && root != null && node.id === root.id);
 
     return (
       <div key={node.id} data-testid={`nav-tree-node-${node.id}`}>
@@ -284,10 +248,14 @@ export function NavTree({
           aria-expanded={branch ? open : undefined}
           aria-selected={selected}
           tabIndex={isTabStop ? 0 : -1}
+          className="perc-architecture-nav-tree-item"
           data-testid={`nav-tree-item-${node.id}`}
           data-section-type={node.sectionType}
           style={nodeRowStyle(selected, depth)}
-          onClick={() => onSelect?.(node)}
+          onClick={() => {
+            setFocusedId(node.id);
+            onSelect?.(node);
+          }}
           onKeyDown={(e) => handleKeyDown(e, node)}
         >
           <span
@@ -319,6 +287,9 @@ export function NavTree({
               <span
                 style={badgeStyle}
                 title={ARCH_MSG.SECURE_TITLE}
+                aria-label={ARCH_MSG.SECURE_TITLE}
+                data-i18n-key={ARCH_MSG_KEYS.SECURE_TITLE}
+                data-i18n-badge-key={ARCH_MSG_KEYS.SECURE_BADGE}
                 data-testid={`nav-tree-secure-${node.id}`}
               >
                 {ARCH_MSG.SECURE_BADGE}
@@ -395,6 +366,7 @@ export function NavTree({
         role="tree"
         aria-label={ARCH_MSG.TREE_PANEL_TITLE}
       >
+        <style>{TREE_ITEM_FOCUS_CSS}</style>
         {renderNode(root, 0)}
       </div>
     );
