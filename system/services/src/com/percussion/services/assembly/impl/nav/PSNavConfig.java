@@ -18,6 +18,7 @@ package com.percussion.services.assembly.impl.nav;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSContentTypeTemplate;
@@ -57,7 +58,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -279,34 +279,40 @@ public class PSNavConfig
             //NavOn type
             if (navonTypeName != null && navonTypeName.trim().length() > 0)
             {
-               ArrayList<String> typeNames = new ArrayList<>();
-               if(navonTypeName.contains(",")){
-                  typeNames.addAll(Arrays.asList(StringUtils.stripAll(navonTypeName.split(","))));
-               }else{
-                  typeNames.add(navonTypeName.trim());
-               }
-               for(String s : typeNames) {
-                  IPSNodeDefinition navon = contMgr
-                          .findNodeDefinitionByName(s);
-                  m_navonTypes.add(navon.getGUID());
+               for(String s : PSNavNameAliases.splitConfiguredNames(navonTypeName)) {
+                  try {
+                     IPSNodeDefinition navon = contMgr.findNodeDefinitionByName(s);
+                     if (navon == null) {
+                        log.warn("Navigation content type '{}' is not installed; skipping alias", s);
+                        continue;
+                     }
+                     m_navonTypes.add(navon.getGUID());
+                  } catch (Exception e) {
+                     log.warn(
+                         "Navigation content type '{}' is not installed; skipping alias. {}",
+                         s,
+                         PSExceptionUtils.getMessageForLog(e));
+                  }
                }
             }
 
             //Nav Tree
             if (navTreeTypeName != null && navTreeTypeName.trim().length() > 0)
             {
-               ArrayList<String> treeTypeNames=new ArrayList<>();
-
-               if(navTreeTypeName.contains(",")){
-                  treeTypeNames.addAll(
-                          Arrays.asList(StringUtils.stripAll(navTreeTypeName.split(","))));
-               }else{
-                  treeTypeNames.add(navTreeTypeName.trim());
-               }
-               for(String s : treeTypeNames) {
-                  IPSNodeDefinition navonTree = contMgr
-                          .findNodeDefinitionByName(s);
-                  m_navTreeTypes.add(navonTree.getGUID());
+               for(String s : PSNavNameAliases.splitConfiguredNames(navTreeTypeName)) {
+                  try {
+                     IPSNodeDefinition navonTree = contMgr.findNodeDefinitionByName(s);
+                     if (navonTree == null) {
+                        log.warn("Navigation tree type '{}' is not installed; skipping alias", s);
+                        continue;
+                     }
+                     m_navTreeTypes.add(navonTree.getGUID());
+                  } catch (Exception e) {
+                     log.warn(
+                         "Navigation tree type '{}' is not installed; skipping alias. {}",
+                         s,
+                         PSExceptionUtils.getMessageForLog(e));
+                  }
                }
             }
 
@@ -314,17 +320,20 @@ public class PSNavConfig
             if (navImageTypeName != null
                   && navImageTypeName.trim().length() > 0)
             {
-               ArrayList<String> imageTypeNames =  new ArrayList<>();
-               if(navImageTypeName.contains(",")){
-                  imageTypeNames.addAll(Arrays.asList(
-                          StringUtils.stripAll(navImageTypeName.split(","))));
-               }else{
-                  imageTypeNames.add(navImageTypeName.trim());
-               }
-               for(String s: imageTypeNames) {
-                  IPSNodeDefinition navImg = contMgr
-                          .findNodeDefinitionByName(s);
-                  m_navImageTypes.add(navImg.getGUID());
+               for(String s: PSNavNameAliases.splitConfiguredNames(navImageTypeName)) {
+                  try {
+                     IPSNodeDefinition navImg = contMgr.findNodeDefinitionByName(s);
+                     if (navImg == null) {
+                        log.warn("Navigation image type '{}' is not installed; skipping alias", s);
+                        continue;
+                     }
+                     m_navImageTypes.add(navImg.getGUID());
+                  } catch (Exception e) {
+                     log.warn(
+                         "Navigation image type '{}' is not installed; skipping alias. {}",
+                         s,
+                         PSExceptionUtils.getMessageForLog(e));
+                  }
                }
             }
 
@@ -585,16 +594,10 @@ public class PSNavConfig
     * @return A list of strings, may be empty, never null
     */
    private List<String> getConfiguredValues(String propName){
-      ArrayList<String> values = new ArrayList<>();
-      String propValue = m_props.getProperty(propName);
-      if(propValue!= null && !propValue.trim().equals("")) {
-         if (propValue.contains(",")) {
-            values.addAll(Arrays.asList(StringUtils.stripAll(propValue.split(","))));
-         } else {
-            values.add(propValue.trim());
-         }
+      if (m_props == null) {
+         return new ArrayList<>();
       }
-      return values;
+      return new ArrayList<>(PSNavNameAliases.splitConfiguredNames(m_props.getProperty(propName)));
    }
 
    /**
@@ -969,9 +972,10 @@ public class PSNavConfig
                IPSTemplateSlot slot = srv.findSlotByName(s);
                menuSlotTypes.add(new PSSlotType(slot));
             }catch (PSAssemblyException e){
-                  String msg = "Failed to find menu slot: " + s;
-               log.error("{} Error: {}",msg, PSExceptionUtils.getMessageForLog(e));
-                  throw new PSNavException(msg, e);
+               log.warn(
+                   "Failed to find menu slot: {} — skipping alias. {}",
+                   s,
+                   PSExceptionUtils.getMessageForLog(e));
                }
          }
 
@@ -998,11 +1002,12 @@ public class PSNavConfig
       for(String s : getNavImageSlotNames()) {
          try {
             IPSTemplateSlot slot = srv.findSlotByName(s);
-            menuSlotTypes.add(new PSSlotType(slot));
+            navImageSlotTypes.add(new PSSlotType(slot));
          }catch (PSAssemblyException e){
-            String msg = "Failed to find image slot: " + s;
-            log.error("{} Error: {}",msg, PSExceptionUtils.getMessageForLog(e));
-            throw new PSNavException(msg, e);
+            log.warn(
+                "Failed to find image slot: {} — skipping alias. {}",
+                s,
+                PSExceptionUtils.getMessageForLog(e));
          }
       }
 
@@ -1024,9 +1029,10 @@ public class PSNavConfig
             IPSTemplateSlot slot = srv.findSlotByName(s);
             navLandingPageSlotTypes.add(new PSSlotType(slot));
          }catch (PSAssemblyException e){
-            String msg = "Failed to find landing page slot: " + s;
-            log.error("{} Error: {}",msg, PSExceptionUtils.getMessageForLog(e));
-            throw new PSNavException(msg, e);
+            log.warn(
+                "Failed to find landing page slot: {} — skipping alias. {}",
+                s,
+                PSExceptionUtils.getMessageForLog(e));
          }
       }
 
