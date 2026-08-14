@@ -867,6 +867,7 @@ public class ApiUtils {
       newSite.setSiteAfterBodyOpenContent(orNull(s.getSiteAfterBodyOpenContent()));
       newSite.setSiteBeforeBodyCloseContent(orNull(s.getSiteBeforeBodyCloseContent()));
       newSite.setSiteProtocol(s.getSiteProtocol());
+      newSite.setManagedNavigation(s.getManagedNavigation());
 
       ret.add(newSite);
     }

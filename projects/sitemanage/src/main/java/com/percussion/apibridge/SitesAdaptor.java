@@ -42,6 +42,7 @@ import com.percussion.services.virtualsite.PSInMemoryVirtualParticipantService;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
 import com.percussion.services.virtualsite.PSVirtualSiteFilesystemPublisher;
+import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
 import com.percussion.services.virtualsite.VirtualSiteConfig;
 import com.percussion.services.virtualsite.VirtualSiteConfigLoader;
@@ -497,6 +498,7 @@ public class SitesAdaptor implements ISiteAdaptor {
       ret.setGuid(ApiUtils.convertGuid(site.getGUID()));
     }
     ret.setVirtual(readVirtual(site));
+    ret.setManagedNavigation(PSManagedNavSiteHelper.flagForNonVirtual(site));
     return ret;
   }
 

@@ -77,6 +77,12 @@ public class PSSiteSummary extends PSDataItemSummarySingleFolderPath
 
   private boolean isGenerateSitemap = false;
 
+  /**
+   * Traditional sites only. {@code true}/{@code false} when the site is repository-backed; {@code
+   * null} for Virtual Sites (they do not use this flag).
+   */
+  private Boolean managedNavigation;
+
   private PSPubInfo pubInfo;
 
   private boolean isCM1Site = false;
@@ -339,5 +345,16 @@ public class PSSiteSummary extends PSDataItemSummarySingleFolderPath
 
   public void setGenerateSitemap(boolean generateSitemap) {
     isGenerateSitemap = generateSitemap;
+  }
+
+  /**
+   * Whether this traditional site includes CMS managed navigation. {@code null} on Virtual Sites.
+   */
+  public Boolean getManagedNavigation() {
+    return managedNavigation;
+  }
+
+  public void setManagedNavigation(Boolean managedNavigation) {
+    this.managedNavigation = managedNavigation;
   }
 }

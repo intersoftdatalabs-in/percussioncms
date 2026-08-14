@@ -23,6 +23,8 @@ package com.percussion.rest.sites;
  * <p>Virtual Site properties ({@code virtual.*}) are exposed via {@link
  * #getVirtualSiteProperties(String)} / {@link #updateVirtualSiteProperties(String,
  * VirtualSiteProperties)} and are also populated on {@link Site#getVirtual()} for detail loads.
+ * Traditional sites expose {@link Site#getManagedNavigation()} ({@code navigation.managed});
+ * Virtual Sites omit that flag.
  */
 public interface ISiteAdaptor {
 

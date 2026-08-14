@@ -343,6 +343,12 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.traditionalNote}"]`),
       ).toBeVisible();
+      const managedNav = page.locator(
+        `[data-testid="${TEST_IDS.managedNav}"]`,
+      );
+      await expect(managedNav).toBeVisible();
+      await expect(managedNav).toBeChecked();
+      await managedNav.uncheck();
 
       const siteName = uniqueQaSiteName("QaListCreate");
       await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
@@ -370,6 +376,9 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       );
       await expect(summary).toBeVisible();
       await expect(summary).toContainText(siteName);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.confirmManagedNav}"]`),
+      ).toContainText(/No/i);
 
       // Do not submit here — live create is the next test (avoids double create).
       await page.locator(`[data-testid="${TEST_IDS.cancel}"]`).click();

@@ -46,6 +46,8 @@ import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
+import com.percussion.services.virtualsite.PSVirtualSiteHelper;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.service.IPSIdMapper;
@@ -327,6 +329,9 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     tmpSite.setCanonicalReplace(site.isCanonicalReplace());
     tmpSite.setPageBased(true);
     site.setSiteId(tmpSite.getSiteId());
+    if (isNew) {
+      persistManagedNavigationFlag(tmpSite, site.getManagedNavigation());
+    }
 
     publishWs.saveSite(tmpSite);
     site.setFolderPath(tmpSite.getFolderRoot());
@@ -547,6 +552,52 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     summary.setSiteAdditionalHeadContent(site.getSiteAdditionalHeadContent());
     summary.setLabel(site.getLabel());
     summary.setPageBased(site.isPageBased());
+    summary.setManagedNavigation(PSManagedNavSiteHelper.flagForNonVirtual(site));
+  }
+
+  /**
+   * Persist {@code navigation.managed=false} on new traditional sites. Absent property remains
+   * the default (include nav). Virtual Sites never store this flag.
+   */
+  private void persistManagedNavigationFlag(IPSSite tmpSite, Boolean createFlag) {
+    if (PSVirtualSiteHelper.isVirtual(tmpSite)) {
+      return;
+    }
+    if (!Boolean.FALSE.equals(createFlag)) {
+      return;
+    }
+    if (!(tmpSite instanceof com.percussion.services.sitemgr.data.PSSite ps)) {
+      return;
+    }
+    IPSGuid contextId = resolvePropertyContextQuietly();
+    if (contextId == null) {
+      log.warn(
+          "Could not persist {}=false for site {}; create will still skip the NavTree",
+          PSManagedNavSiteHelper.PROP_MANAGED,
+          tmpSite.getName());
+      return;
+    }
+    PSVirtualSiteHelper.putProperty(ps, contextId, PSManagedNavSiteHelper.PROP_MANAGED, "false");
+  }
+
+  private IPSGuid resolvePropertyContextQuietly() {
+    try {
+      IPSPublishingContext preview = siteMgr.loadContext("Preview");
+      if (preview != null && preview.getGUID() != null) {
+        return preview.getGUID();
+      }
+    } catch (PSNotFoundException e) {
+      log.debug("Preview context not found for navigation.managed persist", e);
+    }
+    try {
+      List<IPSPublishingContext> contexts = siteMgr.findAllContexts();
+      if (contexts != null && !contexts.isEmpty() && contexts.get(0).getGUID() != null) {
+        return contexts.get(0).getGUID();
+      }
+    } catch (RuntimeException e) {
+      log.debug("No publishing context for navigation.managed persist", e);
+    }
+    return null;
   }
 
   /**

@@ -35,6 +35,9 @@ const TEST_IDS = Object.freeze({
   run: "site-create-run",
   cancel: "site-create-cancel",
   traditionalNote: "site-create-traditional-note",
+  managedNav: "site-create-managed-nav",
+  managedNavHelp: "site-create-managed-nav-help",
+  confirmManagedNav: "site-create-confirm-managed-nav",
 });
 
 const PRODUCT_ISSUES = Object.freeze({

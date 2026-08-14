@@ -74,6 +74,16 @@ public class Site {
               + " virtual.siteKey). Null when not loaded.")
   private VirtualSiteProperties virtual;
 
+  /**
+   * Traditional sites only. {@code true} includes a CMS NavTree; {@code false} creates the site
+   * folder without managed navigation. {@code null} on Virtual Sites (they do not use this flag).
+   */
+  @Schema(
+      description =
+          "Traditional sites only: whether CMS managed navigation is included. Null for Virtual"
+              + " Sites. Absent/true is the default for repository sites.")
+  private Boolean managedNavigation;
+
   public Site() {
     // Default constructor
   }
@@ -220,5 +230,13 @@ public class Site {
 
   public void setVirtual(VirtualSiteProperties virtual) {
     this.virtual = virtual;
+  }
+
+  public Boolean getManagedNavigation() {
+    return managedNavigation;
+  }
+
+  public void setManagedNavigation(Boolean managedNavigation) {
+    this.managedNavigation = managedNavigation;
   }
 }

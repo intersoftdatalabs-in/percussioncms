@@ -307,6 +307,7 @@ public class PSSiteDao implements IPSiteDao {
     }
     s.setDescription(site.getDescription().orElse(null));
     s.setNavigationTitle(navTitle);
+    s.setManagedNavigation(site.getManagedNavigation());
     siteContentDao.loadTemplateInfo(s);
     return s;
   }

@@ -46,6 +46,8 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(TEST_IDS.wizard, "site-create-wizard");
     assert.equal(TEST_IDS.siteName, "site-create-name");
     assert.equal(TEST_IDS.run, "site-create-run");
+    assert.equal(TEST_IDS.managedNav, "site-create-managed-nav");
+    assert.equal(TEST_IDS.confirmManagedNav, "site-create-confirm-managed-nav");
   });
 
   it("tracks parent epic and slice issue numbers", () => {
