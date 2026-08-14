@@ -28,8 +28,8 @@
  *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
- * actions via {@code findAllowedContentTypeMenus} + workflow transitions
- * and re-renders this component).</p>
+ * actions via {@code GET /actions/find} (plus merged type menus) and
+ * workflow transitions and re-renders this component).</p>
  */
 
 import React, { useEffect, useId, useRef, useState } from "react";

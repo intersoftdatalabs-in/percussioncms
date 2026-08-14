@@ -62,6 +62,32 @@ public class ApiUtilsActionMenuConvertTest {
     assertEquals("open", converted.getChildren().get(0).getName());
     assertEquals("edit", converted.getChildren().get(1).getName());
     assertEquals("Open", converted.getChildren().get(0).getLabel());
+    assertEquals(1, converted.getChildren().get(0).getParentId());
+    assertEquals(1, converted.getChildren().get(1).getParentId());
+  }
+
+  @Test
+  public void convertSetsActionGuidFromActionId() {
+    PSActionMenu leaf =
+        new PSActionMenu("rename", "Rename", TYPE_MENUITEM, "", "client", 0);
+    leaf.setActionId(9);
+    ActionMenu converted = ApiUtils.convertPSActionMenu(leaf);
+    assertNotNull(converted.getGuid());
+    assertEquals(
+        "0-107-9",
+        converted.getGuid().getStringValue().orElse(null),
+        "ACTION type 107 + actionId for Object ACL (#3380)");
+    assertEquals(107, converted.getGuid().getType());
+    assertEquals(9, converted.getGuid().getUuid());
+  }
+
+  @Test
+  public void convertOmitsGuidWhenActionIdUnset() {
+    PSActionMenu leaf =
+        new PSActionMenu("draft", "Draft", TYPE_MENUITEM, "", "client", 0);
+    leaf.setActionId(0);
+    ActionMenu converted = ApiUtils.convertPSActionMenu(leaf);
+    assertNull(converted.getGuid());
   }
 
   @Test

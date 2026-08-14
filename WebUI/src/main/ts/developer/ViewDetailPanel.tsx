@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getViewDetail } from "../api/developer/viewsApi";
+import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import type { ViewDef } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -12,9 +13,12 @@ import { ObjectAclSection } from "./ObjectAclSection";
 
 export function ViewDetailPanel({
   idOrName,
+  catalogGuid,
   onBack,
 }: {
   idOrName: string;
+  /** GUID from catalog list row when detail wire omits stringValue (#3380). */
+  catalogGuid?: string | null;
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ViewDef | null>(null);
@@ -38,6 +42,7 @@ export function ViewDetailPanel({
 
   const fields =
     detail != null && Array.isArray(detail.fields) ? detail.fields : [];
+  const objectGuid = resolveViewObjectGuid(detail, catalogGuid);
 
   return (
     <div data-testid="developer-vw-detail">
@@ -73,6 +78,13 @@ export function ViewDetailPanel({
             <dl style={metaGrid}>
               <dt>{DEV_MSG.VW_COL_NAME}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.name || "—"}</dd>
+              <dt>{DEV_MSG.VW_COL_GUID}</dt>
+              <dd
+                style={{ margin: 0, ...monoCell }}
+                data-testid="developer-vw-detail-guid"
+              >
+                {objectGuid || "—"}
+              </dd>
               <dt>{DEV_MSG.VW_COL_DF}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.displayFormatId || "—"}</dd>
               <dt>{DEV_MSG.VW_COL_MAX}</dt>
@@ -129,7 +141,7 @@ export function ViewDetailPanel({
           </section>
 
           <ObjectAclSection
-            objectGuid={detail.guid?.stringValue}
+            objectGuid={objectGuid}
             objectKind="view"
             testIdPrefix="developer-vw-acl"
           />

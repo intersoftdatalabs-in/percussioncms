@@ -15,6 +15,20 @@ vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
   getViewDetail: vi.fn(),
 }));
 
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const listViews = viewsApi.listViews as ReturnType<typeof vi.fn>;
 const getViewDetail = viewsApi.getViewDetail as ReturnType<typeof vi.fn>;
 

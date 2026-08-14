@@ -167,6 +167,31 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     );
   });
 
+  it("shows existing no-GUID message for action-menu and view (#3380)", () => {
+    const { unmount } = render(
+      <ObjectAclSection
+        objectGuid={null}
+        objectKind="action-menu"
+        testIdPrefix="developer-am-acl"
+      />,
+    );
+    expect(screen.getByTestId("developer-am-acl-no-guid").textContent).toMatch(
+      /Object GUID not available|cannot load ACL/i,
+    );
+    unmount();
+
+    render(
+      <ObjectAclSection
+        objectGuid={undefined}
+        objectKind="view"
+        testIdPrefix="developer-vw-acl"
+      />,
+    );
+    expect(screen.getByTestId("developer-vw-acl-no-guid").textContent).toMatch(
+      /Object GUID not available|cannot load ACL/i,
+    );
+  });
+
   it("uses display-format kind-aware no-guid copy (#3203)", () => {
     render(
       <ObjectAclSection
@@ -402,5 +427,42 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     const d = entries.find((e) => e.name === "Default");
     expect(d?.type?.type).toBe("USER");
     expect(d?.principal?.type).toBe("USER");
+  });
+
+  it("passes display-format objectGuid on save when GET ACL omitted it (#3378)", async () => {
+    getAclForObject.mockResolvedValue({
+      id: 7,
+      name: "By_Author ACL",
+      aclEntries: [
+        {
+          id: 70,
+          name: "Admin",
+          type: { type: "USER", name: "Admin" },
+          permissions: [{ permission: "OWNER" }],
+        },
+      ],
+    });
+    render(
+      <ObjectAclSection
+        objectGuid="0-31-5"
+        objectKind="display-format"
+        testIdPrefix="t-acl"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("t-acl-add-default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("t-acl-add-default"));
+    fireEvent.click(screen.getByTestId("t-acl-add-any-community"));
+    fireEvent.click(screen.getByTestId("t-acl-save"));
+    await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    const payload = saveObjectAcl.mock.calls.at(-1)?.[0] as ObjectAcl;
+    expect(payload.objectGuid?.stringValue).toBe("0-31-5");
+    const entries = Array.isArray(payload.aclEntries) ? payload.aclEntries : [];
+    expect(entries.some((e) => e.name === "Default")).toBe(true);
+    expect(entries.some((e) => e.name === "AnyCommunity")).toBe(true);
+    expect(entries.some((e) => e.name === "Admin")).toBe(true);
   });
 });

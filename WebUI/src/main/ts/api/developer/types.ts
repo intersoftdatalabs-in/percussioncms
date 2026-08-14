@@ -443,6 +443,8 @@ export interface ActionMenuProperty {
 export interface ActionMenu {
   id?: number;
   guid?: RestGuid;
+  /** Plain host-type-uuid when nested Guid is hard to bind (#3380). */
+  guidString?: string;
   name?: string;
   label?: string;
   description?: string;
@@ -534,6 +536,8 @@ export interface ViewFieldSummary {
 /** CX view definition (UI-07). */
 export interface ViewDef {
   guid?: RestGuid;
+  /** Plain host-type-uuid when nested Guid is hard to bind (#3380). */
+  guidString?: string;
   id?: number;
   name?: string;
   label?: string;

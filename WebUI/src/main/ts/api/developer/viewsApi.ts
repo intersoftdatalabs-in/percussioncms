@@ -3,8 +3,11 @@
  */
 
 import { get } from "../client";
+import { normalizeDesignObjectGuid, resolveViewObjectGuid } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type { ViewDef } from "./types";
+
+export { resolveViewObjectGuid };
 
 /**
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
@@ -36,15 +39,41 @@ function withGaps(v: ViewDef): ViewDef {
   };
 }
 
+/**
+ * Unwrap Jackson WRAP_ROOT_VALUE {@code {"ViewDef":{…}}} and fill
+ * {@code guid.stringValue} / {@code guidString} (nested Guid, catalog, or
+ * {@code 0-18-{id}}) so Object ACL can bind (#3380).
+ */
+export function unwrapViewDef(payload: unknown): ViewDef {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.ViewDef ?? root.viewDef;
+  let body: ViewDef;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    body = nested as ViewDef;
+  } else {
+    body = root as ViewDef;
+  }
+  const gs = resolveViewObjectGuid(body);
+  return normalizeDesignObjectGuid(body, gs);
+}
+
+/** Unwrap list envelopes and normalize each row GUID (#3380). */
+export function unwrapViewDefList(payload: unknown): ViewDef[] {
+  return asArray<ViewDef>(payload).map((item) => unwrapViewDef(item));
+}
+
 /** GET /services/views — list omits designGaps on the wire (REST-GAPS-02). */
 export async function listViews(): Promise<ViewDef[]> {
   const payload = await get<unknown>(PATHS.VIEWS);
-  return asArray<ViewDef>(payload);
+  return unwrapViewDefList(payload);
 }
 
 /** GET /services/views/{idOrName} */
 export async function getViewDetail(idOrName: string): Promise<ViewDef> {
   const key = encodeURIComponent(idOrName);
-  const detail = await get<ViewDef>(`${PATHS.VIEWS}/${key}`);
-  return withGaps(detail);
+  const payload = await get<unknown>(`${PATHS.VIEWS}/${key}`);
+  return withGaps(unwrapViewDef(payload));
 }

@@ -82,6 +82,17 @@ public class ActionMenu {
               + " handled by client is handled by server.")
   private String handler;
 
+  /**
+   * Parent action id from {@code RXMENUACTIONRELATION}. {@code 0} when this menu is a
+   * catalog root. Lets clients reconstruct a cascade if a serializer flattens children
+   * (#3379).
+   */
+  @Schema(
+      description =
+          "Parent action id when this menu is a child in RXMENUACTIONRELATION. 0 if this"
+              + " menu is a catalog root.")
+  private int parentId;
+
   /** Child actions when this action is a menu. */
   @Schema(
       description =
@@ -281,6 +292,24 @@ public class ActionMenu {
   }
 
   /**
+   * Returns the parent action id, or {@code 0} when this menu is a catalog root.
+   *
+   * @return parent action id
+   */
+  public int getParentId() {
+    return parentId;
+  }
+
+  /**
+   * Sets the parent action id from {@code RXMENUACTIONRELATION}.
+   *
+   * @param parentId parent action id, or {@code 0} for a root
+   */
+  public void setParentId(int parentId) {
+    this.parentId = parentId;
+  }
+
+  /**
    * Returns the child actions of this menu.
    *
    * @return the children, may be {@code null}
@@ -379,6 +408,7 @@ public class ActionMenu {
     var that = (ActionMenu) o;
     return id == that.id
         && sortRank == that.sortRank
+        && parentId == that.parentId
         && Objects.equals(guid, that.guid)
         && Objects.equals(name, that.name)
         && Objects.equals(label, that.label)
@@ -397,7 +427,17 @@ public class ActionMenu {
   public int hashCode() {
     int result =
         Objects.hash(
-            id, guid, name, label, description, url, sortRank, menuType, handler, children);
+            id,
+            guid,
+            name,
+            label,
+            description,
+            url,
+            sortRank,
+            menuType,
+            handler,
+            parentId,
+            children);
     result = 31 * result + Arrays.hashCode(parameters);
     result = 31 * result + Arrays.hashCode(visibilityContexts);
     result = 31 * result + Arrays.hashCode(uiContexts);
@@ -432,6 +472,8 @@ public class ActionMenu {
         + ", handler='"
         + handler
         + '\''
+        + ", parentId="
+        + parentId
         + ", children="
         + children
         + ", parameters="

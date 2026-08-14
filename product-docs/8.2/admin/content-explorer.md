@@ -216,15 +216,19 @@ catalog region apart from the Content / View / Help menu bar and the display-for
 
 Menus and toolbar buttons come from the server action catalog used by Content Explorer:
 
-- When you select a content item, the shell loads allowed menus for that content type and
-  falls back to the full action catalog when type menus are empty or unavailable.
-- When only a folder is active, the shell loads the cascading action tree for the Explorer UI.
+- Cascading **MENU** parents render as **one toolbar control** with a dropdown (`▾`). Open
+  the parent to choose a child command. Child items are **not** shown as extra top-level
+  buttons while the menu is closed.
+- When you select a content item, the shell keeps that cascading tree and may add
+  content-type **New** commands under an existing menu. It does not replace the tree with
+  a flat list of every allowed command.
+- When only a folder is active, the shell loads the same cascading action tree.
 - **Desktop-only** actions (for example custom application protocols that only DCE can run)
   are **hidden** in the web shell so operators are not offered controls that cannot succeed
   in the browser.
 - Actions of type **context menu** appear on right-click, not as permanent toolbar buttons.
 - Workflow transition triggers (when available for the selected item) appear as a labeled
-  group on the toolbar and in the context menu.
+  **one-click button group** on the toolbar and in the context menu (not a dropdown).
 - If the catalog cannot be loaded, the **Server actions** region stays visible with a short
   error message (and an empty-action placeholder) rather than disappearing from the page.
 
