@@ -70,6 +70,23 @@ describe("sectionApi (#3095)", () => {
     await expect(loadSectionTree("Demo")).resolves.toBeNull();
   });
 
+  it("loadSectionTree keeps root-only tree with id and no children (#3352)", async () => {
+    vi.spyOn(client, "get").mockResolvedValue({
+      SectionNode: {
+        id: "0-101-360",
+        title: "Corporate_Investments",
+        folderPath: "//Sites/CorporateInvestments",
+        sectionType: "section",
+        childNodes: [],
+      },
+    });
+    const tree = await loadSectionTree("Corporate_Investments");
+    expect(tree).not.toBeNull();
+    expect(tree!.id).toBe("0-101-360");
+    expect(tree!.title).toBe("Corporate_Investments");
+    expect(tree!.children).toHaveLength(0);
+  });
+
   it("loadSectionTree returns null for empty SectionNode without id (#3218)", async () => {
     vi.spyOn(client, "get").mockResolvedValue({
       SectionNode: { title: "BareSite", childNodes: [] },

@@ -63,14 +63,23 @@ A site can exist without a NavTree item at the site root (for example a newly
 created site, or a site whose navigation was never created). Opening
 **Navigation** for that site does **not** fail with HTTP 500.
 
-The server `GET /Rhythmyx/sitemanage/section/tree/{siteName}` call returns
-**HTTP 200** with an empty section tree (`childNodes` empty). The SPA shows an
-operator **empty state** (“No navigation tree”) in the Navigation tree panel
-instead of a route error or a generic 500 banner.
+Sample / demo sites installed with **Install sample sites**
+(`Corporate_Investments`, `Enterprise_Investments` on a typical H2 QA or
+new-install seed) ship as site rows and folders only. The first time an
+Admin or Designer opens **Navigation** for that site (or the server handles
+`GET /Rhythmyx/services/sitemanage/section/tree/{siteName}`), the product
+**creates a NavTree** at the site folder root when the folder exists. The
+tree panel then shows `role="tree"` with at least the root item. Operators
+do **not** need to create navigation by hand for those demo sites.
 
-To add navigation later, create a NavTree at the site root in **Explorer**
-(or create the site with managed navigation), then use **Refresh**. Other
-sites with a tree continue to load normally.
+The same create-on-first-open applies to any other entitled site that has a
+folder root but no NavTree yet (same path as **New Site**).
+
+If the site has no folder, or creating the NavTree fails, the server still
+returns **HTTP 200** with an empty section tree (no section `id`, empty
+`childNodes`). The SPA shows an operator **empty state** (“No navigation
+tree”) instead of a route error or a generic 500 banner. Use **Refresh**
+after the folder exists; other sites with a tree continue to load normally.
 
 Rhythmyx FastForward sites store the same tree as **`rffNavTree` / `rffNavon`**
 (same tables as CM1 **`percNavTree` / `percNavon`**). The product treats those
