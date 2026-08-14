@@ -243,10 +243,10 @@ public class SitesAdaptor implements ISiteAdaptor {
       }
 
       IPSGuid contextId = resolvePropertyContext(psSite);
-      String sourceKind = blankToNull(props.getSourceKind().orElse(null));
-      String rootPath = blankToNull(props.getRootPath().orElse(null));
-      String configFile = blankToNull(props.getConfigFile().orElse(null));
-      String siteKey = blankToNull(props.getSiteKey().orElse(null));
+      String sourceKind = blankToNull(props.getSourceKind());
+      String rootPath = blankToNull(props.getRootPath());
+      String configFile = blankToNull(props.getConfigFile());
+      String siteKey = blankToNull(props.getSiteKey());
 
       // Clear virtual config when sourceKind is blank or explicit repository.
       if (sourceKind == null

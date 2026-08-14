@@ -17,9 +17,9 @@
 package com.percussion.rest.sites;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Wire DTO for Virtual Site property bag keys stored on a CMS Site.
@@ -35,8 +35,15 @@ import java.util.Optional;
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a traditional repository
  * Site. Phase 1 virtual adapter: {@code git-filesystem}.
+ *
+ * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
+ * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
+ * {@code configFile}, and {@code siteKey} under root {@code VirtualSiteProperties}. Optional
+ * getters historically produced JAXB {@code unexpected element sourceKind} on PUT (#3365 / QA
+ * #3030).
  */
 @XmlRootElement(name = "VirtualSiteProperties")
+@JsonRootName("VirtualSiteProperties")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(
     name = "VirtualSiteProperties",
@@ -80,32 +87,32 @@ public class VirtualSiteProperties {
     // Default constructor for JAX-RS / Jackson
   }
 
-  public Optional<String> getSourceKind() {
-    return Optional.ofNullable(sourceKind);
+  public String getSourceKind() {
+    return sourceKind;
   }
 
   public void setSourceKind(String sourceKind) {
     this.sourceKind = sourceKind;
   }
 
-  public Optional<String> getRootPath() {
-    return Optional.ofNullable(rootPath);
+  public String getRootPath() {
+    return rootPath;
   }
 
   public void setRootPath(String rootPath) {
     this.rootPath = rootPath;
   }
 
-  public Optional<String> getConfigFile() {
-    return Optional.ofNullable(configFile);
+  public String getConfigFile() {
+    return configFile;
   }
 
   public void setConfigFile(String configFile) {
     this.configFile = configFile;
   }
 
-  public Optional<String> getSiteKey() {
-    return Optional.ofNullable(siteKey);
+  public String getSiteKey() {
+    return siteKey;
   }
 
   public void setSiteKey(String siteKey) {

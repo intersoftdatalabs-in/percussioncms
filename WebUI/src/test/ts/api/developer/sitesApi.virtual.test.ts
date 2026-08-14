@@ -11,6 +11,7 @@ import {
   parseVirtualSiteBuildResult,
   parseVirtualSitePreviewStatus,
   parseVirtualSiteProperties,
+  toVirtualSitePropertiesEnvelope,
   updateVirtualSiteProperties,
   virtualSitePreviewContentHref,
 } from "../../../../main/ts/api/developer/sitesApi";
@@ -70,11 +71,30 @@ describe("sitesApi virtual properties", () => {
     expect(out.virtual).toBe(false);
   });
 
-  it("updateVirtualSiteProperties PUTs body", async () => {
+  it("toVirtualSitePropertiesEnvelope wraps VirtualSiteProperties root", () => {
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        virtual: true,
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
+  });
+
+  it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {
     put.mockResolvedValue({
-      sourceKind: "git-filesystem",
-      rootPath: "C:/docs",
-      virtual: true,
+      VirtualSiteProperties: {
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        virtual: true,
+      },
     });
     const out = await updateVirtualSiteProperties("Help", {
       sourceKind: "git-filesystem",
@@ -82,9 +102,17 @@ describe("sitesApi virtual properties", () => {
     });
     expect(put).toHaveBeenCalledWith(
       expect.stringMatching(/\/sites\/Help\/virtual$/),
-      expect.objectContaining({ sourceKind: "git-filesystem", rootPath: "C:/docs" }),
+      {
+        VirtualSiteProperties: {
+          sourceKind: "git-filesystem",
+          rootPath: "C:/docs",
+          configFile: null,
+          siteKey: null,
+        },
+      },
     );
     expect(out.rootPath).toBe("C:/docs");
+    expect(out.virtual).toBe(true);
   });
 
   it("parseVirtualSiteBuildResult handles plain and wrapped payloads", () => {

@@ -96,7 +96,7 @@ public class SitesResourceTest {
     Site out = resource.getSite("Help");
     assertEquals("Help", out.getName());
     assertTrue(out.getVirtual() != null);
-    assertEquals("git-filesystem", out.getVirtual().getSourceKind().orElse(null));
+    assertEquals("git-filesystem", out.getVirtual().getSourceKind());
     verify(adaptor).findByName("Help");
     verify(adaptor, never()).findByGuid(any());
   }
@@ -130,7 +130,7 @@ public class SitesResourceTest {
     when(adaptor.getVirtualSiteProperties("Help")).thenReturn(v);
 
     VirtualSiteProperties out = resource.getVirtualProperties("Help");
-    assertEquals("git-filesystem", out.getSourceKind().orElse(null));
+    assertEquals("git-filesystem", out.getSourceKind());
     verify(adaptor).getVirtualSiteProperties("Help");
   }
 
