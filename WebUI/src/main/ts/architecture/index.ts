@@ -27,6 +27,8 @@ export { CreateSectionDialog } from "./CreateSectionDialog";
 export type { CreateSectionDialogProps } from "./CreateSectionDialog";
 export { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 export type { CreateSectionFromFolderDialogProps } from "./CreateSectionFromFolderDialog";
+export { MoveSectionDialog } from "./MoveSectionDialog";
+export type { MoveSectionDialogProps } from "./MoveSectionDialog";
 export { RenameSectionDialog } from "./RenameSectionDialog";
 export type { RenameSectionDialogProps } from "./RenameSectionDialog";
 export { SectionPropertiesDialog } from "./SectionPropertiesDialog";

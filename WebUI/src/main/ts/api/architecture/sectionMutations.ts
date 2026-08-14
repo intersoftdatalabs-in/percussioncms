@@ -172,6 +172,141 @@ export function canMoveNavNodeDown(
 }
 
 /**
+ * Whether the selected node may be reparented via the Move Section picker.
+ * Root cannot be moved; any other navon (section, link, blog) can.
+ */
+export function canMoveNavNode(
+  root: NavTreeNode | null | undefined,
+  node: NavTreeNode | null,
+): boolean {
+  if (!root || !node) return false;
+  return !isRootNavNode(root, node.id);
+}
+
+/**
+ * True when {@code maybeDescendantId} is {@code ancestorId} or a descendant
+ * of that node (depth-first).
+ */
+export function isNavNodeInSubtree(
+  root: NavTreeNode | null | undefined,
+  ancestorId: string,
+  maybeDescendantId: string,
+): boolean {
+  const ancestor = findNavNodeById(root, ancestorId);
+  if (!ancestor || !maybeDescendantId) return false;
+  return findNavNodeById(ancestor, maybeDescendantId) != null;
+}
+
+/**
+ * Drop {@code excludeId} and its descendants from a tree copy (picker filter).
+ */
+export function omitNavSubtree(
+  root: NavTreeNode | null,
+  excludeId: string | null | undefined,
+): NavTreeNode | null {
+  const skip = excludeId != null ? excludeId.trim() : "";
+  if (!root || !skip) return root;
+  if (root.id === skip) return null;
+  const children: NavTreeNode[] = [];
+  for (const child of root.children) {
+    const kept = omitNavSubtree(child, skip);
+    if (kept) {
+      children.push(kept);
+    }
+  }
+  return { ...root, children };
+}
+
+/**
+ * Whether {@code targetParentId} may receive {@code sourceId} as a child.
+ * Rejects missing ids, moving the root, self-parent, descendants of the
+ * source (cycle), and non-section parents (links cannot host children).
+ */
+export function isValidMoveTargetParent(
+  root: NavTreeNode | null | undefined,
+  sourceId: string,
+  targetParentId: string,
+): boolean {
+  const source = sourceId.trim();
+  const target = targetParentId.trim();
+  if (!root || !source || !target) return false;
+  if (source === target) return false;
+  if (isRootNavNode(root, source)) return false;
+  const sourceNode = findNavNodeById(root, source);
+  const targetNode = findNavNodeById(root, target);
+  if (!sourceNode || !targetNode) return false;
+  if (!canCreateChildUnder(targetNode)) return false;
+  if (findNavNodeById(sourceNode, target)) return false;
+  return true;
+}
+
+/**
+ * Sibling insert slots under {@code target} (excluding the moving node).
+ * {@code targetIndex} {@code -1} means append (CM1 {@code POST /section/move}).
+ */
+export function listMoveTargetPositions(
+  target: NavTreeNode | null,
+  sourceId: string,
+): { targetIndex: number; beforeId: string | null; beforeTitle: string | null }[] {
+  const source = sourceId.trim();
+  if (!target) {
+    return [{ targetIndex: -1, beforeId: null, beforeTitle: null }];
+  }
+  const slots: {
+    targetIndex: number;
+    beforeId: string | null;
+    beforeTitle: string | null;
+  }[] = [];
+  target.children.forEach((child, index) => {
+    if (child.id === source) return;
+    slots.push({
+      targetIndex: index,
+      beforeId: child.id,
+      beforeTitle: child.title,
+    });
+  });
+  slots.push({ targetIndex: -1, beforeId: null, beforeTitle: null });
+  return slots;
+}
+
+/**
+ * Build move payload for reparent (or same-parent insert) via the picker.
+ * {@code targetIndex} {@code -1} appends under the target (CM1 parity).
+ * Same-parent inserts after the source apply the CM1 index adjustment.
+ */
+export function buildReparentMove(
+  root: NavTreeNode | null | undefined,
+  sourceId: string,
+  targetParentId: string,
+  targetIndex: number = -1,
+): MoveSiteSectionFields | null {
+  const source = sourceId.trim();
+  const target = targetParentId.trim();
+  if (!isValidMoveTargetParent(root, source, target)) {
+    return null;
+  }
+  const place = findSiblingPlacement(root, source);
+  if (!place) return null;
+  if (
+    typeof targetIndex !== "number" ||
+    Number.isNaN(targetIndex) ||
+    targetIndex < -1
+  ) {
+    return null;
+  }
+  let index = targetIndex;
+  if (place.parent.id === target && targetIndex >= 0 && place.index < targetIndex) {
+    index = targetIndex - 1;
+  }
+  return {
+    sourceId: source,
+    targetId: target,
+    sourceParentId: place.parent.id,
+    targetIndex: index,
+  };
+}
+
+/**
  * Parent folder path for creating a child under {@code parent}.
  * Prefers the parent's {@code folderPath}; falls back to {@code //Sites/{site}}.
  */

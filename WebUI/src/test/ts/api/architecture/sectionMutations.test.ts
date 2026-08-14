@@ -22,17 +22,22 @@ import {
   buildCreateSectionFromFolderBody,
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
+  buildReparentMove,
   buildSiblingReorderMove,
   buildUpdateSiteSectionBody,
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
+  canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
   findNavNodeById,
   findSiblingPlacement,
   isRootNavNode,
   isSectionLinkType,
+  isValidMoveTargetParent,
+  listMoveTargetPositions,
+  omitNavSubtree,
   parseSiteSectionPropertiesPayload,
   resolveCreateParentFolderPath,
   splitCmsPagePath,
@@ -192,6 +197,43 @@ describe("sectionMutations (#3096)", () => {
     const down = buildSiblingReorderMove(sampleTree, "a", "down");
     expect(down?.targetIndex).toBe(1);
     expect(buildSiblingReorderMove(sampleTree, "a", "up")).toBeNull();
+  });
+
+  it("validates move-section targets and builds reparent payload (#3349)", () => {
+    expect(canMoveNavNode(sampleTree, findNavNodeById(sampleTree, "a"))).toBe(
+      true,
+    );
+    expect(canMoveNavNode(sampleTree, sampleTree)).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "a", "b")).toBe(true);
+    expect(isValidMoveTargetParent(sampleTree, "a", "a")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "b", "b1")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "a", "c")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "root", "b")).toBe(false);
+
+    const omitted = omitNavSubtree(sampleTree, "b");
+    expect(omitted?.children.map((n) => n.id)).toEqual(["a", "c"]);
+    expect(findNavNodeById(omitted, "b1")).toBeNull();
+
+    const positions = listMoveTargetPositions(
+      findNavNodeById(sampleTree, "root"),
+      "a",
+    );
+    expect(positions[0]).toEqual({
+      targetIndex: 1,
+      beforeId: "b",
+      beforeTitle: "News",
+    });
+    expect(positions[positions.length - 1].targetIndex).toBe(-1);
+
+    const reparent = buildReparentMove(sampleTree, "a", "b", -1);
+    expect(reparent).toEqual({
+      sourceId: "a",
+      targetId: "b",
+      sourceParentId: "root",
+      targetIndex: -1,
+    });
+    expect(buildReparentMove(sampleTree, "b", "b1", 0)).toBeNull();
+    expect(buildReparentMove(sampleTree, "a", "c", 0)).toBeNull();
   });
 
   it("resolves parent folder path and applies title", () => {

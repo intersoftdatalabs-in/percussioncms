@@ -21,6 +21,7 @@ import {
   screen,
   waitFor,
   fireEvent,
+  within,
 } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -312,6 +313,72 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(
       screen.getByTestId("architecture-mutation-error").textContent,
     ).toMatch(/Cannot delete section|Could not update/i);
+  });
+
+  it("move section picker cancel does not POST (#3349)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-move") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-move"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-move-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-move-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-move-dialog")).toBeNull();
+    });
+    expect(moveSpy).not.toHaveBeenCalled();
+  });
+
+  it("move section picker posts reparent move (#3349)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const moveSpy = vi
+      .spyOn(sectionApi, "moveSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-move"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-move-browse")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-move-browse"));
+    const picker = await waitFor(() =>
+      screen.getByTestId("architecture-tree-picker-dialog"),
+    );
+    await waitFor(() => {
+      expect(within(picker).getByTestId("nav-tree-item-c2")).toBeTruthy();
+    });
+    fireEvent.click(within(picker).getByTestId("nav-tree-item-c2"));
+    fireEvent.click(screen.getByTestId("architecture-tree-picker-confirm"));
+    fireEvent.click(screen.getByTestId("architecture-move-submit"));
+    await waitFor(() => {
+      expect(moveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: "c1",
+          targetId: "c2",
+          targetIndex: -1,
+        }),
+      );
+    });
   });
 
   it("move up calls moveSiteSection with reordered index", async () => {

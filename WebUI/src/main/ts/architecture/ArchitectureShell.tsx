@@ -44,11 +44,13 @@ import {
   applyTitleToProperties,
   buildSiblingReorderMove,
   applySectionPropertiesForm,
+  buildReparentMove,
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
   canEditLinkNode,
   canEditSectionProperties,
+  canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
   canReplaceLandingPage,
@@ -79,6 +81,7 @@ import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
 import { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
+import { MoveSectionDialog } from "./MoveSectionDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
 import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
@@ -165,6 +168,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [createFromFolderOpen, setCreateFromFolderOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [propertiesOpen, setPropertiesOpen] = useState(false);
   const [propertiesLoading, setPropertiesLoading] = useState(false);
@@ -469,6 +473,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     !mutationBusy;
   const canProperties =
     canEditSectionProperties(selectedNode) && !mutationBusy;
+  const canMove =
+    canMoveNavNode(treeRoot, selectedNode) && !mutationBusy;
   const canMoveUp =
     !!selectedNodeId &&
     canMoveNavNodeUp(treeRoot, selectedNodeId) &&
@@ -604,6 +610,27 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       });
     },
     [selectedNodeId, treeRoot, runMutation],
+  );
+
+  const onMoveReparentSubmit = useCallback(
+    (targetParentId: string, targetIndex: number) => {
+      if (!selectedNode || !treeRoot) return;
+      const fields = buildReparentMove(
+        treeRoot,
+        selectedNode.id,
+        targetParentId,
+        targetIndex,
+      );
+      if (!fields) {
+        setMutationError(ARCH_MSG.MOVE_INVALID_TARGET);
+        return;
+      }
+      void runMutation(async () => {
+        await moveSiteSection(fields);
+        setMoveOpen(false);
+      });
+    },
+    [selectedNode, treeRoot, runMutation],
   );
 
   const onConvertToFolder = useCallback(() => {
@@ -1333,6 +1360,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             canEditLink={canEditLink}
             canRename={canRename}
             canProperties={canProperties}
+            canMove={canMove}
             canMoveUp={canMoveUp}
             canMoveDown={canMoveDown}
             canDelete={canDelete}
@@ -1386,6 +1414,14 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               setRenameOpen(true);
             }}
             onProperties={openProperties}
+            onMove={() => {
+              setMutationError(null);
+              if (!selectedNode || !canMoveNavNode(treeRoot, selectedNode)) {
+                setMutationError(ARCH_MSG.MOVE_ROOT_BLOCKED);
+                return;
+              }
+              setMoveOpen(true);
+            }}
             onMoveUp={() => onMove("up")}
             onMoveDown={() => onMove("down")}
             onDelete={onDelete}
@@ -1471,6 +1507,17 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           if (!mutationBusy) setCreateFromFolderOpen(false);
         }}
         onSubmit={onCreateFromFolderSubmit}
+      />
+      <MoveSectionDialog
+        open={moveOpen}
+        sourceId={selectedNode?.id ?? ""}
+        sourceTitle={selectedNode?.title ?? ""}
+        treeRoot={treeRoot}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setMoveOpen(false);
+        }}
+        onSubmit={onMoveReparentSubmit}
       />
       <RenameSectionDialog
         open={renameOpen}
