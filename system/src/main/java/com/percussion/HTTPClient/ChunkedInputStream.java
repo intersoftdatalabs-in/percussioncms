@@ -62,7 +62,7 @@ class ChunkedInputStream extends FilterInputStream {
 
     if (chunk_len > 0) // it's data
     {
-      if (len > chunk_len) len = (int) chunk_len;
+      len = Codecs.clampToChunkLength(len, chunk_len);
       int rcvd = in.read(buf, off, len);
       if (rcvd == -1) throw new EOFException("Premature EOF encountered");
 
@@ -86,18 +86,37 @@ class ChunkedInputStream extends FilterInputStream {
     }
   }
 
-  public synchronized long skip(long num) throws IOException {
-    byte[] tmp = new byte[(int) num];
-    int got = read(tmp, 0, (int) num);
+  /** Bounded skip buffer so a huge {@code num} cannot allocate a user-sized array. */
+  private static final int SKIP_BUFFER_SIZE = 8192;
 
-    if (got > 0) return (long) got;
-    else return 0L;
+  public synchronized long skip(long num) throws IOException {
+    if (num <= 0L) {
+      return 0L;
+    }
+    int bufSize = (int) Math.min(num, SKIP_BUFFER_SIZE);
+    byte[] tmp = new byte[bufSize];
+    long remaining = num;
+    long skipped = 0L;
+    while (remaining > 0L) {
+      int toRead = (int) Math.min(remaining, tmp.length);
+      int got = read(tmp, 0, toRead);
+      if (got <= 0) {
+        break;
+      }
+      skipped += got;
+      remaining -= got;
+    }
+    return skipped;
   }
 
   public synchronized int available() throws IOException {
-    if (eof) return 0;
+    if (eof) {
+      return 0;
+    }
 
-    if (chunk_len != -1) return (int) chunk_len + in.available();
-    else return in.available();
+    if (chunk_len != -1) {
+      return Codecs.saturateAvailable(chunk_len, in.available());
+    }
+    return in.available();
   }
 }
