@@ -22,6 +22,7 @@
 import React from "react";
 import { catalogColors } from "../developer/catalogStyles";
 import { ARCH_MSG } from "./messages";
+import { captureDialogOpener } from "./useDialogEscape";
 
 export interface StructureActionBarProps {
   busy: boolean;
@@ -117,7 +118,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-create"
         disabled={!createEnabled}
-        onClick={onCreate}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onCreate();
+        }}
         style={buttonStyle(createEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE}
@@ -126,7 +130,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-create-from-folder"
         disabled={!createFromFolderEnabled}
-        onClick={onCreateFromFolder}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onCreateFromFolder();
+        }}
         style={buttonStyle(createFromFolderEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE_FROM_FOLDER}
@@ -135,7 +142,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-create-section-link"
         disabled={!sectionLinkEnabled}
-        onClick={onCreateSectionLink}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onCreateSectionLink();
+        }}
         style={buttonStyle(sectionLinkEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE_SECTION_LINK}
@@ -144,7 +154,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-create-external-link"
         disabled={!externalLinkEnabled}
-        onClick={onCreateExternalLink}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onCreateExternalLink();
+        }}
         style={buttonStyle(externalLinkEnabled)}
       >
         {ARCH_MSG.ACTION_CREATE_EXTERNAL_LINK}
@@ -153,7 +166,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-landing"
         disabled={!landingEnabled}
-        onClick={onLanding}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onLanding();
+        }}
         style={buttonStyle(landingEnabled)}
       >
         {ARCH_MSG.ACTION_LANDING}
@@ -162,7 +178,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-edit-link"
         disabled={!editLinkEnabled}
-        onClick={onEditLink}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onEditLink();
+        }}
         style={buttonStyle(editLinkEnabled)}
       >
         {ARCH_MSG.ACTION_EDIT_LINK}
@@ -171,7 +190,10 @@ export function StructureActionBar({
         type="button"
         data-testid="architecture-action-rename"
         disabled={!renameEnabled}
-        onClick={onRename}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onRename();
+        }}
         style={buttonStyle(renameEnabled)}
       >
         {ARCH_MSG.ACTION_RENAME}

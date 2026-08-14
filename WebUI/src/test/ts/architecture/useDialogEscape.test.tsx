@@ -18,7 +18,10 @@
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useDialogEscape } from "../../../main/ts/architecture/useDialogEscape";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+} from "../../../main/ts/architecture/useDialogEscape";
 
 function Harness({
   open,
@@ -55,6 +58,51 @@ describe("useDialogEscape (#3098)", () => {
     rerender(<Harness open={false} busy={false} onCancel={onCancel} />);
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it("restores focus to the captured toolbar button (#3350)", () => {
+    const onCancel = vi.fn();
+    const opener = document.createElement("button");
+    opener.type = "button";
+    document.body.appendChild(opener);
+    captureDialogOpener(opener);
+
+    const steal = document.createElement("input");
+    document.body.appendChild(steal);
+    steal.focus();
+
+    const { rerender } = render(
+      <Harness open busy={false} onCancel={onCancel} />,
+    );
+    rerender(<Harness open={false} busy={false} onCancel={onCancel} />);
+    expect(document.activeElement).toBe(opener);
+
+    steal.remove();
+    opener.remove();
+  });
+
+  it("restores focus to the opener when the dialog closes (#3350)", () => {
+    const onCancel = vi.fn();
+    const opener = document.createElement("button");
+    opener.type = "button";
+    opener.setAttribute("data-testid", "escape-opener");
+    document.body.appendChild(opener);
+    opener.focus();
+    expect(document.activeElement).toBe(opener);
+
+    const { rerender } = render(
+      <Harness open busy={false} onCancel={onCancel} />,
+    );
+    const steal = document.createElement("input");
+    document.body.appendChild(steal);
+    steal.focus();
+    expect(document.activeElement).toBe(steal);
+
+    rerender(<Harness open={false} busy={false} onCancel={onCancel} />);
+    expect(document.activeElement).toBe(opener);
+
+    steal.remove();
+    opener.remove();
   });
 
   it("removes keydown listener when open goes false or unmounts", () => {

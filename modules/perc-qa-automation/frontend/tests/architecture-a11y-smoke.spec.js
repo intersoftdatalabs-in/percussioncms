@@ -192,21 +192,16 @@ test.describe("Architecture a11y hardening (#3098)", () => {
 
           const createBtn = page.getByTestId("architecture-action-create");
           await expect(createBtn).toBeVisible();
-          if (await createBtn.isEnabled().catch(() => false)) {
-            await createBtn.click();
-            const dialog = page.getByTestId("architecture-create-dialog");
-            await expect(dialog).toBeVisible({ timeout: 10_000 });
-            const dialogPanel = dialog.locator('[role="dialog"]');
-            await expect(dialogPanel).toHaveAttribute("aria-modal", "true");
-            await page.keyboard.press("Escape");
-            await expect(dialog).toHaveCount(0);
-          } else {
-            test.info().annotations.push({
-              type: "note",
-              description:
-                "Create disabled — skipped Escape dialog close (parent blocked)",
-            });
-          }
+          // #3350: treeitems mean a NavTree exists — Create section must be enabled
+          await expect(createBtn).toBeEnabled();
+          await createBtn.click();
+          const dialog = page.getByTestId("architecture-create-dialog");
+          await expect(dialog).toBeVisible({ timeout: 10_000 });
+          const dialogPanel = dialog.locator('[role="dialog"]');
+          await expect(dialogPanel).toHaveAttribute("aria-modal", "true");
+          await page.keyboard.press("Escape");
+          await expect(dialog).toHaveCount(0);
+          await expect(createBtn).toBeFocused();
         }
       } else {
         test.info().annotations.push({

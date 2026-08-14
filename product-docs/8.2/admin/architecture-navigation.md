@@ -104,8 +104,12 @@ The navigation tree follows the ARIA tree pattern:
 
 Structure dialogs (create, create from folder, rename, landing page, section link, external link, the
 section picker, **New Site**, and **Copy Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
-closes the open dialog when a mutation is not in progress. Closing **New Site** or
-**Copy Site** returns keyboard focus to the matching toolbar button. Primary
+closes the open dialog when a mutation is not in progress. Closing a structure
+dialog, **New Site**, or **Copy Site** returns keyboard focus to the control that
+opened it. **Create section**, **Create section from folder**, **Create section
+link**, and **Create external link** are enabled when the selected site has a
+navigation tree and a regular section (or the tree root) can be the parent —
+including when the root is used because nothing is selected yet. Primary
 structure actions live in a toolbar with an accessible name (**Structure actions**).
 
 Chrome strings (shell, tree states, actions, dialogs, validation) use the

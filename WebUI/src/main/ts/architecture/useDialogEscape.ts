@@ -15,7 +15,29 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
+
+/** Last structure-toolbar control that opened a dialog (#3350). */
+let pendingOpener: HTMLElement | null = null;
+
+/**
+ * Record the control that opened a structure dialog so focus can return
+ * after Escape / cancel. Prefer the clicked button over
+ * {@code document.activeElement} (jsdom click does not move focus).
+ */
+export function captureDialogOpener(el: EventTarget | null): void {
+  pendingOpener = el instanceof HTMLElement ? el : null;
+}
+
+function takePendingOpener(): HTMLElement | null {
+  const fromClick = pendingOpener;
+  pendingOpener = null;
+  if (fromClick) {
+    return fromClick;
+  }
+  const ae = document.activeElement;
+  return ae instanceof HTMLElement ? ae : null;
+}
 
 /**
  * Close Architecture dialogs on Escape when open and not busy (#3098 a11y).
@@ -23,6 +45,9 @@ import { useEffect, useRef } from "react";
  *
  * <p>{@code onCancel} is held in a ref so inline arrow call-sites do not
  * teardown/re-register the window keydown listener every parent render.</p>
+ *
+ * <p>#3350: capture the opener (toolbar click or current focus) on the first
+ * open render and restore focus when the dialog closes.</p>
  */
 export function useDialogEscape(
   open: boolean,
@@ -31,6 +56,28 @@ export function useDialogEscape(
 ): void {
   const onCancelRef = useRef(onCancel);
   onCancelRef.current = onCancel;
+
+  const openerRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
+
+  if (open && !wasOpenRef.current) {
+    openerRef.current = takePendingOpener();
+  }
+  wasOpenRef.current = open;
+
+  useLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+    const el = openerRef.current;
+    if (!el) {
+      return;
+    }
+    openerRef.current = null;
+    if (typeof el.focus === "function" && document.contains(el)) {
+      el.focus();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
