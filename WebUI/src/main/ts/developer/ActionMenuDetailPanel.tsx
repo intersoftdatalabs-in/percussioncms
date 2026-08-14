@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getActionMenuDetail } from "../api/developer/actionMenusApi";
+import { resolveActionMenuObjectGuid } from "../api/displayFormatGuid";
 import type { ActionMenu } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -12,9 +13,12 @@ import { ObjectAclSection } from "./ObjectAclSection";
 
 export function ActionMenuDetailPanel({
   idOrName,
+  catalogGuid,
   onBack,
 }: {
   idOrName: string;
+  /** GUID from catalog list row when detail wire omits stringValue (#3380). */
+  catalogGuid?: string | null;
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ActionMenu | null>(null);
@@ -40,6 +44,7 @@ export function ActionMenuDetailPanel({
     detail != null && Array.isArray(detail.parameters) ? detail.parameters : [];
   const props =
     detail != null && Array.isArray(detail.properties) ? detail.properties : [];
+  const objectGuid = resolveActionMenuObjectGuid(detail, catalogGuid);
 
   return (
     <div data-testid="developer-am-detail">
@@ -75,6 +80,13 @@ export function ActionMenuDetailPanel({
             <dl style={metaGrid}>
               <dt>{DEV_MSG.AM_COL_NAME}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.name || "—"}</dd>
+              <dt>{DEV_MSG.AM_COL_GUID}</dt>
+              <dd
+                style={{ margin: 0, ...monoCell }}
+                data-testid="developer-am-detail-guid"
+              >
+                {objectGuid || "—"}
+              </dd>
               <dt>{DEV_MSG.AM_COL_TYPE}</dt>
               <dd style={{ margin: 0 }}>{detail.menuType || "—"}</dd>
               <dt>{DEV_MSG.AM_COL_HANDLER}</dt>
@@ -164,7 +176,7 @@ export function ActionMenuDetailPanel({
           </section>
 
           <ObjectAclSection
-            objectGuid={detail.guid?.stringValue}
+            objectGuid={objectGuid}
             objectKind="action-menu"
             testIdPrefix="developer-am-acl"
           />

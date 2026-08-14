@@ -517,6 +517,74 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
     }
   });
 
+  test("action menu detail GUID loads Object ACL (#3380)", async ({ page }) => {
+    await page.goto(developerSectionUrl("action-menus"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-action-menus"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const opened = await openFirstCatalogDetail(page, {
+      rowBase: "developer-am-row",
+      panel: "developer-am-panel",
+      empty: "developer-am-empty",
+      error: "developer-am-error",
+      detail: "developer-am-detail",
+      detailLoading: "developer-am-detail-loading",
+      detailError: "developer-am-detail-error",
+      catalogLabel: "action menus",
+    });
+    if (!opened) return;
+
+    const guidCell = page.locator('[data-testid="developer-am-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
+    expect(
+      guidText && guidText !== "—" && guidText !== "-",
+      `action-menu detail GUID must be present (got "${guidText}")`,
+    ).toBeTruthy();
+    const mode = await assertLayeredObjectAcl(page, "developer-am-acl", "action-menu");
+    expect(
+      ["table", "empty", "no-entries"],
+      `action-menu Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+    ).toContain(mode);
+  });
+
+  test("view detail GUID loads Object ACL (#3380)", async ({ page }) => {
+    await page.goto(developerSectionUrl("views"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-views"]'),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const opened = await openFirstCatalogDetail(page, {
+      rowBase: "developer-vw-row",
+      panel: "developer-vw-panel",
+      empty: "developer-vw-empty",
+      error: "developer-vw-error",
+      detail: "developer-vw-detail",
+      detailLoading: "developer-vw-detail-loading",
+      detailError: "developer-vw-detail-error",
+      catalogLabel: "views",
+    });
+    if (!opened) return;
+
+    const guidCell = page.locator('[data-testid="developer-vw-detail-guid"]');
+    await expect(guidCell).toBeVisible({ timeout: 15_000 });
+    const guidText = (await guidCell.innerText()).trim();
+    expect(
+      guidText && guidText !== "—" && guidText !== "-",
+      `view detail GUID must be present (got "${guidText}")`,
+    ).toBeTruthy();
+    const mode = await assertLayeredObjectAcl(page, "developer-vw-acl", "view");
+    expect(
+      ["table", "empty", "no-entries"],
+      `view Object ACL must load with GUID "${guidText}" (got mode=${mode})`,
+    ).toContain(mode);
+  });
+
   test("preferences default ACL template shows Design/Runtime column groups", async ({
     page,
   }) => {

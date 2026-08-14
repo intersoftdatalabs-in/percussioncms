@@ -19,8 +19,10 @@ import {
   normalizeDesignObjectGuid,
   normalizeDisplayFormatGuid,
   objectGuidString,
+  resolveActionMenuObjectGuid,
   resolveContentTypeObjectGuid,
   resolveTemplateObjectGuid,
+  resolveViewObjectGuid,
   synthesizeTypedObjectGuid,
   unwrapDisplayFormat,
 } from "../../../main/ts/api/displayFormatGuid";
@@ -69,6 +71,30 @@ describe("resolveContentTypeObjectGuid / resolveTemplateObjectGuid (#3319)", () 
     expect(resolveTemplateObjectGuid({ guidString: "0-4-8", templateId: 12 })).toBe("0-4-8");
     expect(synthesizeTypedObjectGuid(4, 12)).toBe("0-4-12");
     expect(synthesizeTypedObjectGuid(2, 0)).toBeUndefined();
+  });
+
+  it("resolves action menu GUID: nested, guidString, catalog, then 0-107-{id} (#3380)", () => {
+    expect(
+      resolveActionMenuObjectGuid({ guid: { stringValue: "0-107-1" }, id: 9 }),
+    ).toBe("0-107-1");
+    expect(resolveActionMenuObjectGuid({ guidString: "0-107-2", id: 9 })).toBe("0-107-2");
+    expect(resolveActionMenuObjectGuid({ id: 9 }, " 0-107-3 ")).toBe("0-107-3");
+    expect(resolveActionMenuObjectGuid({ id: 9 })).toBe("0-107-9");
+    expect(
+      resolveActionMenuObjectGuid({ guid: { Guid: { stringValue: "0-107-4" } } }),
+    ).toBe("0-107-4");
+    expect(resolveActionMenuObjectGuid({}, undefined)).toBeUndefined();
+  });
+
+  it("resolves view GUID: nested, guidString, catalog, then 0-18-{id} (#3380)", () => {
+    expect(resolveViewObjectGuid({ guid: { stringValue: "0-18-1" }, id: 9 })).toBe("0-18-1");
+    expect(resolveViewObjectGuid({ guidString: "0-18-2", id: 9 })).toBe("0-18-2");
+    expect(resolveViewObjectGuid({ id: 9 }, " 0-18-3 ")).toBe("0-18-3");
+    expect(resolveViewObjectGuid({ id: 9 })).toBe("0-18-9");
+    expect(
+      resolveViewObjectGuid({ guid: { hostId: 0, type: 18, uuid: 5 } }),
+    ).toBe("0-18-5");
+    expect(resolveViewObjectGuid({}, undefined)).toBeUndefined();
   });
 
   it("normalizeDesignObjectGuid fills stringValue and guidString", () => {

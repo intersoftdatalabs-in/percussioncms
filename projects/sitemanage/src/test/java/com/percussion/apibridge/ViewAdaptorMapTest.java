@@ -6,6 +6,7 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,6 +64,11 @@ class ViewAdaptorMapTest {
 
     ViewDef d = ViewAdaptor.toDef(s);
     assertEquals("My View", d.getName());
+    assertNotNull(d.getGuid());
+    assertEquals(
+        "0-301-123",
+        d.getGuid().getStringValue().orElse(null),
+        "view catalog/detail must emit Guid.stringValue for Object ACL (#3380)");
     assertTrue(d.isView());
     assertTrue(d.isStandardView());
     assertFalse(d.isCustomView());

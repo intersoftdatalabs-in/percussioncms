@@ -36,6 +36,12 @@ export const CONTENT_TYPE_TYPE = 2;
 /** {@code PSTypeEnum.TEMPLATE} — assembly template GUID type. */
 export const TEMPLATE_TYPE = 4;
 
+/** {@code PSTypeEnum.ACTION} — menu action GUID type (#3380). */
+export const ACTION_MENU_TYPE = 107;
+
+/** {@code PSTypeEnum.VIEW_DEF} — CX view GUID type (#3380). */
+export const VIEW_TYPE = 18;
+
 function firstNonBlankString(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -220,6 +226,36 @@ export function resolveTemplateObjectGuid(
     return resolved;
   }
   return synthesizeTypedObjectGuid(TEMPLATE_TYPE, tpl?.templateId);
+}
+
+/**
+ * Action menu Object ACL GUID: nested Guid / guidString, then catalog, then
+ * {@code 0-107-{id}} from the native action id (#3380).
+ */
+export function resolveActionMenuObjectGuid(
+  menu: (DesignObjectGuidSource & { id?: number | null }) | null | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(menu, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  return synthesizeTypedObjectGuid(ACTION_MENU_TYPE, menu?.id);
+}
+
+/**
+ * View Object ACL GUID: nested Guid / guidString, then catalog, then
+ * {@code 0-18-{id}} from the native view id (#3380).
+ */
+export function resolveViewObjectGuid(
+  view: (DesignObjectGuidSource & { id?: number | null }) | null | undefined,
+  catalogGuid?: string | null,
+): string | undefined {
+  const resolved = resolveDesignObjectGuid(view, catalogGuid);
+  if (resolved) {
+    return resolved;
+  }
+  return synthesizeTypedObjectGuid(VIEW_TYPE, view?.id);
 }
 
 /**

@@ -66,8 +66,73 @@ describe("ViewDetailPanel", () => {
     const acl = screen.getByTestId("developer-vw-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("view");
     expect(acl.getAttribute("data-object-guid")).toBe("0-27-3");
+    expect(screen.getByTestId("developer-vw-detail-guid").textContent).toBe("0-27-3");
     fireEvent.click(screen.getByTestId("developer-vw-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("uses catalogGuid fallback when detail guid has no stringValue (#3380)", async () => {
+    getViewDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      id: undefined,
+    });
+    render(
+      <ViewDetailPanel idOrName="My View" catalogGuid="0-18-5" onBack={() => undefined} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-guid").textContent).toBe("0-18-5");
+    expect(screen.getByTestId("developer-vw-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-18-5",
+    );
+  });
+
+  it("uses guidString when nested guid is absent (#3380)", async () => {
+    getViewDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: "0-18-9",
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-guid").textContent).toBe("0-18-9");
+    expect(screen.getByTestId("developer-vw-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-18-9",
+    );
+  });
+
+  it("synthesizes GUID from view id when guid is omitted (#3380)", async () => {
+    getViewDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: undefined,
+      id: 12,
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-guid").textContent).toBe("0-18-12");
+    expect(screen.getByTestId("developer-vw-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-18-12",
+    );
+  });
+
+  it("passes empty guid so Object ACL can show no-GUID message (#3380)", async () => {
+    getViewDetail.mockResolvedValue({
+      name: "My View",
+      label: "My View",
+    });
+    render(<ViewDetailPanel idOrName="My View" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-detail-guid").textContent).toBe("—");
+    expect(screen.getByTestId("developer-vw-acl-stub").getAttribute("data-object-guid")).toBe("");
   });
 
   it("shows empty fields section when detail has none", async () => {

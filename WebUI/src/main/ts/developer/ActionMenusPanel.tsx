@@ -4,6 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { listActionMenus } from "../api/developer/actionMenusApi";
+import { resolveActionMenuObjectGuid } from "../api/displayFormatGuid";
 import type { ActionMenu } from "../api/developer/types";
 import { ActionMenuDetailPanel } from "./ActionMenuDetailPanel";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -11,13 +12,19 @@ import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
+type SelectedMenu = {
+  idOrName: string;
+  /** List-row GUID fallback when detail payload omits stringValue (#3380). */
+  catalogGuid?: string;
+};
+
 /**
  * P0.12 — action menu catalog + read-only detail (UI-02 read).
  */
 export function ActionMenusPanel(): React.ReactElement {
   const [items, setItems] = useState<ActionMenu[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<SelectedMenu | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,8 +51,23 @@ export function ActionMenusPanel(): React.ReactElement {
     );
   }, [items]);
 
+  const openMenu = (m: ActionMenu) => {
+    const idOrName = m.name || (m.id != null ? String(m.id) : "") || resolveActionMenuObjectGuid(m) || "";
+    if (!idOrName) return;
+    setSelected({
+      idOrName,
+      catalogGuid: resolveActionMenuObjectGuid(m),
+    });
+  };
+
   if (selected) {
-    return <ActionMenuDetailPanel idOrName={selected} onBack={() => setSelected(null)} />;
+    return (
+      <ActionMenuDetailPanel
+        idOrName={selected.idOrName}
+        catalogGuid={selected.catalogGuid}
+        onBack={() => setSelected(null)}
+      />
+    );
   }
 
   if (error)
@@ -75,11 +97,12 @@ export function ActionMenusPanel(): React.ReactElement {
           DEV_MSG.AM_COL_DESCRIPTION,
         ]}
         rows={sorted.map((m, index) => {
-          const openKey = m.name || (m.id != null ? String(m.id) : "");
+          const openKey =
+            m.name || (m.id != null ? String(m.id) : "") || resolveActionMenuObjectGuid(m) || "";
           const interactive = openKey.length > 0;
           return {
-            key: m.guid?.stringValue || m.name || `am-${index}`,
-            onClick: interactive ? () => setSelected(openKey) : undefined,
+            key: resolveActionMenuObjectGuid(m) || m.name || `am-${index}`,
+            onClick: interactive ? () => openMenu(m) : undefined,
             cells: [
               interactive ? (
                 <button
@@ -89,7 +112,7 @@ export function ActionMenusPanel(): React.ReactElement {
                   aria-label={`Open ${m.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelected(openKey);
+                    openMenu(m);
                   }}
                   style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >
