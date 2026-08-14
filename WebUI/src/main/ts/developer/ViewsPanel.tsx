@@ -4,6 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { listViews } from "../api/developer/viewsApi";
+import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import type { ViewDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
@@ -11,13 +12,19 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ViewDetailPanel } from "./ViewDetailPanel";
 
+type SelectedView = {
+  idOrName: string;
+  /** List-row GUID fallback when detail payload omits stringValue (#3380). */
+  catalogGuid?: string;
+};
+
 /**
  * P0.14 — CX view catalog + read-only detail (UI-07 read).
  */
 export function ViewsPanel(): React.ReactElement {
   const [items, setItems] = useState<ViewDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<SelectedView | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,8 +51,23 @@ export function ViewsPanel(): React.ReactElement {
     );
   }, [items]);
 
+  const openView = (v: ViewDef) => {
+    const idOrName = v.name || resolveViewObjectGuid(v) || "";
+    if (!idOrName) return;
+    setSelected({
+      idOrName,
+      catalogGuid: resolveViewObjectGuid(v),
+    });
+  };
+
   if (selected) {
-    return <ViewDetailPanel idOrName={selected} onBack={() => setSelected(null)} />;
+    return (
+      <ViewDetailPanel
+        idOrName={selected.idOrName}
+        catalogGuid={selected.catalogGuid}
+        onBack={() => setSelected(null)}
+      />
+    );
   }
 
   if (error)
@@ -73,7 +95,7 @@ export function ViewsPanel(): React.ReactElement {
           DEV_MSG.VW_COL_DESCRIPTION,
         ]}
         rows={sorted.map((v, index) => {
-          const openKey = v.name || v.guid?.stringValue || "";
+          const openKey = v.name || resolveViewObjectGuid(v) || "";
           const interactive = openKey.length > 0;
           const fieldCount = Array.isArray(v.fields) ? v.fields.length : 0;
           const kind = v.customView
@@ -82,8 +104,8 @@ export function ViewsPanel(): React.ReactElement {
               ? DEV_MSG.VW_KIND_STANDARD
               : v.type || "—";
           return {
-            key: v.guid?.stringValue || v.name || `vw-${index}`,
-            onClick: interactive ? () => setSelected(openKey) : undefined,
+            key: resolveViewObjectGuid(v) || v.name || `vw-${index}`,
+            onClick: interactive ? () => openView(v) : undefined,
             cells: [
               interactive ? (
                 <button
@@ -93,7 +115,7 @@ export function ViewsPanel(): React.ReactElement {
                   aria-label={`Open ${v.name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelected(openKey);
+                    openView(v);
                   }}
                   style={{ ...openButtonStyle, fontFamily: "monospace" }}
                 >

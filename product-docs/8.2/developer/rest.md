@@ -216,11 +216,31 @@ Integrators should unwrap those envelopes and read `guid.stringValue` or `guidSt
 assume the GUID is missing when `displayId` is present). See [Users, roles & security](id:admin-users-roles)
 for the operator Object ACL steps.
 
+## Action menus (design catalog)
+
+Content Explorer **action menu** definitions (Developer **Action Menus**) are exposed
+under `/services/actions/catalog`. Each catalog and detail row includes a nested
+`guid` (`PSTypeEnum.ACTION` = 107, string form `0-107-{actionId}`) so clients can
+load **Object ACL** via `GET /services/acls/object/{guid}`. When the nested Guid is
+hard to bind, clients may also synthesize that same string from the numeric `id`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/actions/catalog` | List action menus (tree roots with children) |
+| `GET` | `/services/actions/catalog/{idOrName}` | Load one menu by name, numeric id, or GUID string |
+
+JSON may wrap a single item as `ActionMenu`. Integrators should unwrap that
+envelope and read `guid.stringValue` (never assume the GUID is missing when `id`
+is present). See [Object ACL & default template](id:admin-object-acl).
+
 ## Views (design catalog)
 
 Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) are exposed under
 `/services/views` (public servlet path `/rest/views`). This is a **separate catalog** from saved
 **searches** (`/services/searches`). Do not execute a view through the search execute endpoint.
+List and detail include a nested `guid` (`PSTypeEnum.VIEW_DEF` = 18, string form
+`0-18-{viewId}`) so clients can load **Object ACL**. Unwrap Jackson `ViewDef` envelopes
+and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
@@ -228,8 +248,8 @@ with the execute call below.
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL) |
-| `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string |
+| `GET` | `/services/views` | List view definitions (name, category, standard vs custom URL; includes `guid`) |
+| `GET` | `/services/views/{idOrName}` | Load one view by name, numeric id, or GUID string (includes `guid` for Object ACL) |
 | `POST` | `/services/views/{idOrName}/execute` | Execute a **standard** (field-criteria) view or an Inbox-family **custom URL** view |
 
 ### Execute request / response

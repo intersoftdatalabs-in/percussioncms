@@ -15,6 +15,20 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   getActionMenuDetail: vi.fn(),
 }));
 
+vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
+  ObjectAclSection: (props: {
+    objectGuid?: string | null;
+    objectKind?: string | null;
+    testIdPrefix?: string;
+  }) => (
+    <div
+      data-testid={`${props.testIdPrefix ?? "developer-acl"}-stub`}
+      data-object-guid={props.objectGuid ?? ""}
+      data-object-kind={props.objectKind ?? ""}
+    />
+  ),
+}));
+
 const listActionMenus = actionMenusApi.listActionMenus as ReturnType<typeof vi.fn>;
 const getActionMenuDetail = actionMenusApi.getActionMenuDetail as ReturnType<typeof vi.fn>;
 

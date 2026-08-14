@@ -167,6 +167,31 @@ describe("ObjectAclSection special Default / AnyCommunity UX", () => {
     );
   });
 
+  it("shows existing no-GUID message for action-menu and view (#3380)", () => {
+    const { unmount } = render(
+      <ObjectAclSection
+        objectGuid={null}
+        objectKind="action-menu"
+        testIdPrefix="developer-am-acl"
+      />,
+    );
+    expect(screen.getByTestId("developer-am-acl-no-guid").textContent).toMatch(
+      /Object GUID not available|cannot load ACL/i,
+    );
+    unmount();
+
+    render(
+      <ObjectAclSection
+        objectGuid={undefined}
+        objectKind="view"
+        testIdPrefix="developer-vw-acl"
+      />,
+    );
+    expect(screen.getByTestId("developer-vw-acl-no-guid").textContent).toMatch(
+      /Object GUID not available|cannot load ACL/i,
+    );
+  });
+
   it("uses display-format kind-aware no-guid copy (#3203)", () => {
     render(
       <ObjectAclSection

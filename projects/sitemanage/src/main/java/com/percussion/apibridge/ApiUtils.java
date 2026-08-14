@@ -762,6 +762,11 @@ public class ApiUtils {
     ActionMenu ret = new ActionMenu();
 
     ret.setId(pa.getActionId());
+    // Persisted menus have a native action id; Object ACL binds
+    // {@code 0-107-{actionId}} ({@link PSTypeEnum#ACTION}) (#3380).
+    if (pa.getActionId() > 0) {
+      ret.setGuid(convertGuid(new PSGuid(0, PSTypeEnum.ACTION, pa.getActionId())));
+    }
     ret.setName(pa.getName());
     ret.setDescription(pa.getDescription());
     ret.setLabel(pa.getDisplayName());

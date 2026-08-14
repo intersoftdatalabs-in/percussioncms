@@ -90,7 +90,8 @@ not this profile control. See [Architecture & site navigation](id:admin-architec
 ## Design-object ACL (Developer)
 
 System Definition (**Developer**) shows an **Object ACL** section on securable design
-objects, including **Content types**, **Templates**, **Display Formats**, and **Sites**.
+objects, including **Content types**, **Templates**, **Display Formats**, **Sites**,
+**Action Menus**, and **Views**.
 
 ### Content types and Templates
 
@@ -135,6 +136,24 @@ for that display format.
      empty copy and does not crash Site detail.
 
 See also [Sites & content structure](id:admin-sites).
+
+### Action Menus and Views
+
+1. Open **Developer → Action Menus** or **Developer → Views**.
+2. Open a catalog row.
+3. The detail header **GUID** field shows the object GUID when the server or
+   catalog has one (nested `guid.stringValue`, plain `guidString`, list-row
+   fallback, or — for menus — `0-107-{actionId}` / for views — `0-18-{viewId}`
+   when only the numeric id is present).
+4. **Object ACL** below the detail form:
+   - Shows the ACL table when entries exist (Design access and Runtime visibility).
+   - Shows an empty create path when the object has no ACL yet (404 empty is OK).
+   - Does **not** say “Object GUID not available” when the header GUID is present.
+   - If the object truly has no GUID, the section still mounts with kind-aware copy
+     and does not crash the detail page.
+
+Object ACL on Action Menu and View requires a GUID. The catalog and detail
+responses must expose one (or a synthesizable id) before ACL can load.
 
 ## Object ACL (design objects)
 

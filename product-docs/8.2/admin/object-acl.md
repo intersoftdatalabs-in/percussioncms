@@ -29,9 +29,12 @@ those system principals.
 3. Open a catalog that supports Object ACL:
    - **Content types** → first type → **Open**
    - **Templates** → first template → **Open**
-4. On the detail panel, confirm the header **GUID** (content type or template) is
-   populated when the object has an id — the product uses the nested Guid,
-   a plain `guidString`, the catalog list GUID, or (for templates) `0-4-{templateId}`.
+   - **Action Menus** → first menu → **Open**
+   - **Views** → first view → **Open**
+4. On the detail panel, confirm the header **GUID** is populated when the object
+   has an id — the product uses the nested Guid, a plain `guidString`, the catalog
+   list GUID, or a typed id synthesis (`0-4-{templateId}`, `0-107-{actionId}`,
+   `0-18-{viewId}`).
 5. Expand **Object ACL**. When that GUID is present, the table (or empty create
    path) loads — it must **not** say “Object GUID not available”.
 6. Confirm the table shows **Design access** and **Runtime visibility** column groups
@@ -42,6 +45,8 @@ Deep links:
 
 - Content types: `spa.jsp?entry=developer&section=content-types`
 - Templates: `spa.jsp?entry=developer&section=templates`
+- Action Menus: `spa.jsp?entry=developer&section=action-menus`
+- Views: `spa.jsp?entry=developer&section=views`
 
 ## Product path — default ACL template (Preferences)
 

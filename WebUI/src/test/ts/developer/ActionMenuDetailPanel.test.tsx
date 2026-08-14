@@ -69,10 +69,79 @@ describe("ActionMenuDetailPanel", () => {
     expect(acl.getAttribute("data-object-guid")).toBe("0-11-42");
     expect(screen.getByTestId("developer-am-gaps")).toBeTruthy();
     expect(getActionMenuDetail).toHaveBeenCalledWith("Edit");
+    expect(screen.getByTestId("developer-am-detail-guid").textContent).toBe("0-11-42");
     const back = screen.getByTestId("developer-am-back");
     expect(back.getAttribute("aria-label")).toBe("Back to list");
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("uses catalogGuid fallback when detail guid has no stringValue (#3380)", async () => {
+    getActionMenuDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      id: undefined,
+    });
+    render(
+      <ActionMenuDetailPanel
+        idOrName="Edit"
+        catalogGuid="0-107-5"
+        onBack={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-guid").textContent).toBe("0-107-5");
+    expect(screen.getByTestId("developer-am-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-107-5",
+    );
+  });
+
+  it("uses guidString when nested guid is absent (#3380)", async () => {
+    getActionMenuDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: "0-107-9",
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-guid").textContent).toBe("0-107-9");
+    expect(screen.getByTestId("developer-am-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-107-9",
+    );
+  });
+
+  it("synthesizes GUID from action id when guid is omitted (#3380)", async () => {
+    getActionMenuDetail.mockResolvedValue({
+      ...sampleDetail,
+      guid: undefined,
+      guidString: undefined,
+      id: 12,
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-guid").textContent).toBe("0-107-12");
+    expect(screen.getByTestId("developer-am-acl-stub").getAttribute("data-object-guid")).toBe(
+      "0-107-12",
+    );
+  });
+
+  it("passes empty guid so Object ACL can show no-GUID message (#3380)", async () => {
+    getActionMenuDetail.mockResolvedValue({
+      name: "Edit",
+      label: "Edit",
+    });
+    render(<ActionMenuDetailPanel idOrName="Edit" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-acl-stub")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-am-detail-guid").textContent).toBe("—");
+    expect(screen.getByTestId("developer-am-acl-stub").getAttribute("data-object-guid")).toBe("");
   });
 
   it("shows empty params and props sections when detail has none", async () => {
