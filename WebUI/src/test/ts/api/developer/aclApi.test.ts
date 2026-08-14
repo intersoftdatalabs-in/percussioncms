@@ -18,10 +18,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
+  ACL_LIST_ROOT,
+  CREATE_ACL_REQUEST_ROOT,
   createObjectAcl,
   getAclForObject,
+  normalizeAclForSave,
   saveObjectAcl,
   unwrapObjectAcl,
+  wrapAclListForWire,
+  wrapCreateAclRequestForWire,
 } from "../../../../main/ts/api/developer/aclApi";
 
 vi.mock("../../../../main/ts/api/client", () => ({
@@ -96,6 +101,78 @@ describe("createObjectAcl", () => {
     expect(acl.id).toBe(4);
     expect(acl.aclEntries).toHaveLength(1);
   });
+
+  it("POSTs CreateAclRequest envelope so UNWRAP_ROOT_VALUE can bind (#3378)", async () => {
+    post.mockResolvedValue({ Acl: { id: 1, aclEntries: [] } });
+    await createObjectAcl("0-31-5", { name: "Admin", type: "USER" });
+    const [url, body] = post.mock.calls[0] as [string, Record<string, unknown>];
+    expect(url).toMatch(/\/acls\/?$/);
+    expect(body).toEqual(
+      wrapCreateAclRequestForWire(
+        { stringValue: "0-31-5" },
+        { name: "Admin", type: "USER" },
+      ),
+    );
+    expect(body[CREATE_ACL_REQUEST_ROOT]).toBeTruthy();
+  });
+});
+
+describe("normalizeAclForSave / wrapAclListForWire", () => {
+  it("strips principal.type and derives objectType from display-format guid", () => {
+    const normalized = normalizeAclForSave({
+      id: 7,
+      name: "By_Author ACL",
+      objectGuid: { stringValue: "0-31-5" },
+      aclEntries: [
+        {
+          name: "Default",
+          principal: { name: "Default", type: "USER" },
+          type: { name: "Default", type: "USER" },
+          permissions: [{ permission: "READ" }],
+        },
+        {
+          name: "AnyCommunity",
+          principal: { name: "AnyCommunity", type: "COMMUNITY" },
+          type: { name: "AnyCommunity", type: "COMMUNITY" },
+          permissions: [{ permission: "RUNTIME_VISIBLE" }],
+        },
+        {
+          name: "Admin",
+          principal: { name: "Admin", type: "USER" },
+          type: { name: "Admin", type: "USER" },
+          permissions: [{ permission: "READ" }, { permission: "OWNER" }],
+        },
+      ],
+    });
+    expect(normalized.objectType).toBe(31);
+    expect(normalized.objectId).toBe(5);
+    expect(normalized.name).toBe("By_Author ACL");
+    const entries = normalized.aclEntries as Array<Record<string, unknown>>;
+    expect(entries).toHaveLength(3);
+    expect(entries[0].principal).toEqual({ name: "Default" });
+    expect(entries[1].principal).toEqual({ name: "AnyCommunity" });
+    expect(entries[2].principal).toEqual({ name: "Admin" });
+    expect((entries[0].type as { type?: string }).type).toBe("USER");
+    expect((entries[1].type as { type?: string }).type).toBe("COMMUNITY");
+  });
+
+  it("defaults missing name so PSX_ACLS.NAME is not null", () => {
+    expect(normalizeAclForSave({ objectGuid: { stringValue: "0-31-5" } }).name).toBe(
+      "ACL",
+    );
+  });
+
+  it("wraps AclList envelope for PUT /acls/bulk", () => {
+    const body = wrapAclListForWire({
+      id: 7,
+      name: "By_Author ACL",
+      objectGuid: { stringValue: "0-31-5" },
+      aclEntries: [{ name: "Admin", permissions: [{ permission: "READ" }] }],
+    });
+    expect(body[ACL_LIST_ROOT]).toHaveLength(1);
+    expect(Array.isArray(body)).toBe(false);
+    expect(body[ACL_LIST_ROOT][0].name).toBe("By_Author ACL");
+  });
 });
 
 describe("saveObjectAcl", () => {
@@ -104,7 +181,7 @@ describe("saveObjectAcl", () => {
     put.mockResolvedValue(undefined);
   });
 
-  it("PUTs /acls/bulk with flattened AclEntry and UserAccessLevel arrays", async () => {
+  it("PUTs /acls/bulk with AclList envelope and flattened entries (#3378)", async () => {
     await saveObjectAcl({
       id: 7,
       name: "By_Author ACL",
@@ -122,20 +199,25 @@ describe("saveObjectAcl", () => {
       } as unknown as [],
     });
     expect(put).toHaveBeenCalledTimes(1);
-    const [url, body] = put.mock.calls[0] as [string, Array<Record<string, unknown>>];
+    const [url, body] = put.mock.calls[0] as [
+      string,
+      { AclList: Array<Record<string, unknown>> },
+    ];
     expect(url).toMatch(/\/acls\/bulk$/);
-    expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(1);
-    const entries = body[0].aclEntries as Array<Record<string, unknown>>;
+    expect(Array.isArray(body)).toBe(false);
+    expect(body[ACL_LIST_ROOT]).toHaveLength(1);
+    const entries = body[ACL_LIST_ROOT][0].aclEntries as Array<Record<string, unknown>>;
     expect(entries).toHaveLength(1);
     expect(entries[0].name).toBe("Admin");
     expect(entries[0].permissions).toEqual([
       { permission: "READ" },
       { permission: "UPDATE" },
     ]);
+    expect(body[ACL_LIST_ROOT][0].objectType).toBe(31);
+    expect(body[ACL_LIST_ROOT][0].objectId).toBe(5);
   });
 
-  it("passes through already-flat entries", async () => {
+  it("passes through already-flat entries inside AclList envelope", async () => {
     await saveObjectAcl({
       id: 1,
       name: "site",
@@ -146,8 +228,8 @@ describe("saveObjectAcl", () => {
         },
       ],
     });
-    const body = put.mock.calls[0][1] as Array<Record<string, unknown>>;
-    const entries = body[0].aclEntries as Array<Record<string, unknown>>;
+    const body = put.mock.calls[0][1] as { AclList: Array<Record<string, unknown>> };
+    const entries = body[ACL_LIST_ROOT][0].aclEntries as Array<Record<string, unknown>>;
     expect(entries[0].name).toBe("Editor");
     expect(entries[0].permissions).toEqual([{ permission: "READ" }]);
   });

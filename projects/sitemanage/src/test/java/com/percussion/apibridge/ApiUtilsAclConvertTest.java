@@ -21,16 +21,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.Permissions;
+import com.percussion.rest.acls.Acl;
 import com.percussion.rest.acls.AclEntry;
 import com.percussion.rest.acls.AclEntryList;
+import com.percussion.rest.acls.AclList;
 import com.percussion.rest.acls.TypedPrincipal;
 import com.percussion.rest.acls.UserAccessLevel;
 import com.percussion.rest.acls.UserAccessLevelList;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.data.PSAccessLevelImpl;
+import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.data.PSAclEntryImpl;
+import com.percussion.services.security.data.PSAclImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Tag;
@@ -145,5 +150,53 @@ public class ApiUtilsAclConvertTest {
     PSAclEntryImpl pEntry = ApiUtils.convertAclEntries(list).iterator().next();
     assertEquals(IPSTypedPrincipal.PrincipalTypes.ROLE, pEntry.getType());
     assertEquals("Admin", pEntry.getName());
+  }
+
+  @Test
+  public void applyAclObjectIdentityDerivesTypeAndIdFromObjectGuidString() {
+    Acl acl = new Acl();
+    acl.setName("By_Author ACL");
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+
+    PSAclImpl pAcl = new PSAclImpl();
+    ApiUtils.applyAclObjectIdentity(acl, pAcl);
+
+    assertEquals(31, pAcl.getObjectType());
+    assertEquals(5, pAcl.getObjectId());
+    assertNotNull(pAcl.getObjectGuid());
+  }
+
+  @Test
+  public void convertAclsSavePreservesObjectIdentityFromGuid() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("By_Author ACL");
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+    AclList list = new AclList();
+    list.add(acl);
+
+    java.util.List<IPSAcl> converted = ApiUtils.convertAcls(list);
+    assertEquals(1, converted.size());
+    PSAclImpl pAcl = (PSAclImpl) converted.get(0);
+    assertEquals(31, pAcl.getObjectType());
+    assertEquals(5, pAcl.getObjectId());
+  }
+
+  @Test
+  public void convertAclLoadIncludesObjectType() {
+    PSAclImpl pAcl = new PSAclImpl();
+    pAcl.setName("By_Author ACL");
+    pAcl.setId(7);
+    pAcl.setObjectType(31);
+    pAcl.setObjectId(5);
+
+    Acl rest = ApiUtils.convertAcl(pAcl);
+    assertNotNull(rest);
+    assertEquals(31, rest.getObjectType());
+    assertEquals(5, rest.getObjectId());
   }
 }

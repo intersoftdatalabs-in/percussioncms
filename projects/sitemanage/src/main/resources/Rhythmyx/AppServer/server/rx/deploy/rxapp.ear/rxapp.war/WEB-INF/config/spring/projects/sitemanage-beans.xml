@@ -124,6 +124,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="runtimeExceptionMapper" />
             <!-- Inbox #3323: bind flat startIndex before jackson UNWRAP_ROOT_VALUE -->
             <ref bean="viewExecuteRequestJsonReader" />
+            <!-- #3378: AclList ArrayList subclass must not ClassCast after UNWRAP -->
+            <ref bean="aclListJsonReader" />
             <ref bean="jacksonProvider" />
             <ref bean="jacksonContextResolver" />
             <ref bean="authorizationFilter" />

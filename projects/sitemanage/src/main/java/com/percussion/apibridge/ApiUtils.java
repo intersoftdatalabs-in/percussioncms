@@ -121,6 +121,9 @@ public class ApiUtils {
    * @return the corresponding system IPSGuid
    */
   public static IPSGuid convertGuid(Guid guid) {
+    if (guid == null) {
+      return null;
+    }
     return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
   }
 
@@ -481,12 +484,45 @@ public class ApiUtils {
     p_acl.setId(acl.getId());
     p_acl.setDescription(orNull(acl.getDescription()));
     p_acl.setName(orNull(acl.getName()));
-    p_acl.setGUID(convertGuid(orNull(acl.getGuid())));
-    p_acl.setObjectId(acl.getObjectId());
-    p_acl.setObjectType(acl.getObjectType());
+    var convertedGuid = convertGuid(orNull(acl.getGuid()));
+    if (convertedGuid != null) {
+      p_acl.setGUID(convertedGuid);
+    }
+    applyAclObjectIdentity(acl, p_acl);
     p_acl.setEntries(convertAclEntries(orNull(acl.getAclEntries())));
 
     return p_acl;
+  }
+
+  /**
+   * Copy objectId / objectType onto {@link PSAclImpl}. When the REST body omits those primitives
+   * (GET historically skipped {@code objectType}), derive them from {@code objectGuid} so {@link
+   * PSAclImpl#getObjectGuid()} still resolves after save (#3378).
+   */
+  static void applyAclObjectIdentity(Acl acl, PSAclImpl p_acl) {
+    int objectType = acl.getObjectType();
+    long objectId = acl.getObjectId();
+    Guid objectGuid = orNull(acl.getObjectGuid());
+    if (objectGuid != null) {
+      String stringValue = orNull(objectGuid.getStringValue());
+      if (stringValue != null
+          && !stringValue.isBlank()
+          && (objectGuid.getType() == 0 || objectGuid.getUuid() == 0)) {
+        try {
+          objectGuid = new Guid(stringValue);
+        } catch (RuntimeException ignored) {
+          // keep the original Guid if stringValue is not a PSGuid
+        }
+      }
+      if (objectType <= 0 && objectGuid.getType() != 0) {
+        objectType = objectGuid.getType();
+      }
+      if (objectId <= 0 && objectGuid.getUuid() != 0) {
+        objectId = Integer.toUnsignedLong(objectGuid.getUuid());
+      }
+    }
+    p_acl.setObjectType(objectType);
+    p_acl.setObjectId(objectId);
   }
 
   /***
@@ -586,6 +622,7 @@ public class ApiUtils {
       ret.setId(p_acl.getId());
       ret.setObjectGuid(convertGuid(p_acl.getObjectGuid()));
       ret.setObjectId(p_acl.getObjectId());
+      ret.setObjectType(p_acl.getObjectType());
       ret.setAclEntries(convertAclEntries(p_acl.getEntries()));
     }
     return ret;
@@ -647,10 +684,16 @@ public class ApiUtils {
     var p_acls = new ArrayList<IPSAcl>();
     for (var a : aclList) {
       var p_a = new PSAclImpl();
-      p_a.setObjectType(a.getObjectType());
-      p_a.setObjectId(a.getObjectId());
-      p_a.setGUID(convertGuid(orNull(a.getGuid())));
-      p_a.setName(orNull(a.getName()));
+      applyAclObjectIdentity(a, p_a);
+      var convertedGuid = convertGuid(orNull(a.getGuid()));
+      if (convertedGuid != null) {
+        p_a.setGUID(convertedGuid);
+      }
+      String name = orNull(a.getName());
+      if (name == null || name.isBlank()) {
+        name = "ACL";
+      }
+      p_a.setName(name);
       p_a.setId(a.getId());
       p_a.setEntries(convertAclEntries(orNull(a.getAclEntries())));
       p_a.setDescription(orNull(a.getDescription()));

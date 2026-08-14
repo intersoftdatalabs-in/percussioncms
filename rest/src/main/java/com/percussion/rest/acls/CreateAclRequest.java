@@ -18,12 +18,14 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
 @XmlRootElement(name = "CreateAclRequest")
+@JsonRootName("CreateAclRequest")
 @Schema(description = "A request to create an acl")
 public class CreateAclRequest {
 

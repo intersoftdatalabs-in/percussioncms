@@ -18,12 +18,15 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.percussion.security.IPSTypedPrincipal;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Schema(description = "Typed Principal")
 public class TypedPrincipal implements IPSTypedPrincipal {
 
@@ -56,46 +59,55 @@ public class TypedPrincipal implements IPSTypedPrincipal {
     this.type = type;
   }
 
+  @JsonIgnore
   @Override
   public boolean isType(PrincipalTypes principalType) {
     return type == principalType;
   }
 
+  @JsonIgnore
   @Override
   public boolean isCommunity() {
     return type == PrincipalTypes.COMMUNITY;
   }
 
+  @JsonIgnore
   @Override
   public boolean isRole() {
     return type == PrincipalTypes.ROLE;
   }
 
+  @JsonIgnore
   @Override
   public boolean isUser() {
     return type == PrincipalTypes.USER || type == PrincipalTypes.SYSTEM_ENTRY;
   }
 
+  @JsonIgnore
   @Override
   public boolean isGroup() {
     return type == PrincipalTypes.GROUP;
   }
 
+  @JsonIgnore
   @Override
   public boolean isSubject() {
     return type == PrincipalTypes.SUBJECT;
   }
 
+  @JsonIgnore
   @Override
   public boolean isSystemEntry() {
     return type == PrincipalTypes.SYSTEM_ENTRY;
   }
 
+  @JsonIgnore
   @Override
   public boolean isSystemCommunity() {
     return type == PrincipalTypes.SYSTEM_COMMUNITY;
   }
 
+  @JsonIgnore
   @Override
   public PrincipalTypes getPrincipalType() {
     return type;
