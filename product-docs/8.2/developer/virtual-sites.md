@@ -62,6 +62,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file from disk. The CMS process does **not** keep a parsed-page cache across builds. After `git pull` or a local edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -155,6 +156,17 @@ A bare `{ "sourceKind": "git-filesystem", … }` body is rejected (**400**, JAXB
 element `sourceKind`). GET returns the same envelope (or a plain object the SPA unwraps).
 After save, the Developer Sites panel GET-roundtrips so `virtual=true` and Build chrome appear
 without reloading the page.
+
+### Rebuild after git pull or a local edit (no CMS restart)
+
+The Git/filesystem adapter always sees the **current** tree on the CMS host:
+
+1. Update Markdown or frontmatter under `virtual.rootPath` (`git pull`, copy, or an editor).
+2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, or `scripts/build-cms-docs.*`).
+3. Preview or publish the new output.
+
+You do **not** restart the CMS JVM for those file changes to appear. A restart is only needed
+when you change server code, Site properties that were never saved, or the process itself.
 
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the

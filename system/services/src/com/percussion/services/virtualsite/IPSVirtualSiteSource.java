@@ -22,6 +22,12 @@ import java.util.List;
 /**
  * SPI for Virtual Site content sources. Phase 1: {@link PSGitFilesystemVirtualSiteSource}.
  * Future adapters (SQL, API, …) implement this interface.
+ *
+ * <p>Filesystem implementations must read <em>current</em> file contents on every {@link
+ * #discover} and {@link #load}. Process-lifetime parse caches that skip a file because its path
+ * or mtime looks unchanged are not allowed — a second build in the same JVM (after {@code git
+ * pull} or a local Markdown/frontmatter edit) must see the new bytes. File watchers are not
+ * required; the next explicit build is the refresh.
  */
 public interface IPSVirtualSiteSource {
 

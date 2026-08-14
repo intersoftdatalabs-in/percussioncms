@@ -18,6 +18,7 @@ package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,6 +86,87 @@ class PSVirtualSiteBuildServiceTest {
     String report = Files.readString(linkReport, StandardCharsets.UTF_8);
     assertTrue(report.contains("OK"), report);
     assertTrue(result.writtenFiles().contains("link-report.txt"), result.writtenFiles()::toString);
+  }
+
+  @Test
+  void secondBuildAfterMarkdownEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path siteRoot = tempDir.resolve("live-site");
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Live Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Path indexMd = versionDir.resolve("index.md");
+    Files.writeString(
+        indexMd,
+        """
+        ---
+        id: live-home
+        title: First Title
+        ---
+
+        First body unique-token-AAA.
+        """,
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("live-out");
+    PSInMemoryVirtualParticipantService participants =
+        new PSInMemoryVirtualParticipantService(tempDir.resolve("live-meta"));
+    PSGitFilesystemVirtualSiteSource source = new PSGitFilesystemVirtualSiteSource();
+    PSVirtualSiteBuildService service = new PSVirtualSiteBuildService(source, participants);
+
+    PSVirtualSiteBuildResult first = service.build(siteRoot, out, "live");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        indexMd,
+        """
+        ---
+        id: live-home
+        title: Second Title
+        ---
+
+        Second body unique-token-BBB.
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteConfig config =
+        VirtualSiteConfigLoader.load(siteRoot, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "live");
+    var refs = source.discover(config);
+    assertEquals(1, refs.size());
+    VirtualItem loaded = source.load(config, refs.get(0));
+    assertEquals("Second Title", loaded.frontmatter().title());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(siteRoot, out, "live");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
   }
 
   @Test

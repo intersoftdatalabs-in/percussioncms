@@ -63,6 +63,11 @@ public class PSVirtualSiteBuildService {
   /**
    * Build a Virtual Site from a filesystem root into {@code outputRoot}.
    *
+   * <p>Every invocation reloads {@code _config.yaml}, re-discovers and re-loads Markdown from the
+   * current tree, then overwrites emitted HTML. The same service instance does not reuse parsed
+   * pages from a previous build — operators do not need a JVM restart after {@code git pull} or a
+   * local edit.
+   *
    * @param siteRoot source tree (contains {@code _config.yaml})
    * @param outputRoot destination for HTML + assets
    * @param siteKey participant key

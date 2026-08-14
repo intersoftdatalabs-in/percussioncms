@@ -33,6 +33,9 @@ import java.util.stream.Stream;
 /**
  * Phase 1 Virtual Site source: local filesystem tree (Git checkout). Discovers {@code *.md} under
  * each configured version path.
+ *
+ * <p>Stateless: {@link #discover} and {@link #load} always {@link Files#readString} the current
+ * file. No path/mtime parse cache is kept on the instance or in statics.
  */
 public class PSGitFilesystemVirtualSiteSource implements IPSVirtualSiteSource {
 
