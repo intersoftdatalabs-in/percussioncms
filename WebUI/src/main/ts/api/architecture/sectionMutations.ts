@@ -363,6 +363,113 @@ export function canReplaceLandingPage(node: NavTreeNode | null): boolean {
 }
 
 /**
+ * Regular section (including site root) may open the section-properties editor.
+ * Section links, external links, and blogs use other editors.
+ */
+export function canEditSectionProperties(node: NavTreeNode | null): boolean {
+  return canReplaceLandingPage(node);
+}
+
+/** Form fields for the section-properties dialog (CM1 configure parity). */
+export interface SectionPropertiesFormValues {
+  title: string;
+  folderName: string;
+  target: string;
+  cssClassNames: string;
+  requiresLogin: boolean;
+  allowAccessTo: string;
+}
+
+/**
+ * Login checkbox is editable only on a secure site when no ancestor already
+ * requires login (CM1 {@code perc_editSectionDialog} rule).
+ */
+export function canToggleRequiresLogin(
+  props: Pick<
+    SiteSectionPropertiesWire,
+    "secureSite" | "secureAncestor"
+  > | null,
+): boolean {
+  if (!props) return false;
+  return Boolean(props.secureSite) && !props.secureAncestor;
+}
+
+/** CSS class tokens: letters, digits, hyphen, underscore, spaces. Max 255. */
+const CSS_CLASS_NAMES_RE = /^[A-Za-z0-9_\- ]*$/;
+
+/**
+ * Validate nav-widget CSS class names (legacy edit-section dialog).
+ */
+export function validateCssClassNames(value: string): string | null {
+  const t = value.replace(/ +/g, " ").trim();
+  if (t.length > 255) {
+    return message(
+      "perc.ui.architecture.modern@CSS classes are too long (max 255 characters)",
+    );
+  }
+  if (t && !CSS_CLASS_NAMES_RE.test(t)) {
+    return message(
+      "perc.ui.architecture.modern@CSS classes may only contain letters, numbers, dash, underscore, and spaces",
+    );
+  }
+  return null;
+}
+
+/**
+ * Validate the section-properties form before POST.
+ * Returns the first error or {@code null} when valid.
+ */
+export function validateSectionPropertiesForm(
+  form: SectionPropertiesFormValues,
+  options?: { folderNameLocked?: boolean },
+): string | null {
+  const titleErr = validateSectionTitle(form.title);
+  if (titleErr) return titleErr;
+  if (!options?.folderNameLocked) {
+    const folderErr = validateSectionFolderName(form.folderName);
+    if (folderErr) return folderErr;
+  }
+  return validateCssClassNames(form.cssClassNames);
+}
+
+/**
+ * Merge operator-edited form fields onto loaded properties.
+ * Preserves {@code folderPermission} and security flags. Root folder name
+ * is not rewritten (site folder). Login/groups follow CM1 enablement.
+ */
+export function applySectionPropertiesForm(
+  props: SiteSectionPropertiesWire,
+  form: SectionPropertiesFormValues,
+): SiteSectionPropertiesWire {
+  const folderNameLocked = Boolean(props.siteRootSection);
+  const folderName = folderNameLocked
+    ? props.folderName
+    : form.folderName.trim();
+  const loginEditable = canToggleRequiresLogin(props);
+  const requiresLogin = loginEditable
+    ? Boolean(form.requiresLogin)
+    : Boolean(props.requiresLogin);
+  let allowAccessTo: string | null;
+  if (!requiresLogin) {
+    allowAccessTo = "";
+  } else if (loginEditable) {
+    allowAccessTo = form.allowAccessTo.trim();
+  } else {
+    allowAccessTo = props.allowAccessTo != null ? String(props.allowAccessTo) : "";
+  }
+  const css = form.cssClassNames.replace(/ +/g, " ").trim();
+  return {
+    ...props,
+    title: form.title.trim(),
+    folderName,
+    target: form.target?.trim() || "_self",
+    cssClassNames: css.length > 0 ? css : "",
+    requiresLogin,
+    allowAccessTo,
+  };
+}
+
+/**
  * Regular non-root navon may be converted to a plain folder.
  * Root, blogs, section links, and external links are blocked (matches docs).
  */

@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  applySectionPropertiesForm,
   applyTitleToProperties,
   buildCreateSectionFromFolderBody,
   buildCreateSiteSectionBody,
@@ -208,6 +209,69 @@ describe("sectionMutations (#3096)", () => {
     );
     expect(props.title).toBe("New Title");
     expect(props.folderName).toBe("old");
+  });
+
+  it("applies section properties form without dropping folder ACL", () => {
+    const next = applySectionPropertiesForm(
+      {
+        id: "g1",
+        title: "Old",
+        folderName: "old",
+        target: "_self",
+        cssClassNames: "",
+        requiresLogin: false,
+        allowAccessTo: "",
+        secureSite: true,
+        secureAncestor: false,
+        siteRootSection: false,
+        folderPermission: { accessLevel: "WRITE", writePrincipals: ["a"] },
+      },
+      {
+        title: " About ",
+        folderName: " about ",
+        target: "_blank",
+        cssClassNames: "  nav-about   featured  ",
+        requiresLogin: true,
+        allowAccessTo: " Editors ",
+      },
+    );
+    expect(next.title).toBe("About");
+    expect(next.folderName).toBe("about");
+    expect(next.target).toBe("_blank");
+    expect(next.cssClassNames).toBe("nav-about featured");
+    expect(next.requiresLogin).toBe(true);
+    expect(next.allowAccessTo).toBe("Editors");
+    expect(next.folderPermission).toEqual({
+      accessLevel: "WRITE",
+      writePrincipals: ["a"],
+    });
+  });
+
+  it("does not rewrite root folder name or inherited login", () => {
+    const next = applySectionPropertiesForm(
+      {
+        id: "root",
+        title: "Home",
+        folderName: "Demo",
+        siteRootSection: true,
+        secureSite: true,
+        secureAncestor: true,
+        requiresLogin: true,
+        allowAccessTo: "Members",
+      },
+      {
+        title: "Home Page",
+        folderName: "hacked",
+        target: "_self",
+        cssClassNames: "",
+        requiresLogin: false,
+        allowAccessTo: "x",
+      },
+    );
+    expect(next.folderName).toBe("Demo");
+    expect(next.requiresLogin).toBe(true);
+    expect(next.allowAccessTo).toBe("Members");
+    expect(next.title).toBe("Home Page");
   });
 
   it("parses properties payload and detects section links", () => {
