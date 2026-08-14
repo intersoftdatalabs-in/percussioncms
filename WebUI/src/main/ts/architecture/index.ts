@@ -54,6 +54,14 @@ export type {
 export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 export type { ArchitectureMsgKey } from "./messages";
 export {
+  buildNavParentMap,
+  collectVisibleNavNodes,
+  isNavTreeRovingKey,
+  NAV_TREE_ROVING_KEYS,
+  resolveNavTreeKey,
+} from "./navTreeKeyboard";
+export type { NavTreeKeyResult, NavTreeRovingKey } from "./navTreeKeyboard";
+export {
   countNavTreeNodes,
   flattenNavTree,
   isNavBranch,

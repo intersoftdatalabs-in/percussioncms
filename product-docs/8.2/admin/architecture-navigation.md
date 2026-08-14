@@ -91,16 +91,23 @@ created in this product use the `percNav*` names.
 
 ## Keyboard and accessibility
 
-The navigation tree follows the ARIA tree pattern:
+The navigation tree follows the ARIA tree pattern. **Tab** moves focus into
+the tree (roving tabindex on the last focused item). **Tab** / **Shift+Tab**
+are not captured — focus can leave the tree; there is no keyboard trap.
 
 | Key | Behavior |
 |-----|----------|
-| **Tab** | Moves focus into the tree (roving tabindex on the selected or root item). |
+| **Tab** | Moves focus into the tree (roving tabindex on the last focused item). |
+| **Shift+Tab** | Moves focus out of the tree to the previous control. |
 | **Arrow Up / Down** | Move focus among visible nodes. |
 | **Arrow Right** | Expand a collapsed branch, or move into the first child when expanded. |
 | **Arrow Left** | Collapse an expanded branch, or move focus to the parent. |
 | **Home / End** | Jump to the first or last visible node. |
 | **Enter / Space** | Select the focused section (and toggle expand on branches). |
+
+Sections that require login show a **Secure** badge. The badge tooltip
+(**Requires login**) comes from the `perc.ui.architecture.modern` catalog
+(not a hard-coded-only string).
 
 Structure dialogs (create, create from folder, rename, landing page, section link, external link, the
 section picker, **New Site**, and **Copy Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
