@@ -93,8 +93,38 @@ const inputStyle: React.CSSProperties = {
   boxSizing: "border-box",
 };
 
-function cloneBindings(list: TemplateBindingSummary[] | undefined): TemplateBindingSummary[] {
-  return (list || []).map((b) => ({
+function asBindingList(raw: unknown): TemplateBindingSummary[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object") {
+    const env = raw as { Binding?: unknown; TemplateBinding?: unknown };
+    const nested = env.Binding ?? env.TemplateBinding;
+    if (Array.isArray(nested)) return nested as TemplateBindingSummary[];
+    if (nested && typeof nested === "object") {
+      return [nested as TemplateBindingSummary];
+    }
+  }
+  return [];
+}
+
+function asSlotList(raw: unknown): TemplateSlotSummary[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object") {
+    const env = raw as { Slot?: unknown; TemplateSlot?: unknown };
+    const nested = env.Slot ?? env.TemplateSlot;
+    if (Array.isArray(nested)) return nested as TemplateSlotSummary[];
+    if (nested && typeof nested === "object") {
+      return [nested as TemplateSlotSummary];
+    }
+  }
+  return [];
+}
+
+function asSourceText(raw: unknown): string {
+  return typeof raw === "string" ? raw : raw == null ? "" : String(raw);
+}
+
+function cloneBindings(list: unknown): TemplateBindingSummary[] {
+  return asBindingList(list).map((b) => ({
     executionOrder: b.executionOrder,
     variable: b.variable || "",
     expression: b.expression || "",
@@ -245,21 +275,26 @@ export function TemplateDetailPanel({
     Promise.all([getTemplateDetail(idOrName), listSlots().catch(() => [] as SlotSummary[])])
       .then(([d, slots]) => {
         if (cancelled) return;
-        setDetail(d);
-        setLabel(d.label || "");
-        setDescription(d.description || "");
-        setSource(d.templateSource || "");
-        setBindings(cloneBindings(d.bindings));
-        setExpandedExprRows(new Set());
-        setSlotKeys(
-          new Set(
-            (d.slots || [])
-              .map((s) => slotKey(s))
-              .filter((k) => k.length > 0),
-          ),
-        );
-        setAllSlots(slots);
-        setLoading(false);
+        try {
+          const sourceText = asSourceText(d?.templateSource);
+          const slotRows = asSlotList(d?.slots);
+          setDetail(d);
+          setLabel(d?.label || "");
+          setDescription(d?.description || "");
+          setSource(sourceText);
+          setBindings(cloneBindings(d?.bindings));
+          setExpandedExprRows(new Set());
+          setSlotKeys(
+            new Set(slotRows.map((s) => slotKey(s)).filter((k) => k.length > 0)),
+          );
+          setAllSlots(Array.isArray(slots) ? slots : []);
+          setLoading(false);
+        } catch (applyErr: unknown) {
+          // Missing / envelope fields must stay in-panel — never unmount Developer.
+          setError(panelErrMsg(applyErr, DEV_MSG.TPL_DETAIL_ERROR));
+          setDetail(null);
+          setLoading(false);
+        }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -273,14 +308,14 @@ export function TemplateDetailPanel({
 
   const initialBindings = cloneBindings(detail?.bindings);
   const initialSlotKeys = new Set(
-    (detail?.slots || []).map((s) => slotKey(s)).filter((k) => k.length > 0),
+    asSlotList(detail?.slots).map((s) => slotKey(s)).filter((k) => k.length > 0),
   );
 
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      source !== (detail.templateSource || "") ||
+      source !== asSourceText(detail.templateSource) ||
       !bindingsEqual(bindings, initialBindings) ||
       !slotsEqual(slotKeys, initialSlotKeys));
 
@@ -376,11 +411,11 @@ export function TemplateDetailPanel({
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
-      setSource(saved.templateSource || "");
+      setSource(asSourceText(saved.templateSource));
       setBindings(cloneBindings(saved.bindings));
       setSlotKeys(
         new Set(
-          (saved.slots || [])
+          asSlotList(saved.slots)
             .map((s) => slotKey(s))
             .filter((x) => x.length > 0),
         ),
@@ -396,7 +431,7 @@ export function TemplateDetailPanel({
   const slotsForTable =
     allSlots.length > 0
       ? allSlots
-      : (detail?.slots || []).map((s) => ({
+      : asSlotList(detail?.slots).map((s) => ({
           name: s.name,
           label: s.label,
           guid: s.guid,
@@ -828,11 +863,11 @@ export function TemplateDetailPanel({
             testIdPrefix="developer-tpl-acl"
           />
 
-          {(detail.designGaps || []).length > 0 ? (
+          {Array.isArray(detail.designGaps) && detail.designGaps.length > 0 ? (
             <section data-testid="developer-tpl-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {(detail.designGaps || []).map((g, i) => (
+                {detail.designGaps.map((g, i) => (
                   <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
                     {formatDesignGap(g)}
                   </li>

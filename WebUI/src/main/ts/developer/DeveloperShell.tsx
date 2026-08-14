@@ -45,6 +45,7 @@ import { TemplatesPanel } from "./TemplatesPanel";
 import { ViewsPanel } from "./ViewsPanel";
 import { WorkflowsPanel } from "./WorkflowsPanel";
 import { catalogColors } from "./catalogStyles";
+import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 
 
 export type { DeveloperSection };
@@ -164,51 +165,56 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
         aria-labelledby={`tab-developer-${active}`}
         data-testid={`panel-developer-${active}`}
       >
-        {active === "content-types" ? (
-          <ContentTypesPanel />
-        ) : active === "templates" ? (
-          <TemplatesPanel />
-        ) : active === "slots" ? (
-          <SlotsPanel />
-        ) : active === "keywords" ? (
-          <KeywordsPanel />
-        ) : active === "locales" ? (
-          <LocalesPanel />
-        ) : active === "shared-fields" ? (
-          <SharedFieldsPanel />
-        ) : active === "system-def" ? (
-          <SystemDefPanel />
-        ) : active === "item-filters" ? (
-          <ItemFiltersPanel />
-        ) : active === "display-formats" ? (
-          <DisplayFormatsPanel />
-        ) : active === "action-menus" ? (
-          <ActionMenusPanel />
-        ) : active === "searches" ? (
-          <SearchesPanel />
-        ) : active === "views" ? (
-          <ViewsPanel />
-        ) : active === "extensions" ? (
-          <ExtensionsPanel />
-        ) : active === "relationship-types" ? (
-          <RelationshipTypesPanel />
-        ) : active === "workflows" ? (
-          <WorkflowsPanel />
-        ) : active === "server-configs" ? (
-          <ServerConfigsPanel />
-        ) : active === "ce-controls" ? (
-          <ControlsPanel />
-        ) : active === "sites" ? (
-          <SitesPanel />
-        ) : active === "communities" ? (
-          <CommunitiesPanel />
-        ) : active === "community-visibility" ? (
-          <CommunityVisibilityNavigatorPanel />
-        ) : active === "pipelines" ? (
-          <PipelinesPanel />
-        ) : (
-          <DeveloperPreferencesPanel />
-        )}
+        <DeveloperSectionErrorBoundary
+          key={active}
+          label={SECTION_LABEL[active]}
+        >
+          {active === "content-types" ? (
+            <ContentTypesPanel />
+          ) : active === "templates" ? (
+            <TemplatesPanel />
+          ) : active === "slots" ? (
+            <SlotsPanel />
+          ) : active === "keywords" ? (
+            <KeywordsPanel />
+          ) : active === "locales" ? (
+            <LocalesPanel />
+          ) : active === "shared-fields" ? (
+            <SharedFieldsPanel />
+          ) : active === "system-def" ? (
+            <SystemDefPanel />
+          ) : active === "item-filters" ? (
+            <ItemFiltersPanel />
+          ) : active === "display-formats" ? (
+            <DisplayFormatsPanel />
+          ) : active === "action-menus" ? (
+            <ActionMenusPanel />
+          ) : active === "searches" ? (
+            <SearchesPanel />
+          ) : active === "views" ? (
+            <ViewsPanel />
+          ) : active === "extensions" ? (
+            <ExtensionsPanel />
+          ) : active === "relationship-types" ? (
+            <RelationshipTypesPanel />
+          ) : active === "workflows" ? (
+            <WorkflowsPanel />
+          ) : active === "server-configs" ? (
+            <ServerConfigsPanel />
+          ) : active === "ce-controls" ? (
+            <ControlsPanel />
+          ) : active === "sites" ? (
+            <SitesPanel />
+          ) : active === "communities" ? (
+            <CommunitiesPanel />
+          ) : active === "community-visibility" ? (
+            <CommunityVisibilityNavigatorPanel />
+          ) : active === "pipelines" ? (
+            <PipelinesPanel />
+          ) : (
+            <DeveloperPreferencesPanel />
+          )}
+        </DeveloperSectionErrorBoundary>
       </div>
     </div>
   );

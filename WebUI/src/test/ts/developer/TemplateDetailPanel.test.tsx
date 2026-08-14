@@ -325,4 +325,67 @@ describe("TemplateDetailPanel", () => {
       DEV_MSG.TPL_DETAIL_ERROR,
     );
   });
+
+  it("keeps load errors inside the detail panel (#3377)", async () => {
+    getTemplateDetailMock.mockRejectedValue(new Error("missing field"));
+    render(
+      <div>
+        <div data-testid="developer-chrome">Developer chrome</div>
+        <TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />
+      </div>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-chrome")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-back")).toBeTruthy();
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    expect(screen.queryByText(/Unable to load Developer/i)).toBeNull();
+  });
+
+  it("unwraps envelope bindings/slots and stringifies source without crashing (#3377)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      templateSource: { wrapped: true },
+      bindings: {
+        TemplateBinding: [{ executionOrder: 1, variable: "$x", expression: "1" }],
+      },
+      slots: { Slot: [{ name: "target", label: "Target" }] },
+    } as never);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-bindings-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    expect(screen.queryByTestId("developer-tpl-detail-error")).toBeNull();
+    // Dirty check must compare asSourceText(templateSource), not raw envelope
+    // (object !== string would incorrectly enable Save).
+    expect((screen.getByTestId("developer-tpl-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("does not mark dirty when templateSource is a non-string envelope (#3389 review)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      description: "",
+      templateSource: { TemplateSource: "<html/>" },
+      bindings: [],
+      slots: [],
+    } as never);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-save")).toBeTruthy();
+    });
+    const save = screen.getByTestId("developer-tpl-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    const sourceEdit = screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement;
+    fireEvent.change(sourceEdit, { target: { value: "<html>edited</html>" } });
+    expect(save.disabled).toBe(false);
+  });
 });

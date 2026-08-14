@@ -206,10 +206,27 @@ async function assertLayeredObjectAcl(page, prefix, objectKind) {
   if (await aclNoEntries.isVisible()) {
     // ACL document exists but has no principals yet — still readable/editable
     // (add specials / add entry). Live By_Author often serializes without
-    // aclEntries (#3203 / #2672).
+    // aclEntries (#3203 / #2672). #3377: Design + Runtime headers stay visible
+    // before any draft row exists (do not require forceShow from existing bits).
     await expect(aclSection).toHaveAttribute("data-acl-object-kind", objectKind);
     await expect(aclSection).toHaveAttribute("data-acl-has-guid", "true");
     await expect(aclNoEntries).toContainText(/No ACL entries yet/i);
+    await expect(aclTable).toBeVisible();
+    await expect(aclTable).toHaveAttribute(
+      "data-acl-show-runtime",
+      expectRuntime ? "true" : "false",
+    );
+    await expect(
+      page.locator(`[data-testid="${prefix}-layer-design"]`),
+    ).toBeVisible();
+    if (expectRuntime) {
+      await expect(
+        page.locator(`[data-testid="${prefix}-layer-runtime"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${prefix}-perm-header-RUNTIME_VISIBLE"]`),
+      ).toContainText(/Visible/i);
+    }
     return "no-entries";
   }
 
@@ -358,6 +375,107 @@ test.describe("Developer Object ACL product path (#2642 / #2605 B5) @object-acl-
       ).toContain(mode);
     } else {
       expect(["table", "no-guid", "empty", "no-entries"]).toContain(mode);
+    }
+  });
+
+  test("opening Content Type then Template does not crash Developer shell (#3377)", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await page.goto(developerSectionUrl("content-types"), {
+      waitUntil: "networkidle",
+    });
+    await expect(
+      page.locator('[data-testid="tab-developer-content-types"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+
+    const ctOpened = await openFirstCatalogDetail(page, {
+      rowBase: "developer-ct-row",
+      panel: "developer-ct-panel",
+      empty: "developer-ct-empty",
+      error: "developer-ct-error",
+      detail: "developer-ct-detail",
+      detailLoading: "developer-ct-detail-loading",
+      detailError: "developer-ct-detail-error",
+      catalogLabel: "content types",
+    });
+    if (!ctOpened) return;
+
+    await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+    await expect(page.locator('[data-testid="route-error"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="tab-developer-templates"]').click();
+    await expect(
+      page.locator('[data-testid="panel-developer-templates"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+    await expect(page.locator('[data-testid="route-error"]')).toHaveCount(0);
+    await expect(page.getByText(/Unable to load Developer/i)).toHaveCount(0);
+
+    const tplError = page.locator('[data-testid="developer-tpl-error"]');
+    const tplPanel = page.locator('[data-testid="developer-tpl-panel"]');
+    const tplEmpty = page.locator('[data-testid="developer-tpl-empty"]');
+    const tplSectionError = page.locator('[data-testid="developer-section-error"]');
+    await expect(
+      tplPanel.or(tplEmpty).or(tplError).or(tplSectionError).first(),
+    ).toBeVisible({ timeout: 30_000 });
+
+    if (await tplError.isVisible()) {
+      const msg = (await tplError.innerText()).trim();
+      throw new Error(`templates catalog error after CT: ${msg}`);
+    }
+    if (await tplEmpty.isVisible()) {
+      // Catalog empty is valid; shell must still be intact.
+      await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+      expect(pageErrors, `pageerror after CT→Templates: ${pageErrors.join("; ")}`).toEqual(
+        [],
+      );
+      return;
+    }
+    if (await tplSectionError.isVisible()) {
+      // Isolated in-panel error is acceptable; the Developer shell must remain.
+      await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+      await expect(page.locator('[data-testid="route-error"]')).toHaveCount(0);
+      return;
+    }
+
+    const firstRow = page.locator(catalogRowSelector("developer-tpl-row", 0));
+    await expect(firstRow).toBeVisible({ timeout: 15_000 });
+    const openBtn = firstRow.locator("button");
+    await expect(openBtn).toBeVisible({ timeout: 5_000 });
+    await openBtn.click();
+
+    await expect(page.locator('[data-testid="developer-tpl-detail"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    const detailLoading = page.locator(
+      '[data-testid="developer-tpl-detail-loading"]',
+    );
+    await expect(detailLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
+
+    await expect(page.locator('[data-testid="perc-developer-shell"]')).toBeVisible();
+    await expect(page.locator('[data-testid="route-error"]')).toHaveCount(0);
+    await expect(page.getByText(/Unable to load Developer/i)).toHaveCount(0);
+    expect(pageErrors, `pageerror after CT→Template: ${pageErrors.join("; ")}`).toEqual(
+      [],
+    );
+
+    const tplAclTable = page.locator('[data-testid="developer-tpl-acl-table"]');
+    const tplAclNoEntries = page.locator(
+      '[data-testid="developer-tpl-acl-no-entries"]',
+    );
+    if (
+      (await tplAclNoEntries.isVisible().catch(() => false)) ||
+      (await tplAclTable.isVisible().catch(() => false))
+    ) {
+      await expect(tplAclTable).toBeVisible();
+      await expect(tplAclTable).toHaveAttribute("data-acl-show-runtime", "true");
+      await expect(
+        page.locator('[data-testid="developer-tpl-acl-perm-header-RUNTIME_VISIBLE"]'),
+      ).toContainText(/Visible/i);
     }
   });
 

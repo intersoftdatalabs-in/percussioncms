@@ -107,11 +107,16 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
 
     const aclError = page.locator('[data-testid="developer-ct-acl-error"]');
     const aclEmpty = page.locator('[data-testid="developer-ct-acl-empty"]');
+    const aclNoEntries = page.locator(
+      '[data-testid="developer-ct-acl-no-entries"]',
+    );
     const aclTable = page.locator('[data-testid="developer-ct-acl-table"]');
     const aclLoading = page.locator('[data-testid="developer-ct-acl-loading"]');
 
     await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-    await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+    await expect(
+      aclTable.or(aclEmpty).or(aclError).or(aclNoEntries).first(),
+    ).toBeVisible({
       timeout: 30_000,
     });
 
@@ -162,6 +167,13 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
     await expect(
       page.locator('[data-testid="developer-ct-acl-perm-header-RUNTIME_VISIBLE"]'),
     ).toContainText(/Visible/i);
+
+    // #3377: empty ACL still shows Design + Runtime headers; checkboxes exist
+    // only after a principal row. Do not require a draft entry for this spec.
+    if (await aclNoEntries.isVisible().catch(() => false)) {
+      await expect(aclNoEntries).toContainText(/No ACL entries yet/i);
+      return;
+    }
 
     // Checkbox-only locators: prefix also matches perm-header-<PERM> <th> cells;
     // scope to input so .first() is never the header (see ObjectAclSection.tsx).
@@ -236,13 +248,18 @@ test.describe("Developer Object ACL design vs runtime permissions (#2283)", () =
 
     const aclError = page.locator('[data-testid="developer-tpl-acl-error"]');
     const aclEmpty = page.locator('[data-testid="developer-tpl-acl-empty"]');
+    const aclNoEntries = page.locator(
+      '[data-testid="developer-tpl-acl-no-entries"]',
+    );
     const aclTable = page.locator('[data-testid="developer-tpl-acl-table"]');
     const aclLoading = page.locator(
       '[data-testid="developer-tpl-acl-loading"]',
     );
 
     await expect(aclLoading).toBeHidden({ timeout: 30_000 }).catch(() => {});
-    await expect(aclTable.or(aclEmpty).or(aclError).first()).toBeVisible({
+    await expect(
+      aclTable.or(aclEmpty).or(aclError).or(aclNoEntries).first(),
+    ).toBeVisible({
       timeout: 30_000,
     });
 

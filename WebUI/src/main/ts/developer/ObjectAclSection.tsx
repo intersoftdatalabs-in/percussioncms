@@ -633,6 +633,7 @@ export function ObjectAclSection({
       data-testid={`${testIdPrefix}-section`}
       data-acl-object-kind={objectKind ?? "unknown"}
       data-acl-has-guid="true"
+      data-acl-show-runtime={showRuntimeColumns ? "true" : "false"}
     >
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.ACL_TITLE}</h3>
       <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.ACL_HINT}</p>
@@ -746,32 +747,50 @@ export function ObjectAclSection({
             <p style={{ color: catalogColors.empty }} data-testid={`${testIdPrefix}-no-entries`}>
               {DEV_MSG.ACL_NO_ENTRIES}
             </p>
-          ) : (
-            <div style={{ overflowX: "auto", marginTop: "8px" }}>
-              <table
-                data-testid={`${testIdPrefix}-table`}
-                data-acl-show-runtime={showRuntimeColumns ? "true" : "false"}
-                data-acl-object-kind={objectKind ?? "unknown"}
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <thead>
-                  {/* Layer group headers — Design access | Runtime visibility (CD-19) */}
-                  <tr
-                    style={tableHeaderRow}
-                    data-testid={`${testIdPrefix}-layer-headers`}
+          ) : null}
+          {/* Always render Design + Runtime headers — even with zero draft rows
+              (#3377). Runtime-relevant kinds must not wait for a first entry. */}
+          <div style={{ overflowX: "auto", marginTop: "8px" }}>
+            <table
+              data-testid={`${testIdPrefix}-table`}
+              data-acl-show-runtime={showRuntimeColumns ? "true" : "false"}
+              data-acl-object-kind={objectKind ?? "unknown"}
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.9rem",
+              }}
+            >
+              <thead>
+                {/* Layer group headers — Design access | Runtime visibility (CD-19) */}
+                <tr
+                  style={tableHeaderRow}
+                  data-testid={`${testIdPrefix}-layer-headers`}
+                >
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_ENTRY}
+                  </th>
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_TYPE}
+                  </th>
+                  <th
+                    colSpan={designPerms.length}
+                    style={{
+                      padding: "6px 8px",
+                      textAlign: "center",
+                      fontSize: "0.8rem",
+                      borderBottom: `1px solid ${catalogColors.softBorder}`,
+                      background: "rgba(0,0,0,0.02)",
+                    }}
+                    title={DEV_MSG.ACL_LAYER_DESIGN_HINT}
+                    data-testid={`${testIdPrefix}-layer-design`}
+                    data-acl-layer={"design" satisfies AclPermissionLayer}
                   >
-                    <th style={{ padding: "8px" }} rowSpan={2}>
-                      {DEV_MSG.ACL_COL_ENTRY}
-                    </th>
-                    <th style={{ padding: "8px" }} rowSpan={2}>
-                      {DEV_MSG.ACL_COL_TYPE}
-                    </th>
+                    {DEV_MSG.ACL_LAYER_DESIGN}
+                  </th>
+                  {showRuntimeColumns ? (
                     <th
-                      colSpan={designPerms.length}
+                      colSpan={runtimePerms.length}
                       style={{
                         padding: "6px 8px",
                         textAlign: "center",
@@ -779,57 +798,41 @@ export function ObjectAclSection({
                         borderBottom: `1px solid ${catalogColors.softBorder}`,
                         background: "rgba(0,0,0,0.02)",
                       }}
-                      title={DEV_MSG.ACL_LAYER_DESIGN_HINT}
-                      data-testid={`${testIdPrefix}-layer-design`}
-                      data-acl-layer={"design" satisfies AclPermissionLayer}
+                      title={DEV_MSG.ACL_LAYER_RUNTIME_HINT}
+                      data-testid={`${testIdPrefix}-layer-runtime`}
+                      data-acl-layer={"runtime" satisfies AclPermissionLayer}
                     >
-                      {DEV_MSG.ACL_LAYER_DESIGN}
+                      {DEV_MSG.ACL_LAYER_RUNTIME}
                     </th>
-                    {showRuntimeColumns ? (
-                      <th
-                        colSpan={runtimePerms.length}
-                        style={{
-                          padding: "6px 8px",
-                          textAlign: "center",
-                          fontSize: "0.8rem",
-                          borderBottom: `1px solid ${catalogColors.softBorder}`,
-                          background: "rgba(0,0,0,0.02)",
-                        }}
-                        title={DEV_MSG.ACL_LAYER_RUNTIME_HINT}
-                        data-testid={`${testIdPrefix}-layer-runtime`}
-                        data-acl-layer={"runtime" satisfies AclPermissionLayer}
-                      >
-                        {DEV_MSG.ACL_LAYER_RUNTIME}
-                      </th>
-                    ) : null}
-                    <th style={{ padding: "8px" }} rowSpan={2}>
-                      {DEV_MSG.ACL_COL_ACTIONS}
+                  ) : null}
+                  <th style={{ padding: "8px" }} rowSpan={2}>
+                    {DEV_MSG.ACL_COL_ACTIONS}
+                  </th>
+                </tr>
+                <tr
+                  style={tableHeaderRow}
+                  data-testid={`${testIdPrefix}-perm-headers`}
+                >
+                  {visiblePermissions.map((p) => (
+                    <th
+                      key={p}
+                      style={{
+                        padding: "8px",
+                        textAlign: "center",
+                        fontSize: "0.8rem",
+                        fontWeight: 500,
+                      }}
+                      data-testid={`${testIdPrefix}-perm-header-${p}`}
+                      data-acl-permission={p}
+                      title={p}
+                    >
+                      {permissionColumnLabel(p)}
                     </th>
-                  </tr>
-                  <tr
-                    style={tableHeaderRow}
-                    data-testid={`${testIdPrefix}-perm-headers`}
-                  >
-                    {visiblePermissions.map((p) => (
-                      <th
-                        key={p}
-                        style={{
-                          padding: "8px",
-                          textAlign: "center",
-                          fontSize: "0.8rem",
-                          fontWeight: 500,
-                        }}
-                        data-testid={`${testIdPrefix}-perm-header-${p}`}
-                        data-acl-permission={p}
-                        title={p}
-                      >
-                        {permissionColumnLabel(p)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {draftEntries.map((e) => {
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {draftEntries.map((e) => {
                     const key = e.clientKey;
                     const chosen = selected[key] ?? new Set<string>();
                     const label = entryLabel(e);
@@ -906,7 +909,6 @@ export function ObjectAclSection({
                 </tbody>
               </table>
             </div>
-          )}
 
           {missingSpecials.length > 0 ? (
             <div
