@@ -19,6 +19,7 @@ package com.percussion.rest.acls;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.Guid;
+import com.percussion.rest.JacksonContextResolver;
 import com.percussion.rest.Status;
 import com.percussion.security.IPSTypedPrincipal;
 import jakarta.ws.rs.WebApplicationException;
@@ -86,6 +88,63 @@ public class AclResourceTest {
     Acl out = resource.loadAclForObject("0-31-5");
     assertSame(acl, out);
     verify(adaptor).loadAclForObject(any(Guid.class));
+  }
+
+  @Test
+  public void jacksonWritesAclEntriesOnGetShape() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("By_Author ACL");
+    acl.setObjectType(31);
+    acl.setObjectId(5);
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+    AclEntryList entries = new AclEntryList();
+    entries.add(namedEntry("Default"));
+    entries.add(namedEntry("AnyCommunity"));
+    entries.add(namedEntry("Admin"));
+    acl.setAclEntries(entries);
+
+    String json = new JacksonContextResolver().getContext(Acl.class).writeValueAsString(acl);
+    assertTrue(json.contains("Default"), json);
+    assertTrue(json.contains("AnyCommunity"), json);
+    assertTrue(json.contains("Admin"), json);
+    assertTrue(json.contains("By_Author ACL"), json);
+    assertTrue(json.contains("aclEntries") || json.contains("AclEntries"), json);
+  }
+
+  @Test
+  public void loadAclForObjectReturnsDefaultAnyCommunityAndUserAfterSave() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("By_Author ACL");
+    acl.setObjectType(31);
+    acl.setObjectId(5);
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+    AclEntryList entries = new AclEntryList();
+    entries.add(namedEntry("Default"));
+    entries.add(namedEntry("AnyCommunity"));
+    entries.add(namedEntry("Admin"));
+    acl.setAclEntries(entries);
+    when(adaptor.loadAclForObject(any(Guid.class))).thenReturn(acl);
+
+    Acl out = resource.loadAclForObject("0-31-5");
+    assertEquals(3, out.getAclEntries().orElseThrow().size());
+    assertEquals("Default", out.getAclEntries().get().get(0).getName().orElse(null));
+    assertEquals("AnyCommunity", out.getAclEntries().get().get(1).getName().orElse(null));
+    assertEquals("Admin", out.getAclEntries().get().get(2).getName().orElse(null));
+    assertEquals(31, out.getObjectType());
+    assertEquals(5, out.getObjectId());
+  }
+
+  private static AclEntry namedEntry(String name) {
+    AclEntry entry = new AclEntry();
+    entry.setName(name);
+    entry.setType(new TypedPrincipal(name, IPSTypedPrincipal.PrincipalTypes.USER));
+    return entry;
   }
 
   @Test

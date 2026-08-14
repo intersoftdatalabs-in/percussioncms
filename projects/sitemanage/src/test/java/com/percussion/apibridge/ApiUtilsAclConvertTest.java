@@ -32,6 +32,7 @@ import com.percussion.rest.acls.UserAccessLevel;
 import com.percussion.rest.acls.UserAccessLevelList;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.services.security.PSPermissions;
+import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.data.PSAclEntryImpl;
@@ -198,5 +199,88 @@ public class ApiUtilsAclConvertTest {
     assertNotNull(rest);
     assertEquals(31, rest.getObjectType());
     assertEquals(5, rest.getObjectId());
+  }
+
+  @Test
+  public void convertAclLoadIncludesDefaultAnyCommunityAndUser() {
+    PSAclImpl pAcl = new PSAclImpl();
+    pAcl.setId(7);
+    pAcl.setName("By_Author ACL");
+    pAcl.setObjectType(31);
+    pAcl.setObjectId(5);
+    addEntry(pAcl, "Default", IPSTypedPrincipal.PrincipalTypes.USER, PSPermissions.READ);
+    addEntry(
+        pAcl, "AnyCommunity", IPSTypedPrincipal.PrincipalTypes.COMMUNITY, PSPermissions.RUNTIME_VISIBLE);
+    addEntry(pAcl, "Admin", IPSTypedPrincipal.PrincipalTypes.USER, PSPermissions.OWNER);
+
+    Acl rest = ApiUtils.convertAcl(pAcl);
+    assertNotNull(rest.getAclEntries().orElse(null));
+    assertEquals(3, rest.getAclEntries().get().size());
+    var names =
+        rest.getAclEntries().get().stream()
+            .map(e -> e.getName().orElse(""))
+            .collect(Collectors.toSet());
+    assertTrue(names.contains("Default"));
+    assertTrue(names.contains("AnyCommunity"));
+    assertTrue(names.contains("Admin"));
+    assertEquals(31, rest.getObjectType());
+    assertEquals(5, rest.getObjectId());
+    assertNotNull(rest.getObjectGuid().orElse(null));
+  }
+
+  @Test
+  public void convertAclsSaveKeepsAclIdGuidAndEntries() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("By_Author ACL");
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+    AclEntryList entries = new AclEntryList();
+    entries.add(restEntry("Default", IPSTypedPrincipal.PrincipalTypes.USER, Permissions.READ));
+    entries.add(
+        restEntry(
+            "AnyCommunity",
+            IPSTypedPrincipal.PrincipalTypes.COMMUNITY,
+            Permissions.RUNTIME_VISIBLE));
+    entries.add(restEntry("Admin", IPSTypedPrincipal.PrincipalTypes.USER, Permissions.OWNER));
+    acl.setAclEntries(entries);
+    AclList list = new AclList();
+    list.add(acl);
+
+    java.util.List<IPSAcl> converted = ApiUtils.convertAcls(list);
+    PSAclImpl pAcl = (PSAclImpl) converted.get(0);
+    assertEquals(7, pAcl.getId());
+    assertEquals(31, pAcl.getObjectType());
+    assertEquals(5, pAcl.getObjectId());
+    assertNotNull(pAcl.getGUID());
+    var names =
+        pAcl.getEntries().stream()
+            .map(e -> ((PSAclEntryImpl) e).getName())
+            .collect(Collectors.toSet());
+    assertEquals(java.util.Set.of("Default", "AnyCommunity", "Admin"), names);
+  }
+
+  private static void addEntry(
+      PSAclImpl acl,
+      String name,
+      IPSTypedPrincipal.PrincipalTypes type,
+      PSPermissions permission) {
+    PSAclEntryImpl entry = new PSAclEntryImpl(new PSTypedPrincipal(name, type));
+    entry.addPermission(new PSAccessLevelImpl(entry, permission));
+    acl.addEntry(entry);
+  }
+
+  private static AclEntry restEntry(
+      String name, IPSTypedPrincipal.PrincipalTypes type, Permissions perm) {
+    AclEntry entry = new AclEntry();
+    entry.setName(name);
+    entry.setType(new TypedPrincipal(name, type));
+    UserAccessLevelList levels = new UserAccessLevelList();
+    UserAccessLevel level = new UserAccessLevel();
+    level.setPermission(perm);
+    levels.add(level);
+    entry.setPermissions(levels);
+    return entry;
   }
 }

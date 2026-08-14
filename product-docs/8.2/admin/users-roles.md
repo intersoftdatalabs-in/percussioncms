@@ -119,10 +119,11 @@ objects, including **Content types**, **Templates**, **Display Formats**, **Site
    - Does **not** say “Object GUID not available” when the header GUID is present.
    - If the object truly has no GUID, the section still mounts with kind-aware copy
      (display format) and does not crash the detail page.
-5. **Save** persists **Default**, **AnyCommunity**, and added USER/ROLE principals.
-   After Back and reopen, those rows must still be present (not discarded as an
-   HTTP 400). If the format has no ACL yet, use **Create** with an owner, then
-   add specials and **Save**.
+5. **Save** persists **Default**, **AnyCommunity**, and added USER/ROLE principals
+   onto the existing object ACL (the server updates that row; it does not insert
+   a second empty ACL). After Back and reopen, those three rows must still be
+   present (not HTTP 400/500 and not an empty table). If the format has no ACL
+   yet, use **Create** with an owner, then add specials and **Save**.
 
 Use this section to inspect and edit design-time and runtime visibility permissions
 for that display format.
