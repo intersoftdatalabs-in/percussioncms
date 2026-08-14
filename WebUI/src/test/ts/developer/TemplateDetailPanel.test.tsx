@@ -362,5 +362,30 @@ describe("TemplateDetailPanel", () => {
     expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
     expect(screen.queryByTestId("developer-tpl-detail-error")).toBeNull();
+    // Dirty check must compare asSourceText(templateSource), not raw envelope
+    // (object !== string would incorrectly enable Save).
+    expect((screen.getByTestId("developer-tpl-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("does not mark dirty when templateSource is a non-string envelope (#3389 review)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      description: "",
+      templateSource: { TemplateSource: "<html/>" },
+      bindings: [],
+      slots: [],
+    } as never);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-save")).toBeTruthy();
+    });
+    const save = screen.getByTestId("developer-tpl-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    const sourceEdit = screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement;
+    fireEvent.change(sourceEdit, { target: { value: "<html>edited</html>" } });
+    expect(save.disabled).toBe(false);
   });
 });

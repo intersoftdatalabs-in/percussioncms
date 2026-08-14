@@ -315,7 +315,7 @@ export function TemplateDetailPanel({
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      source !== (detail.templateSource || "") ||
+      source !== asSourceText(detail.templateSource) ||
       !bindingsEqual(bindings, initialBindings) ||
       !slotsEqual(slotKeys, initialSlotKeys));
 
