@@ -5,9 +5,11 @@
 import { describe, expect, it } from "vitest";
 import {
   formatVirtualSiteBuildSummary,
+  formatVirtualSitePublishSummary,
   normalizeVirtualSiteLinkProblems,
   sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
+  shouldShowVirtualPublishChrome,
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
@@ -18,6 +20,32 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("Repository")).toBe(false);
     expect(shouldShowVirtualBuildChrome("git-filesystem")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  git-filesystem  ")).toBe(true);
+  });
+
+  it("shouldShowVirtualPublishChrome only for virtual source kinds", () => {
+    expect(shouldShowVirtualPublishChrome(null)).toBe(false);
+    expect(shouldShowVirtualPublishChrome("")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("Repository")).toBe(false);
+    expect(shouldShowVirtualPublishChrome("git-filesystem")).toBe(true);
+  });
+
+  it("formatVirtualSitePublishSummary reports files copied and dest path", () => {
+    const ok = formatVirtualSitePublishSummary({
+      filesCopied: 15,
+      publishPath: " C:/inetpub/help ",
+      pagesWritten: 8,
+      hasLinkProblems: false,
+    });
+    expect(ok.filesLine).toBe("15");
+    expect(ok.destLine).toBe("C:/inetpub/help");
+    expect(ok.pagesLine).toBe("8");
+    expect(ok.hasLinkProblems).toBe(false);
+
+    const missing = formatVirtualSitePublishSummary({});
+    expect(missing.filesLine).toBe("0");
+    expect(missing.destLine).toBeNull();
+    expect(missing.pagesLine).toBe("0");
   });
 
   it("formatVirtualSiteBuildSummary reports pages, output, and link problems", () => {

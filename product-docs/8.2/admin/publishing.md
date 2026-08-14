@@ -47,9 +47,11 @@ For Git/filesystem Virtual Sites such as product documentation:
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Do **not** point it at `virtual.rootPath` (the Markdown source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
-5. Call `POST /services/sites/{nameOrId}/virtual/publish` (or run **Build Virtual Site** first if
-   you only want staging output).
-6. On success, the JSON result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
+5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible only
+   when source kind is Virtual). The panel reports files copied and the destination path,
+   or a clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
+   instead. Run **Build Virtual Site** first if you only want staging output.
+6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
 7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root.
 

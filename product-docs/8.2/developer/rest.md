@@ -111,7 +111,7 @@ Example create body:
 | Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; Git-filesystem Virtual Sites |
 | Virtual preview status | `GET /services/sites/{nameOrId}/virtual/preview` | Admin-only; last build availability |
 | Virtual preview file | `GET /services/sites/{nameOrId}/virtual/preview/{relPath}` | Admin-only; assembled file stream |
-| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; build then copy to Site filesystem root |
+| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; build then copy to Site filesystem root. Same action as **Developer → Sites → Publish Virtual Site** |
 
 An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty list JSON is the
 only empty-catalog case. See [Sites & content structure](id:admin-sites).

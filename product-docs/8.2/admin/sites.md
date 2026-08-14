@@ -171,8 +171,14 @@ site to the Site's configured filesystem publish location:
 
 1. Set the Site **publishing filesystem root** (Site root / `IPSSite.root`) to a dedicated
    directory on the CMS host (not the Markdown `virtual.rootPath`).
-2. As **Admin**, call `POST /sites/{nameOrId}/virtual/publish`.
-3. The server **builds then copies** HTML/assets to that Site root and returns `publishPath`
+2. As **Admin**, open **Developer → Sites → Site detail** for the Virtual Site.
+3. Confirm **Source kind** is **Git filesystem** and **Save Virtual Site source** if you
+   changed properties. Traditional **Repository** Sites never show Publish chrome.
+4. Choose **Publish Virtual Site**. The panel shows a busy state, then success with
+   **files copied** and the **destination path**, or a clear error (not Admin, still a
+   repository Site on the server, missing or unsafe Site root).
+5. Integrators can call the same operation over REST: `POST /sites/{nameOrId}/virtual/publish`.
+   The server **builds then copies** HTML/assets to that Site root and returns `publishPath`
    and `filesCopied`. Missing or unsafe Site root, overlap with the source tree, or a
    non-virtual Site returns **400** with a readable message (not HTTP 500 / silent no-op).
 

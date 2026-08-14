@@ -165,7 +165,9 @@ assembled file stream). Missing output returns status `available=false` (HTTP 20
 ## CMS-integrated publish (Site filesystem target)
 
 Build writes a **staging** tree. To publish that tree to the Site's configured filesystem
-location (`IPSSite.root` / Site publishing root), an **Admin** calls:
+location (`IPSSite.root` / Site publishing root), an **Admin** uses
+**Developer → Sites → Site detail → Publish Virtual Site** (visible only when source kind
+is Virtual; hidden for repository Sites) or calls:
 
 ```http
 POST /sites/{nameOrId}/virtual/publish

@@ -151,7 +151,9 @@ Runs the same build, then copies the assembled tree to the Site **filesystem pub
 | `403` | Caller is not Admin |
 | `404` | Site not found |
 
-Configure a dedicated Site root (not the Markdown source path). See [Publishing](id:admin-publishing).
+Configure a dedicated Site root (not the Markdown source path). Operators can run the same
+action from **Developer → Sites → Site detail → Publish Virtual Site** (Admin; hidden for
+repository Sites). See [Publishing](id:admin-publishing).
 
 ## Related
 
