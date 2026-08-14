@@ -1,8 +1,11 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.0.0
+// workflow_version: 2.0.1
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.0.1 — Work C5: qa-health fail-fast after qa-up and after every hot-deploy;
+//   never HTTP-poll login; deploy full C1 modules_built including reverse-deps
+//   (perc-system with sitemanage) into QA WAR WEB-INF/lib.
 // 2.0.0 — token/efficiency: one Preflight scout; skip no-op specialist agents;
 //   no Work agent for disposition=skip; cycle-verify tip-only Maven + UI Playwright
 //   only when a PR opened; Human QA only when an independent APPROVE exists;
@@ -113,8 +116,9 @@
 //
 // UI LIVE PROOF (Work C5 — HARD for WebUI/product UI): before pr_opened and before human QA
 // handoff, run surface Playwright against H2 Docker (perc-devctl qa-up), deploy this change's
-// jars into the cell, zero JS console errors, zero related server.log ERROR/FATAL. Unit/Vitest
-// alone is insufficient for UI.
+// jars (full C1 set + reverse-deps) into the cell, qa-health after qa-up and after every
+// deploy (never HTTP-poll login), zero JS console errors, zero related server.log
+// ERROR/FATAL. Unit/Vitest alone is insufficient for UI.
 
 let meta = #{
     name: "night-issue-prs",
@@ -1628,10 +1632,24 @@ for item in queue {
             work_prompt += "        (freeport — never hardcode :9993). See modules/perc-qa-automation/README.md.\n";
             work_prompt += "        If matrix image/package required: follow README prereq (perc-distribution-tree\n";
             work_prompt += "        package, rebuild matrix image when scripts change).\n";
-            work_prompt += "   C5b) Deploy THIS change into the running QA cell: after module clean install, hot-deploy\n";
-            work_prompt += "        / copy updated jars/WAR into the QA install path (or rebuild cell so the image\n";
-            work_prompt += "        includes your artifacts). Restart Jetty/CMS in the cell if required so the new\n";
-            work_prompt += "        code is what the browser hits. Verify login still works against TEST_CMS_URL.\n";
+            work_prompt += "        Immediately: python docker/scripts/perc-devctl.py qa-health\n";
+            work_prompt += "        Use that RESULT line. Do NOT invent a curl/Invoke-WebRequest/sleep loop on\n";
+            work_prompt += "        /Rhythmyx/login or port-up. Jetty can bind HTTP while ROOT/Rhythmyx is dead.\n";
+            work_prompt += "        RESULT:FAIL with Failed startup of context / DETAIL:rhythmyx_context_failed /\n";
+            work_prompt += "        Health=unhealthy is a C5 fail: stop, read server.log, do not keep polling.\n";
+            work_prompt += "   C5b) Deploy THIS change into the running QA cell: after C1 module clean install, copy\n";
+            work_prompt += "        EVERY jar in modules_built (and reverse-deps) into the QA WAR, not only the UI:\n";
+            work_prompt += "        /opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/<artifact>.jar\n";
+            work_prompt += "        Container: perc-matrix-cms-h2 (or the name qa-up printed). docker cp then restart\n";
+            work_prompt += "        Jetty *inside* the cell (StartJetty/StopJetty). Do NOT docker restart the cell\n";
+            work_prompt += "        (re-runs silent install and wipes copies). Do NOT perc-devctl deploy-jar --target\n";
+            work_prompt += "        cms — that copies to jetty/base/lib, not the Rhythmyx WAR classpath.\n";
+            work_prompt += "        HARD: if sitemanage (or any type that calls new system APIs) is in modules_built,\n";
+            work_prompt += "        also copy perc-system-*-SNAPSHOT.jar. --skip-image-build does not refresh\n";
+            work_prompt += "        perc-system; stale system + new sitemanage = NoClassDefFoundError at startup\n";
+            work_prompt += "        (PSObjectAclNextNumberReconciler / PSFolderHelper).\n";
+            work_prompt += "        After every copy or Jetty restart: qa-health AGAIN. Same fail-fast. Never\n";
+            work_prompt += "        treat HTTP 503 + connector-up as 'still starting'.\n";
             work_prompt += "   C5c) Run surface-filtered Playwright for THIS feature under\n";
             work_prompt += "        modules/perc-qa-automation/frontend:\n";
             work_prompt += "        npm ci (if needed); npx playwright install chromium (if needed);\n";
@@ -1654,7 +1672,9 @@ for item in queue {
             work_prompt += "        (or BUG:#N for known skip). Tear down with qa-down when done if you own the cell.\n";
             work_prompt += "   HARD BANS: claim UI pr_opened without C5; create QA (#N) human issue without C5 pass;\n";
             work_prompt += "   skip Playwright because 'unit tests green'; run only against host install without\n";
-            work_prompt += "   qa-up when agent_safe_only expects Docker QA.\n";
+            work_prompt += "   qa-up when agent_safe_only expects Docker QA; poll HTTP/login after server.log shows\n";
+            work_prompt += "   Failed startup of context / NoClassDefFoundError; docker restart of perc-matrix-cms-h2;\n";
+            work_prompt += "   hot-deploy sitemanage without a matching perc-system jar on skip-image-build cells.\n";
             work_prompt += "D) Commit only in-scope files; do not dump monorepo-wide reformat or unrelated churn.\n";
             work_prompt += "E) Commit with a clear message referencing issue " + inum.to_string() + ".\n";
             work_prompt += "F) OPERATOR LABELS (required for daily status - create labels if missing):\n";
@@ -2311,8 +2331,10 @@ if include_cycle_verify && need_cycle_verify {
             cv_prompt += "    integration tip: python docker/scripts/perc-devctl.py qa-rebuild-chain\n";
             cv_prompt += "    (or deploy this tip's jars into the cell). See docs/developer-module/workbench-rest-and-qa-modes.md.\n";
             cv_prompt += "P2) python docker/scripts/perc-devctl.py qa-up   then   qa-health\n";
-            cv_prompt += "    If qa-up/qa-health fails: that IS a cycle-verify failure (residual: cell start).\n";
-            cv_prompt += "    Do not run Playwright on a dead cell.\n";
+            cv_prompt += "    If you then copy jars / restart Jetty, run qa-health AGAIN before Playwright.\n";
+            cv_prompt += "    Never HTTP-poll /Rhythmyx/login. If qa-up/qa-health fails (including\n";
+            cv_prompt += "    Failed startup of context / Health=unhealthy): that IS a cycle-verify failure\n";
+            cv_prompt += "    (residual: cell start). Do not run Playwright on a dead cell.\n";
             cv_prompt += "P3) cd modules/perc-qa-automation/frontend\n";
             cv_prompt += "    TEST_CMS_URL from qa-up; ADMIN_USERNAME=Admin; ADMIN_PASSWORD from qa-up/docker\n";
             cv_prompt += "    (never log the password).\n";
