@@ -216,6 +216,21 @@ Integrators should unwrap those envelopes and read `guid.stringValue` or `guidSt
 assume the GUID is missing when `displayId` is present). See [Users, roles & security](id:admin-users-roles)
 for the operator Object ACL steps.
 
+### Object ACL save (display format and peers)
+
+Design-time ACLs use `/services/acls`. Production JSON uses Jackson
+`WRAP_ROOT_VALUE` / `UNWRAP_ROOT_VALUE`:
+
+| Method | Path | Envelope |
+|--------|------|----------|
+| `GET` | `/services/acls/object/{guid}` | Response may wrap as `{"Acl":{…}}` |
+| `POST` | `/services/acls/` | Request `{"CreateAclRequest":{"objectGuid":{"stringValue":"…"},"owner":{"name":"Admin","type":"USER"}}}` |
+| `PUT` | `/services/acls/bulk` | Request `{"AclList":[{…}]}` — **not** a bare JSON array |
+
+Each ACL in the list should include `objectGuid` (and `objectType` / `objectId` when known).
+Entries use `principal.name` only; the principal type lives on `type.type`
+(`USER`, `COMMUNITY`, `ROLE`, …). A bare array body is HTTP 400.
+
 ## Views (design catalog)
 
 Content Explorer **view** definitions (Workbench / Developer **Views**, UI-07) are exposed under

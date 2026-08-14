@@ -36,6 +36,12 @@ export type CreateAclOwner = {
   type: string;
 };
 
+/** Jackson root for {@code AclList} (PUT /services/acls/bulk). */
+export const ACL_LIST_ROOT = "AclList";
+
+/** Jackson root for {@code CreateAclRequest} (POST /services/acls/). */
+export const CREATE_ACL_REQUEST_ROOT = "CreateAclRequest";
+
 /**
  * Unwrap Jackson WRAP_ROOT_VALUE {@code {"Acl":{…}}} so ObjectAclSection can
  * read entries. Flat bodies pass through (site / display-format Object ACL, #3200).
@@ -66,8 +72,8 @@ export async function getAclForObject(objectGuid: string): Promise<ObjectAcl> {
 /**
  * POST /services/acls/ — create a design-time ACL for an object that has none.
  *
- * <p>Body is CreateAclRequest: objectGuid + owner TypedPrincipal. Server creates
- * an ACL with a single OWNER entry for the owner.
+ * <p>Body is Jackson-wrapped CreateAclRequest. A flat body fails server
+ * UNWRAP_ROOT_VALUE (same class as UserPreference #2708 / #3378).
  */
 export async function createObjectAcl(
   objectGuid: string | RestGuid,
@@ -75,21 +81,41 @@ export async function createObjectAcl(
 ): Promise<ObjectAcl> {
   const guid: RestGuid =
     typeof objectGuid === "string" ? { stringValue: objectGuid } : objectGuid;
-  const payload = await post<unknown>(PATHS.ACLS, {
-    objectGuid: guid,
-    owner: {
-      name: owner.name,
-      type: owner.type,
-    },
-  });
+  const payload = await post<unknown>(
+    PATHS.ACLS,
+    wrapCreateAclRequestForWire(guid, owner),
+  );
   return unwrapObjectAcl(payload);
 }
 
+function parseGuidParts(guid: RestGuid | undefined): {
+  type?: number;
+  uuid?: number;
+} {
+  if (!guid) return {};
+  if (guid.type != null && guid.type > 0 && guid.uuid != null && guid.uuid > 0) {
+    return { type: guid.type, uuid: guid.uuid };
+  }
+  const raw = guid.stringValue?.trim();
+  if (!raw) return { type: guid.type, uuid: guid.uuid };
+  const parts = raw.split("-");
+  if (parts.length < 3) return { type: guid.type, uuid: guid.uuid };
+  const type = Number(parts[1]);
+  const uuid = Number(parts[2]);
+  return {
+    type: Number.isFinite(type) ? type : guid.type,
+    uuid: Number.isFinite(uuid) ? uuid : guid.uuid,
+  };
+}
+
 /**
- * Normalize entries / permissions to plain arrays for PUT payload.
- * Jackson maps AclList as a JSON array of Acl.
+ * Normalize entries / permissions to the REST DTO shape for PUT.
+ *
+ * <p>{@code Principal} is name-only. {@code TypedPrincipal} carries type.
+ * A raw JSON array is rejected by UNWRAP_ROOT_VALUE — callers must wrap with
+ * {@link wrapAclListForWire}.
  */
-function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
+export function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
   const entries = Array.isArray(acl.aclEntries)
     ? acl.aclEntries
     : Array.isArray((acl.aclEntries as { AclEntry?: ObjectAclEntry[] } | undefined)?.AclEntry)
@@ -103,12 +129,19 @@ function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
     else if (Array.isArray((raw as { UserAccessLevel?: ObjectAclPermission[] } | undefined)?.UserAccessLevel)) {
       perms = (raw as { UserAccessLevel: ObjectAclPermission[] }).UserAccessLevel;
     }
+    const principalName = e.name || e.principal?.name || e.type?.name;
     return {
       id: e.id,
       name: e.name,
       aclId: e.aclId,
-      principal: e.principal || (e.name ? { name: e.name } : undefined),
-      type: e.type,
+      principal: principalName ? { name: principalName } : undefined,
+      type:
+        e.type?.type || e.type?.name || principalName
+          ? {
+              name: e.type?.name || principalName,
+              type: e.type?.type,
+            }
+          : undefined,
       permissions: perms.map((p) => ({
         id: p.id,
         permission: p.permission,
@@ -116,15 +149,47 @@ function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
     };
   });
 
+  const objectGuid = acl.objectGuid;
+  const parts = parseGuidParts(objectGuid);
+  const name =
+    typeof acl.name === "string" && acl.name.trim() ? acl.name.trim() : "ACL";
   return {
     id: acl.id,
-    name: acl.name,
+    name,
     description: acl.description,
-    objectId: acl.objectId,
-    objectType: acl.objectType,
+    objectId: acl.objectId && acl.objectId > 0 ? acl.objectId : parts.uuid,
+    objectType: acl.objectType && acl.objectType > 0 ? acl.objectType : parts.type,
     guid: acl.guid,
-    objectGuid: acl.objectGuid,
+    objectGuid,
     aclEntries,
+  };
+}
+
+/**
+ * PUT body for {@code /services/acls/bulk}.
+ *
+ * <p>Production CXF Jackson uses WRAP/UNWRAP_ROOT_VALUE. A bare array is HTTP 400
+ * (Display Format Object ACL Save, #3378 / QA #2640).
+ */
+export function wrapAclListForWire(acl: ObjectAcl): { AclList: ObjectAcl[] } {
+  return { [ACL_LIST_ROOT]: [normalizeAclForSave(acl)] };
+}
+
+/**
+ * POST body for {@code /services/acls/}.
+ */
+export function wrapCreateAclRequestForWire(
+  objectGuid: RestGuid,
+  owner: CreateAclOwner,
+): { CreateAclRequest: { objectGuid: RestGuid; owner: CreateAclOwner } } {
+  return {
+    [CREATE_ACL_REQUEST_ROOT]: {
+      objectGuid,
+      owner: {
+        name: owner.name,
+        type: owner.type,
+      },
+    },
   };
 }
 
@@ -134,5 +199,5 @@ function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
  * <p>Persists one or more design-time ACLs (full entry + permission replace via merge).
  */
 export async function saveObjectAcl(acl: ObjectAcl): Promise<void> {
-  await put<unknown>(`${PATHS.ACLS}/bulk`, [normalizeAclForSave(acl)]);
+  await put<unknown>(`${PATHS.ACLS}/bulk`, wrapAclListForWire(acl));
 }

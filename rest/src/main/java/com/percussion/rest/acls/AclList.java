@@ -19,6 +19,7 @@
 package com.percussion.rest.acls;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -29,6 +30,7 @@ import java.util.Objects;
 
 /** List of {@link Acl} objects. */
 @XmlRootElement(name = "AclList")
+@JsonRootName("AclList")
 @XmlSeeAlso(Acl.class)
 @ArraySchema(schema = @Schema(implementation = Acl.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)

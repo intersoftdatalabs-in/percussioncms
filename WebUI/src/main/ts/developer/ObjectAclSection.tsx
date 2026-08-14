@@ -510,9 +510,14 @@ export function ObjectAclSection({
     setNotice(null);
 
     const rebuiltEntries = rebuildEntriesForSave();
+    const toSave: ObjectAcl = {
+      ...acl,
+      objectGuid: acl.objectGuid ?? { stringValue: objectGuid },
+      aclEntries: rebuiltEntries,
+    };
 
     try {
-      await saveObjectAcl({ ...acl, aclEntries: rebuiltEntries });
+      await saveObjectAcl(toSave);
     } catch (err: unknown) {
       setError(formatApiErr(DEV_MSG.ACL_SAVE_ERROR, err));
       setBusy(false);
@@ -563,7 +568,11 @@ export function ObjectAclSection({
             created.id,
           );
           if (added > 0) {
-            await saveObjectAcl({ ...created, aclEntries: merged });
+            await saveObjectAcl({
+              ...created,
+              objectGuid: created.objectGuid ?? { stringValue: objectGuid },
+              aclEntries: merged,
+            });
             try {
               created = await getAclForObject(objectGuid);
             } catch {
