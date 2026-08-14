@@ -14,6 +14,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   getVirtualSiteProperties: vi.fn(),
   updateVirtualSiteProperties: vi.fn(),
   buildVirtualSite: vi.fn(),
+  publishVirtualSite: vi.fn(),
   getVirtualSitePreviewStatus: vi.fn(),
   virtualSitePreviewContentHref: vi.fn(
     (name: string, home: string) => `/services/sites/${encodeURIComponent(name)}/virtual/preview/${home}`,
@@ -25,6 +26,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
 const getVirtual = sitesApi.getVirtualSiteProperties as ReturnType<typeof vi.fn>;
 const updateVirtual = sitesApi.updateVirtualSiteProperties as ReturnType<typeof vi.fn>;
 const buildVirtual = sitesApi.buildVirtualSite as ReturnType<typeof vi.fn>;
+const publishVirtual = sitesApi.publishVirtualSite as ReturnType<typeof vi.fn>;
 const previewStatus = sitesApi.getVirtualSitePreviewStatus as ReturnType<typeof vi.fn>;
 
 describe("VirtualSiteSourcePanel", () => {
@@ -35,6 +37,7 @@ describe("VirtualSiteSourcePanel", () => {
     getVirtual.mockReset();
     updateVirtual.mockReset();
     buildVirtual.mockReset();
+    publishVirtual.mockReset();
     previewStatus.mockReset();
   });
 
@@ -55,10 +58,11 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-source-kind")).toBeTruthy();
     // Root path hidden until virtual selected
     expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
-    // Repository sites must not show Build chrome
+    // Repository sites must not show Build or Publish chrome
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(getVirtual).toHaveBeenCalledWith("Corporate");
   });
 
@@ -363,6 +367,7 @@ describe("VirtualSiteSourcePanel", () => {
       expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     });
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
   it("client-validates before build when root is empty", async () => {
@@ -431,5 +436,83 @@ describe("VirtualSiteSourcePanel", () => {
       );
     });
     expect(window.open).not.toHaveBeenCalled();
+  });
+
+  it("shows Publish chrome for virtual sites and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "C:/inetpub/wwwroot/help",
+      filesCopied: 18,
+      pagesWritten: 12,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("18");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "inetpub",
+    );
+  });
+
+  it("surfaces publish API errors", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      virtual: true,
+    });
+    publishVirtual.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Site is not configured as a Virtual Site" },
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-publish-error").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_ERROR,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-error").textContent).toContain(
+      "not configured",
+    );
+    expect(screen.queryByTestId("developer-site-virtual-publish-result")).toBeNull();
+  });
+
+  it("client-validates before publish when root is empty", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(publishVirtual).not.toHaveBeenCalled();
   });
 });

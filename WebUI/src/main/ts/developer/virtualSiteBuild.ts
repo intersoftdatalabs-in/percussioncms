@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-import type { VirtualSiteBuildResult } from "../api/developer/types";
+import type {
+  VirtualSiteBuildResult,
+  VirtualSitePublishResult,
+} from "../api/developer/types";
 
 /**
  * True when the Build Virtual Site control should be shown.
@@ -26,6 +29,16 @@ export function shouldShowVirtualBuildChrome(
 ): boolean {
   const v = (sourceKind ?? "").trim().toLowerCase();
   return v.length > 0 && v !== "repository";
+}
+
+/**
+ * True when the Publish Virtual Site control should be shown.
+ * Repository / blank source kinds must not display publish chrome.
+ */
+export function shouldShowVirtualPublishChrome(
+  sourceKind: string | null | undefined,
+): boolean {
+  return shouldShowVirtualBuildChrome(sourceKind);
 }
 
 /**
@@ -90,6 +103,50 @@ export function formatVirtualSiteBuildSummary(result: VirtualSiteBuildResult): {
     outputLine: output,
     linkLine,
     hasLinkProblems,
+    linkProblems,
+  };
+}
+
+/**
+ * Operator-facing success summary from a publish result DTO.
+ * Highlights files copied and the Site filesystem destination path.
+ */
+export function formatVirtualSitePublishSummary(result: VirtualSitePublishResult): {
+  filesLine: string;
+  destLine: string | null;
+  pagesLine: string;
+  hasLinkProblems: boolean;
+  linkLine: string | null;
+  linkProblems: string[];
+} {
+  const files =
+    typeof result.filesCopied === "number" && Number.isFinite(result.filesCopied)
+      ? result.filesCopied
+      : 0;
+  const pages =
+    typeof result.pagesWritten === "number" && Number.isFinite(result.pagesWritten)
+      ? result.pagesWritten
+      : 0;
+  const dest =
+    typeof result.publishPath === "string" && result.publishPath.trim()
+      ? result.publishPath.trim()
+      : null;
+
+  const linkProblems = normalizeVirtualSiteLinkProblems(result);
+  const linkCount =
+    typeof result.linkProblemCount === "number" && Number.isFinite(result.linkProblemCount)
+      ? result.linkProblemCount
+      : 0;
+  const hasLinkProblems =
+    result.hasLinkProblems === true || linkCount > 0 || linkProblems.length > 0;
+  const resolvedCount = linkCount > 0 ? linkCount : linkProblems.length;
+
+  return {
+    filesLine: String(files),
+    destLine: dest,
+    pagesLine: String(pages),
+    hasLinkProblems,
+    linkLine: hasLinkProblems ? String(resolvedCount) : null,
     linkProblems,
   };
 }

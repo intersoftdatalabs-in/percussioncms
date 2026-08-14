@@ -20,10 +20,14 @@ import {
   buildVirtualSite,
   getVirtualSitePreviewStatus,
   getVirtualSiteProperties,
+  publishVirtualSite,
   updateVirtualSiteProperties,
   virtualSitePreviewContentHref,
 } from "../api/developer/sitesApi";
-import type { VirtualSiteBuildResult } from "../api/developer/types";
+import type {
+  VirtualSiteBuildResult,
+  VirtualSitePublishResult,
+} from "../api/developer/types";
 import {
   catalogColors,
   errorAlert,
@@ -35,8 +39,10 @@ import { DEV_MSG } from "./messages";
 import { copyTextToClipboard } from "./templateSourceViewer";
 import {
   formatVirtualSiteBuildSummary,
+  formatVirtualSitePublishSummary,
   sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
+  shouldShowVirtualPublishChrome,
 } from "./virtualSiteBuild";
 import {
   SOURCE_KIND_GIT_FILESYSTEM,
@@ -133,7 +139,8 @@ function validationMessage(
 /**
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
- * build ({@code POST …/virtual/build}) when source kind is Virtual.
+ * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
+ * when source kind is Virtual.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -144,6 +151,7 @@ export function VirtualSiteSourcePanel({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [building, setBuilding] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   /** Load-time failure (hides form; retry reloads). */
   const [loadError, setLoadError] = useState<string | null>(null);
   /** Save / client validation failure (keeps form mounted). */
@@ -152,6 +160,10 @@ export function VirtualSiteSourcePanel({
   const [isVirtual, setIsVirtual] = useState(false);
   const [buildError, setBuildError] = useState<string | null>(null);
   const [buildResult, setBuildResult] = useState<VirtualSiteBuildResult | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishResult, setPublishResult] = useState<VirtualSitePublishResult | null>(
+    null,
+  );
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [linkCopyNotice, setLinkCopyNotice] = useState<string | null>(null);
@@ -169,6 +181,8 @@ export function VirtualSiteSourcePanel({
     setSavedNotice(null);
     setBuildError(null);
     setBuildResult(null);
+    setPublishError(null);
+    setPublishResult(null);
     setPreviewError(null);
     setLinkCopyNotice(null);
     getVirtualSiteProperties(siteName)
@@ -253,6 +267,30 @@ export function VirtualSiteSourcePanel({
     }
   }
 
+  async function onPublish(): Promise<void> {
+    // Publish uses *saved* server properties — validate form only as a soft gate.
+    const clientErr = validateVirtualSiteForm(form);
+    if (clientErr) {
+      setPublishError(validationMessage(clientErr));
+      setPublishResult(null);
+      return;
+    }
+    setPublishing(true);
+    setPublishError(null);
+    setPublishResult(null);
+    setBuildError(null);
+    setPreviewError(null);
+    setFormError(null);
+    try {
+      const result = await publishVirtualSite(siteName);
+      setPublishResult(result);
+    } catch (e: unknown) {
+      setPublishError(panelErrMsg(e, DEV_MSG.SITE_VIRT_PUBLISH_ERROR));
+    } finally {
+      setPublishing(false);
+    }
+  }
+
   async function onPreview(): Promise<void> {
     setPreviewBusy(true);
     setPreviewError(null);
@@ -287,10 +325,14 @@ export function VirtualSiteSourcePanel({
   }
 
   const virtualMode = isVirtualSourceKind(form.sourceKind);
-  /** Build chrome only for virtual source kinds (never for repository). */
+  /** Build/publish chrome only for virtual source kinds (never for repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  const busy = saving || building;
+  const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
+  const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
+  const publishSummary = publishResult
+    ? formatVirtualSitePublishSummary(publishResult)
+    : null;
 
   return (
     <section
@@ -463,6 +505,17 @@ export function VirtualSiteSourcePanel({
                 >
                   {DEV_MSG.SITE_VIRT_PREVIEW}
                 </button>
+                {showPublishChrome ? (
+                  <button
+                    type="button"
+                    data-testid="developer-site-virtual-publish"
+                    style={busy ? disabledSecondaryButton : secondaryButton}
+                    disabled={busy}
+                    onClick={() => void onPublish()}
+                  >
+                    {publishing ? DEV_MSG.SITE_VIRT_PUBLISHING : DEV_MSG.SITE_VIRT_PUBLISH}
+                  </button>
+                ) : null}
               </div>
               <p
                 style={{ ...mutedHintText, margin: "8px 0 0" }}
@@ -470,6 +523,22 @@ export function VirtualSiteSourcePanel({
               >
                 {DEV_MSG.SITE_VIRT_PREVIEW_HINT}
               </p>
+              {showPublishChrome ? (
+                <>
+                  <p
+                    style={{ ...mutedHintText, margin: "8px 0 0" }}
+                    data-testid="developer-site-virtual-publish-hint"
+                  >
+                    {DEV_MSG.SITE_VIRT_PUBLISH_HINT}
+                  </p>
+                  <p
+                    style={{ ...mutedHintText, margin: "8px 0 0" }}
+                    data-testid="developer-site-virtual-publish-save-first"
+                  >
+                    {DEV_MSG.SITE_VIRT_PUBLISH_SAVE_FIRST}
+                  </p>
+                </>
+              ) : null}
 
               {building ? (
                 <div data-testid="developer-site-virtual-build-busy" style={{ ...mutedText, marginTop: "10px" }}>
@@ -587,6 +656,44 @@ export function VirtualSiteSourcePanel({
                           </ul>
                         </details>
                       ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {showPublishChrome && publishing ? (
+                <div data-testid="developer-site-virtual-publish-busy" style={{ ...mutedText, marginTop: "10px" }}>
+                  {DEV_MSG.SITE_VIRT_PUBLISHING}
+                </div>
+              ) : null}
+
+              {showPublishChrome && publishError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-site-virtual-publish-error"
+                  style={{ ...errorAlert, marginTop: "10px" }}
+                >
+                  {publishError}
+                </div>
+              ) : null}
+
+              {showPublishChrome && publishResult && publishSummary ? (
+                <div data-testid="developer-site-virtual-publish-result" style={buildResultBox}>
+                  <div data-testid="developer-site-virtual-publish-success" style={successNotice}>
+                    {DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS}
+                  </div>
+                  <div style={{ marginTop: "6px" }}>
+                    <span>{DEV_MSG.SITE_VIRT_PUBLISH_FILES}: </span>
+                    <span data-testid="developer-site-virtual-publish-files" style={buildResultMono}>
+                      {publishSummary.filesLine}
+                    </span>
+                  </div>
+                  {publishSummary.destLine ? (
+                    <div style={{ marginTop: "4px" }}>
+                      <span>{DEV_MSG.SITE_VIRT_PUBLISH_DEST}: </span>
+                      <span data-testid="developer-site-virtual-publish-dest" style={buildResultMono}>
+                        {publishSummary.destLine}
+                      </span>
                     </div>
                   ) : null}
                 </div>

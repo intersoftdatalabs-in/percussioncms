@@ -12,6 +12,7 @@ import type {
   VirtualSiteBuildResult,
   VirtualSitePreviewStatus,
   VirtualSiteProperties,
+  VirtualSitePublishResult,
 } from "./types";
 
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
@@ -317,6 +318,44 @@ export async function getVirtualSitePreviewStatus(
  * Browser URL for the assembled preview file stream (same-origin cookies).
  * {@code homePath} must be a relative path such as {@code 8.2/index.html}.
  */
+/**
+ * Normalize Virtual Site publish result (Jackson root wrap or plain DTO).
+ */
+export function parseVirtualSitePublishResult(payload: unknown): VirtualSitePublishResult {
+  if (payload == null || typeof payload !== "object") {
+    return {};
+  }
+  const obj = payload as Record<string, unknown>;
+  const root =
+    (obj.VirtualSitePublishResult as Record<string, unknown> | undefined) ??
+    (obj.virtualSitePublishResult as Record<string, unknown> | undefined) ??
+    obj;
+  return {
+    siteName: asNullableString(root.siteName),
+    siteKey: asNullableString(root.siteKey),
+    publishPath: asNullableString(root.publishPath),
+    buildOutputPath: asNullableString(root.buildOutputPath),
+    pagesWritten: asNullableNumber(root.pagesWritten),
+    filesCopied: asNullableNumber(root.filesCopied),
+    linkProblemCount: asNullableNumber(root.linkProblemCount),
+    hasLinkProblems:
+      typeof root.hasLinkProblems === "boolean" ? root.hasLinkProblems : undefined,
+    linkProblems: asStringArray(root.linkProblems),
+  };
+}
+
+/**
+ * POST /services/sites/{nameOrId}/virtual/publish
+ *
+ * <p>Admin-only. Builds the saved Virtual Site then copies assembled files to
+ * the Site filesystem publish root. Traditional repository Sites return 4xx.
+ */
+export async function publishVirtualSite(nameOrId: string): Promise<VirtualSitePublishResult> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await post<unknown>(`${PATHS.SITES}/${key}/virtual/publish`, {});
+  return parseVirtualSitePublishResult(payload);
+}
+
 export function virtualSitePreviewContentHref(nameOrId: string, homePath: string): string {
   const key = encodeURIComponent(nameOrId.trim());
   const rel = homePath

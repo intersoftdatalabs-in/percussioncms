@@ -18,9 +18,10 @@
  * Developer Sites → Virtual Site source panel (#2956 / #3020 / #3300 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
- * with source-kind control (repository default), save chrome, and Build Virtual
- * Site chrome only when source kind is virtual (never for repository).
- * Also intercepts build REST to prove link-problem detail lines render on HTTP 200.
+ * with source-kind control (repository default), save chrome, and Build / Publish
+ * Virtual Site chrome only when source kind is virtual (never for repository).
+ * Also intercepts build REST to prove link-problem detail lines render on HTTP 200
+ * and publish REST to prove dest path + files copied on HTTP 200.
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -124,9 +125,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
         await expect(
           page.locator('[data-testid="developer-site-virtual-build-section"]'),
         ).toHaveCount(0);
+        await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
       }
 
-      // Switch to git-filesystem reveals root path + Build control
+      // Switch to git-filesystem reveals root path + Build / Publish controls
       await kind.selectOption("git-filesystem");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
@@ -134,6 +136,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build-hint"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-publish-hint"]')).toBeVisible();
 
       // Preview without a last build: in-panel empty/error (no 500 / no crash)
       await page.locator('[data-testid="developer-site-virtual-preview"]').click();
@@ -157,9 +161,22 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       );
       await expect(buildChrome.first()).toBeVisible({ timeout: 20_000 });
 
+      // Publish without a saved virtual source / Site root: error or success chrome
+      // (H2 QA rarely has a saved virtual source; do not require live publish success)
+      await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+      const publishChrome = page.locator(
+        [
+          '[data-testid="developer-site-virtual-publish-error"]',
+          '[data-testid="developer-site-virtual-publish-result"]',
+          '[data-testid="developer-site-virtual-publish-busy"]',
+        ].join(", "),
+      );
+      await expect(publishChrome.first()).toBeVisible({ timeout: 20_000 });
+
       // Restore repository to avoid leaving QA site dirty when save is not exercised
       await kind.selectOption("repository");
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
     }
 
     const jsErrors = page.__virtPageErrors || [];
@@ -299,6 +316,132 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(
       page.locator('[data-testid="developer-site-virtual-build-link-line"]').nth(0),
     ).toHaveText("broken id:missing-page from 8.2/index.md");
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("publish result shows files copied and dest path on HTTP 200", async ({ page }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/publish", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          siteKey: "product-docs",
+          publishPath: "C:/inetpub/wwwroot/help",
+          buildOutputPath: "C:/tmp/virtual-sites/product-docs",
+          pagesWritten: 5,
+          filesCopied: 11,
+          linkProblemCount: 0,
+          hasLinkProblems: false,
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/publish") || url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "git-filesystem",
+          rootPath: "C:/docs",
+          configFile: "_config.yaml",
+          siteKey: "product-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — Virtual Site publish result requires a site row",
+      });
+      return;
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-files"]')).toHaveText(
+      "11",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-dest"]')).toContainText(
+      "inetpub",
+    );
     expect(consoleErrors).toEqual([]);
   });
 

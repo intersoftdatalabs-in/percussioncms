@@ -772,3 +772,23 @@ export interface VirtualSitePreviewStatus {
   message?: string | null;
 }
 
+/**
+ * Outcome of {@code POST /services/sites/{nameOrId}/virtual/publish}:
+ * build-then-copy to the Site filesystem publish root.
+ *
+ * <p>HTTP 200 may still report link problems via {@code hasLinkProblems}.
+ */
+export interface VirtualSitePublishResult {
+  siteName?: string | null;
+  siteKey?: string | null;
+  /** Absolute filesystem path of the Site publishing location. */
+  publishPath?: string | null;
+  /** Absolute filesystem path of the staging build output. */
+  buildOutputPath?: string | null;
+  pagesWritten?: number | null;
+  filesCopied?: number | null;
+  linkProblemCount?: number | null;
+  hasLinkProblems?: boolean | null;
+  linkProblems?: string[] | null;
+}
+

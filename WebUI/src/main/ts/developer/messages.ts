@@ -787,6 +787,16 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
+  SITE_VIRT_PUBLISH: "perc.ui.developer@Publish Virtual Site",
+  SITE_VIRT_PUBLISHING: "perc.ui.developer@Publishing Virtual Site...",
+  SITE_VIRT_PUBLISH_HINT:
+    "perc.ui.developer@Builds this Virtual Site using saved source properties, then copies assembled files to the Site filesystem publish location. Requires Admin. Traditional repository Sites do not show this control.",
+  SITE_VIRT_PUBLISH_SAVE_FIRST:
+    "perc.ui.developer@Save Virtual Site source before publishing so the server uses the latest properties. The Site publishing filesystem root must be configured.",
+  SITE_VIRT_PUBLISH_ERROR: "perc.ui.developer@Could not publish Virtual Site.",
+  SITE_VIRT_PUBLISH_SUCCESS: "perc.ui.developer@Virtual Site published.",
+  SITE_VIRT_PUBLISH_FILES: "perc.ui.developer@Files copied",
+  SITE_VIRT_PUBLISH_DEST: "perc.ui.developer@Destination path",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

@@ -11,6 +11,8 @@ import {
   parseVirtualSiteBuildResult,
   parseVirtualSitePreviewStatus,
   parseVirtualSiteProperties,
+  parseVirtualSitePublishResult,
+  publishVirtualSite,
   toVirtualSitePropertiesEnvelope,
   updateVirtualSiteProperties,
   virtualSitePreviewContentHref,
@@ -209,5 +211,57 @@ describe("sitesApi virtual properties", () => {
     const href = virtualSitePreviewContentHref("Help Docs", "8.2/index.html");
     expect(href).toMatch(/\/sites\/Help%20Docs\/virtual\/preview\/8.2\/index.html$/);
     expect(virtualSitePreviewContentHref("Help", "../secret")).not.toContain("..");
+  });
+
+  it("parseVirtualSitePublishResult handles plain and wrapped payloads", () => {
+    expect(
+      parseVirtualSitePublishResult({
+        siteName: "Help",
+        filesCopied: 12,
+        publishPath: "C:/inetpub/wwwroot/help",
+        hasLinkProblems: false,
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        siteName: "Help",
+        filesCopied: 12,
+        publishPath: "C:/inetpub/wwwroot/help",
+        hasLinkProblems: false,
+      }),
+    );
+    expect(
+      parseVirtualSitePublishResult({
+        VirtualSitePublishResult: {
+          publishPath: "C:/sites/help",
+          filesCopied: 4,
+          pagesWritten: 3,
+          buildOutputPath: "C:/tmp/virtual-sites/help",
+        },
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        publishPath: "C:/sites/help",
+        filesCopied: 4,
+        pagesWritten: 3,
+        buildOutputPath: "C:/tmp/virtual-sites/help",
+      }),
+    );
+    expect(parseVirtualSitePublishResult(null)).toEqual({});
+  });
+
+  it("publishVirtualSite POSTs /virtual/publish and parses result", async () => {
+    post.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "C:/sites/help",
+      filesCopied: 9,
+      pagesWritten: 7,
+    });
+    const out = await publishVirtualSite("Help Docs");
+    expect(post).toHaveBeenCalledWith(
+      expect.stringMatching(/\/sites\/Help%20Docs\/virtual\/publish$/),
+      {},
+    );
+    expect(out.filesCopied).toBe(9);
+    expect(out.publishPath).toContain("sites/help");
   });
 });
