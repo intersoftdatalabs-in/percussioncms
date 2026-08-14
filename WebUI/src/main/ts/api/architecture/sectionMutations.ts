@@ -172,6 +172,141 @@ export function canMoveNavNodeDown(
 }
 
 /**
+ * Whether the selected node may be reparented via the Move Section picker.
+ * Root cannot be moved; any other navon (section, link, blog) can.
+ */
+export function canMoveNavNode(
+  root: NavTreeNode | null | undefined,
+  node: NavTreeNode | null,
+): boolean {
+  if (!root || !node) return false;
+  return !isRootNavNode(root, node.id);
+}
+
+/**
+ * True when {@code maybeDescendantId} is {@code ancestorId} or a descendant
+ * of that node (depth-first).
+ */
+export function isNavNodeInSubtree(
+  root: NavTreeNode | null | undefined,
+  ancestorId: string,
+  maybeDescendantId: string,
+): boolean {
+  const ancestor = findNavNodeById(root, ancestorId);
+  if (!ancestor || !maybeDescendantId) return false;
+  return findNavNodeById(ancestor, maybeDescendantId) != null;
+}
+
+/**
+ * Drop {@code excludeId} and its descendants from a tree copy (picker filter).
+ */
+export function omitNavSubtree(
+  root: NavTreeNode | null,
+  excludeId: string | null | undefined,
+): NavTreeNode | null {
+  const skip = excludeId != null ? excludeId.trim() : "";
+  if (!root || !skip) return root;
+  if (root.id === skip) return null;
+  const children: NavTreeNode[] = [];
+  for (const child of root.children) {
+    const kept = omitNavSubtree(child, skip);
+    if (kept) {
+      children.push(kept);
+    }
+  }
+  return { ...root, children };
+}
+
+/**
+ * Whether {@code targetParentId} may receive {@code sourceId} as a child.
+ * Rejects missing ids, moving the root, self-parent, descendants of the
+ * source (cycle), and non-section parents (links cannot host children).
+ */
+export function isValidMoveTargetParent(
+  root: NavTreeNode | null | undefined,
+  sourceId: string,
+  targetParentId: string,
+): boolean {
+  const source = sourceId.trim();
+  const target = targetParentId.trim();
+  if (!root || !source || !target) return false;
+  if (source === target) return false;
+  if (isRootNavNode(root, source)) return false;
+  const sourceNode = findNavNodeById(root, source);
+  const targetNode = findNavNodeById(root, target);
+  if (!sourceNode || !targetNode) return false;
+  if (!canCreateChildUnder(targetNode)) return false;
+  if (findNavNodeById(sourceNode, target)) return false;
+  return true;
+}
+
+/**
+ * Sibling insert slots under {@code target} (excluding the moving node).
+ * {@code targetIndex} {@code -1} means append (CM1 {@code POST /section/move}).
+ */
+export function listMoveTargetPositions(
+  target: NavTreeNode | null,
+  sourceId: string,
+): { targetIndex: number; beforeId: string | null; beforeTitle: string | null }[] {
+  const source = sourceId.trim();
+  if (!target) {
+    return [{ targetIndex: -1, beforeId: null, beforeTitle: null }];
+  }
+  const slots: {
+    targetIndex: number;
+    beforeId: string | null;
+    beforeTitle: string | null;
+  }[] = [];
+  target.children.forEach((child, index) => {
+    if (child.id === source) return;
+    slots.push({
+      targetIndex: index,
+      beforeId: child.id,
+      beforeTitle: child.title,
+    });
+  });
+  slots.push({ targetIndex: -1, beforeId: null, beforeTitle: null });
+  return slots;
+}
+
+/**
+ * Build move payload for reparent (or same-parent insert) via the picker.
+ * {@code targetIndex} {@code -1} appends under the target (CM1 parity).
+ * Same-parent inserts after the source apply the CM1 index adjustment.
+ */
+export function buildReparentMove(
+  root: NavTreeNode | null | undefined,
+  sourceId: string,
+  targetParentId: string,
+  targetIndex: number = -1,
+): MoveSiteSectionFields | null {
+  const source = sourceId.trim();
+  const target = targetParentId.trim();
+  if (!isValidMoveTargetParent(root, source, target)) {
+    return null;
+  }
+  const place = findSiblingPlacement(root, source);
+  if (!place) return null;
+  if (
+    typeof targetIndex !== "number" ||
+    Number.isNaN(targetIndex) ||
+    targetIndex < -1
+  ) {
+    return null;
+  }
+  let index = targetIndex;
+  if (place.parent.id === target && targetIndex >= 0 && place.index < targetIndex) {
+    index = targetIndex - 1;
+  }
+  return {
+    sourceId: source,
+    targetId: target,
+    sourceParentId: place.parent.id,
+    targetIndex: index,
+  };
+}
+
+/**
  * Parent folder path for creating a child under {@code parent}.
  * Prefers the parent's {@code folderPath}; falls back to {@code //Sites/{site}}.
  */
@@ -360,6 +495,113 @@ export function canReplaceLandingPage(node: NavTreeNode | null): boolean {
   if (!node) return false;
   const t = String(node.sectionType || "section").toLowerCase();
   return t === "section";
+}
+
+/**
+ * Regular section (including site root) may open the section-properties editor.
+ * Section links, external links, and blogs use other editors.
+ */
+export function canEditSectionProperties(node: NavTreeNode | null): boolean {
+  return canReplaceLandingPage(node);
+}
+
+/** Form fields for the section-properties dialog (CM1 configure parity). */
+export interface SectionPropertiesFormValues {
+  title: string;
+  folderName: string;
+  target: string;
+  cssClassNames: string;
+  requiresLogin: boolean;
+  allowAccessTo: string;
+}
+
+/**
+ * Login checkbox is editable only on a secure site when no ancestor already
+ * requires login (CM1 {@code perc_editSectionDialog} rule).
+ */
+export function canToggleRequiresLogin(
+  props: Pick<
+    SiteSectionPropertiesWire,
+    "secureSite" | "secureAncestor"
+  > | null,
+): boolean {
+  if (!props) return false;
+  return Boolean(props.secureSite) && !props.secureAncestor;
+}
+
+/** CSS class tokens: letters, digits, hyphen, underscore, spaces. Max 255. */
+const CSS_CLASS_NAMES_RE = /^[A-Za-z0-9_\- ]*$/;
+
+/**
+ * Validate nav-widget CSS class names (legacy edit-section dialog).
+ */
+export function validateCssClassNames(value: string): string | null {
+  const t = value.replace(/ +/g, " ").trim();
+  if (t.length > 255) {
+    return message(
+      "perc.ui.architecture.modern@CSS classes are too long (max 255 characters)",
+    );
+  }
+  if (t && !CSS_CLASS_NAMES_RE.test(t)) {
+    return message(
+      "perc.ui.architecture.modern@CSS classes may only contain letters, numbers, dash, underscore, and spaces",
+    );
+  }
+  return null;
+}
+
+/**
+ * Validate the section-properties form before POST.
+ * Returns the first error or {@code null} when valid.
+ */
+export function validateSectionPropertiesForm(
+  form: SectionPropertiesFormValues,
+  options?: { folderNameLocked?: boolean },
+): string | null {
+  const titleErr = validateSectionTitle(form.title);
+  if (titleErr) return titleErr;
+  if (!options?.folderNameLocked) {
+    const folderErr = validateSectionFolderName(form.folderName);
+    if (folderErr) return folderErr;
+  }
+  return validateCssClassNames(form.cssClassNames);
+}
+
+/**
+ * Merge operator-edited form fields onto loaded properties.
+ * Preserves {@code folderPermission} and security flags. Root folder name
+ * is not rewritten (site folder). Login/groups follow CM1 enablement.
+ */
+export function applySectionPropertiesForm(
+  props: SiteSectionPropertiesWire,
+  form: SectionPropertiesFormValues,
+): SiteSectionPropertiesWire {
+  const folderNameLocked = Boolean(props.siteRootSection);
+  const folderName = folderNameLocked
+    ? props.folderName
+    : form.folderName.trim();
+  const loginEditable = canToggleRequiresLogin(props);
+  const requiresLogin = loginEditable
+    ? Boolean(form.requiresLogin)
+    : Boolean(props.requiresLogin);
+  let allowAccessTo: string | null;
+  if (!requiresLogin) {
+    allowAccessTo = "";
+  } else if (loginEditable) {
+    allowAccessTo = form.allowAccessTo.trim();
+  } else {
+    allowAccessTo = props.allowAccessTo != null ? String(props.allowAccessTo) : "";
+  }
+  const css = form.cssClassNames.replace(/ +/g, " ").trim();
+  return {
+    ...props,
+    title: form.title.trim(),
+    folderName,
+    target: form.target?.trim() || "_self",
+    cssClassNames: css.length > 0 ? css : "",
+    requiresLogin,
+    allowAccessTo,
+  };
 }
 
 /**

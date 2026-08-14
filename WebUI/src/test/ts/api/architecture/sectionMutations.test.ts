@@ -17,21 +17,27 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  applySectionPropertiesForm,
   applyTitleToProperties,
   buildCreateSectionFromFolderBody,
   buildCreateSiteSectionBody,
   buildMoveSiteSectionBody,
+  buildReparentMove,
   buildSiblingReorderMove,
   buildUpdateSiteSectionBody,
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
+  canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
   findNavNodeById,
   findSiblingPlacement,
   isRootNavNode,
   isSectionLinkType,
+  isValidMoveTargetParent,
+  listMoveTargetPositions,
+  omitNavSubtree,
   parseSiteSectionPropertiesPayload,
   resolveCreateParentFolderPath,
   splitCmsPagePath,
@@ -193,6 +199,43 @@ describe("sectionMutations (#3096)", () => {
     expect(buildSiblingReorderMove(sampleTree, "a", "up")).toBeNull();
   });
 
+  it("validates move-section targets and builds reparent payload (#3349)", () => {
+    expect(canMoveNavNode(sampleTree, findNavNodeById(sampleTree, "a"))).toBe(
+      true,
+    );
+    expect(canMoveNavNode(sampleTree, sampleTree)).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "a", "b")).toBe(true);
+    expect(isValidMoveTargetParent(sampleTree, "a", "a")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "b", "b1")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "a", "c")).toBe(false);
+    expect(isValidMoveTargetParent(sampleTree, "root", "b")).toBe(false);
+
+    const omitted = omitNavSubtree(sampleTree, "b");
+    expect(omitted?.children.map((n) => n.id)).toEqual(["a", "c"]);
+    expect(findNavNodeById(omitted, "b1")).toBeNull();
+
+    const positions = listMoveTargetPositions(
+      findNavNodeById(sampleTree, "root"),
+      "a",
+    );
+    expect(positions[0]).toEqual({
+      targetIndex: 1,
+      beforeId: "b",
+      beforeTitle: "News",
+    });
+    expect(positions[positions.length - 1].targetIndex).toBe(-1);
+
+    const reparent = buildReparentMove(sampleTree, "a", "b", -1);
+    expect(reparent).toEqual({
+      sourceId: "a",
+      targetId: "b",
+      sourceParentId: "root",
+      targetIndex: -1,
+    });
+    expect(buildReparentMove(sampleTree, "b", "b1", 0)).toBeNull();
+    expect(buildReparentMove(sampleTree, "a", "c", 0)).toBeNull();
+  });
+
   it("resolves parent folder path and applies title", () => {
     const parent = node("p", "Parent", [], {
       folderPath: "/Sites/Demo/Parent",
@@ -208,6 +251,69 @@ describe("sectionMutations (#3096)", () => {
     );
     expect(props.title).toBe("New Title");
     expect(props.folderName).toBe("old");
+  });
+
+  it("applies section properties form without dropping folder ACL", () => {
+    const next = applySectionPropertiesForm(
+      {
+        id: "g1",
+        title: "Old",
+        folderName: "old",
+        target: "_self",
+        cssClassNames: "",
+        requiresLogin: false,
+        allowAccessTo: "",
+        secureSite: true,
+        secureAncestor: false,
+        siteRootSection: false,
+        folderPermission: { accessLevel: "WRITE", writePrincipals: ["a"] },
+      },
+      {
+        title: " About ",
+        folderName: " about ",
+        target: "_blank",
+        cssClassNames: "  nav-about   featured  ",
+        requiresLogin: true,
+        allowAccessTo: " Editors ",
+      },
+    );
+    expect(next.title).toBe("About");
+    expect(next.folderName).toBe("about");
+    expect(next.target).toBe("_blank");
+    expect(next.cssClassNames).toBe("nav-about featured");
+    expect(next.requiresLogin).toBe(true);
+    expect(next.allowAccessTo).toBe("Editors");
+    expect(next.folderPermission).toEqual({
+      accessLevel: "WRITE",
+      writePrincipals: ["a"],
+    });
+  });
+
+  it("does not rewrite root folder name or inherited login", () => {
+    const next = applySectionPropertiesForm(
+      {
+        id: "root",
+        title: "Home",
+        folderName: "Demo",
+        siteRootSection: true,
+        secureSite: true,
+        secureAncestor: true,
+        requiresLogin: true,
+        allowAccessTo: "Members",
+      },
+      {
+        title: "Home Page",
+        folderName: "hacked",
+        target: "_self",
+        cssClassNames: "",
+        requiresLogin: false,
+        allowAccessTo: "x",
+      },
+    );
+    expect(next.folderName).toBe("Demo");
+    expect(next.requiresLogin).toBe(true);
+    expect(next.allowAccessTo).toBe("Members");
+    expect(next.title).toBe("Home Page");
   });
 
   it("parses properties payload and detects section links", () => {

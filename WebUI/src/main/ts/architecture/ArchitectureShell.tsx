@@ -43,10 +43,14 @@ import {
 import {
   applyTitleToProperties,
   buildSiblingReorderMove,
+  applySectionPropertiesForm,
+  buildReparentMove,
   canConvertSectionToFolder,
   canCreateChildUnder,
   canDeleteNavNode,
   canEditLinkNode,
+  canEditSectionProperties,
+  canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
   canReplaceLandingPage,
@@ -56,7 +60,11 @@ import {
   isSectionLinkType,
   resolveCreateParentFolderPath,
 } from "../api/architecture/sectionMutations";
-import type { NavTreeNode } from "../api/architecture/types";
+import type { SectionPropertiesFormValues } from "../api/architecture/sectionMutations";
+import type {
+  NavTreeNode,
+  SiteSectionPropertiesWire,
+} from "../api/architecture/types";
 import {
   copyManagedSite,
   deleteManagedSite,
@@ -73,9 +81,11 @@ import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
 import { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
+import { MoveSectionDialog } from "./MoveSectionDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
 import { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
+import { SectionPropertiesDialog } from "./SectionPropertiesDialog";
 import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
@@ -158,7 +168,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [createFromFolderOpen, setCreateFromFolderOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
+  const [propertiesOpen, setPropertiesOpen] = useState(false);
+  const [propertiesLoading, setPropertiesLoading] = useState(false);
+  const [propertiesLoadError, setPropertiesLoadError] = useState<string | null>(
+    null,
+  );
+  const [propertiesInitial, setPropertiesInitial] =
+    useState<SiteSectionPropertiesWire | null>(null);
   const [landingOpen, setLandingOpen] = useState(false);
   const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
   const [sectionLinkMode, setSectionLinkMode] = useState<"create" | "edit">(
@@ -453,6 +471,10 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     String(selectedNode.sectionType || "section").toLowerCase() ===
       "section" &&
     !mutationBusy;
+  const canProperties =
+    canEditSectionProperties(selectedNode) && !mutationBusy;
+  const canMove =
+    canMoveNavNode(treeRoot, selectedNode) && !mutationBusy;
   const canMoveUp =
     !!selectedNodeId &&
     canMoveNavNodeUp(treeRoot, selectedNodeId) &&
@@ -520,6 +542,60 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     [selectedNode, runMutation],
   );
 
+  const propertiesLoadGen = useRef(0);
+
+  const openProperties = useCallback(() => {
+    if (!selectedNode || !canEditSectionProperties(selectedNode)) {
+      setMutationError(ARCH_MSG.MUTATION_ERROR);
+      return;
+    }
+    setMutationError(null);
+    setPropertiesLoadError(null);
+    setPropertiesInitial(null);
+    setPropertiesOpen(true);
+    setPropertiesLoading(true);
+    const nodeId = selectedNode.id;
+    const gen = ++propertiesLoadGen.current;
+    void (async () => {
+      try {
+        const props = await loadSectionProperties(nodeId);
+        if (gen !== propertiesLoadGen.current) return;
+        setPropertiesInitial(props);
+        setPropertiesLoading(false);
+      } catch (err) {
+        if (gen !== propertiesLoadGen.current) return;
+        if (isSessionRedirectError(err)) return;
+        setPropertiesLoading(false);
+        setPropertiesLoadError(
+          formatApiError(err, ARCH_MSG.PROPERTIES_LOAD_ERROR),
+        );
+      }
+    })();
+  }, [selectedNode]);
+
+  const closeProperties = useCallback(() => {
+    if (mutationBusy) return;
+    propertiesLoadGen.current += 1;
+    setPropertiesOpen(false);
+    setPropertiesLoading(false);
+    setPropertiesLoadError(null);
+    setPropertiesInitial(null);
+  }, [mutationBusy]);
+
+  const onPropertiesSubmit = useCallback(
+    (form: SectionPropertiesFormValues) => {
+      if (!selectedNode || !propertiesInitial) return;
+      void runMutation(async () => {
+        const next = applySectionPropertiesForm(propertiesInitial, form);
+        await updateSiteSection(next);
+        setPropertiesOpen(false);
+        setPropertiesInitial(null);
+        setPropertiesLoadError(null);
+      });
+    },
+    [selectedNode, propertiesInitial, runMutation],
+  );
+
   const onMove = useCallback(
     (direction: "up" | "down") => {
       if (!selectedNodeId || !treeRoot) return;
@@ -534,6 +610,27 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
       });
     },
     [selectedNodeId, treeRoot, runMutation],
+  );
+
+  const onMoveReparentSubmit = useCallback(
+    (targetParentId: string, targetIndex: number) => {
+      if (!selectedNode || !treeRoot) return;
+      const fields = buildReparentMove(
+        treeRoot,
+        selectedNode.id,
+        targetParentId,
+        targetIndex,
+      );
+      if (!fields) {
+        setMutationError(ARCH_MSG.MOVE_INVALID_TARGET);
+        return;
+      }
+      void runMutation(async () => {
+        await moveSiteSection(fields);
+        setMoveOpen(false);
+      });
+    },
+    [selectedNode, treeRoot, runMutation],
   );
 
   const onConvertToFolder = useCallback(() => {
@@ -1262,6 +1359,8 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             canLanding={canLanding}
             canEditLink={canEditLink}
             canRename={canRename}
+            canProperties={canProperties}
+            canMove={canMove}
             canMoveUp={canMoveUp}
             canMoveDown={canMoveDown}
             canDelete={canDelete}
@@ -1313,6 +1412,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             onRename={() => {
               setMutationError(null);
               setRenameOpen(true);
+            }}
+            onProperties={openProperties}
+            onMove={() => {
+              setMutationError(null);
+              if (!selectedNode || !canMoveNavNode(treeRoot, selectedNode)) {
+                setMutationError(ARCH_MSG.MOVE_ROOT_BLOCKED);
+                return;
+              }
+              setMoveOpen(true);
             }}
             onMoveUp={() => onMove("up")}
             onMoveDown={() => onMove("down")}
@@ -1400,6 +1508,17 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         }}
         onSubmit={onCreateFromFolderSubmit}
       />
+      <MoveSectionDialog
+        open={moveOpen}
+        sourceId={selectedNode?.id ?? ""}
+        sourceTitle={selectedNode?.title ?? ""}
+        treeRoot={treeRoot}
+        busy={mutationBusy}
+        onCancel={() => {
+          if (!mutationBusy) setMoveOpen(false);
+        }}
+        onSubmit={onMoveReparentSubmit}
+      />
       <RenameSectionDialog
         open={renameOpen}
         initialTitle={selectedNode?.title ?? ""}
@@ -1408,6 +1527,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
           if (!mutationBusy) setRenameOpen(false);
         }}
         onSubmit={onRenameSubmit}
+      />
+      <SectionPropertiesDialog
+        open={propertiesOpen}
+        busy={mutationBusy}
+        loading={propertiesLoading}
+        loadError={propertiesLoadError}
+        initial={propertiesInitial}
+        onCancel={closeProperties}
+        onSubmit={onPropertiesSubmit}
       />
       <ReplaceLandingPageDialog
         open={landingOpen}

@@ -109,10 +109,14 @@ Sections that require login show a **Secure** badge. The badge tooltip
 (**Requires login**) comes from the `perc.ui.architecture.modern` catalog
 (not a hard-coded-only string).
 
-Structure dialogs (create, create from folder, rename, landing page, section link, external link, the
+Structure dialogs (create, create from folder, rename, **section properties**, **Move section**, landing page, section link, external link, the
 section picker, **New Site**, and **Copy Site**) are modal (`role="dialog"`, `aria-modal`). **Escape**
-closes the open dialog when a mutation is not in progress. Closing **New Site** or
-**Copy Site** returns keyboard focus to the matching toolbar button. Primary
+closes the open dialog when a mutation is not in progress. Closing a structure
+dialog, **New Site**, or **Copy Site** returns keyboard focus to the control that
+opened it. **Create section**, **Create section from folder**, **Create section
+link**, and **Create external link** are enabled when the selected site has a
+navigation tree and a regular section (or the tree root) can be the parent —
+including when the root is used because nothing is selected yet. Primary
 structure actions live in a toolbar with an accessible name (**Structure actions**).
 
 Chrome strings (shell, tree states, actions, dialogs, validation) use the
@@ -132,13 +136,49 @@ With a site selected, use the structure action bar above the tree:
 | **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
-| **Move up / Move down** | Reorders the selected section among its siblings under the same parent. |
+| **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. |
+| **Move section** | Opens a target-parent picker for the selected **non-root** section. Choose a regular section (not the section you are moving or one of its children) as the new parent, optionally a position among that parent's children, then **Move**. The shell posts `POST /sitemanage/section/move` and **refreshes the tree**. **Cancel** (or Escape) does not post. An invalid parent shows a clear message in the dialog — it does not produce an error 500. |
+| **Move up / Move down** | Reorders the selected section among its siblings under the same parent (same move API, one step). |
 | **Convert to folder** | After confirmation, removes the selected regular (non-root) section and its sub-sections from Navigation. The folder and its pages stay in the site. |
 | **Delete** | Deletes the selected non-root section after confirmation. Section links use the section-link delete path. |
 
-Server errors from create, convert, create-from-folder, rename, move, delete, landing-page, or link mutations are
+Server errors from create, convert, create-from-folder, rename, properties, move, delete, landing-page, or link mutations are
 shown in the panel (no silent failure). The tree reloads after a successful mutation
 and keeps the previously selected section when it still exists.
+
+### Edit section properties
+
+1. Select a **regular section** (or the site root) in the Navigation tree. Section
+   links, external links, and blogs use other editors — **Properties** stays disabled.
+2. Choose **Properties**. The dialog loads the current values from
+   `GET /sitemanage/section/properties/{id}`.
+3. Change **Title** (required), **Folder name** (URL segment; locked on the site
+   root), **Target window** (same / new / top / parent), and **CSS classes**
+   (optional nav-widget class tokens).
+4. When the site is **secure** and no ancestor already requires login, check
+   **Requires login** and optionally list group names (comma-separated) in
+   **Allow access to**. Otherwise login is inherited or unavailable and those
+   fields stay read-only.
+5. Choose **Save**. The shell posts `POST /sitemanage/section/update` and
+   refreshes the tree. Folder ACL (`folderPermission`) from the load is sent
+   back unchanged.
+6. **Cancel** or **Escape** closes the dialog without posting.
+
+### Move or reorder a section
+
+1. Select a **non-root** section in the Navigation tree.
+2. Choose **Move section**. The picker lists the site tree with the selected
+   section (and its children) omitted so you cannot create a cycle.
+3. Select the **new parent** (a regular section or the site root) and confirm.
+   Optionally set **Position** among that parent's children, or leave **At the
+   end** (append).
+4. Choose **Move**. The tree reloads under the new parent / order.
+5. **Cancel** closes without calling the server.
+6. If the chosen parent is not valid (for example an external link), the dialog
+   shows a message and does not post.
+
+To change order only under the **same** parent, use **Move up** / **Move down**,
+or **Move section** and pick the current parent with a new position.
 
 ### Replace a section landing page
 
@@ -160,7 +200,7 @@ regular (non-root) sections — not blogs, section links, or external links.
 
 ### Still later
 
-Full section security / ACL preferences, blog type editor, and
+Folder ACL user-list editing (write principals), blog type editor, and
 retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 
 ## Current status (migration)
@@ -175,6 +215,8 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Delete Site (confirm + picker refresh) | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
+| Section properties (title / folder / target / CSS / login) | **Available** |
+| Move section (target-parent picker + optional position) | **Available** |
 | Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
 | Landing page picker + replace (`replaceLandingPage`) | **Available** |

@@ -108,6 +108,9 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
           page.getByTestId("architecture-action-rename"),
         ).toBeVisible();
         await expect(
+          page.getByTestId("architecture-action-move"),
+        ).toBeVisible();
+        await expect(
           page.getByTestId("architecture-action-move-up"),
         ).toBeVisible();
         await expect(
@@ -124,17 +127,83 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
           page.getByTestId("architecture-readonly-note"),
         ).toHaveCount(0);
 
-        // Create dialog open/close (no forced save against live site)
+        // #3350 / #3155: when a NavTree is present, Create section is enabled
+        // (root or selected regular section). Dialog is modal; Escape closes
+        // and returns focus to the opener. No forced save against the live site.
+        const treeItems = page.locator(
+          '[data-testid="architecture-nav-tree"] [role="treeitem"]',
+        );
+        const itemCount = await treeItems.count();
         const createBtn = page.getByTestId("architecture-action-create");
-        if (await createBtn.isEnabled().catch(() => false)) {
+        const extBtn = page.getByTestId(
+          "architecture-action-create-external-link",
+        );
+        const linkBtn = page.getByTestId(
+          "architecture-action-create-section-link",
+        );
+        if (itemCount > 0) {
+          await treeItems.first().click();
+          await expect(createBtn).toBeEnabled();
+          await expect(extBtn).toBeEnabled();
+          await expect(linkBtn).toBeEnabled();
+          await createBtn.click();
+          const createDialog = page.getByTestId("architecture-create-dialog");
+          await expect(createDialog).toBeVisible({ timeout: 10_000 });
+          await expect(createDialog.locator('[role="dialog"]')).toHaveAttribute(
+            "aria-modal",
+            "true",
+          );
+          await page.keyboard.press("Escape");
+          await expect(createDialog).toHaveCount(0);
+          await expect(createBtn).toBeFocused();
+
+          await extBtn.click();
+          const extDialog = page.getByTestId(
+            "architecture-external-link-dialog",
+          );
+          await expect(extDialog).toBeVisible({ timeout: 10_000 });
+          await expect(extDialog).toHaveAttribute("role", "dialog");
+          await page.keyboard.press("Escape");
+          await expect(extDialog).toHaveCount(0);
+          await expect(extBtn).toBeFocused();
+
+          await linkBtn.click();
+          const linkDialog = page.getByTestId(
+            "architecture-section-link-dialog",
+          );
+          await expect(linkDialog).toBeVisible({ timeout: 10_000 });
+          await expect(linkDialog).toHaveAttribute("role", "dialog");
+          await page.keyboard.press("Escape");
+          await expect(linkDialog).toHaveCount(0);
+          await expect(linkBtn).toBeFocused();
+
+          const renameBtn = page.getByTestId("architecture-action-rename");
+          await expect(renameBtn).toBeEnabled();
+          await renameBtn.click();
+          const renameDialog = page.getByTestId("architecture-rename-dialog");
+          await expect(renameDialog).toBeVisible({ timeout: 10_000 });
+          await expect(renameDialog.locator('[role="dialog"]')).toHaveAttribute(
+            "aria-modal",
+            "true",
+          );
+          await page.keyboard.press("Escape");
+          await expect(renameDialog).toHaveCount(0);
+          await expect(renameBtn).toBeFocused();
+        } else if (await createBtn.isEnabled().catch(() => false)) {
           await createBtn.click();
           await expect(
             page.getByTestId("architecture-create-dialog"),
           ).toBeVisible({ timeout: 10_000 });
-          await page.getByTestId("architecture-create-cancel").click();
+          await page.keyboard.press("Escape");
           await expect(
             page.getByTestId("architecture-create-dialog"),
           ).toHaveCount(0);
+        } else {
+          test.info().annotations.push({
+            type: "note",
+            description:
+              "No treeitems — Create stays disabled (empty NavTree). Dialog Escape covered by Vitest + cells with #3352 seed.",
+          });
         }
       }
     }
