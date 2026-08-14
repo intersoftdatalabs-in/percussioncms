@@ -104,7 +104,10 @@ failures show **Could not load sites** rather than the empty state.
    - **Config file** (optional) — simple file name under the root (default `_config.yaml`
      when unset). No path separators.
    - **Site key** (optional) — participant registry key; defaults to the Site name when blank.
-5. Choose **Save Virtual Site source**. Reload the Site detail to confirm values persisted.
+5. Choose **Save Virtual Site source**. The SPA sends the Jackson/JAXB envelope
+   `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…", … } }`
+   (not a bare `sourceKind` object). After a successful save the panel reloads
+   properties from GET so **Build Virtual Site** appears without a full page reload.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties).
 

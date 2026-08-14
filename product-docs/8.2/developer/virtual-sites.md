@@ -138,6 +138,24 @@ Operators can run the same operation from **Developer → Sites → Site detail 
 (visible only when source kind is Virtual). Save Virtual Site source before building so the server
 uses the latest properties.
 
+`PUT /sites/{nameOrId}/virtual` requires the wire root name **`VirtualSiteProperties`**:
+
+```json
+{
+  "VirtualSiteProperties": {
+    "sourceKind": "git-filesystem",
+    "rootPath": "C:/workspaces/product-docs",
+    "configFile": "_config.yaml",
+    "siteKey": "product-docs"
+  }
+}
+```
+
+A bare `{ "sourceKind": "git-filesystem", … }` body is rejected (**400**, JAXB unexpected
+element `sourceKind`). GET returns the same envelope (or a plain object the SPA unwraps).
+After save, the Developer Sites panel GET-roundtrips so `virtual=true` and Build chrome appear
+without reloading the page.
+
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
 assembled file stream). Missing output returns status `available=false` (HTTP 200) or file HTTP

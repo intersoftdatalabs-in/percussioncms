@@ -209,8 +209,17 @@ export function VirtualSiteSourcePanel({
     try {
       const body = formToVirtualProps(form);
       const saved = await updateVirtualSiteProperties(siteName, body);
-      setForm(virtualPropsToForm(saved));
-      setIsVirtual(saved.virtual === true || isVirtualSourceKind(saved.sourceKind));
+      // GET-roundtrip so virtual=true / sourceKind persist without a full page reload (#3365).
+      let confirmed = saved;
+      try {
+        confirmed = await getVirtualSiteProperties(siteName);
+      } catch {
+        // Persist already succeeded; keep PUT result.
+      }
+      setForm(virtualPropsToForm(confirmed));
+      setIsVirtual(
+        confirmed.virtual === true || isVirtualSourceKind(confirmed.sourceKind),
+      );
       setSavedNotice(DEV_MSG.SITE_VIRT_SAVED);
     } catch (e: unknown) {
       setFormError(panelErrMsg(e, DEV_MSG.SITE_VIRT_SAVE_ERROR));

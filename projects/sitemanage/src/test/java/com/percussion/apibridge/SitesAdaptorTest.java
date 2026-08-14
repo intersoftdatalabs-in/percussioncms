@@ -92,10 +92,10 @@ class SitesAdaptorTest {
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "product-docs");
 
     VirtualSiteProperties v = SitesAdaptor.readVirtual(site);
-    assertEquals("git-filesystem", v.getSourceKind().orElse(null));
-    assertEquals("C:/docs/product-docs", v.getRootPath().orElse(null));
-    assertEquals("custom.yaml", v.getConfigFile().orElse(null));
-    assertEquals("product-docs", v.getSiteKey().orElse(null));
+    assertEquals("git-filesystem", v.getSourceKind());
+    assertEquals("C:/docs/product-docs", v.getRootPath());
+    assertEquals("custom.yaml", v.getConfigFile());
+    assertEquals("product-docs", v.getSiteKey());
     assertTrue(Boolean.TRUE.equals(v.getVirtual()));
   }
 
@@ -105,7 +105,7 @@ class SitesAdaptorTest {
     site.setName("Corp");
     VirtualSiteProperties v = SitesAdaptor.readVirtual(site);
     assertFalse(Boolean.TRUE.equals(v.getVirtual()));
-    assertTrue(v.getSourceKind().isEmpty());
+    assertTrue(v.getSourceKind() == null || v.getSourceKind().isBlank());
   }
 
   @Test
@@ -185,8 +185,8 @@ class SitesAdaptorTest {
 
     VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("Help", body);
     assertTrue(Boolean.TRUE.equals(out.getVirtual()));
-    assertEquals("git-filesystem", out.getSourceKind().orElse(null));
-    assertEquals("C:/docs/product-docs", out.getRootPath().orElse(null));
+    assertEquals("git-filesystem", out.getSourceKind());
+    assertEquals("C:/docs/product-docs", out.getRootPath());
 
     ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
     verify(siteManager).saveSite(saved.capture());

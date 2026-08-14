@@ -197,6 +197,26 @@ export function parseVirtualSiteProperties(payload: unknown): VirtualSitePropert
   };
 }
 
+/**
+ * PUT body for {@code /services/sites/{nameOrId}/virtual}.
+ *
+ * <p>Production CXF Jackson uses WRAP/UNWRAP_ROOT_VALUE and JAXB expects root
+ * {@code VirtualSiteProperties}. A flat {@code {sourceKind,...}} body is treated
+ * as unexpected element {@code sourceKind} (QA #3030 / #3365).
+ */
+export function toVirtualSitePropertiesEnvelope(
+  props: VirtualSiteProperties,
+): { VirtualSiteProperties: Record<string, string | null> } {
+  return {
+    VirtualSiteProperties: {
+      sourceKind: props.sourceKind ?? null,
+      rootPath: props.rootPath ?? null,
+      configFile: props.configFile ?? null,
+      siteKey: props.siteKey ?? null,
+    },
+  };
+}
+
 /** GET /services/sites/{nameOrId}/virtual */
 export async function getVirtualSiteProperties(
   nameOrId: string,
@@ -212,7 +232,10 @@ export async function updateVirtualSiteProperties(
   props: VirtualSiteProperties,
 ): Promise<VirtualSiteProperties> {
   const key = encodeURIComponent(nameOrId.trim());
-  const payload = await put<unknown>(`${PATHS.SITES}/${key}/virtual`, props);
+  const payload = await put<unknown>(
+    `${PATHS.SITES}/${key}/virtual`,
+    toVirtualSitePropertiesEnvelope(props),
+  );
   return parseVirtualSiteProperties(payload);
 }
 

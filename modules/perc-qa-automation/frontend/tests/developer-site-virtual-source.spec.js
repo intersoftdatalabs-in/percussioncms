@@ -301,4 +301,136 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     ).toHaveText("broken id:missing-page from 8.2/index.md");
     expect(consoleErrors).toEqual([]);
   });
+
+  test("save PUTs VirtualSiteProperties envelope and GET-roundtrip shows Build chrome (#3365)", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    let virtualState = {
+      sourceKind: "repository",
+      rootPath: null,
+      configFile: null,
+      siteKey: null,
+      virtual: false,
+    };
+    /** @type {unknown} */
+    let lastPutBody = null;
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (/\/virtual\//.test(url)) {
+        await route.fallback();
+        return;
+      }
+      const method = route.request().method();
+      if (method === "PUT") {
+        lastPutBody = route.request().postDataJSON();
+        const envelope =
+          lastPutBody &&
+          typeof lastPutBody === "object" &&
+          lastPutBody.VirtualSiteProperties
+            ? lastPutBody.VirtualSiteProperties
+            : lastPutBody;
+        virtualState = {
+          sourceKind: envelope.sourceKind || "repository",
+          rootPath: envelope.rootPath || null,
+          configFile: envelope.configFile || null,
+          siteKey: envelope.siteKey || null,
+          virtual: envelope.sourceKind === "git-filesystem",
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+        });
+        return;
+      }
+      if (method !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — Virtual Site save envelope test requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toHaveCount(
+      0,
+    );
+
+    await page.locator('[data-testid="developer-site-virtual-source-kind"]').selectOption(
+      "git-filesystem",
+    );
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/docs/product-docs");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(lastPutBody).toBeTruthy();
+    expect(lastPutBody).toHaveProperty("VirtualSiteProperties");
+    expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("git-filesystem");
+    expect(lastPutBody.VirtualSiteProperties.rootPath).toBe("C:/docs/product-docs");
+    expect(lastPutBody).not.toHaveProperty("sourceKind");
+
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
 });

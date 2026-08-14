@@ -106,7 +106,15 @@ describe("VirtualSiteSourcePanel", () => {
   });
 
   it("saves git-filesystem configuration after client validation", async () => {
-    getVirtual.mockResolvedValue({ sourceKind: null, virtual: false });
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        configFile: null,
+        siteKey: null,
+        virtual: true,
+      });
     updateVirtual.mockResolvedValue({
       sourceKind: "git-filesystem",
       rootPath: "C:/docs",
@@ -148,17 +156,28 @@ describe("VirtualSiteSourcePanel", () => {
       configFile: null,
       siteKey: null,
     });
+    expect(getVirtual).toHaveBeenCalledTimes(2);
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/docs");
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
   });
 
   it("saves repository mode to clear virtual configuration", async () => {
-    getVirtual.mockResolvedValue({
-      sourceKind: "git-filesystem",
-      rootPath: "C:/docs",
-      virtual: true,
-    });
+    getVirtual
+      .mockResolvedValueOnce({
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        virtual: true,
+      })
+      .mockResolvedValueOnce({
+        sourceKind: null,
+        rootPath: null,
+        virtual: false,
+      });
     updateVirtual.mockResolvedValue({
       sourceKind: null,
       rootPath: null,
@@ -181,6 +200,8 @@ describe("VirtualSiteSourcePanel", () => {
       configFile: null,
       siteKey: null,
     });
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
   });
 
   it("surfaces save API errors", async () => {

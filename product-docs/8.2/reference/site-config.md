@@ -78,11 +78,28 @@ or NIO/`Path` APIs.
 Integrators can read and write these keys via public Site REST:
 
 - `GET /sites/{nameOrId}/virtual`
-- `PUT /sites/{nameOrId}/virtual` (JSON body: `sourceKind`, `rootPath`, `configFile`, `siteKey`)
+- `PUT /sites/{nameOrId}/virtual` (JSON body **must** use the `VirtualSiteProperties` root wrap — not a bare `sourceKind` object)
 - `POST /sites/{nameOrId}/virtual/build` (optional JSON body: `outputRoot`)
 - `GET /sites/{nameOrId}/virtual/preview` (last-build preview status)
 - `GET /sites/{nameOrId}/virtual/preview/{relPath}` (assembled file stream)
 - `POST /sites/{nameOrId}/virtual/publish` (build then copy to Site filesystem root)
+
+PUT JSON (Jackson/JAXB) must wrap fields under the DTO root name:
+
+```json
+{
+  "VirtualSiteProperties": {
+    "sourceKind": "git-filesystem",
+    "rootPath": "C:/workspaces/product-docs",
+    "configFile": "_config.yaml",
+    "siteKey": "product-docs"
+  }
+}
+```
+
+A flat `{ "sourceKind": "git-filesystem", … }` body is **400** (`unexpected element sourceKind`).
+GET uses the same envelope. The Developer Sites **Save Virtual Site source** action sends this
+wrap and then GET-roundtrips so Build chrome appears without a full reload.
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required root path when virtual, portable
