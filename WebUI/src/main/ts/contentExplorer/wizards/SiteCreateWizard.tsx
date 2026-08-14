@@ -101,6 +101,8 @@ export function SiteCreateWizard(
   const [baseTemplateName, setBaseTemplateName] = useState(
     PLAIN_BASE_TEMPLATE_NAME,
   );
+  /** Traditional sites only. Virtual Sites do not use this flag. */
+  const [managedNavigation, setManagedNavigation] = useState(true);
   const [templates, setTemplates] = useState<BaseTemplateSummary[]>([]);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -155,6 +157,7 @@ export function SiteCreateWizard(
       description: clampSiteDescription(description),
       baseTemplateName: baseTemplateName.trim(),
       templateName: tmpl.name,
+      managedNavigation,
     };
     try {
       const fn = submitOverride ?? createTraditionalSite;
@@ -187,6 +190,7 @@ export function SiteCreateWizard(
   function handleReset(): void {
     setWizard((w) => resetWizard(w));
     setCreatedName(null);
+    setManagedNavigation(true);
   }
 
   const detailsReady =
@@ -258,6 +262,26 @@ export function SiteCreateWizard(
                 style={{ marginLeft: 8, width: 240 }}
               />
             </label>
+            <label
+              htmlFor="site-create-managed-nav"
+              style={{ display: "block", margin: "8px 0 4px 0" }}
+            >
+              <input
+                id="site-create-managed-nav"
+                type="checkbox"
+                data-testid="site-create-managed-nav"
+                checked={managedNavigation}
+                onChange={(e) => setManagedNavigation(e.target.checked)}
+                style={{ marginRight: 8 }}
+              />
+              {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_LABEL)}
+            </label>
+            <p
+              style={{ color: "#555", fontSize: "0.85em", margin: "0 0 8px 24px" }}
+              data-testid="site-create-managed-nav-help"
+            >
+              {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_HELP)}
+            </p>
           </fieldset>
         );
       case 1:
@@ -339,6 +363,14 @@ export function SiteCreateWizard(
                   {message(EXPLORER_MSG.SITE_CREATE_REPOSITORY_KIND)}:
                 </strong>{" "}
                 {message(EXPLORER_MSG.SITE_CREATE_TRADITIONAL)}
+              </li>
+              <li data-testid="site-create-confirm-managed-nav">
+                <strong>
+                  {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_LABEL)}:
+                </strong>{" "}
+                {managedNavigation
+                  ? message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_YES)
+                  : message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_NO)}
               </li>
             </ul>
           </fieldset>

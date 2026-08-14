@@ -60,8 +60,10 @@ screen. **Copy Site** and **Delete Site** stay disabled until a site is selected
 ### Site without a navigation tree
 
 A site can exist without a NavTree item at the site root (for example a newly
-created site, or a site whose navigation was never created). Opening
-**Navigation** for that site does **not** fail with HTTP 500.
+created site, a traditional site created with **Include managed navigation**
+unchecked, a Rhythmyx site listed in the site picker, or a site whose
+navigation was never created). Opening **Navigation** for that site does
+**not** fail with HTTP 500.
 
 Sample / demo sites installed with **Install sample sites**
 (`Corporate_Investments`, `Enterprise_Investments` on a typical H2 QA or

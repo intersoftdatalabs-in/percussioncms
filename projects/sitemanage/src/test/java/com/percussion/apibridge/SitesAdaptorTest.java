@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +44,7 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
+import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
@@ -121,6 +123,31 @@ class SitesAdaptorTest {
     assertEquals("Help", out.getName());
     assertTrue(out.getVirtual() != null);
     assertTrue(Boolean.TRUE.equals(out.getVirtual().getVirtual()));
+    assertNull(out.getManagedNavigation());
+  }
+
+  @Test
+  void findByName_traditionalIncludesManagedNavigationFlag() {
+    PSSite site = new PSSite();
+    site.setName("Corp");
+    site.setGUID(siteGuid);
+    when(siteManager.findSite("Corp")).thenReturn(site);
+
+    Site out = adaptor.findByName("Corp");
+    assertNotNull(out);
+    assertEquals(Boolean.TRUE, out.getManagedNavigation());
+  }
+
+  @Test
+  void findByName_traditionalFalseManagedNavigation() {
+    PSSite site = new PSSite();
+    site.setName("Bare");
+    site.setGUID(siteGuid);
+    put(site, PSManagedNavSiteHelper.PROP_MANAGED, "false");
+    when(siteManager.findSite("Bare")).thenReturn(site);
+
+    Site out = adaptor.findByName("Bare");
+    assertEquals(Boolean.FALSE, out.getManagedNavigation());
   }
 
   @Test

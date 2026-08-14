@@ -47,6 +47,7 @@ import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.utils.guid.IPSGuid;
@@ -131,6 +132,12 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
     var folderRoot = site.getFolderPath();
     try {
       folderHelper.createFolder(folderRoot, PSFolderPermission.Access.WRITE);
+      if (!PSManagedNavSiteHelper.wantsManagedNavigation(site.getManagedNavigation())) {
+        log.info(
+            "Site {} created without managed navigation (navigation.managed=false)",
+            site.getName());
+        return;
+      }
       var navSummary = navService.findNavSummary(folderRoot);
       // If navSummary exists, check for homepage and return if already present
       if (navSummary != null) {

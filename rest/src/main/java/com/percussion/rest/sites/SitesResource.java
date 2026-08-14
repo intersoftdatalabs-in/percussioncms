@@ -73,7 +73,8 @@ public class SitesResource {
   }
 
   /**
-   * Lists all sites.
+   * Lists all sites. Traditional rows may include {@code managedNavigation}; Virtual Sites omit
+   * that flag.
    *
    * @return SiteList of all sites
    */

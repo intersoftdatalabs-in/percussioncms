@@ -91,6 +91,38 @@ describe("SiteCreateWizard (#3002)", () => {
     expect(screen.getByTestId("site-create-confirm-summary").textContent).toContain(
       "Acme",
     );
+    expect(
+      screen.getByTestId("site-create-confirm-managed-nav").textContent,
+    ).toMatch(/Yes/i);
+  });
+
+  it("can opt out of managed navigation on a traditional site", async () => {
+    const submit = vi.fn().mockResolvedValue({ name: "Bare" });
+    renderWizard({ submit });
+    fireEvent.change(screen.getByTestId("site-create-name"), {
+      target: { value: "Bare" },
+    });
+    const checkbox = screen.getByTestId(
+      "site-create-managed-nav",
+    ) as HTMLInputElement;
+    expect(checkbox.checked).toBe(true);
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(false);
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    await waitFor(() => {
+      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    expect(
+      screen.getByTestId("site-create-confirm-managed-nav").textContent,
+    ).toMatch(/No/i);
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-run"));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+    const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
+    expect(req.managedNavigation).toBe(false);
   });
 
   it("Run invokes submit and fires onCreated with /Sites path", async () => {
@@ -115,6 +147,7 @@ describe("SiteCreateWizard (#3002)", () => {
     expect(req.name).toBe("Acme");
     expect(req.baseTemplateName).toBe("perc.base.plain");
     expect(req.templateName).toBe("AcmeTemplate");
+    expect(req.managedNavigation).toBe(true);
     expect(onCreated).toHaveBeenCalledWith(
       expect.objectContaining({
         siteName: "Acme",

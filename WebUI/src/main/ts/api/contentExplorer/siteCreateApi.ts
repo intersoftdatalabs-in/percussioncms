@@ -42,6 +42,11 @@ export interface CreateSiteRequest {
   navigationTitle?: string;
   baseTemplateName: string;
   templateName: string;
+  /**
+   * Traditional sites only. Default true. When false, create the site folder
+   * without a CMS NavTree / homepage. Virtual Sites do not send this flag.
+   */
+  managedNavigation?: boolean;
 }
 
 /** Minimal site summary returned after create (name is required for navigation). */
@@ -63,11 +68,12 @@ export interface BaseTemplateSummary {
  * Build the JSON body matching classic perc_newsitedialog.
  */
 export function buildCreateSiteBody(req: CreateSiteRequest): {
-  Site: Record<string, string>;
+  Site: Record<string, string | boolean>;
 } {
   const name = req.name.trim();
   const home = (req.homePageTitle ?? DEFAULT_HOME_PAGE_TITLE).trim() || DEFAULT_HOME_PAGE_TITLE;
   const nav = (req.navigationTitle ?? home).trim() || home;
+  const managedNavigation = req.managedNavigation !== false;
   return {
     Site: {
       name,
@@ -77,6 +83,7 @@ export function buildCreateSiteBody(req: CreateSiteRequest): {
       navigationTitle: nav,
       baseTemplateName: req.baseTemplateName.trim(),
       templateName: req.templateName.trim(),
+      managedNavigation,
     },
   };
 }

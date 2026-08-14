@@ -34,6 +34,17 @@ describe("siteCreateApi helpers (#3002)", () => {
     expect(body.Site.navigationTitle).toBe(DEFAULT_HOME_PAGE_TITLE);
     expect(body.Site.baseTemplateName).toBe("perc.base.plain");
     expect(body.Site.templateName).toBe("QA-SiteTemplate");
+    expect(body.Site.managedNavigation).toBe(true);
+  });
+
+  it("buildCreateSiteBody sends managedNavigation false when opted out", () => {
+    const body = buildCreateSiteBody({
+      name: "Bare",
+      baseTemplateName: "perc.base.plain",
+      templateName: "BareTemplate",
+      managedNavigation: false,
+    });
+    expect(body.Site.managedNavigation).toBe(false);
   });
 
   it("parseCreatedSite accepts Site-wrapped and plain payloads", () => {

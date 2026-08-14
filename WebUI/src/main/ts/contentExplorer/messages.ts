@@ -116,6 +116,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Creates a traditional repository site (default).",
   SITE_CREATE_REPOSITORY_KIND: "perc.ui.explorer@Repository",
   SITE_CREATE_TRADITIONAL: "perc.ui.explorer@Traditional",
+  SITE_CREATE_MANAGED_NAV_LABEL: "perc.ui.explorer@Include managed navigation",
+  SITE_CREATE_MANAGED_NAV_HELP:
+    "perc.ui.explorer@When unchecked, the site folder is created without a NavTree or homepage. You can add navigation later in Explorer. Virtual Sites do not use this option.",
+  SITE_CREATE_MANAGED_NAV_YES: "perc.ui.explorer@Yes",
+  SITE_CREATE_MANAGED_NAV_NO: "perc.ui.explorer@No",
   SITE_CREATE_TEMPLATES_LOADING: "perc.ui.explorer@Loading base templates…",
   SITE_CREATE_TEMPLATES_ERROR: "perc.ui.explorer@Could not load base templates",
   SITE_CREATE_VALIDATION:
