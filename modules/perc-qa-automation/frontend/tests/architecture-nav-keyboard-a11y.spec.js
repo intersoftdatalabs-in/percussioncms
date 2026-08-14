@@ -191,9 +191,27 @@ test.describe("Navigation tree keyboard a11y (#3354)", () => {
     await items.first().press("ArrowRight");
     await expect(items.nth(1)).toBeFocused();
 
+    // Enter/Space select the focused node; Enter on a branch also toggles expand.
+    const about = page.getByTestId("nav-tree-item-nav-about");
+    await about.focus();
+    await about.press("Enter");
+    await expect(about).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByTestId("nav-tree-item-nav-team")).toBeVisible();
+    await about.press(" ");
+    await expect(about).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByTestId("nav-tree-item-nav-team")).toHaveCount(0);
+
+    const members = page.getByTestId("nav-tree-item-nav-members");
+    await members.focus();
+    await members.press("Enter");
+    await expect(members).toHaveAttribute("aria-selected", "true");
+    await members.press("ArrowLeft");
+    await expect(items.first()).toBeFocused();
+
     const secure = page.getByTestId("nav-tree-secure-nav-members");
     await expect(secure).toBeVisible();
     await expect(secure).toHaveAttribute("title", /requires login/i);
+    await expect(secure).toHaveAttribute("aria-label", /requires login/i);
     await expect(secure).toHaveAttribute(
       "data-i18n-key",
       "perc.ui.architecture.modern@Requires login",

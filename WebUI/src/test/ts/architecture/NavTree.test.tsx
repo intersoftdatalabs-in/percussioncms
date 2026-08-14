@@ -105,6 +105,42 @@ describe("NavTree (#3095 / #3354)", () => {
     expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
   });
 
+  it("selects with Enter/Space via handleKeyDown and toggles branches", () => {
+    const onSelect = vi.fn();
+    render(
+      <NavTree root={sampleRoot} selectedId="root" onSelect={onSelect} />,
+    );
+    const leaf = screen.getByTestId("nav-tree-item-link-1");
+    leaf.focus();
+    expect(fireEvent.keyDown(leaf, { key: "Enter" })).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "link-1" }),
+    );
+    expect(screen.getByTestId("nav-tree-item-link-1")).toBeTruthy();
+
+    onSelect.mockClear();
+    expect(fireEvent.keyDown(leaf, { key: " " })).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "link-1" }),
+    );
+
+    onSelect.mockClear();
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    rootItem.focus();
+    expect(fireEvent.keyDown(rootItem, { key: "Enter" })).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "root" }),
+    );
+    expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
+
+    onSelect.mockClear();
+    expect(fireEvent.keyDown(rootItem, { key: " " })).toBe(false);
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "root" }),
+    );
+    expect(screen.getByTestId("nav-tree-item-link-1")).toBeTruthy();
+  });
+
   it("moves focus with Home/End and Arrow Right into a child", () => {
     render(
       <NavTree root={sampleRoot} selectedId="root" onSelect={() => undefined} />,
