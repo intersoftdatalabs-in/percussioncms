@@ -83,6 +83,12 @@ returns **HTTP 200** with an empty section tree (no section `id`, empty
 tree”) instead of a route error or a generic 500 banner. Use **Refresh**
 after the folder exists; other sites with a tree continue to load normally.
 
+Rhythmyx FastForward sites store the same tree as **`rffNavTree` / `rffNavon`**
+(same tables as CM1 **`percNavTree` / `percNavon`**). The product treats those
+names as the same Navigation types. A site that already has an `rffNavTree` at
+the folder root is **not** empty — do not create a second tree. New sites
+created in this product use the `percNav*` names.
+
 ## Keyboard and accessibility
 
 The navigation tree follows the ARIA tree pattern:
