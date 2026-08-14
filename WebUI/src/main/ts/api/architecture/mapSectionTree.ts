@@ -39,6 +39,16 @@ function asNullableString(value: unknown): string | null {
   if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
+  // Jackson sometimes emits id as a one-or-two element string array
+  // (duplicate getter on persistant base + SectionNode).
+  if (Array.isArray(value)) {
+    for (const part of value) {
+      const s = asNullableString(part);
+      if (s) {
+        return s;
+      }
+    }
+  }
   return null;
 }
 

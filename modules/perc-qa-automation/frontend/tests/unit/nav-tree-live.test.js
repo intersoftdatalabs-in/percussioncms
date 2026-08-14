@@ -20,6 +20,7 @@ const assert = require("node:assert/strict");
 const {
   siteNamesFromPayload,
   isEmptyTreePayload,
+  isSampleDemoSite,
 } = require("../helpers/nav-tree-live");
 
 describe("nav-tree-live helpers (#3218)", () => {
@@ -56,12 +57,42 @@ describe("nav-tree-live helpers (#3218)", () => {
     assert.equal(isEmptyTreePayload(body), true);
   });
 
+  it("recognizes seeded demo site names (#3352)", () => {
+    assert.equal(isSampleDemoSite("Corporate_Investments"), true);
+    assert.equal(isSampleDemoSite("enterprise_investments"), true);
+    assert.equal(isSampleDemoSite("BareSite"), false);
+    assert.equal(isSampleDemoSite(""), false);
+  });
+
   it("does not treat a real navon as empty", () => {
     const body = JSON.stringify({
       SectionNode: {
         id: "0-101-1",
         title: "Home",
         childNodes: [{ id: "0-101-2", title: "About" }],
+      },
+    });
+    assert.equal(isEmptyTreePayload(body), false);
+  });
+
+  it("does not treat Jackson array id as empty (#3352)", () => {
+    const body = JSON.stringify({
+      SectionNode: {
+        id: ["16777215-101-10043", "16777215-101-10043"],
+        title: "Corporate_Investments",
+        childNodes: [],
+      },
+    });
+    assert.equal(isEmptyTreePayload(body), false);
+  });
+
+  it("does not treat a created root-only NavTree as empty (#3352)", () => {
+    const body = JSON.stringify({
+      SectionNode: {
+        id: "0-101-360",
+        title: "Corporate_Investments",
+        folderPath: "//Sites/CorporateInvestments",
+        childNodes: [],
       },
     });
     assert.equal(isEmptyTreePayload(body), false);

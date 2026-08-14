@@ -113,6 +113,21 @@ describe("NavTree (#3095)", () => {
     expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
   });
 
+  it("renders role=tree with one treeitem for a root-only nav (#3352)", () => {
+    const rootOnly: NavTreeNode = {
+      id: "root-only",
+      title: "Corporate_Investments",
+      folderPath: "//Sites/CorporateInvestments",
+      sectionType: "section",
+      requiresLogin: false,
+      children: [],
+    };
+    render(<NavTree root={rootOnly} />);
+    expect(screen.getByRole("tree")).toBeTruthy();
+    expect(screen.getByTestId("nav-tree-item-root-only")).toBeTruthy();
+    expect(screen.queryByTestId("architecture-nav-tree-empty")).toBeNull();
+  });
+
   it("shows loading, error, and empty states without role=tree", () => {
     const { rerender } = render(<NavTree root={null} loading />);
     expect(screen.getByTestId("architecture-nav-tree-loading")).toBeTruthy();
