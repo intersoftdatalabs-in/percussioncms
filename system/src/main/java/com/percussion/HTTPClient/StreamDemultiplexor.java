@@ -240,7 +240,7 @@ class StreamDemultiplexor implements GlobalConstants {
 
             if (chunk_len > 0) // it's data
             {
-              if (len > chunk_len) len = (int) chunk_len;
+              len = Codecs.clampToChunkLength(len, chunk_len);
               rcvd = Stream.read(b, off, len);
               if (rcvd == -1) throw new EOFException("Premature EOF encountered");
               chunk_len -= rcvd;

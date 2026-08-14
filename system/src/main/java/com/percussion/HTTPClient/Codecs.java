@@ -1634,10 +1634,61 @@ public class Codecs {
     // parse chunk length
 
     try {
-      return Long.parseLong(new String(hex_len, 0, off, "8859_1").trim(), 16);
+      long clen = Long.parseLong(new String(hex_len, 0, off, "8859_1").trim(), 16);
+      if (clen < 0L || clen > Integer.MAX_VALUE) {
+        throw new ParseException(
+            "Can't deal with chunk lengths greater "
+                + "Integer.MAX_VALUE: "
+                + clen
+                + " > "
+                + Integer.MAX_VALUE);
+      }
+      return clen;
     } catch (NumberFormatException nfe) {
       throw new ParseException(
           "Didn't find valid chunk length: " + new String(hex_len, 0, off, "8859_1"));
     }
+  }
+
+  /**
+   * Clamp a requested read length to the remaining HTTP chunk size without narrowing a
+   * user-controlled {@code long} that may exceed {@link Integer#MAX_VALUE}.
+   *
+   * @param requested the caller {@code read} length ({@code int})
+   * @param remainingChunk remaining bytes in the current chunk
+   * @return a non-negative length no larger than {@code requested}
+   */
+  static int clampToChunkLength(int requested, long remainingChunk) {
+    if (requested <= 0 || remainingChunk <= 0L) {
+      return 0;
+    }
+    if (remainingChunk >= requested) {
+      return requested;
+    }
+    return (int) remainingChunk;
+  }
+
+  /**
+   * Saturating conversion of remaining HTTP chunk bytes plus the underlying stream's {@link
+   * InputStream#available()} estimate. User-controlled chunk sizes must not truncate to a negative
+   * or wrapping {@code int}.
+   *
+   * @param remainingChunk remaining bytes in the current chunk, or a negative sentinel
+   * @param underlyingAvailable {@code in.available()} estimate (treated as {@code 0} if negative)
+   * @return a non-negative {@code int} no larger than {@link Integer#MAX_VALUE}
+   */
+  static int saturateAvailable(long remainingChunk, int underlyingAvailable) {
+    int extra = Math.max(0, underlyingAvailable);
+    if (remainingChunk < 0L) {
+      return extra;
+    }
+    if (remainingChunk > Integer.MAX_VALUE) {
+      return Integer.MAX_VALUE;
+    }
+    int remaining = (int) remainingChunk;
+    if (remaining > Integer.MAX_VALUE - extra) {
+      return Integer.MAX_VALUE;
+    }
+    return remaining + extra;
   }
 }
