@@ -30,6 +30,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSAaRelationship;
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSDateValue;
@@ -971,7 +972,16 @@ public class PSManagedNavService implements IPSManagedNavService {
       IPSItemEntry target = cmsMgr.findItemEntry(((PSLegacyGuid) guid).getContentId());
       String contentTypeName =
           PSItemDefManager.getInstance().contentTypeIdToName(target.getContentTypeId());
-      return StringUtils.equalsIgnoreCase(contentTypeName, CT_NAV_TREE);
+      if (PSNavNameAliases.isNavTreeTypeName(contentTypeName)) {
+        return true;
+      }
+      for (String configured : getNavTreeContentTypeNames()) {
+        if (StringUtils.equalsIgnoreCase(contentTypeName, configured)
+            || PSNavNameAliases.sameNavRole(contentTypeName, configured)) {
+          return true;
+        }
+      }
+      return false;
     } catch (PSInvalidContentTypeException e) {
       return false;
     }
@@ -1103,9 +1113,6 @@ public class PSManagedNavService implements IPSManagedNavService {
    * template is not used for rendering the navigation node.
    */
   private static Long DUMMY_TEMPLATEID = -2L;
-
-  /** Represents the Nav Tree content type name */
-  private static final String CT_NAV_TREE = "percNavTree";
 
   private static final String FOLDER_RELATE_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
 

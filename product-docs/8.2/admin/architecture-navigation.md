@@ -60,9 +60,8 @@ screen. **Copy Site** and **Delete Site** stay disabled until a site is selected
 ### Site without a navigation tree
 
 A site can exist without a NavTree item at the site root (for example a newly
-created site, a Rhythmyx site listed in the site picker, or a site whose
-navigation was never created). Opening **Navigation** for that site does
-**not** fail with HTTP 500.
+created site, or a site whose navigation was never created). Opening
+**Navigation** for that site does **not** fail with HTTP 500.
 
 The server `GET /Rhythmyx/sitemanage/section/tree/{siteName}` call returns
 **HTTP 200** with an empty section tree (`childNodes` empty). The SPA shows an
@@ -72,6 +71,12 @@ instead of a route error or a generic 500 banner.
 To add navigation later, create a NavTree at the site root in **Explorer**
 (or create the site with managed navigation), then use **Refresh**. Other
 sites with a tree continue to load normally.
+
+Rhythmyx FastForward sites store the same tree as **`rffNavTree` / `rffNavon`**
+(same tables as CM1 **`percNavTree` / `percNavon`**). The product treats those
+names as the same Navigation types. A site that already has an `rffNavTree` at
+the folder root is **not** empty — do not create a second tree. New sites
+created in this product use the `percNav*` names.
 
 ## Keyboard and accessibility
 

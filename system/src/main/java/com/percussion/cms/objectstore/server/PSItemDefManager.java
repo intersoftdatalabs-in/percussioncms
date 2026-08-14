@@ -29,6 +29,7 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefSummary;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.cms.objectstore.PSProcessorProxy;
 import com.percussion.cms.objectstore.server.util.PSFieldFinderUtil;
 import com.percussion.data.PSInternalRequestCallException;
@@ -767,7 +768,8 @@ public class PSItemDefManager {
     }
 
     String editorUrl = typeDef.getQueryRequest();
-    if (!appName.equals(PSContentType.getAppName(editorUrl))) {
+    if (!appName.equals(PSContentType.getAppName(editorUrl))
+        && !PSNavNameAliases.sameNavEditor(appName, editorUrl)) {
       log.warn(
           "The content editor application name \"{}\" does not match the request root specified in"
               + " the editor url registration \"{}\" for content type name: {}",
@@ -776,7 +778,9 @@ public class PSItemDefManager {
           typeName);
     }
 
-    if (!PSContentType.createRequestUrl(typeName).equalsIgnoreCase(editorUrl)) {
+    if (!PSContentType.createRequestUrl(typeName).equalsIgnoreCase(editorUrl)
+        && !PSNavNameAliases.sameNavEditor(appName, editorUrl)
+        && !PSNavNameAliases.sameNavRole(typeName, editorUrl)) {
       log.warn(
           "The content editor application \"{}\" does not follow proper naming conventions based on"
               + " the content type name: {}",

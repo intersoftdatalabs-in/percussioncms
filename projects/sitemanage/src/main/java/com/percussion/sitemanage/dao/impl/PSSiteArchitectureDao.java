@@ -17,6 +17,8 @@
  */
 package com.percussion.sitemanage.dao.impl;
 
+import com.percussion.cms.objectstore.PSNavNameAliases;
+import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.share.service.IPSDataItemSummaryService;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -40,12 +42,16 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
 
   private final IPSDataItemSummaryService dataItemSummaryService;
   private final IPSPublishingWs pubWs;
+  private final IPSManagedNavService navService;
 
   @Autowired
   public PSSiteArchitectureDao(
-      IPSDataItemSummaryService dataItemSummaryService, IPSPublishingWs pubWs) {
+      IPSDataItemSummaryService dataItemSummaryService,
+      IPSPublishingWs pubWs,
+      IPSManagedNavService navService) {
     this.dataItemSummaryService = dataItemSummaryService;
     this.pubWs = pubWs;
+    this.navService = navService;
   }
 
   @Override
@@ -90,9 +96,9 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
     var siteSection = new PSSiteSection();
     var id = dataItemSummaryService.pathToId(folderRoot);
     var sums = dataItemSummaryService.findFolderChildren(id);
-    // Find the first nav tree content type and set section details
+    // Find the first nav tree (percNavTree or rffNavTree — same Managed Nav role)
     sums.stream()
-        .filter(itemSummary -> NAV_TREE_CONTENTTYPE_NAME.equals(itemSummary.getType()))
+        .filter(itemSummary -> isNavTreeType(itemSummary.getType()))
         .findFirst()
         .ifPresent(
             itemSummary -> {
@@ -146,6 +152,20 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
     return List.of();
   }
 
-  /** The constant for the name of the nav tree content type. */
-  private static final String NAV_TREE_CONTENTTYPE_NAME = "rffNavTree";
+  private boolean isNavTreeType(String typeName) {
+    if (PSNavNameAliases.isNavTreeTypeName(typeName)) {
+      return true;
+    }
+    if (navService == null) {
+      return false;
+    }
+    for (String configured : navService.getNavTreeContentTypeNames()) {
+      if (configured != null
+          && (configured.equalsIgnoreCase(typeName)
+              || PSNavNameAliases.sameNavRole(configured, typeName))) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
