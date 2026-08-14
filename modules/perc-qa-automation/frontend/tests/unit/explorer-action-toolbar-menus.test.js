@@ -67,4 +67,29 @@ describe("explorer-action-toolbar-menus helpers (#2730)", () => {
     assert.deepEqual(fromParentId[0].childNames, ["open"]);
     assert.deepEqual(unwrapFindPayload(null), []);
   });
+
+  it("collectMenuParents returns every MENU parent so closed-toolbar checks cover all cascades", () => {
+    const parents = collectMenuParents({
+      ActionMenu: [
+        {
+          id: 8,
+          name: "file",
+          menuType: "MENU",
+          children: [{ name: "open" }],
+        },
+        {
+          id: 9,
+          name: "view",
+          menuType: "MENU",
+          children: [{ name: "preview" }],
+        },
+      ],
+    });
+    assert.equal(parents.length, 2);
+    assert.deepEqual(
+      parents.map((p) => p.name),
+      ["file", "view"],
+    );
+    assert.deepEqual(parents[1].childNames, ["preview"]);
+  });
 });

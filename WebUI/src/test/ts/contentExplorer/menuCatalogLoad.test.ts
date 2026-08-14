@@ -19,6 +19,7 @@ import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import {
   loadExplorerMenuCatalog,
   mergeContentTypeMenusIntoCatalog,
+  NEW_ITEM_HOST_PREFERRED_KEYS,
   parseExplorerContentId,
 } from "../../../main/ts/contentExplorer/menuCatalogLoad";
 
@@ -99,6 +100,41 @@ describe("mergeContentTypeMenusIntoCatalog", () => {
     const merged = mergeContentTypeMenusIntoCatalog(tree, []);
     expect(merged).toEqual(tree);
     expect(merged).not.toBe(tree);
+  });
+
+  it("nests leftover type leaves under a Create MENU host", () => {
+    expect(NEW_ITEM_HOST_PREFERRED_KEYS).toContain("create");
+    const tree: MenuAction[] = [
+      action({
+        name: "create",
+        label: "Create",
+        menuType: "MENU",
+        children: [action({ name: "folder" })],
+      }),
+    ];
+    const merged = mergeContentTypeMenusIntoCatalog(tree, [
+      action({ name: "new-page" }),
+    ]);
+    expect(merged.map((a) => a.name)).toEqual(["create"]);
+    expect(merged[0]?.children?.map((c) => c.name)).toEqual([
+      "folder",
+      "new-page",
+    ]);
+  });
+
+  it("treats a Create label as a New-item host", () => {
+    const tree: MenuAction[] = [
+      action({
+        name: "items",
+        label: "Create items",
+        menuType: "MENU",
+        children: [action({ name: "folder" })],
+      }),
+    ];
+    const merged = mergeContentTypeMenusIntoCatalog(tree, [
+      action({ name: "new-page" }),
+    ]);
+    expect(merged[0]?.children?.map((c) => c.name)).toContain("new-page");
   });
 });
 

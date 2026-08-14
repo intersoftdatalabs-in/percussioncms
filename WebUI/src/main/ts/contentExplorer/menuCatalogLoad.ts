@@ -59,15 +59,33 @@ function collectActionNames(actions: MenuAction[], into: Set<string>): void {
   }
 }
 
+/**
+ * Normalized {@code name} keys that host leftover content-type MENUITEMs.
+ * Underscores/spaces/hyphens are stripped before compare, so {@code new_item}
+ * matches {@code newitem}. Include common synonyms (create) for localized or
+ * custom New/Create menus.
+ */
+export const NEW_ITEM_HOST_PREFERRED_KEYS: readonly string[] = [
+  "new",
+  "newitem",
+  "contenttypes",
+  "content",
+  "create",
+];
+
+const NEW_ITEM_HOST_LABEL = /new|create/i;
+
 function findNewItemHost(tree: MenuAction[]): MenuAction | null {
-  const preferred = ["new", "newitem", "new_item", "contenttypes", "content"];
   const stack = [...tree];
   let fallback: MenuAction | null = null;
   while (stack.length > 0) {
     const node = stack.shift()!;
     if (isCascadeParent(node)) {
       const key = node.name.replace(/[\s_-]/g, "").toLowerCase();
-      if (preferred.includes(key) || /new/i.test(node.label ?? node.name)) {
+      if (
+        NEW_ITEM_HOST_PREFERRED_KEYS.includes(key) ||
+        NEW_ITEM_HOST_LABEL.test(node.label ?? node.name)
+      ) {
         return node;
       }
       if (fallback == null) {

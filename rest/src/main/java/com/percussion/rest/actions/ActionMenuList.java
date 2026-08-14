@@ -18,6 +18,7 @@
 package com.percussion.rest.actions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -32,8 +33,15 @@ import java.util.Objects;
  * subclass as a bean ({@code {"empty":false}}) when it is nested as {@code
  * ActionMenu.children}. A bean-shaped children field would drop the cascade and the
  * Explorer toolbar would dump MENUITEMs as flat buttons (#3379 / #2730).
+ *
+ * <p>{@link JsonRootName} matches {@link com.percussion.rest.sites.SiteList} so
+ * {@code JacksonContextResolver} WRAP_ROOT_VALUE emits {@code {"ActionMenuList":
+ * [...]}} for top-level {@code /actions/find/types} and {@code
+ * /actions/find/templates/{id}}. Nested {@code children} stay a JSON array
+ * because WRAP_ROOT_VALUE only wraps the document root.
  */
 @XmlRootElement(name = "ActionMenuList")
+@JsonRootName("ActionMenuList")
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class ActionMenuList extends ArrayList<ActionMenu> {

@@ -134,18 +134,21 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
           "",
         );
 
-        // Closed: children must not appear as extra top-level toolbar buttons.
+        // Closed: children of every MENU parent must not appear as extra
+        // top-level toolbar buttons (#3379).
         const closedTopLevel = page.locator(
           `[data-testid="${TEST_IDS.actionToolbar}"] > button[data-testid^="action-toolbar-item-"], [data-testid="${TEST_IDS.actionToolbar}"] > div > button[data-testid^="action-toolbar-item-"]`,
         );
         const closedNames = await closedTopLevel.evaluateAll((els) =>
           els.map((el) => el.getAttribute("data-testid") || ""),
         );
-        for (const childName of menuParents[0].childNames) {
-          expect(
-            closedNames.includes(`action-toolbar-item-${childName}`),
-            `closed toolbar dumped child "${childName}" as a top-level button`,
-          ).toBe(false);
+        for (const parentMenu of menuParents) {
+          for (const childName of parentMenu.childNames) {
+            expect(
+              closedNames.includes(`action-toolbar-item-${childName}`),
+              `closed toolbar dumped child "${childName}" of "${parentMenu.name}" as a top-level button`,
+            ).toBe(false);
+          }
         }
 
         await parent.click();
