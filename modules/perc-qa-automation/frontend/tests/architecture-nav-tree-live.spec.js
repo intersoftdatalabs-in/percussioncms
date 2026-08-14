@@ -16,20 +16,23 @@
  */
 
 /**
- * Live Navigation tree HTTP contract (#3218 / parent #3197).
+ * Live Navigation tree HTTP contract (#3218 / #3352 / parent #3197).
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/architecture-nav-tree-live.spec.js
  *
  * Hits real GET /Rhythmyx/services/sitemanage/section/tree/{siteName}
- * (does not mock). Seeded H2 sites without a NavTree must be HTTP 200
- * empty children + operator empty state, never HTTP 500.
+ * (does not mock). Seeded demo sites (Corporate_Investments /
+ * Enterprise_Investments) must return a NavTree root (id set) so the SPA
+ * renders role=tree with ≥1 treeitem. Sites that truly have no tree stay
+ * HTTP 200 empty + operator empty state, never HTTP 500.
  */
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   isEmptyTreePayload,
+  isSampleDemoSite,
   siteNamesFromPayload,
 } = require("./helpers/nav-tree-live");
 
@@ -42,7 +45,7 @@ function architectureUrl(extra = {}) {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Architecture live nav tree (#3218)", () => {
+test.describe("Architecture live nav tree (#3218 / #3352)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
@@ -72,6 +75,7 @@ test.describe("Architecture live nav tree (#3218)", () => {
     );
 
     const emptySites = [];
+    const demoSites = names.filter((n) => isSampleDemoSite(n));
     for (const name of names) {
       const treeResp = await page.request.get(
         `${BASE_URL}/Rhythmyx/services/sitemanage/section/tree/${encodeURIComponent(
@@ -84,29 +88,57 @@ test.describe("Architecture live nav tree (#3218)", () => {
       ).not.toBe(500);
       expect(treeResp.status(), `tree GET for ${name}`).toBe(200);
       const text = await treeResp.text();
-      if (isEmptyTreePayload(text)) {
+      const empty = isEmptyTreePayload(text);
+      if (isSampleDemoSite(name)) {
+        expect(
+          empty,
+          `demo site ${name} must have a NavTree root after first GET (#3352)`,
+        ).toBe(false);
+      }
+      if (empty) {
         emptySites.push(name);
       }
     }
 
-    const firstEmpty = emptySites[0] || names[0];
-    await page.goto(architectureUrl({ site: firstEmpty }), {
-      waitUntil: "domcontentloaded",
-    });
-
-    await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(page.getByTestId("architecture-nav-tree-error")).toHaveCount(0);
-    await expect(page.getByText(/HTTP 500/i)).toHaveCount(0);
-
-    if (emptySites.length > 0) {
-      await expect(page.getByTestId("architecture-nav-tree-empty")).toBeVisible({
+    const firstDemo = demoSites[0];
+    if (firstDemo) {
+      await page.goto(architectureUrl({ site: firstDemo }), {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
         timeout: 20_000,
       });
-      await expect(
-        page.getByTestId("architecture-nav-tree-empty-title"),
-      ).toContainText(/no navigation tree/i);
+      await expect(page.getByTestId("architecture-nav-tree-error")).toHaveCount(
+        0,
+      );
+      await expect(page.getByText(/HTTP 500/i)).toHaveCount(0);
+      await expect(page.getByTestId("architecture-nav-tree-empty")).toHaveCount(
+        0,
+      );
+      await expect(page.getByRole("tree")).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("treeitem").first()).toBeVisible();
+    } else {
+      const firstEmpty = emptySites[0] || names[0];
+      await page.goto(architectureUrl({ site: firstEmpty }), {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId("architecture-nav-tree-error")).toHaveCount(
+        0,
+      );
+      await expect(page.getByText(/HTTP 500/i)).toHaveCount(0);
+      if (emptySites.length > 0) {
+        await expect(
+          page.getByTestId("architecture-nav-tree-empty"),
+        ).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(
+          page.getByTestId("architecture-nav-tree-empty-title"),
+        ).toContainText(/no navigation tree/i);
+      }
     }
 
     expect(

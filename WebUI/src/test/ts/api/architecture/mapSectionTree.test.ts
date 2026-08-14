@@ -105,6 +105,16 @@ describe("mapSectionTree (#3095)", () => {
     expect(mapSectionNodeToTree({ title: "NoId" }).title).toBe("NoId");
   });
 
+  it("treats Jackson array id as a real root (#3352)", () => {
+    const wire = {
+      id: ["16777215-101-10043", "16777215-101-10043"],
+      title: "Corporate_Investments",
+      childNodes: [],
+    };
+    expect(isEmptySectionTreeWire(wire)).toBe(false);
+    expect(mapSectionNodeToTree(wire).id).toBe("16777215-101-10043");
+  });
+
   it("treats missing-id empty children as empty nav tree (#3218)", () => {
     expect(
       isEmptySectionTreeWire({ title: "BareSite", childNodes: [] }),

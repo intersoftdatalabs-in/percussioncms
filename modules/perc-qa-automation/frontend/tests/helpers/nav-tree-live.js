@@ -32,6 +32,20 @@ function siteNamesFromPayload(payload) {
     .filter(Boolean);
 }
 
+/** Seeded H2 / installer demo site names that must have a NavTree (#3352). */
+const SAMPLE_DEMO_SITE_NAMES = [
+  "Corporate_Investments",
+  "Enterprise_Investments",
+];
+
+function isSampleDemoSite(name) {
+  const key = String(name || "").trim().toLowerCase();
+  if (!key) {
+    return false;
+  }
+  return SAMPLE_DEMO_SITE_NAMES.some((n) => n.toLowerCase() === key);
+}
+
 function isEmptyTreePayload(bodyText) {
   if (bodyText == null || String(bodyText).trim() === "") {
     return true;
@@ -49,7 +63,12 @@ function isEmptyTreePayload(bodyText) {
   if (!node || typeof node !== "object" || Array.isArray(node)) {
     return false;
   }
-  const id = node.id != null ? String(node.id).trim() : "";
+  const rawId = node.id;
+  const id = Array.isArray(rawId)
+    ? String(rawId[0] || "").trim()
+    : rawId != null
+      ? String(rawId).trim()
+      : "";
   const children = node.childNodes;
   const noChildren =
     children == null ||
@@ -59,6 +78,8 @@ function isEmptyTreePayload(bodyText) {
 }
 
 module.exports = {
+  SAMPLE_DEMO_SITE_NAMES,
   siteNamesFromPayload,
+  isSampleDemoSite,
   isEmptyTreePayload,
 };
