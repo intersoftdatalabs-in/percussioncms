@@ -1084,4 +1084,94 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     expect(replaceSpy).not.toHaveBeenCalled();
   });
+
+  it("properties is disabled until a regular section is selected (#3353)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-properties",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-properties",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+  });
+
+  it("loads properties, saves update, and cancel does not POST (#3353)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const loadProps = vi.spyOn(sectionApi, "loadSectionProperties").mockResolvedValue({
+      id: "c1",
+      title: "About",
+      folderName: "About",
+      target: "_self",
+      cssClassNames: "",
+      requiresLogin: false,
+      allowAccessTo: "",
+      secureSite: false,
+      siteRootSection: false,
+      folderPermission: { accessLevel: "WRITE" },
+    });
+    const updateSpy = vi
+      .spyOn(sectionApi, "updateSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-properties"));
+    await waitFor(() => {
+      expect(loadProps).toHaveBeenCalledWith("c1");
+      expect(screen.getByTestId("architecture-properties-title")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("architecture-properties-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-properties-dialog")).toBeNull();
+    });
+    expect(updateSpy).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("architecture-action-properties"));
+    await waitFor(() => {
+      const input = screen.getByTestId(
+        "architecture-properties-title",
+      ) as HTMLInputElement;
+      expect(input.value).toBe("About");
+      expect(input.disabled).toBe(false);
+    });
+    fireEvent.change(screen.getByTestId("architecture-properties-title"), {
+      target: { value: "About Us" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-properties-target"), {
+      target: { value: "_blank" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-properties-submit"));
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "c1",
+          title: "About Us",
+          folderName: "About",
+          target: "_blank",
+          folderPermission: { accessLevel: "WRITE" },
+        }),
+      );
+    });
+  });
 });

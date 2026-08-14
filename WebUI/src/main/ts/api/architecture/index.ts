@@ -67,7 +67,10 @@ export {
   sectionTypeLabel,
 } from "./mapSectionTree";
 export {
+  applySectionPropertiesForm,
   applyTitleToProperties,
+  canEditSectionProperties,
+  canToggleRequiresLogin,
   buildCreateExternalLinkBody,
   buildCreateSectionFromFolderBody,
   buildCreateSectionLinkPath,
@@ -98,10 +101,13 @@ export {
   splitCmsPagePath,
   validateExternalUrl,
   validateLandingPageName,
+  validateCssClassNames,
   validateSectionFolderName,
+  validateSectionPropertiesForm,
   validateSectionTitle,
   validateSourceFolderPath,
 } from "./sectionMutations";
+export type { SectionPropertiesFormValues } from "./sectionMutations";
 export type {
   CreateExternalLinkFields,
   CreateSectionFromFolderFields,

@@ -29,6 +29,8 @@ export { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 export type { CreateSectionFromFolderDialogProps } from "./CreateSectionFromFolderDialog";
 export { RenameSectionDialog } from "./RenameSectionDialog";
 export type { RenameSectionDialogProps } from "./RenameSectionDialog";
+export { SectionPropertiesDialog } from "./SectionPropertiesDialog";
+export type { SectionPropertiesDialogProps } from "./SectionPropertiesDialog";
 export { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
 export type { ReplaceLandingPageDialogProps } from "./ReplaceLandingPageDialog";
 export { SectionLinkDialog } from "./SectionLinkDialog";

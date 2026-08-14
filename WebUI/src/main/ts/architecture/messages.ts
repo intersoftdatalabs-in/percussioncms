@@ -46,7 +46,7 @@ const KEYS = {
     "perc.ui.architecture.modern@A site can exist without a NavTree. Add a navigation tree at the site root in Explorer, then refresh, or choose another site.",
   TREE_PANEL_TITLE: "perc.ui.architecture.modern@Navigation tree",
   TREE_STRUCTURE_NOTE:
-    "perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.",
+    "perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, properties, move, delete, landing page, or link editors.",
   REFRESH: "perc.ui.architecture.modern@Refresh",
   ACTION_NEW_SITE: "perc.ui.architecture.modern@New Site",
   NEW_SITE_CLOSE: "perc.ui.architecture.modern@Close",
@@ -89,6 +89,7 @@ const KEYS = {
   ACTION_LANDING: "perc.ui.architecture.modern@Landing page",
   ACTION_EDIT_LINK: "perc.ui.architecture.modern@Edit link",
   ACTION_RENAME: "perc.ui.architecture.modern@Rename",
+  ACTION_PROPERTIES: "perc.ui.architecture.modern@Properties",
   ACTION_MOVE_UP: "perc.ui.architecture.modern@Move up",
   ACTION_MOVE_DOWN: "perc.ui.architecture.modern@Move down",
   ACTION_DELETE: "perc.ui.architecture.modern@Delete",
@@ -110,6 +111,32 @@ const KEYS = {
   RENAME_TITLE_LABEL: "perc.ui.architecture.modern@Title",
   RENAME_SUBMIT: "perc.ui.architecture.modern@Save",
   RENAME_CANCEL: "perc.ui.architecture.modern@Cancel",
+  PROPERTIES_DIALOG_TITLE:
+    "perc.ui.architecture.modern@Section properties",
+  PROPERTIES_HINT:
+    "perc.ui.architecture.modern@Edit the selected section title, folder name, target window, CSS classes, and login settings.",
+  PROPERTIES_TITLE_LABEL: "perc.ui.architecture.modern@Title",
+  PROPERTIES_FOLDER_LABEL: "perc.ui.architecture.modern@Folder name",
+  PROPERTIES_FOLDER_ROOT_HINT:
+    "perc.ui.architecture.modern@The site root folder name cannot be changed here.",
+  PROPERTIES_TARGET_LABEL: "perc.ui.architecture.modern@Target window",
+  PROPERTIES_CSS_LABEL: "perc.ui.architecture.modern@CSS classes",
+  PROPERTIES_LOGIN_LABEL: "perc.ui.architecture.modern@Requires login",
+  PROPERTIES_GROUPS_LABEL:
+    "perc.ui.architecture.modern@Allow access to (group names)",
+  PROPERTIES_GROUPS_HINT:
+    "perc.ui.architecture.modern@Use a comma to separate each group name.",
+  PROPERTIES_LOGIN_LOCKED:
+    "perc.ui.architecture.modern@Login is inherited from an ancestor section or the site is not secure.",
+  PROPERTIES_LOADING: "perc.ui.architecture.modern@Loading section properties…",
+  PROPERTIES_LOAD_ERROR:
+    "perc.ui.architecture.modern@Could not load section properties.",
+  PROPERTIES_SUBMIT: "perc.ui.architecture.modern@Save",
+  PROPERTIES_CANCEL: "perc.ui.architecture.modern@Cancel",
+  VALIDATION_CSS_TOO_LONG:
+    "perc.ui.architecture.modern@CSS classes are too long (max 255 characters)",
+  VALIDATION_CSS_CHARS:
+    "perc.ui.architecture.modern@CSS classes may only contain letters, numbers, dash, underscore, and spaces",
   DELETE_CONFIRM:
     "perc.ui.architecture.modern@Delete section \"{0}\"? This cannot be undone.",
   DELETE_ROOT_BLOCKED:
@@ -288,6 +315,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   ACTION_LANDING: message(KEYS.ACTION_LANDING),
   ACTION_EDIT_LINK: message(KEYS.ACTION_EDIT_LINK),
   ACTION_RENAME: message(KEYS.ACTION_RENAME),
+  ACTION_PROPERTIES: message(KEYS.ACTION_PROPERTIES),
   ACTION_MOVE_UP: message(KEYS.ACTION_MOVE_UP),
   ACTION_MOVE_DOWN: message(KEYS.ACTION_MOVE_DOWN),
   ACTION_DELETE: message(KEYS.ACTION_DELETE),
@@ -307,6 +335,23 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   RENAME_TITLE_LABEL: message(KEYS.RENAME_TITLE_LABEL),
   RENAME_SUBMIT: message(KEYS.RENAME_SUBMIT),
   RENAME_CANCEL: message(KEYS.RENAME_CANCEL),
+  PROPERTIES_DIALOG_TITLE: message(KEYS.PROPERTIES_DIALOG_TITLE),
+  PROPERTIES_HINT: message(KEYS.PROPERTIES_HINT),
+  PROPERTIES_TITLE_LABEL: message(KEYS.PROPERTIES_TITLE_LABEL),
+  PROPERTIES_FOLDER_LABEL: message(KEYS.PROPERTIES_FOLDER_LABEL),
+  PROPERTIES_FOLDER_ROOT_HINT: message(KEYS.PROPERTIES_FOLDER_ROOT_HINT),
+  PROPERTIES_TARGET_LABEL: message(KEYS.PROPERTIES_TARGET_LABEL),
+  PROPERTIES_CSS_LABEL: message(KEYS.PROPERTIES_CSS_LABEL),
+  PROPERTIES_LOGIN_LABEL: message(KEYS.PROPERTIES_LOGIN_LABEL),
+  PROPERTIES_GROUPS_LABEL: message(KEYS.PROPERTIES_GROUPS_LABEL),
+  PROPERTIES_GROUPS_HINT: message(KEYS.PROPERTIES_GROUPS_HINT),
+  PROPERTIES_LOGIN_LOCKED: message(KEYS.PROPERTIES_LOGIN_LOCKED),
+  PROPERTIES_LOADING: message(KEYS.PROPERTIES_LOADING),
+  PROPERTIES_LOAD_ERROR: message(KEYS.PROPERTIES_LOAD_ERROR),
+  PROPERTIES_SUBMIT: message(KEYS.PROPERTIES_SUBMIT),
+  PROPERTIES_CANCEL: message(KEYS.PROPERTIES_CANCEL),
+  VALIDATION_CSS_TOO_LONG: message(KEYS.VALIDATION_CSS_TOO_LONG),
+  VALIDATION_CSS_CHARS: message(KEYS.VALIDATION_CSS_CHARS),
   DELETE_CONFIRM: message(KEYS.DELETE_CONFIRM),
   DELETE_ROOT_BLOCKED: message(KEYS.DELETE_ROOT_BLOCKED),
   CREATE_PARENT_BLOCKED: message(KEYS.CREATE_PARENT_BLOCKED),
