@@ -51,7 +51,7 @@ import tools.jackson.databind.json.JsonMapper;
  * jacksonProvider}.
  */
 @Provider
-@Consumes(MediaType.APPLICATION_JSON)
+@Consumes({MediaType.APPLICATION_JSON, "text/json", "application/*+json", MediaType.WILDCARD})
 @Priority(Priorities.USER - 100)
 @PSSiteManageBean("aclListJsonReader")
 public class AclListJsonReader implements MessageBodyReader<AclList> {
@@ -62,7 +62,22 @@ public class AclListJsonReader implements MessageBodyReader<AclList> {
   @Override
   public boolean isReadable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type != null && AclList.class.isAssignableFrom(type);
+    if (type == null || !AclList.class.isAssignableFrom(type)) {
+      return false;
+    }
+    return mediaType == null || isJsonCompatible(mediaType);
+  }
+
+  static boolean isJsonCompatible(MediaType mediaType) {
+    if (mediaType == null || mediaType.isWildcardType() || mediaType.isWildcardSubtype()) {
+      return true;
+    }
+    String subtype = mediaType.getSubtype();
+    if (subtype == null) {
+      return false;
+    }
+    String lower = subtype.toLowerCase();
+    return "json".equals(lower) || lower.endsWith("+json");
   }
 
   @Override
@@ -101,6 +116,16 @@ public class AclListJsonReader implements MessageBodyReader<AclList> {
       throw new WebApplicationException(
           e.getMessage() != null ? e.getMessage() : "Invalid AclList", 400);
     }
+    return parseNode(root);
+  }
+
+  /**
+   * Bind a parsed JSON tree to {@link AclList}.
+   *
+   * @param root parsed body; may be null
+   * @return non-null list (empty when the node is null/missing)
+   */
+  public static AclList parseNode(JsonNode root) {
     if (root == null || root.isNull() || root.isMissingNode()) {
       return new AclList();
     }

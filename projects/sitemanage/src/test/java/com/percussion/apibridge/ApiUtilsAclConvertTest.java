@@ -170,6 +170,35 @@ public class ApiUtilsAclConvertTest {
   }
 
   @Test
+  public void convertAclAcceptsGuidWithoutStringValue() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("x5");
+    acl.setObjectType(31);
+    acl.setObjectId(5);
+    Guid guid = new Guid();
+    guid.setHostId(6622135);
+    guid.setLongValue(7281114506216867000L);
+    guid.setType((short) 17);
+    guid.setUuid(1418);
+    acl.setGuid(guid);
+    Guid objectGuid = new Guid();
+    objectGuid.setHostId(0);
+    objectGuid.setLongValue(5);
+    objectGuid.setType((short) 31);
+    objectGuid.setUuid(5);
+    acl.setObjectGuid(objectGuid);
+
+    PSAclImpl converted = ApiUtils.convertAcl(acl);
+    assertEquals("x5", converted.getName());
+    assertEquals(31, converted.getObjectType());
+    assertEquals(5, converted.getObjectId());
+    assertNotNull(converted.getGUID());
+    assertEquals(17, converted.getGUID().getType());
+    assertEquals(1418, converted.getGUID().getUUID());
+  }
+
+  @Test
   public void convertAclsSavePreservesObjectIdentityFromGuid() {
     Acl acl = new Acl();
     acl.setId(7);
