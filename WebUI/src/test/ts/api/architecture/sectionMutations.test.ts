@@ -31,6 +31,11 @@ import {
   canMoveNavNode,
   canMoveNavNodeDown,
   canMoveNavNodeUp,
+  canRenameNavNode,
+  canEditSectionProperties,
+  canReplaceLandingPage,
+  isBlogSectionType,
+  BLOG_NAVON_NAVIGATION_SUPPORT,
   findNavNodeById,
   findSiblingPlacement,
   isRootNavNode,
@@ -124,6 +129,23 @@ describe("sectionMutations (#3096)", () => {
     );
   });
 
+  it("signs blog navons as read-only in Navigation (#3351)", () => {
+    expect(BLOG_NAVON_NAVIGATION_SUPPORT).toBe("read-only");
+    const withBlog: NavTreeNode = node("root", "Home", [
+      node("blog1", "News", [], { sectionType: "blog" }),
+    ]);
+    const blog = findNavNodeById(withBlog, "blog1");
+    expect(isBlogSectionType(blog?.sectionType)).toBe(true);
+    expect(canCreateChildUnder(blog ?? null)).toBe(true);
+    expect(canRenameNavNode(blog ?? null)).toBe(false);
+    expect(canRenameNavNode(findNavNodeById(withBlog, "root"))).toBe(true);
+    expect(canEditSectionProperties(blog ?? null)).toBe(false);
+    expect(canReplaceLandingPage(blog ?? null)).toBe(false);
+    expect(canConvertSectionToFolder(withBlog, blog)).toBe(false);
+    expect(canDeleteNavNode(withBlog, blog)).toBe(true);
+    expect(canMoveNavNode(withBlog, blog)).toBe(true);
+  });
+
   it("validates create-from-folder fields and splits page paths (#3302)", () => {
     expect(validateSourceFolderPath("")).toMatch(/required/i);
     expect(validateSourceFolderPath("  //Sites/Demo/F  ")).toBeNull();
@@ -154,6 +176,19 @@ describe("sectionMutations (#3096)", () => {
     expect(create.CreateSiteSection.pageTitle).toBe("Products");
     expect(create.CreateSiteSection.folderPath).toBe("//Sites/Demo");
     expect(create.CreateSiteSection.copyTemplates).toBe(true);
+
+    const blogCreate = buildCreateSiteSectionBody({
+      pageTitle: " News ",
+      pageLinkTitle: " News ",
+      pageName: "news",
+      pageUrlIdentifier: "news",
+      templateId: "tpl-list",
+      folderPath: "/Sites/Demo",
+      sectionType: "blog",
+      blogPostTemplateId: "tpl-post",
+    });
+    expect(blogCreate.CreateSiteSection.sectionType).toBe("blog");
+    expect(blogCreate.CreateSiteSection.blogPostTemplateId).toBe("tpl-post");
 
     const update = buildUpdateSiteSectionBody({
       id: "guid-1",

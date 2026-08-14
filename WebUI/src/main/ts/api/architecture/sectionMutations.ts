@@ -127,6 +127,18 @@ export function isRootNavNode(
 }
 
 /**
+ * Signed Navigation support for blog-typed navons (#3351).
+ * This surface is <strong>read-only</strong> for blog type: badge + structure
+ * parent / delete / move. It is not a blog editor.
+ *
+ * <p>Create or edit a blog section with the existing
+ * {@code POST /sitemanage/section} API ({@code sectionType=blog}) from the
+ * Home dashboard <strong>Blogs</strong> gadget. Write posts from Home →
+ * Create. Do not invent a second blog authoring product here.</p>
+ */
+export const BLOG_NAVON_NAVIGATION_SUPPORT = "read-only" as const;
+
+/**
  * Regular section (or blog) may host children; section/external links may not
  * be create-parents in this slice.
  */
@@ -134,6 +146,15 @@ export function canCreateChildUnder(node: NavTreeNode | null): boolean {
   if (!node) return false;
   const t = String(node.sectionType || "section").toLowerCase();
   return t === "section" || t === "blog";
+}
+
+/**
+ * Rename in Navigation applies to regular sections only.
+ * Blogs, section links, and external links are not renamed here (#3351).
+ */
+export function canRenameNavNode(node: NavTreeNode | null): boolean {
+  if (!node) return false;
+  return String(node.sectionType || "section").toLowerCase() === "section";
 }
 
 /**

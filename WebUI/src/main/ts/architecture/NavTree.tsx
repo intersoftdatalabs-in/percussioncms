@@ -32,17 +32,28 @@ import { isNavBranch } from "./treeModel";
 import { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 import { collectVisibleNavNodes, resolveNavTreeKey } from "./navTreeKeyboard";
 
-/** i18n type badge for nav tree rows (#3098). */
-function typeBadgeLabel(sectionType: SectionType | string): string | null {
+/** i18n type badge for nav tree rows (#3098 / #3351 blog). */
+function typeBadgeMeta(
+  sectionType: SectionType | string,
+): { label: string; i18nKey: string } | null {
   switch (String(sectionType).toLowerCase()) {
     case "section":
       return null;
     case "sectionlink":
-      return ARCH_MSG.TYPE_SECTION_LINK;
+      return {
+        label: ARCH_MSG.TYPE_SECTION_LINK,
+        i18nKey: ARCH_MSG_KEYS.TYPE_SECTION_LINK,
+      };
     case "externallink":
-      return ARCH_MSG.TYPE_EXTERNAL_LINK;
+      return {
+        label: ARCH_MSG.TYPE_EXTERNAL_LINK,
+        i18nKey: ARCH_MSG_KEYS.TYPE_EXTERNAL_LINK,
+      };
     case "blog":
-      return ARCH_MSG.TYPE_BLOG;
+      return {
+        label: ARCH_MSG.TYPE_BLOG,
+        i18nKey: ARCH_MSG_KEYS.TYPE_BLOG,
+      };
     default:
       // Do not surface raw CMS type names for unforeseen section types.
       return null;
@@ -232,7 +243,7 @@ export function NavTree({
     const branch = isNavBranch(node);
     const open = expanded[node.id] ?? false;
     const selected = selectedId === node.id;
-    const typeBadge = typeBadgeLabel(node.sectionType);
+    const typeBadge = typeBadgeMeta(node.sectionType);
     // Roving tabindex follows last focused item (Tab lands there; others -1).
     const isTabStop =
       focusedId != null
@@ -279,8 +290,9 @@ export function NavTree({
               <span
                 style={badgeStyle}
                 data-testid={`nav-tree-badge-${node.id}`}
+                data-i18n-key={typeBadge.i18nKey}
               >
-                {typeBadge}
+                {typeBadge.label}
               </span>
             ) : null}
             {node.requiresLogin ? (

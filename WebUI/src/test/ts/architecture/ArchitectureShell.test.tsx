@@ -1241,4 +1241,67 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       );
     });
   });
+
+  it("treats blog navons as read-only in Navigation (#3351)", async () => {
+    const treeWithBlog = {
+      ...treeFixture,
+      children: [
+        ...treeFixture.children,
+        {
+          id: "blog-1",
+          title: "News blog",
+          folderPath: "//Sites/Demo/NewsBlog",
+          sectionType: "blog" as const,
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeWithBlog);
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-blog-1")).toBeTruthy();
+    });
+    expect(screen.getByTestId("nav-tree-badge-blog-1").textContent).toMatch(
+      /blog/i,
+    );
+    expect(screen.getByTestId("architecture-blog-note").textContent).toMatch(
+      /blog/i,
+    );
+    expect(screen.queryByTestId("architecture-action-create-blog")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("nav-tree-item-blog-1"));
+    expect(
+      (screen.getByTestId("architecture-action-create") as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+    expect(
+      (screen.getByTestId("architecture-action-landing") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-properties",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByTestId("architecture-action-rename") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-convert-to-folder",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByTestId("architecture-action-delete") as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+  });
 });

@@ -45,6 +45,14 @@ const sampleRoot: NavTreeNode = {
       requiresLogin: true,
       children: [],
     },
+    {
+      id: "blog-1",
+      title: "News blog",
+      folderPath: "//Sites/Demo/NewsBlog",
+      sectionType: "blog",
+      requiresLogin: false,
+      children: [],
+    },
   ],
 };
 
@@ -81,6 +89,15 @@ describe("NavTree (#3095 / #3354)", () => {
     expect(screen.getByTestId("nav-tree-badge-ext-1").textContent).toMatch(
       /external/i,
     );
+    expect(screen.getByTestId("nav-tree-badge-blog-1").textContent).toMatch(
+      /blog/i,
+    );
+    expect(
+      screen.getByTestId("nav-tree-badge-blog-1").getAttribute("data-i18n-key"),
+    ).toBe(ARCH_MSG_KEYS.TYPE_BLOG);
+    expect(
+      screen.getByTestId("nav-tree-item-blog-1").getAttribute("data-section-type"),
+    ).toBe("blog");
     const secure = screen.getByTestId("nav-tree-secure-ext-1");
     expect(secure).toBeTruthy();
     expect(secure.getAttribute("title")).toMatch(/requires login/i);
@@ -156,9 +173,9 @@ describe("NavTree (#3095 / #3354)", () => {
     rootItem.focus();
     fireEvent.keyDown(rootItem, { key: "End" });
     expect(document.activeElement?.getAttribute("data-testid")).toBe(
-      "nav-tree-item-ext-1",
+      "nav-tree-item-blog-1",
     );
-    fireEvent.keyDown(screen.getByTestId("nav-tree-item-ext-1"), {
+    fireEvent.keyDown(screen.getByTestId("nav-tree-item-blog-1"), {
       key: "Home",
     });
     expect(document.activeElement?.getAttribute("data-testid")).toBe(

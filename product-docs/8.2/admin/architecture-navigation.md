@@ -191,17 +191,38 @@ or **Move section** and pick the current parent with a new position.
 5. If no page is selected, **Replace landing page** stays disabled and the dialog
    shows **No page selected** — the server is not called.
 
-### Blog sections
+### Blog sections (signed support — #3351)
 
-Blog-type sections appear in the navigation tree (type badge). Full blog post
-authoring remains outside this Navigation editor; treat blog structure as
-visible but limited in this surface. **Convert to folder** applies only to
-regular (non-root) sections — not blogs, section links, or external links.
+Blog-type navons are **recognizable** in the Navigation tree (a **Blog** type
+badge). Navigation is **read-only** for blog type: it is not a blog editor.
+
+| Capability | Support |
+|------------|---------|
+| See blog sections in the tree (**Blog** badge) | **IN** |
+| Use a blog as the parent when creating a regular section, section link, or external link | **IN** |
+| Delete or move a blog navon (same structure APIs as other non-root nodes) | **IN** |
+| Create or edit a blog section in Navigation | **Explicit OUT** |
+| Replace landing page / section properties / rename / convert to folder on a blog | **Explicit OUT** |
+| Full blog post authoring in Navigation | **Explicit OUT** |
+
+**Operator alternative (create / edit blogs):**
+
+1. Create or list blog sections from the Home dashboard **Blogs** gadget. That
+   gadget already calls the existing site-section REST
+   (`POST /sitemanage/section` with `sectionType=blog`, plus a blog-list
+   template and a blog-post template).
+2. Write posts from **Home → Create → Blog**.
+3. After a blog exists, open **Navigation** for that site to see the **Blog**
+   badge and to add regular child sections or links under it.
+
+**Convert to folder** still applies only to regular (non-root) sections — not
+blogs, section links, or external links.
 
 ### Still later
 
-Folder ACL user-list editing (write principals), blog type editor, and
-retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
+Folder ACL user-list editing (write principals) and retirement of the legacy
+`siteArchitecture.jsp` host ship in follow-on slices. Blog authoring stays on
+Home / the Blogs gadget — Navigation will not grow a second blog editor.
 
 ## Current status (migration)
 
@@ -220,6 +241,7 @@ retirement of the legacy `siteArchitecture.jsp` host ship in follow-on slices.
 | Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
 | Landing page picker + replace (`replaceLandingPage`) | **Available** |
+| Blog navon type (badge + read-only structure) | **Available** (signed #3351; create/edit blogs on Home Blogs gadget) |
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
