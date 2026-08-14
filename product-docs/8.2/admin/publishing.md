@@ -35,7 +35,9 @@ For Git/filesystem Virtual Sites such as product documentation:
 
 - Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session.
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
-  `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`).
+  `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
+  current Git/filesystem tree. After `git pull` or a local Markdown edit, run Build (or Publish)
+  again — no CMS restart.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied.
