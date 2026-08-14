@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, createEvent, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NavTree } from "../../../main/ts/architecture/NavTree";
@@ -47,6 +47,13 @@ const sampleRoot: NavTreeNode = {
     },
   ],
 };
+
+/** RTL fireEvent returns !defaultPrevented; assert the event flag directly. */
+function keyDownDefaultPrevented(el: HTMLElement, key: string): boolean {
+  const ev = createEvent.keyDown(el, { key });
+  fireEvent(el, ev);
+  return ev.defaultPrevented;
+}
 
 describe("NavTree (#3095 / #3354)", () => {
   beforeEach(() => {
@@ -112,14 +119,14 @@ describe("NavTree (#3095 / #3354)", () => {
     );
     const leaf = screen.getByTestId("nav-tree-item-link-1");
     leaf.focus();
-    expect(fireEvent.keyDown(leaf, { key: "Enter" })).toBe(false);
+    expect(keyDownDefaultPrevented(leaf, "Enter")).toBe(true);
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: "link-1" }),
     );
     expect(screen.getByTestId("nav-tree-item-link-1")).toBeTruthy();
 
     onSelect.mockClear();
-    expect(fireEvent.keyDown(leaf, { key: " " })).toBe(false);
+    expect(keyDownDefaultPrevented(leaf, " ")).toBe(true);
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: "link-1" }),
     );
@@ -127,14 +134,14 @@ describe("NavTree (#3095 / #3354)", () => {
     onSelect.mockClear();
     const rootItem = screen.getByTestId("nav-tree-item-root");
     rootItem.focus();
-    expect(fireEvent.keyDown(rootItem, { key: "Enter" })).toBe(false);
+    expect(keyDownDefaultPrevented(rootItem, "Enter")).toBe(true);
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: "root" }),
     );
     expect(screen.queryByTestId("nav-tree-item-link-1")).toBeNull();
 
     onSelect.mockClear();
-    expect(fireEvent.keyDown(rootItem, { key: " " })).toBe(false);
+    expect(keyDownDefaultPrevented(rootItem, " ")).toBe(true);
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ id: "root" }),
     );
@@ -177,8 +184,8 @@ describe("NavTree (#3095 / #3354)", () => {
     );
     const rootItem = screen.getByTestId("nav-tree-item-root");
     rootItem.focus();
-    expect(fireEvent.keyDown(rootItem, { key: "Tab" })).toBe(true);
-    expect(fireEvent.keyDown(rootItem, { key: "ArrowDown" })).toBe(false);
+    expect(keyDownDefaultPrevented(rootItem, "Tab")).toBe(false);
+    expect(keyDownDefaultPrevented(rootItem, "ArrowDown")).toBe(true);
   });
 
   it("reports selection and collapses via toggle", () => {
