@@ -47,6 +47,21 @@ class PSSiteSectionRestServiceLoadTreeEmptyTest {
   }
 
   @Test
+  void loadTreePassesThroughCreatedRoot() throws Exception {
+    PSSectionNode created = new PSSectionNode();
+    created.setId("0-101-360");
+    created.setTitle("Corporate_Investments");
+    created.setFolderPath("//Sites/CorporateInvestments");
+    created.setChildNodes(java.util.Collections.emptyList());
+    when(siteSectionService.loadTree("Corporate_Investments")).thenReturn(created);
+
+    PSSectionNode tree = rest.loadTree("Corporate_Investments");
+    assertEquals("0-101-360", tree.getId());
+    assertEquals("Corporate_Investments", tree.getTitle());
+    assertTrue(tree.getChildNodes().isEmpty());
+  }
+
+  @Test
   void loadTreeReturnsServiceEmptyTree() throws Exception {
     when(siteSectionService.loadTree("Demo"))
         .thenReturn(PSSectionNode.emptyTree("Demo", "//Sites/Demo"));
