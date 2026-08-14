@@ -17,10 +17,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ActionMenu } from "../../../main/ts/api/contentExplorer/types";
 import {
+  collapseFlattenedMenuActionRoots,
   findActions,
   findAllowedContentTypeMenus,
   findAllowedTemplateMenus,
   mapActionMenusToMenuActions,
+  nestActionMenusByParentId,
   unwrapActionMenuChildren,
   unwrapActionMenuListPayload,
 } from "../../../main/ts/api/contentExplorer/actionMenuApi";
@@ -124,9 +126,95 @@ describe("mapActionMenusToMenuActions", () => {
       description: "Open the item in the editor",
       sortRank: 0,
       menuType: "MENUITEM",
+      id: 1,
       parameters: undefined,
       children: undefined,
     });
+  });
+
+  it("nests flat MENUITEM siblings using parentId (#3379)", () => {
+    const menus: ActionMenu[] = [
+      makeMenu({ id: 8, name: "file", menuType: "MENU", sortRank: 0 }),
+      makeMenu({
+        id: 2,
+        name: "open",
+        parentId: 8,
+        menuType: "MENUITEM",
+        sortRank: 1,
+      }),
+      makeMenu({
+        id: 17,
+        name: "saveAs",
+        parentId: 8,
+        menuType: "MENUITEM",
+        sortRank: 2,
+      }),
+    ];
+    const actions = mapActionMenusToMenuActions(menus);
+    expect(actions.map((a) => a.name)).toEqual(["file"]);
+    expect(actions[0]?.children?.map((c) => c.name)).toEqual(["open", "saveAs"]);
+  });
+
+  it("does not dump nested children that also appear as extra roots (#3379)", () => {
+    const nestedKids = [
+      makeMenu({ id: 2, name: "open", sortRank: 1 }),
+      makeMenu({ id: 17, name: "saveAs", sortRank: 2 }),
+    ];
+    const menus: ActionMenu[] = [
+      makeMenu({
+        id: 8,
+        name: "file",
+        menuType: "MENU",
+        sortRank: 0,
+        children: nestedKids,
+      }),
+      ...nestedKids,
+    ];
+    const actions = mapActionMenusToMenuActions(menus);
+    expect(actions.map((a) => a.name)).toEqual(["file"]);
+    expect(actions[0]?.children?.map((c) => c.name)).toEqual(["open", "saveAs"]);
+  });
+
+  it("unwrapActionMenuChildren accepts a single child object", () => {
+    expect(
+      unwrapActionMenuChildren({
+        ActionMenu: makeMenu({ name: "only" }),
+      }).map((m) => m.name),
+    ).toEqual(["only"]);
+  });
+
+  it("nestActionMenusByParentId is a no-op without parentId", () => {
+    const menus = [makeMenu({ name: "open" }), makeMenu({ name: "edit", id: 2 })];
+    expect(nestActionMenusByParentId(menus).map((m) => m.name)).toEqual([
+      "open",
+      "edit",
+    ]);
+  });
+
+  it("collapseFlattenedMenuActionRoots drops descendant names from roots", () => {
+    const file = {
+      name: "file",
+      label: "File",
+      sortRank: 0,
+      menuType: "MENU" as const,
+      children: [
+        {
+          name: "open",
+          label: "Open",
+          sortRank: 1,
+          menuType: "MENUITEM" as const,
+        },
+      ],
+    };
+    const open = {
+      name: "open",
+      label: "Open",
+      sortRank: 1,
+      menuType: "MENUITEM" as const,
+    };
+    expect(
+      collapseFlattenedMenuActionRoots([file, open]).map((a) => a.name),
+    ).toEqual(["file"]);
   });
 
   it("omits the children key when there are none", () => {

@@ -98,4 +98,21 @@ class PSServicesLegacyTypedTest {
         "select ACTIONID, CHILDACTIONID from RXMENUACTIONRELATION",
         PSCmsObjectMgr.ACTION_MENU_RELATION_SQL);
   }
+
+  @Test
+  @DisplayName("action menu relation row normalizes Object[] and List pairs (#3379)")
+  void actionMenuRelationPairFromNativeRow() {
+    int[] fromArray = PSCmsObjectMgr.toActionMenuRelationPair(new Object[] {8, 17});
+    assertEquals(8, fromArray[0]);
+    assertEquals(17, fromArray[1]);
+    int[] fromList =
+        PSCmsObjectMgr.toActionMenuRelationPair(java.util.Arrays.asList(104, 118));
+    assertEquals(104, fromList[0]);
+    assertEquals(118, fromList[1]);
+    org.junit.jupiter.api.Assertions.assertNull(PSCmsObjectMgr.toActionMenuRelationPair(null));
+    org.junit.jupiter.api.Assertions.assertNull(
+        PSCmsObjectMgr.toActionMenuRelationPair(new Object[] {1}));
+    org.junit.jupiter.api.Assertions.assertNull(
+        PSCmsObjectMgr.toActionMenuRelationPair(new Object[] {"8", 17}));
+  }
 }

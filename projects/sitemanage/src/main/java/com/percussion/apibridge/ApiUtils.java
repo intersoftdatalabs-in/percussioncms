@@ -773,9 +773,17 @@ public class ApiUtils {
     // Preserve cascading children for nested Explorer toolbar dropdowns (#2730).
     // Without this, structured menus (content-type submenus / RXMENUACTIONRELATION
     // trees) lose hierarchy and ActionToolbar dumps every leaf as a flat button.
+    // Stamp parentId on each child so the SPA can reconstruct if a serializer
+    // flattens the tree (#3379).
     List<PSActionMenu> childMenus = pa.getChildren();
     if (childMenus != null && !childMenus.isEmpty()) {
-      ret.setChildren(new ActionMenuList(convertPSActionMenuList(childMenus)));
+      ActionMenuList converted = new ActionMenuList(convertPSActionMenuList(childMenus));
+      for (ActionMenu child : converted) {
+        if (child != null && child.getParentId() == 0) {
+          child.setParentId(ret.getId());
+        }
+      }
+      ret.setChildren(converted);
     }
 
     ArrayList<ActionMenuProperty> props = new ArrayList<>();

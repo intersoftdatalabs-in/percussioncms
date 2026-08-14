@@ -183,6 +183,24 @@ describe("filterEnabledMenuActions", () => {
     );
   });
 
+  it("keeps MENU children nested rather than hoisting them to the toolbar (#3379)", () => {
+    const actions: MenuAction[] = [
+      {
+        name: "file",
+        label: "File",
+        sortRank: 1,
+        menuType: "MENU",
+        children: [
+          leaf({ name: "open", url: "/Rhythmyx/ok" }),
+          leaf({ name: "saveAs", url: "/Rhythmyx/saveas" }),
+        ],
+      },
+    ];
+    const filtered = filterToolbarActions(actions, BASE);
+    expect(filtered.map((a) => a.name)).toEqual(["file"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual(["open", "saveAs"]);
+  });
+
   it("does not mutate the input tree", () => {
     const child = leaf({ name: "child", url: "javascript:x" });
     const parent: MenuAction = {

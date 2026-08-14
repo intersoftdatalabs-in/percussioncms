@@ -469,6 +469,11 @@ export interface ActionMenu {
   /** Marker for client-handled vs server-handled actions. */
   handler?: string;
   /**
+   * Parent {@link ActionMenu.id} from {@code RXMENUACTIONRELATION} when the
+   * wire is a flat catalog (#3379). {@code 0} / omitted means a root.
+   */
+  parentId?: number;
+  /**
    * Cascading children. Wire may be a raw array (Jackson ArrayList field)
    * or an {@link ActionMenuListEnvelope} object.
    */
@@ -503,6 +508,10 @@ export interface MenuAction {
   handler?: string;
   sortRank: number;
   menuType: ActionMenuType;
+  /** Server action id (used to nest flat catalogs via {@code parentId}). */
+  id?: number;
+  /** Parent server action id when the catalog arrived flat (#3379). */
+  parentId?: number;
   parameters?: ActionMenuParameter[];
   /** Empty unless the parent has cascading children. */
   children?: MenuAction[];

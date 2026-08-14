@@ -62,6 +62,8 @@ public class ApiUtilsActionMenuConvertTest {
     assertEquals("open", converted.getChildren().get(0).getName());
     assertEquals("edit", converted.getChildren().get(1).getName());
     assertEquals("Open", converted.getChildren().get(0).getLabel());
+    assertEquals(1, converted.getChildren().get(0).getParentId());
+    assertEquals(1, converted.getChildren().get(1).getParentId());
   }
 
   @Test

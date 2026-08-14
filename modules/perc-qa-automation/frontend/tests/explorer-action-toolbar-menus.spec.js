@@ -36,6 +36,7 @@ const {
   TEST_IDS,
   explorerSpaUrl,
 } = require("./helpers/explorer-menu-bar");
+const { collectMenuParents } = require("./helpers/explorer-action-toolbar-catalog");
 
 test.describe("modern React Content Explorer — nested ActionToolbar menus (#2730)", () => {
   test.beforeEach(async ({ page }) => {
@@ -85,24 +86,88 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
   );
 
   test(
-    "MENU parents with children open nested dropdowns (soft when no nested menus)",
+    "MENU parents with children open nested dropdowns (do not skip when catalog has MENU parents)",
     { tag: ["@explorer-action-toolbar", "@explorer"] },
     async ({ page }) => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.actionToolbar}"]`),
       ).toBeVisible({ timeout: 15_000 });
 
+      const catalog = await page.evaluate(async () => {
+        const paths = [
+          "/Rhythmyx/services/actions/find",
+          "/services/actions/find",
+        ];
+        for (const url of paths) {
+          try {
+            const res = await fetch(url, { credentials: "same-origin" });
+            if (!res.ok) continue;
+            return { url, payload: await res.json() };
+          } catch {
+            // try next path
+          }
+        }
+        return { url: null, payload: null };
+      });
+
+      const menuParents = collectMenuParents(catalog.payload);
+      test.info().annotations.push({
+        type: "note",
+        description: `find() ${catalog.url || "unreached"} MENU parents=${menuParents.length}`,
+      });
+
       const parents = page.locator(
         `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"][aria-haspopup="menu"]`,
       );
+
+      if (menuParents.length > 0) {
+        // Live catalog has cascading MENU parents — must render dropdowns
+        // (#3379). Do not soft-skip.
+        await expect
+          .poll(async () => parents.count(), { timeout: 15_000 })
+          .toBeGreaterThan(0);
+
+        const parent = parents.first();
+        const parentTestId = await parent.getAttribute("data-testid");
+        const menuName = String(parentTestId || "").replace(
+          /^action-toolbar-item-/,
+          "",
+        );
+
+        // Closed: children of every MENU parent must not appear as extra
+        // top-level toolbar buttons (#3379).
+        const closedTopLevel = page.locator(
+          `[data-testid="${TEST_IDS.actionToolbar}"] > button[data-testid^="action-toolbar-item-"], [data-testid="${TEST_IDS.actionToolbar}"] > div > button[data-testid^="action-toolbar-item-"]`,
+        );
+        const closedNames = await closedTopLevel.evaluateAll((els) =>
+          els.map((el) => el.getAttribute("data-testid") || ""),
+        );
+        for (const parentMenu of menuParents) {
+          for (const childName of parentMenu.childNames) {
+            expect(
+              closedNames.includes(`action-toolbar-item-${childName}`),
+              `closed toolbar dumped child "${childName}" of "${parentMenu.name}" as a top-level button`,
+            ).toBe(false);
+          }
+        }
+
+        await parent.click();
+        await expect(
+          page.locator(`[data-testid="action-toolbar-menu-${menuName}"]`),
+        ).toBeVisible({ timeout: 5_000 });
+        const items = page.locator(
+          `[data-testid="action-toolbar-menu-${menuName}"] [role="menuitem"]`,
+        );
+        await expect(items.first()).toBeVisible();
+        return;
+      }
+
       const parentCount = await parents.count();
       if (parentCount === 0) {
-        // Live CMS may still return only leaf MENUITEMs for the current
-        // selection; nested dropdown chrome is covered by WebUI Vitest.
         test.info().annotations.push({
           type: "note",
           description:
-            "No aria-haspopup=menu parents on live CMS; nested chrome covered by Vitest ActionToolbar tests.",
+            "Live catalog has no MENU parents; nested chrome covered by WebUI Vitest.",
         });
         return;
       }
@@ -117,12 +182,13 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
       await expect(
         page.locator(`[data-testid="action-toolbar-menu-${menuName}"]`),
       ).toBeVisible({ timeout: 5_000 });
-
-      // While open, at least one menuitem is present under the dropdown.
-      const items = page.locator(
-        `[data-testid="action-toolbar-menu-${menuName}"] [role="menuitem"]`,
-      );
-      await expect(items.first()).toBeVisible();
+      await expect(
+        page
+          .locator(
+            `[data-testid="action-toolbar-menu-${menuName}"] [role="menuitem"]`,
+          )
+          .first(),
+      ).toBeVisible();
     },
   );
 });
