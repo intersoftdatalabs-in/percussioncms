@@ -1,0 +1,162 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Explorer toolbar catalog load (#3379 / parent #2730).
+ *
+ * <p>Always starts from {@code GET /actions/find} so MENU parents stay
+ * nested. {@code POST /actions/find/types} is a flat content-type list
+ * and must never replace the cascade (that dump is what human QA saw on
+ * #2783). Extra type menus are merged under an existing New/Content MENU
+ * or dropped — they are not appended as top-level toolbar buttons.</p>
+ */
+
+import {
+  findActions,
+  findAllowedContentTypeMenus,
+  mapActionMenusToMenuActions,
+} from "../api/contentExplorer/actionMenuApi";
+import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
+import { isWorkflowEligibleItem } from "./workflowEligibility";
+
+export function parseExplorerContentId(
+  id: string | number | undefined,
+): number | null {
+  if (id == null || id === "") {
+    return null;
+  }
+  const n = Number(id);
+  return Number.isFinite(n) ? n : null;
+}
+
+function isCascadeParent(action: MenuAction): boolean {
+  const type = (action.menuType ?? "").toUpperCase();
+  return type === "MENU" || type === "CONTEXTMENU" || type === "DYNAMICMENU";
+}
+
+function collectActionNames(actions: MenuAction[], into: Set<string>): void {
+  for (const action of actions) {
+    if (action?.name) {
+      into.add(action.name);
+    }
+    if (action.children?.length) {
+      collectActionNames(action.children, into);
+    }
+  }
+}
+
+function findNewItemHost(tree: MenuAction[]): MenuAction | null {
+  const preferred = ["new", "newitem", "new_item", "contenttypes", "content"];
+  const stack = [...tree];
+  let fallback: MenuAction | null = null;
+  while (stack.length > 0) {
+    const node = stack.shift()!;
+    if (isCascadeParent(node)) {
+      const key = node.name.replace(/[\s_-]/g, "").toLowerCase();
+      if (preferred.includes(key) || /new/i.test(node.label ?? node.name)) {
+        return node;
+      }
+      if (fallback == null) {
+        fallback = node;
+      }
+    }
+    if (node.children?.length) {
+      stack.push(...node.children);
+    }
+  }
+  return fallback;
+}
+
+function cloneAction(action: MenuAction): MenuAction {
+  return {
+    ...action,
+    children: action.children?.map(cloneAction),
+  };
+}
+
+/**
+ * Merge per-content-type menus into the cascading {@code find()} tree
+ * without flattening. Pure: does not mutate inputs.
+ */
+export function mergeContentTypeMenusIntoCatalog(
+  tree: MenuAction[],
+  typeMenus: MenuAction[],
+): MenuAction[] {
+  if (typeMenus.length === 0) {
+    return tree.slice();
+  }
+  const out = tree.map(cloneAction);
+  const known = new Set<string>();
+  collectActionNames(out, known);
+
+  const extraParents: MenuAction[] = [];
+  const extraLeaves: MenuAction[] = [];
+  for (const menu of typeMenus) {
+    if (!menu?.name || known.has(menu.name)) {
+      continue;
+    }
+    const copy = cloneAction(menu);
+    if ((copy.children?.length ?? 0) > 0 || isCascadeParent(copy)) {
+      extraParents.push(copy);
+    } else {
+      extraLeaves.push(copy);
+    }
+  }
+
+  if (extraLeaves.length > 0) {
+    const host = findNewItemHost(out) ?? extraParents.find(isCascadeParent);
+    if (host) {
+      host.children = [...(host.children ?? []), ...extraLeaves];
+    }
+    // Else drop leftover leaves — do not dump them as top-level buttons.
+  }
+
+  return extraParents.length > 0 ? [...out, ...extraParents] : out;
+}
+
+/**
+ * Product default for Explorer toolbar / context-menu catalog load.
+ *
+ * <p>Always uses {@code GET /actions/find} for MENU cascade. When a
+ * workflow-eligible item is selected, type menus are merged under existing
+ * parents — they never replace the tree.</p>
+ */
+export async function loadExplorerMenuCatalog(
+  item: PSPathItem | null,
+): Promise<MenuAction[]> {
+  const menus = await findActions({});
+  const tree = mapActionMenusToMenuActions(menus);
+  const contentId =
+    item && isWorkflowEligibleItem(item)
+      ? parseExplorerContentId(item.id)
+      : null;
+  if (contentId == null) {
+    return tree;
+  }
+  try {
+    const typeMenus = mapActionMenusToMenuActions(
+      await findAllowedContentTypeMenus([contentId]),
+    );
+    return mergeContentTypeMenusIntoCatalog(tree, typeMenus);
+  } catch (err: unknown) {
+    console.warn(
+      "[ContentExplorerShell] content-type menus load failed; keeping find() cascade",
+      err instanceof Error ? err.message : String(err),
+    );
+    return tree;
+  }
+}

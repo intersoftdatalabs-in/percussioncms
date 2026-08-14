@@ -306,27 +306,7 @@ public class PSCmsObjectMgr
             return new ArrayList<>();
         }
 
-        List<int[]> pairs = new ArrayList<>();
-        Session session = getSession();
-        try {
-            List<Object[]> rows =
-                    session.createNativeQuery(ACTION_MENU_RELATION_SQL, Object[].class).getResultList();
-            if (rows != null) {
-                for (Object[] row : rows) {
-                    if (row == null || row.length < 2 || row[0] == null || row[1] == null) {
-                        continue;
-                    }
-                    pairs.add(
-                            new int[] {
-                                ((Number) row[0]).intValue(), ((Number) row[1]).intValue()
-                            });
-                }
-            }
-        } catch (Exception e) {
-            logger.warn(
-                    "An error occurred while loading action menu relations; returning flat roots: {}",
-                    PSExceptionUtils.getMessageForLog(e));
-        }
+        List<int[]> pairs = loadActionMenuRelationPairs();
         return com.percussion.services.menus.PSActionMenuTreeAssembler.assemble(all, pairs);
     }
 
@@ -348,6 +328,75 @@ public class PSCmsObjectMgr
                     + ACTION_MENU_RELATION_CHILD_COL
                     + " from "
                     + ACTION_MENU_RELATION_TABLE;
+
+    /**
+     * Loads {@code RXMENUACTIONRELATION} edges as {@code [parentId, childId]} pairs.
+     *
+     * <p>Uses typed {@code addScalar} rather than {@code createNativeQuery(sql,
+     * Object[].class)} so H2/Hibernate 6 does not treat {@code Object[]} as an entity
+     * (that failure was swallowed and produced a flat toolbar dump — #3379).
+     */
+    @SuppressWarnings("unchecked")
+    List<int[]> loadActionMenuRelationPairs() {
+        List<int[]> pairs = new ArrayList<>();
+        Session session = getSession();
+        try {
+            List<Object[]> rows =
+                    session
+                            .createNativeQuery(ACTION_MENU_RELATION_SQL)
+                            .addScalar(
+                                    ACTION_MENU_RELATION_PARENT_COL,
+                                    org.hibernate.type.StandardBasicTypes.INTEGER)
+                            .addScalar(
+                                    ACTION_MENU_RELATION_CHILD_COL,
+                                    org.hibernate.type.StandardBasicTypes.INTEGER)
+                            .getResultList();
+            if (rows != null) {
+                for (Object row : rows) {
+                    int[] pair = toActionMenuRelationPair(row);
+                    if (pair != null) {
+                        pairs.add(pair);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.warn(
+                    "An error occurred while loading action menu relations; returning flat roots: {}",
+                    PSExceptionUtils.getMessageForLog(e));
+        }
+        return pairs;
+    }
+
+    /**
+     * Normalizes one native-query row to {@code [parentId, childId]}. Package-visible
+     * for unit tests. Accepts {@code Object[]} or a two-element {@link List}.
+     */
+    static int[] toActionMenuRelationPair(Object row) {
+        if (row == null) {
+            return null;
+        }
+        Object parent;
+        Object child;
+        if (row instanceof Object[] arr) {
+            if (arr.length < 2) {
+                return null;
+            }
+            parent = arr[0];
+            child = arr[1];
+        } else if (row instanceof List<?> list) {
+            if (list.size() < 2) {
+                return null;
+            }
+            parent = list.get(0);
+            child = list.get(1);
+        } else {
+            return null;
+        }
+        if (!(parent instanceof Number) || !(child instanceof Number)) {
+            return null;
+        }
+        return new int[] {((Number) parent).intValue(), ((Number) child).intValue()};
+    }
 
     /**
      * Builds the HQL for {@link #findLocales(String, String)}. Package-visible for unit tests.

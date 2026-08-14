@@ -179,7 +179,9 @@ export async function findAllowedTemplateMenus(
  * <p>Children under {@link ActionMenu.children} are unwrapped recursively
  * and sorted by {@code sortRank}. Nested parents remain nested so
  * {@code ActionToolbar} can render MENU dropdowns (#2730) rather than a
- * flat button dump. The mapper is pure (no side effects, no fetch).</p>
+ * flat button dump. Flat catalogs that still carry {@code parentId}
+ * (or that dump already-nested children as extra roots) are reconstructed
+ * here (#3379). The mapper is pure (no side effects, no fetch).</p>
  *
  * <p>Wire-shape note: Jackson typically serializes an {@code ActionMenuList}
  * field as a JSON <em>array</em>. Root list responses still wrap under
@@ -188,15 +190,37 @@ export async function findAllowedTemplateMenus(
 export function mapActionMenusToMenuActions(
   menus: ActionMenu[],
 ): MenuAction[] {
-  return (menus ?? [])
+  const reconstructed = nestActionMenusByParentId(menus ?? []);
+  const mapped = reconstructed
     .slice()
-    .sort((a, b) => a.sortRank - b.sortRank)
+    .sort((a, b) => (a.sortRank ?? 0) - (b.sortRank ?? 0))
     .map(mapSingleActionMenu);
+  return collapseFlattenedMenuActionRoots(mapped);
+}
+
+/**
+ * Normalize a single ActionMenu node. Jackson WRAP_ROOT_VALUE can emit
+ * {@code { ActionMenu: { name, ... } }} for a nested child.
+ */
+export function normalizeActionMenuNode(raw: unknown): ActionMenu | null {
+  if (raw == null || typeof raw !== "object") {
+    return null;
+  }
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj.name === "string") {
+    return raw as ActionMenu;
+  }
+  const inner = obj.ActionMenu ?? obj.actionMenu;
+  if (inner && typeof inner === "object" && !Array.isArray(inner)) {
+    return normalizeActionMenuNode(inner);
+  }
+  return null;
 }
 
 /**
  * Unwrap nested children whether Jackson emitted a raw array or an
- * {@code ActionMenuList} / {@code ActionMenu} envelope object.
+ * {@code ActionMenuList} / {@code ActionMenu} envelope object. A single
+ * child object (JAXB/Jettison) is accepted as a one-element list.
  */
 export function unwrapActionMenuChildren(
   children: ActionMenu["children"] | unknown,
@@ -205,18 +229,107 @@ export function unwrapActionMenuChildren(
     return [];
   }
   if (Array.isArray(children)) {
-    return children as ActionMenu[];
+    return children
+      .map((c) => normalizeActionMenuNode(c))
+      .filter((c): c is ActionMenu => c != null);
   }
   if (typeof children === "object") {
     const env = children as Record<string, unknown>;
-    if (Array.isArray(env.ActionMenuList)) {
-      return env.ActionMenuList as ActionMenu[];
+    const listed = env.ActionMenuList ?? env.ActionMenu ?? env.actionMenuList ?? env.actionMenu;
+    if (Array.isArray(listed)) {
+      return listed
+        .map((c) => normalizeActionMenuNode(c))
+        .filter((c): c is ActionMenu => c != null);
     }
-    if (Array.isArray(env.ActionMenu)) {
-      return env.ActionMenu as ActionMenu[];
-    }
+    const single = normalizeActionMenuNode(listed) ?? normalizeActionMenuNode(children);
+    return single ? [single] : [];
   }
   return [];
+}
+
+/**
+ * Rebuild a cascade from a flat {@link ActionMenu} list using
+ * {@code parentId} (RXMENUACTIONRELATION on the wire). Pure.
+ *
+ * <p>Parents that already have {@code children[]} keep those children and
+ * also accept additional siblings that point at the same parent. Items
+ * attached as children are omitted from the returned root list.</p>
+ */
+export function nestActionMenusByParentId(menus: ActionMenu[]): ActionMenu[] {
+  if (menus.length === 0) {
+    return menus;
+  }
+  const hasParent = menus.some(
+    (m) => m.parentId != null && m.parentId !== 0 && m.parentId !== m.id,
+  );
+  if (!hasParent) {
+    return menus;
+  }
+  const byId = new Map<number, ActionMenu>();
+  for (const menu of menus) {
+    if (menu == null || menu.id == null) {
+      continue;
+    }
+    if (byId.has(menu.id)) {
+      continue;
+    }
+    byId.set(menu.id, {
+      ...menu,
+      children: unwrapActionMenuChildren(menu.children),
+    });
+  }
+  const childIds = new Set<number>();
+  for (const menu of menus) {
+    if (menu == null || menu.id == null) {
+      continue;
+    }
+    const parentId = menu.parentId;
+    if (parentId == null || parentId === 0 || parentId === menu.id) {
+      continue;
+    }
+    const parent = byId.get(parentId);
+    const child = byId.get(menu.id);
+    if (!parent || !child) {
+      continue;
+    }
+    const kids = unwrapActionMenuChildren(parent.children);
+    if (!kids.some((k) => k.id === child.id || k.name === child.name)) {
+      parent.children = [...kids, child];
+    }
+    childIds.add(menu.id);
+  }
+  return menus
+    .filter((m) => m != null && (m.id == null || !childIds.has(m.id)))
+    .map((m) => (m.id != null ? (byId.get(m.id) ?? m) : m));
+}
+
+/**
+ * Drop root actions that already appear as descendants of another root.
+ * Prevents a tree+flat Jackson dump from rendering children as extra
+ * toolbar buttons while the parent dropdown is closed (#3379).
+ */
+export function collapseFlattenedMenuActionRoots(
+  actions: MenuAction[],
+): MenuAction[] {
+  if (actions.length === 0) {
+    return actions;
+  }
+  const descendantNames = new Set<string>();
+  const walk = (list?: MenuAction[]): void => {
+    for (const action of list ?? []) {
+      if (action?.name) {
+        descendantNames.add(action.name);
+      }
+      walk(action.children);
+    }
+  };
+  for (const root of actions) {
+    walk(root.children);
+  }
+  if (descendantNames.size === 0) {
+    return actions;
+  }
+  return actions.filter((a) => a != null && !descendantNames.has(a.name));
 }
 
 function mapSingleActionMenu(menu: ActionMenu): MenuAction {
@@ -233,6 +346,12 @@ function mapSingleActionMenu(menu: ActionMenu): MenuAction {
     menuType: menu.menuType,
     parameters: menu.parameters,
   };
+  if (menu.id != null) {
+    result.id = menu.id;
+  }
+  if (menu.parentId != null && menu.parentId !== 0) {
+    result.parentId = menu.parentId;
+  }
   if (childActions.length > 0) {
     result.children = childActions;
   }

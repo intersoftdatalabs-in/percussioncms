@@ -23,6 +23,10 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const { TEST_IDS } = require("../helpers/explorer-menu-bar");
+const {
+  collectMenuParents,
+  unwrapFindPayload,
+} = require("../helpers/explorer-action-toolbar-catalog");
 
 describe("explorer-action-toolbar-menus helpers (#2730)", () => {
   it("exports action toolbar + server-actions region test ids", () => {
@@ -36,5 +40,31 @@ describe("explorer-action-toolbar-menus helpers (#2730)", () => {
       TEST_IDS.serverActionsError,
       "explorer-server-actions-error",
     );
+  });
+
+  it("collectMenuParents finds nested MENU children and parentId links (#3379)", () => {
+    const fromChildren = collectMenuParents({
+      ActionMenu: [
+        {
+          id: 8,
+          name: "file",
+          menuType: "MENU",
+          children: [{ name: "open" }, { name: "saveAs" }],
+        },
+      ],
+    });
+    assert.equal(fromChildren.length, 1);
+    assert.equal(fromChildren[0].name, "file");
+    assert.deepEqual(fromChildren[0].childNames, ["open", "saveAs"]);
+
+    const fromParentId = collectMenuParents({
+      ActionMenu: [
+        { id: 8, name: "file", menuType: "MENU" },
+        { id: 2, name: "open", menuType: "MENUITEM", parentId: 8 },
+      ],
+    });
+    assert.equal(fromParentId.length, 1);
+    assert.deepEqual(fromParentId[0].childNames, ["open"]);
+    assert.deepEqual(unwrapFindPayload(null), []);
   });
 });

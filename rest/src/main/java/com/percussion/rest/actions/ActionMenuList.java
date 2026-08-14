@@ -17,6 +17,7 @@
 
 package com.percussion.rest.actions;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -24,9 +25,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-/** List of ActionMenu objects. */
+/**
+ * List of ActionMenu objects.
+ *
+ * <p>{@link JsonFormat.Shape#ARRAY} keeps Jackson from treating this {@code ArrayList}
+ * subclass as a bean ({@code {"empty":false}}) when it is nested as {@code
+ * ActionMenu.children}. A bean-shaped children field would drop the cascade and the
+ * Explorer toolbar would dump MENUITEMs as flat buttons (#3379 / #2730).
+ */
 @XmlRootElement(name = "ActionMenuList")
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class ActionMenuList extends ArrayList<ActionMenu> {
   /** Safe to serialize. */
   private static final long serialVersionUID = 1L;

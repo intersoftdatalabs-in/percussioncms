@@ -35,10 +35,9 @@ import React, {
 } from "react";
 import { formatApiError } from "../api/client";
 import {
-  findActions,
-  findAllowedContentTypeMenus,
-  mapActionMenusToMenuActions,
-} from "../api/contentExplorer/actionMenuApi";
+  loadExplorerMenuCatalog,
+  parseExplorerContentId,
+} from "./menuCatalogLoad";
 import {
   listDisplayFormats,
   normalizeDisplayFormatColumns,
@@ -282,46 +281,20 @@ const serverActionsLabelStyle: React.CSSProperties = {
   minWidth: 96,
 };
 
-function parseContentId(id: string | undefined): number | null {
-  if (!id) return null;
-  const n = Number(id);
-  return Number.isFinite(n) ? n : null;
-}
-
 /**
- * Load the server action catalog for the current selection (#2849 / #2972).
+ * Load the server action catalog for the current selection (#2849 / #2972 / #3379).
  *
- * <p>When a content item is selected, prefer per-content-type menus from
- * {@code POST /actions/find/types}. Failures or empty type menus fall back to
- * the full cascading tree from {@code GET /actions/find} (no
- * {@code item=true} filter) so toolbar dropdown parents ({@code MENU}) remain
- * available — {@code item=true} would keep only flat {@code MENUITEM} roots
- * and drop nested chrome. Folder-only selection always uses {@code find}.</p>
- *
- * <p>Desktop-only / surface enablement is applied by the shell after load
- * via {@link filterToolbarActions} / {@link filterContextMenuActions}.</p>
+ * <p>Always uses the cascading {@code GET /actions/find} tree. Per-content-type
+ * menus from {@code POST /actions/find/types} are merged under existing MENU
+ * parents — they never replace the cascade (that replacement dumped children
+ * as top-level toolbar buttons). Desktop-only / surface enablement is applied
+ * by the shell after load via {@link filterToolbarActions} /
+ * {@link filterContextMenuActions}.</p>
  */
 async function defaultLoadMenuActions(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
-  const contentId =
-    item && isWorkflowEligibleItem(item) ? parseContentId(item.id) : null;
-  if (contentId != null) {
-    try {
-      const menus = await findAllowedContentTypeMenus([contentId]);
-      if (menus.length > 0) {
-        return mapActionMenusToMenuActions(menus);
-      }
-    } catch (err: unknown) {
-      // Non-fatal: fall through to the full catalog so the toolbar is not wiped.
-      console.warn(
-        "[ContentExplorerShell] content-type menus load failed; falling back to findActions",
-        err instanceof Error ? err.message : String(err),
-      );
-    }
-  }
-  const menus = await findActions({});
-  return mapActionMenusToMenuActions(menus);
+  return loadExplorerMenuCatalog(item);
 }
 
 /**
@@ -1229,7 +1202,7 @@ function ContentExplorerShellInner({
       {showTranslations &&
         selection.item &&
         selection.item.type !== "folder" &&
-        parseContentId(selection.item.id) != null && (
+        parseExplorerContentId(selection.item.id) != null && (
           <section
             id="explorer-translations-panel"
             style={sidePanelStyle}
@@ -1253,7 +1226,7 @@ function ContentExplorerShellInner({
         !(
           selection.item &&
           selection.item.type !== "folder" &&
-          parseContentId(selection.item.id) != null
+          parseExplorerContentId(selection.item.id) != null
         ) && (
           <div
             id="explorer-translations-panel"
@@ -1359,7 +1332,7 @@ function ContentExplorerShellInner({
       {showRelationships &&
         selection.item &&
         selection.item.type !== "folder" &&
-        parseContentId(selection.item.id) != null && (
+        parseExplorerContentId(selection.item.id) != null && (
           <section
             id="explorer-relationships-panel"
             style={sidePanelStyle}
@@ -1379,7 +1352,7 @@ function ContentExplorerShellInner({
         !(
           selection.item &&
           selection.item.type !== "folder" &&
-          parseContentId(selection.item.id) != null
+          parseExplorerContentId(selection.item.id) != null
         ) && (
           <div
             id="explorer-relationships-panel"
