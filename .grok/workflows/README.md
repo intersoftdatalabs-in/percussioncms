@@ -6,32 +6,42 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-Unattended overnight worker:
+**Version:** `2.0.0` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
-1. **Stale In Progress cleanup** (optional, default on) - **first** — open issues labeled **In Progress** whose `updatedAt` is older than `stale_in_progress_hours` (default **4**) get the label **removed** + a short comment (abandoned/crashed claims). Fresh activity keeps the claim.  
-2. **PR follow-up PRE** (optional, default on) — **merge-blocker drain** on **our** open PRs (conflicts + open review threads only, **no CI polling**; oldest first) so existing PRs are unstuck before new discovery  
-3. **Discover** open GitHub issues — **maintainer authors only** (default) + flag destructive-instruction safety  
-4. **Triage** (implement / split / skip) — **priority-first** (no p7/p8 while higher work exists); oversized p1–p6 → **create 3 PR-sized slices** into the pool; hard-skip non-maintainer / destructive  
-5. **Peer PR review** (optional, default on) - independent code review of open PRs **missing reviews** that are **co-authored by another model** or have **no `model:*` labels** (agent-shaped only); **APPROVE** when solid; **squash-merge** when checks green + threads clear (`allow_peer_squash_merge`, default true)  
-6. **Work** sequential implement or split - **claim-check** maintainer author + safety + **In Progress** just before start; **file residual follow-up issues only when real work remains** (no residual-quota phase / no minimum count); **Maven build gates** (below)  
-7. **PR follow-up POST** - catch PRs opened this run + remaining merge blockers  
-8. **PR cluster** (optional, default on) - absorb same-file thrash into one superseding PR. **Required:** standalone `mvnw clean install` (compile + tests) of **every Maven module touched** by the absorb **before** opening the cluster PR or closing absorbed PRs. Cycle verify later is not a substitute.  
-9. **Security audit** (optional, default on) - if open CodeQL code-scanning alerts exist, ensure **one** open tracking issue `[night-issues: Security Audit - Fix Pass]` per `base_branch`, then open capped mitigation PRs  
-10. **Cycle verify** (optional, default on) - Maven clean install of this-run modules + H2 `qa-up` Playwright. Failures become unassigned **p1** `[night-issues: Cycle Verify]` residuals that **lead the next cycle**. Never assigns human QA.  
-11. **Human QA** (optional, default on) - **only after Cycle verify**. Create a **`qa task`** and assign **`vijaya-boddipudi`** only if Q1–Q8 pass. Work and Cycle verify never assign humans.  
-12. **Report** -> `scratch/night-report.md`
+Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
+
+1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
+2. **Preflight** (one scout) — stale **In Progress** cleanup + **compact** issue inventory + skip signals (owned PR blockers, peer-eligible other-model PRs, independent APPROVEs, open CodeQL alert count).  
+3. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
+4. **Triage** — only if inventory is non-empty. Product-first then pN; oversized p1–p6 product → **create 3 PR-sized slices**; QA: Failed → implement residual.  
+5. **Peer PR review** — only if Preflight found other-model / no-model eligible PRs.  
+6. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent** (parent `## Agent progress` is not updated for those skip rows).  
+7. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
+8. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
+9. **Security audit** — only if Preflight `open_alert_count > 0`.  
+10. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
+11. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Same-night own-model PRs skip; the next tick can assign after a human or other-model review.  
+12. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
 
 **Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
 
 **Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
 
-### Priority-first queue, then p7/p8 backfill
+### Product-first queue (HARD)
+
+Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
+
+| Class | What counts |
+|-------|-------------|
+| **PRODUCT** | `enhancement` / user-facing `bug` / `ui` / REST-API / install / Explorer / Navigation / Sites / Virtual Sites / ACL / publishing; **next phase** of an **open** p1–p6 epic; implement residuals from **`QA: Failed`** |
+| **DEBT** | `tech-debt`; javac / Xlint / javadoc / rawtypes / this-escape / warning-batch leftovers (`#2022`, `#2045`, `#2200`, `#2299`, …) |
 
 | Rule | Behavior |
 |------|----------|
-| **Phase A — higher work** | p1 → p6 (then Unset): implement-ready items **and** PR-sized **slices** from oversized work. **Never** queue p7/p8 while any eligible higher item remains (including large but sliceable epics) |
-| **Phase B — backfill** | Once Phase A cannot produce more priority items (after 3-slice expansion), **p7/p8 may fill remaining slots** — unused priority_slots **and** reserved `low_slots`. Intentional tech-debt burn when important work is done |
-| **prefer_easy** | Secondary **within** the same pN tier only — never a reason to pick p8 during Phase A |
+| **Phase A — product seats** | Fill `priority_slots` from PRODUCT only, p1 → p6 → Unset. Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains |
+| **Phase A — QA: Failed** | Not a skip. File or reuse an unassigned implement residual and queue it. Do not work the assigned `qa task` itself |
+| **Phase B — debt seats** | After Phase A is truly empty, p7/p8 may fill **`low_slots` only**. Unused `priority_slots` stay **empty**. Default `low_priority_quota_pct=0` → no debt seats. Empty queue beats an Xlint night |
+| **prefer_easy** | Tertiary **among DEBT items in the same pN** only. Default **false**. Never ranks tech-debt above product. Never a reason to pick p8 in Phase A |
 
 **p7/p8 does not relax build quality.** Tech-debt / Xlint batches use the same Maven gates as p1 work.
 
@@ -56,7 +66,7 @@ Hard bans:
 
 ### Oversized priority work → 3 slices into the pool
 
-When a **p1–p6/Unset** issue is too big for one PR but is still eligible (agent-safe, not hard-skip, not In Progress, not blocked by a covering open PR):
+When a **p1–p6/Unset PRODUCT** issue is too big for one PR, **or** an **open product epic** has no children for its **next** phase (Phase 1 shipped ≠ epic done), and it is still eligible (agent-safe, not hard-skip, not In Progress, this slice not blocked by a covering open PR):
 
 1. Prefer **existing** open unassigned children of that parent.
 2. Else define **exactly 3** PR-sized slices (not micro-tasks).
@@ -71,7 +81,7 @@ Fallback Work `disposition=split` still creates exactly 3 children and prefers s
 
 | Rule | Behavior |
 |------|----------|
-| **When** | After Discover/Triage (PRE already ran first), before Work |
+| **When** | After Triage (PRE already ran if blockers existed), before Work. **Skipped** when Preflight finds 0 other-model / no-model eligible PRs |
 | **Targets** | Open PRs **missing** an independent approving review, and either **(A)** labeled/co-authored by a **non-grok** model (`model:kilo`, Co-Authored Claude/Codex/Cursor/Kilo, etc.) or **(B)** **no `model:*` labels** but still **agent-shaped** (`operator:*`, Co-Authored footer, `fix/issue-*` / `feat/issue-*` branch) |
 | **Action** | Erlang-style code review → APPROVE or REQUEST_CHANGES |
 | **Squash merge** | Only if `allow_peer_squash_merge=true` (default), review APPROVE, no open threads, mergeable, **checks green** |
@@ -107,7 +117,7 @@ Before queueing or claiming work, agents scan issue **title + body** (and commen
 
 ### Stale In Progress cleanup (start of run)
 
-Runs **before** PRE / Discover.
+Runs as **Part A of Preflight** (not a separate agent) before PRE / Triage.
 
 | Rule | Behavior |
 |------|----------|
@@ -187,7 +197,11 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `labels` | string | - | Optional label filter for discovery |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
-| `prefer_easy` | bool | `true` | Prefer tech-debt / javadoc / small bugs |
+| `prefer_easy` | bool | `false` | After product items in the same pN, prefer smaller debt/bugs. Never outranks product work |
+| `low_priority_quota_pct` | int | `0` | Percent of `max_issues` reserved for p7/p8 only. `0` = product-only (empty queue OK). Unused priority slots never become Xlint |
+| `coding_tool` | string | live | Override stamp tool name. Empty = detect (`Grok Build`) |
+| `coding_tool_version` | string | live | Override stamp tool version. Empty = `grok --version` semver (e.g. `1.0.3`) |
+| `model_id` | string | live | Override session model slug. Empty = system identity (`You are Grok 4.6` → `grok-4.6`). Label is `model:<id>` |
 | `include_cycle_verify` | bool | `true` | After Security: Maven + H2 Playwright on this run; failures → next-cycle p1 leads |
 | `cycle_verify_allow_full_playwright` | bool | `false` | If true, Playwright `--allow-full`. Default: golden + login + this-run surfaces |
 | `max_cycle_verify_residuals` | int | `8` | Max **new** Cycle Verify issues per run (0–20). Reuse open residuals when present |
@@ -215,7 +229,7 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 ### Human QA handoff
 
-**When:** after Cycle verify only. Work, POST, cluster, Security, and Cycle verify **must not** assign any human.
+**When:** after Cycle verify only, **and** only if Preflight or peer review already sees an independent APPROVE (Q2 can pass). Same-night own-model Work PRs skip this phase. Work, POST, cluster, Security, and Cycle verify **must not** assign any human.
 
 **Assignment means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
 
@@ -282,9 +296,9 @@ Runs **after** Security audit and **before** Human QA. This is the quality gate 
 
 | Rule | Behavior |
 |------|----------|
-| **Maven** | Standalone `mvnw clean install` (no skipTests) for every module this run touched, on each this-run PR head + the integration tip |
+| **Maven** | Standalone `mvnw clean install` (no skipTests) for every module this run touched, **on the integration tip only**. Work already recorded C1 on each head. **Skipped** if this run opened no PR and no cluster |
 | **Integration tip** | Cluster branch if one opened; else newest WebUI/QA PR; else `origin/<base_branch>` |
-| **Playwright** | `perc-devctl qa-up` → `qa-health` → golden + login + this-run surfaces (or `--allow-full` if `cycle_verify_allow_full_playwright`) → **always** `qa-down` |
+| **Playwright** | Only if `modules_built` includes WebUI or `perc-qa-automation`. Then `perc-devctl qa-up` → `qa-health` → golden + login + this-run surfaces (or `--allow-full` if `cycle_verify_allow_full_playwright`) → **always** `qa-down`. Non-UI nights skip qa-up |
 | **Failures** | Unassigned **p1** issues titled `[night-issues: Cycle Verify] Maven: …` or `… Playwright: …`. Reuse if the same module/spec is already open |
 | **Next cycle** | Discover/Triage treat those titles as **LEAD** — they fill the queue **before** other p1 |
 | **Not** | Human QA assignment, `qa task` labels, or assignee `@vijaya-boddipudi` |
@@ -321,23 +335,32 @@ Not a money budget. It is the **maximum number of child agents** this workflow r
 | **Range** | 1-1,024 if you set `agent_budget` when launching |
 | **Does not count** | Schema-correction retries on the same agent |
 
-Rough agent use:
+Rough agent use (v2.0.0 — specialists are 0 when Preflight says there is nothing to do):
 
 | Phase | Agents |
 |-------|--------|
-| PR follow-up pre | 0-1 |
-| Discover | 1 |
-| Triage | 1 |
-| Peer PR review | 0-1 |
-| Work | 1 per queued issue |
-| PR follow-up post | 0-1 |
-| PR cluster | 0-1 |
-| Security audit | 0-1 |
-| Cycle verify | 0-1 |
-| Human QA | 0-1 |
-| Report | 1 |
+| Identity | 0–1 (0 if stamp args passed) |
+| Preflight | 1 |
+| PR follow-up pre | 0–1 |
+| Triage | 0–1 |
+| Peer PR review | 0–1 |
+| Work | 1 per **implement/split** item (not skip) |
+| PR follow-up post | 0–1 |
+| PR cluster | 0–1 |
+| Security audit | 0–1 |
+| Cycle verify | 0–1 |
+| Human QA | 0–1 |
+| Report | 0 (in-script) |
 
-**3 issues + dual PR follow-up + peer review + security + cycle verify + human QA ~ 12 agents.** Default 128 is plenty.
+A quiet grok-only night with no blockers, no alerts, and no other-model PRs is **Identity + Preflight + Triage + Work×N + Cycle verify** (if PRs opened). Default 128 is plenty.
+
+**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. Missing counts are unknown (`-1`), not zero. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs.
+
+Pass stamp args from the launcher so Identity does not spawn:
+
+```text
+name=night-issue-prs args={"max_issues": 10, "coding_tool": "Grok Build", "coding_tool_version": "1.0.3", "model_id": "grok-4.6"}
+```
 
 ```text
 # Security audit heavy night (many open CodeQL alerts)
@@ -446,7 +469,21 @@ Do **not** use a `daily-status` label. Status tables are built from **last 24h P
 | `operator:kilo` | Kilo Code agent |
 | `operator:minimax` | Minimax agent |
 | `operator:nate` | Human Nate only (optional; default is “no operator: label = Nate”) |
-| `model:<id>` | **Required with every agent operator** - e.g. `model:grok-4.5`, `model:claude-…`, whatever the tool reports |
+| `model:<id>` | **Required with every agent operator** — the **live session** model slug (`model:grok-4.6` when this session is Grok 4.6). Never hardcode `grok-4.5`. |
+
+### Session identity (not hardcoded)
+
+Stamps come from the **Identity** phase (or `coding_tool` / `coding_tool_version` / `model_id` args), not from a baked-in model string.
+
+| Field | How it is resolved |
+|-------|--------------------|
+| Tool | `Grok Build` when the host is Grok Build |
+| Tool version | `grok --version` semver (this machine: `1.0.3`) |
+| Model | Session identity (`You are Grok 4.6` → `grok-4.6`) |
+| Footer | `> Co-Authored by Grok Build 1.0.3 using grok-4.6 with agent night-issue-prs.` |
+| Labels | `operator:grok` + `operator:night-issue-prs` + `model:grok-4.6` |
+
+Peer review treats **this run's** `model:<id>` as own-model (do not self-review). A 4.6 night does not skip 4.5 PRs as “own,” and the reverse is also true.
 
 **Daily status Operator column** (derived):
 
