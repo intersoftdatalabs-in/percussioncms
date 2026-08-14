@@ -89,6 +89,7 @@ const KEYS = {
   ACTION_LANDING: "perc.ui.architecture.modern@Landing page",
   ACTION_EDIT_LINK: "perc.ui.architecture.modern@Edit link",
   ACTION_RENAME: "perc.ui.architecture.modern@Rename",
+  ACTION_MOVE: "perc.ui.architecture.modern@Move section",
   ACTION_MOVE_UP: "perc.ui.architecture.modern@Move up",
   ACTION_MOVE_DOWN: "perc.ui.architecture.modern@Move down",
   ACTION_DELETE: "perc.ui.architecture.modern@Delete",
@@ -207,6 +208,24 @@ const KEYS = {
   TREE_PICKER_CANCEL: "perc.ui.architecture.modern@Cancel",
   TREE_PICKER_HINT:
     "perc.ui.architecture.modern@Select a section in the tree, then confirm.",
+  // Move / reparent (#3349)
+  MOVE_DIALOG_TITLE: "perc.ui.architecture.modern@Move section",
+  MOVE_HINT:
+    "perc.ui.architecture.modern@Choose a new parent section. Optionally set a position among that parent's children. Cancel does not change the tree.",
+  MOVE_SECTION_LABEL: "perc.ui.architecture.modern@Section to move",
+  MOVE_PARENT_LABEL: "perc.ui.architecture.modern@New parent section",
+  MOVE_BROWSE: "perc.ui.architecture.modern@Browse sections…",
+  MOVE_POSITION_LABEL: "perc.ui.architecture.modern@Position",
+  MOVE_POSITION_END: "perc.ui.architecture.modern@At the end",
+  MOVE_POSITION_BEFORE: "perc.ui.architecture.modern@Before {0}",
+  MOVE_SUBMIT: "perc.ui.architecture.modern@Move",
+  MOVE_CANCEL: "perc.ui.architecture.modern@Cancel",
+  MOVE_NO_TARGET:
+    "perc.ui.architecture.modern@Select a parent section before moving.",
+  MOVE_INVALID_TARGET:
+    "perc.ui.architecture.modern@That section cannot be the new parent. Choose a regular section that is not the section you are moving or one of its children.",
+  MOVE_ROOT_BLOCKED:
+    "perc.ui.architecture.modern@The site root section cannot be moved.",
   // Blog support note
   BLOG_NOTE:
     "perc.ui.architecture.modern@Blog sections appear in the tree; full blog authoring remains outside this editor.",
@@ -288,6 +307,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   ACTION_LANDING: message(KEYS.ACTION_LANDING),
   ACTION_EDIT_LINK: message(KEYS.ACTION_EDIT_LINK),
   ACTION_RENAME: message(KEYS.ACTION_RENAME),
+  ACTION_MOVE: message(KEYS.ACTION_MOVE),
   ACTION_MOVE_UP: message(KEYS.ACTION_MOVE_UP),
   ACTION_MOVE_DOWN: message(KEYS.ACTION_MOVE_DOWN),
   ACTION_DELETE: message(KEYS.ACTION_DELETE),
@@ -377,6 +397,19 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   TREE_PICKER_CONFIRM: message(KEYS.TREE_PICKER_CONFIRM),
   TREE_PICKER_CANCEL: message(KEYS.TREE_PICKER_CANCEL),
   TREE_PICKER_HINT: message(KEYS.TREE_PICKER_HINT),
+  MOVE_DIALOG_TITLE: message(KEYS.MOVE_DIALOG_TITLE),
+  MOVE_HINT: message(KEYS.MOVE_HINT),
+  MOVE_SECTION_LABEL: message(KEYS.MOVE_SECTION_LABEL),
+  MOVE_PARENT_LABEL: message(KEYS.MOVE_PARENT_LABEL),
+  MOVE_BROWSE: message(KEYS.MOVE_BROWSE),
+  MOVE_POSITION_LABEL: message(KEYS.MOVE_POSITION_LABEL),
+  MOVE_POSITION_END: message(KEYS.MOVE_POSITION_END),
+  MOVE_POSITION_BEFORE: message(KEYS.MOVE_POSITION_BEFORE),
+  MOVE_SUBMIT: message(KEYS.MOVE_SUBMIT),
+  MOVE_CANCEL: message(KEYS.MOVE_CANCEL),
+  MOVE_NO_TARGET: message(KEYS.MOVE_NO_TARGET),
+  MOVE_INVALID_TARGET: message(KEYS.MOVE_INVALID_TARGET),
+  MOVE_ROOT_BLOCKED: message(KEYS.MOVE_ROOT_BLOCKED),
   BLOG_NOTE: message(KEYS.BLOG_NOTE),
   SECURE_BADGE: message(KEYS.SECURE_BADGE),
   SECURE_TITLE: message(KEYS.SECURE_TITLE),

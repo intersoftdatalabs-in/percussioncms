@@ -27202,11 +27202,44 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tu tuid="perc.ui.architecture.modern@Rename">
       <tuv xml:lang="en-us"><seg>Rename</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.architecture.modern@Move section">
+      <tuv xml:lang="en-us"><seg>Move section</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.architecture.modern@Move up">
       <tuv xml:lang="en-us"><seg>Move up</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Move down">
       <tuv xml:lang="en-us"><seg>Move down</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Choose a new parent section. Optionally set a position among that parent's children. Cancel does not change the tree.">
+      <tuv xml:lang="en-us"><seg>Choose a new parent section. Optionally set a position among that parent's children. Cancel does not change the tree.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Section to move">
+      <tuv xml:lang="en-us"><seg>Section to move</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@New parent section">
+      <tuv xml:lang="en-us"><seg>New parent section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Position">
+      <tuv xml:lang="en-us"><seg>Position</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@At the end">
+      <tuv xml:lang="en-us"><seg>At the end</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Before {0}">
+      <tuv xml:lang="en-us"><seg>Before {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Move">
+      <tuv xml:lang="en-us"><seg>Move</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@Select a parent section before moving.">
+      <tuv xml:lang="en-us"><seg>Select a parent section before moving.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@That section cannot be the new parent. Choose a regular section that is not the section you are moving or one of its children.">
+      <tuv xml:lang="en-us"><seg>That section cannot be the new parent. Choose a regular section that is not the section you are moving or one of its children.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.architecture.modern@The site root section cannot be moved.">
+      <tuv xml:lang="en-us"><seg>The site root section cannot be moved.</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Delete">
       <tuv xml:lang="en-us"><seg>Delete</seg></tuv>

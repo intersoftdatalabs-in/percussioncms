@@ -33,6 +33,7 @@ export interface StructureActionBarProps {
   canLanding: boolean;
   canEditLink: boolean;
   canRename: boolean;
+  canMove: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
   canDelete: boolean;
@@ -44,6 +45,7 @@ export interface StructureActionBarProps {
   onLanding: () => void;
   onEditLink: () => void;
   onRename: () => void;
+  onMove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onDelete: () => void;
@@ -79,6 +81,7 @@ export function StructureActionBar({
   canLanding,
   canEditLink,
   canRename,
+  canMove,
   canMoveUp,
   canMoveDown,
   canDelete,
@@ -90,6 +93,7 @@ export function StructureActionBar({
   onLanding,
   onEditLink,
   onRename,
+  onMove,
   onMoveUp,
   onMoveDown,
   onDelete,
@@ -102,6 +106,7 @@ export function StructureActionBar({
   const landingEnabled = canLanding && !busy;
   const editLinkEnabled = canEditLink && !busy;
   const renameEnabled = canRename && !busy;
+  const moveEnabled = canMove && !busy;
   const upEnabled = canMoveUp && !busy;
   const downEnabled = canMoveDown && !busy;
   const deleteEnabled = canDelete && !busy;
@@ -175,6 +180,15 @@ export function StructureActionBar({
         style={buttonStyle(renameEnabled)}
       >
         {ARCH_MSG.ACTION_RENAME}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-move"
+        disabled={!moveEnabled}
+        onClick={onMove}
+        style={buttonStyle(moveEnabled)}
+      >
+        {ARCH_MSG.ACTION_MOVE}
       </button>
       <button
         type="button"

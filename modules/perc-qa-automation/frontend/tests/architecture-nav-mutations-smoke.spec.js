@@ -108,6 +108,9 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
           page.getByTestId("architecture-action-rename"),
         ).toBeVisible();
         await expect(
+          page.getByTestId("architecture-action-move"),
+        ).toBeVisible();
+        await expect(
           page.getByTestId("architecture-action-move-up"),
         ).toBeVisible();
         await expect(
