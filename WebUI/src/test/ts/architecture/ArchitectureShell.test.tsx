@@ -166,6 +166,66 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("keeps create disabled when the site has no NavTree (#3350)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "BareSite" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(null);
+
+    render(<ArchitectureShell embedded initialSite="BareSite" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-nav-tree-empty")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("architecture-action-create") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-create-external-link",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-create-section-link",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+
+  it("enables create when a regular section is selected (#3350)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    const createBtn = screen.getByTestId(
+      "architecture-action-create",
+    ) as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(false);
+    fireEvent.click(createBtn);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("architecture-create-dialog").querySelector(
+        '[role="dialog"]',
+      ),
+    ).toBeTruthy();
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-create-dialog")).toBeNull();
+    });
+    expect(document.activeElement).toBe(createBtn);
+  });
+
   it("enables create under root and opens create dialog", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
