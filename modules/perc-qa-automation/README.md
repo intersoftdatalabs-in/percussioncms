@@ -156,7 +156,12 @@ full suite; use path/tag/`test:golden-extended` only.
 #### Stale matrix image — fail-fast on `--skip-image-build` (#2484)
 
 `perc-devctl qa-up` waits on Docker `Health.Status=healthy` for the matrix
-cell (#2481). When `qa-up --skip-image-build` reuses a cached
+cell (#2481). After **any** jar copy or in-cell Jetty restart, run
+`perc-devctl qa-health` again before Playwright. Do **not** poll
+`/Rhythmyx/login`: Jetty can bind HTTP while ROOT failed (`Failed startup
+of context` / `NoClassDefFoundError`). Copy product SNAPSHOTs to
+`webapps/Rhythmyx/WEB-INF/lib/` (if `sitemanage` changed, also
+`perc-system`). Do not `docker restart` the QA cell (reinstalls). When `qa-up --skip-image-build` reuses a cached
 `percussion-matrix-cell:local` image whose `HEALTHCHECK` block is absent
 (a pre-#2481 bake, or one built without the `rhythmyx_healthcheck.py`
 script), the smoke would otherwise spin the full

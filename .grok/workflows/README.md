@@ -6,7 +6,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.0.0` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.0.1` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
@@ -54,7 +54,7 @@ Learned from **#2700 / #2761**: making `PSComponentSummary` `final` in **system*
 | **C1 — changed modules** | For **each** changed Maven module: standalone `mvnw clean install` from the module dir (includes **testCompile** + tests). **No** `-DskipTests` / `-Dmaven.test.skip`. **No** “when practical.” |
 | **C2 — API shape / reverse-deps** | When a type becomes `final`/`sealed`, or public/protected (or package-visible cross-module) API signatures change: (1) monorepo grep for `extends <Type>` and `new <Type>() {`; (2) standalone clean install on **known reverse-deps** (e.g. system/objectstore → `modules/perc-toolkit`; rest → `projects/sitemanage`). |
 | **C3 — evidence** | Structured Work result + PR body must include `modules_built`, `build_evidence` (commands + BUILD SUCCESS / Tests run: N), and `downstream_checked` (`none` only when C2 did not apply). |
-| **C5 — UI live proof (HARD for UI)** | When WebUI/SPA/product chrome/user-visible browser flows change: (1) `python docker/scripts/perc-devctl.py qa-up` (H2 Docker cell; freeport `TEST_CMS_URL`); (2) deploy/hot-deploy this PR’s jars into the cell and restart Jetty if needed; (3) run **surface-filtered Playwright** for the feature (`npm run test:surface -- --path …`) and golden smoke when shell/login/explorer is touched; (4) **zero** JS console errors and **zero** related `server.log` ERROR/FATAL during the run; (5) record commands + pass counts + console-clean + server.log-clean in `build_evidence` / PR body. **No** human QA handoff and **no** UI `pr_opened` without C5. See `modules/perc-qa-automation/README.md`. |
+| **C5 — UI live proof (HARD for UI)** | When WebUI/SPA/product chrome/user-visible browser flows change: (1) `python docker/scripts/perc-devctl.py qa-up` then **`qa-health`** (H2 Docker cell; freeport `TEST_CMS_URL`); (2) deploy **every** C1 `modules_built` jar **and reverse-deps** (if `sitemanage` changed, also `perc-system`) into `webapps/Rhythmyx/WEB-INF/lib/` — not `deploy-jar --target cms` / `jetty/base/lib`; restart Jetty **inside** the cell (do **not** `docker restart`); **`qa-health` again**; (3) run **surface-filtered Playwright** for the feature (`npm run test:surface -- --path …`) and golden smoke when shell/login/explorer is touched; (4) **zero** JS console errors and **zero** related `server.log` ERROR/FATAL during the run; (5) record commands + pass counts + console-clean + server.log-clean in `build_evidence` / PR body. **No** human QA handoff and **no** UI `pr_opened` without C5. Never HTTP-poll `/Rhythmyx/login` after `Failed startup of context`. See `modules/perc-qa-automation/README.md`. |
 
 Hard bans:
 
@@ -63,6 +63,9 @@ Hard bans:
 * Treat p8 as exempt from C1–C3 (or C5 for UI).
 * Open a UI PR or create `QA (#N)` after only unit/Vitest green without H2 `qa-up` + Playwright surface pass.
 * Hand off broken UI for humans to discover (C5 is agent live proof; human QA is judgment/UAT after that).
+* Poll `/Rhythmyx/login` or wait on port-up after `server.log` shows `Failed startup of context` / `NoClassDefFoundError` — use `qa-health` and stop.
+* `docker restart perc-matrix-cms-h2` after a jar copy (reinstalls and wipes copies).
+* Hot-deploy `sitemanage` onto a `--skip-image-build` cell without a matching `perc-system` jar in `WEB-INF/lib`.
 
 ### Oversized priority work → 3 slices into the pool
 

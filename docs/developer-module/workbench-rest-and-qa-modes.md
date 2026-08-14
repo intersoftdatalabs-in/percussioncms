@@ -159,6 +159,13 @@ python docker/scripts/perc-devctl.py qa-up
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 # DETAIL:rhythmyx_context_failed → cell unusable; inspect docker logs; do not run Playwright
+#
+# After ANY jar copy / Jetty restart in the cell: run qa-health AGAIN before Playwright.
+# Do not invent a curl / Invoke-WebRequest / sleep loop on /Rhythmyx/login.
+# Jetty can bind :9992 and answer 503 while ROOT failed (e.g. NoClassDefFoundError).
+# Copy product SNAPSHOTs to webapps/Rhythmyx/WEB-INF/lib/ (not jetty/base/lib).
+# If you copy sitemanage, also copy perc-system — --skip-image-build does not refresh it.
+# Restart Jetty inside the cell. Do not `docker restart perc-matrix-cms-h2` (reinstalls).
 # Docker Health.Status (in-image HEALTHCHECK, #2481) — orchestrators / docker ps:
 #   docker inspect -f "{{.State.Health.Status}}" perc-matrix-cms-h2
 #   healthy = login ready + no context-failure markers in cell Jetty logs
@@ -239,7 +246,7 @@ Details: [perc-qa-automation/README.md](../../modules/perc-qa-automation/README.
 
 Root / module `AGENTS.md` and night-issue workflow rules encode this process (human-approved apply: **#2073**). Binding product process for unattended UI work:
 
-1. **Do not blanket-skip Playwright** for a user-visible surface solely because `agent_safe_only` is true **when** the H2 QA path is available: `perc-devctl qa-up` → `TEST_CMS_URL` → **surface-filtered** Playwright → `qa-down`.
+1. **Do not blanket-skip Playwright** for a user-visible surface solely because `agent_safe_only` is true **when** the H2 QA path is available: `perc-devctl qa-up` → **`qa-health`** → `TEST_CMS_URL` → **surface-filtered** Playwright → `qa-down`. After hot-deploy, **`qa-health` again**. Never HTTP-poll login while `server.log` shows `Failed startup of context`.
 2. Prefer **path / grep / tag** surface filters (`npm run test:surface` or native CLI). Do not run the full suite as the default overnight gate.
 3. List-only checks (`--list` / `npm run test:surface:list`) verify the filter without a live CMS; live runs need `TEST_CMS_URL` from `qa-up` (freeport contract — never hardcode `:9993` alone).
 4. Collect failure artifacts under `frontend/test-results/` (+ HTML report); attach per #2066 when that doc is present.

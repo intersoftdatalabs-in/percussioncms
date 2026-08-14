@@ -78,6 +78,24 @@ npm run test:surface -- --tag golden
   (§ Playwright surface filter + unattended H2 QA). Module README → **Surface filter**.
 - Tear-down: `python docker/scripts/perc-devctl.py qa-down` when the agent started the stack.
 
+### QA cell health after start / hot-deploy (HARD)
+
+After `qa-up` **and** after every jar copy or Jetty restart, run:
+
+```bash
+python docker/scripts/perc-devctl.py qa-health
+```
+
+Use that `RESULT:` line. **Do not** poll `/Rhythmyx/login` or wait on port-up.
+
+Jetty can bind HTTP while the ROOT/Rhythmyx webapp is dead (`Failed startup of context`, `NoClassDefFoundError`). `qa-health` fail-fasts on those markers even when HTTP answers 503. `Health=unhealthy` is the same signal.
+
+Hot-deploy product SNAPSHOTs into the QA cell WAR:
+
+`perc-matrix-cms-h2:/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/`
+
+If `sitemanage` (or any type that calls new `system` APIs) changed, also copy `perc-system-*-SNAPSHOT.jar`. `qa-up --skip-image-build` does **not** refresh `perc-system` in the cell. Restart Jetty **inside** the cell; do **not** `docker restart perc-matrix-cms-h2` (re-runs silent install). `perc-devctl deploy-jar --target cms` copies to `jetty/base/lib` (cms-dts), **not** the H2 QA WAR classpath.
+
 ### Dev mode environment (human fast loop)
 
 The module uses auto-discovery. You can set a `.env` file in the module root

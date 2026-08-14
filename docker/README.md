@@ -436,6 +436,8 @@ python3 docker/scripts/hot-deploy-jar.py --jar modules/utils/target/utils-8.2.0.
 
 Default container: `percussion-cms-dts`. Default target: `both` (CMS + DTS lib dirs). `--target` accepts `cms`, `dts`, `both`, or an absolute container path.
 
+**H2 QA cell (`perc-matrix-cms-h2`):** this default is **not** the Rhythmyx WAR classpath. Product SNAPSHOTs (`perc-system`, `sitemanage`, …) load from `/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/`. After `docker cp` into that dir, restart Jetty **inside** the cell and run `perc-devctl.py qa-health`. Do not `docker restart` the cell (silent install wipes copies). `qa-up --skip-image-build` does not refresh `perc-system`; if you copy a newer `sitemanage`, copy a matching `perc-system` too or ROOT fails at startup (`NoClassDefFoundError`).
+
 ## Container entrypoint
 
 ### `docker/entrypoint/install-update.py`

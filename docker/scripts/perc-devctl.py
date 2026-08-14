@@ -1611,6 +1611,12 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
 
     Context-failure markers or product-log ERRORs cause **immediate** FAIL even
     when HTTP answers (Jetty up, dirty startup — #2462 / #2556).
+
+    Agents must call this after ``qa-up`` **and** after every jar copy / Jetty
+    restart. Do not HTTP-poll ``/Rhythmyx/login``: connector-up + 503 can hide
+    ``Failed startup of context`` / ``NoClassDefFoundError``. After copying
+    ``sitemanage`` into the QA WAR ``WEB-INF/lib``, also copy a matching
+    ``perc-system`` (``--skip-image-build`` does not refresh it).
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
