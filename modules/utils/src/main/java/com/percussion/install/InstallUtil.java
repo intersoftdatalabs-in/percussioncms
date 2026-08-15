@@ -36,10 +36,14 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +56,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -808,14 +814,18 @@ public class InstallUtil {
     return isRunning;
   }
 
+  /** Localhost connect timeout for the listen-confirm phase of {@link #portAvailable(int)}. */
+  private static final int LOCAL_LISTEN_PROBE_TIMEOUT_MS = 200;
+
   /**
-   * Checks whether a TCP port can be bound.
+   * Checks whether a TCP port is free of a listening server.
    *
    * <p>This is a <strong>TCP-only</strong> probe. Callers (DTS Tomcat connector / Server shutdown
-   * ports, Derby JDBC, CMS Jetty bind checks) care about TCP listeners only. A UDP-only binding on
-   * the same port number must not make the port look unavailable.
+   * ports, Derby JDBC, CMS Jetty bind checks) use {@code !portAvailable} as “server appears
+   * running”. A UDP-only binding, a Windows Hyper-V excluded port range, or a brief {@code
+   * TIME_WAIT} must not look like a running server.
    *
-   * <p>Implementation uses a two-phase bind to stay deterministic on Windows Winsock (GH-2779):
+   * <p>Implementation (GH-2779 plus excluded-range false positives):
    *
    * <ol>
    *   <li>Bind without {@code SO_REUSEADDR}. Succeeds when no TCP socket holds the port (including
@@ -824,10 +834,13 @@ public class InstallUtil {
    *   <li>If that fails, bind with {@code SO_REUSEADDR} so a port briefly in {@code TIME_WAIT} from
    *       a previous close is still reported available (Linux holds TIME_WAIT ~60s; without this
    *       path offline-detection tests flake after a recent DTS close on the same host).
+   *   <li>If both binds fail, confirm a TCP listener with a short connect to local addresses. Bind
+   *       failures that are not listeners (excluded port ranges, residual UDP races) are treated as
+   *       available so install/upgrade gates do not abort on a stopped DTS.
    * </ol>
    *
    * @param port the TCP port to check for availability
-   * @return {@code true} when the TCP port can be bound, otherwise {@code false}
+   * @return {@code true} when no local TCP listener is accepting on the port
    */
   public static boolean portAvailable(int port) {
     InetSocketAddress address = new InetSocketAddress(port);
@@ -850,9 +863,77 @@ public class InstallUtil {
       ss.bind(address);
       return true;
     } catch (IOException e) {
-      logError("Port Availability Check Failed." + e.getMessage());
-      return false;
+      if (isLocalTcpPortAccepting(port)) {
+        logError("Port Availability Check Failed." + e.getMessage());
+        return false;
+      }
+      return true;
     }
+  }
+
+  /**
+   * Whether a TCP accept is reachable on a local address for {@code port}.
+   *
+   * @param port TCP port to probe
+   * @return {@code true} when a connect to loopback or another local interface succeeds
+   */
+  static boolean isLocalTcpPortAccepting(int port) {
+    for (InetAddress addr : localListenProbeAddresses()) {
+      try (Socket socket = new Socket()) {
+        socket.connect(new InetSocketAddress(addr, port), LOCAL_LISTEN_PROBE_TIMEOUT_MS);
+        return true;
+      } catch (IOException ignored) {
+        // refused / unreachable — try next local address
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Loopback first, then other non-link-local addresses of up interfaces (LAN-only Tomcat bind).
+   *
+   * @return at least the platform loopback address
+   */
+  private static List<InetAddress> localListenProbeAddresses() {
+    LinkedHashSet<InetAddress> addrs = new LinkedHashSet<>();
+    addrs.add(InetAddress.getLoopbackAddress());
+    try {
+      addrs.add(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}));
+    } catch (UnknownHostException ignored) {
+      // 4-byte IPv4 loopback is always valid; ignore defensive
+    }
+    try {
+      InetAddress host = InetAddress.getLocalHost();
+      if (!host.isAnyLocalAddress()) {
+        addrs.add(host);
+      }
+    } catch (UnknownHostException ignored) {
+      // hostname may be unresolvable in some CI images
+    }
+    try {
+      Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+      while (nics != null && nics.hasMoreElements()) {
+        NetworkInterface nic = nics.nextElement();
+        try {
+          if (!nic.isUp()) {
+            continue;
+          }
+        } catch (SocketException e) {
+          continue;
+        }
+        Enumeration<InetAddress> inetAddrs = nic.getInetAddresses();
+        while (inetAddrs.hasMoreElements()) {
+          InetAddress addr = inetAddrs.nextElement();
+          if (addr.isLinkLocalAddress() || addr.isMulticastAddress() || addr.isAnyLocalAddress()) {
+            continue;
+          }
+          addrs.add(addr);
+        }
+      }
+    } catch (SocketException ignored) {
+      // interface walk is best-effort; loopback probes above still run
+    }
+    return List.copyOf(addrs);
   }
 
   /**
