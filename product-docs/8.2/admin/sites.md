@@ -70,8 +70,11 @@ rejected by server validation with clear error messages.
 ### Browse Sites in Developer
 
 **Developer → Sites** lists **all** CMS Sites from `GET /services/sites` (traditional repository
-Sites, CM1 page-based Sites, and Virtual Sites). Sample / demo Sites appear when they exist on
-the server (for example after **Install sample sites**).
+Sites, CM1 page-based Sites, and Virtual Sites). The JSON envelope is a Jackson root-wrapped
+array (`{"SiteList":[{"name":"…",…}]}`), not an `{empty:false}` bean. Sample / demo Sites
+appear when they exist on the server (for example after **Install sample sites**). If that
+public list is empty or unreadable, the catalog also consults `GET /sitemanage/site/`
+(the same `SiteSummary` list Home and Explorer use) so existing Sites are not hidden.
 
 1. Sign in as an administrator (or a role that can open **Developer**).
 2. Open **Developer** → **Sites** (SPA entry `spa.jsp?entry=developer&section=sites`).
@@ -87,9 +90,10 @@ still mounts with site-specific empty copy and does not crash the page. See
 [Users, roles & security](id:admin-users-roles) for the same Object ACL behavior on
 Display Formats.
 
-Empty state (**No sites returned**) appears only when the list API has **zero** Sites. A
-successful HTTP 200 with Site entries must populate the table (never a silent blank). Load
-failures show **Could not load sites** rather than the empty state.
+Empty state (**No sites returned**) appears only when **every** list source has **zero**
+named Sites. A successful HTTP 200 with Site entries — including `SiteList`, nested
+`Site`/`sites`/`item` wraps, or `SiteSummary` — must populate the table (never a silent
+blank). Load failures show **Could not load sites** rather than the empty state.
 
 ### Configure Virtual Site source in the product UI
 
