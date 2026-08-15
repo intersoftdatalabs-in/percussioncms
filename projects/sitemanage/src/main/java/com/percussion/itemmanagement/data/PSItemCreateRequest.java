@@ -25,6 +25,8 @@ public class PSItemCreateRequest {
   private String contentType;
   private String folderPath;
   private String name;
+  /** Required when {@code contentType} is a page ({@code percPage}). */
+  private String templateId;
 
   public String getContentType() {
     return contentType;
@@ -48,5 +50,13 @@ public class PSItemCreateRequest {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
   }
 }

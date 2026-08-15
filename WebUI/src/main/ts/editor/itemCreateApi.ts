@@ -22,6 +22,7 @@ export interface ItemCreateRequest {
   contentType: string;
   folderPath: string;
   name?: string;
+  templateId?: string;
 }
 
 export interface ItemCreateResult {

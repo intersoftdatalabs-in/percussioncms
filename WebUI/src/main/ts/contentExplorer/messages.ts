@@ -337,6 +337,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select a folder first",
   ACTION_NEEDS_TYPE:
     "perc.ui.explorer@Choose a content type from New Item",
+  ACTION_NEEDS_TEMPLATE:
+    "perc.ui.explorer@This page needs a template. Choose a site folder or use Home → Create.",
+  TEMPLATE_PICKER_TITLE: "perc.ui.explorer@Choose a page template",
+  TEMPLATE_PICKER_LABEL: "perc.ui.explorer@Template",
   CONFIRM_PURGE_BODY:
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:
