@@ -210,10 +210,44 @@ function isProductPagePreviewUrl(url) {
   if (u.includes("/pagemanagement/render/page/")) return true;
   if (u.includes("/assembler/render")) return true;
   if (u.includes("percmobilepreview=")) return true;
-  // FastForward rff* types open classic CE preview (sys_command=preview).
+  // Classic CE preview requires the command — not any URL with "preview"
+  // near /psx_ce (e.g. /psx_ce/admin/preview-settings).
   if (u.includes("sys_command=preview")) return true;
-  if (u.includes("/psx_ce") && u.includes("preview")) return true;
   return false;
+}
+
+/**
+ * Fold finder / repository site names so spaces and underscores match.
+ * @param {string} name
+ * @returns {string}
+ */
+function foldSiteName(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[_\s-]+/g, "");
+}
+
+/**
+ * Site folder names for a listed page (finder underscore + repository).
+ * @param {{ path?: string, folderPath?: string }} listed
+ * @returns {string[]}
+ */
+function listedPageSiteNames(listed) {
+  if (!listed) return [];
+  const names = [];
+  const seen = new Set();
+  for (const raw of [listed.folderPath, listed.path]) {
+    if (!raw) continue;
+    const p = resolveExplorerListPath({ path: String(raw) });
+    const parts = p.replace(/^\/+/, "").split("/").filter(Boolean);
+    if (parts.length < 2 || parts[0].toLowerCase() !== "sites") continue;
+    const name = parts[1];
+    const key = foldSiteName(name);
+    if (!name || seen.has(key)) continue;
+    seen.add(key);
+    names.push(name);
+  }
+  return names;
 }
 
 module.exports = {
@@ -229,4 +263,6 @@ module.exports = {
   resolveExplorerListPath,
   parentFolderCmsPath,
   isProductPagePreviewUrl,
+  listedPageSiteNames,
+  foldSiteName,
 };

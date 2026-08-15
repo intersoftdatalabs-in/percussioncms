@@ -22,6 +22,8 @@ const {
   resolveExplorerListPath,
   parentFolderCmsPath,
   isProductPagePreviewUrl,
+  listedPageSiteNames,
+  foldSiteName,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -169,6 +171,23 @@ describe("explorer-preview-view helpers (#2733)", () => {
       true,
     );
     assert.equal(isProductPagePreviewUrl("/Rhythmyx/cm/app/spa.jsp"), false);
+    assert.equal(
+      isProductPagePreviewUrl("/Rhythmyx/psx_ce/admin/preview-settings"),
+      false,
+    );
+  });
+
+  it("listedPageSiteNames reads finder and repository site folders", () => {
+    assert.deepEqual(
+      listedPageSiteNames({
+        path: "/Sites/Corporate_Investments/Pages/About",
+        folderPath: "//Sites/CorporateInvestments",
+      }),
+      ["CorporateInvestments"],
+    );
+    assert.deepEqual(listedPageSiteNames({ path: "/Assets/x" }), []);
+    assert.equal(foldSiteName("Corporate Investments"), "corporateinvestments");
+    assert.equal(foldSiteName("Corporate_Investments"), "corporateinvestments");
   });
 
   it("noPreviewableItemSkipMessage is stable and cites issue", () => {

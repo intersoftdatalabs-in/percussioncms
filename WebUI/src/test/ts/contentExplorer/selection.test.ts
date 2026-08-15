@@ -120,4 +120,47 @@ describe("isFolder (#3001 site nodes)", () => {
       }),
     ).toBe(false);
   });
+
+  it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagination",
+        type: "pagination",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagebreak",
+        type: "pagebreak",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagelet",
+        type: "pagelet",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "a",
+        path: "/Sites/Demo/assetmanagement",
+        type: "assetmanagement",
+      }),
+    ).toBe(false);
+  });
+
+  it("keeps custom folder types under /Sites/ as folders when leaf is false", () => {
+    expect(
+      isFolder({
+        id: "16777215-101-20",
+        name: "Campaigns",
+        path: "/Sites/Demo/Campaigns",
+        type: "CampaignFolder",
+        leaf: false,
+      }),
+    ).toBe(true);
+  });
 });

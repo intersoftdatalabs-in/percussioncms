@@ -44,6 +44,23 @@ export const EMPTY_SELECTION: Selection = {
 const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
 
 /**
+ * Exact {@code type} / {@code category} tokens that are previewable items.
+ * Substring {@code includes("page")} would also match {@code pagination}
+ * / {@code pagebreak} / {@code pagelet}; {@code includes("asset")} would
+ * match {@code assetmanagement} (#3456 review).
+ */
+const PAGE_OR_ASSET_TYPE_KEYS = new Set([
+  "page",
+  "percpage",
+  "percasset",
+  "asset",
+  "rffhome",
+]);
+
+/** FastForward nav types are folder-like, not previewable items. */
+const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
+
+/**
  * Content types that are previewable items, not folders. Pathmanagement
  * lists FastForward pages as {@code percPage} / {@code Page}; those must
  * stay items even when {@code leaf} is omitted or {@code hasFolderChildren}
@@ -53,10 +70,12 @@ export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
   const category = (item.category ?? "").trim().toLowerCase();
-  const token = `${type} ${category}`;
-  if (token.includes("page") || token.includes("asset")) return true;
-  // FastForward landing pages (rffHome) are listed under /Pages (#3456).
-  if (token.includes("rffhome")) return true;
+  if (PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category)) {
+    return true;
+  }
+  // Other FastForward content items (rffEvent, rffImage, …) are items.
+  if (type.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(type)) return true;
+  if (category.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(category)) return true;
   return false;
 }
 
@@ -72,13 +91,8 @@ export function isFolder(item: PSPathItem | null): boolean {
   // similar under /Folders/ may omit type but still use a folder path (#3330).
   const path = (item.path ?? "").trim();
   if (path.endsWith("/")) return true;
-  // Site-path content items with ids (listed pages) stay items even when
-  // leaf is omitted/false on paginated rows.
-  const hasId = Boolean((item.id ?? "").trim());
-  const pathLower = path.replace(/\\/g, "/").toLowerCase();
-  if (hasId && pathLower.includes("/sites/") && !pathLower.endsWith("/")) {
-    return false;
-  }
+  // Do not treat every id'd /Sites/ path as an item — custom folder types
+  // with an id and no trailing slash stay folders via leaf / children.
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   return Boolean(item.hasFolderChildren);

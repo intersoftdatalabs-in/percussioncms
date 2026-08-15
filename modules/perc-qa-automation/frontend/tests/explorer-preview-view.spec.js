@@ -31,7 +31,7 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, adminBasicAuthHeaders } = require("./helpers/auth");
 const {
   TEST_IDS,
   explorerEntryUrl,
@@ -40,6 +40,8 @@ const {
   unwrapPathItems,
   resolveExplorerListPath,
   isProductPagePreviewUrl,
+  listedPageSiteNames,
+  foldSiteName,
 } = require("./helpers/explorer-preview-view");
 
 const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
@@ -125,11 +127,13 @@ async function findListedPageViaRest(request) {
 }
 
 /**
- * Open Sites → first sample site → Pages (when present).
- * Finder site names use underscores; repository folderPath does not (#3326).
+ * Open Sites → the site that owns {@code listed} (not merely the first
+ * folder row) → Pages when present. Finder names use underscores;
+ * repository folderPath does not (#3326).
  * @param {import("@playwright/test").Page} page
+ * @param {object} [listed]
  */
-async function openSitesThenPages(page) {
+async function openSitesThenPages(page, listed) {
   const tree = page.locator(`[data-testid="${TEST_IDS.tree}"]`);
   const sitesNode = tree
     .locator(
@@ -142,22 +146,73 @@ async function openSitesThenPages(page) {
   await page.waitForLoadState("networkidle").catch(() => {});
 
   const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
-  const siteRow = list
-    .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
-    .first();
-  await expect(siteRow).toBeVisible({ timeout: 15_000 });
-  await siteRow.dblclick({ force: true });
-  await listWaitReady(page);
-  await page.waitForLoadState("networkidle").catch(() => {});
+  const siteRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  await expect(siteRows.first()).toBeVisible({ timeout: 15_000 });
 
-  const pagesRow = list
-    .locator('tbody tr[data-testid^="detail-row-"]')
-    .filter({ hasText: /^Pages$/ })
-    .first();
-  if ((await pagesRow.count()) > 0) {
-    await pagesRow.dblclick({ force: true });
+  const wanted = new Set(listedPageSiteNames(listed).map((n) => foldSiteName(n)));
+  const listedName = listed && listed.name ? String(listed.name) : "";
+  const siteCount = await siteRows.count();
+  let opened = false;
+  for (let i = 0; i < siteCount; i += 1) {
+    if (i > 0) {
+      await sitesNode.click({ force: true });
+      await listWaitReady(page);
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+    const row = siteRows.nth(i);
+    const rowText = ((await row.innerText().catch(() => "")) || "").trim();
+    const foldedRow = foldSiteName(rowText);
+    const nameMatch =
+      wanted.size === 0 || [...wanted].some((n) => n && foldedRow.includes(n));
+    if (!nameMatch) continue;
+    await row.dblclick({ force: true });
     await listWaitReady(page);
     await page.waitForLoadState("networkidle").catch(() => {});
+
+    const pagesRow = list
+      .locator('tbody tr[data-testid^="detail-row-"]')
+      .filter({ hasText: /^Pages$/ })
+      .first();
+    if ((await pagesRow.count()) > 0) {
+      await pagesRow.dblclick({ force: true });
+      await listWaitReady(page);
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+
+    const previewable = list.locator(
+      'tbody tr[data-testid^="detail-row-"][data-previewable="true"]',
+    );
+    const byName = listedName
+      ? list
+          .locator('tbody tr[data-testid^="detail-row-"]')
+          .filter({ hasText: listedName })
+      : previewable;
+    if ((await previewable.count()) > 0 || (await byName.count()) > 0) {
+      opened = true;
+      break;
+    }
+  }
+  if (!opened && wanted.size > 0) {
+    throw new Error(
+      `REST listed page ${listedName || listed.id} but UI did not open a ` +
+        `matching site among ${[...wanted].join(", ")}`,
+    );
+  }
+  if (!opened) {
+    await siteRows.first().dblclick({ force: true });
+    await listWaitReady(page);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    const pagesRow = list
+      .locator('tbody tr[data-testid^="detail-row-"]')
+      .filter({ hasText: /^Pages$/ })
+      .first();
+    if ((await pagesRow.count()) > 0) {
+      await pagesRow.dblclick({ force: true });
+      await listWaitReady(page);
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
   }
 }
 
@@ -225,7 +280,7 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
-      await openSitesThenPages(page);
+      await openSitesThenPages(page, listed);
 
       const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
       await expect(list).toBeVisible({ timeout: 15_000 });
