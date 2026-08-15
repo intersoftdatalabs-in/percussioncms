@@ -1050,8 +1050,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
       fields = new HashMap<>();
       for (AssetField field : asset.getFields()) {
-        String fieldName = ApiUtils.orNull(field.getName());
-        String fieldValue = ApiUtils.orNull(field.getValue());
+        String fieldName = field.getName();
+        String fieldValue = field.getValue();
         if (fieldName != null) {
           fields.put(fieldName, fieldValue);
         }
@@ -1163,8 +1163,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
                 idMapper.getString(assetRels.getDependent()),
                 0);
         assetService.shareLocalContent(
-            ApiUtils.orNull(asset.getName()),
-            StringUtils.substringAfter(ApiUtils.orNull(asset.getFolderPath()), "/"),
+            asset.getName(),
+            StringUtils.substringAfter(asset.getFolderPath(), "/"),
             awRel);
 
       } else {
