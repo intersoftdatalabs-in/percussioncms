@@ -153,7 +153,7 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
         `[data-testid="${TEST_IDS.subfolderCopyPanel}"]`,
       );
       const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
-      await expect(panel.or(wizard)).toBeVisible({ timeout: 10_000 });
+      await expect(panel.or(wizard).first()).toBeVisible({ timeout: 10_000 });
       if ((await wizard.count()) > 0) {
         await expect(
           page.locator(`[data-testid="${TEST_IDS.sourceInput}"]`),
@@ -175,7 +175,7 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
       test.info().annotations.push({
         type: "soft-skip",
         description:
-          "Submit path uses existing POST /rest/pathmanagement/path/moveItem with copy:true (SubfolderCopyWizard default). Live multi-folder submit deferred — H2 fixtures lack safe copy targets.",
+          "Submit path uses POST /rest/folders/copy/folder with CopyFolderItemRequest (#3362). Live multi-folder submit deferred — H2 fixtures lack safe copy targets.",
       });
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
       await expect(shell).toBeVisible({ timeout: 15_000 });

@@ -34,6 +34,7 @@ import { formatApiError } from "../api/client";
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
 import {
   addNewFolder,
+  copyFolder,
   deleteItem,
   moveItem,
   renameFolder,
@@ -318,7 +319,7 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       await moveItem({ sourcePath: item.path, targetPath });
     },
     onCopy: async (item, targetPath) => {
-      await moveItem({ sourcePath: item.path, targetPath, copy: true });
+      await copyFolder({ sourcePath: item.path, targetPath });
     },
     onDelete: async (item) => {
       await deleteItem(item.path);

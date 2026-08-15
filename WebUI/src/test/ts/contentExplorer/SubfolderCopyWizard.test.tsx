@@ -10,7 +10,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { PSMoveFolderItem } from "../../../main/ts/api/contentExplorer/types";
+import type { PSCopyRequest } from "../../../main/ts/api/contentExplorer/types";
 import { SubfolderCopyWizard } from "../../../main/ts/contentExplorer/wizards/SubfolderCopyWizard";
 import { renderA11yGate } from "./a11y";
 
@@ -44,10 +44,10 @@ describe("SubfolderCopyWizard", () => {
     await waitFor(() => {
       expect(submit).toHaveBeenCalledTimes(1);
     });
-    const req: PSMoveFolderItem = submit.mock.calls[0]?.[0];
+    const req: PSCopyRequest = submit.mock.calls[0]?.[0];
     expect(req.sourcePath).toBe("/Sites/A");
     expect(req.targetPath).toBe("/Sites/B");
-    expect(req.copy).toBe(true);
+    expect(req).not.toHaveProperty("copy");
     expect(screen.getByTestId("subfolder-copy-progress").textContent).toBe(
       "Subfolder copy completed",
     );

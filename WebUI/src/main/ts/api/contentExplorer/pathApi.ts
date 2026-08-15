@@ -55,6 +55,7 @@ import type {
   PSPrincipal,
   PSRenameFolderItem,
   PSMoveFolderItem,
+  PSCopyRequest,
 } from "./types";
 
 export interface PaginatedFolderParams {
@@ -214,8 +215,118 @@ export async function renameFolder(
   return res?.PathItem ?? ({} as PSPathItem);
 }
 
+/**
+ * Jackson / JAXB root for sitemanage {@code PSMoveFolderItem}
+ * ({@code @XmlRootElement(name = "MoveFolderItem")}). CXF JAXB rejects a
+ * bare {@code sourcePath} field (#3362).
+ */
+export const MOVE_FOLDER_ITEM_ROOT = "MoveFolderItem";
+
+/** Wire envelope required by WRAP_ROOT_VALUE / JAXB on moveItem. */
+export type MoveFolderItemEnvelope = {
+  MoveFolderItem: { itemPath: string; targetFolderPath: string };
+};
+
+/**
+ * Jackson / JAXB root for rest {@code CopyFolderItemRequest}. Public copy
+ * lives on {@code POST /rest/folders/copy/folder} — not moveItem.
+ */
+export const COPY_FOLDER_ITEM_REQUEST_ROOT = "CopyFolderItemRequest";
+
+export type CopyFolderItemRequestEnvelope = {
+  CopyFolderItemRequest: { itemPath: string; targetFolderPath: string };
+};
+
+function resolveFolderItemPaths(
+  body: PSMoveFolderItem | PSCopyRequest,
+  op: string,
+): { itemPath: string; targetFolderPath: string } {
+  const itemPath = String(body.itemPath ?? body.sourcePath ?? "").trim();
+  const targetFolderPath = String(
+    body.targetFolderPath ?? body.targetPath ?? "",
+  ).trim();
+  if (!itemPath) {
+    throw new Error(`${op} requires itemPath (or sourcePath)`);
+  }
+  if (!targetFolderPath) {
+    throw new Error(`${op} requires targetFolderPath (or targetPath)`);
+  }
+  return { itemPath, targetFolderPath };
+}
+
+/**
+ * Wrap move fields under {@link MOVE_FOLDER_ITEM_ROOT}. Maps SPA
+ * {@code sourcePath}/{@code targetPath} to server {@code itemPath}/
+ * {@code targetFolderPath}. Never includes {@code copy} or a bare
+ * {@code sourcePath} root.
+ */
+export function wrapMoveFolderItem(
+  request: PSMoveFolderItem | MoveFolderItemEnvelope,
+): MoveFolderItemEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[MOVE_FOLDER_ITEM_ROOT];
+    if (asRecord(nested) != null) {
+      return {
+        MoveFolderItem: resolveFolderItemPaths(
+          nested as PSMoveFolderItem,
+          "moveItem",
+        ),
+      };
+    }
+  }
+  return {
+    MoveFolderItem: resolveFolderItemPaths(
+      request as PSMoveFolderItem,
+      "moveItem",
+    ),
+  };
+}
+
+/**
+ * Wrap copy fields under {@link COPY_FOLDER_ITEM_REQUEST_ROOT} for
+ * {@code FoldersResource} copy endpoints.
+ */
+export function wrapCopyFolderItemRequest(
+  request: PSCopyRequest | CopyFolderItemRequestEnvelope,
+): CopyFolderItemRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[COPY_FOLDER_ITEM_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      return {
+        CopyFolderItemRequest: resolveFolderItemPaths(
+          nested as PSCopyRequest,
+          "copyFolder",
+        ),
+      };
+    }
+  }
+  return {
+    CopyFolderItemRequest: resolveFolderItemPaths(
+      request as PSCopyRequest,
+      "copyFolder",
+    ),
+  };
+}
+
 export async function moveItem(body: PSMoveFolderItem): Promise<void> {
-  await post<PSPathItemResponse>(PATHS.PATH_MOVE_ITEM, body);
+  await post<PSPathItemResponse>(PATHS.PATH_MOVE_ITEM, wrapMoveFolderItem(body));
+}
+
+/**
+ * Copy a folder via public REST {@code POST /folders/copy/folder}.
+ * {@code PSMoveFolderItem} is move-only — do not invent {@code copy} on it.
+ */
+export async function copyFolder(body: PSCopyRequest): Promise<void> {
+  await post<void>(PATHS.FOLDERS_COPY_FOLDER, wrapCopyFolderItemRequest(body));
+}
+
+/**
+ * Copy a non-folder item via {@code POST /folders/copy/item}.
+ */
+export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
+  await post<void>(PATHS.FOLDERS_COPY_ITEM, wrapCopyFolderItemRequest(body));
 }
 
 export async function deleteItem(path: string): Promise<void> {

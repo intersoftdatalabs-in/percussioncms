@@ -17,6 +17,8 @@
 import { describe, expect, it } from "vitest";
 import {
   addNewFolder,
+  copyFolder,
+  COPY_FOLDER_ITEM_REQUEST_ROOT,
   deleteItem,
   encodePath,
   findChildren,
@@ -25,12 +27,16 @@ import {
   FOLDER_PROPERTIES_ROOT,
   joinPathUrl,
   lastExisting,
+  moveItem,
+  MOVE_FOLDER_ITEM_ROOT,
   paginatedFolder,
   saveFolderProperties,
   unwrapFolderProperties,
   unwrapPrincipalList,
   validatePath,
+  wrapCopyFolderItemRequest,
   wrapFolderProperties,
+  wrapMoveFolderItem,
 } from "../../../main/ts/api/contentExplorer/pathApi";
 import { mockFetch } from "./setup";
 
@@ -389,5 +395,104 @@ describe("folderProperties Jackson root wrap (#2749)", () => {
     await expect(
       saveFolderProperties({ id: "", name: "x" } as { id: string; name: string }),
     ).rejects.toThrow(/props\.id/);
+  });
+});
+
+/**
+ * #3362 — JAXB MoveFolderItem envelope. Copy must not POST a bare sourcePath
+ * root (or an invented copy field) to moveItem.
+ */
+describe("moveItem / copyFolder wire envelopes (#3362)", () => {
+  it("wrapMoveFolderItem maps sourcePath/targetPath to itemPath/targetFolderPath", () => {
+    const wrapped = wrapMoveFolderItem({
+      sourcePath: "/Folders/A",
+      targetPath: "/Folders/B",
+      copy: true,
+    });
+    expect(Object.keys(wrapped)).toEqual([MOVE_FOLDER_ITEM_ROOT]);
+    expect(wrapped.MoveFolderItem).toEqual({
+      itemPath: "/Folders/A",
+      targetFolderPath: "/Folders/B",
+    });
+    expect(wrapped.MoveFolderItem).not.toHaveProperty("sourcePath");
+    expect(wrapped.MoveFolderItem).not.toHaveProperty("copy");
+  });
+
+  it("wrapMoveFolderItem accepts itemPath aliases and does not double-wrap", () => {
+    expect(
+      wrapMoveFolderItem({
+        MoveFolderItem: {
+          itemPath: "/Sites/X",
+          targetFolderPath: "/Sites/Y",
+        },
+      }),
+    ).toEqual({
+      MoveFolderItem: { itemPath: "/Sites/X", targetFolderPath: "/Sites/Y" },
+    });
+  });
+
+  it("moveItem POSTs MoveFolderItem wrap, never a bare sourcePath root", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await moveItem({
+      sourcePath: "/Folders/Child",
+      targetPath: "/Folders/Other",
+      copy: true,
+    });
+    expect(url).toContain("/pathmanagement/path/moveItem");
+    expect(posted).toEqual({
+      MoveFolderItem: {
+        itemPath: "/Folders/Child",
+        targetFolderPath: "/Folders/Other",
+      },
+    });
+    expect(posted).not.toHaveProperty("sourcePath");
+    expect(posted).not.toHaveProperty("copy");
+  });
+
+  it("wrapCopyFolderItemRequest uses CopyFolderItemRequest root", () => {
+    const wrapped = wrapCopyFolderItemRequest({
+      sourcePath: "/Folders/A",
+      targetPath: "/Folders/B",
+    });
+    expect(Object.keys(wrapped)).toEqual([COPY_FOLDER_ITEM_REQUEST_ROOT]);
+    expect(wrapped.CopyFolderItemRequest).toEqual({
+      itemPath: "/Folders/A",
+      targetFolderPath: "/Folders/B",
+    });
+  });
+
+  it("copyFolder POSTs CopyFolderItemRequest, not moveItem / sourcePath root", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolder({
+      sourcePath: "/Folders/Child",
+      targetPath: "/Folders/Other",
+    });
+    expect(url).toContain("/folders/copy/folder");
+    expect(url).not.toContain("/pathmanagement/path/moveItem");
+    expect(posted).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Folders/Child",
+        targetFolderPath: "/Folders/Other",
+      },
+    });
+    expect(posted).not.toHaveProperty("sourcePath");
   });
 });

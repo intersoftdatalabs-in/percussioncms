@@ -19,15 +19,14 @@
  *
  * <p>Three-step flow driven by {@link createWizard}:
  * {@code source → target → confirm → progress → done}. Uses
- * the existing {@code pathmanagement/path/moveItem} endpoint with
- * {@code copy:true}, so the wizard exhibits the same wire shape
- * the US1 {@link ReducedActions}-style copy uses (no new backend
- * surface).</p>
+ * public REST {@code POST /folders/copy/folder} ({@code CopyFolderItemRequest}),
+ * the same path {@link ReducedActions} copy uses (#3362). {@code moveItem}
+ * is move-only and must not carry an invented {@code copy} field.</p>
  */
 
 import React, { useState } from "react";
-import { moveItem } from "../../api/contentExplorer/pathApi";
-import type { PSMoveFolderItem } from "../../api/contentExplorer/types";
+import { copyFolder } from "../../api/contentExplorer/pathApi";
+import type { PSCopyRequest } from "../../api/contentExplorer/types";
 import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
 import {
@@ -41,8 +40,8 @@ import {
 } from "./state";
 
 export interface SubfolderCopyWizardProps {
-  /** Optional override for the move / copy transport. */
-  submit?: (req: PSMoveFolderItem) => Promise<void>;
+  /** Optional override for the copy transport. */
+  submit?: (req: PSCopyRequest) => Promise<void>;
   initialSource?: string;
   initialTarget?: string;
   ariaLabel?: string;
@@ -69,16 +68,15 @@ export function SubfolderCopyWizard(
 
   async function handleRun(): Promise<void> {
     setWizard((w) => ({ ...w, submitting: true }));
-    const req: PSMoveFolderItem = {
+    const req: PSCopyRequest = {
       sourcePath,
       targetPath,
-      copy: true,
     };
     try {
       if (submitOverride) {
         await submitOverride(req);
       } else {
-        await moveItem(req);
+        await copyFolder(req);
       }
       setWizard((w) => finishWizard(w, { kind: "ok" }));
       onSettled?.(true);
