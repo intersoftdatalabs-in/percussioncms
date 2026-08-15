@@ -19,14 +19,19 @@
 
 package com.percussion.rest.errors;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Represents a REST error returned to the client. Sunny Sal: "Error ho gaya? No worries, this class
  * will tell you what went wrong!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code
+ * errorData} as a scalar/object rather than an Optional bean ({@code empty}/{@code present}).
+ * Matches {@link com.percussion.rest.contenttypes.ContentType} getter style (issue #3430 / #3388).
  */
 @XmlRootElement(name = "Error")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RestError {
 
   private int errorCode;
@@ -91,12 +96,12 @@ public class RestError {
   }
 
   /**
-   * Returns the error data as an Optional.
+   * Returns the error payload.
    *
-   * @return Optional containing error data if present
+   * @return error data, or {@code null} if unset
    */
-  public Optional<Object> getErrorData() {
-    return Optional.ofNullable(errorData);
+  public Object getErrorData() {
+    return errorData;
   }
 
   public void setErrorData(Object errorData) {

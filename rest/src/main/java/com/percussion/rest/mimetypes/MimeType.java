@@ -22,10 +22,13 @@ package com.percussion.rest.mimetypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Represents a Mime Type registered on the system. Sunny Sal: "MimeType ka hero, uploads ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3430 / #3388).
  */
 @Schema(name = "MimeType", description = "A mime type registered on the system")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -45,10 +48,10 @@ public class MimeType {
   /**
    * Gets the file extension associated with the MimeType.
    *
-   * @return Optional containing the extension if present
+   * @return the extension, or {@code null} if unset
    */
-  public Optional<String> getExtension() {
-    return Optional.ofNullable(extension);
+  public String getExtension() {
+    return extension;
   }
 
   public void setExtension(String extension) {
@@ -58,10 +61,10 @@ public class MimeType {
   /**
    * Gets the Mime Type string.
    *
-   * @return Optional containing the type if present
+   * @return the type, or {@code null} if unset
    */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {

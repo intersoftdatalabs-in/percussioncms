@@ -22,9 +22,14 @@ package com.percussion.rest.extensions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents options when filtering for extensions. Sunny Sal: "Filter lagao, result pao!" */
+/**
+ * Represents options when filtering for extensions. Sunny Sal: "Filter lagao, result pao!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3430 / #3388).
+ */
 @XmlRootElement(name = "ExtensionFilterOptions")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents options when filtering for extensions.")
@@ -67,32 +72,44 @@ public class ExtensionFilterOptions {
     // Default constructor
   }
 
-  public Optional<String> getHandlerNamePattern() {
-    return Optional.ofNullable(handlerNamePattern);
+  /**
+   * @return handler name pattern, or {@code null} if unset
+   */
+  public String getHandlerNamePattern() {
+    return handlerNamePattern;
   }
 
   public void setHandlerNamePattern(String handlerNamePattern) {
     this.handlerNamePattern = handlerNamePattern;
   }
 
-  public Optional<String> getContext() {
-    return Optional.ofNullable(context);
+  /**
+   * @return search context, or {@code null} if unset
+   */
+  public String getContext() {
+    return context;
   }
 
   public void setContext(String context) {
     this.context = context;
   }
 
-  public Optional<String> getInterfacePattern() {
-    return Optional.ofNullable(interfacePattern);
+  /**
+   * @return interface name pattern, or {@code null} if unset
+   */
+  public String getInterfacePattern() {
+    return interfacePattern;
   }
 
   public void setInterfacePattern(String interfacePattern) {
     this.interfacePattern = interfacePattern;
   }
 
-  public Optional<String> getExtensionNamePattern() {
-    return Optional.ofNullable(extensionNamePattern);
+  /**
+   * @return extension name pattern, or {@code null} if unset
+   */
+  public String getExtensionNamePattern() {
+    return extensionNamePattern;
   }
 
   public void setExtensionNamePattern(String extensionNamePattern) {
