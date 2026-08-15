@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Quiet Surefire/console logs. Log4j2 auto-loads log4j2-test.xml from the
+	 test classpath (log4j2-tester.xml was never picked up). Keep Hibernate
+	 and Spring at WARN so show_sql/type traces do not flood CI. -->
+<Configuration status="ERROR" name="dts-tests">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.hibernate" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.hibernate.SQL" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.hibernate.orm" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.hibernate.type" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.springframework" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.apache" level="WARN" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Root level="WARN">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>

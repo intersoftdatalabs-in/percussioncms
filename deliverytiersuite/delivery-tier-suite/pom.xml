@@ -789,6 +789,9 @@
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>${surefireArgLine}</argLine>
                     <testFailureIgnore>false</testFailureIgnore>
+                    <!-- Keep Hibernate/Spring/System.out out of the reactor log.
+                         Failures still print; full stdout is in target/surefire-reports. -->
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
             </plugin>
         </plugins>

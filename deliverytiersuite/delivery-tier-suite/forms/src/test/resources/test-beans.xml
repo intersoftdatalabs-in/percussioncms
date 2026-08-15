@@ -114,7 +114,7 @@
 				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
 				<prop key="hibernate.default_schema">${db.schema}</prop>
 				<prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
-				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.jdbc.batch_size">50</prop>
 				<prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>
 				<prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
