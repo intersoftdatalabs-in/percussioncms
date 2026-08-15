@@ -61,6 +61,7 @@ class InstallSampleSitesWiringTest {
   private static final Path SAMPLE_DATA = INSTALLER_DATA.resolve("RxffTableData.xml");
   private static final Path SAMPLE_DEF = INSTALLER_DATA.resolve("RxffTableDef.xml");
   private static final Path CMS_TABLE_DEF = INSTALLER_DATA.resolve("cmsTableDef.xml");
+  private static final Path SAMPLE_CONTENT = CmsTableDataSampleContentNextNumberTest.SAMPLE_CONTENT;
 
   /** Matches {@code name} anywhere on a {@code <table ...>} start tag (not only first attr). */
   private static final Pattern TABLE_NAME_ATTR =
@@ -84,6 +85,10 @@ class InstallSampleSitesWiringTest {
         targetBody.contains("RxffTableData.staging.xml"),
         "installSampleSites must load locale-stripped staging data");
     assertTrue(
+        targetBody.contains("RxffSampleTableData"),
+        "installSampleSites must also load FastForward sample content (RxffSampleTableData);"
+            + " types-only seed leaves sites with no navons/pages");
+    assertTrue(
         targetBody.contains("cmsTableDef.xml"),
         "installSampleSites tableDef must include cmsTableDef so RXSITES and other sample-graph"
             + " tables are processed (#3133). RxffTableDef alone only covers RXS_CT_*.");
@@ -101,6 +106,13 @@ class InstallSampleSitesWiringTest {
         "installSampleSites must set tableDef to cmsTableDef.xml,RxffTableDef.xml (comma-separated);"
             + " found target fragment:\n"
             + targetBody);
+
+    Path distFiles = Path.of("src/main/resources/installDistributionFiles.xml");
+    String distText = Files.readString(distFiles, StandardCharsets.UTF_8);
+    assertTrue(
+        distText.contains("RxffSampleTableData.xml")
+            && distText.contains("FastForward/SampleContent"),
+        "installDistributionFiles must copy FastForward SampleContent into Installer/data");
   }
 
   @Test
@@ -169,69 +181,102 @@ class InstallSampleSitesWiringTest {
     }
   }
 
+  /**
+   * Invented CONTENTID 350–355 empty Pages/Files folders collide with FastForward
+   * sample pages (350 is "EI Retirement - Category"). Site folders live in
+   * {@code RxffSampleTableData} as 301 / 523.
+   */
   @Test
-  void sampleDataDeclaresSiteRootFoldersUnderSites()
+  void rxffTableDataDoesNotInventCollidingSiteStubFolders()
       throws IOException, ParserConfigurationException, SAXException {
     assertTrue(Files.isRegularFile(SAMPLE_DATA), "missing " + SAMPLE_DATA);
     Document doc = parseXml(SAMPLE_DATA);
     Element contentStatus = findTable(doc, "CONTENTSTATUS");
     if (contentStatus == null) {
-      fail("RxffTableData.xml must declare CONTENTSTATUS for sample site folders");
+      fail("RxffTableData.xml must declare CONTENTSTATUS");
     }
-    Set<String> titles = new LinkedHashSet<>();
+    Set<String> collidingIds = Set.of("350", "351", "352", "353", "354", "355");
+    Set<String> found = new LinkedHashSet<>();
     NodeList rows = contentStatus.getElementsByTagName("row");
     for (int i = 0; i < rows.getLength(); i++) {
-      String title = columnValue((Element) rows.item(i), "TITLE");
-      if (title != null && !title.isBlank()) {
-        titles.add(title.trim());
+      String id = columnValue((Element) rows.item(i), "CONTENTID");
+      if (id != null && collidingIds.contains(id.trim())) {
+        found.add(id.trim() + "=" + columnValue((Element) rows.item(i), "TITLE"));
       }
     }
     assertTrue(
-        titles.contains("EnterpriseInvestments"),
-        "CONTENTSTATUS must include EnterpriseInvestments folder matching FOLDER_ROOT; found "
-            + titles);
+        found.isEmpty(),
+        "RxffTableData must not invent CONTENTID 350-355 folders (they collide with FF sample"
+            + " pages). Found: "
+            + found);
+  }
+
+  @Test
+  void sampleContentDeclaresRealSiteFoldersNavAndPages()
+      throws IOException, ParserConfigurationException, SAXException {
+    assertTrue(Files.isRegularFile(SAMPLE_CONTENT), "missing FastForward sample content " + SAMPLE_CONTENT);
+    Document doc = parseXml(SAMPLE_CONTENT);
+    Element contentStatus = findTable(doc, "CONTENTSTATUS");
+    if (contentStatus == null) {
+      fail("RxffSampleTableData.xml must declare CONTENTSTATUS");
+    }
+    String title301 = null;
+    String title523 = null;
+    String object350 = null;
+    NodeList rows = contentStatus.getElementsByTagName("row");
+    for (int i = 0; i < rows.getLength(); i++) {
+      Element row = (Element) rows.item(i);
+      String id = columnValue(row, "CONTENTID");
+      if ("301".equals(id)) {
+        title301 = columnValue(row, "TITLE");
+      } else if ("523".equals(id)) {
+        title523 = columnValue(row, "TITLE");
+      } else if ("350".equals(id)) {
+        object350 = columnValue(row, "OBJECTTYPE");
+      }
+    }
     assertTrue(
-        titles.contains("CorporateInvestments"),
-        "CONTENTSTATUS must include CorporateInvestments folder matching FOLDER_ROOT; found "
-            + titles);
+        title301 != null && title301.contains("EnterpriseInvestments"),
+        "sample content 301 must be EnterpriseInvestments folder, was: " + title301);
+    assertTrue(
+        title523 != null && title523.contains("CorporateInvestments"),
+        "sample content 523 must be CorporateInvestments folder, was: " + title523);
+    assertTrue(
+        "1".equals(object350),
+        "sample content 350 must be an item (page), not a folder; OBJECTTYPE=" + object350);
+
+    Element navTree = findTable(doc, "RXS_CT_NAVTREE");
+    if (navTree == null) {
+      fail("RxffSampleTableData.xml must declare RXS_CT_NAVTREE");
+    }
+    Set<String> navIds = new LinkedHashSet<>();
+    NodeList navRows = navTree.getElementsByTagName("row");
+    for (int i = 0; i < navRows.getLength(); i++) {
+      String id = columnValue((Element) navRows.item(i), "CONTENTID");
+      if (id != null && !id.isBlank()) {
+        navIds.add(id.trim());
+      }
+    }
+    assertTrue(navIds.contains("319"), "EI NavTree contentid 319 missing; found " + navIds);
+    assertTrue(navIds.contains("553"), "CI NavTree contentid 553 missing; found " + navIds);
 
     Element rels = findTable(doc, "PSX_OBJECTRELATIONSHIP");
     if (rels == null) {
-      fail("RxffTableData.xml must declare PSX_OBJECTRELATIONSHIP for site folder graph");
+      fail("RxffSampleTableData.xml must declare PSX_OBJECTRELATIONSHIP");
     }
-    boolean hasSiteChild = false;
+    Set<String> siteChildren = new LinkedHashSet<>();
     NodeList relRows = rels.getElementsByTagName("row");
     for (int i = 0; i < relRows.getLength(); i++) {
       Element row = (Element) relRows.item(i);
-      String owner = columnValue(row, "OWNER_ID");
-      String dep = columnValue(row, "DEPENDENT_ID");
-      // Sites system folder is contentid 2
-      if ("2".equals(owner) && ("350".equals(dep) || "351".equals(dep))) {
-        hasSiteChild = true;
-        break;
+      if ("2".equals(columnValue(row, "OWNER_ID"))) {
+        String dep = columnValue(row, "DEPENDENT_ID");
+        if (dep != null && !dep.isBlank()) {
+          siteChildren.add(dep.trim());
+        }
       }
     }
-    assertTrue(
-        hasSiteChild,
-        "PSX_OBJECTRELATIONSHIP must link Sites (owner 2) to sample site root folders 350/351");
-
-    Set<String> childDeps = new LinkedHashSet<>();
-    for (int i = 0; i < relRows.getLength(); i++) {
-      Element row = (Element) relRows.item(i);
-      String owner = columnValue(row, "OWNER_ID");
-      String dep = columnValue(row, "DEPENDENT_ID");
-      if (("350".equals(owner) || "351".equals(owner)) && dep != null && !dep.isBlank()) {
-        childDeps.add(owner + ":" + dep.trim());
-      }
-    }
-    assertTrue(
-        childDeps.contains("350:352") && childDeps.contains("350:353"),
-        "EnterpriseInvestments (350) must have Pages/Files children 352/353 (#3326); found "
-            + childDeps);
-    assertTrue(
-        childDeps.contains("351:354") && childDeps.contains("351:355"),
-        "CorporateInvestments (351) must have Pages/Files children 354/355 (#3326); found "
-            + childDeps);
+    assertTrue(siteChildren.contains("301"), "Sites must own EI folder 301; found " + siteChildren);
+    assertTrue(siteChildren.contains("523"), "Sites must own CI folder 523; found " + siteChildren);
   }
 
   @Test
@@ -280,6 +325,19 @@ class InstallSampleSitesWiringTest {
         "Every RxffTableData table must appear in cmsTableDef or RxffTableDef so PSTableAction can"
             + " process it. Missing schema for: "
             + missing);
+
+    Set<String> contentTables =
+        tableNamesFromXmlText(Files.readString(SAMPLE_CONTENT, StandardCharsets.UTF_8));
+    Set<String> contentMissing = new LinkedHashSet<>();
+    for (String table : contentTables) {
+      if (!defTables.contains(table) && !cmsTables.contains(table)) {
+        contentMissing.add(table);
+      }
+    }
+    assertTrue(
+        contentMissing.isEmpty(),
+        "Every RxffSampleTableData table must appear in cmsTableDef or RxffTableDef. Missing: "
+            + contentMissing);
   }
 
   private static Document parseXml(Path path)

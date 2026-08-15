@@ -11,7 +11,8 @@
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">CONTENTSTATUSHISTORY</column>
-            <column name="NEXTNR">1000</column>
+            <!-- Last-issued. FastForward sample history IDs go to 1783; next alloc is NEXTNR+1. -->
+            <column name="NEXTNR">2000</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">CONTENTTYPES</column>
@@ -47,7 +48,8 @@
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">RXRELATEDCONTENT</column>
-            <column name="NEXTNR">1000</column>
+            <!-- Last-issued. FastForward sample PSX_OBJECTRELATIONSHIP RID goes to 1726. -->
+            <column name="NEXTNR">2000</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="KEYNAME">slotid</column>

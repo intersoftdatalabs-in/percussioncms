@@ -703,7 +703,7 @@
 		</if>
 
 		<echo>Seeding sample sites (Corporate Investments / Enterprise
-			Investments)...</echo>
+			Investments) plus FastForward sample content...</echo>
 
 		<!-- Defensive runtime strip: even though the source RxffTableData.xml
 			ships without RXLOCALE/RXLOCALEFORMAT (see SampleSiteLocaleStripTest), this
@@ -729,6 +729,24 @@
 			repositoryLocation="${rxrepository.properties}"
 			tableFactoryLogFile="${install.dir}/rxconfig/Installer/tableFactory.log"
 			tableData="${data.dir}/RxffTableData.staging.xml"
+			tableDef="${data.dir}/cmsTableDef.xml,${data.dir}/RxffTableDef.xml"
+			failonerror="true" silenceerrors="false" />
+
+		<!-- FastForward sample *content* (real site folders 301/523, Files/Images,
+			 About… sections, rffNavTree/rffNavon, pages). Historic peer:
+			 installFastForward.xml target fastforwardSampleContent.
+			 Do not invent CONTENTID 350–355 as empty Pages/Files folders — those
+			 IDs are FastForward pages (e.g. EI Retirement) and collide. -->
+		<antcall target="stripSampleLocales" inheritrefs="true">
+			<param name="sample.input.file"
+				value="${data.dir}/RxffSampleTableData.xml" />
+			<param name="sample.staging.file"
+				value="${data.dir}/RxffSampleTableData.staging.xml" />
+		</antcall>
+		<PSTableAction rootDir="${install.dir}"
+			repositoryLocation="${rxrepository.properties}"
+			tableFactoryLogFile="${install.dir}/rxconfig/Installer/tableFactory.log"
+			tableData="${data.dir}/RxffSampleTableData.staging.xml"
 			tableDef="${data.dir}/cmsTableDef.xml,${data.dir}/RxffTableDef.xml"
 			failonerror="true" silenceerrors="false" />
 
