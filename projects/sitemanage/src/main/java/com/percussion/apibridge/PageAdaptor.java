@@ -335,7 +335,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         // not widgets in it from the template
         boolean regionEditable = (instanceSize == 0 || owner.equals(PSMergedRegionOwner.PAGE));
 
-        boolean clearRegion = updateRegion.getWidgets().isEmpty();
+        boolean clearRegion =
+            updateRegion.getWidgets() == null || updateRegion.getWidgets().isEmpty();
         List<PSWidgetItem> updateWidgetList = new ArrayList<>();
         List<PSWidgetItem> newWidgetList = new ArrayList<>();
 
@@ -344,23 +345,23 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
           PSWidgetItem existingWidget = findWidget(existingInstances, updateWidget);
 
           if (existingWidget == null && regionEditable) {
-            if (StringUtils.isNotEmpty(ApiUtils.orNull(updateWidget.getId()))) {
+            if (StringUtils.isNotEmpty(updateWidget.getId())) {
               throw new RuntimeException(
                   "Cannot find widget id "
-                      + ApiUtils.orNull(updateWidget.getId())
+                      + updateWidget.getId()
                       + " on region "
                       + updateRegion.getName());
             }
 
-            if (StringUtils.isEmpty(ApiUtils.orNull(updateWidget.getId()))
-                && StringUtils.isEmpty(ApiUtils.orNull(updateWidget.getName()))) {
+            if (StringUtils.isEmpty(updateWidget.getId())
+                && StringUtils.isEmpty(updateWidget.getName())) {
               throw new RuntimeException("Must specify either id or name on widget");
             }
 
             existingWidget = new PSWidgetItem();
-            existingWidget.setDefinitionId(ApiUtils.orNull(updateWidget.getType()));
-            existingWidget.setId(ApiUtils.orNull(updateWidget.getId()));
-            existingWidget.setName(ApiUtils.orNull(updateWidget.getName()));
+            existingWidget.setDefinitionId(updateWidget.getType());
+            existingWidget.setId(updateWidget.getId());
+            existingWidget.setName(updateWidget.getName());
           }
           // will add placeholder nulls for non editable regions
           newWidgetList.add(existingWidget);
@@ -385,14 +386,14 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
           }
 
           if (!clearRegion) {
-            pullTemplateRegionToPage(psPage, template, ApiUtils.orNull(updateRegion.getName()));
+            pullTemplateRegionToPage(psPage, template, updateRegion.getName());
           }
 
           psPage.getRegionBranches().setRegionWidgetAssociations(newWidgetAssoc);
 
           psPage
               .getRegionBranches()
-              .setRegionWidgets(ApiUtils.orNull(updateRegion.getName()), updateWidgetList);
+              .setRegionWidgets(updateRegion.getName(), updateWidgetList);
 
           savePage = true;
         }
@@ -543,8 +544,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         existingWidget = widget;
       }
       if (updateWidget.getName() != null
-          && widget.getName() != null
-          && updateWidget.getName().equals(widget.getName())) {
+          && widget.getName().isPresent()
+          && updateWidget.getName().equals(widget.getName().orElse(null))) {
         existingWidget = widget;
       }
     }
@@ -668,13 +669,12 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
     var url =
         new UrlParts(
-            ApiUtils.orNull(toPage.getSiteName()),
-            ApiUtils.orNull(toPage.getFolderPath()),
-            ApiUtils.orNull(toPage.getName()));
+            toPage.getSiteName(),
+            toPage.getFolderPath(),
+            toPage.getName());
 
     var folderUrl =
-        new UrlParts(
-            ApiUtils.orNull(toPage.getSiteName()), ApiUtils.orNull(toPage.getFolderPath()), null);
+        new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), null);
     var pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
 
     try {
@@ -690,7 +690,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       throw new BackendException(e.getMessage(), e);
     }
     if (psPage == null) {
-      if (PSFolderPathUtils.testHasInvalidChars(ApiUtils.orNull(toPage.getName()))) {
+      if (PSFolderPathUtils.testHasInvalidChars(toPage.getName())) {
         throw new IllegalArgumentException(
             "Cannot create a page with following chars in the name"
                 + SecureStringUtils.INVALID_ITEM_NAME_CHARACTERS);
@@ -705,9 +705,9 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
     Page currentPage =
         getPage(
             baseUri,
-            ApiUtils.orNull(toPage.getSiteName()),
-            ApiUtils.orNull(toPage.getFolderPath()),
-            ApiUtils.orNull(toPage.getName()));
+            toPage.getSiteName(),
+            toPage.getFolderPath(),
+            toPage.getName());
 
     return currentPage;
   }
@@ -748,10 +748,10 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       currentState = getWorkflowState(page);
     }
 
-    Optional<WorkflowInfo> wfOpt = toPage.getWorkflow();
-    Optional<String> stateOpt = wfOpt.flatMap(WorkflowInfo::getState);
-    if (stateOpt.isPresent() && StringUtils.isNotEmpty(stateOpt.get())) {
-      endState = stateOpt.get();
+    WorkflowInfo wfInfo = toPage.getWorkflow();
+    String state = wfInfo == null ? null : wfInfo.getState();
+    if (StringUtils.isNotEmpty(state)) {
+      endState = state;
     } else {
       endState = currentState;
     }
@@ -765,66 +765,59 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
     }
 
     UrlParts folderUrl =
-        new UrlParts(
-            ApiUtils.orNull(toPage.getSiteName()), ApiUtils.orNull(toPage.getFolderPath()), null);
+        new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), null);
 
     // set default values
     if (newPage) {
-      page.setTitle(ApiUtils.orNull(toPage.getName()));
-      page.setLinkTitle(ApiUtils.orNull(toPage.getName()));
+      page.setTitle(toPage.getName());
+      page.setLinkTitle(toPage.getName());
     }
 
-    Optional<CodeInfo> codeOpt = toPage.getCode();
-    if (codeOpt.isPresent()) {
-      CodeInfo code = codeOpt.get();
-      String head = ApiUtils.orNull(code.getHead());
+    CodeInfo code = toPage.getCode();
+    if (code != null) {
+      String head = code.getHead();
       if (head != null) {
         page.setAdditionalHeadContent(head);
       }
-      String afterStart = ApiUtils.orNull(code.getAfterStart());
+      String afterStart = code.getAfterStart();
       if (afterStart != null) {
         page.setAfterBodyStartContent(afterStart);
       }
-      String beforeClose = ApiUtils.orNull(code.getBeforeClose());
+      String beforeClose = code.getBeforeClose();
       if (beforeClose != null) {
         page.setBeforeBodyCloseContent(beforeClose);
       }
     }
 
-    // `page` will be updated later so capture a final reference for lambda
-    final PSPage pageRef = page;
-    toPage
-        .getSeo()
-        .ifPresent(
-            seo -> {
-              if (seo.getMetaDescription() != null) {
-                pageRef.setDescription(ApiUtils.orNull(seo.getMetaDescription()));
-              }
+    SeoInfo seo = toPage.getSeo();
+    if (seo != null) {
+      if (seo.getMetaDescription() != null) {
+        page.setDescription(seo.getMetaDescription());
+      }
 
-              // default title to page name
-              if (seo.getBrowserTitle() != null) {
-                pageRef.setTitle(ApiUtils.orNull(seo.getBrowserTitle()));
-              }
+      // default title to page name
+      if (seo.getBrowserTitle() != null) {
+        page.setTitle(seo.getBrowserTitle());
+      }
 
-              Boolean hideSearch = seo.getHideSearch().orElse(null);
-              pageRef.setNoindex((hideSearch != null && hideSearch) ? "true" : "false");
+      Boolean hideSearch = seo.getHideSearch();
+      page.setNoindex((hideSearch != null && hideSearch) ? "true" : "false");
 
-              List<String> tags = seo.getTags().orElse(null);
-              if (tags != null) {
-                pageRef.setTags(tags);
-              }
-
-              // toPage.getSeo().getCategories();
-
-            });
+      List<String> tags = seo.getTags();
+      if (tags != null) {
+        page.setTags(tags);
+      }
+    }
     // default linktitle to name
-    toPage.getDisplayName().ifPresent(page::setLinkTitle);
-
-    if (toPage.getName() != null) {
-      page.setName(ApiUtils.orNull(toPage.getName()));
+    if (toPage.getDisplayName() != null) {
+      page.setLinkTitle(toPage.getDisplayName());
     }
 
-    String templateName = ApiUtils.orNull(toPage.getTemplateName());
+    if (toPage.getName() != null) {
+      page.setName(toPage.getName());
+    }
+
+    String templateName = toPage.getTemplateName();
 
     PSTemplate template = null;
     String templateId = null;
@@ -833,7 +826,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       templateId =
           idMapper.getString(
               templateService.findUserTemplateIdByName(
-                  templateName, ApiUtils.orNull(toPage.getSiteName())));
+                  templateName, toPage.getSiteName()));
 
       page.setTemplateId(templateId);
     } else {
@@ -846,7 +839,9 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
     template = templateService.load(templateId);
 
-    toPage.getDisplayName().ifPresent(page::setLinkTitle);
+    if (toPage.getDisplayName() != null) {
+      page.setLinkTitle(toPage.getDisplayName());
+    }
 
     updateRegionInfo(toPage, page, template);
     try {
@@ -867,8 +862,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
     updateAssetInfo(baseUri, toPage, page, template);
 
-    CalendarInfo calInfo = ApiUtils.orNull(toPage.getCalendar());
-    List<String> categories = toPage.getSeo().flatMap(SeoInfo::getCategories).orElse(null);
+    CalendarInfo calInfo = toPage.getCalendar();
+    List<String> categories = toPage.getSeo() == null ? null : toPage.getSeo().getCategories();
 
     boolean isUpdated = false;
     FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss.S");
@@ -901,7 +896,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
     }
     // Setting to null or empty string is the same as auto generate.
     if (toPage.getSummary() != null) {
-      if (StringUtils.isNotBlank(ApiUtils.orNull(toPage.getSummary()))) {
+      if (StringUtils.isNotBlank(toPage.getSummary())) {
         fields.put("auto_generate_summary", "0");
         fields.put("page_summary", toPage.getSummary());
       } else {
@@ -967,12 +962,12 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       emptyTemplateWidgetIds.add(emptyTemplateWidgetId.getId());
     }
 
-    List<Region> bodyRegions = ApiUtils.orNull(toPage.getBody());
+    List<Region> bodyRegions = toPage.getBody();
     if (bodyRegions != null) {
       for (Region region : bodyRegions) {
         PSMergedRegion systemRegion =
-            tree.getMergedRegionMap().get(ApiUtils.orNull(region.getName()));
-        List<Widget> widgets = ApiUtils.orNull(region.getWidgets());
+            tree.getMergedRegionMap().get(region.getName());
+        List<Widget> widgets = region.getWidgets();
         List<PSWidgetInstance> systemRegionWidgets = systemRegion.getWidgetInstances();
 
         if (widgets != null) {
@@ -990,7 +985,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
               String id = widgetItem.getId();
 
               PSRelationship assetRels = assetWidgets.get(id);
-              Asset asset = ApiUtils.orNull(widget.getAsset());
+              Asset asset = widget.getAsset();
 
               //
               if (assetRels != null && Boolean.TRUE.equals(asset.getRemove())) {
@@ -1005,8 +1000,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
                     PSAssetWidgetRelationship awRel =
                         new PSAssetWidgetRelationship(
                             page.getId(),
-                            Long.parseLong(ApiUtils.orNull(widget.getId())),
-                            ApiUtils.orNull(widget.getType()),
+                            Long.parseLong(widget.getId()),
+                            widget.getType(),
                             assetId,
                             0);
                     assetService.clearAssetWidgetRelationship(awRel);
@@ -1069,14 +1064,14 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         while (iterator.hasNext()) {
 
           PSOrphanedAssetSummary orphan = iterator.next();
-          if (StringUtils.equals(ApiUtils.orNull(widget.getName()), orphan.getName())
-              && StringUtils.equals(ApiUtils.orNull(widget.getType()), orphan.getType())) {
+          if (StringUtils.equals(widget.getName(), orphan.getName())
+              && StringUtils.equals(widget.getType(), orphan.getType())) {
             foundOrphan = true;
             PSAssetWidgetRelationship awRel =
                 new PSAssetWidgetRelationship(
                     page.getId(),
-                    Long.parseLong(ApiUtils.orNull(widget.getId())),
-                    ApiUtils.orNull(widget.getType()),
+                    Long.parseLong(widget.getId()),
+                    widget.getType(),
                     orphan.getId(),
                     0);
             try {
@@ -1096,7 +1091,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         if (!foundOrphan) {
           guidString =
               createAndAssociateLocalAsset(
-                  page.getId(), id, ApiUtils.orNull(widget.getType()), fields);
+                  page.getId(), id, widget.getType(), fields);
         }
       } else // existing asset
       {
@@ -1144,8 +1139,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         PSAssetWidgetRelationship awRel =
             new PSAssetWidgetRelationship(
                 page.getId(),
-                Long.parseLong(ApiUtils.orNull(widget.getId())),
-                ApiUtils.orNull(widget.getType()),
+                Long.parseLong(widget.getId()),
+                widget.getType(),
                 pathItem.getId(),
                 0);
         awRel.setResourceType(PSAssetResourceType.shared);
@@ -1158,8 +1153,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         PSAssetWidgetRelationship awRel =
             new PSAssetWidgetRelationship(
                 page.getId(),
-                Long.parseLong(ApiUtils.orNull(widget.getId())),
-                ApiUtils.orNull(widget.getType()),
+                Long.parseLong(widget.getId()),
+                widget.getType(),
                 idMapper.getString(assetRels.getDependent()),
                 0);
         assetService.shareLocalContent(
@@ -1174,8 +1169,8 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
           PSAssetWidgetRelationship awRel =
               new PSAssetWidgetRelationship(
                   page.getId(),
-                  Long.parseLong(ApiUtils.orNull(widget.getId())),
-                  ApiUtils.orNull(widget.getType()),
+                  Long.parseLong(widget.getId()),
+                  widget.getType(),
                   pathItem.getId(),
                   0);
           awRel.setResourceType(PSAssetResourceType.shared);
@@ -1457,9 +1452,9 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       String pageId = null;
       String templateName = null;
 
-      if (p != null && p.getId().isPresent() && p.getTemplateName().isPresent()) {
-        pageId = p.getId().get();
-        templateName = p.getTemplateName().get();
+      if (p != null && p.getId() != null && p.getTemplateName() != null) {
+        pageId = p.getId();
+        templateName = p.getTemplateName();
 
         if (pageId.isEmpty() || templateName.isEmpty()) {
           throw new PageNotFoundException();
@@ -1475,7 +1470,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
       String templateId =
           idMapper.getString(
               templateService.findUserTemplateIdByName(
-                  templateName, ApiUtils.orNull(p.getSiteName())));
+                  templateName, p.getSiteName()));
 
       if (templateId != null) {
         ArrayList<String> pageIds = new ArrayList<>();

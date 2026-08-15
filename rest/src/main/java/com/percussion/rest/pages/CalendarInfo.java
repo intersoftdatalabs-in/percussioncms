@@ -19,13 +19,19 @@
 
 package com.percussion.rest.pages;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-/** Represents Calendar information. Sunny Sal: "Calendar ka hero, date ka zero!" */
+/**
+ * Represents Calendar information. Sunny Sal: "Calendar ka hero, date ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits calendar
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CalendarInfo")
 @Schema(name = "CalendarInfo", description = "Represents Calendar information.")
 public class CalendarInfo {
@@ -42,10 +48,10 @@ public class CalendarInfo {
   /**
    * Gets the start date.
    *
-   * @return Optional containing the start date if present.
+   * @return the start date, or {@code null} if unset
    */
-  public Optional<Date> getStartDate() {
-    return Optional.ofNullable(startDate);
+  public Date getStartDate() {
+    return startDate;
   }
 
   public void setStartDate(Date startDate) {
@@ -55,10 +61,10 @@ public class CalendarInfo {
   /**
    * Gets the end date.
    *
-   * @return Optional containing the end date if present.
+   * @return the end date, or {@code null} if unset
    */
-  public Optional<Date> getEndDate() {
-    return Optional.ofNullable(endDate);
+  public Date getEndDate() {
+    return endDate;
   }
 
   public void setEndDate(Date endDate) {
@@ -68,10 +74,10 @@ public class CalendarInfo {
   /**
    * Gets the list of calendars.
    *
-   * @return Optional containing the list of calendars if present.
+   * @return the list of calendars, or {@code null} if unset
    */
-  public Optional<List<String>> getCalendars() {
-    return Optional.ofNullable(calendars);
+  public List<String> getCalendars() {
+    return calendars;
   }
 
   public void setCalendars(List<String> calendars) {

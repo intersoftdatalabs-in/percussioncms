@@ -21,11 +21,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Outcome of {@code POST /sites/{nameOrId}/virtual/publish}: build-then-copy to the Site filesystem
  * publish root ({@code IPSSite.root}).
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
+ * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
  */
 @XmlRootElement(name = "VirtualSitePublishResult")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -70,32 +72,32 @@ public class VirtualSitePublishResult {
     // Default constructor for JAX-RS / Jackson
   }
 
-  public Optional<String> getSiteName() {
-    return Optional.ofNullable(siteName);
+  public String getSiteName() {
+    return siteName;
   }
 
   public void setSiteName(String siteName) {
     this.siteName = siteName;
   }
 
-  public Optional<String> getSiteKey() {
-    return Optional.ofNullable(siteKey);
+  public String getSiteKey() {
+    return siteKey;
   }
 
   public void setSiteKey(String siteKey) {
     this.siteKey = siteKey;
   }
 
-  public Optional<String> getPublishPath() {
-    return Optional.ofNullable(publishPath);
+  public String getPublishPath() {
+    return publishPath;
   }
 
   public void setPublishPath(String publishPath) {
     this.publishPath = publishPath;
   }
 
-  public Optional<String> getBuildOutputPath() {
-    return Optional.ofNullable(buildOutputPath);
+  public String getBuildOutputPath() {
+    return buildOutputPath;
   }
 
   public void setBuildOutputPath(String buildOutputPath) {

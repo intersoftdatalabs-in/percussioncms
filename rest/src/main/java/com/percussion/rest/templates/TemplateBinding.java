@@ -19,10 +19,16 @@
 
 package com.percussion.rest.templates;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
-import java.util.Optional;
 
-/** Represents a Template Binding. Sunny Sal: "Binding ka hero, expression ka zero!" */
+/**
+ * Represents a Template Binding. Sunny Sal: "Binding ka hero, expression ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits binding
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TemplateBinding {
 
   private Guid bindingId;
@@ -36,24 +42,24 @@ public class TemplateBinding {
     // Default constructor
   }
 
-  public Optional<Guid> getBindingId() {
-    return Optional.ofNullable(bindingId);
+  public Guid getBindingId() {
+    return bindingId;
   }
 
   public void setBindingId(Guid bindingId) {
     this.bindingId = bindingId;
   }
 
-  public Optional<Integer> getVersion() {
-    return Optional.ofNullable(version);
+  public Integer getVersion() {
+    return version;
   }
 
   public void setVersion(Integer version) {
     this.version = version;
   }
 
-  public Optional<Guid> getTemplateId() {
-    return Optional.ofNullable(templateId);
+  public Guid getTemplateId() {
+    return templateId;
   }
 
   public void setTemplateId(Guid templateId) {
@@ -68,16 +74,16 @@ public class TemplateBinding {
     this.executionOrder = executionOrder;
   }
 
-  public Optional<String> getVariable() {
-    return Optional.ofNullable(variable);
+  public String getVariable() {
+    return variable;
   }
 
   public void setVariable(String variable) {
     this.variable = variable;
   }
 
-  public Optional<String> getExpression() {
-    return Optional.ofNullable(expression);
+  public String getExpression() {
+    return expression;
   }
 
   public void setExpression(String expression) {

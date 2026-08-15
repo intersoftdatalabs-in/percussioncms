@@ -19,6 +19,7 @@
 
 package com.percussion.rest.pages;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -26,9 +27,14 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-/** Represents a page. Sunny Sal: "Page ka hero, content ka zero!" */
+/**
+ * Represents a page. Sunny Sal: "Page ka hero, content ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits page fields
+ * when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Page")
 @Schema(name = "Page", description = "Represents a page.")
 public class Page {
@@ -107,88 +113,88 @@ public class Page {
     this.bookmarkedUsers = bookmarkedUsers;
   }
 
-  public Optional<String> getId() {
-    return Optional.ofNullable(id);
+  public String getId() {
+    return id;
   }
 
   public void setId(String id) {
     this.id = id;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDisplayName() {
-    return Optional.ofNullable(displayName);
+  public String getDisplayName() {
+    return displayName;
   }
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
 
-  public Optional<String> getTemplateName() {
-    return Optional.ofNullable(templateName);
+  public String getTemplateName() {
+    return templateName;
   }
 
   public void setTemplateName(String templateName) {
     this.templateName = templateName;
   }
 
-  public Optional<String> getSummary() {
-    return Optional.ofNullable(summary);
+  public String getSummary() {
+    return summary;
   }
 
   public void setSummary(String summary) {
     this.summary = summary;
   }
 
-  public Optional<Date> getOverridePostDate() {
-    return Optional.ofNullable(overridePostDate);
+  public Date getOverridePostDate() {
+    return overridePostDate;
   }
 
   public void setOverridePostDate(Date overridePostDate) {
     this.overridePostDate = overridePostDate;
   }
 
-  public Optional<WorkflowInfo> getWorkflow() {
-    return Optional.ofNullable(workflow);
+  public WorkflowInfo getWorkflow() {
+    return workflow;
   }
 
   public void setWorkflow(WorkflowInfo workflow) {
     this.workflow = workflow;
   }
 
-  public Optional<SeoInfo> getSeo() {
-    return Optional.ofNullable(seo);
+  public SeoInfo getSeo() {
+    return seo;
   }
 
   public void setSeo(SeoInfo seo) {
     this.seo = seo;
   }
 
-  public Optional<CalendarInfo> getCalendar() {
-    return Optional.ofNullable(calendar);
+  public CalendarInfo getCalendar() {
+    return calendar;
   }
 
   public void setCalendar(CalendarInfo calendar) {
     this.calendar = calendar;
   }
 
-  public Optional<CodeInfo> getCode() {
-    return Optional.ofNullable(code);
+  public CodeInfo getCode() {
+    return code;
   }
 
   public void setCode(CodeInfo code) {
     this.code = code;
   }
 
-  public Optional<List<Region>> getBody() {
-    return Optional.ofNullable(body);
+  public List<Region> getBody() {
+    return body;
   }
 
   public void setBody(List<Region> body) {
@@ -220,16 +226,16 @@ public class Page {
         + "]";
   }
 
-  public Optional<String> getSiteName() {
-    return Optional.ofNullable(siteName);
+  public String getSiteName() {
+    return siteName;
   }
 
   public void setSiteName(String siteName) {
     this.siteName = siteName;
   }
 
-  public Optional<String> getFolderPath() {
-    return Optional.ofNullable(folderPath);
+  public String getFolderPath() {
+    return folderPath;
   }
 
   public void setFolderPath(String folderPath) {

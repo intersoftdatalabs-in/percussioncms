@@ -412,15 +412,13 @@ public class SitesAdaptor implements ISiteAdaptor {
     Path safePublishRoot = requireSafeOutputRoot(publishRoot);
 
     VirtualSiteBuildResult built = buildVirtualSite(nameOrId, null);
-    Path buildOutput =
-        built.getOutputPath()
-            .filter(StringUtils::isNotBlank)
-            .map(Path::of)
-            .orElseThrow(
-                () ->
-                    new WebApplicationException(
-                        "Virtual Site build did not report an output path.",
-                        Response.Status.INTERNAL_SERVER_ERROR));
+    String outputPath = built.getOutputPath();
+    if (StringUtils.isBlank(outputPath)) {
+      throw new WebApplicationException(
+          "Virtual Site build did not report an output path.",
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    Path buildOutput = Path.of(outputPath);
 
     try {
       // Do not mention PSVirtualSitePublishCopyResult here: Spring lookup-method
@@ -888,7 +886,7 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   Path resolveOutputRoot(VirtualSiteBuildRequest request, String siteKey) {
     String override =
-        request != null ? blankToNull(request.getOutputRoot().orElse(null)) : null;
+        request != null ? blankToNull(request.getOutputRoot()) : null;
     if (override != null) {
       Path path;
       try {
@@ -976,7 +974,9 @@ public class SitesAdaptor implements ISiteAdaptor {
       dto.setPublishPath(publishRoot.toAbsolutePath().normalize().toString());
     }
     if (built != null) {
-      built.getOutputPath().ifPresent(dto::setBuildOutputPath);
+      if (built.getOutputPath() != null) {
+        dto.setBuildOutputPath(built.getOutputPath());
+      }
       dto.setPagesWritten(built.getPagesWritten());
       dto.setLinkProblemCount(built.getLinkProblemCount());
       dto.setHasLinkProblems(built.getHasLinkProblems());

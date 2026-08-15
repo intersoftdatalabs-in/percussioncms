@@ -19,15 +19,23 @@
 
 package com.percussion.rest.roles;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-/** Represents a system Role that a user may belong to. Sunny Sal: "Role ka hero, users ka zero!" */
+/**
+ * Represents a system Role that a user may belong to. Sunny Sal: "Role ka hero, users ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name},
+ * {@code description}, and {@code homePage} when set. Optional-returning getters historically
+ * serialized as empty/present beans or dropped fields under {@code @JsonInclude(NON_NULL)} (issue
+ * #3388). Matches {@link com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
+ */
 @XmlRootElement(name = "Role")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "Role", description = "Represents a system Role that a user may belong to.")
 public class Role {
 
@@ -60,24 +68,24 @@ public class Role {
     // Default constructor
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getHomePage() {
-    return Optional.ofNullable(homePage);
+  public String getHomePage() {
+    return homePage;
   }
 
   public void setHomePage(String homePage) {

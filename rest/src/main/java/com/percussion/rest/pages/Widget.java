@@ -23,9 +23,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.assets.Asset;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents a Widget. Sunny Sal: "Widget ka hero, content ka zero!" */
+/**
+ * Represents a Widget. Sunny Sal: "Widget ka hero, content ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits widget
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Widget")
 @Schema(name = "Widget", description = "Represents a Widget.")
@@ -57,8 +61,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets the widget id. */
-  public Optional<String> getId() {
-    return Optional.ofNullable(id);
+  public String getId() {
+    return id;
   }
 
   public void setId(String id) {
@@ -66,8 +70,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets the widget name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
@@ -75,8 +79,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets the widget type. */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
@@ -84,8 +88,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets the widget scope. */
-  public Optional<String> getScope() {
-    return Optional.ofNullable(scope);
+  public String getScope() {
+    return scope;
   }
 
   public void setScope(String scope) {
@@ -93,8 +97,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets whether the widget is editable. */
-  public Optional<Boolean> getEditable() {
-    return Optional.ofNullable(editable);
+  public Boolean getEditable() {
+    return editable;
   }
 
   public void setEditable(Boolean editable) {
@@ -102,8 +106,8 @@ public class Widget implements Cloneable {
   }
 
   /** Gets the asset within the widget. */
-  public Optional<Asset> getAsset() {
-    return Optional.ofNullable(asset);
+  public Asset getAsset() {
+    return asset;
   }
 
   public void setAsset(Asset asset) {
