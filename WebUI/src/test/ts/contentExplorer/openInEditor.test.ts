@@ -47,22 +47,19 @@ describe("openInEditor (#3330)", () => {
     expect(hrefSpy).not.toHaveBeenCalled();
   });
 
-  it("navigates to the editor for a page path", () => {
-    const hrefSpy = vi.fn();
-    Object.defineProperty(window.location, "href", {
-      configurable: true,
-      get: () => originalHref,
-      set: hrefSpy,
-    });
+  it("opens the React editor host for a page path", () => {
+    const openSpy = vi.fn();
+    vi.spyOn(window, "open").mockImplementation(openSpy);
     openInEditor({
       id: "55",
       name: "Home",
       path: "/Sites/Demo/Home",
       type: "page",
     });
-    expect(hrefSpy).toHaveBeenCalled();
-    const dest = String(hrefSpy.mock.calls[0][0]);
-    expect(dest).toContain("view=editor");
-    expect(dest).toContain(encodeURIComponent("/Sites/Demo/Home"));
+    expect(openSpy).toHaveBeenCalled();
+    const dest = String(openSpy.mock.calls[0]?.[0] ?? "");
+    expect(dest).toContain("entry=editor");
+    expect(dest).toContain("contentId=55");
+    expect(dest).not.toContain("view=editor");
   });
 });

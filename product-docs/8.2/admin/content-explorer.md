@@ -121,7 +121,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **New Item** | Type menus list from `POST /services/actions/find/types`. Creating an item still requires the Content Editor (not in this Explorer slice) — choosing a type shows that the editor is not available. |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
-| **Edit / Quick Edit / View content** | Not the CM1 editor (`?view=editor`). Explorer shows that the content editor is not available in this slice. |
+| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows its content-type text fields. Save writes `PUT /services/itemmanagement/item/fields/{id}`. Does not open the CM1 editor (`?view=editor`). **New Item** and rich controls (TinyMCE, binary) are not in this slice. |
 | **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |

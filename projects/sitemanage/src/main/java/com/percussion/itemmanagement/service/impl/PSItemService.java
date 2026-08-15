@@ -39,6 +39,7 @@ import com.percussion.itemmanagement.data.PSAssetSiteImpact;
 import com.percussion.itemmanagement.data.PSComment;
 import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
+import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
 import com.percussion.itemmanagement.data.PSRevision;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
@@ -285,6 +286,86 @@ public class PSItemService implements IPSItemService {
       return revSummary;
     } catch (PSValidationException e) {
       throw new WebApplicationException(e);
+    }
+  }
+
+  @GET
+  @Path("fields/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemEditorFields getEditorFields(@PathParam("id") String id)
+      throws PSItemServiceException {
+    try {
+      rejectIfBlank("getEditorFields", "id", id);
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new PSItemServiceException("The item no longer exists in the system.");
+      }
+      String checkoutUser = "";
+      try {
+        PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
+        if (sum != null && StringUtils.isNotBlank(sum.getCheckoutUserName())) {
+          checkoutUser = sum.getCheckoutUserName();
+        }
+      } catch (Exception e) {
+        log.debug("Could not resolve checkout user for {}", guid, e);
+      }
+      return PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (PSDataServiceException e) {
+      throw new PSItemServiceException("Could not load item fields.", e);
+    }
+  }
+
+  @PUT
+  @Path("fields/{id}")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemEditorFields saveEditorFields(
+      @PathParam("id") String id, PSItemEditorFields req) throws PSItemServiceException {
+    try {
+      rejectIfBlank("saveEditorFields", "id", id);
+      if (req == null) {
+        throw new PSItemServiceException("Field payload is required.");
+      }
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
+      if (sum != null
+          && StringUtils.isNotBlank(sum.getCheckoutUserName())
+          && !workflowHelper.isCheckedOutToCurrentUser(guid)) {
+        throw new PSItemServiceException(
+            "User " + sum.getCheckoutUserName() + " is editing this item.");
+      }
+      IPSGuid itemGuid = idMapper.getGuid(guid);
+      PSItemStatus status = contentWs.prepareForEdit(itemGuid);
+      if (status != null && status.isDidCheckout()) {
+        waRelService.updateLocalRelationshipAsset(guid);
+      }
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new PSItemServiceException("The item no longer exists in the system.");
+      }
+      PSItemEditorFieldsMapper.applyUpdates(item, req.getFields());
+      contentItemDao.save(item);
+      String checkoutUser = "";
+      try {
+        PSComponentSummary after = workflowHelper.getComponentSummary(guid);
+        if (after != null && StringUtils.isNotBlank(after.getCheckoutUserName())) {
+          checkoutUser = after.getCheckoutUserName();
+        }
+      } catch (Exception e) {
+        log.debug("Could not resolve checkout user after save for {}", guid, e);
+      }
+      return PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not save item fields.", e);
     }
   }
 

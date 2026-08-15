@@ -60,6 +60,7 @@
                 || "explorer".equals(n) || "developer".equals(n)
                 || "design".equals(n) || "architecture".equals(n)
                 || "profile".equals(n) || "assembly".equals(n)
+                || "editor".equals(n)
                 || "unavailable".equals(n)) {
             return n;
         }

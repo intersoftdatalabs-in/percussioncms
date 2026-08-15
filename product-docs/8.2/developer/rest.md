@@ -519,6 +519,17 @@ summary/revision. Template **menus** remain `GET /services/actions/find/template
 
 See [Content Explorer](id:admin-content-explorer) server actions.
 
+## Content editor fields (Explorer)
+
+Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as dates / copy), not Data Flow Content Editor HTML.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` omitted; binary omitted) |
+| `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates. Item must be checked out to the current user. |
+
+Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels come from `GET /services/contenttypes/{type}`.
+
 ## Assembly cache and navigation
 
 Explorer **Flush Cache** (catalog display name **Refresh Item**) and **Nav Reset** use public

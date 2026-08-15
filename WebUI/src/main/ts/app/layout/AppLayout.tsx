@@ -21,9 +21,12 @@ import { BrandBar, BrandFooter } from "../../ui-themes/components";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";
 
-function isBareAssemblyPath(pathname: string): boolean {
+function isChromeLessPath(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
-  return segments.length === 1 && segments[0] === "assembly";
+  return (
+    segments.length === 1 &&
+    (segments[0] === "assembly" || segments[0] === "editor")
+  );
 }
 
 /**
@@ -33,7 +36,7 @@ function isBareAssemblyPath(pathname: string): boolean {
  */
 export function AppLayout(): React.ReactElement {
   const { pathname } = useLocation();
-  if (isBareAssemblyPath(pathname)) {
+  if (isChromeLessPath(pathname)) {
     return <Outlet />;
   }
   return (

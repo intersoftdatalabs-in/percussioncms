@@ -22,25 +22,33 @@
  */
 
 import type { PSPathItem } from "../api/contentExplorer/types";
+import {
+  EDITOR_WINDOW_FEATURES,
+  buildEditorHostUrl,
+  editorWindowName,
+} from "../editor/editorHostUrl";
+import { parseExplorerContentId } from "./menuCatalogLoad";
 import { isFolder } from "./selection";
 
-const EDITOR_BASE = "/cm/app/?view=editor";
-
 /**
- * Open a content item in the product editor. Folders stay in Explorer
- * browse — they are not workflowed pages (#3330).
+ * Open a content item in the React content editor. Folders stay in Explorer
+ * browse — they are not workflowed pages (#3330). Does not open CM1
+ * {@code ?view=editor}.
  */
 export function openInEditor(item: PSPathItem): void {
   if (isFolder(item)) {
     return;
   }
-  const path = (item.path ?? "").trim();
-  const id = (item.id ?? "").trim();
-  if (path) {
-    window.location.href = `${EDITOR_BASE}&path=${encodeURIComponent(path)}`;
+  const contentId = parseExplorerContentId(item.id);
+  if (contentId == null) {
     return;
   }
-  if (id) {
-    window.location.href = `${EDITOR_BASE}&id=${encodeURIComponent(id)}`;
+  if (typeof window === "undefined") {
+    return;
   }
+  window.open(
+    buildEditorHostUrl(contentId, "edit"),
+    editorWindowName(contentId),
+    EDITOR_WINDOW_FEATURES,
+  );
 }

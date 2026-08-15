@@ -48,6 +48,8 @@ export interface ParsedSpaEntry {
   contentId?: string;
   /** Active Assembly page/snippet template id (query contract). */
   templateId?: string;
+  /** Content Editor mode ({@code edit} or {@code view}). */
+  mode?: string;
 }
 
 /**
@@ -165,6 +167,20 @@ export function parseEntryQuery(
         clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
       };
     }
+    case "editor": {
+      const contentId = normalizeId(params.get("contentId"));
+      const mode = normalizeId(params.get("mode"));
+      const qs = new URLSearchParams();
+      if (contentId) qs.set("contentId", contentId);
+      if (mode) qs.set("mode", mode);
+      const qstr = qs.toString();
+      return {
+        entry,
+        contentId,
+        mode,
+        clientPath: qstr ? `/editor?${qstr}` : "/editor",
+      };
+    }
     case "unavailable":
       return { entry, clientPath: "/unavailable" };
     default:
@@ -187,6 +203,7 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.site) params.set("site", parsed.site);
   if (parsed.contentId) params.set("contentId", parsed.contentId);
   if (parsed.templateId) params.set("templateId", parsed.templateId);
+  if (parsed.mode) params.set("mode", parsed.mode);
   return `/cm/app/spa.jsp?${params.toString()}`;
 }
 
@@ -324,6 +341,20 @@ export function parseClientPath(
         contentId,
         templateId,
         clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
+      };
+    }
+    case "editor": {
+      const contentId = normalizeId(params.get("contentId"));
+      const mode = normalizeId(params.get("mode"));
+      const qs = new URLSearchParams();
+      if (contentId) qs.set("contentId", contentId);
+      if (mode) qs.set("mode", mode);
+      const qstr = qs.toString();
+      return {
+        entry,
+        contentId,
+        mode,
+        clientPath: qstr ? `/editor?${qstr}` : "/editor",
       };
     }
     case "unavailable":

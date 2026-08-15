@@ -28,6 +28,7 @@ export const SPA_ENTRIES = [
   "explorer",
   "profile",
   "assembly",
+  "editor",
   "unavailable",
 ] as const;
 
