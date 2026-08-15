@@ -18,9 +18,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { openEditorHost } from "../../../main/ts/editor/openEditorHost";
 
+function popup(): Window {
+  return {} as Window;
+}
+
 describe("openEditorHost", () => {
   it("opens the React host from a numeric id", async () => {
-    const openWindow = vi.fn();
+    const openWindow = vi.fn().mockReturnValue(popup());
     const ok = await openEditorHost({ id: "55" }, { openWindow });
     expect(ok).toBe(true);
     expect(openWindow).toHaveBeenCalled();
@@ -31,7 +35,7 @@ describe("openEditorHost", () => {
   });
 
   it("resolves a CMS path when id is missing", async () => {
-    const openWindow = vi.fn();
+    const openWindow = vi.fn().mockReturnValue(popup());
     const findByPath = vi.fn().mockResolvedValue({ id: "1-101-88" });
     const ok = await openEditorHost(
       { path: "/Sites/Demo/About.html" },
@@ -52,5 +56,12 @@ describe("openEditorHost", () => {
     );
     expect(ok).toBe(false);
     expect(openWindow).not.toHaveBeenCalled();
+  });
+
+  it("returns false when the popup is blocked", async () => {
+    const openWindow = vi.fn().mockReturnValue(null);
+    const ok = await openEditorHost({ id: "55" }, { openWindow });
+    expect(ok).toBe(false);
+    expect(openWindow).toHaveBeenCalled();
   });
 });

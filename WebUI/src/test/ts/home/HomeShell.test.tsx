@@ -127,13 +127,6 @@ describe("HomeShell", () => {
     const open = vi
       .spyOn(openEditor, "openEditorHost")
       .mockResolvedValue(true);
-    const hrefSpy = vi.fn();
-    const originalHref = window.location.href;
-    Object.defineProperty(window.location, "href", {
-      configurable: true,
-      get: () => originalHref,
-      set: hrefSpy,
-    });
     openHomeItem({
       id: "55",
       name: "Home",
@@ -144,7 +137,6 @@ describe("HomeShell", () => {
       id: "55",
       path: "/Sites/Demo/Home",
     });
-    expect(hrefSpy).not.toHaveBeenCalled();
     open.mockRestore();
   });
 

@@ -72,11 +72,10 @@ export async function openEditorHost(
   if (contentId == null) {
     return false;
   }
-  const open = deps.openWindow ?? defaultOpenWindow;
-  open(
+  const opened = (deps.openWindow ?? defaultOpenWindow)(
     buildEditorHostUrl(contentId, input.mode ?? "edit"),
     editorWindowName(contentId),
     EDITOR_WINDOW_FEATURES,
   );
-  return true;
+  return opened != null;
 }

@@ -40,3 +40,22 @@ None blocking.
 
 - Focused Vitest: 54 passed
 - `cd WebUI && ../mvnw clean install` — BUILD SUCCESS; Vitest 2554 passed
+
+## Re-review (PR #3462 kilo threads)
+
+**Date**: 2026-08-15  
+**Scope**: review-fix pack
+
+Kilo WARNING: discarded `window.open` result / always-true return; Home test rewrote `location.href` without restore; missing blocked-popup test.
+
+### Recommendation
+
+`approve`
+
+### Gate
+
+May commit/push: **yes**
+
+### Issues
+
+None remaining. `openEditorHost` now returns `opened != null`. Home test no longer touches `location.href`. Blocked-popup unit test added.
