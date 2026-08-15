@@ -23,7 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
+import com.percussion.rest.displayformat.DisplayFormatProperty;
+import com.percussion.rest.pages.CalendarInfo;
+import com.percussion.rest.pages.CodeInfo;
+import com.percussion.rest.pages.Page;
+import com.percussion.rest.pages.Region;
+import com.percussion.rest.pages.SeoInfo;
+import com.percussion.rest.pages.Widget;
+import com.percussion.rest.pages.WorkflowInfo;
 import com.percussion.rest.roles.Role;
+import com.percussion.rest.templates.Template;
+import com.percussion.rest.templates.TemplateBinding;
 import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.rest.templates.TemplateSummaryList;
 import com.percussion.rest.users.User;
@@ -36,8 +46,9 @@ import tools.jackson.databind.ObjectMapper;
  * Catalog DTOs must serialize names (and related fields) for Developer SPA tables. ContentType list
  * historically collapsed to hideFromMenu-only when Optional getters were not unwrapped (issue
  * #1693). TemplateSummary similarly collapsed to templateId-only (issue #2189). User / Role /
- * ObjectSummary follow the same plain-getter rule (issue #3388). All use production {@link
- * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
+ * ObjectSummary follow the same plain-getter rule (issue #3388). DisplayFormatProperty / Template /
+ * Page family follow the same rule (issue #3407). All use production {@link JacksonContextResolver}
+ * under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -187,6 +198,168 @@ class JacksonContextResolverOptionalTest {
     assertEquals("Default", roundTrip.getName(), json);
     assertEquals("Default ACL", roundTrip.getLabel(), json);
     assertNotNull(roundTrip.getGuid(), json);
+  }
+
+  @Test
+  void displayFormatProperty_serializesPlainScalarsNotOptionalBeans() {
+    DisplayFormatProperty prop = new DisplayFormatProperty();
+    prop.setPropertyId("1");
+    prop.setPropertyName("sortColumn");
+    prop.setPropertyValue("sys_title");
+    prop.setDescription("Default sort");
+
+    ObjectMapper propMapper = new JacksonContextResolver().getContext(DisplayFormatProperty.class);
+    String json = propMapper.writeValueAsString(prop);
+    assertTrue(json.contains("\"propertyId\""), json);
+    assertTrue(json.contains("\"propertyName\""), json);
+    assertTrue(json.contains("sortColumn"), json);
+    assertTrue(json.contains("\"propertyValue\""), json);
+    assertTrue(json.contains("sys_title"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    DisplayFormatProperty roundTrip = propMapper.readValue(json, DisplayFormatProperty.class);
+    assertEquals("1", roundTrip.getPropertyId(), json);
+    assertEquals("sortColumn", roundTrip.getPropertyName(), json);
+    assertEquals("sys_title", roundTrip.getPropertyValue(), json);
+  }
+
+  @Test
+  void template_serializesNameLabelNotOptionalBeans() {
+    Template template = new Template();
+    template.setName("perc.page");
+    template.setLabel("Page");
+    template.setDescription("Page assembly");
+    template.setMimeType("text/html");
+
+    ObjectMapper templateMapper = new JacksonContextResolver().getContext(Template.class);
+    String json = templateMapper.writeValueAsString(template);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("perc.page"), json);
+    assertTrue(json.contains("\"label\""), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"mimeType\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    Template roundTrip = templateMapper.readValue(json, Template.class);
+    assertEquals("perc.page", roundTrip.getName(), json);
+    assertEquals("Page", roundTrip.getLabel(), json);
+    assertEquals("text/html", roundTrip.getMimeType(), json);
+  }
+
+  @Test
+  void templateBinding_serializesVariableExpressionNotOptionalBeans() {
+    TemplateBinding binding = new TemplateBinding();
+    binding.setVariable("$rx");
+    binding.setExpression("$sys.template");
+    binding.setExecutionOrder(1);
+
+    ObjectMapper bindingMapper = new JacksonContextResolver().getContext(TemplateBinding.class);
+    String json = bindingMapper.writeValueAsString(binding);
+    assertTrue(json.contains("\"variable\""), json);
+    assertTrue(json.contains("$rx"), json);
+    assertTrue(json.contains("\"expression\""), json);
+    assertTrue(json.contains("$sys.template"), json);
+    assertNoOptionalBeanKeys(json);
+
+    TemplateBinding roundTrip = bindingMapper.readValue(json, TemplateBinding.class);
+    assertEquals("$rx", roundTrip.getVariable(), json);
+    assertEquals("$sys.template", roundTrip.getExpression(), json);
+  }
+
+  @Test
+  void page_serializesNamePathNotOptionalBeans() {
+    Page page = new Page();
+    page.setId("1234");
+    page.setName("home.html");
+    page.setDisplayName("Home");
+    page.setSiteName("Help");
+    page.setFolderPath("docs");
+    page.setTemplateName("perc.page");
+    page.setSummary("Welcome");
+
+    SeoInfo seo = new SeoInfo();
+    seo.setBrowserTitle("Help Home");
+    seo.setMetaDescription("Landing page");
+    seo.setHideSearch(Boolean.FALSE);
+    page.setSeo(seo);
+
+    ObjectMapper pageMapper = new JacksonContextResolver().getContext(Page.class);
+    String json = pageMapper.writeValueAsString(page);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("home.html"), json);
+    assertTrue(json.contains("\"displayName\""), json);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("\"folderPath\""), json);
+    assertTrue(json.contains("\"templateName\""), json);
+    assertTrue(json.contains("\"browserTitle\""), json);
+    assertTrue(json.contains("Help Home"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Page roundTrip = pageMapper.readValue(json, Page.class);
+    assertEquals("1234", roundTrip.getId(), json);
+    assertEquals("home.html", roundTrip.getName(), json);
+    assertEquals("Help", roundTrip.getSiteName(), json);
+    assertNotNull(roundTrip.getSeo(), json);
+    assertEquals("Help Home", roundTrip.getSeo().getBrowserTitle(), json);
+  }
+
+  @Test
+  void widgetAndPageFamily_serializePlainScalarsNotOptionalBeans() {
+    Widget widget = new Widget();
+    widget.setId("w1");
+    widget.setName("richText");
+    widget.setType("percRichText");
+    widget.setScope(Widget.SCOPE_LOCAL);
+    widget.setEditable(Boolean.TRUE);
+
+    ObjectMapper widgetMapper = new JacksonContextResolver().getContext(Widget.class);
+    String widgetJson = widgetMapper.writeValueAsString(widget);
+    assertTrue(widgetJson.contains("\"name\""), widgetJson);
+    assertTrue(widgetJson.contains("richText"), widgetJson);
+    assertTrue(widgetJson.contains("\"type\""), widgetJson);
+    assertNoOptionalBeanKeys(widgetJson);
+    Widget widgetRoundTrip = widgetMapper.readValue(widgetJson, Widget.class);
+    assertEquals("w1", widgetRoundTrip.getId(), widgetJson);
+    assertEquals("percRichText", widgetRoundTrip.getType(), widgetJson);
+
+    Region region = new Region();
+    region.setName("content");
+    region.setType("TEMPLATE");
+    region.setWidgets(List.of(widget));
+    ObjectMapper regionMapper = new JacksonContextResolver().getContext(Region.class);
+    String regionJson = regionMapper.writeValueAsString(region);
+    assertTrue(regionJson.contains("\"name\""), regionJson);
+    assertTrue(regionJson.contains("content"), regionJson);
+    assertNoOptionalBeanKeys(regionJson);
+
+    WorkflowInfo workflow = new WorkflowInfo();
+    workflow.setName("Default Workflow");
+    workflow.setState("Draft");
+    workflow.setCheckedOut(Boolean.FALSE);
+    ObjectMapper wfMapper = new JacksonContextResolver().getContext(WorkflowInfo.class);
+    String wfJson = wfMapper.writeValueAsString(workflow);
+    assertTrue(wfJson.contains("\"name\""), wfJson);
+    assertTrue(wfJson.contains("Draft"), wfJson);
+    assertNoOptionalBeanKeys(wfJson);
+    WorkflowInfo wfRoundTrip = wfMapper.readValue(wfJson, WorkflowInfo.class);
+    assertEquals("Default Workflow", wfRoundTrip.getName(), wfJson);
+    assertEquals("Draft", wfRoundTrip.getState(), wfJson);
+
+    CodeInfo code = new CodeInfo();
+    code.setHead("<script></script>");
+    ObjectMapper codeMapper = new JacksonContextResolver().getContext(CodeInfo.class);
+    String codeJson = codeMapper.writeValueAsString(code);
+    assertTrue(codeJson.contains("\"head\""), codeJson);
+    assertNoOptionalBeanKeys(codeJson);
+
+    CalendarInfo calendar = new CalendarInfo();
+    calendar.setCalendars(List.of("Default"));
+    ObjectMapper calMapper = new JacksonContextResolver().getContext(CalendarInfo.class);
+    String calJson = calMapper.writeValueAsString(calendar);
+    assertTrue(calJson.contains("\"calendars\""), calJson);
+    assertTrue(calJson.contains("Default"), calJson);
+    assertNoOptionalBeanKeys(calJson);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {

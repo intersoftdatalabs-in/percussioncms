@@ -19,12 +19,22 @@
 
 package com.percussion.rest.templates;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-/** Represents an assembly Template. Sunny Sal: "Template ka hero, slots ka zero!" */
+/**
+ * Represents an assembly Template. Sunny Sal: "Template ka hero, slots ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits catalog
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Template")
 @Schema(name = "Template", description = "Represents an assembly Template")
 public class Template {
@@ -55,72 +65,72 @@ public class Template {
     // Default constructor
   }
 
-  public Optional<Guid> getId() {
-    return Optional.ofNullable(id);
+  public Guid getId() {
+    return id;
   }
 
   public void setId(Guid id) {
     this.id = id;
   }
 
-  public Optional<Integer> getVersion() {
-    return Optional.ofNullable(version);
+  public Integer getVersion() {
+    return version;
   }
 
   public void setVersion(Integer version) {
     this.version = version;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public Optional<String> getLocationPrefix() {
-    return Optional.ofNullable(locationPrefix);
+  public String getLocationPrefix() {
+    return locationPrefix;
   }
 
   public void setLocationPrefix(String locationPrefix) {
     this.locationPrefix = locationPrefix;
   }
 
-  public Optional<String> getLocationSuffix() {
-    return Optional.ofNullable(locationSuffix);
+  public String getLocationSuffix() {
+    return locationSuffix;
   }
 
   public void setLocationSuffix(String locationSuffix) {
     this.locationSuffix = locationSuffix;
   }
 
-  public Optional<String> getAssembler() {
-    return Optional.ofNullable(assembler);
+  public String getAssembler() {
+    return assembler;
   }
 
   public void setAssembler(String assembler) {
     this.assembler = assembler;
   }
 
-  public Optional<String> getAssemblyUrl() {
-    return Optional.ofNullable(assemblyUrl);
+  public String getAssemblyUrl() {
+    return assemblyUrl;
   }
 
   public void setAssemblyUrl(String assemblyUrl) {
     this.assemblyUrl = assemblyUrl;
   }
 
-  public Optional<String> getStyleSheet() {
-    return Optional.ofNullable(styleSheet);
+  public String getStyleSheet() {
+    return styleSheet;
   }
 
   public void setStyleSheet(String styleSheet) {
@@ -143,48 +153,48 @@ public class Template {
     this.outputFormat = outputFormat;
   }
 
-  public Optional<Character> getPublishWhen() {
-    return Optional.ofNullable(publishWhen);
+  public Character getPublishWhen() {
+    return publishWhen;
   }
 
   public void setPublishWhen(Character publishWhen) {
     this.publishWhen = publishWhen;
   }
 
-  public Optional<Integer> getTemplateType() {
-    return Optional.ofNullable(templateType);
+  public Integer getTemplateType() {
+    return templateType;
   }
 
   public void setTemplateType(Integer templateType) {
     this.templateType = templateType;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getTemplate() {
-    return Optional.ofNullable(template);
+  public String getTemplate() {
+    return template;
   }
 
   public void setTemplate(String template) {
     this.template = template;
   }
 
-  public Optional<String> getMimeType() {
-    return Optional.ofNullable(mimeType);
+  public String getMimeType() {
+    return mimeType;
   }
 
   public void setMimeType(String mimeType) {
     this.mimeType = mimeType;
   }
 
-  public Optional<String> getCharset() {
-    return Optional.ofNullable(charset);
+  public String getCharset() {
+    return charset;
   }
 
   public void setCharset(String charset) {
@@ -207,16 +217,16 @@ public class Template {
     this.slots = slots;
   }
 
-  public Optional<Integer> getGlobalTemplateUsage() {
-    return Optional.ofNullable(globalTemplateUsage);
+  public Integer getGlobalTemplateUsage() {
+    return globalTemplateUsage;
   }
 
   public void setGlobalTemplateUsage(Integer globalTemplateUsage) {
     this.globalTemplateUsage = globalTemplateUsage;
   }
 
-  public Optional<Long> getGlobalTemplate() {
-    return Optional.ofNullable(globalTemplate);
+  public Long getGlobalTemplate() {
+    return globalTemplate;
   }
 
   public void setGlobalTemplate(Long globalTemplate) {
