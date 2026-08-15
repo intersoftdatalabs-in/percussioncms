@@ -53,7 +53,7 @@ public class FoldersTest {
   void moveFolderItem_callsAdaptor() throws Exception {
     MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
     Status result = resource.moveFolderItem(req);
-    assertEquals("Moved OK", result.getMessage().orElse(null));
+    assertEquals("Moved OK", result.getMessage());
     verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
   }
 
@@ -70,7 +70,7 @@ public class FoldersTest {
   void moveFolder_callsAdaptor() throws Exception {
     MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
     Status result = resource.moveFolder(req);
-    assertEquals("Moved OK", result.getMessage().orElse(null));
+    assertEquals("Moved OK", result.getMessage());
     verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
   }
 

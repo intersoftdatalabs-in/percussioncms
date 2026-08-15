@@ -153,7 +153,7 @@ public class PagesTest {
     doNothing().when(adaptor).deletePage(any(), eq("sitea"), eq("path1"), eq("page1.html"));
 
     var status = resource.deletePage("Sites/sitea/path1/page1.html");
-    assertEquals("Deleted", status.getMessage().orElse(null));
+    assertEquals("Deleted", status.getMessage());
     verify(adaptor).deletePage(uriInfo.getBaseUri(), "sitea", "path1", "page1.html");
   }
 
