@@ -19,6 +19,7 @@
 
 package com.percussion.rest.folders;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.core.UriBuilder;
@@ -26,12 +27,18 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Represents a folder or section based on a folder. Sunny Sal: "Folder ka hero, structure ka zero!"
+ * Represents a folder or section based on a folder.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name},
+ * {@code path}, {@code siteName}, and related fields when set. Optional-returning getters
+ * historically serialized as empty/present beans or dropped fields under {@code
+ * @JsonInclude(NON_NULL)} (issue #3413 / #3388). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
  */
 @XmlRootElement(name = "Folder")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a folder or section based on a folder")
 public class Folder {
 
@@ -112,24 +119,24 @@ public class Folder {
     this.communityId = communityId;
   }
 
-  public Optional<String> getCommunityName() {
-    return Optional.ofNullable(communityName);
+  public String getCommunityName() {
+    return communityName;
   }
 
   public void setCommunityName(String communityName) {
     this.communityName = communityName;
   }
 
-  public Optional<String> getDefaultDisplayFormatName() {
-    return Optional.ofNullable(defaultDisplayFormatName);
+  public String getDefaultDisplayFormatName() {
+    return defaultDisplayFormatName;
   }
 
   public void setDefaultDisplayFormatName(String defaultDisplayFormatName) {
     this.defaultDisplayFormatName = defaultDisplayFormatName;
   }
 
-  public Optional<String> getLocale() {
-    return Optional.ofNullable(locale);
+  public String getLocale() {
+    return locale;
   }
 
   public void setLocale(String locale) {
@@ -147,96 +154,96 @@ public class Folder {
     this.recentUsers = recentUsers;
   }
 
-  public Optional<String> getId() {
-    return Optional.ofNullable(id);
+  public String getId() {
+    return id;
   }
 
   public void setId(String id) {
     this.id = id;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getSiteName() {
-    return Optional.ofNullable(siteName);
+  public String getSiteName() {
+    return siteName;
   }
 
   public void setSiteName(String siteName) {
     this.siteName = siteName;
   }
 
-  public Optional<String> getPath() {
-    return Optional.ofNullable(path);
+  public String getPath() {
+    return path;
   }
 
   public void setPath(String path) {
     this.path = path;
   }
 
-  public Optional<String> getWorkflow() {
-    return Optional.ofNullable(workflow);
+  public String getWorkflow() {
+    return workflow;
   }
 
   public void setWorkflow(String workflow) {
     this.workflow = workflow;
   }
 
-  public Optional<SectionInfo> getSectionInfo() {
-    return Optional.ofNullable(sectionInfo);
+  public SectionInfo getSectionInfo() {
+    return sectionInfo;
   }
 
   public void setSectionInfo(SectionInfo sectionInfo) {
     this.sectionInfo = sectionInfo;
   }
 
-  public Optional<List<LinkRef>> getPages() {
-    return Optional.ofNullable(pages);
+  public List<LinkRef> getPages() {
+    return pages;
   }
 
   public void setPages(List<LinkRef> pages) {
     this.pages = pages;
   }
 
-  public Optional<List<LinkRef>> getAssets() {
-    return Optional.ofNullable(assets);
+  public List<LinkRef> getAssets() {
+    return assets;
   }
 
   public void setAssets(List<LinkRef> assets) {
     this.assets = assets;
   }
 
-  public Optional<List<LinkRef>> getSubfolders() {
-    return Optional.ofNullable(subfolders);
+  public List<LinkRef> getSubfolders() {
+    return subfolders;
   }
 
   public void setSubfolders(List<LinkRef> subfolders) {
     this.subfolders = subfolders;
   }
 
-  public Optional<List<SectionLinkRef>> getSubsections() {
-    return Optional.ofNullable(subsections);
+  public List<SectionLinkRef> getSubsections() {
+    return subsections;
   }
 
   public void setSubsections(List<SectionLinkRef> subsections) {
     this.subsections = subsections;
   }
 
-  public Optional<String> getAccessLevel() {
-    return Optional.ofNullable(accessLevel);
+  public String getAccessLevel() {
+    return accessLevel;
   }
 
   public void setAccessLevel(String accessLevel) {
     this.accessLevel = accessLevel;
   }
 
-  public Optional<List<String>> getEditUsers() {
-    return Optional.ofNullable(editUsers);
+  public List<String> getEditUsers() {
+    return editUsers;
   }
 
   public void setEditUsers(List<String> editUsers) {

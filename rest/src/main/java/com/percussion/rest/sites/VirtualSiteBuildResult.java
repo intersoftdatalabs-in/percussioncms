@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Outcome of a CMS-integrated Virtual Site static build ({@code POST
@@ -30,6 +29,9 @@ import java.util.Optional;
  * <p>Maps from system {@code PSVirtualSiteBuildResult}: pages assembled, link-problem summary, and
  * absolute output path. Build may complete successfully while still reporting link problems (HTTP
  * 200 with {@code hasLinkProblems=true}).
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
+ * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
  */
 @XmlRootElement(name = "VirtualSiteBuildResult")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -75,24 +77,24 @@ public class VirtualSiteBuildResult {
     // Default constructor for JAX-RS / Jackson
   }
 
-  public Optional<String> getSiteName() {
-    return Optional.ofNullable(siteName);
+  public String getSiteName() {
+    return siteName;
   }
 
   public void setSiteName(String siteName) {
     this.siteName = siteName;
   }
 
-  public Optional<String> getSiteKey() {
-    return Optional.ofNullable(siteKey);
+  public String getSiteKey() {
+    return siteKey;
   }
 
   public void setSiteKey(String siteKey) {
     this.siteKey = siteKey;
   }
 
-  public Optional<String> getOutputPath() {
-    return Optional.ofNullable(outputPath);
+  public String getOutputPath() {
+    return outputPath;
   }
 
   public void setOutputPath(String outputPath) {

@@ -142,9 +142,9 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
       boolean isNewUser = false;
 
       try {
-        var findUsers = userService.getUserNames(user.getUserName().orElse(null));
-        if (findUsers.getUsers().contains(user.getUserName().orElse(null))) {
-          newUser = userService.find(user.getUserName().orElse(null));
+        var findUsers = userService.getUserNames(user.getUserName());
+        if (findUsers.getUsers().contains(user.getUserName())) {
+          newUser = userService.find(user.getUserName());
         } else {
           newUser = new PSUser();
           isNewUser = true;
@@ -154,11 +154,11 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
         isNewUser = true;
       }
 
-      newUser.setName(user.getUserName().orElse(null));
+      newUser.setName(user.getUserName());
       newUser.setRoles(user.getRoles());
 
-      if (user.getEmailAddress().isPresent()) {
-        newUser.setEmail(user.getEmailAddress().orElse(null));
+      if (user.getEmailAddress() != null) {
+        newUser.setEmail(user.getEmailAddress());
       }
 
       // newUser.setRoles(user.getRoles()); // Already set above
@@ -167,14 +167,14 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
       if (!isNewUser) {
         newUser = userService.update(newUser);
       } else {
-        if (user.getUserType().orElse("").equalsIgnoreCase(PSUserProviderType.INTERNAL.name())) {
+        if (StringUtils.equalsIgnoreCase(
+            user.getUserType(), PSUserProviderType.INTERNAL.name())) {
           newUser = userService.create(newUser);
-        } else if (user.getUserType()
-            .orElse("")
-            .equalsIgnoreCase(PSUserProviderType.DIRECTORY.name())) {
+        } else if (StringUtils.equalsIgnoreCase(
+            user.getUserType(), PSUserProviderType.DIRECTORY.name())) {
           var newUsers = new PSImportUsers();
           var dirUsers = new ArrayList<PSExternalUser>();
-          dirUsers.add(new PSExternalUser(user.getUserName().orElse(null)));
+          dirUsers.add(new PSExternalUser(user.getUserName()));
           newUsers.setExternalUsers(dirUsers);
           var importUsers = userService.importDirectoryUsers(newUsers);
 
@@ -184,8 +184,8 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
             // Handle new imports and treat duplicates as if they should be updates
             if (impU.getStatus() == ImportStatus.SUCCESS
                 || impU.getStatus() == ImportStatus.DUPLICATE) {
-              newUser.setEmail(user.getEmailAddress().orElse(null));
-              newUser.setName(user.getUserName().orElse(null));
+              newUser.setEmail(user.getEmailAddress());
+              newUser.setName(user.getUserName());
               newUser.setProviderType(PSUserProviderType.DIRECTORY);
               newUser.setRoles(user.getRoles());
               newUser = userService.update(newUser);

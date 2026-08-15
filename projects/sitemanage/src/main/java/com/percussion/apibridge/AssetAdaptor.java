@@ -266,10 +266,10 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     try {
       var oldPSAsset = this.assetService.load(id);
       var workflowInfo = this.getWorkflowInfo(oldPSAsset);
-      // determine the requested end state - WorkflowInfo stores Optionals now
-      String endState = ApiUtils.orNull(workflowInfo.getState());
+      // determine the requested end state
+      String endState = workflowInfo.getState();
       if (asset.getWorkflow().isPresent()) {
-        String state = ApiUtils.orNull(asset.getWorkflow().get().getState());
+        String state = asset.getWorkflow().get().getState();
         if (StringUtils.isNotBlank(state)) {
           endState = state;
         }

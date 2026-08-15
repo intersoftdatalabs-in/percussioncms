@@ -19,13 +19,15 @@ package com.percussion.rest.sites;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Whether a last Virtual Site static build can be previewed from the product UI ({@code GET
  * /sites/{nameOrId}/virtual/preview}).
  *
  * <p>Missing or failed builds return HTTP 200 with {@code available=false} and a message — not 500.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
+ * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
  */
 @XmlRootElement(name = "VirtualSitePreviewStatus")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -62,24 +64,24 @@ public class VirtualSitePreviewStatus {
     this.available = available;
   }
 
-  public Optional<String> getHomePath() {
-    return Optional.ofNullable(homePath);
+  public String getHomePath() {
+    return homePath;
   }
 
   public void setHomePath(String homePath) {
     this.homePath = homePath;
   }
 
-  public Optional<String> getOutputPath() {
-    return Optional.ofNullable(outputPath);
+  public String getOutputPath() {
+    return outputPath;
   }
 
   public void setOutputPath(String outputPath) {
     this.outputPath = outputPath;
   }
 
-  public Optional<String> getMessage() {
-    return Optional.ofNullable(message);
+  public String getMessage() {
+    return message;
   }
 
   public void setMessage(String message) {

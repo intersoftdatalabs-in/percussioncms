@@ -19,11 +19,17 @@
 
 package com.percussion.rest.pages;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents code information for a page. Sunny Sal: "Code ka info, page ka hero!" */
+/**
+ * Represents code information for a page. Sunny Sal: "Code ka info, page ka hero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits code fields
+ * when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CodeInfo")
 @Schema(name = "CodeInfo", description = "Represents code information.")
 public class CodeInfo {
@@ -38,8 +44,8 @@ public class CodeInfo {
   private String beforeClose = "";
 
   /** Gets the head code. */
-  public Optional<String> getHead() {
-    return Optional.ofNullable(head);
+  public String getHead() {
+    return head;
   }
 
   public void setHead(String head) {
@@ -47,8 +53,8 @@ public class CodeInfo {
   }
 
   /** Gets the code after start. */
-  public Optional<String> getAfterStart() {
-    return Optional.ofNullable(afterStart);
+  public String getAfterStart() {
+    return afterStart;
   }
 
   public void setAfterStart(String afterStart) {
@@ -56,8 +62,8 @@ public class CodeInfo {
   }
 
   /** Gets the code before close. */
-  public Optional<String> getBeforeClose() {
-    return Optional.ofNullable(beforeClose);
+  public String getBeforeClose() {
+    return beforeClose;
   }
 
   public void setBeforeClose(String beforeClose) {

@@ -174,9 +174,9 @@ public class PagesResource {
       pageName = StringUtils.defaultString(m.group(5));
     }
 
-    String objectName = page.getName().orElse(null);
-    String objectPath = page.getFolderPath().orElse(null);
-    String objectSite = page.getSiteName().orElse(null);
+    String objectName = page.getName();
+    String objectPath = page.getFolderPath();
+    String objectSite = page.getSiteName();
 
     if (pageName == null || (objectName != null && !objectName.equals(pageName))) {
       throw new LocationMismatchException();

@@ -19,15 +19,19 @@
 
 package com.percussion.rest.pages;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a region of a page either defined locally or by the template. Sunny Sal: "Region ka
  * hero, widgets ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits region
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Region")
 @Schema(
     name = "Region",
@@ -47,8 +51,8 @@ public class Region {
   private List<Widget> widgets;
 
   /** Gets the region name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
@@ -56,8 +60,8 @@ public class Region {
   }
 
   /** Gets the region type. */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
@@ -74,8 +78,8 @@ public class Region {
   }
 
   /** Gets the widgets in this region. */
-  public Optional<List<Widget>> getWidgets() {
-    return Optional.ofNullable(widgets);
+  public List<Widget> getWidgets() {
+    return widgets;
   }
 
   public void setWidgets(List<Widget> widgets) {

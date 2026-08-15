@@ -19,11 +19,17 @@
 
 package com.percussion.rest.pages;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents information on the workflow. Sunny Sal: "Workflow ka info, process ka hero!" */
+/**
+ * Represents information on the workflow. Sunny Sal: "Workflow ka info, process ka hero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits workflow
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "WorkflowInfo")
 @Schema(name = "WorkflowInfo", description = "Represents information on the workflow.")
 public class WorkflowInfo {
@@ -41,8 +47,8 @@ public class WorkflowInfo {
   private String checkedOutUser;
 
   /** Gets the workflow name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
@@ -50,8 +56,8 @@ public class WorkflowInfo {
   }
 
   /** Gets the workflow state. */
-  public Optional<String> getState() {
-    return Optional.ofNullable(state);
+  public String getState() {
+    return state;
   }
 
   public void setState(String state) {
@@ -59,8 +65,8 @@ public class WorkflowInfo {
   }
 
   /** Gets whether the item is checked out. */
-  public Optional<Boolean> getCheckedOut() {
-    return Optional.ofNullable(checkedOut);
+  public Boolean getCheckedOut() {
+    return checkedOut;
   }
 
   public void setCheckedOut(Boolean checkedOut) {
@@ -68,8 +74,8 @@ public class WorkflowInfo {
   }
 
   /** Gets the user that has the item checked out. */
-  public Optional<String> getCheckedOutUser() {
-    return Optional.ofNullable(checkedOutUser);
+  public String getCheckedOutUser() {
+    return checkedOutUser;
   }
 
   public void setCheckedOutUser(String checkedOutUser) {
