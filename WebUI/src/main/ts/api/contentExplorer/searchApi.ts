@@ -52,6 +52,7 @@
 
 import { post } from "../client";
 import { PATHS } from "../paths";
+import { toRepositorySearchFolderPath } from "../../contentExplorer/folderPath";
 import type {
   PSItemProperties,
   PSPagedItemPropertiesList,
@@ -105,7 +106,7 @@ export function normalizeSearchCriteria(
     sortOrder: criteria.sortOrder,
     formatId,
     searchFields: criteria.searchFields,
-    folderPath: criteria.folderPath,
+    folderPath: toRepositorySearchFolderPath(criteria.folderPath),
   };
   return out;
 }

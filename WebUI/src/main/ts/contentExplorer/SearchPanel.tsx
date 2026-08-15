@@ -59,6 +59,7 @@ import type {
 import { formatApiError } from "../api/client";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
+import { toRepositorySearchFolderPath } from "./folderPath";
 
 export interface SearchPanelProps {
   /** Optional initial query (e.g. URL hash / deep-link). */
@@ -228,6 +229,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
         query: trimmed,
         startIndex: initialCriteria.startIndex ?? 1,
         maxResults: initialCriteria.maxResults ?? 25,
+        folderPath: toRepositorySearchFolderPath(initialCriteria.folderPath),
       });
       setStatus({ kind: "ready", query: trimmed, results });
     } catch (err: unknown) {
@@ -249,7 +251,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     setStatus({ kind: "loading", query: display });
     try {
       const request: SearchExecuteRequest = {
-        folderPath: initialCriteria.folderPath,
+        folderPath: toRepositorySearchFolderPath(initialCriteria.folderPath),
         startIndex: initialCriteria.startIndex ?? 1,
         maxResults: initialCriteria.maxResults ?? 25,
         sortColumn: initialCriteria.sortColumn,
@@ -522,7 +524,7 @@ function SearchStatusView(props: {
           role="status"
           aria-live="polite"
           data-testid="search-panel-empty"
-          style={{ marginTop: 8, color: "#888" }}
+          style={{ marginTop: 8, color: "#595959" }}
         >
           {message(EXPLORER_MSG.SEARCH_EMPTY)}
         </p>
@@ -548,7 +550,7 @@ function SearchStatusView(props: {
           >
             <span style={{ flex: 1 }} data-mkd-lang-ignore="1">
               <strong>{r.title ?? r.name ?? r.id}</strong>
-              <small style={{ marginLeft: 6, color: "#888" }}>
+              <small style={{ marginLeft: 6, color: "#595959" }}>
                 {r.folderPath ?? r.type}
               </small>
             </span>

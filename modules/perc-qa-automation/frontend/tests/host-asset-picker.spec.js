@@ -112,25 +112,29 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
   });
 
   /**
-   * #2793 ContentBrowser host search: asset picker mounts shared SearchPanel
-   * (catalog chrome + free-text). Soft-skip when modern bundle/host fixture
-   * has not yet shipped enableSearch (stale WAR / pre-merge deploy).
+   * #2793 / #3438: asset picker mounts shared SearchPanel. Must not
+   * soft-skip — ContentBrowser has to appear, and free-text / saved
+   * execute must not 400 on /Sites vs //Sites or a bare folderPath
+   * (SearchExecuteRequest envelope).
    */
-  test("asset-picker SearchPanel mounts when enableSearch is on @content-browser-search @host-asset-picker", async ({
+  test("asset-picker SearchPanel mounts and search is not 400 @content-browser-search @host-asset-picker", async ({
     page,
   }) => {
+    const searchHits = [];
+    page.on("response", (res) => {
+      const url = res.url();
+      if (
+        url.includes("/searchmanagement/") ||
+        /\/services\/searches\/[^/]+\/execute/.test(url)
+      ) {
+        searchHits.push({ url, status: res.status() });
+      }
+    });
+
     await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
     const dialog = page.locator('[data-testid="content-browser"]');
     await expect(dialog).toBeVisible({ timeout: 15_000 });
-
-    const enableSearch = await dialog.getAttribute("data-enable-search");
-    if (enableSearch !== "true") {
-      test.skip(
-        true,
-        "Host fixture does not enable SearchPanel (data-enable-search!=true); soft-skip until #2793 WAR is deployed",
-      );
-      return;
-    }
+    await expect(dialog).toHaveAttribute("data-enable-search", "true");
 
     const searchHost = page.locator(
       '[data-testid="content-browser-search-panel"]',
@@ -138,7 +142,6 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
     await expect(searchHost).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('[data-testid="search-panel-input"]')).toBeVisible();
     await expect(page.locator('[data-testid="search-panel-submit"]')).toBeVisible();
-    // Catalog settles to empty, error, or picker (same pattern as explorer-saved-search).
     await expect(
       page
         .locator(
@@ -146,7 +149,53 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
         )
         .first(),
     ).toBeVisible({ timeout: 20_000 });
-    // 508 / a11y gate scoped to the SearchPanel host surface (#2793 review).
+
+    await page.locator('[data-testid="search-panel-input"]').fill("a");
+    await page.locator('[data-testid="search-panel-submit"]').click();
+    await expect(
+      page
+        .locator(
+          '[data-testid="search-panel-results"], [data-testid="search-panel-empty"], [data-testid="search-panel-error"]',
+        )
+        .first(),
+    ).toBeVisible({ timeout: 20_000 });
+
+    const bad = searchHits.filter((h) => h.status === 400);
+    expect(bad, `search 400s: ${JSON.stringify(bad)}`).toEqual([]);
+
+    const err = page.locator('[data-testid="search-panel-error"]');
+    if (await err.isVisible()) {
+      const text = (await err.textContent()) || "";
+      expect(text).not.toMatch(/must start with/i);
+      expect(text).not.toMatch(/JAXBException|SearchExecuteRequest/i);
+    }
+
+    const savedSelect = page.locator('[data-testid="search-panel-saved-select"]');
+    if (await savedSelect.isVisible()) {
+      const values = await savedSelect.locator("option").evaluateAll((opts) =>
+        opts.map((o) => o.value).filter((v) => v && v.trim().length > 0),
+      );
+      if (values.length > 0) {
+        await savedSelect.selectOption(values[0]);
+        const run = page.locator('[data-testid="search-panel-saved-run"]');
+        if (await run.isEnabled()) {
+          await run.click();
+          await expect(
+            page
+              .locator(
+                '[data-testid="search-panel-results"], [data-testid="search-panel-empty"], [data-testid="search-panel-error"]',
+              )
+              .first(),
+          ).toBeVisible({ timeout: 20_000 });
+          const badSaved = searchHits.filter((h) => h.status === 400);
+          expect(
+            badSaved,
+            `saved-search 400s: ${JSON.stringify(badSaved)}`,
+          ).toEqual([]);
+        }
+      }
+    }
+
     await expectNoSeriousA11yViolations(page, {
       scope: '[data-testid="content-browser-search-panel"]',
     });

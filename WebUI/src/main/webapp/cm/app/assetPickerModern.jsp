@@ -43,12 +43,14 @@
 </div>
 <script>
     (function () {
-        // Self-load the modern bridge (same pattern as the US6 hard-cut
-        // pages — idempotent, with cache-buster).
+        // Self-load the modern bridge (idempotent). Do NOT cache-bust
+        // perc-modern-ui.js: a ?cb= URL is a second ESM graph and the lazy
+        // ContentBrowser chunk then loads a second React (useState-null).
+        // URL must match the chunk import exactly (#3438 / #2799).
         if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
             var s = document.createElement("script");
             s.type = "module";
-            s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+            s.src = "/cm/modern/assets/perc-modern-ui.js";
             document.head.appendChild(s);
         }
         function mountBrowser() {
@@ -57,7 +59,7 @@
                 return;
             }
             window.PercModernUI.mount("perc-content-browser-root", "ContentBrowser", {
-                initialPath: "/Sites",
+                initialPath: "//Sites",
                 mode: "select",
                 multiSelect: false,
                 allowFolderSelect: false,

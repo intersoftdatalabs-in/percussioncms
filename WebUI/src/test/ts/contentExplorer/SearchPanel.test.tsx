@@ -224,6 +224,25 @@ describe("SearchPanel", () => {
     expect(search).not.toHaveBeenCalled();
   });
 
+  it("normalizes free-text folderPath to repository form (#3438)", async () => {
+    const search = vi.fn().mockResolvedValue(makeResults([]));
+    render(
+      <SearchPanel
+        search={search}
+        listSavedSearches={emptyCatalog()}
+        initialCriteria={{ folderPath: "/Sites" }}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "welcome" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalledTimes(1);
+    });
+    expect(search.mock.calls[0]?.[0]?.folderPath).toBe("//Sites");
+  });
+
   it("initialQuery triggers a search on mount", async () => {
     const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
     render(
@@ -401,7 +420,7 @@ describe("SearchPanel", () => {
       });
       expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("All Content");
       expect(executeSavedSearch.mock.calls[0]?.[1]).toMatchObject({
-        folderPath: "/Sites/Foo",
+        folderPath: "//Sites/Foo",
         maxResults: 10,
         startIndex: 1,
       });

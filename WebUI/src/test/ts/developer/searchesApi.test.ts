@@ -20,6 +20,7 @@ import {
   listExplorerSavedSearches,
   listSearches,
   unwrapSearchExecuteResult,
+  wrapSearchExecuteRequest,
 } from "../../../main/ts/api/developer/searchesApi";
 import { PATHS } from "../../../main/ts/api/paths";
 
@@ -93,6 +94,49 @@ describe("listSearches", () => {
   });
 });
 
+describe("wrapSearchExecuteRequest", () => {
+  it("wraps flat overrides under SearchExecuteRequest for JAXB", () => {
+    expect(
+      wrapSearchExecuteRequest({
+        folderPath: "/Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      }),
+    ).toEqual({
+      SearchExecuteRequest: {
+        folderPath: "//Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      },
+    });
+  });
+
+  it("sends an empty SearchExecuteRequest root when overrides are omitted", () => {
+    expect(wrapSearchExecuteRequest()).toEqual({ SearchExecuteRequest: {} });
+    expect(wrapSearchExecuteRequest(null)).toEqual({ SearchExecuteRequest: {} });
+  });
+
+  it("does not double-wrap an already enveloped body", () => {
+    expect(
+      wrapSearchExecuteRequest({
+        SearchExecuteRequest: { startIndex: 2, maxResults: 10 },
+      }),
+    ).toEqual({
+      SearchExecuteRequest: { startIndex: 2, maxResults: 10 },
+    });
+  });
+
+  it("normalizes a single-slash folderPath on an already enveloped body", () => {
+    expect(
+      wrapSearchExecuteRequest({
+        SearchExecuteRequest: { folderPath: "/Sites", startIndex: 1 },
+      }),
+    ).toEqual({
+      SearchExecuteRequest: { folderPath: "//Sites", startIndex: 1 },
+    });
+  });
+});
+
 describe("executeSearch", () => {
   it("POSTs to /searches/{id}/execute with optional overrides", async () => {
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
@@ -127,9 +171,11 @@ describe("executeSearch", () => {
     );
     expect(init?.method).toBe("POST");
     expect(JSON.parse(String(init?.body))).toEqual({
-      folderPath: "/Sites/Foo",
-      startIndex: 1,
-      maxResults: 25,
+      SearchExecuteRequest: {
+        folderPath: "//Sites/Foo",
+        startIndex: 1,
+        maxResults: 25,
+      },
     });
     expect(result.children).toHaveLength(1);
     expect(result.children?.[0]?.title).toBe("Welcome");
