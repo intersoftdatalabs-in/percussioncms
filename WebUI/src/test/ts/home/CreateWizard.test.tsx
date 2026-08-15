@@ -5,6 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { CreateWizard } from "@/home/create/CreateWizard";
+import { PageWizard } from "@/home/create/PageWizard";
 import * as homeApi from "@/api/home/homeApi";
 
 vi.mock("@/api/home/homeApi", async (importOriginal) => {
@@ -36,6 +37,10 @@ vi.mock("@/api/home/homeApi", async (importOriginal) => {
       { id: "percImage", name: "Image", label: "Image" },
     ]),
     createPageAndPath: vi.fn().mockResolvedValue("/Sites/Demo/page.html"),
+    createPageAndItem: vi.fn().mockResolvedValue({
+      path: "/Sites/Demo/page.html",
+      itemId: "55",
+    }),
     formatApiError: vi.fn((_e: unknown, fallback: string) => fallback),
   };
 });
@@ -87,6 +92,31 @@ describe("CreateWizard", () => {
       expect(screen.getByTestId("blog-wizard")).toBeDefined();
     });
     expect(homeApi.fetchAllBlogs).toHaveBeenCalled();
+  });
+
+  it("page create opens the React editor host instead of leftover view=editor", async () => {
+    const openCreated = vi.fn().mockResolvedValue(true);
+    render(<PageWizard onBack={() => undefined} openCreated={openCreated} />);
+    await waitFor(() => screen.getByTestId("page-wizard"));
+    await waitFor(() => {
+      const sel = document.getElementById("pw-template") as HTMLSelectElement;
+      expect(Array.from(sel.options).some((o) => o.value === "t1")).toBe(true);
+    });
+    fireEvent.change(document.getElementById("pw-template") as HTMLSelectElement, {
+      target: { value: "t1" },
+    });
+    fireEvent.change(document.getElementById("pw-title") as HTMLInputElement, {
+      target: { value: "About" },
+    });
+    fireEvent.click(screen.getByTestId("page-wizard-submit"));
+    await waitFor(() => {
+      expect(homeApi.createPageAndItem).toHaveBeenCalled();
+      expect(openCreated).toHaveBeenCalled();
+    });
+    expect(openCreated.mock.calls[0]?.[0]).toMatchObject({
+      id: "55",
+      path: "/Sites/Demo/page.html",
+    });
   });
 
   it("shows no-blogs empty state when none configured", async () => {

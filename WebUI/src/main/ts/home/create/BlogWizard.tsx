@@ -18,11 +18,12 @@
 import React, { useEffect, useState } from "react";
 import { isSessionRedirectError } from "../../api/client";
 import {
-  createPageAndPath,
+  createPageAndItem,
   fetchAllBlogs,
   formatApiError,
 } from "../../api/home/homeApi";
 import type { BlogSummary } from "../../api/home/types";
+import { openEditorHost } from "../../editor/openEditorHost";
 import { message, MSG } from "../../i18n/message";
 import {
   actionButtonStyle,
@@ -36,10 +37,14 @@ import {
 
 export interface BlogWizardProps {
   onBack: () => void;
+  openCreated?: typeof openEditorHost;
 }
 
 /** Classic blog post create = createPage with blog template + folder. */
-export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
+export function BlogWizard({
+  onBack,
+  openCreated = openEditorHost,
+}: BlogWizardProps): React.ReactElement {
   const [blogs, setBlogs] = useState<BlogSummary[]>([]);
   const [blogKey, setBlogKey] = useState("");
   const [title, setTitle] = useState("");
@@ -94,14 +99,20 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
     }
     setBusy(true);
     try {
-      const fullPath = await createPageAndPath({
+      const created = await createPageAndItem({
         name: fileName,
         title,
         linkTitle: title,
         templateId: selected.templateId,
         folderPath: selected.folderPath,
       });
-      window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(fullPath)}`;
+      const opened = await openCreated({
+        id: created.itemId,
+        path: created.path,
+      });
+      if (!opened) {
+        setError(message(MSG.CREATE_OPEN_EDITOR_FAILED));
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;

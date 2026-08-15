@@ -17,7 +17,8 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { HomeShell } from "@/home/HomeShell";
+import { HomeShell, openHomeItem } from "@/home/HomeShell";
+import * as openEditor from "@/editor/openEditorHost";
 
 vi.mock("@/api/home/homeApi", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/api/home/homeApi")>();
@@ -120,6 +121,46 @@ describe("HomeShell", () => {
     );
     fireEvent.click(screen.getByTestId("home-nav-gadgets"));
     expect(onSectionChange).toHaveBeenCalledWith("gadgets");
+  });
+
+  it("openHomeItem uses the React editor host, not leftover view=editor", async () => {
+    const open = vi
+      .spyOn(openEditor, "openEditorHost")
+      .mockResolvedValue(true);
+    const hrefSpy = vi.fn();
+    const originalHref = window.location.href;
+    Object.defineProperty(window.location, "href", {
+      configurable: true,
+      get: () => originalHref,
+      set: hrefSpy,
+    });
+    openHomeItem({
+      id: "55",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "page",
+    });
+    expect(open).toHaveBeenCalledWith({
+      id: "55",
+      path: "/Sites/Demo/Home",
+    });
+    expect(hrefSpy).not.toHaveBeenCalled();
+    open.mockRestore();
+  });
+
+  it("openHomeItem does not open folders", () => {
+    const open = vi
+      .spyOn(openEditor, "openEditorHost")
+      .mockResolvedValue(true);
+    openHomeItem({
+      id: "1",
+      name: "Assets",
+      path: "/Assets/",
+      type: "Folder",
+      folder: true,
+    });
+    expect(open).not.toHaveBeenCalled();
+    open.mockRestore();
   });
 });
 

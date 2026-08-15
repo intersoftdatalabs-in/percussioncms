@@ -27,13 +27,14 @@ New window (peer of Active Assembly):
 6. Save + Check In (existing checkIn REST)
 7. **New Item** — type under New creates in the current folder (`POST /item/create`) and opens this editor
 8. **percPage template** — load allowed templates (content type, then site); one template is used automatically; more than one opens a picker; `POST /item/create` includes `templateId`; server saves through `IPSPageService`
+9. **Home / TopNav** — Recent/Bookmarks/Search/Library open the React editor host; **Home → Create** page/blog opens the same host after create; TopNav **Editor** is `/editor` (not leftover `?view=editor`)
 
 ## Later
 
 - TinyMCE / file / image / keyword / community controls
 - AA contenteditable overlay on the assembled preview
 - Revision promote form
-- Home / TopNav still use leftover `?view=editor` until those shells switch
+- Home **Create asset** still uses leftover `editAsset.jsp` until asset create is on this host
 
 ## Out of scope here
 

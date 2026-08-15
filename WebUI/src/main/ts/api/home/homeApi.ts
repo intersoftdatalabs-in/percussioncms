@@ -466,15 +466,52 @@ export async function createPage(req: CreatePageRequest): Promise<unknown> {
   return post(PATHS.PAGE_CREATE, body);
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/** Page id from {@code POST /pagemanagement/page} (Jackson Page root). */
+export function unwrapCreatedPageId(payload: unknown): string | null {
+  const root = asRecord(payload);
+  const page = asRecord(root?.Page ?? root?.page) ?? root;
+  if (!page) {
+    return null;
+  }
+  const id = page.id ?? page.Id;
+  const s = id != null ? String(id).trim() : "";
+  return s || null;
+}
+
+export interface CreatedPage {
+  path: string;
+  itemId: string | null;
+}
+
+/**
+ * Create a page and return folder path plus item id when the save response
+ * includes one.
+ */
+export async function createPageAndItem(
+  req: CreatePageRequest,
+): Promise<CreatedPage> {
+  const name = ensurePageFileName(req.name);
+  const payload = await createPage({ ...req, name });
+  return {
+    path: joinFolderAndName(req.folderPath, name),
+    itemId: unwrapCreatedPageId(payload),
+  };
+}
+
 /**
  * Create page then return full item path for open (classic openPage after create).
  */
 export async function createPageAndPath(
   req: CreatePageRequest,
 ): Promise<string> {
-  const name = ensurePageFileName(req.name);
-  await createPage({ ...req, name });
-  return joinFolderAndName(req.folderPath, name);
+  return (await createPageAndItem(req)).path;
 }
 
 /**
