@@ -754,6 +754,42 @@
 			 reads autoImportBinaries.txt on first start (7.3.2 fastforwardSampleContent). -->
 		<echo file="${install.dir}/autoImportBinaries.txt" append="true">${install.dir}/rxconfig/FastForward/importFiles${line.separator}</echo>
 
+		<!-- ObjectStore editors for rff* types 301-312 and 316. install_server
+			 excludes **/psx_cerff*.xml (CM1 perc* types come from packages). Sample
+			 CONTENTSTATUS rows still use the historic rff IDs; without these apps
+			 PSItemDefManager logs "Invalid content type id (311)" and Explorer cannot
+			 open the items. Historic peer: installFastForward.xml ObjectStore copy.
+			 Do not copy leftover psx_cerffNav*.xml — perc.nav owns 313-315. -->
+		<echo>Installing FastForward content-type ObjectStore editors...</echo>
+		<if>
+			<available
+				file="${install.src}/ObjectStore/psx_cerffGeneric.xml" />
+			<then>
+				<mkdir dir="${install.dir}/ObjectStore" />
+				<copy todir="${install.dir}/ObjectStore" overwrite="true"
+					failonerror="true">
+					<fileset dir="${install.src}/ObjectStore">
+						<include name="psx_cerffAutoIndex.xml" />
+						<include name="psx_cerffBrief.xml" />
+						<include name="psx_cerffCalendar.xml" />
+						<include name="psx_cerffContacts.xml" />
+						<include name="psx_cerffEvent.xml" />
+						<include name="psx_cerffExternalLink.xml" />
+						<include name="psx_cerffFile.xml" />
+						<include name="psx_cerffGeneric.xml" />
+						<include name="psx_cerffGenericWord.xml" />
+						<include name="psx_cerffHome.xml" />
+						<include name="psx_cerffImage.xml" />
+						<include name="psx_cerffPressRelease.xml" />
+					</fileset>
+				</copy>
+			</then>
+			<else>
+				<fail
+					message="demo-sites requires FastForward ObjectStore editors under ${install.src}/ObjectStore (psx_cerffGeneric.xml missing). Assembly must include RxFastForward/Core/rxsObjectStore." />
+			</else>
+		</if>
+
 		<!-- Sample sites are Rhythmyx (not CM1 page-based). Seed XML sets IS_PAGE_BASED=F.
 			 Do not force T here; findAll no longer filters by isPageBased / pub server / nav tree
 			 (#2989). CM1 sites remain page-based when created via CM1 paths. -->

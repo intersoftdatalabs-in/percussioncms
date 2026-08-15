@@ -117,3 +117,28 @@ None that block. Leftover `system/cms/content/applications/widgets/psx_cerffNavI
 ### Tests
 
 `mvnw -Dtest=FastForwardContentTypeIconsPackagingTest test` in `modules/perc-distribution-tree`: Tests run: 4, Failures: 0.
+
+## Re-review — ObjectStore rff editors for demo-sites (2026-08-14)
+
+**Scope:** uncommitted vs `HEAD` (`a089c8e4db`). `installSampleSites` now copies the 12 `psx_cerff*.xml` editors (not leftover Nav); `upgrade_server` copies them when `install.demo.sites=true`; wiring test + product-docs.
+
+### Recommendation
+
+approve
+
+### Gate
+
+- **May commit/push: yes**
+- Bugs: none remaining for the 301–316 flood. Type **1025** is a pre-existing July 29 package orphan (`ContentType is not found` at first package install) — out of this change class.
+- Behavioral test: `InstallSampleSitesWiringTest` asserts ObjectStore copy of Generic/PressRelease and forbids `psx_cerffNavImage.xml`.
+- Change-class: table seed already inserted CONTENTTYPES 301–316; missing companion was the running ObjectStore apps (`PSItemDefManager` only registers started editors). Historic peer `installFastForward.xml` ObjectStore copy.
+- Agent rule files: none
+- Cross-platform path review: **clean** (Ant `${install.src}/ObjectStore` resource paths; no new Java I/O)
+
+### Issues
+
+None that block. `install_server` still excludes `**/psx_cerff*.xml` on the bulk copy; `installSampleSites` puts the 12 editors back when demo-sites is on. Existing installs need those files on disk + a CMS restart (in-memory ObjectStore already loaded).
+
+### Tests
+
+`mvnw -Dtest=InstallSampleSitesWiringTest,FastForwardContentTypeIconsPackagingTest test`: Tests run: 10, Failures: 0.

@@ -120,6 +120,15 @@ class InstallSampleSitesWiringTest {
     assertTrue(
         targetBody.contains("autoImportBinaries.txt"),
         "installSampleSites must register importFiles for first-start hashed binary import");
+    assertTrue(
+        targetBody.contains("psx_cerffGeneric.xml")
+            && targetBody.contains("psx_cerffPressRelease.xml")
+            && targetBody.contains("ObjectStore"),
+        "installSampleSites must copy FastForward rff ObjectStore editors; sample items use"
+            + " CONTENTTYPEID 301-316 and PSItemDefManager only registers running apps");
+    assertFalse(
+        targetBody.contains("psx_cerffNavImage.xml"),
+        "do not copy leftover psx_cerffNav* editors; perc.nav owns types 313-315");
     Path importFiles =
         Path.of("..", "..", "system", "FastForward", "SampleContent", "importFiles");
     assertTrue(
