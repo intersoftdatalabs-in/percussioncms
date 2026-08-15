@@ -1,9 +1,13 @@
 # Erlang review: Explorer Publish Now HTTP 200 FORBIDDEN error chrome (#3451)
 
-**Branch:** `fix/issue-3451-explorer-publish-forbidden-error`  
-**Base:** `origin/main`  
+**Branch:** `fix/issue-3451-explorer-publish-forbidden-rebase`  
+**Base:** `origin/main` (`dc8f1a5100`, includes #3455 page-template picker)  
 **Date:** 2026-08-15  
 **Persona:** Erlang (independent of implementer)
+
+Rebase of #3459 (`2b3189b636`) onto latest main via cherry-pick. `handleMenuInvoke`
+kept `pickPageTemplate` in its dependency list; no conflict with the FORBIDDEN
+error-region wiring.
 
 ## Summary
 
