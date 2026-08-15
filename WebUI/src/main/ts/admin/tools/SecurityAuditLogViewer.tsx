@@ -88,12 +88,45 @@ export function formatEventTime(value: unknown): string {
   return "—";
 }
 
+/**
+ * Coerce a wire field to display text. Jackson / WRAP_ROOT may deliver
+ * numbers (content-id targets) or objects; calling {@code .trim()} on those
+ * throws and blanks the Security Audit Log via AdminSectionErrorBoundary.
+ */
+export function auditCellText(value: unknown): string {
+  if (value == null || value === "") {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value.trim();
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+  const rec =
+    typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : null;
+  if (rec) {
+    for (const key of ["text", "value", "name", "label"] as const) {
+      const inner = rec[key];
+      if (typeof inner === "string" && inner.trim()) {
+        return inner.trim();
+      }
+    }
+  }
+  return "";
+}
+
 /** Truncate for table cells; when longer than max, keeps {@code max} chars then ellipsis. */
-export function truncate(text: string | undefined, max = 80): string {
-  if (!text) {
+export function truncate(text: unknown, max = 80): string {
+  const t = auditCellText(text);
+  if (!t) {
     return "—";
   }
-  const t = text.trim();
   if (t.length <= max) {
     return t;
   }
@@ -595,10 +628,18 @@ export const SecurityAuditLogViewer: React.FC = () => {
                         <td style={tdStyle}>
                           {formatEventTime(row.eventTime)}
                         </td>
-                        <td style={tdStyle}>{row.moduleCode || "—"}</td>
-                        <td style={tdStyle}>{row.eventType || "—"}</td>
-                        <td style={tdStyle}>{row.outcome || "—"}</td>
-                        <td style={tdStyle}>{row.actor || "—"}</td>
+                        <td style={tdStyle}>
+                          {auditCellText(row.moduleCode) || "—"}
+                        </td>
+                        <td style={tdStyle}>
+                          {auditCellText(row.eventType) || "—"}
+                        </td>
+                        <td style={tdStyle}>
+                          {auditCellText(row.outcome) || "—"}
+                        </td>
+                        <td style={tdStyle}>
+                          {auditCellText(row.actor) || "—"}
+                        </td>
                         <td style={tdStyle}>{truncate(row.target, 40)}</td>
                         <td style={tdStyle}>
                           {truncate(row.userMessage, 60)}
@@ -725,7 +766,7 @@ export const SecurityAuditLogViewer: React.FC = () => {
                   }}
                   data-testid="audit-detail-user-message"
                 >
-                  {detail.userMessage || "—"}
+                  {auditCellText(detail.userMessage) || "—"}
                 </dd>
                 <dt style={{ fontWeight: 600, gridColumn: "1 / -1", marginTop: 8 }}>
                   {message(ADMIN_MSG.AUDIT_COL_LOG_MESSAGE)}
@@ -745,7 +786,7 @@ export const SecurityAuditLogViewer: React.FC = () => {
                   }}
                   data-testid="audit-detail-log-message"
                 >
-                  {detail.logMessage || "—"}
+                  {auditCellText(detail.logMessage) || "—"}
                 </dd>
               </dl>
             )}
@@ -762,14 +803,15 @@ function DetailRow({
   testId,
 }: {
   label: string;
-  value?: string | null;
+  value?: unknown;
   testId?: string;
 }): React.ReactElement {
+  const text = auditCellText(value);
   return (
     <>
       <dt style={{ fontWeight: 600, color: "#64748b" }}>{label}</dt>
       <dd style={{ margin: 0 }} data-testid={testId}>
-        {value && String(value).trim() ? value : "—"}
+        {text || "—"}
       </dd>
     </>
   );

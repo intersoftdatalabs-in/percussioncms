@@ -78,6 +78,9 @@ test.describe("Admin Security Audit Log @security-audit-log @admin", () => {
       timeout: 30_000,
     });
     await expect(page.getByTestId("audit-log-empty")).toHaveCount(0);
+    // Non-string target/userMessage must not throw (e.trim is not a function)
+    // and replace the tool with AdminSectionErrorBoundary.
+    await expect(page.getByTestId("admin-section-error")).toHaveCount(0);
   });
 
   test("Admin can apply module filter without error chrome", async ({
