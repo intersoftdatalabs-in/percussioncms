@@ -90,12 +90,29 @@ describe("actionDispatch", () => {
     ).toBe(11);
   });
 
-  it("dispatch Edit returns editor unavailable key", async () => {
+  it("dispatch Edit opens the React editor host", async () => {
+    const openWindow = vi.fn();
     const result = await dispatchAction(action({ name: "Edit" }), {
       item: item(),
+      openWindow,
     });
     expect(result.kind).toBe("editor");
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE);
+    expect(result.messageKey).toBeUndefined();
+    const href = String(openWindow.mock.calls[0]?.[0] ?? "");
+    expect(href).toContain("entry=editor");
+    expect(href).toContain("contentId=42");
+    expect(href).toContain("mode=edit");
+    expect(href).not.toContain("view=editor");
+  });
+
+  it("dispatch View_Content opens the editor in view mode", async () => {
+    const openWindow = vi.fn();
+    const result = await dispatchAction(action({ name: "View_Content" }), {
+      item: item(),
+      openWindow,
+    });
+    expect(result.kind).toBe("editor");
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("mode=view");
   });
 
   it("dispatch Data Flow HTML does not navigate", async () => {

@@ -117,6 +117,17 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/profile").clientPath).toBe("/profile");
   });
 
+  it("maps editor entry to chrome-less /editor with mode", () => {
+    const p = parseEntryQuery("?entry=editor&contentId=42&mode=view");
+    expect(p.entry).toBe("editor");
+    expect(p.contentId).toBe("42");
+    expect(p.mode).toBe("view");
+    expect(p.clientPath).toBe("/editor?contentId=42&mode=view");
+    expect(parseClientPath("/editor", "?contentId=42&mode=edit").entry).toBe(
+      "editor",
+    );
+  });
+
   it("maps assembly entry to chrome-less /assembly with ids", () => {
     const p = parseEntryQuery(
       "?entry=assembly&contentId=42&templateId=7",

@@ -19,6 +19,7 @@ package com.percussion.itemmanagement.service;
 import com.percussion.itemmanagement.data.PSAssetSiteImpact;
 import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
+import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.data.PSSoProMetadata;
 import com.percussion.services.useritems.data.PSUserItem;
@@ -38,6 +39,21 @@ import java.util.Map;
  * @author Jose Annunziato
  */
 public interface IPSItemService {
+
+  /**
+   * Scalar content-editor fields for the React editor (995). Omits system fields
+   * except {@code sys_title} and omits binary values.
+   *
+   * @param id item id or GUID, must not be blank
+   */
+  PSItemEditorFields getEditorFields(String id) throws PSItemServiceException;
+
+  /**
+   * Saves scalar content-editor fields. Caller must have the item checked out.
+   * Only names present in {@code req} are updated.
+   */
+  PSItemEditorFields saveEditorFields(String id, PSItemEditorFields req)
+      throws PSItemServiceException;
 
   /**
    * Retrieves the revisions for a given page or asset.

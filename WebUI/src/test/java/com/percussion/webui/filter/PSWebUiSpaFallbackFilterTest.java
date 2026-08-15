@@ -65,6 +65,14 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void forwardsEditorEntry() {
+    assertEquals(
+        "/cm/app/spa.jsp?entry=editor&contentId=42&mode=edit",
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath(
+            "/cm/app/editor", "contentId=42&mode=edit"));
+  }
+
+  @Test
   public void forwardsAssemblyEntry() {
     assertEquals(
         "/cm/app/spa.jsp?entry=assembly&contentId=42&templateId=7",

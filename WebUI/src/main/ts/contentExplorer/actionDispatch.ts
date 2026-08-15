@@ -41,6 +41,11 @@ import {
   assemblyWindowName,
   buildAssemblyHostUrl,
 } from "../assembly/assemblyHostUrl";
+import {
+  EDITOR_WINDOW_FEATURES,
+  buildEditorHostUrl,
+  editorWindowName,
+} from "../editor/editorHostUrl";
 import { parseExplorerContentId } from "./menuCatalogLoad";
 import { EXPLORER_MSG } from "./messages";
 import {
@@ -382,7 +387,23 @@ export async function dispatchAction(
   }
 
   if (kind === "editor") {
-    return { kind, messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    const editorName = normalizeActionName(action.name);
+    if (!EDITOR_NAMES.has(editorName)) {
+      return { kind, messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    }
+    if (!item || isFolder(item)) {
+      return { kind, messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const contentId = parseExplorerContentId(item.id);
+    if (contentId == null) {
+      return { kind, messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    }
+    const view =
+      editorName.startsWith("view_") || editorName.startsWith("revision_view");
+    const href = buildEditorHostUrl(contentId, view ? "view" : "edit");
+    const open = ctx.openWindow ?? defaultOpenWindow;
+    open(href, editorWindowName(contentId), EDITOR_WINDOW_FEATURES);
+    return { kind };
   }
 
   if (kind === "unavailable") {
