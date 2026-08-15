@@ -23,7 +23,7 @@ Desktop Content Explorer is **not** a 8.2 client. Do not dual-ship HTML for DCE.
 | `client` | Existing Explorer handlers (open, folder ops, workflow-transition, default preview) |
 | `rest` | Public REST (preview-location, types, transitions, purge, publish) |
 | `editor` | P3 — do **not** open CM1 `?view=editor`; TMX “editor not available” |
-| `unavailable` | P2 AA/slot or not-yet P1 — TMX not available |
+| `unavailable` | P2 AA/slot (until `specs/996-react-active-assembly`) or New Item (P3 editor) |
 | `legacy-file` | Non-app file (e.g. `.xls`) via same-origin `safeNavigate` |
 
 Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It never `safeNavigate`s.
@@ -41,7 +41,8 @@ Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It n
 | Promotable Version | Confirm, then promotable version in current folder |
 | Flush Cache (Refresh Item) | Confirm, then flush **all** assembler pages (not only the selected item) |
 | Nav Reset | Same as classic `PSNavReset`; on 8.2 typically a no-op once nav is loaded (FastForward variants unused) |
-| Publish Now / AA / slot arrange | Still unavailable (P2) |
+| Publish Now | Confirm, then existing sitemanage publish-now (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Does not open `demandpublishing`. |
+| Active Assembly / slot arrange | Still unavailable — see `specs/996-react-active-assembly/spec.md` |
 
 ## P1 REST
 
@@ -62,6 +63,8 @@ Returns `{ previewUrl, contentId, templateId, revision }`.
 `previewUrl` is the assembly preview path (`/assembler/render?sys_contentid&sys_template&sys_revision&sys_context=0&sys_itemfilter=preview`).
 
 Template **menus** come from existing `GET /actions/find/templates/{id}` and are merged under Preview parents (same pattern as New Item + `/actions/find/types`).
+
+**Publish Now:** `GET /services/sitemanage/publish/page/{id}` or `/resource/{id}` (existing sitemanage).
 
 ## Inventory
 

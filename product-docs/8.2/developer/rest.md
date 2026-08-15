@@ -551,6 +551,18 @@ itemmanagement REST (sitemanage `PSItemService`), not Content Editor HTML.
 Copy / promotable response JSON (`ItemCopyResult`): `{ itemId, folderPath, promotable }`. Those
 POSTs fail if the item has no folder path (`Item has no folder path and cannot be copied.`).
 
+## Item publish now (Explorer)
+
+Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
+It does not open `/publisher/demandpublishing`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/sitemanage/publish/page/{id}` | Publish Now for a page |
+| `GET` | `/services/sitemanage/publish/resource/{id}` | Publish Now for an asset |
+
+See [Content Explorer](id:admin-content-explorer) server actions.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the
