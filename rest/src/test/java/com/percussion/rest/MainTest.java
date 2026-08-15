@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.acls.AclListJsonReader;
+import com.percussion.rest.contentexplorer.folders.AddFolderRequestJsonReader;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.rest.errors.WebApplicationExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
@@ -161,6 +162,7 @@ public class MainTest {
               exceptionMapper,
               waeMapper,
               new AclListJsonReader(),
+              new AddFolderRequestJsonReader(),
               jacksonProvider,
               contextResolver));
       factory.setResourceProviders(resourceProviders);

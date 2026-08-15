@@ -458,7 +458,7 @@ Accept either repository form or a documented single-slash form; the server norm
 | `GET` | `…/by-path/{path}/children` | Direct children by path |
 | `GET` | `…/by-id/{id}/child-folders` | Folder children only |
 | `GET` | `…/by-path/{path}/child-folders` | Folder children only by path |
-| `POST` | `/content-explorer/folders` | Add folder (`name` + `parentPath`) |
+| `POST` | `/content-explorer/folders` | Add folder. JSON root must be `AddFolderRequest` with `name` + `parentPath` (optional `sourcePath`). Explorer sends that wrap when folder mutations are enabled. |
 | `POST` | `/content-explorer/folders/tree` | Add missing path segments (`path`) |
 | `PUT` | `/content-explorer/folders/by-id/{id}` | Save name / description / community / locale / properties |
 | `POST` | `/content-explorer/folders/move-children` | Multi-child move |
