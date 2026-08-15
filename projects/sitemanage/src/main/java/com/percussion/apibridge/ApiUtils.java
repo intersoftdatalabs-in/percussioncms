@@ -476,9 +476,9 @@ public class ApiUtils {
   public static PSRole convertRole(Role role) {
     PSRole ret = new PSRole();
 
-    ret.setDescription(orNull(role.getDescription()));
-    ret.setHomepage(orNull(role.getHomePage()));
-    ret.setName(orNull(role.getName()));
+    ret.setDescription(role.getDescription());
+    ret.setHomepage(role.getHomePage());
+    ret.setName(role.getName());
     ret.setUsers(role.getUsers());
 
     return ret;
