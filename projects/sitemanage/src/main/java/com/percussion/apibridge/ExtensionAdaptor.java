@@ -134,10 +134,10 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     try {
       var it =
           extensionService.getExtensionNames(
-              ApiUtils.orNull(filter.getHandlerNamePattern()),
-              ApiUtils.orNull(filter.getContext()),
-              ApiUtils.orNull(filter.getInterfacePattern()),
-              ApiUtils.orNull(filter.getExtensionNamePattern()));
+              filter.getHandlerNamePattern(),
+              filter.getContext(),
+              filter.getInterfacePattern(),
+              filter.getExtensionNamePattern());
       while (it.hasNext()) {
         var ref = it.next();
         response.add(copyExtensionRef(ref));

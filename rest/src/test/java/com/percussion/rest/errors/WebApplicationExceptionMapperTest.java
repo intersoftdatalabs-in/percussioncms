@@ -20,6 +20,7 @@ package com.percussion.rest.errors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -138,6 +139,24 @@ class WebApplicationExceptionMapperTest {
     assertEquals("RestExceptionBase", body.getErrorType());
     assertEquals("Folder missing", body.getMessage());
     assertEquals("path=/a", body.getDetailMessage());
+    assertNull(body.getErrorData());
+  }
+
+  @Test
+  void restExceptionBaseErrorDataIsScalarNotOptional() {
+    RestExceptionBase ex =
+        new RestExceptionBase(
+            RestErrorCode.FOLDER_NOT_FOUND,
+            "Folder missing",
+            "path=/a",
+            "folder-id-9",
+            Response.Status.NOT_FOUND);
+
+    Response response = mapper.toResponse(ex);
+
+    RestError body = assertInstanceOf(RestError.class, response.getEntity());
+    assertEquals("folder-id-9", body.getErrorData());
+    assertEquals("Folder missing", body.getMessage());
   }
 
   @Test

@@ -20,8 +20,14 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
+/**
+ * Multi-user lock summary on a catalog object.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3430 / #3388).
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement
 @Schema(description = "Represents a multi-user lock on an object in the system.")
@@ -44,16 +50,22 @@ public class ObjectLockSummary {
           "The date and time that the API client last checked this lock.  Can be used for retries.")
   private String callerAccessTime;
 
-  public Optional<String> getSession() {
-    return Optional.ofNullable(session);
+  /**
+   * @return lock session id, or {@code null} if unset
+   */
+  public String getSession() {
+    return session;
   }
 
   public void setSession(String session) {
     this.session = session;
   }
 
-  public Optional<String> getLocker() {
-    return Optional.ofNullable(locker);
+  /**
+   * @return locker username, or {@code null} if unset
+   */
+  public String getLocker() {
+    return locker;
   }
 
   public void setLocker(String locker) {
@@ -68,8 +80,11 @@ public class ObjectLockSummary {
     this.remainingTime = remainingTime;
   }
 
-  public Optional<String> getCallerAccessTime() {
-    return Optional.ofNullable(callerAccessTime);
+  /**
+   * @return last caller access time, or {@code null} if unset
+   */
+  public String getCallerAccessTime() {
+    return callerAccessTime;
   }
 
   public void setCallerAccessTime(String callerAccessTime) {

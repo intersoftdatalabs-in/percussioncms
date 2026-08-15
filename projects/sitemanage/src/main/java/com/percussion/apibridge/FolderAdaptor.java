@@ -363,7 +363,7 @@ public class FolderAdaptor implements IFolderAdaptor {
     List<String> existingFolders = new ArrayList<>();
     if (folder.getSubsections() != null) {
       for (SectionLinkRef section : folder.getSubsections()) {
-        existingFolders.add(ApiUtils.orNull(section.getName()));
+        existingFolders.add(section.getName());
       }
     }
     folder.setPages(folderPages);
@@ -681,16 +681,15 @@ public class FolderAdaptor implements IFolderAdaptor {
       LinkRef reqLanding = reqSectionInfo.getLandingPage();
       LinkRef existingLanding = currSectionInfo.getLandingPage();
 
-      String reqName = ApiUtils.orNull(reqLanding == null ? null : reqLanding.getName());
-      String existingName =
-          ApiUtils.orNull(existingLanding == null ? null : existingLanding.getName());
+      String reqName = reqLanding == null ? null : reqLanding.getName();
+      String existingName = existingLanding == null ? null : existingLanding.getName();
 
       if (reqName != null && !reqName.equals(existingName)) {
         // get child folders
         boolean foundPage = false;
         List<LinkRef> existingPages = existingFolder.getPages();
         for (LinkRef page : existingPages == null ? List.<LinkRef>of() : existingPages) {
-          if (reqName.equals(ApiUtils.orNull(page.getName()))) {
+          if (reqName.equals(page.getName())) {
             foundPage = true;
             break;
           }
@@ -804,7 +803,7 @@ public class FolderAdaptor implements IFolderAdaptor {
     String name = "index.html";
     LinkRef landOpt = sectionInfo.getLandingPage();
     // compute landing name and if available override default
-    String landingName = landOpt == null ? null : landOpt.getName().orElse(null);
+    String landingName = landOpt == null ? null : landOpt.getName();
     if (landingName != null) {
       name = landingName;
     }
@@ -875,8 +874,8 @@ public class FolderAdaptor implements IFolderAdaptor {
         throw new BackendException("non-section folders cannot have subsections");
       String nameCheck = null;
       for (SectionLinkRef subsection : folder.getSubsections()) {
-        String secName = ApiUtils.orNull(subsection.getName());
-        String secHref = ApiUtils.orNull(subsection.getHref());
+        String secName = subsection.getName();
+        String secHref = subsection.getHref();
         if (PSSectionTypeEnum.sectionlink.name().equals(subsection.getType()))
           nameCheck = secName + "-" + secHref;
         else nameCheck = secName;
@@ -892,8 +891,8 @@ public class FolderAdaptor implements IFolderAdaptor {
       if (existingFolder.getSubsections() != null) {
 
         for (SectionLinkRef subsection : existingFolder.getSubsections()) {
-          String secName = ApiUtils.orNull(subsection.getName());
-          String secHref = ApiUtils.orNull(subsection.getHref());
+          String secName = subsection.getName();
+          String secHref = subsection.getHref();
           if (PSSectionTypeEnum.sectionlink.name().equals(subsection.getType()))
             nameCheck = secName + "-" + secHref;
           else nameCheck = secName;
@@ -907,8 +906,8 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       for (String createName : subSectionsToCreate) {
         for (SectionLinkRef subsection : folder.getSubsections()) {
-          String nameVal = ApiUtils.orNull(subsection.getName());
-          String hrefVal = ApiUtils.orNull(subsection.getHref());
+          String nameVal = subsection.getName();
+          String hrefVal = subsection.getHref();
           if (nameVal.equals(createName)
               || (PSSectionTypeEnum.sectionlink.name().equals(subsection.getType())
                   && createName.equals(nameVal + "-" + hrefVal))) {
@@ -977,14 +976,14 @@ public class FolderAdaptor implements IFolderAdaptor {
         throw new BackendException("non-section folders cannot have subsections");
 
       for (SectionLinkRef subSection : folder.getSubsections()) {
-        String name = ApiUtils.orNull(subSection.getName());
+        String name = subSection.getName();
         createSubSection(
             baseUri,
             existingFolder,
             folder,
             name,
             subSection.getType(),
-            ApiUtils.orNull(subSection.getHref()));
+            subSection.getHref());
       }
     }
   }
@@ -1110,7 +1109,7 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       // get specified landing page name or use index if does not exist.
       LinkRef landing = section == null ? null : section.getLandingPage();
-      String landingName = landing == null ? null : landing.getName().orElse(null);
+      String landingName = landing == null ? null : landing.getName();
       if (landingName != null) {
         request.setPageName(landingName);
       } else {

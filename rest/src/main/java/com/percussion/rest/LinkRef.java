@@ -18,12 +18,20 @@
 package com.percussion.rest;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
+/**
+ * Wire name/href pair for REST folder, page, and user recent-item links.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3430 / #3388).
+ */
 @XmlRootElement(name = "LinkRef")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "LinkRef")
 public class LinkRef {
   @Schema(required = false, description = "link")
@@ -40,16 +48,22 @@ public class LinkRef {
     this.href = href;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  /**
+   * @return link name, or {@code null} if unset
+   */
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getHref() {
-    return Optional.ofNullable(href);
+  /**
+   * @return href, or {@code null} if unset
+   */
+  public String getHref() {
+    return href;
   }
 
   public void setHref(String href) {

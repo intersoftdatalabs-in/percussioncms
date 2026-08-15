@@ -44,10 +44,12 @@ import com.percussion.rest.contentlists.ContentList;
 import com.percussion.rest.contentlists.ContentListList;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
+import com.percussion.rest.errors.RestError;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.displayformat.DisplayFormatProperty;
 import com.percussion.rest.extensions.Extension;
+import com.percussion.rest.extensions.ExtensionFilterOptions;
 import com.percussion.rest.itemfilter.ItemFilter;
 import com.percussion.rest.itemfilter.ItemFilterRuleDefinition;
 import com.percussion.rest.itemfilter.ItemFilterRuleDefinitionParam;
@@ -57,6 +59,7 @@ import com.percussion.rest.folders.SectionInfo;
 import com.percussion.rest.folders.SectionLinkRef;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.MoveFolderItem;
+import com.percussion.rest.mimetypes.MimeType;
 import com.percussion.rest.locationscheme.LocationScheme;
 import com.percussion.rest.locationscheme.LocationSchemeParameter;
 import com.percussion.rest.locationscheme.LocationSchemeParameterList;
@@ -95,11 +98,11 @@ import tools.jackson.databind.ObjectMapper;
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
  * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
  * plain-getter contract (issue #3412). Folder / Section / path-request DTOs follow the same
-<<<<<<< HEAD
  * rule (issue #3413). ContentList / ItemFilterRuleDefinitionParam follow the same
  * plain-getter contract (issue #3431 / #3388). Action-menu request + editions
  * {@code PublishResponse} / {@code Status} follow the same rule (issue #3432 / #3388).
- * All use production {@link
+ * ExtensionFilter / MimeType / LinkRef / ObjectLock / RestError follow the same
+ * contract (issue #3430). All use production {@link
  * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
@@ -745,7 +748,7 @@ class JacksonContextResolverOptionalTest {
 
     SectionLinkRef roundTrip = refMapper.readValue(json, SectionLinkRef.class);
     assertEquals(SectionLinkRef.TYPE_EXTERNAL, roundTrip.getType(), json);
-    assertEquals("Press", roundTrip.getName().orElse(null), json);
+    assertEquals("Press", roundTrip.getName(), json);
   }
 
   @Test
@@ -1164,6 +1167,125 @@ class JacksonContextResolverOptionalTest {
     assertEquals("sys_FolderFilter", ruleRoundTrip.getName(), json);
     assertEquals("folderId", ruleRoundTrip.getParams().get(0).getName(), json);
     assertEquals("301", ruleRoundTrip.getParams().get(0).getValue(), json);
+  }
+
+  @Test
+  void extensionFilterOptions_serializesPlainScalarsNotOptionalBeans() {
+    ExtensionFilterOptions filter = new ExtensionFilterOptions();
+    filter.setHandlerNamePattern("Java");
+    filter.setContext("global/percussion/generic/");
+    filter.setInterfacePattern("com.percussion.extension.IPSExtension");
+    filter.setExtensionNamePattern("sys_*");
+
+    ObjectMapper filterMapper =
+        new JacksonContextResolver().getContext(ExtensionFilterOptions.class);
+    String json = filterMapper.writeValueAsString(filter);
+    assertTrue(json.contains("\"handlerNamePattern\""), json);
+    assertTrue(json.contains("Java"), json);
+    assertTrue(json.contains("\"context\""), json);
+    assertTrue(json.contains("global/percussion/generic/"), json);
+    assertTrue(json.contains("\"interfacePattern\""), json);
+    assertTrue(json.contains("\"extensionNamePattern\""), json);
+    assertTrue(json.contains("sys_*"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ExtensionFilterOptions roundTrip = filterMapper.readValue(json, ExtensionFilterOptions.class);
+    assertEquals("Java", roundTrip.getHandlerNamePattern(), json);
+    assertEquals("global/percussion/generic/", roundTrip.getContext(), json);
+    assertEquals("com.percussion.extension.IPSExtension", roundTrip.getInterfacePattern(), json);
+    assertEquals("sys_*", roundTrip.getExtensionNamePattern(), json);
+  }
+
+  @Test
+  void mimeType_serializesPlainScalarsNotOptionalBeans() {
+    MimeType mimeType = new MimeType();
+    mimeType.setExtension("pdf");
+    mimeType.setType("application/pdf");
+
+    ObjectMapper mimeMapper = new JacksonContextResolver().getContext(MimeType.class);
+    String json = mimeMapper.writeValueAsString(mimeType);
+    assertTrue(json.contains("\"extension\""), json);
+    assertTrue(json.contains("pdf"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertTrue(json.contains("application/pdf"), json);
+    assertNoOptionalBeanKeys(json);
+
+    MimeType roundTrip = mimeMapper.readValue(json, MimeType.class);
+    assertEquals("pdf", roundTrip.getExtension(), json);
+    assertEquals("application/pdf", roundTrip.getType(), json);
+  }
+
+  @Test
+  void linkRef_serializesNameHrefNotOptionalBeans() {
+    LinkRef ref = new LinkRef("index.html", "http://example.com/index.html");
+
+    ObjectMapper refMapper = new JacksonContextResolver().getContext(LinkRef.class);
+    String json = refMapper.writeValueAsString(ref);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("index.html"), json);
+    assertTrue(json.contains("\"href\""), json);
+    assertTrue(json.contains("http://example.com/index.html"), json);
+    assertNoOptionalBeanKeys(json);
+
+    LinkRef roundTrip = refMapper.readValue(json, LinkRef.class);
+    assertEquals("index.html", roundTrip.getName(), json);
+    assertEquals("http://example.com/index.html", roundTrip.getHref(), json);
+  }
+
+  @Test
+  void objectLockSummary_serializesPlainScalarsNotOptionalBeans() {
+    ObjectLockSummary lock = new ObjectLockSummary();
+    lock.setSession("sess-1");
+    lock.setLocker("Admin");
+    lock.setRemainingTime(120L);
+    lock.setCallerAccessTime("2026-08-15T12:00:00Z");
+
+    ObjectMapper lockMapper = new JacksonContextResolver().getContext(ObjectLockSummary.class);
+    String json = lockMapper.writeValueAsString(lock);
+    assertTrue(json.contains("\"session\""), json);
+    assertTrue(json.contains("sess-1"), json);
+    assertTrue(json.contains("\"locker\""), json);
+    assertTrue(json.contains("Admin"), json);
+    assertTrue(json.contains("\"callerAccessTime\""), json);
+    assertTrue(json.contains("2026-08-15T12:00:00Z"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ObjectLockSummary roundTrip = lockMapper.readValue(json, ObjectLockSummary.class);
+    assertEquals("sess-1", roundTrip.getSession(), json);
+    assertEquals("Admin", roundTrip.getLocker(), json);
+    assertEquals(120L, roundTrip.getRemainingTime(), json);
+    assertEquals("2026-08-15T12:00:00Z", roundTrip.getCallerAccessTime(), json);
+  }
+
+  @Test
+  void restError_serializesErrorDataAsScalarNotOptionalBean() {
+    RestError error =
+        new RestError(42, "FolderNotFoundException", "Folder missing", "detail", "folder-id-9");
+
+    ObjectMapper errorMapper = new JacksonContextResolver().getContext(RestError.class);
+    String json = errorMapper.writeValueAsString(error);
+    assertTrue(json.contains("\"errorData\""), json);
+    assertTrue(json.contains("folder-id-9"), json);
+    assertTrue(json.contains("\"message\""), json);
+    assertTrue(json.contains("Folder missing"), json);
+    assertNoOptionalBeanKeys(json);
+
+    RestError roundTrip = errorMapper.readValue(json, RestError.class);
+    assertEquals(42, roundTrip.getErrorCode(), json);
+    assertEquals("Folder missing", roundTrip.getMessage(), json);
+    assertEquals("folder-id-9", roundTrip.getErrorData(), json);
+  }
+
+  @Test
+  void restError_omitsNullErrorDataFromJson() {
+    RestError error = new RestError(1, "UnexpectedException", "boom", null, null);
+
+    ObjectMapper errorMapper = new JacksonContextResolver().getContext(RestError.class);
+    String json = errorMapper.writeValueAsString(error);
+    assertTrue(json.contains("\"message\""), json);
+    assertFalse(json.contains("\"errorData\""), json);
+    assertFalse(json.contains("\"detailMessage\""), json);
+    assertNoOptionalBeanKeys(json);
   }
 
   @Test
