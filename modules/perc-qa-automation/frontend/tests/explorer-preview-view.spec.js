@@ -15,7 +15,7 @@
  */
 
 /**
- * Playwright surface: #2733 / #3456 — Explorer preview for a listed page.
+ * Playwright surface: #2733 / #3456 / #3463 — Explorer preview for a listed page.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
  * product preview for a listed page row. Folders stay Preview-disabled.
@@ -42,6 +42,8 @@ const {
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
+  detailRowHasExactName,
+  detailRowMatchesFoldedSite,
 } = require("./helpers/explorer-preview-view");
 
 const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
@@ -163,23 +165,11 @@ async function openSitesThenPages(page, listed) {
     }
     const row = siteRows.nth(i);
     const rowText = ((await row.innerText().catch(() => "")) || "").trim();
-    const foldedRow = foldSiteName(rowText);
     const nameMatch =
-      wanted.size === 0 || [...wanted].some((n) => n && foldedRow.includes(n));
+      wanted.size === 0 || detailRowMatchesFoldedSite(rowText, wanted);
     if (!nameMatch) continue;
-    await row.dblclick({ force: true });
-    await listWaitReady(page);
-    await page.waitForLoadState("networkidle").catch(() => {});
-
-    const pagesRow = list
-      .locator('tbody tr[data-testid^="detail-row-"]')
-      .filter({ hasText: /^Pages$/ })
-      .first();
-    if ((await pagesRow.count()) > 0) {
-      await pagesRow.dblclick({ force: true });
-      await listWaitReady(page);
-      await page.waitForLoadState("networkidle").catch(() => {});
-    }
+    await openDetailFolderRow(row);
+    await openPagesFolderIfPresent(page, list);
 
     const previewable = list.locator(
       'tbody tr[data-testid^="detail-row-"][data-previewable="true"]',
@@ -201,18 +191,44 @@ async function openSitesThenPages(page, listed) {
     );
   }
   if (!opened) {
-    await siteRows.first().dblclick({ force: true });
-    await listWaitReady(page);
-    await page.waitForLoadState("networkidle").catch(() => {});
-    const pagesRow = list
-      .locator('tbody tr[data-testid^="detail-row-"]')
-      .filter({ hasText: /^Pages$/ })
-      .first();
-    if ((await pagesRow.count()) > 0) {
-      await pagesRow.dblclick({ force: true });
-      await listWaitReady(page);
-      await page.waitForLoadState("networkidle").catch(() => {});
-    }
+    await openDetailFolderRow(siteRows.first());
+    await openPagesFolderIfPresent(page, list);
+  }
+}
+
+/**
+ * Prefer the folder-icon open control (peer #3328); fall back to dblclick.
+ * @param {import("@playwright/test").Locator} row
+ */
+async function openDetailFolderRow(row) {
+  const icon = row.locator('[data-testid^="detail-folder-icon-"]');
+  if ((await icon.count()) > 0) {
+    await icon.click();
+  } else {
+    await row.dblclick({ force: true });
+  }
+  const page = row.page();
+  await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
+}
+
+/**
+ * Open the Pages child when present. Match the Name cell, not the whole
+ * row text ({@code /^Pages$/} fails on Type+Path columns — #3463).
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} list
+ */
+async function openPagesFolderIfPresent(page, list) {
+  const folderRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  const folderCount = await folderRows.count();
+  for (let i = 0; i < folderCount; i += 1) {
+    const folder = folderRows.nth(i);
+    const text = ((await folder.innerText().catch(() => "")) || "").trim();
+    if (!detailRowHasExactName(text, "Pages")) continue;
+    await openDetailFolderRow(folder);
+    return;
   }
 }
 

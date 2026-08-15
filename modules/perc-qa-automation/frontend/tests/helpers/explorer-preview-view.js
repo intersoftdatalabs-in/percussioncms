@@ -250,6 +250,37 @@ function listedPageSiteNames(listed) {
   return names;
 }
 
+/**
+ * True when any line of a detail-row {@code innerText} equals {@code name}.
+ * Whole-row regex {@code /^Pages$/} fails because rows also include Type
+ * and Path cells (#3463).
+ * @param {string} rowText
+ * @param {string} name
+ * @returns {boolean}
+ */
+function detailRowHasExactName(rowText, name) {
+  const want = String(name || "").trim();
+  if (!want) return false;
+  return String(rowText || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .some((line) => line === want);
+}
+
+/**
+ * Folded site-name match against a detail-row's full text (finder
+ * underscores vs repository names).
+ * @param {string} rowText
+ * @param {Iterable<string>} wantedFolded
+ * @returns {boolean}
+ */
+function detailRowMatchesFoldedSite(rowText, wantedFolded) {
+  const folded = foldSiteName(rowText);
+  const wanted = [...(wantedFolded || [])].filter(Boolean);
+  if (wanted.length === 0) return false;
+  return wanted.some((n) => folded.includes(n));
+}
+
 module.exports = {
   TEST_IDS,
   explorerEntryUrl,
@@ -265,4 +296,6 @@ module.exports = {
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
+  detailRowHasExactName,
+  detailRowMatchesFoldedSite,
 };

@@ -9,6 +9,8 @@
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   TEST_IDS,
   explorerEntryUrl,
@@ -24,6 +26,8 @@ const {
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
+  detailRowHasExactName,
+  detailRowMatchesFoldedSite,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -197,5 +201,35 @@ describe("explorer-preview-view helpers (#2733)", () => {
   it("noListedPageSkipMessage cites listing slice", () => {
     assert.match(noListedPageSkipMessage(), /#3457/);
     assert.match(noListedPageSkipMessage(), /#3456/);
+  });
+
+  it("detailRowHasExactName matches a name cell, not whole-row /^Pages$/", () => {
+    const rowText = "Pages\nFolder\n/Sites/Corporate_Investments/Pages/";
+    assert.equal(detailRowHasExactName(rowText, "Pages"), true);
+    assert.equal(detailRowHasExactName(rowText, "Files"), false);
+    assert.equal(/^Pages$/.test(rowText), false);
+  });
+
+  it("detailRowMatchesFoldedSite matches finder underscore site rows", () => {
+    const rowText =
+      "Corporate_Investments\nsite\n/Sites/Corporate_Investments/";
+    assert.equal(
+      detailRowMatchesFoldedSite(rowText, ["corporateinvestments"]),
+      true,
+    );
+    assert.equal(
+      detailRowMatchesFoldedSite(rowText, ["enterpriseinvestments"]),
+      false,
+    );
+  });
+
+  it("preview spec imports adminBasicAuthHeaders for REST listing (#3463)", () => {
+    const specPath = path.join(__dirname, "..", "explorer-preview-view.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(
+      src,
+      /const\s*\{[^}]*adminBasicAuthHeaders[^}]*\}\s*=\s*require\(["']\.\/helpers\/auth["']\)/,
+    );
+    assert.match(src, /adminBasicAuthHeaders\s*\(\s*\)/);
   });
 });
