@@ -17,7 +17,10 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
-import { publishSelectedItem } from "../../../main/ts/contentExplorer/itemPublish";
+import {
+  publishSelectedItem,
+  resolvePublishKind,
+} from "../../../main/ts/contentExplorer/itemPublish";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -68,5 +71,50 @@ describe("publishSelectedItem", () => {
     const fetchSpy = vi.spyOn(global, "fetch");
     expect(await publishSelectedItem(item({ id: "" }))).toBe(false);
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("returns false for non-page/non-asset types that preview would call page", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const template = item({
+      name: "base",
+      path: "/Design/Templates/base",
+      type: "percTemplate",
+      category: "template",
+      id: "77",
+    });
+    const link = item({
+      name: "ext",
+      path: "/Other/ext",
+      type: "percExternalLink",
+      id: "88",
+    });
+    expect(resolvePublishKind(template)).toBe("none");
+    expect(resolvePublishKind(link)).toBe("none");
+    expect(await publishSelectedItem(template)).toBe(false);
+    expect(await publishSelectedItem(link)).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws when the publish GET returns 403 or 500", async () => {
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response("denied", { status: 403, statusText: "Forbidden" }),
+      )
+      .mockResolvedValueOnce(
+        new Response("boom", { status: 500, statusText: "Server Error" }),
+      );
+    await expect(publishSelectedItem(item())).rejects.toMatchObject({
+      status: 403,
+    });
+    await expect(publishSelectedItem(item())).rejects.toMatchObject({
+      status: 500,
+    });
+  });
+
+  it("throws when the publish GET fails on the network", async () => {
+    vi.spyOn(global, "fetch").mockRejectedValueOnce(
+      new TypeError("Failed to fetch"),
+    );
+    await expect(publishSelectedItem(item())).rejects.toThrow("Failed to fetch");
   });
 });

@@ -23,7 +23,50 @@
 import { get } from "../api/client";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
-import { resolvePreviewKind } from "./previewItem";
+import { normalizeCmsPath } from "./previewItem";
+import { isFolder } from "./selection";
+
+/** Demand-publish target. Stricter than preview — no unknown-id fallback. */
+export type PublishKind = "page" | "asset" | "none";
+
+function typeToken(item: PSPathItem): string {
+  return `${item.type ?? ""} ${item.category ?? ""}`.toLowerCase();
+}
+
+/**
+ * Classify whether Explorer can demand-publish this selection.
+ *
+ * <p>Unlike {@code resolvePreviewKind}, templates, links, and other non-page /
+ * non-asset items with an id stay {@code "none"}. Preview's permissive
+ * fallback would send those to {@code /publish/page/{id}}.</p>
+ */
+export function resolvePublishKind(
+  item: PSPathItem | null | undefined,
+): PublishKind {
+  if (!item || isFolder(item)) {
+    return "none";
+  }
+  const token = typeToken(item);
+  const pathLower = normalizeCmsPath(item.path).toLowerCase();
+
+  if (
+    token.includes("asset") ||
+    pathLower.startsWith("/assets/") ||
+    pathLower === "/assets"
+  ) {
+    return (item.id ?? "").trim() ? "asset" : "none";
+  }
+
+  if (
+    token.includes("page") ||
+    pathLower.startsWith("/sites/") ||
+    pathLower === "/sites"
+  ) {
+    return (item.id ?? "").trim() ? "page" : "none";
+  }
+
+  return "none";
+}
 
 /**
  * Demand-publish a page or asset. Other types return false so the
@@ -34,7 +77,7 @@ export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
   if (!id) {
     return false;
   }
-  const kind = resolvePreviewKind(item);
+  const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
   if (kind === "page") {
     await get<unknown>(`${paths.pagePublish}/${encodeURIComponent(id)}`);
