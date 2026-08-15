@@ -271,7 +271,9 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
-with the execute call below.
+with the execute call below. `GET /services/views` includes the Inbox design view (name
+`Inbox`, custom URL `../sys_cxViews/inbox.xml`) even when the design-WS load path
+collapses sibling CX views to `View_All`.
 
 | Method | Path | Purpose |
 |--------|------|---------|

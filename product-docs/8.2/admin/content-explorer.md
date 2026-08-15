@@ -185,8 +185,8 @@ Explorer result rows when the leaf is wired.
 |--------|---------|
 | Rows in the Inbox results list | You have current assignments |
 | Empty list (`children: []`) | No current assignments — this is success, not an error |
-| Views category or Inbox leaf missing | This build does not yet show the operator Inbox leaf; use DCE **Views → My Content → Inbox**, or wait for the Inbox leaf on the Explorer route |
-| Error instead of a list | Custom-URL execute is not available on this server, or the view is not in the Inbox family allow-list |
+| Views category or Inbox leaf missing | The Views catalog on this server does not include Inbox; use Desktop Content Explorer **Views → My Content → Inbox** or check that the Inbox design view is installed |
+| Error instead of a list | Custom-URL execute failed (unsupported URL, missing `sys_cxViews`, or a server error). An empty list is success, not an error |
 
 Do **not** look for a top-level **Inbox** tree root. Do **not** treat **Developer → Views**
 (design catalog) as the operator Inbox. Outbox / Recent / Session peers live in the same
@@ -199,8 +199,9 @@ Automated QA rerun (after `perc-devctl qa-up`, from `modules/perc-qa-automation/
 npm run test:surface -- --path tests/explorer-inbox.spec.js
 ```
 
-The spec soft-skips with a clear reason when the Inbox leaf or assignment execute path is
-missing on a minimal H2 cell.
+The spec soft-skips only when `GET /services/views` has no Inbox design view. If Inbox is
+in the catalog, the Explorer leaf must run execute (`200`) and show rows or an empty
+state — a missing results region is a product defect, not a skip.
 
 ## Search panel
 

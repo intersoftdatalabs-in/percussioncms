@@ -16,14 +16,15 @@
  */
 
 /**
- * Explorer Inbox surface (#3241 / parent #3118 / reality-check #3102).
+ * Explorer Inbox surface (#3446 / parent #3118 / reality-check #3102).
  *
  * <p>Inbox is <strong>Views → My Content → Inbox</strong>
  * ({@code //Views//MyContent/Inbox}), not a CE root. This spec is the
  * surface-filtered Playwright HARD GATE for the operator Inbox leaf.</p>
  *
- * <p>Soft-skip when the QA H2 cell has no Views catalog / Inbox leaf
- * (#3240 not deployed) or no assignment rows after a successful run.</p>
+ * <p>Soft-skip <strong>only</strong> when GET /services/views has no Inbox
+ * design view. A visible Inbox leaf, empty assignment list, or execute
+ * error must not skip (#3446).</p>
  *
  * <h3>Unattended surface (QA mode)</h3>
  * <pre>
@@ -54,8 +55,10 @@ const {
   inboxLeafSelector,
   inboxResultsSelector,
   isViewExecuteJaxbError,
+  isViewsExecuteUrl,
+  shouldSkipMissingInboxCatalog,
+  shouldExpandViewsGroup,
   missingInboxSkipMessage,
-  noAssignmentsSkipMessage,
 } = require("./helpers/explorer-inbox");
 
 /**
@@ -69,19 +72,90 @@ function attachPageErrors(page) {
   page.on("pageerror", (err) => {
     pageErrors.push(String(err && err.message ? err.message : err));
   });
+  page.on("console", (msg) => {
+    if (msg.type() !== "error") {
+      return;
+    }
+    const text = String(msg.text() || "");
+    if (/Failed to load resource: the server responded with a status of (404|400)/i.test(text)) {
+      return;
+    }
+    pageErrors.push(text);
+  });
   return pageErrors;
 }
 
-test.describe("Explorer Inbox (#3241 / #3118)", () => {
+/**
+ * Expand Views → My Content only when the group is collapsed.
+ * Clicking an already-open row hides the Inbox leaf (#3446).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<void>}
+ */
+async function expandMyContentIfCollapsed(page) {
+  const groupRow = page.locator(`[data-testid="${TEST_IDS.myContentGroupRow}"]`);
+  if ((await groupRow.count()) === 0) {
+    return;
+  }
+  const expanded = await groupRow.first().getAttribute("aria-expanded");
+  if (shouldExpandViewsGroup(expanded)) {
+    await groupRow.first().click();
+  }
+}
+
+/**
+ * GET /services/views using the logged-in page session (plus Basic).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ restStatus: number, restBody: unknown }>}
+ */
+async function fetchViewsCatalog(page) {
+  const headers = {
+    ...adminBasicAuthHeaders(),
+    Accept: "application/json",
+  };
+  try {
+    const res = await page.request.get(viewsCatalogUrl(BASE_URL), { headers });
+    let restBody = null;
+    if (res.ok()) {
+      restBody = await res.json().catch(() => null);
+    }
+    return { restStatus: res.status(), restBody };
+  } catch {
+    return { restStatus: 0, restBody: null };
+  }
+}
+
+test.describe("Explorer Inbox (#3446 / #3118)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
-  test("Explorer shell a11y; Inbox leaf under Views My Content or soft-skip @explorer-inbox @inbox @explorer @a11y", async ({
+  test("Explorer shell a11y; Inbox leaf under Views My Content @explorer-inbox @inbox @explorer @a11y", async ({
     page,
   }) => {
     const pageErrors = attachPageErrors(page);
+    const { restStatus, restBody } = await fetchViewsCatalog(page);
+    const inboxDef = findInboxView(restBody);
+    const defs = unwrapViewDefs(restBody);
+
+    if (
+      shouldSkipMissingInboxCatalog({
+        inboxDef,
+        catalogEmpty: !inboxDef,
+      })
+    ) {
+      test.skip(
+        true,
+        missingInboxSkipMessage({
+          restStatus,
+          catalogEmpty: defs.length === 0,
+        }),
+      );
+      return;
+    }
+
     const url = explorerEntryUrl(BASE_URL);
     await page.goto(url, { waitUntil: "networkidle" });
 
@@ -93,66 +167,39 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
     });
 
     const viewsTree = page.locator(`[data-testid="${TEST_IDS.viewsTree}"]`);
+    await expect(viewsTree).toBeVisible({ timeout: 20_000 });
+    await expandMyContentIfCollapsed(page);
+
     const inboxLeaf = page.locator(inboxLeafSelector());
-
-    const hasTree = (await viewsTree.count()) > 0 && (await viewsTree.isVisible());
-    const hasLeaf = (await inboxLeaf.count()) > 0;
-
-    if (!hasTree && !hasLeaf) {
-      expect(pageErrors, "uncaught pageerror on Explorer Inbox chrome").toEqual(
-        [],
-      );
-      test.skip(true, missingInboxSkipMessage({ catalogEmpty: true }));
-      return;
-    }
-
-    if (hasTree) {
-      await expect(viewsTree).toBeVisible();
-    }
-
-    const groupRow = page.locator(
-      `[data-testid="${TEST_IDS.myContentGroupRow}"]`,
-    );
-    if ((await groupRow.count()) > 0) {
-      await groupRow.click();
-    }
-
-    if ((await inboxLeaf.count()) === 0) {
-      expect(pageErrors, "uncaught pageerror on Explorer Inbox chrome").toEqual(
-        [],
-      );
-      test.skip(true, missingInboxSkipMessage());
-      return;
-    }
-
     await expect(inboxLeaf.first()).toBeVisible({ timeout: 10_000 });
     expect(pageErrors, "uncaught pageerror on Explorer Inbox chrome").toEqual(
       [],
     );
   });
 
-  test("run Inbox lists assignments, empty, or soft-skip @explorer-inbox @inbox @explorer", async ({
+  test("run Inbox lists assignments or honest empty @explorer-inbox @inbox @explorer", async ({
     page,
-    request,
   }) => {
     const pageErrors = attachPageErrors(page);
-    const headers = adminBasicAuthHeaders();
-    let restStatus = 0;
-    let restBody = null;
-    try {
-      const res = await request.get(viewsCatalogUrl(BASE_URL), {
-        headers: { ...headers, Accept: "application/json" },
-      });
-      restStatus = res.status();
-      if (res.ok()) {
-        restBody = await res.json().catch(() => null);
-      }
-    } catch {
-      restBody = null;
-    }
-
+    const { restStatus, restBody } = await fetchViewsCatalog(page);
     const inboxDef = findInboxView(restBody);
     const defs = unwrapViewDefs(restBody);
+
+    if (
+      shouldSkipMissingInboxCatalog({
+        inboxDef,
+        catalogEmpty: !inboxDef,
+      })
+    ) {
+      test.skip(
+        true,
+        missingInboxSkipMessage({
+          restStatus,
+          catalogEmpty: defs.length === 0,
+        }),
+      );
+      return;
+    }
 
     const url = explorerEntryUrl(BASE_URL);
     await page.goto(url, { waitUntil: "networkidle" });
@@ -160,73 +207,59 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
       page.locator(`[data-testid="${TEST_IDS.shell}"]`),
     ).toBeVisible({ timeout: 20_000 });
 
-    const groupRow = page.locator(
-      `[data-testid="${TEST_IDS.myContentGroupRow}"]`,
-    );
-    if ((await groupRow.count()) > 0) {
-      await groupRow.click();
-    }
+    await expandMyContentIfCollapsed(page);
 
     const inboxLeaf = page.locator(inboxLeafSelector());
-    if ((await inboxLeaf.count()) === 0) {
-      expect(pageErrors, "uncaught pageerror before Inbox skip").toEqual([]);
-      test.skip(
-        true,
-        missingInboxSkipMessage({
-          restStatus,
-          catalogEmpty: !inboxDef && defs.length === 0,
-        }),
-      );
-      return;
-    }
+    await expect(
+      inboxLeaf.first(),
+      "Inbox catalog row must have a visible Explorer leaf (#3446)",
+    ).toBeVisible({ timeout: 15_000 });
 
     const executeBodies = [];
+    const executeStatuses = [];
     page.on("request", (req) => {
       if (req.method() !== "POST") return;
-      const reqUrl = req.url();
-      if (!/\/services\/views\/[^/]+\/execute(?:\?|$)/i.test(reqUrl)) return;
+      if (!isViewsExecuteUrl(req.url())) return;
       executeBodies.push(req.postData() || "");
+    });
+    page.on("response", (res) => {
+      if (res.request().method() !== "POST") return;
+      if (!isViewsExecuteUrl(res.url())) return;
+      executeStatuses.push(res.status());
     });
 
     await inboxLeaf.first().click();
 
     const results = page.locator(inboxResultsSelector());
-    const appeared = await results
-      .first()
-      .waitFor({ state: "visible", timeout: 20_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!appeared) {
-      expect(pageErrors, "uncaught pageerror when Inbox execute missing").toEqual(
-        [],
-      );
-      test.skip(
-        true,
-        missingInboxSkipMessage({ restStatus }) +
-          " Inbox leaf present but no results region (execute not wired).",
-      );
-      return;
-    }
+    await expect(
+      results.first(),
+      "Inbox results region must mount after click (rows, empty, or error)",
+    ).toBeVisible({ timeout: 20_000 });
 
     const loading = page.locator(`[data-testid="${TEST_IDS.resultsLoading}"]`);
     if (await loading.isVisible().catch(() => false)) {
       await expect(loading).toBeHidden({ timeout: 30_000 });
     }
 
-    if (executeBodies.length > 0) {
-      for (const raw of executeBodies) {
-        const parsed = JSON.parse(raw);
-        expect(
-          parsed.ViewExecuteRequest,
-          "JAXB root ViewExecuteRequest required (#3323)",
-        ).toBeTruthy();
-        expect(
-          parsed.startIndex,
-          "bare startIndex must not be the JSON root",
-        ).toBeUndefined();
-      }
+    expect(
+      executeBodies.length,
+      "Inbox leaf must POST /services/views/{id}/execute",
+    ).toBeGreaterThan(0);
+    for (const raw of executeBodies) {
+      const parsed = JSON.parse(raw);
+      expect(
+        parsed.ViewExecuteRequest,
+        "JAXB root ViewExecuteRequest required (#3323)",
+      ).toBeTruthy();
+      expect(
+        parsed.startIndex,
+        "bare startIndex must not be the JSON root",
+      ).toBeUndefined();
     }
+    expect(
+      executeStatuses.some((s) => s === 200),
+      `Inbox execute must return 200 (statuses=${executeStatuses.join(",")})`,
+    ).toBe(true);
 
     const err = page.locator(`[data-testid="${TEST_IDS.resultsError}"]`);
     if (await err.isVisible().catch(() => false)) {
@@ -235,15 +268,9 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
         isViewExecuteJaxbError(errText),
         `Inbox must not fail JAXB startIndex / ViewExecuteRequest (#3323): ${errText}`,
       ).toBe(false);
-      expect(pageErrors, "uncaught pageerror on Inbox execute error").toEqual(
-        [],
+      throw new Error(
+        `Inbox execute showed an error region (must be 200 + rows or empty): ${errText}`,
       );
-      test.skip(
-        true,
-        missingInboxSkipMessage({ restStatus }) +
-          " Inbox execute error region (custom-URL C1 not on this cell).",
-      );
-      return;
     }
 
     const empty = page.locator(`[data-testid="${TEST_IDS.resultsEmpty}"]`);
@@ -252,7 +279,6 @@ test.describe("Explorer Inbox (#3241 / #3118)", () => {
     if (await empty.isVisible().catch(() => false)) {
       await expect(empty).toBeVisible();
       expect(pageErrors, "uncaught pageerror on empty Inbox").toEqual([]);
-      test.skip(true, noAssignmentsSkipMessage({ restStatus }));
       return;
     }
 

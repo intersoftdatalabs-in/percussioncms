@@ -156,6 +156,82 @@ class ViewAdaptorExecuteTest {
   }
 
   @Test
+  void listViews_includesInboxWhenLoadViewsRemapsToViewAll() throws Exception {
+    PSSearch remapped = mockView("View_All", false, true);
+    IPSCatalogSummary inboxSum = mock(IPSCatalogSummary.class);
+    when(inboxSum.getName()).thenReturn("Inbox");
+    IPSGuid g = mock(IPSGuid.class);
+    when(g.toString()).thenReturn("0-18-1");
+    when(inboxSum.getGUID()).thenReturn(g);
+    when(designWs.findViews(isNull(), isNull())).thenReturn(List.of(inboxSum));
+    when(designWs.loadViews(anyList(), eq(false), eq(false), isNull(), isNull()))
+        .thenReturn(List.of(remapped));
+
+    List<com.percussion.rest.views.ViewDef> listed = adaptor.listViews();
+    assertTrue(
+        listed.stream().anyMatch(d -> "Inbox".equalsIgnoreCase(d.getName())),
+        "catalog must include Inbox even when loadViews remaps rows to View_All");
+    com.percussion.rest.views.ViewDef inbox =
+        listed.stream()
+            .filter(d -> "Inbox".equalsIgnoreCase(d.getName()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(inbox.isCustomView());
+    assertEquals("../sys_cxViews/inbox.xml", inbox.getUrl());
+    assertEquals(1, inbox.getParentCategory());
+  }
+
+  @Test
+  void listViews_includesInboxWhenCatalogEmpty() throws Exception {
+    when(designWs.findViews(isNull(), isNull())).thenReturn(List.of());
+    List<com.percussion.rest.views.ViewDef> listed = adaptor.listViews();
+    assertTrue(listed.stream().anyMatch(d -> "Inbox".equalsIgnoreCase(d.getName())));
+  }
+
+  @Test
+  void executeView_inboxRunsWhenLoadViewsLostTheDesign() throws Exception {
+    PSSearch remapped = mockView("View_All", false, true);
+    IPSCatalogSummary inboxSum = mock(IPSCatalogSummary.class);
+    when(inboxSum.getName()).thenReturn("Inbox");
+    IPSGuid g = mock(IPSGuid.class);
+    when(g.toString()).thenReturn("0-18-1");
+    when(inboxSum.getGUID()).thenReturn(g);
+    when(designWs.findViews(isNull(), isNull())).thenReturn(List.of(inboxSum));
+    when(designWs.loadViews(anyList(), eq(false), eq(false), isNull(), isNull()))
+        .thenReturn(List.of(remapped));
+
+    ViewResultItem row = item("guid-1", "Assignment");
+    doReturn(List.of(row)).when(adaptor).runCustomUrlView(any(PSSearch.class), any());
+
+    ViewExecuteResult result = adaptor.executeView("Inbox", new ViewExecuteRequest());
+    assertNotNull(result);
+    assertEquals("Inbox", result.getViewName());
+    assertEquals(1, result.getChildren().size());
+    verify(adaptor).runCustomUrlView(any(PSSearch.class), any());
+    verify(adaptor, never()).runDesignView(any());
+  }
+
+  @Test
+  void wellKnownInboxUrlAndReconcile() {
+    assertEquals("../sys_cxViews/inbox.xml", ViewAdaptor.wellKnownCustomViewUrl("Inbox"));
+    assertEquals(
+        "../sys_cxViews/inbox.xml",
+        ViewAdaptor.wellKnownCustomViewUrl("//Views//MyContent/Inbox"));
+    assertNull(ViewAdaptor.wellKnownCustomViewUrl("View_All"));
+    assertTrue(ViewAdaptor.isInboxKey("inbox"));
+    assertFalse(ViewAdaptor.isInboxKey("Outbox"));
+
+    PSSearch remapped = mockView("View_All", false, true);
+    IPSCatalogSummary inboxSum = mock(IPSCatalogSummary.class);
+    when(inboxSum.getName()).thenReturn("Inbox");
+    List<PSSearch> out =
+        adaptor.reconcileLoadedViews(List.of(inboxSum), List.of(remapped));
+    assertEquals(2, out.size());
+    assertTrue(out.stream().anyMatch(s -> "Inbox".equalsIgnoreCase(s.getName())));
+    assertTrue(out.stream().anyMatch(s -> "View_All".equalsIgnoreCase(s.getName())));
+  }
+
+  @Test
   void executeView_inboxCustomUrlRunsAndMaps() throws Exception {
     PSSearch custom = mockView("Inbox", true, false);
     when(custom.getUrl()).thenReturn("../sys_cxViews/inbox.xml");

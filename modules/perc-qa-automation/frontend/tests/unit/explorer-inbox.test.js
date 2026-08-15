@@ -40,6 +40,11 @@ const {
   inboxLeafSelector,
   inboxResultsSelector,
   isViewExecuteJaxbError,
+  shouldSkipMissingInboxCatalog,
+  shouldExpandViewsGroup,
+  isViewsExecuteUrl,
+  wrapViewExecuteRequest,
+  inboxExecuteKey,
   missingInboxSkipMessage,
   noAssignmentsSkipMessage,
 } = require("../helpers/explorer-inbox");
@@ -156,16 +161,49 @@ describe("explorer-inbox helpers (#3241)", () => {
     );
   });
 
-  it("skip messages mention leaf vs empty assignments", () => {
+  it("skip messages mention catalog omit only", () => {
     const missing = missingInboxSkipMessage({
       catalogEmpty: true,
       restStatus: 404,
     });
-    assert.match(missing, /Inbox leaf not on Explorer/);
+    assert.match(missing, /no Inbox design view/);
     assert.match(missing, /REST status=404/);
     assert.match(missing, /no Inbox view/);
     const empty = noAssignmentsSkipMessage({ restStatus: 200 });
     assert.match(empty, /no assignment rows/);
     assert.match(empty, /REST status=200/);
+  });
+
+  it("shouldSkipMissingInboxCatalog only when catalog has no Inbox", () => {
+    assert.equal(shouldSkipMissingInboxCatalog({ inboxDef: { name: "Inbox" } }), false);
+    assert.equal(shouldSkipMissingInboxCatalog({ catalogEmpty: true }), true);
+    assert.equal(shouldSkipMissingInboxCatalog({ catalogEmpty: false }), false);
+  });
+
+  it("shouldExpandViewsGroup is false when already expanded", () => {
+    assert.equal(shouldExpandViewsGroup("true"), false);
+    assert.equal(shouldExpandViewsGroup("TRUE"), false);
+    assert.equal(shouldExpandViewsGroup("false"), true);
+    assert.equal(shouldExpandViewsGroup(null), true);
+  });
+
+  it("isViewsExecuteUrl and wrapViewExecuteRequest", () => {
+    assert.equal(
+      isViewsExecuteUrl("http://cms/Rhythmyx/services/views/Inbox/execute"),
+      true,
+    );
+    assert.equal(
+      isViewsExecuteUrl("http://cms/Rhythmyx/services/views/Inbox"),
+      false,
+    );
+    assert.deepEqual(wrapViewExecuteRequest({ startIndex: 1 }), {
+      ViewExecuteRequest: { startIndex: 1 },
+    });
+    assert.deepEqual(
+      wrapViewExecuteRequest({ ViewExecuteRequest: { maxResults: 5 } }),
+      { ViewExecuteRequest: { maxResults: 5 } },
+    );
+    assert.equal(inboxExecuteKey({ name: "Inbox", id: 1 }), "Inbox");
+    assert.equal(inboxExecuteKey({ id: 9 }), "9");
   });
 });
