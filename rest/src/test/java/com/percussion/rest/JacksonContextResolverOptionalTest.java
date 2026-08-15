@@ -26,6 +26,12 @@ import com.percussion.rest.contenttypes.ContentTypeList;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.displayformat.DisplayFormatProperty;
+import com.percussion.rest.folders.CopyFolderItemRequest;
+import com.percussion.rest.folders.Folder;
+import com.percussion.rest.folders.SectionInfo;
+import com.percussion.rest.folders.SectionLinkRef;
+import com.percussion.rest.LinkRef;
+import com.percussion.rest.MoveFolderItem;
 import com.percussion.rest.locationscheme.LocationScheme;
 import com.percussion.rest.locationscheme.LocationSchemeParameter;
 import com.percussion.rest.locationscheme.LocationSchemeParameterList;
@@ -61,7 +67,8 @@ import tools.jackson.databind.ObjectMapper;
  * ObjectSummary follow the same plain-getter rule (issue #3388). DisplayFormatProperty / Template /
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
  * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
- * plain-getter contract (issue #3412). All use production {@link JacksonContextResolver} under {@code
+ * plain-getter contract (issue #3412). Folder / Section / path-request DTOs follow the same
+ * rule (issue #3413). All use production {@link JacksonContextResolver} under {@code
  * @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
@@ -614,6 +621,135 @@ class JacksonContextResolverOptionalTest {
     assertEquals("sys_fileDeliveryType", roundTrip.getBeanName(), json);
     assertEquals("File system delivery", roundTrip.getDescription(), json);
     assertFalse(roundTrip.isUnpublishingRequiresAssembly(), json);
+  }
+
+  @Test
+  void folder_serializesNamePathSiteNotOptionalBeans() {
+    Folder folder = new Folder();
+    folder.setId("guid-1");
+    folder.setName("News");
+    folder.setSiteName("Corporate");
+    folder.setPath("sections");
+    folder.setWorkflow("default");
+    folder.setAccessLevel(Folder.ACCESS_LEVEL_WRITE);
+    folder.setCommunityName("Default");
+    folder.setDefaultDisplayFormatName("Related Content");
+    folder.setLocale("en-us");
+    folder.setEditUsers(List.of("Admin"));
+
+    SectionInfo info = new SectionInfo();
+    info.setType("section");
+    info.setDisplayTitle("News Section");
+    info.setTargetWindow("_self");
+    info.setNavClass("nav-news");
+    info.setTemplateName("perc.page");
+    info.setLandingPage(new LinkRef("index.html", "http://example.com/index.html"));
+    folder.setSectionInfo(info);
+
+    folder.setPages(List.of(new LinkRef("index.html", "http://example.com/index.html")));
+    folder.setSubfolders(List.of(new LinkRef("archive", "http://example.com/archive")));
+    folder.setSubsections(
+        List.of(new SectionLinkRef("Press", "http://example.com/press", SectionLinkRef.TYPE_INTERNAL)));
+
+    ObjectMapper folderMapper = new JacksonContextResolver().getContext(Folder.class);
+    String json = folderMapper.writeValueAsString(folder);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("News"), json);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("Corporate"), json);
+    assertTrue(json.contains("\"path\""), json);
+    assertTrue(json.contains("sections"), json);
+    assertTrue(json.contains("\"sectionInfo\""), json);
+    assertTrue(json.contains("News Section"), json);
+    assertTrue(json.contains("\"subsections\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    Folder roundTrip = folderMapper.readValue(json, Folder.class);
+    assertEquals("News", roundTrip.getName(), json);
+    assertEquals("Corporate", roundTrip.getSiteName(), json);
+    assertEquals("sections", roundTrip.getPath(), json);
+    assertNotNull(roundTrip.getSectionInfo(), json);
+    assertEquals("News Section", roundTrip.getSectionInfo().getDisplayTitle(), json);
+    assertEquals("perc.page", roundTrip.getSectionInfo().getTemplateName(), json);
+  }
+
+  @Test
+  void sectionInfo_serializesScalarsNotOptionalBeans() {
+    SectionInfo info = new SectionInfo();
+    info.setType("externallink");
+    info.setDisplayTitle("Partner");
+    info.setTargetWindow("_blank");
+    info.setNavClass("nav-ext");
+    info.setTemplateName("perc.page");
+    info.setExternalLinkUrl("https://partner.example");
+    info.setLandingPage(new LinkRef("home", "https://partner.example/"));
+
+    ObjectMapper infoMapper = new JacksonContextResolver().getContext(SectionInfo.class);
+    String json = infoMapper.writeValueAsString(info);
+    assertTrue(json.contains("\"displayTitle\""), json);
+    assertTrue(json.contains("Partner"), json);
+    assertTrue(json.contains("\"externalLinkUrl\""), json);
+    assertTrue(json.contains("https://partner.example"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    SectionInfo roundTrip = infoMapper.readValue(json, SectionInfo.class);
+    assertEquals("externallink", roundTrip.getType(), json);
+    assertEquals("Partner", roundTrip.getDisplayTitle(), json);
+    assertEquals("https://partner.example", roundTrip.getExternalLinkUrl(), json);
+    assertNotNull(roundTrip.getLandingPage(), json);
+  }
+
+  @Test
+  void sectionLinkRef_serializesTypeNotOptionalBeans() {
+    SectionLinkRef ref =
+        new SectionLinkRef("Press", "http://example.com/press", SectionLinkRef.TYPE_EXTERNAL);
+
+    ObjectMapper refMapper = new JacksonContextResolver().getContext(SectionLinkRef.class);
+    String json = refMapper.writeValueAsString(ref);
+    assertTrue(json.contains("\"type\""), json);
+    assertTrue(json.contains(SectionLinkRef.TYPE_EXTERNAL), json);
+    assertTrue(json.contains("Press"), json);
+    assertNoOptionalBeanKeys(json);
+
+    SectionLinkRef roundTrip = refMapper.readValue(json, SectionLinkRef.class);
+    assertEquals(SectionLinkRef.TYPE_EXTERNAL, roundTrip.getType(), json);
+    assertEquals("Press", roundTrip.getName().orElse(null), json);
+  }
+
+  @Test
+  void copyFolderItemRequest_serializesPathsNotOptionalBeans() {
+    CopyFolderItemRequest req =
+        new CopyFolderItemRequest("/Sites/A/dest", "/Sites/A/src/page.html");
+
+    ObjectMapper reqMapper = new JacksonContextResolver().getContext(CopyFolderItemRequest.class);
+    String json = reqMapper.writeValueAsString(req);
+    assertTrue(json.contains("\"targetFolderPath\""), json);
+    assertTrue(json.contains("/Sites/A/dest"), json);
+    assertTrue(json.contains("\"itemPath\""), json);
+    assertTrue(json.contains("/Sites/A/src/page.html"), json);
+    assertNoOptionalBeanKeys(json);
+
+    CopyFolderItemRequest roundTrip = reqMapper.readValue(json, CopyFolderItemRequest.class);
+    assertEquals("/Sites/A/dest", roundTrip.getTargetFolderPath(), json);
+    assertEquals("/Sites/A/src/page.html", roundTrip.getItemPath(), json);
+  }
+
+  @Test
+  void moveFolderItem_serializesPathsNotOptionalBeans() {
+    MoveFolderItem req = new MoveFolderItem("/Sites/A/src/page.html", "/Sites/A/dest");
+
+    ObjectMapper reqMapper = new JacksonContextResolver().getContext(MoveFolderItem.class);
+    String json = reqMapper.writeValueAsString(req);
+    assertTrue(json.contains("\"targetFolderPath\""), json);
+    assertTrue(json.contains("/Sites/A/dest"), json);
+    assertTrue(json.contains("\"itemPath\""), json);
+    assertTrue(json.contains("/Sites/A/src/page.html"), json);
+    assertNoOptionalBeanKeys(json);
+
+    MoveFolderItem roundTrip = reqMapper.readValue(json, MoveFolderItem.class);
+    assertEquals("/Sites/A/dest", roundTrip.getTargetFolderPath(), json);
+    assertEquals("/Sites/A/src/page.html", roundTrip.getItemPath(), json);
   }
   private static void assertNoOptionalBeanKeys(String json) {
     assertFalse(

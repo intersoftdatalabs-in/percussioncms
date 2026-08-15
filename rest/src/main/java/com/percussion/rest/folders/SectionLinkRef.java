@@ -20,16 +20,20 @@
 package com.percussion.rest.folders;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
- * Represents a section link reference. Sunny Sal: "Section link ka reference, navigation ka sense!"
+ * Represents a section link reference.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code type}
+ * as a scalar (issue #3413 / #3388).
  */
 @XmlRootElement(name = "SectionLinkRef")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SectionLinkRef extends LinkRef {
 
   @Schema(
@@ -64,10 +68,10 @@ public class SectionLinkRef extends LinkRef {
   /**
    * Gets the type of the section link.
    *
-   * @return Optional containing the type if present
+   * @return the type, or {@code null} if unset
    */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
