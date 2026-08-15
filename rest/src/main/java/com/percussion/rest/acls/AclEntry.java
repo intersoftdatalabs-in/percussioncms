@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -26,11 +26,17 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** REST representation of an ACL entry. */
+/**
+ * REST representation of an ACL entry.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * scalars and nested objects, not Optional beans. Matches {@link Acl} getter style (issue #3388
+ * slice 8 / #3420).
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "AclEntry")
 public class AclEntry {
 
@@ -119,11 +125,10 @@ public class AclEntry {
   /**
    * Returns the entry name.
    *
-   * @return the name, may be empty
+   * @return the name, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   /**
@@ -138,11 +143,10 @@ public class AclEntry {
   /**
    * Returns the associated principal.
    *
-   * @return the principal, may be empty
+   * @return the principal, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<Principal> getPrincipal() {
-    return Optional.ofNullable(principal);
+  public Principal getPrincipal() {
+    return principal;
   }
 
   /**
@@ -157,11 +161,10 @@ public class AclEntry {
   /**
    * Returns the typed principal classification.
    *
-   * @return the type, may be empty
+   * @return the type, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<TypedPrincipal> getType() {
-    return Optional.ofNullable(type);
+  public TypedPrincipal getType() {
+    return type;
   }
 
   /**
@@ -176,11 +179,10 @@ public class AclEntry {
   /**
    * Returns the permissions granted by this entry.
    *
-   * @return the permissions, may be empty
+   * @return the permissions, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<UserAccessLevelList> getPermissions() {
-    return Optional.ofNullable(permissions);
+  public UserAccessLevelList getPermissions() {
+    return permissions;
   }
 
   /**

@@ -20,15 +20,22 @@
 package com.percussion.rest.folders;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents a request to copy a folder or item. Sunny Sal: "Copy ka request aaya, boss!" */
+/**
+ * Represents a request to copy a folder or item.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits path
+ * scalars (issue #3413 / #3388). {@code @JsonRootName} / explicit JAXB root keep Explorer Copy
+ * Folder WRAP_ROOT_VALUE ({@code {"CopyFolderItemRequest":{...}}}, issue #3362 / #3409).
+ */
 @XmlRootElement(name = "CopyFolderItemRequest")
 @JsonRootName("CopyFolderItemRequest")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a request to copy a folder or item")
 public class CopyFolderItemRequest {
 
@@ -53,10 +60,10 @@ public class CopyFolderItemRequest {
   /**
    * Gets the target folder path.
    *
-   * @return Optional containing the target folder path if present
+   * @return the target folder path, or {@code null} if unset
    */
-  public Optional<String> getTargetFolderPath() {
-    return Optional.ofNullable(targetFolderPath);
+  public String getTargetFolderPath() {
+    return targetFolderPath;
   }
 
   public void setTargetFolderPath(String targetFolderPath) {
@@ -66,10 +73,10 @@ public class CopyFolderItemRequest {
   /**
    * Gets the item path.
    *
-   * @return Optional containing the item path if present
+   * @return the item path, or {@code null} if unset
    */
-  public Optional<String> getItemPath() {
-    return Optional.ofNullable(itemPath);
+  public String getItemPath() {
+    return itemPath;
   }
 
   public void setItemPath(String itemPath) {

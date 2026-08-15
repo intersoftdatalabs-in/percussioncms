@@ -19,11 +19,17 @@
 
 package com.percussion.rest.displayformat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.ValueList;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 
-/** Represents a property of a DisplayFormat. Properties may be multi-valued or single-valued. */
+/**
+ * Represents a property of a DisplayFormat. Properties may be multi-valued or single-valued.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits property
+ * fields when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(
     name = "DisplayFormatProperty",
     description =
@@ -54,40 +60,40 @@ public class DisplayFormatProperty {
     // Default constructor
   }
 
-  public Optional<String> getPropertyId() {
-    return Optional.ofNullable(propertyId);
+  public String getPropertyId() {
+    return propertyId;
   }
 
   public void setPropertyId(String propertyId) {
     this.propertyId = propertyId;
   }
 
-  public Optional<String> getPropertyName() {
-    return Optional.ofNullable(propertyName);
+  public String getPropertyName() {
+    return propertyName;
   }
 
   public void setPropertyName(String propertyName) {
     this.propertyName = propertyName;
   }
 
-  public Optional<String> getPropertyValue() {
-    return Optional.ofNullable(propertyValue);
+  public String getPropertyValue() {
+    return propertyValue;
   }
 
   public void setPropertyValue(String propertyValue) {
     this.propertyValue = propertyValue;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<ValueList> getPropertyValues() {
-    return Optional.ofNullable(propertyValues);
+  public ValueList getPropertyValues() {
+    return propertyValues;
   }
 
   public void setPropertyValues(ValueList propertyValues) {

@@ -250,12 +250,16 @@ public class AssetsResource {
     var filename = StringUtils.substringAfter(path, "/");
     var thumbReq = filename.startsWith("thumb_");
     var type = "application/octet-stream";
-    if (asset.getImage().isPresent() && thumbReq)
-      type = asset.getThumbnail().flatMap(ImageInfo::getType).orElse(type);
-    else if (asset.getFile().isPresent())
-      type = asset.getFile().flatMap(BinaryFile::getType).orElse(type);
-    else if (asset.getImage().isPresent())
-      type = asset.getImage().flatMap(ImageInfo::getType).orElse(type);
+    if (asset.getImage() != null && thumbReq) {
+      var thumbType = asset.getThumbnail() != null ? asset.getThumbnail().getType() : null;
+      if (thumbType != null) {
+        type = thumbType;
+      }
+    } else if (asset.getFile() != null && asset.getFile().getType() != null) {
+      type = asset.getFile().getType();
+    } else if (asset.getImage() != null && asset.getImage().getType() != null) {
+      type = asset.getImage().getType();
+    }
 
     var r =
         Response.ok(out)
@@ -494,7 +498,7 @@ public class AssetsResource {
       var requestThreadMap = new HashMap<>(PSRequestInfoBase.getRequestInfoMap());
       var currentUser = (String) PSRequestInfoBase.getRequestInfo(PSRequestInfo.KEY_USER);
       var user = userAdaptor.getUser(null, currentUser);
-      var toAddress = user.getEmailAddress().orElse(null);
+      var toAddress = user.getEmailAddress();
       CompletableFuture.runAsync(
           () -> {
             try {

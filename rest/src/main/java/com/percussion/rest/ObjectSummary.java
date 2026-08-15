@@ -21,8 +21,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.acls.UserAccessLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
+/**
+ * High-level catalog summary, including security ACLs, for an object on the system.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name},
+ * {@code label}, {@code description}, and {@code guid} when set. Optional-returning getters
+ * historically serialized as empty/present beans or dropped fields under {@code
+ * @JsonInclude(NON_NULL)} (issue #3388). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement
 @Schema(
@@ -78,32 +86,32 @@ public class ObjectSummary {
     this.id = id;
   }
 
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
@@ -126,8 +134,8 @@ public class ObjectSummary {
     this.objectLocked = objectLocked;
   }
 
-  public Optional<ObjectLockSummary> getLockSummary() {
-    return Optional.ofNullable(lockSummary);
+  public ObjectLockSummary getLockSummary() {
+    return lockSummary;
   }
 
   public void setLockSummary(ObjectLockSummary lockSummary) {

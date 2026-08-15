@@ -23,9 +23,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Optional;
 
-/** Represents information about the SEO. Sunny Sal: "SEO ka info, ranking ka hero!" */
+/**
+ * Represents information about the SEO. Sunny Sal: "SEO ka info, ranking ka hero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits SEO fields
+ * when set instead of Optional-bean {@code empty}/{@code present} keys.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "SeoInfo")
 @Schema(name = "SeoInfo", description = "Represents information about the SEO.")
@@ -53,8 +57,8 @@ public class SeoInfo {
   private List<String> categories;
 
   /** Gets the browser title. */
-  public Optional<String> getBrowserTitle() {
-    return Optional.ofNullable(browserTitle);
+  public String getBrowserTitle() {
+    return browserTitle;
   }
 
   public void setBrowserTitle(String browserTitle) {
@@ -62,8 +66,8 @@ public class SeoInfo {
   }
 
   /** Gets the meta description. */
-  public Optional<String> getMetaDescription() {
-    return Optional.ofNullable(metaDescription);
+  public String getMetaDescription() {
+    return metaDescription;
   }
 
   public void setMetaDescription(String metaDescription) {
@@ -71,8 +75,8 @@ public class SeoInfo {
   }
 
   /** Gets the hide search flag. */
-  public Optional<Boolean> getHideSearch() {
-    return Optional.ofNullable(hideSearch);
+  public Boolean getHideSearch() {
+    return hideSearch;
   }
 
   public void setHideSearch(Boolean hideSearch) {
@@ -80,8 +84,8 @@ public class SeoInfo {
   }
 
   /** Gets the tags. */
-  public Optional<List<String>> getTags() {
-    return Optional.ofNullable(tags);
+  public List<String> getTags() {
+    return tags;
   }
 
   public void setTags(List<String> tags) {
@@ -89,8 +93,8 @@ public class SeoInfo {
   }
 
   /** Gets the categories. */
-  public Optional<List<String>> getCategories() {
-    return Optional.ofNullable(categories);
+  public List<String> getCategories() {
+    return categories;
   }
 
   public void setCategories(List<String> categories) {

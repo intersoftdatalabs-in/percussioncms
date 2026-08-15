@@ -67,8 +67,8 @@ public class CopyFolderItemRequestSerialDeserialTest {
         "{\"CopyFolderItemRequest\":{\"itemPath\":\"/Sites/Help/Src\","
             + "\"targetFolderPath\":\"/Sites/Help\"}}";
     CopyFolderItemRequest req = mapper.readValue(json, CopyFolderItemRequest.class);
-    assertEquals("/Sites/Help/Src", req.getItemPath().orElse(null));
-    assertEquals("/Sites/Help", req.getTargetFolderPath().orElse(null));
+    assertEquals("/Sites/Help/Src", req.getItemPath());
+    assertEquals("/Sites/Help", req.getTargetFolderPath());
   }
 
   @Test
@@ -76,12 +76,10 @@ public class CopyFolderItemRequestSerialDeserialTest {
     String flat = "{\"sourcePath\":\"/Folders/A\",\"targetPath\":\"/Folders/B\"}";
     try {
       CopyFolderItemRequest result = mapper.readValue(flat, CopyFolderItemRequest.class);
+      String itemPath = result == null ? null : result.getItemPath();
       assertTrue(
-          result == null
-              || result.getItemPath().isEmpty()
-              || result.getItemPath().orElse("").isBlank(),
-          "bare sourcePath root must not bind; got itemPath="
-              + (result == null ? "null" : result.getItemPath().orElse("null")));
+          result == null || itemPath == null || itemPath.isBlank(),
+          "bare sourcePath root must not bind; got itemPath=" + itemPath);
     } catch (Exception expected) {
       assertTrue(
           expected.getMessage() != null
@@ -100,8 +98,8 @@ public class CopyFolderItemRequestSerialDeserialTest {
     var writer = new StringWriter();
     marshaller.marshal(sample(), writer);
     String xml = writer.toString();
-    // Optional getters are not JAXB string properties; the root name is the
-    // CXF unexpected-element contract (#3362). Field values are Jackson-tested.
+    // Root name is the CXF unexpected-element contract (#3362). Field values
+    // are Jackson-tested (plain String getters after #3413 / #3388).
     assertTrue(xml.contains("CopyFolderItemRequest"), xml);
   }
 

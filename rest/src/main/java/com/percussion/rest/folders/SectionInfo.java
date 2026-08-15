@@ -24,9 +24,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents section information for a folder. Sunny Sal: "Section info ka boss!" */
+/**
+ * Represents section information for a folder.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars when
+ * set. Optional-returning getters historically serialized as empty/present beans (issue #3413 /
+ * #3388).
+ */
 @XmlRootElement(name = "SectionInfo")
 @JsonInclude(Include.NON_NULL)
 public class SectionInfo {
@@ -60,56 +65,56 @@ public class SectionInfo {
   @Schema(name = "externalLinkUrl", description = "Link to the external source.")
   private String externalLinkUrl;
 
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
     this.type = type;
   }
 
-  public Optional<String> getDisplayTitle() {
-    return Optional.ofNullable(displayTitle);
+  public String getDisplayTitle() {
+    return displayTitle;
   }
 
   public void setDisplayTitle(String displayTitle) {
     this.displayTitle = displayTitle;
   }
 
-  public Optional<String> getTargetWindow() {
-    return Optional.ofNullable(targetWindow);
+  public String getTargetWindow() {
+    return targetWindow;
   }
 
   public void setTargetWindow(String targetWindow) {
     this.targetWindow = targetWindow;
   }
 
-  public Optional<String> getNavClass() {
-    return Optional.ofNullable(navClass);
+  public String getNavClass() {
+    return navClass;
   }
 
   public void setNavClass(String navClass) {
     this.navClass = navClass;
   }
 
-  public Optional<String> getTemplateName() {
-    return Optional.ofNullable(templateName);
+  public String getTemplateName() {
+    return templateName;
   }
 
   public void setTemplateName(String templateName) {
     this.templateName = templateName;
   }
 
-  public Optional<LinkRef> getLandingPage() {
-    return Optional.ofNullable(landingPage);
+  public LinkRef getLandingPage() {
+    return landingPage;
   }
 
   public void setLandingPage(LinkRef landingPage) {
     this.landingPage = landingPage;
   }
 
-  public Optional<String> getExternalLinkUrl() {
-    return Optional.ofNullable(externalLinkUrl);
+  public String getExternalLinkUrl() {
+    return externalLinkUrl;
   }
 
   public void setExternalLinkUrl(String externalLinkUrl) {

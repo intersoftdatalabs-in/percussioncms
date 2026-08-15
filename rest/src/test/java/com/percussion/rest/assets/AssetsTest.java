@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.users.IUserAdaptor;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,5 +77,60 @@ public class AssetsTest {
         .thenThrow(new BackendException("fail", new Exception("cause")));
     assertThrows(
         WebApplicationException.class, () -> resource.renameAsset("Assets/x.png", "y.png"));
+  }
+
+  @Test
+  void getBinary_usesImageTypeWhenPresent() throws Exception {
+    Asset a = new Asset();
+    ImageInfo image = new ImageInfo();
+    image.setType("image/png");
+    a.setImage(image);
+    when(assetAdaptor.getBinary(anyString())).thenReturn(out -> {});
+    when(assetAdaptor.getSharedAssetByPath(any(), anyString())).thenReturn(a);
+
+    Response r = resource.getBinary("Assets/uploads/banner.png");
+    assertEquals("image/png", r.getHeaderString("Content-Type"));
+  }
+
+  @Test
+  void getBinary_usesThumbnailTypeWhenThumbRequested() throws Exception {
+    Asset a = new Asset();
+    ImageInfo image = new ImageInfo();
+    image.setType("image/png");
+    a.setImage(image);
+    ImageInfo thumb = new ImageInfo();
+    thumb.setType("image/jpeg");
+    a.setThumbnail(thumb);
+    when(assetAdaptor.getBinary(anyString())).thenReturn(out -> {});
+    when(assetAdaptor.getSharedAssetByPath(any(), anyString())).thenReturn(a);
+
+    Response r = resource.getBinary("Assets/thumb_banner.png");
+    assertEquals("image/jpeg", r.getHeaderString("Content-Type"));
+  }
+
+  @Test
+  void getBinary_keepsDefaultTypeWhenThumbRequestedButThumbnailNull() throws Exception {
+    Asset a = new Asset();
+    ImageInfo image = new ImageInfo();
+    image.setType("image/png");
+    a.setImage(image);
+    when(assetAdaptor.getBinary(anyString())).thenReturn(out -> {});
+    when(assetAdaptor.getSharedAssetByPath(any(), anyString())).thenReturn(a);
+
+    Response r = resource.getBinary("Assets/thumb_banner.png");
+    assertEquals("application/octet-stream", r.getHeaderString("Content-Type"));
+  }
+
+  @Test
+  void getBinary_usesFileTypeWhenFilePresent() throws Exception {
+    Asset a = new Asset();
+    BinaryFile file = new BinaryFile();
+    file.setType("application/pdf");
+    a.setFile(file);
+    when(assetAdaptor.getBinary(anyString())).thenReturn(out -> {});
+    when(assetAdaptor.getSharedAssetByPath(any(), anyString())).thenReturn(a);
+
+    Response r = resource.getBinary("Assets/uploads/report.pdf");
+    assertEquals("application/pdf", r.getHeaderString("Content-Type"));
   }
 }

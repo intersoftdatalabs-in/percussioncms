@@ -209,9 +209,9 @@ public class FoldersResource {
         folderName = StringUtils.defaultString(m.group(5));
       }
 
-      String objectName = folder.getName().orElse(null);
-      String objectPath = folder.getPath().orElse(null);
-      String objectSite = folder.getSiteName().orElse(null);
+      String objectName = folder.getName();
+      String objectPath = folder.getPath();
+      String objectSite = folder.getSiteName();
 
       if (objectName != null && !objectName.equals(folderName)) {
         throw new LocationMismatchException();
@@ -221,7 +221,7 @@ public class FoldersResource {
         throw new LocationMismatchException();
       }
       folder.setName(folderName);
-      folder.setPath(folder.getPath().orElse(null));
+      folder.setPath(objectPath);
       folder.setSiteName(siteName);
 
       folder = folderAdaptor.updateFolder(uriInfo.getBaseUri(), folder);
@@ -368,9 +368,7 @@ public class FoldersResource {
   public Status moveFolderItem(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-          uriInfo.getBaseUri(),
-          moveRequest.getItemPath().orElse(null),
-          moveRequest.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -404,9 +402,7 @@ public class FoldersResource {
   public Status moveFolder(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-          uriInfo.getBaseUri(),
-          moveRequest.getItemPath().orElse(null),
-          moveRequest.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -441,9 +437,7 @@ public class FoldersResource {
   public Status copyFolderItem(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolderItem(
-          uriInfo.getBaseUri(),
-          request.getItemPath().orElse(null),
-          request.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -477,9 +471,7 @@ public class FoldersResource {
   public Status copyFolder(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolder(
-          uriInfo.getBaseUri(),
-          request.getItemPath().orElse(null),
-          request.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
     } catch (NotFoundException nfe) {
       return new Status(404, "Not Found");

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
 @XmlRootElement(name = "BinaryFile")
 @JsonInclude(Include.NON_NULL)
@@ -35,16 +34,16 @@ public class BinaryFile {
   private long size;
   private String type;
 
-  public Optional<String> getFilename() {
-    return Optional.ofNullable(filename);
+  public String getFilename() {
+    return filename;
   }
 
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  public Optional<String> getExtension() {
-    return Optional.ofNullable(extension);
+  public String getExtension() {
+    return extension;
   }
 
   public void setExtension(String extension) {
@@ -59,8 +58,8 @@ public class BinaryFile {
     this.size = size;
   }
 
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {

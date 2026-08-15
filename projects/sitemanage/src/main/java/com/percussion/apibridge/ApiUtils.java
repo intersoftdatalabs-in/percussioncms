@@ -165,6 +165,17 @@ public class ApiUtils {
   }
 
   /**
+   * Return an empty collection if the collection is null.
+   *
+   * @param col the collection, may be {@code null}
+   * @param <T> the element type
+   * @return the collection or an empty one
+   */
+  public static <T> Collection<T> orEmpty(Collection<T> col) {
+    return col == null ? List.of() : col;
+  }
+
+  /**
    * Generic unwrapping helper. If the supplied object is an {@link Optional} it will return the
    * contained value or null; otherwise the value is returned unchanged. This allows callers to
    * uniformly access getters which may or may not return Optionals without needing to know the
@@ -192,15 +203,14 @@ public class ApiUtils {
     Community ret =
         new Community(
             c.getId(), convertGuid(c.getGUID()), c.getName(), c.getDescription(), c.getLabel());
-    // unwrap Optional GUID for convenience
-    var optGuid = ret.getGuid().orElse(null);
+    var communityGuid = ret.getGuid();
 
     ArrayList<CommunityRole> roles = new ArrayList<>();
     // iterate role associations from PSCommunity
     for (IPSGuid roleGuid : c.getRoleAssociations()) {
       CommunityRole assoc = new CommunityRole();
-      assoc.setCommunityGuid(optGuid);
-      assoc.setCommunityId(optGuid != null ? optGuid.getLongValue() : 0L);
+      assoc.setCommunityGuid(communityGuid);
+      assoc.setCommunityId(communityGuid != null ? communityGuid.getLongValue() : 0L);
       assoc.setRoleId(roleGuid.longValue());
       assoc.setRoleGuid(convertGuid(roleGuid));
       roles.add(assoc);
@@ -268,12 +278,14 @@ public class ApiUtils {
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
 
-    p.setDescription(orNull(c.getDescription()));
-    p.setName(orNull(c.getName()));
+    p.setDescription(c.getDescription());
+    p.setName(c.getName());
     p = (PSCommunity) p.tuneClone(c.getId());
 
-    for (CommunityRole cr : orEmpty(c.getRoleList())) {
-      p.addRoleAssociation(convertGuid(orNull(cr.getRoleGuid())));
+    if (c.getRoleList() != null) {
+      for (CommunityRole cr : c.getRoleList()) {
+        p.addRoleAssociation(convertGuid(cr.getRoleGuid()));
+      }
     }
 
     return p;
@@ -293,8 +305,8 @@ public class ApiUtils {
       for (CommunityRole r : roleList) {
         PSCommunityRoleAssociation p_r =
             new PSCommunityRoleAssociation(
-                convertGuid(orNull(r.getCommunityGuid())), convertGuid(orNull(r.getRoleGuid())));
-        p_r.setRoleName(orNull(r.getRoleName()));
+                convertGuid(r.getCommunityGuid()), convertGuid(r.getRoleGuid()));
+        p_r.setRoleName(r.getRoleName());
         ret.add(p_r);
       }
     }
@@ -476,9 +488,9 @@ public class ApiUtils {
   public static PSRole convertRole(Role role) {
     PSRole ret = new PSRole();
 
-    ret.setDescription(orNull(role.getDescription()));
-    ret.setHomepage(orNull(role.getHomePage()));
-    ret.setName(orNull(role.getName()));
+    ret.setDescription(role.getDescription());
+    ret.setHomepage(role.getHomePage());
+    ret.setName(role.getName());
     ret.setUsers(role.getUsers());
 
     return ret;
@@ -494,18 +506,18 @@ public class ApiUtils {
     PSAclImpl p_acl = new PSAclImpl();
 
     p_acl.setId(acl.getId());
-    p_acl.setDescription(orNull(acl.getDescription()));
-    String name = orNull(acl.getName());
+    p_acl.setDescription(acl.getDescription());
+    String name = acl.getName();
     if (name == null || name.isBlank()) {
       name = "ACL";
     }
     p_acl.setName(name);
-    var convertedGuid = convertGuid(orNull(acl.getGuid()));
+    var convertedGuid = convertGuid(acl.getGuid());
     if (convertedGuid != null) {
       p_acl.setGUID(convertedGuid);
     }
     applyAclObjectIdentity(acl, p_acl);
-    p_acl.setEntries(convertAclEntries(orNull(acl.getAclEntries())));
+    p_acl.setEntries(convertAclEntries(acl.getAclEntries()));
 
     return p_acl;
   }
@@ -518,7 +530,7 @@ public class ApiUtils {
   static void applyAclObjectIdentity(Acl acl, PSAclImpl p_acl) {
     int objectType = acl.getObjectType();
     long objectId = acl.getObjectId();
-    Guid objectGuid = orNull(acl.getObjectGuid());
+    Guid objectGuid = acl.getObjectGuid();
     if (objectGuid != null) {
       String stringValue = orNull(objectGuid.getStringValue());
       if (stringValue != null
@@ -556,21 +568,21 @@ public class ApiUtils {
       PSAclEntryImpl p_entry = new PSAclEntryImpl();
 
       p_entry.setId(entry.getId());
-      p_entry.setName(orNull(entry.getName()));
+      p_entry.setName(entry.getName());
       p_entry.setAclId(entry.getAclId());
 
-      var principal = orNull(entry.getPrincipal());
+      var principal = entry.getPrincipal();
       if (principal != null && principal.getName() != null) {
         p_entry.setPrincipal(convertPrincipal(principal));
       } else if (p_entry.getName() == null
-          && entry.getType().isPresent()
-          && entry.getType().get().getName() != null) {
+          && entry.getType() != null
+          && entry.getType().getName() != null) {
         // Load path historically stored principal name on TypedPrincipal.name
-        p_entry.setName(entry.getType().get().getName());
+        p_entry.setName(entry.getType().getName());
       }
 
-      if (entry.getType().isPresent()) {
-        TypedPrincipal tp = entry.getType().get();
+      if (entry.getType() != null) {
+        TypedPrincipal tp = entry.getType();
         if (tp.getType() != null) {
           p_entry.setType(tp.getType());
         } else if (tp.getName() != null) {
@@ -583,9 +595,12 @@ public class ApiUtils {
         }
       }
 
-      for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
-        if (p.getPermission().isPresent()) {
-          p_entry.addPermission(convertPermissions(p));
+      UserAccessLevelList levels = entry.getPermissions();
+      if (levels != null) {
+        for (UserAccessLevel p : levels) {
+          if (p.getPermission() != null) {
+            p_entry.addPermission(convertPermissions(p));
+          }
         }
       }
 
@@ -598,7 +613,7 @@ public class ApiUtils {
   public static PSAccessLevelImpl convertPermissions(UserAccessLevel p) {
     PSAccessLevelImpl p_a = new PSAccessLevelImpl();
 
-    Permissions perm = orNull(p.getPermission());
+    Permissions perm = p.getPermission();
     if (perm != null) {
       p_a.setPermission(PSPermissions.valueOf(perm.name()));
     }

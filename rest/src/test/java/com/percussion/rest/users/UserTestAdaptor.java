@@ -25,6 +25,7 @@ import com.percussion.rest.errors.UnknownUserException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +50,8 @@ public class UserTestAdaptor implements IUserAdaptor {
     }
     User toUpdate = null;
     for (var u : testUserData) {
-      if (u.getUserName().orElse("").equalsIgnoreCase(user.getUserName().orElse(""))) {
+      if (Objects.toString(u.getUserName(), "")
+          .equalsIgnoreCase(Objects.toString(user.getUserName(), ""))) {
         toUpdate = u;
         break;
       }
@@ -58,9 +60,15 @@ public class UserTestAdaptor implements IUserAdaptor {
       // New user logic could go here
     } else {
       toUpdate.setBookmarkedPages(user.getBookmarkedPages());
-      user.getEmailAddress().ifPresent(toUpdate::setEmailAddress);
-      user.getFirstName().ifPresent(toUpdate::setFirstName);
-      user.getLastName().ifPresent(toUpdate::setLastName);
+      if (user.getEmailAddress() != null) {
+        toUpdate.setEmailAddress(user.getEmailAddress());
+      }
+      if (user.getFirstName() != null) {
+        toUpdate.setFirstName(user.getFirstName());
+      }
+      if (user.getLastName() != null) {
+        toUpdate.setLastName(user.getLastName());
+      }
     }
     return null;
   }
@@ -72,7 +80,7 @@ public class UserTestAdaptor implements IUserAdaptor {
     }
     User toDelete = null;
     for (var u : testUserData) {
-      if (u.getUserName().orElse("").equalsIgnoreCase(userName)) {
+      if (Objects.toString(u.getUserName(), "").equalsIgnoreCase(userName)) {
         toDelete = u;
         break;
       }
