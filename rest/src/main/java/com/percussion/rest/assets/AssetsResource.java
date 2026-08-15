@@ -494,7 +494,7 @@ public class AssetsResource {
       var requestThreadMap = new HashMap<>(PSRequestInfoBase.getRequestInfoMap());
       var currentUser = (String) PSRequestInfoBase.getRequestInfo(PSRequestInfo.KEY_USER);
       var user = userAdaptor.getUser(null, currentUser);
-      var toAddress = user.getEmailAddress().orElse(null);
+      var toAddress = user.getEmailAddress();
       CompletableFuture.runAsync(
           () -> {
             try {

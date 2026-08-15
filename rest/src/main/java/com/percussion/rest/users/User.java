@@ -19,6 +19,7 @@
 
 package com.percussion.rest.users;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityList;
@@ -26,10 +27,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-/** Represents a User. Sunny Sal: "User ka hero, login ka zero!" */
+/**
+ * Represents a User. Sunny Sal: "User ka hero, login ka zero!"
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code
+ * userName}, {@code firstName}, and related scalars when set. Optional-returning getters
+ * historically serialized as empty/present beans or dropped fields under {@code
+ * @JsonInclude(NON_NULL)} (issue #3388). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #1693).
+ */
 @XmlRootElement(name = "User")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "User", description = "Represents a User.")
 public class User {
 
@@ -101,56 +110,56 @@ public class User {
     // Default constructor
   }
 
-  public Optional<CommunityList> getUserCommunities() {
-    return Optional.ofNullable(userCommunities);
+  public CommunityList getUserCommunities() {
+    return userCommunities;
   }
 
   public void setUserCommunities(CommunityList userCommunities) {
     this.userCommunities = userCommunities;
   }
 
-  public Optional<Community> getSelectedCommunity() {
-    return Optional.ofNullable(selectedCommunity);
+  public Community getSelectedCommunity() {
+    return selectedCommunity;
   }
 
   public void setSelectedCommunity(Community selectedCommunity) {
     this.selectedCommunity = selectedCommunity;
   }
 
-  public Optional<String> getUserName() {
-    return Optional.ofNullable(userName);
+  public String getUserName() {
+    return userName;
   }
 
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  public Optional<String> getFirstName() {
-    return Optional.ofNullable(firstName);
+  public String getFirstName() {
+    return firstName;
   }
 
   public void setFirstName(String firstName) {
     this.firstName = firstName;
   }
 
-  public Optional<String> getLastName() {
-    return Optional.ofNullable(lastName);
+  public String getLastName() {
+    return lastName;
   }
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
   }
 
-  public Optional<String> getEmailAddress() {
-    return Optional.ofNullable(emailAddress);
+  public String getEmailAddress() {
+    return emailAddress;
   }
 
   public void setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
   }
 
-  public Optional<String> getUserType() {
-    return Optional.ofNullable(userType);
+  public String getUserType() {
+    return userType;
   }
 
   public void setUserType(String userType) {
@@ -223,8 +232,8 @@ public class User {
     this.recentTemplates = recentTemplates;
   }
 
-  public Optional<LinkRef> getPersonalPage() {
-    return Optional.ofNullable(personalPage);
+  public LinkRef getPersonalPage() {
+    return personalPage;
   }
 
   public void setPersonalPage(LinkRef personalPage) {
@@ -253,8 +262,8 @@ public class User {
     this.roles = roles;
   }
 
-  public Optional<String> getPassword() {
-    return Optional.ofNullable(password);
+  public String getPassword() {
+    return password;
   }
 
   public void setPassword(String password) {

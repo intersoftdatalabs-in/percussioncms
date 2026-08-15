@@ -16,13 +16,17 @@
 
 package com.percussion.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
+import com.percussion.rest.roles.Role;
 import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.rest.templates.TemplateSummaryList;
+import com.percussion.rest.users.User;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -31,8 +35,9 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * Catalog DTOs must serialize names (and related fields) for Developer SPA tables. ContentType list
  * historically collapsed to hideFromMenu-only when Optional getters were not unwrapped (issue
- * #1693). TemplateSummary similarly collapsed to templateId-only (issue #2189). Both now use plain
- * getters under {@code @JsonInclude(NON_NULL)}.
+ * #1693). TemplateSummary similarly collapsed to templateId-only (issue #2189). User / Role /
+ * ObjectSummary follow the same plain-getter rule (issue #3388). All use production {@link
+ * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -111,5 +116,82 @@ class JacksonContextResolverOptionalTest {
     assertTrue(json.contains("\"templateLabel\""), json);
     assertTrue(json.contains("1037"), json);
     assertTrue(json.contains("TemplateSummary") || json.startsWith("["), json);
+  }
+
+  @Test
+  void user_serializesPlainScalarsNotOptionalBeans() {
+    User user = new User();
+    user.setUserName("admin");
+    user.setFirstName("Ada");
+    user.setLastName("Lovelace");
+    user.setEmailAddress("ada@example.com");
+    user.setUserType("INTERNAL");
+
+    ObjectMapper userMapper = new JacksonContextResolver().getContext(User.class);
+    String json = userMapper.writeValueAsString(user);
+    assertTrue(json.contains("\"userName\""), json);
+    assertTrue(json.contains("admin"), json);
+    assertTrue(json.contains("\"firstName\""), json);
+    assertTrue(json.contains("Ada"), json);
+    assertTrue(json.contains("\"lastName\""), json);
+    assertTrue(json.contains("\"emailAddress\""), json);
+    assertTrue(json.contains("\"userType\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    User roundTrip = userMapper.readValue(json, User.class);
+    assertEquals("admin", roundTrip.getUserName(), json);
+    assertEquals("Ada", roundTrip.getFirstName(), json);
+    assertEquals("INTERNAL", roundTrip.getUserType(), json);
+  }
+
+  @Test
+  void role_serializesPlainScalarsNotOptionalBeans() {
+    Role role = new Role();
+    role.setName("Editor");
+    role.setDescription("Edit content");
+    role.setHomePage("Dashboard");
+
+    ObjectMapper roleMapper = new JacksonContextResolver().getContext(Role.class);
+    String json = roleMapper.writeValueAsString(role);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Editor"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"homePage\""), json);
+    assertTrue(json.contains("Dashboard"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Role roundTrip = roleMapper.readValue(json, Role.class);
+    assertEquals("Editor", roundTrip.getName(), json);
+    assertEquals("Dashboard", roundTrip.getHomePage(), json);
+  }
+
+  @Test
+  void objectSummary_serializesNameLabelGuidNotOptionalBeans() {
+    ObjectSummary summary = new ObjectSummary();
+    summary.setName("Default");
+    summary.setLabel("Default ACL");
+    summary.setDescription("Site ACL");
+    summary.setGuid(new Guid("0-13-10"));
+
+    ObjectMapper summaryMapper = new JacksonContextResolver().getContext(ObjectSummary.class);
+    String json = summaryMapper.writeValueAsString(summary);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Default"), json);
+    assertTrue(json.contains("\"label\""), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"guid\""), json);
+    assertTrue(json.contains("0-13-10") || json.contains("10"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ObjectSummary roundTrip = summaryMapper.readValue(json, ObjectSummary.class);
+    assertEquals("Default", roundTrip.getName(), json);
+    assertEquals("Default ACL", roundTrip.getLabel(), json);
+    assertNotNull(roundTrip.getGuid(), json);
+  }
+
+  private static void assertNoOptionalBeanKeys(String json) {
+    assertFalse(
+        json.contains("\"empty\"") || json.contains("\"present\""),
+        "JSON must not contain Optional-bean empty/present keys: " + json);
   }
 }

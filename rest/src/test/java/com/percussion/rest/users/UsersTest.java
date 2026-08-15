@@ -20,6 +20,7 @@
 package com.percussion.rest.users;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.rest.MainTest;
 import org.junit.jupiter.api.Test;
@@ -31,10 +32,10 @@ public class UsersTest extends MainTest {
     var u = new User();
 
     assertNotNull(u.getBookmarkedPages(), "Should never be null");
-    assertNotNull(u.getEmailAddress(), "Should never be null");
-    assertNotNull(u.getFirstName(), "Should never be null");
-    assertNotNull(u.getLastName(), "Should never be null");
-    assertNotNull(u.getPersonalPage(), "Should never be null");
+    assertNull(u.getEmailAddress(), "Unset wire scalars are nullable");
+    assertNull(u.getFirstName(), "Unset wire scalars are nullable");
+    assertNull(u.getLastName(), "Unset wire scalars are nullable");
+    assertNull(u.getPersonalPage(), "Unset wire objects are nullable");
     assertNotNull(u.getPersonAssets(), "Should never be null");
     assertNotNull(u.getRecentAssetFolders(), "Should never be null");
     assertNotNull(u.getRecentAssetTypes(), "Should never be null");
@@ -42,7 +43,7 @@ public class UsersTest extends MainTest {
     assertNotNull(u.getRecentSiteFolders(), "Should never be null");
     assertNotNull(u.getRoles(), "Should never be null");
     assertNotNull(u.getRecentTemplates(), "Should never be null");
-    assertNotNull(u.getUserName(), "Should never be null");
-    assertNotNull(u.getUserType(), "Should never be null");
+    assertNull(u.getUserName(), "Unset wire scalars are nullable");
+    assertNull(u.getUserType(), "Unset wire scalars are nullable");
   }
 }

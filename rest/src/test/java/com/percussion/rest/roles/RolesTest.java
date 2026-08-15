@@ -18,6 +18,7 @@
 package com.percussion.rest.roles;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.rest.MainTest;
 import org.junit.jupiter.api.Test;
@@ -27,9 +28,9 @@ public class RolesTest extends MainTest {
   @Test
   public void testNeverNull() {
     var r = new Role();
-    assertNotNull(r.getDescription(), "Should never be null");
-    assertNotNull(r.getName(), "Should never be null");
-    assertNotNull(r.getDescription(), "Should never be null");
+    assertNull(r.getDescription(), "Unset wire scalars are nullable");
+    assertNull(r.getName(), "Unset wire scalars are nullable");
+    assertNull(r.getHomePage(), "Unset wire scalars are nullable");
     assertNotNull(r.getUsers(), "Should never be null");
   }
 }
