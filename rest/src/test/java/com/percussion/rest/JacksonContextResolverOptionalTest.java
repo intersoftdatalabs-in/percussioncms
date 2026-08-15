@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.Permissions;
 import com.percussion.rest.acls.Acl;
+import com.percussion.rest.actions.AllowedContentTypeMenusRequest;
+import com.percussion.rest.actions.AllowedTemplateMenusRequest;
+import com.percussion.rest.actions.AllowedWorkflowTransitionsRequest;
+import com.percussion.rest.editions.PublishResponse;
 import com.percussion.rest.acls.AclEntry;
 import com.percussion.rest.acls.AclEntryList;
 import com.percussion.rest.acls.AclList;
@@ -71,6 +75,7 @@ import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.rest.templates.TemplateSummaryList;
 import com.percussion.rest.users.User;
 import com.percussion.security.IPSTypedPrincipal;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -84,8 +89,9 @@ import tools.jackson.databind.ObjectMapper;
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
  * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
  * plain-getter contract (issue #3412). Folder / Section / path-request DTOs follow the same
- * rule (issue #3413). All use production {@link JacksonContextResolver} under {@code
- * @JsonInclude(NON_NULL)}.
+ * rule (issue #3413). Action-menu request + editions {@code PublishResponse} / {@code Status}
+ * follow the same rule (issue #3432 / #3388). All use production {@link
+ * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -1011,6 +1017,133 @@ class JacksonContextResolverOptionalTest {
     UserAccessLevel ualRoundTrip = ualMapper.readValue(json, UserAccessLevel.class);
     assertEquals(Permissions.READ, ualRoundTrip.getPermission());
     assertEquals(9, ualRoundTrip.getId());
+  }
+
+  @Test
+  void allowedContentTypeMenusRequest_serializesContentIdsAsJsonArray() {
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    request.setContentIds(new int[] {101, 102});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedContentTypeMenusRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("101"), json);
+    assertTrue(json.contains("102"), json);
+    assertFalse(json.contains("\"empty\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedContentTypeMenusRequest roundTrip =
+        requestMapper.readValue(json, AllowedContentTypeMenusRequest.class);
+    assertTrue(Arrays.equals(new int[] {101, 102}, roundTrip.getContentIds()), json);
+  }
+
+  @Test
+  void allowedTemplateMenusRequest_serializesContentIdsAsJsonArray() {
+    AllowedTemplateMenusRequest request = new AllowedTemplateMenusRequest();
+    request.setContentIds(new int[] {201, 202});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedTemplateMenusRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("201"), json);
+    assertTrue(json.contains("202"), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedTemplateMenusRequest roundTrip =
+        requestMapper.readValue(json, AllowedTemplateMenusRequest.class);
+    assertTrue(Arrays.equals(new int[] {201, 202}, roundTrip.getContentIds()), json);
+  }
+
+  @Test
+  void allowedWorkflowTransitionsRequest_serializesIdsAsJsonArrays() {
+    AllowedWorkflowTransitionsRequest request = new AllowedWorkflowTransitionsRequest();
+    request.setContentIds(new int[] {301, 302});
+    request.setAssignmentTypeIds(new int[] {1, 2});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedWorkflowTransitionsRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("301"), json);
+    assertTrue(json.contains("\"assignmentTypeIds\""), json);
+    assertTrue(json.contains("1"), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedWorkflowTransitionsRequest roundTrip =
+        requestMapper.readValue(json, AllowedWorkflowTransitionsRequest.class);
+    assertTrue(Arrays.equals(new int[] {301, 302}, roundTrip.getContentIds()), json);
+    assertTrue(Arrays.equals(new int[] {1, 2}, roundTrip.getAssignmentTypeIds()), json);
+  }
+
+  @Test
+  void publishResponse_serializesWarningMessageNotOptionalBean() {
+    PublishResponse response = new PublishResponse();
+    response.setSiteName("Help");
+    response.setStatus("Completed");
+    response.setDelivered("10");
+    response.setFailures("0");
+    response.setWarningMessage("partial");
+    response.setJobid(42L);
+
+    ObjectMapper responseMapper = new JacksonContextResolver().getContext(PublishResponse.class);
+    String json = responseMapper.writeValueAsString(response);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("Help"), json);
+    assertTrue(json.contains("\"warningMessage\""), json);
+    assertTrue(json.contains("partial"), json);
+    assertTrue(json.contains("\"status\""), json);
+    assertTrue(json.contains("Completed"), json);
+    assertNoOptionalBeanKeys(json);
+
+    PublishResponse roundTrip = responseMapper.readValue(json, PublishResponse.class);
+    assertEquals("Help", roundTrip.getSiteName(), json);
+    assertEquals("partial", roundTrip.getWarningMessage(), json);
+    assertEquals(42L, roundTrip.getJobid(), json);
+  }
+
+  @Test
+  void status_serializesMessageNotOptionalBean() {
+    Status status = new Status(200, "Moved OK");
+
+    ObjectMapper statusMapper = new JacksonContextResolver().getContext(Status.class);
+    String json = statusMapper.writeValueAsString(status);
+    assertTrue(json.contains("\"message\""), json);
+    assertTrue(json.contains("Moved OK"), json);
+    assertTrue(json.contains("\"statusCode\""), json);
+    assertTrue(json.contains("200"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Status roundTrip = statusMapper.readValue(json, Status.class);
+    assertEquals("Moved OK", roundTrip.getMessage(), json);
+    assertEquals(200, roundTrip.getStatusCode(), json);
+  }
+
+  @Test
+  void actionPublishStatusFamily_omitsNullWireFieldsFromJson() {
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedContentTypeMenusRequest.class);
+    String requestJson = requestMapper.writeValueAsString(request);
+    assertFalse(requestJson.contains("\"contentIds\""), requestJson);
+    assertNoOptionalBeanKeys(requestJson);
+
+    PublishResponse response = new PublishResponse();
+    response.setJobid(7L);
+    ObjectMapper responseMapper = new JacksonContextResolver().getContext(PublishResponse.class);
+    String responseJson = responseMapper.writeValueAsString(response);
+    assertTrue(responseJson.contains("\"jobid\"") || responseJson.contains("\"jobId\""), responseJson);
+    assertFalse(responseJson.contains("\"warningMessage\""), responseJson);
+    assertFalse(responseJson.contains("\"siteName\""), responseJson);
+    assertNoOptionalBeanKeys(responseJson);
+
+    Status status = new Status();
+    status.setStatusCode(0);
+    ObjectMapper statusMapper = new JacksonContextResolver().getContext(Status.class);
+    String statusJson = statusMapper.writeValueAsString(status);
+    assertFalse(statusJson.contains("\"message\""), statusJson);
+    assertNoOptionalBeanKeys(statusJson);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {

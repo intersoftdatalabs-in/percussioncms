@@ -17,14 +17,20 @@
 
 package com.percussion.rest.actions;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
-import java.util.Optional;
 
-/** Request object for allowed content type menus. */
+/**
+ * Request object for allowed content type menus.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * {@code contentIds} as a JSON array, not an Optional bean (issue #3388 slice 10 / #3432).
+ */
 @XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema
 public class AllowedContentTypeMenusRequest {
 
@@ -37,10 +43,10 @@ public class AllowedContentTypeMenusRequest {
   /**
    * Returns the content ids.
    *
-   * @return the content ids, may be empty
+   * @return the content ids, or {@code null} if unset
    */
-  public Optional<int[]> getContentIds() {
-    return Optional.ofNullable(contentIds);
+  public int[] getContentIds() {
+    return contentIds;
   }
 
   /**

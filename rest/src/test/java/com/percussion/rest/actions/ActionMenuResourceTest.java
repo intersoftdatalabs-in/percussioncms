@@ -4,11 +4,13 @@
 
 package com.percussion.rest.actions;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -17,6 +19,7 @@ import static org.mockito.Mockito.when;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +103,35 @@ public class ActionMenuResourceTest {
         assertThrows(WebApplicationException.class, () -> bare.getActionMenu("x"));
     assertEquals(500, getEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, getEx.getCause());
+  }
+
+  @Test
+  public void getAllowedContentTypeMenusPassesContentIdsArray() {
+    ActionMenu menu = new ActionMenu();
+    menu.setName("New");
+    when(adaptor.findAllowedContentTypes(any())).thenReturn(List.of(menu));
+
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    request.setContentIds(new int[] {101, 102});
+    ActionMenuList out = resource.getAllowedContentTypeMenus(request);
+
+    assertEquals(1, out.size());
+    assertEquals("New", out.get(0).getName());
+    ArgumentCaptor<Integer[]> captor = ArgumentCaptor.forClass(Integer[].class);
+    verify(adaptor).findAllowedContentTypes(captor.capture());
+    assertArrayEquals(new Integer[] {101, 102}, captor.getValue());
+  }
+
+  @Test
+  public void getAllowedContentTypeMenusTreatsNullContentIdsAsEmpty() {
+    when(adaptor.findAllowedContentTypes(any())).thenReturn(List.of());
+
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    ActionMenuList out = resource.getAllowedContentTypeMenus(request);
+
+    assertTrue(out.isEmpty());
+    ArgumentCaptor<Integer[]> captor = ArgumentCaptor.forClass(Integer[].class);
+    verify(adaptor).findAllowedContentTypes(captor.capture());
+    assertArrayEquals(new Integer[0], captor.getValue());
   }
 }

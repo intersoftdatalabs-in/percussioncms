@@ -17,12 +17,19 @@
 
 package com.percussion.rest.actions;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
-import java.util.Optional;
 
-/** Request object for allowed workflow transitions. */
+/**
+ * Request object for allowed workflow transitions.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * {@code contentIds} and {@code assignmentTypeIds} as JSON arrays, not Optional beans (issue #3388
+ * slice 10 / #3432).
+ */
 @XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AllowedWorkflowTransitionsRequest {
 
   /** Content ids to evaluate transitions for. */
@@ -37,10 +44,10 @@ public class AllowedWorkflowTransitionsRequest {
   /**
    * Returns the content ids.
    *
-   * @return the content ids, may be empty
+   * @return the content ids, or {@code null} if unset
    */
-  public Optional<int[]> getContentIds() {
-    return Optional.ofNullable(contentIds);
+  public int[] getContentIds() {
+    return contentIds;
   }
 
   /**
@@ -55,10 +62,10 @@ public class AllowedWorkflowTransitionsRequest {
   /**
    * Returns the assignment type ids.
    *
-   * @return the assignment type ids, may be empty
+   * @return the assignment type ids, or {@code null} if unset
    */
-  public Optional<int[]> getAssignmentTypeIds() {
-    return Optional.ofNullable(assignmentTypeIds);
+  public int[] getAssignmentTypeIds() {
+    return assignmentTypeIds;
   }
 
   /**

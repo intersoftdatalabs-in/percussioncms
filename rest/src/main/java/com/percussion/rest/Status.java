@@ -20,11 +20,13 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Represents a generic REST API status response carrying a human-readable message and a numeric
  * status code.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * {@code message} as a scalar, not an Optional bean (issue #3388 slice 10 / #3432).
  *
  * @author stephenbolton
  */
@@ -62,10 +64,10 @@ public class Status {
   }
 
   /**
-   * @return status message as Optional
+   * @return status message, or {@code null} if unset
    */
-  public Optional<String> getMessage() {
-    return Optional.ofNullable(message);
+  public String getMessage() {
+    return message;
   }
 
   /**
