@@ -46,7 +46,9 @@ import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.user.service.IPSUserService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -151,6 +153,15 @@ public class PSSitePathItemService extends PSPathItemService {
 
   protected SiteIdAndFolderPath getSiteIdAndFolderPath(String path)
       throws PSPathNotFoundServiceException {
+    // REST /folder/Sites/<folderRoot> may omit the trailing slash
+    // (PathItem.folderPath is //Sites/CorporateInvestments). validatePath
+    // requires start+end '/'; treat /name as /name/ (site-only) (#3410).
+    if (path != null) {
+      var trimmed = path.trim();
+      if (trimmed.startsWith("/") && trimmed.length() > 1 && trimmed.indexOf('/', 1) < 0) {
+        path = trimmed + "/";
+      }
+    }
     PSPathUtils.validatePath(path);
     var matcher = sitePathPattern.matcher(path);
     if (matcher.find()) {
@@ -184,7 +195,85 @@ public class PSSitePathItemService extends PSPathItemService {
     if ("/".equals(path)) {
       return findRootChildren();
     }
-    return super.findItems(path);
+    try {
+      return super.findItems(path);
+    } catch (PSPathNotFoundServiceException e) {
+      var recovered = recoverSiteFolderChildren(path);
+      if (recovered != null) {
+        return recovered;
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Sample sites use SITENAME {@code Corporate_Investments} and FOLDER_ROOT
+   * {@code //Sites/CorporateInvestments}. pathToId on FOLDER_ROOT can fail
+   * (404) even when folder 523 exists under {@code //Sites} (#3410 / #3326).
+   */
+  private List<PSPathItem> recoverSiteFolderChildren(String path)
+      throws PSPathNotFoundServiceException {
+    try {
+      var sfp = getSiteIdAndFolderPath(path);
+      if (!sfp.isOnlySiteId()) {
+        return null;
+      }
+      var sitesKids = folderHelper.findItems(SITE_ROOT);
+      for (var kid : sitesKids) {
+        if (kid == null || !siteFolderNameMatches(sfp.getSiteId(), kid.getName())) {
+          continue;
+        }
+        var sums = folderHelper.findChildItems(kid.getId());
+        return toPathItems(path, folderHelper.concatPath(SITE_ROOT, kid.getName()), sums);
+      }
+    } catch (Exception ex) {
+      log.debug("Site folder recover failed for path {}", path, ex);
+    }
+    return null;
+  }
+
+  /**
+   * Match finder site id to a //Sites child name (underscore / space variants).
+   */
+  public static boolean siteFolderNameMatches(String siteId, String folderName) {
+    if (siteId == null || folderName == null) {
+      return false;
+    }
+    var a = normalizeSiteFolderToken(siteId);
+    var b = normalizeSiteFolderToken(folderName);
+    return !a.isEmpty() && a.equals(b);
+  }
+
+  static String normalizeSiteFolderToken(String raw) {
+    return String.valueOf(raw)
+        .trim()
+        .replace('_', ' ')
+        .replaceAll("\\s+", "")
+        .toLowerCase(Locale.ROOT);
+  }
+
+  private List<PSPathItem> toPathItems(
+      String relativePath, String fullFolderPath, List<IPSItemSummary> sums) {
+    var pathFolderItems = new ArrayList<PSPathItem>();
+    var pathItems = new ArrayList<PSPathItem>();
+    for (var data : sums) {
+      if (shouldFilterItem(data)) {
+        continue;
+      }
+      var item = createPathItem();
+      convert(data, item);
+      item.setPath(relativePath + item.getName());
+      item.setFolderPath(folderHelper.concatPath(fullFolderPath, item.getName()));
+      if (data.isFolder()) {
+        pathFolderItems.add(item);
+      } else {
+        pathItems.add(item);
+      }
+    }
+    Collections.sort(pathFolderItems, PSPathItemComparator.getInstance());
+    Collections.sort(pathItems, PSPathItemComparator.getInstance());
+    pathFolderItems.addAll(pathItems);
+    return pathFolderItems;
   }
 
   @Override

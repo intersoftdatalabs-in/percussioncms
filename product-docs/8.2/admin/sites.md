@@ -25,7 +25,7 @@ Traditional Sites store pages and assets in the Percussion **content repository*
 
 1. Sign in as an administrator (or a role that can open **Explorer**).
 2. Open **Content Explorer** (`spa.jsp?entry=explorer` or the **Explorer** product navigation entry).
-3. In the tree, expand **Sites**.
+3. In the tree, expand **Sites** (use the disclosure control next to the **Sites** label — selecting the row only opens the list, it does not expand child site nodes).
 4. Select a site folder to browse its pages and folders in the detail list.
 5. Expand a sample site (for example **Corporate_Investments** or **Enterprise_Investments**). The tree and detail list show that site's **real** folders (for example **AboutEnterpriseInvestments**, **Files**, **Images**) and pages, not an empty-folder message. Explorer may also show **Pages** / **Files** as site chrome — those labels are not a substitute for FastForward folder items.
 
