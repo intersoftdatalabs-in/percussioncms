@@ -147,10 +147,10 @@ public class AclResourceTest {
     when(adaptor.loadAclForObject(any(Guid.class))).thenReturn(acl);
 
     Acl out = resource.loadAclForObject("0-31-5");
-    assertEquals(3, out.getAclEntries().orElseThrow().size());
-    assertEquals("Default", out.getAclEntries().get().get(0).getName().orElse(null));
-    assertEquals("AnyCommunity", out.getAclEntries().get().get(1).getName().orElse(null));
-    assertEquals("Admin", out.getAclEntries().get().get(2).getName().orElse(null));
+    assertEquals(3, out.getAclEntries().size());
+    assertEquals("Default", out.getAclEntries().get(0).getName());
+    assertEquals("AnyCommunity", out.getAclEntries().get(1).getName());
+    assertEquals("Admin", out.getAclEntries().get(2).getName());
     assertEquals(31, out.getObjectType());
     assertEquals(5, out.getObjectId());
   }

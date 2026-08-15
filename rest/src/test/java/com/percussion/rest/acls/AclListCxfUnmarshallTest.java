@@ -103,7 +103,8 @@ public class AclListCxfUnmarshallTest {
     assertInstanceOf(AclList.class, raw, "JavaType path must not return raw ArrayList: " + raw);
     AclList list = (AclList) raw;
     assertEquals(1, list.size());
-    assertEquals(3, list.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
+    assertEquals(
+        3, list.get(0).getAclEntries() == null ? 0 : list.get(0).getAclEntries().size());
   }
 
   @Test
@@ -161,8 +162,9 @@ public class AclListCxfUnmarshallTest {
             new ByteArrayInputStream(DF_SAVE.getBytes(StandardCharsets.UTF_8)));
     assertInstanceOf(AclList.class, list);
     assertEquals(1, list.size());
-    assertEquals("By_Author ACL", list.get(0).getName().orElse(null));
-    assertEquals(3, list.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
+    assertEquals("By_Author ACL", list.get(0).getName());
+    assertEquals(
+        3, list.get(0).getAclEntries() == null ? 0 : list.get(0).getAclEntries().size());
   }
 
   @Test
@@ -217,11 +219,11 @@ public class AclListCxfUnmarshallTest {
     assertEquals(1, saved.size());
     assertEquals(31, saved.get(0).getObjectType());
     assertEquals(5, saved.get(0).getObjectId());
-    assertEquals(3, saved.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
-    assertEquals("Default", saved.get(0).getAclEntries().orElseThrow().get(0).getName().orElse(null));
     assertEquals(
-        "AnyCommunity", saved.get(0).getAclEntries().orElseThrow().get(1).getName().orElse(null));
-    assertEquals("Admin", saved.get(0).getAclEntries().orElseThrow().get(2).getName().orElse(null));
+        3, saved.get(0).getAclEntries() == null ? 0 : saved.get(0).getAclEntries().size());
+    assertEquals("Default", saved.get(0).getAclEntries().get(0).getName());
+    assertEquals("AnyCommunity", saved.get(0).getAclEntries().get(1).getName());
+    assertEquals("Admin", saved.get(0).getAclEntries().get(2).getName());
   }
 
   @Test
@@ -265,7 +267,7 @@ public class AclListCxfUnmarshallTest {
     AclList saved = captured.get();
     assertNotNull(saved);
     assertEquals(1, saved.size());
-    assertEquals("By_Author ACL", saved.get(0).getName().orElse(null));
+    assertEquals("By_Author ACL", saved.get(0).getName());
     assertEquals(31, saved.get(0).getObjectType());
   }
 

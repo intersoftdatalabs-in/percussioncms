@@ -117,7 +117,7 @@ public class ApiUtilsAclConvertTest {
     assertNotNull(out);
     assertEquals(55, out.getId());
     // PSAccessLevelImpl defaults ordinal 0 → READ when permission was never set.
-    // convertAclEntries must filter isPresent() so these are not persisted as READ.
+    // convertAclEntries must filter null permission so these are not persisted as READ.
     assertEquals(PSPermissions.READ, out.getPermission());
   }
 
@@ -243,18 +243,18 @@ public class ApiUtilsAclConvertTest {
     addEntry(pAcl, "Admin", IPSTypedPrincipal.PrincipalTypes.USER, PSPermissions.OWNER);
 
     Acl rest = ApiUtils.convertAcl(pAcl);
-    assertNotNull(rest.getAclEntries().orElse(null));
-    assertEquals(3, rest.getAclEntries().get().size());
+    assertNotNull(rest.getAclEntries());
+    assertEquals(3, rest.getAclEntries().size());
     var names =
-        rest.getAclEntries().get().stream()
-            .map(e -> e.getName().orElse(""))
+        rest.getAclEntries().stream()
+            .map(e -> e.getName() == null ? "" : e.getName())
             .collect(Collectors.toSet());
     assertTrue(names.contains("Default"));
     assertTrue(names.contains("AnyCommunity"));
     assertTrue(names.contains("Admin"));
     assertEquals(31, rest.getObjectType());
     assertEquals(5, rest.getObjectId());
-    assertNotNull(rest.getObjectGuid().orElse(null));
+    assertNotNull(rest.getObjectGuid());
   }
 
   @Test

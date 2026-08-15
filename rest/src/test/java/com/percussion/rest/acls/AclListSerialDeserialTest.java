@@ -118,12 +118,12 @@ public class AclListSerialDeserialTest {
     AclList roundTrip = mapper.readValue(json, AclList.class);
     assertEquals(1, roundTrip.size());
     Acl acl = roundTrip.get(0);
-    assertEquals("By_Author ACL", acl.getName().orElse(null));
+    assertEquals("By_Author ACL", acl.getName());
     assertEquals(5, acl.getObjectId());
     assertEquals(31, acl.getObjectType());
-    assertTrue(acl.getObjectGuid().isPresent());
-    assertEquals("0-31-5", acl.getObjectGuid().get().getStringValue().orElse(null));
-    assertEquals(3, acl.getAclEntries().map(AclEntryList::size).orElse(0));
+    assertNotNull(acl.getObjectGuid());
+    assertEquals("0-31-5", acl.getObjectGuid().getStringValue().orElse(null));
+    assertEquals(3, acl.getAclEntries() == null ? 0 : acl.getAclEntries().size());
   }
 
   @Test
@@ -140,7 +140,8 @@ public class AclListSerialDeserialTest {
 
     AclList roundTrip = mapper.readValue(json, AclList.class);
     assertEquals(1, roundTrip.size());
-    assertEquals(3, roundTrip.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
+    assertEquals(
+        3, roundTrip.get(0).getAclEntries() == null ? 0 : roundTrip.get(0).getAclEntries().size());
     assertEquals(31, roundTrip.get(0).getObjectType());
   }
 
@@ -179,14 +180,14 @@ public class AclListSerialDeserialTest {
     AclList list = mapper.readValue(clientBody, AclList.class);
     assertEquals(1, list.size());
     Acl acl = list.get(0);
-    assertEquals("By_Author ACL", acl.getName().orElse(null));
+    assertEquals("By_Author ACL", acl.getName());
     assertEquals(31, acl.getObjectType());
     assertEquals(5, acl.getObjectId());
-    assertNotNull(acl.getAclEntries().orElse(null));
-    assertEquals(3, acl.getAclEntries().get().size());
-    assertEquals("Default", acl.getAclEntries().get().get(0).getName().orElse(null));
-    assertEquals("AnyCommunity", acl.getAclEntries().get().get(1).getName().orElse(null));
-    assertEquals("Admin", acl.getAclEntries().get().get(2).getName().orElse(null));
+    assertNotNull(acl.getAclEntries());
+    assertEquals(3, acl.getAclEntries().size());
+    assertEquals("Default", acl.getAclEntries().get(0).getName());
+    assertEquals("AnyCommunity", acl.getAclEntries().get(1).getName());
+    assertEquals("Admin", acl.getAclEntries().get(2).getName());
   }
 
   @Test
@@ -221,7 +222,7 @@ public class AclListSerialDeserialTest {
     AclList list = mapper.readValue(body, AclList.class);
     assertEquals(1, list.size());
     assertEquals(
-        "Admin", list.get(0).getAclEntries().orElseThrow().get(0).getPrincipal().orElseThrow().getName());
+        "Admin", list.get(0).getAclEntries().get(0).getPrincipal().getName());
   }
 
   @Test
