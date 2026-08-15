@@ -876,6 +876,63 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(arg.type).toBe("page");
   });
 
+  it("enables Preview for a listed percPage row (#3456)", async () => {
+    const onPreview = vi.fn(async () => undefined);
+    stubPathFetch();
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "16777215-101-9",
+                  name: "About",
+                  path: "/Sites/Demo/Pages/About",
+                  type: "percPage",
+                  leaf: false,
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        actionHandlers={{ onPreview }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-16777215-101-9")).toBeInTheDocument();
+    });
+    const row = screen.getByTestId("detail-row-16777215-101-9");
+    expect(row.getAttribute("data-previewable")).toBe("true");
+    fireEvent.click(row);
+    await waitFor(() => {
+      expect(screen.getByTestId("action-preview")).toBeEnabled();
+    });
+    fireEvent.click(screen.getByTestId("action-preview"));
+    await waitFor(() => {
+      expect(onPreview).toHaveBeenCalled();
+    });
+  });
+
   it("passes the zero serious/critical axe-core gate (T082a / 508)", async () => {
     stubPathFetch();
     const { container } = renderShell(

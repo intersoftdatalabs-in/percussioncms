@@ -16,7 +16,10 @@
 
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
-import { isFolder } from "../../../main/ts/contentExplorer/selection";
+import {
+  isFolder,
+  isPageOrAssetContentType,
+} from "../../../main/ts/contentExplorer/selection";
 
 describe("isFolder (#3001 site nodes)", () => {
   it("treats type site as expandable folder", () => {
@@ -86,5 +89,78 @@ describe("isFolder (#3001 site nodes)", () => {
         leaf: true,
       }),
     ).toBe(false);
+  });
+
+  it("does not treat listed percPage rows as folders (#3456)", () => {
+    const listed: PSPathItem = {
+      id: "16777215-101-9",
+      name: "About",
+      path: "/Sites/Corporate_Investments/Pages/About",
+      type: "percPage",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(isPageOrAssetContentType(listed)).toBe(true);
+    expect(isFolder(listed)).toBe(false);
+    expect(
+      isFolder({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "Page",
+        category: "PAGE",
+      }),
+    ).toBe(false);
+    expect(
+      isFolder({
+        id: "16777215-101-551",
+        name: "Corporate Investments Home",
+        path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+        type: "rffHome",
+        leaf: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagination",
+        type: "pagination",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagebreak",
+        type: "pagebreak",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "p",
+        path: "/Sites/Demo/pagelet",
+        type: "pagelet",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "a",
+        path: "/Sites/Demo/assetmanagement",
+        type: "assetmanagement",
+      }),
+    ).toBe(false);
+  });
+
+  it("keeps custom folder types under /Sites/ as folders when leaf is false", () => {
+    expect(
+      isFolder({
+        id: "16777215-101-20",
+        name: "Campaigns",
+        path: "/Sites/Demo/Campaigns",
+        type: "CampaignFolder",
+        leaf: false,
+      }),
+    ).toBe(true);
   });
 });

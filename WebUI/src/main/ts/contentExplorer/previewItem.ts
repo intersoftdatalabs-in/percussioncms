@@ -35,7 +35,7 @@
 import { get } from "../api/client";
 import { PATHS, SERVICES_ROOT } from "../api/paths";
 import type { PSPathItem } from "../api/contentExplorer/types";
-import { isFolder } from "./selection";
+import { isFolder, isPageOrAssetContentType } from "./selection";
 
 /** Discriminator used by UI chrome and skip logic in Playwright. */
 export type PreviewKind = "page" | "asset" | "none";
@@ -136,12 +136,27 @@ function typeToken(item: PSPathItem): string {
  * Classify whether Explorer can open a product preview for this selection.
  */
 export function resolvePreviewKind(item: PSPathItem | null | undefined): PreviewKind {
-  if (!item || isFolder(item)) {
+  if (!item) {
     return "none";
   }
   const token = typeToken(item);
   const path = normalizeCmsPath(item.path);
   const pathLower = path.toLowerCase();
+  const hasId = Boolean((item.id ?? "").trim());
+
+  // Listed percPage / Page rows win over folder heuristics (#3456).
+  if (isPageOrAssetContentType(item) && !token.includes("folder")) {
+    if (token.includes("asset")) {
+      return hasId ? "asset" : "none";
+    }
+    if (hasId || pathLower.startsWith("/sites/")) {
+      return "page";
+    }
+  }
+
+  if (isFolder(item)) {
+    return "none";
+  }
 
   if (
     token.includes("asset") ||
@@ -149,7 +164,7 @@ export function resolvePreviewKind(item: PSPathItem | null | undefined): Preview
     pathLower.startsWith("/assets")
   ) {
     // Need an id for the assetViewUrl service.
-    return (item.id ?? "").trim() ? "asset" : "none";
+    return hasId ? "asset" : "none";
   }
 
   if (
@@ -158,14 +173,14 @@ export function resolvePreviewKind(item: PSPathItem | null | undefined): Preview
     pathLower === "/sites"
   ) {
     // Page: id (render) or Sites path (friendly URL).
-    if ((item.id ?? "").trim() || pathLower.startsWith("/sites/")) {
+    if (hasId || pathLower.startsWith("/sites/")) {
       return "page";
     }
     return "none";
   }
 
   // Unknown non-folder: try page render when id present (content items).
-  if ((item.id ?? "").trim()) {
+  if (hasId) {
     return "page";
   }
   return "none";

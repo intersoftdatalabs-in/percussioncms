@@ -43,16 +43,56 @@ export const EMPTY_SELECTION: Selection = {
  */
 const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
 
+/**
+ * Exact {@code type} / {@code category} tokens that are previewable items.
+ * Substring {@code includes("page")} would also match {@code pagination}
+ * / {@code pagebreak} / {@code pagelet}; {@code includes("asset")} would
+ * match {@code assetmanagement} (#3456 review).
+ */
+const PAGE_OR_ASSET_TYPE_KEYS = new Set([
+  "page",
+  "percpage",
+  "percasset",
+  "asset",
+  "rffhome",
+]);
+
+/** FastForward nav types are folder-like, not previewable items. */
+const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
+
+/**
+ * Content types that are previewable items, not folders. Pathmanagement
+ * lists FastForward pages as {@code percPage} / {@code Page}; those must
+ * stay items even when {@code leaf} is omitted or {@code hasFolderChildren}
+ * is set on a paginated row (#3456 / #2745).
+ */
+export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
+  if (!item) return false;
+  const type = (item.type ?? "").trim().toLowerCase();
+  const category = (item.category ?? "").trim().toLowerCase();
+  if (PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category)) {
+    return true;
+  }
+  // Other FastForward content items (rffEvent, rffImage, …) are items.
+  if (type.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(type)) return true;
+  if (category.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(category)) return true;
+  return false;
+}
+
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
   if (FOLDER_TYPE_KEYS.has(type)) return true;
   const category = (item.category ?? "").trim().toLowerCase();
   if (category === "folder") return true;
+  // Listed percPage / Page / rffHome / asset rows are never folders (#3456).
+  if (isPageOrAssetContentType(item)) return false;
   // Server PSPathItem.setPath appends '/' only for folders. $System$ and
   // similar under /Folders/ may omit type but still use a folder path (#3330).
   const path = (item.path ?? "").trim();
   if (path.endsWith("/")) return true;
+  // Do not treat every id'd /Sites/ path as an item — custom folder types
+  // with an id and no trailing slash stay folders via leaf / children.
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   return Boolean(item.hasFolderChildren);

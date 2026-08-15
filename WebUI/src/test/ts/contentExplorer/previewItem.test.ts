@@ -109,6 +109,37 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(isPreviewableItem(FOLDER)).toBe(false);
   });
 
+  it("enables preview for listed percPage rows even when leaf is false (#3456)", () => {
+    const listed: PSPathItem = {
+      id: "16777215-101-9",
+      name: "About",
+      path: "/Sites/Corporate_Investments/Pages/About",
+      type: "percPage",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(resolvePreviewKind(listed)).toBe("page");
+    expect(isPreviewableItem(listed)).toBe(true);
+    const target = resolvePreviewTarget(listed, "/services");
+    expect(target.kind).toBe("page");
+    expect(target.url).toBe(
+      `/services/pagemanagement/render/page/${encodeURIComponent(listed.id!)}`,
+    );
+    expect(
+      isPreviewableItem({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "Page",
+      }),
+    ).toBe(true);
+    expect(
+      resolvePreviewTarget(
+        { name: "Home", path: "/Sites/Demo/Home", type: "Page" },
+        "/services",
+      ).url,
+    ).toContain("/Sites/Demo/Home?");
+  });
+
   it("resolvePreviewTarget prefers page render id over site path", () => {
     const t = resolvePreviewTarget(PAGE, "/services");
     expect(t.kind).toBe("page");
