@@ -20,6 +20,7 @@ import {
   isStrictCmsPathDescendant,
   normalizeExplorerFolderPath,
   resolveFolderPathFromSelection,
+  toRepositorySearchFolderPath,
 } from "../../../main/ts/contentExplorer/folderPath";
 
 describe("normalizeExplorerFolderPath (#2792)", () => {
@@ -144,5 +145,33 @@ describe("resolveFolderPathFromSelection (#2792)", () => {
     expect(
       resolveFolderPathFromSelection(null, "/Sites/X", "page"),
     ).toBeNull();
+  });
+});
+
+describe("toRepositorySearchFolderPath (#3438)", () => {
+  it("returns undefined for empty input", () => {
+    expect(toRepositorySearchFolderPath(null)).toBeUndefined();
+    expect(toRepositorySearchFolderPath(undefined)).toBeUndefined();
+    expect(toRepositorySearchFolderPath("")).toBeUndefined();
+    expect(toRepositorySearchFolderPath("   ")).toBeUndefined();
+  });
+
+  it("converts explorer /Sites form to repository //Sites", () => {
+    expect(toRepositorySearchFolderPath("/Sites")).toBe("//Sites");
+    expect(toRepositorySearchFolderPath("/Sites/Foo")).toBe("//Sites/Foo");
+    expect(toRepositorySearchFolderPath("Sites/Foo")).toBe("//Sites/Foo");
+  });
+
+  it("keeps an already-repository path", () => {
+    expect(toRepositorySearchFolderPath("//Sites")).toBe("//Sites");
+    expect(toRepositorySearchFolderPath("//Sites/Foo")).toBe("//Sites/Foo");
+    expect(toRepositorySearchFolderPath("//Folders/$System$/Assets")).toBe(
+      "//Folders/$System$/Assets",
+    );
+  });
+
+  it("normalizes backslashes and extra slashes", () => {
+    expect(toRepositorySearchFolderPath("\\Sites\\Foo")).toBe("//Sites/Foo");
+    expect(toRepositorySearchFolderPath("///Sites//Foo")).toBe("//Sites/Foo");
   });
 });

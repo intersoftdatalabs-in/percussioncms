@@ -57,6 +57,21 @@ describe("normalizeSearchCriteria (GH-2950)", () => {
     expect(out.startIndex).toBe(1);
     expect(out).not.toHaveProperty("caseSensitive");
   });
+
+  it("normalizes explorer folderPath to repository form (#3438)", () => {
+    const out = normalizeSearchCriteria({
+      query: "a",
+      folderPath: "/Sites",
+    });
+    expect(out.folderPath).toBe("//Sites");
+    expect(
+      normalizeSearchCriteria({ query: "a", folderPath: "//Sites/Foo" })
+        .folderPath,
+    ).toBe("//Sites/Foo");
+    expect(
+      normalizeSearchCriteria({ query: "a" }).folderPath,
+    ).toBeUndefined();
+  });
 });
 
 describe("searchExtended wire shape", () => {

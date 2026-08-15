@@ -172,3 +172,34 @@ export function resolveFolderPathFromSelection(
   }
   return normalizeExplorerFolderPath(folderPath);
 }
+
+/**
+ * Repository form required by content WS / search execute
+ * ({@code getIdByPath} rejects paths that do not start with {@code //}).
+ *
+ * <p>Explorer tree/list chrome uses a single leading slash ({@code /Sites}).
+ * Free-text search and saved-search execute must send {@code //Sites} (or
+ * {@code //Folders}, {@code //Assets}) or the server returns
+ * {@code Path: /Sites - must start with '//'} (#3438 / #2799).</p>
+ *
+ * <p>CMS paths always use {@code /} — this is not OS file I/O. Drive
+ * letters and backslashes are stripped only so a pasted Windows-style
+ * path still becomes a valid repository path.</p>
+ *
+ * @returns {@code //Sites/...} form, or {@code undefined} when empty
+ */
+export function toRepositorySearchFolderPath(
+  path: string | null | undefined,
+): string | undefined {
+  if (path == null) return undefined;
+  let p = path.trim().replace(/\\/g, "/");
+  if (p.length === 0) return undefined;
+  p = p.replace(/^[A-Za-z]:/, "");
+  if (p.length === 0) return undefined;
+  // Collapse all slashes first so //Sites and /Sites share one form.
+  p = p.replace(/\/{2,}/g, "/");
+  if (!p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  return `/${p}`;
+}

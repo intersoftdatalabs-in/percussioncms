@@ -1570,7 +1570,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       folderPath?: string;
     };
     expect(criteria.query).toBe("demo page");
-    expect(criteria.folderPath).toBe("/Sites/Demo");
+    expect(criteria.folderPath).toBe("//Sites/Demo");
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
     });

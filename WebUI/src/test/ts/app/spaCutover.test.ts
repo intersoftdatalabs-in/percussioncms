@@ -195,6 +195,15 @@ describe("PR-8 delete obsolete product host JSPs", () => {
     }
   });
 
+  it("assetPickerModern.jsp loads a single perc-modern-ui.js module URL (#3438)", () => {
+    const text = read(resolve(webappRoot, "cm/app/assetPickerModern.jsp"));
+    expect(text).toContain('s.src = "/cm/modern/assets/perc-modern-ui.js"');
+    expect(text).not.toMatch(/perc-modern-ui\.js\?cb=/);
+    expect(text).not.toMatch(/Date\.now\s*\(/);
+    expect(text).toContain('initialPath: "//Sites"');
+    expect(text).toContain("enableSearch: true");
+  });
+
   it("spa.jsp remains the authenticated SPA document (dual-tree aligned)", () => {
     const appSpa = resolve(webappRoot, "cm/app/spa.jsp");
     const pagesSpa = resolve(webappRoot, "cm/pages/app/spa.jsp");

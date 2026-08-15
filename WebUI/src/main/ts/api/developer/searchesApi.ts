@@ -16,12 +16,63 @@
 
 import { get, post } from "../client";
 import { PATHS } from "../paths";
+import { toRepositorySearchFolderPath } from "../../contentExplorer/folderPath";
 import type {
   SearchDef,
   SearchExecuteRequest,
   SearchExecuteResult,
   SearchResultItem,
 } from "./types";
+
+/**
+ * Jackson / JAXB root for {@link SearchExecuteRequest}
+ * ({@code @XmlRootElement(name = "SearchExecuteRequest")}). CXF
+ * {@code UNWRAP_ROOT_VALUE} rejects a bare {@code folderPath} field
+ * (QA #2799 / #3438) — same envelope as {@code ViewExecuteRequest}.
+ */
+export const SEARCH_EXECUTE_REQUEST_ROOT = "SearchExecuteRequest";
+
+/** Wire envelope required by WRAP_ROOT_VALUE / JAXB on search execute. */
+export type SearchExecuteRequestEnvelope = {
+  SearchExecuteRequest: SearchExecuteRequest;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/**
+ * Wrap execute overrides under {@link SEARCH_EXECUTE_REQUEST_ROOT}.
+ * Does not double-wrap an already-enveloped payload. Folder paths are
+ * normalized to repository form ({@code //Sites}) so a host that still
+ * holds {@code /Sites} does not 400 on {@code getIdByPath}.
+ */
+export function wrapSearchExecuteRequest(
+  request?: SearchExecuteRequest | SearchExecuteRequestEnvelope | null,
+): SearchExecuteRequestEnvelope {
+  const rec = asRecord(request);
+  let inner: SearchExecuteRequest = {};
+  if (rec != null) {
+    const nested = rec[SEARCH_EXECUTE_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      inner = nested as SearchExecuteRequest;
+    } else {
+      inner = request as SearchExecuteRequest;
+    }
+  }
+  const folderPath = toRepositorySearchFolderPath(inner.folderPath);
+  const rest: SearchExecuteRequest = { ...inner };
+  delete rest.folderPath;
+  return {
+    SearchExecuteRequest: {
+      ...rest,
+      ...(folderPath !== undefined ? { folderPath } : {}),
+    },
+  };
+}
 
 /**
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows;
@@ -133,10 +184,9 @@ export async function executeSearch(
     throw new Error("Search id or name is required");
   }
   const pathKey = encodeURIComponent(key);
-  const body = request ?? {};
   const payload = await post<unknown>(
     `${PATHS.SEARCHES}/${pathKey}/execute`,
-    body,
+    wrapSearchExecuteRequest(request),
   );
   return unwrapSearchExecuteResult(payload);
 }
