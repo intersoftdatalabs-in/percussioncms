@@ -480,8 +480,8 @@ pathmanagement.
 | Operator property name | `perc.explorer.rxFolderMutations` |
 | Default | **off** (pathmanagement only — zero behavior change) |
 | Client enable (QA / dual-run) | URL `?rxFolderMutations=1`, or `sessionStorage` / `localStorage` key `perc.explorer.rxFolderMutations=true`, or `window.__PERC_RX_FOLDER_MUTATIONS__ = true` |
-| When on | Mutations under `/Folders` and `/Sites` (and `//Folders` / `//Sites`) use this REST surface |
-| Still on pathmanagement | List/paginate, ACL folder-properties save, non-RX roots (`/Assets`, `/Design`, `/Recycling`, …) |
+| When on | Mutations under `/Folders` and `/Sites` (and `//Folders` / `//Sites`) use this REST surface. Do **not** treat `/Folders/$System$/Assets` or `//Folders/$System$/Assets` as RX Folders — those are the Assets library. |
+| Still on pathmanagement | List/paginate, ACL folder-properties save, non-RX roots (`/Assets`, `/Folders/$System$/Assets`, `//Folders/$System$/Assets`, `/Design`, `/Recycling`, `/Folders/$System$/Recycling`, …) |
 | Copy folder | `POST /rest/folders/copy/folder` with JSON root `CopyFolderItemRequest` (`itemPath`, `targetFolderPath`). Explorer Copy / Subfolder Copy must not POST a bare `sourcePath` object to pathmanagement `moveItem` (HTTP 400 unexpected element `sourcePath`). |
 
 See also [Content Explorer](id:admin-content-explorer) dual-run notes.

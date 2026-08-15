@@ -88,10 +88,31 @@ describe("isRxCapableFolderPath", () => {
     expect(isRxCapableFolderPath("/Recycling")).toBe(false);
   });
 
+  it("treats $System$/Assets as non-RX in finder and repository forms (#3363)", () => {
+    expect(isRxCapableFolderPath("/Folders/$System$/Assets")).toBe(false);
+    expect(isRxCapableFolderPath("/Folders/$System$/Assets/")).toBe(false);
+    expect(isRxCapableFolderPath("/Folders/$System$/Assets/uploads")).toBe(false);
+    expect(isRxCapableFolderPath("//Folders/$System$/Assets")).toBe(false);
+    expect(isRxCapableFolderPath("//Folders/$System$/Assets/uploads")).toBe(
+      false,
+    );
+    expect(isRxCapableFolderPath("/Assets")).toBe(false);
+    expect(isRxCapableFolderPath("/Assets/uploads")).toBe(false);
+    // $System$ itself and non-library siblings stay RX-capable.
+    expect(isRxCapableFolderPath("/Folders/$System$")).toBe(true);
+    expect(isRxCapableFolderPath("/Folders/$System$/Other")).toBe(true);
+    expect(isRxCapableFolderPath("/Folders/$System$/Recycling")).toBe(false);
+    expect(isRxCapableFolderPath("//Folders/$System$/Recycling/x")).toBe(false);
+  });
+
   it("shouldUseRxFolderMutations requires both flag and RX root", () => {
     setRxFolderMutationsFlagOverride(true);
     expect(shouldUseRxFolderMutations("/Folders/A")).toBe(true);
     expect(shouldUseRxFolderMutations("/Assets/A")).toBe(false);
+    expect(shouldUseRxFolderMutations("/Folders/$System$/Assets")).toBe(false);
+    expect(shouldUseRxFolderMutations("//Folders/$System$/Assets/uploads")).toBe(
+      false,
+    );
     setRxFolderMutationsFlagOverride(false);
     expect(shouldUseRxFolderMutations("/Folders/A")).toBe(false);
   });

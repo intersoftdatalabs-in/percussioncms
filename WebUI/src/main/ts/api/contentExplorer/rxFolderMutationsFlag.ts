@@ -163,6 +163,36 @@ export function isRxFolderMutationsEnabled(): boolean {
 }
 
 /**
+ * Whether {@code lower} is {@code prefix} or a child segment of it.
+ * Trailing slashes are ignored so {@code /Assets/} matches {@code /assets}.
+ */
+function isPrefixOrEqual(lower: string, prefix: string): boolean {
+  let p = lower;
+  while (p.length > 1 && p.endsWith("/")) {
+    p = p.slice(0, -1);
+  }
+  return p === prefix || p.startsWith(`${prefix}/`);
+}
+
+/**
+ * CM1 library roots that live under {@code //Folders/$System$} in the
+ * repository but must stay on pathmanagement (#3363).
+ *
+ * <p>Explorer selection prefers {@code PathItem.folderPath}, so Assets is
+ * often {@code /Folders/$System$/Assets} (or {@code //Folders/$System$/Assets})
+ * rather than the finder id {@code /Assets}. A naive {@code /Folders/}
+ * prefix would incorrectly send create/rename/move to the RX façade.</p>
+ */
+function isNonRxSystemLibraryPath(normalizedLower: string): boolean {
+  return (
+    isPrefixOrEqual(normalizedLower, "/assets") ||
+    isPrefixOrEqual(normalizedLower, "/recycling") ||
+    isPrefixOrEqual(normalizedLower, "/folders/$system$/assets") ||
+    isPrefixOrEqual(normalizedLower, "/folders/$system$/recycling")
+  );
+}
+
+/**
  * Whether a CMS path is under an RX-capable root that the content-explorer
  * folders façade is intended to serve ({@code Folders} / {@code Sites}).
  *
@@ -170,6 +200,10 @@ export function isRxFolderMutationsEnabled(): boolean {
  * repository form ({@code //Folders/...}, {@code //Sites/...}). Other roots
  * ({@code /Assets}, {@code /Design}, {@code /Recycling}, …) stay on
  * pathmanagement even when the dual-run flag is on.</p>
+ *
+ * <p>Assets (and Recycling) are also non-RX when represented as
+ * {@code /Folders/$System$/Assets} or {@code //Folders/$System$/Assets}
+ * (#3363). Sibling folders under {@code $System$} remain RX-capable.</p>
  */
 export function isRxCapableFolderPath(path: string | null | undefined): boolean {
   if (path == null) {
@@ -194,6 +228,9 @@ export function isRxCapableFolderPath(path: string | null | undefined): boolean 
   // Strip one leading slash for comparison so //Folders and /Folders share logic.
   const withoutRepo = p.startsWith("//") ? p.slice(1) : p;
   const lower = withoutRepo.toLowerCase();
+  if (isNonRxSystemLibraryPath(lower)) {
+    return false;
+  }
   return (
     lower === "/folders" ||
     lower.startsWith("/folders/") ||

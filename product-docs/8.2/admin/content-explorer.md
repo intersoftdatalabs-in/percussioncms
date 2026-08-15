@@ -103,8 +103,8 @@ on pathmanagement.
 | Name | `perc.explorer.rxFolderMutations` |
 | Default | **off** |
 | Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
-| Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only |
-| Unchanged | Browse/list, folder ACL (security panel), `/Assets` / `/Design` / `/Recycling` |
+| Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only. The Assets library is **not** in scope even when its repository path is `/Folders/$System$/Assets` or `//Folders/$System$/Assets`. |
+| Unchanged | Browse/list, folder ACL (security panel), `/Assets` (including `/Folders/$System$/Assets` and `//Folders/$System$/Assets`), `/Design`, `/Recycling` (including `/Folders/$System$/Recycling`) |
 | Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). |
 
 Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
