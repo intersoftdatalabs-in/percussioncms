@@ -56,18 +56,20 @@ const ACTIVATE_KEYS = new Set(["Enter", " "]);
 
 function activate(
   action: MenuAction,
-  _baseHref: string,
+  parent: MenuAction | undefined,
   onInvoke?: (name: string, a: MenuAction) => void,
 ): void {
-  onInvoke?.(action.name, action);
+  const payload =
+    parent?.name && !action.parentName
+      ? { ...action, parentName: parent.name }
+      : action;
+  onInvoke?.(action.name, payload);
 }
 
 export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
   const { actions, onInvoke, onClose, ariaLabel, className } = props;
   const [openPivot, setOpenPivot] = useState<string | null>(null);
   const baseId = useId();
-  const baseHref =
-    typeof window !== "undefined" ? window.location.href : "http://localhost/";
 
   useEffect(() => {
     setOpenPivot(null);
@@ -90,7 +92,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
       if (isPivot) {
         setOpenPivot(expanded ? null : action.name);
       } else {
-        activate(action, baseHref, onInvoke);
+        activate(action, undefined, onInvoke);
       }
     }
   }
@@ -130,7 +132,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                     if (isPivot) {
                       setOpenPivot(expanded ? null : action.name);
                     } else {
-                      activate(action, baseHref, onInvoke);
+                      activate(action, undefined, onInvoke);
                     }
                   }}
                   onKeyDown={(e) => handleItemKey(e, action, isPivot, expanded)}
@@ -161,11 +163,11 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                           role="menuitem"
                           tabIndex={0}
                           data-testid={`context-menu-item-${c.name}`}
-                          onClick={() => activate(c, baseHref, onInvoke)}
+                          onClick={() => activate(c, action, onInvoke)}
                           onKeyDown={(e) => {
                             if (ACTIVATE_KEYS.has(e.key)) {
                               e.preventDefault();
-                              activate(c, baseHref, onInvoke);
+                              activate(c, action, onInvoke);
                             }
                           }}
                           style={{ cursor: "pointer" }}

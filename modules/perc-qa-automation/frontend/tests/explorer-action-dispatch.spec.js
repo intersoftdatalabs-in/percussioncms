@@ -50,7 +50,9 @@ test.describe("modern React Content Explorer — action dispatch", () => {
           u.includes("contenteditorurls.html") ||
           u.includes("flushcache.html") ||
           u.includes("navreset.html") ||
-          u.includes("demandpublishing")
+          u.includes("demandpublishing") ||
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html")
         ) {
           blocked.push(u);
         }

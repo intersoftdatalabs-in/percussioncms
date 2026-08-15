@@ -106,7 +106,7 @@ describe("ActionToolbar", () => {
     fireEvent.click(screen.getByTestId("action-toolbar-item-new-folder"));
     expect(onInvoke).toHaveBeenCalledWith(
       "new-folder",
-      expect.objectContaining({ name: "new-folder" }),
+      expect.objectContaining({ name: "new-folder", parentName: "new" }),
     );
   });
 

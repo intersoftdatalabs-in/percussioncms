@@ -132,7 +132,8 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
 | **Publish Now** | Confirms, then demand-publishes a **page** or **asset** (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Other types stay unavailable. Does not open the demand-publish servlet page. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure (same as classic Finder) — Explorer shows the server warning and does not refresh as if published. |
-| **Active Assembly** / slot arrange | Not available in this Explorer slice (needs a React Active Assembly host). |
+| **Active Assembly** | Opens a new window that assembles the selected item with its **page** or **snippet template** (`GET /services/assembly/preview-location` in an iframe). A light overlay shows the content id and template. If the requested template is missing from the item's available list, Explorer shows that mismatch instead of silently using another template. A failed template catalog load is an error, not a hidden preview retry. Field editing and slot arrange come later with the Content Editor. Does not open leftover Active Assembly HTML. |
+| **Slot arrange** | Still unavailable in this Explorer slice. Slot add/create/arrange need relationship context from the assembly canvas. |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.

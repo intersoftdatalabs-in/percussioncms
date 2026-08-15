@@ -16,16 +16,26 @@
  */
 
 import React from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { BrandBar, BrandFooter } from "../../ui-themes/components";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";
 
+function isBareAssemblyPath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return segments.length === 1 && segments[0] === "assembly";
+}
+
 /**
  * Authenticated SPA chrome: brand bar, TopNav, feature outlet, footer.
  * Feature shells should use {@code embedded} (PR-3+) to avoid duplicate chrome.
+ * Active Assembly is chrome-less so the assembled preview is the canvas.
  */
 export function AppLayout(): React.ReactElement {
+  const { pathname } = useLocation();
+  if (isBareAssemblyPath(pathname)) {
+    return <Outlet />;
+  }
   return (
     <div className={styles.shell} data-testid="perc-spa-app">
       <BrandBar />

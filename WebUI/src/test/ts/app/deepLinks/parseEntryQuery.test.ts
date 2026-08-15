@@ -117,6 +117,29 @@ describe("parseEntryQuery", () => {
     expect(parseClientPath("/profile").clientPath).toBe("/profile");
   });
 
+  it("maps assembly entry to chrome-less /assembly with ids", () => {
+    const p = parseEntryQuery(
+      "?entry=assembly&contentId=42&templateId=7",
+    );
+    expect(p.entry).toBe("assembly");
+    expect(p.contentId).toBe("42");
+    expect(p.templateId).toBe("7");
+    expect(p.clientPath).toBe("/assembly?contentId=42&templateId=7");
+    expect(parseClientPath("/assembly", "?contentId=42&templateId=7").entry).toBe(
+      "assembly",
+    );
+    expect(
+      toSpaEntryUrl({
+        entry: "assembly",
+        contentId: "42",
+        templateId: "7",
+        clientPath: "/assembly?contentId=42&templateId=7",
+      }),
+    ).toBe(
+      "/cm/app/spa.jsp?entry=assembly&contentId=42&templateId=7",
+    );
+  });
+
   it("toSpaEntryUrl rebuilds query contract", () => {
     const url = toSpaEntryUrl({
       entry: "home",
