@@ -28,13 +28,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import org.mockito.Mockito;
 
 import com.percussion.comments.service.IPSCommentsService;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
@@ -117,7 +114,7 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
   }
 
   @Test
-  void loadTreeCreatesNavTreeOnFirstOpenWithoutForcedCheckin() throws Exception {
+  void loadTreeCreatesNavTreeOnFirstOpenWithoutCheckin() throws Exception {
     PSLegacyGuid created = new PSLegacyGuid(364, 1);
     stubCreateNavTreeSave(created);
     stubCreatedNavTreeLoad(created);
@@ -126,28 +123,32 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
     assertEquals(new PSLegacyGuid(364, -1).toString(), tree.getId());
     assertEquals("Demo", tree.getTitle());
     assertEquals("//Sites/Demo", tree.getFolderPath().orElse(null));
-    verify(contentSrv).addFolderChildren(eq("//Sites/Demo"), any());
-    verify(contentSrv).checkinItems(any(), eq(null));
+    verify(navService).addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", -1);
+    verify(contentSrv, never()).checkinItems(any(), eq(null));
     verify(siteMgr, never()).deleteSite(any());
   }
 
   @Test
-  void loadTreeKeepsRootWhenCheckinFailsAfterAttach() throws Exception {
+  void loadTreeRetriesFolderWorkflowThenKeepsRoot() throws Exception {
     PSLegacyGuid created = new PSLegacyGuid(365, 1);
-    stubCreateNavTreeSave(created);
+    when(pageDaoHelper.getWorkflowIdForPath("//Sites/Demo")).thenReturn(4);
+    when(navService.addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", -1))
+        .thenThrow(new RuntimeException("default workflow failed"));
+    when(navService.addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", 4))
+        .thenReturn(created);
     stubCreatedNavTreeLoad(created);
-    Mockito.doThrow(new RuntimeException("checkin aging NPE"))
-        .when(contentSrv)
-        .checkinItems(any(), eq(null));
 
     PSSectionNode tree = service.loadTree("Demo");
     assertEquals(new PSLegacyGuid(365, -1).toString(), tree.getId());
+    verify(navService).addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", -1);
+    verify(navService).addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", 4);
+    verify(contentSrv, never()).checkinItems(any(), eq(null));
   }
 
   @Test
   void loadTreeReturnsEmptyNodeWhenNavTreeCreateFails() throws Exception {
-    when(navService.getNavTreeContentTypeNames()).thenReturn(List.of("percNavTree"));
-    when(contentSrv.createItems("percNavTree", 1)).thenThrow(new RuntimeException("folder missing"));
+    when(navService.addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt()))
+        .thenThrow(new RuntimeException("folder missing"));
 
     PSSectionNode tree = service.loadTree("Demo");
     assertNotNull(tree);
@@ -160,7 +161,8 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
 
   @Test
   void loadRootReturnsEmptySectionWhenCreateFailsAndDoesNotDeleteSite() throws Exception {
-    when(navService.getNavTreeContentTypeNames()).thenReturn(Collections.emptyList());
+    when(navService.addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt()))
+        .thenThrow(new RuntimeException("no nav type"));
 
     PSSiteSection root = service.loadRoot("Demo");
     assertNotNull(root);
@@ -179,13 +181,14 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
     assertNull(tree.getId());
     assertTrue(tree.getChildNodes().isEmpty());
     verify(contentSrv, never()).createItems(anyString(), anyInt());
+    verify(navService, never()).addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt());
   }
 
   @Test
   void loadTreeUsesExistingNavTreeAfterConcurrentCreate() throws Exception {
     PSLegacyGuid raced = new PSLegacyGuid(361, 1);
-    when(navService.getNavTreeContentTypeNames()).thenReturn(List.of("percNavTree"));
-    when(contentSrv.createItems("percNavTree", 1)).thenThrow(new RuntimeException("already has"));
+    when(navService.addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt()))
+        .thenThrow(new RuntimeException("already has"));
     when(navService.findNavigationIdFromFolder("//Sites/Demo")).thenReturn(null, raced);
     stubCreatedNavTreeLoad(raced);
 
@@ -194,11 +197,9 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
     assertEquals("Demo", tree.getTitle());
   }
 
-  private void stubCreateNavTreeSave(IPSGuid created) throws Exception {
-    when(navService.getNavTreeContentTypeNames()).thenReturn(List.of("percNavTree"));
-    PSCoreItem item = Mockito.mock(PSCoreItem.class);
-    when(contentSrv.createItems("percNavTree", 1)).thenReturn(List.of(item));
-    when(contentSrv.saveItems(any(), eq(false), eq(false))).thenReturn(List.of(created));
+  private void stubCreateNavTreeSave(IPSGuid created) {
+    when(navService.addNavTreeToFolder("//Sites/Demo", "Demo-NavTree", "Demo", -1))
+        .thenReturn(created);
   }
 
   private void stubCreatedNavTreeLoad(IPSGuid navGuid) {
