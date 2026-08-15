@@ -368,12 +368,12 @@ class SitesAdaptorTest {
     req.setOutputRoot(out.toString());
 
     VirtualSiteBuildResult result = building.buildVirtualSite("Help", req);
-    assertEquals("Help", result.getSiteName().orElse(null));
-    assertEquals("sample", result.getSiteKey().orElse(null));
+    assertEquals("Help", result.getSiteName());
+    assertEquals("sample", result.getSiteKey());
     assertEquals(2, result.getPagesWritten().intValue());
     assertEquals(0, result.getLinkProblemCount().intValue());
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
-    assertTrue(result.getOutputPath().isPresent());
+    assertTrue(result.getOutputPath() != null && !result.getOutputPath().isBlank());
     assertTrue(result.getWrittenFiles().contains("link-report.txt"));
   }
 
@@ -462,15 +462,15 @@ class SitesAdaptorTest {
         new SitesAdaptor(siteManager, () -> true, key -> staging, null);
 
     VirtualSitePublishResult result = publishing.publishVirtualSite("Help");
-    assertEquals("Help", result.getSiteName().orElse(null));
-    assertEquals("help-docs", result.getSiteKey().orElse(null));
+    assertEquals("Help", result.getSiteName());
+    assertEquals("help-docs", result.getSiteKey());
     assertEquals(1, result.getPagesWritten().intValue());
     assertTrue(result.getFilesCopied() >= 1);
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
     assertTrue(Files.isRegularFile(publishTo.resolve("8.2").resolve("index.html")));
     assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
-    assertTrue(result.getPublishPath().isPresent());
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
   }
 
   @Test
@@ -486,10 +486,10 @@ class SitesAdaptorTest {
     VirtualSitePublishResult dto =
         SitesAdaptor.toWirePublishResult("Help", "help-docs", built, publishRoot, 7);
 
-    assertEquals("Help", dto.getSiteName().orElse(null));
-    assertEquals("help-docs", dto.getSiteKey().orElse(null));
-    assertEquals(publishRoot.toAbsolutePath().normalize().toString(), dto.getPublishPath().orElse(null));
-    assertEquals(built.getOutputPath().orElse(null), dto.getBuildOutputPath().orElse(null));
+    assertEquals("Help", dto.getSiteName());
+    assertEquals("help-docs", dto.getSiteKey());
+    assertEquals(publishRoot.toAbsolutePath().normalize().toString(), dto.getPublishPath());
+    assertEquals(built.getOutputPath(), dto.getBuildOutputPath());
     assertEquals(3, dto.getPagesWritten().intValue());
     assertEquals(7, dto.getFilesCopied().intValue());
     assertEquals(1, dto.getLinkProblemCount().intValue());
@@ -552,7 +552,7 @@ class SitesAdaptorTest {
 
     VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("Help");
     assertEquals(Boolean.FALSE, status.getAvailable());
-    assertTrue(status.getMessage().orElse("").contains("No assembled"));
+    assertTrue(status.getMessage() != null && status.getMessage().contains("No assembled"));
   }
 
   @Test
@@ -570,7 +570,7 @@ class SitesAdaptorTest {
 
     VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("Help");
     assertEquals(Boolean.TRUE, status.getAvailable());
-    assertEquals("8.2/index.html", status.getHomePath().orElse(null));
+    assertEquals("8.2/index.html", status.getHomePath());
   }
 
   @Test
