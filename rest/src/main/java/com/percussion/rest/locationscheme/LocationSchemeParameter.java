@@ -22,9 +22,14 @@ package com.percussion.rest.locationscheme;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents a Location Scheme Parameter. Sunny Sal: "Parameter ka power, scheme ka tower!" */
+/**
+ * Represents a Location Scheme Parameter.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name}
+ * and {@code value} when set. Optional-returning getters historically serialized as empty/present
+ * beans or dropped fields under {@code @JsonInclude(NON_NULL)} (issue #3412 / #3388).
+ */
 @XmlRootElement(name = "LocationSchemeParameter")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Location Scheme Parameter")
@@ -46,32 +51,32 @@ public class LocationSchemeParameter {
     // Default constructor
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<Integer> getSequence() {
-    return Optional.ofNullable(sequence);
+  public Integer getSequence() {
+    return sequence;
   }
 
   public void setSequence(Integer sequence) {
     this.sequence = sequence;
   }
 
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
     this.type = type;
   }
 
-  public Optional<String> getValue() {
-    return Optional.ofNullable(value);
+  public String getValue() {
+    return value;
   }
 
   public void setValue(String value) {

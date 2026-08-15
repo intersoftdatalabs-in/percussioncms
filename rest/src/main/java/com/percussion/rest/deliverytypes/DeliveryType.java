@@ -22,9 +22,14 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a Delivery Type in Percussion CMS. */
+/**
+ * Represents a Delivery Type in Percussion CMS.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name}
+ * and {@code beanName} when set. Optional-returning getters historically serialized as empty/present
+ * beans or dropped fields under {@code @JsonInclude(NON_NULL)} (issue #3412 / #3388).
+ */
 @XmlRootElement(name = "DeliveryType")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Delivery Type.")
@@ -57,32 +62,32 @@ public class DeliveryType {
 
   public DeliveryType() {}
 
-  public Optional<Guid> getId() {
-    return Optional.ofNullable(id);
+  public Guid getId() {
+    return id;
   }
 
   public void setId(Guid id) {
     this.id = id;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getBeanName() {
-    return Optional.ofNullable(beanName);
+  public String getBeanName() {
+    return beanName;
   }
 
   public void setBeanName(String beanName) {

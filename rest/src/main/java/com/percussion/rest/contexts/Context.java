@@ -25,9 +25,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a publishing Context in Percussion CMS. */
+/**
+ * Represents a publishing Context in Percussion CMS.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name}
+ * and nested {@code defaultScheme} when set. Optional-returning getters historically serialized as
+ * empty/present beans or dropped fields under {@code @JsonInclude(NON_NULL)} (issue #3412 / #3388).
+ */
 @XmlRootElement(name = "Context")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a publishing Context")
@@ -79,48 +84,48 @@ public class Context {
     this.locationSchemes = locationSchemes;
   }
 
-  public Optional<Guid> getId() {
-    return Optional.ofNullable(id);
+  public Guid getId() {
+    return id;
   }
 
   public void setId(Guid id) {
     this.id = id;
   }
 
-  public Optional<Integer> getVersion() {
-    return Optional.ofNullable(version);
+  public Integer getVersion() {
+    return version;
   }
 
   public void setVersion(Integer version) {
     this.version = version;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<LocationScheme> getDefaultScheme() {
-    return Optional.ofNullable(defaultScheme);
+  public LocationScheme getDefaultScheme() {
+    return defaultScheme;
   }
 
   public void setDefaultScheme(LocationScheme defaultScheme) {
     this.defaultScheme = defaultScheme;
   }
 
-  public Optional<List<LocationScheme>> getLocationSchemes() {
-    return Optional.ofNullable(locationSchemes);
+  public List<LocationScheme> getLocationSchemes() {
+    return locationSchemes;
   }
 
   public void setLocationSchemes(List<LocationScheme> locationSchemes) {

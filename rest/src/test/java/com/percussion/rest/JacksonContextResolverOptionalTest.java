@@ -23,7 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
+import com.percussion.rest.contexts.Context;
+import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.displayformat.DisplayFormatProperty;
+import com.percussion.rest.locationscheme.LocationScheme;
+import com.percussion.rest.locationscheme.LocationSchemeParameter;
+import com.percussion.rest.locationscheme.LocationSchemeParameterList;
 import com.percussion.rest.pages.CalendarInfo;
 import com.percussion.rest.pages.CodeInfo;
 import com.percussion.rest.pages.Page;
@@ -55,7 +60,8 @@ import tools.jackson.databind.ObjectMapper;
  * #1693). TemplateSummary similarly collapsed to templateId-only (issue #2189). User / Role /
  * ObjectSummary follow the same plain-getter rule (issue #3388). DisplayFormatProperty / Template /
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
- * rule (issue #3411 / #3388). All use production {@link JacksonContextResolver} under {@code
+ * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
+ * plain-getter contract (issue #3412). All use production {@link JacksonContextResolver} under {@code
  * @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
@@ -498,6 +504,117 @@ class JacksonContextResolverOptionalTest {
     assertEquals(SiteMapType.STANDARD, roundTrip.getSiteMapType(), json);
   }
 
+
+  @Test
+  void locationScheme_serializesNameNotOptionalBeans() {
+    LocationScheme scheme = new LocationScheme();
+    scheme.setSchemeId(new Guid("0-113-42"));
+    scheme.setName("generic");
+    scheme.setDescription("Generic location scheme");
+    scheme.setLocationSchemeGenerator("sys_GenericLocationSchemeGenerator");
+    scheme.setTemplateId(1018);
+    scheme.setContentTypeId(311);
+
+    ObjectMapper schemeMapper = new JacksonContextResolver().getContext(LocationScheme.class);
+    String json = schemeMapper.writeValueAsString(scheme);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("generic"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"locationSchemeGenerator\""), json);
+    assertTrue(json.contains("sys_GenericLocationSchemeGenerator"), json);
+    assertNoOptionalBeanKeys(json);
+
+    LocationScheme roundTrip = schemeMapper.readValue(json, LocationScheme.class);
+    assertEquals("generic", roundTrip.getName(), json);
+    assertEquals("Generic location scheme", roundTrip.getDescription(), json);
+    assertNotNull(roundTrip.getSchemeId(), json);
+  }
+
+  @Test
+  void locationSchemeParameter_serializesNameValueNotOptionalBeans() {
+    LocationSchemeParameter param = new LocationSchemeParameter();
+    param.setName("ext");
+    param.setSequence(1);
+    param.setType("String");
+    param.setValue(".html");
+
+    ObjectMapper paramMapper =
+        new JacksonContextResolver().getContext(LocationSchemeParameter.class);
+    String json = paramMapper.writeValueAsString(param);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("ext"), json);
+    assertTrue(json.contains("\"value\""), json);
+    assertTrue(json.contains(".html"), json);
+    assertTrue(json.contains("\"sequence\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    LocationSchemeParameter roundTrip = paramMapper.readValue(json, LocationSchemeParameter.class);
+    assertEquals("ext", roundTrip.getName(), json);
+    assertEquals(".html", roundTrip.getValue(), json);
+    assertEquals(1, roundTrip.getSequence(), json);
+  }
+
+  @Test
+  void context_serializesNameAndNestedSchemeNotOptionalBeans() {
+    LocationScheme defaultScheme = new LocationScheme();
+    defaultScheme.setName("generic");
+    defaultScheme.setSchemeId(new Guid("0-113-42"));
+
+    LocationSchemeParameter param = new LocationSchemeParameter();
+    param.setName("ext");
+    param.setValue(".html");
+    LocationSchemeParameterList params = new LocationSchemeParameterList(List.of(param));
+    defaultScheme.setParameters(params);
+
+    Context context = new Context();
+    context.setId(new Guid("0-101-1"));
+    context.setName("Publish");
+    context.setDescription("Publish context");
+    context.setDefaultScheme(defaultScheme);
+    context.setLocationSchemes(List.of(defaultScheme));
+
+    ObjectMapper contextMapper = new JacksonContextResolver().getContext(Context.class);
+    String json = contextMapper.writeValueAsString(context);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Publish"), json);
+    assertTrue(json.contains("\"defaultScheme\""), json);
+    assertTrue(json.contains("generic"), json);
+    assertTrue(json.contains("\"locationSchemes\""), json);
+    assertTrue(json.contains("ext"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Context roundTrip = contextMapper.readValue(json, Context.class);
+    assertEquals("Publish", roundTrip.getName(), json);
+    assertNotNull(roundTrip.getDefaultScheme(), json);
+    assertEquals("generic", roundTrip.getDefaultScheme().getName(), json);
+    assertNotNull(roundTrip.getLocationSchemes(), json);
+    assertEquals(1, roundTrip.getLocationSchemes().size(), json);
+  }
+
+  @Test
+  void deliveryType_serializesNameBeanNotOptionalBeans() {
+    DeliveryType type = new DeliveryType();
+    type.setId(new Guid("0-115-7"));
+    type.setName("filesystem");
+    type.setDescription("File system delivery");
+    type.setBeanName("sys_fileDeliveryType");
+    type.setUnpublishingRequiresAssembly(false);
+
+    ObjectMapper typeMapper = new JacksonContextResolver().getContext(DeliveryType.class);
+    String json = typeMapper.writeValueAsString(type);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("filesystem"), json);
+    assertTrue(json.contains("\"beanName\""), json);
+    assertTrue(json.contains("sys_fileDeliveryType"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    DeliveryType roundTrip = typeMapper.readValue(json, DeliveryType.class);
+    assertEquals("filesystem", roundTrip.getName(), json);
+    assertEquals("sys_fileDeliveryType", roundTrip.getBeanName(), json);
+    assertEquals("File system delivery", roundTrip.getDescription(), json);
+    assertFalse(roundTrip.isUnpublishingRequiresAssembly(), json);
+  }
   private static void assertNoOptionalBeanKeys(String json) {
     assertFalse(
         json.contains("\"empty\"") || json.contains("\"present\""),

@@ -64,22 +64,18 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
   @Override
   public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
     try {
-      Guid idGuid = ApiUtils.orNull(type.getId());
+      Guid idGuid = type.getId();
       String idStr = ApiUtils.orNull(idGuid == null ? null : idGuid.getStringValue());
       if (idGuid == null || StringUtils.isBlank(idStr)) {
         // Create new delivery type
         var create = pubService.createDeliveryType();
         create.setUnpublishingRequiresAssembly(type.isUnpublishingRequiresAssembly());
-        create.setName(ApiUtils.orNull(type.getName()));
-        create.setDescription(ApiUtils.orNull(type.getDescription()));
-        create.setBeanName(ApiUtils.orNull(type.getBeanName()));
+        create.setName(type.getName());
+        create.setDescription(type.getDescription());
+        create.setBeanName(type.getBeanName());
         pubService.saveDeliveryType(create);
         return copyDeliveryType(create);
       } else {
-        // unwrap Optionals before copying
-        type.setName(ApiUtils.orNull(type.getName()));
-        type.setDescription(ApiUtils.orNull(type.getDescription()));
-        type.setBeanName(ApiUtils.orNull(type.getBeanName()));
         var update = copyDeliveryType(type);
         pubService.saveDeliveryType(update);
         // Load after save
@@ -122,11 +118,11 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
   private IPSDeliveryType copyDeliveryType(DeliveryType type) {
     var ret = new PSDeliveryType();
-    ret.setBeanName(ApiUtils.orNull(type.getBeanName()));
-    ret.setDescription(ApiUtils.orNull(type.getDescription()));
-    ret.setName(ApiUtils.orNull(type.getName()));
+    ret.setBeanName(type.getBeanName());
+    ret.setDescription(type.getDescription());
+    ret.setName(type.getName());
     ret.setUnpublishingRequiresAssembly(type.isUnpublishingRequiresAssembly());
-    ret.setGUID(ApiUtils.convertGuid(ApiUtils.orNull(type.getId())));
+    ret.setGUID(ApiUtils.convertGuid(type.getId()));
     return ret;
   }
 }
