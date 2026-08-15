@@ -639,6 +639,13 @@
 			tofile="${install.config}/Installer/data/RxffSampleTableData.xml"
 			file="${rxbase}/FastForward/SampleContent/Config/Data/RxffSampleTableData.xml"
 			replaceType="always" />
+		<!-- Hashed FastForward binaries (7.3.2 SampleContent/importFiles). First
+			 server start imports via autoImportBinaries.txt / PSDbStorageService. -->
+		<mkdir dir="${install.config}/FastForward/importFiles" />
+		<PSCopy todir="${install.config}/FastForward/importFiles"
+			replaceType="always">
+			<fileset dir="${rxbase}/FastForward/SampleContent/importFiles" />
+		</PSCopy>
 		<PSCopy
 			tofile="${install.config}/Installer/oldJdbcJarsList.txt"
 			file="${basedir}/src/main/resources/distribution/rxconfig/Installer/oldJdbcJarsList.txt"

@@ -113,6 +113,25 @@ class InstallSampleSitesWiringTest {
         distText.contains("RxffSampleTableData.xml")
             && distText.contains("FastForward/SampleContent"),
         "installDistributionFiles must copy FastForward SampleContent into Installer/data");
+    assertTrue(
+        distText.contains("SampleContent/importFiles")
+            && distText.contains("FastForward/importFiles"),
+        "installDistributionFiles must copy SampleContent/importFiles (hashed binaries)");
+    assertTrue(
+        targetBody.contains("autoImportBinaries.txt"),
+        "installSampleSites must register importFiles for first-start hashed binary import");
+    Path importFiles =
+        Path.of("..", "..", "system", "FastForward", "SampleContent", "importFiles");
+    assertTrue(
+        Files.isDirectory(importFiles),
+        "system/FastForward/SampleContent/importFiles must exist (7.3.2 hashed binaries)");
+    try (var walk = Files.walk(importFiles)) {
+      long sha1 =
+          walk.filter(Files::isRegularFile)
+              .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".sha1"))
+              .count();
+      assertTrue(sha1 >= 80, "expected hashed FastForward binaries (*.sha1); found " + sha1);
+    }
   }
 
   @Test

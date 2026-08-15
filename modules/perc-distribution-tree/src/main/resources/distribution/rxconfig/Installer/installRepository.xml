@@ -750,6 +750,10 @@
 			tableDef="${data.dir}/cmsTableDef.xml,${data.dir}/RxffTableDef.xml"
 			failonerror="true" silenceerrors="false" />
 
+		<!-- Hashed binaries from SampleContent/importFiles. PSDbStorageService
+			 reads autoImportBinaries.txt on first start (7.3.2 fastforwardSampleContent). -->
+		<echo file="${install.dir}/autoImportBinaries.txt" append="true">${install.dir}/rxconfig/FastForward/importFiles${line.separator}</echo>
+
 		<!-- Sample sites are Rhythmyx (not CM1 page-based). Seed XML sets IS_PAGE_BASED=F.
 			 Do not force T here; findAll no longer filters by isPageBased / pub server / nav tree
 			 (#2989). CM1 sites remain page-based when created via CM1 paths. -->
