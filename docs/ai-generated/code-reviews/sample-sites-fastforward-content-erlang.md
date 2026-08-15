@@ -92,3 +92,28 @@ Not required for this change class:
 ## Memory pattern candidate (do not commit without human review)
 
 Installer/Ant: **seed XML primary keys must sit at or below `NEXTNUMBER` (last-issued; first `createId` is NEXTNR+1).** Loading a second historic dataset is the same change class as adding rows to `cmsTableData` — bump keys and add the invariant test (`#3282` peer).
+
+## Re-review — percNavImage iconValue (2026-08-14)
+
+**Scope:** uncommitted vs `HEAD` (`644da47a3a`). Two files: `psx_cepercNavImage.xml` `iconValue` `rffNavImage.gif` → `percNavImage.gif`; `FastForwardContentTypeIconsPackagingTest.percNavEditorsUseShippedPercNavIcons`.
+
+### Recommendation
+
+approve
+
+### Gate
+
+- **May commit/push: yes**
+- Bugs: none
+- Behavioral test: present (all three percNav editors must `iconValue` the shipped `percNav*.gif`; leftover `rffNav*` iconValue is a fail)
+- Change-class: ObjectStore icon pointer + packaging test; matches `perc.nav` `percNavImage.itemDef` and shipped `ContentTypeIcons/percNavImage.gif`
+- Agent rule files: none
+- Cross-platform path review: **clean** (`Path.of`, `Files.walk`, case-insensitive filename match)
+
+### Issues
+
+None that block. Leftover `system/cms/content/applications/widgets/psx_cerffNavImage.xml` still uses `rffNavImage.gif`; that is the old rff-named widget editor, not the ManagedNav `psx_cepercNavImage` surface this change updates. Historic MSM export descriptor `FF3_Templates_ContentTypes_66.xml` still lists `rffNavImage.gif` as snapshot data.
+
+### Tests
+
+`mvnw -Dtest=FastForwardContentTypeIconsPackagingTest test` in `modules/perc-distribution-tree`: Tests run: 4, Failures: 0.

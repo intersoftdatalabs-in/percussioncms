@@ -15,12 +15,14 @@
  */
 package com.percussion.distribution.install;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +43,16 @@ class FastForwardContentTypeIconsPackagingTest {
           "FastForward",
           "Core",
           "Content",
+          "Applications",
+          "Editors");
+
+  private static final Path FF_NAV_EDITORS =
+      Path.of(
+          "..",
+          "..",
+          "system",
+          "FastForward",
+          "ManagedNav",
           "Applications",
           "Editors");
 
@@ -114,6 +126,39 @@ class FastForwardContentTypeIconsPackagingTest {
       assertTrue(
           Files.isRegularFile(FF_ICONS.resolve(name)),
           "missing FastForward content-type icon " + name);
+    }
+  }
+
+  /**
+   * percNav* editors were renamed from rffNav*; iconValue must match the
+   * percNav*.gif files we ship (not leftover rffNavImage.gif).
+   */
+  @Test
+  void percNavEditorsUseShippedPercNavIcons() throws Exception {
+    assertTrue(Files.isDirectory(FF_NAV_EDITORS), FF_NAV_EDITORS.toAbsolutePath().toString());
+    var expected =
+        Map.of(
+            "psx_cepercNavImage.xml", "percNavImage.gif",
+            "psx_cepercNavon.xml", "percNavon.gif",
+            "psx_cepercNavTree.xml", "percNavTree.gif");
+    for (var entry : expected.entrySet()) {
+      Path xml = findEditor(FF_NAV_EDITORS, entry.getKey());
+      String text = Files.readString(xml, StandardCharsets.UTF_8);
+      assertTrue(
+          text.contains("iconValue=\"" + entry.getValue() + "\""),
+          entry.getKey() + " must use iconValue=" + entry.getValue());
+      assertFalse(
+          text.contains("iconValue=\"rffNav"),
+          entry.getKey() + " still points at a rffNav*.gif we do not ship");
+    }
+  }
+
+  private static Path findEditor(Path root, String fileName) throws Exception {
+    try (var walk = Files.walk(root)) {
+      return walk.filter(Files::isRegularFile)
+          .filter(p -> fileName.equalsIgnoreCase(p.getFileName().toString()))
+          .findFirst()
+          .orElseThrow(() -> new AssertionError("missing ManagedNav editor " + fileName));
     }
   }
 

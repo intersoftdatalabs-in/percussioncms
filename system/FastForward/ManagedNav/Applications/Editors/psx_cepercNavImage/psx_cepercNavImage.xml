@@ -132,7 +132,7 @@
 		</PSXRequestor>
 	</PSXDataSet>
 	<PSXContentEditor contentType="313"
-		enableRelatedContent="no" iconSource="1" iconValue="rffNavImage.gif"
+		enableRelatedContent="no" iconSource="1" iconValue="percNavImage.gif"
 		objectType="1" workflowId="4">
 		<PSXDataSet id="1180">
 			<name>template</name>
