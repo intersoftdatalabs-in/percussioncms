@@ -22,7 +22,9 @@ import {
   BLOG_POST_WIDGET_ID,
   contentItemId,
   createPage,
+  createPageAndItem,
   ensurePageFileName,
+  unwrapCreatedPageId,
   extractTemplateWidgetDefinitionIds,
   fetchAssetTypes,
   fetchMyContent,
@@ -195,6 +197,25 @@ describe("homeApi", () => {
       String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
     );
     expect(body.Page.name).toBe("about.html");
+  });
+
+  it("unwraps created page id and createPageAndItem returns path plus id", async () => {
+    expect(unwrapCreatedPageId({ Page: { id: "1-101-9", name: "p" } })).toBe(
+      "1-101-9",
+    );
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({ Page: { id: "1-101-9", name: "about.html" } }),
+    );
+    const created = await createPageAndItem({
+      name: "about",
+      title: "About",
+      linkTitle: "About",
+      templateId: "t1",
+      folderPath: "/Sites/Demo",
+    });
+    expect(created.path).toMatch(/about\.html$/);
+    expect(created.itemId).toBe("1-101-9");
   });
 
   it("mapAssetType prefers widgetId over contentTypeId", () => {

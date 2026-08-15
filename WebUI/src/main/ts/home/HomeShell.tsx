@@ -16,7 +16,10 @@
  */
 
 import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { contentItemId } from "../api/home/homeApi";
 import type { ContentListItem } from "../api/home/types";
+import { isFolder } from "../contentExplorer/selection";
+import { openEditorHost } from "../editor/openEditorHost";
 import { message, MSG } from "../i18n/message";
 import {
   mapInitialScreenToSection,
@@ -75,26 +78,31 @@ const SECTIONS: { id: HomeSection; key: string }[] = [
 ];
 
 /**
- * Open content using path-first navigation (classic openPathItem style).
- * Falls back to id when path is absent.
+ * Open content in the React editor host (id first, then CMS path).
+ * Folders stay on Home. Does not navigate to leftover {@code ?view=editor}.
  */
-function defaultOpenItem(item: ContentListItem): void {
-  const path = item.path != null ? String(item.path).trim() : "";
-  const id = item.id != null ? String(item.id) : "";
-  if (path) {
-    // Editor view accepts path; product navigation historically opened by path
-    window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(path)}`;
+export function openHomeItem(item: ContentListItem): void {
+  if (
+    item.folder === true ||
+    isFolder({
+      name: item.name ?? "",
+      path: item.path ?? "",
+      type: item.type,
+      id: item.id,
+    })
+  ) {
     return;
   }
-  if (id) {
-    window.location.href = `/cm/app/?view=editor&id=${encodeURIComponent(id)}`;
-  }
+  void openEditorHost({
+    id: contentItemId(item),
+    path: item.path != null ? String(item.path) : null,
+  });
 }
 
 function HomeShellBody({
   initialSection,
   isAdmin = false,
-  onOpenItem = defaultOpenItem,
+  onOpenItem = openHomeItem,
   onSectionChange,
 }: Omit<HomeShellProps, "embedded">): React.ReactElement {
   const start = useMemo(

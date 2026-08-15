@@ -18,7 +18,7 @@ For roles that can see the full chrome, the application top navigation is:
 
 1. **Home**
 2. **Explorer** (immediately after Home)
-3. Editor, Navigation, Design, Developer, Publish (role-gated)
+3. **Editor** (React Content Editor — `spa.jsp?entry=editor` / `/editor`. Does not open leftover `?view=editor`. Open an item from Explorer or Home, or create a page from **Home → Create**), Navigation, Design, Developer, Publish (role-gated)
 4. **Admin** (administrators only — one item)
 5. Widget Builder (when that feature is active)
 

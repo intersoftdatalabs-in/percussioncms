@@ -17,13 +17,14 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  createPageAndPath,
+  createPageAndItem,
   fetchFolderChildren,
   fetchSites,
   fetchTemplatesForSite,
   formatApiError,
 } from "../../api/home/homeApi";
 import type { SiteSummary, TemplateSummary } from "../../api/home/types";
+import { openEditorHost } from "../../editor/openEditorHost";
 import { message, MSG } from "../../i18n/message";
 import {
   actionButtonStyle,
@@ -38,9 +39,13 @@ import { isSessionRedirectError } from "../../api/client";
 
 export interface PageWizardProps {
   onBack: () => void;
+  openCreated?: typeof openEditorHost;
 }
 
-export function PageWizard({ onBack }: PageWizardProps): React.ReactElement {
+export function PageWizard({
+  onBack,
+  openCreated = openEditorHost,
+}: PageWizardProps): React.ReactElement {
   const [sites, setSites] = useState<SiteSummary[]>([]);
   const [site, setSite] = useState("");
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
@@ -127,14 +132,20 @@ export function PageWizard({ onBack }: PageWizardProps): React.ReactElement {
     }
     setBusy(true);
     try {
-      const fullPath = await createPageAndPath({
+      const created = await createPageAndItem({
         name: fileName,
         title,
         linkTitle: title,
         templateId,
         folderPath,
       });
-      window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(fullPath)}`;
+      const opened = await openCreated({
+        id: created.itemId,
+        path: created.path,
+      });
+      if (!opened) {
+        setError(message(MSG.CREATE_OPEN_EDITOR_FAILED));
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;

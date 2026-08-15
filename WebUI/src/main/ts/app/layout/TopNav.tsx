@@ -89,14 +89,14 @@ export function TopNav(): React.ReactElement {
             case "editor":
               return (
                 <li key={id}>
-                  <a
-                    className={styles.navLink}
-                    href="/cm/app/?view=editor"
+                  <NavLink
+                    to="/editor"
+                    className={linkClass}
                     data-testid="nav-editor"
                     {...i18nKeyAttr(MSG.NAV_EDITOR)}
                   >
                     {message(MSG.NAV_EDITOR)}
-                  </a>
+                  </NavLink>
                 </li>
               );
             case "architecture":

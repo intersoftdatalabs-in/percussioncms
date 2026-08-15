@@ -149,6 +149,8 @@ export const MSG = {
   CREATE_VALIDATION: "perc.ui.home.modern@Create Validation",
   CREATE_FILE_TOO_LONG: "perc.ui.home.modern@File Name Too Long",
   CREATE_NOT_AUTHORIZED: "perc.ui.home.modern@Create Not Authorized",
+  CREATE_OPEN_EDITOR_FAILED:
+    "perc.ui.home.modern@The page was created but the editor could not open.",
   CREATE_NO_BLOGS:
     "perc.ui.home.modern@No blogs are configured. Create a blog section on a site first.",
   CREATE_NO_ASSET_TYPES: "perc.ui.home.modern@No asset types available",

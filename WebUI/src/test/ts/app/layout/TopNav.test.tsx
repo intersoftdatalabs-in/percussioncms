@@ -86,6 +86,14 @@ describe("TopNav (#2702)", () => {
     expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
   });
 
+  it("Editor is SPA NavLink to /editor and not leftover view=editor", () => {
+    renderNav();
+    const editor = screen.getByTestId("nav-editor");
+    const href = editor.getAttribute("href") || "";
+    expect(href === "/editor" || href.endsWith("/editor")).toBe(true);
+    expect(href).not.toMatch(/view=editor/);
+  });
+
   it("Architecture is SPA NavLink to /architecture (#3094)", () => {
     renderNav();
     const arch = screen.getByTestId("nav-architecture");

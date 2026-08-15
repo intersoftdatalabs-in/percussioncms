@@ -49,7 +49,7 @@ describe("EditorHost", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("editor-overlay")).toBeTruthy();
-    expect(screen.getByTestId("editor-error").textContent).toMatch(/content item/i);
+    expect(screen.getByTestId("editor-error").textContent).toMatch(/Explorer or Home/i);
   });
 
   it("loads fields after checkout and saves edits", async () => {

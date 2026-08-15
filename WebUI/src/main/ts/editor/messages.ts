@@ -22,7 +22,8 @@ export const EDITOR_MSG = {
   CONTENT_ID: "perc.ui.editor@Content",
   TYPE_LABEL: "perc.ui.editor@Type",
   CHECKOUT: "perc.ui.editor@Checked out to",
-  MISSING_ITEM: "perc.ui.editor@Open Edit from Explorer with a content item selected.",
+  MISSING_ITEM:
+    "perc.ui.editor@Open an item from Explorer or Home, or create one from Home → Create.",
   LOADING: "perc.ui.editor@Loading item fields…",
   LOAD_FAILED: "perc.ui.editor@Could not load this item for editing.",
   SAVE: "perc.ui.editor@Save",

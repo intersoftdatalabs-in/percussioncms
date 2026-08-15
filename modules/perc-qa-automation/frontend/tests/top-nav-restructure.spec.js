@@ -130,4 +130,27 @@ test.describe("Top nav restructure (#2702 / #3201)", () => {
       [],
     );
   });
+
+  test("Editor opens the React host, not leftover ?view=editor @smoke @ui", async ({
+    page,
+  }) => {
+    const blocked = [];
+    page.on("request", (req) => {
+      if (/view=editor/.test(req.url())) {
+        blocked.push(req.url());
+      }
+    });
+    await loginAsAdmin(page);
+    await page.goto(homeDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectSpaTopNav(page);
+    await page.getByTestId("nav-editor").click();
+    await expect(page.locator('[data-testid="editor-host"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page).not.toHaveURL(/view=editor/);
+    await expect(page.locator('[data-testid="editor-error"]')).toBeVisible();
+    expect(blocked, `leftover editor requested: ${blocked.join(" ")}`).toEqual(
+      [],
+    );
+  });
 });
