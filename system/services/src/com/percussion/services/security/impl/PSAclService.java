@@ -661,6 +661,7 @@ public class PSAclService implements IPSAclService
    public List<IPSAcl> internalPersist(List<IPSAcl> aclList) throws PSServiceSecurityException
    {
       List<IPSAcl> updatedList = new ArrayList<>();
+      Session session = getSession();
 
       for (IPSAcl iacl : aclList)
       {
@@ -670,7 +671,7 @@ public class PSAclService implements IPSAclService
                if (iacl instanceof PSAclImpl src) {
                   iacl = PSAclPersistMerger.mergeOntoExisting(findExistingPersistIdentity(src), src);
                }
-              iacl = (IPSAcl) getSession().merge(iacl);
+               iacl = PSAclPersistMerger.persistInSession(session, iacl);
                updatedList.add(iacl);
                 ms_logger.debug("Save complete.");
             } catch (Exception ex) {
@@ -685,7 +686,7 @@ public class PSAclService implements IPSAclService
          }
       }
 
-      getSession().flush();
+      session.flush();
       for (IPSAcl saved : updatedList) {
          evictAclSecondLevelCache(saved);
       }
@@ -719,9 +720,14 @@ public class PSAclService implements IPSAclService
       {
          return null;
       }
+      Session session = getSession();
+      if (PSAclPersistMerger.isSessionIdentity(session, src))
+      {
+         return src;
+      }
       if (src.getId() != 0)
       {
-         PSAclImpl byId = getSession().get(PSAclImpl.class, src.getId());
+         PSAclImpl byId = session.get(PSAclImpl.class, src.getId());
          if (byId != null)
          {
             return byId;
