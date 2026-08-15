@@ -398,10 +398,10 @@ public final class PSComponentSummary extends PSDbComponent implements Serializa
   }
 
   /**
-   * @return content aging time in seconds. -1 if never set.
+   * @return content aging time in seconds. -1 if never set (including a null column).
    */
   public int getContentAgingTime() {
-    return m_contentAgingTime;
+    return m_contentAgingTime == null ? -1 : m_contentAgingTime;
   }
 
   /**
@@ -454,10 +454,12 @@ public final class PSComponentSummary extends PSDbComponent implements Serializa
   }
 
   /**
-   * @return Next aging transition id. -1 if not applicable.
+   * @return Next aging transition id. {@code 0} if not applicable (null or unset {@code
+   *     NEXTAGINGTRANSITION}). Never unboxes a null {@link Integer} — a new item's check-in
+   *     used to NPE here in {@code sys_wfPerformTransition}.
    */
   public int getNextAgingTransition() {
-    return m_nextAgingTransition;
+    return m_nextAgingTransition == null ? 0 : m_nextAgingTransition;
   }
 
   /**

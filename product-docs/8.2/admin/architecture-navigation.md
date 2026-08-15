@@ -70,9 +70,12 @@ Sample / demo sites installed with **Install sample sites**
 new-install seed) ship as site rows and folders only. The first time an
 Admin or Designer opens **Navigation** for that site (or the server handles
 `GET /Rhythmyx/services/sitemanage/section/tree/{siteName}`), the product
-**creates a NavTree** at the site folder root when the folder exists. The
-tree panel then shows `role="tree"` with at least the root item. Operators
-do **not** need to create navigation by hand for those demo sites.
+**creates a NavTree** at the site folder root when the folder exists (same
+save-without-check-in path as **New Site**). The tree panel then shows
+`role="tree"` with at least the root item. Operators do **not** need to
+create navigation by hand for those demo sites. A first-open seed does not
+run a workflow check-in; if the new item is still checked out, check it in
+from Explorer when you want it public.
 
 The same create-on-first-open applies to any other entitled site that has a
 folder root but no NavTree yet (same path as **New Site**).
