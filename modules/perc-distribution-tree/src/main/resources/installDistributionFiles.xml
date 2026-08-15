@@ -130,6 +130,19 @@
 			</fileset>
 		</copy>
 
+		<!-- FastForward content-type icons (rffPressRelease.gif, rffGeneric.gif,
+			 percNav*.gif). Historic peer: installFastForward.xml copies
+			 ApplicationFiles/images → rx_resources/images. ObjectStore XML
+			 iconValue points at these names. -->
+		<mkdir dir="${assembly-directory}/rx_resources/images" />
+		<copy todir="${assembly-directory}/rx_resources/images"
+			overwrite="true">
+			<fileset
+				dir="${rxbase}/FastForward/Core/Content/Applications/rx_resources/ApplicationFiles/images">
+				<exclude name="**/Thumbs.db" />
+			</fileset>
+		</copy>
+
 		<!-- TinyMCE config -->
 		<copy todir="${assembly-directory}/rx_resources"
 			overwrite="false" verbose="true">
@@ -632,6 +645,20 @@
 			tofile="${install.config}/Installer/data/RxffTableDef.xml"
 			file="${basedir}/src/main/resources/distribution/rxconfig/Installer/data/RxffTableDef.xml"
 			replaceType="always" />
+		<!-- FastForward sample content graph (navons, pages, real site folders).
+			 Source of truth stays under system/FastForward; do not duplicate the
+			 6MB file in this module's resources. -->
+		<PSCopy
+			tofile="${install.config}/Installer/data/RxffSampleTableData.xml"
+			file="${rxbase}/FastForward/SampleContent/Config/Data/RxffSampleTableData.xml"
+			replaceType="always" />
+		<!-- Hashed FastForward binaries (7.3.2 SampleContent/importFiles). First
+			 server start imports via autoImportBinaries.txt / PSDbStorageService. -->
+		<mkdir dir="${install.config}/FastForward/importFiles" />
+		<PSCopy todir="${install.config}/FastForward/importFiles"
+			replaceType="always">
+			<fileset dir="${rxbase}/FastForward/SampleContent/importFiles" />
+		</PSCopy>
 		<PSCopy
 			tofile="${install.config}/Installer/oldJdbcJarsList.txt"
 			file="${basedir}/src/main/resources/distribution/rxconfig/Installer/oldJdbcJarsList.txt"

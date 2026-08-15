@@ -67,15 +67,13 @@ navigation was never created). Opening **Navigation** for that site does
 
 Sample / demo sites installed with **Install sample sites**
 (`Corporate_Investments`, `Enterprise_Investments` on a typical H2 QA or
-new-install seed) ship as site rows and folders only. The first time an
-Admin or Designer opens **Navigation** for that site (or the server handles
-`GET /Rhythmyx/services/sitemanage/section/tree/{siteName}`), the product
-**creates a NavTree** at the site folder root when the folder exists (same
-save-without-check-in path as **New Site**). The tree panel then shows
-`role="tree"` with at least the root item. Operators do **not** need to
-create navigation by hand for those demo sites. A first-open seed does not
-run a workflow check-in; if the new item is still checked out, check it in
-from Explorer when you want it public.
+new-install seed) include FastForward **sample content**: site folders,
+section folders, `rffNavTree` / `rffNavon` items, and pages. Opening
+**Navigation** for those sites uses that seeded tree. If a site has a
+folder root but no NavTree (or you are on an older seed that only created
+empty site rows), the first **Navigation** open **creates a NavTree** at
+the site folder root so the tree panel can show `role="tree"`. Operators
+do **not** need to create navigation by hand for those demo sites.
 
 The same create-on-first-open applies to any other entitled site that has a
 folder root but no NavTree yet (same path as **New Site**).

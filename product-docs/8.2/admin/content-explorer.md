@@ -34,7 +34,7 @@ service (roles may hide Design/Recycling for some users):
 
 | Root | Maps to | Purpose |
 |------|---------|---------|
-| **Sites** | `//Sites` | Traditional site folders and pages. Expand a site to list its folders (sample sites include **Pages** and **Files**) |
+| **Sites** | `//Sites` | Traditional site folders and pages. Expand a sample site to list FastForward folders such as **AboutEnterpriseInvestments**, **Files**, and **Images** |
 | **Folders** | `//Folders` | Classic Rhythmyx folder tree (including `$System$` and other repository folders) |
 | **Assets** | `//Folders/$System$/Assets` | Shared asset library (CM1 convenience root) |
 | **Design** | Design file-system area | Templates, themes, web resources (Admin/Designer) |
@@ -113,7 +113,8 @@ production unless you are validating the RX folder façade with QA.
 
 Under the tree root **Sites** you see traditional site folders available to your community
 (sample sites after a demo-sites install, plus any sites you create). Expand **Sites** and
-select a site to browse its pages and folders in the detail list.
+select a sample site to browse FastForward folders and pages (About…, Files, Images,
+and the site NavTree).
 
 To create a new **traditional** repository Site from Explorer:
 
