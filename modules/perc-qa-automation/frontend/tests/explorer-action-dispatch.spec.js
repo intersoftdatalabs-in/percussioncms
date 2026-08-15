@@ -85,8 +85,38 @@ test.describe("modern React Content Explorer — action dispatch", () => {
     "Publish Now HTTP 200 FORBIDDEN shows an error and does not treat it as published",
     { tag: ["@explorer-action-dispatch", "@explorer"] },
     async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
       page.on("dialog", (dialog) => {
         void dialog.accept();
+      });
+      // H2 QA sites often have no page rows. Inject one leaf so Publish Now
+      // can run and the 200 FORBIDDEN intercept can fire (#3451).
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
       });
       await page.route("**/services/sitemanage/publish/**", async (route) => {
         await route.fulfill({
@@ -105,34 +135,16 @@ test.describe("modern React Content Explorer — action dispatch", () => {
         timeout: 20_000,
       });
 
-      const tree = page.locator('[data-testid="explorer-tree"]');
-      if ((await tree.count()) > 0) {
-        const sitesNode = page
-          .locator(
-            '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
-          )
-          .first();
-        if ((await sitesNode.count()) > 0) {
-          await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
-        }
-      }
-
-      const list = page.locator('[data-testid="detail-list"]');
-      if ((await list.count()) > 0) {
-        const row = list.locator('tbody tr[data-testid^="detail-row-"]').first();
-        if ((await row.count()) > 0) {
-          await row.click({ force: true, timeout: 10_000 }).catch(() => {});
-        }
-      }
+      const itemRow = page.locator(
+        '[data-testid="detail-row-42"], tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+      );
+      await expect(itemRow.first()).toBeVisible({ timeout: 20_000 });
+      await itemRow.first().click({ force: true });
 
       const publishNow = page.locator(
         '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
       );
-      if ((await publishNow.count()) === 0 || !(await publishNow.first().isVisible())) {
-        test.skip(true, "Publish Now action not visible for the current selection");
-        return;
-      }
-
+      await expect(publishNow.first()).toBeVisible({ timeout: 15_000 });
       await publishNow.first().click();
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
@@ -140,6 +152,9 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 });

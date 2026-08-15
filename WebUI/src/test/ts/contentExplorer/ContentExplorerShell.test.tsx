@@ -277,6 +277,102 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("Publish Now HTTP 200 FORBIDDEN mounts server-actions error (#3451)", async () => {
+    const fetchSpy = mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("sitemanage/publish/")) {
+        return new Response(
+          JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage:
+              "Publication stopped because of licensing issues",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Publish_Now",
+            label: "Publish Now",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Publish_Now"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Publish_Now"),
+      ).toBeInTheDocument();
+    });
+
+    const folderLoadsBefore = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Publish_Now"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-server-actions-error"),
+      ).toHaveTextContent(/FORBIDDEN|licensing|Publication stopped/i);
+    });
+    expect(
+      fetchSpy.mock.calls.some((call) =>
+        String(call[0] ?? "").includes("sitemanage/publish/"),
+      ),
+    ).toBe(true);
+    const folderLoadsAfter = fetchSpy.mock.calls.filter((call) => {
+      const url = String(call[0] ?? "");
+      return url.includes("paginatedFolder") || url.includes("/folder/");
+    }).length;
+    // Throw must not refresh the list as if the item published.
+    expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await renderA11yGate(container);
+  });
+
   it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {
     let releaseSlow: (() => void) | undefined;
     const slowGate = new Promise<void>((resolve) => {
