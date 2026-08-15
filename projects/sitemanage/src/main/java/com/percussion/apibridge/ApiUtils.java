@@ -165,6 +165,17 @@ public class ApiUtils {
   }
 
   /**
+   * Return an empty collection if the collection is null.
+   *
+   * @param col the collection, may be {@code null}
+   * @param <T> the element type
+   * @return the collection or an empty one
+   */
+  public static <T> Collection<T> orEmpty(Collection<T> col) {
+    return col == null ? List.of() : col;
+  }
+
+  /**
    * Generic unwrapping helper. If the supplied object is an {@link Optional} it will return the
    * contained value or null; otherwise the value is returned unchanged. This allows callers to
    * uniformly access getters which may or may not return Optionals without needing to know the
