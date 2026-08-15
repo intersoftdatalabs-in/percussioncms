@@ -506,18 +506,18 @@ public class ApiUtils {
     PSAclImpl p_acl = new PSAclImpl();
 
     p_acl.setId(acl.getId());
-    p_acl.setDescription(orNull(acl.getDescription()));
-    String name = orNull(acl.getName());
+    p_acl.setDescription(acl.getDescription());
+    String name = acl.getName();
     if (name == null || name.isBlank()) {
       name = "ACL";
     }
     p_acl.setName(name);
-    var convertedGuid = convertGuid(orNull(acl.getGuid()));
+    var convertedGuid = convertGuid(acl.getGuid());
     if (convertedGuid != null) {
       p_acl.setGUID(convertedGuid);
     }
     applyAclObjectIdentity(acl, p_acl);
-    p_acl.setEntries(convertAclEntries(orNull(acl.getAclEntries())));
+    p_acl.setEntries(convertAclEntries(acl.getAclEntries()));
 
     return p_acl;
   }
@@ -530,7 +530,7 @@ public class ApiUtils {
   static void applyAclObjectIdentity(Acl acl, PSAclImpl p_acl) {
     int objectType = acl.getObjectType();
     long objectId = acl.getObjectId();
-    Guid objectGuid = orNull(acl.getObjectGuid());
+    Guid objectGuid = acl.getObjectGuid();
     if (objectGuid != null) {
       String stringValue = orNull(objectGuid.getStringValue());
       if (stringValue != null
@@ -568,21 +568,21 @@ public class ApiUtils {
       PSAclEntryImpl p_entry = new PSAclEntryImpl();
 
       p_entry.setId(entry.getId());
-      p_entry.setName(orNull(entry.getName()));
+      p_entry.setName(entry.getName());
       p_entry.setAclId(entry.getAclId());
 
-      var principal = orNull(entry.getPrincipal());
+      var principal = entry.getPrincipal();
       if (principal != null && principal.getName() != null) {
         p_entry.setPrincipal(convertPrincipal(principal));
       } else if (p_entry.getName() == null
-          && entry.getType().isPresent()
-          && entry.getType().get().getName() != null) {
+          && entry.getType() != null
+          && entry.getType().getName() != null) {
         // Load path historically stored principal name on TypedPrincipal.name
-        p_entry.setName(entry.getType().get().getName());
+        p_entry.setName(entry.getType().getName());
       }
 
-      if (entry.getType().isPresent()) {
-        TypedPrincipal tp = entry.getType().get();
+      if (entry.getType() != null) {
+        TypedPrincipal tp = entry.getType();
         if (tp.getType() != null) {
           p_entry.setType(tp.getType());
         } else if (tp.getName() != null) {
@@ -595,9 +595,12 @@ public class ApiUtils {
         }
       }
 
-      for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
-        if (p.getPermission().isPresent()) {
-          p_entry.addPermission(convertPermissions(p));
+      UserAccessLevelList levels = entry.getPermissions();
+      if (levels != null) {
+        for (UserAccessLevel p : levels) {
+          if (p.getPermission() != null) {
+            p_entry.addPermission(convertPermissions(p));
+          }
         }
       }
 
@@ -610,7 +613,7 @@ public class ApiUtils {
   public static PSAccessLevelImpl convertPermissions(UserAccessLevel p) {
     PSAccessLevelImpl p_a = new PSAccessLevelImpl();
 
-    Permissions perm = orNull(p.getPermission());
+    Permissions perm = p.getPermission();
     if (perm != null) {
       p_a.setPermission(PSPermissions.valueOf(perm.name()));
     }

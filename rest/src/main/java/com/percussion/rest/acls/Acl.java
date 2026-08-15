@@ -17,7 +17,7 @@
 
 package com.percussion.rest.acls;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,11 +26,17 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** REST representation of an access control list. */
+/**
+ * REST representation of an access control list.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * scalars and nested objects, not Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3388 slice 8 / #3420).
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Acl")
 public class Acl {
 
@@ -113,11 +119,10 @@ public class Acl {
   /**
    * Returns the ACL's GUID.
    *
-   * @return the GUID, may be empty
+   * @return the GUID, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   /**
@@ -132,11 +137,10 @@ public class Acl {
   /**
    * Returns the ACL's name.
    *
-   * @return the name, may be empty
+   * @return the name, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   /**
@@ -169,11 +173,10 @@ public class Acl {
   /**
    * Returns the ACL's description.
    *
-   * @return the description, may be empty
+   * @return the description, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   /**
@@ -188,11 +191,10 @@ public class Acl {
   /**
    * Returns the ACL's entries.
    *
-   * @return the entries, may be empty
+   * @return the entries, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<AclEntryList> getAclEntries() {
-    return Optional.ofNullable(aclEntries);
+  public AclEntryList getAclEntries() {
+    return aclEntries;
   }
 
   /**
@@ -225,11 +227,10 @@ public class Acl {
   /**
    * Returns the GUID of the secured object.
    *
-   * @return the object GUID, may be empty
+   * @return the object GUID, may be {@code null}
    */
-  @JsonIgnore
-  public Optional<Guid> getObjectGuid() {
-    return Optional.ofNullable(objectGuid);
+  public Guid getObjectGuid() {
+    return objectGuid;
   }
 
   /**

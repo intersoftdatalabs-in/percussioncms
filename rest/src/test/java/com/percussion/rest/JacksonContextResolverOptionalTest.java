@@ -21,6 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.Permissions;
+import com.percussion.rest.acls.Acl;
+import com.percussion.rest.acls.AclEntry;
+import com.percussion.rest.acls.AclEntryList;
+import com.percussion.rest.acls.AclList;
+import com.percussion.rest.acls.TypedPrincipal;
+import com.percussion.rest.acls.UserAccessLevel;
+import com.percussion.rest.acls.UserAccessLevelList;
 import com.percussion.rest.assets.Asset;
 import com.percussion.rest.assets.AssetField;
 import com.percussion.rest.assets.AssetFieldList;
@@ -62,6 +70,7 @@ import com.percussion.rest.templates.TemplateBinding;
 import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.rest.templates.TemplateSummaryList;
 import com.percussion.rest.users.User;
+import com.percussion.security.IPSTypedPrincipal;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -950,9 +959,97 @@ class JacksonContextResolverOptionalTest {
     assertEquals("0-13-10", visibilityRoundTrip.getGuid().getStringValue().orElse(null), json);
   }
 
+  @Test
+  void acl_serializesNameGuidEntriesNotOptionalBeans() {
+    ObjectMapper aclMapper = new JacksonContextResolver().getContext(Acl.class);
+    Acl acl = sampleAcl();
+
+    String json = aclMapper.writeValueAsString(acl);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("By_Author ACL"), json);
+    assertTrue(json.contains("Default"), json);
+    assertTrue(json.contains("AnyCommunity"), json);
+    assertTrue(json.contains("Admin"), json);
+    assertTrue(json.contains("aclEntries") || json.contains("AclEntries"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Acl aclRoundTrip = aclMapper.readValue(json, Acl.class);
+    assertEquals("By_Author ACL", aclRoundTrip.getName());
+    assertEquals(3, aclRoundTrip.getAclEntries().size());
+    assertEquals("Default", aclRoundTrip.getAclEntries().get(0).getName());
+  }
+
+  @Test
+  void aclList_serializesEnvelopeScalarsNotOptionalBeans() {
+    ObjectMapper listMapper = new JacksonContextResolver().getContext(AclList.class);
+    AclList list = new AclList();
+    list.add(sampleAcl());
+
+    String json = listMapper.writeValueAsString(list);
+    assertTrue(json.contains("\"AclList\"") || json.contains("By_Author ACL"), json);
+    assertTrue(json.contains("\"name\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    AclList listRoundTrip = listMapper.readValue(json, AclList.class);
+    assertEquals(1, listRoundTrip.size());
+    assertEquals("By_Author ACL", listRoundTrip.get(0).getName());
+    assertEquals(3, listRoundTrip.get(0).getAclEntries().size());
+  }
+
+  @Test
+  void userAccessLevel_serializesPermissionNotOptionalBean() {
+    ObjectMapper ualMapper = new JacksonContextResolver().getContext(UserAccessLevel.class);
+    UserAccessLevel level = new UserAccessLevel();
+    level.setId(9);
+    level.setPermission(Permissions.READ);
+
+    String json = ualMapper.writeValueAsString(level);
+    assertTrue(json.contains("READ"), json);
+    assertTrue(json.contains("\"permission\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    UserAccessLevel ualRoundTrip = ualMapper.readValue(json, UserAccessLevel.class);
+    assertEquals(Permissions.READ, ualRoundTrip.getPermission());
+    assertEquals(9, ualRoundTrip.getId());
+  }
+
   private static void assertNoOptionalBeanKeys(String json) {
     assertFalse(
         json.contains("\"empty\"") || json.contains("\"present\""),
         "JSON must not contain Optional-bean empty/present keys: " + json);
+  }
+
+  private static Acl sampleAcl() {
+    Acl acl = new Acl();
+    acl.setId(7);
+    acl.setName("By_Author ACL");
+    acl.setObjectType(31);
+    acl.setObjectId(5);
+    Guid objectGuid = new Guid();
+    objectGuid.setStringValue("0-31-5");
+    acl.setObjectGuid(objectGuid);
+    AclEntryList entries = new AclEntryList();
+    entries.add(namedAclEntry("Default", IPSTypedPrincipal.PrincipalTypes.USER, Permissions.READ));
+    entries.add(
+        namedAclEntry(
+            "AnyCommunity",
+            IPSTypedPrincipal.PrincipalTypes.COMMUNITY,
+            Permissions.RUNTIME_VISIBLE));
+    entries.add(namedAclEntry("Admin", IPSTypedPrincipal.PrincipalTypes.USER, Permissions.OWNER));
+    acl.setAclEntries(entries);
+    return acl;
+  }
+
+  private static AclEntry namedAclEntry(
+      String name, IPSTypedPrincipal.PrincipalTypes type, Permissions permission) {
+    AclEntry entry = new AclEntry();
+    entry.setName(name);
+    entry.setType(new TypedPrincipal(name, type));
+    UserAccessLevelList levels = new UserAccessLevelList();
+    UserAccessLevel level = new UserAccessLevel();
+    level.setPermission(permission);
+    levels.add(level);
+    entry.setPermissions(levels);
+    return entry;
   }
 }

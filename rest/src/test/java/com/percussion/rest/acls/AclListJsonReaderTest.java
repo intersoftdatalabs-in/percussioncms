@@ -53,20 +53,20 @@ public class AclListJsonReaderTest {
     assertInstanceOf(AclList.class, list);
     assertEquals(1, list.size());
     Acl acl = list.get(0);
-    assertEquals("By_Author ACL", acl.getName().orElse(null));
+    assertEquals("By_Author ACL", acl.getName());
     assertEquals(31, acl.getObjectType());
     assertEquals(5, acl.getObjectId());
-    assertEquals(3, acl.getAclEntries().map(AclEntryList::size).orElse(0));
-    assertEquals("Default", acl.getAclEntries().orElseThrow().get(0).getName().orElse(null));
-    assertEquals("AnyCommunity", acl.getAclEntries().orElseThrow().get(1).getName().orElse(null));
-    assertEquals("Admin", acl.getAclEntries().orElseThrow().get(2).getName().orElse(null));
+    assertEquals(3, acl.getAclEntries() == null ? 0 : acl.getAclEntries().size());
+    assertEquals("Default", acl.getAclEntries().get(0).getName());
+    assertEquals("AnyCommunity", acl.getAclEntries().get(1).getName());
+    assertEquals("Admin", acl.getAclEntries().get(2).getName());
   }
 
   @Test
   public void parseAcceptsBareArray() {
     AclList list = AclListJsonReader.parse("[{\"name\":\"x\",\"objectType\":31}]");
     assertEquals(1, list.size());
-    assertEquals("x", list.get(0).getName().orElse(null));
+    assertEquals("x", list.get(0).getName());
     assertEquals(31, list.get(0).getObjectType());
   }
 
@@ -106,6 +106,7 @@ public class AclListJsonReaderTest {
     AclList list = AclListJsonReader.parseNode(
         tools.jackson.databind.json.JsonMapper.builder().build().readTree(DF_SAVE));
     assertEquals(1, list.size());
-    assertEquals(3, list.get(0).getAclEntries().map(AclEntryList::size).orElse(0));
+    assertEquals(
+        3, list.get(0).getAclEntries() == null ? 0 : list.get(0).getAclEntries().size());
   }
 }

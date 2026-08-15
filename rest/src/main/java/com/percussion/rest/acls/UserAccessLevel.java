@@ -18,15 +18,22 @@
 
 package com.percussion.rest.acls;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.PermissionList;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a user's access level for a given ACL. */
+/**
+ * Represents a user's access level for a given ACL.
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * permission scalars, not Optional beans. Matches {@link Acl} getter style (issue #3388 slice 8 /
+ * #3420).
+ */
 @XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "User Access Level")
 public class UserAccessLevel {
 
@@ -54,16 +61,16 @@ public class UserAccessLevel {
     this.id = id;
   }
 
-  public Optional<Permissions> getPermission() {
-    return Optional.ofNullable(permission);
+  public Permissions getPermission() {
+    return permission;
   }
 
   public void setPermission(Permissions permission) {
     this.permission = permission;
   }
 
-  public Optional<PermissionList> getPermissions() {
-    return Optional.ofNullable(permissions);
+  public PermissionList getPermissions() {
+    return permissions;
   }
 
   public void setPermissions(PermissionList permissions) {
