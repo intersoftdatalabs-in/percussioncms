@@ -47,7 +47,11 @@ const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
  * Exact {@code type} / {@code category} tokens that are previewable items.
  * Substring {@code includes("page")} would also match {@code pagination}
  * / {@code pagebreak} / {@code pagelet}; {@code includes("asset")} would
- * match {@code assetmanagement} (#3456 review).
+ * match {@code assetmanagement} (#3456 review). FastForward items are an
+ * explicit allowlist — a prefix {@code rff*} would treat a future
+ * folder-like type ({@code rffSection}, {@code rffCategory}) as previewable
+ * (#3456 review). Nav types {@code rffNavon} / {@code rffNavTree} are
+ * omitted on purpose.
  */
 const PAGE_OR_ASSET_TYPE_KEYS = new Set([
   "page",
@@ -55,10 +59,19 @@ const PAGE_OR_ASSET_TYPE_KEYS = new Set([
   "percasset",
   "asset",
   "rffhome",
+  "rffevent",
+  "rffimage",
+  "rfffile",
+  "rffgeneric",
+  "rffgenericword",
+  "rffbrief",
+  "rffcalendar",
+  "rffcontacts",
+  "rffpressrelease",
+  "rffexternallink",
+  "rffautoindex",
+  "rffnavimage",
 ]);
-
-/** FastForward nav types are folder-like, not previewable items. */
-const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
 
 /**
  * Content types that are previewable items, not folders. Pathmanagement
@@ -70,13 +83,7 @@ export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
   const category = (item.category ?? "").trim().toLowerCase();
-  if (PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category)) {
-    return true;
-  }
-  // Other FastForward content items (rffEvent, rffImage, …) are items.
-  if (type.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(type)) return true;
-  if (category.startsWith("rff") && !RFF_NAV_TYPE_KEYS.has(category)) return true;
-  return false;
+  return PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category);
 }
 
 export function isFolder(item: PSPathItem | null): boolean {

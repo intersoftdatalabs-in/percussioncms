@@ -121,6 +121,60 @@ describe("isFolder (#3001 site nodes)", () => {
     ).toBe(false);
   });
 
+  it("allows known FastForward item types and rejects nav / folder-like rff types", () => {
+    expect(
+      isPageOrAssetContentType({
+        name: "Event",
+        path: "/Sites/Demo/Events/Open House",
+        type: "rffEvent",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Photo",
+        path: "/Sites/Demo/Assets/photo",
+        type: "rffImage",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffNavon",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "Nav",
+        path: "/Sites/Demo/Nav",
+        type: "rffNavTree",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffSection",
+      }),
+    ).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        name: "Category",
+        path: "/Sites/Demo/Category",
+        type: "rffCategory",
+      }),
+    ).toBe(false);
+    expect(
+      isFolder({
+        id: "16777215-101-30",
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffSection",
+        leaf: false,
+      }),
+    ).toBe(true);
+  });
+
   it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
     expect(
       isPageOrAssetContentType({
