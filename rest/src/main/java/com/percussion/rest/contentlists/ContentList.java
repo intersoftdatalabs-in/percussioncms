@@ -24,9 +24,14 @@ import com.percussion.rest.itemfilter.ItemFilter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a Content List in Percussion CMS. */
+/**
+ * Represents a Content List in Percussion CMS.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars and
+ * nested objects rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style (issue #3388 / #3431).
+ */
 @XmlRootElement(name = "ContentList")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Content List")
@@ -84,32 +89,32 @@ public class ContentList {
 
   public ContentList() {}
 
-  public Optional<Guid> getContentListId() {
-    return Optional.ofNullable(contentListId);
+  public Guid getContentListId() {
+    return contentListId;
   }
 
   public void setContentListId(Guid contentListId) {
     this.contentListId = contentListId;
   }
 
-  public Optional<Integer> getVersion() {
-    return Optional.ofNullable(version);
+  public Integer getVersion() {
+    return version;
   }
 
   public void setVersion(Integer version) {
     this.version = version;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
@@ -124,40 +129,40 @@ public class ContentList {
     this.type = type;
   }
 
-  public Optional<String> getUrl() {
-    return Optional.ofNullable(url);
+  public String getUrl() {
+    return url;
   }
 
   public void setUrl(String url) {
     this.url = url;
   }
 
-  public Optional<Extension> getGenerator() {
-    return Optional.ofNullable(generator);
+  public Extension getGenerator() {
+    return generator;
   }
 
   public void setGenerator(Extension generator) {
     this.generator = generator;
   }
 
-  public Optional<Extension> getExpander() {
-    return Optional.ofNullable(expander);
+  public Extension getExpander() {
+    return expander;
   }
 
   public void setExpander(Extension expander) {
     this.expander = expander;
   }
 
-  public Optional<String> getEditionType() {
-    return Optional.ofNullable(editionType);
+  public String getEditionType() {
+    return editionType;
   }
 
   public void setEditionType(String editionType) {
     this.editionType = editionType;
   }
 
-  public Optional<ItemFilter> getItemFilter() {
-    return Optional.ofNullable(itemFilter);
+  public ItemFilter getItemFilter() {
+    return itemFilter;
   }
 
   public void setItemFilter(ItemFilter itemFilter) {

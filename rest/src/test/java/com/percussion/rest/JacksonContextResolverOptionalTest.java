@@ -36,11 +36,17 @@ import com.percussion.rest.assets.BinaryFile;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityRole;
 import com.percussion.rest.communities.CommunityVisibility;
+import com.percussion.rest.contentlists.ContentList;
+import com.percussion.rest.contentlists.ContentListList;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.displayformat.DisplayFormatProperty;
+import com.percussion.rest.extensions.Extension;
+import com.percussion.rest.itemfilter.ItemFilter;
+import com.percussion.rest.itemfilter.ItemFilterRuleDefinition;
+import com.percussion.rest.itemfilter.ItemFilterRuleDefinitionParam;
 import com.percussion.rest.folders.CopyFolderItemRequest;
 import com.percussion.rest.folders.Folder;
 import com.percussion.rest.folders.SectionInfo;
@@ -84,8 +90,9 @@ import tools.jackson.databind.ObjectMapper;
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
  * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
  * plain-getter contract (issue #3412). Folder / Section / path-request DTOs follow the same
- * rule (issue #3413). All use production {@link JacksonContextResolver} under {@code
- * @JsonInclude(NON_NULL)}.
+ * rule (issue #3413). ContentList / ItemFilterRuleDefinitionParam follow the same
+ * plain-getter contract (issue #3431 / #3388). All use production {@link
+ * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -994,6 +1001,161 @@ class JacksonContextResolverOptionalTest {
     assertEquals(1, listRoundTrip.size());
     assertEquals("By_Author ACL", listRoundTrip.get(0).getName());
     assertEquals(3, listRoundTrip.get(0).getAclEntries().size());
+  }
+
+  @Test
+  void contentList_serializesPlainScalarsNotOptionalBeans() {
+    ContentList list = new ContentList();
+    list.setContentListId(new Guid("0-107-42"));
+    list.setVersion(3);
+    list.setName("full_site");
+    list.setDescription("Full site publish list");
+    list.setType("Normal");
+    list.setUrl("/Rhythmyx/contentlist?sys_deliverytype=filesystem");
+    list.setEditionType("Publish");
+
+    Extension generator = new Extension();
+    generator.setExtensionName("sys_SearchGenerator");
+    generator.setFqn("Java/global/percussion/system/sys_SearchGenerator");
+    list.setGenerator(generator);
+
+    ItemFilter filter = new ItemFilter();
+    filter.setName("public");
+    filter.setDescription("Public items");
+    list.setItemFilter(filter);
+
+    ObjectMapper listMapper = new JacksonContextResolver().getContext(ContentList.class);
+    String json = listMapper.writeValueAsString(list);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("full_site"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("Full site publish list"), json);
+    assertTrue(json.contains("\"url\""), json);
+    assertTrue(json.contains("\"editionType\""), json);
+    assertTrue(json.contains("Publish"), json);
+    assertTrue(json.contains("\"itemFilter\""), json);
+    assertTrue(json.contains("public"), json);
+    assertTrue(json.contains("\"generator\""), json);
+    assertTrue(json.contains("sys_SearchGenerator"), json);
+    assertTrue(json.contains("\"contentListId\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    ContentList roundTrip = listMapper.readValue(json, ContentList.class);
+    assertEquals("full_site", roundTrip.getName(), json);
+    assertEquals("Full site publish list", roundTrip.getDescription(), json);
+    assertEquals("Publish", roundTrip.getEditionType(), json);
+    assertEquals(Integer.valueOf(3), roundTrip.getVersion(), json);
+    assertNotNull(roundTrip.getItemFilter(), json);
+    assertEquals("public", roundTrip.getItemFilter().getName(), json);
+    assertNotNull(roundTrip.getGenerator(), json);
+    assertEquals("sys_SearchGenerator", roundTrip.getGenerator().getExtensionName(), json);
+    assertNotNull(roundTrip.getContentListId(), json);
+  }
+
+  @Test
+  void contentList_omitsNullWireFieldsFromJson() {
+    ContentList list = new ContentList();
+    list.setName("incremental");
+    list.setType("Incremental");
+
+    ObjectMapper listMapper = new JacksonContextResolver().getContext(ContentList.class);
+    String json = listMapper.writeValueAsString(list);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("incremental"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertFalse(json.contains("\"description\""), json);
+    assertFalse(json.contains("\"url\""), json);
+    assertFalse(json.contains("\"contentListId\""), json);
+    assertFalse(json.contains("\"itemFilter\""), json);
+    assertFalse(json.contains("\"generator\""), json);
+    assertFalse(json.contains("\"expander\""), json);
+    assertFalse(json.contains("\"editionType\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void contentListList_serializesNamesNotOptionalBeans() {
+    ContentList list = new ContentList();
+    list.setName("full_site");
+    list.setEditionType("Publish");
+    ContentListList lists = new ContentListList(List.of(list));
+
+    ObjectMapper listsMapper = new JacksonContextResolver().getContext(ContentListList.class);
+    String json = listsMapper.writeValueAsString(lists);
+    assertTrue(json.contains("full_site"), json);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Publish"), json);
+    assertTrue(json.contains("ContentList") || json.startsWith("["), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void itemFilterRuleDefinitionParam_serializesNameValueNotOptionalBeans() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName("sys_authType");
+    param.setValue("1");
+
+    ObjectMapper paramMapper =
+        new JacksonContextResolver().getContext(ItemFilterRuleDefinitionParam.class);
+    String json = paramMapper.writeValueAsString(param);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("sys_authType"), json);
+    assertTrue(json.contains("\"value\""), json);
+    assertTrue(json.contains("1"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ItemFilterRuleDefinitionParam roundTrip =
+        paramMapper.readValue(json, ItemFilterRuleDefinitionParam.class);
+    assertEquals("sys_authType", roundTrip.getName(), json);
+    assertEquals("1", roundTrip.getValue(), json);
+  }
+
+  @Test
+  void itemFilterRuleDefinitionParam_omitsNullWireFieldsFromJson() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName(null);
+    param.setValue(null);
+
+    ObjectMapper paramMapper =
+        new JacksonContextResolver().getContext(ItemFilterRuleDefinitionParam.class);
+    String json = paramMapper.writeValueAsString(param);
+    assertFalse(json.contains("\"name\""), json);
+    assertFalse(json.contains("\"value\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void itemFilterRuleDefinition_serializesNestedParamsNotOptionalBeans() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName("folderId");
+    param.setValue("301");
+
+    ItemFilterRuleDefinition rule = new ItemFilterRuleDefinition();
+    rule.setName("sys_FolderFilter");
+    rule.setParams(List.of(param));
+
+    ItemFilter filter = new ItemFilter();
+    filter.setName("site_folder");
+    filter.setDescription("Site folder filter");
+    filter.setRules(java.util.Set.of(rule));
+
+    ObjectMapper filterMapper = new JacksonContextResolver().getContext(ItemFilter.class);
+    String json = filterMapper.writeValueAsString(filter);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("site_folder"), json);
+    assertTrue(json.contains("sys_FolderFilter"), json);
+    assertTrue(json.contains("folderId"), json);
+    assertTrue(json.contains("301"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ItemFilter roundTrip = filterMapper.readValue(json, ItemFilter.class);
+    assertEquals("site_folder", roundTrip.getName(), json);
+    assertNotNull(roundTrip.getRules(), json);
+    assertEquals(1, roundTrip.getRules().size(), json);
+    ItemFilterRuleDefinition ruleRoundTrip = roundTrip.getRules().iterator().next();
+    assertEquals("sys_FolderFilter", ruleRoundTrip.getName(), json);
+    assertEquals("folderId", ruleRoundTrip.getParams().get(0).getName(), json);
+    assertEquals("301", ruleRoundTrip.getParams().get(0).getValue(), json);
   }
 
   @Test
