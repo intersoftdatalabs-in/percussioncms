@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.Permissions;
 import com.percussion.rest.acls.Acl;
+import com.percussion.rest.actions.AllowedContentTypeMenusRequest;
+import com.percussion.rest.actions.AllowedTemplateMenusRequest;
+import com.percussion.rest.actions.AllowedWorkflowTransitionsRequest;
+import com.percussion.rest.editions.PublishResponse;
 import com.percussion.rest.acls.AclEntry;
 import com.percussion.rest.acls.AclEntryList;
 import com.percussion.rest.acls.AclList;
@@ -36,17 +40,26 @@ import com.percussion.rest.assets.BinaryFile;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityRole;
 import com.percussion.rest.communities.CommunityVisibility;
+import com.percussion.rest.contentlists.ContentList;
+import com.percussion.rest.contentlists.ContentListList;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
+import com.percussion.rest.errors.RestError;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.displayformat.DisplayFormatProperty;
+import com.percussion.rest.extensions.Extension;
+import com.percussion.rest.extensions.ExtensionFilterOptions;
+import com.percussion.rest.itemfilter.ItemFilter;
+import com.percussion.rest.itemfilter.ItemFilterRuleDefinition;
+import com.percussion.rest.itemfilter.ItemFilterRuleDefinitionParam;
 import com.percussion.rest.folders.CopyFolderItemRequest;
 import com.percussion.rest.folders.Folder;
 import com.percussion.rest.folders.SectionInfo;
 import com.percussion.rest.folders.SectionLinkRef;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.MoveFolderItem;
+import com.percussion.rest.mimetypes.MimeType;
 import com.percussion.rest.locationscheme.LocationScheme;
 import com.percussion.rest.locationscheme.LocationSchemeParameter;
 import com.percussion.rest.locationscheme.LocationSchemeParameterList;
@@ -71,6 +84,7 @@ import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.rest.templates.TemplateSummaryList;
 import com.percussion.rest.users.User;
 import com.percussion.security.IPSTypedPrincipal;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -84,8 +98,12 @@ import tools.jackson.databind.ObjectMapper;
  * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
  * rule (issue #3411 / #3388). LocationScheme / Context / DeliveryType follow the same
  * plain-getter contract (issue #3412). Folder / Section / path-request DTOs follow the same
- * rule (issue #3413). All use production {@link JacksonContextResolver} under {@code
- * @JsonInclude(NON_NULL)}.
+ * rule (issue #3413). ContentList / ItemFilterRuleDefinitionParam follow the same
+ * plain-getter contract (issue #3431 / #3388). Action-menu request + editions
+ * {@code PublishResponse} / {@code Status} follow the same rule (issue #3432 / #3388).
+ * ExtensionFilter / MimeType / LinkRef / ObjectLock / RestError follow the same
+ * contract (issue #3430). All use production {@link
+ * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -730,7 +748,7 @@ class JacksonContextResolverOptionalTest {
 
     SectionLinkRef roundTrip = refMapper.readValue(json, SectionLinkRef.class);
     assertEquals(SectionLinkRef.TYPE_EXTERNAL, roundTrip.getType(), json);
-    assertEquals("Press", roundTrip.getName().orElse(null), json);
+    assertEquals("Press", roundTrip.getName(), json);
   }
 
   @Test
@@ -997,6 +1015,280 @@ class JacksonContextResolverOptionalTest {
   }
 
   @Test
+  void contentList_serializesPlainScalarsNotOptionalBeans() {
+    ContentList list = new ContentList();
+    list.setContentListId(new Guid("0-107-42"));
+    list.setVersion(3);
+    list.setName("full_site");
+    list.setDescription("Full site publish list");
+    list.setType("Normal");
+    list.setUrl("/Rhythmyx/contentlist?sys_deliverytype=filesystem");
+    list.setEditionType("Publish");
+
+    Extension generator = new Extension();
+    generator.setExtensionName("sys_SearchGenerator");
+    generator.setFqn("Java/global/percussion/system/sys_SearchGenerator");
+    list.setGenerator(generator);
+
+    ItemFilter filter = new ItemFilter();
+    filter.setName("public");
+    filter.setDescription("Public items");
+    list.setItemFilter(filter);
+
+    ObjectMapper listMapper = new JacksonContextResolver().getContext(ContentList.class);
+    String json = listMapper.writeValueAsString(list);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("full_site"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("Full site publish list"), json);
+    assertTrue(json.contains("\"url\""), json);
+    assertTrue(json.contains("\"editionType\""), json);
+    assertTrue(json.contains("Publish"), json);
+    assertTrue(json.contains("\"itemFilter\""), json);
+    assertTrue(json.contains("public"), json);
+    assertTrue(json.contains("\"generator\""), json);
+    assertTrue(json.contains("sys_SearchGenerator"), json);
+    assertTrue(json.contains("\"contentListId\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    ContentList roundTrip = listMapper.readValue(json, ContentList.class);
+    assertEquals("full_site", roundTrip.getName(), json);
+    assertEquals("Full site publish list", roundTrip.getDescription(), json);
+    assertEquals("Publish", roundTrip.getEditionType(), json);
+    assertEquals(Integer.valueOf(3), roundTrip.getVersion(), json);
+    assertNotNull(roundTrip.getItemFilter(), json);
+    assertEquals("public", roundTrip.getItemFilter().getName(), json);
+    assertNotNull(roundTrip.getGenerator(), json);
+    assertEquals("sys_SearchGenerator", roundTrip.getGenerator().getExtensionName(), json);
+    assertNotNull(roundTrip.getContentListId(), json);
+  }
+
+  @Test
+  void contentList_omitsNullWireFieldsFromJson() {
+    ContentList list = new ContentList();
+    list.setName("incremental");
+    list.setType("Incremental");
+
+    ObjectMapper listMapper = new JacksonContextResolver().getContext(ContentList.class);
+    String json = listMapper.writeValueAsString(list);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("incremental"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertFalse(json.contains("\"description\""), json);
+    assertFalse(json.contains("\"url\""), json);
+    assertFalse(json.contains("\"contentListId\""), json);
+    assertFalse(json.contains("\"itemFilter\""), json);
+    assertFalse(json.contains("\"generator\""), json);
+    assertFalse(json.contains("\"expander\""), json);
+    assertFalse(json.contains("\"editionType\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void contentListList_serializesNamesNotOptionalBeans() {
+    ContentList list = new ContentList();
+    list.setName("full_site");
+    list.setEditionType("Publish");
+    ContentListList lists = new ContentListList(List.of(list));
+
+    ObjectMapper listsMapper = new JacksonContextResolver().getContext(ContentListList.class);
+    String json = listsMapper.writeValueAsString(lists);
+    assertTrue(json.contains("full_site"), json);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Publish"), json);
+    assertTrue(json.contains("ContentList") || json.startsWith("["), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void itemFilterRuleDefinitionParam_serializesNameValueNotOptionalBeans() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName("sys_authType");
+    param.setValue("1");
+
+    ObjectMapper paramMapper =
+        new JacksonContextResolver().getContext(ItemFilterRuleDefinitionParam.class);
+    String json = paramMapper.writeValueAsString(param);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("sys_authType"), json);
+    assertTrue(json.contains("\"value\""), json);
+    assertTrue(json.contains("1"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ItemFilterRuleDefinitionParam roundTrip =
+        paramMapper.readValue(json, ItemFilterRuleDefinitionParam.class);
+    assertEquals("sys_authType", roundTrip.getName(), json);
+    assertEquals("1", roundTrip.getValue(), json);
+  }
+
+  @Test
+  void itemFilterRuleDefinitionParam_omitsNullWireFieldsFromJson() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName(null);
+    param.setValue(null);
+
+    ObjectMapper paramMapper =
+        new JacksonContextResolver().getContext(ItemFilterRuleDefinitionParam.class);
+    String json = paramMapper.writeValueAsString(param);
+    assertFalse(json.contains("\"name\""), json);
+    assertFalse(json.contains("\"value\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void itemFilterRuleDefinition_serializesNestedParamsNotOptionalBeans() {
+    ItemFilterRuleDefinitionParam param = new ItemFilterRuleDefinitionParam();
+    param.setName("folderId");
+    param.setValue("301");
+
+    ItemFilterRuleDefinition rule = new ItemFilterRuleDefinition();
+    rule.setName("sys_FolderFilter");
+    rule.setParams(List.of(param));
+
+    ItemFilter filter = new ItemFilter();
+    filter.setName("site_folder");
+    filter.setDescription("Site folder filter");
+    filter.setRules(java.util.Set.of(rule));
+
+    ObjectMapper filterMapper = new JacksonContextResolver().getContext(ItemFilter.class);
+    String json = filterMapper.writeValueAsString(filter);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("site_folder"), json);
+    assertTrue(json.contains("sys_FolderFilter"), json);
+    assertTrue(json.contains("folderId"), json);
+    assertTrue(json.contains("301"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ItemFilter roundTrip = filterMapper.readValue(json, ItemFilter.class);
+    assertEquals("site_folder", roundTrip.getName(), json);
+    assertNotNull(roundTrip.getRules(), json);
+    assertEquals(1, roundTrip.getRules().size(), json);
+    ItemFilterRuleDefinition ruleRoundTrip = roundTrip.getRules().iterator().next();
+    assertEquals("sys_FolderFilter", ruleRoundTrip.getName(), json);
+    assertEquals("folderId", ruleRoundTrip.getParams().get(0).getName(), json);
+    assertEquals("301", ruleRoundTrip.getParams().get(0).getValue(), json);
+  }
+
+  @Test
+  void extensionFilterOptions_serializesPlainScalarsNotOptionalBeans() {
+    ExtensionFilterOptions filter = new ExtensionFilterOptions();
+    filter.setHandlerNamePattern("Java");
+    filter.setContext("global/percussion/generic/");
+    filter.setInterfacePattern("com.percussion.extension.IPSExtension");
+    filter.setExtensionNamePattern("sys_*");
+
+    ObjectMapper filterMapper =
+        new JacksonContextResolver().getContext(ExtensionFilterOptions.class);
+    String json = filterMapper.writeValueAsString(filter);
+    assertTrue(json.contains("\"handlerNamePattern\""), json);
+    assertTrue(json.contains("Java"), json);
+    assertTrue(json.contains("\"context\""), json);
+    assertTrue(json.contains("global/percussion/generic/"), json);
+    assertTrue(json.contains("\"interfacePattern\""), json);
+    assertTrue(json.contains("\"extensionNamePattern\""), json);
+    assertTrue(json.contains("sys_*"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ExtensionFilterOptions roundTrip = filterMapper.readValue(json, ExtensionFilterOptions.class);
+    assertEquals("Java", roundTrip.getHandlerNamePattern(), json);
+    assertEquals("global/percussion/generic/", roundTrip.getContext(), json);
+    assertEquals("com.percussion.extension.IPSExtension", roundTrip.getInterfacePattern(), json);
+    assertEquals("sys_*", roundTrip.getExtensionNamePattern(), json);
+  }
+
+  @Test
+  void mimeType_serializesPlainScalarsNotOptionalBeans() {
+    MimeType mimeType = new MimeType();
+    mimeType.setExtension("pdf");
+    mimeType.setType("application/pdf");
+
+    ObjectMapper mimeMapper = new JacksonContextResolver().getContext(MimeType.class);
+    String json = mimeMapper.writeValueAsString(mimeType);
+    assertTrue(json.contains("\"extension\""), json);
+    assertTrue(json.contains("pdf"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertTrue(json.contains("application/pdf"), json);
+    assertNoOptionalBeanKeys(json);
+
+    MimeType roundTrip = mimeMapper.readValue(json, MimeType.class);
+    assertEquals("pdf", roundTrip.getExtension(), json);
+    assertEquals("application/pdf", roundTrip.getType(), json);
+  }
+
+  @Test
+  void linkRef_serializesNameHrefNotOptionalBeans() {
+    LinkRef ref = new LinkRef("index.html", "http://example.com/index.html");
+
+    ObjectMapper refMapper = new JacksonContextResolver().getContext(LinkRef.class);
+    String json = refMapper.writeValueAsString(ref);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("index.html"), json);
+    assertTrue(json.contains("\"href\""), json);
+    assertTrue(json.contains("http://example.com/index.html"), json);
+    assertNoOptionalBeanKeys(json);
+
+    LinkRef roundTrip = refMapper.readValue(json, LinkRef.class);
+    assertEquals("index.html", roundTrip.getName(), json);
+    assertEquals("http://example.com/index.html", roundTrip.getHref(), json);
+  }
+
+  @Test
+  void objectLockSummary_serializesPlainScalarsNotOptionalBeans() {
+    ObjectLockSummary lock = new ObjectLockSummary();
+    lock.setSession("sess-1");
+    lock.setLocker("Admin");
+    lock.setRemainingTime(120L);
+    lock.setCallerAccessTime("2026-08-15T12:00:00Z");
+
+    ObjectMapper lockMapper = new JacksonContextResolver().getContext(ObjectLockSummary.class);
+    String json = lockMapper.writeValueAsString(lock);
+    assertTrue(json.contains("\"session\""), json);
+    assertTrue(json.contains("sess-1"), json);
+    assertTrue(json.contains("\"locker\""), json);
+    assertTrue(json.contains("Admin"), json);
+    assertTrue(json.contains("\"callerAccessTime\""), json);
+    assertTrue(json.contains("2026-08-15T12:00:00Z"), json);
+    assertNoOptionalBeanKeys(json);
+
+    ObjectLockSummary roundTrip = lockMapper.readValue(json, ObjectLockSummary.class);
+    assertEquals("sess-1", roundTrip.getSession(), json);
+    assertEquals("Admin", roundTrip.getLocker(), json);
+    assertEquals(120L, roundTrip.getRemainingTime(), json);
+    assertEquals("2026-08-15T12:00:00Z", roundTrip.getCallerAccessTime(), json);
+  }
+
+  @Test
+  void restError_serializesErrorDataAsScalarNotOptionalBean() {
+    RestError error =
+        new RestError(42, "FolderNotFoundException", "Folder missing", "detail", "folder-id-9");
+
+    ObjectMapper errorMapper = new JacksonContextResolver().getContext(RestError.class);
+    String json = errorMapper.writeValueAsString(error);
+    assertTrue(json.contains("\"errorData\""), json);
+    assertTrue(json.contains("folder-id-9"), json);
+    assertTrue(json.contains("\"message\""), json);
+    assertTrue(json.contains("Folder missing"), json);
+    assertNoOptionalBeanKeys(json);
+
+    RestError roundTrip = errorMapper.readValue(json, RestError.class);
+    assertEquals(42, roundTrip.getErrorCode(), json);
+    assertEquals("Folder missing", roundTrip.getMessage(), json);
+    assertEquals("folder-id-9", roundTrip.getErrorData(), json);
+  }
+
+  @Test
+  void restError_omitsNullErrorDataFromJson() {
+    RestError error = new RestError(1, "UnexpectedException", "boom", null, null);
+
+    ObjectMapper errorMapper = new JacksonContextResolver().getContext(RestError.class);
+    String json = errorMapper.writeValueAsString(error);
+    assertTrue(json.contains("\"message\""), json);
+    assertFalse(json.contains("\"errorData\""), json);
+    assertFalse(json.contains("\"detailMessage\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
   void userAccessLevel_serializesPermissionNotOptionalBean() {
     ObjectMapper ualMapper = new JacksonContextResolver().getContext(UserAccessLevel.class);
     UserAccessLevel level = new UserAccessLevel();
@@ -1011,6 +1303,133 @@ class JacksonContextResolverOptionalTest {
     UserAccessLevel ualRoundTrip = ualMapper.readValue(json, UserAccessLevel.class);
     assertEquals(Permissions.READ, ualRoundTrip.getPermission());
     assertEquals(9, ualRoundTrip.getId());
+  }
+
+  @Test
+  void allowedContentTypeMenusRequest_serializesContentIdsAsJsonArray() {
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    request.setContentIds(new int[] {101, 102});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedContentTypeMenusRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("101"), json);
+    assertTrue(json.contains("102"), json);
+    assertFalse(json.contains("\"empty\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedContentTypeMenusRequest roundTrip =
+        requestMapper.readValue(json, AllowedContentTypeMenusRequest.class);
+    assertTrue(Arrays.equals(new int[] {101, 102}, roundTrip.getContentIds()), json);
+  }
+
+  @Test
+  void allowedTemplateMenusRequest_serializesContentIdsAsJsonArray() {
+    AllowedTemplateMenusRequest request = new AllowedTemplateMenusRequest();
+    request.setContentIds(new int[] {201, 202});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedTemplateMenusRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("201"), json);
+    assertTrue(json.contains("202"), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedTemplateMenusRequest roundTrip =
+        requestMapper.readValue(json, AllowedTemplateMenusRequest.class);
+    assertTrue(Arrays.equals(new int[] {201, 202}, roundTrip.getContentIds()), json);
+  }
+
+  @Test
+  void allowedWorkflowTransitionsRequest_serializesIdsAsJsonArrays() {
+    AllowedWorkflowTransitionsRequest request = new AllowedWorkflowTransitionsRequest();
+    request.setContentIds(new int[] {301, 302});
+    request.setAssignmentTypeIds(new int[] {1, 2});
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedWorkflowTransitionsRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"contentIds\""), json);
+    assertTrue(json.contains("301"), json);
+    assertTrue(json.contains("\"assignmentTypeIds\""), json);
+    assertTrue(json.contains("1"), json);
+    assertNoOptionalBeanKeys(json);
+
+    AllowedWorkflowTransitionsRequest roundTrip =
+        requestMapper.readValue(json, AllowedWorkflowTransitionsRequest.class);
+    assertTrue(Arrays.equals(new int[] {301, 302}, roundTrip.getContentIds()), json);
+    assertTrue(Arrays.equals(new int[] {1, 2}, roundTrip.getAssignmentTypeIds()), json);
+  }
+
+  @Test
+  void publishResponse_serializesWarningMessageNotOptionalBean() {
+    PublishResponse response = new PublishResponse();
+    response.setSiteName("Help");
+    response.setStatus("Completed");
+    response.setDelivered("10");
+    response.setFailures("0");
+    response.setWarningMessage("partial");
+    response.setJobid(42L);
+
+    ObjectMapper responseMapper = new JacksonContextResolver().getContext(PublishResponse.class);
+    String json = responseMapper.writeValueAsString(response);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("Help"), json);
+    assertTrue(json.contains("\"warningMessage\""), json);
+    assertTrue(json.contains("partial"), json);
+    assertTrue(json.contains("\"status\""), json);
+    assertTrue(json.contains("Completed"), json);
+    assertNoOptionalBeanKeys(json);
+
+    PublishResponse roundTrip = responseMapper.readValue(json, PublishResponse.class);
+    assertEquals("Help", roundTrip.getSiteName(), json);
+    assertEquals("partial", roundTrip.getWarningMessage(), json);
+    assertEquals(42L, roundTrip.getJobid(), json);
+  }
+
+  @Test
+  void status_serializesMessageNotOptionalBean() {
+    Status status = new Status(200, "Moved OK");
+
+    ObjectMapper statusMapper = new JacksonContextResolver().getContext(Status.class);
+    String json = statusMapper.writeValueAsString(status);
+    assertTrue(json.contains("\"message\""), json);
+    assertTrue(json.contains("Moved OK"), json);
+    assertTrue(json.contains("\"statusCode\""), json);
+    assertTrue(json.contains("200"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Status roundTrip = statusMapper.readValue(json, Status.class);
+    assertEquals("Moved OK", roundTrip.getMessage(), json);
+    assertEquals(200, roundTrip.getStatusCode(), json);
+  }
+
+  @Test
+  void actionPublishStatusFamily_omitsNullWireFieldsFromJson() {
+    AllowedContentTypeMenusRequest request = new AllowedContentTypeMenusRequest();
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(AllowedContentTypeMenusRequest.class);
+    String requestJson = requestMapper.writeValueAsString(request);
+    assertFalse(requestJson.contains("\"contentIds\""), requestJson);
+    assertNoOptionalBeanKeys(requestJson);
+
+    PublishResponse response = new PublishResponse();
+    response.setJobid(7L);
+    ObjectMapper responseMapper = new JacksonContextResolver().getContext(PublishResponse.class);
+    String responseJson = responseMapper.writeValueAsString(response);
+    assertTrue(responseJson.contains("\"jobid\"") || responseJson.contains("\"jobId\""), responseJson);
+    assertFalse(responseJson.contains("\"warningMessage\""), responseJson);
+    assertFalse(responseJson.contains("\"siteName\""), responseJson);
+    assertNoOptionalBeanKeys(responseJson);
+
+    Status status = new Status();
+    status.setStatusCode(0);
+    ObjectMapper statusMapper = new JacksonContextResolver().getContext(Status.class);
+    String statusJson = statusMapper.writeValueAsString(status);
+    assertFalse(statusJson.contains("\"message\""), statusJson);
+    assertNoOptionalBeanKeys(statusJson);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {

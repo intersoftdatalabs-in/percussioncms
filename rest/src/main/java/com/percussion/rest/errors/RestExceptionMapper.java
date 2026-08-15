@@ -50,7 +50,7 @@ public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase> {
             e.getClass().getSimpleName(),
             e.getMessage(),
             e.getDetailMessage(),
-            e.getErrorData().orElse(null));
+            e.getErrorData());
 
     int status =
         e.getStatus() != null

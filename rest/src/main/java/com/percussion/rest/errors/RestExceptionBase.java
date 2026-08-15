@@ -22,7 +22,6 @@ package com.percussion.rest.errors;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -120,12 +119,12 @@ public class RestExceptionBase extends WebApplicationException {
   }
 
   /**
-   * Returns the error data as an Optional.
+   * Returns the in-process error payload for JAX-RS mapping.
    *
-   * @return Optional containing error data if present
+   * @return error data, or {@code null} if unset
    */
-  public Optional<Object> getErrorData() {
-    return Optional.ofNullable(errorData);
+  public Object getErrorData() {
+    return errorData;
   }
 
   public void setErrorData(Object errorData) {

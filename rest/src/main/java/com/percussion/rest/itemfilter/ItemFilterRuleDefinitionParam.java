@@ -19,12 +19,19 @@
 
 package com.percussion.rest.itemfilter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
-/** Represents an ItemFilter Rule Parameter. Sunny Sal: "Rule parameter, filter ka accelerator!" */
+/**
+ * Represents an ItemFilter Rule Parameter.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits {@code name}
+ * and {@code value} scalars rather than Optional beans ({@code empty}/{@code present}). Matches
+ * {@link com.percussion.rest.contenttypes.ContentType} getter style (issue #3388 / #3431).
+ */
 @XmlRootElement(name = "ItemFilterRuleDefinitionParam")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an ItemFilter Rule Parameter")
 public class ItemFilterRuleDefinitionParam {
 
@@ -39,8 +46,8 @@ public class ItemFilterRuleDefinitionParam {
   }
 
   /** Gets the parameter name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
@@ -48,8 +55,8 @@ public class ItemFilterRuleDefinitionParam {
   }
 
   /** Gets the parameter value. */
-  public Optional<String> getValue() {
-    return Optional.ofNullable(value);
+  public String getValue() {
+    return value;
   }
 
   public void setValue(String value) {

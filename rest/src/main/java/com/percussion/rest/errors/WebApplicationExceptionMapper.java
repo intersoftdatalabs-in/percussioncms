@@ -84,7 +84,7 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
             e.getClass().getSimpleName(),
             e.getMessage(),
             e.getDetailMessage(),
-            e.getErrorData().orElse(null));
+            e.getErrorData());
     int status =
         e.getStatus() != null
             ? e.getStatus().getStatusCode()

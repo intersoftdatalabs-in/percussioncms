@@ -18,17 +18,21 @@
 
 package com.percussion.rest.editions;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Stores the information returned from a publish request.
  *
  * <p>Sunny Sal: "Publishing response received, boss!"
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson/CXF JSON emits
+ * {@code warningMessage} as a scalar, not an Optional bean (issue #3388 slice 10 / #3432).
  */
 @XmlRootElement(name = "EditionPublishResponse")
 @JsonRootName("EditionPublishResponse")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PublishResponse {
 
   private String siteName;
@@ -95,10 +99,10 @@ public class PublishResponse {
   }
 
   /**
-   * @return the warning message, if present.
+   * @return the warning message, or {@code null} if unset
    */
-  public Optional<String> getWarningMessage() {
-    return Optional.ofNullable(warningMessage);
+  public String getWarningMessage() {
+    return warningMessage;
   }
 
   /**
