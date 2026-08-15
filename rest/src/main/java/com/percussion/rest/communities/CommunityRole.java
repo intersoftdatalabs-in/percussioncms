@@ -18,14 +18,20 @@
 
 package com.percussion.rest.communities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a Community Role association. */
+/**
+ * Represents a Community Role association.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}).
+ */
 @XmlRootElement(name = "CommunityRole")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Community Role association")
 public class CommunityRole {
 
@@ -55,16 +61,16 @@ public class CommunityRole {
     this.roleGuid = roleGuid;
   }
 
-  public Optional<Guid> getCommunityGuid() {
-    return Optional.ofNullable(communityGuid);
+  public Guid getCommunityGuid() {
+    return communityGuid;
   }
 
   public void setCommunityGuid(Guid communityGuid) {
     this.communityGuid = communityGuid;
   }
 
-  public Optional<Guid> getRoleGuid() {
-    return Optional.ofNullable(roleGuid);
+  public Guid getRoleGuid() {
+    return roleGuid;
   }
 
   public void setRoleGuid(Guid roleGuid) {
@@ -87,8 +93,8 @@ public class CommunityRole {
     this.roleId = roleId;
   }
 
-  public Optional<String> getRoleName() {
-    return Optional.ofNullable(roleName);
+  public String getRoleName() {
+    return roleName;
   }
 
   public void setRoleName(String roleName) {

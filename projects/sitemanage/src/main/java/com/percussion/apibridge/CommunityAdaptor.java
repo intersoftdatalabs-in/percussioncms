@@ -100,10 +100,10 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     }
     String key = idOrName.trim();
     Community summary = resolveSummary(key);
-    if (summary == null || summary.getGuid().isEmpty()) {
+    if (summary == null || summary.getGuid() == null) {
       return null;
     }
-    Guid g = summary.getGuid().get();
+    Guid g = summary.getGuid();
     GuidList ids = new GuidList();
     ids.add(g);
     try {
@@ -141,7 +141,8 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     out.sort(
         (a, b) ->
             String.CASE_INSENSITIVE_ORDER.compare(
-                a.getRoleName().orElse(""), b.getRoleName().orElse("")));
+                a.getRoleName() == null ? "" : a.getRoleName(),
+                b.getRoleName() == null ? "" : b.getRoleName()));
     return out;
   }
 
@@ -151,12 +152,12 @@ public class CommunityAdaptor implements ICommunityAdaptor {
       throw new IllegalArgumentException("idOrName is required");
     }
     Community current = getCommunity(idOrName.trim());
-    if (current == null || current.getGuid().isEmpty()) {
+    if (current == null || current.getGuid() == null) {
       return null;
     }
     // Replace memberships on the REST DTO then save via design WS
     CommunityRoleList next = roles != null ? roles : new CommunityRoleList();
-    Guid communityGuid = current.getGuid().get();
+    Guid communityGuid = current.getGuid();
     for (CommunityRole r : next) {
       if (r == null) {
         continue;
@@ -199,7 +200,7 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     CommunityList byName = findCommunities(key);
     if (byName != null) {
       for (Community c : byName) {
-        if (c != null && key.equalsIgnoreCase(c.getName().orElse(null))) {
+        if (c != null && key.equalsIgnoreCase(c.getName())) {
           return c;
         }
       }
@@ -248,10 +249,10 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   }
 
   private void enrichRoleNames(Community detail) {
-    if (detail == null || detail.getRoleList().isEmpty()) {
+    if (detail == null || detail.getRoleList() == null) {
       return;
     }
-    CommunityRoleList roles = detail.getRoleList().get();
+    CommunityRoleList roles = detail.getRoleList();
     if (roles == null || roles.isEmpty()) {
       return;
     }
@@ -271,7 +272,7 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     }
     for (CommunityRole r : roles) {
       if (r == null) continue;
-      if (StringUtils.isBlank(r.getRoleName().orElse(null))) {
+      if (StringUtils.isBlank(r.getRoleName())) {
         String n = namesByUuid.get(r.getRoleId());
         if (n != null) {
           r.setRoleName(n);

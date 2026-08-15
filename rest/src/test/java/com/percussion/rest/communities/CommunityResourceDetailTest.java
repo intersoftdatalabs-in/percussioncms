@@ -51,7 +51,7 @@ public class CommunityResourceDetailTest {
     c.setName("Default");
     c.setLabel("Default");
     when(adaptor.getCommunity(eq("Default"))).thenReturn(c);
-    assertEquals("Default", resource.getCommunity("Default").getName().orElse(null));
+    assertEquals("Default", resource.getCommunity("Default").getName());
   }
 
   @Test
@@ -59,7 +59,7 @@ public class CommunityResourceDetailTest {
     Community c = new Community();
     c.setName("ById");
     when(adaptor.getCommunity(eq("10"))).thenReturn(c);
-    assertEquals("ById", resource.getCommunity("10").getName().orElse(null));
+    assertEquals("ById", resource.getCommunity("10").getName());
   }
 
   @Test
@@ -67,7 +67,7 @@ public class CommunityResourceDetailTest {
     Community c = new Community();
     c.setName("ByGuid");
     when(adaptor.getCommunity(eq("0-13-10"))).thenReturn(c);
-    assertEquals("ByGuid", resource.getCommunity("0-13-10").getName().orElse(null));
+    assertEquals("ByGuid", resource.getCommunity("0-13-10").getName());
   }
 
   @Test
@@ -94,7 +94,7 @@ public class CommunityResourceDetailTest {
     list.add(r);
     when(adaptor.listAvailableRoles()).thenReturn(list);
     assertEquals(1, resource.listAvailableRoles().size());
-    assertEquals("Admin", resource.listAvailableRoles().get(0).getRoleName().orElse(null));
+    assertEquals("Admin", resource.listAvailableRoles().get(0).getRoleName());
   }
 
   @Test
@@ -104,7 +104,7 @@ public class CommunityResourceDetailTest {
     updated.setName("Default");
     updated.setRoleList(body);
     when(adaptor.updateCommunityRoles(eq("Default"), any())).thenReturn(updated);
-    assertEquals("Default", resource.updateCommunityRoles("Default", body).getName().orElse(null));
+    assertEquals("Default", resource.updateCommunityRoles("Default", body).getName());
   }
 
   @Test

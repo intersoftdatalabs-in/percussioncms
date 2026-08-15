@@ -192,8 +192,7 @@ public class ApiUtils {
     Community ret =
         new Community(
             c.getId(), convertGuid(c.getGUID()), c.getName(), c.getDescription(), c.getLabel());
-    // unwrap Optional GUID for convenience
-    var optGuid = ret.getGuid().orElse(null);
+    var optGuid = ret.getGuid();
 
     ArrayList<CommunityRole> roles = new ArrayList<>();
     // iterate role associations from PSCommunity
@@ -268,12 +267,14 @@ public class ApiUtils {
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
 
-    p.setDescription(orNull(c.getDescription()));
-    p.setName(orNull(c.getName()));
+    p.setDescription(c.getDescription());
+    p.setName(c.getName());
     p = (PSCommunity) p.tuneClone(c.getId());
 
-    for (CommunityRole cr : orEmpty(c.getRoleList())) {
-      p.addRoleAssociation(convertGuid(orNull(cr.getRoleGuid())));
+    if (c.getRoleList() != null) {
+      for (CommunityRole cr : c.getRoleList()) {
+        p.addRoleAssociation(convertGuid(cr.getRoleGuid()));
+      }
     }
 
     return p;
@@ -293,8 +294,8 @@ public class ApiUtils {
       for (CommunityRole r : roleList) {
         PSCommunityRoleAssociation p_r =
             new PSCommunityRoleAssociation(
-                convertGuid(orNull(r.getCommunityGuid())), convertGuid(orNull(r.getRoleGuid())));
-        p_r.setRoleName(orNull(r.getRoleName()));
+                convertGuid(r.getCommunityGuid()), convertGuid(r.getRoleGuid()));
+        p_r.setRoleName(r.getRoleName());
         ret.add(p_r);
       }
     }
