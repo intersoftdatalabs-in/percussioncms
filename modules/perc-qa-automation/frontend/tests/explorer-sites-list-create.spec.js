@@ -59,14 +59,17 @@ const {
   explorerSpaUrl,
   sitesFolderUrl,
   siteChildListPath,
+  siteChildListCandidates,
   folderChildrenUrl,
   openContentMenu,
   sitesTreeRootLocator,
+  expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
+  isKnownExplorerSitesConsoleNoise,
 } = require("./helpers/explorer-sites-list-create");
 
 const SITES_URL = sitesFolderUrl(BASE_URL);
@@ -177,15 +180,35 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
           ]),
         ) || items[0];
       expect(sample, "expected at least one site PathItem").toBeTruthy();
-      const listPath = siteChildListPath(sample);
-      const childUrl = folderChildrenUrl(BASE_URL, listPath);
-      const childRes = await request.get(childUrl, { headers });
-      expect(childRes.status(), `GET ${childUrl}`).toBe(200);
-      const childNames = pathItemNames(await childRes.json());
+      const candidates = siteChildListCandidates(sample);
+      expect(
+        candidates.length,
+        `no list paths from PathItem ${JSON.stringify(sample)}`,
+      ).toBeGreaterThan(0);
+      const probes = [];
+      let childNames = [];
+      let usedUrl = "";
+      for (const listPath of candidates) {
+        const childUrl = folderChildrenUrl(BASE_URL, listPath);
+        const childRes = await request.get(childUrl, { headers });
+        const status = childRes.status();
+        if (status !== 200) {
+          probes.push(`${childUrl} => HTTP ${status}`);
+          continue;
+        }
+        const names = pathItemNames(await childRes.json());
+        probes.push(`${childUrl} => ${JSON.stringify(names)}`);
+        if (names.length > 0) {
+          childNames = names;
+          usedUrl = childUrl;
+          break;
+        }
+      }
       expect(
         childNames.length,
-        `site children at ${childUrl}: ${JSON.stringify(childNames)}`,
+        `site children empty for ${siteChildListPath(sample)}; probes: ${probes.join(" | ")}`,
       ).toBeGreaterThan(0);
+      expect(usedUrl.length, "matched child list URL").toBeGreaterThan(0);
     },
   );
 
@@ -214,7 +237,8 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
 
       const sitesRoot = sitesTreeRootLocator(page);
       await expect(sitesRoot.first()).toBeVisible({ timeout: 20_000 });
-      await sitesRoot.first().click();
+      // Row click selects; expand is the aria-hidden toggle (#3410).
+      await expandExplorerTreeNode(sitesRoot.first());
 
       const descendants = sitesTreeDescendantsLocator(page);
       await expect(descendants.first()).toBeVisible({ timeout: 20_000 });
@@ -268,11 +292,19 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await expect(tree).toBeVisible({ timeout: 20_000 });
       const sitesRoot = sitesTreeRootLocator(page);
       await expect(sitesRoot.first()).toBeVisible({ timeout: 20_000 });
-      await sitesRoot.first().click();
+      await expandExplorerTreeNode(sitesRoot.first());
 
       const descendants = sitesTreeDescendantsLocator(page);
       await expect(descendants.first()).toBeVisible({ timeout: 20_000 });
-      await descendants.first().locator('[role="treeitem"]').first().click();
+      const sampleNode = tree.locator(
+        '[data-testid*="tree-node-/Sites/Corporate"][role="treeitem"], ' +
+          '[data-testid*="tree-node-/Sites/Corporate"] [role="treeitem"]',
+      );
+      if ((await sampleNode.count()) > 0) {
+        await sampleNode.first().click();
+      } else {
+        await descendants.first().locator('[role="treeitem"]').first().click();
+      }
 
       const detail = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
       await expect(detail).toBeVisible({ timeout: 15_000 });
@@ -283,7 +315,8 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await expect(detail.locator('[data-testid^="detail-row-"]').first()).toBeVisible({
         timeout: 20_000,
       });
-      expect(jsErrors, `console/page errors: ${jsErrors.join(" | ")}`).toEqual(
+      const unexpected = jsErrors.filter((t) => !isKnownExplorerSitesConsoleNoise(t));
+      expect(unexpected, `console/page errors: ${unexpected.join(" | ")}`).toEqual(
         [],
       );
     },
@@ -332,9 +365,11 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       }
 
       await page.locator(`[data-testid="${TEST_IDS.createSiteMenu}"]`).click();
+      // Wizard is nested inside explorer-site-create-panel — do not
+      // panel.or(wizard) (strict-mode: 2 elements, #3410).
       const panel = page.locator(`[data-testid="${TEST_IDS.createSitePanel}"]`);
-      const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
-      await expect(panel.or(wizard)).toBeVisible({ timeout: 10_000 });
+      const wizard = panel.locator(`[data-testid="${TEST_IDS.wizard}"]`);
+      await expect(panel).toBeVisible({ timeout: 10_000 });
       await expect(wizard).toBeVisible({ timeout: 10_000 });
 
       await expect(

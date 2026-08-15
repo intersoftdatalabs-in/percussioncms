@@ -3371,14 +3371,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          PSComponentSummary comp = (PSComponentSummary) summariesIt.next();
 
          // get content type name from content type id
-         try
+         PSItemDefManager mgr = PSItemDefManager.getInstance();
+         contentTypeName = contentTypeNameIfRegistered(mgr, comp.getContentTypeId());
+         if (contentTypeName == null)
          {
-            PSItemDefManager mgr = PSItemDefManager.getInstance();
-            contentTypeName = mgr.contentTypeIdToName(comp.getContentTypeId());
-         }
-         catch (PSInvalidContentTypeException e)
-         {
-            throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
+            // FF sample nav types 313-315 may be absent when perc.nav owns
+            // percNav* (#3410). Skip the child; do not wrap as RuntimeException
+            // (that marks the folder-list Spring TX rollback-only).
+            logger.warn(
+               "Skipping item summary for contentId={} — content type {} is not registered",
+               comp.getContentId(),
+               comp.getContentTypeId());
+            continue;
          }
 
          PSItemSummary target = new PSItemSummary(comp.getContentId(), -1, comp
@@ -3394,6 +3398,24 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       return result;
+   }
+
+   /**
+    * Name of a running content type, or {@code null} when the id is not
+    * registered. Uses the checked {@link PSInvalidContentTypeException} so
+    * folder listing can skip FF nav orphans without marking the TX
+    * rollback-only (#3410).
+    */
+   static String contentTypeNameIfRegistered(PSItemDefManager mgr, long contentTypeId) {
+      if (mgr == null) {
+         return null;
+      }
+      try {
+         var name = mgr.contentTypeIdToName(contentTypeId);
+         return (name == null || name.isBlank()) ? null : name;
+      } catch (PSInvalidContentTypeException e) {
+         return null;
+      }
    }
 
    @Deprecated

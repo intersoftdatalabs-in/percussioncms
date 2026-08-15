@@ -98,11 +98,65 @@ function encodeFolderListPath(cmsPath) {
  * @returns {string}
  */
 function siteChildListPath(item) {
-  const folder = item && item.folderPath ? String(item.folderPath).trim() : "";
+  const folder = firstFolderPath(item);
   if (folder.length > 0) {
     return folder;
   }
   return item && item.path ? String(item.path) : "";
+}
+
+/**
+ * PathItem.folderPath, or the first folderPaths[] entry (Jackson list bind).
+ * @param {{ folderPath?: string, folderPaths?: unknown } | null | undefined} item
+ * @returns {string}
+ */
+function firstFolderPath(item) {
+  if (!item || typeof item !== "object") {
+    return "";
+  }
+  const direct = item.folderPath ? String(item.folderPath).trim() : "";
+  if (direct.length > 0) {
+    return direct;
+  }
+  const list = item.folderPaths;
+  if (Array.isArray(list) && list.length > 0) {
+    const first = String(list[0] || "").trim();
+    if (first.length > 0) {
+      return first;
+    }
+  }
+  return "";
+}
+
+/**
+ * Candidate CMS paths to list children of a Sites PathItem (#3410 / #3326).
+ * Order: FOLDER_ROOT, finder path, /Sites/&lt;name&gt;.
+ * @param {{ path?: string, name?: string, folderPath?: string, folderPaths?: unknown } | null | undefined} item
+ * @returns {string[]}
+ */
+function siteChildListCandidates(item) {
+  const out = [];
+  const seen = new Set();
+  const push = (raw) => {
+    const v = String(raw || "").trim();
+    if (!v) {
+      return;
+    }
+    const key = v.replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    out.push(v);
+  };
+  push(firstFolderPath(item));
+  push(item && item.path);
+  const name = item && typeof item.name === "string" ? item.name.trim() : "";
+  if (name) {
+    push(`/Sites/${name.replace(/\s+/g, "")}`);
+    push(`/Sites/${name.replace(/\s+/g, "_")}`);
+  }
+  return out;
 }
 
 /**
@@ -136,6 +190,15 @@ function sitesTreeRootLocator(page) {
     `[data-testid="${TEST_IDS.tree}"] [data-testid="tree-node-/Sites/"], ` +
       `[data-testid="${TEST_IDS.tree}"] [data-testid="tree-node-/Sites"]`,
   );
+}
+
+/**
+ * Expand a tree node via the toggle (row click only selects; #3410).
+ * @param {import('@playwright/test').Locator} node
+ */
+async function expandExplorerTreeNode(node) {
+  const toggle = node.locator('[aria-hidden="true"]').first();
+  await toggle.click();
 }
 
 /**
@@ -202,6 +265,19 @@ function createSiteMissingSkipReason() {
  * coverage still applies (#3003 acceptance).
  * @returns {string}
  */
+/**
+ * Known browser console noise on Explorer Sites (missing FF nav types 313–315
+ * still 404/400 some nav/icon/preview URLs — related #3326). Uncaught
+ * pageerror must not be filtered.
+ * @param {string} text
+ * @returns {boolean}
+ */
+function isKnownExplorerSitesConsoleNoise(text) {
+  return /favicon|Download the React DevTools|ResizeObserver|third-party|Failed to load resource|net::ERR_/i.test(
+    String(text || ""),
+  );
+}
+
 function emptySitesSoftSkipNote() {
   const { slice1SitesList, parent, repo } = PRODUCT_ISSUES;
   return (
@@ -219,12 +295,15 @@ module.exports = {
   sitesFolderUrl,
   encodeFolderListPath,
   siteChildListPath,
+  siteChildListCandidates,
   folderChildrenUrl,
   openContentMenu,
   sitesTreeRootLocator,
+  expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
+  isKnownExplorerSitesConsoleNoise,
 };

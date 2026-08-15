@@ -43,6 +43,7 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSItemSummaryFactoryService;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.thread.PSThreadUtils;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
@@ -181,10 +182,31 @@ public class PSItemSummaryService
     var items = new ArrayList<F>();
     for (var sum : sums) {
       PSThreadUtils.checkForInterrupt();
-      var item = factory.create("");
-      var isLandingPage = ((PSLegacyGuid) sum.getGUID()).getContentId() == landingPageId;
-      convert(sum, item, isLandingPage, relationshipTypeName);
-      items.add(item);
+      try {
+        // Pre-check with the checked PSInvalidContentTypeException so we do
+        // not call getNavonProperties / item-def APIs that wrap type 315
+        // in RuntimeException and mark the listing TX rollback-only (#3410).
+        if (!isKnownContentType(sum.getContentTypeId())) {
+          log.warn(
+              "Skipping folder child with unknown content type (name={}, type={}, guid={})",
+              sum.getName(),
+              sum.getContentTypeId(),
+              sum.getGUID());
+          continue;
+        }
+        var item = factory.create("");
+        var isLandingPage = ((PSLegacyGuid) sum.getGUID()).getContentId() == landingPageId;
+        convert(sum, item, isLandingPage, relationshipTypeName);
+        items.add(item);
+      } catch (RuntimeException | PSInvalidContentTypeException e) {
+        // Sample FF nav types (313-315) may be absent when perc.nav owns percNav*
+        // (#3410). Skip the unreadable child instead of failing the folder list.
+        log.warn(
+            "Skipping folder child that cannot be summarized (name={}, guid={}): {}",
+            sum.getName(),
+            sum.getGUID(),
+            e.getMessage());
+      }
     }
     return items;
   }
@@ -193,17 +215,69 @@ public class PSItemSummaryService
     return item.getObjectType().getOrdinal() == ObjectTypeEnum.FOLDER.getOrdinal();
   }
 
-  private String getNavFolderType(PSItemSummary item, String relationshipTypeName) {
+  /**
+   * True when {@link PSItemDefManager} has a running handler for the id.
+   * Uses the checked {@link PSInvalidContentTypeException} so a missing FF
+   * type (313–315) does not mark the Spring listing transaction rollback-only.
+   */
+  boolean isKnownContentType(int contentTypeId) {
+    if (itemDefManager == null) {
+      return false;
+    }
+    try {
+      var name = itemDefManager.contentTypeIdToName(contentTypeId);
+      return name != null && !name.isBlank();
+    } catch (PSInvalidContentTypeException e) {
+      return false;
+    }
+  }
+
+  String getNavFolderType(PSItemSummary item, String relationshipTypeName) {
     if (!isFolder(item)) return null;
-    String navType = null;
-    var childNavId = navService.findNavigationIdFromFolder(item.getGUID(), relationshipTypeName);
-    if (childNavId != null) {
+    try {
+      var childNavId = navService.findNavigationIdFromFolder(item.getGUID(), relationshipTypeName);
+      if (childNavId == null) {
+        return null;
+      }
+      // findNodesByIds inside getNavonProperties throws RuntimeException for
+      // rffNavTree 315 and marks the folder-list TX rollback-only (#3410).
+      if (!navChildHasKnownContentType(childNavId)) {
+        log.warn(
+            "Ignoring nav type for folder {} — nav item content type is not registered",
+            item.getName());
+        return null;
+      }
       var map =
           navService.getNavonProperties(
               childNavId, Collections.singletonList(IPSManagedNavService.NAVON_FIELD_TYPE));
-      navType = map.get(IPSManagedNavService.NAVON_FIELD_TYPE);
+      return map.get(IPSManagedNavService.NAVON_FIELD_TYPE);
+    } catch (RuntimeException e) {
+      log.warn(
+          "Ignoring nav type for folder {} — nav content type missing or unreadable: {}",
+          item.getName(),
+          e.getMessage());
+      return null;
     }
-    return navType;
+  }
+
+  /**
+   * Lightweight summary lookup (no item-def load). False when the nav child
+   * is an FF type that perc.nav never registered.
+   */
+  boolean navChildHasKnownContentType(IPSGuid childNavId) {
+    if (childNavId == null) {
+      return false;
+    }
+    try {
+      var navSums = contentWs.findItems(Collections.singletonList(childNavId), false);
+      if (navSums == null || navSums.isEmpty() || navSums.get(0) == null) {
+        return false;
+      }
+      return isKnownContentType(navSums.get(0).getContentTypeId());
+    } catch (RuntimeException e) {
+      log.debug("Could not read nav child type for {}: {}", childNavId, e.getMessage());
+      return false;
+    }
   }
 
   // override the generic factory method required by IPSCatalogFactoryService

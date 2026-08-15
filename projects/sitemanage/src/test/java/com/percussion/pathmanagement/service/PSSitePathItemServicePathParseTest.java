@@ -59,8 +59,33 @@ public class PSSitePathItemServicePathParseTest {
   }
 
   @Test
+  public void shouldTreatSiteNameWithoutTrailingSlashAsOnlySiteId() throws Exception {
+    var sfp = ps.getSiteIdAndFolderPath("/CorporateInvestments");
+    assertTrue(sfp.isOnlySiteId());
+    assertEquals("CorporateInvestments", sfp.getSiteId());
+    assertEquals("//Sites/Site1/", sfp.getFullFolderPath(siteFolderPath));
+  }
+
+  @Test
+  public void shouldMatchSitenameToFolderRootLeaf() {
+    assertTrue(
+        PSSitePathItemService.siteFolderNameMatches(
+            "CorporateInvestments", "CorporateInvestments"));
+    assertTrue(
+        PSSitePathItemService.siteFolderNameMatches(
+            "Corporate_Investments", "CorporateInvestments"));
+    assertTrue(
+        PSSitePathItemService.siteFolderNameMatches(
+            "Corporate Investments", "CorporateInvestments"));
+    assertFalse(
+        PSSitePathItemService.siteFolderNameMatches(
+            "CorporateInvestments", "EnterpriseInvestments"));
+  }
+
+  @Test
   public void shouldFailOnNoMatch() {
-    assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("/asdfasd"));
+    assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("noslash"));
+    assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath(""));
   }
 
   public void assertExtraction(String path, String expectedSiteId, String expectedFolderPath)
