@@ -63,6 +63,9 @@ class InstallSampleSitesWiringTest {
   private static final Path CMS_TABLE_DEF = INSTALLER_DATA.resolve("cmsTableDef.xml");
   private static final Path SAMPLE_CONTENT = CmsTableDataSampleContentNextNumberTest.SAMPLE_CONTENT;
 
+  private static final Path FF_CORE_TABLE_DATA =
+      Path.of("..", "..", "system", "FastForward", "Core", "Config", "Data", "RxffTableData.xml");
+
   /** Matches {@code name} anywhere on a {@code <table ...>} start tag (not only first attr). */
   private static final Pattern TABLE_NAME_ATTR =
       Pattern.compile(
@@ -237,6 +240,53 @@ class InstallSampleSitesWiringTest {
         "RxffTableData must not invent CONTENTID 350-355 folders (they collide with FF sample"
             + " pages). Found: "
             + found);
+  }
+
+  /**
+   * perc.nav already owns percNavImage/on/Tree under new IDs. Renaming cms
+   * 313-315 to those names unique-conflicts and aborts CONTENTTYPES so 316
+   * (rffPressRelease) never inserts.
+   */
+  @Test
+  void rxffContentTypesDoNotRenameNavIdsToPercNavNames()
+      throws IOException, ParserConfigurationException, SAXException {
+    assertRxffContentTypesKeepPressRelease(SAMPLE_DATA);
+    assertRxffContentTypesKeepPressRelease(FF_CORE_TABLE_DATA);
+  }
+
+  private static void assertRxffContentTypesKeepPressRelease(Path xml)
+      throws IOException, ParserConfigurationException, SAXException {
+    assertTrue(Files.isRegularFile(xml), "missing " + xml.toAbsolutePath());
+    Document doc = parseXml(xml);
+    Element types = findTable(doc, "CONTENTTYPES");
+    if (types == null) {
+      fail(xml + " must declare CONTENTTYPES");
+    }
+    boolean found316 = false;
+    NodeList rows = types.getElementsByTagName("row");
+    for (int i = 0; i < rows.getLength(); i++) {
+      Element row = (Element) rows.item(i);
+      String id = columnValue(row, "CONTENTTYPEID");
+      String name = columnValue(row, "CONTENTTYPENAME");
+      if ("316".equals(id)) {
+        found316 = true;
+        assertTrue(
+            "rffPressRelease".equals(name),
+            xml + " CONTENTTYPES 316 must remain rffPressRelease, was: " + name);
+      }
+      if (("313".equals(id) || "314".equals(id) || "315".equals(id))
+          && name != null
+          && name.toLowerCase(Locale.ROOT).startsWith("percnav")) {
+        fail(
+            xml
+                + " must not rename CONTENTTYPES "
+                + id
+                + " to "
+                + name
+                + " (collides with perc.nav package types and aborts 316)");
+      }
+    }
+    assertTrue(found316, xml + " must seed CONTENTTYPES 316 rffPressRelease");
   }
 
   @Test
