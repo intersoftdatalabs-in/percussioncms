@@ -106,6 +106,10 @@ public interface IPSManagedNavService {
   /**
    * Adds a NavTree to a folder, specifying the workflow id.
    *
+   * <p>The item is saved and attached without workflow check-in. Default
+   * Workflow can NPE in {@code sys_wfPerformTransition}; a failed check-in
+   * would also mark the surrounding Create Site transaction rollback-only.
+   *
    * @param path the path of the parent folder, must not be blank.
    * @param navTreeName the name of the navTree, may not be blank.
    * @param navTreeTitle the title of the navTree, may not be blank.

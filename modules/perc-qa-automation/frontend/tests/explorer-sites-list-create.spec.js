@@ -426,36 +426,56 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       ).toBeVisible({ timeout: 10_000 });
 
       const run = page.locator(`[data-testid="${TEST_IDS.run}"]`);
-      await expect(run).toBeEnabled({ timeout: 5_000 });
-      await run.click();
+      const createByName = page.getByRole("button", { name: /^create site$/i });
+      const nextOnConfirm = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      if ((await run.count()) > 0) {
+        await expect(run).toBeEnabled({ timeout: 5_000 });
+        await run.click();
+      } else if ((await createByName.count()) > 0) {
+        await expect(createByName).toBeEnabled({ timeout: 5_000 });
+        await createByName.click();
+      } else {
+        // Older wizard: Confirm is step 3/4; Next opens Progress, then Create site.
+        await expect(nextOnConfirm).toBeEnabled({ timeout: 5_000 });
+        await nextOnConfirm.click();
+        const createAfterNext = page.getByRole("button", {
+          name: /^create site$/i,
+        });
+        await expect(createAfterNext).toBeEnabled({ timeout: 10_000 });
+        await createAfterNext.click();
+      }
 
       const progress = page.locator(
         `[data-testid="${TEST_IDS.stepProgress}"]`,
       );
-      await expect(progress).toBeVisible({ timeout: 10_000 });
-      // Success closes panel and navigates to /Sites/<name>; failure keeps wizard.
+      if ((await progress.count()) > 0) {
+        await expect(progress).toBeVisible({ timeout: 10_000 });
+      }
+      // Success: site folder exists under /Sites (REST). Wizard panel
+      // testids differ by WebUI vintage; do not treat a missing panel
+      // id as success. HTTP 500 on create is the #3364 failure.
       await expect
         .poll(
           async () => {
-            const panelGone =
-              (await page
-                .locator(`[data-testid="${TEST_IDS.createSitePanel}"]`)
-                .count()) === 0;
             const errText = await page
               .locator(`[data-testid="${TEST_IDS.wizard}"] [role="status"]`)
               .allInnerTexts()
               .catch(() => []);
             const failed = errText.some((t) =>
-              /error|failed|invalid/i.test(String(t || "")),
+              /error|failed|invalid|500|rolled back/i.test(String(t || "")),
             );
             if (failed) {
               return "error";
             }
-            return panelGone ? "ok" : "pending";
+            const names = await fetchSitesChildNames(page.request);
+            const hit = names.some(
+              (n) => String(n).toLowerCase() === siteName.toLowerCase(),
+            );
+            return hit ? "ok" : "pending";
           },
           { timeout: 60_000 },
         )
-        .not.toBe("error");
+        .toBe("ok");
 
       // REST: site folder should now exist under Sites.
       const after = await fetchSitesChildNames(page.request);
