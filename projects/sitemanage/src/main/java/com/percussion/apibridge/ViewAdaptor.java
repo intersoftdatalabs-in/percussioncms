@@ -4,6 +4,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
@@ -38,8 +39,10 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -71,6 +74,15 @@ public class ViewAdaptor implements IViewAdaptor {
    */
   static final Set<String> SUPPORTED_CX_VIEW_PAGES =
       Set.of("inbox", "outbox", "recent", "session", "checkedoutbyme", "duplicatefolderpaths");
+
+  /** Seed / DCE internal name for the operator Inbox view. */
+  static final String INBOX_VIEW_NAME = "Inbox";
+
+  /** Classic custom-URL stored on the Inbox design row. */
+  static final String INBOX_CUSTOM_URL = "../sys_cxViews/inbox.xml";
+
+  /** DCE path form operators may use as a catalog key. */
+  static final String INBOX_DCE_PATH = "//Views//MyContent/Inbox";
 
   /** Explicit 400 when a custom-view URL is blank or not a supported {@code sys_cxViews} page. */
   static final String CUSTOM_VIEW_URL_UNSUPPORTED =
@@ -487,7 +499,7 @@ public class ViewAdaptor implements IViewAdaptor {
   private List<PSSearch> loadAllViews() throws Exception {
     List<IPSCatalogSummary> summaries = designWs.findViews(null, null);
     if (summaries == null || summaries.isEmpty()) {
-      return List.of();
+      return ensureInboxFamilyDesigns(new ArrayList<>());
     }
     List<IPSGuid> guids = new ArrayList<>();
     for (IPSCatalogSummary sum : summaries) {
@@ -495,13 +507,108 @@ public class ViewAdaptor implements IViewAdaptor {
         guids.add(sum.getGUID());
       }
     }
-    if (guids.isEmpty()) {
-      return List.of();
+    List<PSSearch> loaded = List.of();
+    if (!guids.isEmpty()) {
+      String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+      String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      List<PSSearch> fromWs = designWs.loadViews(guids, false, false, currentSession, currentUser);
+      if (fromWs != null) {
+        loaded = fromWs;
+      }
     }
-    String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-    String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-    List<PSSearch> loaded = designWs.loadViews(guids, false, false, currentSession, currentUser);
-    return loaded != null ? loaded : List.of();
+    return reconcileLoadedViews(summaries, loaded);
+  }
+
+  /**
+   * Collapse duplicate loadViews rows and restore Inbox-family designs that {@code
+   * findViews} named but {@code loadViews} remapped (H2 QA returns seven {@code
+   * View_All} copies for the seven seeded views). Always keep a runnable Inbox.
+   */
+  List<PSSearch> reconcileLoadedViews(
+      List<IPSCatalogSummary> summaries, List<PSSearch> loaded) {
+    Map<String, PSSearch> byName = new LinkedHashMap<>();
+    if (loaded != null) {
+      for (PSSearch s : loaded) {
+        if (s == null || StringUtils.isBlank(s.getName())) {
+          continue;
+        }
+        byName.putIfAbsent(s.getName().trim().toLowerCase(Locale.ROOT), s);
+      }
+    }
+    if (summaries != null) {
+      for (IPSCatalogSummary sum : summaries) {
+        if (sum == null || StringUtils.isBlank(sum.getName())) {
+          continue;
+        }
+        String name = sum.getName().trim();
+        String key = name.toLowerCase(Locale.ROOT);
+        if (byName.containsKey(key)) {
+          continue;
+        }
+        String url = wellKnownCustomViewUrl(name);
+        if (url != null) {
+          PSSearch synthetic = trySyntheticCustomView(name, url);
+          if (synthetic != null) {
+            byName.put(key, synthetic);
+          }
+        }
+      }
+    }
+    return ensureInboxFamilyDesigns(new ArrayList<>(byName.values()));
+  }
+
+  static List<PSSearch> ensureInboxFamilyDesigns(List<PSSearch> designs) {
+    List<PSSearch> out = designs != null ? designs : new ArrayList<>();
+    for (PSSearch s : out) {
+      if (s != null && isInboxKey(s.getName())) {
+        return out;
+      }
+    }
+    PSSearch inbox = trySyntheticCustomView(INBOX_VIEW_NAME, INBOX_CUSTOM_URL);
+    if (inbox != null) {
+      out.add(inbox);
+    }
+    return out;
+  }
+
+  /**
+   * Classic URL for Inbox-family names. Other catalog names stay {@code null} so
+   * we never invent a custom URL for a standard field-criteria view.
+   */
+  static String wellKnownCustomViewUrl(String name) {
+    if (isInboxKey(name)) {
+      return INBOX_CUSTOM_URL;
+    }
+    return null;
+  }
+
+  static boolean isInboxKey(String key) {
+    if (StringUtils.isBlank(key)) {
+      return false;
+    }
+    String n = key.trim().replace('\\', '/');
+    if (INBOX_VIEW_NAME.equalsIgnoreCase(n)) {
+      return true;
+    }
+    return INBOX_DCE_PATH.equalsIgnoreCase(n);
+  }
+
+  static PSSearch trySyntheticCustomView(String name, String url) {
+    try {
+      return syntheticCustomView(name, url);
+    } catch (Exception e) {
+      log.warn("Could not synthesize custom view {}: {}", name, e.toString());
+      return null;
+    }
+  }
+
+  static PSSearch syntheticCustomView(String name, String url) throws PSCmsException {
+    PSSearch s = new PSSearch(name, true);
+    s.setType(PSSearch.TYPE_VIEW);
+    s.setUrl(url);
+    s.setParentCategory(1);
+    s.setMaximumNumber(-1);
+    return s;
   }
 
   /** Resolve design view by name, GUID string, or numeric id. */
@@ -515,12 +622,13 @@ public class ViewAdaptor implements IViewAdaptor {
         if (key.equalsIgnoreCase(s.getName())) {
           return s;
         }
-        if (s.getGUID() != null) {
-          String gsv = s.getGUID().toString();
+        IPSGuid guid = safeGuid(s);
+        if (guid != null) {
+          String gsv = guid.toString();
           if (StringUtils.isNotBlank(gsv) && key.equalsIgnoreCase(gsv)) {
             return s;
           }
-          String untyped = s.getGUID().toStringUntyped();
+          String untyped = guid.toStringUntyped();
           if (StringUtils.isNotBlank(untyped) && key.equalsIgnoreCase(untyped)) {
             return s;
           }
@@ -546,8 +654,9 @@ public class ViewAdaptor implements IViewAdaptor {
    */
   static ViewDef toDef(PSSearch s, boolean includeDesignGaps) {
     ViewDef d = new ViewDef();
-    if (s.getGUID() != null) {
-      d.setGuid(copyGuid(s.getGUID()));
+    IPSGuid guid = safeGuid(s);
+    if (guid != null) {
+      d.setGuid(copyGuid(guid));
     }
     d.setId(s.getId());
     d.setName(s.getName());
@@ -597,6 +706,21 @@ public class ViewAdaptor implements IViewAdaptor {
       out.add(row);
     }
     return out;
+  }
+
+  /**
+   * Unsaved synthetic views have locator id 0; {@link PSSearch#getGUID()} then
+   * throws {@code Type does not match}. Treat that as no guid.
+   */
+  static IPSGuid safeGuid(PSSearch s) {
+    if (s == null) {
+      return null;
+    }
+    try {
+      return s.getGUID();
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   private static Guid copyGuid(IPSGuid guid) {

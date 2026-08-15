@@ -193,15 +193,30 @@ function inboxResultsSelector() {
 }
 
 /**
- * Soft-skip when Explorer has no Inbox leaf / Views catalog on this cell.
+ * True when GET /services/views has no Inbox design view.
+ * Soft-skip is allowed only in this case (#3446). A visible Inbox leaf
+ * or a catalog that already lists Inbox must not skip.
+ *
+ * @param {{ inboxDef?: unknown, catalogEmpty?: boolean }} [detail]
+ * @returns {boolean}
+ */
+function shouldSkipMissingInboxCatalog(detail = {}) {
+  if (detail.inboxDef) {
+    return false;
+  }
+  return detail.catalogEmpty === true;
+}
+
+/**
+ * Soft-skip message when GET /services/views has no Inbox design view.
  *
  * @param {{ restStatus?: number, catalogEmpty?: boolean }} [detail]
  * @returns {string}
  */
 function missingInboxSkipMessage(detail = {}) {
   const parts = [
-    "Inbox leaf not on Explorer product route (Views → My Content → Inbox).",
-    "Soft-skip until #3240 leaf + #3239 execute are deployed on this cell (#3241).",
+    "GET /services/views has no Inbox design view on this cell.",
+    "Soft-skip only when the Views catalog omits Inbox (#3446 / #3118).",
   ];
   if (detail.catalogEmpty) {
     parts.push("GET /services/views returned no Inbox view.");
@@ -210,6 +225,67 @@ function missingInboxSkipMessage(detail = {}) {
     parts.push(`REST status=${detail.restStatus}.`);
   }
   return parts.join(" ");
+}
+
+/**
+ * True when a Views group row should be clicked to expand (not already open).
+ * Clicking an expanded My Content row would collapse it and hide Inbox (#3446).
+ *
+ * @param {string | null | undefined} ariaExpanded
+ * @returns {boolean}
+ */
+function shouldExpandViewsGroup(ariaExpanded) {
+  return String(ariaExpanded ?? "").trim().toLowerCase() !== "true";
+}
+
+/**
+ * True when {@code url} is POST /services/views/{id}/execute.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isViewsExecuteUrl(url) {
+  return /\/services\/views\/[^/]+\/execute(?:\?|$)/i.test(String(url ?? ""));
+}
+
+/**
+ * JAXB / Jackson root envelope for POST /views/{id}/execute (#3323).
+ *
+ * @param {Record<string, unknown> | null | undefined} request
+ * @returns {{ ViewExecuteRequest: Record<string, unknown> }}
+ */
+function wrapViewExecuteRequest(request) {
+  if (
+    request != null &&
+    typeof request === "object" &&
+    request.ViewExecuteRequest != null &&
+    typeof request.ViewExecuteRequest === "object"
+  ) {
+    return { ViewExecuteRequest: request.ViewExecuteRequest };
+  }
+  return {
+    ViewExecuteRequest: request && typeof request === "object" ? request : {},
+  };
+}
+
+/**
+ * Catalog key for execute (name, then id).
+ *
+ * @param {Record<string, unknown> | null | undefined} def
+ * @returns {string}
+ */
+function inboxExecuteKey(def) {
+  if (def == null || typeof def !== "object") {
+    return INBOX_VIEW_NAME;
+  }
+  const name = String(def.name ?? "").trim();
+  if (name) {
+    return name;
+  }
+  if (def.id != null && String(def.id).trim()) {
+    return String(def.id).trim();
+  }
+  return INBOX_VIEW_NAME;
 }
 
 /**
@@ -260,6 +336,11 @@ module.exports = {
   inboxLeafSelector,
   inboxResultsSelector,
   isViewExecuteJaxbError,
+  shouldSkipMissingInboxCatalog,
   missingInboxSkipMessage,
+  shouldExpandViewsGroup,
+  isViewsExecuteUrl,
+  wrapViewExecuteRequest,
+  inboxExecuteKey,
   noAssignmentsSkipMessage,
 };
