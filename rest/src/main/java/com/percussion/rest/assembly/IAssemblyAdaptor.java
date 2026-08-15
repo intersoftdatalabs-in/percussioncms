@@ -29,4 +29,15 @@ public interface IAssemblyAdaptor {
    * @return location, or {@code null} if the item is not found
    */
   PreviewLocation previewLocation(int contentId, int templateId, Integer revision);
+
+  /**
+   * Flush assembler pages. Empty keys flush all assembler pages (same as {@code
+   * PSExitFlushAssemblerCache} with omitted keys).
+   */
+  void flushAssemblerCache();
+
+  /**
+   * Reset managed navigation configuration. Same goal as classic {@code PSNavReset}.
+   */
+  void resetNavigation();
 }

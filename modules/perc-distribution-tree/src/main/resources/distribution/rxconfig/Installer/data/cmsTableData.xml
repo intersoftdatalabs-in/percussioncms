@@ -6104,37 +6104,37 @@
             <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">108</column>
             <column name="NAME">Workflow_Revisions</column>
             <column name="DISPLAYNAME">Revisions</column>
             <column name="DESCRIPTION">View and/or promote a revision</column>
-            <column name="URL">../sys_cxSupport/contenteditorurls.html?sys_userview=sys_Revisions&amp;sys_command=preview</column>
+            <column name="URL"/>
             <column name="SORTORDER">98</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">109</column>
             <column name="NAME">Workflow_NewVersion</column>
             <column name="DISPLAYNAME">New Copy</column>
             <column name="DESCRIPTION">Create new copy</column>
-            <column name="URL">../sys_cxSupport/contenteditorurls.html?sys_view=sys_All&amp;sys_command=relate&amp;sys_relationshiptype=NewCopy</column>
+            <column name="URL"/>
             <column name="SORTORDER">99</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">110</column>
             <column name="NAME">Workflow_AuditTrail</column>
             <column name="DISPLAYNAME">Audit Trail</column>
             <column name="DESCRIPTION">View workflow history</column>
-            <column name="URL">../sys_cxSupport/contenteditorurls.html?sys_userview=sys_audittrail&amp;sys_command=preview</column>
+            <column name="URL"/>
             <column name="SORTORDER">100</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -6192,15 +6192,15 @@
             <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">116</column>
             <column name="NAME">Flush_Cache</column>
             <column name="DISPLAYNAME">Refresh Item</column>
             <column name="DESCRIPTION">Flushes the cache for this item and loads a fresh one</column>
-            <column name="URL">../sys_uiSupport/flushcache.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">1000</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="d">
@@ -6335,17 +6335,17 @@
             <column name="HANDLER">SERVER</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">202</column>
             <column name="NAME">Edit_PromotableVersion</column>
             <column name="DISPLAYNAME">Promotable Version</column>
             <column name="DESCRIPTION">Create new copy and replaces the item in the public state when the new item moves
                 to the public state.
             </column>
-            <column name="URL">../sys_cxSupport/contenteditorurls.html?sys_view=sys_All&amp;sys_command=relate&amp;sys_relationshiptype=PromotableVersion</column>
+            <column name="URL"/>
             <column name="SORTORDER">99</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="r">
@@ -6505,15 +6505,15 @@
             <column name="HANDLER">SERVER</column>
             <column name="VERSION">0</column>
         </row>
-        <row action="i" onTableCreateOnly="no">
+        <row action="r" onTableCreateOnly="no">
             <column name="ACTIONID">1003</column>
             <column name="NAME">navreset</column>
             <column name="DISPLAYNAME">Nav Reset</column>
             <column name="DESCRIPTION">Resets Managed Navigation</column>
-            <column name="URL">../rxs_navSupport/navreset.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">300</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
     </table>

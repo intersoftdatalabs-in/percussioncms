@@ -17,6 +17,7 @@
 package com.percussion.itemmanagement.service;
 
 import com.percussion.itemmanagement.data.PSAssetSiteImpact;
+import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.data.PSSoProMetadata;
@@ -101,6 +102,25 @@ public interface IPSItemService {
    * @throws PSItemServiceException if the item is not valid for restoring from a prior revision
    */
   PSNoContent restoreRevision(String id) throws PSItemServiceException;
+
+  /**
+   * Creates a new copy of the item in its current folder ({@code System/New Copy}).
+   *
+   * @param id content id or guid string, must not be blank
+   * @return the new item id and folder path
+   * @throws PSItemServiceException if the item has no folder path or the copy fails
+   */
+  PSItemCopyResult createNewCopy(String id) throws PSItemServiceException;
+
+  /**
+   * Creates a promotable version of the item in its current folder ({@code System/Promotable
+   * Version}).
+   *
+   * @param id content id or guid string, must not be blank
+   * @return the new item id and folder path
+   * @throws PSItemServiceException if the item has no folder path or the copy fails
+   */
+  PSItemCopyResult createPromotableVersion(String id) throws PSItemServiceException;
 
   /**
    * Copies all contents of the specified folder to a folder under the specified location.

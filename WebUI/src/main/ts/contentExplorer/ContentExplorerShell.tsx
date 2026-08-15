@@ -115,6 +115,10 @@ import { canExecuteView, viewKey, viewLabel } from "./viewCatalog";
 import { ViewResultsPanel, type ViewRunStatus } from "./ViewResultsPanel";
 import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
+import {
+  RevisionsPanel,
+  type RevisionsPanelTab,
+} from "./RevisionsPanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
 import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
@@ -431,6 +435,9 @@ function ContentExplorerShellInner({
   const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
   const [showRelationships, setShowRelationships] = useState(false);
   const [showDependencies, setShowDependencies] = useState(false);
+  const [showRevisions, setShowRevisions] = useState(false);
+  const [revisionsTab, setRevisionsTab] =
+    useState<RevisionsPanelTab>("revisions");
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
   /** Non-fatal display-format catalog failure — selector stays mounted (#3208). */
@@ -716,6 +723,10 @@ function ContentExplorerShellInner({
             runWorkflow: runWorkflowTransition,
             onShowTranslations: () => setShowTranslations(true),
             onShowDependencies: () => setShowDependencies(true),
+            onShowRevisions: (tab) => {
+              setRevisionsTab(tab);
+              setShowRevisions(true);
+            },
           });
           if (result.messageKey) {
             setError(message(result.messageKey));
@@ -726,11 +737,7 @@ function ContentExplorerShellInner({
             setListEpoch((n) => n + 1);
           }
         } catch (err: unknown) {
-          const detail =
-            err instanceof Error && err.message
-              ? err.message
-              : message(EXPLORER_MSG.ERROR_GENERIC);
-          setError(detail);
+          setError(formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC)));
         }
       })();
       void actionName;
@@ -838,6 +845,7 @@ function ContentExplorerShellInner({
     showTranslations ||
     showRelationships ||
     showDependencies ||
+    showRevisions ||
     showSiteCreate ||
     showSiteCopy ||
     showSubfolderCopy;
@@ -1397,6 +1405,46 @@ function ContentExplorerShellInner({
             aria-live="polite"
           >
             {message(EXPLORER_MSG.DEPENDENCY_SELECT_ITEM)}
+          </div>
+        )}
+      {showRevisions &&
+        selection.item &&
+        selection.item.type !== "folder" &&
+        parseExplorerContentId(selection.item.id) != null && (
+          <section
+            id="explorer-revisions-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-revisions-panel"
+            aria-label={message(EXPLORER_MSG.REVISIONS_PANEL_REGION)}
+          >
+            <RevisionsPanel
+              itemId={String(selection.item.id)}
+              itemLabel={
+                selection.item.name ??
+                selection.item.title ??
+                selection.item.path
+              }
+              initialTab={revisionsTab}
+              onRestored={() => {
+                setListEpoch((n) => n + 1);
+              }}
+            />
+          </section>
+        )}
+      {showRevisions &&
+        !(
+          selection.item &&
+          selection.item.type !== "folder" &&
+          parseExplorerContentId(selection.item.id) != null
+        ) && (
+          <div
+            id="explorer-revisions-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-revisions-hint"
+            role="status"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.REVISIONS_SELECT_ITEM)}
           </div>
         )}
       </div>

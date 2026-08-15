@@ -37,6 +37,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.itemmanagement.data.PSAssetSiteImpact;
 import com.percussion.itemmanagement.data.PSComment;
+import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
 import com.percussion.itemmanagement.data.PSRevision;
@@ -96,6 +97,7 @@ import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
@@ -389,6 +391,68 @@ public class PSItemService implements IPSItemService {
         | PSNotFoundException
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
       log.error("Restore Revision Failed. Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  @POST
+  @Path("newCopy/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSItemCopyResult createNewCopy(@PathParam("id") String id) throws PSItemServiceException {
+    return createRelatedCopy(id, false);
+  }
+
+  @POST
+  @Path("promotableVersion/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSItemCopyResult createPromotableVersion(@PathParam("id") String id)
+      throws PSItemServiceException {
+    return createRelatedCopy(id, true);
+  }
+
+  /**
+   * Copy or promotable-version the item into its first folder path.
+   *
+   * @param id content id or guid, must not be blank
+   * @param promotable {@code true} for promotable version
+   */
+  PSItemCopyResult createRelatedCopy(String id, boolean promotable) throws PSItemServiceException {
+    try {
+      rejectIfBlank(promotable ? "createPromotableVersion" : "createNewCopy", "id", id);
+      IPSGuid guid = idMapper.getGuid(PSLegacyExtensionUtils.getGUID(id));
+      String[] folderPaths = contentWs.findFolderPaths(guid);
+      if (folderPaths == null || folderPaths.length == 0 || StringUtils.isBlank(folderPaths[0])) {
+        throw new PSItemServiceException("Item has no folder path and cannot be copied.");
+      }
+      String folderPath = folderPaths[0];
+      List<PSCoreItem> items =
+          promotable
+              ? contentWs.newPromotableVersions(
+                  Collections.singletonList(guid),
+                  Collections.singletonList(folderPath),
+                  null,
+                  false)
+              : contentWs.newCopies(
+                  Collections.singletonList(guid),
+                  Collections.singletonList(folderPath),
+                  null,
+                  false);
+      if (items == null || items.isEmpty() || items.get(0) == null) {
+        throw new PSItemServiceException("Copy did not return a new item.");
+      }
+      PSLocator locator = (PSLocator) items.get(0).getLocator();
+      if (locator == null) {
+        throw new PSItemServiceException("Copy did not return a new item.");
+      }
+      String newId = idMapper.getString(locator);
+      return new PSItemCopyResult(newId, folderPath, promotable);
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (PSErrorResultsException | PSErrorException e) {
+      log.error("Item copy failed. Error: {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(PSExceptionUtils.getMessageForLog(e));
     }

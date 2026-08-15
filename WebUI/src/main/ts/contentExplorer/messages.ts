@@ -338,4 +338,40 @@ export const EXPLORER_MSG = {
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",
+
+  REVISIONS_TITLE: "perc.ui.explorer@Revisions",
+  REVISIONS_PANEL_REGION: "perc.ui.explorer@Revisions panel",
+  REVISIONS_SELECT_ITEM:
+    "perc.ui.explorer@Select a content item to view revisions and the audit trail.",
+  REVISIONS_LOADING: "perc.ui.explorer@Loading revisions…",
+  REVISIONS_ERROR: "perc.ui.explorer@Could not load revisions",
+  REVISIONS_EMPTY: "perc.ui.explorer@No revisions are recorded for this item",
+  REVISIONS_AUDIT_EMPTY:
+    "perc.ui.explorer@No workflow comments are recorded for this item",
+  REVISIONS_TABS: "perc.ui.explorer@Revision views",
+  REVISIONS_TAB_REVISIONS: "perc.ui.explorer@Revisions",
+  REVISIONS_TAB_AUDIT: "perc.ui.explorer@Audit trail",
+  REVISIONS_COL_REV: "perc.ui.explorer@Revision",
+  REVISIONS_COL_DATE: "perc.ui.explorer@Date",
+  REVISIONS_COL_USER: "perc.ui.explorer@User",
+  REVISIONS_COL_STATUS: "perc.ui.explorer@Status",
+  REVISIONS_COL_ACTIONS: "perc.ui.explorer@Actions",
+  REVISIONS_COL_TYPE: "perc.ui.explorer@Transition",
+  REVISIONS_COL_COMMENT: "perc.ui.explorer@Comment",
+  REVISIONS_RESTORE: "perc.ui.explorer@Restore",
+  REVISIONS_RESTORE_ERROR: "perc.ui.explorer@Could not restore that revision",
+  CONFIRM_RESTORE_REVISION:
+    "perc.ui.explorer@Restore this prior revision as the current revision?",
+  CONFIRM_FLUSH_CACHE:
+    "perc.ui.explorer@Flush the assembler cache for all items?",
+  CONFIRM_NAV_RESET:
+    "perc.ui.explorer@Reload managed navigation configuration?",
+  CONFIRM_NEW_COPY:
+    "perc.ui.explorer@Create a new copy of this item in the same folder?",
+  CONFIRM_PROMOTABLE:
+    "perc.ui.explorer@Create a promotable version of this item in the same folder?",
+  ACTION_FLUSH_OK: "perc.ui.explorer@Assembler cache flushed",
+  ACTION_NAV_RESET_OK: "perc.ui.explorer@Managed navigation reset",
+  ACTION_NEW_COPY_OK: "perc.ui.explorer@New copy created",
+  ACTION_PROMOTABLE_OK: "perc.ui.explorer@Promotable version created",
 } as const;

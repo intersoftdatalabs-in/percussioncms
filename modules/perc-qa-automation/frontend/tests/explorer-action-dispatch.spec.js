@@ -46,7 +46,10 @@ test.describe("modern React Content Explorer — action dispatch", () => {
         if (
           u.includes("sys_cxSupport/") ||
           u.includes("/cm/sys_cxSupport") ||
-          u.includes("checkoutedit.xml")
+          u.includes("checkoutedit.xml") ||
+          u.includes("contenteditorurls.html") ||
+          u.includes("flushcache.html") ||
+          u.includes("navreset.html")
         ) {
           blocked.push(u);
         }

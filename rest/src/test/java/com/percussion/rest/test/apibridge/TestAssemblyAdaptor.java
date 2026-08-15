@@ -31,4 +31,14 @@ public class TestAssemblyAdaptor implements IAssemblyAdaptor {
   public PreviewLocation previewLocation(int contentId, int templateId, Integer revision) {
     return null;
   }
+
+  @Override
+  public void flushAssemblerCache() {
+    // no-op Spring test stub
+  }
+
+  @Override
+  public void resetNavigation() {
+    // no-op Spring test stub
+  }
 }

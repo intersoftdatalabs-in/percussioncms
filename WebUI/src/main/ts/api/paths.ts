@@ -421,6 +421,30 @@ export const PATHS = {
   get ASSEMBLY_PREVIEW_LOCATION() {
     return `${SERVICES_ROOT}/assembly/preview-location`;
   },
+  /** POST — flush assembler cache (Explorer Flush Cache). */
+  get ASSEMBLY_FLUSH_CACHE() {
+    return `${SERVICES_ROOT}/assembly/flush-cache`;
+  },
+  /** POST — reload managed navigation (Explorer Nav Reset). */
+  get ASSEMBLY_NAV_RESET() {
+    return `${SERVICES_ROOT}/assembly/nav-reset`;
+  },
+  /** GET revisions + audit comments for an item. Append {@code /{id}}. */
+  get ITEM_REVISIONS() {
+    return `${SERVICES_ROOT}/itemmanagement/item/revisions`;
+  },
+  /** GET restore a prior revision. Append {@code /{revisionGuid}}. */
+  get ITEM_RESTORE_REVISION() {
+    return `${SERVICES_ROOT}/itemmanagement/item/restoreRevision`;
+  },
+  /** POST new copy in the item's folder. Append {@code /{id}}. */
+  get ITEM_NEW_COPY() {
+    return `${SERVICES_ROOT}/itemmanagement/item/newCopy`;
+  },
+  /** POST promotable version in the item's folder. Append {@code /{id}}. */
+  get ITEM_PROMOTABLE_VERSION() {
+    return `${SERVICES_ROOT}/itemmanagement/item/promotableVersion`;
+  },
   /**
    * Public REST content type catalog ({@code rest} module ContentTypesResource).
    * List only — design-time field editor APIs are a P0 gap survey.

@@ -16,7 +16,11 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchPreviewLocation } from "../../../../main/ts/api/contentExplorer/assemblyApi";
+import {
+  fetchPreviewLocation,
+  flushAssemblerCache,
+  resetNavigation,
+} from "../../../../main/ts/api/contentExplorer/assemblyApi";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -45,6 +49,37 @@ describe("fetchPreviewLocation", () => {
     );
     expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
       "templateId=7",
+    );
+  });
+});
+
+describe("assembly cache and nav reset", () => {
+  it("flushAssemblerCache POSTs flush-cache", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ok: true, message: "flushed" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await flushAssemblerCache();
+    expect(result.ok).toBe(true);
+    const init = global.fetch.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "assembly/flush-cache",
+    );
+  });
+
+  it("resetNavigation POSTs nav-reset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await resetNavigation();
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "assembly/nav-reset",
     );
   });
 });

@@ -22,7 +22,15 @@
  * @see specs/992-react-content-explorer/contracts/action-execution.md
  */
 
-import { fetchPreviewLocation } from "../api/contentExplorer/assemblyApi";
+import {
+  fetchPreviewLocation,
+  flushAssemblerCache,
+  resetNavigation,
+} from "../api/contentExplorer/assemblyApi";
+import {
+  createNewCopy,
+  createPromotableVersion,
+} from "../api/contentExplorer/itemCopyApi";
 import { del } from "../api/client";
 import { PATHS } from "../api/paths";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
@@ -85,15 +93,18 @@ const AA_UNAVAILABLE_NAMES = new Set([
   "move_to_slot",
 ]);
 
-const P1_PANEL_NAMES = new Set(["translate", "item_viewdependents"]);
+const P1_PANEL_NAMES = new Set([
+  "translate",
+  "item_viewdependents",
+  "workflow_revisions",
+  "workflow_audittrail",
+]);
 
-const P1_UNAVAILABLE_NAMES = new Set([
+const P1_REST_NAMES = new Set([
   "flush_cache",
   "navreset",
   "workflow_newversion",
   "edit_promotableversion",
-  "workflow_revisions",
-  "workflow_audittrail",
 ]);
 
 const DATA_FLOW_PATH_MARKERS = [
@@ -131,6 +142,11 @@ export interface ActionDispatchContext {
   onPurge?: (item: PSPathItem) => Promise<void>;
   onShowTranslations?: () => void;
   onShowDependencies?: () => void;
+  onShowRevisions?: (tab: "revisions" | "audit") => void;
+  flushCache?: () => Promise<void>;
+  resetNav?: () => Promise<void>;
+  createCopy?: (itemId: string) => Promise<void>;
+  createPromotable?: (itemId: string) => Promise<void>;
   writeClipboard?: (text: string) => Promise<void>;
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
@@ -183,14 +199,17 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (parseWorkflowTransitionTrigger(action.name) != null) {
     return "workflow";
   }
+  if (P1_PANEL_NAMES.has(name) || name === "copy_url_to_clipboard") {
+    return "client";
+  }
+  if (P1_REST_NAMES.has(name)) {
+    return "rest";
+  }
   if (EDITOR_NAMES.has(name) || isContentEditorActionUrl(action.url)) {
     return "editor";
   }
-  if (AA_UNAVAILABLE_NAMES.has(name) || P1_UNAVAILABLE_NAMES.has(name)) {
+  if (AA_UNAVAILABLE_NAMES.has(name)) {
     return "unavailable";
-  }
-  if (P1_PANEL_NAMES.has(name) || name === "copy_url_to_clipboard") {
-    return "client";
   }
   if (name === "lifecycle_analysis") {
     return "legacy-file";
@@ -364,6 +383,88 @@ export async function dispatchAction(
     }
     ctx.onShowDependencies?.();
     return { kind: "client" };
+  }
+
+  if (name === "workflow_revisions") {
+    ctx.onShowRevisions?.("revisions");
+    if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    return { kind: "client" };
+  }
+
+  if (name === "workflow_audittrail") {
+    ctx.onShowRevisions?.("audit");
+    if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    return { kind: "client" };
+  }
+
+  if (name === "flush_cache") {
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_FLUSH_CACHE,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.flushCache) {
+      await ctx.flushCache();
+    } else {
+      await flushAssemblerCache();
+    }
+    return { kind: "rest" };
+  }
+
+  if (name === "navreset") {
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_NAV_RESET,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.resetNav) {
+      await ctx.resetNav();
+    } else {
+      await resetNavigation();
+    }
+    return { kind: "rest" };
+  }
+
+  if (name === "workflow_newversion") {
+    if (!item || isFolder(item) || !item.id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_NEW_COPY,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.createCopy) {
+      await ctx.createCopy(String(item.id));
+    } else {
+      await createNewCopy(String(item.id));
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (name === "edit_promotableversion") {
+    if (!item || isFolder(item) || !item.id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_PROMOTABLE,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.createPromotable) {
+      await ctx.createPromotable(String(item.id));
+    } else {
+      await createPromotableVersion(String(item.id));
+    }
+    return { kind: "rest", refresh: true };
   }
 
   if (name === "copy_url_to_clipboard") {

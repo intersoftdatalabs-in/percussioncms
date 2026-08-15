@@ -125,7 +125,13 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
-| **Publish Now** / Active Assembly / slot arrange / flush cache / nav reset / new copy | Not available in this Explorer slice |
+| **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. |
+| **Audit Trail** | Same Revisions panel, audit-trail tab. |
+| **New Copy** | Confirm, then create a copy in the current folder. |
+| **Promotable Version** | Confirm, then create a promotable version in the current folder. |
+| **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
+| **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
+| **Publish Now** / Active Assembly / slot arrange | Still unavailable in this Explorer slice. |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.
