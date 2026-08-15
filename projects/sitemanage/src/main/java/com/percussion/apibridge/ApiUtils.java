@@ -192,14 +192,14 @@ public class ApiUtils {
     Community ret =
         new Community(
             c.getId(), convertGuid(c.getGUID()), c.getName(), c.getDescription(), c.getLabel());
-    var optGuid = ret.getGuid();
+    var communityGuid = ret.getGuid();
 
     ArrayList<CommunityRole> roles = new ArrayList<>();
     // iterate role associations from PSCommunity
     for (IPSGuid roleGuid : c.getRoleAssociations()) {
       CommunityRole assoc = new CommunityRole();
-      assoc.setCommunityGuid(optGuid);
-      assoc.setCommunityId(optGuid != null ? optGuid.getLongValue() : 0L);
+      assoc.setCommunityGuid(communityGuid);
+      assoc.setCommunityId(communityGuid != null ? communityGuid.getLongValue() : 0L);
       assoc.setRoleId(roleGuid.longValue());
       assoc.setRoleGuid(convertGuid(roleGuid));
       roles.add(assoc);

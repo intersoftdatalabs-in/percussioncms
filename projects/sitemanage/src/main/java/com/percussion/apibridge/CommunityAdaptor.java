@@ -253,7 +253,7 @@ public class CommunityAdaptor implements ICommunityAdaptor {
       return;
     }
     CommunityRoleList roles = detail.getRoleList();
-    if (roles == null || roles.isEmpty()) {
+    if (roles.isEmpty()) {
       return;
     }
     Map<Long, String> namesByUuid = new HashMap<>();

@@ -18,6 +18,7 @@ package com.percussion.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.communities.Community;
@@ -190,7 +191,8 @@ class JacksonContextResolverOptionalTest {
 
     CommunityVisibility roundTrip = visibilityMapper.readValue(json, CommunityVisibility.class);
     assertEquals(10L, roundTrip.getId(), json);
-    assertTrue(roundTrip.getGuid() != null, json);
+    assertNotNull(roundTrip.getGuid(), json);
+    assertEquals("0-13-10", roundTrip.getGuid().getStringValue().orElse(null), json);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {
