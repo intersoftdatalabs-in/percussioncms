@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,6 +55,13 @@ public class PSJdbcUtils {
 
   /** H2 JDBC driver class name. */
   public static final String H2_DRIVER_CLASS = "org.h2.Driver";
+
+  /**
+   * H2 reserved words used as unquoted product column names. {@code VALUE} is used by core tables
+   * (RXMENUVISIBILITY, PSX_SHARED_PROPERTIES). {@code DAY} is FastForward {@code RXS_CT_HOLIDAY}.
+   * Without these in {@code NON_KEYWORDS}, CREATE TABLE fails with "expected identifier".
+   */
+  public static final String H2_NON_KEYWORDS = "VALUE,DAY";
 
   /**
    * Constant for the PostgreSQL JDBC driver type (external repository backend — GitHub #1500). Must
@@ -372,20 +380,19 @@ public class PSJdbcUtils {
 
     rval.append(driverName);
     rval.append(':');
-    rval.append(serverNameOrConnUrl);
-    if (MYSQL_DRIVER.equalsIgnoreCase(driverName) && serverNameOrConnUrl.indexOf("?") == -1) {
+    String server = serverNameOrConnUrl;
+    if (MYSQL_DRIVER.equalsIgnoreCase(driverName) && server.indexOf("?") == -1) {
       // TODO: Make this more robust so it is making sure the pramas we want to be there are there.
-      rval.append(MYSQL_CONN_PARAMS);
+      server = server + MYSQL_CONN_PARAMS;
     } else if (DERBY_DRIVER.equalsIgnoreCase(driverName)
-        && serverNameOrConnUrl.indexOf(";create=true") == -1) {
-      rval.append(";create=true");
-    } else if (H2_DRIVER.equalsIgnoreCase(driverName)
-        && !serverNameOrConnUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS")) {
-      // H2 treats VALUE as a keyword; product schema uses VALUE as a column name
-      // (RXMENUVISIBILITY, PSX_SHARED_PROPERTIES, etc.). Without NON_KEYWORDS,
-      // CREATE TABLE ... VALUE VARCHAR fails with "expected identifier" (#548).
-      rval.append(";NON_KEYWORDS=VALUE");
+        && server.indexOf(";create=true") == -1) {
+      server = server + ";create=true";
+    } else if (H2_DRIVER.equalsIgnoreCase(driverName)) {
+      // Merge VALUE,DAY even when the fragment already has NON_KEYWORDS=VALUE
+      // (legacy defaults). FastForward RXS_CT_HOLIDAY.DAY is an H2 keyword.
+      server = ensureH2NonKeywords(server);
     }
+    rval.append(server);
     // H2 file URLs create the database by default; do not append Derby-style ";create=true".
 
     return rval.toString().replace(";;", ";");
@@ -434,6 +441,55 @@ public class PSJdbcUtils {
     Path base = installRoot.toAbsolutePath().normalize().resolve("jetty").resolve("base");
     Path resolved = base.resolve(pathPart).normalize().toAbsolutePath();
     return "file:" + resolved.toString().replace('\\', '/') + params;
+  }
+
+  /**
+   * Ensure an H2 server fragment or JDBC URL lists every product-required {@link
+   * #H2_NON_KEYWORDS} token. Existing {@code NON_KEYWORDS} values are kept; missing tokens
+   * (historically only {@code VALUE}) are appended.
+   *
+   * @param serverOrUrl H2 server fragment or {@code jdbc:h2:...} URL; if {@code null} or blank,
+   *     returns a fragment that is only the setting
+   * @return same string with {@code NON_KEYWORDS} covering VALUE and DAY; never {@code null}
+   */
+  public static String ensureH2NonKeywords(String serverOrUrl) {
+    String base = serverOrUrl == null ? "" : serverOrUrl;
+    String upper = base.toUpperCase(Locale.ROOT);
+    int idx = upper.indexOf("NON_KEYWORDS=");
+    if (idx < 0) {
+      if (base.isEmpty()) {
+        return "NON_KEYWORDS=" + H2_NON_KEYWORDS;
+      }
+      return base + (base.endsWith(";") ? "" : ";") + "NON_KEYWORDS=" + H2_NON_KEYWORDS;
+    }
+    int valueStart = idx + "NON_KEYWORDS=".length();
+    int valueEnd = base.indexOf(';', valueStart);
+    if (valueEnd < 0) {
+      valueEnd = base.length();
+    }
+    String existing = base.substring(valueStart, valueEnd);
+    LinkedHashSet<String> tokens = new LinkedHashSet<>();
+    for (String part : existing.split(",")) {
+      String t = part.trim();
+      if (!t.isEmpty()) {
+        tokens.add(t);
+      }
+    }
+    Set<String> haveUpper = new HashSet<>();
+    for (String t : tokens) {
+      haveUpper.add(t.toUpperCase(Locale.ROOT));
+    }
+    boolean missing = false;
+    for (String required : H2_NON_KEYWORDS.split(",")) {
+      if (!haveUpper.contains(required.toUpperCase(Locale.ROOT))) {
+        tokens.add(required);
+        missing = true;
+      }
+    }
+    if (!missing) {
+      return base;
+    }
+    return base.substring(0, valueStart) + String.join(",", tokens) + base.substring(valueEnd);
   }
 
   /**

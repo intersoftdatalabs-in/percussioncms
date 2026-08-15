@@ -130,7 +130,7 @@
 					or JDBC failure must abort install rather than print a false "connection
 					successful". -->
 				<sql driver="org.h2.Driver"
-					url="jdbc:h2:file:${install.dir}/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE"
+					url="jdbc:h2:file:${install.dir}/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE,DAY"
 					classpathref="H2_TOOL.CLASSPATH" userid="sa" password=""
 					onerror="abort">
 					SELECT 1;
