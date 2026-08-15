@@ -151,6 +151,101 @@ describe("actionDispatch", () => {
     expect(href).not.toContain("sys_cxSupport");
   });
 
+  it("creates a percPage with a picked template", async () => {
+    const openWindow = vi.fn();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "77",
+      folderPath: "//Sites/Demo",
+      name: "New-percPage.html",
+      contentType: "percPage",
+    });
+    const loadPageTemplates = vi.fn().mockResolvedValue([
+      { id: "tpl-a", name: "A" },
+      { id: "tpl-b", name: "B" },
+    ]);
+    const pickPageTemplate = vi.fn().mockResolvedValue("tpl-b");
+    const result = await dispatchAction(
+      action({ name: "percPage", parentName: "New" }),
+      {
+        item: item({ type: "folder", path: "/Sites/Demo", id: "1" }),
+        folderPath: "/Sites/Demo",
+        parentName: "New",
+        openWindow,
+        createItem,
+        loadPageTemplates,
+        pickPageTemplate,
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "percPage",
+      folderPath: "/Sites/Demo",
+      templateId: "tpl-b",
+    });
+  });
+
+  it("does not create a percPage without templates", async () => {
+    const createItem = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "percPage", parentName: "New" }),
+      {
+        folderPath: "/Sites/Demo",
+        parentName: "New",
+        createItem,
+        loadPageTemplates: async () => [],
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE);
+    expect(createItem).not.toHaveBeenCalled();
+  });
+
+  it("auto-selects a single percPage template", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "78",
+      folderPath: "//Sites/Demo",
+      name: "New-percPage.html",
+      contentType: "percPage",
+    });
+    const pickPageTemplate = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "percPage", parentName: "New" }),
+      {
+        folderPath: "/Sites/Demo",
+        parentName: "New",
+        openWindow: vi.fn(),
+        createItem,
+        loadPageTemplates: async () => [{ id: "only", name: "Only" }],
+        pickPageTemplate,
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(pickPageTemplate).not.toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "percPage",
+      folderPath: "/Sites/Demo",
+      templateId: "only",
+    });
+  });
+
+  it("does not create a percPage when the template picker is cancelled", async () => {
+    const createItem = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "percPage", parentName: "New" }),
+      {
+        folderPath: "/Sites/Demo",
+        parentName: "New",
+        createItem,
+        loadPageTemplates: async () => [
+          { id: "tpl-a", name: "A" },
+          { id: "tpl-b", name: "B" },
+        ],
+        pickPageTemplate: async () => null,
+      },
+    );
+    expect(result.messageKey).toBeUndefined();
+    expect(createItem).not.toHaveBeenCalled();
+  });
+
   it("creates a New Item type and opens the editor", async () => {
     const openWindow = vi.fn();
     const createItem = vi.fn().mockResolvedValue({

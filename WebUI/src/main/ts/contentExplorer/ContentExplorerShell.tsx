@@ -80,6 +80,8 @@ import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
 import { ContextMenu } from "./ContextMenu";
+import { TemplatePickerDialog } from "./TemplatePickerDialog";
+import type { PageTemplateChoice } from "../editor/pageTemplates";
 import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
@@ -452,6 +454,10 @@ function ContentExplorerShellInner({
   /** Non-fatal catalog load failure — chrome stays mounted (#2972). */
   const [menuLoadError, setMenuLoadError] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+  const [templatePicker, setTemplatePicker] = useState<{
+    templates: PageTemplateChoice[];
+    resolve: (id: string | null) => void;
+  } | null>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
    * different rows race two async IIFEs; only the latest generation may
@@ -737,6 +743,10 @@ function ContentExplorerShellInner({
               setRevisionsTab(tab);
               setShowRevisions(true);
             },
+            pickPageTemplate: (templates) =>
+              new Promise<string | null>((resolve) => {
+                setTemplatePicker({ templates, resolve });
+              }),
           });
           if (result.messageKey) {
             setError(message(result.messageKey));
@@ -1487,6 +1497,19 @@ function ContentExplorerShellInner({
           />
         </div>
       )}
+      {templatePicker ? (
+        <TemplatePickerDialog
+          templates={templatePicker.templates}
+          onPick={(id) => {
+            templatePicker.resolve(id);
+            setTemplatePicker(null);
+          }}
+          onCancel={() => {
+            templatePicker.resolve(null);
+            setTemplatePicker(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

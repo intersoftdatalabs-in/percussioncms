@@ -76,4 +76,30 @@ public final class PSItemCreateSupport {
     String n = contentType.replaceAll("[\\s_-]", "").toLowerCase();
     return n.equals("percpage") || n.equals("page");
   }
+
+  /**
+   * Site name from a CMS folder ({@code /Sites/Demo/...} or {@code //Sites/Demo/...}).
+   */
+  public static String siteNameFromFolderPath(String folderPath) {
+    if (StringUtils.isBlank(folderPath)) {
+      return null;
+    }
+    String p = folderPath.replace('\\', '/');
+    String[] parts = p.split("/");
+    for (int i = 0; i < parts.length; i++) {
+      if ("Sites".equalsIgnoreCase(parts[i]) && i + 1 < parts.length) {
+        String site = parts[i + 1].trim();
+        return site.isEmpty() ? null : site;
+      }
+    }
+    return null;
+  }
+
+  public static String titleFromItemName(String name) {
+    String base = StringUtils.defaultIfBlank(name, "New Page");
+    if (base.toLowerCase().endsWith(".html")) {
+      return base.substring(0, base.length() - 5);
+    }
+    return base;
+  }
 }

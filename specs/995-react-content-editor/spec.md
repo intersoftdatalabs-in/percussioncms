@@ -26,11 +26,11 @@ New window (peer of Active Assembly):
 5. Labels from `GET /services/contenttypes/{type}`
 6. Save + Check In (existing checkIn REST)
 7. **New Item** — type under New creates in the current folder (`POST /item/create`) and opens this editor
+8. **percPage template** — load allowed templates (content type, then site); one template is used automatically; more than one opens a picker; `POST /item/create` includes `templateId`; server saves through `IPSPageService`
 
 ## Later
 
 - TinyMCE / file / image / keyword / community controls
-- Default template picker when creating `percPage`
 - AA contenteditable overlay on the assembled preview
 - Revision promote form
 - Home / TopNav still use leftover `?view=editor` until those shells switch

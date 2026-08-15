@@ -49,7 +49,9 @@ import com.percussion.itemmanagement.data.PSSoProMetadata;
 import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
+import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
+import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.recycle.service.IPSRecycleService;
@@ -175,6 +177,7 @@ public class PSItemService implements IPSItemService {
   IPSPublisherService pubService;
   IPSManagedLinkDao linkService;
   @Autowired IPSPublishingWs publishingWs;
+  IPSPageService pageService;
   @Autowired IPSContentChangeService changeService;
   @Autowired IPSRelationshipService relationshipService;
   @Autowired private IPSRecycleService recycleService;
@@ -182,6 +185,12 @@ public class PSItemService implements IPSItemService {
   /** Package-visible for unit tests. */
   void setRecycleService(IPSRecycleService recycleService) {
     this.recycleService = recycleService;
+  }
+
+  @Autowired(required = false)
+  @Qualifier("pageService")
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
   }
 
   private SecureKeyRotationListener secureKeyRotationListener;
@@ -387,6 +396,9 @@ public class PSItemService implements IPSItemService {
         throw new PSItemServiceException("Select a folder before creating an item.");
       }
       String name = PSItemCreateSupport.sanitizeItemName(req.getName(), req.getContentType());
+      if (PSItemCreateSupport.isPageType(req.getContentType())) {
+        return createPageItem(req.getContentType().trim(), folder, name, req.getTemplateId());
+      }
       PSContentItem item = new PSContentItem();
       item.setType(req.getContentType().trim());
       item.setName(name);
@@ -404,6 +416,36 @@ public class PSItemService implements IPSItemService {
       throw e;
     } catch (Exception e) {
       throw new PSItemServiceException("Could not create the item.", e);
+    }
+  }
+
+  private PSItemCreateResult createPageItem(
+      String contentType, String folder, String name, String templateId)
+      throws PSItemServiceException {
+    if (pageService == null) {
+      throw new PSItemServiceException("Page service is not available.");
+    }
+    if (StringUtils.isBlank(templateId)) {
+      throw new PSItemServiceException("A page template is required.");
+    }
+    try {
+      String title = PSItemCreateSupport.titleFromItemName(name);
+      PSPage page = new PSPage();
+      page.setName(name);
+      page.setTitle(title);
+      page.setLinkTitle(title);
+      page.setTemplateId(templateId.trim());
+      page.setFolderPath(folder);
+      page.setAddToRecent(true);
+      PSPage saved = pageService.save(page);
+      if (saved == null || StringUtils.isBlank(saved.getId())) {
+        throw new PSItemServiceException("Create succeeded but no page id was returned.");
+      }
+      return new PSItemCreateResult(saved.getId(), folder, name, contentType);
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not create the page.", e);
     }
   }
 

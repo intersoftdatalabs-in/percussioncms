@@ -50,4 +50,18 @@ class PSItemCreateSupportTest {
     assertTrue(PSItemCreateSupport.isPageType("perc_page"));
     assertFalse(PSItemCreateSupport.isPageType("rffEvent"));
   }
+
+  @Test
+  void siteNameFromFolderPath() {
+    assertEquals("Demo", PSItemCreateSupport.siteNameFromFolderPath("/Sites/Demo/Home"));
+    assertEquals("Demo", PSItemCreateSupport.siteNameFromFolderPath("//Sites/Demo"));
+    assertNull(PSItemCreateSupport.siteNameFromFolderPath("/Folders/Assets"));
+  }
+
+  @Test
+  void titleFromItemNameStripsHtmlSuffix() {
+    assertEquals("New Page", PSItemCreateSupport.titleFromItemName("New Page.html"));
+    assertEquals("About", PSItemCreateSupport.titleFromItemName("About"));
+    assertEquals("New Page", PSItemCreateSupport.titleFromItemName(null));
+  }
 }

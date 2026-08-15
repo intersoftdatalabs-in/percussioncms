@@ -48,6 +48,11 @@ import {
 } from "../editor/editorHostUrl";
 import { createEditorItem } from "../editor/itemCreateApi";
 import {
+  isExplorerPageType,
+  loadPageTemplates,
+  type PageTemplateChoice,
+} from "../editor/pageTemplates";
+import {
   isNewItemHostName,
   parseExplorerContentId,
 } from "./menuCatalogLoad";
@@ -168,6 +173,10 @@ export interface ActionDispatchContext {
   createCopy?: (itemId: string) => Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
   createItem?: typeof createEditorItem;
+  loadPageTemplates?: typeof loadPageTemplates;
+  pickPageTemplate?: (
+    templates: PageTemplateChoice[],
+  ) => Promise<string | null>;
   onPublish?: (item: PSPathItem) => Promise<void>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
@@ -416,10 +425,30 @@ export async function dispatchAction(
     if (!folder) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
     }
+    let templateId: string | undefined;
+    if (isExplorerPageType(action.name)) {
+      const load = ctx.loadPageTemplates ?? loadPageTemplates;
+      const templates = await load(folder, action.name);
+      if (templates.length === 0) {
+        return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+      }
+      templateId = templates[0]?.id;
+      if (templates.length > 1) {
+        if (!ctx.pickPageTemplate) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+        }
+        const picked = await ctx.pickPageTemplate(templates);
+        if (!picked) {
+          return { kind: "rest" };
+        }
+        templateId = picked;
+      }
+    }
     const create = ctx.createItem ?? createEditorItem;
     const created = await create({
       contentType: action.name,
       folderPath: folder,
+      templateId,
     });
     const contentId = parseExplorerContentId(created.itemId);
     if (contentId == null) {

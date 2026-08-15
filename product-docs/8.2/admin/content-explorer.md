@@ -118,10 +118,10 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | Action | What happens |
 |--------|----------------|
 | **Preview** (and per-template children) | Opens assembly preview (`GET /services/assembly/preview-location`) or the default page/asset preview. New language: **template**, not variant. |
-| **New Item** | Choose a content type under **New**. Explorer creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. Does not open leftover Content Editor HTML. Pages without a template may fail create — use Home → Create for a templated page when that happens. |
+| **New Item** | Choose a content type under **New**. Explorer creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. Does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
-| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows its content-type text fields. Save writes `PUT /services/itemmanagement/item/fields/{id}`. Does not open the CM1 editor (`?view=editor`). **New Item** and rich controls (TinyMCE, binary) are not in this slice. |
+| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows its content-type text fields. Save writes `PUT /services/itemmanagement/item/fields/{id}`. Does not open the CM1 editor (`?view=editor`). Rich controls (TinyMCE, binary) are not in this slice. |
 | **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
