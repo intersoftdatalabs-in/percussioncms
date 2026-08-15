@@ -453,7 +453,8 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       }
       // Success: site folder exists under /Sites (REST). Wizard panel
       // testids differ by WebUI vintage; do not treat a missing panel
-      // id as success. HTTP 500 on create is the #3364 failure.
+      // id as success. HTTP 500 / UnexpectedRollbackException after
+      // NavTree seed is the #3364 / #3393 failure.
       await expect
         .poll(
           async () => {

@@ -55,7 +55,6 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSUnknownContentTypeException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
-import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -196,7 +195,11 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
       var status = contentWs.prepareForEdit(navtreeId);
       navService.addLandingPageToNavnode(pageGuid, navtreeId, asmBridge.getDispatchTemplate());
       contentWs.releaseFromEdit(status, false);
-      contentWs.checkinItems(Collections.singletonList(pageGuid), null);
+      // Do not checkinItems here. Default / sample-site workflows can NPE in
+      // sys_wfPerformTransition (m_nextAgingTransition). A failed check-in
+      // marks the surrounding site-create transaction rollback-only
+      // (#3364 / #3393). The homepage is valid once it is a folder child
+      // and linked as the NavTree landing page.
       folderHelper.addItem(folderRoot, pageId);
     } catch (Exception e) {
       throw new RuntimeException(e);

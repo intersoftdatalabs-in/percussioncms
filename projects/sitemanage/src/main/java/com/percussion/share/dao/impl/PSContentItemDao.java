@@ -401,7 +401,13 @@ public class PSContentItemDao implements IPSContentItemDao {
           folderHelper.addItem(p, id);
         }
       }
-      return find(id);
+      // Do not re-find after saveItems. Workflow JDBC (sys_wfUpdateHistory)
+      // can leave the Hibernate session connection null. find() → loadBodies
+      // is @Transactional: the NPE marks the outer site-create transaction
+      // rollback-only even when callers catch it (#1563 / #3393).
+      // Domain fields were applied before save; id is assigned from saveItems.
+      contentItem.setId(id);
+      return contentItem;
     } catch (Exception e) {
       if (e instanceof LoadException) {
         if (isNew && id != null) {
