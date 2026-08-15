@@ -18,14 +18,16 @@
 
 package com.percussion.rest.assets;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import java.util.Objects;
-import java.util.Optional;
 
 @XmlRootElement(name = "AssetField")
 @XmlType(propOrder = {})
+@JsonInclude(Include.NON_NULL)
 @Schema(description = "Represents an Asset field")
 public class AssetField {
 
@@ -41,16 +43,16 @@ public class AssetField {
     this.value = value;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getValue() {
-    return Optional.ofNullable(value);
+  public String getValue() {
+    return value;
   }
 
   public void setValue(String value) {

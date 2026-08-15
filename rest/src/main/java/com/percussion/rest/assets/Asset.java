@@ -29,7 +29,6 @@ import jakarta.xml.bind.annotation.XmlType;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a shared asset. */
 @XmlRootElement(name = "Asset")
@@ -87,7 +86,7 @@ public class Asset {
   /** No-op constructor. */
   public Asset() {}
 
-  // --- Getters and Setters with Optional ---
+  // --- Getters and Setters (plain nullable wire types) ---
 
   /**
    * Returns the asset's custom fields.
@@ -110,10 +109,10 @@ public class Asset {
   /**
    * Returns the asset id.
    *
-   * @return the asset id, may be empty
+   * @return the asset id, may be {@code null}
    */
-  public Optional<String> getId() {
-    return Optional.ofNullable(id);
+  public String getId() {
+    return id;
   }
 
   /**
@@ -128,10 +127,10 @@ public class Asset {
   /**
    * Returns the asset name.
    *
-   * @return the name, may be empty
+   * @return the name, may be {@code null}
    */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   /**
@@ -146,10 +145,10 @@ public class Asset {
   /**
    * Returns the asset type.
    *
-   * @return the type, may be empty
+   * @return the type, may be {@code null}
    */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   /**
@@ -164,10 +163,10 @@ public class Asset {
   /**
    * Returns the asset's folder path.
    *
-   * @return the folder path, may be empty
+   * @return the folder path, may be {@code null}
    */
-  public Optional<String> getFolderPath() {
-    return Optional.ofNullable(folderPath);
+  public String getFolderPath() {
+    return folderPath;
   }
 
   /**
@@ -182,10 +181,10 @@ public class Asset {
   /**
    * Returns the workflow info for the asset.
    *
-   * @return the workflow info, may be empty
+   * @return the workflow info, may be {@code null}
    */
-  public Optional<WorkflowInfo> getWorkflow() {
-    return Optional.ofNullable(workflow);
+  public WorkflowInfo getWorkflow() {
+    return workflow;
   }
 
   /**
@@ -200,10 +199,10 @@ public class Asset {
   /**
    * Returns the last modification date.
    *
-   * @return the date, may be empty
+   * @return the date, may be {@code null}
    */
-  public Optional<Date> getLastModifiedDate() {
-    return Optional.ofNullable(lastModifiedDate);
+  public Date getLastModifiedDate() {
+    return lastModifiedDate;
   }
 
   /**
@@ -218,10 +217,10 @@ public class Asset {
   /**
    * Returns the creation date.
    *
-   * @return the date, may be empty
+   * @return the date, may be {@code null}
    */
-  public Optional<Date> getCreatedDate() {
-    return Optional.ofNullable(createdDate);
+  public Date getCreatedDate() {
+    return createdDate;
   }
 
   /**
@@ -236,10 +235,10 @@ public class Asset {
   /**
    * Returns the hypermedia links.
    *
-   * @return the links, may be empty
+   * @return the links, may be {@code null}
    */
-  public Optional<List<LinkRef>> getLinks() {
-    return Optional.ofNullable(links);
+  public List<LinkRef> getLinks() {
+    return links;
   }
 
   /**
@@ -254,10 +253,10 @@ public class Asset {
   /**
    * Returns the full-size image info.
    *
-   * @return the image info, may be empty
+   * @return the image info, may be {@code null}
    */
-  public Optional<ImageInfo> getImage() {
-    return Optional.ofNullable(image);
+  public ImageInfo getImage() {
+    return image;
   }
 
   /**
@@ -272,10 +271,10 @@ public class Asset {
   /**
    * Returns the thumbnail image info.
    *
-   * @return the thumbnail, may be empty
+   * @return the thumbnail, may be {@code null}
    */
-  public Optional<ImageInfo> getThumbnail() {
-    return Optional.ofNullable(thumbnail);
+  public ImageInfo getThumbnail() {
+    return thumbnail;
   }
 
   /**
@@ -290,10 +289,10 @@ public class Asset {
   /**
    * Returns the binary file payload.
    *
-   * @return the binary file, may be empty
+   * @return the binary file, may be {@code null}
    */
-  public Optional<BinaryFile> getFile() {
-    return Optional.ofNullable(file);
+  public BinaryFile getFile() {
+    return file;
   }
 
   /**
@@ -308,10 +307,10 @@ public class Asset {
   /**
    * Returns whether the asset should be removed on save.
    *
-   * @return the remove flag, may be empty
+   * @return the remove flag, may be {@code null}
    */
-  public Optional<Boolean> getRemove() {
-    return Optional.ofNullable(remove);
+  public Boolean getRemove() {
+    return remove;
   }
 
   /**

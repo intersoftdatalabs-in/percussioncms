@@ -87,7 +87,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -266,10 +265,10 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     try {
       var oldPSAsset = this.assetService.load(id);
       var workflowInfo = this.getWorkflowInfo(oldPSAsset);
-      // determine the requested end state
+      // WorkflowInfo getters are already plain (#3423); Asset.getWorkflow() is nullable (#3418)
       String endState = workflowInfo.getState();
-      if (asset.getWorkflow().isPresent()) {
-        String state = asset.getWorkflow().get().getState();
+      if (asset.getWorkflow() != null) {
+        String state = asset.getWorkflow().getState();
         if (StringUtils.isNotBlank(state)) {
           endState = state;
         }
@@ -285,16 +284,14 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
         workflowInfo.setCheckedOutUser(userInfo.getCurrentUser());
       }
       oldPSAsset.getFields().put(lastModifiedDateFieldName, new Date());
-      String assetName = ApiUtils.orNull(asset.getName());
+      String assetName = asset.getName();
       if (StringUtils.isNotBlank(assetName) && !assetName.equals(oldPSAsset.getName())) {
         oldPSAsset.setName(assetName);
       }
       for (var field : asset.getFields()) {
-        oldPSAsset
-            .getFields()
-            .put(ApiUtils.orNull(field.getName()), ApiUtils.orNull(field.getValue()));
+        oldPSAsset.getFields().put(field.getName(), field.getValue());
       }
-      String assetFolder = ApiUtils.orNull(asset.getFolderPath());
+      String assetFolder = asset.getFolderPath();
       if (StringUtils.isNotBlank(assetFolder)) {
         if (assetFolder.endsWith("/")) {
           assetFolder = assetFolder.substring(0, assetFolder.length() - 1);
@@ -343,8 +340,8 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
   public Asset createSharedAsset(URI baseURI, String path, Asset asset) throws BackendException {
     var newAsset = new PSAsset();
     newAsset.setCategory(Category.ASSET);
-    String assetName = ApiUtils.orNull(asset.getName());
-    String assetType = ApiUtils.orNull(asset.getType());
+    String assetName = asset.getName();
+    String assetType = asset.getType();
     notBlank(assetName);
     notBlank(assetType);
     newAsset.setName(assetName);
@@ -353,10 +350,10 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     // workflow initialization removed during API transition
     // TODO re-add when IPSWorkflowService exposes suitable methods
     if (assetBinaryTypes.contains(asset.getType())) {
-      String assetName2 = ApiUtils.orNull(asset.getName());
+      String assetName2 = asset.getName();
       boolean found =
           asset.getFields().stream()
-              .map(f -> ApiUtils.orNull(f.getName()))
+              .map(AssetField::getName)
               .anyMatch(n -> n != null && n.equalsIgnoreCase("displaytitle"));
       if (!found) {
         asset.getFields().add(new AssetField("displaytitle", assetName2));
@@ -384,11 +381,11 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
       if (asset.getFields() != null) {
         if (asset.getFields() != null) {
           for (var field : asset.getFields()) {
-            newAsset.getFields().put(ApiUtils.orNull(field.getName()), field.getValue());
+            newAsset.getFields().put(field.getName(), field.getValue());
           }
         }
       }
-      String folderPath = ApiUtils.orNull(asset.getFolderPath());
+      String folderPath = asset.getFolderPath();
       if (folderPath != null
           && StringUtils.isNotBlank(folderPath)
           && folderPath.startsWith(PSPathUtils.ASSETS_FINDER_ROOT)) {
@@ -399,9 +396,8 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
       this.assetService.validate(newAsset);
       newAsset = this.assetDao.save(newAsset);
       if (newAsset.getType().equals("percImageAsset")) {
-        Optional<ImageInfo> thumbOpt = asset.getThumbnail();
-        if (thumbOpt != null && thumbOpt.isPresent()) {
-          ImageInfo thumb = thumbOpt.get();
+        ImageInfo thumb = asset.getThumbnail();
+        if (thumb != null) {
           if (thumb.getWidth() != 0 && thumb.getHeight() != 0) {
             newAsset.getFields().put("img2_width", thumb.getWidth());
             newAsset.getFields().put("img2_height", thumb.getHeight());
@@ -674,7 +670,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
 
     try {
       Asset a = getSharedAssetByPath(baseUri, pathServicePath);
-      PSAsset update = this.assetService.load(ApiUtils.orNull(a.getId()));
+      PSAsset update = this.assetService.load(a.getId());
       // Check it out
       if (!workflowHelper.isCheckedOutToCurrentUser(update.getId())) {
         itemWorkflowService.forceCheckOut(update.getId());

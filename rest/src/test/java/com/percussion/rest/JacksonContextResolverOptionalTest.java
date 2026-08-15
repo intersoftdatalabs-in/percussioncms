@@ -21,6 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.assets.Asset;
+import com.percussion.rest.assets.AssetField;
+import com.percussion.rest.assets.AssetFieldList;
+import com.percussion.rest.assets.BinaryFile;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
 import com.percussion.rest.contexts.Context;
@@ -751,6 +755,120 @@ class JacksonContextResolverOptionalTest {
     assertEquals("/Sites/A/dest", roundTrip.getTargetFolderPath(), json);
     assertEquals("/Sites/A/src/page.html", roundTrip.getItemPath(), json);
   }
+
+  @Test
+  void asset_serializesPlainScalarsNotOptionalBeans() {
+    Asset asset = new Asset();
+    asset.setId("guid-1");
+    asset.setName("banner.png");
+    asset.setType("percImageAsset");
+    asset.setFolderPath("/Assets/uploads");
+    asset.setRemove(false);
+    asset.setFields(new AssetFieldList());
+    asset.getFields().add(new AssetField("alttext", "Hero banner"));
+
+    ObjectMapper assetMapper = new JacksonContextResolver().getContext(Asset.class);
+    String json = assetMapper.writeValueAsString(asset);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("banner.png"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertTrue(json.contains("percImageAsset"), json);
+    assertTrue(json.contains("\"folderPath\""), json);
+    assertTrue(json.contains("/Assets/uploads"), json);
+    assertTrue(json.contains("\"id\""), json);
+    assertTrue(json.contains("alttext"), json);
+    assertTrue(json.contains("Hero banner"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Asset roundTrip = assetMapper.readValue(json, Asset.class);
+    assertEquals("banner.png", roundTrip.getName(), json);
+    assertEquals("percImageAsset", roundTrip.getType(), json);
+    assertEquals("/Assets/uploads", roundTrip.getFolderPath(), json);
+    assertEquals("guid-1", roundTrip.getId(), json);
+    assertFalse(roundTrip.getRemove(), json);
+  }
+
+  @Test
+  void assetField_serializesNameValueNotOptionalBeans() {
+    AssetField field = new AssetField("displaytitle", "Home banner");
+
+    ObjectMapper fieldMapper = new JacksonContextResolver().getContext(AssetField.class);
+    String json = fieldMapper.writeValueAsString(field);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("displaytitle"), json);
+    assertTrue(json.contains("\"value\""), json);
+    assertTrue(json.contains("Home banner"), json);
+    assertNoOptionalBeanKeys(json);
+
+    AssetField roundTrip = fieldMapper.readValue(json, AssetField.class);
+    assertEquals("displaytitle", roundTrip.getName(), json);
+    assertEquals("Home banner", roundTrip.getValue(), json);
+  }
+
+  @Test
+  void assetFamily_omitsNullWireFieldsFromJson() {
+    Asset asset = new Asset();
+    asset.setId("guid-nulls");
+    asset.setName(null);
+    asset.setType(null);
+    asset.setFolderPath(null);
+
+    ObjectMapper assetMapper = new JacksonContextResolver().getContext(Asset.class);
+    String assetJson = assetMapper.writeValueAsString(asset);
+    assertTrue(assetJson.contains("\"id\""), assetJson);
+    assertTrue(assetJson.contains("guid-nulls"), assetJson);
+    assertFalse(assetJson.contains("\"name\""), assetJson);
+    assertFalse(assetJson.contains("\"type\""), assetJson);
+    assertFalse(assetJson.contains("\"folderPath\""), assetJson);
+    assertNoOptionalBeanKeys(assetJson);
+
+    AssetField field = new AssetField();
+    field.setName(null);
+    field.setValue(null);
+    ObjectMapper fieldMapper = new JacksonContextResolver().getContext(AssetField.class);
+    String fieldJson = fieldMapper.writeValueAsString(field);
+    assertFalse(fieldJson.contains("\"name\""), fieldJson);
+    assertFalse(fieldJson.contains("\"value\""), fieldJson);
+    assertNoOptionalBeanKeys(fieldJson);
+
+    BinaryFile file = new BinaryFile();
+    file.setFilename(null);
+    file.setExtension(null);
+    file.setType(null);
+    ObjectMapper fileMapper = new JacksonContextResolver().getContext(BinaryFile.class);
+    String fileJson = fileMapper.writeValueAsString(file);
+    assertFalse(fileJson.contains("\"filename\""), fileJson);
+    assertFalse(fileJson.contains("\"extension\""), fileJson);
+    assertFalse(fileJson.contains("\"type\""), fileJson);
+    assertNoOptionalBeanKeys(fileJson);
+  }
+
+  @Test
+  void binaryFile_serializesFilenameTypeNotOptionalBeans() {
+    BinaryFile file = new BinaryFile();
+    file.setFilename("report.pdf");
+    file.setExtension("pdf");
+    file.setType("application/pdf");
+    file.setSize(2048L);
+
+    ObjectMapper fileMapper = new JacksonContextResolver().getContext(BinaryFile.class);
+    String json = fileMapper.writeValueAsString(file);
+    assertTrue(json.contains("\"filename\""), json);
+    assertTrue(json.contains("report.pdf"), json);
+    assertTrue(json.contains("\"extension\""), json);
+    assertTrue(json.contains("pdf"), json);
+    assertTrue(json.contains("\"type\""), json);
+    assertTrue(json.contains("application/pdf"), json);
+    assertTrue(json.contains("2048"), json);
+    assertNoOptionalBeanKeys(json);
+
+    BinaryFile roundTrip = fileMapper.readValue(json, BinaryFile.class);
+    assertEquals("report.pdf", roundTrip.getFilename(), json);
+    assertEquals("pdf", roundTrip.getExtension(), json);
+    assertEquals("application/pdf", roundTrip.getType(), json);
+    assertEquals(2048L, roundTrip.getSize(), json);
+  }
+
   private static void assertNoOptionalBeanKeys(String json) {
     assertFalse(
         json.contains("\"empty\"") || json.contains("\"present\""),
