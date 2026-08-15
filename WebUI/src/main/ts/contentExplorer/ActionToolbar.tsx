@@ -112,10 +112,14 @@ function hasChildren(action: MenuAction): boolean {
 
 function activate(
   action: MenuAction,
-  _baseHref: string,
+  parent: MenuAction | undefined,
   onInvoke?: (name: string, a: MenuAction) => void,
 ): void {
-  onInvoke?.(action.name, action);
+  const payload =
+    parent?.name && !action.parentName
+      ? { ...action, parentName: parent.name }
+      : action;
+  onInvoke?.(action.name, payload);
 }
 
 export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
@@ -123,8 +127,6 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const baseId = useId();
-  const baseHref =
-    typeof window !== "undefined" ? window.location.href : "http://localhost/";
 
   useEffect(() => {
     setOpenMenu(null);
@@ -188,7 +190,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                     data-testid={`action-toolbar-item-${c.name}`}
                     aria-label={c.label}
                     title={c.description ?? c.label}
-                    onClick={() => activate(c, baseHref, onInvoke)}
+                    onClick={() => activate(c, a, onInvoke)}
                     style={buttonStyle}
                   >
                     {c.label}
@@ -249,13 +251,13 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                           title={child.description ?? child.label}
                           style={menuItemStyle}
                           onClick={() => {
-                            activate(child, baseHref, onInvoke);
+                            activate(child, a, onInvoke);
                             setOpenMenu(null);
                           }}
                           onKeyDown={(e) => {
                             if (ACTIVATE_KEYS.has(e.key)) {
                               e.preventDefault();
-                              activate(child, baseHref, onInvoke);
+                              activate(child, a, onInvoke);
                               setOpenMenu(null);
                             }
                           }}
@@ -276,7 +278,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
               data-testid={`action-toolbar-item-${a.name}`}
               aria-label={a.label}
               title={a.description ?? a.label}
-              onClick={() => activate(a, baseHref, onInvoke)}
+              onClick={() => activate(a, undefined, onInvoke)}
               style={buttonStyle}
             >
               {a.label}

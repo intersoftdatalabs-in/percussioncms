@@ -27,6 +27,7 @@ export const SPA_ENTRIES = [
   "architecture",
   "explorer",
   "profile",
+  "assembly",
   "unavailable",
 ] as const;
 

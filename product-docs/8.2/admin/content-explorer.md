@@ -131,7 +131,8 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Promotable Version** | Confirm, then create a promotable version in the current folder. |
 | **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
-| **Publish Now** / Active Assembly / slot arrange | Still unavailable in this Explorer slice. |
+| **Publish Now** / slot arrange | Still unavailable in this Explorer slice. Slot add/create/arrange need relationship context from the assembly canvas. |
+| **Active Assembly** | Opens a new window that assembles the selected item with its **page** or **snippet template** (`GET /services/assembly/preview-location` in an iframe). A light overlay shows the content id and template. Field editing and slot arrange come later with the Content Editor. Does not open leftover Active Assembly HTML. |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.

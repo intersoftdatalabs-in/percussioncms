@@ -512,7 +512,7 @@ Response JSON (`PreviewLocation`):
 | `revision` | Revision used (current revision when the query omits `revision`) |
 
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
-summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`.
+summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`).
 
 See [Content Explorer](id:admin-content-explorer) server actions.
 

@@ -21,6 +21,7 @@ import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminRoute } from "./routes/AdminRoute";
 import { ArchitectureRoute } from "./routes/ArchitectureRoute";
+import { AssemblyRoute } from "./routes/AssemblyRoute";
 import { DesignRoute } from "./routes/DesignRoute";
 import { DeveloperRoute } from "./routes/DeveloperRoute";
 import { ExplorerRoute } from "./routes/ExplorerRoute";
@@ -39,6 +40,7 @@ export function AppRoutes(): React.ReactElement {
   return (
     <Routes>
       <Route element={<AppLayout />}>
+        <Route path="assembly" element={<AssemblyRoute />} />
         <Route index element={<Navigate to="/home" replace />} />
         <Route path="home" element={<HomeRoute />} />
         <Route path="home/:section" element={<HomeRoute />} />

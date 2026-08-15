@@ -23,7 +23,7 @@ Desktop Content Explorer is **not** a 8.2 client. Do not dual-ship HTML for DCE.
 | `client` | Existing Explorer handlers (open, folder ops, workflow-transition, default preview) |
 | `rest` | Public REST (preview-location, types, transitions, purge, publish) |
 | `editor` | P3 — do **not** open CM1 `?view=editor`; TMX “editor not available” |
-| `unavailable` | P2 AA/slot or not-yet P1 — TMX not available |
+| `unavailable` | Slot arrange / New Item (P3 editor). Active Assembly parents are `rest` (996 preview host) |
 | `legacy-file` | Non-app file (e.g. `.xls`) via same-origin `safeNavigate` |
 
 Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It never `safeNavigate`s.
@@ -41,7 +41,8 @@ Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It n
 | Promotable Version | Confirm, then promotable version in current folder |
 | Flush Cache (Refresh Item) | Confirm, then flush **all** assembler pages (not only the selected item) |
 | Nav Reset | Same as classic `PSNavReset`; on 8.2 typically a no-op once nav is loaded (FastForward variants unused) |
-| Publish Now / AA / slot arrange | Still unavailable (P2) |
+| Publish Now / slot arrange | Still unavailable (P2 leftover / slot context) |
+| Active Assembly | New window: assembled page/snippet preview + light overlay (`specs/996-react-active-assembly`) |
 
 ## P1 REST
 

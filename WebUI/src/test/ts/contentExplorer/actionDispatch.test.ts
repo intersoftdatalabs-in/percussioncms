@@ -20,6 +20,7 @@ import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplore
 import {
   classifyAction,
   dispatchAction,
+  findMenuParentName,
   isContentEditorActionUrl,
   isDataFlowActionUrl,
   parseTemplateIdFromAction,
@@ -101,7 +102,7 @@ describe("actionDispatch", () => {
     const openWindow = vi.fn();
     const result = await dispatchAction(
       action({
-        name: "Item_Assembly",
+        name: "Slot_Add",
         url: "../sys_cxSupport/aadocactions.html",
       }),
       { item: item(), openWindow },
@@ -370,6 +371,102 @@ describe("actionDispatch", () => {
     );
     expect(createPromotable).not.toHaveBeenCalled();
     expect(result.refresh).toBeUndefined();
+  });
+
+  it("classifies Active Assembly parents as rest and slot arrange as unavailable", () => {
+    expect(classifyAction(action({ name: "Item_ActiveAssembly" }))).toBe("rest");
+    expect(
+      classifyAction(action({ name: "EnterpriseItem_ActiveAssembly" })),
+    ).toBe("rest");
+    expect(classifyAction(action({ name: "Item_Assembly" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Arrange_Remove" }))).toBe(
+      "unavailable",
+    );
+    expect(classifyAction(action({ name: "Slot_Add" }))).toBe("unavailable");
+  });
+
+  it("finds the parent menu name for a nested template child", () => {
+    expect(
+      findMenuParentName(
+        [
+          action({
+            name: "Item_ActiveAssembly",
+            children: [action({ name: "rffPgGeneric" })],
+          }),
+        ],
+        "rffPgGeneric",
+      ),
+    ).toBe("Item_ActiveAssembly");
+  });
+
+  it("opens the assembly host for Active Assembly without fetching preview", async () => {
+    const openWindow = vi.fn();
+    const fetchPreview = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Item_ActiveAssembly" }),
+      { item: item(), openWindow, fetchPreview },
+    );
+    expect(result.kind).toBe("rest");
+    expect(fetchPreview).not.toHaveBeenCalled();
+    expect(openWindow).toHaveBeenCalledTimes(1);
+    const href = String(openWindow.mock.calls[0]?.[0] ?? "");
+    expect(href).toContain("entry=assembly");
+    expect(href).toContain("contentId=42");
+    expect(href).not.toContain("templateId=");
+    expect(openWindow.mock.calls[0]?.[1]).toBe("percAssembly_42");
+  });
+
+  it("opens the assembly host with a template when the AA child is invoked", async () => {
+    const openWindow = vi.fn();
+    const fetchPreview = vi.fn();
+    const result = await dispatchAction(
+      action({
+        name: "rffPgGeneric",
+        url: "../assembler/render?sys_template=7",
+      }),
+      {
+        item: item(),
+        parentName: "Item_ActiveAssembly",
+        openWindow,
+        fetchPreview,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(fetchPreview).not.toHaveBeenCalled();
+    const href = String(openWindow.mock.calls[0]?.[0] ?? "");
+    expect(href).toContain("entry=assembly");
+    expect(href).toContain("contentId=42");
+    expect(href).toContain("templateId=7");
+  });
+
+  it("still opens raw assembler preview for Preview template children", async () => {
+    const openWindow = vi.fn();
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const result = await dispatchAction(
+      action({
+        name: "rffPgGeneric",
+        url: "../assembler/render?sys_template=7",
+      }),
+      {
+        item: item(),
+        parentName: "Item_Preview",
+        openWindow,
+        fetchPreview,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(fetchPreview).toHaveBeenCalledWith(42, 7);
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain(
+      "/assembler/render",
+    );
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).not.toContain(
+      "entry=assembly",
+    );
   });
 
   it("publish_now is unavailable without navigation", async () => {
