@@ -173,7 +173,7 @@ public class SitesResourceTest {
 
     VirtualSiteBuildResult out = resource.buildVirtualSite("Help", req);
     assertEquals(3, out.getPagesWritten().intValue());
-    assertEquals("C:/tmp/out", out.getOutputPath().orElse(null));
+    assertEquals("C:/tmp/out", out.getOutputPath());
     verify(adaptor).buildVirtualSite("Help", req);
   }
 
@@ -197,7 +197,7 @@ public class SitesResourceTest {
 
     VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("Help");
     assertEquals(Boolean.TRUE, out.getAvailable());
-    assertEquals("8.2/index.html", out.getHomePath().orElse(null));
+    assertEquals("8.2/index.html", out.getHomePath());
     verify(adaptor).getVirtualSitePreviewStatus("Help");
   }
 
@@ -253,7 +253,7 @@ public class SitesResourceTest {
     VirtualSitePublishResult out = resource.publishVirtualSite("Help");
     assertEquals(3, out.getPagesWritten().intValue());
     assertEquals(5, out.getFilesCopied().intValue());
-    assertEquals("C:/pub/help", out.getPublishPath().orElse(null));
+    assertEquals("C:/pub/help", out.getPublishPath());
     verify(adaptor).publishVirtualSite("Help");
   }
 

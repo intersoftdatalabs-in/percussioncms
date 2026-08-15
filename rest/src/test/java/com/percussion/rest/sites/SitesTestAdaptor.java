@@ -80,8 +80,8 @@ public class SitesTestAdaptor implements ISiteAdaptor {
     result.setPagesWritten(0);
     result.setLinkProblemCount(0);
     result.setHasLinkProblems(false);
-    if (request != null && request.getOutputRoot().isPresent()) {
-      result.setOutputPath(request.getOutputRoot().get());
+    if (request != null && request.getOutputRoot() != null) {
+      result.setOutputPath(request.getOutputRoot());
     }
     return result;
   }

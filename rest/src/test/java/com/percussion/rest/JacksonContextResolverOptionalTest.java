@@ -32,6 +32,13 @@ import com.percussion.rest.pages.SeoInfo;
 import com.percussion.rest.pages.Widget;
 import com.percussion.rest.pages.WorkflowInfo;
 import com.percussion.rest.roles.Role;
+import com.percussion.rest.sites.SiteMapDateFormat;
+import com.percussion.rest.sites.SiteMapOptions;
+import com.percussion.rest.sites.SiteMapType;
+import com.percussion.rest.sites.VirtualSiteBuildRequest;
+import com.percussion.rest.sites.VirtualSiteBuildResult;
+import com.percussion.rest.sites.VirtualSitePreviewStatus;
+import com.percussion.rest.sites.VirtualSitePublishResult;
 import com.percussion.rest.templates.Template;
 import com.percussion.rest.templates.TemplateBinding;
 import com.percussion.rest.templates.TemplateSummary;
@@ -47,8 +54,9 @@ import tools.jackson.databind.ObjectMapper;
  * historically collapsed to hideFromMenu-only when Optional getters were not unwrapped (issue
  * #1693). TemplateSummary similarly collapsed to templateId-only (issue #2189). User / Role /
  * ObjectSummary follow the same plain-getter rule (issue #3388). DisplayFormatProperty / Template /
- * Page family follow the same rule (issue #3407). All use production {@link JacksonContextResolver}
- * under {@code @JsonInclude(NON_NULL)}.
+ * Page family follow the same rule (issue #3407). Virtual Site + SiteMap wire DTOs follow the same
+ * rule (issue #3411 / #3388). All use production {@link JacksonContextResolver} under {@code
+ * @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -360,6 +368,134 @@ class JacksonContextResolverOptionalTest {
     assertTrue(calJson.contains("\"calendars\""), calJson);
     assertTrue(calJson.contains("Default"), calJson);
     assertNoOptionalBeanKeys(calJson);
+  }
+
+  @Test
+  void virtualSiteBuildRequest_serializesPlainScalarsNotOptionalBeans() {
+    VirtualSiteBuildRequest request = new VirtualSiteBuildRequest();
+    request.setOutputRoot("C:/tmp/product-docs-site");
+
+    ObjectMapper requestMapper =
+        new JacksonContextResolver().getContext(VirtualSiteBuildRequest.class);
+    String json = requestMapper.writeValueAsString(request);
+    assertTrue(json.contains("\"outputRoot\""), json);
+    assertTrue(json.contains("C:/tmp/product-docs-site"), json);
+    assertNoOptionalBeanKeys(json);
+
+    VirtualSiteBuildRequest roundTrip = requestMapper.readValue(json, VirtualSiteBuildRequest.class);
+    assertEquals("C:/tmp/product-docs-site", roundTrip.getOutputRoot(), json);
+  }
+
+  @Test
+  void virtualSiteBuildResult_serializesPlainScalarsNotOptionalBeans() {
+    VirtualSiteBuildResult result = new VirtualSiteBuildResult();
+    result.setSiteName("Help");
+    result.setSiteKey("product-docs");
+    result.setOutputPath("C:/Rhythmyx/tmp/virtual-sites/product-docs");
+    result.setPagesWritten(42);
+    result.setLinkProblemCount(0);
+    result.setHasLinkProblems(false);
+
+    ObjectMapper resultMapper = new JacksonContextResolver().getContext(VirtualSiteBuildResult.class);
+    String json = resultMapper.writeValueAsString(result);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("Help"), json);
+    assertTrue(json.contains("\"siteKey\""), json);
+    assertTrue(json.contains("product-docs"), json);
+    assertTrue(json.contains("\"outputPath\""), json);
+    assertTrue(json.contains("\"pagesWritten\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    VirtualSiteBuildResult roundTrip = resultMapper.readValue(json, VirtualSiteBuildResult.class);
+    assertEquals("Help", roundTrip.getSiteName(), json);
+    assertEquals("product-docs", roundTrip.getSiteKey(), json);
+    assertEquals("C:/Rhythmyx/tmp/virtual-sites/product-docs", roundTrip.getOutputPath(), json);
+    assertEquals(42, roundTrip.getPagesWritten(), json);
+  }
+
+  @Test
+  void virtualSitePreviewStatus_serializesPlainScalarsNotOptionalBeans() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    status.setOutputPath("C:/Rhythmyx/tmp/virtual-sites/product-docs");
+    status.setMessage("ready");
+
+    ObjectMapper statusMapper =
+        new JacksonContextResolver().getContext(VirtualSitePreviewStatus.class);
+    String json = statusMapper.writeValueAsString(status);
+    assertTrue(json.contains("\"homePath\""), json);
+    assertTrue(json.contains("8.2/index.html"), json);
+    assertTrue(json.contains("\"outputPath\""), json);
+    assertTrue(json.contains("\"message\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    VirtualSitePreviewStatus roundTrip =
+        statusMapper.readValue(json, VirtualSitePreviewStatus.class);
+    assertEquals(Boolean.TRUE, roundTrip.getAvailable(), json);
+    assertEquals("8.2/index.html", roundTrip.getHomePath(), json);
+    assertEquals("ready", roundTrip.getMessage(), json);
+  }
+
+  @Test
+  void virtualSitePublishResult_serializesPlainScalarsNotOptionalBeans() {
+    VirtualSitePublishResult result = new VirtualSitePublishResult();
+    result.setSiteName("Help");
+    result.setSiteKey("product-docs");
+    result.setPublishPath("C:/inetpub/wwwroot/help");
+    result.setBuildOutputPath("C:/Rhythmyx/tmp/virtual-sites/product-docs");
+    result.setPagesWritten(42);
+    result.setFilesCopied(50);
+    result.setLinkProblemCount(0);
+    result.setHasLinkProblems(false);
+
+    ObjectMapper resultMapper =
+        new JacksonContextResolver().getContext(VirtualSitePublishResult.class);
+    String json = resultMapper.writeValueAsString(result);
+    assertTrue(json.contains("\"siteName\""), json);
+    assertTrue(json.contains("Help"), json);
+    assertTrue(json.contains("\"publishPath\""), json);
+    assertTrue(json.contains("\"buildOutputPath\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    VirtualSitePublishResult roundTrip =
+        resultMapper.readValue(json, VirtualSitePublishResult.class);
+    assertEquals("Help", roundTrip.getSiteName(), json);
+    assertEquals("C:/inetpub/wwwroot/help", roundTrip.getPublishPath(), json);
+    assertEquals("C:/Rhythmyx/tmp/virtual-sites/product-docs", roundTrip.getBuildOutputPath(), json);
+    assertEquals(50, roundTrip.getFilesCopied(), json);
+  }
+
+  @Test
+  void siteMapOptions_serializesPlainScalarsNotOptionalBeans() {
+    SiteMapOptions options = new SiteMapOptions();
+    options.setNavigationBased(true);
+    options.setIncludeFolder(false);
+    options.setTimeZone("UTC");
+    options.setDateFormat(SiteMapDateFormat.DAY);
+    options.setFileName("sitemap.xml");
+    options.setUseSiteMapIndex("true");
+    options.setSiteMapType(SiteMapType.STANDARD);
+    options.setDefaultFrequency(0.5);
+
+    ObjectMapper optionsMapper = new JacksonContextResolver().getContext(SiteMapOptions.class);
+    String json = optionsMapper.writeValueAsString(options);
+    assertTrue(json.contains("\"timeZone\""), json);
+    assertTrue(json.contains("UTC"), json);
+    assertTrue(json.contains("\"dateFormat\""), json);
+    assertTrue(json.contains("DAY"), json);
+    assertTrue(json.contains("\"fileName\""), json);
+    assertTrue(json.contains("sitemap.xml"), json);
+    assertTrue(json.contains("\"useSiteMapIndex\""), json);
+    assertTrue(json.contains("\"siteMapType\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    SiteMapOptions roundTrip = optionsMapper.readValue(json, SiteMapOptions.class);
+    assertEquals("UTC", roundTrip.getTimeZone(), json);
+    assertEquals(SiteMapDateFormat.DAY, roundTrip.getDateFormat(), json);
+    assertEquals("sitemap.xml", roundTrip.getFileName(), json);
+    assertEquals("true", roundTrip.getUseSiteMapIndex(), json);
+    assertEquals(SiteMapType.STANDARD, roundTrip.getSiteMapType(), json);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {

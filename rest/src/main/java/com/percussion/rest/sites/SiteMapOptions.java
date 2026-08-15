@@ -17,9 +17,15 @@
 
 package com.percussion.rest.sites;
 
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-/** Options for sitemap generation. Sunny Sal: "Sitemap options ka boss!" */
+/**
+ * Options for sitemap generation. Sunny Sal: "Sitemap options ka boss!"
+ *
+ * <p>Wire getters return plain nullable types (not {@code Optional}) so Jackson emits scalars, not
+ * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SiteMapOptions {
 
   private boolean navigationBased = true;
@@ -47,40 +53,40 @@ public class SiteMapOptions {
     this.includeFolder = includeFolder;
   }
 
-  public Optional<String> getTimeZone() {
-    return Optional.ofNullable(timeZone);
+  public String getTimeZone() {
+    return timeZone;
   }
 
   public void setTimeZone(String timeZone) {
     this.timeZone = timeZone;
   }
 
-  public Optional<SiteMapDateFormat> getDateFormat() {
-    return Optional.ofNullable(dateFormat);
+  public SiteMapDateFormat getDateFormat() {
+    return dateFormat;
   }
 
   public void setDateFormat(SiteMapDateFormat dateFormat) {
     this.dateFormat = dateFormat;
   }
 
-  public Optional<String> getFileName() {
-    return Optional.ofNullable(fileName);
+  public String getFileName() {
+    return fileName;
   }
 
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 
-  public Optional<String> getUseSiteMapIndex() {
-    return Optional.ofNullable(useSiteMapIndex);
+  public String getUseSiteMapIndex() {
+    return useSiteMapIndex;
   }
 
   public void setUseSiteMapIndex(String useSiteMapIndex) {
     this.useSiteMapIndex = useSiteMapIndex;
   }
 
-  public Optional<SiteMapType> getSiteMapType() {
-    return Optional.ofNullable(siteMapType);
+  public SiteMapType getSiteMapType() {
+    return siteMapType;
   }
 
   public void setSiteMapType(SiteMapType siteMapType) {

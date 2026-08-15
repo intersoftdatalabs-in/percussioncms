@@ -19,13 +19,15 @@ package com.percussion.rest.sites;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Optional body for {@code POST /sites/{nameOrId}/virtual/build}.
  *
  * <p>When omitted or empty, the server chooses a default output directory under the CMS install
  * {@code tmp/virtual-sites/} tree (or the JVM temp directory when the install root is unavailable).
+ *
+ * <p>Wire getters return plain {@code String} (not {@code Optional}) so Jackson emits scalars, not
+ * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
  */
 @XmlRootElement(name = "VirtualSiteBuildRequest")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -45,8 +47,8 @@ public class VirtualSiteBuildRequest {
     // Default constructor for JAX-RS / Jackson
   }
 
-  public Optional<String> getOutputRoot() {
-    return Optional.ofNullable(outputRoot);
+  public String getOutputRoot() {
+    return outputRoot;
   }
 
   public void setOutputRoot(String outputRoot) {
