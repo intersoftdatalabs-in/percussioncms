@@ -21,7 +21,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Display format** | Column layout for the folder list (`validForFolder` formats). Always shown next to the menu bar; a short error stays next to the selector if the catalog cannot be loaded |
 | **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
 | **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
-| **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
+| **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Explorer **executes** these in the SPA (REST + React). It does **not** open legacy Data Flow `.html` pages (those URLs 404 from `/cm/app/explorer`). Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
@@ -109,6 +109,26 @@ on pathmanagement.
 
 Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
 production unless you are validating the RX folder façade with QA.
+
+## Server actions (how they run)
+
+The **Server actions** toolbar and the item **context menu** use the same catalog
+(`GET /services/actions/find`, plus type and **template** menus for the selected item).
+
+| Action | What happens |
+|--------|----------------|
+| **Preview** (and per-template children) | Opens assembly preview (`GET /services/assembly/preview-location`) or the default page/asset preview. New language: **template**, not variant. |
+| **New Item** | Type menus list from `POST /services/actions/find/types`. Creating an item still requires the Content Editor (not in this Explorer slice) — choosing a type shows that the editor is not available. |
+| **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
+| **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
+| **Edit / Quick Edit / View content** | Not the CM1 editor (`?view=editor`). Explorer shows that the content editor is not available in this slice. |
+| **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
+| **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
+| **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
+| **Publish Now** / Active Assembly / slot arrange / flush cache / nav reset / new copy | Not available in this Explorer slice |
+
+Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
+menus — they are not Explorer pages.
 
 ## Sites list and Create Site
 

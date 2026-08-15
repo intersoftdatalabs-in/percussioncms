@@ -28,6 +28,7 @@
 import {
   findActions,
   findAllowedContentTypeMenus,
+  findAllowedTemplateMenus,
   mapActionMenusToMenuActions,
 } from "../api/contentExplorer/actionMenuApi";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
@@ -39,8 +40,24 @@ export function parseExplorerContentId(
   if (id == null || id === "") {
     return null;
   }
-  const n = Number(id);
-  return Number.isFinite(n) ? n : null;
+  if (typeof id === "number") {
+    return Number.isFinite(id) && id > 0 ? Math.trunc(id) : null;
+  }
+  const s = String(id).trim();
+  if (!s) {
+    return null;
+  }
+  const whole = Number(s);
+  if (Number.isFinite(whole) && whole > 0) {
+    return Math.trunc(whole);
+  }
+  // Percussion GUID host-type-uuid (e.g. 1-101-708) — content id is last segment.
+  const last = s.split("-").pop();
+  if (!last) {
+    return null;
+  }
+  const n = Number(last);
+  return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
 }
 
 function isCascadeParent(action: MenuAction): boolean {
@@ -71,6 +88,17 @@ export const NEW_ITEM_HOST_PREFERRED_KEYS: readonly string[] = [
   "contenttypes",
   "content",
   "create",
+  "create_new_item",
+  "createnewitem",
+];
+
+/** Normalized names of Preview MENU parents that host template children. */
+export const PREVIEW_HOST_PREFERRED_KEYS: readonly string[] = [
+  "itempreview",
+  "enterprisepreview",
+  "corporatepreview",
+  "preview",
+  "slotitempreview",
 ];
 
 const NEW_ITEM_HOST_LABEL = /new|create/i;
@@ -146,6 +174,55 @@ export function mergeContentTypeMenusIntoCatalog(
   return extraParents.length > 0 ? [...out, ...extraParents] : out;
 }
 
+function findPreviewHost(tree: MenuAction[]): MenuAction | null {
+  const stack = [...tree];
+  while (stack.length > 0) {
+    const node = stack.shift()!;
+    if (isCascadeParent(node)) {
+      const key = node.name.replace(/[\s_-]/g, "").toLowerCase();
+      if (PREVIEW_HOST_PREFERRED_KEYS.includes(key)) {
+        return node;
+      }
+    }
+    if (node.children?.length) {
+      stack.push(...node.children);
+    }
+  }
+  return null;
+}
+
+/**
+ * Merge template preview menus under an existing Preview MENU parent.
+ * Does not flatten leftover leaves onto the toolbar.
+ */
+export function mergeTemplateMenusIntoCatalog(
+  tree: MenuAction[],
+  templateMenus: MenuAction[],
+): MenuAction[] {
+  if (templateMenus.length === 0) {
+    return tree.slice();
+  }
+  const out = tree.map(cloneAction);
+  const known = new Set<string>();
+  collectActionNames(out, known);
+  const extra: MenuAction[] = [];
+  for (const menu of templateMenus) {
+    if (!menu?.name || known.has(menu.name)) {
+      continue;
+    }
+    extra.push(cloneAction(menu));
+  }
+  if (extra.length === 0) {
+    return out;
+  }
+  const host = findPreviewHost(out);
+  if (host) {
+    host.children = [...(host.children ?? []), ...extra];
+    return out;
+  }
+  return out;
+}
+
 /**
  * Product default for Explorer toolbar / context-menu catalog load.
  *
@@ -165,16 +242,28 @@ export async function loadExplorerMenuCatalog(
   if (contentId == null) {
     return tree;
   }
+  let merged = tree;
   try {
     const typeMenus = mapActionMenusToMenuActions(
       await findAllowedContentTypeMenus([contentId]),
     );
-    return mergeContentTypeMenusIntoCatalog(tree, typeMenus);
+    merged = mergeContentTypeMenusIntoCatalog(merged, typeMenus);
   } catch (err: unknown) {
     console.warn(
       "[ContentExplorerShell] content-type menus load failed; keeping find() cascade",
       err instanceof Error ? err.message : String(err),
     );
-    return tree;
+  }
+  try {
+    const templateMenus = mapActionMenusToMenuActions(
+      await findAllowedTemplateMenus(contentId, false),
+    );
+    return mergeTemplateMenusIntoCatalog(merged, templateMenus);
+  } catch (err: unknown) {
+    console.warn(
+      "[ContentExplorerShell] template menus load failed; keeping catalog",
+      err instanceof Error ? err.message : String(err),
+    );
+    return merged;
   }
 }

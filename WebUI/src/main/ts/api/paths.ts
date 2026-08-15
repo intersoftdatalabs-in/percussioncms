@@ -89,6 +89,14 @@ export const PATHS = {
   get PAGE_COPY() {
     return `${SERVICES_ROOT}/pagemanagement/page/copy`;
   },
+  /** Permanent page purge (`DELETE …/pagemanagement/page/purge/{id}`). */
+  get PAGE_PURGE() {
+    return `${SERVICES_ROOT}/pagemanagement/page/purge`;
+  },
+  /** Permanent asset purge (`DELETE …/assetmanagement/asset/purge/{id}`). */
+  get ASSET_PURGE() {
+    return `${SERVICES_ROOT}/assetmanagement/asset/purge`;
+  },
   /**
    * Asset read-only view URL lookup (legacy {@code ASSET_VIEW_URL_FOR_ASSET_ID}).
    * Append {@code /{id}}; response is plain text URL.
@@ -405,6 +413,13 @@ export const PATHS = {
   /** Action menu (US3) — see capability-matrix.md P-Menu. */
   get ACTIONS_ROOT() {
     return `${SERVICES_ROOT}/actions`;
+  },
+  /**
+   * Assembly preview location (Explorer template preview).
+   * {@code GET ?contentId=&templateId=&revision=}
+   */
+  get ASSEMBLY_PREVIEW_LOCATION() {
+    return `${SERVICES_ROOT}/assembly/preview-location`;
   },
   /**
    * Public REST content type catalog ({@code rest} module ContentTypesResource).

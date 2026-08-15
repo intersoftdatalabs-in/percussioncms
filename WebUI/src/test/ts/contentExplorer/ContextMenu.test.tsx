@@ -201,7 +201,7 @@ describe("ContextMenu", () => {
     expect(onInvoke).toHaveBeenCalledTimes(1);
   });
 
-  it("same-origin http URL is navigated (no fallback)", () => {
+  it("same-origin http URL still invokes the host dispatcher (no auto-navigate)", () => {
     const onInvoke = vi.fn();
     const ok: MenuAction[] = [
       {
@@ -214,8 +214,8 @@ describe("ContextMenu", () => {
     ];
     render(<ContextMenu actions={ok} onInvoke={onInvoke} />);
     fireEvent.click(screen.getByTestId("context-menu-item-open"));
-    // No fallback because the URL passed the guard.
-    expect(onInvoke).not.toHaveBeenCalled();
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+    expect(onInvoke.mock.calls[0]?.[0]).toBe("open");
   });
 
   it("passes the zero serious/critical axe-core gate (default-rendered with menuitems)", async () => {

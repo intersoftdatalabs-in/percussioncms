@@ -29,8 +29,9 @@ Exact query parameters and payload fields: implementers MUST align TypeScript ty
 2. Render context menu + optional toolbar from server list (labels: TMX when keys exist; else server label).
 3. Hide or disable actions not returned / not permitted (FR-011).
 4. On invoke:
-   - Prefer documented REST/itemmanagement/path endpoints mapped from action.
-   - Or navigate to server-provided URL in product-safe frame/dialog pattern used by CM.
+   - Route through the Explorer dispatcher (`actionDispatch.ts`). See [action-execution.md](./action-execution.md).
+   - Prefer documented REST/itemmanagement/path endpoints mapped from action **name**.
+   - Never navigate to Data Flow (legacy XML application) `.html` / `.xml` URLs.
 5. Refresh tree/list after successful mutating actions (FR-012).
 6. Keyboard: open menu, focus items, activate (FR-013).
 

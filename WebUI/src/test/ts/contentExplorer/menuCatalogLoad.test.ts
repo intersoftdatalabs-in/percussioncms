@@ -19,6 +19,7 @@ import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import {
   loadExplorerMenuCatalog,
   mergeContentTypeMenusIntoCatalog,
+  mergeTemplateMenusIntoCatalog,
   NEW_ITEM_HOST_PREFERRED_KEYS,
   parseExplorerContentId,
 } from "../../../main/ts/contentExplorer/menuCatalogLoad";
@@ -42,9 +43,11 @@ describe("parseExplorerContentId", () => {
   it("parses finite numeric ids and rejects junk", () => {
     expect(parseExplorerContentId("42")).toBe(42);
     expect(parseExplorerContentId(7)).toBe(7);
+    expect(parseExplorerContentId("1-101-708")).toBe(708);
     expect(parseExplorerContentId(undefined)).toBeNull();
     expect(parseExplorerContentId("")).toBeNull();
     expect(parseExplorerContentId("nope")).toBeNull();
+    expect(parseExplorerContentId("0")).toBeNull();
   });
 });
 
@@ -138,6 +141,36 @@ describe("mergeContentTypeMenusIntoCatalog", () => {
   });
 });
 
+describe("mergeTemplateMenusIntoCatalog", () => {
+  it("nests template leaves under Item_Preview without flattening", () => {
+    const tree: MenuAction[] = [
+      action({
+        name: "Item_Preview",
+        label: "Preview",
+        menuType: "MENU",
+        children: [],
+      }),
+      action({ name: "open" }),
+    ];
+    const merged = mergeTemplateMenusIntoCatalog(tree, [
+      action({
+        name: "rffSnTitle",
+        url: "../assembler/render?sys_template=7",
+      }),
+    ]);
+    expect(merged.map((a) => a.name)).toEqual(["Item_Preview", "open"]);
+    expect(merged[0]?.children?.map((c) => c.name)).toEqual(["rffSnTitle"]);
+  });
+
+  it("drops leftover template leaves when there is no Preview host", () => {
+    const tree: MenuAction[] = [action({ name: "open" })];
+    const merged = mergeTemplateMenusIntoCatalog(tree, [
+      action({ name: "rffSnTitle" }),
+    ]);
+    expect(merged.map((a) => a.name)).toEqual(["open"]);
+  });
+});
+
 describe("loadExplorerMenuCatalog", () => {
   it("always loads find() and keeps MENU children when types are also returned", async () => {
     const findPayload = {
@@ -171,6 +204,12 @@ describe("loadExplorerMenuCatalog", () => {
           status: 200,
           headers: { "Content-Type": "application/json" },
         }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenuList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
       );
 
     const actions = await loadExplorerMenuCatalog({
@@ -185,7 +224,7 @@ describe("loadExplorerMenuCatalog", () => {
     expect(actions.map((a) => a.name)).toEqual(["file"]);
     expect(actions[0]?.children?.map((c) => c.name)).toContain("open");
     expect(actions[0]?.children?.map((c) => c.name)).toContain("new-page");
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(global.fetch).toHaveBeenCalledTimes(3);
   });
 
   it("uses only find() for folder-only selection", async () => {
