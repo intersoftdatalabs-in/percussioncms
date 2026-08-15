@@ -23,9 +23,14 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a Community in Percussion CMS. */
+/**
+ * Represents a Community in Percussion CMS.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits scalars
+ * rather than Optional beans ({@code empty}/{@code present}). Matches {@link
+ * com.percussion.rest.contenttypes.ContentType} getter style.
+ */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema
@@ -70,8 +75,8 @@ public class Community {
   }
 
   /** Gets the community GUID. */
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
@@ -79,8 +84,8 @@ public class Community {
   }
 
   /** Gets the community name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
@@ -88,8 +93,8 @@ public class Community {
   }
 
   /** Gets the community description. */
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
@@ -97,8 +102,8 @@ public class Community {
   }
 
   /** Gets the community label. */
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
@@ -106,8 +111,8 @@ public class Community {
   }
 
   /** Gets the list of roles associated with this community. */
-  public Optional<CommunityRoleList> getRoleList() {
-    return Optional.ofNullable(roleList);
+  public CommunityRoleList getRoleList() {
+    return roleList;
   }
 
   public void setRoleList(CommunityRoleList roleList) {

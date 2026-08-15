@@ -25,6 +25,9 @@ import com.percussion.rest.assets.Asset;
 import com.percussion.rest.assets.AssetField;
 import com.percussion.rest.assets.AssetFieldList;
 import com.percussion.rest.assets.BinaryFile;
+import com.percussion.rest.communities.Community;
+import com.percussion.rest.communities.CommunityRole;
+import com.percussion.rest.communities.CommunityVisibility;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeList;
 import com.percussion.rest.contexts.Context;
@@ -867,6 +870,84 @@ class JacksonContextResolverOptionalTest {
     assertEquals("pdf", roundTrip.getExtension(), json);
     assertEquals("application/pdf", roundTrip.getType(), json);
     assertEquals(2048L, roundTrip.getSize(), json);
+  }
+
+  @Test
+  void community_serializesPlainScalarsNotOptionalBeans() {
+    Community community = new Community();
+    community.setId(10L);
+    community.setName("Default");
+    community.setLabel("Default Community");
+    community.setDescription("The default community");
+    community.setGuid(new Guid("0-13-10"));
+
+    ObjectMapper communityMapper = new JacksonContextResolver().getContext(Community.class);
+    String json = communityMapper.writeValueAsString(community);
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("Default"), json);
+    assertTrue(json.contains("\"label\""), json);
+    assertTrue(json.contains("Default Community"), json);
+    assertTrue(json.contains("\"description\""), json);
+    assertTrue(json.contains("\"guid\""), json);
+    assertTrue(json.contains("0-13-10") || json.contains("10"), json);
+    assertNoOptionalBeanKeys(json);
+
+    Community communityRoundTrip = communityMapper.readValue(json, Community.class);
+    assertEquals("Default", communityRoundTrip.getName(), json);
+    assertEquals("Default Community", communityRoundTrip.getLabel(), json);
+    assertEquals("The default community", communityRoundTrip.getDescription(), json);
+    assertEquals(10L, communityRoundTrip.getId(), json);
+  }
+
+  @Test
+  void communityRole_serializesRoleNameNotOptionalBeans() {
+    CommunityRole role = new CommunityRole();
+    role.setCommunityId(10L);
+    role.setRoleId(2L);
+    role.setRoleName("Admin");
+    role.setCommunityGuid(new Guid("0-13-10"));
+    Guid roleGuid = new Guid();
+    roleGuid.setStringValue("0-8-2");
+    roleGuid.setType((short) 8);
+    roleGuid.setUuid(2);
+    role.setRoleGuid(roleGuid);
+
+    ObjectMapper roleMapper = new JacksonContextResolver().getContext(CommunityRole.class);
+    String json = roleMapper.writeValueAsString(role);
+    assertTrue(json.contains("\"roleName\""), json);
+    assertTrue(json.contains("Admin"), json);
+    assertTrue(json.contains("\"communityId\""), json);
+    assertTrue(json.contains("\"roleId\""), json);
+    assertTrue(json.contains("\"communityGuid\""), json);
+    assertTrue(json.contains("\"roleGuid\""), json);
+    assertNoOptionalBeanKeys(json);
+
+    CommunityRole roleRoundTrip = roleMapper.readValue(json, CommunityRole.class);
+    assertEquals("Admin", roleRoundTrip.getRoleName(), json);
+    assertEquals(10L, roleRoundTrip.getCommunityId(), json);
+    assertEquals(2L, roleRoundTrip.getRoleId(), json);
+  }
+
+  @Test
+  void communityVisibility_serializesGuidNotOptionalBeans() {
+    CommunityVisibility visibility = new CommunityVisibility();
+    visibility.setId(10L);
+    visibility.setGuid(new Guid("0-13-10"));
+
+    ObjectMapper visibilityMapper =
+        new JacksonContextResolver().getContext(CommunityVisibility.class);
+    String json = visibilityMapper.writeValueAsString(visibility);
+    assertTrue(json.contains("\"id\""), json);
+    assertTrue(json.contains("10"), json);
+    assertTrue(json.contains("\"guid\""), json);
+    assertTrue(json.contains("0-13-10") || json.contains("13"), json);
+    assertNoOptionalBeanKeys(json);
+
+    CommunityVisibility visibilityRoundTrip =
+        visibilityMapper.readValue(json, CommunityVisibility.class);
+    assertEquals(10L, visibilityRoundTrip.getId(), json);
+    assertNotNull(visibilityRoundTrip.getGuid(), json);
+    assertEquals("0-13-10", visibilityRoundTrip.getGuid().getStringValue().orElse(null), json);
   }
 
   private static void assertNoOptionalBeanKeys(String json) {
