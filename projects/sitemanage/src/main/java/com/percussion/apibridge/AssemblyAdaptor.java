@@ -21,12 +21,18 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.rest.assembly.IAssemblyAdaptor;
 import com.percussion.rest.assembly.PreviewLocation;
 import com.percussion.server.PSServer;
+import com.percussion.server.cache.IPSCacheHandler;
+import com.percussion.server.cache.PSAssemblerCacheHandler;
+import com.percussion.server.cache.PSCacheManager;
+import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSSiteManageBean;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,15 +52,33 @@ public class AssemblyAdaptor implements IAssemblyAdaptor {
 
   private final RevisionLookup revisions;
   private final String requestRoot;
+  private final CacheFlusher cacheFlusher;
+  private final NavReset navReset;
 
   public AssemblyAdaptor() {
-    this(PSServer.getRequestRoot(), AssemblyAdaptor::lookupCurrentRevision);
+    this(
+        PSServer.getRequestRoot(),
+        AssemblyAdaptor::lookupCurrentRevision,
+        AssemblyAdaptor::flushAllAssemblerPages,
+        AssemblyAdaptor::reloadNavConfig);
+  }
+
+  /** Package-visible for unit tests. Delegates to the four-arg constructor. */
+  AssemblyAdaptor(String requestRoot, RevisionLookup revisions) {
+    this(
+        requestRoot,
+        revisions,
+        AssemblyAdaptor::flushAllAssemblerPages,
+        AssemblyAdaptor::reloadNavConfig);
   }
 
   /** Package-visible for unit tests. */
-  AssemblyAdaptor(String requestRoot, RevisionLookup revisions) {
+  AssemblyAdaptor(
+      String requestRoot, RevisionLookup revisions, CacheFlusher cacheFlusher, NavReset navReset) {
     this.requestRoot = requestRoot == null ? "" : requestRoot;
     this.revisions = revisions;
+    this.cacheFlusher = cacheFlusher;
+    this.navReset = navReset;
   }
 
   @Override
@@ -69,6 +93,49 @@ public class AssemblyAdaptor implements IAssemblyAdaptor {
     }
     String url = buildPreviewUrl(requestRoot, contentId, templateId, rev);
     return new PreviewLocation(url, contentId, templateId, rev);
+  }
+
+  @Override
+  public void flushAssemblerCache() {
+    cacheFlusher.flush();
+  }
+
+  @Override
+  public void resetNavigation() {
+    navReset.reset();
+  }
+
+  /**
+   * Empty keys flush all assembler pages — same as {@code PSExitFlushAssemblerCache} with omitted
+   * keys. Not scoped to a selected item.
+   */
+  static void flushAllAssemblerPages() {
+    PSCacheManager mgr = PSCacheManager.getInstance();
+    IPSCacheHandler handler = mgr.getCacheHandler(PSAssemblerCacheHandler.HANDLER_TYPE);
+    if (handler == null) {
+      return;
+    }
+    String[] keys = handler.getKeyNames();
+    Map<String, String> keyMap = new HashMap<>();
+    for (String key : keys) {
+      keyMap.put(key, "");
+    }
+    mgr.flush(keyMap);
+  }
+
+  /**
+   * Same goal as classic {@code PSNavReset}. On 8.2 FastForward {@code PSNavConfig.reset} is
+   * typically a no-op once navigation is loaded ({@code m_allVariants == null}).
+   */
+  static void reloadNavConfig() {
+    PSNavConfig.getInstance();
+    try {
+      PSNavConfig.reset(null);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException("Managed navigation reset failed", e);
+    }
   }
 
   /**
@@ -121,5 +188,15 @@ public class AssemblyAdaptor implements IAssemblyAdaptor {
   @FunctionalInterface
   interface RevisionLookup {
     Integer currentRevision(int contentId);
+  }
+
+  @FunctionalInterface
+  interface CacheFlusher {
+    void flush();
+  }
+
+  @FunctionalInterface
+  interface NavReset {
+    void reset();
   }
 }

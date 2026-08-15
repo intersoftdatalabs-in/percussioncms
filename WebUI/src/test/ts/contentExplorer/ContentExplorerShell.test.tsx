@@ -571,6 +571,65 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("flush cache API failure surfaces the server message, not a generic error", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("flush-cache")) {
+        return new Response(
+          JSON.stringify({ message: "Assembler cache is locked" }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [],
+              childrenCount: 0,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Flush_Cache",
+            label: "Flush Cache",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Flush_Cache"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Flush_Cache"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Assembler cache is locked",
+      );
+    });
+    expect(screen.getByRole("alert").textContent).not.toBe(
+      EXPLORER_MSG.ERROR_GENERIC,
+    );
+  });
+
   it("activating a pathmanagement Folder stays in Explorer browse (#3330)", async () => {
     const onOpenItem = vi.fn();
     const loadWorkflowMenuActions = vi.fn(async (item) => {

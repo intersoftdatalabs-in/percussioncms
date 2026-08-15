@@ -7177,10 +7177,10 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="NAME">navreset</column>
 			<column name="DISPLAYNAME">Nav Reset</column>
 			<column name="DESCRIPTION">Resets Managed Navigation</column>
-			<column name="URL">../rxs_navSupport/navreset.html</column>
+			<column name="URL"/>
 			<column name="SORTORDER">300</column>
 			<column name="TYPE">MENUITEM</column>
-			<column name="HANDLER">SERVER</column>
+			<column name="HANDLER">CLIENT</column>
 			<column name="VERSION">0</column>
 		</row>
 		<row onTableCreateOnly="no" action="r">

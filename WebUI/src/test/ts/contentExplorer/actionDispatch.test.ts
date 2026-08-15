@@ -230,6 +230,148 @@ describe("actionDispatch", () => {
     expect(written.toLowerCase()).toContain("/sites/demo/home");
   });
 
+  it("classifies remaining P1 names even when the catalog still has Data Flow URLs", () => {
+    expect(
+      classifyAction(
+        action({
+          name: "Workflow_Revisions",
+          url: "../sys_cxSupport/contenteditorurls.html?sys_userview=sys_Revisions",
+        }),
+      ),
+    ).toBe("client");
+    expect(
+      classifyAction(
+        action({
+          name: "Workflow_NewVersion",
+          url: "../sys_cxSupport/contenteditorurls.html?sys_command=relate",
+        }),
+      ),
+    ).toBe("rest");
+    expect(
+      classifyAction(
+        action({
+          name: "Flush_Cache",
+          url: "../sys_uiSupport/flushcache.html",
+        }),
+      ),
+    ).toBe("rest");
+    expect(
+      classifyAction(
+        action({
+          name: "navreset",
+          url: "../rxs_navSupport/navreset.html",
+        }),
+      ),
+    ).toBe("rest");
+  });
+
+  it("Revisions without a content item asks to select one", async () => {
+    const onShowRevisions = vi.fn();
+    const result = await dispatchAction(action({ name: "Workflow_Revisions" }), {
+      item: null,
+      onShowRevisions,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onShowRevisions).toHaveBeenCalledWith("revisions");
+  });
+
+  it("Revisions opens the revisions panel", async () => {
+    const onShowRevisions = vi.fn();
+    const result = await dispatchAction(action({ name: "Workflow_Revisions" }), {
+      item: item(),
+      onShowRevisions,
+    });
+    expect(result.kind).toBe("client");
+    expect(onShowRevisions).toHaveBeenCalledWith("revisions");
+  });
+
+  it("Audit Trail opens the revisions panel on the audit tab", async () => {
+    const onShowRevisions = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Workflow_AuditTrail" }),
+      { item: item(), onShowRevisions },
+    );
+    expect(result.kind).toBe("client");
+    expect(onShowRevisions).toHaveBeenCalledWith("audit");
+  });
+
+  it("Flush Cache confirms then flushes", async () => {
+    const flushCache = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Flush_Cache" }), {
+      item: item(),
+      flushCache,
+      confirm,
+    });
+    expect(result.kind).toBe("rest");
+    expect(confirm).toHaveBeenCalled();
+    expect(flushCache).toHaveBeenCalledTimes(1);
+  });
+
+  it("Flush Cache cancel does not flush", async () => {
+    const flushCache = vi.fn();
+    const result = await dispatchAction(action({ name: "Flush_Cache" }), {
+      item: item(),
+      flushCache,
+      confirm: () => false,
+    });
+    expect(flushCache).not.toHaveBeenCalled();
+    expect(result.kind).toBe("rest");
+  });
+
+  it("Nav Reset confirms then resets", async () => {
+    const resetNav = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "navreset" }), {
+      item: item(),
+      resetNav,
+      confirm: () => true,
+    });
+    expect(result.kind).toBe("rest");
+    expect(resetNav).toHaveBeenCalledTimes(1);
+  });
+
+  it("New Copy confirms then copies", async () => {
+    const createCopy = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      { item: item(), createCopy, confirm: () => true },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(createCopy).toHaveBeenCalledWith("42");
+  });
+
+  it("Promotable Version confirms then creates", async () => {
+    const createPromotable = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      { item: item(), createPromotable, confirm: () => true },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(createPromotable).toHaveBeenCalledWith("42");
+  });
+
+  it("New Copy cancel does not copy", async () => {
+    const createCopy = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      { item: item(), createCopy, confirm: () => false },
+    );
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Promotable Version cancel does not create", async () => {
+    const createPromotable = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      { item: item(), createPromotable, confirm: () => false },
+    );
+    expect(createPromotable).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
   it("publish_now is unavailable without navigation", async () => {
     const openWindow = vi.fn();
     const result = await dispatchAction(action({ name: "Publish_Now" }), {

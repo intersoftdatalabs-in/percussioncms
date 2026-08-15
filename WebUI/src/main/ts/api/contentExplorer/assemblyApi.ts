@@ -23,7 +23,7 @@
  * HTML redirects.</p>
  */
 
-import { get } from "../client";
+import { get, post } from "../client";
 import { PATHS } from "../paths";
 
 export interface PreviewLocation {
@@ -74,4 +74,34 @@ export async function fetchPreviewLocation(
     throw new Error("Preview location was empty");
   }
   return loc;
+}
+
+export interface AssemblyOperationResult {
+  ok: boolean;
+  message: string;
+}
+
+function unwrapOperationResult(payload: unknown): AssemblyOperationResult {
+  if (payload == null || typeof payload !== "object") {
+    return { ok: true, message: "" };
+  }
+  const obj = payload as Record<string, unknown>;
+  const inner =
+    obj.AssemblyOperationResult && typeof obj.AssemblyOperationResult === "object"
+      ? (obj.AssemblyOperationResult as Record<string, unknown>)
+      : obj;
+  return {
+    ok: inner.ok !== false && inner.Ok !== false,
+    message: String(inner.message ?? inner.Message ?? ""),
+  };
+}
+
+export async function flushAssemblerCache(): Promise<AssemblyOperationResult> {
+  const res = await post<unknown>(PATHS.ASSEMBLY_FLUSH_CACHE);
+  return unwrapOperationResult(res);
+}
+
+export async function resetNavigation(): Promise<AssemblyOperationResult> {
+  const res = await post<unknown>(PATHS.ASSEMBLY_NAV_RESET);
+  return unwrapOperationResult(res);
 }

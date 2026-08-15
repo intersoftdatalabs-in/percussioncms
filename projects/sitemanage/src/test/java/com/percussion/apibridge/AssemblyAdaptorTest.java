@@ -72,4 +72,22 @@ class AssemblyAdaptorTest {
     PreviewLocation loc = adaptor.previewLocation(10, 20, 8);
     assertEquals(8, loc.getRevision());
   }
+
+  @Test
+  void flushAssemblerCache_invokesFlusher() {
+    boolean[] called = {false};
+    AssemblyAdaptor adaptor =
+        new AssemblyAdaptor("", id -> 1, () -> called[0] = true, () -> {});
+    adaptor.flushAssemblerCache();
+    assertTrue(called[0]);
+  }
+
+  @Test
+  void resetNavigation_invokesResetter() {
+    boolean[] called = {false};
+    AssemblyAdaptor adaptor =
+        new AssemblyAdaptor("", id -> 1, () -> {}, () -> called[0] = true);
+    adaptor.resetNavigation();
+    assertTrue(called[0]);
+  }
 }

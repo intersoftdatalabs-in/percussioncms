@@ -20,6 +20,7 @@ package com.percussion.rest.assembly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,6 +90,56 @@ public class AssemblyResourceTest {
     AssemblyResource bare = new AssemblyResource();
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> bare.previewLocation(1, 2, null));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void flushCacheDelegatesToAdaptor() {
+    AssemblyOperationResult out = resource.flushCache();
+    assertEquals(AssemblyOperationResult.ok("Assembler cache flushed"), out);
+    verify(adaptor).flushAssemblerCache();
+  }
+
+  @Test
+  public void navResetDelegatesToAdaptor() {
+    AssemblyOperationResult out = resource.navReset();
+    assertEquals(AssemblyOperationResult.ok("Managed navigation reset"), out);
+    verify(adaptor).resetNavigation();
+  }
+
+  @Test
+  public void flushCacheFailureIs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    doThrow(boom).when(adaptor).flushAssemblerCache();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.flushCache());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void flushCacheMissingAdaptorReturns503() {
+    AssemblyResource bare = new AssemblyResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.flushCache());
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void navResetFailureIs500() {
+    IllegalStateException boom = new IllegalStateException("boom");
+    doThrow(boom).when(adaptor).resetNavigation();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.navReset());
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void navResetMissingAdaptorReturns503() {
+    AssemblyResource bare = new AssemblyResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.navReset());
     assertEquals(503, ex.getResponse().getStatus());
   }
 }

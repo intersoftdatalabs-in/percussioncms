@@ -516,6 +516,41 @@ summary/revision. Template **menus** remain `GET /services/actions/find/template
 
 See [Content Explorer](id:admin-content-explorer) server actions.
 
+## Assembly cache and navigation
+
+Explorer **Flush Cache** (catalog display name **Refresh Item**) and **Nav Reset** use public
+REST POSTs, not Data Flow `sys_uiSupport/flushcache.html` or `rxs_navSupport/navreset.html`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/services/assembly/flush-cache` | Flush **all** assembler pages (empty keys, same as `PSExitFlushAssemblerCache` with omitted keys). Not scoped to the selected item. |
+| `POST` | `/services/assembly/nav-reset` | Same goal as classic `PSNavReset`. On 8.2 FastForward this is typically a **no-op** once navigation is loaded (`m_allVariants == null`). |
+
+Response JSON (`AssemblyOperationResult`):
+
+| Field | Meaning |
+|-------|---------|
+| `ok` | `true` when the call completed |
+| `message` | Operator-facing status (`Assembler cache flushed` / `Managed navigation reset`) |
+
+`503` if the adaptor is not configured. `500` on unexpected error. Authenticated `/services/assembly`
+surface — menu ACL is not re-checked on the POST.
+
+## Item copies and revisions
+
+Explorer **Revisions**, **Audit Trail**, **New Copy**, and **Promotable Version** use
+itemmanagement REST (sitemanage `PSItemService`), not Content Editor HTML.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/itemmanagement/item/revisions/{id}` | Revisions plus workflow comments (`RevisionsSummary`) |
+| `GET` | `/services/itemmanagement/item/restoreRevision/{id}` | Restore a prior revision (guid must include that revision) |
+| `POST` | `/services/itemmanagement/item/newCopy/{id}` | New copy in the item's current folder |
+| `POST` | `/services/itemmanagement/item/promotableVersion/{id}` | Promotable version in the item's current folder |
+
+Copy / promotable response JSON (`ItemCopyResult`): `{ itemId, folderPath, promotable }`. Those
+POSTs fail if the item has no folder path (`Item has no folder path and cannot be copied.`).
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the

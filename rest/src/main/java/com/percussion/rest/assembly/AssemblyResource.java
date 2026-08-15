@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -93,6 +94,60 @@ public class AssemblyResource {
         throw new WebApplicationException("Item not found", 404);
       }
       return loc;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/flush-cache")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Flush assembler cache",
+      description =
+          "Flushes all assembler pages (empty keys, same as PSExitFlushAssemblerCache with no"
+              + " item keys). Does not flush only the selected item.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = AssemblyOperationResult.class))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public AssemblyOperationResult flushCache() {
+    try {
+      requireAdaptor().flushAssemblerCache();
+      return AssemblyOperationResult.ok("Assembler cache flushed");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/nav-reset")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Reset managed navigation",
+      description =
+          "Same goal as classic PSNavReset / navreset.html. On 8.2 FastForward this is typically"
+              + " a no-op once navigation is loaded.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = AssemblyOperationResult.class))),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public AssemblyOperationResult navReset() {
+    try {
+      requireAdaptor().resetNavigation();
+      return AssemblyOperationResult.ok("Managed navigation reset");
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {

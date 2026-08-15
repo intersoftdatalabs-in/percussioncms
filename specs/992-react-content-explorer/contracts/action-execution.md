@@ -35,8 +35,24 @@ Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It n
 | Translate | Open Explorer Translations panel (existing REST) |
 | Impact Analysis | Open Explorer Dependencies panel |
 | Copy URL to Clipboard | Copy site-path preview URL (or CMS path) |
+| Revisions | Open Revisions panel; restore when restorable |
+| Audit Trail | Same panel, audit tab |
+| New Copy | Confirm, then copy in current folder |
+| Promotable Version | Confirm, then promotable version in current folder |
+| Flush Cache (Refresh Item) | Confirm, then flush **all** assembler pages (not only the selected item) |
+| Nav Reset | Same as classic `PSNavReset`; on 8.2 typically a no-op once nav is loaded (FastForward variants unused) |
+| Publish Now / AA / slot arrange | Still unavailable (P2) |
 
-Flush cache, nav reset, new copy / promotable version, revisions list, and workflow audit remain **unavailable** until their REST/panels land.
+## P1 REST
+
+| Method | Path | Notes |
+|--------|------|-------|
+| `POST` | `/services/assembly/flush-cache` | Empty keys = all assembler pages. `{ ok, message }` |
+| `POST` | `/services/assembly/nav-reset` | Same goal as `PSNavReset`. 8.2 FastForward typically no-op. `{ ok, message }` |
+| `GET` | `/services/itemmanagement/item/revisions/{id}` | Existing revisions + comments |
+| `GET` | `/services/itemmanagement/item/restoreRevision/{id}` | Existing restore |
+| `POST` | `/services/itemmanagement/item/newCopy/{id}` | New copy in first folder path |
+| `POST` | `/services/itemmanagement/item/promotableVersion/{id}` | Promotable version in first folder path |
 
 ## P0 REST
 
