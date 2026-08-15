@@ -18,18 +18,22 @@
 package com.percussion.rest;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * This class is posted to the REST service as part of a request to move an item (from its original
  * folder) to a new (target) folder. All paths are relative to its current root folder.
  *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON emits path
+ * scalars (issue #3413 / #3388).
+ *
  * @author yubingchen
  */
 @XmlRootElement(name = "MoveFolderItem")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a request to move a folder item.")
 public class MoveFolderItem {
   @Schema(required = true, description = "path")
@@ -53,8 +57,8 @@ public class MoveFolderItem {
    *
    * @return the target folder path, not blank for a valid folder path.
    */
-  public Optional<String> getTargetFolderPath() {
-    return Optional.ofNullable(targetFolderPath);
+  public String getTargetFolderPath() {
+    return targetFolderPath;
   }
 
   /**
@@ -71,8 +75,8 @@ public class MoveFolderItem {
    *
    * @return item path, not blank for a valid path.
    */
-  public Optional<String> getItemPath() {
-    return Optional.ofNullable(itemPath);
+  public String getItemPath() {
+    return itemPath;
   }
 
   /**
