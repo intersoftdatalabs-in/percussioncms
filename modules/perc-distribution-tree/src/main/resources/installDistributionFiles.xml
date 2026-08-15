@@ -130,6 +130,19 @@
 			</fileset>
 		</copy>
 
+		<!-- FastForward content-type icons (rffPressRelease.gif, rffGeneric.gif,
+			 percNav*.gif). Historic peer: installFastForward.xml copies
+			 ApplicationFiles/images → rx_resources/images. ObjectStore XML
+			 iconValue points at these names. -->
+		<mkdir dir="${assembly-directory}/rx_resources/images" />
+		<copy todir="${assembly-directory}/rx_resources/images"
+			overwrite="true">
+			<fileset
+				dir="${rxbase}/FastForward/Core/Content/Applications/rx_resources/ApplicationFiles/images">
+				<exclude name="**/Thumbs.db" />
+			</fileset>
+		</copy>
+
 		<!-- TinyMCE config -->
 		<copy todir="${assembly-directory}/rx_resources"
 			overwrite="false" verbose="true">
