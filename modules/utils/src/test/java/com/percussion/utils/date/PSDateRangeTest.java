@@ -42,7 +42,8 @@ public class PSDateRangeTest {
    */
   private Date createDate(int year, int month, int day) {
     Calendar cal = Calendar.getInstance();
-    cal.set(year, month - 1, day, 0, 0, 0);
+    cal.clear();
+    cal.set(year, month - 1, day);
     return cal.getTime();
   }
 
@@ -216,6 +217,32 @@ public class PSDateRangeTest {
     d2 = createDate(2013, 1, 1);
     range = new PSDateRange(d1, d2);
     assertEquals(367, range.getDaysInRange());
+
+    // Time of day must not change the inclusive calendar-day count. The previous
+    // Interval-based implementation undercounted when start millis-of-day >
+    // end millis-of-day (the flake at the Feb 28–Mar 2 assertion above).
+    Calendar cal = Calendar.getInstance();
+    cal.clear();
+    cal.set(2010, Calendar.FEBRUARY, 28, 23, 59, 59);
+    cal.set(Calendar.MILLISECOND, 999);
+    d1 = cal.getTime();
+    cal.clear();
+    cal.set(2010, Calendar.MARCH, 2, 0, 0, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    d2 = cal.getTime();
+    range = new PSDateRange(d1, d2);
+    assertEquals(3, range.getDaysInRange());
+
+    cal.clear();
+    cal.set(2010, Calendar.FEBRUARY, 28, 0, 0, 0);
+    cal.set(Calendar.MILLISECOND, 800);
+    d1 = cal.getTime();
+    cal.clear();
+    cal.set(2010, Calendar.MARCH, 2, 0, 0, 0);
+    cal.set(Calendar.MILLISECOND, 100);
+    d2 = cal.getTime();
+    range = new PSDateRange(d1, d2);
+    assertEquals(3, range.getDaysInRange());
   }
 
   @Test

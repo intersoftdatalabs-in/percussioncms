@@ -22,7 +22,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
-import org.joda.time.Interval;
 
 /**
  * Class to encapsulate a date range. The granularity calculation functions all ignore the time
@@ -226,10 +225,12 @@ public class PSDateRange {
   }
 
   /**
-   * @return The number of days spanned by this range, regardless of the granularity setting.
+   * @return The number of inclusive calendar days spanned by this range, regardless of the
+   *     granularity setting. Time of day is ignored so a start later in the clock than the end
+   *     cannot undercount (as {@code Days.daysIn(Interval)} does).
    */
   public int getDaysInRange() {
-    return Days.daysIn(new Interval(start, end.plusDays(1))).getDays();
+    return Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays() + 1;
   }
 
   /**
