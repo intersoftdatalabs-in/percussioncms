@@ -12,6 +12,9 @@ const {
   EXPECTED_SAMPLE_SITE_NAMES,
   normalizeSiteName,
   pathItemNames,
+  pagedItemListChildren,
+  pagedItemListCount,
+  isPageTypeChild,
   hasAllExpectedSampleSites,
   hasAnyExpectedSampleSite,
   isTruthyEnvFlag,
@@ -55,6 +58,27 @@ describe("pathItemNames", () => {
     assert.deepEqual(pathItemNames(null), []);
     assert.deepEqual(pathItemNames({}), []);
     assert.deepEqual(pathItemNames([]), []);
+  });
+});
+
+describe("pagedItemListChildren / isPageTypeChild (#3457)", () => {
+  it("unwraps PagedItemList childrenInPage", () => {
+    const body = {
+      PagedItemList: {
+        childrenCount: 1,
+        childrenInPage: [{ name: "Home", type: "rffHome" }],
+      },
+    };
+    assert.equal(pagedItemListCount(body), 1);
+    assert.equal(pagedItemListChildren(body).length, 1);
+    assert.equal(isPageTypeChild(body.PagedItemList.childrenInPage[0]), true);
+  });
+
+  it("treats percPage and rff generic as pages; folders are not", () => {
+    assert.equal(isPageTypeChild({ type: "percPage" }), true);
+    assert.equal(isPageTypeChild({ type: "Folder" }), false);
+    assert.equal(isPageTypeChild({ type: "rffNavon" }), false);
+    assert.equal(isPageTypeChild({ category: "PAGE" }), true);
   });
 });
 

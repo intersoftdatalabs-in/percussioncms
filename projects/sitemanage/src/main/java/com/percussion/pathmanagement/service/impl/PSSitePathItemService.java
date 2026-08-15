@@ -138,7 +138,15 @@ public class PSSitePathItemService extends PSPathItemService {
       convert(site, item);
       return item;
     }
-    return super.findItem(path);
+    try {
+      return super.findItem(path);
+    } catch (PSPathNotFoundServiceException e) {
+      var virtual = findVirtualSiteChromeItem(path, sfp);
+      if (virtual != null) {
+        return virtual;
+      }
+      throw e;
+    }
   }
 
   protected void convert(PSSiteSummary site, PSPathItem item) {
@@ -195,41 +203,288 @@ public class PSSitePathItemService extends PSPathItemService {
     if ("/".equals(path)) {
       return findRootChildren();
     }
+    List<PSPathItem> items = null;
+    Exception failure = null;
     try {
-      return super.findItems(path);
-    } catch (PSPathNotFoundServiceException e) {
-      var recovered = recoverSiteFolderChildren(path);
-      if (recovered != null) {
-        return recovered;
-      }
-      throw e;
+      items = super.findItems(path);
+    } catch (Exception e) {
+      failure = e;
     }
+    if (items != null && !items.isEmpty()) {
+      return injectVirtualSiteChromeIfNeeded(path, items);
+    }
+    var recovered = recoverSiteFolderChildren(path);
+    if (recovered != null) {
+      return injectVirtualSiteChromeIfNeeded(path, recovered);
+    }
+    if (items != null) {
+      return injectVirtualSiteChromeIfNeeded(path, items);
+    }
+    if (failure instanceof PSPathNotFoundServiceException notFound) {
+      throw notFound;
+    }
+    if (failure instanceof PSValidationException validation) {
+      throw validation;
+    }
+    if (failure instanceof IPSDataService.DataServiceNotFoundException missing) {
+      throw missing;
+    }
+    if (failure != null) {
+      throw new PSPathNotFoundServiceException("Path not found: " + path, failure);
+    }
+    return List.of();
   }
 
   /**
    * Sample sites use SITENAME {@code Corporate_Investments} and FOLDER_ROOT
    * {@code //Sites/CorporateInvestments}. pathToId on FOLDER_ROOT can fail
    * (404) even when folder 523 exists under {@code //Sites} (#3410 / #3326).
+   *
+   * <p>Nested {@code /Pages} (and missing {@code /Files}) is Explorer chrome
+   * for CM1-style paths. FastForward sites have no Pages folder — empty
+   * {@code folderHelper.findItems} must recover site-root children (#3457).
    */
-  private List<PSPathItem> recoverSiteFolderChildren(String path)
-      throws PSPathNotFoundServiceException {
+  private List<PSPathItem> recoverSiteFolderChildren(String path) {
     try {
       var sfp = getSiteIdAndFolderPath(path);
-      if (!sfp.isOnlySiteId()) {
+      var siteFolder = findMatchingSiteFolder(sfp.getSiteId());
+      if (siteFolder == null) {
         return null;
       }
-      var sitesKids = folderHelper.findItems(SITE_ROOT);
-      for (var kid : sitesKids) {
-        if (kid == null || !siteFolderNameMatches(sfp.getSiteId(), kid.getName())) {
+      var siteFolderPath = folderHelper.concatPath(SITE_ROOT, siteFolder.getName());
+      var remaining = trimFolderSegments(sfp.getRelativeFolderPath());
+      if (remaining.isEmpty() || sfp.isOnlySiteId()) {
+        var sums = folderHelper.findChildItems(siteFolder.getId());
+        return toPathItems(ensureTrailingSlash(path), siteFolderPath, sums);
+      }
+
+      var current = siteFolder;
+      var currentPath = siteFolderPath;
+      var segs = remaining.split("/");
+      for (var i = 0; i < segs.length; i++) {
+        var seg = segs[i];
+        if (seg.isEmpty()) {
           continue;
         }
-        var sums = folderHelper.findChildItems(kid.getId());
-        return toPathItems(path, folderHelper.concatPath(SITE_ROOT, kid.getName()), sums);
+        var last = i == segs.length - 1;
+        var kids = folderHelper.findChildItems(current.getId());
+        var next = findChildNamed(kids, seg);
+        if (last && isPagesSegment(seg)) {
+          if (next != null) {
+            var existing =
+                toPathItems(
+                    "/" + sfp.getSiteId() + "/Pages/",
+                    folderHelper.concatPath(currentPath, next.getName()),
+                    folderHelper.findChildItems(next.getId()));
+            if (hasNonFolderChild(existing)) {
+              return existing;
+            }
+          }
+          return listVirtualPagesChildren(sfp, siteFolder, siteFolderPath);
+        }
+        if (last && isFilesSegment(seg)) {
+          if (next != null) {
+            var existing =
+                toPathItems(
+                    "/" + sfp.getSiteId() + "/Files/",
+                    folderHelper.concatPath(currentPath, next.getName()),
+                    folderHelper.findChildItems(next.getId()));
+            if (!existing.isEmpty()) {
+              return existing;
+            }
+          }
+          return listVirtualFilesChildren(sfp, siteFolder, siteFolderPath);
+        }
+        if (next != null) {
+          current = next;
+          currentPath = folderHelper.concatPath(currentPath, next.getName());
+          continue;
+        }
+        return null;
       }
+      var sums = folderHelper.findChildItems(current.getId());
+      return toPathItems(
+          "/" + sfp.getSiteId() + "/" + remaining + "/", currentPath, sums);
     } catch (Exception ex) {
       log.debug("Site folder recover failed for path {}", path, ex);
     }
     return null;
+  }
+
+  private IPSItemSummary findMatchingSiteFolder(String siteId) throws Exception {
+    if (folderHelper == null || siteId == null) {
+      return null;
+    }
+    var sitesKids = folderHelper.findItems(SITE_ROOT);
+    for (var kid : sitesKids) {
+      if (kid != null && siteFolderNameMatches(siteId, kid.getName())) {
+        return kid;
+      }
+    }
+    return null;
+  }
+
+  private static IPSItemSummary findChildNamed(List<IPSItemSummary> kids, String name) {
+    if (kids == null || name == null) {
+      return null;
+    }
+    for (var kid : kids) {
+      if (kid != null && siteFolderNameMatches(name, kid.getName())) {
+        return kid;
+      }
+    }
+    return null;
+  }
+
+  private List<PSPathItem> listVirtualPagesChildren(
+      SiteIdAndFolderPath sfp, IPSItemSummary siteFolder, String siteFolderPath)
+      throws Exception {
+    var rel = "/" + sfp.getSiteId() + "/Pages/";
+    var sums = folderHelper.findChildItems(siteFolder.getId());
+    var items = toPathItems(rel, siteFolderPath, sums);
+    if (hasNonFolderChild(items)) {
+      return items;
+    }
+    // FastForward pages often live in About… section folders, not the site root.
+    var pages = new ArrayList<PSPathItem>();
+    for (var child : sums) {
+      if (shouldFilterItem(child) || child == null || !child.isFolder()) {
+        continue;
+      }
+      var grand = folderHelper.findChildItems(child.getId());
+      var childFolderPath = folderHelper.concatPath(siteFolderPath, child.getName());
+      pages.addAll(toPathItems(rel, childFolderPath, grand));
+    }
+    return pages.isEmpty() ? items : pages;
+  }
+
+  private List<PSPathItem> listVirtualFilesChildren(
+      SiteIdAndFolderPath sfp, IPSItemSummary siteFolder, String siteFolderPath)
+      throws Exception {
+    var files = findChildNamed(folderHelper.findChildItems(siteFolder.getId()), "Files");
+    var rel = "/" + sfp.getSiteId() + "/Files/";
+    if (files != null) {
+      var sums = folderHelper.findChildItems(files.getId());
+      return toPathItems(rel, folderHelper.concatPath(siteFolderPath, files.getName()), sums);
+    }
+    return toPathItems(rel, siteFolderPath, folderHelper.findChildItems(siteFolder.getId()));
+  }
+
+  private static boolean hasNonFolderChild(List<PSPathItem> items) {
+    if (items == null) {
+      return false;
+    }
+    for (var item : items) {
+      if (item != null && !item.isFolder()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Explorer expects CM1 {@code Pages} (and {@code Files} when missing) under
+   * the site node. FastForward sample sites do not seed a Pages folder (#3457).
+   */
+  private List<PSPathItem> injectVirtualSiteChromeIfNeeded(
+      String path, List<PSPathItem> items) {
+    try {
+      var sfp = getSiteIdAndFolderPath(path);
+      if (!sfp.isOnlySiteId()) {
+        return items;
+      }
+      var out = items == null ? new ArrayList<PSPathItem>() : new ArrayList<>(items);
+      var siteFolder = findMatchingSiteFolder(sfp.getSiteId());
+      var siteFolderPath =
+          siteFolder != null
+              ? folderHelper.concatPath(SITE_ROOT, siteFolder.getName())
+              : folderHelper.concatPath(SITE_ROOT, sfp.getSiteId());
+      if (!containsNamedFolder(out, "Pages")) {
+        out.add(0, createVirtualSiteFolder(sfp.getSiteId(), siteFolderPath, "Pages"));
+      }
+      return out;
+    } catch (Exception ex) {
+      log.debug("Virtual site chrome inject failed for path {}", path, ex);
+      return items;
+    }
+  }
+
+  private static boolean containsNamedFolder(List<PSPathItem> items, String name) {
+    if (items == null) {
+      return false;
+    }
+    for (var item : items) {
+      if (item != null && siteFolderNameMatches(name, item.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private PSPathItem createVirtualSiteFolder(
+      String siteId, String siteFolderPath, String name) {
+    var item = createPathItem();
+    item.setName(name);
+    item.setType("Folder");
+    item.setCategory(IPSItemSummary.Category.FOLDER);
+    item.setLeaf(false);
+    item.setHasItemChildren(true);
+    item.setHasFolderChildren(true);
+    item.setPath("/" + siteId + "/" + name + "/");
+    item.setFolderPath(folderHelper.concatPath(siteFolderPath, name));
+    return item;
+  }
+
+  private PSPathItem findVirtualSiteChromeItem(String path, SiteIdAndFolderPath sfp) {
+    var remaining = trimFolderSegments(sfp.getRelativeFolderPath());
+    if (remaining.isEmpty() || remaining.contains("/")) {
+      return null;
+    }
+    if (!isPagesSegment(remaining) && !isFilesSegment(remaining)) {
+      return null;
+    }
+    try {
+      var siteFolder = findMatchingSiteFolder(sfp.getSiteId());
+      var siteFolderPath =
+          siteFolder != null
+              ? folderHelper.concatPath(SITE_ROOT, siteFolder.getName())
+              : folderHelper.concatPath(SITE_ROOT, sfp.getSiteId());
+      var item = createVirtualSiteFolder(sfp.getSiteId(), siteFolderPath, remaining);
+      item.setPath(ensureTrailingSlash(path));
+      return item;
+    } catch (Exception ex) {
+      log.debug("Virtual site chrome find failed for path {}", path, ex);
+      return null;
+    }
+  }
+
+  public static boolean isPagesSegment(String name) {
+    return name != null && "pages".equals(name.trim().toLowerCase(Locale.ROOT));
+  }
+
+  public static boolean isFilesSegment(String name) {
+    return name != null && "files".equals(name.trim().toLowerCase(Locale.ROOT));
+  }
+
+  public static String trimFolderSegments(String relative) {
+    if (relative == null) {
+      return "";
+    }
+    var t = relative.trim();
+    while (t.startsWith("/")) {
+      t = t.substring(1);
+    }
+    while (t.endsWith("/")) {
+      t = t.substring(0, t.length() - 1);
+    }
+    return t;
+  }
+
+  static String ensureTrailingSlash(String path) {
+    if (path == null || path.isEmpty()) {
+      return "/";
+    }
+    return path.endsWith("/") ? path : path + "/";
   }
 
   /**
@@ -286,6 +541,9 @@ public class PSSitePathItemService extends PSPathItemService {
     if (!"/".equals(path)) {
       var sfp = getSiteIdAndFolderPath(path);
       var site = siteDataService.findByPath(SITE_ROOT + path);
+      if (site == null || site.getFolderPath() == null) {
+        throw new PSPathNotFoundServiceException("Site could not be found for path: " + path);
+      }
       fullFolderPath = sfp.getFullFolderPath(site.getFolderPath());
     }
     return fullFolderPath;
@@ -367,7 +625,7 @@ public class PSSitePathItemService extends PSPathItemService {
     return item == null
         || getFilteredItemTypes().contains(item.getType())
         || getFilteredItemNames().contains(item.getName())
-        || item.getCategory().equals(IPSItemSummary.Category.EXTERNAL_SECTION_FOLDER);
+        || IPSItemSummary.Category.EXTERNAL_SECTION_FOLDER.equals(item.getCategory());
   }
 
   @Override
@@ -402,6 +660,9 @@ public class PSSitePathItemService extends PSPathItemService {
    */
   private List<String> getFilteredItemTypes() {
     var types = new ArrayList<String>();
+    if (navService == null) {
+      return types;
+    }
     types.addAll(navService.getNavonContentTypeNames());
     types.addAll(navService.getNavTreeContentTypeNames());
     return types;
@@ -445,6 +706,14 @@ public class PSSitePathItemService extends PSPathItemService {
 
     public String getSiteId() {
       return siteId;
+    }
+
+    /**
+     * Relative folder suffix including a leading slash ({@code /} for site-only,
+     * {@code /Pages} for the Pages chrome path).
+     */
+    public String getRelativeFolderPath() {
+      return folderPath;
     }
 
     public boolean isOnlySiteId() {
