@@ -27,12 +27,14 @@
  * REST façade {@code RxFolder} property model is not a drop-in for CM1
  * {@code PSFolderProperties} security UI.</p>
  *
- * <p>Copy ({@code moveItem} with {@code copy:true}) always stays on
- * pathmanagement (no RX folder copy on the façade v1 surface).</p>
+ * <p>Copy uses public REST {@code POST /folders/copy/folder}
+ * ({@code CopyFolderItemRequest}) — {@code PSMoveFolderItem} is move-only
+ * and has no {@code copy} field (#3362). RX façade v1 has no copy.</p>
  */
 
 import {
   addNewFolder as pathAddNewFolder,
+  copyFolder as pathCopyFolder,
   deleteItem as pathDeleteItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
@@ -47,7 +49,12 @@ import {
   saveRxFolder,
 } from "./rxFolderApi";
 import { shouldUseRxFolderMutations } from "./rxFolderMutationsFlag";
-import type { PSMoveFolderItem, PSPathItem, PSRenameFolderItem } from "./types";
+import type {
+  PSCopyRequest,
+  PSMoveFolderItem,
+  PSPathItem,
+  PSRenameFolderItem,
+} from "./types";
 
 /**
  * Create a folder. Dual-run: RX REST under Folders/Sites when flag on.
@@ -83,34 +90,45 @@ export async function renameFolder(
 }
 
 /**
- * Move (or copy) an item. Dual-run for non-copy moves under RX roots.
- * Copy always uses pathmanagement.
+ * Copy a folder via {@code FoldersResource#copyFolder}. Not pathmanagement
+ * {@code moveItem} (that DTO cannot carry {@code copy}).
+ */
+export async function copyFolder(body: PSCopyRequest): Promise<void> {
+  await pathCopyFolder(body);
+}
+
+/**
+ * Move an item. Dual-run for moves under RX roots. A client-only
+ * {@code copy:true} flag (never posted) still routes to {@link copyFolder}
+ * so older call sites do not silently move.
  */
 export async function moveItem(body: PSMoveFolderItem): Promise<void> {
   if (body.copy) {
-    await pathMoveItem(body);
+    await pathCopyFolder(body);
     return;
   }
+  const sourcePath = String(body.sourcePath ?? body.itemPath ?? "").trim();
+  const targetPath = String(body.targetPath ?? body.targetFolderPath ?? "").trim();
   // Prefer source path for RX gate; target must also be RX-capable when using REST.
   if (
-    shouldUseRxFolderMutations(body.sourcePath) &&
-    shouldUseRxFolderMutations(body.targetPath)
+    shouldUseRxFolderMutations(sourcePath) &&
+    shouldUseRxFolderMutations(targetPath)
   ) {
-    const folder = await loadFolderByPath(body.sourcePath);
+    const folder = await loadFolderByPath(sourcePath);
     if (!folder?.id) {
       throw new Error(
-        `moveItem (RX): could not resolve folder id for path=${body.sourcePath}`,
+        `moveItem (RX): could not resolve folder id for path=${sourcePath}`,
       );
     }
-    const sourceParent = parentFolderPath(body.sourcePath);
+    const sourceParent = parentFolderPath(sourcePath);
     if (!sourceParent) {
       throw new Error(
-        `moveItem (RX): cannot derive parent for path=${body.sourcePath}`,
+        `moveItem (RX): cannot derive parent for path=${sourcePath}`,
       );
     }
     await moveRxFolderChildren({
       sourcePath: sourceParent,
-      targetPath: body.targetPath,
+      targetPath,
       childIds: [folder.id],
     });
     return;

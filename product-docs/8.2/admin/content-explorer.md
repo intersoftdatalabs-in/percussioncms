@@ -34,7 +34,7 @@ service (roles may hide Design/Recycling for some users):
 
 | Root | Maps to | Purpose |
 |------|---------|---------|
-| **Sites** | `//Sites` | Traditional site folders and pages. Expand a sample site to list FastForward folders such as **AboutEnterpriseInvestments**, **Files**, and **Images** |
+| **Sites** | `//Sites` | Traditional site folders and pages. Use the tree disclosure control (not only the row label) to expand **Sites**, then expand a sample site to list FastForward folders such as **AboutEnterpriseInvestments**, **Files**, and **Images** |
 | **Folders** | `//Folders` | Classic Rhythmyx folder tree (including `$System$` and other repository folders) |
 | **Assets** | `//Folders/$System$/Assets` | Shared asset library (CM1 convenience root) |
 | **Design** | Design file-system area | Templates, themes, web resources (Admin/Designer) |
@@ -104,7 +104,8 @@ on pathmanagement.
 | Default | **off** |
 | Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
 | Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only |
-| Unchanged | Browse/list, folder ACL (security panel), copy, `/Assets` / `/Design` / `/Recycling` |
+| Unchanged | Browse/list, folder ACL (security panel), `/Assets` / `/Design` / `/Recycling` |
+| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). |
 
 Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
 production unless you are validating the RX folder façade with QA.

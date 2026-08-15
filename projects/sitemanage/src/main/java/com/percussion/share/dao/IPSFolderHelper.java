@@ -130,6 +130,15 @@ public interface IPSFolderHelper {
   List<IPSItemSummary> findItems(String path) throws Exception;
 
   /**
+   * Folder children by content id (bypasses pathToId). Used when FOLDER_ROOT
+   * path lookup fails but the site folder is already a child of {@code //Sites}.
+   *
+   * @param folderId content id of the parent folder
+   * @return child summaries, never {@code null}
+   */
+  List<IPSItemSummary> findChildItems(String folderId) throws Exception;
+
+  /**
    * Finds child items for a given path, optionally finding only folders.
    *
    * @param path must be a valid path to a <strong>folder</strong>, never <code>null</code>.

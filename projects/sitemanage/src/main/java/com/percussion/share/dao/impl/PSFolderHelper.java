@@ -974,6 +974,15 @@ public class PSFolderHelper implements IPSFolderHelper {
   }
 
   @Override
+  public List<IPSItemSummary> findChildItems(String folderId) throws PSDataServiceException {
+    if (isBlank(folderId)) {
+      return new ArrayList<>();
+    }
+    List<PSDataItemSummary> sums = dataItemSummaryService.findFolderChildren(folderId);
+    return new ArrayList<>(sums);
+  }
+
+  @Override
   public List<IPSItemSummary> findItems(String path, boolean foldersOnly)
       throws DataServiceLoadException, Exception {
     if (!foldersOnly) return findItems(path);

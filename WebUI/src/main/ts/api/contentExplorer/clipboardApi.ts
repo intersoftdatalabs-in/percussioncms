@@ -24,13 +24,13 @@
  * <p>Endpoint mapping (verified 2026-07-20 against `paths.ts` and
  * the sitemanage REST services):</p>
  * <ul>
- *   <li>page  → {@code POST /Rhythmyx/rest/pagemanagement/page/copy/{id}}
+ *   <li>page  → {@code POST /Rhythmyx/services/pagemanagement/page/copy/{id}}
  *             ({@code PSPageRestService#copy(id, addToRecent)} on the
  *             server).</li>
- *   <li>asset → {@code POST /Rhythmyx/rest/pathmanagement/path/moveItem}
- *             with {@code copy:true}; the pathApi already wraps it.</li>
- *   <li>folder → {@code POST /Rhythmyx/rest/pathmanagement/path/moveItem}
- *              with {@code copy:true}; same pathApi wrapper.</li>
+ *   <li>asset → {@code POST /rest/folders/copy/item}
+ *             ({@code CopyFolderItemRequest}; #3362 — not moveItem).</li>
+ *   <li>folder → {@code POST /rest/folders/copy/folder}
+ *              ({@code CopyFolderItemRequest}; #3362 — not moveItem).</li>
  * </ul>
  * <p>The dispatcher in {@code pasteClipboardItems} chooses the right
  * call per item kind, in clipboard-source order.</p>
@@ -38,12 +38,11 @@
 
 import { post } from "../client";
 import { PATHS } from "../paths";
-import { moveItem } from "./pathApi";
+import { copyFolder, copyFolderItem, moveItem } from "./pathApi";
 import type {
   ClipboardItem,
   ClipboardPasteResultItem,
   ClipboardPasteSummary,
-  PSMoveFolderItem,
 } from "./types";
 
 /**
@@ -57,12 +56,14 @@ export type ClipboardPasteTransport = (
 ) => Promise<void>;
 
 /**
- * Default per-kind transport. Uses {@code PSPageRestService#copy} for
- * pages (server-side duplicator that respects workflow + community +
- * template) and {@code moveItem({copy:true})} for assets and folders
- * (pathApi wrapper, already wired for US1).
+ * Default per-kind transport. Copy uses page copy / {@code copyFolderItem}
+ * / {@code copyFolder}. Cut uses pathmanagement {@code moveItem} (wrapped
+ * {@code MoveFolderItem} — no invented {@code copy} field).
  */
-async function defaultPasteTransport(item: ClipboardItem): Promise<void> {
+async function defaultPasteTransport(
+  item: ClipboardItem,
+  operation: "copy" | "cut",
+): Promise<void> {
   switch (item.kind) {
     case "page": {
       await post<void>(
@@ -71,14 +72,26 @@ async function defaultPasteTransport(item: ClipboardItem): Promise<void> {
       );
       return;
     }
-    case "asset":
-    case "folder": {
-      const body: PSMoveFolderItem = {
+    case "asset": {
+      if (operation === "cut") {
+        await moveItem({ sourcePath: item.path, targetPath: item.path });
+        return;
+      }
+      await copyFolderItem({
         sourcePath: item.path,
         targetPath: item.path,
-        copy: true,
-      };
-      await moveItem(body);
+      });
+      return;
+    }
+    case "folder": {
+      if (operation === "cut") {
+        await moveItem({ sourcePath: item.path, targetPath: item.path });
+        return;
+      }
+      await copyFolder({
+        sourcePath: item.path,
+        targetPath: item.path,
+      });
       return;
     }
   }
@@ -97,9 +110,11 @@ async function defaultPasteTransport(item: ClipboardItem): Promise<void> {
 export async function pasteClipboardItems(
   items: ReadonlyArray<ClipboardItem>,
   operation: "copy" | "cut",
-  transport: ClipboardPasteTransport = defaultPasteTransport,
+  transport?: ClipboardPasteTransport,
 ): Promise<ClipboardPasteSummary> {
-  const settled = await Promise.allSettled(items.map((it) => transport(it)));
+  const run: ClipboardPasteTransport =
+    transport ?? ((item) => defaultPasteTransport(item, operation));
+  const settled = await Promise.allSettled(items.map((it) => run(it)));
   return {
     operation,
     results: items.map<ClipboardPasteResultItem>((it, idx) => {

@@ -40,9 +40,25 @@ export function detectServicesRoot(): string {
 /** Mutable so tests can override; initialized for the current page context. */
 export let SERVICES_ROOT = detectServicesRoot();
 
+/**
+ * Public JAX-RS root ({@code /Rhythmyx/rest} or {@code /rest}) derived from
+ * {@link detectServicesRoot}. Used by CM1 {@code FoldersResource} copy
+ * ({@code /folders/copy/folder}) — not pathmanagement {@code /services}.
+ */
+export function detectRestRoot(): string {
+  const services = detectServicesRoot();
+  if (services.endsWith("/services")) {
+    return `${services.slice(0, -"/services".length)}/rest`;
+  }
+  return "/rest";
+}
+
+export let REST_ROOT = detectRestRoot();
+
 /** Test / re-init helper when pathname changes. */
 export function refreshServicesRoot(): string {
   SERVICES_ROOT = detectServicesRoot();
+  REST_ROOT = detectRestRoot();
   return SERVICES_ROOT;
 }
 
@@ -359,6 +375,17 @@ export const PATHS = {
   },
   get PATH_MOVE_ITEM() {
     return `${SERVICES_ROOT}/pathmanagement/path/moveItem`;
+  },
+  /**
+   * Public REST folder copy ({@code FoldersResource#copyFolder}).
+   * {@code PSMoveFolderItem} is move-only — do not POST {@code copy:true}.
+   */
+  get FOLDERS_COPY_FOLDER() {
+    return `${REST_ROOT}/folders/copy/folder`;
+  },
+  /** Public REST item copy ({@code FoldersResource#copyFolderItem}). */
+  get FOLDERS_COPY_ITEM() {
+    return `${REST_ROOT}/folders/copy/item`;
   },
   get PATH_DELETE_ITEM() {
     return `${SERVICES_ROOT}/pathmanagement/path/delete`;

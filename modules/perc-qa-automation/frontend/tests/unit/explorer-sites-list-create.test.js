@@ -30,11 +30,13 @@ const {
   sitesFolderUrl,
   encodeFolderListPath,
   siteChildListPath,
+  siteChildListCandidates,
   folderChildrenUrl,
   siteChildNamesFromTreeTestIds,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
+  isKnownExplorerSitesConsoleNoise,
 } = require("../helpers/explorer-sites-list-create");
 
 describe("explorer-sites-list-create helpers (#3003)", () => {
@@ -70,6 +72,36 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(
       sitesFolderUrl("http://127.0.0.1:9992"),
       "http://127.0.0.1:9992/Rhythmyx/services/pathmanagement/path/folder/Sites",
+    );
+  });
+
+  it("lists candidate child paths folderPath then path then name (#3410)", () => {
+    const cands = siteChildListCandidates({
+      path: "/Sites/Corporate_Investments/",
+      folderPath: "//Sites/CorporateInvestments",
+      name: "Corporate_Investments",
+    });
+    assert.deepEqual(cands, [
+      "//Sites/CorporateInvestments",
+      "/Sites/Corporate_Investments/",
+    ]);
+    assert.deepEqual(
+      siteChildListCandidates({
+        path: "/Sites/16777215-101-703/",
+        name: "Corporate Investments",
+      }),
+      [
+        "/Sites/16777215-101-703/",
+        "/Sites/CorporateInvestments",
+        "/Sites/Corporate_Investments",
+      ],
+    );
+    assert.equal(
+      siteChildListCandidates({
+        folderPaths: ["//Sites/CorporateInvestments"],
+        path: "/Sites/Corporate_Investments/",
+      })[0],
+      "//Sites/CorporateInvestments",
     );
   });
 
@@ -134,5 +166,15 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     const empty = emptySitesSoftSkipNote();
     assert.match(empty, /3001/);
     assert.match(empty, /2989/);
+  });
+
+  it("filters resource-load console noise from missing FF nav types (#3326)", () => {
+    assert.equal(
+      isKnownExplorerSitesConsoleNoise(
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      ),
+      true,
+    );
+    assert.equal(isKnownExplorerSitesConsoleNoise("Uncaught TypeError: boom"), false);
   });
 });
