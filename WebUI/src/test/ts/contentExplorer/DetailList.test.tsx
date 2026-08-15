@@ -89,6 +89,46 @@ describe("DetailList", () => {
     );
   });
 
+  it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      expect(url).toContain(
+        "/paginatedFolder/Sites/Corporate_Investments/Pages",
+      );
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "ci-home",
+                path: "/Sites/Corporate_Investments/Pages/Home",
+                name: "Home",
+                type: "rffHome",
+                category: "PAGE",
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    render(
+      <DetailList
+        folderPath="/Sites/Corporate_Investments/Pages"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-ci-home")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-list")).not.toHaveTextContent(
+      /No items in this folder/i,
+    );
+  });
+
   it("paginates forward and resets to page 0 on folder change", async () => {
     let currentStart = 0;
     mockFetch(async (input) => {

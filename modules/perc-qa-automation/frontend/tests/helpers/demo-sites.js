@@ -56,6 +56,67 @@ function normalizeSiteName(value) {
  * @param {unknown} body
  * @returns {string[]}
  */
+/**
+ * Children from a {@code PagedItemList} paginatedFolder JSON body.
+ *
+ * @param {unknown} body
+ * @returns {unknown[]}
+ */
+function pagedItemListChildren(body) {
+  if (body == null || typeof body !== "object") {
+    return [];
+  }
+  const root = body.PagedItemList && typeof body.PagedItemList === "object"
+    ? body.PagedItemList
+    : body;
+  const kids = root.childrenInPage ?? root.children;
+  if (!Array.isArray(kids)) {
+    return [];
+  }
+  return kids;
+}
+
+/**
+ * @param {unknown} body
+ * @returns {number}
+ */
+function pagedItemListCount(body) {
+  if (body == null || typeof body !== "object") {
+    return 0;
+  }
+  const root = body.PagedItemList && typeof body.PagedItemList === "object"
+    ? body.PagedItemList
+    : body;
+  if (typeof root.childrenCount === "number") {
+    return root.childrenCount;
+  }
+  return pagedItemListChildren(body).length;
+}
+
+/**
+ * Whether a path item looks like a page (CM1 percPage or FastForward rff*).
+ *
+ * @param {unknown} item
+ * @returns {boolean}
+ */
+function isPageTypeChild(item) {
+  if (item == null || typeof item !== "object") {
+    return false;
+  }
+  const type = String(item.type || "").trim().toLowerCase();
+  const category = String(item.category || "").trim().toLowerCase();
+  if (category === "page" || category === "landing_page") {
+    return true;
+  }
+  if (type === "percpage" || type === "page") {
+    return true;
+  }
+  if (type.startsWith("rff") && type !== "rfffile" && type !== "rffimage") {
+    return !type.startsWith("rffnav");
+  }
+  return type.length > 0 && type !== "folder" && type !== "fsfolder" && type !== "site";
+}
+
 function pathItemNames(body) {
   if (body == null) {
     return [];
@@ -157,6 +218,9 @@ module.exports = {
   REPO_ISSUES,
   normalizeSiteName,
   pathItemNames,
+  pagedItemListChildren,
+  pagedItemListCount,
+  isPageTypeChild,
   hasAllExpectedSampleSites,
   hasAnyExpectedSampleSite,
   isTruthyEnvFlag,
