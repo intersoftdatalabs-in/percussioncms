@@ -18,6 +18,7 @@ package com.percussion.install;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -55,7 +56,12 @@ public class InstallUtilRunningServerTest {
     Path root = writeDtsLayout(ports[0], ports[1], false);
     assertFalse(
         InstallUtil.checkTomcatServerRunning(root.toString()),
-        "free connector port must not look like a running DTS");
+        () ->
+            "free connector port must not look like a running DTS (ports "
+                + ports[0]
+                + ", "
+                + ports[1]
+                + ")");
   }
 
   @Test
@@ -88,7 +94,12 @@ public class InstallUtilRunningServerTest {
     Path root = writeDtsLayout(ports[0], ports[1], true);
     assertFalse(
         InstallUtil.checkTomcatServerRunning(root.toString()),
-        "free connector + shutdown ports must not look like a running DTS");
+        () ->
+            "free connector + shutdown ports must not look like a running DTS (ports "
+                + ports[0]
+                + ", "
+                + ports[1]
+                + ")");
   }
 
   @Test
@@ -163,6 +174,51 @@ public class InstallUtilRunningServerTest {
         "port must look available again after TCP holder closed (TIME_WAIT tolerant)");
   }
 
+  @Test
+  void isLocalTcpPortAccepting_tracksListener() throws Exception {
+    int port = findFreePort();
+    assertFalse(
+        InstallUtil.isLocalTcpPortAccepting(port),
+        "nothing should accept on a freshly allocated free port");
+    try (ServerSocket hold = new ServerSocket()) {
+      hold.setReuseAddress(false);
+      hold.bind(new InetSocketAddress(port));
+      assertTrue(
+          InstallUtil.isLocalTcpPortAccepting(port),
+          "exclusive TCP listener must be reachable on a local address");
+    }
+    assertFalse(
+        InstallUtil.isLocalTcpPortAccepting(port),
+        "listener close must leave the port not accepting");
+  }
+
+  /**
+   * Allocated "free" ports must still be bindable after the probe sockets close. Windows Hyper-V
+   * excluded ranges can make {@code ServerSocket(0)} return a port that binds once and then looks
+   * occupied, which made offline DTS checks treat a stopped instance as running.
+   */
+  @Test
+  void findDistinctFreePorts_remainAvailableAfterRelease() throws Exception {
+    final int iterations = 20;
+    for (int i = 0; i < iterations; i++) {
+      final int iteration = i;
+      int[] ports = findDistinctFreePorts(2);
+      assertNotEquals(ports[0], ports[1], "allocated ports must be distinct");
+      assertTrue(
+          InstallUtil.portAvailable(ports[0]),
+          () -> "connector probe port still available (iteration " + iteration + ")");
+      assertTrue(
+          InstallUtil.portAvailable(ports[1]),
+          () -> "shutdown probe port still available (iteration " + iteration + ")");
+      assertTrue(
+          canRebindTcpPort(ports[0]),
+          () -> "connector probe port still bindable (iteration " + iteration + ")");
+      assertTrue(
+          canRebindTcpPort(ports[1]),
+          () -> "shutdown probe port still bindable (iteration " + iteration + ")");
+    }
+  }
+
   /**
    * @param connectorPort HTTP connector port (literal or value of {@code ${http.port}})
    * @param shutdownPort {@code Server/@port} — must be free for offline assertions; never hardcode
@@ -202,39 +258,92 @@ public class InstallUtilRunningServerTest {
   }
 
   private static int findFreePort() throws IOException {
-    try (ServerSocket ss = new ServerSocket(0)) {
-      ss.setReuseAddress(true);
-      return ss.getLocalPort();
-    }
+    return findDistinctFreePorts(1)[0];
   }
 
   /**
-   * Allocate {@code n} distinct free ports. Holds all sockets open until the last bind so the OS
-   * cannot re-issue the same ephemeral port twice in a row.
+   * Allocate {@code n} distinct free ports that remain bindable after the probe sockets close.
+   *
+   * <p>Holds all sockets open until the last bind so the OS cannot re-issue the same ephemeral port
+   * twice in a row. Then re-checks a real TCP rebind: on Windows, Hyper-V excluded port ranges can
+   * make {@code ServerSocket(0)} return a port that binds once and refuses every later bind.
    */
   private static int[] findDistinctFreePorts(int n) throws IOException {
     if (n < 1) {
       throw new IllegalArgumentException("n must be >= 1");
     }
-    ServerSocket[] holders = new ServerSocket[n];
-    int[] ports = new int[n];
-    try {
-      for (int i = 0; i < n; i++) {
-        holders[i] = new ServerSocket(0);
-        holders[i].setReuseAddress(true);
-        ports[i] = holders[i].getLocalPort();
+    final int maxAttempts = 32;
+    IOException lastBindFailure = null;
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      ServerSocket[] holders = new ServerSocket[n];
+      int[] ports = new int[n];
+      try {
+        for (int i = 0; i < n; i++) {
+          ServerSocket ss = new ServerSocket();
+          ss.setReuseAddress(false);
+          ss.bind(new InetSocketAddress(0));
+          holders[i] = ss;
+          ports[i] = ss.getLocalPort();
+        }
+      } catch (IOException e) {
+        lastBindFailure = e;
+        closeQuietly(holders);
+        continue;
       }
-    } finally {
-      for (ServerSocket ss : holders) {
-        if (ss != null) {
-          try {
-            ss.close();
-          } catch (IOException ignored) {
-            // best-effort close of probe sockets
-          }
+      closeQuietly(holders);
+
+      boolean stillBindable = true;
+      for (int port : ports) {
+        if (!canRebindTcpPort(port)) {
+          stillBindable = false;
+          break;
+        }
+      }
+      if (stillBindable) {
+        return ports;
+      }
+    }
+    throw new IOException(
+        "Could not allocate "
+            + n
+            + " distinct free TCP ports that remain bindable after "
+            + maxAttempts
+            + " attempts",
+        lastBindFailure);
+  }
+
+  /**
+   * Two-phase TCP bind (no connect fallback). Used to reject Windows excluded-range ports that
+   * {@link InstallUtil#portAvailable(int)} correctly reports as "not a listener" but that later
+   * {@code new ServerSocket(port)} would fail to hold.
+   */
+  private static boolean canRebindTcpPort(int port) {
+    InetSocketAddress address = new InetSocketAddress(port);
+    try (ServerSocket ss = new ServerSocket()) {
+      ss.setReuseAddress(false);
+      ss.bind(address);
+      return true;
+    } catch (IOException ignored) {
+      // TIME_WAIT or excluded — try reuse bind
+    }
+    try (ServerSocket ss = new ServerSocket()) {
+      ss.setReuseAddress(true);
+      ss.bind(address);
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  private static void closeQuietly(ServerSocket[] holders) {
+    for (ServerSocket ss : holders) {
+      if (ss != null) {
+        try {
+          ss.close();
+        } catch (IOException ignored) {
+          // best-effort close of probe sockets
         }
       }
     }
-    return ports;
   }
 }
