@@ -714,6 +714,8 @@ function ContentExplorerShellInner({
             },
             confirm: (body) => window.confirm(message(body)),
             runWorkflow: runWorkflowTransition,
+            onShowTranslations: () => setShowTranslations(true),
+            onShowDependencies: () => setShowDependencies(true),
           });
           if (result.messageKey) {
             setError(message(result.messageKey));

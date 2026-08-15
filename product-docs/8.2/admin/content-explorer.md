@@ -122,7 +122,10 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Not the CM1 editor (`?view=editor`). Explorer shows that the content editor is not available in this slice. |
-| **Publish Now** / Active Assembly / slot arrange | Not available in this Explorer slice |
+| **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
+| **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
+| **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
+| **Publish Now** / Active Assembly / slot arrange / flush cache / nav reset / new copy | Not available in this Explorer slice |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.

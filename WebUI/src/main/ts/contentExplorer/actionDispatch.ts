@@ -29,7 +29,12 @@ import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
 import { parseExplorerContentId } from "./menuCatalogLoad";
 import { EXPLORER_MSG } from "./messages";
-import { openPreviewItem, resolvePreviewKind } from "./previewItem";
+import {
+  buildSitePathPreviewUrl,
+  normalizeCmsPath,
+  openPreviewItem,
+  resolvePreviewKind,
+} from "./previewItem";
 import { isFolder } from "./selection";
 import { parseWorkflowTransitionTrigger } from "./workflowMenuActions";
 
@@ -80,16 +85,15 @@ const AA_UNAVAILABLE_NAMES = new Set([
   "move_to_slot",
 ]);
 
+const P1_PANEL_NAMES = new Set(["translate", "item_viewdependents"]);
+
 const P1_UNAVAILABLE_NAMES = new Set([
-  "translate",
-  "item_viewdependents",
   "flush_cache",
   "navreset",
   "workflow_newversion",
   "edit_promotableversion",
   "workflow_revisions",
   "workflow_audittrail",
-  "copy_url_to_clipboard",
 ]);
 
 const DATA_FLOW_PATH_MARKERS = [
@@ -125,6 +129,9 @@ export interface ActionDispatchContext {
   onOpen?: (item: PSPathItem) => void;
   onPreview?: (item: PSPathItem) => void | Promise<void>;
   onPurge?: (item: PSPathItem) => Promise<void>;
+  onShowTranslations?: () => void;
+  onShowDependencies?: () => void;
+  writeClipboard?: (text: string) => Promise<void>;
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
   fetchPreview?: typeof fetchPreviewLocation;
@@ -182,6 +189,9 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (AA_UNAVAILABLE_NAMES.has(name) || P1_UNAVAILABLE_NAMES.has(name)) {
     return "unavailable";
   }
+  if (P1_PANEL_NAMES.has(name) || name === "copy_url_to_clipboard") {
+    return "client";
+  }
   if (name === "lifecycle_analysis") {
     return "legacy-file";
   }
@@ -229,6 +239,15 @@ export function parseTemplateIdFromAction(action: MenuAction): number | null {
     /* ignore */
   }
   return null;
+}
+
+/** CMS path or site-preview URL suitable for Copy URL to Clipboard. */
+export function resolveCopyableItemUrl(item: PSPathItem): string {
+  const site = buildSitePathPreviewUrl(item.path);
+  if (site) {
+    return site;
+  }
+  return normalizeCmsPath(item.path);
 }
 
 function resolvePreviewHref(previewUrl: string): string {
@@ -328,6 +347,46 @@ export async function dispatchAction(
 
   if (name === "open" && item && ctx.onOpen) {
     ctx.onOpen(item);
+    return { kind: "client" };
+  }
+
+  if (name === "translate") {
+    if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    ctx.onShowTranslations?.();
+    return { kind: "client" };
+  }
+
+  if (name === "item_viewdependents") {
+    if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    ctx.onShowDependencies?.();
+    return { kind: "client" };
+  }
+
+  if (name === "copy_url_to_clipboard") {
+    if (!item || isFolder(item)) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const url = resolveCopyableItemUrl(item);
+    if (!url) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_COPY_URL_EMPTY };
+    }
+    const write =
+      ctx.writeClipboard ??
+      (async (text: string) => {
+        if (typeof navigator === "undefined" || !navigator.clipboard) {
+          throw new Error("clipboard");
+        }
+        await navigator.clipboard.writeText(text);
+      });
+    try {
+      await write(url);
+    } catch {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_COPY_URL_FAILED };
+    }
     return { kind: "client" };
   }
 

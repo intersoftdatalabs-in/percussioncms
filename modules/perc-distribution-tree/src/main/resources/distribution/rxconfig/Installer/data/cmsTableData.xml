@@ -6252,10 +6252,10 @@
             <column name="NAME">Item_ViewDependents</column>
             <column name="DISPLAYNAME">Impact Analysis</column>
             <column name="DESCRIPTION">View content item dependencies</column>
-            <column name="URL">../sys_cxDependencyTree/dependencytree.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">70</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="r">
@@ -6318,10 +6318,10 @@
             <column name="NAME">Translate</column>
             <column name="DISPLAYNAME">Create Translation</column>
             <column name="DESCRIPTION">Translates a content item into a specific locale.</column>
-            <column name="URL">../sys_actionTranslate/translate.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">13</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">

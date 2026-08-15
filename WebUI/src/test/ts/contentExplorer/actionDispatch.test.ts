@@ -195,6 +195,41 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Translate opens the translations panel", async () => {
+    const onShowTranslations = vi.fn();
+    const result = await dispatchAction(action({ name: "Translate" }), {
+      item: item(),
+      onShowTranslations,
+    });
+    expect(result.kind).toBe("client");
+    expect(onShowTranslations).toHaveBeenCalledTimes(1);
+  });
+
+  it("Impact Analysis opens the dependencies panel", async () => {
+    const onShowDependencies = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Item_ViewDependents" }),
+      { item: item(), onShowDependencies },
+    );
+    expect(result.kind).toBe("client");
+    expect(onShowDependencies).toHaveBeenCalledTimes(1);
+  });
+
+  it("Copy URL writes the site preview URL", async () => {
+    const writeClipboard = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(
+      action({ name: "Copy_URL_to_Clipboard" }),
+      {
+        item: item({ path: "/Sites/Demo/Home" }),
+        writeClipboard,
+      },
+    );
+    expect(result.kind).toBe("client");
+    expect(writeClipboard).toHaveBeenCalled();
+    const written = String(writeClipboard.mock.calls[0]?.[0] ?? "");
+    expect(written.toLowerCase()).toContain("/sites/demo/home");
+  });
+
   it("publish_now is unavailable without navigation", async () => {
     const openWindow = vi.fn();
     const result = await dispatchAction(action({ name: "Publish_Now" }), {

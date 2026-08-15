@@ -28,6 +28,16 @@ Desktop Content Explorer is **not** a 8.2 client. Do not dual-ship HTML for DCE.
 
 Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It never `safeNavigate`s.
 
+## P1 (this train, after P0)
+
+| Action | Behavior |
+|--------|----------|
+| Translate | Open Explorer Translations panel (existing REST) |
+| Impact Analysis | Open Explorer Dependencies panel |
+| Copy URL to Clipboard | Copy site-path preview URL (or CMS path) |
+
+Flush cache, nav reset, new copy / promotable version, revisions list, and workflow audit remain **unavailable** until their REST/panels land.
+
 ## P0 REST
 
 `GET /services/assembly/preview-location?contentId=&templateId=&revision=`

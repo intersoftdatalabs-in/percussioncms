@@ -335,4 +335,7 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select a content item first",
   CONFIRM_PURGE_BODY:
     "perc.ui.explorer@Permanently delete this item from the system?",
+  ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
+  ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
+  ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",
 } as const;
