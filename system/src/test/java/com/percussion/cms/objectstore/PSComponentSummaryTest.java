@@ -303,4 +303,24 @@ public class PSComponentSummaryTest {
     assertSame(injected, field.get(summary));
     assertNotNull(summary.getParentFolderRelationships());
   }
+
+  /**
+   * Hibernate leaves NEXTAGINGTRANSITION / CONTENTAGINGTIME null on a new
+   * CONTENTSTATUS row. Primitive getters must not unbox that to an NPE —
+   * {@code sys_wfPerformTransition} hits these on check-in of a freshly
+   * seeded NavTree.
+   */
+  @Test
+  public void testNullAgingFieldsDoNotUnbox() {
+    PSComponentSummary summary =
+        new PSComponentSummary(300, 1, 1, 1, PSComponentSummary.TYPE_ITEM, "nav_aging", 301, -1);
+
+    assertEquals(0, summary.getNextAgingTransition());
+    assertEquals(-1, summary.getContentAgingTime());
+
+    summary.setNextAgingTransition(12);
+    summary.setContentAgingTime(30);
+    assertEquals(12, summary.getNextAgingTransition());
+    assertEquals(30, summary.getContentAgingTime());
+  }
 }

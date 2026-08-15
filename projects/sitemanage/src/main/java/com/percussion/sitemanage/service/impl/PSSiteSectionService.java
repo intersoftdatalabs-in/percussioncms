@@ -31,10 +31,7 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.cms.objectstore.PSCoreItem;
-import com.percussion.cms.objectstore.PSDateValue;
 import com.percussion.cms.objectstore.PSFolder;
-import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.comments.data.PSCommentsSummary;
 import com.percussion.comments.service.IPSCommentsService;
 import com.percussion.error.PSNotFoundException;
@@ -1688,10 +1685,13 @@ public class PSSiteSectionService implements IPSSiteSectionService {
   }
 
   /**
-   * Create a NavTree under {@code folderRoot}. Sample / FastForward folders
-   * often have {@code WORKFLOWAPPID=-1}; a resolved folder workflow can fail
-   * check-in ({@code m_nextAgingTransition} NPE). Try the folder workflow,
-   * then the system default ({@code -1}). On a race, re-find.
+   * Create a NavTree under {@code folderRoot} via {@link
+   * IPSManagedNavService#addNavTreeToFolder}. That path saves without check-in
+   * (#3364): sample-site Default Workflow can NPE in {@code
+   * sys_wfPerformTransition} ({@code m_nextAgingTransition}), and a failed
+   * {@code checkinItems} marks the surrounding Spring transaction
+   * rollback-only. Try the system default workflow ({@code -1}), then the
+   * folder workflow. On a race, re-find.
    */
   IPSGuid ensureNavTreeForSite(IPSSite site, String folderRoot) {
     String siteName = site.getName();
@@ -1707,12 +1707,30 @@ public class PSSiteSectionService implements IPSSiteSectionService {
           folderRoot,
           e.toString());
     }
-    // Do not use addNavTreeToFolder here: sample-site Default Workflow NPEs
-    // in sys_wfPerformTransition on check-in (ERROR in Managed Navigation).
-    // Save without check-in, attach to the folder, then best-effort checkin.
-    IPSGuid created = createNavTreeAllowingCheckout(folderRoot, navName, navTitle, -1);
+    Exception lastCreateError = null;
+    IPSGuid created = null;
+    try {
+      created = navSrv.addNavTreeToFolder(folderRoot, navName, navTitle, -1);
+    } catch (Exception e) {
+      lastCreateError = e;
+      log.debug(
+          "addNavTreeToFolder failed path={} name={} workflow=-1: {}",
+          folderRoot,
+          navName,
+          e.toString());
+    }
     if (created == null && workflowId != -1) {
-      created = createNavTreeAllowingCheckout(folderRoot, navName, navTitle, workflowId);
+      try {
+        created = navSrv.addNavTreeToFolder(folderRoot, navName, navTitle, workflowId);
+      } catch (Exception e) {
+        lastCreateError = e;
+        log.debug(
+            "addNavTreeToFolder failed path={} name={} workflow={}: {}",
+            folderRoot,
+            navName,
+            workflowId,
+            e.toString());
+      }
     }
     if (created != null) {
       log.info("Created NavTree for site '{}' under {}", siteName, folderRoot);
@@ -1722,57 +1740,16 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     if (raced != null) {
       return raced;
     }
-    log.warn("Could not create NavTree for site '{}' at {}", siteName, folderRoot);
-    return null;
-  }
-
-  /**
-   * Create a percNavTree and attach it to {@code folderRoot} without requiring
-   * a successful workflow check-in. Sample-site Default Workflow can NPE in
-   * {@code sys_wfPerformTransition} during check-in; the item is still a valid
-   * nav root once it is a folder child (#3352).
-   */
-  IPSGuid createNavTreeAllowingCheckout(
-      String folderRoot, String navName, String navTitle, int workflowId) {
-    try {
-      List<String> typeNames = navSrv.getNavTreeContentTypeNames();
-      if (typeNames == null || typeNames.isEmpty()) {
-        log.warn("No NavTree content type is registered; cannot seed {}", folderRoot);
-        return null;
-      }
-      PSCoreItem coreItem = contentSrv.createItems(typeNames.get(0), 1).get(0);
-      coreItem.setTextField("sys_title", navName);
-      coreItem.setTextField("displaytitle", navTitle);
-      PSItemField startDate = coreItem.getFieldByName("sys_contentstartdate");
-      if (startDate != null) {
-        startDate.addValue(new PSDateValue(new Date()));
-      }
-      if (workflowId != -1) {
-        coreItem.setTextField("sys_workflowid", String.valueOf(workflowId));
-      }
-      List<IPSGuid> guids = contentSrv.saveItems(List.of(coreItem), false, false);
-      if (guids == null || guids.isEmpty() || guids.get(0) == null) {
-        return null;
-      }
-      contentSrv.addFolderChildren(folderRoot, guids);
-      try {
-        contentSrv.checkinItems(guids, null);
-      } catch (Exception checkinEx) {
-        log.warn(
-            "NavTree {} attached under {} but checkin failed; tree is still usable. Cause: {}",
-            navName,
-            folderRoot,
-            checkinEx.toString());
-      }
-      return guids.get(0);
-    } catch (Exception e) {
+    if (lastCreateError != null) {
       log.warn(
-          "createNavTreeAllowingCheckout failed path={} name={}: {}",
+          "Could not create NavTree for site '{}' at {}: {}",
+          siteName,
           folderRoot,
-          navName,
-          e.toString());
-      return null;
+          lastCreateError.toString());
+    } else {
+      log.warn("Could not create NavTree for site '{}' at {}", siteName, folderRoot);
     }
+    return null;
   }
 
   /**
