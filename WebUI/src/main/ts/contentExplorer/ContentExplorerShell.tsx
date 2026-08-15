@@ -67,6 +67,7 @@ import type {
 import { useSpaBootstrapOptional } from "../app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../app/bootstrap/types";
 import { message } from "../i18n/message";
+import { dispatchAction, purgeSelectedItem } from "./actionDispatch";
 import {
   filterContextMenuActions,
   filterToolbarActions,
@@ -123,7 +124,6 @@ import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relations
 import {
   buildWorkflowTransitionMenu,
   mergeWorkflowMenuActions,
-  parseWorkflowTransitionTrigger,
 } from "./workflowMenuActions";
 
 export interface ContentExplorerShellProps {
@@ -694,41 +694,46 @@ function ContentExplorerShellInner({
   );
 
   /**
-   * Route toolbar / context-menu activations. Workflow transition names are
-   * client-tagged ({@code workflow-transition:Trigger}); other actions fall
-   * through to list refresh (URL actions already navigated in the child).
+   * Route toolbar / context-menu activations through the action dispatcher.
+   * Data Flow HTML URLs are never navigated (they 404 from the SPA).
    */
   const handleMenuInvoke = useCallback(
-    (actionName: string, _action: MenuAction) => {
-      const trigger = parseWorkflowTransitionTrigger(actionName);
-      if (trigger != null) {
-        const item = selection.item;
-        const itemId =
-          item?.id != null && isWorkflowEligibleItem(item)
-            ? String(item.id)
-            : "";
-        if (!itemId) {
-          setError(message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED));
-          return;
-        }
-        void (async () => {
-          try {
-            await runWorkflowTransition(itemId, trigger);
+    (actionName: string, action: MenuAction) => {
+      void (async () => {
+        try {
+          const result = await dispatchAction(action, {
+            item: selection.item,
+            folderPath: selection.folderPath,
+            onOpen: handlers.onOpen,
+            onPreview: handlers.onPreview,
+            onPurge: async (item) => {
+              const ok = await purgeSelectedItem(item);
+              if (!ok) {
+                throw new Error(message(EXPLORER_MSG.ACTION_UNAVAILABLE));
+              }
+            },
+            confirm: (body) => window.confirm(message(body)),
+            runWorkflow: runWorkflowTransition,
+          });
+          if (result.messageKey) {
+            setError(message(result.messageKey));
+          } else {
             setError(null);
-            setListEpoch((n) => n + 1);
-          } catch (err: unknown) {
-            const detail =
-              err instanceof Error && err.message
-                ? err.message
-                : message(EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED);
-            setError(detail);
           }
-        })();
-        return;
-      }
-      setListEpoch((n) => n + 1);
+          if (result.refresh) {
+            setListEpoch((n) => n + 1);
+          }
+        } catch (err: unknown) {
+          const detail =
+            err instanceof Error && err.message
+              ? err.message
+              : message(EXPLORER_MSG.ERROR_GENERIC);
+          setError(detail);
+        }
+      })();
+      void actionName;
     },
-    [selection.item, runWorkflowTransition],
+    [selection.item, selection.folderPath, handlers, runWorkflowTransition],
   );
 
   const handleSearchOpen = useCallback((result: PSItemProperties) => {

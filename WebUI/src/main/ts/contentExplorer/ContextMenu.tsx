@@ -20,12 +20,9 @@
  * <p>Renders the configuration-driven action set returned by
  * {@code /actions/find*} as a keyboard-accessible menu attached to the
  * currently-selected item. Click <em>and</em> Enter / Space all
- * activate the focused menu item; Escape closes the menu. Server-provided
- * URLs are navigated to via the {@code safeNavigate} protocol /
- * same-origin guard (closes the {@code javascript:} XSS vector flagged
- * by kilo-code-bot on PR #1396); rejected URLs surface a console
- * warning and fall back to the {@link ContextMenuProps.onInvoke}
- * callback so the host can react.</p>
+ * activate the focused menu item; Escape closes the menu. Activation
+ * always goes to {@link ContextMenuProps.onInvoke}; the host dispatcher
+ * executes the action (Data Flow HTML URLs 404 from the SPA).</p>
  *
  * <p>Server is authoritative: actions not in the supplied list are
  * hidden (FR-011). Action execution is the host's responsibility — this
@@ -34,7 +31,6 @@
 
 import React, { useEffect, useId, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
-import { safeNavigate } from "../util/safeNavigate";
 
 export interface ContextMenuProps {
   /** Server-provided menu actions (already filtered for the current selection). */
@@ -60,21 +56,9 @@ const ACTIVATE_KEYS = new Set(["Enter", " "]);
 
 function activate(
   action: MenuAction,
-  baseHref: string,
+  _baseHref: string,
   onInvoke?: (name: string, a: MenuAction) => void,
 ): void {
-  if (action.url) {
-    const result = safeNavigate(action.url, baseHref);
-    if (!result.ok) {
-      // eslint-disable-next-line no-console -- surface rejection for ops
-      console.warn(
-        `[ContextMenu] rejected action "${action.name}" url "${result.href}" reason="${result.reason}"`,
-      );
-      onInvoke?.(action.name, action);
-      return;
-    }
-    return;
-  }
   onInvoke?.(action.name, action);
 }
 

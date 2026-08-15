@@ -23,8 +23,8 @@
  * opens a nested dropdown instead of dumping every child as a flat
  * button (#2730 / #2731). The Workflow group (#2732) is a special case:
  * it renders as a labeled button group so each transition is one-click
- * invokable. Server-provided URLs navigate; otherwise the action is
- * delegated to {@link ActionToolbarProps.onInvoke}.</p>
+ * invokable. Activation always goes to {@link ActionToolbarProps.onInvoke};
+ * the host dispatcher executes REST / React handlers.</p>
  *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
@@ -35,7 +35,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
-import { safeNavigate } from "../util/safeNavigate";
 import { WORKFLOW_MENU_NAME } from "./workflowMenuActions";
 
 export interface ActionToolbarProps {
@@ -113,21 +112,9 @@ function hasChildren(action: MenuAction): boolean {
 
 function activate(
   action: MenuAction,
-  baseHref: string,
+  _baseHref: string,
   onInvoke?: (name: string, a: MenuAction) => void,
 ): void {
-  if (action.url) {
-    const result = safeNavigate(action.url, baseHref);
-    if (!result.ok) {
-      // eslint-disable-next-line no-console -- surface rejection for ops
-      console.warn(
-        `[ActionToolbar] rejected action "${action.name}" url "${result.href}" reason="${result.reason}"`,
-      );
-      onInvoke?.(action.name, action);
-      return;
-    }
-    return;
-  }
   onInvoke?.(action.name, action);
 }
 

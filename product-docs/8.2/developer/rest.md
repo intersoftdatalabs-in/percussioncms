@@ -493,6 +493,29 @@ See also [Content Explorer](id:admin-content-explorer) dual-run notes.
 - Do not confuse with foldermanagement workflow assignment (`/services/folders`) or CM1
   `FoldersResource` section APIs.
 
+## Assembly preview location (Explorer)
+
+Explorer **Preview** by **template** (legacy “variant”) uses a public REST location, not
+Data Flow `sys_cxSupport/previewslotvariant.html`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/assembly/preview-location?contentId=&templateId=&revision=` | Build a context-root-relative assembler preview URL |
+
+Response JSON (`PreviewLocation`):
+
+| Field | Meaning |
+|-------|---------|
+| `previewUrl` | Path + query for `/assembler/render` with `sys_contentid`, `sys_template`, `sys_revision`, `sys_context=0`, `sys_itemfilter=preview` |
+| `contentId` | Item id |
+| `templateId` | Assembly template id |
+| `revision` | Revision used (current revision when the query omits `revision`) |
+
+`400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
+summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`.
+
+See [Content Explorer](id:admin-content-explorer) server actions.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the

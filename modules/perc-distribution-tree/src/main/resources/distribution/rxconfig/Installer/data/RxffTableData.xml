@@ -7204,11 +7204,11 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="ACTIONID">1001</column>
 			<column name="NAME">Enterprise_Preview</column>
 			<column name="DISPLAYNAME">Enterprise Preview</column>
-			<column name="DESCRIPTION">Enterprise Preview item with selected variant</column>
-			<column name="URL">../sys_cxSupport/variantlist.html</column>
+			<column name="DESCRIPTION">Enterprise Preview item with selected template</column>
+			<column name="URL"/>
 			<column name="SORTORDER">40</column>
 			<column name="TYPE">MENU</column>
-			<column name="HANDLER">SERVER</column>
+			<column name="HANDLER">CLIENT</column>
 			<column name="VERSION">0</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">
@@ -7233,15 +7233,15 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="HANDLER">SERVER</column>
 			<column name="VERSION">0</column>
 		</row>
-		<row onTableCreateOnly="no" action="i">
+		<row onTableCreateOnly="no" action="r">
 			<column name="ACTIONID">1005</column>
 			<column name="NAME">Slot_Item_Enterprise_Preview</column>
 			<column name="DISPLAYNAME">Enterprise Preview</column>
 			<column name="DESCRIPTION">Preview a slot item in Active Assembly for Documents with Enterprise Site Id</column>
-			<column name="URL">../sys_cxSupport/previewslotvariant.html</column>
+			<column name="URL"/>
 			<column name="SORTORDER">2</column>
 			<column name="TYPE">MENUITEM</column>
-			<column name="HANDLER">SERVER</column>
+			<column name="HANDLER">CLIENT</column>
 			<column name="VERSION">0</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">
@@ -7249,10 +7249,10 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="NAME">Slot_Item_Corporate_Preview</column>
 			<column name="DISPLAYNAME">Corporate Preview</column>
 			<column name="DESCRIPTION"/>
-			<column name="URL">../sys_cxSupport/previewslotvariant.html</column>
+			<column name="URL"/>
 			<column name="SORTORDER">0</column>
 			<column name="TYPE">MENUITEM</column>
-			<column name="HANDLER">SERVER</column>
+			<column name="HANDLER">CLIENT</column>
 			<column name="VERSION">0</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">
@@ -7260,10 +7260,10 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="NAME">Corporate_Preview</column>
 			<column name="DISPLAYNAME">Corporate Preview</column>
 			<column name="DESCRIPTION"/>
-			<column name="URL">../sys_cxSupport/variantlist.html</column>
+			<column name="URL"/>
 			<column name="SORTORDER">40</column>
 			<column name="TYPE">MENU</column>
-			<column name="HANDLER">SERVER</column>
+			<column name="HANDLER">CLIENT</column>
 			<column name="VERSION">0</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">

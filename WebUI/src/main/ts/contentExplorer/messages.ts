@@ -325,4 +325,14 @@ export const EXPLORER_MSG = {
   VIEWS_INBOX: "perc.ui.explorer@Inbox",
   VIEWS_INBOX_ICON: "perc.ui.explorer@Inbox view",
   VIEWS_RESULTS_REGION: "perc.ui.explorer@View results",
+
+  // Server-action dispatcher (action-execution / stop Data Flow 404s)
+  ACTION_EDITOR_UNAVAILABLE:
+    "perc.ui.explorer@The content editor is not available in this Explorer release",
+  ACTION_UNAVAILABLE:
+    "perc.ui.explorer@This action is not available in Content Explorer yet",
+  ACTION_NEEDS_ITEM:
+    "perc.ui.explorer@Select a content item first",
+  CONFIRM_PURGE_BODY:
+    "perc.ui.explorer@Permanently delete this item from the system?",
 } as const;

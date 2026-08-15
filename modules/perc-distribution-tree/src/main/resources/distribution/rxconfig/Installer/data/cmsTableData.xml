@@ -5856,10 +5856,10 @@
             <column name="NAME">Purge</column>
             <column name="DISPLAYNAME">Purge</column>
             <column name="DESCRIPTION">Delete the selected item from the system</column>
-            <column name="URL">../sys_cxSupport/deletecontent.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">90</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="r">
@@ -5911,10 +5911,10 @@
             <column name="NAME">Create_New_Item</column>
             <column name="DISPLAYNAME">New Item</column>
             <column name="DESCRIPTION">Create an item of selected content type</column>
-            <column name="URL">../sys_cxSupport/newcontentmenu.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">1</column>
             <column name="TYPE">MENU</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -6098,10 +6098,10 @@
             <column name="NAME">Workflow</column>
             <column name="DISPLAYNAME">Workflow</column>
             <column name="DESCRIPTION">Workflow actions</column>
-            <column name="URL">../sys_cxSupport/wfactionset.xml</column>
+            <column name="URL"/>
             <column name="SORTORDER">40</column>
             <column name="TYPE">MENU</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -6225,15 +6225,15 @@
             <column name="HANDLER">SERVER</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">131</column>
             <column name="NAME">Item_Preview</column>
             <column name="DISPLAYNAME">Preview</column>
-            <column name="DESCRIPTION">Preview item with selected variant</column>
-            <column name="URL">../sys_cxSupport/variantlist.html</column>
+            <column name="DESCRIPTION">Preview item with selected template</column>
+            <column name="URL"/>
             <column name="SORTORDER">30</column>
             <column name="TYPE">MENU</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -6405,15 +6405,15 @@
             <column name="HANDLER">SERVER</column>
             <column name="VERSION">0</column>
         </row>
-        <row onTableCreateOnly="no" action="i">
+        <row onTableCreateOnly="no" action="r">
             <column name="ACTIONID">208</column>
             <column name="NAME">Slot_Item_Preview</column>
             <column name="DISPLAYNAME">Preview</column>
             <column name="DESCRIPTION">Preview a slot item in Active Assembly for Documents</column>
-            <column name="URL">../sys_cxSupport/previewslotvariant.html</column>
+            <column name="URL"/>
             <column name="SORTORDER">2</column>
             <column name="TYPE">MENUITEM</column>
-            <column name="HANDLER">SERVER</column>
+            <column name="HANDLER">CLIENT</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
