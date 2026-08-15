@@ -212,6 +212,7 @@ export function columnHeaderLabel(
   }
 }
 import { message } from "../i18n/message";
+import { isPreviewableItem } from "./previewItem";
 import { canRead, isFolder } from "./selection";
 import {
   emptyStateStyle,
@@ -530,6 +531,8 @@ export function DetailList({
                 key={idKey}
                 data-testid={`detail-row-${idKey}`}
                 data-row-kind={folderish ? "folder" : "item"}
+                data-item-type={item.type ?? ""}
+                data-previewable={isPreviewableItem(item) ? "true" : "false"}
                 data-selected={isChecked ? "true" : undefined}
                 style={rowStyle(selected)}
                 role="row"

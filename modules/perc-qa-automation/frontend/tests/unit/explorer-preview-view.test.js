@@ -15,7 +15,12 @@ const {
   pageRenderPreviewPath,
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
+  noListedPageSkipMessage,
   isPreviewableRow,
+  isListedPageRow,
+  unwrapPathItems,
+  parentFolderCmsPath,
+  isProductPagePreviewUrl,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -72,7 +77,77 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
   });
 
+  it("isListedPageRow accepts percPage/Page and rejects folders (#3456)", () => {
+    assert.equal(
+      isListedPageRow({
+        type: "percPage",
+        path: "/Sites/Corporate_Investments/Pages/About",
+        id: "16777215-101-9",
+      }),
+      true,
+    );
+    assert.equal(
+      isListedPageRow({ type: "Page", path: "/Sites/D/Home", id: "1" }),
+      true,
+    );
+    assert.equal(
+      isListedPageRow({ type: "folder", path: "/Sites/D/Pages/" }),
+      false,
+    );
+    assert.equal(
+      isListedPageRow({ type: "site", path: "/Sites/D/" }),
+      false,
+    );
+  });
+
+  it("unwrapPathItems reads PathItem and PagedItemList children", () => {
+    assert.deepEqual(
+      unwrapPathItems({ PathItem: [{ name: "A" }, { name: "B" }] }).map(
+        (i) => i.name,
+      ),
+      ["A", "B"],
+    );
+    assert.deepEqual(
+      unwrapPathItems({
+        PagedItemList: {
+          childrenInPage: [{ name: "About", type: "percPage" }],
+          childrenCount: 1,
+        },
+      }).map((i) => i.name),
+      ["About"],
+    );
+    assert.deepEqual(unwrapPathItems(null), []);
+  });
+
+  it("parentFolderCmsPath is a logical CMS parent", () => {
+    assert.equal(
+      parentFolderCmsPath("/Sites/Demo/Pages/About"),
+      "/Sites/Demo/Pages",
+    );
+    assert.equal(parentFolderCmsPath("/Sites/Demo"), "/Sites");
+    assert.equal(parentFolderCmsPath("Sites/Demo/Home"), "/Sites/Demo");
+  });
+
+  it("isProductPagePreviewUrl matches render and site-path preview", () => {
+    assert.equal(
+      isProductPagePreviewUrl(
+        "/Rhythmyx/services/pagemanagement/render/page/16777215-101-9",
+      ),
+      true,
+    );
+    assert.equal(
+      isProductPagePreviewUrl("/Sites/Demo/Home?percmobilepreview=false"),
+      true,
+    );
+    assert.equal(isProductPagePreviewUrl("/Rhythmyx/cm/app/spa.jsp"), false);
+  });
+
   it("noPreviewableItemSkipMessage is stable and cites issue", () => {
     assert.match(noPreviewableItemSkipMessage(), /#2733/);
+  });
+
+  it("noListedPageSkipMessage cites listing slice", () => {
+    assert.match(noListedPageSkipMessage(), /#3457/);
+    assert.match(noListedPageSkipMessage(), /#3456/);
   });
 });

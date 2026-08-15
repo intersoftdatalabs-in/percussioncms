@@ -84,6 +84,15 @@ describe("DetailList", () => {
       expect(screen.getByTestId("detail-row-p-1")).toBeInTheDocument(),
     );
     expect(screen.getByTestId("detail-row-p-2")).toBeInTheDocument();
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-previewable")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-item-type")).toBe(
+      "page",
+    );
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-row-kind")).toBe(
+      "item",
+    );
     expect(screen.getByTestId("detail-pagination")).toHaveTextContent(
       /Page 1 of 1/,
     );
@@ -495,6 +504,18 @@ describe("DetailList folder row chrome (#3328)", () => {
     const systemIcon = screen.getByTestId("detail-folder-icon-sys-1");
     expect(systemIcon).toHaveAttribute("data-kind", "folder");
     expect(systemIcon).toHaveAttribute("data-folder-state", "closed");
+    expect(screen.getByTestId("detail-row-sys-1")).toHaveAttribute(
+      "data-previewable",
+      "false",
+    );
+    expect(screen.getByTestId("detail-row-uf-1")).toHaveAttribute(
+      "data-previewable",
+      "false",
+    );
+    expect(screen.getByTestId("detail-row-p-page")).toHaveAttribute(
+      "data-previewable",
+      "true",
+    );
     expect(screen.getByTestId("detail-row-sys-1")).toHaveAttribute(
       "data-row-kind",
       "folder",

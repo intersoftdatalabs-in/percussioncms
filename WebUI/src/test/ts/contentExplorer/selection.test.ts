@@ -16,7 +16,10 @@
 
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
-import { isFolder } from "../../../main/ts/contentExplorer/selection";
+import {
+  isFolder,
+  isPageOrAssetContentType,
+} from "../../../main/ts/contentExplorer/selection";
 
 describe("isFolder (#3001 site nodes)", () => {
   it("treats type site as expandable folder", () => {
@@ -84,6 +87,27 @@ describe("isFolder (#3001 site nodes)", () => {
         path: "/Sites/1/index.html",
         type: "page",
         leaf: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("does not treat listed percPage rows as folders (#3456)", () => {
+    const listed: PSPathItem = {
+      id: "16777215-101-9",
+      name: "About",
+      path: "/Sites/Corporate_Investments/Pages/About",
+      type: "percPage",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(isPageOrAssetContentType(listed)).toBe(true);
+    expect(isFolder(listed)).toBe(false);
+    expect(
+      isFolder({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "Page",
+        category: "PAGE",
       }),
     ).toBe(false);
   });

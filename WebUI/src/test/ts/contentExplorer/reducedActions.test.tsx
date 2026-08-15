@@ -113,6 +113,32 @@ describe("ReducedActions", () => {
     expect(screen.getByTestId("action-preview")).toBeDisabled();
   });
 
+  it("enables Preview for listed percPage rows (#3456)", () => {
+    const { handlers, calls } = makeHandlers();
+    const listed: PSPathItem = {
+      id: "16777215-101-9",
+      name: "About",
+      path: "/Sites/Corporate_Investments/Pages/About",
+      type: "percPage",
+      leaf: false,
+      accessLevel: "READ",
+    };
+    render(
+      <ReducedActions
+        item={listed}
+        folder={FOLDER}
+        handlers={handlers}
+        hasPreviewHandler={true}
+        onError={() => undefined}
+      />,
+    );
+    const btn = screen.getByTestId("action-preview");
+    expect(btn).toBeEnabled();
+    fireEvent.click(btn);
+    expect(calls.onPreview).toHaveLength(1);
+    expect(calls.onPreview[0]).toMatchObject({ type: "percPage" });
+  });
+
   it("enables the Preview button for previewable pages when a handler is supplied (#2733)", () => {
     const { handlers, calls } = makeHandlers();
     render(

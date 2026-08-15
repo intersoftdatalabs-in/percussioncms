@@ -43,12 +43,28 @@ export const EMPTY_SELECTION: Selection = {
  */
 const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
 
+/**
+ * Content types that are previewable items, not folders. Pathmanagement
+ * lists FastForward pages as {@code percPage} / {@code Page}; those must
+ * stay items even when {@code leaf} is omitted or {@code hasFolderChildren}
+ * is set on a paginated row (#3456 / #2745).
+ */
+export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
+  if (!item) return false;
+  const type = (item.type ?? "").trim().toLowerCase();
+  const category = (item.category ?? "").trim().toLowerCase();
+  const token = `${type} ${category}`;
+  return token.includes("page") || token.includes("asset");
+}
+
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
   if (FOLDER_TYPE_KEYS.has(type)) return true;
   const category = (item.category ?? "").trim().toLowerCase();
   if (category === "folder") return true;
+  // Listed percPage / Page / asset rows are never folders (#3456).
+  if (isPageOrAssetContentType(item)) return false;
   // Server PSPathItem.setPath appends '/' only for folders. $System$ and
   // similar under /Folders/ may omit type but still use a folder path (#3330).
   const path = (item.path ?? "").trim();
