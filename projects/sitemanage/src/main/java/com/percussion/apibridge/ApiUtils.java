@@ -124,7 +124,7 @@ public class ApiUtils {
     if (guid == null) {
       return null;
     }
-    String raw = guid.getStringValue().orElse(null);
+    String raw = guid.getStringValue();
     if (raw != null && !raw.isBlank()) {
       return PSGuidManagerLocator.getGuidMgr().makeGuid(raw);
     }
@@ -532,7 +532,7 @@ public class ApiUtils {
     long objectId = acl.getObjectId();
     Guid objectGuid = acl.getObjectGuid();
     if (objectGuid != null) {
-      String stringValue = orNull(objectGuid.getStringValue());
+      String stringValue = objectGuid.getStringValue();
       if (stringValue != null
           && !stringValue.isBlank()
           && (objectGuid.getType() == 0 || objectGuid.getUuid() == 0)) {

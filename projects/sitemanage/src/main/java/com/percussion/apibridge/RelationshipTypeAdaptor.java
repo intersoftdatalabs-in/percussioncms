@@ -121,7 +121,7 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
         return withDesignGaps(t);
       }
       if (t.getGuid() != null) {
-        String guidStr = t.getGuid().getStringValue().orElse(null);
+        String guidStr = t.getGuid().getStringValue();
         if (guidStr != null && key.equalsIgnoreCase(guidStr)) {
           return withDesignGaps(t);
         }

@@ -329,8 +329,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         String key =
             s.getName() != null
                 ? s.getName()
-                : (s.getGuid() != null && s.getGuid().getStringValue().isPresent()
-                    ? s.getGuid().getStringValue().get()
+                : (s.getGuid() != null && s.getGuid().getStringValue() != null
+                    ? s.getGuid().getStringValue()
                     : "?");
         throw new IllegalArgumentException("slots[" + (i - 1) + "] not found: " + key);
       }
@@ -340,8 +340,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   }
 
   private IPSTemplateSlot resolveSlotRef(TemplateSlotSummary s) throws PSAssemblyException {
-    if (s.getGuid() != null && s.getGuid().getStringValue().isPresent()) {
-      String sv = s.getGuid().getStringValue().get();
+    if (s.getGuid() != null && s.getGuid().getStringValue() != null) {
+      String sv = s.getGuid().getStringValue();
       if (StringUtils.isNotBlank(sv)) {
         try {
           return asmSvc.loadSlot(ApiUtils.convertGuid(s.getGuid()));

@@ -233,7 +233,7 @@ public class SlotsResourceDetailTest {
     assertEquals(1, result.getAssociations().size());
     assertEquals(
         "0-2-301",
-        result.getAssociations().get(0).getContentTypeGuid().getStringValue().orElse(null));
+        result.getAssociations().get(0).getContentTypeGuid().getStringValue());
   }
 
   @Test

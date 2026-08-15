@@ -122,7 +122,7 @@ public class AclListSerialDeserialTest {
     assertEquals(5, acl.getObjectId());
     assertEquals(31, acl.getObjectType());
     assertNotNull(acl.getObjectGuid());
-    assertEquals("0-31-5", acl.getObjectGuid().getStringValue().orElse(null));
+    assertEquals("0-31-5", acl.getObjectGuid().getStringValue());
     assertEquals(3, acl.getAclEntries() == null ? 0 : acl.getAclEntries().size());
   }
 
@@ -233,7 +233,7 @@ public class AclListSerialDeserialTest {
             + "\"objectGuid\":{\"stringValue\":\"0-31-5\"},"
             + "\"owner\":{\"name\":\"Admin\",\"type\":\"USER\"}}}";
     CreateAclRequest req = mapper.readValue(wrapped, CreateAclRequest.class);
-    assertEquals("0-31-5", req.getObjectGuid().getStringValue().orElse(null));
+    assertEquals("0-31-5", req.getObjectGuid().getStringValue());
     assertEquals("Admin", req.getOwner().getName());
     assertEquals(IPSTypedPrincipal.PrincipalTypes.USER, req.getOwner().getType());
 
@@ -244,7 +244,8 @@ public class AclListSerialDeserialTest {
       assertTrue(
           result == null
               || result.getObjectGuid() == null
-              || result.getObjectGuid().getStringValue().orElse("").isBlank(),
+              || result.getObjectGuid().getStringValue() == null
+              || result.getObjectGuid().getStringValue().isBlank(),
           "flat CreateAclRequest must not bind under UNWRAP_ROOT_VALUE");
     } catch (Exception expected) {
       assertTrue(

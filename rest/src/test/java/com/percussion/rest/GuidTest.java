@@ -19,6 +19,8 @@ package com.percussion.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,13 +37,12 @@ class GuidTest {
   void stringConstructorSeedsAllFields() {
     Guid guid = new Guid("0-2-311");
 
-    assertTrue(guid.getStringValue().isPresent());
-    assertEquals("0-2-311", guid.getStringValue().get());
+    assertEquals("0-2-311", guid.getStringValue());
     assertEquals(0L, guid.getHostId());
     assertEquals((short) 2, guid.getType());
     assertEquals(311, guid.getUuid());
     assertTrue(guid.getLongValue() != 0L || guid.getUuid() == 311);
-    assertTrue(guid.getUntypedString().isPresent());
+    assertNotNull(guid.getUntypedString());
   }
 
   @Test
@@ -65,8 +66,8 @@ class GuidTest {
   @Test
   void defaultConstructorLeavesOptionalFieldsEmpty() {
     Guid guid = new Guid();
-    assertTrue(guid.getStringValue().isEmpty());
-    assertTrue(guid.getUntypedString().isEmpty());
+    assertNull(guid.getStringValue());
+    assertNull(guid.getUntypedString());
     assertEquals(0L, guid.getHostId());
     assertEquals(0, guid.getUuid());
   }

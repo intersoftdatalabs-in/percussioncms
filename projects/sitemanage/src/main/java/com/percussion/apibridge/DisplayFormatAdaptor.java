@@ -256,8 +256,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
    * @return wire string, or {@code null} when neither source has a usable id
    */
   private static String plainGuidString(Guid mapped, int displayId) {
-    if (mapped != null && mapped.getStringValue().isPresent()) {
-      String sv = mapped.getStringValue().get();
+    if (mapped != null && mapped.getStringValue() != null) {
+      String sv = mapped.getStringValue();
       if (sv != null && !sv.isBlank()) {
         return sv.trim();
       }

@@ -24,17 +24,23 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
+/**
+ * REST GUID wire DTO.
+ *
+ * <p>Wire getters return plain nullable {@link String}s (not {@code Optional}) so Jackson/CXF JSON
+ * emits {@code stringValue} / {@code untypedString} as scalars, not Optional beans ({@code
+ * empty}/{@code present}). {@code stringValue} is bound on the field so Object ACL can accept both
+ * a JSON string and {@code {stringValue}} (#3200 / #2951 / #3378 / #3384 / #3391 / #3445).
+ */
 @XmlRootElement(name = "Guid")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Guid")
 public class Guid {
 
   /**
-   * Serialized as a plain JSON string via the field (not {@link #getStringValue()}). The Optional
-   * getter is for Java callers; Jackson must not emit Optional as an object or the SPA cannot bind
-   * Object ACL (#3200 / #2951).
+   * Serialized as a plain JSON string via this field (not {@link #getStringValue()}). Jackson must
+   * not emit Optional as an object or the SPA cannot bind Object ACL (#3200 / #2951).
    */
   @JsonProperty("stringValue")
   @Schema(
@@ -88,8 +94,8 @@ public class Guid {
       readOnly = true)
   private long longValue;
 
-  public Optional<String> getUntypedString() {
-    return Optional.ofNullable(untypedString);
+  public String getUntypedString() {
+    return untypedString;
   }
 
   public void setUntypedString(String untypedString) {
@@ -128,9 +134,13 @@ public class Guid {
     this.longValue = longValue;
   }
 
+  /**
+   * Plain nullable string form for Java callers. Jackson serializes {@code stringValue} from the
+   * annotated field so Object ACL bind stays a scalar (#3200 / #3445).
+   */
   @JsonIgnore
-  public Optional<String> getStringValue() {
-    return Optional.ofNullable(stringValue);
+  public String getStringValue() {
+    return stringValue;
   }
 
   @JsonProperty("stringValue")

@@ -75,7 +75,7 @@ public class ApiUtilsActionMenuConvertTest {
     assertNotNull(converted.getGuid());
     assertEquals(
         "0-107-9",
-        converted.getGuid().getStringValue().orElse(null),
+        converted.getGuid().getStringValue(),
         "ACTION type 107 + actionId for Object ACL (#3380)");
     assertEquals(107, converted.getGuid().getType());
     assertEquals(9, converted.getGuid().getUuid());

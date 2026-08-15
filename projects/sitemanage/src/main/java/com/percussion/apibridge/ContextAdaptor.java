@@ -106,7 +106,7 @@ public class ContextAdaptor implements IContextsAdaptor {
     try {
       IPSPublishingContext ctx;
       Guid idGuid = context.getId();
-      String idStr = (idGuid == null) ? null : ApiUtils.orNull(idGuid.getStringValue());
+      String idStr = (idGuid == null) ? null : idGuid.getStringValue();
       if (idStr == null || StringUtils.isBlank(idStr)) {
         ctx = siteManager.createContext();
       } else {
@@ -147,7 +147,7 @@ public class ContextAdaptor implements IContextsAdaptor {
     var ret = new PSPublishingContext();
     Guid idGuid = context.getId();
     if (idGuid != null) {
-      String idStr = ApiUtils.orNull(idGuid.getStringValue());
+      String idStr = idGuid.getStringValue();
       if (idStr != null) {
         var guid = new PSGuid(idStr);
         ret.setGUID(guid);
@@ -161,7 +161,7 @@ public class ContextAdaptor implements IContextsAdaptor {
       schemeId = defaultScheme.getSchemeId();
     }
     if (schemeId != null) {
-      String schemeStr = ApiUtils.orNull(schemeId.getStringValue());
+      String schemeStr = schemeId.getStringValue();
       if (schemeStr != null) {
         ret.setDefaultSchemeId(new PSGuid(schemeStr));
       }
