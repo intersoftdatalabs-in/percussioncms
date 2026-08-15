@@ -22,6 +22,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { BootstrapProvider } from "../../../../main/ts/app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../../../../main/ts/app/bootstrap/types";
 import { UserMenu } from "../../../../main/ts/app/layout/UserMenu";
+import * as prefs from "../../../../main/ts/api/preferences/preferencesApi";
 
 vi.mock("../../../../main/ts/api/user/userCurrentApi", () => ({
   getCurrentUserBasic: vi.fn().mockResolvedValue({
@@ -93,6 +94,15 @@ describe("UserMenu", () => {
     await waitFor(() => {
       expect(screen.getByTestId("perc-spa-user-avatar")).toBeTruthy();
     });
+  });
+
+  it("does not GET named preferences from chrome (#3458)", async () => {
+    renderMenu();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-user-avatar")).toBeTruthy();
+    });
+    expect(prefs.loadUserPreference).not.toHaveBeenCalled();
+    expect(prefs.getAllUserPreferences).not.toHaveBeenCalled();
   });
 
   it("shows initials when external avatar fetch is disabled", async () => {

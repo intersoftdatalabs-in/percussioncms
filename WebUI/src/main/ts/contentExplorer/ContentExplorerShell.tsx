@@ -108,7 +108,10 @@ import {
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
-import { resolveFolderPathFromSelection } from "./folderPath";
+import {
+  isFolderIdLookupPath,
+  resolveFolderPathFromSelection,
+} from "./folderPath";
 import {
   resolveExplorerListPath,
   resolveSiteNameFromSelection,
@@ -349,6 +352,9 @@ async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
 async function defaultResolveFolderId(
   path: string,
 ): Promise<string | undefined> {
+  if (!isFolderIdLookupPath(path)) {
+    return undefined;
+  }
   try {
     const item = await findItemByPath(path);
     return item?.id != null && String(item.id).length > 0

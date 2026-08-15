@@ -54,6 +54,18 @@ public class PreferenceResource {
 
   @Autowired private IPreferenceAdaptor adaptor;
 
+  /** Default constructor for servlet / Spring instantiation. */
+  public PreferenceResource() {}
+
+  /**
+   * Test / explicit-wiring constructor.
+   *
+   * @param adaptor preference adaptor
+   */
+  public PreferenceResource(IPreferenceAdaptor adaptor) {
+    this.adaptor = adaptor;
+  }
+
   /** Gets all stored user preferences for the current user. */
   @Path("/")
   @GET
@@ -63,19 +75,21 @@ public class PreferenceResource {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "OK",
+            description = "OK (empty list when the user has no stored preferences)",
             content =
                 @Content(
                     array = @ArraySchema(schema = @Schema(implementation = UserPreference.class)))),
-        @ApiResponse(responseCode = "404", description = "No preferences found"),
         @ApiResponse(responseCode = "500", description = "Error message")
       })
   public UserPreferenceList getAllUserPreferences() {
     try {
-      return adaptor.getAllUserPreferences();
+      UserPreferenceList list = adaptor.getAllUserPreferences();
+      return list != null ? list : new UserPreferenceList();
     } catch (NotFoundException e) {
+      // Empty catalog is a valid Explorer/profile session — do not 404 the
+      // browser (console-clean #3458 / parent #2745).
       log.debug("Didn't find any preferences");
-      throw new WebApplicationException("No preferences found.", 404);
+      return new UserPreferenceList();
     } catch (Exception e) {
       log.error(
           "An unexpected error occurred getting preferences. {}",
@@ -127,17 +141,22 @@ public class PreferenceResource {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "OK",
+            description = "OK (empty value when the named preference is not stored)",
             content = @Content(schema = @Schema(implementation = UserPreference.class))),
-        @ApiResponse(responseCode = "404", description = "No preference found"),
         @ApiResponse(responseCode = "500", description = "Error message")
       })
   public UserPreference loadPreference(@PathParam("preference") String preference) {
     try {
-      return adaptor.loadPreference(preference);
+      UserPreference found = adaptor.loadPreference(preference);
+      if (found != null) {
+        return found;
+      }
+      return emptyPreference(preference);
     } catch (NotFoundException e) {
+      // Unset prefs (e.g. perc_profile_gravatar_email) are normal on a clean
+      // H2 session — 404 here is browser-console noise (#3458 / #2745).
       log.debug("Didn't find a match for preference {}", preference);
-      throw new WebApplicationException("No preference found.", 404);
+      return emptyPreference(preference);
     } catch (Exception e) {
       log.error(
           "An unexpected error occurred getting preference: {}, Error: {}",
@@ -219,5 +238,16 @@ public class PreferenceResource {
       throw new WebApplicationException(e.getMessage(), e, 500);
     }
     return ret;
+  }
+
+  /**
+   * Wire shape for an unset named preference. Empty {@code value} is the
+   * product "not stored" signal — callers already treat blank as fallback.
+   */
+  static UserPreference emptyPreference(String preference) {
+    UserPreference empty = new UserPreference();
+    empty.setName(preference == null ? "" : preference);
+    empty.setValue("");
+    return empty;
   }
 }

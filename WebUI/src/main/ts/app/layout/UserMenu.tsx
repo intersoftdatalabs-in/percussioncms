@@ -21,7 +21,6 @@ import { getCurrentUserBasic } from "../../api/user/userCurrentApi";
 import { isSessionRedirectError } from "../../api/client";
 import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
-import { loadGravatarEmailOverride } from "../../profile/avatarPrefs";
 import { resolveAvatarPresentation } from "../../profile/gravatar";
 import { PROFILE_MSG } from "../../profile/messages";
 import { UserAvatar } from "../../profile/UserAvatar";
@@ -40,21 +39,16 @@ export function UserMenu(): React.ReactElement {
       try {
         // Do not swallow SessionRedirectError on getCurrentUserBasic — let the
         // outer guard see it so login redirect is not silently skipped.
-        const [basic, override] = await Promise.all([
-          getCurrentUserBasic(),
-          loadGravatarEmailOverride().catch((err: unknown) => {
-            if (isSessionRedirectError(err)) {
-              throw err;
-            }
-            return "";
-          }),
-        ]);
+        // Do not GET /preferences/{name} from chrome — unset prefs 404 and
+        // pollute Explorer console (#3458 / #2745). Profile AvatarSection
+        // still loads the override. Primary email is enough for the chip.
+        const basic = await getCurrentUserBasic();
         if (cancelled) {
           return;
         }
         const presentation = await resolveAvatarPresentation({
           displayName: name,
-          overrideEmail: override,
+          overrideEmail: "",
           primaryEmail: basic.email,
           allowExternalAvatarFetch: allowExternal,
           size: 64,
