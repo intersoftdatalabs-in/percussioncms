@@ -25,6 +25,7 @@ import {
   RX_FOLDER_REST_BASE,
   rxFolderToPathItem,
   saveRxFolder,
+  wrapAddFolderRequest,
 } from "../../../main/ts/api/contentExplorer/rxFolderApi";
 import { mockFetch } from "./setup";
 
@@ -64,6 +65,42 @@ describe("rxFolderToPathItem", () => {
   });
 });
 
+describe("wrapAddFolderRequest", () => {
+  it("wraps flat name/parentPath under AddFolderRequest for JAXB", () => {
+    expect(
+      wrapAddFolderRequest({ name: "New", parentPath: "/Folders" }),
+    ).toEqual({
+      AddFolderRequest: { name: "New", parentPath: "/Folders" },
+    });
+  });
+
+  it("includes optional sourcePath", () => {
+    expect(
+      wrapAddFolderRequest({
+        name: "New",
+        parentPath: "/Sites/Help",
+        sourcePath: "/Sites/Help/Src",
+      }),
+    ).toEqual({
+      AddFolderRequest: {
+        name: "New",
+        parentPath: "/Sites/Help",
+        sourcePath: "/Sites/Help/Src",
+      },
+    });
+  });
+
+  it("does not double-wrap an already enveloped body", () => {
+    expect(
+      wrapAddFolderRequest({
+        AddFolderRequest: { name: "X", parentPath: "/Folders" },
+      }),
+    ).toEqual({
+      AddFolderRequest: { name: "X", parentPath: "/Folders" },
+    });
+  });
+});
+
 describe("rxFolderApi HTTP", () => {
   it("loadFolderByPath hits content-explorer folders by-path", async () => {
     let last = "";
@@ -79,7 +116,7 @@ describe("rxFolderApi HTTP", () => {
     expect(folder.name).toBe("Folders");
   });
 
-  it("addRxFolder POSTs name + parentPath", async () => {
+  it("addRxFolder POSTs AddFolderRequest root with name + parentPath", async () => {
     let method = "";
     let body: unknown;
     mockFetch(async (input, init) => {
@@ -92,7 +129,9 @@ describe("rxFolderApi HTTP", () => {
     });
     const created = await addRxFolder("/Folders", "New");
     expect(method).toBe("POST");
-    expect(body).toEqual({ name: "New", parentPath: "/Folders" });
+    expect(body).toEqual({
+      AddFolderRequest: { name: "New", parentPath: "/Folders" },
+    });
     expect(created.id).toBe("9-101-1");
   });
 

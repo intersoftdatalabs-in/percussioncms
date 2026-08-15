@@ -58,6 +58,42 @@ export interface AddFolderRequest {
   sourcePath?: string;
 }
 
+/**
+ * Jackson / JAXB root for {@link AddFolderRequest}
+ * ({@code @XmlRootElement(name = "AddFolderRequest")}). CXF JAXB rejects a
+ * bare {@code name} field (QA #3360 / #3361).
+ */
+export const ADD_FOLDER_REQUEST_ROOT = "AddFolderRequest";
+
+/** Wire envelope required by WRAP_ROOT_VALUE / JAXB on folder create. */
+export type AddFolderRequestEnvelope = {
+  AddFolderRequest: AddFolderRequest;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+/**
+ * Wrap create fields under {@link ADD_FOLDER_REQUEST_ROOT}.
+ * Does not double-wrap an already-enveloped payload.
+ */
+export function wrapAddFolderRequest(
+  request: AddFolderRequest | AddFolderRequestEnvelope,
+): AddFolderRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[ADD_FOLDER_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      return { AddFolderRequest: nested as AddFolderRequest };
+    }
+  }
+  return { AddFolderRequest: request as AddFolderRequest };
+}
+
 export interface FolderChildrenRequest {
   sourcePath?: string;
   sourceId?: string;
@@ -161,11 +197,11 @@ export async function addRxFolder(
   name: string,
   sourcePath?: string,
 ): Promise<RxFolder> {
-  const body: AddFolderRequest = { name, parentPath };
+  const fields: AddFolderRequest = { name, parentPath };
   if (sourcePath) {
-    body.sourcePath = sourcePath;
+    fields.sourcePath = sourcePath;
   }
-  return post<RxFolder>(RX_FOLDER_REST_BASE, body);
+  return post<RxFolder>(RX_FOLDER_REST_BASE, wrapAddFolderRequest(fields));
 }
 
 /** Save folder fields (rename via {@code name}). */

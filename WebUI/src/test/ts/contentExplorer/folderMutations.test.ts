@@ -63,7 +63,9 @@ describe("folderMutations dual-run routing (#3074)", () => {
     const item = await addNewFolder("/Folders", "New");
     expect(last).toContain("/content-explorer/folders");
     expect(last).not.toContain("/pathmanagement/");
-    expect(body).toEqual({ name: "New", parentPath: "/Folders" });
+    expect(body).toEqual({
+      AddFolderRequest: { name: "New", parentPath: "/Folders" },
+    });
     expect(item.path).toBe("/Folders/New");
     expect(item.id).toBe("1-101-9");
   });
