@@ -25,21 +25,44 @@ export const SITE_DESIGN_GAPS: string[] = [
 const LIST_WRAPPER_KEYS = [
   "SiteList",
   "siteList",
+  "SiteSummary",
+  "siteSummary",
   "Site",
   "site",
   "sites",
   "entries",
+  "item",
+  "Item",
 ] as const;
 
 /**
- * Parse GET /services/sites JSON.
+ * Parse GET /services/sites JSON (and the sitemanage SiteSummary list fallback).
  *
- * <p>Accepts a bare array or Jackson WRAP_ROOT envelopes ({@code SiteList} / {@code Site}).
- * Nested wraps ({@code {SiteList:{Site:[...]}}}) and per-item {@code {Site:{name}}} objects
- * are unwrapped so Developer Sites does not render a silent empty table after HTTP 200
- * (#3198). Unknown object shapes throw so the panel shows an error instead of empty.
+ * <p>Accepts a bare array or Jackson WRAP_ROOT envelopes ({@code SiteList} / {@code Site} /
+ * {@code SiteSummary}). Nested wraps ({@code {SiteList:{Site:[...]}}},
+ * {@code {SiteList:{sites:[...]}}}, JAXB {@code item}) and per-item {@code {Site:{name}}}
+ * objects are unwrapped so Developer Sites does not render a silent empty table after
+ * HTTP 200 (#3198 / #3368). Unknown object shapes throw so the panel shows an error
+ * instead of empty. XML text (wrong Content-Type) is parsed when {@code DOMParser} exists.
  */
 export function parseSiteList(payload: unknown): SiteDef[] {
+  if (typeof payload === "string") {
+    const trimmed = payload.trim();
+    if (!trimmed) {
+      return [];
+    }
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        return parseSiteList(JSON.parse(trimmed) as unknown);
+      } catch {
+        throw new Error("Unexpected site list payload type");
+      }
+    }
+    if (trimmed.startsWith("<")) {
+      return parseXmlSiteList(trimmed);
+    }
+    throw new Error("Unexpected site list payload type");
+  }
   return collectSiteRows(payload, 0).map(normalizeSiteRow);
 }
 
@@ -55,6 +78,15 @@ function collectSiteRows(payload: unknown, depth: number): unknown[] {
   }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
+    const emptyBean = collectionBeanEmpty(obj);
+    if (emptyBean === true) {
+      return [];
+    }
+    if (emptyBean === false) {
+      throw new Error(
+        "Unexpected site list payload (collection serialized as empty bean)",
+      );
+    }
     for (const key of LIST_WRAPPER_KEYS) {
       const raw = obj[key];
       if (raw == null) continue;
@@ -76,6 +108,19 @@ function collectSiteRows(payload: unknown, depth: number): unknown[] {
   throw new Error("Unexpected site list payload type");
 }
 
+/**
+ * Jackson may serialize an {@code ArrayList} subclass as {@code {empty:true|false}}
+ * instead of a JSON array (#3368 / ActionMenuList). {@code empty:true} is a real
+ * empty list; {@code empty:false} means rows were dropped.
+ */
+function collectionBeanEmpty(obj: Record<string, unknown>): boolean | null {
+  const keys = Object.keys(obj);
+  if (keys.length !== 1 || keys[0] !== "empty" || typeof obj.empty !== "boolean") {
+    return null;
+  }
+  return obj.empty;
+}
+
 function unwrapArrayItem(item: unknown, depth: number): unknown[] {
   if (item == null || typeof item !== "object" || Array.isArray(item)) {
     return item == null ? [] : [item];
@@ -84,11 +129,73 @@ function unwrapArrayItem(item: unknown, depth: number): unknown[] {
   if (looksLikeSite(obj)) {
     return [obj];
   }
-  const nested = obj.Site ?? obj.site;
+  const nested = obj.Site ?? obj.site ?? obj.SiteSummary ?? obj.siteSummary;
   if (nested != null && typeof nested === "object") {
     return collectSiteRows(nested, depth + 1);
   }
   return [obj];
+}
+
+function xmlLocalName(el: Element): string {
+  const raw = el.localName || el.tagName || "";
+  const colon = raw.lastIndexOf(":");
+  return colon >= 0 ? raw.slice(colon + 1) : raw;
+}
+
+function xmlDirectChildText(el: Element, names: string[]): string {
+  const want = new Set(names.map((n) => n.toLowerCase()));
+  for (const child of Array.from(el.children)) {
+    if (want.has(xmlLocalName(child).toLowerCase())) {
+      return (child.textContent || "").trim();
+    }
+  }
+  return "";
+}
+
+/**
+ * CXF may still emit XML when Accept negotiation misses JSON (#3368 content-type).
+ */
+function parseXmlSiteList(xml: string): SiteDef[] {
+  if (typeof DOMParser === "undefined") {
+    throw new Error("Unexpected site list payload type");
+  }
+  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  if (doc.getElementsByTagName("parsererror").length > 0) {
+    throw new Error("Unexpected site list payload type");
+  }
+  const rowTags = new Set(["site", "sitesummary", "item"]);
+  const rows: SiteDef[] = [];
+  const walk = (el: Element): void => {
+    const name = xmlLocalName(el).toLowerCase();
+    if (rowTags.has(name)) {
+      const siteName =
+        xmlDirectChildText(el, ["name"]) || (el.getAttribute("name") || "").trim();
+      const description = xmlDirectChildText(el, ["description"]);
+      const baseUrl = xmlDirectChildText(el, ["baseUrl", "base-url"]);
+      if (siteName) {
+        rows.push({
+          name: siteName,
+          description: description || undefined,
+          baseUrl: baseUrl || undefined,
+        });
+        return;
+      }
+    }
+    for (const child of Array.from(el.children)) {
+      walk(child);
+    }
+  };
+  if (doc.documentElement) {
+    walk(doc.documentElement);
+  }
+  if (rows.length > 0) {
+    return rows.map(normalizeSiteRow);
+  }
+  const rootName = doc.documentElement ? xmlLocalName(doc.documentElement).toLowerCase() : "";
+  if (rootName === "sitelist" || rootName === "sitesummary" || rootName === "sitesummarylist") {
+    return [];
+  }
+  throw new Error("Unexpected site list payload type");
 }
 
 const SITE_SIGNAL_KEYS = [
@@ -171,10 +278,58 @@ function withGaps(s: SiteDef): SiteDef {
   };
 }
 
-/** GET /services/sites */
+/**
+ * Catalog list URLs. Primary is public REST {@code /services/sites}. Trailing-slash
+ * and sitemanage {@code SiteSummary} are fallbacks when the primary bind is empty
+ * or an unreadable envelope (#3368).
+ */
+function siteListUrls(): string[] {
+  return [PATHS.SITES, `${PATHS.SITES}/`, `${PATHS.SITES_ALL}/`];
+}
+
+function isSessionRedirect(err: unknown): boolean {
+  return (
+    !!err &&
+    typeof err === "object" &&
+    (err as { name?: string }).name === "SessionRedirectError"
+  );
+}
+
+/** GET /services/sites (sitemanage SiteSummary fallback when that list is empty). */
 export async function listSites(): Promise<SiteDef[]> {
-  const payload = await get<unknown>(PATHS.SITES);
-  return parseSiteList(payload).map(withGaps);
+  let lastError: unknown = null;
+  let sawEmpty = false;
+  const seen = new Set<string>();
+  for (const url of siteListUrls()) {
+    if (seen.has(url)) {
+      continue;
+    }
+    seen.add(url);
+    try {
+      const payload = await get<unknown>(url);
+      try {
+        const rows = parseSiteList(payload);
+        if (rows.length > 0) {
+          return rows.map(withGaps);
+        }
+        sawEmpty = true;
+      } catch (bindErr) {
+        lastError = bindErr;
+      }
+    } catch (httpErr) {
+      if (isSessionRedirect(httpErr)) {
+        throw httpErr;
+      }
+      lastError = httpErr;
+    }
+  }
+  if (sawEmpty) {
+    return [];
+  }
+  if (lastError != null) {
+    throw lastError;
+  }
+  return [];
 }
 
 /**

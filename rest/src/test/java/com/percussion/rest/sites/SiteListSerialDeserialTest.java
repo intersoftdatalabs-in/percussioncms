@@ -96,13 +96,14 @@ public class SiteListSerialDeserialTest {
 
     String json = mapper.writeValueAsString(list);
     assertTrue(json.contains("\"SiteList\""), "expected WRAP_ROOT_VALUE SiteList: " + json);
+    assertTrue(json.contains("["), "SiteList must be a JSON array, not a bean: " + json);
     assertTrue(json.contains("\"name\""), "site name property must be present: " + json);
     assertTrue(json.contains("\"Help\""), "site name value must be present: " + json);
     assertTrue(json.contains("\"description\""), json);
     assertTrue(json.contains("\"baseUrl\""), json);
     assertFalse(
-        json.contains("\"empty\"") && !json.contains("\"name\":\"Help\""),
-        "name must be a plain string, not an Optional bean: " + json);
+        json.contains("\"empty\""),
+        "ArrayList subclass must not serialize as {empty:false} bean (#3368): " + json);
 
     SiteList roundTrip = mapper.readValue(json, SiteList.class);
     assertEquals(1, roundTrip.size());

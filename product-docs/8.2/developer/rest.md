@@ -105,7 +105,7 @@ Example create body:
 
 | Operation | Path | Notes |
 |-----------|------|--------|
-| List | `GET /services/sites` | All CMS Sites (traditional, page-based, Virtual). JSON is a Jackson root wrap `{ "SiteList": [ { "name", "description", "baseUrl", … } ] }` or a bare array. Each entry includes a plain string `name` when the Site has one. |
+| List | `GET /services/sites` | All CMS Sites (traditional, page-based, Virtual). JSON is a Jackson root wrap `{ "SiteList": [ { "name", "description", "baseUrl", … } ] }` or a bare array — **not** `{ "empty": false }`. Each entry includes a plain string `name` when the Site has one. |
 | Detail | `GET /services/sites/{nameOrId}` | Site detail including `virtual.*` when configured |
 | Virtual properties | `GET` / `PUT /services/sites/{nameOrId}/virtual` | Virtual Site source bag. PUT JSON is `{ "VirtualSiteProperties": { "sourceKind", "rootPath", "configFile", "siteKey" } }` (Jackson/JAXB root wrap). A flat `{ "sourceKind": … }` body returns **400** unexpected element `sourceKind`. |
 | Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; Git-filesystem Virtual Sites |
@@ -113,8 +113,9 @@ Example create body:
 | Virtual preview file | `GET /services/sites/{nameOrId}/virtual/preview/{relPath}` | Admin-only; assembled file stream |
 | Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; build then copy to Site filesystem root. Same action as **Developer → Sites → Publish Virtual Site** |
 
-An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty list JSON is the
-only empty-catalog case. See [Sites & content structure](id:admin-sites).
+An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty catalog chrome
+appears only when this list **and** the sitemanage `GET /sitemanage/site/` `SiteSummary` fallback
+are both empty. See [Sites & content structure](id:admin-sites).
 
 ## Templates (design catalog)
 

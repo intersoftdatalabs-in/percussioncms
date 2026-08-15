@@ -118,6 +118,44 @@ describe("parseSiteList (#3198 bind)", () => {
       /Unexpected site list payload type/,
     );
   });
+
+  it("unwraps SiteList.sites (live Jackson / JAXB collection property)", () => {
+    expect(
+      parseSiteList({
+        SiteList: {
+          sites: [{ name: "Help", baseUrl: "https://h.example" }],
+        },
+      }),
+    ).toEqual([{ name: "Help", baseUrl: "https://h.example" }]);
+  });
+
+  it("unwraps sitemanage SiteSummary envelope (Home/Explorer list)", () => {
+    expect(parseSiteList({ SiteSummary: [{ name: "Corp", baseUrl: "https://c.example" }] })).toEqual(
+      [{ name: "Corp", baseUrl: "https://c.example" }],
+    );
+  });
+
+  it("unwraps JAXB item wrapper", () => {
+    expect(parseSiteList({ SiteList: { item: [{ name: "Help" }] } })).toEqual([{ name: "Help" }]);
+  });
+
+  it("treats {empty:true} collection bean as zero sites", () => {
+    expect(parseSiteList({ empty: true })).toEqual([]);
+    expect(parseSiteList({ SiteList: { empty: true } })).toEqual([]);
+  });
+
+  it("throws when collection bean is {empty:false} (rows dropped)", () => {
+    expect(() => parseSiteList({ empty: false })).toThrow(/empty bean/);
+    expect(() => parseSiteList({ SiteList: { empty: false } })).toThrow(/empty bean/);
+  });
+
+  it("parses JSON text and SiteList XML (wrong content-type leftovers)", () => {
+    expect(parseSiteList('{"SiteList":[{"name":"Help"}]}')).toEqual([{ name: "Help" }]);
+    expect(
+      parseSiteList("<SiteList><Site><name>Help</name><baseUrl>https://h.example</baseUrl></Site></SiteList>"),
+    ).toEqual([{ name: "Help", baseUrl: "https://h.example" }]);
+    expect(parseSiteList("<SiteList/>")).toEqual([]);
+  });
 });
 
 describe("coerceDisplayString", () => {
@@ -141,5 +179,36 @@ describe("listSites", () => {
     const out = await listSites();
     expect(out[0].name).toBe("Help");
     expect(out[0].designGaps?.length).toBeGreaterThan(0);
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to sitemanage SiteSummary when SiteList is empty (#3368)", async () => {
+    get.mockImplementation(async (url: string) => {
+      if (String(url).includes("sitemanage/site")) {
+        return { SiteSummary: [{ name: "Corp", description: "main" }] };
+      }
+      return { SiteList: [] };
+    });
+    const out = await listSites();
+    expect(out[0].name).toBe("Corp");
+    expect(out[0].designGaps?.length).toBeGreaterThan(0);
+  });
+
+  it("falls back when SiteList serializes as empty-false bean (#3368)", async () => {
+    get.mockImplementation(async (url: string) => {
+      if (String(url).includes("sitemanage/site")) {
+        return { SiteSummary: [{ name: "Help" }] };
+      }
+      return { SiteList: { empty: false } };
+    });
+    const out = await listSites();
+    expect(out.map((s) => s.name)).toEqual(["Help"]);
+  });
+
+  it("returns empty only when every list source is empty", async () => {
+    get.mockResolvedValue({ SiteList: [] });
+    const out = await listSites();
+    expect(out).toEqual([]);
+    expect(get.mock.calls.length).toBeGreaterThan(1);
   });
 });

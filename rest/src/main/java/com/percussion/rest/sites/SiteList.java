@@ -17,6 +17,7 @@
 
 package com.percussion.rest.sites;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,9 +34,15 @@ import java.util.Collection;
  * JAXBException}: {@code Site nor any of its super class is known to this context} (#3090). Peer
  * pattern: {@code UserPreferenceList} (#2746), {@code RoleList}, {@code CommunityList}, ACL list
  * wrappers.
+ *
+ * <p>{@link JsonFormat.Shape#ARRAY} keeps Jackson from treating this {@code ArrayList} subclass as
+ * a bean ({@code {"empty":false}}) under {@code JacksonContextResolver} WRAP_ROOT_VALUE. That bean
+ * shape is HTTP 200 with no Site rows, so Developer Sites renders a silent empty table (#3368 /
+ * QA #3129). Peer: {@link com.percussion.rest.actions.ActionMenuList} (#3379).
  */
 @XmlRootElement(name = "SiteList")
 @JsonRootName("SiteList")
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 @ArraySchema(schema = @Schema(implementation = Site.class))
 @XmlSeeAlso(Site.class)
 public class SiteList extends ArrayList<Site> {
