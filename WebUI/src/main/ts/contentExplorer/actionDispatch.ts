@@ -33,6 +33,7 @@ import {
 } from "../api/contentExplorer/itemCopyApi";
 import { del } from "../api/client";
 import { PATHS } from "../api/paths";
+import { publishSelectedItem } from "./itemPublish";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
 import { parseExplorerContentId } from "./menuCatalogLoad";
@@ -147,6 +148,7 @@ export interface ActionDispatchContext {
   resetNav?: () => Promise<void>;
   createCopy?: (itemId: string) => Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
+  onPublish?: (item: PSPathItem) => Promise<void>;
   writeClipboard?: (text: string) => Promise<void>;
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
@@ -217,10 +219,10 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (isAssemblerPreviewUrl(action.url) || PREVIEW_PARENT_NAMES.has(name)) {
     return "rest";
   }
-  if (name === "purge") {
+  if (name === "purge" || name === "publish_now") {
     return "rest";
   }
-  if (name === "publish_now" || name === "create_new_item") {
+  if (name === "create_new_item") {
     return "unavailable";
   }
   if (isDataFlowActionUrl(action.url)) {
@@ -513,7 +515,28 @@ export async function dispatchAction(
     return { kind: "rest", refresh: true };
   }
 
-  if (name === "publish_now" || name === "create_new_item") {
+  if (name === "publish_now") {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_PUBLISH_NOW,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onPublish) {
+      await ctx.onPublish(item);
+      return { kind: "rest", refresh: true };
+    }
+    const published = await publishSelectedItem(item);
+    if (!published) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (name === "create_new_item") {
     return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
   }
 

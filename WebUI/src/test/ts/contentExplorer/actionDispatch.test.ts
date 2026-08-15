@@ -372,14 +372,41 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
-  it("publish_now is unavailable without navigation", async () => {
+  it("classifies Publish Now as rest even with demandpublishing URL", () => {
+    expect(
+      classifyAction(
+        action({
+          name: "Publish_Now",
+          url: "../publisher/demandpublishing",
+        }),
+      ),
+    ).toBe("rest");
+  });
+
+  it("Publish Now confirms then publishes", async () => {
+    const onPublish = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
     const openWindow = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Publish_Now", url: "../publisher/demandpublishing" }),
+      { item: item(), onPublish, confirm, openWindow },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirm).toHaveBeenCalled();
+    expect(onPublish).toHaveBeenCalled();
+    expect(openWindow).not.toHaveBeenCalled();
+  });
+
+  it("Publish Now cancel does not publish", async () => {
+    const onPublish = vi.fn();
     const result = await dispatchAction(action({ name: "Publish_Now" }), {
       item: item(),
-      openWindow,
+      onPublish,
+      confirm: () => false,
     });
-    expect(result.kind).toBe("unavailable");
-    expect(openWindow).not.toHaveBeenCalled();
+    expect(onPublish).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
   });
 
   it("dispatch workflow-transition runs the trigger", async () => {
