@@ -17,9 +17,16 @@
 package com.percussion.services.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.services.security.data.PSAccessLevelImpl;
@@ -27,6 +34,7 @@ import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.hibernate.Session;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -91,6 +99,63 @@ class PSAclPersistMergerTest {
     assertEquals(31, merged.getObjectType());
     assertEquals(5, merged.getObjectId());
     assertTrue(merged.getObjectGuid().toString().contains("31"));
+  }
+
+  @Test
+  void managedAclFlushesAndDoesNotMerge() {
+    Session session = mock(Session.class);
+    PSAclImpl acl = newAcl(42, 3, 31, 5);
+    when(session.contains(acl)).thenReturn(true);
+
+    IPSAcl result = PSAclPersistMerger.persistInSession(session, acl);
+
+    assertSame(acl, result);
+    verify(session).flush();
+    verify(session, never()).merge(any());
+  }
+
+  @Test
+  void detachedAclIsMerged() {
+    Session session = mock(Session.class);
+    PSAclImpl incoming = newAcl(42, null, 31, 5);
+    PSAclImpl merged = newAcl(42, 1, 31, 5);
+    when(session.contains(incoming)).thenReturn(false);
+    when(session.merge(incoming)).thenReturn(merged);
+
+    IPSAcl result = PSAclPersistMerger.persistInSession(session, incoming);
+
+    assertSame(merged, result);
+    verify(session).merge(incoming);
+    verify(session, never()).flush();
+  }
+
+  @Test
+  void sessionIdentityDoesNotLookUpSecondRepresentation() {
+    Session session = mock(Session.class);
+    PSAclImpl src = newAcl(42, 3, 31, 5);
+    when(session.contains(src)).thenReturn(true);
+
+    assertTrue(PSAclPersistMerger.isSessionIdentity(session, src));
+    verify(session, never()).get(any(Class.class), any());
+    verify(session, never()).get(any(String.class), any());
+  }
+
+  @Test
+  void detachedIsNotSessionIdentity() {
+    Session session = mock(Session.class);
+    PSAclImpl src = newAcl(42, 3, 31, 5);
+    when(session.contains(src)).thenReturn(false);
+
+    assertFalse(PSAclPersistMerger.isSessionIdentity(session, src));
+  }
+
+  @Test
+  void persistInSessionRejectsNulls() {
+    Session session = mock(Session.class);
+    PSAclImpl acl = newAcl(1, 0, 31, 5);
+    assertThrows(IllegalArgumentException.class, () -> PSAclPersistMerger.persistInSession(null, acl));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSAclPersistMerger.persistInSession(session, null));
   }
 
   private static PSAclImpl newAcl(long id, Integer version, int objectType, long objectId) {

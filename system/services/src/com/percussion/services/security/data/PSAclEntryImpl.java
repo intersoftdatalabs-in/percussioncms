@@ -685,9 +685,15 @@ public class PSAclEntryImpl implements IPSAclEntry
    }
 
    /**
-    * Performs a shallow copy, merging permissions from the supplied entry,
-    * handling additions and deletes, ignores id and aclid.
-    * 
+    * Merge permission types from {@code srcEntry} onto this entry.
+    *
+    * <p>Adds missing permission types as <strong>new</strong> {@link
+    * PSAccessLevelImpl} rows (no SYSID). Does not attach the source permission
+    * entities — those often share SYSIDs with the already-managed collection
+    * (package install / REST save), and Hibernate then fails with {@code
+    * Multiple representations of the same entity [PSAccessLevelImpl]} during
+    * {@code session.merge}.
+    *
     * @param srcEntry The source entry, may not be <code>null</code>.
     */
    public void merge(PSAclEntryImpl srcEntry)
@@ -695,42 +701,30 @@ public class PSAclEntryImpl implements IPSAclEntry
       if (srcEntry == null)
          throw new IllegalArgumentException("srcEntry may not be null");
 
-      log.debug("Merging aclEntry name="+name+" type="+type);
+      log.debug("Merging aclEntry name={} type={}", name, type);
       name = srcEntry.name;
       type = srcEntry.type;
 
-    
-      Set<Short> updatePer = new HashSet<>();
-      
-      for (PSAccessLevelImpl updateAccess : srcEntry.getPsPermissions())
-      {
-         updatePer.add(updateAccess.getPermission().getOrdinal());
-         }
-      
-      
-      HashMap<Short,PSAccessLevelImpl> curPer = new HashMap<>();
-      HashSet<Short> newPer = new HashSet<>();
-      
+      Map<Short, PSAccessLevelImpl> currentByOrdinal = new HashMap<>();
       for (PSAccessLevelImpl currAccess : getPsPermissions())
+      {
+         currentByOrdinal.put(currAccess.getPermission().getOrdinal(), currAccess);
+      }
+
+      Set<Short> incomingOrdinals = new HashSet<>();
+      for (PSAccessLevelImpl incoming : srcEntry.getPsPermissions())
+      {
+         short ordinal = incoming.getPermission().getOrdinal();
+         incomingOrdinals.add(ordinal);
+         if (!currentByOrdinal.containsKey(ordinal))
          {
-         curPer.put(currAccess.getPermission().getOrdinal(), currAccess);
+            addPsPermission(new PSAccessLevelImpl(this, incoming.getPermission()));
          }
-
-      for (PSAccessLevelImpl newAccess : srcEntry.getPsPermissions())
-      {
-         newPer.add(newAccess.getPermission().getOrdinal());
-         if (!curPer.containsKey(newAccess.getPermission().getOrdinal()));
-      {
-            addPsPermission(newAccess);
       }
+
+      currentByOrdinal.keySet().removeAll(incomingOrdinals);
+      psPermissions.removeAll(currentByOrdinal.values());
    }
-
-      curPer.keySet().removeAll(newPer);
-      
-      psPermissions.removeAll(curPer.values());
-     
-      
-      }
 
   
 

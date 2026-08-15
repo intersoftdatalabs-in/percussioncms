@@ -18,15 +18,49 @@ package com.percussion.services.security;
 
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.utils.guid.IPSGuid;
+import org.hibernate.Session;
 
 /**
  * Merge a converted REST/wire ACL onto an existing Hibernate identity so save
  * updates {@code PSX_ACLS} instead of inserting a duplicate {@code PK_PSX_ACLS}
- * (#3384).
+ * (#3384). Package-install save of an already-persistent ACL must not {@code
+ * session.merge} that graph — flush the session identity instead.
  */
 public final class PSAclPersistMerger {
 
   private PSAclPersistMerger() {}
+
+  /**
+   * {@code true} when {@code entity} is already the Hibernate session identity
+   * (for example after {@code createAcl} {@code persist()}, or a package-install
+   * load in the same session).
+   */
+  public static boolean isSessionIdentity(Session session, Object entity) {
+    return session != null && entity != null && session.contains(entity);
+  }
+
+  /**
+   * Flush a managed ACL; {@code session.merge} only a detached/transient one.
+   * Merging a managed bidirectional EAGER ACL graph raises Hibernate {@code
+   * Multiple representations of the same entity [PSAccessLevelImpl]}.
+   *
+   * @param session open Hibernate session, never {@code null}
+   * @param acl ACL to persist, never {@code null}
+   * @return the session identity (managed input, or merge result)
+   */
+  public static IPSAcl persistInSession(Session session, IPSAcl acl) {
+    if (session == null) {
+      throw new IllegalArgumentException("session may not be null");
+    }
+    if (acl == null) {
+      throw new IllegalArgumentException("acl may not be null");
+    }
+    if (isSessionIdentity(session, acl)) {
+      session.flush();
+      return acl;
+    }
+    return (IPSAcl) session.merge(acl);
+  }
 
   /**
    * Copy incoming name/description/entries onto {@code existing} while keeping
@@ -37,7 +71,8 @@ public final class PSAclPersistMerger {
    *     a first insert
    * @param incoming converted payload, not {@code null} when {@code existing} is
    *     {@code null}
-   * @return the instance Hibernate should merge/persist
+   * @return the session identity to flush if managed, or the detached/transient
+   *     instance to {@code session.merge}
    */
   public static PSAclImpl mergeOntoExisting(PSAclImpl existing, PSAclImpl incoming) {
     if (existing == null) {
