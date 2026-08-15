@@ -44,6 +44,10 @@ export interface ParsedSpaEntry {
   path?: string;
   /** Architecture site name (path or query; #3094). */
   site?: string;
+  /** Active Assembly item id (query contract). */
+  contentId?: string;
+  /** Active Assembly page/snippet template id (query contract). */
+  templateId?: string;
 }
 
 /**
@@ -147,6 +151,20 @@ export function parseEntryQuery(
     }
     case "profile":
       return { entry, clientPath: "/profile" };
+    case "assembly": {
+      const contentId = normalizeId(params.get("contentId"));
+      const templateId = normalizeId(params.get("templateId"));
+      const qs = new URLSearchParams();
+      if (contentId) qs.set("contentId", contentId);
+      if (templateId) qs.set("templateId", templateId);
+      const qstr = qs.toString();
+      return {
+        entry,
+        contentId,
+        templateId,
+        clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
+      };
+    }
     case "unavailable":
       return { entry, clientPath: "/unavailable" };
     default:
@@ -167,6 +185,8 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.serverId) params.set("serverId", parsed.serverId);
   if (parsed.path) params.set("path", parsed.path);
   if (parsed.site) params.set("site", parsed.site);
+  if (parsed.contentId) params.set("contentId", parsed.contentId);
+  if (parsed.templateId) params.set("templateId", parsed.templateId);
   return `/cm/app/spa.jsp?${params.toString()}`;
 }
 
@@ -292,6 +312,20 @@ export function parseClientPath(
     }
     case "profile":
       return { entry, clientPath: "/profile" };
+    case "assembly": {
+      const contentId = normalizeId(params.get("contentId"));
+      const templateId = normalizeId(params.get("templateId"));
+      const qs = new URLSearchParams();
+      if (contentId) qs.set("contentId", contentId);
+      if (templateId) qs.set("templateId", templateId);
+      const qstr = qs.toString();
+      return {
+        entry,
+        contentId,
+        templateId,
+        clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
+      };
+    }
     case "unavailable":
       return { entry, clientPath: "/unavailable" };
     default:

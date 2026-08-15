@@ -65,6 +65,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
           "architecture",
           "explorer",
           "profile",
+          "assembly",
           "unavailable");
 
   private static final String APP_PREFIX = "/cm/app";

@@ -33,8 +33,14 @@ import {
 } from "../api/contentExplorer/itemCopyApi";
 import { del } from "../api/client";
 import { PATHS } from "../api/paths";
+import { publishSelectedItem } from "./itemPublish";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
+import {
+  ASSEMBLY_WINDOW_FEATURES,
+  assemblyWindowName,
+  buildAssemblyHostUrl,
+} from "../assembly/assemblyHostUrl";
 import { parseExplorerContentId } from "./menuCatalogLoad";
 import { EXPLORER_MSG } from "./messages";
 import {
@@ -75,11 +81,15 @@ const PREVIEW_PARENT_NAMES = new Set([
   "slot_item_corporate_preview",
 ]);
 
-const AA_UNAVAILABLE_NAMES = new Set([
+/** Explorer Active Assembly parents — open the preview-first host (996). */
+export const AA_PREVIEW_PARENT_NAMES = new Set([
   "item_activeassembly",
   "enterpriseitem_activeassembly",
   "corporateitem_activeassembly",
   "item_assembly",
+]);
+
+const AA_UNAVAILABLE_NAMES = new Set([
   "aa_table_editor",
   "slot_add",
   "slot_create",
@@ -147,6 +157,9 @@ export interface ActionDispatchContext {
   resetNav?: () => Promise<void>;
   createCopy?: (itemId: string) => Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
+  onPublish?: (item: PSPathItem) => Promise<void>;
+  /** Parent menu name when the user activated a child (AA vs Preview). */
+  parentName?: string;
   writeClipboard?: (text: string) => Promise<void>;
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
@@ -208,6 +221,9 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (EDITOR_NAMES.has(name) || isContentEditorActionUrl(action.url)) {
     return "editor";
   }
+  if (AA_PREVIEW_PARENT_NAMES.has(name)) {
+    return "rest";
+  }
   if (AA_UNAVAILABLE_NAMES.has(name)) {
     return "unavailable";
   }
@@ -217,10 +233,10 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (isAssemblerPreviewUrl(action.url) || PREVIEW_PARENT_NAMES.has(name)) {
     return "rest";
   }
-  if (name === "purge") {
+  if (name === "purge" || name === "publish_now") {
     return "rest";
   }
-  if (name === "publish_now" || name === "create_new_item") {
+  if (name === "create_new_item") {
     return "unavailable";
   }
   if (isDataFlowActionUrl(action.url)) {
@@ -233,6 +249,33 @@ export function classifyAction(action: MenuAction): ActionKind {
     return "legacy-file";
   }
   return "client";
+}
+
+/** Walk a menu tree and return the parent name that owns {@code childName}. */
+export function findMenuParentName(
+  actions: MenuAction[],
+  childName: string,
+): string | undefined {
+  for (const action of actions) {
+    if (action.children?.some((c) => c.name === childName)) {
+      return action.name;
+    }
+    const nested = findMenuParentName(action.children ?? [], childName);
+    if (nested) {
+      return nested;
+    }
+  }
+  return undefined;
+}
+
+export function isAaPreviewAction(
+  actionName: string | undefined,
+  parentName?: string,
+): boolean {
+  return (
+    AA_PREVIEW_PARENT_NAMES.has(normalizeActionName(actionName)) ||
+    AA_PREVIEW_PARENT_NAMES.has(normalizeActionName(parentName))
+  );
 }
 
 export function parseTemplateIdFromAction(action: MenuAction): number | null {
@@ -513,8 +556,44 @@ export async function dispatchAction(
     return { kind: "rest", refresh: true };
   }
 
-  if (name === "publish_now" || name === "create_new_item") {
+  if (name === "publish_now") {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_PUBLISH_NOW,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    if (ctx.onPublish) {
+      await ctx.onPublish(item);
+      return { kind: "rest", refresh: true };
+    }
+    const published = await publishSelectedItem(item);
+    if (!published) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (name === "create_new_item") {
     return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+  }
+
+  if (isAaPreviewAction(action.name, ctx.parentName)) {
+    if (!item || isFolder(item)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    const contentId = parseExplorerContentId(item.id);
+    if (contentId == null) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_UNAVAILABLE };
+    }
+    const templateId = parseTemplateIdFromAction(action);
+    const href = buildAssemblyHostUrl(contentId, templateId);
+    const open = ctx.openWindow ?? defaultOpenWindow;
+    open(href, assemblyWindowName(contentId), ASSEMBLY_WINDOW_FEATURES);
+    return { kind: "rest" };
   }
 
   const templateId = parseTemplateIdFromAction(action);

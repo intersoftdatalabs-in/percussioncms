@@ -101,6 +101,14 @@ export const PREVIEW_HOST_PREFERRED_KEYS: readonly string[] = [
   "slotitempreview",
 ];
 
+/** Normalized names of Active Assembly MENU parents that host AA templates. */
+export const AA_HOST_PREFERRED_KEYS: readonly string[] = [
+  "itemactiveassembly",
+  "enterpriseitemactiveassembly",
+  "corporateitemactiveassembly",
+  "itemassembly",
+];
+
 const NEW_ITEM_HOST_LABEL = /new|create/i;
 
 function findNewItemHost(tree: MenuAction[]): MenuAction | null {
@@ -223,6 +231,49 @@ export function mergeTemplateMenusIntoCatalog(
   return out;
 }
 
+function findAaHost(tree: MenuAction[]): MenuAction | null {
+  const stack = [...tree];
+  while (stack.length > 0) {
+    const node = stack.shift()!;
+    if (isCascadeParent(node)) {
+      const key = node.name.replace(/[\s_-]/g, "").toLowerCase();
+      if (AA_HOST_PREFERRED_KEYS.includes(key)) {
+        return node;
+      }
+    }
+    if (node.children?.length) {
+      stack.push(...node.children);
+    }
+  }
+  return null;
+}
+
+/**
+ * Merge {@code isAA} template menus under an Active Assembly MENU parent.
+ * Same template names may also live under Preview — they are still attached
+ * here so AA children open the assembly host.
+ */
+export function mergeAaTemplateMenusIntoCatalog(
+  tree: MenuAction[],
+  templateMenus: MenuAction[],
+): MenuAction[] {
+  if (templateMenus.length === 0) {
+    return tree.slice();
+  }
+  const out = tree.map(cloneAction);
+  const extra = templateMenus.filter((m) => m?.name).map(cloneAction);
+  const host = findAaHost(out);
+  if (!host || extra.length === 0) {
+    return out;
+  }
+  const existing = new Set((host.children ?? []).map((c) => c.name));
+  host.children = [
+    ...(host.children ?? []),
+    ...extra.filter((e) => !existing.has(e.name)),
+  ];
+  return out;
+}
+
 /**
  * Product default for Explorer toolbar / context-menu catalog load.
  *
@@ -258,10 +309,21 @@ export async function loadExplorerMenuCatalog(
     const templateMenus = mapActionMenusToMenuActions(
       await findAllowedTemplateMenus(contentId, false),
     );
-    return mergeTemplateMenusIntoCatalog(merged, templateMenus);
+    merged = mergeTemplateMenusIntoCatalog(merged, templateMenus);
   } catch (err: unknown) {
     console.warn(
       "[ContentExplorerShell] template menus load failed; keeping catalog",
+      err instanceof Error ? err.message : String(err),
+    );
+  }
+  try {
+    const aaMenus = mapActionMenusToMenuActions(
+      await findAllowedTemplateMenus(contentId, true),
+    );
+    return mergeAaTemplateMenusIntoCatalog(merged, aaMenus);
+  } catch (err: unknown) {
+    console.warn(
+      "[ContentExplorerShell] AA template menus load failed; keeping catalog",
       err instanceof Error ? err.message : String(err),
     );
     return merged;

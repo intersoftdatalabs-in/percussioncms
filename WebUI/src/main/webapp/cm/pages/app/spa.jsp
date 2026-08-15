@@ -59,7 +59,7 @@
                 || "admin".equals(n) || "widget-builder".equals(n)
                 || "explorer".equals(n) || "developer".equals(n)
                 || "design".equals(n) || "architecture".equals(n)
-                || "profile".equals(n)
+                || "profile".equals(n) || "assembly".equals(n)
                 || "unavailable".equals(n)) {
             return n;
         }

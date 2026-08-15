@@ -131,7 +131,9 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Promotable Version** | Confirm, then create a promotable version in the current folder. |
 | **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
-| **Publish Now** / Active Assembly / slot arrange | Still unavailable in this Explorer slice. |
+| **Publish Now** | Confirms, then demand-publishes a **page** or **asset** (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Other types stay unavailable. Does not open the demand-publish servlet page. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure (same as classic Finder) — Explorer shows the server warning and does not refresh as if published. |
+| **Active Assembly** | Opens a new window that assembles the selected item with its **page** or **snippet template** (`GET /services/assembly/preview-location` in an iframe). A light overlay shows the content id and template. If the requested template is missing from the item's available list, Explorer shows that mismatch instead of silently using another template. A failed template catalog load is an error, not a hidden preview retry. Field editing and slot arrange come later with the Content Editor. Does not open leftover Active Assembly HTML. |
+| **Slot arrange** | Still unavailable in this Explorer slice. Slot add/create/arrange need relationship context from the assembly canvas. |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.
@@ -183,8 +185,8 @@ Explorer result rows when the leaf is wired.
 |--------|---------|
 | Rows in the Inbox results list | You have current assignments |
 | Empty list (`children: []`) | No current assignments — this is success, not an error |
-| Views category or Inbox leaf missing | This build does not yet show the operator Inbox leaf; use DCE **Views → My Content → Inbox**, or wait for the Inbox leaf on the Explorer route |
-| Error instead of a list | Custom-URL execute is not available on this server, or the view is not in the Inbox family allow-list |
+| Views category or Inbox leaf missing | The Views catalog on this server does not include Inbox; use Desktop Content Explorer **Views → My Content → Inbox** or check that the Inbox design view is installed |
+| Error instead of a list | Custom-URL execute failed (unsupported URL, missing `sys_cxViews`, or a server error). An empty list is success, not an error |
 
 Do **not** look for a top-level **Inbox** tree root. Do **not** treat **Developer → Views**
 (design catalog) as the operator Inbox. Outbox / Recent / Session peers live in the same
@@ -197,8 +199,9 @@ Automated QA rerun (after `perc-devctl qa-up`, from `modules/perc-qa-automation/
 npm run test:surface -- --path tests/explorer-inbox.spec.js
 ```
 
-The spec soft-skips with a clear reason when the Inbox leaf or assignment execute path is
-missing on a minimal H2 cell.
+The spec soft-skips only when `GET /services/views` has no Inbox design view. If Inbox is
+in the catalog, the Explorer leaf must run execute (`200`) and show rows or an empty
+state — a missing results region is a product defect, not a skip.
 
 ## Search panel
 

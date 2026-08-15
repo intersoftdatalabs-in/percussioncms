@@ -530,6 +530,11 @@ export interface MenuAction {
   id?: number;
   /** Parent server action id when the catalog arrived flat (#3379). */
   parentId?: number;
+  /**
+   * Parent menu name stamped by the toolbar/context menu when a child is
+   * invoked. Distinguishes the same template under Preview vs Active Assembly.
+   */
+  parentName?: string;
   parameters?: ActionMenuParameter[];
   /** Empty unless the parent has cascading children. */
   children?: MenuAction[];

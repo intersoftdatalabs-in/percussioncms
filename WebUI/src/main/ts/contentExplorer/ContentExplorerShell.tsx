@@ -67,7 +67,11 @@ import type {
 import { useSpaBootstrapOptional } from "../app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../app/bootstrap/types";
 import { message } from "../i18n/message";
-import { dispatchAction, purgeSelectedItem } from "./actionDispatch";
+import {
+  dispatchAction,
+  findMenuParentName,
+  purgeSelectedItem,
+} from "./actionDispatch";
 import {
   filterContextMenuActions,
   filterToolbarActions,
@@ -711,6 +715,12 @@ function ContentExplorerShellInner({
           const result = await dispatchAction(action, {
             item: selection.item,
             folderPath: selection.folderPath,
+            parentName:
+              action.parentName ??
+              findMenuParentName(
+                [...menuActions, ...(contextMenu?.actions ?? [])],
+                action.name,
+              ),
             onOpen: handlers.onOpen,
             onPreview: handlers.onPreview,
             onPurge: async (item) => {
@@ -742,7 +752,14 @@ function ContentExplorerShellInner({
       })();
       void actionName;
     },
-    [selection.item, selection.folderPath, handlers, runWorkflowTransition],
+    [
+      selection.item,
+      selection.folderPath,
+      handlers,
+      runWorkflowTransition,
+      menuActions,
+      contextMenu,
+    ],
   );
 
   const handleSearchOpen = useCallback((result: PSItemProperties) => {

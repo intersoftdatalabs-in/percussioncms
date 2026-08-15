@@ -18,6 +18,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import {
   loadExplorerMenuCatalog,
+  mergeAaTemplateMenusIntoCatalog,
   mergeContentTypeMenusIntoCatalog,
   mergeTemplateMenusIntoCatalog,
   NEW_ITEM_HOST_PREFERRED_KEYS,
@@ -171,6 +172,40 @@ describe("mergeTemplateMenusIntoCatalog", () => {
   });
 });
 
+describe("mergeAaTemplateMenusIntoCatalog", () => {
+  it("nests AA templates under Item_ActiveAssembly even if Preview already has them", () => {
+    const tree: MenuAction[] = [
+      action({
+        name: "Item_Preview",
+        label: "Preview",
+        menuType: "MENU",
+        children: [
+          action({
+            name: "rffPgGeneric",
+            url: "../assembler/render?sys_template=7",
+          }),
+        ],
+      }),
+      action({
+        name: "Item_ActiveAssembly",
+        label: "Active Assembly",
+        menuType: "MENU",
+        children: [],
+      }),
+    ];
+    const merged = mergeAaTemplateMenusIntoCatalog(tree, [
+      action({
+        name: "rffPgGeneric",
+        url: "../assembler/render?sys_template=7",
+      }),
+    ]);
+    const aa = merged.find((a) => a.name === "Item_ActiveAssembly");
+    expect(aa?.children?.map((c) => c.name)).toEqual(["rffPgGeneric"]);
+    const preview = merged.find((a) => a.name === "Item_Preview");
+    expect(preview?.children?.map((c) => c.name)).toEqual(["rffPgGeneric"]);
+  });
+});
+
 describe("loadExplorerMenuCatalog", () => {
   it("always loads find() and keeps MENU children when types are also returned", async () => {
     const findPayload = {
@@ -210,6 +245,12 @@ describe("loadExplorerMenuCatalog", () => {
           status: 200,
           headers: { "Content-Type": "application/json" },
         }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenuList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
       );
 
     const actions = await loadExplorerMenuCatalog({
@@ -224,7 +265,7 @@ describe("loadExplorerMenuCatalog", () => {
     expect(actions.map((a) => a.name)).toEqual(["file"]);
     expect(actions[0]?.children?.map((c) => c.name)).toContain("open");
     expect(actions[0]?.children?.map((c) => c.name)).toContain("new-page");
-    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect(global.fetch).toHaveBeenCalledTimes(4);
   });
 
   it("uses only find() for folder-only selection", async () => {

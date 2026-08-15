@@ -271,7 +271,9 @@ and read `guid.stringValue` or synthesize from `id` when the Guid is omitted.
 
 Operators open Inbox from Explorer **Views → My Content → Inbox** (see
 [Content Explorer](id:admin-content-explorer)). Integrators run the same assignment list
-with the execute call below.
+with the execute call below. `GET /services/views` includes the Inbox design view (name
+`Inbox`, custom URL `../sys_cxViews/inbox.xml`) even when the design-WS load path
+collapses sibling CX views to `View_All`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -513,7 +515,7 @@ Response JSON (`PreviewLocation`):
 | `revision` | Revision used (current revision when the query omits `revision`) |
 
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
-summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`.
+summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`).
 
 See [Content Explorer](id:admin-content-explorer) server actions.
 
@@ -551,6 +553,20 @@ itemmanagement REST (sitemanage `PSItemService`), not Content Editor HTML.
 
 Copy / promotable response JSON (`ItemCopyResult`): `{ itemId, folderPath, promotable }`. Those
 POSTs fail if the item has no folder path (`Item has no folder path and cannot be copied.`).
+
+## Item publish now (Explorer)
+
+Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
+It does not open `/publisher/demandpublishing`. A 200 body whose `status` is
+`FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` (plain or wrapped as
+`SitePublishResponse`) is a preflight failure, not a started job.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/sitemanage/publish/page/{id}` | Publish Now for a page |
+| `GET` | `/services/sitemanage/publish/resource/{id}` | Publish Now for an asset |
+
+See [Content Explorer](id:admin-content-explorer) server actions.
 
 ## Testing tips
 

@@ -49,7 +49,10 @@ test.describe("modern React Content Explorer — action dispatch", () => {
           u.includes("checkoutedit.xml") ||
           u.includes("contenteditorurls.html") ||
           u.includes("flushcache.html") ||
-          u.includes("navreset.html")
+          u.includes("navreset.html") ||
+          u.includes("demandpublishing") ||
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html")
         ) {
           blocked.push(u);
         }
@@ -75,6 +78,68 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
+    },
+  );
+
+  test(
+    "Publish Now HTTP 200 FORBIDDEN shows an error and does not treat it as published",
+    { tag: ["@explorer-action-dispatch", "@explorer"] },
+    async ({ page }) => {
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      await page.route("**/services/sitemanage/publish/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage: "Publication stopped because of licensing issues",
+          }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const tree = page.locator('[data-testid="explorer-tree"]');
+      if ((await tree.count()) > 0) {
+        const sitesNode = page
+          .locator(
+            '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+          )
+          .first();
+        if ((await sitesNode.count()) > 0) {
+          await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+        }
+      }
+
+      const list = page.locator('[data-testid="detail-list"]');
+      if ((await list.count()) > 0) {
+        const row = list.locator('tbody tr[data-testid^="detail-row-"]').first();
+        if ((await row.count()) > 0) {
+          await row.click({ force: true, timeout: 10_000 }).catch(() => {});
+        }
+      }
+
+      const publishNow = page.locator(
+        '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
+      );
+      if ((await publishNow.count()) === 0 || !(await publishNow.first().isVisible())) {
+        test.skip(true, "Publish Now action not visible for the current selection");
+        return;
+      }
+
+      await publishNow.first().click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
     },
   );
 });
