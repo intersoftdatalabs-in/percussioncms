@@ -113,10 +113,27 @@ export interface PSRenameFolderItem {
   newName: string;
 }
 
+/**
+ * Client request for {@code POST …/pathmanagement/path/moveItem}.
+ *
+ * <p>Server {@code PSMoveFolderItem} fields are {@code itemPath} +
+ * {@code targetFolderPath} under a {@code MoveFolderItem} root (#3362).
+ * {@code sourcePath} / {@code targetPath} are SPA aliases mapped at wrap
+ * time (legacy PercPathService names). {@code copy} is a client-only
+ * folderMutations router flag and is <strong>never</strong> posted —
+ * {@code PSMoveFolderItem} has no copy field.</p>
+ */
 export interface PSMoveFolderItem {
-  sourcePath: string;
-  targetPath: string;
-  /** When true, server performs copy rather than move. */
+  itemPath?: string;
+  targetFolderPath?: string;
+  /** SPA alias for {@link itemPath}. */
+  sourcePath?: string;
+  /** SPA alias for {@link targetFolderPath}. */
+  targetPath?: string;
+  /**
+   * Client-only: folderMutations routes to {@code copyFolder} when true.
+   * Not a server DTO field — do not serialize on moveItem.
+   */
   copy?: boolean;
 }
 
@@ -226,16 +243,17 @@ export interface PSSiteCopyRequest {
 }
 
 /**
- * Wire body for `POST /Rhythmyx/rest/pathmanagement/path/moveItem` —
- * mirrors {@code com.percussion.pathmanagement.data.PSMoveFolderItem}
- * (the existing pathApi.moveItem DTO). Re-used by the
- * SubfolderCopyWizard (copy:true) and the ReducedActions move / copy
- * wiring (US1).
+ * Client fields for {@code POST /rest/folders/copy/folder} (and
+ * {@code /copy/item}) — mirrors {@code CopyFolderItemRequest}
+ * ({@code itemPath} + {@code targetFolderPath}). SPA aliases match
+ * {@link PSMoveFolderItem}. There is no {@code copy} property on the
+ * move DTO (#3362).
  */
 export interface PSCopyRequest {
-  sourcePath: string;
-  targetPath: string;
-  copy: boolean;
+  itemPath?: string;
+  targetFolderPath?: string;
+  sourcePath?: string;
+  targetPath?: string;
 }
 
 /**

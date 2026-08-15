@@ -104,7 +104,8 @@ on pathmanagement.
 | Default | **off** |
 | Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
 | Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only |
-| Unchanged | Browse/list, folder ACL (security panel), copy, `/Assets` / `/Design` / `/Recycling` |
+| Unchanged | Browse/list, folder ACL (security panel), `/Assets` / `/Design` / `/Recycling` |
+| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). |
 
 Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
 production unless you are validating the RX folder façade with QA.

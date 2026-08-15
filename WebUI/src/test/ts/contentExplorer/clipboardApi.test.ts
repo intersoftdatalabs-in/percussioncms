@@ -99,8 +99,27 @@ describe("pasteClipboardItems", () => {
 });
 
 describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 409", () => {
+  it("copy of a folder POSTs CopyFolderItemRequest, not a bare sourcePath moveItem", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("", { status: 200 }),
+    );
+    await pasteClipboardItems([folder("Help")], "copy");
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toContain("/folders/copy/folder");
+    expect(String(url)).not.toContain("/pathmanagement/path/moveItem");
+    const posted = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+    expect(posted).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Sites/Help",
+        targetFolderPath: "/Sites/Help",
+      },
+    });
+    expect(posted).not.toHaveProperty("sourcePath");
+    expect(posted).not.toHaveProperty("copy");
+  });
+
   it("surfaces a 409 from moveItem as a clear conflict per-item result (no silent overwrite)", async () => {
-    // The default transport hits POST /Rhythmyx/rest/pathmanagement/path/moveItem.
+    // Cut (move) hits POST pathmanagement/path/moveItem with MoveFolderItem wrap.
     // Mock the server returning 409 Conflict — the second of two concurrent
     // moves on the same source folder; the first wins, the second sees 409.
     vi.spyOn(global, "fetch").mockResolvedValueOnce(

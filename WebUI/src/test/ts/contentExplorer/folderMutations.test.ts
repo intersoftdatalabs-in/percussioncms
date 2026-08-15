@@ -141,22 +141,32 @@ describe("folderMutations dual-run routing (#3074)", () => {
     });
   });
 
-  it("copy always uses pathmanagement even when flag on", async () => {
+  it("copy uses /folders/copy/folder, not moveItem or a bare sourcePath root", async () => {
     setRxFolderMutationsFlagOverride(true);
     let last = "";
-    mockFetch(async (input) => {
+    let body: unknown;
+    mockFetch(async (input, init) => {
       last = typeof input === "string" ? input : (input as Request).url;
-      return new Response(
-        JSON.stringify({ PathItem: { name: "C", path: "/Folders/C" } }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
+      body = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     });
     await moveItem({
       sourcePath: "/Folders/Child",
       targetPath: "/Folders/Other",
       copy: true,
     });
-    expect(last).toContain("/pathmanagement/path/moveItem");
+    expect(last).toContain("/folders/copy/folder");
+    expect(last).not.toContain("/pathmanagement/path/moveItem");
+    expect(body).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Folders/Child",
+        targetFolderPath: "/Folders/Other",
+      },
+    });
+    expect(body).not.toHaveProperty("sourcePath");
   });
 
   it("flag on: deleteItem DELETEs by resolved folder id", async () => {

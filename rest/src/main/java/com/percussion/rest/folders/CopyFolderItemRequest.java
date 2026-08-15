@@ -21,12 +21,14 @@ package com.percussion.rest.folders;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
 
 /** Represents a request to copy a folder or item. Sunny Sal: "Copy ka request aaya, boss!" */
-@XmlRootElement
+@XmlRootElement(name = "CopyFolderItemRequest")
+@JsonRootName("CopyFolderItemRequest")
 @Schema(description = "Represents a request to copy a folder or item")
 public class CopyFolderItemRequest {
 
