@@ -105,7 +105,7 @@ public class ContextAdaptor implements IContextsAdaptor {
   public Context createOrUpdateContext(URI baseURI, Context context) throws BackendException {
     try {
       IPSPublishingContext ctx;
-      Guid idGuid = ApiUtils.orNull(context.getId());
+      Guid idGuid = context.getId();
       String idStr = (idGuid == null) ? null : ApiUtils.orNull(idGuid.getStringValue());
       if (idStr == null || StringUtils.isBlank(idStr)) {
         ctx = siteManager.createContext();
@@ -145,7 +145,7 @@ public class ContextAdaptor implements IContextsAdaptor {
 
   private IPSPublishingContext copyContext(Context context) {
     var ret = new PSPublishingContext();
-    Guid idGuid = ApiUtils.orNull(context.getId());
+    Guid idGuid = context.getId();
     if (idGuid != null) {
       String idStr = ApiUtils.orNull(idGuid.getStringValue());
       if (idStr != null) {
@@ -153,11 +153,12 @@ public class ContextAdaptor implements IContextsAdaptor {
         ret.setGUID(guid);
       }
     }
-    ret.setName(ApiUtils.orNull(context.getName()));
-    ret.setDescription(ApiUtils.orNull(context.getDescription()));
+    ret.setName(context.getName());
+    ret.setDescription(context.getDescription());
     Guid schemeId = null;
-    if (context.getDefaultScheme() != null) {
-      schemeId = ApiUtils.orNull(context.getDefaultScheme().flatMap(LocationScheme::getSchemeId));
+    LocationScheme defaultScheme = context.getDefaultScheme();
+    if (defaultScheme != null) {
+      schemeId = defaultScheme.getSchemeId();
     }
     if (schemeId != null) {
       String schemeStr = ApiUtils.orNull(schemeId.getStringValue());
