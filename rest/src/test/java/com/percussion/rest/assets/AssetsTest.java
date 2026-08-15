@@ -109,6 +109,19 @@ public class AssetsTest {
   }
 
   @Test
+  void getBinary_keepsDefaultTypeWhenThumbRequestedButThumbnailNull() throws Exception {
+    Asset a = new Asset();
+    ImageInfo image = new ImageInfo();
+    image.setType("image/png");
+    a.setImage(image);
+    when(assetAdaptor.getBinary(anyString())).thenReturn(out -> {});
+    when(assetAdaptor.getSharedAssetByPath(any(), anyString())).thenReturn(a);
+
+    Response r = resource.getBinary("Assets/thumb_banner.png");
+    assertEquals("application/octet-stream", r.getHeaderString("Content-Type"));
+  }
+
+  @Test
   void getBinary_usesFileTypeWhenFilePresent() throws Exception {
     Asset a = new Asset();
     BinaryFile file = new BinaryFile();

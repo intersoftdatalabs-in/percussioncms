@@ -168,6 +168,44 @@ class JacksonContextResolverOptionalTest {
   }
 
   @Test
+  void assetFamily_omitsNullWireFieldsFromJson() {
+    Asset asset = new Asset();
+    asset.setId("guid-nulls");
+    asset.setName(null);
+    asset.setType(null);
+    asset.setFolderPath(null);
+
+    ObjectMapper assetMapper = new JacksonContextResolver().getContext(Asset.class);
+    String assetJson = assetMapper.writeValueAsString(asset);
+    assertTrue(assetJson.contains("\"id\""), assetJson);
+    assertTrue(assetJson.contains("guid-nulls"), assetJson);
+    assertFalse(assetJson.contains("\"name\""), assetJson);
+    assertFalse(assetJson.contains("\"type\""), assetJson);
+    assertFalse(assetJson.contains("\"folderPath\""), assetJson);
+    assertNoOptionalBeanKeys(assetJson);
+
+    AssetField field = new AssetField();
+    field.setName(null);
+    field.setValue(null);
+    ObjectMapper fieldMapper = new JacksonContextResolver().getContext(AssetField.class);
+    String fieldJson = fieldMapper.writeValueAsString(field);
+    assertFalse(fieldJson.contains("\"name\""), fieldJson);
+    assertFalse(fieldJson.contains("\"value\""), fieldJson);
+    assertNoOptionalBeanKeys(fieldJson);
+
+    BinaryFile file = new BinaryFile();
+    file.setFilename(null);
+    file.setExtension(null);
+    file.setType(null);
+    ObjectMapper fileMapper = new JacksonContextResolver().getContext(BinaryFile.class);
+    String fileJson = fileMapper.writeValueAsString(file);
+    assertFalse(fileJson.contains("\"filename\""), fileJson);
+    assertFalse(fileJson.contains("\"extension\""), fileJson);
+    assertFalse(fileJson.contains("\"type\""), fileJson);
+    assertNoOptionalBeanKeys(fileJson);
+  }
+
+  @Test
   void binaryFile_serializesFilenameTypeNotOptionalBeans() {
     BinaryFile file = new BinaryFile();
     file.setFilename("report.pdf");
