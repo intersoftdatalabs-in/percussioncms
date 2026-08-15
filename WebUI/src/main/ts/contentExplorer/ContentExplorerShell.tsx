@@ -451,6 +451,14 @@ function ContentExplorerShellInner({
   const [menuActions, setMenuActions] = useState<MenuAction[]>([]);
   /** Non-fatal catalog load failure — chrome stays mounted (#2972). */
   const [menuLoadError, setMenuLoadError] = useState<string | null>(null);
+  /**
+   * Action-invoke failure (Publish Now HTTP 200 FORBIDDEN, etc.).
+   * Catalog load uses {@code menuLoadError}; invoke uses this so
+   * {@code explorer-server-actions-error} still mounts (#3451).
+   */
+  const [actionInvokeError, setActionInvokeError] = useState<string | null>(
+    null,
+  );
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
@@ -496,6 +504,7 @@ function ContentExplorerShellInner({
   const handleRefreshList = useCallback(() => {
     setListEpoch((n) => n + 1);
     setError(null);
+    setActionInvokeError(null);
   }, []);
 
   useEffect(() => {
@@ -649,6 +658,7 @@ function ContentExplorerShellInner({
 
   const handleActionError = useCallback((msg: string) => {
     setError(msg);
+    setActionInvokeError(msg);
   }, []);
 
   const handleAddToClipboard = useCallback(() => {
@@ -739,15 +749,23 @@ function ContentExplorerShellInner({
             },
           });
           if (result.messageKey) {
-            setError(message(result.messageKey));
+            const msg = message(result.messageKey);
+            setError(msg);
+            setActionInvokeError(msg);
           } else {
             setError(null);
+            setActionInvokeError(null);
           }
           if (result.refresh) {
             setListEpoch((n) => n + 1);
           }
         } catch (err: unknown) {
-          setError(formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC)));
+          const msg = formatApiError(
+            err,
+            message(EXPLORER_MSG.ERROR_GENERIC),
+          );
+          setError(msg);
+          setActionInvokeError(msg);
         }
       })();
       void actionName;
@@ -1034,18 +1052,24 @@ function ContentExplorerShellInner({
               {message(EXPLORER_MSG.SERVER_ACTIONS_LABEL)}
             </span>
             <div style={{ flex: "1 1 auto", minWidth: 0 }}>
-              {menuLoadError ? (
+              {menuLoadError || actionInvokeError ? (
                 <div
                   data-testid="explorer-server-actions-error"
                   role="status"
                   aria-live="polite"
                   style={{ color: "#b00020", fontSize: "0.85rem", padding: "4px 0" }}
                 >
-                  {message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)}
-                  {menuLoadError &&
-                  menuLoadError !== message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)
-                    ? `: ${menuLoadError}`
-                    : null}
+                  {menuLoadError ? (
+                    <>
+                      {message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)}
+                      {menuLoadError !==
+                      message(EXPLORER_MSG.SERVER_ACTIONS_LOAD_ERROR)
+                        ? `: ${menuLoadError}`
+                        : null}
+                    </>
+                  ) : (
+                    actionInvokeError
+                  )}
                 </div>
               ) : null}
               <ActionToolbar
