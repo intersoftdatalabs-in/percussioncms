@@ -81,6 +81,45 @@ test.describe("modern React Active Assembly — preview host", () => {
   );
 
   test(
+    "unmatched templateId shows an error instead of silently using another template",
+    { tag: ["@explorer-active-assembly", "@explorer"] },
+    async ({ page }) => {
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ActionMenuList: [
+              {
+                name: "rffSnTitle",
+                label: "Title snippet",
+                url: "../assembler/render?sys_template=3",
+                sortRank: 0,
+                type: "MENUITEM",
+              },
+            ],
+          }),
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=99"));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="assembly-error"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="assembly-error"]')).toContainText(
+        /not in the available list|No page or snippet template/i,
+      );
+      await expect(page.locator('[data-testid="assembly-preview-frame"]')).toHaveCount(
+        0,
+      );
+    },
+  );
+
+  test(
     "Explorer Active Assembly does not navigate leftover AA HTML",
     { tag: ["@explorer-active-assembly", "@explorer"] },
     async ({ page }) => {

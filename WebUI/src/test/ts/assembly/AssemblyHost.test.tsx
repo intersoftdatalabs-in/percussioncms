@@ -101,6 +101,48 @@ describe("AssemblyHost", () => {
     expect(screen.getByTestId("assembly-template-select")).toBeTruthy();
   });
 
+  it("shows an error when template load fails even with a requested templateId", async () => {
+    const fetchPreview = vi.fn();
+    const loadTemplates = vi.fn().mockRejectedValue(new Error("catalog down"));
+    renderHost("?contentId=42&templateId=7", { fetchPreview, loadTemplates });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-error").textContent).toMatch(
+        /no page or snippet template/i,
+      );
+    });
+    expect(fetchPreview).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-preview-frame")).toBeNull();
+  });
+
+  it("does not silently fall back when requestedTemplateId is not in options", async () => {
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=3",
+      contentId: 42,
+      templateId: 3,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffSnTitle",
+        label: "Title snippet",
+        sortRank: 0,
+        menuType: "MENUITEM",
+        parameters: [{ name: "sys_template", value: "3" }],
+      } satisfies MenuAction,
+    ]);
+    renderHost("?contentId=42&templateId=99", { fetchPreview, loadTemplates });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-error").textContent).toMatch(
+        /not in the available list/i,
+      );
+    });
+    expect(fetchPreview).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-preview-frame")).toBeNull();
+    expect(screen.getByTestId("assembly-requested-template").textContent).toContain(
+      "99",
+    );
+  });
+
   it("AppRoutes mounts assembly outside AppLayout", () => {
     render(
       <MemoryRouter initialEntries={["/assembly"]}>

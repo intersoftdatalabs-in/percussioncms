@@ -46,6 +46,17 @@ None blocking.
 - Overlay copy is TMX-key fallback (`perc.ui.assembly@…`) until a locale pack lands. Same pattern as Explorer dispatcher keys.
 - Live Playwright against QA mode was not run in this review (surface spec is present).
 
+## Re-review (2026-08-15, PR #3448 kilo threads)
+
+**Scope:** catalog-load catch no longer seeds `templateId` (no masked preview). Unmatched `requestedTemplateId` shows `TEMPLATE_MISMATCH` instead of `options[0]`. `templateId` starts null so preview waits for catalog. URL test renamed + `/Rhythmyx` case. Host tests cover reject + mismatch.
+
+**Recommendation:** approve  
+**May commit/push:** yes
+
+**Cross-platform path checklist:** URL/CMS paths only. **Outcome: clean.**
+
+**Issues:** none blocking.
+
 ## Cross-platform path checklist
 
 - No new filesystem path joins.

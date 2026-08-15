@@ -48,9 +48,21 @@ describe("assemblyHostUrl", () => {
     expect(parsePositiveInt(null)).toBeNull();
   });
 
-  it("prefixes /Rhythmyx when the SPA is under that context", () => {
+  it("leaves the path unchanged when the SPA is not under /Rhythmyx", () => {
     expect(withCmsContextPrefix("/cm/app/spa.jsp?entry=assembly")).toBe(
       "/cm/app/spa.jsp?entry=assembly",
     );
+  });
+
+  it("prefixes /Rhythmyx when the SPA is under that context", () => {
+    const original = window.location.pathname;
+    window.history.replaceState({}, "", "/Rhythmyx/cm/app/home");
+    try {
+      expect(withCmsContextPrefix("/cm/app/spa.jsp?entry=assembly")).toBe(
+        "/Rhythmyx/cm/app/spa.jsp?entry=assembly",
+      );
+    } finally {
+      window.history.replaceState({}, "", original || "/");
+    }
   });
 });

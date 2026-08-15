@@ -104,9 +104,7 @@ export function AssemblyHost({
   const requestedTemplateId = parsePositiveInt(params.get("templateId"));
 
   const [templates, setTemplates] = useState<AssemblyTemplateOption[]>([]);
-  const [templateId, setTemplateId] = useState<number | null>(
-    requestedTemplateId,
-  );
+  const [templateId, setTemplateId] = useState<number | null>(null);
   const [previewHref, setPreviewHref] = useState<string | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(
     contentId == null ? ASSEMBLY_MSG.MISSING_ITEM : null,
@@ -134,10 +132,23 @@ export function AssemblyHost({
         }
         const options = templateOptionsFromMenus(menus);
         setTemplates(options);
+        const requestedInList =
+          requestedTemplateId != null &&
+          options.some((o) => o.id === requestedTemplateId);
+        if (
+          requestedTemplateId != null &&
+          options.length > 0 &&
+          !requestedInList
+        ) {
+          setTemplateId(null);
+          setPreviewHref(null);
+          setErrorKey(ASSEMBLY_MSG.TEMPLATE_MISMATCH);
+          setLoading(false);
+          return;
+        }
         const nextId =
-          (requestedTemplateId != null &&
-          (options.length === 0 ||
-            options.some((o) => o.id === requestedTemplateId))
+          (requestedInList ||
+          (requestedTemplateId != null && options.length === 0)
             ? requestedTemplateId
             : null) ??
           options[0]?.id ??
@@ -152,13 +163,10 @@ export function AssemblyHost({
         if (cancelled) {
           return;
         }
-        if (requestedTemplateId != null) {
-          setTemplateId(requestedTemplateId);
-        } else {
-          setPreviewHref(null);
-          setErrorKey(ASSEMBLY_MSG.NO_TEMPLATE);
-          setLoading(false);
-        }
+        setTemplateId(null);
+        setPreviewHref(null);
+        setErrorKey(ASSEMBLY_MSG.NO_TEMPLATE);
+        setLoading(false);
       }
     })();
     return () => {
@@ -217,6 +225,12 @@ export function AssemblyHost({
             {contentId}
           </span>
         ) : null}
+        {errorKey === ASSEMBLY_MSG.TEMPLATE_MISMATCH && requestedTemplateId != null ? (
+          <span className={styles.meta} data-testid="assembly-requested-template">
+            <span className={styles.label}>{message(ASSEMBLY_MSG.TEMPLATE_LABEL)}</span>
+            {requestedTemplateId}
+          </span>
+        ) : null}
         {templates.length > 0 ? (
           <label>
             <span className={styles.label}>{message(ASSEMBLY_MSG.TEMPLATE_LABEL)}</span>
@@ -237,10 +251,10 @@ export function AssemblyHost({
               ))}
             </select>
           </label>
-        ) : selectedLabel || templateId != null ? (
+        ) : selectedLabel || templateId != null || requestedTemplateId != null ? (
           <span className={styles.meta} data-testid="assembly-template-id">
             <span className={styles.label}>{message(ASSEMBLY_MSG.TEMPLATE_LABEL)}</span>
-            {selectedLabel ?? templateId}
+            {selectedLabel ?? templateId ?? requestedTemplateId}
           </span>
         ) : null}
         <span className={styles.note}>{message(ASSEMBLY_MSG.NOTE)}</span>

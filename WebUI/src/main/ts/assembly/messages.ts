@@ -28,6 +28,8 @@ export const ASSEMBLY_MSG = {
   NOTE: "perc.ui.assembly@Assembled with the selected page or snippet template. Field editing will use the Content Editor.",
   MISSING_ITEM: "perc.ui.assembly@Open Active Assembly from Explorer with a content item selected.",
   NO_TEMPLATE: "perc.ui.assembly@No page or snippet template is available for this item.",
+  TEMPLATE_MISMATCH:
+    "perc.ui.assembly@The requested template is not in the available list.",
   PREVIEW_FAILED: "perc.ui.assembly@Could not load the assembled preview.",
   LOADING: "perc.ui.assembly@Loading assembled preview…",
   IFRAME_TITLE: "perc.ui.assembly@Assembled preview",
