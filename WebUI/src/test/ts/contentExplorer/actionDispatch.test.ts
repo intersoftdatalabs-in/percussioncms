@@ -151,6 +151,49 @@ describe("actionDispatch", () => {
     expect(href).not.toContain("sys_cxSupport");
   });
 
+  it("creates a New Item type and opens the editor", async () => {
+    const openWindow = vi.fn();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "99",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const result = await dispatchAction(
+      action({
+        name: "rffEvent",
+        url: "../rx_ceEvent/event.html",
+        parentName: "New",
+      }),
+      {
+        item: item({ type: "folder", path: "/Sites/Demo", id: "1" }),
+        folderPath: "/Sites/Demo",
+        parentName: "New",
+        openWindow,
+        createItem,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/Demo",
+    });
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("entry=editor");
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("contentId=99");
+  });
+
+  it("New Item parent without a type asks to choose a type", async () => {
+    const createItem = vi.fn();
+    const result = await dispatchAction(action({ name: "Create_New_Item" }), {
+      item: item({ type: "folder", path: "/Sites/Demo" }),
+      folderPath: "/Sites/Demo",
+      createItem,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TYPE);
+    expect(createItem).not.toHaveBeenCalled();
+  });
+
   it("does not navigate Content Editor New Item URLs", async () => {
     const openWindow = vi.fn();
     expect(isContentEditorActionUrl("../rx_cePage/page.html")).toBe(true);

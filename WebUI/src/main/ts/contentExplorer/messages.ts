@@ -333,6 +333,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@This action is not available in Content Explorer yet",
   ACTION_NEEDS_ITEM:
     "perc.ui.explorer@Select a content item first",
+  ACTION_NEEDS_FOLDER:
+    "perc.ui.explorer@Select a folder first",
+  ACTION_NEEDS_TYPE:
+    "perc.ui.explorer@Choose a content type from New Item",
   CONFIRM_PURGE_BODY:
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:

@@ -46,7 +46,12 @@ import {
   buildEditorHostUrl,
   editorWindowName,
 } from "../editor/editorHostUrl";
-import { parseExplorerContentId } from "./menuCatalogLoad";
+import { createEditorItem } from "../editor/itemCreateApi";
+import {
+  isNewItemHostName,
+  parseExplorerContentId,
+} from "./menuCatalogLoad";
+import { resolveFolderPathFromSelection } from "./folderPath";
 import { EXPLORER_MSG } from "./messages";
 import {
   buildSitePathPreviewUrl,
@@ -162,6 +167,7 @@ export interface ActionDispatchContext {
   resetNav?: () => Promise<void>;
   createCopy?: (itemId: string) => Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
+  createItem?: typeof createEditorItem;
   onPublish?: (item: PSPathItem) => Promise<void>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
@@ -241,8 +247,8 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (name === "purge" || name === "publish_now") {
     return "rest";
   }
-  if (name === "create_new_item") {
-    return "unavailable";
+  if (name === "create_new_item" || isNewItemHostName(action.parentName)) {
+    return "rest";
   }
   if (isDataFlowActionUrl(action.url)) {
     return "unavailable";
@@ -271,6 +277,17 @@ export function findMenuParentName(
     }
   }
   return undefined;
+}
+
+export function isNewItemAction(
+  action: MenuAction,
+  parentName?: string,
+): boolean {
+  const name = normalizeActionName(action.name);
+  if (name === "create_new_item") {
+    return true;
+  }
+  return isNewItemHostName(parentName) || isNewItemHostName(action.parentName);
 }
 
 export function isAaPreviewAction(
@@ -384,6 +401,37 @@ export async function dispatchAction(
       await ctx.runWorkflow(String(item.id), trigger);
     }
     return { kind, refresh: true };
+  }
+
+  if (isNewItemAction(action, ctx.parentName)) {
+    const typeName = normalizeActionName(action.name);
+    if (typeName === "create_new_item" || isNewItemHostName(action.name)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TYPE };
+    }
+    const folder = resolveFolderPathFromSelection(
+      ctx.folderPath,
+      item?.path,
+      item?.type,
+    );
+    if (!folder) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+    }
+    const create = ctx.createItem ?? createEditorItem;
+    const created = await create({
+      contentType: action.name,
+      folderPath: folder,
+    });
+    const contentId = parseExplorerContentId(created.itemId);
+    if (contentId == null) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    }
+    const open = ctx.openWindow ?? defaultOpenWindow;
+    open(
+      buildEditorHostUrl(contentId, "edit"),
+      editorWindowName(contentId),
+      EDITOR_WINDOW_FEATURES,
+    );
+    return { kind: "rest", refresh: true };
   }
 
   if (kind === "editor") {
@@ -596,10 +644,6 @@ export async function dispatchAction(
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     return { kind: "rest", refresh: true };
-  }
-
-  if (name === "create_new_item") {
-    return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
   }
 
   if (isAaPreviewAction(action.name, ctx.parentName)) {

@@ -39,6 +39,8 @@ import com.percussion.itemmanagement.data.PSAssetSiteImpact;
 import com.percussion.itemmanagement.data.PSComment;
 import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
+import com.percussion.itemmanagement.data.PSItemCreateRequest;
+import com.percussion.itemmanagement.data.PSItemCreateResult;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
 import com.percussion.itemmanagement.data.PSRevision;
@@ -366,6 +368,42 @@ public class PSItemService implements IPSItemService {
       throw new WebApplicationException(e);
     } catch (Exception e) {
       throw new PSItemServiceException("Could not save item fields.", e);
+    }
+  }
+
+  @POST
+  @Path("create")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemCreateResult createEditorItem(PSItemCreateRequest req)
+      throws PSItemServiceException {
+    try {
+      if (req == null || StringUtils.isBlank(req.getContentType())) {
+        throw new PSItemServiceException("Content type is required.");
+      }
+      String folder = PSItemCreateSupport.toRepositoryFolderPath(req.getFolderPath());
+      if (folder == null) {
+        throw new PSItemServiceException("Select a folder before creating an item.");
+      }
+      String name = PSItemCreateSupport.sanitizeItemName(req.getName(), req.getContentType());
+      PSContentItem item = new PSContentItem();
+      item.setType(req.getContentType().trim());
+      item.setName(name);
+      item.setFolderPaths(Collections.singletonList(folder));
+      Map<String, Object> fields = new HashMap<>();
+      fields.put("sys_title", name);
+      item.setFields(fields);
+      PSContentItem saved = contentItemDao.save(item);
+      String id = saved.getId();
+      if (StringUtils.isBlank(id)) {
+        throw new PSItemServiceException("Create succeeded but no item id was returned.");
+      }
+      return new PSItemCreateResult(id, folder, name, req.getContentType().trim());
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not create the item.", e);
     }
   }
 

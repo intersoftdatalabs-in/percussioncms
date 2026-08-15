@@ -23,7 +23,7 @@ Desktop Content Explorer is **not** a 8.2 client. Do not dual-ship HTML for DCE.
 | `client` | Existing Explorer handlers (open, folder ops, workflow-transition, default preview) |
 | `rest` | Public REST (preview-location, types, transitions, purge, publish) |
 | `editor` | Named actions (`Edit`, `View_Content`, …) open the React editor host (`specs/995-react-content-editor`). Leftover CE URLs stay unavailable. |
-| `unavailable` | Slot arrange / New Item (P3 editor). Active Assembly parents are `rest` (996 preview host) |
+| `unavailable` | Slot arrange. New Item type children are `rest` (create + editor). Active Assembly parents are `rest` (996 preview host) |
 | `legacy-file` | Non-app file (e.g. `.xls`) via same-origin `safeNavigate` |
 
 Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It never `safeNavigate`s.

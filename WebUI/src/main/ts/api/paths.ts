@@ -449,6 +449,10 @@ export const PATHS = {
   get ITEM_EDITOR_FIELDS() {
     return `${SERVICES_ROOT}/itemmanagement/item/fields`;
   },
+  /** POST create a content item in a folder. */
+  get ITEM_CREATE() {
+    return `${SERVICES_ROOT}/itemmanagement/item/create`;
+  },
   /**
    * Public REST content type catalog ({@code rest} module ContentTypesResource).
    * List only — design-time field editor APIs are a P0 gap survey.

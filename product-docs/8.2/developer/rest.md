@@ -527,6 +527,7 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 |--------|------|---------|
 | `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` omitted; binary omitted) |
 | `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates. Item must be checked out to the current user. |
+| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`) for Explorer New Item |
 
 Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels come from `GET /services/contenttypes/{type}`.
 
