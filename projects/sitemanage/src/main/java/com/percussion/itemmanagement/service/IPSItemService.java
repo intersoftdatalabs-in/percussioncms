@@ -19,6 +19,8 @@ package com.percussion.itemmanagement.service;
 import com.percussion.itemmanagement.data.PSAssetSiteImpact;
 import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
+import com.percussion.itemmanagement.data.PSItemCreateRequest;
+import com.percussion.itemmanagement.data.PSItemCreateResult;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.data.PSSoProMetadata;
@@ -54,6 +56,11 @@ public interface IPSItemService {
    */
   PSItemEditorFields saveEditorFields(String id, PSItemEditorFields req)
       throws PSItemServiceException;
+
+  /**
+   * Creates a new content item in {@code req.folderPath} for the React editor New Item flow.
+   */
+  PSItemCreateResult createEditorItem(PSItemCreateRequest req) throws PSItemServiceException;
 
   /**
    * Retrieves the revisions for a given page or asset.

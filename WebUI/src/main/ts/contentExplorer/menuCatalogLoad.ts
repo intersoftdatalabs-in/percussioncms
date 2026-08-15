@@ -92,6 +92,11 @@ export const NEW_ITEM_HOST_PREFERRED_KEYS: readonly string[] = [
   "createnewitem",
 ];
 
+export function isNewItemHostName(name: string | undefined | null): boolean {
+  const key = (name ?? "").replace(/[\s_-]/g, "").toLowerCase();
+  return (NEW_ITEM_HOST_PREFERRED_KEYS as readonly string[]).includes(key);
+}
+
 /** Normalized names of Preview MENU parents that host template children. */
 export const PREVIEW_HOST_PREFERRED_KEYS: readonly string[] = [
   "itempreview",

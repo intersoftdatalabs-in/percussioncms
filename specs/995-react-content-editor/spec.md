@@ -25,11 +25,12 @@ New window (peer of Active Assembly):
 4. Fields: `GET` / `PUT /services/itemmanagement/item/fields/{id}` (scalar map from `PSContentItem`; `sys_*` except `sys_title` omitted; binary omitted)
 5. Labels from `GET /services/contenttypes/{type}`
 6. Save + Check In (existing checkIn REST)
+7. **New Item** — type under New creates in the current folder (`POST /item/create`) and opens this editor
 
 ## Later
 
 - TinyMCE / file / image / keyword / community controls
-- New Item (create in folder + content type)
+- Default template picker when creating `percPage`
 - AA contenteditable overlay on the assembled preview
 - Revision promote form
 - Home / TopNav still use leftover `?view=editor` until those shells switch

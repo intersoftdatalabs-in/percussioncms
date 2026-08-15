@@ -98,4 +98,32 @@ test.describe("modern React Content Editor — first slice", () => {
       expect(blocked, `CM1 editor must not be requested: ${blocked.join(" ")}`).toEqual([]);
     },
   );
+
+  test(
+    "Explorer New Item does not open leftover Content Editor HTML",
+    { tag: ["@explorer-content-editor", "@explorer"] },
+    async ({ page }) => {
+      const blocked = [];
+      page.on("request", (req) => {
+        const u = req.url();
+        if (
+          u.includes("rx_ce") ||
+          u.includes("contenteditorurls.html") ||
+          u.includes("checkoutedit.xml")
+        ) {
+          blocked.push(u);
+        }
+      });
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      const neu = page.locator('[data-testid="action-toolbar-item-New"]');
+      if (await neu.isVisible()) {
+        await neu.click();
+      }
+      expect(blocked, `Data Flow CE HTML must not be requested: ${blocked.join(" ")}`).toEqual([]);
+    },
+  );
 });
