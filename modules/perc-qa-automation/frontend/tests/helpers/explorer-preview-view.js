@@ -141,7 +141,7 @@ function isListedPageRow(row) {
   ) {
     return false;
   }
-  if (token.includes("page")) return true;
+  if (token.includes("page") || token.includes("rffhome")) return true;
   if (path.includes("/pages/") && Boolean(row.id)) return true;
   return false;
 }
@@ -163,6 +163,23 @@ function unwrapPathItems(body) {
   if (Array.isArray(paged.childrenInPage)) return paged.childrenInPage;
   if (Array.isArray(paged.children)) return paged.children;
   return [];
+}
+
+/**
+ * Pathmanagement list path: prefer repository {@code folderPath}
+ * ({@code //Sites/CorporateInvestments}) over finder site-name path
+ * ({@code /Sites/Corporate_Investments/}) — peer of WebUI
+ * {@code resolveExplorerListPath} (#3326 / #3457).
+ * @param {{ path?: string, folderPath?: string }} item
+ * @returns {string}
+ */
+function resolveExplorerListPath(item) {
+  const raw = (item && (item.folderPath || item.path)) || "";
+  let p = String(raw).trim().replace(/\\/g, "/");
+  while (p.startsWith("//")) p = p.slice(1);
+  if (p && !p.startsWith("/")) p = `/${p}`;
+  if (p.length > 1 && p.endsWith("/")) p = p.replace(/\/+$/, "");
+  return p;
 }
 
 /**
@@ -193,6 +210,9 @@ function isProductPagePreviewUrl(url) {
   if (u.includes("/pagemanagement/render/page/")) return true;
   if (u.includes("/assembler/render")) return true;
   if (u.includes("percmobilepreview=")) return true;
+  // FastForward rff* types open classic CE preview (sys_command=preview).
+  if (u.includes("sys_command=preview")) return true;
+  if (u.includes("/psx_ce") && u.includes("preview")) return true;
   return false;
 }
 
@@ -206,6 +226,7 @@ module.exports = {
   isPreviewableRow,
   isListedPageRow,
   unwrapPathItems,
+  resolveExplorerListPath,
   parentFolderCmsPath,
   isProductPagePreviewUrl,
 };

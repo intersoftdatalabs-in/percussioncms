@@ -19,6 +19,7 @@ const {
   isPreviewableRow,
   isListedPageRow,
   unwrapPathItems,
+  resolveExplorerListPath,
   parentFolderCmsPath,
   isProductPagePreviewUrl,
 } = require("../helpers/explorer-preview-view");
@@ -91,6 +92,14 @@ describe("explorer-preview-view helpers (#2733)", () => {
       true,
     );
     assert.equal(
+      isListedPageRow({
+        type: "rffHome",
+        path: "/Sites/CorporateInvestments/Pages/Home",
+        id: "16777215-101-551",
+      }),
+      true,
+    );
+    assert.equal(
       isListedPageRow({ type: "folder", path: "/Sites/D/Pages/" }),
       false,
     );
@@ -119,6 +128,20 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.deepEqual(unwrapPathItems(null), []);
   });
 
+  it("resolveExplorerListPath prefers folderPath over site-name path", () => {
+    assert.equal(
+      resolveExplorerListPath({
+        path: "/Sites/Corporate_Investments/",
+        folderPath: "//Sites/CorporateInvestments",
+      }),
+      "/Sites/CorporateInvestments",
+    );
+    assert.equal(
+      resolveExplorerListPath({ path: "/Sites/Demo/" }),
+      "/Sites/Demo",
+    );
+  });
+
   it("parentFolderCmsPath is a logical CMS parent", () => {
     assert.equal(
       parentFolderCmsPath("/Sites/Demo/Pages/About"),
@@ -137,6 +160,12 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
     assert.equal(
       isProductPagePreviewUrl("/Sites/Demo/Home?percmobilepreview=false"),
+      true,
+    );
+    assert.equal(
+      isProductPagePreviewUrl(
+        "/Rhythmyx/psx_cerffHome/rffHome.html?sys_command=preview&sys_contentid=551",
+      ),
       true,
     );
     assert.equal(isProductPagePreviewUrl("/Rhythmyx/cm/app/spa.jsp"), false);

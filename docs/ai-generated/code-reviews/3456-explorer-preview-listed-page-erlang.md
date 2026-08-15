@@ -28,7 +28,7 @@ None.
 
 ## Notes (non-blocking)
 
-- `isFolder` now treats `percPage` / `Page` / asset content types as items even when `leaf` is false or `hasFolderChildren` is set. That is the right listed-row heuristic; folder types (`Folder` / `FSFolder` / `site`) still win first.
+- `isFolder` now treats `percPage` / `Page` / `rffHome` / asset content types as items even when `leaf` is false or `hasFolderChildren` is set. Folder types (`Folder` / `FSFolder` / `site`) still win first. Site-path items with ids and no trailing slash stay items.
 - Playwright skip is now gated on a REST walk of Sites/Pages, not “first 8 Sites-root rows.” If listing (#3457) is on the tip and a page row exists, skip is a defect.
 - Product-docs: operator Preview steps unchanged (`product-docs/8.2/admin/content-explorer.md` already documents Preview). N/A this PR.
 

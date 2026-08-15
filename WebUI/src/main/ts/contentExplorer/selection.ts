@@ -54,7 +54,10 @@ export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   const type = (item.type ?? "").trim().toLowerCase();
   const category = (item.category ?? "").trim().toLowerCase();
   const token = `${type} ${category}`;
-  return token.includes("page") || token.includes("asset");
+  if (token.includes("page") || token.includes("asset")) return true;
+  // FastForward landing pages (rffHome) are listed under /Pages (#3456).
+  if (token.includes("rffhome")) return true;
+  return false;
 }
 
 export function isFolder(item: PSPathItem | null): boolean {
@@ -63,12 +66,19 @@ export function isFolder(item: PSPathItem | null): boolean {
   if (FOLDER_TYPE_KEYS.has(type)) return true;
   const category = (item.category ?? "").trim().toLowerCase();
   if (category === "folder") return true;
-  // Listed percPage / Page / asset rows are never folders (#3456).
+  // Listed percPage / Page / rffHome / asset rows are never folders (#3456).
   if (isPageOrAssetContentType(item)) return false;
   // Server PSPathItem.setPath appends '/' only for folders. $System$ and
   // similar under /Folders/ may omit type but still use a folder path (#3330).
   const path = (item.path ?? "").trim();
   if (path.endsWith("/")) return true;
+  // Site-path content items with ids (listed pages) stay items even when
+  // leaf is omitted/false on paginated rows.
+  const hasId = Boolean((item.id ?? "").trim());
+  const pathLower = path.replace(/\\/g, "/").toLowerCase();
+  if (hasId && pathLower.includes("/sites/") && !pathLower.endsWith("/")) {
+    return false;
+  }
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   return Boolean(item.hasFolderChildren);

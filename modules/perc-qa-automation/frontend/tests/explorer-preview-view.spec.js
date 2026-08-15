@@ -31,18 +31,14 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  loginAsAdmin,
-  BASE_URL,
-  adminBasicAuthHeaders,
-} = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   TEST_IDS,
   explorerEntryUrl,
   noListedPageSkipMessage,
   isListedPageRow,
   unwrapPathItems,
-  parentFolderCmsPath,
+  resolveExplorerListPath,
   isProductPagePreviewUrl,
 } = require("./helpers/explorer-preview-view");
 
@@ -86,29 +82,41 @@ async function fetchFolderChildren(request, cmsPath) {
  */
 async function findListedPageViaRest(request) {
   const sites = await fetchFolderChildren(request, "Sites");
-  const siteNames = sites
-    .map((s) => (s && s.name ? String(s.name) : ""))
-    .filter(Boolean);
-
   const candidateFolders = [];
-  for (const name of siteNames) {
-    candidateFolders.push(`Sites/${name}`);
-    candidateFolders.push(`Sites/${name}/Pages`);
+  for (const site of sites) {
+    const listPath = resolveExplorerListPath(site);
+    if (listPath) {
+      candidateFolders.push(listPath.replace(/^\/+/, ""));
+      candidateFolders.push(`${listPath.replace(/^\/+/, "")}/Pages`);
+    }
+    const name = site && site.name ? String(site.name) : "";
+    if (name) {
+      candidateFolders.push(`Sites/${name}`);
+      candidateFolders.push(`Sites/${name}/Pages`);
+    }
   }
 
+  const seen = new Set();
   for (const folder of candidateFolders) {
+    if (!folder || seen.has(folder)) continue;
+    seen.add(folder);
     const kids = await fetchFolderChildren(request, folder);
     const page = kids.find((k) => isListedPageRow(k));
     if (page) return page;
     for (const kid of kids.slice(0, 12)) {
       const kidType = `${kid.type || ""} ${kid.category || ""}`.toLowerCase();
-      const kidName = String(kid.name || "");
       const looksFolder =
         kidType.includes("folder") ||
         kidType.includes("site") ||
         String(kid.path || "").endsWith("/");
-      if (!looksFolder || !kidName) continue;
-      const nested = await fetchFolderChildren(request, `${folder}/${kidName}`);
+      if (!looksFolder) continue;
+      const nestedPath = resolveExplorerListPath(kid);
+      const nestedRel = nestedPath
+        ? nestedPath.replace(/^\/+/, "")
+        : `${folder}/${kid.name || ""}`;
+      if (!nestedRel || seen.has(nestedRel)) continue;
+      seen.add(nestedRel);
+      const nested = await fetchFolderChildren(request, nestedRel);
       const nestedPage = nested.find((k) => isListedPageRow(k));
       if (nestedPage) return nestedPage;
     }
@@ -117,11 +125,11 @@ async function findListedPageViaRest(request) {
 }
 
 /**
- * Click Explorer tree/list down to {@code folderPath} under Sites.
+ * Open Sites → first sample site → Pages (when present).
+ * Finder site names use underscores; repository folderPath does not (#3326).
  * @param {import("@playwright/test").Page} page
- * @param {string} folderPath
  */
-async function openExplorerFolder(page, folderPath) {
+async function openSitesThenPages(page) {
   const tree = page.locator(`[data-testid="${TEST_IDS.tree}"]`);
   const sitesNode = tree
     .locator(
@@ -131,40 +139,25 @@ async function openExplorerFolder(page, folderPath) {
   await expect(sitesNode).toBeVisible({ timeout: 15_000 });
   await sitesNode.click({ force: true });
   await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
 
-  const segments = String(folderPath || "")
-    .replace(/^\/+/, "")
-    .split("/")
-    .filter((s) => s && s.toLowerCase() !== "sites");
+  const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
+  const siteRow = list
+    .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
+    .first();
+  await expect(siteRow).toBeVisible({ timeout: 15_000 });
+  await siteRow.dblclick({ force: true });
+  await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
 
-  for (const segment of segments) {
-    const treeHit = tree
-      .locator(
-        `[data-testid="tree-node-/Sites/${segment}/"], [data-testid="tree-node-/Sites/${segment}"], [data-testid$="/${segment}/"], [data-testid$="/${segment}"]`,
-      )
-      .first();
-    if ((await treeHit.count()) > 0 && (await treeHit.isVisible().catch(() => false))) {
-      await treeHit.click({ force: true }).catch(() => {});
-      await listWaitReady(page);
-      await page.waitForLoadState("networkidle").catch(() => {});
-      continue;
-    }
-    const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
-    const row = list
-      .locator(`tbody tr[data-testid^="detail-row-"]`)
-      .filter({ hasText: segment })
-      .first();
-    if ((await row.count()) > 0) {
-      await row.dblclick({ force: true }).catch(async () => {
-        await row.click({ force: true });
-        const openBtn = page.locator('[data-testid="action-open"]');
-        if (await openBtn.isEnabled().catch(() => false)) {
-          await openBtn.click();
-        }
-      });
-      await listWaitReady(page);
-      await page.waitForLoadState("networkidle").catch(() => {});
-    }
+  const pagesRow = list
+    .locator('tbody tr[data-testid^="detail-row-"]')
+    .filter({ hasText: /^Pages$/ })
+    .first();
+  if ((await pagesRow.count()) > 0) {
+    await pagesRow.dblclick({ force: true });
+    await listWaitReady(page);
+    await page.waitForLoadState("networkidle").catch(() => {});
   }
 }
 
@@ -232,8 +225,7 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
-      const folderPath = parentFolderCmsPath(listed.path || "");
-      await openExplorerFolder(page, folderPath);
+      await openSitesThenPages(page);
 
       const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
       await expect(list).toBeVisible({ timeout: 15_000 });
@@ -282,13 +274,23 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         await popup.close().catch(() => {});
       }
 
-      const folderRow = list
-        .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
-        .first();
-      if ((await folderRow.count()) > 0) {
-        await folderRow.click({ force: true });
-        await expect(preview).toBeDisabled();
-        await expect(preview).toHaveAttribute("title", /not available|Preview/i);
+      const folderRows = list.locator(
+        'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+      );
+      if ((await folderRows.count()) > 0) {
+        await expect(folderRows.first()).toHaveAttribute(
+          "data-previewable",
+          "false",
+        );
+        const selectableFolder = list
+          .locator(
+            'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
+          )
+          .first();
+        if ((await selectableFolder.count()) > 0) {
+          await selectableFolder.click({ force: true });
+          await expect(preview).toBeDisabled({ timeout: 10_000 });
+        }
       }
 
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(

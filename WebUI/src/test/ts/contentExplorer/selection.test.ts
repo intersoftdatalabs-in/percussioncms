@@ -110,5 +110,14 @@ describe("isFolder (#3001 site nodes)", () => {
         category: "PAGE",
       }),
     ).toBe(false);
+    expect(
+      isFolder({
+        id: "16777215-101-551",
+        name: "Corporate Investments Home",
+        path: "/Sites/CorporateInvestments/Pages/Corporate Investments Home",
+        type: "rffHome",
+        leaf: false,
+      }),
+    ).toBe(false);
   });
 });
