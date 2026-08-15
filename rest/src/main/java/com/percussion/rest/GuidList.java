@@ -40,7 +40,11 @@ public class GuidList extends ArrayList<Guid> {
   public String toString() {
     // Use Streams for concise joining
     return this.stream()
-        .map(guid -> guid.getStringValue().orElse(""))
+        .map(
+            guid -> {
+              String sv = guid.getStringValue();
+              return sv != null ? sv : "";
+            })
         .collect(Collectors.joining(" "));
   }
 }

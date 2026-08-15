@@ -65,7 +65,7 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
   public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
     try {
       Guid idGuid = type.getId();
-      String idStr = ApiUtils.orNull(idGuid == null ? null : idGuid.getStringValue());
+      String idStr = idGuid == null ? null : idGuid.getStringValue();
       if (idGuid == null || StringUtils.isBlank(idStr)) {
         // Create new delivery type
         var create = pubService.createDeliveryType();

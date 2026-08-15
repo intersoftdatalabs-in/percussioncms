@@ -102,8 +102,9 @@ import tools.jackson.databind.ObjectMapper;
  * plain-getter contract (issue #3431 / #3388). Action-menu request + editions
  * {@code PublishResponse} / {@code Status} follow the same rule (issue #3432 / #3388).
  * ExtensionFilter / MimeType / LinkRef / ObjectLock / RestError follow the same
- * contract (issue #3430). All use production {@link
- * JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
+ * contract (issue #3430). {@link Guid} {@code stringValue} / {@code untypedString}
+ * follow the same plain-getter contract (issue #3445 / #3388). All use production
+ * {@link JacksonContextResolver} under {@code @JsonInclude(NON_NULL)}.
  */
 @Tag("UnitTest")
 class JacksonContextResolverOptionalTest {
@@ -253,6 +254,7 @@ class JacksonContextResolverOptionalTest {
     assertEquals("Default", roundTrip.getName(), json);
     assertEquals("Default ACL", roundTrip.getLabel(), json);
     assertNotNull(roundTrip.getGuid(), json);
+    assertEquals("0-13-10", roundTrip.getGuid().getStringValue(), json);
   }
 
   @Test
@@ -974,7 +976,7 @@ class JacksonContextResolverOptionalTest {
         visibilityMapper.readValue(json, CommunityVisibility.class);
     assertEquals(10L, visibilityRoundTrip.getId(), json);
     assertNotNull(visibilityRoundTrip.getGuid(), json);
-    assertEquals("0-13-10", visibilityRoundTrip.getGuid().getStringValue().orElse(null), json);
+    assertEquals("0-13-10", visibilityRoundTrip.getGuid().getStringValue(), json);
   }
 
   @Test
@@ -1430,6 +1432,45 @@ class JacksonContextResolverOptionalTest {
     String statusJson = statusMapper.writeValueAsString(status);
     assertFalse(statusJson.contains("\"message\""), statusJson);
     assertNoOptionalBeanKeys(statusJson);
+  }
+
+  @Test
+  void guid_serializesStringValueAsScalarNotOptionalBean() {
+    ObjectMapper guidMapper = new JacksonContextResolver().getContext(Guid.class);
+    Guid guid = new Guid("0-31-12");
+
+    String json = guidMapper.writeValueAsString(guid);
+    assertTrue(
+        json.contains("\"stringValue\":\"0-31-12\"")
+            || json.contains("\"stringValue\" : \"0-31-12\""),
+        json);
+    assertTrue(json.contains("\"untypedString\""), json);
+    assertFalse(json.contains("Optional["), json);
+    assertNoOptionalBeanKeys(json);
+
+    Guid roundTrip = guidMapper.readValue(json, Guid.class);
+    assertEquals("0-31-12", roundTrip.getStringValue(), json);
+    assertNotNull(roundTrip.getUntypedString(), json);
+  }
+
+  @Test
+  void guid_omitsNullStringValueFromJson() {
+    ObjectMapper guidMapper = new JacksonContextResolver().getContext(Guid.class);
+    Guid guid = new Guid();
+    guid.setType((short) 31);
+    guid.setUuid(5);
+
+    String json = guidMapper.writeValueAsString(guid);
+    assertFalse(json.contains("\"stringValue\""), json);
+    assertFalse(json.contains("\"untypedString\""), json);
+    assertNoOptionalBeanKeys(json);
+  }
+
+  @Test
+  void guid_bindsObjectFormStringValue() {
+    ObjectMapper guidMapper = new JacksonContextResolver().getContext(Guid.class);
+    Guid bound = guidMapper.readValue("{\"Guid\":{\"stringValue\":\"0-31-5\"}}", Guid.class);
+    assertEquals("0-31-5", bound.getStringValue());
   }
 
   private static void assertNoOptionalBeanKeys(String json) {

@@ -413,7 +413,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private IPSGuid resolveTemplateGuid(NamedObjectRef ref, String field) {
     IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
     if (ref.getGuid() != null) {
-      String sv = ref.getGuid().getStringValue().orElse(null);
+      String sv = ref.getGuid().getStringValue();
       if (StringUtils.isNotBlank(sv)) {
         try {
           IPSGuid g = ApiUtils.convertGuid(ref.getGuid());
@@ -466,7 +466,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (guid == null) {
       return 0;
     }
-    String sv = guid.getStringValue().orElse(null);
+    String sv = guid.getStringValue();
     if (StringUtils.isNotBlank(sv)) {
       try {
         IPSGuid g = ApiUtils.convertGuid(guid);

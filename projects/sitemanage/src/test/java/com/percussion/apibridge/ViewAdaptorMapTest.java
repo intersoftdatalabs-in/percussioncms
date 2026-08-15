@@ -67,7 +67,7 @@ class ViewAdaptorMapTest {
     assertNotNull(d.getGuid());
     assertEquals(
         "0-301-123",
-        d.getGuid().getStringValue().orElse(null),
+        d.getGuid().getStringValue(),
         "view catalog/detail must emit Guid.stringValue for Object ACL (#3380)");
     assertTrue(d.isView());
     assertTrue(d.isStandardView());

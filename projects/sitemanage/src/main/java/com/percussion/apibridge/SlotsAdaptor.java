@@ -201,7 +201,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     if (g == null) {
       throw new IllegalArgumentException("association[" + index + "]." + field + " is required");
     }
-    String sv = g.getStringValue().orElse(null);
+    String sv = g.getStringValue();
     if (StringUtils.isNotBlank(sv)) {
       try {
         return ApiUtils.convertGuid(g);

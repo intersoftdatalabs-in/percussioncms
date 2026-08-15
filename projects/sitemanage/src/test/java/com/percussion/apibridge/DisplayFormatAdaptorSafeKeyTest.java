@@ -69,10 +69,8 @@ class DisplayFormatAdaptorSafeKeyTest {
 
     assertNotNull(out, "adaptor should return a REST DisplayFormat");
     assertNotNull(out.getGuid(), "guid must be mapped for Object ACL");
-    assertTrue(
-        out.getGuid().getStringValue().isPresent(),
-        "guid.stringValue must be present for SPA binding");
-    String sv = out.getGuid().getStringValue().get();
+    assertNotNull(out.getGuid().getStringValue(), "guid.stringValue must be present for SPA binding");
+    String sv = out.getGuid().getStringValue();
     assertFalse(sv.isBlank(), "guid.stringValue must not be blank");
     // PSGuid#toString form host-type-uuid; uuid part is display id 301
     assertTrue(sv.endsWith("-301"), "unexpected guid form: " + sv);

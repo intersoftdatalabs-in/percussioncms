@@ -190,7 +190,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
           return m;
         }
         if (m.getGuid() != null) {
-          String gsv = m.getGuid().getStringValue().orElse(null);
+          String gsv = m.getGuid().getStringValue();
           if (gsv != null && key.equalsIgnoreCase(gsv.trim())) {
             return m;
           }
