@@ -82,6 +82,11 @@ import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/mod
 import { ContextMenu } from "./ContextMenu";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
+import {
+  replaceTemplatePickerSession,
+  settleTemplatePickerSession,
+  type TemplatePickerSession,
+} from "./templatePickerSession";
 import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
@@ -454,10 +459,9 @@ function ContentExplorerShellInner({
   /** Non-fatal catalog load failure — chrome stays mounted (#2972). */
   const [menuLoadError, setMenuLoadError] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
-  const [templatePicker, setTemplatePicker] = useState<{
-    templates: PageTemplateChoice[];
-    resolve: (id: string | null) => void;
-  } | null>(null);
+  const [templatePicker, setTemplatePicker] =
+    useState<TemplatePickerSession | null>(null);
+  const templatePickerRef = useRef<TemplatePickerSession | null>(null);
   /**
    * Monotonic generation for context-menu loads. Rapid right-clicks on
    * different rows race two async IIFEs; only the latest generation may
@@ -710,6 +714,32 @@ function ContentExplorerShellInner({
     [loadMenuActions, loadWorkflowMenuActions],
   );
 
+  const pickPageTemplate = useCallback((templates: PageTemplateChoice[]) => {
+    return new Promise<string | null>((resolve) => {
+      const session = { templates, resolve };
+      templatePickerRef.current = replaceTemplatePickerSession(
+        templatePickerRef.current,
+        session,
+      );
+      setTemplatePicker(session);
+    });
+  }, []);
+
+  const finishTemplatePicker = useCallback((id: string | null) => {
+    const current = templatePickerRef.current;
+    templatePickerRef.current = null;
+    setTemplatePicker(null);
+    settleTemplatePickerSession(current, id);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      const current = templatePickerRef.current;
+      templatePickerRef.current = null;
+      settleTemplatePickerSession(current, null);
+    };
+  }, []);
+
   /**
    * Route toolbar / context-menu activations through the action dispatcher.
    * Data Flow HTML URLs are never navigated (they 404 from the SPA).
@@ -743,10 +773,7 @@ function ContentExplorerShellInner({
               setRevisionsTab(tab);
               setShowRevisions(true);
             },
-            pickPageTemplate: (templates) =>
-              new Promise<string | null>((resolve) => {
-                setTemplatePicker({ templates, resolve });
-              }),
+            pickPageTemplate,
           });
           if (result.messageKey) {
             setError(message(result.messageKey));
@@ -769,6 +796,7 @@ function ContentExplorerShellInner({
       runWorkflowTransition,
       menuActions,
       contextMenu,
+      pickPageTemplate,
     ],
   );
 
@@ -1500,14 +1528,8 @@ function ContentExplorerShellInner({
       {templatePicker ? (
         <TemplatePickerDialog
           templates={templatePicker.templates}
-          onPick={(id) => {
-            templatePicker.resolve(id);
-            setTemplatePicker(null);
-          }}
-          onCancel={() => {
-            templatePicker.resolve(null);
-            setTemplatePicker(null);
-          }}
+          onPick={(id) => finishTemplatePicker(id)}
+          onCancel={() => finishTemplatePicker(null)}
         />
       ) : null}
     </div>

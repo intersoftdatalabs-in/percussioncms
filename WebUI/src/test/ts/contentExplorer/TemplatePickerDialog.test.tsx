@@ -58,6 +58,50 @@ describe("TemplatePickerDialog", () => {
     expect(onPick).not.toHaveBeenCalled();
   });
 
+  it("cancels on Escape", () => {
+    const onCancel = vi.fn();
+    render(
+      <TemplatePickerDialog
+        templates={TEMPLATES}
+        onPick={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("moves focus to the template select on mount", () => {
+    render(
+      <TemplatePickerDialog
+        templates={TEMPLATES}
+        onPick={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(document.activeElement).toBe(
+      screen.getByTestId("explorer-template-picker-select"),
+    );
+  });
+
+  it("traps Tab inside the dialog", () => {
+    render(
+      <TemplatePickerDialog
+        templates={TEMPLATES}
+        onPick={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    const ok = screen.getByTestId("explorer-template-picker-ok");
+    ok.focus();
+    fireEvent.keyDown(screen.getByTestId("explorer-template-picker"), {
+      key: "Tab",
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("explorer-template-picker-select"),
+    );
+  });
+
   it("has no serious a11y violations", async () => {
     const { container } = render(
       <TemplatePickerDialog

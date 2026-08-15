@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useDialogEscape } from "../architecture/useDialogEscape";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export interface TemplatePickerDialogProps {
   templates: PageTemplateChoice[];
@@ -32,8 +36,44 @@ export function TemplatePickerDialog({
   onCancel,
 }: TemplatePickerDialogProps): React.ReactElement {
   const [value, setValue] = useState(templates[0]?.id ?? "");
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  useDialogEscape(true, false, onCancel);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    selectRef.current?.focus();
+    if (!root) {
+      return;
+    }
+    const focusables = (): HTMLElement[] =>
+      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusables();
+      if (list.length === 0) {
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => root.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <div
+      ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="explorer-template-picker-title"
@@ -71,6 +111,7 @@ export function TemplatePickerDialog({
         <label style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.TEMPLATE_PICKER_LABEL)}
           <select
+            ref={selectRef}
             data-testid="explorer-template-picker-select"
             value={value}
             onChange={(e) => setValue(e.target.value)}

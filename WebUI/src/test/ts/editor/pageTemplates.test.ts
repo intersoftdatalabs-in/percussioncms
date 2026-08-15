@@ -77,4 +77,17 @@ describe("pageTemplates", () => {
     expect(rows).toEqual([{ id: "site-1", name: "Base" }]);
     expect(fetchTemplatesForSite).toHaveBeenCalledWith("Demo");
   });
+
+  it("falls back to site templates when the type catalog throws", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    vi.mocked(getContentTypeDetail).mockRejectedValue(new Error("down"));
+    vi.mocked(fetchTemplatesForSite).mockResolvedValue([
+      { id: "site-1", name: "Base" },
+    ]);
+    const rows = await loadPageTemplates("/Sites/Demo/Home", "percPage");
+    expect(rows).toEqual([{ id: "site-1", name: "Base" }]);
+    expect(fetchTemplatesForSite).toHaveBeenCalledWith("Demo");
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
 });

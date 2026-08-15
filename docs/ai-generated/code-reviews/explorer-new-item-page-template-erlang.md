@@ -51,3 +51,22 @@ Playwright skips when **New** has no `percPage` child. Acceptable for catalog va
 - `cd projects/sitemanage && ../../mvnw clean install` — BUILD SUCCESS; Tests run: 1266, Failures: 0, Skipped: 125
 - `cd WebUI && ../mvnw clean install` — BUILD SUCCESS; Vitest 2540 passed
 - Playwright live QA stack not started this increment
+
+## Re-review (PR #3455 kilo threads)
+
+**Date**: 2026-08-15  
+**Scope**: review-fix pack vs `347fb964b8`
+
+Kilo CRITICAL/WARNING/SUGGESTION on orphaned picker Promise, dialog keyboard, Playwright happy path, catalog-error fallback, silent catch, initial focus.
+
+### Recommendation
+
+`approve`
+
+### Gate
+
+May commit/push: **yes**
+
+### Issues
+
+None remaining. Prior suggestion (silent catch) now `console.warn`s and has a throw → site-template unit test. Picker session replace/settle is unit-tested so a second open or unmount cancels the waiter. Dialog uses `useDialogEscape` + Tab trap + select focus. Playwright posts `templateId` on OK.

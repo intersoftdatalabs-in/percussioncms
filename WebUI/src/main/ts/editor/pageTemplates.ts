@@ -78,8 +78,12 @@ export async function loadPageTemplates(
     if (fromType.length > 0) {
       return fromType;
     }
-  } catch {
-    /* fall through to site templates */
+  } catch (err) {
+    console.warn(
+      "[pageTemplates] content-type templates unavailable; using site templates",
+      contentType,
+      err,
+    );
   }
   const site = siteNameFromFolderPath(folderPath);
   if (!site) {
