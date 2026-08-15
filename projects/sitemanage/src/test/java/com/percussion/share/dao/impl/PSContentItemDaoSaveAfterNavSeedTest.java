@@ -105,4 +105,31 @@ class PSContentItemDaoSaveAfterNavSeedTest {
     verify(itemSummaryService, never()).find(anyString());
     verify(contentDesignWs, never()).findNodesByIds(anyList(), anyBoolean());
   }
+
+  @Test
+  void saveExistingItemReturnsSameInstanceWithoutPostSaveFind() throws Exception {
+    IPSGuid existingGuid = new PSLegacyGuid(9001, 1);
+    IPSGuid realGuid = new PSLegacyGuid(9001, 2);
+    when(idMapper.getGuid("guid-9001")).thenReturn(existingGuid);
+    when(contentDesignWs.getItemGuid(existingGuid)).thenReturn(realGuid);
+    when(contentWs.loadItems(eq(List.of(realGuid)), eq(true), eq(false), eq(false), eq(true)))
+        .thenReturn(List.of(coreItem));
+
+    PSContentItem item = new PSContentItem();
+    item.setId("guid-9001");
+    item.setType("percPageTemplate");
+    item.setFolderPaths(List.of("//Sites/Bare/.system/Templates"));
+    item.getFields().put("sys_title", "BareTemplate");
+
+    PSContentItem saved = dao.save(item);
+
+    assertSame(item, saved);
+    assertEquals("guid-9001", saved.getId());
+    verify(contentWs).loadItems(eq(List.of(realGuid)), eq(true), eq(false), eq(false), eq(true));
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false), eq(folderGuid));
+    verify(contentWs, never()).createItems(anyString(), eq(1));
+    verify(folderHelper).addItem("//Sites/Bare/.system/Templates", "guid-9001");
+    verify(itemSummaryService, never()).find(anyString());
+    verify(contentDesignWs, never()).findNodesByIds(anyList(), anyBoolean());
+  }
 }

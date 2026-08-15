@@ -154,6 +154,8 @@ class PSSiteContentDaoManagedNavTest {
     verify(pageDao).save(any(PSPage.class));
     verify(navService).addLandingPageToNavnode(pageGuid, navGuid, "perc.page");
     verify(folderHelper).addItem("//Sites/Bare", "page-1");
+    verify(contentWs).prepareForEdit(navGuid);
+    verify(contentWs).releaseFromEdit(status, false);
     verify(contentWs, never()).checkinItems(any(), eq(null));
   }
 
