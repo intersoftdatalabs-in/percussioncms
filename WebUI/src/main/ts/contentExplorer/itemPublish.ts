@@ -23,6 +23,7 @@
 import { get } from "../api/client";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
+import { mapPublishResponse } from "../publishing/publishActions";
 import { normalizeCmsPath } from "./previewItem";
 import { isFolder } from "./selection";
 
@@ -71,6 +72,12 @@ export function resolvePublishKind(
 /**
  * Demand-publish a page or asset. Other types return false so the
  * dispatcher can show that the action is not available.
+ *
+ * <p>HTTP 200 with an application-level preflight status
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
+ * {@code INVALID}, …) is a failure — same as classic Finder and
+ * {@code mapPublishResponse}. Those responses throw so Explorer does
+ * not refresh as if the job started.</p>
  */
 export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
   const id = (item.id ?? "").trim();
@@ -80,12 +87,20 @@ export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
   if (kind === "page") {
-    await get<unknown>(`${paths.pagePublish}/${encodeURIComponent(id)}`);
+    await demandPublish(`${paths.pagePublish}/${encodeURIComponent(id)}`);
     return true;
   }
   if (kind === "asset") {
-    await get<unknown>(`${paths.resourcePublish}/${encodeURIComponent(id)}`);
+    await demandPublish(`${paths.resourcePublish}/${encodeURIComponent(id)}`);
     return true;
   }
   return false;
+}
+
+async function demandPublish(url: string): Promise<void> {
+  const body = await get<unknown>(url);
+  const preflight = mapPublishResponse(body);
+  if (preflight) {
+    throw new Error(preflight.message || preflight.token || "Publish failed");
+  }
 }

@@ -117,4 +117,35 @@ describe("publishSelectedItem", () => {
     );
     await expect(publishSelectedItem(item())).rejects.toThrow("Failed to fetch");
   });
+
+  it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(publishSelectedItem(item())).rejects.toThrow("FORBIDDEN");
+  });
+
+  it("throws on wrapped SitePublishResponse BADCONFIG warning", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          SitePublishResponse: {
+            status: "BADCONFIG",
+            warningMessage:
+              "Could not connect to publishing server, please check publishing server configuration.",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+    await expect(publishSelectedItem(item())).rejects.toThrow(
+      "Could not connect to publishing server",
+    );
+  });
 });

@@ -43,3 +43,15 @@ None blocking. Suggestion: later clear ACTION 217 URL and retarget `PublishNowAc
 ## Handoff
 
 Approve leftover P0 Publish Now. P2 AA still blocked on host decision in 996.
+
+## Re-review (2026-08-15, PR #3444 peer thread)
+
+**Scope:** `publishSelectedItem` now runs `mapPublishResponse` on HTTP 200 bodies. Preflight statuses (`FORBIDDEN`, `BADCONFIG`, …) throw instead of returning `true`. Vitest covers unwrapped `FORBIDDEN` and wrapped `SitePublishResponse`/`BADCONFIG`. Playwright route-mock case added. Product-docs updated.
+
+**Recommendation:** approve  
+**May commit/push:** yes  
+**Memory patterns hit:** HTTP 200 application-level publish failures (`#936` / `mapPublishResponse`).
+
+**Cross-platform path checklist:** URL/CMS paths only. **Outcome: clean.**
+
+**Issues:** none blocking. Playwright case soft-skips when Publish Now is not in the toolbar for the current selection; Vitest is the behavioral contract.
