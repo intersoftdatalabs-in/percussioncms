@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.util.PSSqlHelper;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -68,18 +72,21 @@ public class PSJdbcUtilsTest {
 
   @Test
   public void testH2JdbcUrlAndDriverMap() {
-    // VALUE is an H2 keyword; getJdbcUrl appends NON_KEYWORDS so product columns named VALUE work.
+    // VALUE and DAY are H2 keywords used as product columns; getJdbcUrl merges NON_KEYWORDS.
     assertEquals(
-        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE",
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,DAY",
         PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms"));
     assertEquals(
-        "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE",
+        "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE,DAY",
         PSJdbcUtils.getJdbcUrl(
             PSJdbcUtils.H2_DRIVER, "file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE"));
-    // Do not double-append when already present.
+    // Merge DAY into a legacy VALUE-only list; keep extra tokens (KEY).
     assertEquals(
-        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,KEY",
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,KEY,DAY",
         PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms;NON_KEYWORDS=VALUE,KEY"));
+    assertEquals(
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,DAY",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms;NON_KEYWORDS=VALUE"));
     assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:./data/cms"));
     // File/mem/tcp subprotocols must not surface as "h2:file" (PSSchedulerBean / install).
     assertEquals(
@@ -90,6 +97,25 @@ public class PSJdbcUtilsTest {
     assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:tcp://localhost/~/test"));
     assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
     assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
+  }
+
+  @Test
+  public void testH2NonKeywordsAllowsUnquotedDayColumn() throws Exception {
+    try {
+      Class.forName("org.h2.Driver");
+    } catch (ClassNotFoundException e) {
+      Assumptions.assumeTrue(false, "org.h2.Driver not on test classpath");
+    }
+    String url =
+        PSJdbcUtils.getJdbcUrl(
+            PSJdbcUtils.H2_DRIVER, "mem:holiday_day;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE");
+    assertTrue(url.toUpperCase().contains("DAY"), url);
+    try (Connection c = DriverManager.getConnection(url, "sa", "");
+        Statement st = c.createStatement()) {
+      st.execute(
+          "CREATE TABLE RXS_CT_HOLIDAY (HOLIDAYID INTEGER NOT NULL, DAY TIMESTAMP NULL,"
+              + " NAME VARCHAR(200) NULL, CONSTRAINT PK_RXS_CT_HOLIDAY PRIMARY KEY (HOLIDAYID))");
+    }
   }
 
   @Test

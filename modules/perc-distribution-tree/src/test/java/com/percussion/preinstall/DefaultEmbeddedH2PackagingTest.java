@@ -38,6 +38,9 @@ class DefaultEmbeddedH2PackagingTest {
     assertTrue(text.contains("DB_BACKEND=H2"), text);
     assertTrue(text.contains("DB_DRIVER_NAME=h2"), text);
     assertTrue(text.contains("org.h2.Driver"), text);
+    assertTrue(
+        text.toUpperCase().contains("NON_KEYWORDS") && text.toUpperCase().contains("DAY"),
+        "H2 NON_KEYWORDS must include DAY (RXS_CT_HOLIDAY reserved identifier); was:\n" + text);
     assertFalse(
         text.contains("DB_DRIVER_NAME=derby"),
         "new-install ship props must not default to derby driver");
