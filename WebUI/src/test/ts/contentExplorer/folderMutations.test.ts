@@ -82,6 +82,37 @@ describe("folderMutations dual-run routing (#3074)", () => {
     });
     await addNewFolder("/Assets", "X");
     expect(last).toContain("/pathmanagement/path/addNewFolder");
+    expect(last).not.toContain("/content-explorer/folders");
+  });
+
+  it("flag on + $System$/Assets finder form: stays on pathmanagement (#3363)", async () => {
+    setRxFolderMutationsFlagOverride(true);
+    let last = "";
+    mockFetch(async (input) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      return new Response(
+        JSON.stringify({ PathItem: { name: "X", path: "/Assets/X" } }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    await addNewFolder("/Folders/$System$/Assets", "X");
+    expect(last).toContain("/pathmanagement/path/addNewFolder");
+    expect(last).not.toContain("/content-explorer/folders");
+  });
+
+  it("flag on + $System$/Assets repository form: stays on pathmanagement (#3363)", async () => {
+    setRxFolderMutationsFlagOverride(true);
+    let last = "";
+    mockFetch(async (input) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      return new Response(
+        JSON.stringify({ PathItem: { name: "X", path: "/Assets/X" } }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    await addNewFolder("//Folders/$System$/Assets", "X");
+    expect(last).toContain("/pathmanagement/path/addNewFolder");
+    expect(last).not.toContain("/content-explorer/folders");
   });
 
   it("flag on: renameFolder loads by path then PUTs by id", async () => {
