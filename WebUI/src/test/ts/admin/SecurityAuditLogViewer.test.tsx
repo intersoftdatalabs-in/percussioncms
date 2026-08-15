@@ -18,6 +18,7 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  auditCellText,
   formatAuditPageSummary,
   formatEventTime,
   SecurityAuditLogViewer,
@@ -95,6 +96,43 @@ describe("SecurityAuditLogViewer", () => {
     const out = truncate(long, 40);
     expect(out.endsWith("…")).toBe(true);
     expect(out.slice(0, -1)).toHaveLength(40);
+  });
+
+  it("truncate does not throw on non-string wire values", () => {
+    expect(truncate(1131, 40)).toBe("1131");
+    expect(truncate({ value: "list" }, 40)).toBe("list");
+    expect(truncate({ text: "  wrapped  " }, 40)).toBe("wrapped");
+    expect(truncate({ epochSecond: 1 }, 40)).toBe("—");
+    expect(auditCellText(1131)).toBe("1131");
+    expect(auditCellText(null)).toBe("");
+  });
+
+  it("renders rows when target is a number (no AdminSectionErrorBoundary)", async () => {
+    vi.mocked(auditApi.queryAuditLogEntries).mockResolvedValue({
+      entries: [
+        {
+          ...sampleEntry,
+          target: 1131 as unknown as string,
+          userMessage: { value: "Content item 1131 created" } as unknown as string,
+        },
+      ],
+      total: 1,
+      offset: 0,
+      limit: 50,
+    });
+
+    render(<SecurityAuditLogViewer />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(`audit-log-row-${sampleEntry.auditId}`),
+      ).toBeDefined();
+    });
+    expect(screen.queryByTestId("admin-section-error")).toBeNull();
+    expect(screen.getByTestId("audit-log-table").textContent).toContain("1131");
+    expect(screen.getByTestId("audit-log-table").textContent).toContain(
+      "Content item 1131 created",
+    );
   });
 
   it("renders table rows after successful load", async () => {
