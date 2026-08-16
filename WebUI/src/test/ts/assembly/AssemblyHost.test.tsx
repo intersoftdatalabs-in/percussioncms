@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -151,5 +151,64 @@ describe("AssemblyHost", () => {
     );
     expect(screen.getByTestId("assembly-host")).toBeTruthy();
     expect(screen.queryByTestId("perc-spa-app")).toBeNull();
+  });
+
+  it("renders slot add/create/arrange once a slot is selected", async () => {
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffPgGeneric",
+        label: "Generic Page",
+        url: "../assembler/render?sys_template=7",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      } satisfies MenuAction,
+    ]);
+    const loadCanvas = vi.fn().mockResolvedValue({
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 3,
+          name: "sidebar",
+          label: "Sidebar",
+          items: [
+            {
+              relationshipId: 88,
+              ownerId: 42,
+              dependentId: 7,
+              slotId: 3,
+              templateId: 4,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    });
+    const removeSlotRel = vi.fn().mockResolvedValue(undefined);
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview,
+      loadTemplates,
+      loadCanvas,
+      removeSlotRel,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-3")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-3"));
+    expect(screen.getByTestId("assembly-slot-add")).not.toHaveProperty(
+      "disabled",
+      true,
+    );
+    fireEvent.click(screen.getByTestId("assembly-slot-item-88"));
+    fireEvent.click(screen.getByTestId("assembly-slot-remove"));
+    await waitFor(() => {
+      expect(removeSlotRel).toHaveBeenCalledWith(88);
+    });
   });
 });

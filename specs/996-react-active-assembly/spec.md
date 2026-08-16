@@ -1,6 +1,6 @@
 # Spec: React Active Assembly
 
-**Status**: Preview-first host implemented (Explorer open + assembled iframe). Slot arrange and contenteditable editing are later slices.  
+**Status**: Preview-first host implemented (Explorer open + assembled iframe). Slot add / create / arrange use relationship REST from the AA canvas. Contenteditable field editing is a later slice.  
 **Split from**: Explorer server actions (`specs/992-react-content-explorer/contracts/action-execution.md`)
 
 ## Why this is separate
@@ -27,7 +27,7 @@ When Explorer **Active Assembly** runs we already know the content id and the pa
 4. Renders `/assembler/render` in an iframe
 5. Shows a light overlay (title, content id, template select, note)
 
-Field editing is **not** invented here. When the Content Editor (`specs/995-react-content-editor`) is wired, the overlay can use **contenteditable** against known content ids / types on the assembled output. Slot add / create / arrange stay unavailable until relationship ids exist on that canvas.
+Field editing is **not** invented here. When the Content Editor (`specs/995-react-content-editor`) is wired, the overlay can use **contenteditable** against known content ids / types on the assembled output. Slot add / create / arrange use `GET /services/assembly/slot-relationships/canvas` plus add / move / template-slot / delete REST when a slot (and for arrange, a relationship) is selected on the AA canvas.
 
 ## In scope (later)
 
@@ -49,5 +49,5 @@ Field editing is **not** invented here. When the Content Editor (`specs/995-reac
 | Action | Behavior |
 |--------|----------|
 | Item_ActiveAssembly / Enterprise / Corporate / Item_Assembly (and template children under those parents) | Open the assembly window |
-| Slot add / create / arrange / change template / paste-as-link / move-to-slot | Still `unavailable` |
+| Slot add / create / arrange / change template / paste-as-link / move-to-slot | `rest` when AA has a selected slot (relationship id required for arrange). Folder browse without a slot does not invent Arrange_*. |
 | Item_Preview template children | Unchanged: raw assembler preview window |
