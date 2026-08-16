@@ -35,3 +35,17 @@ None (hard-gate).
 ## C5
 
 `npm run test:surface -- --path tests/home-react-editor.spec.js` — 1 passed (Create asset), 1 skipped (no Home recent row). Console-clean on exercised path. No create/editAsset ERROR in server.log for the test window (FastForward GIF import + search-index ERRORs are first-start H2 noise).
+
+## Re-review (cherry-pick 42d7521 onto origin/main)
+
+Independent review of `fix/issue-3482-home-create-reserved-editor` vs `origin/main` (commit `95b476d1a4`, cherry-pick of closed #3484).
+
+**Recommendation:** approve  
+**May commit/push:** yes  
+**Gate:** no hard-gate bugs.
+
+Memory patterns hit: change-class closure (Playwright + product-docs + behavioral Vitest); no OS filesystem I/O (CMS repo paths only).
+
+Cross-platform path checklist: N/A for OS file I/O — `normalizeCmsPath` / `joinFolderAndName` are CMS repository paths; editor URLs use `/` as URI paths.
+
+`0feb3df` is already contained in `42d7521`; no extra cherry-pick needed. Does not stack on cluster #3487.
