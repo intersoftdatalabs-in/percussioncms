@@ -39,8 +39,9 @@
  * </ul>
  */
 
-import type { MenuAction } from "../api/contentExplorer/types";
+import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
+import { resolvePublishKind } from "./itemPublish";
 
 /** Where the filtered menu will be rendered. */
 export type ActionSurface = "toolbar" | "contextmenu";
@@ -53,10 +54,11 @@ export interface ActionEnablementContext {
   surface: ActionSurface;
   /**
    * Currently selected detail-list item, or {@code null} when only a folder
-   * is active. Reserved for future access-level gating; filters today are
-   * URL/surface based so folder-level catalog menus still show.
+   * is active. Toolbar and context-menu Publish Now are hidden until a
+   * page/asset is selected so a Sites-folder click cannot claim published
+   * (#3467).
    */
-  selectionItem?: { type?: string; accessLevel?: string } | null;
+  selectionItem?: PSPathItem | null;
   /**
    * Synthetic base URL for {@link classifyUrl} (tests pass an absolute
    * origin; production callers may omit and use {@code window.location}).
@@ -142,6 +144,25 @@ function hasChildren(action: MenuAction): boolean {
   return (action.children?.length ?? 0) > 0;
 }
 
+function actionNameKey(name: string | undefined | null): string {
+  return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
+}
+
+/**
+ * Publish Now is item-scoped on toolbar and context menu. Folder-only
+ * catalogs still include it; hiding it here keeps Sites from looking
+ * publishable (#3467).
+ */
+export function isToolbarPublishNowHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (actionNameKey(action.name) !== "publish_now") {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
 /**
  * Recursively filter a {@link MenuAction} tree for product Explorer
  * surfaces. Pure: does not mutate the input array or child arrays.
@@ -184,6 +205,9 @@ export function filterEnabledMenuActions(
     if (!isWebExecutableLeaf(action, baseHref)) {
       continue;
     }
+    if (isToolbarPublishNowHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     out.push(action);
   }
   return out;
@@ -195,8 +219,13 @@ export function filterEnabledMenuActions(
 export function filterToolbarActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
+  selectionItem?: PSPathItem | null,
 ): MenuAction[] {
-  return filterEnabledMenuActions(actions, { surface: "toolbar", baseHref });
+  return filterEnabledMenuActions(actions, {
+    surface: "toolbar",
+    baseHref,
+    selectionItem,
+  });
 }
 
 /**
@@ -205,9 +234,11 @@ export function filterToolbarActions(
 export function filterContextMenuActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
+  selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return filterEnabledMenuActions(actions, {
     surface: "contextmenu",
     baseHref,
+    selectionItem,
   });
 }

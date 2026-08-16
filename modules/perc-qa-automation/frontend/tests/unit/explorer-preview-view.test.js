@@ -113,6 +113,31 @@ describe("explorer-preview-view helpers (#2733)", () => {
       isListedPageRow({ type: "site", path: "/Sites/D/" }),
       false,
     );
+    assert.equal(
+      isListedPageRow({
+        type: "NewsArticle",
+        category: "ASSET",
+        path: "/Sites/Demo/Pages/Q3 Brief",
+        id: "16777215-101-88",
+      }),
+      true,
+    );
+    assert.equal(
+      isListedPageRow({
+        type: "rffImage",
+        path: "/Sites/Demo/Images/logo.png",
+        id: "16777216-101-9",
+      }),
+      false,
+    );
+    assert.equal(
+      isListedPageRow({
+        type: "rffFile",
+        path: "/Sites/Demo/Files/spec.pdf",
+        id: "16777216-101-10",
+      }),
+      false,
+    );
   });
 
   it("unwrapPathItems reads PathItem and PagedItemList children", () => {

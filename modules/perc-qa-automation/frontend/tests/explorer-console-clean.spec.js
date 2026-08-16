@@ -16,8 +16,9 @@
  */
 
 /**
- * Playwright surface: #3458 / parent #2745 — Explorer shell console-clean
- * of product-path 404/400 (login → Explorer → sample site folder → Refresh).
+ * Playwright surface: #3468 / #3458 / parent #2745 — Explorer shell
+ * console-clean of product-path 404/400 (login → Explorer → sample site
+ * folder → Refresh). Covers both /services and /Rhythmyx/services prefixes.
  *
  * Does not blanket-skip 404/400 resource errors.
  *
@@ -37,7 +38,7 @@ const {
   formatHits,
 } = require("./helpers/explorer-console-clean");
 
-test.describe("Explorer shell console-clean (#3458 / #2745)", () => {
+test.describe("Explorer shell console-clean (#3468 / #3458 / #2745)", () => {
   test(
     "login → Explorer → sample site → Refresh has no product 404/400",
     { tag: ["@explorer", "@console-clean", "@smoke"] },

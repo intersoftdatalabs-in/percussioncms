@@ -115,11 +115,21 @@ describe("actionDispatch", () => {
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("mode=view");
   });
 
+  it("dispatch revision_promote opens the editor promote form", async () => {
+    const openWindow = vi.fn();
+    const result = await dispatchAction(action({ name: "revision_promote" }), {
+      item: item(),
+      openWindow,
+    });
+    expect(result.kind).toBe("editor");
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("mode=promote");
+  });
+
   it("dispatch Data Flow HTML does not navigate", async () => {
     const openWindow = vi.fn();
     const result = await dispatchAction(
       action({
-        name: "Slot_Add",
+        name: "Lifecycle_Analysis",
         url: "../sys_cxSupport/aadocactions.html",
       }),
       { item: item(), openWindow },
@@ -554,16 +564,17 @@ describe("actionDispatch", () => {
     expect(openWindow).not.toHaveBeenCalled();
   });
 
-  it("classifies Active Assembly parents as rest and slot arrange as unavailable", () => {
+  it("classifies Active Assembly parents and slot actions as rest", () => {
     expect(classifyAction(action({ name: "Item_ActiveAssembly" }))).toBe("rest");
     expect(
       classifyAction(action({ name: "EnterpriseItem_ActiveAssembly" })),
     ).toBe("rest");
     expect(classifyAction(action({ name: "Item_Assembly" }))).toBe("rest");
-    expect(classifyAction(action({ name: "Arrange_Remove" }))).toBe(
+    expect(classifyAction(action({ name: "Arrange_Remove" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Slot_Add" }))).toBe("rest");
+    expect(classifyAction(action({ name: "AA_Table_Editor" }))).toBe(
       "unavailable",
     );
-    expect(classifyAction(action({ name: "Slot_Add" }))).toBe("unavailable");
   });
 
   it("finds the parent menu name for a nested template child", () => {
@@ -661,6 +672,24 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Publish Now on a Sites folder asks for a content item and does not publish", async () => {
+    const onPublish = vi.fn();
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onPublish,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(result.refresh).toBeUndefined();
+    expect(onPublish).not.toHaveBeenCalled();
+  });
+
   it("dispatch workflow-transition runs the trigger", async () => {
     const runWorkflow = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(
@@ -670,5 +699,120 @@ describe("actionDispatch", () => {
     expect(result.kind).toBe("workflow");
     expect(result.refresh).toBe(true);
     expect(runWorkflow).toHaveBeenCalledWith("42", "Submit");
+  });
+
+  it("slot add without AA slot context stays unavailable to invent", async () => {
+    const addToSlot = vi.fn();
+    const result = await dispatchAction(action({ name: "Slot_Add" }), {
+      item: item(),
+      addToSlot,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.messageKey).toMatch(/Select a slot/i);
+    expect(addToSlot).not.toHaveBeenCalled();
+  });
+
+  it("slot add uses Content Browser pick + relationship REST", async () => {
+    const addToSlot = vi.fn().mockResolvedValue({
+      relationshipId: 9,
+      ownerId: 42,
+      dependentId: 7,
+      slotId: 3,
+      templateId: 4,
+      sortRank: 0,
+    });
+    const result = await dispatchAction(action({ name: "Slot_Add" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3 },
+      addToSlot,
+      pickSlotDependent: async () => ({ contentId: 7, templateId: 4 }),
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(addToSlot).toHaveBeenCalledWith({
+      ownerId: 42,
+      dependentId: 7,
+      slotId: 3,
+      templateId: 4,
+      folderId: undefined,
+    });
+  });
+
+  it("arrange remove needs a relationship id from AA", async () => {
+    const removeSlotRel = vi.fn();
+    const missing = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3 },
+      removeSlotRel,
+    });
+    expect(missing.messageKey).toMatch(/item in the slot/i);
+    expect(removeSlotRel).not.toHaveBeenCalled();
+
+    const ok = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      removeSlotRel,
+    });
+    expect(ok.refresh).toBe(true);
+    expect(removeSlotRel).toHaveBeenCalledWith(88);
+  });
+
+  it("arrange move and change template-slot use relationship REST", async () => {
+    const moveSlotRel = vi.fn().mockResolvedValue(undefined);
+    const changeSlotTemplate = vi.fn().mockResolvedValue({
+      relationshipId: 88,
+      ownerId: 42,
+      dependentId: 7,
+      slotId: 5,
+      templateId: 6,
+      sortRank: 0,
+    });
+    await dispatchAction(action({ name: "Arrange_MoveUpLeft" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      moveSlotRel,
+    });
+    expect(moveSlotRel).toHaveBeenCalledWith(88, "UP");
+    await dispatchAction(action({ name: "Arrange_ChangeTemplateSlot" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+      pickSlotTemplateSlot: async () => ({ slotId: 5, templateId: 6 }),
+    });
+    expect(changeSlotTemplate).toHaveBeenCalledWith(88, 5, 6);
+  });
+
+  it("slot create opens the React editor after relationship add", async () => {
+    const addToSlot = vi.fn().mockResolvedValue({
+      relationshipId: 1,
+      ownerId: 42,
+      dependentId: 99,
+      slotId: 3,
+      templateId: 4,
+      sortRank: 0,
+    });
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "99",
+      folderPath: "/Sites/A",
+      name: "n",
+      contentType: "rffEvent",
+    });
+    const openWindow = vi.fn();
+    const result = await dispatchAction(action({ name: "Slot_Create" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3 },
+      addToSlot,
+      createItem,
+      openWindow,
+      pickSlotCreate: async () => ({
+        contentType: "rffEvent",
+        folderPath: "/Sites/A",
+        snippetTemplateId: 4,
+      }),
+    });
+    expect(result.refresh).toBe(true);
+    expect(createItem).toHaveBeenCalled();
+    expect(addToSlot).toHaveBeenCalled();
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("entry=editor");
   });
 });

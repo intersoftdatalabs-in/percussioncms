@@ -213,7 +213,7 @@ export function columnHeaderLabel(
 }
 import { message } from "../i18n/message";
 import { isPreviewableItem } from "./previewItem";
-import { canRead, isFolder } from "./selection";
+import { canRead, isFolder, sameExplorerItemId } from "./selection";
 import {
   emptyStateStyle,
   errorStateStyle,
@@ -520,7 +520,7 @@ export function DetailList({
         </thead>
         <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
           {children.map((item) => {
-            const selected = selectedItemId === item.id;
+            const selected = sameExplorerItemId(selectedItemId, item.id);
             const idKey = item.id ?? item.path;
             const isChecked = multiSelectEnabled && multiSelected.has(idKey);
             const visible = canRead(item);
@@ -533,7 +533,8 @@ export function DetailList({
                 data-row-kind={folderish ? "folder" : "item"}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
-                data-selected={isChecked ? "true" : undefined}
+                data-selected={selected ? "true" : undefined}
+                data-checked={isChecked ? "true" : undefined}
                 style={rowStyle(selected)}
                 role="row"
                 aria-selected={selected}

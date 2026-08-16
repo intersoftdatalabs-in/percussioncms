@@ -133,6 +133,17 @@ describe("previewItem pure helpers (#2733)", () => {
       }),
     ).toBe(true);
     expect(
+      resolvePreviewKind({
+        id: "16777215-101-88",
+        name: "Q3 Brief",
+        path: "/Sites/Demo/Pages/Q3 Brief",
+        type: "NewsArticle",
+        category: "ASSET",
+        leaf: false,
+        hasFolderChildren: true,
+      }),
+    ).toBe("page");
+    expect(
       resolvePreviewTarget(
         { name: "Home", path: "/Sites/Demo/Home", type: "Page" },
         "/services",

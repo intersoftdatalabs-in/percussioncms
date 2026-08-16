@@ -25,6 +25,17 @@ export interface ItemCreateRequest {
   templateId?: string;
 }
 
+/**
+ * Jackson / JAXB root for sitemanage {@code PSItemCreateRequest}
+ * ({@code @XmlRootElement(name = "ItemCreateRequest")}). CXF JAXB rejects a
+ * bare {@code contentType} field (Home Create asset stays on {@code about:blank}).
+ */
+export const ITEM_CREATE_REQUEST_ROOT = "ItemCreateRequest";
+
+export type ItemCreateRequestEnvelope = {
+  ItemCreateRequest: ItemCreateRequest;
+};
+
 export interface ItemCreateResult {
   itemId: string;
   folderPath: string;
@@ -37,6 +48,23 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     return value as Record<string, unknown>;
   }
   return null;
+}
+
+/**
+ * Wrap create fields under {@link ITEM_CREATE_REQUEST_ROOT}.
+ * Does not double-wrap an already-enveloped payload.
+ */
+export function wrapItemCreateRequest(
+  request: ItemCreateRequest | ItemCreateRequestEnvelope,
+): ItemCreateRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[ITEM_CREATE_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      return { ItemCreateRequest: nested as ItemCreateRequest };
+    }
+  }
+  return { ItemCreateRequest: request as ItemCreateRequest };
 }
 
 export function unwrapItemCreateResult(payload: unknown): ItemCreateResult {
@@ -54,7 +82,10 @@ export function unwrapItemCreateResult(payload: unknown): ItemCreateResult {
 export async function createEditorItem(
   req: ItemCreateRequest,
 ): Promise<ItemCreateResult> {
-  const res = await post<unknown>(PATHS.ITEM_CREATE, req);
+  const res = await post<unknown>(
+    PATHS.ITEM_CREATE,
+    wrapItemCreateRequest(req),
+  );
   const out = unwrapItemCreateResult(res);
   if (!out.itemId.trim()) {
     throw new Error("Create returned no item id");

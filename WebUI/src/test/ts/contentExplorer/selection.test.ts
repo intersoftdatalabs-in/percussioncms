@@ -17,8 +17,10 @@
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
+  canRead,
   isFolder,
   isPageOrAssetContentType,
+  sameExplorerItemId,
 } from "../../../main/ts/contentExplorer/selection";
 
 describe("isFolder (#3001 site nodes)", () => {
@@ -121,46 +123,132 @@ describe("isFolder (#3001 site nodes)", () => {
     ).toBe(false);
   });
 
-  it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
+  it("allows known FastForward item types and rejects nav / folder-like rff types", () => {
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagination",
-        type: "pagination",
+        name: "Event",
+        path: "/Sites/Demo/Events/Open House",
+        type: "rffEvent",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Photo",
+        path: "/Sites/Demo/Assets/photo",
+        type: "rffImage",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffNavon",
       }),
     ).toBe(false);
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagebreak",
-        type: "pagebreak",
+        name: "Nav",
+        path: "/Sites/Demo/Nav",
+        type: "rffNavTree",
       }),
     ).toBe(false);
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagelet",
-        type: "pagelet",
-      }),
-    ).toBe(false);
-    expect(
-      isPageOrAssetContentType({
-        name: "a",
-        path: "/Sites/Demo/assetmanagement",
-        type: "assetmanagement",
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffNavon",
+        category: "SECTION_FOLDER",
       }),
     ).toBe(false);
   });
 
-  it("keeps custom folder types under /Sites/ as folders when leaf is false", () => {
+  it("treats customer-defined types as items without a name allowlist (#3456)", () => {
+    const custom: PSPathItem = {
+      id: "16777215-101-88",
+      name: "Q3 Brief",
+      path: "/Sites/Demo/Pages/Q3 Brief",
+      type: "NewsArticle",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(isPageOrAssetContentType(custom)).toBe(true);
+    expect(isFolder(custom)).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        id: "16777215-101-89",
+        name: "Widget",
+        path: "/Sites/Demo/Products/Widget",
+        type: "CI_products",
+        category: "ASSET",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "CustomLanding",
+        category: "LANDING_PAGE",
+      }),
+    ).toBe(true);
+  });
+
+  it("keeps server folder categories as folders even with a customer type name", () => {
     expect(
       isFolder({
         id: "16777215-101-20",
         name: "Campaigns",
         path: "/Sites/Demo/Campaigns",
         type: "CampaignFolder",
+        category: "FOLDER",
         leaf: false,
       }),
     ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        id: "16777215-101-20",
+        name: "Campaigns",
+        path: "/Sites/Demo/Campaigns",
+        type: "CampaignFolder",
+        category: "FOLDER",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("sameExplorerItemId / canRead (#3467)", () => {
+  it("matches string and numeric content ids", () => {
+    expect(sameExplorerItemId("42", 42)).toBe(true);
+    expect(sameExplorerItemId(42, "42")).toBe(true);
+    expect(sameExplorerItemId("42", "43")).toBe(false);
+    expect(sameExplorerItemId(null, "42")).toBe(false);
+  });
+
+  it("treats listed rows without an ACL token as readable", () => {
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+      }),
+    ).toBe(true);
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        accessLevel: "WRITE",
+      }),
+    ).toBe(true);
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        accessLevel: "NONE",
+      }),
+    ).toBe(false);
   });
 });
