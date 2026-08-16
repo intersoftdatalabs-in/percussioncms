@@ -54,8 +54,9 @@ export interface ActionEnablementContext {
   surface: ActionSurface;
   /**
    * Currently selected detail-list item, or {@code null} when only a folder
-   * is active. Toolbar Publish Now is hidden until a page/asset is selected
-   * so a Sites-folder click cannot claim published (#3467).
+   * is active. Toolbar and context-menu Publish Now are hidden until a
+   * page/asset is selected so a Sites-folder click cannot claim published
+   * (#3467).
    */
   selectionItem?: PSPathItem | null;
   /**
@@ -148,8 +149,9 @@ function actionNameKey(name: string | undefined | null): string {
 }
 
 /**
- * Toolbar Publish Now is item-scoped. Folder-only catalogs still include
- * it; hiding it here keeps Sites from looking publishable (#3467).
+ * Publish Now is item-scoped on toolbar and context menu. Folder-only
+ * catalogs still include it; hiding it here keeps Sites from looking
+ * publishable (#3467).
  */
 export function isToolbarPublishNowHidden(
   action: MenuAction,
@@ -203,10 +205,7 @@ export function filterEnabledMenuActions(
     if (!isWebExecutableLeaf(action, baseHref)) {
       continue;
     }
-    if (
-      ctx.surface === "toolbar" &&
-      isToolbarPublishNowHidden(action, ctx.selectionItem)
-    ) {
+    if (isToolbarPublishNowHidden(action, ctx.selectionItem)) {
       continue;
     }
     out.push(action);
@@ -235,9 +234,11 @@ export function filterToolbarActions(
 export function filterContextMenuActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
+  selectionItem?: PSPathItem | null,
 ): MenuAction[] {
   return filterEnabledMenuActions(actions, {
     surface: "contextmenu",
     baseHref,
+    selectionItem,
   });
 }

@@ -533,12 +533,13 @@ export function DetailList({
                 data-row-kind={folderish ? "folder" : "item"}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
-                data-selected={selected || isChecked ? "true" : undefined}
+                data-selected={selected ? "true" : undefined}
+                data-checked={isChecked ? "true" : undefined}
                 style={rowStyle(selected)}
                 role="row"
                 aria-selected={selected}
                 aria-disabled={!visible}
-                onClick={() => onSelectItem(item)}
+                onClick={() => visible && onSelectItem(item)}
                 onDoubleClick={() => visible && onActivateItem?.(item)}
                 onContextMenu={(e) => {
                   if (!visible || !onItemContextMenu) return;

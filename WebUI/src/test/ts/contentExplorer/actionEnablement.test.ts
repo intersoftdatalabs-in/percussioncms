@@ -248,4 +248,31 @@ describe("filterEnabledMenuActions", () => {
       isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
     ).toBe(true);
   });
+
+  it("hides context-menu Publish Now for folders and shows it for a page (#3467)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    const folder = {
+      id: "1",
+      name: "Sites",
+      path: "/Sites",
+      type: "folder",
+    };
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(
+      filterContextMenuActions(actions, BASE, folder).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterContextMenuActions(actions, BASE, page).map((a) => a.name),
+    ).toEqual(["open", "Publish_Now"]);
+  });
 });

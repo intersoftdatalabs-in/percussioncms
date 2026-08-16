@@ -722,7 +722,7 @@ function ContentExplorerShellInner({
           // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
           const merged = mergeWorkflowMenuActions(base ?? [], workflow);
           setContextMenu({
-            actions: filterContextMenuActions(merged),
+            actions: filterContextMenuActions(merged, undefined, item),
             x: clientX,
             y: clientY,
           });
