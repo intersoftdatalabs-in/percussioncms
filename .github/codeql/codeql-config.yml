@@ -339,6 +339,19 @@ query-filters:
         - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js"
       reason: >-
         Lockstep package copy of percImageSlider.js (same residual as SupportFile).
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "WebUI/src/main/ts/editor/widgets/FileFieldWidget.tsx"
+      reason: >-
+        Structural fix for product js/xss-through-dom #1981 / residual #1982
+        (PR #3481): image preview src is only a blob: object URL from
+        URL.createObjectURL after blobPreviewSrc() rejects javascript:/
+        data:/http(s). Filename is textContent after displayBinaryFileName
+        metachar strip. Same-line // codeql[js/xss-through-dom] on the
+        JSX src still residual-flagged. Tests: FileFieldWidget.test.tsx
+        (blobPreviewSrc rejects javascript:/https; chosen image uses blob:).
+        Do not re-edit the sink — each edit reopens a new ID.
   # --- java/unvalidated-url-redirection residuals (PSRedirectValidation not modeled in GHA) ---
   # Runtime: sendValidatedRedirect / resolveSafePostLoginRedirect only call sendRedirect after
   # PSRedirectValidation (+ rebuildValidatedRedirect). Sink-line // codeql annotations present.
