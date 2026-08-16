@@ -76,6 +76,7 @@ test.describe("React Content Editor rich controls", () => {
     async ({ page }) => {
       const blocked = [];
       const fieldPuts = [];
+      const binaryPuts = [];
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
       page.on("console", (msg) => {
@@ -108,17 +109,20 @@ test.describe("React Content Editor rich controls", () => {
         });
       });
       await page.route("**/services/itemmanagement/item/binary/**", async (route) => {
+        const url = route.request().url();
         if (route.request().method() === "PUT") {
-          binaryPuts.push(route.request().url());
+          binaryPuts.push(url);
         }
+        const fieldMatch = url.match(/\/item\/binary\/[^/]+\/([^/?#]+)/);
+        const field = fieldMatch ? decodeURIComponent(fieldMatch[1]) : "";
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({
             ItemEditorBinaryMeta: {
               contentId: "42",
-              field: "img",
-              filename: "hero.png",
+              field,
+              filename: field === "img" ? "hero.png" : "spec.pdf",
               present: true,
             },
           }),

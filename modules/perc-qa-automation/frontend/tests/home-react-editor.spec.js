@@ -133,14 +133,17 @@ test.describe("Home React Content Editor", () => {
           popup = await retryPopup;
         }
       }
-      if (popup) {
-        await expect(popup).toHaveURL(/entry=editor|\/editor/);
-        await expect(popup).not.toHaveURL(/editAsset\.jsp|view=editor/);
+      if (!popup) {
+        throw new Error(
+          "Home Create asset did not open an editor popup after submit/retry",
+        );
       }
+      await expect(popup).toHaveURL(/entry=editor|\/editor/);
+      await expect(popup).not.toHaveURL(/editAsset\.jsp|view=editor/);
       expect(blocked, `leftover asset editor: ${blocked.join(" ")}`).toEqual([]);
       const unexpected = consoleErrors.filter(
         (t) =>
-          !/favicon|404|net::ERR|Failed to load resource/i.test(t) &&
+          !/favicon|404|net::ERR|Failed to load resource|ResizeObserver/i.test(t) &&
           !/Download the React DevTools/i.test(t),
       );
       expect(

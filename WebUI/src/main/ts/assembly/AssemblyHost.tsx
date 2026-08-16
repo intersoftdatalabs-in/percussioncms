@@ -108,6 +108,18 @@ export async function loadAssemblyTemplates(
   );
 }
 
+/** Catch fire-and-forget dialog work so a thrown API error surfaces a notice. */
+export async function runSlotDialogWork(
+  work: () => Promise<void>,
+  onFail: () => void,
+): Promise<void> {
+  try {
+    await work();
+  } catch {
+    onFail();
+  }
+}
+
 function resolveAssemblerHref(previewUrl: string): string | null {
   const trimmed = previewUrl.trim();
   if (!trimmed) {
@@ -497,31 +509,34 @@ export function AssemblyHost({
               title={message(ASSEMBLY_MSG.SLOT_BROWSER_TITLE)}
               onCancel={() => setDialog(null)}
               onConfirm={(selection: SelectionResult) => {
-                void (async () => {
-                  const first = selection.items[0];
-                  const dep = parseExplorerContentId(first?.id);
-                  if (dep == null) {
-                    setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                    return;
-                  }
-                  let snippetTemplate = Number(pickedTemplate);
-                  if (!Number.isFinite(snippetTemplate) || snippetTemplate <= 0) {
-                    const tpls = await loadAllowedTemplates(selectedSlotId);
-                    snippetTemplate = tpls[0]?.id ?? 0;
-                  }
-                  if (snippetTemplate <= 0) {
-                    setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
-                    return;
-                  }
-                  await addToSlot({
-                    ownerId: contentId,
-                    dependentId: dep,
-                    slotId: selectedSlotId,
-                    templateId: snippetTemplate,
-                  });
-                  setDialog(null);
-                  await refreshCanvas();
-                })();
+                void runSlotDialogWork(
+                  async () => {
+                    const first = selection.items[0];
+                    const dep = parseExplorerContentId(first?.id);
+                    if (dep == null) {
+                      setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                      return;
+                    }
+                    let snippetTemplate = Number(pickedTemplate);
+                    if (!Number.isFinite(snippetTemplate) || snippetTemplate <= 0) {
+                      const tpls = await loadAllowedTemplates(selectedSlotId);
+                      snippetTemplate = tpls[0]?.id ?? 0;
+                    }
+                    if (snippetTemplate <= 0) {
+                      setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                      return;
+                    }
+                    await addToSlot({
+                      ownerId: contentId,
+                      dependentId: dep,
+                      slotId: selectedSlotId,
+                      templateId: snippetTemplate,
+                    });
+                    setDialog(null);
+                    await refreshCanvas();
+                  },
+                  () => setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED)),
+                );
               }}
             />
           </div>
@@ -552,34 +567,37 @@ export function AssemblyHost({
           }}
           onCancel={() => setDialog(null)}
           onApply={() => {
-            void (async () => {
-              if (!pickedFolder || !pickedType) {
-                setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                return;
-              }
-              const snippetTemplateId = Number(pickedTemplate);
-              if (!Number.isFinite(snippetTemplateId) || snippetTemplateId <= 0) {
-                setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
-                return;
-              }
-              const created = await createItem({
-                contentType: pickedType,
-                folderPath: pickedFolder,
-              });
-              const createdId = parseExplorerContentId(created.itemId);
-              if (createdId == null) {
-                setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                return;
-              }
-              await addToSlot({
-                ownerId: contentId,
-                dependentId: createdId,
-                slotId: selectedSlotId,
-                templateId: snippetTemplateId,
-              });
-              setDialog(null);
-              await refreshCanvas();
-            })();
+            void runSlotDialogWork(
+              async () => {
+                if (!pickedFolder || !pickedType) {
+                  setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                  return;
+                }
+                const snippetTemplateId = Number(pickedTemplate);
+                if (!Number.isFinite(snippetTemplateId) || snippetTemplateId <= 0) {
+                  setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                  return;
+                }
+                const created = await createItem({
+                  contentType: pickedType,
+                  folderPath: pickedFolder,
+                });
+                const createdId = parseExplorerContentId(created.itemId);
+                if (createdId == null) {
+                  setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                  return;
+                }
+                await addToSlot({
+                  ownerId: contentId,
+                  dependentId: createdId,
+                  slotId: selectedSlotId,
+                  templateId: snippetTemplateId,
+                });
+                setDialog(null);
+                await refreshCanvas();
+              },
+              () => setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED)),
+            );
           }}
         />
       ) : null}
@@ -605,17 +623,25 @@ export function AssemblyHost({
           }}
           onCancel={() => setDialog(null)}
           onApply={() => {
-            void (async () => {
-              const nextSlot = Number(pickedSlot);
-              const nextTpl = Number(pickedTemplate);
-              if (!Number.isFinite(nextSlot) || nextSlot <= 0 || !Number.isFinite(nextTpl) || nextTpl <= 0) {
-                setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
-                return;
-              }
-              await changeSlotTemplate(selectedRelId, nextSlot, nextTpl);
-              setDialog(null);
-              await refreshCanvas();
-            })();
+            void runSlotDialogWork(
+              async () => {
+                const nextSlot = Number(pickedSlot);
+                const nextTpl = Number(pickedTemplate);
+                if (
+                  !Number.isFinite(nextSlot) ||
+                  nextSlot <= 0 ||
+                  !Number.isFinite(nextTpl) ||
+                  nextTpl <= 0
+                ) {
+                  setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                  return;
+                }
+                await changeSlotTemplate(selectedRelId, nextSlot, nextTpl);
+                setDialog(null);
+                await refreshCanvas();
+              },
+              () => setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED)),
+            );
           }}
         />
       ) : null}

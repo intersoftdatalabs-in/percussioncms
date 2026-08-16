@@ -122,6 +122,22 @@ describe("explorer-preview-view helpers (#2733)", () => {
       }),
       true,
     );
+    assert.equal(
+      isListedPageRow({
+        type: "rffImage",
+        path: "/Sites/Demo/Images/logo.png",
+        id: "16777216-101-9",
+      }),
+      false,
+    );
+    assert.equal(
+      isListedPageRow({
+        type: "rffFile",
+        path: "/Sites/Demo/Files/spec.pdf",
+        id: "16777216-101-10",
+      }),
+      false,
+    );
   });
 
   it("unwrapPathItems reads PathItem and PagedItemList children", () => {

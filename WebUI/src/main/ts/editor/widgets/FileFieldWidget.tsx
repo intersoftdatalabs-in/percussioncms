@@ -32,6 +32,16 @@ export function displayBinaryFileName(raw: string | null | undefined): string {
   return String(raw ?? "").replace(/[\u0000-\u001F<>&"'`]/g, "");
 }
 
+/**
+ * Image preview {@code src} must be a blob: object URL from
+ * {@code URL.createObjectURL}. Rejects javascript:/data:/http(s) values so a
+ * tainted File cannot be reinterpreted as HTML.
+ */
+export function blobPreviewSrc(url: string | null | undefined): string {
+  const value = String(url ?? "");
+  return value.startsWith("blob:") ? value : "";
+}
+
 export interface FileFieldWidgetProps {
   itemId: string;
   name: string;
@@ -116,7 +126,13 @@ export function FileFieldWidget({
               typeof URL !== "undefined" &&
               typeof URL.createObjectURL === "function"
             ) {
-              setPreviewUrl(URL.createObjectURL(file));
+              const objectUrl = URL.createObjectURL(file);
+              const safe = blobPreviewSrc(objectUrl);
+              if (safe) {
+                setPreviewUrl(safe);
+              } else {
+                URL.revokeObjectURL(objectUrl);
+              }
             }
           } else {
             onFile(null);
@@ -128,11 +144,11 @@ export function FileFieldWidget({
         className={styles.fileName}
         data-testid={`editor-file-name-${name}`}
       />
-      {previewUrl ? (
+      {blobPreviewSrc(previewUrl) ? (
         <img
           className={styles.imagePreview}
           data-testid={`editor-image-preview-${name}`}
-          src={previewUrl}
+          src={blobPreviewSrc(previewUrl)} // codeql[js/xss-through-dom]
           alt=""
         />
       ) : null}

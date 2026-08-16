@@ -84,20 +84,34 @@ function unwrapInner(payload: unknown, wrapKeys: string[]): Record<string, unkno
   return root;
 }
 
-function num(value: unknown): number {
+function optionalNum(value: unknown, fallback = 0): number {
   const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function requireNum(value: unknown, field: string): number {
+  if (value == null || value === "") {
+    throw new Error(`Invalid slot payload: ${field} is missing`);
+  }
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    throw new Error(`Invalid slot payload: ${field} is not numeric`);
+  }
+  return n;
 }
 
 export function unwrapSlotRelationship(payload: unknown): SlotRelationship {
   const inner = unwrapInner(payload, ["SlotRelationship", "slotRelationship"]);
   return {
-    relationshipId: num(inner.relationshipId ?? inner.RelationshipId),
-    ownerId: num(inner.ownerId ?? inner.OwnerId),
-    dependentId: num(inner.dependentId ?? inner.DependentId),
-    slotId: num(inner.slotId ?? inner.SlotId),
-    templateId: num(inner.templateId ?? inner.TemplateId),
-    sortRank: num(inner.sortRank ?? inner.SortRank),
+    relationshipId: requireNum(
+      inner.relationshipId ?? inner.RelationshipId,
+      "relationshipId",
+    ),
+    ownerId: requireNum(inner.ownerId ?? inner.OwnerId, "ownerId"),
+    dependentId: requireNum(inner.dependentId ?? inner.DependentId, "dependentId"),
+    slotId: requireNum(inner.slotId ?? inner.SlotId, "slotId"),
+    templateId: optionalNum(inner.templateId ?? inner.TemplateId),
+    sortRank: optionalNum(inner.sortRank ?? inner.SortRank),
   };
 }
 
@@ -116,7 +130,7 @@ export function unwrapSlotCanvas(payload: unknown): SlotCanvas {
     for (const row of slotsRaw) {
       const rec = unwrapInner(row, ["SlotCanvasSlot", "slotCanvasSlot"]);
       slots.push({
-        slotId: num(rec.slotId ?? rec.SlotId),
+        slotId: requireNum(rec.slotId ?? rec.SlotId, "slotId"),
         name: String(rec.name ?? rec.Name ?? ""),
         label: String(rec.label ?? rec.Label ?? rec.name ?? rec.Name ?? ""),
         items: unwrapItems(rec.items ?? rec.Items),
@@ -125,9 +139,11 @@ export function unwrapSlotCanvas(payload: unknown): SlotCanvas {
   }
   const templateRaw = inner.templateId ?? inner.TemplateId;
   const templateId =
-    templateRaw == null || templateRaw === "" ? null : num(templateRaw) || null;
+    templateRaw == null || templateRaw === ""
+      ? null
+      : optionalNum(templateRaw) || null;
   return {
-    ownerId: num(inner.ownerId ?? inner.OwnerId),
+    ownerId: requireNum(inner.ownerId ?? inner.OwnerId, "ownerId"),
     templateId: templateId != null && templateId > 0 ? templateId : null,
     slots,
   };
@@ -145,7 +161,7 @@ export function unwrapSlotAllowedChoices(payload: unknown): SlotAllowedChoice[] 
   return raw.map((row) => {
     const rec = unwrapInner(row, ["SlotAllowedChoice", "slotAllowedChoice"]);
     return {
-      id: num(rec.id ?? rec.Id),
+      id: requireNum(rec.id ?? rec.Id, "id"),
       name: String(rec.name ?? rec.Name ?? ""),
       label: String(rec.label ?? rec.Label ?? rec.name ?? rec.Name ?? ""),
     };

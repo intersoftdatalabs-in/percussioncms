@@ -19,6 +19,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  blobPreviewSrc,
   displayBinaryFileName,
   FileFieldWidget,
 } from "../../../../main/ts/editor/widgets/FileFieldWidget";
@@ -120,5 +121,38 @@ describe("FileFieldWidget", () => {
       expect(label.textContent).toBe("img src=x onerror=alert(1)next.pdf");
     });
     expect(label.innerHTML).not.toMatch(/<img/i);
+  });
+
+  it("only assigns blob: URLs as the image preview src", async () => {
+    expect(blobPreviewSrc("blob:http://localhost/abc")).toBe(
+      "blob:http://localhost/abc",
+    );
+    expect(blobPreviewSrc("javascript:alert(1)")).toBe("");
+    expect(blobPreviewSrc("https://evil.example/x.png")).toBe("");
+    expect(blobPreviewSrc("<img src=x onerror=alert(1)>")).toBe("");
+
+    render(
+      <ImageFieldWidget
+        itemId="7"
+        name="img"
+        readOnly={false}
+        loadMeta={async () => ({
+          contentId: "7",
+          field: "img",
+          filename: "",
+          contentType: "",
+          present: false,
+        })}
+        onFile={vi.fn()}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-img")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-file-img") as HTMLInputElement;
+    const file = new File(["x"], "hero.png", { type: "image/png" });
+    fireEvent.change(input, { target: { files: [file] } });
+    const preview = await waitFor(() => screen.getByTestId("editor-image-preview-img"));
+    expect(preview.getAttribute("src") || "").toMatch(/^blob:/);
   });
 });

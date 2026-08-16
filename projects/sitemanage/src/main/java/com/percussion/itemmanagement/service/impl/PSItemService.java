@@ -421,10 +421,17 @@ public class PSItemService implements IPSItemService {
     if (attachment == null) {
       throw new PSItemServiceException("A file attachment is required.");
     }
-    String filename = attachment.getContentDisposition().getFilename();
-    String type = attachment.getContentType() == null ? "" : attachment.getContentType().toString();
-    try (InputStream in = attachment.getDataHandler().getInputStream()) {
-      return saveEditorBinary(id, field, in, filename, type);
+    try {
+      var disposition = attachment.getContentDisposition();
+      if (disposition == null) {
+        throw new PSItemServiceException("A file attachment is required.");
+      }
+      String filename = disposition.getFilename();
+      String type =
+          attachment.getContentType() == null ? "" : attachment.getContentType().toString();
+      try (InputStream in = attachment.getDataHandler().getInputStream()) {
+        return saveEditorBinary(id, field, in, filename, type);
+      }
     } catch (PSItemServiceException e) {
       throw e;
     } catch (Exception e) {

@@ -70,4 +70,28 @@ describe("slotRelationshipApi unwrap", () => {
     });
     expect(items).toEqual([{ id: 301, name: "rffEvent", label: "Event" }]);
   });
+
+  it("rejects malformed relationship ids instead of coercing them to 0", () => {
+    expect(() =>
+      unwrapSlotRelationship({
+        relationshipId: "not-a-number",
+        ownerId: 42,
+        dependentId: 7,
+        slotId: 3,
+      }),
+    ).toThrow(/relationshipId/);
+    expect(() =>
+      unwrapSlotRelationship({
+        ownerId: 42,
+        dependentId: 7,
+        slotId: 3,
+      }),
+    ).toThrow(/relationshipId is missing/);
+    expect(() =>
+      unwrapSlotCanvas({
+        ownerId: 42,
+        slots: [{ name: "sidebar", items: [] }],
+      }),
+    ).toThrow(/slotId/);
+  });
 });

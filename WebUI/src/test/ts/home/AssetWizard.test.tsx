@@ -230,4 +230,32 @@ describe("AssetWizard opener", () => {
     expect(openCreated.mock.calls[1]?.[0]).toMatchObject({ id: "91" });
     expect(screen.queryByTestId("asset-wizard-open-editor")).toBeNull();
   });
+
+  it("clears busy when reservePopup throws before create", async () => {
+    const reservePopup = vi.fn(() => {
+      throw new Error("popup reservation failed");
+    });
+    const createItem = vi.fn();
+    const openCreated = vi.fn();
+    render(
+      <AssetWizard
+        onBack={() => undefined}
+        createItem={createItem}
+        openCreated={openCreated}
+        reservePopup={reservePopup}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("asset-wizard"));
+    fireEvent.click(screen.getByTestId("asset-wizard-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("asset-wizard-error").textContent).toBe(
+        "Create Not Authorized",
+      );
+    });
+    expect(createItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId("asset-wizard-submit")).not.toHaveProperty(
+      "disabled",
+      true,
+    );
+  });
 });

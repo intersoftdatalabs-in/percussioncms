@@ -132,8 +132,9 @@ export function AssetWizard({
     const folder = normalizeCmsPath(folderPath);
     setBusy(true);
     setPendingOpen(null);
-    const reserved = reservePopup();
+    let reserved: Window | null = null;
     try {
+      reserved = reservePopup();
       const created = await createItem({
         contentType,
         folderPath: folder,
