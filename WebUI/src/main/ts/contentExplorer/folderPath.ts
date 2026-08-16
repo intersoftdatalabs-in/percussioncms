@@ -174,6 +174,21 @@ export function resolveFolderPathFromSelection(
 }
 
 /**
+ * Whether {@code path} is a real CMS folder that pathmanagement
+ * {@code GET …/path/item/{path}} can resolve.
+ *
+ * <p>Root {@code /} encodes to an empty suffix ({@code …/path/item/}) which
+ * the server rejects as HTTP 400 "Invalid path". Explorer seeds
+ * {@code initialPath="/"} on first paint, so the security-panel folder-id
+ * lookup must skip root (#3458 / parent #2745).</p>
+ */
+export function isFolderIdLookupPath(
+  path: string | null | undefined,
+): boolean {
+  return normalizeExplorerFolderPath(path) != null;
+}
+
+/**
  * Repository form required by content WS / search execute
  * ({@code getIdByPath} rejects paths that do not start with {@code //}).
  *

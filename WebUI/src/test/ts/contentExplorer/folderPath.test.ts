@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  isFolderIdLookupPath,
   isSafeExplorerTreeChild,
   isStrictCmsPathDescendant,
   normalizeExplorerFolderPath,
@@ -38,6 +39,16 @@ describe("normalizeExplorerFolderPath (#2792)", () => {
     );
     expect(normalizeExplorerFolderPath("Assets/img")).toBe("/Assets/img");
     expect(normalizeExplorerFolderPath("//Sites/Demo")).toBe("/Sites/Demo");
+  });
+
+  it("isFolderIdLookupPath skips root so path/item/ is not probed (#3458)", () => {
+    expect(isFolderIdLookupPath(null)).toBe(false);
+    expect(isFolderIdLookupPath(undefined)).toBe(false);
+    expect(isFolderIdLookupPath("")).toBe(false);
+    expect(isFolderIdLookupPath("/")).toBe(false);
+    expect(isFolderIdLookupPath("///")).toBe(false);
+    expect(isFolderIdLookupPath("/Sites")).toBe(true);
+    expect(isFolderIdLookupPath("/Sites/Corporate_Investments")).toBe(true);
   });
 
   it("normalizes Windows-style separators before use", () => {

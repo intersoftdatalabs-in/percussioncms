@@ -1524,6 +1524,41 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("root initialPath does not GET path/item/ (#3458)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [],
+            childrenCount: 0,
+            startIndex: 0,
+          },
+          PathItem: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    });
+    expect(
+      seen.some((u) => /\/path\/item\/?(\?|$)/i.test(u)),
+      `unexpected path/item probe: ${seen.join(" | ")}`,
+    ).toBe(false);
+  });
+
   it("security stays on hint when resolveFolderId rejects (#2410)", async () => {
     stubPathFetch();
     renderShell(
