@@ -31,10 +31,12 @@ New window (peer of Active Assembly):
 
 ## Later
 
-- TinyMCE / file / image / keyword / community controls
 - AA contenteditable overlay on the assembled preview
-- Revision promote form
 - Home **Create asset** still uses leftover `editAsset.jsp` until asset create is on this host
+
+Rich controls (TinyMCE, file/image upload, keyword, community) and the revision
+**promote** form ship in this editor host. They persist through itemmanagement
+fields / binary APIs only.
 
 ## Out of scope here
 

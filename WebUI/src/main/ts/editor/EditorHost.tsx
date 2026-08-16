@@ -16,27 +16,41 @@
  */
 
 /**
- * First Content Editor slice (995): checkout + content-type field form.
- * Rich controls / TinyMCE / New Item remain later slices.
+ * React Content Editor host (995): checkout + content-type field form.
+ * Rich controls persist through itemmanagement fields / binary APIs.
  */
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { getContentTypeDetail } from "../api/developer/contentTypesApi";
-import type { ContentTypeFieldSummary } from "../api/developer/types";
+import type {
+  CommunitySummary,
+  ContentTypeFieldSummary,
+  KeywordSummary,
+} from "../api/developer/types";
+import type { ItemEditorBinaryMeta } from "./itemBinaryApi";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
+import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
 import {
   checkinEditorItem,
   checkoutEditorItem,
   fetchItemEditorFields,
   saveItemEditorFields,
-  type ItemEditorField,
   type ItemEditorFields,
 } from "./itemFieldsApi";
+import { uploadItemEditorBinary } from "./itemBinaryApi";
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EDITOR_MSG } from "./messages";
+import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
+import { FileFieldWidget } from "./widgets/FileFieldWidget";
+import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
+import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
+import { KeywordFieldWidget } from "./widgets/KeywordFieldWidget";
+import { PromoteForm } from "./widgets/PromoteForm";
+
+export { mergeEditorRows } from "./controlKinds";
 
 export interface EditorHostProps {
   loadFields?: (itemId: string) => Promise<ItemEditorFields>;
@@ -47,35 +61,123 @@ export interface EditorHostProps {
   checkout?: (itemId: string) => Promise<void>;
   checkin?: (itemId: string) => Promise<void>;
   loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
+  uploadBinary?: (
+    itemId: string,
+    field: string,
+    file: File,
+  ) => Promise<unknown>;
+  loadKeywords?: () => Promise<KeywordSummary[]>;
+  loadCommunities?: () => Promise<CommunitySummary[]>;
+  loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
 }
 
-function isLongField(schema: ContentTypeFieldSummary | undefined, value: string): boolean {
-  const control = (schema?.control ?? "").toLowerCase();
-  const dataType = (schema?.dataType ?? "").toLowerCase();
-  if (control.includes("textarea") || control.includes("tinymce") || control.includes("html")) {
-    return true;
+function badgeKey(mode: EditorHostMode): string {
+  if (mode === "view") {
+    return EDITOR_MSG.BADGE_VIEW;
   }
-  if (dataType.includes("text") && value.length > 80) {
-    return true;
+  if (mode === "promote") {
+    return EDITOR_MSG.BADGE_PROMOTE;
   }
-  return value.includes("\n") || value.length > 160;
+  return EDITOR_MSG.BADGE_EDIT;
 }
 
-export function mergeEditorRows(
-  payload: ItemEditorFields,
-  schemaFields: ContentTypeFieldSummary[],
-): Array<ItemEditorField & { label: string; readOnly: boolean; long: boolean }> {
-  const byName = new Map(schemaFields.map((f) => [f.name ?? "", f]));
-  return payload.fields.map((field) => {
-    const schema = byName.get(field.name);
-    const readOnly = schema?.readOnly === true;
-    return {
-      ...field,
-      label: schema?.label || field.name,
-      readOnly,
-      long: isLongField(schema, field.value),
-    };
-  });
+function EditorFieldControl({
+  row,
+  itemId,
+  locked,
+  onChange,
+  onFile,
+  loadKeywords,
+  loadCommunities,
+  loadBinaryMeta,
+}: {
+  row: EditorFieldRow;
+  itemId: string;
+  locked: boolean;
+  onChange: (name: string, value: string) => void;
+  onFile: (name: string, file: File | null) => void;
+  loadKeywords?: () => Promise<KeywordSummary[]>;
+  loadCommunities?: () => Promise<CommunitySummary[]>;
+  loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
+}): React.ReactElement {
+  if (row.kind === "html") {
+    return (
+      <HtmlFieldWidget
+        name={row.name}
+        value={row.value}
+        readOnly={locked}
+        onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "file") {
+    return (
+      <FileFieldWidget
+        itemId={itemId}
+        name={row.name}
+        readOnly={locked}
+        loadMeta={loadBinaryMeta}
+        onFile={(file) => onFile(row.name, file)}
+      />
+    );
+  }
+  if (row.kind === "image") {
+    return (
+      <ImageFieldWidget
+        itemId={itemId}
+        name={row.name}
+        readOnly={locked}
+        loadMeta={loadBinaryMeta}
+        onFile={(file) => onFile(row.name, file)}
+      />
+    );
+  }
+  if (row.kind === "keyword") {
+    return (
+      <KeywordFieldWidget
+        name={row.name}
+        value={row.value}
+        readOnly={locked}
+        loadKeywords={loadKeywords}
+        onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "community") {
+    return (
+      <CommunityFieldWidget
+        name={row.name}
+        value={row.value}
+        readOnly={locked}
+        loadCommunities={loadCommunities}
+        onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "longtext") {
+    return (
+      <textarea
+        className={`${styles.textarea} ${locked ? styles.readonly : ""}`}
+        data-testid={`editor-field-${row.name}`}
+        data-editor-kind="longtext"
+        name={row.name}
+        value={row.value}
+        readOnly={locked}
+        onChange={(e) => onChange(row.name, e.target.value)}
+      />
+    );
+  }
+  return (
+    <input
+      className={`${styles.input} ${locked ? styles.readonly : ""}`}
+      data-testid={`editor-field-${row.name}`}
+      data-editor-kind="text"
+      name={row.name}
+      value={row.value}
+      readOnly={locked}
+      onChange={(e) => onChange(row.name, e.target.value)}
+    />
+  );
 }
 
 export function EditorHost({
@@ -84,20 +186,26 @@ export function EditorHost({
   checkout = checkoutEditorItem,
   checkin = checkinEditorItem,
   loadType = getContentTypeDetail,
+  uploadBinary = uploadItemEditorBinary,
+  loadKeywords,
+  loadCommunities,
+  loadBinaryMeta,
 }: EditorHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
   const mode: EditorHostMode = normalizeEditorMode(params.get("mode"));
   const readOnly = mode === "view";
+  const promote = mode === "promote";
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [errorKey, setErrorKey] = useState<string | null>(
     contentId == null ? EDITOR_MSG.MISSING_ITEM : null,
   );
   const [errorDetail, setErrorDetail] = useState<string>("");
-  const [loading, setLoading] = useState(contentId != null);
+  const [loading, setLoading] = useState(contentId != null && !promote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -106,7 +214,7 @@ export function EditorHost({
   }, []);
 
   useEffect(() => {
-    if (contentId == null) {
+    if (contentId == null || promote) {
       return;
     }
     const itemId = String(contentId);
@@ -123,9 +231,7 @@ export function EditorHost({
           return;
         }
         setPayload(fields);
-        setDraft(
-          Object.fromEntries(fields.fields.map((f) => [f.name, f.value])),
-        );
+        setDraft(Object.fromEntries(fields.fields.map((f) => [f.name, f.value])));
         if (fields.contentType) {
           try {
             const detail = await loadType(fields.contentType);
@@ -151,7 +257,7 @@ export function EditorHost({
     return () => {
       cancelled = true;
     };
-  }, [contentId, readOnly, checkout, loadFields, loadType]);
+  }, [contentId, readOnly, promote, checkout, loadFields, loadType]);
 
   const rows = useMemo(() => {
     if (!payload) {
@@ -166,8 +272,27 @@ export function EditorHost({
         })),
       },
       schema,
-    );
+    ).map((row) => ({
+      ...row,
+      value: draft[row.name] ?? row.value,
+    }));
   }, [payload, draft, schema]);
+
+  function setField(name: string, value: string): void {
+    setDraft((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function setFile(name: string, file: File | null): void {
+    setPendingFiles((prev) => {
+      const next = { ...prev };
+      if (file) {
+        next[name] = file;
+      } else {
+        delete next[name];
+      }
+      return next;
+    });
+  }
 
   async function handleSave(): Promise<void> {
     if (contentId == null || payload == null) {
@@ -177,18 +302,23 @@ export function EditorHost({
     setSaved(false);
     setErrorKey(null);
     try {
+      const itemId = String(contentId);
       const next: ItemEditorFields = {
         ...payload,
-        fields: payload.fields.map((f) => ({
-          name: f.name,
-          value: draft[f.name] ?? f.value,
-        })),
+        fields: rows
+          .filter((row) => row.kind !== "file" && row.kind !== "image")
+          .map((row) => ({
+            name: row.name,
+            value: draft[row.name] ?? row.value,
+          })),
       };
-      const savedPayload = await saveFields(String(contentId), next);
+      const savedPayload = await saveFields(itemId, next);
+      for (const [field, file] of Object.entries(pendingFiles)) {
+        await uploadBinary(itemId, field, file);
+      }
+      setPendingFiles({});
       setPayload(savedPayload);
-      setDraft(
-        Object.fromEntries(savedPayload.fields.map((f) => [f.name, f.value])),
-      );
+      setDraft(Object.fromEntries(savedPayload.fields.map((f) => [f.name, f.value])));
       setSaved(true);
     } catch {
       setErrorKey(EDITOR_MSG.SAVE_FAILED);
@@ -212,13 +342,13 @@ export function EditorHost({
     }
   }
 
+  const canEdit = !readOnly && !promote;
+
   return (
     <div className={styles.root} data-testid="editor-host">
       <header className={styles.bar} data-testid="editor-overlay">
         <span className={styles.title}>{message(EDITOR_MSG.TITLE)}</span>
-        <span className={styles.badge}>
-          {message(readOnly ? EDITOR_MSG.BADGE_VIEW : EDITOR_MSG.BADGE_EDIT)}
-        </span>
+        <span className={styles.badge}>{message(badgeKey(mode))}</span>
         {contentId != null ? (
           <span className={styles.meta} data-testid="editor-content-id">
             {message(EDITOR_MSG.CONTENT_ID)} {contentId}
@@ -236,7 +366,7 @@ export function EditorHost({
         ) : null}
         <div className={styles.actions}>
           {saved ? <span className={styles.meta}>{message(EDITOR_MSG.SAVED)}</span> : null}
-          {!readOnly ? (
+          {canEdit ? (
             <button
               type="button"
               className={`${styles.button} ${styles.buttonPrimary}`}
@@ -247,7 +377,7 @@ export function EditorHost({
               {message(saving ? EDITOR_MSG.SAVING : EDITOR_MSG.SAVE)}
             </button>
           ) : null}
-          {!readOnly ? (
+          {canEdit ? (
             <button
               type="button"
               className={styles.button}
@@ -272,7 +402,9 @@ export function EditorHost({
         </div>
       </header>
       <div className={styles.stage} data-testid="editor-stage">
-        {errorKey ? (
+        {contentId != null && promote ? (
+          <PromoteForm itemId={String(contentId)} />
+        ) : errorKey ? (
           <div className={styles.status} role="alert" data-testid="editor-error">
             {message(errorKey)}
             {errorDetail ? ` ${errorDetail}` : ""}
@@ -291,7 +423,7 @@ export function EditorHost({
             data-testid="editor-form"
             onSubmit={(e) => {
               e.preventDefault();
-              if (!readOnly) {
+              if (canEdit) {
                 void handleSave();
               }
             }}
@@ -299,29 +431,16 @@ export function EditorHost({
             {rows.map((row) => (
               <label key={row.name} className={styles.field}>
                 <span className={styles.label}>{row.label}</span>
-                {row.long ? (
-                  <textarea
-                    className={`${styles.textarea} ${readOnly || row.readOnly ? styles.readonly : ""}`}
-                    data-testid={`editor-field-${row.name}`}
-                    name={row.name}
-                    value={row.value}
-                    readOnly={readOnly || row.readOnly}
-                    onChange={(e) =>
-                      setDraft((prev) => ({ ...prev, [row.name]: e.target.value }))
-                    }
-                  />
-                ) : (
-                  <input
-                    className={`${styles.input} ${readOnly || row.readOnly ? styles.readonly : ""}`}
-                    data-testid={`editor-field-${row.name}`}
-                    name={row.name}
-                    value={row.value}
-                    readOnly={readOnly || row.readOnly}
-                    onChange={(e) =>
-                      setDraft((prev) => ({ ...prev, [row.name]: e.target.value }))
-                    }
-                  />
-                )}
+                <EditorFieldControl
+                  row={row}
+                  itemId={String(contentId)}
+                  locked={readOnly || row.readOnly}
+                  onChange={setField}
+                  onFile={setFile}
+                  loadKeywords={loadKeywords}
+                  loadCommunities={loadCommunities}
+                  loadBinaryMeta={loadBinaryMeta}
+                />
               </label>
             ))}
           </form>

@@ -115,6 +115,16 @@ describe("actionDispatch", () => {
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("mode=view");
   });
 
+  it("dispatch revision_promote opens the editor promote form", async () => {
+    const openWindow = vi.fn();
+    const result = await dispatchAction(action({ name: "revision_promote" }), {
+      item: item(),
+      openWindow,
+    });
+    expect(result.kind).toBe("editor");
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("mode=promote");
+  });
+
   it("dispatch Data Flow HTML does not navigate", async () => {
     const openWindow = vi.fn();
     const result = await dispatchAction(
