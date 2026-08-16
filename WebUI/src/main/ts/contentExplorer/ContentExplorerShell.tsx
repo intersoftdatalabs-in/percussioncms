@@ -1024,7 +1024,9 @@ function ContentExplorerShellInner({
         return;
       }
       const path = selection.folderPath;
-      if (!path) {
+      // Skip root / blank before calling any injector — custom resolveFolderId
+      // implementations (and default findItemByPath) must not GET path/item/ (#3468).
+      if (!path || !isFolderIdLookupPath(path)) {
         if (!cancelled) setSecurityFolderId(undefined);
         return;
       }

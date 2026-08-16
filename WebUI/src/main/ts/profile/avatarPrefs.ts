@@ -20,7 +20,7 @@
  */
 
 import {
-  loadUserPreference,
+  getAllUserPreferences,
   saveUserPreference,
   PREF_CATEGORY_SYS,
   PREF_CONTEXT_PRIVATE,
@@ -28,16 +28,22 @@ import {
 import { GRAVATAR_EMAIL_PREF_NAME } from "./gravatar";
 
 /**
- * Load stored Gravatar email override for the current session user
- * ({@code loadUserPreference} is always session-scoped). Empty string when
- * unset (caller falls back to primary account email).
+ * Load stored Gravatar email override for the current session user.
+ *
+ * <p>Uses GET {@code /preferences/} (list) — not GET {@code /preferences/{name}}.
+ * Unset named prefs 404 on live H2 and pollute Explorer when chrome or Profile
+ * still probes the named path ({@code /services/…} and {@code /Rhythmyx/services/…}
+ * twins, #3468). Empty string when unset (caller falls back to primary email).
  */
 export async function loadGravatarEmailOverride(): Promise<string> {
-  const pref = await loadUserPreference(GRAVATAR_EMAIL_PREF_NAME);
-  if (pref == null || pref.value == null) {
+  const listed = await getAllUserPreferences();
+  const match = listed.find(
+    (p) => (p.name || "").trim() === GRAVATAR_EMAIL_PREF_NAME,
+  );
+  if (match == null || match.value == null) {
     return "";
   }
-  return String(pref.value).trim();
+  return String(match.value).trim();
 }
 
 /**
