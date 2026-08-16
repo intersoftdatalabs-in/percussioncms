@@ -98,10 +98,38 @@ export function isFolder(item: PSPathItem | null): boolean {
   return Boolean(item.hasFolderChildren);
 }
 
+/**
+ * Compare Explorer item ids without number/string mismatches
+ * ({@code "42"} vs {@code 42}) so list {@code aria-selected} tracks
+ * {@code selection.item} after a row click (#3467).
+ */
+export function sameExplorerItemId(
+  a: string | number | null | undefined,
+  b: string | number | null | undefined,
+): boolean {
+  if (a == null || b == null) {
+    return false;
+  }
+  const left = String(a).trim();
+  const right = String(b).trim();
+  return left.length > 0 && left === right;
+}
+
 export function canRead(item: PSPathItem | null): boolean {
   if (!item) return false;
   const level = item.accessLevel;
-  return level === "ADMIN" || level === "WRITE" || level === "READ" || level === "VIEW";
+  // Listed children without an ACL token are still selectable so a row
+  // click can set selection.item before Publish Now (#3467).
+  if (level == null || String(level).trim() === "") {
+    return true;
+  }
+  const token = String(level).trim().toUpperCase();
+  return (
+    token === "ADMIN" ||
+    token === "WRITE" ||
+    token === "READ" ||
+    token === "VIEW"
+  );
 }
 
 export function canWrite(item: PSPathItem | null): boolean {
