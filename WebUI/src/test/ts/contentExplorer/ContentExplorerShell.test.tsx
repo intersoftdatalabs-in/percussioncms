@@ -1524,6 +1524,23 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("root initialPath does not call resolveFolderId (#3468)", async () => {
+    stubPathFetch();
+    const resolveFolderId = vi.fn(async () => "should-not-run");
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={resolveFolderId}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    });
+    expect(resolveFolderId).not.toHaveBeenCalled();
+  });
+
   it("root initialPath does not GET path/item/ (#3458)", async () => {
     const seen: string[] = [];
     mockFetch(async (input) => {

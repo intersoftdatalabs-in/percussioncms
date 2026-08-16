@@ -39,9 +39,9 @@ export function UserMenu(): React.ReactElement {
       try {
         // Do not swallow SessionRedirectError on getCurrentUserBasic — let the
         // outer guard see it so login redirect is not silently skipped.
-        // Do not GET /preferences/{name} from chrome — unset prefs 404 and
-        // pollute Explorer console (#3458 / #2745). Profile AvatarSection
-        // still loads the override. Primary email is enough for the chip.
+        // Do not GET /preferences/{name} (or the list) from chrome — unset
+        // prefs 404 on both /services and /Rhythmyx/services and pollute
+        // Explorer (#3468 / #3458). Profile AvatarSection loads via list.
         const basic = await getCurrentUserBasic();
         if (cancelled) {
           return;

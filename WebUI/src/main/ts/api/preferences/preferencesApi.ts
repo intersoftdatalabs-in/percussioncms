@@ -223,7 +223,13 @@ export async function loadUserPreference(
   try {
     const data = await get<unknown>(`${PATHS.PREFERENCES}/${key}`);
     // Prefer wrapped wire; do not accept flat as a successful production parse.
-    return unwrapUserPreference(data, { acceptFlat: false });
+    const pref = unwrapUserPreference(data, { acceptFlat: false });
+    // PreferenceResource returns 200 + empty value when nothing is stored
+    // (#3458 / #3468). Treat blank as unset so callers do not keep a dummy.
+    if (pref == null || pref.value == null || String(pref.value).trim() === "") {
+      return null;
+    }
+    return pref;
   } catch (err: unknown) {
     if (isNotFound(err)) {
       return null;
