@@ -106,6 +106,7 @@ import {
   type ReducedActionHandlers,
 } from "./ReducedActions";
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
+import { resolvePublishKind } from "./itemPublish";
 import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import {
@@ -437,6 +438,12 @@ function ContentExplorerShellInner({
       ? { folderPath: initialPath, item: null }
       : EMPTY_SELECTION,
   );
+  /**
+   * Dispatch reads this so a row click that just set {@code selection.item}
+   * is visible even if the toolbar still holds a stale callback (#3467).
+   */
+  const selectionRef = useRef(selection);
+  selectionRef.current = selection;
   const [error, setError] = useState<string | null>(null);
   const [viewRun, setViewRun] = useState<ViewRunStatus | null>(null);
   const [selectedViewKey, setSelectedViewKey] = useState<string | null>(null);
@@ -565,7 +572,9 @@ function ContentExplorerShellInner({
         if (cancelled) return;
         // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
         const merged = mergeWorkflowMenuActions(base ?? [], workflow);
-        setMenuActions(filterToolbarActions(merged));
+        setMenuActions(
+          filterToolbarActions(merged, undefined, selection.item),
+        );
         setMenuLoadError(null);
       } catch (err: unknown) {
         if (cancelled) return;
@@ -763,10 +772,11 @@ function ContentExplorerShellInner({
   const handleMenuInvoke = useCallback(
     (actionName: string, action: MenuAction) => {
       void (async () => {
+        const current = selectionRef.current;
         try {
           const result = await dispatchAction(action, {
-            item: selection.item,
-            folderPath: selection.folderPath,
+            item: current.item,
+            folderPath: current.folderPath,
             parentName:
               action.parentName ??
               findMenuParentName(
@@ -793,8 +803,15 @@ function ContentExplorerShellInner({
           });
           if (result.messageKey) {
             const msg = message(result.messageKey);
-            setError(msg);
             setActionInvokeError(msg);
+            // Keep Sites-folder "select a content item first" off the
+            // generic banner so Publish Now failures mount
+            // explorer-server-actions-error (#3467).
+            if (result.messageKey !== EXPLORER_MSG.ACTION_NEEDS_ITEM) {
+              setError(msg);
+            } else {
+              setError(null);
+            }
           } else {
             setError(null);
             setActionInvokeError(null);
@@ -807,15 +824,13 @@ function ContentExplorerShellInner({
             err,
             message(EXPLORER_MSG.ERROR_GENERIC),
           );
-          setError(msg);
           setActionInvokeError(msg);
+          setError(msg);
         }
       })();
       void actionName;
     },
     [
-      selection.item,
-      selection.folderPath,
       handlers,
       runWorkflowTransition,
       menuActions,
@@ -1049,6 +1064,8 @@ function ContentExplorerShellInner({
       role="application"
       aria-label={message(EXPLORER_MSG.TITLE)}
       data-testid="content-explorer-shell"
+      data-selected-item-id={selection.item?.id != null ? String(selection.item.id) : ""}
+      data-selected-item-kind={resolvePublishKind(selection.item)}
     >
       <header style={headerStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>

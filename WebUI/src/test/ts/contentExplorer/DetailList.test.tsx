@@ -213,6 +213,49 @@ describe("DetailList", () => {
     expect(selectedId).toBe("p-1");
   });
 
+  it("selects a percPage row even when accessLevel is omitted (#3467)", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "42",
+                name: "Home",
+                path: "/Sites/Demo/Home",
+                type: "percPage",
+                category: "page",
+                leaf: true,
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    let selectedId: string | null = null;
+    render(
+      <DetailList
+        folderPath="/Sites/Demo"
+        selectedItemId={null}
+        onSelectItem={(item) => {
+          selectedId = item.id ?? null;
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-row-42")).toHaveAttribute(
+      "data-row-kind",
+      "item",
+    );
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    expect(selectedId).toBe("42");
+  });
+
   it("surfaces fetch errors as an alert", async () => {
     mockFetch(async () => new Response("boom", { status: 500 }));
     render(
