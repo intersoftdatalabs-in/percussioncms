@@ -170,12 +170,24 @@ export function AssetWizard({
       return;
     }
     setBusy(true);
+    let reserved: Window | null = null;
     try {
-      const opened = await openCreated(pendingOpen);
+      reserved = reservePopup();
+      const opened = await openCreated(pendingOpen, {
+        reservedWindow: reserved ?? undefined,
+      });
       if (opened) {
         setPendingOpen(null);
         setError(null);
+      } else {
+        closeReservedWindow(reserved);
       }
+    } catch (err) {
+      closeReservedWindow(reserved);
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)));
     } finally {
       setBusy(false);
     }
