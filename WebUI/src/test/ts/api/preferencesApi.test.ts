@@ -72,6 +72,18 @@ describe("preferencesApi (PreferenceResource)", () => {
     await expect(loadUserPreference("missing")).resolves.toBeNull();
   });
 
+  it("loadUserPreference treats 200 empty value as unset (#3468)", async () => {
+    vi.spyOn(client, "get").mockResolvedValueOnce({
+      UserPreference: {
+        name: "perc_profile_gravatar_email",
+        value: "",
+      },
+    });
+    await expect(
+      loadUserPreference("perc_profile_gravatar_email"),
+    ).resolves.toBeNull();
+  });
+
   it("loadUserPreference unwraps Jackson UserPreference root", async () => {
     vi.spyOn(client, "get").mockResolvedValueOnce({
       UserPreference: {

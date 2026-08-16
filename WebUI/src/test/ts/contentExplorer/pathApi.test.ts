@@ -23,6 +23,7 @@ import {
   encodePath,
   findChildren,
   findItemByPath,
+  isPathItemLookupPath,
   folderProperties,
   FOLDER_PROPERTIES_ROOT,
   joinPathUrl,
@@ -198,6 +199,30 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     await findItemByPath("/Sites/Foo");
     expect(cap.lastUrl()).toContain("/path/item/Sites/Foo");
     expect(cap.lastUrl()).not.toContain("item//Sites");
+  });
+
+  it("isPathItemLookupPath skips root so path/item/ is not probed (#3468)", () => {
+    expect(isPathItemLookupPath(null)).toBe(false);
+    expect(isPathItemLookupPath(undefined)).toBe(false);
+    expect(isPathItemLookupPath("")).toBe(false);
+    expect(isPathItemLookupPath("/")).toBe(false);
+    expect(isPathItemLookupPath("///")).toBe(false);
+    expect(isPathItemLookupPath("/Sites")).toBe(true);
+    expect(isPathItemLookupPath("/Sites/Foo")).toBe(true);
+  });
+
+  it("findItemByPath does not GET path/item/ for CMS root (#3468)", async () => {
+    const fn = mockFetch(async () => {
+      return new Response(JSON.stringify({ PathItem: { name: "root" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const empty = await findItemByPath("/");
+    expect(empty).toEqual({});
+    expect(fn).not.toHaveBeenCalled();
+    await findItemByPath("");
+    expect(fn).not.toHaveBeenCalled();
   });
 
   it("addNewFolder joins path and query without double slash", async () => {
