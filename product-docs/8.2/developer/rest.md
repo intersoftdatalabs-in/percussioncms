@@ -119,9 +119,11 @@ An **unset** catalog or named preference is a successful empty result, not a mis
 | `200` | List (possibly empty) or named preference. When the name is not stored, the body is a `UserPreference` with that `name` and an empty `value` |
 | `500` | Unexpected server failure |
 
-Do **not** treat empty store as `404`. Product chrome (Explorer user menu, Profile avatar) treats a
-blank value as “use the account default.” Clients that still send `GET /preferences/{name}` for an
-unset Gravatar override should accept `200` + empty `value`.
+Do **not** treat empty store as `404`. Product Profile loads the Gravatar override from
+`GET /services/preferences/` (the list), not `GET /services/preferences/perc_profile_gravatar_email`.
+Explorer chrome does not probe the named preference. A blank list entry (or no entry) means
+“use the account default.” Clients that still send `GET /preferences/{name}` should accept
+`200` + empty `value` as unset — do not treat that 200 as a stored email.
 
 ## Sites (catalog)
 
