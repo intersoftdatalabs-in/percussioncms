@@ -661,6 +661,24 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Publish Now on a Sites folder asks for a content item and does not publish", async () => {
+    const onPublish = vi.fn();
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+      onPublish,
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(result.refresh).toBeUndefined();
+    expect(onPublish).not.toHaveBeenCalled();
+  });
+
   it("dispatch workflow-transition runs the trigger", async () => {
     const runWorkflow = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(

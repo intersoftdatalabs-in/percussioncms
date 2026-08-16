@@ -17,8 +17,10 @@
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
+  canRead,
   isFolder,
   isPageOrAssetContentType,
+  sameExplorerItemId,
 } from "../../../main/ts/contentExplorer/selection";
 
 describe("isFolder (#3001 site nodes)", () => {
@@ -162,5 +164,43 @@ describe("isFolder (#3001 site nodes)", () => {
         leaf: false,
       }),
     ).toBe(true);
+  });
+});
+
+describe("sameExplorerItemId / canRead (#3467)", () => {
+  it("matches string and numeric content ids", () => {
+    expect(sameExplorerItemId("42", 42)).toBe(true);
+    expect(sameExplorerItemId(42, "42")).toBe(true);
+    expect(sameExplorerItemId("42", "43")).toBe(false);
+    expect(sameExplorerItemId(null, "42")).toBe(false);
+  });
+
+  it("treats listed rows without an ACL token as readable", () => {
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+      }),
+    ).toBe(true);
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        accessLevel: "WRITE",
+      }),
+    ).toBe(true);
+    expect(
+      canRead({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        accessLevel: "NONE",
+      }),
+    ).toBe(false);
   });
 });
