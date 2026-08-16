@@ -16,7 +16,11 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { openEditorHost } from "../../../main/ts/editor/openEditorHost";
+import {
+  closeReservedWindow,
+  openEditorHost,
+  reserveEditorWindow,
+} from "../../../main/ts/editor/openEditorHost";
 
 function popup(): Window {
   return {} as Window;
@@ -63,5 +67,43 @@ describe("openEditorHost", () => {
     const ok = await openEditorHost({ id: "55" }, { openWindow });
     expect(ok).toBe(false);
     expect(openWindow).toHaveBeenCalled();
+  });
+
+  it("navigates a reserved window instead of opening a second popup", async () => {
+    const reserved = {
+      closed: false,
+      location: { href: "about:blank" },
+      focus: vi.fn(),
+    } as unknown as Window;
+    const openWindow = vi.fn();
+    const ok = await openEditorHost(
+      { id: "55" },
+      { openWindow, reservedWindow: reserved },
+    );
+    expect(ok).toBe(true);
+    expect(openWindow).not.toHaveBeenCalled();
+    expect(reserved.location.href).toContain("entry=editor");
+    expect(reserved.location.href).toContain("contentId=55");
+    expect(reserved.focus).toHaveBeenCalled();
+  });
+
+  it("reserves about:blank on the user gesture", () => {
+    const reserved = { closed: false } as Window;
+    const openWindow = vi.fn().mockReturnValue(reserved);
+    expect(reserveEditorWindow(openWindow)).toBe(reserved);
+    expect(openWindow).toHaveBeenCalledWith(
+      "about:blank",
+      "_blank",
+      expect.any(String),
+    );
+  });
+
+  it("closeReservedWindow ignores missing or already-closed windows", () => {
+    closeReservedWindow(null);
+    closeReservedWindow(undefined);
+    closeReservedWindow({ closed: true, close: vi.fn() } as unknown as Window);
+    const close = vi.fn();
+    closeReservedWindow({ closed: false, close } as unknown as Window);
+    expect(close).toHaveBeenCalled();
   });
 });

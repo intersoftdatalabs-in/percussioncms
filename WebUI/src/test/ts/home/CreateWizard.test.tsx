@@ -100,7 +100,7 @@ describe("CreateWizard", () => {
     expect(homeApi.fetchAllBlogs).toHaveBeenCalled();
   });
 
-  it("asset create opens the React editor host instead of leftover editAsset.jsp", async () => {
+  it("AssetWizard opens the React editor host", async () => {
     const createItem = vi.fn().mockResolvedValue({
       itemId: "77",
       folderPath: "//Assets",

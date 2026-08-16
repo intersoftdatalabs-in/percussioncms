@@ -83,11 +83,25 @@ describe("AssetWizard opener", () => {
       },
     });
 
-    const createItem = vi.fn().mockResolvedValue({
-      itemId: "88",
-      folderPath: "//Assets",
-      name: "New-percImageAsset",
-      contentType: "percImageAsset",
+    const reserved = {
+      closed: false,
+      close: vi.fn(),
+      location: { href: "about:blank" },
+      focus: vi.fn(),
+    } as unknown as Window;
+    const order: string[] = [];
+    const reservePopup = vi.fn(() => {
+      order.push("reserve");
+      return reserved;
+    });
+    const createItem = vi.fn().mockImplementation(async () => {
+      order.push("create");
+      return {
+        itemId: "88",
+        folderPath: "//Assets",
+        name: "New-percImageAsset",
+        contentType: "percImageAsset",
+      };
     });
     const openCreated = vi.fn().mockResolvedValue(true);
 
@@ -96,6 +110,7 @@ describe("AssetWizard opener", () => {
         onBack={() => undefined}
         createItem={createItem}
         openCreated={openCreated}
+        reservePopup={reservePopup}
       />,
     );
     await waitFor(() => screen.getByTestId("asset-wizard"));
@@ -112,6 +127,10 @@ describe("AssetWizard opener", () => {
       id: "88",
       path: "/Assets/New-percImageAsset",
     });
+    expect(openCreated.mock.calls[0]?.[1]).toMatchObject({
+      reservedWindow: reserved,
+    });
+    expect(order).toEqual(["reserve", "create"]);
     expect(hrefWrites.some((h) => /editAsset\.jsp|view=editor/.test(h))).toBe(
       false,
     );
@@ -140,5 +159,75 @@ describe("AssetWizard opener", () => {
     fireEvent.click(screen.getByTestId("asset-wizard-submit"));
     expect(createItem).not.toHaveBeenCalled();
     expect(openCreated).not.toHaveBeenCalled();
+  });
+
+  it("surfaces CREATE_NOT_AUTHORIZED when createItem rejects", async () => {
+    const reserved = {
+      closed: false,
+      close: vi.fn(),
+    } as unknown as Window;
+    const reservePopup = vi.fn(() => reserved);
+    const createItem = vi.fn().mockRejectedValue(new Error("forbidden"));
+    const openCreated = vi.fn();
+    render(
+      <AssetWizard
+        onBack={() => undefined}
+        createItem={createItem}
+        openCreated={openCreated}
+        reservePopup={reservePopup}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("asset-wizard"));
+    fireEvent.click(screen.getByTestId("asset-wizard-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("asset-wizard-error").textContent).toBe(
+        "Create Not Authorized",
+      );
+    });
+    expect(openCreated).not.toHaveBeenCalled();
+    expect(reserved.close).toHaveBeenCalled();
+    expect(screen.queryByTestId("asset-wizard-open-editor")).toBeNull();
+  });
+
+  it("surfaces CREATE_OPEN_EDITOR_FAILED and retries via Open", async () => {
+    const reserved = {
+      closed: false,
+      close: vi.fn(),
+    } as unknown as Window;
+    const reservePopup = vi.fn(() => reserved);
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "91",
+      folderPath: "//Assets",
+      name: "stub",
+      contentType: "percImageAsset",
+    });
+    const openCreated = vi
+      .fn()
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    render(
+      <AssetWizard
+        onBack={() => undefined}
+        createItem={createItem}
+        openCreated={openCreated}
+        reservePopup={reservePopup}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("asset-wizard"));
+    fireEvent.click(screen.getByTestId("asset-wizard-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("asset-wizard-error").textContent).toBe(
+        "The page was created but the editor could not open.",
+      );
+    });
+    expect(reserved.close).toHaveBeenCalled();
+    const retry = screen.getByTestId("asset-wizard-open-editor");
+    fireEvent.click(retry);
+    await waitFor(() => {
+      expect(screen.queryByTestId("asset-wizard-error")).toBeNull();
+    });
+    expect(openCreated).toHaveBeenCalledTimes(2);
+    expect(openCreated.mock.calls[1]?.[0]).toMatchObject({ id: "91" });
+    expect(screen.queryByTestId("asset-wizard-open-editor")).toBeNull();
   });
 });

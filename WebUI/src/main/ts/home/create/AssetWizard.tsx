@@ -24,7 +24,12 @@ import {
 } from "../../api/home/homeApi";
 import type { AssetTypeSummary } from "../../api/home/types";
 import { createEditorItem } from "../../editor/itemCreateApi";
-import { openEditorHost } from "../../editor/openEditorHost";
+import {
+  closeReservedWindow,
+  openEditorHost,
+  reserveEditorWindow,
+  type OpenEditorHostInput,
+} from "../../editor/openEditorHost";
 import { message, MSG } from "../../i18n/message";
 import {
   actionButtonStyle,
@@ -37,6 +42,8 @@ export interface AssetWizardProps {
   onBack: () => void;
   openCreated?: typeof openEditorHost;
   createItem?: typeof createEditorItem;
+  /** Opens {@code about:blank} on the submit click so async create is not popup-blocked. */
+  reservePopup?: () => Window | null;
 }
 
 /**
@@ -59,6 +66,7 @@ export function AssetWizard({
   onBack,
   openCreated = openEditorHost,
   createItem = createEditorItem,
+  reservePopup = reserveEditorWindow,
 }: AssetWizardProps): React.ReactElement {
   const [types, setTypes] = useState<AssetTypeSummary[]>([]);
   const [typeId, setTypeId] = useState("");
@@ -67,6 +75,9 @@ export function AssetWizard({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [pendingOpen, setPendingOpen] = useState<OpenEditorHostInput | null>(
+    null,
+  );
 
   useEffect(() => {
     Promise.all([
@@ -120,26 +131,50 @@ export function AssetWizard({
     }
     const folder = normalizeCmsPath(folderPath);
     setBusy(true);
+    setPendingOpen(null);
+    const reserved = reservePopup();
     try {
       const created = await createItem({
         contentType,
         folderPath: folder,
       });
-      const opened = await openCreated({
+      const input: OpenEditorHostInput = {
         id: created.itemId,
         path:
           created.folderPath && created.name
             ? joinFolderAndName(created.folderPath, created.name)
             : undefined,
+      };
+      const opened = await openCreated(input, {
+        reservedWindow: reserved ?? undefined,
       });
       if (!opened) {
+        closeReservedWindow(reserved);
+        setPendingOpen(input);
         setError(message(MSG.CREATE_OPEN_EDITOR_FAILED));
       }
     } catch (err) {
+      closeReservedWindow(reserved);
       if (isSessionRedirectError(err)) {
         return;
       }
       setError(formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onOpenEditor = async () => {
+    if (!pendingOpen) {
+      return;
+    }
+    setBusy(true);
+    try {
+      const opened = await openCreated(pendingOpen);
+      if (opened) {
+        setPendingOpen(null);
+        setError(null);
+      }
     } finally {
       setBusy(false);
     }
@@ -217,6 +252,20 @@ export function AssetWizard({
         <p role="alert" style={errorStyle} data-testid="asset-wizard-error">
           {error}
         </p>
+      )}
+
+      {pendingOpen && (
+        <button
+          type="button"
+          data-testid="asset-wizard-open-editor"
+          style={actionButtonStyle("primary")}
+          disabled={busy}
+          onClick={() => {
+            void onOpenEditor();
+          }}
+        >
+          {message(MSG.OPEN_ITEM)}
+        </button>
       )}
 
       <button

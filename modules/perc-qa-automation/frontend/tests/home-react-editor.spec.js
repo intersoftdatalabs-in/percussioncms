@@ -122,7 +122,17 @@ test.describe("Home React Content Editor", () => {
         .waitForEvent("popup", { timeout: 15_000 })
         .catch(() => null);
       await page.getByTestId("asset-wizard-submit").click();
-      const popup = await popupPromise;
+      let popup = await popupPromise;
+      if (!popup) {
+        const retry = page.getByTestId("asset-wizard-open-editor");
+        if (await retry.isVisible().catch(() => false)) {
+          const retryPopup = page
+            .waitForEvent("popup", { timeout: 10_000 })
+            .catch(() => null);
+          await retry.click();
+          popup = await retryPopup;
+        }
+      }
       if (popup) {
         await expect(popup).toHaveURL(/entry=editor|\/editor/);
         await expect(popup).not.toHaveURL(/editAsset\.jsp|view=editor/);

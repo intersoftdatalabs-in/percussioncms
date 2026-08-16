@@ -33,8 +33,9 @@ post, or shared asset. After you choose the type and destination folder (and
 title/file name for pages and blog posts), the CMS creates the item
 (`POST /services/itemmanagement/item/create` for assets; page/blog create
 for those kinds) and opens the React Content Editor
-(`spa.jsp?entry=editor`). Home Create does **not** open leftover
-`editAsset.jsp` or `?view=editor`.
+(`spa.jsp?entry=editor`). If the browser blocks that popup after create,
+use **Open** on the wizard to open the new asset. Home Create does **not**
+open leftover `editAsset.jsp` or `?view=editor`.
 
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
