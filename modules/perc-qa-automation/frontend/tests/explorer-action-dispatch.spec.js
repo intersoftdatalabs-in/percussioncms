@@ -136,10 +136,16 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       });
 
       const itemRow = page.locator(
-        '[data-testid="detail-row-42"], tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+        '[data-testid="detail-row-42"][data-row-kind="item"]',
       );
-      await expect(itemRow.first()).toBeVisible({ timeout: 20_000 });
-      await itemRow.first().click({ force: true });
+      await expect(itemRow).toBeVisible({ timeout: 20_000 });
+      await itemRow.click();
+      await expect(
+        page.locator(
+          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+        ),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(itemRow).toHaveAttribute("aria-selected", "true");
 
       const publishNow = page.locator(
         '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
@@ -152,6 +158,9 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
+      await expect(
+        page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
+      ).toHaveCount(0);
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );

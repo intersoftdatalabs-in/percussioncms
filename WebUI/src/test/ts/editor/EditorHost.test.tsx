@@ -144,3 +144,142 @@ describe("mergeEditorRows", () => {
     expect(rows.find((r) => r.name === "sys_title")?.label).toBe("sys_title");
   });
 });
+
+describe("EditorHost rich controls", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("renders TinyMCE / file / keyword / community widgets and uploads binary on save", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percRichText",
+      name: "Intro",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Intro" },
+        { name: "text", value: "<p>Hi</p>" },
+        { name: "keywords", value: "news" },
+        { name: "sys_communityid", value: "10" },
+      ],
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percRichText",
+      name: "Intro",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Intro" },
+        { name: "text", value: "<p>Hi</p>" },
+        { name: "keywords", value: "events" },
+        { name: "sys_communityid", value: "20" },
+      ],
+    });
+    const uploadBinary = vi.fn().mockResolvedValue({});
+    const loadType = vi.fn().mockResolvedValue({
+      fields: [
+        { name: "sys_title", label: "Title", control: "sys_EditBox" },
+        { name: "text", label: "Body", control: "sys_tinymce" },
+        { name: "img", label: "Image", control: "sys_webImageFX" },
+        { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+        { name: "sys_communityid", label: "Community", control: "sys_DropDownSingle" },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                saveFields={saveFields}
+                loadType={loadType}
+                uploadBinary={uploadBinary}
+                loadKeywords={async () => [
+                  {
+                    value: "keywords",
+                    choices: [
+                      { value: "news", label: "News" },
+                      { value: "events", label: "Events" },
+                    ],
+                  },
+                ]}
+                loadCommunities={async () => [
+                  { id: 10, name: "Default" },
+                  { id: 20, name: "Enterprise" },
+                ]}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "img",
+                  filename: "",
+                  contentType: "",
+                  present: false,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-field-text").getAttribute("data-editor-kind")).toBe(
+      "html",
+    );
+    expect(screen.getByTestId("editor-field-img").getAttribute("data-editor-kind")).toBe(
+      "image",
+    );
+    expect(screen.getByTestId("editor-field-keywords").getAttribute("data-editor-kind")).toBe(
+      "keyword",
+    );
+    expect(
+      screen.getByTestId("editor-field-sys_communityid").getAttribute("data-editor-kind"),
+    ).toBe("community");
+    await waitFor(() => {
+      expect(screen.getByText("Events")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-keywords"), {
+      target: { value: "events" },
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "20" },
+    });
+    const file = new File(["x"], "hero.png", { type: "image/png" });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "keywords")?.value).toBe("events");
+    expect(saved.fields.find((f) => f.name === "sys_communityid")?.value).toBe("20");
+    expect(saved.fields.find((f) => f.name === "img")).toBeUndefined();
+    expect(uploadBinary).toHaveBeenCalledWith("42", "img", file);
+  });
+
+  it("opens the promote form without checkout", async () => {
+    const checkout = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=promote"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={<EditorHost checkout={checkout} loadFields={vi.fn()} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-promote-form")).toBeTruthy();
+    });
+    expect(checkout).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+});

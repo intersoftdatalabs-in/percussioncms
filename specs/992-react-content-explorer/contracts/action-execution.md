@@ -42,7 +42,7 @@ Presentation (`ActionToolbar` / `ContextMenu`) **always** calls `onInvoke`. It n
 | Flush Cache (Refresh Item) | Confirm, then flush **all** assembler pages (not only the selected item) |
 | Nav Reset | Same as classic `PSNavReset`; on 8.2 typically a no-op once nav is loaded (FastForward variants unused) |
 | Publish Now | Confirm, then existing sitemanage publish-now (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Does not open `demandpublishing`. |
-| Slot arrange | Still unavailable (P2 leftover / slot context) |
+| Slot arrange | REST when AA has a selected slot / relationship (`/services/assembly/slot-relationships`). Folder browse without a slot does not invent Arrange_*. |
 | Active Assembly | New window: assembled page/snippet preview + light overlay (`specs/996-react-active-assembly`) |
 
 ## P1 REST

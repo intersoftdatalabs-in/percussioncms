@@ -20,12 +20,19 @@ import { withCmsContextPrefix } from "../assembly/assemblyHostUrl";
 export const EDITOR_WINDOW_FEATURES =
   "popup=yes,width=960,height=800,scrollbars=yes,resizable=yes";
 
-export type EditorHostMode = "edit" | "view";
+export type EditorHostMode = "edit" | "view" | "promote";
 
 export function normalizeEditorMode(
   raw: string | null | undefined,
 ): EditorHostMode {
-  return raw?.trim().toLowerCase() === "view" ? "view" : "edit";
+  const mode = raw?.trim().toLowerCase();
+  if (mode === "view") {
+    return "view";
+  }
+  if (mode === "promote") {
+    return "promote";
+  }
+  return "edit";
 }
 
 export function buildEditorHostUrl(

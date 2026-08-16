@@ -15,11 +15,14 @@
  * limitations under the License.
  */
 
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AssemblyHost } from "../../../main/ts/assembly/AssemblyHost";
+import {
+  AssemblyHost,
+  runSlotDialogWork,
+} from "../../../main/ts/assembly/AssemblyHost";
 import { AppRoutes } from "../../../main/ts/app/routes";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 
@@ -151,5 +154,163 @@ describe("AssemblyHost", () => {
     );
     expect(screen.getByTestId("assembly-host")).toBeTruthy();
     expect(screen.queryByTestId("perc-spa-app")).toBeNull();
+  });
+
+  it("renders slot add/create/arrange once a slot is selected", async () => {
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffPgGeneric",
+        label: "Generic Page",
+        url: "../assembler/render?sys_template=7",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      } satisfies MenuAction,
+    ]);
+    const loadCanvas = vi.fn().mockResolvedValue({
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 3,
+          name: "sidebar",
+          label: "Sidebar",
+          items: [
+            {
+              relationshipId: 88,
+              ownerId: 42,
+              dependentId: 7,
+              slotId: 3,
+              templateId: 4,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    });
+    const removeSlotRel = vi.fn().mockResolvedValue(undefined);
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview,
+      loadTemplates,
+      loadCanvas,
+      removeSlotRel,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-3")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-3"));
+    expect(screen.getByTestId("assembly-slot-add")).not.toHaveProperty(
+      "disabled",
+      true,
+    );
+    fireEvent.click(screen.getByTestId("assembly-slot-item-88"));
+    fireEvent.click(screen.getByTestId("assembly-slot-remove"));
+    await waitFor(() => {
+      expect(removeSlotRel).toHaveBeenCalledWith(88);
+    });
+  });
+
+  it("runSlotDialogWork reports failures instead of swallowing them", async () => {
+    const onFail = vi.fn();
+    await runSlotDialogWork(async () => {
+      throw new Error("add failed");
+    }, onFail);
+    expect(onFail).toHaveBeenCalledTimes(1);
+    const ok = vi.fn();
+    await runSlotDialogWork(async () => undefined, ok);
+    expect(ok).not.toHaveBeenCalled();
+  });
+
+  it("shows a slot notice when create or change dialog apply rejects", async () => {
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffPgGeneric",
+        label: "Generic Page",
+        url: "../assembler/render?sys_template=7",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      } satisfies MenuAction,
+    ]);
+    const loadCanvas = vi.fn().mockResolvedValue({
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 3,
+          name: "sidebar",
+          label: "Sidebar",
+          items: [
+            {
+              relationshipId: 88,
+              ownerId: 42,
+              dependentId: 7,
+              slotId: 3,
+              templateId: 4,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    });
+    const loadAllowedTypes = vi.fn().mockResolvedValue([
+      { id: 1, name: "percRichText", label: "Rich Text" },
+    ]);
+    const loadAllowedTemplates = vi.fn().mockResolvedValue([
+      { id: 4, name: "rffSnTitle", label: "Title" },
+    ]);
+    const createItem = vi.fn().mockRejectedValue(new Error("create failed"));
+    const changeSlotTemplate = vi.fn().mockRejectedValue(new Error("change failed"));
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview,
+      loadTemplates,
+      loadCanvas,
+      loadAllowedTypes,
+      loadAllowedTemplates,
+      createItem,
+      changeSlotTemplate,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-3")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-3"));
+    fireEvent.click(screen.getByTestId("assembly-slot-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-create-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("assembly-slot-create-folder"), {
+      target: { value: "/Sites/Demo" },
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-create-apply"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-notice").textContent).toMatch(
+        /could not update the slot/i,
+      );
+    });
+    expect(screen.getByTestId("assembly-slot-create-dialog")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("assembly-slot-create-cancel"));
+    fireEvent.click(screen.getByTestId("assembly-slot-item-88"));
+    fireEvent.click(screen.getByTestId("assembly-slot-change"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-change-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-change-apply"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-slot-notice").textContent).toMatch(
+        /could not update the slot/i,
+      );
+    });
+    expect(screen.getByTestId("assembly-slot-change-dialog")).toBeTruthy();
   });
 });

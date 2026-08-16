@@ -101,6 +101,28 @@ Example create body:
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
 
+## User preferences
+
+Stored per-user preferences live under `/services/preferences` (same resource under the
+`/Rhythmyx/services` context-path prefix when the CMS is reached that way).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/preferences/` | All stored preferences for the current user |
+| `GET` | `/services/preferences/{name}` | One named preference (for example `perc_profile_gravatar_email`) |
+| `PUT` | `/services/preferences/` | Save one preference (`UserPreference` Jackson root) |
+
+An **unset** catalog or named preference is a successful empty result, not a missing resource:
+
+| Status | Meaning |
+|--------|---------|
+| `200` | List (possibly empty) or named preference. When the name is not stored, the body is a `UserPreference` with that `name` and an empty `value` |
+| `500` | Unexpected server failure |
+
+Do **not** treat empty store as `404`. Product chrome (Explorer user menu, Profile avatar) treats a
+blank value as “use the account default.” Clients that still send `GET /preferences/{name}` for an
+unset Gravatar override should accept `200` + empty `value`.
+
 ## Sites (catalog)
 
 | Operation | Path | Notes |
@@ -517,6 +539,21 @@ Response JSON (`PreviewLocation`):
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
 summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`).
 
+### Active Assembly slot relationships
+
+Slot add / create / arrange use relationship REST, not Data Flow
+`variantlistwithslots.html` / `itemassembly.html`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/assembly/slot-relationships/canvas?ownerId=&templateId=` | Slots on the owner template plus current AA relationships |
+| `POST` | `/services/assembly/slot-relationships` | Add an existing item to a slot (`ownerId`, `dependentId`, `slotId`, `templateId`) |
+| `DELETE` | `/services/assembly/slot-relationships/{relationshipId}` | Remove the relationship (Arrange Remove) |
+| `POST` | `/services/assembly/slot-relationships/{relationshipId}/move` | Move up / down / to an index (`direction`: `UP`, `DOWN`, `INDEX`) |
+| `POST` | `/services/assembly/slot-relationships/{relationshipId}/template-slot` | Change snippet template and/or slot |
+| `GET` | `/services/assembly/slot-relationships/allowed-types?slotId=` | Content types allowed in the slot (Create) |
+| `GET` | `/services/assembly/slot-relationships/allowed-templates?slotId=&contentTypeId=` | Snippet templates allowed in the slot (Add / Create / Change) |
+
 See [Content Explorer](id:admin-content-explorer) server actions.
 
 ## Content editor fields (Explorer)
@@ -525,11 +562,13 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` omitted; binary omitted) |
-| `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates. Item must be checked out to the current user. |
-| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`, optional `templateId`). Pages (`percPage`) require `templateId` and save through page management. |
+| `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` and `sys_communityid` omitted; binary omitted) |
+| `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates, including HTML (TinyMCE), keyword values, and community id. Item must be checked out to the current user. |
+| `GET` | `/services/itemmanagement/item/binary/{id}/{field}` | Filename / presence metadata for a binary field (file or image). Does not stream bytes. |
+| `PUT` | `/services/itemmanagement/item/binary/{id}/{field}` | Multipart upload (`file`) that replaces the binary field. Item must be checked out to the current user. |
+| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`, optional `templateId`). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |
 
-Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels come from `GET /services/contenttypes/{type}`.
+Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels and control names come from `GET /services/contenttypes/{type}`. The React editor maps `sys_tinymce` to TinyMCE, `sys_File` / image controls to file upload, keyword and community names to pickers. It does not request leftover Content Editor HTML.
 
 ## Assembly cache and navigation
 
@@ -569,9 +608,11 @@ POSTs fail if the item has no folder path (`Item has no folder path and cannot b
 ## Item publish now (Explorer)
 
 Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
-It does not open `/publisher/demandpublishing`. A 200 body whose `status` is
+It does not open `/publisher/demandpublishing`. The operator must select a page or asset
+row first — a Sites-folder selection does not publish. A 200 body whose `status` is
 `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` (plain or wrapped as
-`SitePublishResponse`) is a preflight failure, not a started job.
+`SitePublishResponse`) is a preflight failure, not a started job. Explorer surfaces that
+warning in the Server actions error region.
 
 | Method | Path | Purpose |
 |--------|------|---------|

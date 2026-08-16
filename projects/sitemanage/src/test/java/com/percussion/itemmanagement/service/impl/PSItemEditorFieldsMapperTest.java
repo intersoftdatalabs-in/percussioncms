@@ -36,6 +36,7 @@ class PSItemEditorFieldsMapperTest {
   @Test
   void omitsSystemFieldsExceptTitle() {
     assertTrue(PSItemEditorFieldsMapper.isEditableFieldName("sys_title"));
+    assertTrue(PSItemEditorFieldsMapper.isEditableFieldName("sys_communityid"));
     assertTrue(PSItemEditorFieldsMapper.isEditableFieldName("displaytitle"));
     assertFalse(PSItemEditorFieldsMapper.isEditableFieldName("sys_contentid"));
     assertFalse(PSItemEditorFieldsMapper.isEditableFieldName("sys_workflowid"));
@@ -95,5 +96,15 @@ class PSItemEditorFieldsMapperTest {
     assertEquals("New", item.getFields().get("sys_title"));
     assertEquals("42", item.getFields().get("sys_contentid"));
     assertEquals("B", item.getFields().get("displaytitle"));
+  }
+
+  @Test
+  void applyUpdatesWritesCommunityId() {
+    PSContentItem item = new PSContentItem();
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("sys_communityid", "10");
+    item.setFields(fields);
+    PSItemEditorFieldsMapper.applyUpdates(item, List.of(new PSItemEditorField("sys_communityid", "20")));
+    assertEquals("20", item.getFields().get("sys_communityid"));
   }
 }

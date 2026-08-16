@@ -213,6 +213,130 @@ describe("DetailList", () => {
     expect(selectedId).toBe("p-1");
   });
 
+  it("selects a percPage row even when accessLevel is omitted (#3467)", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "42",
+                name: "Home",
+                path: "/Sites/Demo/Home",
+                type: "percPage",
+                category: "page",
+                leaf: true,
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    let selectedId: string | null = null;
+    render(
+      <DetailList
+        folderPath="/Sites/Demo"
+        selectedItemId={null}
+        onSelectItem={(item) => {
+          selectedId = item.id ?? null;
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-row-42")).toHaveAttribute(
+      "data-row-kind",
+      "item",
+    );
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    expect(selectedId).toBe("42");
+  });
+
+  it("does not select a row with accessLevel NONE (aria-disabled)", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "9",
+                name: "Secret",
+                path: "/Sites/Demo/Secret",
+                type: "percPage",
+                accessLevel: "NONE",
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    let selectedId: string | null = null;
+    render(
+      <DetailList
+        folderPath="/Sites/Demo"
+        selectedItemId={null}
+        onSelectItem={(item) => {
+          selectedId = item.id ?? null;
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-9")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-row-9")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    fireEvent.click(screen.getByTestId("detail-row-9"));
+    expect(selectedId).toBe(null);
+  });
+
+  it("marks the primary selected row with data-selected, not checkbox state", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "42",
+                name: "Home",
+                path: "/Sites/Demo/Home",
+                type: "percPage",
+                leaf: true,
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    render(
+      <DetailList
+        folderPath="/Sites/Demo"
+        selectedItemId="42"
+        onSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-row-42").getAttribute("data-selected")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("detail-row-42").getAttribute("data-checked")).toBe(
+      null,
+    );
+  });
+
   it("surfaces fetch errors as an alert", async () => {
     mockFetch(async () => new Response("boom", { status: 500 }));
     render(
@@ -413,8 +537,11 @@ describe("DetailList", () => {
     const cb2 = screen.getByTestId("detail-select-p-2") as HTMLInputElement;
     expect(cb1.checked).toBe(true);
     expect(cb2.checked).toBe(false);
-    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-selected")).toBe(
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-checked")).toBe(
       "true",
+    );
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("data-selected")).toBe(
+      null,
     );
   });
 
