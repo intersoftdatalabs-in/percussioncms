@@ -591,9 +591,11 @@ POSTs fail if the item has no folder path (`Item has no folder path and cannot b
 ## Item publish now (Explorer)
 
 Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
-It does not open `/publisher/demandpublishing`. A 200 body whose `status` is
+It does not open `/publisher/demandpublishing`. The operator must select a page or asset
+row first — a Sites-folder selection does not publish. A 200 body whose `status` is
 `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` (plain or wrapped as
-`SitePublishResponse`) is a preflight failure, not a started job.
+`SitePublishResponse`) is a preflight failure, not a started job. Explorer surfaces that
+warning in the Server actions error region.
 
 | Method | Path | Purpose |
 |--------|------|---------|
