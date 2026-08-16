@@ -566,7 +566,7 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 | `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates, including HTML (TinyMCE), keyword values, and community id. Item must be checked out to the current user. |
 | `GET` | `/services/itemmanagement/item/binary/{id}/{field}` | Filename / presence metadata for a binary field (file or image). Does not stream bytes. |
 | `PUT` | `/services/itemmanagement/item/binary/{id}/{field}` | Multipart upload (`file`) that replaces the binary field. Item must be checked out to the current user. |
-| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`, optional `templateId`). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |
+| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder. JSON body is `{ "ItemCreateRequest": { contentType, folderPath, optional name, optional templateId } }` (JAXB root). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |
 
 Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels and control names come from `GET /services/contenttypes/{type}`. The React editor maps `sys_tinymce` to TinyMCE, `sys_File` / image controls to file upload, keyword and community names to pickers. It does not request leftover Content Editor HTML.
 
