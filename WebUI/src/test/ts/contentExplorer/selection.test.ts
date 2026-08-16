@@ -154,67 +154,61 @@ describe("isFolder (#3001 site nodes)", () => {
       isPageOrAssetContentType({
         name: "Section",
         path: "/Sites/Demo/Section",
-        type: "rffSection",
+        type: "rffNavon",
+        category: "SECTION_FOLDER",
       }),
     ).toBe(false);
+  });
+
+  it("treats customer-defined types as items without a name allowlist (#3456)", () => {
+    const custom: PSPathItem = {
+      id: "16777215-101-88",
+      name: "Q3 Brief",
+      path: "/Sites/Demo/Pages/Q3 Brief",
+      type: "NewsArticle",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(isPageOrAssetContentType(custom)).toBe(true);
+    expect(isFolder(custom)).toBe(false);
     expect(
       isPageOrAssetContentType({
-        name: "Category",
-        path: "/Sites/Demo/Category",
-        type: "rffCategory",
+        id: "16777215-101-89",
+        name: "Widget",
+        path: "/Sites/Demo/Products/Widget",
+        type: "CI_products",
+        category: "ASSET",
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
-      isFolder({
-        id: "16777215-101-30",
-        name: "Section",
-        path: "/Sites/Demo/Section",
-        type: "rffSection",
-        leaf: false,
+      isPageOrAssetContentType({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "CustomLanding",
+        category: "LANDING_PAGE",
       }),
     ).toBe(true);
   });
 
-  it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
-    expect(
-      isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagination",
-        type: "pagination",
-      }),
-    ).toBe(false);
-    expect(
-      isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagebreak",
-        type: "pagebreak",
-      }),
-    ).toBe(false);
-    expect(
-      isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagelet",
-        type: "pagelet",
-      }),
-    ).toBe(false);
-    expect(
-      isPageOrAssetContentType({
-        name: "a",
-        path: "/Sites/Demo/assetmanagement",
-        type: "assetmanagement",
-      }),
-    ).toBe(false);
-  });
-
-  it("keeps custom folder types under /Sites/ as folders when leaf is false", () => {
+  it("keeps server folder categories as folders even with a customer type name", () => {
     expect(
       isFolder({
         id: "16777215-101-20",
         name: "Campaigns",
         path: "/Sites/Demo/Campaigns",
         type: "CampaignFolder",
+        category: "FOLDER",
         leaf: false,
       }),
     ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        id: "16777215-101-20",
+        name: "Campaigns",
+        path: "/Sites/Demo/Campaigns",
+        type: "CampaignFolder",
+        category: "FOLDER",
+      }),
+    ).toBe(false);
   });
 });

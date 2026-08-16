@@ -132,6 +132,21 @@ function typeToken(item: PSPathItem): string {
   return `${item.type ?? ""} ${item.category ?? ""}`.toLowerCase();
 }
 
+/** Stock asset type names — not {@code category: ASSET} (see {@link resolvePreviewKind}). */
+const ASSET_PREVIEW_TYPE_KEYS = new Set([
+  "asset",
+  "percasset",
+  "rffimage",
+  "rfffile",
+]);
+
+function isAssetPreviewType(pathLower: string, typeOnly: string): boolean {
+  if (ASSET_PREVIEW_TYPE_KEYS.has(typeOnly)) {
+    return true;
+  }
+  return pathLower.startsWith("/assets/") || pathLower === "/assets";
+}
+
 /**
  * Classify whether Explorer can open a product preview for this selection.
  */
@@ -140,13 +155,16 @@ export function resolvePreviewKind(item: PSPathItem | null | undefined): Preview
     return "none";
   }
   const token = typeToken(item);
+  const typeOnly = (item.type ?? "").trim().toLowerCase();
   const path = normalizeCmsPath(item.path);
   const pathLower = path.toLowerCase();
   const hasId = Boolean((item.id ?? "").trim());
 
-  // Listed percPage / Page rows win over folder heuristics (#3456).
+  // Listed percPage / Page / customer items win over folder heuristics (#3456).
+  // Do not use category ASSET for kind: the server defaults every non-percPage
+  // item (including FastForward pages and customer types) to ASSET.
   if (isPageOrAssetContentType(item) && !token.includes("folder")) {
-    if (token.includes("asset")) {
+    if (isAssetPreviewType(pathLower, typeOnly)) {
       return hasId ? "asset" : "none";
     }
     if (hasId || pathLower.startsWith("/sites/")) {
@@ -158,11 +176,7 @@ export function resolvePreviewKind(item: PSPathItem | null | undefined): Preview
     return "none";
   }
 
-  if (
-    token.includes("asset") ||
-    pathLower.startsWith("/assets/") ||
-    pathLower.startsWith("/assets")
-  ) {
+  if (isAssetPreviewType(pathLower, typeOnly)) {
     // Need an id for the assetViewUrl service.
     return hasId ? "asset" : "none";
   }

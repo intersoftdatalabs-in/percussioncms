@@ -44,14 +44,34 @@ export const EMPTY_SELECTION: Selection = {
 const FOLDER_TYPE_KEYS = new Set(["folder", "fsfolder", "site"]);
 
 /**
- * Exact {@code type} / {@code category} tokens that are previewable items.
- * Substring {@code includes("page")} would also match {@code pagination}
- * / {@code pagebreak} / {@code pagelet}; {@code includes("asset")} would
- * match {@code assetmanagement} (#3456 review). FastForward items are an
- * explicit allowlist — a prefix {@code rff*} would treat a future
- * folder-like type ({@code rffSection}, {@code rffCategory}) as previewable
- * (#3456 review). Nav types {@code rffNavon} / {@code rffNavTree} are
- * omitted on purpose.
+ * Server {@link IPSItemSummary.Category} values that are folders / nav.
+ * Stable across customer content-type names (#3456).
+ */
+const FOLDER_CATEGORY_KEYS = new Set([
+  "folder",
+  "site",
+  "section_folder",
+  "external_section_folder",
+  "system",
+]);
+
+/**
+ * Server categories that are workflowed items. {@code PSItemSummaryService}
+ * sets {@code PAGE} only for {@code percPage}, {@code LANDING_PAGE} for
+ * landing pages, and defaults every other non-folder / non-nav type
+ * (FastForward, customer types, assets) to {@code ASSET}.
+ */
+const ITEM_CATEGORY_KEYS = new Set([
+  "page",
+  "asset",
+  "landing_page",
+  "resource",
+]);
+
+/**
+ * Stock / FastForward {@code type} names used when {@code category} is
+ * omitted on a paginated row. Customer types are <em>not</em> listed —
+ * those names are not stable after upgrade (#3456).
  */
 const PAGE_OR_ASSET_TYPE_KEYS = new Set([
   "page",
@@ -73,33 +93,57 @@ const PAGE_OR_ASSET_TYPE_KEYS = new Set([
   "rffnavimage",
 ]);
 
+/** FastForward nav types are folder-like, not previewable items. */
+const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
+
+function folderTypeOrCategory(type: string, category: string): boolean {
+  return (
+    FOLDER_TYPE_KEYS.has(type) ||
+    FOLDER_CATEGORY_KEYS.has(category) ||
+    RFF_NAV_TYPE_KEYS.has(type) ||
+    RFF_NAV_TYPE_KEYS.has(category)
+  );
+}
+
 /**
- * Content types that are previewable items, not folders. Pathmanagement
- * lists FastForward pages as {@code percPage} / {@code Page}; those must
- * stay items even when {@code leaf} is omitted or {@code hasFolderChildren}
- * is set on a paginated row (#3456 / #2745).
+ * Content types that are previewable items, not folders.
+ *
+ * <p>Prefer {@code category} (object class) over {@code type} (content-type
+ * name). Customers define their own types and templates; those names are
+ * not consistent after upgrade outside FastForward (#3456). Pathmanagement
+ * lists {@code percPage} / {@code Page} / customer items even when
+ * {@code leaf} is omitted or {@code hasFolderChildren} is set (#2745).</p>
  */
 export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
   const category = (item.category ?? "").trim().toLowerCase();
-  return PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category);
+  if (folderTypeOrCategory(type, category)) {
+    return false;
+  }
+  if (ITEM_CATEGORY_KEYS.has(category)) {
+    return true;
+  }
+  if (PAGE_OR_ASSET_TYPE_KEYS.has(type) || PAGE_OR_ASSET_TYPE_KEYS.has(category)) {
+    return true;
+  }
+  // Customer / legacy type name: any non-folder type is an item.
+  return type.length > 0;
 }
 
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
-  if (FOLDER_TYPE_KEYS.has(type)) return true;
   const category = (item.category ?? "").trim().toLowerCase();
-  if (category === "folder") return true;
-  // Listed percPage / Page / rffHome / asset rows are never folders (#3456).
+  if (folderTypeOrCategory(type, category)) return true;
+  // Listed percPage / Page / rffHome / customer items are never folders (#3456).
   if (isPageOrAssetContentType(item)) return false;
   // Server PSPathItem.setPath appends '/' only for folders. $System$ and
   // similar under /Folders/ may omit type but still use a folder path (#3330).
   const path = (item.path ?? "").trim();
   if (path.endsWith("/")) return true;
-  // Do not treat every id'd /Sites/ path as an item — custom folder types
-  // with an id and no trailing slash stay folders via leaf / children.
+  // Untyped rows: leaf / children. Customer types with a name already
+  // returned above via {@link isPageOrAssetContentType}.
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   return Boolean(item.hasFolderChildren);
