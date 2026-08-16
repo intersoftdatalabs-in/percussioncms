@@ -37,6 +37,11 @@ export interface OpenEditorHostDeps {
     features?: string,
   ) => Window | null;
   findByPath?: (path: string) => Promise<{ id?: string | number }>;
+  /**
+   * Window opened on a user gesture (typically {@code about:blank}) so
+   * navigation after an async create is not popup-blocked.
+   */
+  reservedWindow?: Window | null;
 }
 
 function defaultOpenWindow(
@@ -48,6 +53,38 @@ function defaultOpenWindow(
     return null;
   }
   return window.open(url, target, features);
+}
+
+/**
+ * Open a placeholder popup on the current user gesture. Navigate it later
+ * via {@link openEditorHost} {@code reservedWindow} so async create is not
+ * popup-blocked.
+ */
+export function reserveEditorWindow(
+  openWindow: NonNullable<OpenEditorHostDeps["openWindow"]> = defaultOpenWindow,
+): Window | null {
+  return openWindow("about:blank", "_blank", EDITOR_WINDOW_FEATURES);
+}
+
+export function closeReservedWindow(reserved: Window | null | undefined): void {
+  if (!reserved || reserved.closed) {
+    return;
+  }
+  try {
+    reserved.close();
+  } catch {
+    // ignore
+  }
+}
+
+function navigateReservedWindow(reserved: Window, url: string): Window | null {
+  try {
+    reserved.location.href = url;
+    reserved.focus?.();
+    return reserved;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -72,8 +109,16 @@ export async function openEditorHost(
   if (contentId == null) {
     return false;
   }
+  const url = buildEditorHostUrl(contentId, input.mode ?? "edit");
+  const reserved = deps.reservedWindow;
+  if (reserved && !reserved.closed) {
+    const navigated = navigateReservedWindow(reserved, url);
+    if (navigated != null) {
+      return true;
+    }
+  }
   const opened = (deps.openWindow ?? defaultOpenWindow)(
-    buildEditorHostUrl(contentId, input.mode ?? "edit"),
+    url,
     editorWindowName(contentId),
     EDITOR_WINDOW_FEATURES,
   );
