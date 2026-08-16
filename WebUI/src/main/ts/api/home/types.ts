@@ -48,8 +48,8 @@ export interface TemplateSummary {
 
 export interface AssetTypeSummary {
   /**
-   * Widget definition id used by classic createAsset / editAsset
-   * (e.g. {@code percImage}), not the numeric content type id.
+   * Widget definition id (e.g. {@code percImage}). Item create uses
+   * {@link contentTypeName} when present.
    */
   id: string;
   name: string;

@@ -5,6 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { CreateWizard } from "@/home/create/CreateWizard";
+import { AssetWizard } from "@/home/create/AssetWizard";
 import { PageWizard } from "@/home/create/PageWizard";
 import * as homeApi from "@/api/home/homeApi";
 
@@ -34,7 +35,12 @@ vi.mock("@/api/home/homeApi", async (importOriginal) => {
     ]),
     fetchFolderChildren: vi.fn().mockResolvedValue([]),
     fetchAssetTypes: vi.fn().mockResolvedValue([
-      { id: "percImage", name: "Image", label: "Image" },
+      {
+        id: "percImage",
+        name: "Image",
+        label: "Image",
+        contentTypeName: "percImageAsset",
+      },
     ]),
     createPageAndPath: vi.fn().mockResolvedValue("/Sites/Demo/page.html"),
     createPageAndItem: vi.fn().mockResolvedValue({
@@ -92,6 +98,34 @@ describe("CreateWizard", () => {
       expect(screen.getByTestId("blog-wizard")).toBeDefined();
     });
     expect(homeApi.fetchAllBlogs).toHaveBeenCalled();
+  });
+
+  it("asset create opens the React editor host instead of leftover editAsset.jsp", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "77",
+      folderPath: "//Assets",
+      name: "stub",
+      contentType: "percImageAsset",
+    });
+    const openCreated = vi.fn().mockResolvedValue(true);
+    render(
+      <AssetWizard
+        onBack={() => undefined}
+        createItem={createItem}
+        openCreated={openCreated}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("asset-wizard"));
+    fireEvent.click(screen.getByTestId("asset-wizard-submit"));
+    await waitFor(() => {
+      expect(createItem).toHaveBeenCalled();
+      expect(openCreated).toHaveBeenCalled();
+    });
+    expect(createItem.mock.calls[0]?.[0]).toMatchObject({
+      contentType: "percImageAsset",
+      folderPath: "/Assets",
+    });
+    expect(openCreated.mock.calls[0]?.[0]).toMatchObject({ id: "77" });
   });
 
   it("page create opens the React editor host instead of leftover view=editor", async () => {

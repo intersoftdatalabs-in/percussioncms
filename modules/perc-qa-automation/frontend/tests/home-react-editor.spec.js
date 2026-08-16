@@ -68,4 +68,75 @@ test.describe("Home React Content Editor", () => {
       );
     },
   );
+
+  test(
+    "Home Create asset does not request leftover editAsset.jsp",
+    { tag: ["@home", "@editor"] },
+    async ({ page }) => {
+      const blocked = [];
+      const consoleErrors = [];
+      page.on("request", (req) => {
+        const u = req.url();
+        if (/editAsset\.jsp/i.test(u) || /view=editor/.test(u)) {
+          blocked.push(u);
+        }
+      });
+      page.on("pageerror", (err) => {
+        consoleErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await page.goto(homeDeepLink(), { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId("home-shell")).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId("home-nav-create").click();
+      await expect(page.getByTestId("create-type-chooser")).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId("create-choose-asset").click();
+      const empty = page.getByTestId("asset-wizard-empty");
+      const wizard = page.getByTestId("asset-wizard");
+      await expect(empty.or(wizard)).toBeVisible({ timeout: 20_000 });
+      if (await empty.isVisible()) {
+        expect(blocked, `leftover asset editor: ${blocked.join(" ")}`).toEqual(
+          [],
+        );
+        return;
+      }
+      const typeSelect = page.getByTestId("asset-wizard-type");
+      const selected = await typeSelect.inputValue();
+      if (!selected) {
+        const firstReal = typeSelect.locator("option[value]:not([value=''])").first();
+        const value = await firstReal.getAttribute("value");
+        if (!value) {
+          test.skip(true, "No Home Create asset types available");
+          return;
+        }
+        await typeSelect.selectOption(value);
+      }
+      const popupPromise = page
+        .waitForEvent("popup", { timeout: 15_000 })
+        .catch(() => null);
+      await page.getByTestId("asset-wizard-submit").click();
+      const popup = await popupPromise;
+      if (popup) {
+        await expect(popup).toHaveURL(/entry=editor|\/editor/);
+        await expect(popup).not.toHaveURL(/editAsset\.jsp|view=editor/);
+      }
+      expect(blocked, `leftover asset editor: ${blocked.join(" ")}`).toEqual([]);
+      const unexpected = consoleErrors.filter(
+        (t) =>
+          !/favicon|404|net::ERR|Failed to load resource/i.test(t) &&
+          !/Download the React DevTools/i.test(t),
+      );
+      expect(
+        unexpected,
+        `JS console errors: ${unexpected.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
 });

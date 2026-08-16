@@ -527,7 +527,7 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 |--------|------|---------|
 | `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` omitted; binary omitted) |
 | `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates. Item must be checked out to the current user. |
-| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`, optional `templateId`). Pages (`percPage`) require `templateId` and save through page management. |
+| `POST` | `/services/itemmanagement/item/create` | Create an item in a folder (`contentType`, `folderPath`, optional `name`, optional `templateId`). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |
 
 Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels come from `GET /services/contenttypes/{type}`.
 

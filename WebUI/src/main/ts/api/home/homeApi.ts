@@ -311,8 +311,8 @@ export async function fetchBlogPostTemplates(
 
 /**
  * Map a WidgetContentType wire row to {@link AssetTypeSummary}.
- * Classic createAsset / editAsset require the string {@code widgetId}
- * (e.g. percImage), not the numeric contentTypeId.
+ * The widget id is the option value; itemmanagement create uses
+ * {@code contentTypeName} when the server sends it.
  */
 export function mapAssetType(raw: unknown): AssetTypeSummary {
   const o = (raw ?? {}) as Record<string, unknown>;
