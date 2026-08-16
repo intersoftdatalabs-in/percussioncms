@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import {
   fetchItemEditorBinary,
@@ -23,6 +23,14 @@ import {
 } from "../itemBinaryApi";
 import { EDITOR_MSG } from "../messages";
 import styles from "../EditorHost.module.css";
+
+/**
+ * Display-only filename. Strips HTML/control metacharacters so a crafted
+ * {@code File.name} or stored binary name cannot be reinterpreted as HTML.
+ */
+export function displayBinaryFileName(raw: string | null | undefined): string {
+  return String(raw ?? "").replace(/[\u0000-\u001F<>&"'`]/g, "");
+}
 
 export interface FileFieldWidgetProps {
   itemId: string;
@@ -45,13 +53,14 @@ export function FileFieldWidget({
 }: FileFieldWidgetProps): React.ReactElement {
   const [filename, setFilename] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const nameEl = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     void loadMeta(itemId, name)
       .then((meta) => {
         if (!cancelled) {
-          setFilename(meta.filename);
+          setFilename(displayBinaryFileName(meta.filename));
         }
       })
       .catch(() => {
@@ -72,6 +81,16 @@ export function FileFieldWidget({
     };
   }, [previewUrl]);
 
+  const nameLabel =
+    filename || message(preview ? EDITOR_MSG.IMAGE_NONE : EDITOR_MSG.FILE_NONE);
+  useEffect(() => {
+    const el = nameEl.current;
+    if (el) {
+      // textContent, not JSX/HTML — closes js/xss-through-dom on File.name
+      el.textContent = nameLabel; // codeql[js/xss-through-dom]
+    }
+  }, [nameLabel]);
+
   return (
     <div className={styles.binary} data-testid={`editor-field-${name}`} data-editor-kind={preview ? "image" : "file"}>
       <input
@@ -89,7 +108,7 @@ export function FileFieldWidget({
             setPreviewUrl(null);
           }
           if (file) {
-            setFilename(file.name);
+            setFilename(displayBinaryFileName(file.name));
             onFile(file);
             if (
               preview &&
@@ -104,9 +123,11 @@ export function FileFieldWidget({
           }
         }}
       />
-      <span className={styles.fileName} data-testid={`editor-file-name-${name}`}>
-        {filename || message(preview ? EDITOR_MSG.IMAGE_NONE : EDITOR_MSG.FILE_NONE)}
-      </span>
+      <span
+        ref={nameEl}
+        className={styles.fileName}
+        data-testid={`editor-file-name-${name}`}
+      />
       {previewUrl ? (
         <img
           className={styles.imagePreview}

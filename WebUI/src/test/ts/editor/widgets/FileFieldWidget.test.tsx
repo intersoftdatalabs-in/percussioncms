@@ -18,7 +18,10 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FileFieldWidget } from "../../../../main/ts/editor/widgets/FileFieldWidget";
+import {
+  displayBinaryFileName,
+  FileFieldWidget,
+} from "../../../../main/ts/editor/widgets/FileFieldWidget";
 import { ImageFieldWidget } from "../../../../main/ts/editor/widgets/ImageFieldWidget";
 
 describe("FileFieldWidget", () => {
@@ -76,5 +79,46 @@ describe("FileFieldWidget", () => {
       );
     });
     expect((screen.getByTestId("editor-file-img") as HTMLInputElement).accept).toBe("image/*");
+  });
+
+  it("strips HTML metacharacters from stored and chosen filenames", async () => {
+    expect(displayBinaryFileName('<img src=x onerror=alert(1)>x.pdf')).toBe(
+      "img src=x onerror=alert(1)x.pdf",
+    );
+    const onFile = vi.fn();
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="item_file_attachment"
+        readOnly={false}
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: '<script>alert(1)</script>stored.pdf',
+          contentType: "application/pdf",
+          present: true,
+        })}
+        onFile={onFile}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-file-name-item_file_attachment").textContent,
+      ).toBe("scriptalert(1)/scriptstored.pdf");
+    });
+    const label = screen.getByTestId("editor-file-name-item_file_attachment");
+    expect(label.innerHTML).not.toMatch(/<script/i);
+    const input = screen.getByTestId(
+      "editor-file-item_file_attachment",
+    ) as HTMLInputElement;
+    const file = new File(["x"], '<img src=x onerror=alert(1)>next.pdf', {
+      type: "application/pdf",
+    });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(onFile).toHaveBeenCalledWith(file);
+    await waitFor(() => {
+      expect(label.textContent).toBe("img src=x onerror=alert(1)next.pdf");
+    });
+    expect(label.innerHTML).not.toMatch(/<img/i);
   });
 });
