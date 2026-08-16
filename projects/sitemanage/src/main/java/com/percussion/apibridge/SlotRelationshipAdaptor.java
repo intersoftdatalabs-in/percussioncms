@@ -192,14 +192,20 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
       PSAaRelationship current = requireRelationship(relationshipId);
       int ownerId = current.getOwner().getId();
       int dependentId = current.getDependent().getId();
-      contentWs.deleteContentRelations(Collections.singletonList(guids.relationship(relationshipId)));
+      // Add the replacement first so a failed add cannot drop the existing
+      // relationship. Delete the original only after the new row exists.
       SlotAddRequest add = new SlotAddRequest();
       add.setOwnerId(ownerId);
       add.setDependentId(dependentId);
       add.setSlotId(request.getSlotId());
       add.setTemplateId(request.getTemplateId());
       add.setIndex(request.getIndex() == null ? -1 : request.getIndex());
-      return add(add);
+      SlotRelationship created = add(add);
+      if (created == null) {
+        throw new WebApplicationException("Add returned no replacement relationship", 500);
+      }
+      contentWs.deleteContentRelations(Collections.singletonList(guids.relationship(relationshipId)));
+      return created;
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {

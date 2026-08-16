@@ -35,6 +35,16 @@ describe("slotContext", () => {
     expect(slotContextHasSlot({ ownerId: 42, slotId: 3 })).toBe(true);
     expect(slotContextHasRelationship({ ownerId: 42, slotId: 3 })).toBe(false);
     expect(
+      slotContextHasRelationship({ ownerId: 42, slotId: 3, relationshipId: 0 }),
+    ).toBe(false);
+    expect(
+      slotContextHasRelationship({
+        ownerId: 42,
+        slotId: 3,
+        relationshipId: null,
+      }),
+    ).toBe(false);
+    expect(
       slotContextHasRelationship({ ownerId: 42, slotId: 3, relationshipId: 9 }),
     ).toBe(true);
   });

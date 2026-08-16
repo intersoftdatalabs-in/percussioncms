@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  requirePositiveRelationshipId,
   unwrapSlotAllowedChoices,
   unwrapSlotCanvas,
   unwrapSlotRelationship,
@@ -93,5 +94,21 @@ describe("slotRelationshipApi unwrap", () => {
         slots: [{ name: "sidebar", items: [] }],
       }),
     ).toThrow(/slotId/);
+  });
+
+  it("does not coerce a numeric zero canvas templateId through || null", () => {
+    const canvas = unwrapSlotCanvas({
+      ownerId: 42,
+      templateId: 0,
+      slots: [],
+    });
+    expect(canvas.templateId).toBeNull();
+  });
+
+  it("rejects non-positive relationship ids before remove/move", () => {
+    expect(requirePositiveRelationshipId(9)).toBe(9);
+    expect(() => requirePositiveRelationshipId(0)).toThrow(/positive id/);
+    expect(() => requirePositiveRelationshipId(-3)).toThrow(/positive id/);
+    expect(() => requirePositiveRelationshipId(Number.NaN)).toThrow(/positive id/);
   });
 });

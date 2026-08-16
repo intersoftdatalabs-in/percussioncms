@@ -55,6 +55,10 @@ export function slotContextHasSlot(
 
 export function slotContextHasRelationship(
   slot: AssemblySlotContext | null | undefined,
-): boolean {
-  return slotContextHasSlot(slot) && (slot.relationshipId ?? 0) > 0;
+): slot is AssemblySlotContext & { relationshipId: number } {
+  return (
+    slotContextHasSlot(slot) &&
+    typeof slot.relationshipId === "number" &&
+    slot.relationshipId > 0
+  );
 }

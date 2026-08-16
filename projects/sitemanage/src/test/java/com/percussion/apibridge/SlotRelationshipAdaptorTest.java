@@ -112,7 +112,7 @@ class SlotRelationshipAdaptorTest {
   }
 
   @Test
-  void changeTemplateSlot_deletesThenAdds() {
+  void changeTemplateSlot_addsThenDeletes() {
     FakeContentWs ws = new FakeContentWs();
     ws.byId.put(9, fakeRel(9, 10, 20, 5, 4, 0));
     ws.addResult = fakeRel(11, 10, 20, 6, 8, 0);
@@ -120,10 +120,44 @@ class SlotRelationshipAdaptorTest {
     req.setSlotId(6);
     req.setTemplateId(8);
     SlotRelationship updated = adaptor(ws, new FakeAssembly()).changeTemplateSlot(9, req);
+    assertEquals(List.of("add", "delete"), ws.order);
     assertEquals(1, ws.deleteCalls);
     assertEquals(1, ws.addCalls);
     assertEquals(11, updated.getRelationshipId());
     assertEquals(6, updated.getSlotId());
+  }
+
+  @Test
+  void changeTemplateSlot_addFailureKeepsOriginal() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(9, fakeRel(9, 10, 20, 5, 4, 0));
+    ws.addThrows = new RuntimeException("slot does not allow template");
+    SlotTemplateSlotRequest req = new SlotTemplateSlotRequest();
+    req.setSlotId(6);
+    req.setTemplateId(8);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor(ws, new FakeAssembly()).changeTemplateSlot(9, req));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertEquals(List.of("add"), ws.order);
+    assertEquals(0, ws.deleteCalls);
+  }
+
+  @Test
+  void changeTemplateSlot_nullAddDoesNotDelete() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(9, fakeRel(9, 10, 20, 5, 4, 0));
+    SlotTemplateSlotRequest req = new SlotTemplateSlotRequest();
+    req.setSlotId(6);
+    req.setTemplateId(8);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor(ws, new FakeAssembly()).changeTemplateSlot(9, req));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertEquals(List.of("add"), ws.order);
+    assertEquals(0, ws.deleteCalls);
   }
 
   @Test
@@ -245,7 +279,9 @@ class SlotRelationshipAdaptorTest {
     int deleteCalls;
     int reorderIndex = Integer.MIN_VALUE;
     List<Integer> reorderedIds = new ArrayList<>();
+    List<String> order = new ArrayList<>();
     PSAaRelationship addResult;
+    RuntimeException addThrows;
     Map<Integer, PSAaRelationship> byId = new HashMap<>();
     Map<String, List<PSAaRelationship>> slotRels = new HashMap<>();
 
@@ -259,12 +295,17 @@ class SlotRelationshipAdaptorTest {
         IPSGuid templateId,
         int index) {
       addCalls++;
+      order.add("add");
+      if (addThrows != null) {
+        throw addThrows;
+      }
       return addResult == null ? List.of() : List.of(addResult);
     }
 
     @Override
     public void deleteContentRelations(List<IPSGuid> ids) {
       deleteCalls++;
+      order.add("delete");
     }
 
     @Override

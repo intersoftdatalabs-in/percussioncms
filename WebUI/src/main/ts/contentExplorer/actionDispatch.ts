@@ -850,7 +850,7 @@ async function dispatchSlotAction(
     if (!slotContextHasRelationship(slot)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP };
     }
-    const relationshipId = slot.relationshipId as number;
+    const relationshipId = slot.relationshipId;
     if (name === "arrange_remove") {
       await remove(relationshipId);
       return { kind: "rest", refresh: true };

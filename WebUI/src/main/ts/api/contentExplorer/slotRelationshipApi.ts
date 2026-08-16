@@ -141,7 +141,7 @@ export function unwrapSlotCanvas(payload: unknown): SlotCanvas {
   const templateId =
     templateRaw == null || templateRaw === ""
       ? null
-      : optionalNum(templateRaw) || null;
+      : optionalNum(templateRaw);
   return {
     ownerId: requireNum(inner.ownerId ?? inner.OwnerId, "ownerId"),
     templateId: templateId != null && templateId > 0 ? templateId : null,
@@ -192,8 +192,16 @@ export async function addSlotRelationship(
   return created;
 }
 
+export function requirePositiveRelationshipId(relationshipId: number): number {
+  if (!(Number.isFinite(relationshipId) && relationshipId > 0)) {
+    throw new Error("relationshipId must be a positive id");
+  }
+  return relationshipId;
+}
+
 export async function removeSlotRelationship(relationshipId: number): Promise<void> {
-  await del<void>(`${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${relationshipId}`);
+  const id = requirePositiveRelationshipId(relationshipId);
+  await del<void>(`${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${id}`);
 }
 
 export async function moveSlotRelationship(
@@ -201,7 +209,8 @@ export async function moveSlotRelationship(
   direction: "UP" | "DOWN" | "INDEX",
   index?: number,
 ): Promise<void> {
-  await post<void>(`${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${relationshipId}/move`, {
+  const id = requirePositiveRelationshipId(relationshipId);
+  await post<void>(`${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${id}/move`, {
     direction,
     index,
   });
