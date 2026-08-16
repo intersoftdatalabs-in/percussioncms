@@ -113,6 +113,15 @@ describe("explorer-preview-view helpers (#2733)", () => {
       isListedPageRow({ type: "site", path: "/Sites/D/" }),
       false,
     );
+    assert.equal(
+      isListedPageRow({
+        type: "NewsArticle",
+        category: "ASSET",
+        path: "/Sites/Demo/Pages/Q3 Brief",
+        id: "16777215-101-88",
+      }),
+      true,
+    );
   });
 
   it("unwrapPathItems reads PathItem and PagedItemList children", () => {

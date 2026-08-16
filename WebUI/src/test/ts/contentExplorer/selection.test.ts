@@ -121,46 +121,94 @@ describe("isFolder (#3001 site nodes)", () => {
     ).toBe(false);
   });
 
-  it("rejects pagination/pagebreak/pagelet/assetmanagement as page or asset types", () => {
+  it("allows known FastForward item types and rejects nav / folder-like rff types", () => {
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagination",
-        type: "pagination",
+        name: "Event",
+        path: "/Sites/Demo/Events/Open House",
+        type: "rffEvent",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Photo",
+        path: "/Sites/Demo/Assets/photo",
+        type: "rffImage",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffNavon",
       }),
     ).toBe(false);
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagebreak",
-        type: "pagebreak",
+        name: "Nav",
+        path: "/Sites/Demo/Nav",
+        type: "rffNavTree",
       }),
     ).toBe(false);
     expect(
       isPageOrAssetContentType({
-        name: "p",
-        path: "/Sites/Demo/pagelet",
-        type: "pagelet",
-      }),
-    ).toBe(false);
-    expect(
-      isPageOrAssetContentType({
-        name: "a",
-        path: "/Sites/Demo/assetmanagement",
-        type: "assetmanagement",
+        name: "Section",
+        path: "/Sites/Demo/Section",
+        type: "rffNavon",
+        category: "SECTION_FOLDER",
       }),
     ).toBe(false);
   });
 
-  it("keeps custom folder types under /Sites/ as folders when leaf is false", () => {
+  it("treats customer-defined types as items without a name allowlist (#3456)", () => {
+    const custom: PSPathItem = {
+      id: "16777215-101-88",
+      name: "Q3 Brief",
+      path: "/Sites/Demo/Pages/Q3 Brief",
+      type: "NewsArticle",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    expect(isPageOrAssetContentType(custom)).toBe(true);
+    expect(isFolder(custom)).toBe(false);
+    expect(
+      isPageOrAssetContentType({
+        id: "16777215-101-89",
+        name: "Widget",
+        path: "/Sites/Demo/Products/Widget",
+        type: "CI_products",
+        category: "ASSET",
+      }),
+    ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "CustomLanding",
+        category: "LANDING_PAGE",
+      }),
+    ).toBe(true);
+  });
+
+  it("keeps server folder categories as folders even with a customer type name", () => {
     expect(
       isFolder({
         id: "16777215-101-20",
         name: "Campaigns",
         path: "/Sites/Demo/Campaigns",
         type: "CampaignFolder",
+        category: "FOLDER",
         leaf: false,
       }),
     ).toBe(true);
+    expect(
+      isPageOrAssetContentType({
+        id: "16777215-101-20",
+        name: "Campaigns",
+        path: "/Sites/Demo/Campaigns",
+        type: "CampaignFolder",
+        category: "FOLDER",
+      }),
+    ).toBe(false);
   });
 });
