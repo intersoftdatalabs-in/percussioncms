@@ -186,7 +186,26 @@ export async function paginatedFolder(
   };
 }
 
+/**
+ * Whether {@code path} has a non-empty pathmanagement {@code /path/item/{path}}
+ * suffix. CMS root {@code /} (and blank) encode to {@code …/path/item/} which
+ * the server rejects as HTTP 400 "Invalid path" (#3468 / #3458).
+ */
+export function isPathItemLookupPath(
+  path: string | null | undefined,
+): boolean {
+  if (path == null) {
+    return false;
+  }
+  return encodePath(String(path)) !== "";
+}
+
 export async function findItemByPath(path: string): Promise<PSPathItem> {
+  // Every caller (security folder-id, editor host, Refresh) must skip root —
+  // defaultResolveFolderId alone still left live H2 probing path/item/ (#3468).
+  if (!isPathItemLookupPath(path)) {
+    return {} as PSPathItem;
+  }
   const res = await get<PSPathItemResponse>(joinPathUrl(PATHS.PATH_ITEM, path));
   return res?.PathItem ?? ({} as PSPathItem);
 }
