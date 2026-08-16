@@ -41,6 +41,7 @@ import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
 import com.percussion.itemmanagement.data.PSItemCreateRequest;
 import com.percussion.itemmanagement.data.PSItemCreateResult;
+import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
 import com.percussion.itemmanagement.data.PSRevision;
@@ -119,6 +120,9 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.InputStream;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -377,6 +381,96 @@ public class PSItemService implements IPSItemService {
       throw new WebApplicationException(e);
     } catch (Exception e) {
       throw new PSItemServiceException("Could not save item fields.", e);
+    }
+  }
+
+  @GET
+  @Path("binary/{id}/{field}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemEditorBinaryMeta getEditorBinary(
+      @PathParam("id") String id, @PathParam("field") String field)
+      throws PSItemServiceException {
+    try {
+      rejectIfBlank("getEditorBinary", "id", id);
+      String fieldName = PSItemEditorBinarySupport.requireFieldName(field);
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new PSItemServiceException("The item no longer exists in the system.");
+      }
+      return PSItemEditorBinarySupport.toMeta(item, fieldName);
+    } catch (IllegalArgumentException e) {
+      throw new PSItemServiceException(e.getMessage());
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (PSDataServiceException e) {
+      throw new PSItemServiceException("Could not load item binary metadata.", e);
+    }
+  }
+
+  @PUT
+  @Path("binary/{id}/{field}")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSItemEditorBinaryMeta saveEditorBinary(
+      @PathParam("id") String id,
+      @PathParam("field") String field,
+      @Multipart("file") Attachment attachment)
+      throws PSItemServiceException {
+    if (attachment == null) {
+      throw new PSItemServiceException("A file attachment is required.");
+    }
+    String filename = attachment.getContentDisposition().getFilename();
+    String type = attachment.getContentType() == null ? "" : attachment.getContentType().toString();
+    try (InputStream in = attachment.getDataHandler().getInputStream()) {
+      return saveEditorBinary(id, field, in, filename, type);
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not read the uploaded file.", e);
+    }
+  }
+
+  @Override
+  public PSItemEditorBinaryMeta saveEditorBinary(
+      String id, String field, InputStream data, String filename, String contentType)
+      throws PSItemServiceException {
+    try {
+      rejectIfBlank("saveEditorBinary", "id", id);
+      String fieldName = PSItemEditorBinarySupport.requireFieldName(field);
+      if (data == null) {
+        throw new PSItemServiceException("A file attachment is required.");
+      }
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
+      if (sum != null
+          && StringUtils.isNotBlank(sum.getCheckoutUserName())
+          && !workflowHelper.isCheckedOutToCurrentUser(guid)) {
+        throw new PSItemServiceException(
+            "User " + sum.getCheckoutUserName() + " is editing this item.");
+      }
+      IPSGuid itemGuid = idMapper.getGuid(guid);
+      PSItemStatus status = contentWs.prepareForEdit(itemGuid);
+      if (status != null && status.isDidCheckout()) {
+        waRelService.updateLocalRelationshipAsset(guid);
+      }
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new PSItemServiceException("The item no longer exists in the system.");
+      }
+      var temp = PSItemEditorBinarySupport.writeTemp(data, filename, contentType);
+      PSItemEditorBinarySupport.applyBinary(item, fieldName, temp, filename, contentType);
+      contentItemDao.save(item);
+      return PSItemEditorBinarySupport.toMeta(item, fieldName);
+    } catch (PSItemServiceException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new PSItemServiceException(e.getMessage());
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not save the binary field.", e);
     }
   }
 

@@ -449,6 +449,10 @@ export const PATHS = {
   get ITEM_EDITOR_FIELDS() {
     return `${SERVICES_ROOT}/itemmanagement/item/fields`;
   },
+  /** GET metadata / PUT multipart binary field. Append {@code /{id}/{field}}. */
+  get ITEM_EDITOR_BINARY() {
+    return `${SERVICES_ROOT}/itemmanagement/item/binary`;
+  },
   /** POST create a content item in a folder. */
   get ITEM_CREATE() {
     return `${SERVICES_ROOT}/itemmanagement/item/create`;

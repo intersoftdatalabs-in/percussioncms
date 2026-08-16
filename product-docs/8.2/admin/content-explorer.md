@@ -121,11 +121,11 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **New Item** | Choose a content type under **New**. Explorer creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. Does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
-| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows its content-type text fields. Save writes `PUT /services/itemmanagement/item/fields/{id}`. Does not open the CM1 editor (`?view=editor`). Rich controls (TinyMCE, binary) are not in this slice. |
+| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open the CM1 editor (`?view=editor`). |
 | **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
-| **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. |
+| **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
 | **Audit Trail** | Same Revisions panel, audit-trail tab. |
 | **New Copy** | Confirm, then create a copy in the current folder. |
 | **Promotable Version** | Confirm, then create a promotable version in the current folder. |
@@ -137,6 +137,24 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.
+
+## Content Editor controls
+
+The chrome-less React Content Editor (`spa.jsp?entry=editor` / `/editor`) maps
+content-type **Control** names from `GET /services/contenttypes/{type}` onto widgets:
+
+| Control / field | Widget | How it is saved |
+|-----------------|--------|-----------------|
+| `sys_EditBox` and other short text | Text input | `PUT /services/itemmanagement/item/fields/{id}` |
+| `sys_TextArea` | Multi-line text | Same fields API |
+| `sys_tinymce`, `sys_TinyMCE`, `sys_EditLive`, HTML | TinyMCE (textarea fallback if the shipped TinyMCE script is unavailable) | Same fields API — HTML string |
+| Keyword-named dropdowns | Keyword picker | Same fields API — selected choice value |
+| `sys_communityid` | Community picker | Same fields API |
+| `sys_File` / file asset fields | File upload | `PUT /services/itemmanagement/item/binary/{id}/{field}` |
+| Image controls (`sys_webImageFX`, `img`) | Image upload with local preview | Same binary API |
+
+Save and **Check In** stay on itemmanagement. The host does not request leftover Content
+Editor HTML (`checkoutedit.xml`, `contenteditorurls.html`, `?view=editor`).
 
 ## Sites list and Create Site
 

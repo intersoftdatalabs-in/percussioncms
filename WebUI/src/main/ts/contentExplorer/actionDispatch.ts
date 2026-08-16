@@ -477,7 +477,11 @@ export async function dispatchAction(
     }
     const view =
       editorName.startsWith("view_") || editorName.startsWith("revision_view");
-    const href = buildEditorHostUrl(contentId, view ? "view" : "edit");
+    const promote = editorName === "revision_promote";
+    const href = buildEditorHostUrl(
+      contentId,
+      promote ? "promote" : view ? "view" : "edit",
+    );
     const open = ctx.openWindow ?? defaultOpenWindow;
     open(href, editorWindowName(contentId), EDITOR_WINDOW_FEATURES);
     return { kind };
