@@ -23,29 +23,61 @@ import {
   formatApiError,
 } from "../../api/home/homeApi";
 import type { AssetTypeSummary } from "../../api/home/types";
+import { createEditorItem } from "../../editor/itemCreateApi";
+import {
+  closeReservedWindow,
+  openEditorHost,
+  reserveEditorWindow,
+  type OpenEditorHostInput,
+} from "../../editor/openEditorHost";
 import { message, MSG } from "../../i18n/message";
 import {
   actionButtonStyle,
   errorStyle,
   formRowStyle,
 } from "../home.styles";
-import { normalizeCmsPath } from "./filenameUtils";
+import { joinFolderAndName, normalizeCmsPath } from "./filenameUtils";
 
 export interface AssetWizardProps {
   onBack: () => void;
+  openCreated?: typeof openEditorHost;
+  createItem?: typeof createEditorItem;
+  /** Opens {@code about:blank} on the submit click so async create is not popup-blocked. */
+  reservePopup?: () => Window | null;
 }
 
 /**
- * Classic asset create navigates to editAsset with widgetId + folderPath
- * (does not POST a finished asset body — editor creates on save).
+ * CMS content type name for itemmanagement create. Prefer the widget's
+ * bound type ({@code percImageAsset}); fall back to the widget id.
  */
-export function AssetWizard({ onBack }: AssetWizardProps): React.ReactElement {
+export function resolveAssetCreateContentType(type: AssetTypeSummary): string {
+  const named = type.contentTypeName?.trim();
+  if (named) {
+    return named;
+  }
+  return type.id.trim();
+}
+
+/**
+ * Home Create asset: POST itemmanagement create, then open the React
+ * editor host. Does not navigate to leftover {@code editAsset.jsp}.
+ */
+export function AssetWizard({
+  onBack,
+  openCreated = openEditorHost,
+  createItem = createEditorItem,
+  reservePopup = reserveEditorWindow,
+}: AssetWizardProps): React.ReactElement {
   const [types, setTypes] = useState<AssetTypeSummary[]>([]);
   const [typeId, setTypeId] = useState("");
   const [folderPath, setFolderPath] = useState("/Assets");
   const [folders, setFolders] = useState<string[]>(["/Assets"]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [pendingOpen, setPendingOpen] = useState<OpenEditorHostInput | null>(
+    null,
+  );
 
   useEffect(() => {
     Promise.all([
@@ -84,20 +116,81 @@ export function AssetWizard({ onBack }: AssetWizardProps): React.ReactElement {
       .finally(() => setLoading(false));
   }, []);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!typeId || !folderPath) {
+    setError(null);
+    const selected = types.find((t) => t.id === typeId);
+    if (!selected || !folderPath) {
+      setError(message(MSG.CREATE_VALIDATION));
+      return;
+    }
+    const contentType = resolveAssetCreateContentType(selected);
+    if (!contentType) {
       setError(message(MSG.CREATE_VALIDATION));
       return;
     }
     const folder = normalizeCmsPath(folderPath);
-    // Classic: VIEW_EDIT_ASSET with widgetId (string) + folderPath.
-    // Prefer editAsset.jsp so SPA path fallback cannot swallow the view.
-    const q = new URLSearchParams({
-      widgetId: typeId,
-      folderPath: folder,
-    });
-    window.location.href = `/cm/app/editAsset.jsp?${q.toString()}`;
+    setBusy(true);
+    setPendingOpen(null);
+    let reserved: Window | null = null;
+    try {
+      reserved = reservePopup();
+      const created = await createItem({
+        contentType,
+        folderPath: folder,
+      });
+      const input: OpenEditorHostInput = {
+        id: created.itemId,
+        path:
+          created.folderPath && created.name
+            ? joinFolderAndName(created.folderPath, created.name)
+            : undefined,
+      };
+      const opened = await openCreated(input, {
+        reservedWindow: reserved ?? undefined,
+      });
+      if (!opened) {
+        closeReservedWindow(reserved);
+        setPendingOpen(input);
+        setError(message(MSG.CREATE_OPEN_EDITOR_FAILED));
+      }
+    } catch (err) {
+      closeReservedWindow(reserved);
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onOpenEditor = async () => {
+    if (!pendingOpen) {
+      return;
+    }
+    setBusy(true);
+    let reserved: Window | null = null;
+    try {
+      reserved = reservePopup();
+      const opened = await openCreated(pendingOpen, {
+        reservedWindow: reserved ?? undefined,
+      });
+      if (opened) {
+        setPendingOpen(null);
+        setError(null);
+      } else {
+        closeReservedWindow(reserved);
+      }
+    } catch (err) {
+      closeReservedWindow(reserved);
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)));
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (loading) {
@@ -174,10 +267,25 @@ export function AssetWizard({ onBack }: AssetWizardProps): React.ReactElement {
         </p>
       )}
 
+      {pendingOpen && (
+        <button
+          type="button"
+          data-testid="asset-wizard-open-editor"
+          style={actionButtonStyle("primary")}
+          disabled={busy}
+          onClick={() => {
+            void onOpenEditor();
+          }}
+        >
+          {message(MSG.OPEN_ITEM)}
+        </button>
+      )}
+
       <button
         type="submit"
         data-testid="asset-wizard-submit"
         style={actionButtonStyle("primary")}
+        disabled={busy}
       >
         {message(MSG.CREATE_SUBMIT)}
       </button>

@@ -18,13 +18,28 @@ For roles that can see the full chrome, the application top navigation is:
 
 1. **Home**
 2. **Explorer** (immediately after Home)
-3. **Editor** (React Content Editor — `spa.jsp?entry=editor` / `/editor`. Does not open leftover `?view=editor`. Open an item from Explorer or Home, or create a page from **Home → Create**), Navigation, Design, Developer, Publish (role-gated)
+3. **Editor** (React Content Editor — `spa.jsp?entry=editor` / `/editor`. Does not open leftover `?view=editor` or `editAsset.jsp`. Open an item from Explorer or Home, or create a page, blog post, or asset from **Home → Create**), Navigation, Design, Developer, Publish (role-gated)
 4. **Admin** (administrators only — one item)
 5. Widget Builder (when that feature is active)
 
 **Dashboard** is not a top-nav item. Dashboard gadgets remain on Home
 (`/home/gadgets`) and via homepage preference; they are not a separate
 primary destination.
+
+## Home → Create
+
+On **Home**, the **Create** tab is the in-product wizard for a new page, blog
+post, or shared asset. After you choose the type and destination folder (and
+title/file name for pages and blog posts), the CMS creates the item
+(`POST /services/itemmanagement/item/create` for assets; page/blog create
+for those kinds) and opens the React Content Editor
+(`spa.jsp?entry=editor`). If the browser blocks that popup after create,
+use **Open** on the wizard to open the new asset. Home Create does **not**
+open leftover `editAsset.jsp` or `?view=editor`.
+
+Rich file, image, and TinyMCE widget chrome in that editor is still a later
+slice — a new asset can still be created as a stub and opened on the field
+form.
 
 ## Product Admin navigation (SPA)
 
