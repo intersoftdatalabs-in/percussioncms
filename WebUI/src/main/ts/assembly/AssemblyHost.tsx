@@ -17,11 +17,11 @@
 
 /**
  * Preview-first Active Assembly host. Renders the assembled page or snippet
- * template in an iframe with a light overlay. Slot arrange and
- * contenteditable field editing are later slices (996 + 995).
+ * template in an iframe with a light overlay. Slot add / create / arrange
+ * use relationship REST (no Data Flow HTML).
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import {
   findAllowedTemplateMenus,
@@ -31,12 +31,31 @@ import {
   fetchPreviewLocation,
   type PreviewLocation,
 } from "../api/contentExplorer/assemblyApi";
-import type { MenuAction } from "../api/contentExplorer/types";
-import { parseTemplateIdFromAction } from "../contentExplorer/actionDispatch";
+import {
+  addSlotRelationship,
+  changeSlotTemplateSlot,
+  fetchSlotAllowedTemplates,
+  fetchSlotAllowedTypes,
+  fetchSlotCanvas,
+  moveSlotRelationship,
+  removeSlotRelationship,
+  type SlotAllowedChoice,
+  type SlotCanvas,
+} from "../api/contentExplorer/slotRelationshipApi";
+import type { MenuAction, SelectionResult } from "../api/contentExplorer/types";
+import { ContentBrowser } from "../contentBrowser/ContentBrowser";
+import {
+  dispatchAction,
+  parseTemplateIdFromAction,
+} from "../contentExplorer/actionDispatch";
+import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
+import { createEditorItem } from "../editor/itemCreateApi";
+import { EXPLORER_MSG } from "../contentExplorer/messages";
 import { message } from "../i18n/message";
 import { parsePositiveInt, withCmsContextPrefix } from "./assemblyHostUrl";
 import styles from "./AssemblyHost.module.css";
 import { ASSEMBLY_MSG } from "./messages";
+import type { AssemblySlotContext } from "./slotContext";
 
 export interface AssemblyTemplateOption {
   id: number;
@@ -49,6 +68,14 @@ export interface AssemblyHostProps {
     templateId: number,
   ) => Promise<PreviewLocation>;
   loadTemplates?: (contentId: number) => Promise<MenuAction[]>;
+  loadCanvas?: typeof fetchSlotCanvas;
+  addToSlot?: typeof addSlotRelationship;
+  removeSlotRel?: typeof removeSlotRelationship;
+  moveSlotRel?: typeof moveSlotRelationship;
+  changeSlotTemplate?: typeof changeSlotTemplateSlot;
+  loadAllowedTypes?: typeof fetchSlotAllowedTypes;
+  loadAllowedTemplates?: typeof fetchSlotAllowedTemplates;
+  createItem?: typeof createEditorItem;
 }
 
 export function templateOptionsFromMenus(
@@ -98,6 +125,14 @@ function resolveAssemblerHref(previewUrl: string): string | null {
 export function AssemblyHost({
   fetchPreview = fetchPreviewLocation,
   loadTemplates = loadAssemblyTemplates,
+  loadCanvas = fetchSlotCanvas,
+  addToSlot = addSlotRelationship,
+  removeSlotRel = removeSlotRelationship,
+  moveSlotRel = moveSlotRelationship,
+  changeSlotTemplate = changeSlotTemplateSlot,
+  loadAllowedTypes = fetchSlotAllowedTypes,
+  loadAllowedTemplates = fetchSlotAllowedTemplates,
+  createItem = createEditorItem,
 }: AssemblyHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -110,6 +145,19 @@ export function AssemblyHost({
     contentId == null ? ASSEMBLY_MSG.MISSING_ITEM : null,
   );
   const [loading, setLoading] = useState(contentId != null);
+  const [canvas, setCanvas] = useState<SlotCanvas | null>(null);
+  const [selectedSlotId, setSelectedSlotId] = useState<number | null>(null);
+  const [selectedRelId, setSelectedRelId] = useState<number | null>(null);
+  const [slotNotice, setSlotNotice] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<
+    null | "add" | "create" | "change"
+  >(null);
+  const [choices, setChoices] = useState<SlotAllowedChoice[]>([]);
+  const [typeChoices, setTypeChoices] = useState<SlotAllowedChoice[]>([]);
+  const [pickedType, setPickedType] = useState("");
+  const [pickedTemplate, setPickedTemplate] = useState("");
+  const [pickedSlot, setPickedSlot] = useState("");
+  const [pickedFolder, setPickedFolder] = useState("");
 
   useEffect(() => {
     document.title = message(ASSEMBLY_MSG.TITLE);
@@ -214,6 +262,72 @@ export function AssemblyHost({
     return templates.find((t) => t.id === templateId)?.label;
   }, [templates, templateId]);
 
+  const refreshCanvas = useCallback(async () => {
+    if (contentId == null) {
+      setCanvas(null);
+      return;
+    }
+    try {
+      const next = await loadCanvas(contentId, templateId);
+      setCanvas(next);
+    } catch {
+      setCanvas({ ownerId: contentId, templateId, slots: [] });
+    }
+  }, [contentId, templateId, loadCanvas]);
+
+  useEffect(() => {
+    void refreshCanvas();
+  }, [refreshCanvas]);
+
+  const selectedSlot = canvas?.slots.find((s) => s.slotId === selectedSlotId) ?? null;
+  const slotCtx: AssemblySlotContext | null =
+    contentId != null && selectedSlotId != null
+      ? {
+          ownerId: contentId,
+          slotId: selectedSlotId,
+          relationshipId: selectedRelId,
+          snippetTemplateId:
+            selectedSlot?.items.find((i) => i.relationshipId === selectedRelId)
+              ?.templateId ?? null,
+          ownerTemplateId: templateId,
+          folderPath: pickedFolder || null,
+        }
+      : null;
+
+  async function runSlotAction(name: string): Promise<void> {
+    setSlotNotice(null);
+    const result = await dispatchAction(
+      { name, label: name, url: "", sortRank: 0, menuType: "MENUITEM" },
+      {
+        item: null,
+        slot: slotCtx,
+        addToSlot,
+        removeSlotRel,
+        moveSlotRel,
+        changeSlotTemplate,
+        createItem,
+        pickSlotDependent: async () => {
+          setDialog("add");
+          return null;
+        },
+        pickSlotCreate: async () => {
+          setDialog("create");
+          return null;
+        },
+        pickSlotTemplateSlot: async () => {
+          setDialog("change");
+          return null;
+        },
+      },
+    );
+    if (result.messageKey) {
+      setSlotNotice(message(result.messageKey));
+    }
+    if (result.refresh) {
+      await refreshCanvas();
+    }
+  }
+
   return (
     <div className={styles.root} data-testid="assembly-host">
       <header className={styles.bar} data-testid="assembly-overlay">
@@ -271,6 +385,240 @@ export function AssemblyHost({
           {message(ASSEMBLY_MSG.CLOSE)}
         </button>
       </header>
+      <div className={styles.slotBar} data-testid="assembly-slot-bar">
+        <span className={styles.label}>{message(ASSEMBLY_MSG.SLOTS)}</span>
+        {canvas == null || canvas.slots.length === 0 ? (
+          <span data-testid="assembly-slot-empty">{message(ASSEMBLY_MSG.SLOT_EMPTY)}</span>
+        ) : (
+          <div className={styles.slotList} data-testid="assembly-slot-list">
+            {canvas.slots.map((slot) => (
+              <button
+                key={slot.slotId}
+                type="button"
+                className={styles.slotChip}
+                data-testid={`assembly-slot-${slot.slotId}`}
+                data-selected={selectedSlotId === slot.slotId ? "true" : "false"}
+                onClick={() => {
+                  setSelectedSlotId(slot.slotId);
+                  setSelectedRelId(null);
+                  setSlotNotice(null);
+                }}
+              >
+                {slot.label || slot.name || slot.slotId}
+              </button>
+            ))}
+          </div>
+        )}
+        {selectedSlot && selectedSlot.items.length > 0 ? (
+          <div className={styles.slotList} data-testid="assembly-slot-items">
+            {selectedSlot.items.map((item) => (
+              <button
+                key={item.relationshipId}
+                type="button"
+                className={styles.itemChip}
+                data-testid={`assembly-slot-item-${item.relationshipId}`}
+                data-selected={selectedRelId === item.relationshipId ? "true" : "false"}
+                onClick={() => setSelectedRelId(item.relationshipId)}
+              >
+                {message(ASSEMBLY_MSG.SLOT_ITEM)} {item.dependentId}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <div className={styles.slotActions}>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-add"
+            disabled={selectedSlotId == null}
+            onClick={() => void runSlotAction("Slot_Add")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_ADD)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-create"
+            disabled={selectedSlotId == null}
+            onClick={() => void runSlotAction("Slot_Create")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_CREATE)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-move-up"
+            disabled={selectedRelId == null}
+            onClick={() => void runSlotAction("Arrange_MoveUpLeft")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_MOVE_UP)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-move-down"
+            disabled={selectedRelId == null}
+            onClick={() => void runSlotAction("Arrange_MoveDownRight")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_MOVE_DOWN)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-change"
+            disabled={selectedRelId == null}
+            onClick={() => void runSlotAction("Arrange_ChangeTemplateSlot")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_CHANGE)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-remove"
+            disabled={selectedRelId == null}
+            onClick={() => void runSlotAction("Arrange_Remove")}
+          >
+            {message(ASSEMBLY_MSG.SLOT_REMOVE)}
+          </button>
+        </div>
+        {slotNotice ? (
+          <span role="status" data-testid="assembly-slot-notice">
+            {slotNotice}
+          </span>
+        ) : null}
+      </div>
+      {dialog === "add" && selectedSlotId != null && contentId != null ? (
+        <div className={styles.dialog} data-testid="assembly-slot-add-dialog">
+          <div className={styles.dialogPanel}>
+            <ContentBrowser
+              mode="select"
+              allowItemSelect
+              allowFolderSelect={false}
+              title={message(ASSEMBLY_MSG.SLOT_BROWSER_TITLE)}
+              onCancel={() => setDialog(null)}
+              onConfirm={(selection: SelectionResult) => {
+                void (async () => {
+                  const first = selection.items[0];
+                  const dep = parseExplorerContentId(first?.id);
+                  if (dep == null) {
+                    setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                    return;
+                  }
+                  let snippetTemplate = Number(pickedTemplate);
+                  if (!Number.isFinite(snippetTemplate) || snippetTemplate <= 0) {
+                    const tpls = await loadAllowedTemplates(selectedSlotId);
+                    snippetTemplate = tpls[0]?.id ?? 0;
+                  }
+                  if (snippetTemplate <= 0) {
+                    setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                    return;
+                  }
+                  await addToSlot({
+                    ownerId: contentId,
+                    dependentId: dep,
+                    slotId: selectedSlotId,
+                    templateId: snippetTemplate,
+                  });
+                  setDialog(null);
+                  await refreshCanvas();
+                })();
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
+      {dialog === "create" && selectedSlotId != null && contentId != null ? (
+        <SlotCreateDialog
+          slotId={selectedSlotId}
+          folderPath={pickedFolder}
+          typeChoices={typeChoices}
+          templateChoices={choices}
+          pickedType={pickedType}
+          pickedTemplate={pickedTemplate}
+          onFolder={setPickedFolder}
+          onType={setPickedType}
+          onTemplate={setPickedTemplate}
+          onLoad={async () => {
+            const types = await loadAllowedTypes(selectedSlotId);
+            setTypeChoices(types);
+            if (types[0] && !pickedType) {
+              setPickedType(types[0].name || String(types[0].id));
+            }
+            const tpls = await loadAllowedTemplates(selectedSlotId);
+            setChoices(tpls);
+            if (tpls[0] && !pickedTemplate) {
+              setPickedTemplate(String(tpls[0].id));
+            }
+          }}
+          onCancel={() => setDialog(null)}
+          onApply={() => {
+            void (async () => {
+              if (!pickedFolder || !pickedType) {
+                setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                return;
+              }
+              const snippetTemplateId = Number(pickedTemplate);
+              if (!Number.isFinite(snippetTemplateId) || snippetTemplateId <= 0) {
+                setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                return;
+              }
+              const created = await createItem({
+                contentType: pickedType,
+                folderPath: pickedFolder,
+              });
+              const createdId = parseExplorerContentId(created.itemId);
+              if (createdId == null) {
+                setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                return;
+              }
+              await addToSlot({
+                ownerId: contentId,
+                dependentId: createdId,
+                slotId: selectedSlotId,
+                templateId: snippetTemplateId,
+              });
+              setDialog(null);
+              await refreshCanvas();
+            })();
+          }}
+        />
+      ) : null}
+      {dialog === "change" && selectedRelId != null ? (
+        <SlotChangeDialog
+          slots={canvas?.slots ?? []}
+          templates={choices}
+          pickedSlot={pickedSlot || String(selectedSlotId ?? "")}
+          pickedTemplate={pickedTemplate}
+          onSlot={setPickedSlot}
+          onTemplate={setPickedTemplate}
+          onLoad={async () => {
+            if (selectedSlotId != null) {
+              const tpls = await loadAllowedTemplates(selectedSlotId);
+              setChoices(tpls);
+              if (tpls[0] && !pickedTemplate) {
+                setPickedTemplate(String(tpls[0].id));
+              }
+            }
+            if (!pickedSlot && selectedSlotId != null) {
+              setPickedSlot(String(selectedSlotId));
+            }
+          }}
+          onCancel={() => setDialog(null)}
+          onApply={() => {
+            void (async () => {
+              const nextSlot = Number(pickedSlot);
+              const nextTpl = Number(pickedTemplate);
+              if (!Number.isFinite(nextSlot) || nextSlot <= 0 || !Number.isFinite(nextTpl) || nextTpl <= 0) {
+                setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
+                return;
+              }
+              await changeSlotTemplate(selectedRelId, nextSlot, nextTpl);
+              setDialog(null);
+              await refreshCanvas();
+            })();
+          }}
+        />
+      ) : null}
       <div className={styles.stage} data-testid="assembly-stage">
         {errorKey ? (
           <div className={styles.status} role="alert" data-testid="assembly-error">
@@ -288,6 +636,156 @@ export function AssemblyHost({
             src={previewHref}
           />
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function SlotCreateDialog({
+  slotId,
+  folderPath,
+  typeChoices,
+  templateChoices,
+  pickedType,
+  pickedTemplate,
+  onFolder,
+  onType,
+  onTemplate,
+  onLoad,
+  onCancel,
+  onApply,
+}: {
+  slotId: number;
+  folderPath: string;
+  typeChoices: SlotAllowedChoice[];
+  templateChoices: SlotAllowedChoice[];
+  pickedType: string;
+  pickedTemplate: string;
+  onFolder: (path: string) => void;
+  onType: (value: string) => void;
+  onTemplate: (value: string) => void;
+  onLoad: () => Promise<void>;
+  onCancel: () => void;
+  onApply: () => void;
+}): React.ReactElement {
+  useEffect(() => {
+    void onLoad();
+  }, [slotId]);
+  return (
+    <div className={styles.dialog} data-testid="assembly-slot-create-dialog">
+      <div className={`${styles.dialogPanel} ${styles.picker}`}>
+        <label>
+          {message(ASSEMBLY_MSG.SLOT_FOLDER_LABEL)}
+          <input
+            data-testid="assembly-slot-create-folder"
+            value={folderPath}
+            onChange={(e) => onFolder(e.target.value)}
+          />
+        </label>
+        <label>
+          {message(ASSEMBLY_MSG.SLOT_TYPE_LABEL)}
+          <select
+            data-testid="assembly-slot-create-type"
+            value={pickedType}
+            onChange={(e) => onType(e.target.value)}
+          >
+            {typeChoices.map((t) => (
+              <option key={t.id} value={t.name || String(t.id)}>
+                {t.label || t.name || t.id}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {message(ASSEMBLY_MSG.SLOT_TEMPLATE_LABEL)}
+          <select
+            data-testid="assembly-slot-create-template"
+            value={pickedTemplate}
+            onChange={(e) => onTemplate(e.target.value)}
+          >
+            {templateChoices.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label || t.name || t.id}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className={styles.pickerActions}>
+          <button type="button" data-testid="assembly-slot-create-cancel" onClick={onCancel}>
+            {message(ASSEMBLY_MSG.SLOT_CANCEL)}
+          </button>
+          <button type="button" data-testid="assembly-slot-create-apply" onClick={onApply}>
+            {message(ASSEMBLY_MSG.SLOT_APPLY)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SlotChangeDialog({
+  slots,
+  templates,
+  pickedSlot,
+  pickedTemplate,
+  onSlot,
+  onTemplate,
+  onLoad,
+  onCancel,
+  onApply,
+}: {
+  slots: SlotCanvas["slots"];
+  templates: SlotAllowedChoice[];
+  pickedSlot: string;
+  pickedTemplate: string;
+  onSlot: (value: string) => void;
+  onTemplate: (value: string) => void;
+  onLoad: () => Promise<void>;
+  onCancel: () => void;
+  onApply: () => void;
+}): React.ReactElement {
+  useEffect(() => {
+    void onLoad();
+  }, []);
+  return (
+    <div className={styles.dialog} data-testid="assembly-slot-change-dialog">
+      <div className={`${styles.dialogPanel} ${styles.picker}`}>
+        <label>
+          {message(ASSEMBLY_MSG.SLOTS)}
+          <select
+            data-testid="assembly-slot-change-slot"
+            value={pickedSlot}
+            onChange={(e) => onSlot(e.target.value)}
+          >
+            {slots.map((s) => (
+              <option key={s.slotId} value={s.slotId}>
+                {s.label || s.name || s.slotId}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {message(ASSEMBLY_MSG.SLOT_TEMPLATE_LABEL)}
+          <select
+            data-testid="assembly-slot-change-template"
+            value={pickedTemplate}
+            onChange={(e) => onTemplate(e.target.value)}
+          >
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label || t.name || t.id}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className={styles.pickerActions}>
+          <button type="button" data-testid="assembly-slot-change-cancel" onClick={onCancel}>
+            {message(ASSEMBLY_MSG.SLOT_CANCEL)}
+          </button>
+          <button type="button" data-testid="assembly-slot-change-apply" onClick={onApply}>
+            {message(ASSEMBLY_MSG.SLOT_APPLY)}
+          </button>
+        </div>
       </div>
     </div>
   );

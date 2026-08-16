@@ -539,6 +539,21 @@ Response JSON (`PreviewLocation`):
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
 summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`).
 
+### Active Assembly slot relationships
+
+Slot add / create / arrange use relationship REST, not Data Flow
+`variantlistwithslots.html` / `itemassembly.html`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/assembly/slot-relationships/canvas?ownerId=&templateId=` | Slots on the owner template plus current AA relationships |
+| `POST` | `/services/assembly/slot-relationships` | Add an existing item to a slot (`ownerId`, `dependentId`, `slotId`, `templateId`) |
+| `DELETE` | `/services/assembly/slot-relationships/{relationshipId}` | Remove the relationship (Arrange Remove) |
+| `POST` | `/services/assembly/slot-relationships/{relationshipId}/move` | Move up / down / to an index (`direction`: `UP`, `DOWN`, `INDEX`) |
+| `POST` | `/services/assembly/slot-relationships/{relationshipId}/template-slot` | Change snippet template and/or slot |
+| `GET` | `/services/assembly/slot-relationships/allowed-types?slotId=` | Content types allowed in the slot (Create) |
+| `GET` | `/services/assembly/slot-relationships/allowed-templates?slotId=&contentTypeId=` | Snippet templates allowed in the slot (Add / Create / Change) |
+
 See [Content Explorer](id:admin-content-explorer) server actions.
 
 ## Content editor fields (Explorer)

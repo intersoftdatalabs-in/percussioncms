@@ -66,6 +66,19 @@ import {
 } from "./previewItem";
 import { isFolder } from "./selection";
 import { parseWorkflowTransitionTrigger } from "./workflowMenuActions";
+import {
+  type AssemblySlotContext,
+  isSlotActionName,
+  slotContextHasRelationship,
+  slotContextHasSlot,
+} from "../assembly/slotContext";
+import {
+  addSlotRelationship,
+  changeSlotTemplateSlot,
+  fetchSlotAllowedTemplates,
+  moveSlotRelationship,
+  removeSlotRelationship,
+} from "../api/contentExplorer/slotRelationshipApi";
 
 export type ActionKind =
   | "client"
@@ -104,19 +117,7 @@ export const AA_PREVIEW_PARENT_NAMES = new Set([
   "item_assembly",
 ]);
 
-const AA_UNAVAILABLE_NAMES = new Set([
-  "aa_table_editor",
-  "slot_add",
-  "slot_create",
-  "arrange",
-  "arrange_moveupleft",
-  "arrange_movedownright",
-  "arrange_changetemplateslot",
-  "arrange_remove",
-  "change_template",
-  "paste_as_link_to_slot",
-  "move_to_slot",
-]);
+const AA_UNAVAILABLE_NAMES = new Set(["aa_table_editor"]);
 
 const P1_PANEL_NAMES = new Set([
   "translate",
@@ -185,6 +186,29 @@ export interface ActionDispatchContext {
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
   fetchPreview?: typeof fetchPreviewLocation;
   runWorkflow?: (itemId: string, trigger: string) => Promise<void>;
+  /**
+   * Selected AA slot (and optional relationship). Folder browse has no
+   * slot — dispatch must not invent Arrange_* from a folder.
+   */
+  slot?: AssemblySlotContext | null;
+  addToSlot?: typeof addSlotRelationship;
+  removeSlotRel?: typeof removeSlotRelationship;
+  moveSlotRel?: typeof moveSlotRelationship;
+  changeSlotTemplate?: typeof changeSlotTemplateSlot;
+  pickSlotDependent?: (
+    slot: AssemblySlotContext,
+  ) => Promise<{ contentId: number; templateId: number; folderId?: number } | null>;
+  pickSlotCreate?: (
+    slot: AssemblySlotContext,
+  ) => Promise<{
+    contentType: string;
+    folderPath: string;
+    templateId?: string;
+    snippetTemplateId: number;
+  } | null>;
+  pickSlotTemplateSlot?: (
+    slot: AssemblySlotContext,
+  ) => Promise<{ slotId: number; templateId: number } | null>;
 }
 
 export interface ActionDispatchResult {
@@ -242,6 +266,9 @@ export function classifyAction(action: MenuAction): ActionKind {
     return "editor";
   }
   if (AA_PREVIEW_PARENT_NAMES.has(name)) {
+    return "rest";
+  }
+  if (isSlotActionName(name)) {
     return "rest";
   }
   if (AA_UNAVAILABLE_NAMES.has(name)) {
@@ -487,6 +514,10 @@ export async function dispatchAction(
     return { kind };
   }
 
+  if (isSlotActionName(normalizeActionName(action.name))) {
+    return dispatchSlotAction(action, ctx);
+  }
+
   if (kind === "unavailable") {
     return { kind, messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
   }
@@ -725,4 +756,130 @@ export async function dispatchAction(
   }
 
   return { kind: "client" };
+}
+
+async function dispatchSlotAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+): Promise<ActionDispatchResult> {
+  const name = normalizeActionName(action.name);
+  const slot = ctx.slot;
+  if (name === "arrange") {
+    return { kind: "rest" };
+  }
+  if (!slotContextHasSlot(slot)) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_SLOT };
+  }
+
+  const add = ctx.addToSlot ?? addSlotRelationship;
+  const remove = ctx.removeSlotRel ?? removeSlotRelationship;
+  const move = ctx.moveSlotRel ?? moveSlotRelationship;
+  const change = ctx.changeSlotTemplate ?? changeSlotTemplateSlot;
+
+  if (name === "slot_add" || name === "paste_as_link_to_slot") {
+    let dependentId: number | null = null;
+    let snippetTemplateId: number | null = null;
+    let folderId: number | undefined;
+    if (name === "paste_as_link_to_slot" && ctx.item && !isFolder(ctx.item)) {
+      dependentId = parseExplorerContentId(ctx.item.id);
+      const templates = await fetchSlotAllowedTemplates(slot.slotId);
+      snippetTemplateId = templates[0]?.id ?? parseTemplateIdFromAction(action);
+    } else if (ctx.pickSlotDependent) {
+      const picked = await ctx.pickSlotDependent(slot);
+      if (!picked) {
+        return { kind: "rest" };
+      }
+      dependentId = picked.contentId;
+      snippetTemplateId = picked.templateId;
+      folderId = picked.folderId;
+    }
+    if (dependentId == null || dependentId <= 0 || snippetTemplateId == null || snippetTemplateId <= 0) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+    }
+    await add({
+      ownerId: slot.ownerId,
+      dependentId,
+      slotId: slot.slotId,
+      templateId: snippetTemplateId,
+      folderId,
+    });
+    return { kind: "rest", refresh: true };
+  }
+
+  if (name === "slot_create") {
+    if (!ctx.pickSlotCreate) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_SLOT };
+    }
+    const picked = await ctx.pickSlotCreate(slot);
+    if (!picked) {
+      return { kind: "rest" };
+    }
+    const create = ctx.createItem ?? createEditorItem;
+    const created = await create({
+      contentType: picked.contentType,
+      folderPath: picked.folderPath,
+      templateId: picked.templateId,
+    });
+    const contentId = parseExplorerContentId(created.itemId);
+    if (contentId == null) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    }
+    await add({
+      ownerId: slot.ownerId,
+      dependentId: contentId,
+      slotId: slot.slotId,
+      templateId: picked.snippetTemplateId,
+    });
+    const open = ctx.openWindow ?? defaultOpenWindow;
+    open(
+      buildEditorHostUrl(contentId, "edit"),
+      editorWindowName(contentId),
+      EDITOR_WINDOW_FEATURES,
+    );
+    return { kind: "rest", refresh: true };
+  }
+
+  if (
+    name === "arrange_moveupleft" ||
+    name === "arrange_movedownright" ||
+    name === "arrange_remove" ||
+    name === "arrange_changetemplateslot" ||
+    name === "change_template" ||
+    name === "move_to_slot"
+  ) {
+    if (!slotContextHasRelationship(slot)) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP };
+    }
+    const relationshipId = slot.relationshipId as number;
+    if (name === "arrange_remove") {
+      await remove(relationshipId);
+      return { kind: "rest", refresh: true };
+    }
+    if (name === "arrange_moveupleft") {
+      await move(relationshipId, "UP");
+      return { kind: "rest", refresh: true };
+    }
+    if (name === "arrange_movedownright") {
+      await move(relationshipId, "DOWN");
+      return { kind: "rest", refresh: true };
+    }
+    let nextSlot = slot.slotId;
+    let nextTemplate =
+      parseTemplateIdFromAction(action) ?? slot.snippetTemplateId ?? 0;
+    if (ctx.pickSlotTemplateSlot) {
+      const picked = await ctx.pickSlotTemplateSlot(slot);
+      if (!picked) {
+        return { kind: "rest" };
+      }
+      nextSlot = picked.slotId;
+      nextTemplate = picked.templateId;
+    }
+    if (nextSlot <= 0 || nextTemplate <= 0) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+    }
+    await change(relationshipId, nextSlot, nextTemplate);
+    return { kind: "rest", refresh: true };
+  }
+
+  return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
 }
