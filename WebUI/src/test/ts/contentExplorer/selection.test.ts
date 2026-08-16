@@ -17,7 +17,9 @@
 import { describe, expect, it } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import {
+  canAdmin,
   canRead,
+  canWrite,
   isFolder,
   isPageOrAssetContentType,
   sameExplorerItemId,
@@ -251,42 +253,23 @@ describe("sameExplorerItemId / canRead (#3467)", () => {
       }),
     ).toBe(false);
   });
-});
 
-describe("sameExplorerItemId / canRead (#3467)", () => {
-  it("matches string and numeric content ids", () => {
-    expect(sameExplorerItemId("42", 42)).toBe(true);
-    expect(sameExplorerItemId(42, "42")).toBe(true);
-    expect(sameExplorerItemId("42", "43")).toBe(false);
-    expect(sameExplorerItemId(null, "42")).toBe(false);
-  });
-
-  it("treats listed rows without an ACL token as readable", () => {
-    expect(
-      canRead({
-        id: "42",
-        name: "Home",
-        path: "/Sites/Demo/Home",
-        type: "percPage",
-      }),
-    ).toBe(true);
-    expect(
-      canRead({
-        id: "42",
-        name: "Home",
-        path: "/Sites/Demo/Home",
-        type: "percPage",
-        accessLevel: "WRITE",
-      }),
-    ).toBe(true);
-    expect(
-      canRead({
-        id: "42",
-        name: "Home",
-        path: "/Sites/Demo/Home",
-        type: "percPage",
-        accessLevel: "NONE",
-      }),
-    ).toBe(false);
+  it("normalizes mixed-case ACL tokens for read, write, and admin", () => {
+    const page = (
+      accessLevel: string,
+    ): PSPathItem => ({
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      accessLevel: accessLevel as PSPathItem["accessLevel"],
+    });
+    expect(canRead(page("write"))).toBe(true);
+    expect(canRead(page("view"))).toBe(true);
+    expect(canWrite(page("write"))).toBe(true);
+    expect(canWrite(page("admin"))).toBe(true);
+    expect(canWrite(page("read"))).toBe(false);
+    expect(canAdmin(page("admin"))).toBe(true);
+    expect(canAdmin(page("write"))).toBe(false);
   });
 });

@@ -166,6 +166,11 @@ export function sameExplorerItemId(
   return left.length > 0 && left === right;
 }
 
+/** Normalize wire ACL tokens so mixed-case server values compare consistently. */
+function accessToken(item: PSPathItem): string {
+  return String(item.accessLevel ?? "").trim().toUpperCase();
+}
+
 export function canRead(item: PSPathItem | null): boolean {
   if (!item) return false;
   const level = item.accessLevel;
@@ -174,7 +179,7 @@ export function canRead(item: PSPathItem | null): boolean {
   if (level == null || String(level).trim() === "") {
     return true;
   }
-  const token = String(level).trim().toUpperCase();
+  const token = accessToken(item);
   return (
     token === "ADMIN" ||
     token === "WRITE" ||
@@ -185,11 +190,11 @@ export function canRead(item: PSPathItem | null): boolean {
 
 export function canWrite(item: PSPathItem | null): boolean {
   if (!item) return false;
-  const level = item.accessLevel;
-  return level === "ADMIN" || level === "WRITE";
+  const token = accessToken(item);
+  return token === "ADMIN" || token === "WRITE";
 }
 
 export function canAdmin(item: PSPathItem | null): boolean {
   if (!item) return false;
-  return item.accessLevel === "ADMIN";
+  return accessToken(item) === "ADMIN";
 }
