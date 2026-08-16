@@ -141,8 +141,21 @@ function isListedPageRow(row) {
   ) {
     return false;
   }
-  if (token.includes("page") || token.includes("rffhome")) return true;
+  if (token.includes("page") || token.includes("rffhome") || token.includes("landing_page")) {
+    return true;
+  }
   if (path.includes("/pages/") && Boolean(row.id)) return true;
+  // Customer types keep their own names after upgrade (#3456).
+  const type = String(row.type || "").trim().toLowerCase();
+  if (
+    Boolean(row.id) &&
+    path.includes("/sites/") &&
+    type.length > 0 &&
+    type !== "asset" &&
+    type !== "percasset"
+  ) {
+    return true;
+  }
   return false;
 }
 

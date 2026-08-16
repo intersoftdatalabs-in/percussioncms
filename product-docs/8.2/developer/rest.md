@@ -101,6 +101,28 @@ Example create body:
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
 
+## User preferences
+
+Stored per-user preferences live under `/services/preferences` (same resource under the
+`/Rhythmyx/services` context-path prefix when the CMS is reached that way).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/preferences/` | All stored preferences for the current user |
+| `GET` | `/services/preferences/{name}` | One named preference (for example `perc_profile_gravatar_email`) |
+| `PUT` | `/services/preferences/` | Save one preference (`UserPreference` Jackson root) |
+
+An **unset** catalog or named preference is a successful empty result, not a missing resource:
+
+| Status | Meaning |
+|--------|---------|
+| `200` | List (possibly empty) or named preference. When the name is not stored, the body is a `UserPreference` with that `name` and an empty `value` |
+| `500` | Unexpected server failure |
+
+Do **not** treat empty store as `404`. Product chrome (Explorer user menu, Profile avatar) treats a
+blank value as “use the account default.” Clients that still send `GET /preferences/{name}` for an
+unset Gravatar override should accept `200` + empty `value`.
+
 ## Sites (catalog)
 
 | Operation | Path | Notes |
@@ -569,9 +591,11 @@ POSTs fail if the item has no folder path (`Item has no folder path and cannot b
 ## Item publish now (Explorer)
 
 Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
-It does not open `/publisher/demandpublishing`. A 200 body whose `status` is
+It does not open `/publisher/demandpublishing`. The operator must select a page or asset
+row first — a Sites-folder selection does not publish. A 200 body whose `status` is
 `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` (plain or wrapped as
-`SitePublishResponse`) is a preflight failure, not a started job.
+`SitePublishResponse`) is a preflight failure, not a started job. Explorer surfaces that
+warning in the Server actions error region.
 
 | Method | Path | Purpose |
 |--------|------|---------|

@@ -21,6 +21,7 @@ import {
   filterEnabledMenuActions,
   filterToolbarActions,
   isActionAllowedOnSurface,
+  isToolbarPublishNowHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
   isWebExecutableLeaf,
@@ -215,5 +216,63 @@ describe("filterEnabledMenuActions", () => {
     expect(input[0].children?.length).toBe(2);
     expect(filtered[0].children?.map((c) => c.name)).toEqual(["keep"]);
     expect(filtered[0]).not.toBe(input[0]);
+  });
+
+  it("hides toolbar Publish Now until a page or asset is selected (#3467)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    expect(filterToolbarActions(actions, BASE, null).map((a) => a.name)).toEqual(
+      ["open"],
+    );
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }).map((a) => a.name),
+    ).toEqual(["open", "Publish_Now"]);
+    expect(
+      isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
+    ).toBe(true);
+  });
+
+  it("hides context-menu Publish Now for folders and shows it for a page (#3467)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Publish_Now", label: "Publish Now" }),
+    ];
+    const folder = {
+      id: "1",
+      name: "Sites",
+      path: "/Sites",
+      type: "folder",
+    };
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    expect(
+      filterContextMenuActions(actions, BASE, folder).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterContextMenuActions(actions, BASE, page).map((a) => a.name),
+    ).toEqual(["open", "Publish_Now"]);
   });
 });
