@@ -56,6 +56,35 @@ function defaultOpenWindow(
 }
 
 /**
+ * Resolve a host-relative editor URL against the opener, not against
+ * {@code about:blank}. Path-only {@code location.href} assignment on a
+ * reserved blank popup has no valid URL base, so the window stays blank
+ * (Home Create asset Playwright gate).
+ */
+export function resolveEditorNavigationHref(
+  url: string,
+  baseHref?: string,
+): string {
+  const trimmed = String(url ?? "").trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+  if (/^[a-zA-Z][a-zA-Z+\-.]*:/.test(trimmed)) {
+    return trimmed;
+  }
+  const base =
+    baseHref ??
+    (typeof window !== "undefined" && window.location?.href
+      ? window.location.href
+      : "http://localhost/");
+  try {
+    return new URL(trimmed, base).href;
+  } catch {
+    return trimmed;
+  }
+}
+
+/**
  * Open a placeholder popup on the current user gesture. Navigate it later
  * via {@link openEditorHost} {@code reservedWindow} so async create is not
  * popup-blocked.
@@ -78,8 +107,19 @@ export function closeReservedWindow(reserved: Window | null | undefined): void {
 }
 
 function navigateReservedWindow(reserved: Window, url: string): Window | null {
+  const href = resolveEditorNavigationHref(url);
+  if (!href) {
+    return null;
+  }
   try {
-    reserved.location.href = url;
+    const loc = reserved.location;
+    if (loc && typeof loc.assign === "function") {
+      loc.assign(href);
+    } else if (loc) {
+      loc.href = href;
+    } else {
+      return null;
+    }
     reserved.focus?.();
     return reserved;
   } catch {
@@ -109,7 +149,9 @@ export async function openEditorHost(
   if (contentId == null) {
     return false;
   }
-  const url = buildEditorHostUrl(contentId, input.mode ?? "edit");
+  const url = resolveEditorNavigationHref(
+    buildEditorHostUrl(contentId, input.mode ?? "edit"),
+  );
   const reserved = deps.reservedWindow;
   if (reserved && !reserved.closed) {
     const navigated = navigateReservedWindow(reserved, url);

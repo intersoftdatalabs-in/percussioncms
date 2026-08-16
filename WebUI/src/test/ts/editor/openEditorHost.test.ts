@@ -20,6 +20,7 @@ import {
   closeReservedWindow,
   openEditorHost,
   reserveEditorWindow,
+  resolveEditorNavigationHref,
 } from "../../../main/ts/editor/openEditorHost";
 
 function popup(): Window {
@@ -82,9 +83,59 @@ describe("openEditorHost", () => {
     );
     expect(ok).toBe(true);
     expect(openWindow).not.toHaveBeenCalled();
-    expect(reserved.location.href).toContain("entry=editor");
-    expect(reserved.location.href).toContain("contentId=55");
+    const href = reserved.location.href;
+    expect(href).toMatch(/^https?:\/\//);
+    expect(href).toContain("entry=editor");
+    expect(href).toContain("contentId=55");
+    expect(href).not.toMatch(/^about:blank/i);
+    expect(href).not.toContain("view=editor");
+    expect(href).not.toContain("editAsset.jsp");
     expect(reserved.focus).toHaveBeenCalled();
+  });
+
+  it("assigns an opener-absolute URL via location.assign on the reserved window", async () => {
+    const assign = vi.fn();
+    const reserved = {
+      closed: false,
+      location: { href: "about:blank", assign },
+      focus: vi.fn(),
+    } as unknown as Window;
+    const ok = await openEditorHost(
+      { id: "91" },
+      { reservedWindow: reserved, openWindow: vi.fn() },
+    );
+    expect(ok).toBe(true);
+    expect(assign).toHaveBeenCalledTimes(1);
+    const href = String(assign.mock.calls[0]?.[0] ?? "");
+    expect(href).toMatch(/^https?:\/\//);
+    expect(href).toContain("spa.jsp");
+    expect(href).toContain("entry=editor");
+    expect(href).toContain("contentId=91");
+    expect(href).not.toContain("editAsset.jsp");
+  });
+
+  it("resolveEditorNavigationHref uses the opener base, not about:blank", () => {
+    expect(
+      resolveEditorNavigationHref(
+        "/Rhythmyx/cm/app/spa.jsp?entry=editor&contentId=7&mode=edit",
+        "http://127.0.0.1:9993/Rhythmyx/cm/app/spa.jsp?entry=home",
+      ),
+    ).toBe(
+      "http://127.0.0.1:9993/Rhythmyx/cm/app/spa.jsp?entry=editor&contentId=7&mode=edit",
+    );
+    expect(
+      resolveEditorNavigationHref(
+        "/cm/app/spa.jsp?entry=editor",
+        "about:blank",
+      ),
+    ).toBe("/cm/app/spa.jsp?entry=editor");
+    expect(
+      resolveEditorNavigationHref(
+        "https://cms.example/cm/app/spa.jsp?entry=editor&contentId=1&mode=edit",
+      ),
+    ).toBe(
+      "https://cms.example/cm/app/spa.jsp?entry=editor&contentId=1&mode=edit",
+    );
   });
 
   it("reserves about:blank on the user gesture", () => {

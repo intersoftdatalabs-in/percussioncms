@@ -138,7 +138,14 @@ test.describe("Home React Content Editor", () => {
           "Home Create asset did not open an editor popup after submit/retry",
         );
       }
-      await expect(popup).toHaveURL(/entry=editor|\/editor/);
+      popup.on("request", (req) => {
+        const u = req.url();
+        if (/editAsset\.jsp/i.test(u) || /view=editor/.test(u)) {
+          blocked.push(u);
+        }
+      });
+      await expect(popup).not.toHaveURL(/^about:blank$/i, { timeout: 15_000 });
+      await expect(popup).toHaveURL(/entry=editor|\/editor/, { timeout: 15_000 });
       await expect(popup).not.toHaveURL(/editAsset\.jsp|view=editor/);
       expect(blocked, `leftover asset editor: ${blocked.join(" ")}`).toEqual([]);
       const unexpected = consoleErrors.filter(

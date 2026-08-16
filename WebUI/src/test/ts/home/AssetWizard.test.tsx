@@ -21,6 +21,7 @@ import {
   AssetWizard,
   resolveAssetCreateContentType,
 } from "@/home/create/AssetWizard";
+import { openEditorHost } from "@/editor/openEditorHost";
 import * as homeApi from "@/api/home/homeApi";
 
 vi.mock("@/api/home/homeApi", async (importOriginal) => {
@@ -141,6 +142,44 @@ describe("AssetWizard opener", () => {
     }
   });
 
+  it("submit assigns spa.jsp?entry=editor on the reserved popup", async () => {
+    const assign = vi.fn();
+    const reserved = {
+      closed: false,
+      close: vi.fn(),
+      location: { href: "about:blank", assign },
+      focus: vi.fn(),
+    } as unknown as Window;
+    const reservePopup = vi.fn(() => reserved);
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "42",
+      folderPath: "//Assets",
+      name: "New-percImageAsset",
+      contentType: "percImageAsset",
+    });
+    render(
+      <AssetWizard
+        onBack={() => undefined}
+        createItem={createItem}
+        openCreated={openEditorHost}
+        reservePopup={reservePopup}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("asset-wizard"));
+    fireEvent.click(screen.getByTestId("asset-wizard-submit"));
+    await waitFor(() => {
+      expect(assign).toHaveBeenCalled();
+    });
+    const href = String(assign.mock.calls[0]?.[0] ?? "");
+    expect(href).toMatch(/^https?:\/\//);
+    expect(href).toMatch(/spa\.jsp\?.*entry=editor/);
+    expect(href).toContain("contentId=42");
+    expect(href).not.toMatch(/about:blank/i);
+    expect(href).not.toContain("editAsset.jsp");
+    expect(href).not.toContain("view=editor");
+    expect(reserved.close).not.toHaveBeenCalled();
+  });
+
   it("does not navigate when type is missing", async () => {
     vi.mocked(homeApi.fetchAssetTypes).mockResolvedValueOnce([
       { id: "percImage", name: "Image", label: "Image" },
@@ -228,6 +267,10 @@ describe("AssetWizard opener", () => {
     });
     expect(openCreated).toHaveBeenCalledTimes(2);
     expect(openCreated.mock.calls[1]?.[0]).toMatchObject({ id: "91" });
+    expect(openCreated.mock.calls[1]?.[1]).toMatchObject({
+      reservedWindow: reserved,
+    });
+    expect(reservePopup).toHaveBeenCalledTimes(2);
     expect(screen.queryByTestId("asset-wizard-open-editor")).toBeNull();
   });
 
