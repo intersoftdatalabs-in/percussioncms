@@ -6,6 +6,10 @@ const {
   hasQaModeUrlEnv,
   DEV_FALLBACK_URL,
 } = require("./resolve-cms-env");
+const {
+  classifyLoginSurface,
+  isOffLoginPath,
+} = require("./login-surface");
 
 const envPath = path.resolve(__dirname, "../../../.env");
 require("dotenv").config({ path: envPath });
@@ -341,25 +345,125 @@ async function listModernLoginLocales(page) {
 }
 
 /**
+ * Snapshot visible login / authenticated chrome. Hidden perc-login-root is
+ * recorded but is never treated as the login UI (#3492).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<import("./login-surface").LoginSurfaceSnapshot>}
+ */
+async function snapshotLoginSurface(page) {
+  const modernForm = page.locator('[data-testid="perc-login-form"]');
+  const legacyUser = page.locator('input[name="j_username"]');
+  const spaApp = page.locator('[data-testid="perc-spa-app"]');
+  const assemblyHost = page.locator('[data-testid="assembly-host"]');
+  const modernRoot = page.locator('[data-testid="perc-login-root"]');
+  let pathname = "";
+  try {
+    pathname = new URL(page.url()).pathname;
+  } catch {
+    pathname = page.url();
+  }
+  return {
+    url: page.url(),
+    pathname,
+    formVisible: await modernForm.isVisible().catch(() => false),
+    legacyVisible: await legacyUser.isVisible().catch(() => false),
+    spaVisible: await spaApp.isVisible().catch(() => false),
+    assemblyVisible: await assemblyHost.isVisible().catch(() => false),
+    rootPresent: (await modernRoot.count()) > 0,
+    rootVisible: await modernRoot.isVisible().catch(() => false),
+  };
+}
+
+/**
+ * Wait for a real login form or authenticated chrome. Never waits on a
+ * hidden perc-login-root (that 0×0 mount used to burn the 30s timeout).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {number} [timeout]
+ * @returns {Promise<import("./login-surface").LoginSurfaceDecision>}
+ */
+async function waitForLoginSurface(page, timeout = 30_000) {
+  let decision = classifyLoginSurface(await snapshotLoginSurface(page));
+  if (decision.kind !== "pending") {
+    return decision;
+  }
+
+  const modernForm = page.locator('[data-testid="perc-login-form"]');
+  const legacyUser = page.locator('input[name="j_username"]');
+  const spaApp = page.locator('[data-testid="perc-spa-app"]');
+  const assemblyHost = page.locator('[data-testid="assembly-host"]');
+  try {
+    await modernForm
+      .or(legacyUser)
+      .or(spaApp)
+      .or(assemblyHost)
+      .first()
+      .waitFor({ state: "visible", timeout });
+  } catch {
+    decision = classifyLoginSurface(await snapshotLoginSurface(page));
+    if (decision.kind !== "pending") {
+      return decision;
+    }
+    if (isOffLoginPath(page.url())) {
+      return { kind: "already_authenticated", reason: "left-login-path" };
+    }
+    throw new Error(
+      `Login UI did not become visible within ${timeout}ms ` +
+        `(hidden perc-login-root is not the login form). url=${page.url()}`,
+    );
+  }
+  return classifyLoginSurface(await snapshotLoginSurface(page));
+}
+
+/**
  * Fill Admin/role credentials on either the modern React login (data-testid)
  * or the legacy JSP form (name= attributes). Locale defaults to en-us when
  * the modern LocaleSelect already posts a hidden j_locale.
+ *
+ * Hidden perc-login-root is not the login UI. If goto /login already left
+ * the login path or perc-spa-app / assembly-host is visible, skip fill.
  *
  * @param {import("@playwright/test").Page} page
  * @param {string} username
  * @param {string} password
  * @param {LoginOptions} [options]
+ * @returns {Promise<{ submit: import("@playwright/test").Locator | null, alreadyAuthenticated: boolean }>}
  */
 async function fillLoginForm(page, username, password, options = {}) {
   const desiredLocale =
     options && options.locale ? String(options.locale).trim() : "";
-  const modernRoot = page.locator('[data-testid="perc-login-root"]');
   const modernForm = page.locator('[data-testid="perc-login-form"]');
   const legacyUser = page.locator('input[name="j_username"]');
 
-  // Prefer modern React login (#2065 H2 qa-up ships rxlogin → perc-login-root).
-  if ((await modernRoot.count()) > 0 || (await modernForm.count()) > 0) {
-    await modernForm.or(modernRoot).first().waitFor({ state: "visible", timeout: 30_000 });
+  let decision = classifyLoginSurface(await snapshotLoginSurface(page));
+  if (decision.kind === "already_authenticated") {
+    return { submit: null, alreadyAuthenticated: true };
+  }
+  if (decision.kind === "pending") {
+    // Wait for the form (or legacy username) only — never perc-login-root.
+    try {
+      await modernForm
+        .or(legacyUser)
+        .first()
+        .waitFor({ state: "visible", timeout: 30_000 });
+    } catch {
+      decision = classifyLoginSurface(await snapshotLoginSurface(page));
+      if (decision.kind === "already_authenticated") {
+        return { submit: null, alreadyAuthenticated: true };
+      }
+      throw new Error(
+        `Login form did not become visible within 30000ms ` +
+          `(hidden perc-login-root is not the login form). url=${page.url()}`,
+      );
+    }
+    decision = classifyLoginSurface(await snapshotLoginSurface(page));
+    if (decision.kind === "already_authenticated") {
+      return { submit: null, alreadyAuthenticated: true };
+    }
+  }
+
+  if (decision.kind === "modern_form") {
     await page.locator('[data-testid="perc-login-username"]').fill(username);
     await page.locator('[data-testid="perc-login-password"]').fill(password);
     // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
@@ -377,7 +481,10 @@ async function fillLoginForm(page, username, password, options = {}) {
         }
       }
     }
-    return { submit: page.locator('[data-testid="perc-login-submit"]') };
+    return {
+      submit: page.locator('[data-testid="perc-login-submit"]'),
+      alreadyAuthenticated: false,
+    };
   }
 
   // Legacy native form (select[name=j_locale]).
@@ -388,7 +495,10 @@ async function fillLoginForm(page, username, password, options = {}) {
   if ((await nativeLocale.count()) > 0) {
     await nativeLocale.selectOption(desiredLocale || "en-us");
   }
-  return { submit: page.locator('button[type="submit"]') };
+  return {
+    submit: page.locator('button[type="submit"]'),
+    alreadyAuthenticated: false,
+  };
 }
 
 /**
@@ -405,7 +515,19 @@ async function login(page, username, password, options = {}) {
   await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
   // Wait for SPA mount or legacy form before filling.
   await page.waitForLoadState("domcontentloaded");
-  const { submit } = await fillLoginForm(page, username, password, options);
+  const surface = await waitForLoginSurface(page);
+  if (surface.kind === "already_authenticated") {
+    return;
+  }
+  const { submit, alreadyAuthenticated } = await fillLoginForm(
+    page,
+    username,
+    password,
+    options,
+  );
+  if (alreadyAuthenticated || !submit) {
+    return;
+  }
 
   // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. Modern
   // login may land at /cm/app/spa.jsp?entry=home; legacy lands at index.jsp.
@@ -502,6 +624,10 @@ module.exports = {
   loginAsEditor,
   loginAsContributor,
   fillLoginForm,
+  snapshotLoginSurface,
+  waitForLoginSurface,
+  classifyLoginSurface,
+  isOffLoginPath,
   selectModernLoginLocale,
   listModernLoginLocales,
   basicAuthHeaders,
