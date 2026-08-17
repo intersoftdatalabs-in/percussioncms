@@ -30,12 +30,13 @@ This section covers how to obtain, install, upgrade, and take first steps with P
 2. Sign in with the administrative account created at install time.
 3. Confirm the SPA top navigation starts with **Home**, then **Explorer** (adjacent).
    There is no **Dashboard** top-nav item. Administrators see a single **Admin**
-   item that opens **Admin tools** (`/admin`). See [Administration](id:admin).
-   **Design** (Admin or Designer) opens the SPA template library — classic
-   `?view=design` / `admin.jsp` bookmarks redirect there. See
+   item that opens **Admin tools** (`/admin`). **Editor**, **Design**, and
+   **Widget Builder** are not top-nav items. See [Administration](id:admin).
+   The template library is under **Developer → Design** — classic
+   `?view=design` / `admin.jsp` bookmarks still redirect there. See
    [Design templates](id:admin-design-templates).
-4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit**, **Home → Create** (page, blog, or asset), or the **Editor** top-nav item. Those surfaces do not open leftover `?view=editor` or `editAsset.jsp`.
-5. Open **Design** to list assembly templates and edit source, JEXL bindings, assembler,
+4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit** or **Home → Create** (page, blog, or asset). Those surfaces do not open leftover `?view=editor` or `editAsset.jsp`.
+5. Open **Developer → Design** to list assembly templates and edit source, JEXL bindings, assembler,
    and slots. See [Design templates](id:admin-design-templates).
 6. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.
 

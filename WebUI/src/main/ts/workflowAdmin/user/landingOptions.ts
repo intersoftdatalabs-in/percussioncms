@@ -19,7 +19,8 @@
  *
  * <p>Labels use nav menu i18n keys. Values are slice-2 canonical homepage
  * types (or empty for clear → role resolve). Options are filtered to screens
- * the assigned roles may open (peer SPA TopNav gates).</p>
+ * the assigned roles may open (peer SPA TopNav gates). Editor and Design
+ * are not offered as new choices after they left top nav (#3514).</p>
  */
 
 import { HOMEPAGE_TYPES, type HomepageType } from "../../api/user/userHomepageApi";
@@ -89,14 +90,17 @@ export function isLandingAllowedForRoles(
   if (homepageType === "" || homepageType === HOMEPAGE_TYPES.HOME) {
     return true;
   }
-  if (homepageType === HOMEPAGE_TYPES.EDITOR) {
-    return true;
+  // Editor / Design left product top nav (#3514 / #3536). Not new choices.
+  if (
+    homepageType === HOMEPAGE_TYPES.EDITOR ||
+    homepageType === HOMEPAGE_TYPES.DESIGNER
+  ) {
+    return false;
   }
   const rs = roleSet(roles);
   const isAdmin = rs.has("admin");
   const isDesigner = rs.has("designer") || isAdmin;
   switch (homepageType) {
-    case HOMEPAGE_TYPES.DESIGNER:
     case HOMEPAGE_TYPES.ARCHITECTURE:
     case HOMEPAGE_TYPES.PUBLISH:
     case HOMEPAGE_TYPES.WIDGET_BUILDER:

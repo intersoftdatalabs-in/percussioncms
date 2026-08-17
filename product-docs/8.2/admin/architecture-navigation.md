@@ -24,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
    - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
-3. The shell loads under the same product top nav as Explorer, Design, Publish, and Admin.
+3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
 `Architecture`, also accepted as `Navigation`) for a user or role. After sign-in

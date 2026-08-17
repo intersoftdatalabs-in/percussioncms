@@ -23,32 +23,32 @@ import {
 } from "../../../main/ts/workflowAdmin/user/landingOptions";
 
 describe("landingOptionsForRoles", () => {
-  it("always includes role-default and Home/Editor for any roles", () => {
+  it("always includes role-default and Home; not Editor or Design (#3514)", () => {
     const opts = landingOptionsForRoles(["Contributor"]);
     const values = opts.map((o) => o.value);
     expect(values).toContain("");
     expect(values).toContain(HOMEPAGE_TYPES.HOME);
-    expect(values).toContain(HOMEPAGE_TYPES.EDITOR);
+    expect(values).not.toContain(HOMEPAGE_TYPES.EDITOR);
     expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).not.toContain(HOMEPAGE_TYPES.ARCHITECTURE);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
   });
 
-  it("includes Design and Architecture for Designer role", () => {
+  it("includes Architecture for Designer role without Design as a new choice", () => {
     const opts = landingOptionsForRoles(["Designer"]);
     const values = opts.map((o) => o.value);
-    expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
     const arch = opts.find((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE);
     expect(fallbackLabelFromKey(arch!.labelKey)).toBe("Navigation");
   });
 
-  it("includes Administration (Workflow) for Admin role", () => {
+  it("includes Administration (Workflow) for Admin role without Design", () => {
     const opts = landingOptionsForRoles(["Admin"]);
     const values = opts.map((o) => o.value);
     expect(values).toContain(HOMEPAGE_TYPES.WORKFLOW);
-    expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
   });
 
@@ -58,6 +58,11 @@ describe("landingOptionsForRoles", () => {
       HOMEPAGE_TYPES.WORKFLOW,
     );
     expect(opts.map((o) => o.value)).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    const editorStale = landingOptionsForRoles(
+      ["Contributor"],
+      HOMEPAGE_TYPES.EDITOR,
+    );
+    expect(editorStale.map((o) => o.value)).toContain(HOMEPAGE_TYPES.EDITOR);
   });
 });
 
@@ -65,7 +70,7 @@ describe("isLandingAllowedForRoles", () => {
   it("allows Home and empty for empty roles", () => {
     expect(isLandingAllowedForRoles("", [])).toBe(true);
     expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.HOME, [])).toBe(true);
-    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.EDITOR, [])).toBe(true);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.EDITOR, [])).toBe(false);
     expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.WORKFLOW, [])).toBe(false);
   });
 });

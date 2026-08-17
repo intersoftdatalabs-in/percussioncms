@@ -21,7 +21,9 @@
  * <p>Values are product homepage types (PascalCase) already accepted by
  * {@code PSUserService} / login landing resolve. Labels reuse nav menu keys.
  * Options are filtered from SPA bootstrap admin/designer flags (self-service
- * does not load full role lists).</p>
+ * does not load full role lists). Editor and Design are not offered as new
+ * choices after they left top nav (#3514); a stored override still lists so
+ * the user can clear it.</p>
  */
 
 import { HOMEPAGE_TYPES, type HomepageType } from "../api/user/userHomepageApi";
@@ -77,13 +79,16 @@ export function isProfileLandingAllowed(
   if (homepageType === "" || homepageType === HOMEPAGE_TYPES.HOME) {
     return true;
   }
-  if (homepageType === HOMEPAGE_TYPES.EDITOR) {
-    return true;
+  // Editor / Design left product top nav (#3514 / #3536). Not new choices.
+  if (
+    homepageType === HOMEPAGE_TYPES.EDITOR ||
+    homepageType === HOMEPAGE_TYPES.DESIGNER
+  ) {
+    return false;
   }
   const isAdmin = !!gates.isAdmin;
   const isDesigner = !!gates.isDesigner || isAdmin;
   switch (homepageType) {
-    case HOMEPAGE_TYPES.DESIGNER:
     case HOMEPAGE_TYPES.ARCHITECTURE:
     case HOMEPAGE_TYPES.PUBLISH:
     case HOMEPAGE_TYPES.WIDGET_BUILDER:
