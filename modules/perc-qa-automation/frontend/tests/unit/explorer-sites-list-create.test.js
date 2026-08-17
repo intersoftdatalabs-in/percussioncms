@@ -63,6 +63,48 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(TEST_IDS.virtualRoot, "site-create-virtual-root");
   });
 
+  it("exports every TEST_IDS key explorer-site-create-page.spec interpolates (#3527)", () => {
+    const required = [
+      "shell",
+      "menuContent",
+      "createSiteMenu",
+      "wizard",
+      "stepType",
+      "stepDetails",
+      "stepTemplate",
+      "stepConfirm",
+      "stepProgress",
+      "typeTraditional",
+      "typePage",
+      "typeVirtual",
+      "typeUnavailable",
+      "pageNote",
+      "virtualNote",
+      "traditionalNote",
+      "siteName",
+      "templateName",
+      "baseTemplate",
+      "confirmSummary",
+      "confirmType",
+      "confirmTemplateName",
+      "confirmManagedNav",
+      "managedNav",
+      "next",
+      "back",
+      "run",
+    ];
+    for (const key of required) {
+      const value = TEST_IDS[key];
+      assert.equal(typeof value, "string", key);
+      assert.ok(value.length > 0, key);
+      assert.notEqual(value, "undefined", key);
+    }
+    assert.equal(TEST_IDS.typeUnavailable, "site-create-type-unavailable");
+    assert.equal(TEST_IDS.confirmType, "site-create-confirm-type");
+    assert.equal(TEST_IDS.confirmTemplateName, "site-create-confirm-template-name");
+    assert.equal(TEST_IDS.pageNote, "site-create-page-note");
+  });
+
   it("advanceTraditionalTypeStep selects Traditional and clicks Next", async () => {
     assert.equal(typeof advanceTraditionalTypeStep, "function");
     const checks = [];
