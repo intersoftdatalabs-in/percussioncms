@@ -106,80 +106,95 @@ class PSUserDefaultCommunityTest {
 
   @Test
   void persistsAllowedCommunityOnUserSubject() throws Exception {
-      PSCurrentUser current = memberUser("Admin", List.of("Default", "Corporate"));
-      doReturn(current).when(userService).getCurrentUser();
+    PSCurrentUser current = memberUser("Admin", List.of("Default", "Corporate"));
+    doReturn(current).when(userService).getCurrentUser();
 
-      PSCurrentUser result = userService.updateMyDefaultCommunity("corporate");
+    PSCurrentUser result = userService.updateMyDefaultCommunity("corporate");
 
-      verify(backEndRoleMgr)
-          .setSubjectAttribute(
-              eq("Admin"),
-              eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY),
-              eq("Corporate"));
-      assertEquals("Corporate", result.getDefaultCommunity());
-    }
-
-    @Test
-    void blankClearsStoredDefault() throws Exception {
-      PSCurrentUser current = memberUser("Admin", List.of("Default"));
-      current.setDefaultCommunity("Default");
-      doReturn(current).when(userService).getCurrentUser();
-
-      PSCurrentUser result = userService.updateMyDefaultCommunity("  ");
-
-      verify(backEndRoleMgr)
-          .setSubjectAttribute(
-              eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq(""));
-      assertEquals("", result.getDefaultCommunity());
-    }
-
-    @Test
-    void rejectsCommunityNotInMembership() throws Exception {
-      PSCurrentUser current = memberUser("Editor1", List.of("Default"));
-      doReturn(current).when(userService).getCurrentUser();
-
-      assertThrows(
-          PSValidationException.class, () -> userService.updateMyDefaultCommunity("Unknown"));
-      verify(backEndRoleMgr, never())
-          .setSubjectAttribute(
-              org.mockito.ArgumentMatchers.anyString(),
-              org.mockito.ArgumentMatchers.anyString(),
-              org.mockito.ArgumentMatchers.anyString());
-    }
-
-    @Test
-    void propagatesBackendFailureWithoutApplying() throws Exception {
-      PSCurrentUser current = memberUser("Admin", List.of("Default"));
-      doReturn(current).when(userService).getCurrentUser();
-      doThrow(new RuntimeException("backend write failed"))
-          .when(backEndRoleMgr)
-          .setSubjectAttribute(
-              eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq("Default"));
-
-      RuntimeException thrown =
-          assertThrows(
-              RuntimeException.class, () -> userService.updateMyDefaultCommunity("Default"));
-      assertEquals("backend write failed", thrown.getMessage());
-      assertEquals("", current.getDefaultCommunity());
-    }
+    verify(backEndRoleMgr)
+        .setSubjectAttribute(
+            eq("Admin"),
+            eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY),
+            eq("Corporate"));
+    assertEquals("Corporate", result.getDefaultCommunity());
+  }
 
   @Test
-  void returnsStoredSubjectAttribute() throws Exception {
-      PSUser internal = new PSUser();
-      internal.setName("Admin");
-      internal.setEmail("admin@example.com");
-      internal.setProviderType(PSUserProviderType.INTERNAL);
-      internal.setRoles(List.of("Admin"));
-      doReturn("Admin").when(userService).getCurrentUserName();
-      doReturn(internal).when(userService).find("Admin");
-      when(backEndRoleMgr.getGlobalSubjectAttributes(
-              eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq(false)))
-          .thenReturn(Set.of(subjectWithDefaultCommunity("Admin", "Corporate")));
+  void blankClearsStoredDefault() throws Exception {
+    PSCurrentUser current = memberUser("Admin", List.of("Default"));
+    current.setDefaultCommunity("Default");
+    doReturn(current).when(userService).getCurrentUser();
 
-      PSCurrentUser result = userService.getCurrentUser();
+    PSCurrentUser result = userService.updateMyDefaultCommunity("  ");
 
-      assertEquals("Corporate", result.getDefaultCommunity());
-    }
+    verify(backEndRoleMgr)
+        .setSubjectAttribute(
+            eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq(""));
+    assertEquals("", result.getDefaultCommunity());
+  }
+
+  @Test
+  void rejectsCommunityNotInMembership() throws Exception {
+    PSCurrentUser current = memberUser("Editor1", List.of("Default"));
+    doReturn(current).when(userService).getCurrentUser();
+
+    assertThrows(
+        PSValidationException.class, () -> userService.updateMyDefaultCommunity("Unknown"));
+    verify(backEndRoleMgr, never())
+        .setSubjectAttribute(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString());
+  }
+
+  @Test
+  void propagatesBackendFailureWithoutApplying() throws Exception {
+    PSCurrentUser current = memberUser("Admin", List.of("Default"));
+    doReturn(current).when(userService).getCurrentUser();
+    doThrow(new RuntimeException("backend write failed"))
+        .when(backEndRoleMgr)
+        .setSubjectAttribute(
+            eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq("Default"));
+
+    RuntimeException thrown =
+        assertThrows(
+            RuntimeException.class, () -> userService.updateMyDefaultCommunity("Default"));
+    assertEquals("backend write failed", thrown.getMessage());
+    assertEquals("", current.getDefaultCommunity());
+  }
+
+  @Test
+  void applyAllowedStoredDefaultKeepsMembershipSpelling() {
+    PSCurrentUser current = memberUser("Admin", List.of("Default", "Corporate"));
+    PSUserService.applyAllowedStoredDefault(current, "corporate");
+    assertEquals("Corporate", current.getDefaultCommunity());
+  }
+
+  @Test
+  void applyAllowedStoredDefaultClearsDisallowed() {
+    PSCurrentUser current = memberUser("Admin", List.of("Default"));
+    PSUserService.applyAllowedStoredDefault(current, "Corporate");
+    assertEquals("", current.getDefaultCommunity());
+  }
+
+  @Test
+  void getCurrentUserOmitsStoredDefaultWhenNotInSessionCommunities() throws Exception {
+    PSUser internal = new PSUser();
+    internal.setName("Admin");
+    internal.setEmail("admin@example.com");
+    internal.setProviderType(PSUserProviderType.INTERNAL);
+    internal.setRoles(List.of("Admin"));
+    doReturn("Admin").when(userService).getCurrentUserName();
+    doReturn(internal).when(userService).find("Admin");
+    when(backEndRoleMgr.getGlobalSubjectAttributes(
+            eq("Admin"), eq(PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY), eq(false)))
+        .thenReturn(Set.of(subjectWithDefaultCommunity("Admin", "Corporate")));
+
+    PSCurrentUser result = userService.getCurrentUser();
+
+    // No session membership list in this unit fixture — do not return a stale default.
+    assertEquals("", result.getDefaultCommunity());
+  }
 
   private static PSCurrentUser memberUser(String name, List<String> communities) {
     PSCurrentUser user = new PSCurrentUser();

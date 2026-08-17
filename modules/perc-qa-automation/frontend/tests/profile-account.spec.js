@@ -200,7 +200,9 @@ test.describe("Profile account @profile @account @smoke", () => {
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
     await expectAccountMounted(page);
 
-    const select = page.getByTestId("perc-profile-account-default-community");
+    const select = page.getByTestId(
+      "perc-profile-account-default-community-select",
+    );
     await expect(select).toBeVisible();
     await expect(select).toHaveJSProperty("tagName", "SELECT");
 
@@ -235,12 +237,12 @@ test.describe("Profile account @profile @account @smoke", () => {
     await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
     await expectAccountMounted(page);
     await expect(
-      page.getByTestId("perc-profile-account-default-community"),
+      page.getByTestId("perc-profile-account-default-community-select"),
     ).toHaveValue(target);
 
     if (original !== target) {
       await page
-        .getByTestId("perc-profile-account-default-community")
+        .getByTestId("perc-profile-account-default-community-select")
         .selectOption(original);
       await page
         .getByTestId("perc-profile-account-default-community-save")

@@ -46,6 +46,23 @@ type LoadState =
   | { status: "ready"; profile: CurrentUserProfile };
 
 /**
+ * Select value for the stored default: membership spelling when still allowed,
+ * otherwise empty so the control never holds a stale unmatched option.
+ */
+export function allowedDefaultCommunityDraft(
+  profile: Pick<CurrentUserProfile, "communities" | "defaultCommunity">,
+): string {
+  const stored = (profile.defaultCommunity ?? "").trim();
+  if (!stored) {
+    return "";
+  }
+  const allowed = allowedSessionCommunities(profile.communities);
+  return (
+    allowed.find((name) => name.toLowerCase() === stored.toLowerCase()) ?? ""
+  );
+}
+
+/**
  * Account identity view/edit for the signed-in user (slice 2 / #2395).
  * Login id, provider, roles, and communities are read-only. Email is editable
  * only for internal accounts; directory-managed fields show localized hints.
@@ -86,7 +103,7 @@ export function AccountSection({
     try {
       const profile = await loadProfile();
       setEmailDraft(profile.email ?? "");
-      setDefaultCommunityDraft(profile.defaultCommunity ?? "");
+      setDefaultCommunityDraft(allowedDefaultCommunityDraft(profile));
       setCommunityFieldError(null);
       setLoadState({ status: "ready", profile });
     } catch (err) {
@@ -157,7 +174,7 @@ export function AccountSection({
     try {
       const updated = await saveDefaultCommunity(trimmed);
       setLoadState({ status: "ready", profile: updated });
-      setDefaultCommunityDraft(updated.defaultCommunity ?? "");
+      setDefaultCommunityDraft(allowedDefaultCommunityDraft(updated));
       setSuccessMessage(message(PROFILE_MSG.DEFAULT_COMMUNITY_SAVE_SUCCESS));
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -483,7 +500,7 @@ export function AccountSection({
                       ? `${defaultCommunityHelpId} ${defaultCommunityErrorId}`
                       : defaultCommunityHelpId
                   }
-                  data-testid="perc-profile-account-default-community"
+                  data-testid="perc-profile-account-default-community-select"
                 >
                   <option
                     value=""
@@ -538,7 +555,7 @@ export function AccountSection({
               <>
                 <span
                   className={styles.readonlyValue}
-                  data-testid="perc-profile-account-default-community"
+                  data-testid="perc-profile-account-default-community-unavailable"
                 >
                   {message(PROFILE_MSG.DEFAULT_COMMUNITY_UNAVAILABLE)}
                 </span>

@@ -258,8 +258,6 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             applySubjectAttribute(config.roleCfg, subjectName, attributeName, value);
             config.objectStore.saveRoleConfiguration(
                 config.roleCfg, config.lockId, config.securityToken);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             String msg =
                 "Failed to set attribute "

@@ -18,7 +18,10 @@
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { AccountSection } from "../../../main/ts/profile/AccountSection";
+import {
+  AccountSection,
+  allowedDefaultCommunityDraft,
+} from "../../../main/ts/profile/AccountSection";
 import type { CurrentUserProfile } from "../../../main/ts/api/user/userProfileApi";
 import {
   isValidEmailAddress,
@@ -228,17 +231,48 @@ describe("AccountSection", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("perc-profile-account-default-community"),
+        screen.getByTestId("perc-profile-account-default-community-select"),
       ).toBeTruthy();
     });
     const select = screen.getByTestId(
-      "perc-profile-account-default-community",
+      "perc-profile-account-default-community-select",
     ) as HTMLSelectElement;
     expect(select.tagName).toBe("SELECT");
     expect(select.value).toBe("Corporate");
     const options = Array.from(select.options).map((o) => o.value);
     expect(options).toEqual(["", "Default", "Corporate"]);
     expect(options).not.toContain("Unknown");
+  });
+
+  it("falls back to empty select when stored default is not in membership", async () => {
+    expect(
+      allowedDefaultCommunityDraft({
+        communities: ["Default"],
+        defaultCommunity: "Stale Community",
+      }),
+    ).toBe("");
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "RemovedFromRole",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community-select"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community-select",
+    ) as HTMLSelectElement;
+    expect(select.value).toBe("");
+    expect(Array.from(select.options).map((o) => o.value)).toEqual([
+      "",
+      "Default",
+      "Corporate",
+    ]);
   });
 
   it("saves allowed default community and reloads returned value", async () => {
@@ -263,11 +297,11 @@ describe("AccountSection", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("perc-profile-account-default-community"),
+        screen.getByTestId("perc-profile-account-default-community-select"),
       ).toBeTruthy();
     });
     const select = screen.getByTestId(
-      "perc-profile-account-default-community",
+      "perc-profile-account-default-community-select",
     ) as HTMLSelectElement;
     fireEvent.change(select, { target: { value: "Corporate" } });
     fireEvent.click(
@@ -294,7 +328,9 @@ describe("AccountSection", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("perc-profile-account-default-community").textContent,
+        screen.getByTestId(
+          "perc-profile-account-default-community-unavailable",
+        ).textContent,
       ).toMatch(/no communities/i);
     });
     expect(
@@ -324,11 +360,11 @@ describe("AccountSection", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("perc-profile-account-default-community"),
+        screen.getByTestId("perc-profile-account-default-community-select"),
       ).toBeTruthy();
     });
     const select = screen.getByTestId(
-      "perc-profile-account-default-community",
+      "perc-profile-account-default-community-select",
     ) as HTMLSelectElement;
     fireEvent.change(select, { target: { value: "" } });
     fireEvent.click(

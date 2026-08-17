@@ -1071,15 +1071,17 @@ public class PSUserService implements IPSUserService {
   /**
    * Best-effort session community summary for the profile hub. Failures are logged and left empty
    * so account identity still returns.
+   *
+   * <p>Stored {@code sys_defaultCommunity} is applied only after membership names are loaded, and
+   * only when it is still in that list — {@code GET /user/user/current} never returns a disallowed
+   * default.
    */
   private void enrichCurrentUserCommunities(PSCurrentUser currUser) {
+    String storedDefault = null;
     try {
-      String storedDefault =
+      storedDefault =
           backEndRoleMgr.getSubjectAttribute(
               currUser.getName(), PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY);
-      if (isNotBlank(storedDefault)) {
-        currUser.setDefaultCommunity(storedDefault);
-      }
     } catch (Exception e) {
       log.debug(
           "Unable to load default community for current user: {}",
@@ -1088,6 +1090,7 @@ public class PSUserService implements IPSUserService {
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req == null || req.getUserSession() == null) {
+        applyAllowedStoredDefault(currUser, storedDefault);
         return;
       }
       String currentCommunity = req.getUserSession().getUserCurrentCommunity();
@@ -1105,6 +1108,16 @@ public class PSUserService implements IPSUserService {
           "Unable to load community summary for current user: {}",
           PSExceptionUtils.getMessageForLog(e));
     }
+    applyAllowedStoredDefault(currUser, storedDefault);
+  }
+
+  /**
+   * Sets {@code defaultCommunity} only when {@code storedDefault} is still in the user's
+   * membership list. Unknown or disallowed names become empty.
+   */
+  static void applyAllowedStoredDefault(PSCurrentUser currUser, String storedDefault) {
+    String canonical = canonicalizeAllowedCommunity(storedDefault, currUser.getCommunities());
+    currUser.setDefaultCommunity(canonical == null ? "" : canonical);
   }
 
   /**
