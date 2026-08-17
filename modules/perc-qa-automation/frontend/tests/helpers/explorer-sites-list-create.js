@@ -21,6 +21,12 @@ const TEST_IDS = Object.freeze({
   createSiteMenu: "explorer-content-create-site",
   createSitePanel: "explorer-site-create-panel",
   wizard: "site-create-wizard",
+  stepType: "site-create-step-type",
+  typeTraditional: "site-create-type-traditional",
+  typePage: "site-create-type-page",
+  typeVirtual: "site-create-type-virtual",
+  typeUnavailable: "site-create-type-unavailable",
+  confirmType: "site-create-confirm-type",
   stepDetails: "site-create-step-details",
   stepTemplate: "site-create-step-template",
   stepConfirm: "site-create-step-confirm",
@@ -171,6 +177,20 @@ function folderChildrenUrl(baseUrl, cmsPath) {
 }
 
 /**
+ * Advance the Create Site wizard from the type picker (Traditional default).
+ * @param {import('@playwright/test').Page} page
+ */
+async function advanceTraditionalTypeStep(page) {
+  const typeStep = page.locator(`[data-testid="${TEST_IDS.stepType}"]`);
+  await typeStep.waitFor({ state: "visible", timeout: 10_000 });
+  await page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`).check();
+  await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+  await page
+    .locator(`[data-testid="${TEST_IDS.stepDetails}"]`)
+    .waitFor({ state: "visible", timeout: 10_000 });
+}
+
+/**
  * Open Content menu dropdown.
  * @param {import('@playwright/test').Page} page
  */
@@ -298,6 +318,7 @@ module.exports = {
   siteChildListCandidates,
   folderChildrenUrl,
   openContentMenu,
+  advanceTraditionalTypeStep,
   sitesTreeRootLocator,
   expandExplorerTreeNode,
   sitesTreeDescendantsLocator,

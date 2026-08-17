@@ -109,7 +109,10 @@ test.describe("Architecture SPA shell (#3094)", () => {
     await expect(newSite).toContainText(/New Site/i);
     await newSite.click();
     await expect(page.getByTestId("architecture-new-site-panel")).toBeVisible();
-    await expect(page.getByTestId("site-create-step-details")).toBeVisible();
+    await expect(page.getByTestId("site-create-step-type")).toBeVisible();
+    await expect(page.getByTestId("site-create-type-traditional")).toBeChecked();
+    await expect(page.getByTestId("site-create-type-page")).toBeVisible();
+    await expect(page.getByTestId("site-create-type-virtual")).toBeVisible();
     await page.getByTestId("architecture-new-site-close").click();
     await expect(page.getByTestId("architecture-new-site-panel")).toHaveCount(0);
     expect(pageErrors, pageErrors.join("\n")).toEqual([]);
