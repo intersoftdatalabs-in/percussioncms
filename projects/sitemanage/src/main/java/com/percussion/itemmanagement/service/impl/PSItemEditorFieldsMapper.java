@@ -40,7 +40,7 @@ public final class PSItemEditorFieldsMapper {
     if (StringUtils.isBlank(name)) {
       return false;
     }
-    if ("sys_title".equals(name)) {
+    if ("sys_title".equals(name) || "sys_communityid".equals(name)) {
       return true;
     }
     return !name.startsWith("sys_");

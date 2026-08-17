@@ -339,6 +339,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Choose a content type from New Item",
   ACTION_NEEDS_TEMPLATE:
     "perc.ui.explorer@This page needs a template. Choose a site folder or use Home → Create.",
+  ACTION_NEEDS_SLOT:
+    "perc.ui.explorer@Select a slot in Active Assembly first",
+  ACTION_NEEDS_RELATIONSHIP:
+    "perc.ui.explorer@Select an item in the slot first",
+  ACTION_SLOT_FAILED:
+    "perc.ui.explorer@Could not update the slot",
   TEMPLATE_PICKER_TITLE: "perc.ui.explorer@Choose a page template",
   TEMPLATE_PICKER_LABEL: "perc.ui.explorer@Template",
   CONFIRM_PURGE_BODY:

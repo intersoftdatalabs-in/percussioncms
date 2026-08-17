@@ -336,12 +336,17 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
-      expect(
-        screen.getByTestId("action-toolbar-item-Publish_Now"),
-      ).toBeInTheDocument();
     });
     fireEvent.click(screen.getByTestId("detail-row-42"));
     await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
+        "data-selected-item-id",
+        "42",
+      );
+      expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
+        "data-selected-item-kind",
+        "page",
+      );
       expect(
         screen.getByTestId("action-toolbar-item-Publish_Now"),
       ).toBeInTheDocument();
@@ -371,6 +376,76 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     // Throw must not refresh the list as if the item published.
     expect(folderLoadsAfter).toBe(folderLoadsBefore);
     await renderA11yGate(container);
+  });
+
+  it("hides toolbar Publish Now until a page row is selected (#3467)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Publish_Now",
+            label: "Publish Now",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("action-toolbar-item-Publish_Now"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
+      "data-selected-item-id",
+      "",
+    );
+
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
+        "data-selected-item-id",
+        "42",
+      );
+      expect(
+        screen.getByTestId("action-toolbar-item-Publish_Now"),
+      ).toBeInTheDocument();
+    });
   });
 
   it("discards stale context-menu loads when right-clicking rows rapidly (#2732 race)", async () => {
@@ -1522,6 +1597,23 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
     // T082a — a11y gate with dependencies panel expanded (search-panel peer).
     await renderA11yGate(container);
+  });
+
+  it("root initialPath does not call resolveFolderId (#3468)", async () => {
+    stubPathFetch();
+    const resolveFolderId = vi.fn(async () => "should-not-run");
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        resolveFolderId={resolveFolderId}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("content-explorer-shell")).toBeInTheDocument();
+    });
+    expect(resolveFolderId).not.toHaveBeenCalled();
   });
 
   it("root initialPath does not GET path/item/ (#3458)", async () => {

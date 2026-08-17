@@ -21,6 +21,7 @@ import com.percussion.itemmanagement.data.PSItemCopyResult;
 import com.percussion.itemmanagement.data.PSItemDates;
 import com.percussion.itemmanagement.data.PSItemCreateRequest;
 import com.percussion.itemmanagement.data.PSItemCreateResult;
+import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.data.PSSoProMetadata;
@@ -30,6 +31,7 @@ import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSNoContent;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.webservices.PSErrorResultsException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +63,18 @@ public interface IPSItemService {
    * Creates a new content item in {@code req.folderPath} for the React editor New Item flow.
    */
   PSItemCreateResult createEditorItem(PSItemCreateRequest req) throws PSItemServiceException;
+
+  /**
+   * Filename / presence metadata for a binary content field. Does not stream bytes.
+   */
+  PSItemEditorBinaryMeta getEditorBinary(String id, String field) throws PSItemServiceException;
+
+  /**
+   * Replaces a binary content field. Caller must have the item checked out.
+   */
+  PSItemEditorBinaryMeta saveEditorBinary(
+      String id, String field, InputStream data, String filename, String contentType)
+      throws PSItemServiceException;
 
   /**
    * Retrieves the revisions for a given page or asset.

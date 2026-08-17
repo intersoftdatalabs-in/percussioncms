@@ -429,6 +429,13 @@ export const PATHS = {
   get ASSEMBLY_NAV_RESET() {
     return `${SERVICES_ROOT}/assembly/nav-reset`;
   },
+  /**
+   * Active Assembly slot relationships (add / arrange / remove).
+   * {@code GET /canvas?ownerId=&templateId=}
+   */
+  get ASSEMBLY_SLOT_RELATIONSHIPS() {
+    return `${SERVICES_ROOT}/assembly/slot-relationships`;
+  },
   /** GET revisions + audit comments for an item. Append {@code /{id}}. */
   get ITEM_REVISIONS() {
     return `${SERVICES_ROOT}/itemmanagement/item/revisions`;
@@ -448,6 +455,10 @@ export const PATHS = {
   /** GET/PUT scalar content-editor fields. Append {@code /{id}}. */
   get ITEM_EDITOR_FIELDS() {
     return `${SERVICES_ROOT}/itemmanagement/item/fields`;
+  },
+  /** GET metadata / PUT multipart binary field. Append {@code /{id}/{field}}. */
+  get ITEM_EDITOR_BINARY() {
+    return `${SERVICES_ROOT}/itemmanagement/item/binary`;
   },
   /** POST create a content item in a folder. */
   get ITEM_CREATE() {

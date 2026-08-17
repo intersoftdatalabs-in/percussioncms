@@ -34,7 +34,7 @@ This section covers how to obtain, install, upgrade, and take first steps with P
    **Design** (Admin or Designer) opens the SPA template library — classic
    `?view=design` / `admin.jsp` bookmarks redirect there. See
    [Design templates](id:admin-design-templates).
-4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit**, **Home → Create** (page/blog), or the **Editor** top-nav item. Those surfaces do not open leftover `?view=editor`.
+4. Create or open a **Site**, confirm Explorer navigation, and open the React Content Editor from Explorer **Edit**, **Home → Create** (page, blog, or asset), or the **Editor** top-nav item. Those surfaces do not open leftover `?view=editor` or `editAsset.jsp`.
 5. Open **Design** to list assembly templates and edit source, JEXL bindings, assembler,
    and slots. See [Design templates](id:admin-design-templates).
 6. Review [Server operations](id:admin-server-ops) for ports, service control, and logs.

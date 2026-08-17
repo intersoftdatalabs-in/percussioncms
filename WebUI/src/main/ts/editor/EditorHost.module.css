@@ -71,8 +71,9 @@
 }
 
 .buttonPrimary {
-  background: #2563eb;
-  border-color: #1d4ed8;
+  background: #1d4ed8;
+  border-color: #1e40af;
+  color: #fff;
 }
 
 .stage {
@@ -125,4 +126,39 @@
 
 .readonly {
   background: #e2e8f0;
+}
+
+.html {
+  min-height: 12rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+}
+
+.binary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.fileInput {
+  font: inherit;
+}
+
+.fileName {
+  color: #475569;
+  font-size: 13px;
+}
+
+.imagePreview {
+  max-width: 16rem;
+  max-height: 10rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.hint {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
 }

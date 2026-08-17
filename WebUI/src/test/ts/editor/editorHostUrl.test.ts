@@ -36,6 +36,7 @@ describe("editorHostUrl", () => {
   it("defaults unknown mode to edit", () => {
     expect(normalizeEditorMode("view")).toBe("view");
     expect(normalizeEditorMode("VIEW")).toBe("view");
+    expect(normalizeEditorMode("promote")).toBe("promote");
     expect(normalizeEditorMode("edit")).toBe("edit");
     expect(normalizeEditorMode(null)).toBe("edit");
   });

@@ -125,6 +125,18 @@ function isPreviewableRow(row) {
 }
 
 /**
+ * Stock FastForward asset types — same set as WebUI
+ * {@code ASSET_PREVIEW_TYPE_KEYS} in {@code previewItem.ts}. These are assets
+ * even when listed under {@code /Sites/}.
+ */
+const ASSET_PREVIEW_TYPE_KEYS = new Set([
+  "asset",
+  "percasset",
+  "rffimage",
+  "rfffile",
+]);
+
+/**
  * Listed Explorer page (percPage / Page) — folders stay false.
  * @param {{ type?: string, category?: string, path?: string, id?: string, name?: string }} row
  * @returns {boolean}
@@ -141,8 +153,18 @@ function isListedPageRow(row) {
   ) {
     return false;
   }
-  if (token.includes("page") || token.includes("rffhome")) return true;
+  const type = String(row.type || "").trim().toLowerCase();
+  if (ASSET_PREVIEW_TYPE_KEYS.has(type)) {
+    return false;
+  }
+  if (token.includes("page") || token.includes("rffhome") || token.includes("landing_page")) {
+    return true;
+  }
   if (path.includes("/pages/") && Boolean(row.id)) return true;
+  // Customer types keep their own names after upgrade (#3456).
+  if (Boolean(row.id) && path.includes("/sites/") && type.length > 0) {
+    return true;
+  }
   return false;
 }
 

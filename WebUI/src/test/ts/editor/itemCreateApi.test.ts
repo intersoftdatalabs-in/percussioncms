@@ -15,8 +15,47 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
-import { unwrapItemCreateResult } from "../../../main/ts/editor/itemCreateApi";
+import { describe, expect, it, vi, afterEach } from "vitest";
+import {
+  unwrapItemCreateResult,
+  wrapItemCreateRequest,
+  createEditorItem,
+} from "../../../main/ts/editor/itemCreateApi";
+import * as client from "../../../main/ts/api/client";
+
+describe("wrapItemCreateRequest", () => {
+  it("wraps bare fields under ItemCreateRequest for CXF JAXB", () => {
+    expect(
+      wrapItemCreateRequest({
+        contentType: "percImageAsset",
+        folderPath: "/Assets",
+      }),
+    ).toEqual({
+      ItemCreateRequest: {
+        contentType: "percImageAsset",
+        folderPath: "/Assets",
+      },
+    });
+  });
+
+  it("does not double-wrap an already-enveloped payload", () => {
+    expect(
+      wrapItemCreateRequest({
+        ItemCreateRequest: {
+          contentType: "percRawHtml",
+          folderPath: "/Assets",
+          name: "stub",
+        },
+      }),
+    ).toEqual({
+      ItemCreateRequest: {
+        contentType: "percRawHtml",
+        folderPath: "/Assets",
+        name: "stub",
+      },
+    });
+  });
+});
 
 describe("unwrapItemCreateResult", () => {
   it("unwraps Jackson root and PascalCase", () => {
@@ -30,5 +69,39 @@ describe("unwrapItemCreateResult", () => {
       name: "n",
       contentType: "t",
     });
+  });
+});
+
+describe("createEditorItem", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("POSTs the JAXB envelope and unwraps the result", async () => {
+    const post = vi.spyOn(client, "post").mockResolvedValue({
+      ItemCreateResult: {
+        itemId: "42",
+        folderPath: "//Assets",
+        name: "New-percImageAsset",
+        contentType: "percImageAsset",
+      },
+    });
+    await expect(
+      createEditorItem({ contentType: "percImageAsset", folderPath: "/Assets" }),
+    ).resolves.toEqual({
+      itemId: "42",
+      folderPath: "//Assets",
+      name: "New-percImageAsset",
+      contentType: "percImageAsset",
+    });
+    expect(post).toHaveBeenCalledWith(
+      expect.stringContaining("/itemmanagement/item/create"),
+      {
+        ItemCreateRequest: {
+          contentType: "percImageAsset",
+          folderPath: "/Assets",
+        },
+      },
+    );
   });
 });
