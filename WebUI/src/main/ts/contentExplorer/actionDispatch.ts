@@ -814,6 +814,12 @@ async function dispatchSlotAction(
     if (!picked) {
       return { kind: "rest" };
     }
+    if (!picked.contentType.trim() || !picked.folderPath.trim()) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TYPE };
+    }
+    if (picked.snippetTemplateId <= 0) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+    }
     const create = ctx.createItem ?? createEditorItem;
     const created = await create({
       contentType: picked.contentType,

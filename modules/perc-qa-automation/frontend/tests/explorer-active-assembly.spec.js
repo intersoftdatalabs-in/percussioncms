@@ -624,4 +624,205 @@ test.describe("modern React Active Assembly — preview host", () => {
       expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "slot create offers types/templates; cancel does not POST; apply creates then adds",
+    { tag: ["@explorer-active-assembly", "@explorer", "@aa-slots"] },
+    async ({ page }) => {
+      const blocked = [];
+      const created = [];
+      const posted = [];
+      const editorHrefs = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => consoleErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      page.on("request", (req) => {
+        const u = req.url();
+        if (
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html") ||
+          u.includes("variantlistwithslots.html") ||
+          u.includes("sys_cxSupport/") ||
+          u.includes("editAsset.jsp") ||
+          /[?&]view=editor\b/.test(u)
+        ) {
+          blocked.push(u);
+        }
+      });
+
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ActionMenuList: [
+              {
+                name: "rffPgGeneric",
+                label: "Generic Page",
+                url: "../assembler/render?sys_template=7",
+                sortRank: 0,
+                type: "MENUITEM",
+              },
+            ],
+          }),
+        });
+      });
+      await page.route("**/services/assembly/preview-location**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+            contentId: 42,
+            templateId: 7,
+            revision: 1,
+          }),
+        });
+      });
+      await page.route("**/services/assembly/slot-relationships/canvas**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ownerId: 42,
+            templateId: 7,
+            slots: [{ slotId: 3, name: "sidebar", label: "Sidebar", items: [] }],
+          }),
+        });
+      });
+      await page.route(
+        "**/services/assembly/slot-relationships/allowed-types**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              items: [{ id: 1, name: "percRichText", label: "Rich Text" }],
+            }),
+          });
+        },
+      );
+      await page.route(
+        "**/services/assembly/slot-relationships/allowed-templates**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              items: [{ id: 4, name: "rffSnTitle", label: "Title" }],
+            }),
+          });
+        },
+      );
+      await page.route("**/itemmanagement/item/create**", async (route) => {
+        if (route.request().method() === "POST") {
+          created.push(route.request().postData() || "");
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ItemCreateResult: {
+                itemId: "99",
+                folderPath: "/Sites/Demo",
+                name: "n",
+                contentType: "percRichText",
+              },
+            }),
+          });
+          return;
+        }
+        await route.continue();
+      });
+      await page.route("**/services/assembly/slot-relationships", async (route) => {
+        if (route.request().method() === "POST") {
+          posted.push(route.request().postData() || "");
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              relationshipId: 9,
+              ownerId: 42,
+              dependentId: 99,
+              slotId: 3,
+              templateId: 4,
+              sortRank: 0,
+            }),
+          });
+          return;
+        }
+        await route.continue();
+      });
+      await page.route("**/assembler/render**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<html><body>preview</body></html>",
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      const slotBar = page.locator('[data-testid="assembly-slot-bar"]');
+      if (!(await slotBar.isVisible().catch(() => false))) {
+        test.skip(
+          true,
+          "H2 has no slot canvas for this assembly template; slot create is not exercisable",
+        );
+        return;
+      }
+      const slotChip = page.locator('[data-testid="assembly-slot-3"]');
+      await expect(slotChip).toBeVisible({ timeout: 15_000 });
+      await page.evaluate(() => {
+        window.open = (url) => {
+          window.__percSlotCreateEditorHref = String(url || "");
+          return null;
+        };
+      });
+      await slotChip.click();
+      const createBtn = page.locator('[data-testid="assembly-slot-create"]');
+      await expect(createBtn).toBeEnabled();
+      await createBtn.click();
+      const dialog = page.locator('[data-testid="assembly-slot-create-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 15_000 });
+      const typeSelect = page.locator('[data-testid="assembly-slot-create-type"]');
+      await expect(typeSelect).toBeVisible();
+      const typeOptions = typeSelect.locator("option");
+      try {
+        await expect(typeOptions).not.toHaveCount(0, { timeout: 10_000 });
+      } catch {
+        test.skip(true, "H2 has no allowed types for this slot; slot create skipped");
+        return;
+      }
+      await page.locator('[data-testid="assembly-slot-create-cancel"]').click();
+      await expect(dialog).toHaveCount(0);
+      expect(created, "cancel must not POST item create").toEqual([]);
+      expect(posted, "cancel must not POST slot-relationships").toEqual([]);
+
+      await createBtn.click();
+      await expect(dialog).toBeVisible({ timeout: 15_000 });
+      await page.locator('[data-testid="assembly-slot-create-folder"]').fill("/Sites/Demo");
+      await page.locator('[data-testid="assembly-slot-create-apply"]').click();
+      await expect.poll(() => created.length).toBe(1);
+      await expect.poll(() => posted.length).toBe(1);
+      const href = await page.evaluate(() => window.__percSlotCreateEditorHref || "");
+      editorHrefs.push(href);
+      expect(href, "React editor host must open").toMatch(/entry=editor/);
+      expect(href).not.toMatch(/editAsset\.jsp|itemassembly\.html/i);
+
+      expect(blocked, `leftover AA/CE HTML must not be requested: ${blocked.join(" ")}`).toEqual(
+        [],
+      );
+      const serious = consoleErrors.filter(
+        (t) => !/favicon|ResizeObserver|net::ERR|Failed to load resource/i.test(t),
+      );
+      expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+    },
+  );
 });

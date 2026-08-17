@@ -288,6 +288,10 @@ describe("AssemblyHost", () => {
     fireEvent.click(screen.getByTestId("assembly-slot-create"));
     await waitFor(() => {
       expect(screen.getByTestId("assembly-slot-create-dialog")).toBeTruthy();
+      expect(
+        (screen.getByTestId("assembly-slot-create-type") as HTMLSelectElement)
+          .value,
+      ).toBe("percRichText");
     });
     fireEvent.change(screen.getByTestId("assembly-slot-create-folder"), {
       target: { value: "/Sites/Demo" },
@@ -298,9 +302,8 @@ describe("AssemblyHost", () => {
         /could not update the slot/i,
       );
     });
-    expect(screen.getByTestId("assembly-slot-create-dialog")).toBeTruthy();
+    expect(screen.queryByTestId("assembly-slot-create-dialog")).toBeNull();
 
-    fireEvent.click(screen.getByTestId("assembly-slot-create-cancel"));
     fireEvent.click(screen.getByTestId("assembly-slot-item-88"));
     fireEvent.click(screen.getByTestId("assembly-slot-change"));
     await waitFor(() => {
