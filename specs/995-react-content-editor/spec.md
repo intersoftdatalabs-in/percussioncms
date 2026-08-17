@@ -31,7 +31,7 @@ New window (peer of Active Assembly):
 
 ## Later
 
-- AA contenteditable overlay on the assembled preview
+- AA contenteditable overlay for **rich** assembled fields (scalar text overlay is `specs/996-react-active-assembly`, issue #3475)
 
 Rich controls (TinyMCE, file/image upload, keyword, community) and the revision
 **promote** form ship in this editor host. They persist through itemmanagement

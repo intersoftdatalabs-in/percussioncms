@@ -236,6 +236,36 @@ test.describe("modern React Active Assembly — preview host", () => {
           body: "<html><body>preview</body></html>",
         });
       });
+      await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
+      await page.route("**/itemmanagement/item/fields/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            contentId: "42",
+            contentType: "percPage",
+            name: "Home",
+            checkoutUser: "Admin",
+            fields: [{ name: "sys_title", value: "Home" }],
+          }),
+        });
+      });
+      await page.route("**/services/contenttypes/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            name: "percPage",
+            fields: [{ name: "sys_title", label: "Title", control: "sys_EditBox" }],
+          }),
+        });
+      });
 
       await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
       await page.waitForLoadState("networkidle");
@@ -254,6 +284,158 @@ test.describe("modern React Active Assembly — preview host", () => {
       );
       const serious = consoleErrors.filter(
         (t) => !/favicon|ResizeObserver|net::ERR/i.test(t),
+      );
+      expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "overlay edits known assembled text fields through itemmanagement",
+    { tag: ["@explorer-active-assembly", "@explorer", "@aa-overlay"] },
+    async ({ page }) => {
+      const blocked = [];
+      const consoleErrors = [];
+      const puts = [];
+      page.on("pageerror", (err) => consoleErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      page.on("request", (req) => {
+        const u = req.url();
+        if (
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html") ||
+          u.includes("checkoutedit.xml") ||
+          u.includes("contenteditorurls.html") ||
+          u.includes("sys_ceSupport") ||
+          /[?&]view=editor\b/.test(u)
+        ) {
+          blocked.push(u);
+        }
+      });
+
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ActionMenuList: [
+              {
+                name: "rffPgGeneric",
+                label: "Generic Page",
+                url: "../assembler/render?sys_template=7",
+                sortRank: 0,
+                type: "MENUITEM",
+              },
+            ],
+          }),
+        });
+      });
+      await page.route("**/services/assembly/preview-location**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+            contentId: 42,
+            templateId: 7,
+            revision: 1,
+          }),
+        });
+      });
+      await page.route("**/services/assembly/slot-relationships/canvas**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ ownerId: 42, templateId: 7, slots: [] }),
+        });
+      });
+      await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
+      await page.route("**/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          puts.push(route.request().postData() || "");
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            contentId: "42",
+            contentType: "percPage",
+            name: "Home",
+            checkoutUser: "Admin",
+            fields: [
+              { name: "sys_title", value: "Home" },
+              { name: "displaytitle", value: "Welcome" },
+            ],
+          }),
+        });
+      });
+      await page.route("**/services/contenttypes/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            name: "percPage",
+            fields: [
+              { name: "sys_title", label: "Title", control: "sys_EditBox" },
+              {
+                name: "displaytitle",
+                label: "Display title",
+                control: "sys_EditBox",
+              },
+            ],
+          }),
+        });
+      });
+      await page.route("**/assembler/render**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: `<!DOCTYPE html><html><body>
+            <a href="javascript:void(0)"><img class="PsAaObjectImage" alt="Field"/></a>
+            <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"displaytitle",42,"Display",0]'>Welcome</div>
+            <h1 data-perc-field="sys_title">Home</h1>
+          </body></html>`,
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="assembly-field-bar"]')).toBeVisible();
+      await expect(page.locator('[data-testid="assembly-preview-frame"]')).toBeVisible();
+
+      const frame = page.frameLocator('[data-testid="assembly-preview-frame"]');
+      await expect(frame.locator('[data-testid="assembly-inline-field-displaytitle"]')).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(frame.locator("img.PsAaObjectImage")).toHaveCount(0);
+      await frame.locator('[data-testid="assembly-inline-field-displaytitle"]').fill(
+        "Updated from overlay",
+      );
+      await page.locator('[data-testid="assembly-field-save"]').click();
+      await expect(page.locator('[data-testid="assembly-field-notice"]')).toContainText(
+        /saved/i,
+        { timeout: 10_000 },
+      );
+
+      expect(puts.length, "itemmanagement PUT must run").toBeGreaterThan(0);
+      expect(puts.some((body) => body.includes("Updated from overlay"))).toBeTruthy();
+      expect(blocked, `leftover AA/CE HTML must not be requested: ${blocked.join(" ")}`).toEqual(
+        [],
+      );
+      const serious = consoleErrors.filter(
+        (t) => !/favicon|ResizeObserver|net::ERR|404 \(Not Found\)/i.test(t),
       );
       expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
     },

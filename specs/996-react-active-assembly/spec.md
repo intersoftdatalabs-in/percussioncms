@@ -1,6 +1,6 @@
 # Spec: React Active Assembly
 
-**Status**: Preview-first host implemented (Explorer open + assembled iframe). Slot add / create / arrange use relationship REST from the AA canvas. Contenteditable field editing is a later slice.  
+**Status**: Preview-first host implemented (Explorer open + assembled iframe). Slot add / create / arrange use relationship REST from the AA canvas. Scalar contenteditable overlay on known assembled fields persists through itemmanagement (issue #3475).  
 **Split from**: Explorer server actions (`specs/992-react-content-explorer/contracts/action-execution.md`)
 
 ## Why this is separate
@@ -31,11 +31,10 @@ Field editing is **not** invented here. When the Content Editor (`specs/995-reac
 
 ## In scope (later)
 
-- Contenteditable / content-type overlay (depends on 995)
-- Slot Add (Content Browser + relationship REST)
-- Slot Create (types + templates; creating an item still needs the Content Editor spec)
-- Arrange move / change template-slot / remove (relationship REST; relationship id from AA)
+- Contenteditable / content-type overlay for **rich** (HTML) assembled fields
 - Compare (`sys_Compare`) may follow as a small add-on
+
+Scalar text overlay, slot add / create / arrange, and itemmanagement persist are implemented on the preview-first host.
 
 ## Out of scope here
 
