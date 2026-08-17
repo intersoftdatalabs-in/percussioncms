@@ -32,6 +32,22 @@ Assign the minimum role set needed for each job function:
 
 Revisit role membership when Sites or departments reorganize.
 
+### Admin → Roles (membership)
+
+Open **Admin → Roles** (or deep link `spa.jsp?entry=admin&tab=roles`) to create or
+edit a role. The editor uses two lists:
+
+| List | What it shows |
+|------|----------------|
+| **Assigned Users** | Current members of this role (empty until you add someone). |
+| **Available Users** | Every active user who is **not** already a member. |
+
+Use **Add** next to any available user to move them to Assigned Users. You can add
+**more than one** member before you save — the available list keeps the remaining
+users after each Add. **Remove** returns that user to Available Users so you can
+re-assign them. Changes apply only when you **Submit**; **Cancel** discards the
+in-progress membership edits.
+
 ## Workflow
 
 Workflow states gate who can edit and publish. Common patterns:
