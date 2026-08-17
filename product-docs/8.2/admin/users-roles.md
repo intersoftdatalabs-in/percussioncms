@@ -63,6 +63,22 @@ Workflow states gate who can edit and publish. Common patterns:
   documentation for your configured authenticator.
 - Protect the login endpoint behind TLS at the reverse proxy or edge.
 
+## Session community (top nav)
+
+After sign-in, the header user menu shows the **current community** next to **Signed in as**.
+Use **Switch** to change the session community **without signing out**.
+
+- The switch list contains **only** communities you can access through your user and role
+  membership (the same list as **My profile → Account**). It is not the full community catalog
+  from Developer.
+- After a successful switch, the header name updates immediately. Content Explorer and other
+  screens that filter by the active community then use the new community — you do not need to
+  log out and back in.
+- If the switch is not allowed (unknown community or you are not a member of a role in that
+  community), the header shows an error and keeps the previous community.
+- Setting a **default** community on the profile, or remembering the last community at the next
+  login, is not part of this header control.
+
 ## My profile — Security (password)
 
 Authenticated users open **My profile** from the header user menu (or deep link

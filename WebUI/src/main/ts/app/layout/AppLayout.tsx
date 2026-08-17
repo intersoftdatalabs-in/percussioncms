@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
 import { BrandBar, BrandFooter } from "../../ui-themes/components";
+import { SESSION_COMMUNITY_CHANGED_EVENT } from "./sessionCommunity";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";
 
@@ -36,6 +37,18 @@ function isChromeLessPath(pathname: string): boolean {
  */
 export function AppLayout(): React.ReactElement {
   const { pathname } = useLocation();
+  const [sessionCommunityEpoch, setSessionCommunityEpoch] = useState(0);
+
+  useEffect(() => {
+    const onChanged = (): void => {
+      setSessionCommunityEpoch((n) => n + 1);
+    };
+    window.addEventListener(SESSION_COMMUNITY_CHANGED_EVENT, onChanged);
+    return () => {
+      window.removeEventListener(SESSION_COMMUNITY_CHANGED_EVENT, onChanged);
+    };
+  }, []);
+
   if (isChromeLessPath(pathname)) {
     return <Outlet />;
   }
@@ -43,8 +56,14 @@ export function AppLayout(): React.ReactElement {
     <div className={styles.shell} data-testid="perc-spa-app">
       <BrandBar />
       <TopNav />
-      <main className={styles.main} data-testid="perc-spa-outlet">
-        <Outlet />
+      <main
+        className={styles.main}
+        data-testid="perc-spa-outlet"
+        data-session-community-epoch={sessionCommunityEpoch}
+      >
+        <div key={sessionCommunityEpoch} className={styles.mainInner}>
+          <Outlet />
+        </div>
       </main>
       <BrandFooter />
     </div>

@@ -302,10 +302,10 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
 
       IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
       List<PSCommunity> comms = roleMgr.findCommunitiesByName(name);
-      if (comms.isEmpty() || comms.size() > 1)
+      // LIKE %name% treats "_" as a wildcard — prefer exact name (#3506).
+      PSCommunity comm = PSCommunityNameSelector.select(comms, name);
+      if (comm == null)
          throw new IllegalArgumentException("Invalid community name");
-
-      PSCommunity comm = comms.get(0);
       String commid = String.valueOf(comm.getId());
 
       PSRequest psReq = (PSRequest) PSRequestInfo
