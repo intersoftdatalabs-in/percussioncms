@@ -111,15 +111,54 @@ export function clampSiteDescription(raw: string): string {
 }
 
 /**
+ * Site kinds shown on the Create Site type picker (#3522 / parent #3512).
+ * Slice 1 ships Traditional only; Page and Virtual stay blocked until
+ * later slices.
+ */
+export type SiteCreateKind = "traditional" | "page" | "virtual";
+
+export const SITE_CREATE_KINDS: readonly SiteCreateKind[] = [
+  "traditional",
+  "page",
+  "virtual",
+];
+
+/**
+ * True when the chosen kind may leave the type-picker step. Slice 1:
+ * Traditional only.
+ */
+export function isSiteCreateKindEnabled(kind: SiteCreateKind): boolean {
+  return kind === "traditional";
+}
+
+/**
  * True when the create form has enough fields to submit (client-side only).
+ *
+ * <p>Traditional (#3522) does not prompt for template/base — those values
+ * are generated. When {@code siteType} is Traditional (default) and
+ * template/base are omitted, only the site name is required. Page and
+ * Virtual cannot submit from this slice.</p>
  */
 export function canSubmitCreateSite(fields: {
   siteName: string;
-  templateName: string;
-  baseTemplateName: string;
+  templateName?: string;
+  baseTemplateName?: string;
+  siteType?: SiteCreateKind;
 }): boolean {
+  const kind = fields.siteType ?? "traditional";
+  if (!isSiteCreateKindEnabled(kind)) {
+    return false;
+  }
   const site = validateSiteName(fields.siteName);
-  const tmpl = validateTemplateName(fields.templateName);
+  if (!site.ok) {
+    return false;
+  }
+  const hasTemplateFields =
+    fields.templateName != null || fields.baseTemplateName != null;
+  if (!hasTemplateFields) {
+    return true;
+  }
+  const tmpl = validateTemplateName(fields.templateName ?? "");
   const base = (fields.baseTemplateName ?? "").trim();
-  return site.ok && tmpl.ok && base.length > 0;
+  return tmpl.ok && base.length > 0;
 }

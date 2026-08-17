@@ -33,16 +33,16 @@ After a standard install with **sample sites** (installer **Install sample sites
 
 ### Create a traditional Site from Explorer
 
-Use **Content Explorer** when you need a new traditional (repository) Site without leaving the product shell:
+Use **Content Explorer** when you need a new traditional (repository) Site without leaving the product shell. The same wizard opens from **Navigation → New Site**.
 
 1. Open **Content Explorer**.
 2. Choose **Content → Create Site**.
-3. On **Details**, enter a unique **Site name**, optional description, and the site **template name** (defaults from the site name). Traditional sites include **Include managed navigation** (checked by default). Leave it checked to create a NavTree and homepage. Uncheck it to create the site folder only — no NavTree and no homepage. You can add navigation later from Explorer. Virtual Sites do not use this option (`virtual.sourceKind` is their discriminator).
-4. On **Base template**, pick a base template from the catalog (or accept the default when the catalog is empty).
-5. On **Confirm**, review the summary (repository kind is **Traditional** — this flow does not create Virtual Sites) and whether managed navigation is **Yes** or **No**.
+3. On **Site type**, choose **Traditional**, **Page**, or **Virtual**. **Traditional** is selected by default. **Page** and **Virtual** are listed so you can see the kinds, but they are not available yet — **Next** stays on this step with a message until those kinds ship. Choosing **Page** or **Virtual** does **not** create a Traditional site.
+4. On **Site details**, enter a unique **Site name** and optional description. Traditional sites include **Include managed navigation** (checked by default). Leave it checked to create a NavTree and homepage. Uncheck it to create the site folder only — no NavTree and no homepage. You can add navigation later from Explorer. Traditional create does **not** ask for a page template or a base template.
+5. On **Confirm**, review the summary (site type is **Traditional**) and whether managed navigation is **Yes** or **No**.
 6. Choose **Create** and wait for progress to complete. Explorer opens the new site under `/Sites/<name>`. With **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation. If the folder already has a NavTree or Navon, Create Site returns HTTP 400 with a clear error (not HTTP 500).
 
-Virtual Site source settings (Git/filesystem) are configured later on the Site properties / Developer Sites surface — not in this Create Site wizard. See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
+**Page** site create (managed navigation required plus a page template) and **Virtual** site create (no navigation option, no page template) are later steps. Virtual Site source settings (Git/filesystem) are configured on the Site properties / Developer Sites surface — not in this Traditional path. See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
 
 ## Virtual Sites (8.2)
 

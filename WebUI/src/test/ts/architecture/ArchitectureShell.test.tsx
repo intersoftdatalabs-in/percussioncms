@@ -737,7 +737,11 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(screen.getByTestId("architecture-new-site-title").textContent).toMatch(
       /New Site/i,
     );
-    expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+    expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
+    expect(
+      (screen.getByTestId("site-create-type-traditional") as HTMLInputElement)
+        .checked,
+    ).toBe(true);
     expect(screen.getByTestId("architecture-new-site-panel").getAttribute("role")).toBe(
       "dialog",
     );
@@ -773,16 +777,17 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
     fireEvent.click(screen.getByTestId("architecture-action-new-site"));
     await waitFor(() => {
+      expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    await waitFor(() => {
       expect(screen.getByTestId("site-create-name")).toBeTruthy();
     });
     fireEvent.change(screen.getByTestId("site-create-name"), {
       target: { value: "Acme" },
     });
     fireEvent.click(screen.getByTestId("site-create-next"));
-    await waitFor(() => {
-      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("site-create-next"));
+    expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
     fireEvent.click(screen.getByTestId("site-create-next"));
     fetchSites.mockRejectedValue(new Error("catalog down"));
     fireEvent.click(screen.getByTestId("site-create-run"));

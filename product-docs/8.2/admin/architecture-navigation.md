@@ -39,9 +39,15 @@ dispatcher applies that preference and opens the Navigation SPA — not Home.
 3. The **Navigation tree** panel loads the site’s sections (navons) from the server.
 4. Expand and collapse nodes with the mouse or keyboard (Enter/Space, Arrow Left/Right).
 5. Use **Refresh** to reload the tree after external changes.
-6. Use **New Site** (Admin or Designer) to open the same traditional-site wizard
-   used in Content Explorer. After a successful create, the new site is selected
-   in this shell.
+6. Use **New Site** (Admin or Designer) to open the same Create Site wizard
+   used in Content Explorer. The first step is **Site type**
+   (**Traditional** / **Page** / **Virtual**; **Traditional** is the default).
+   Traditional create continues to site name, optional **Include managed
+   navigation**, and confirm — it does **not** prompt for a page or base
+   template. **Page** and **Virtual** stay on the type step with a message
+   until those kinds ship (they do not silently create a Traditional site).
+   After a successful Traditional create, the new site is selected in this
+   shell.
 7. Use **Copy Site** (Admin or Designer) with a site selected to open the
    existing site-copy wizard (same sitemanage copy service as Explorer). The
    source is prefilled from the current site. A copy already in progress blocks
@@ -232,7 +238,7 @@ Home / the Blogs gadget — Navigation will not grow a second blog editor.
 | SPA route + top-nav entry under product chrome | **Available** |
 | Role gate (Admin / Designer) | **Available** |
 | Site picker | **Available** |
-| New Site (Explorer create-site wizard) | **Available** |
+| New Site (type picker + Traditional path) | **Available** (Page / Virtual kinds listed, not yet creatable) |
 | Copy Site (existing sitemanage copy wizard) | **Available** |
 | Delete Site (confirm + picker refresh) | **Available** |
 | Site navigation tree browse (navons / sections) | **Available** |

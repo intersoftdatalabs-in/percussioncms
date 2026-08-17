@@ -15,59 +15,107 @@ import type { CreateSiteRequest } from "../../../main/ts/api/contentExplorer/sit
 import { SiteCreateWizard } from "../../../main/ts/contentExplorer/wizards/SiteCreateWizard";
 import { renderA11yGate } from "./a11y";
 
-const baseTemplates = [
-  { name: "perc.base.plain", id: "1", label: "Plain" },
-  { name: "perc.base.other", id: "2", label: "Other" },
-];
-
 function renderWizard(
   overrides: Partial<ComponentProps<typeof SiteCreateWizard>> = {},
 ) {
-  return render(
-    <SiteCreateWizard
-      loadBaseTemplates={async () => baseTemplates}
-      {...overrides}
-    />,
-  );
+  return render(<SiteCreateWizard {...overrides} />);
 }
 
-describe("SiteCreateWizard (#3002)", () => {
-  it("renders the 4-step wizard at details", async () => {
+function chooseTraditionalAndOpenDetails(siteName = "Acme"): void {
+  expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
+  expect(
+    (screen.getByTestId("site-create-type-traditional") as HTMLInputElement)
+      .checked,
+  ).toBe(true);
+  fireEvent.click(screen.getByTestId("site-create-next"));
+  expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+  fireEvent.change(screen.getByTestId("site-create-name"), {
+    target: { value: siteName },
+  });
+}
+
+describe("SiteCreateWizard (#3522 / #3002)", () => {
+  it("renders the type picker first with Traditional selected", () => {
     renderWizard();
     expect(screen.getByTestId("site-create-wizard")).toBeTruthy();
-    expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+    expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
+    expect(screen.getByTestId("site-create-type-traditional")).toBeTruthy();
+    expect(screen.getByTestId("site-create-type-page")).toBeTruthy();
+    expect(screen.getByTestId("site-create-type-virtual")).toBeTruthy();
+    expect(
+      (screen.getByTestId("site-create-type-traditional") as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(screen.getByTestId("site-create-traditional-note")).toBeTruthy();
     expect(screen.getByTestId("site-create-step-count").textContent).toMatch(
       /Step 1.*of 4/,
     );
-    expect(screen.getByTestId("site-create-traditional-note")).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.queryByTestId("site-create-templates-loading")).toBeNull();
-    });
+    expect(screen.queryByTestId("site-create-step-details")).toBeNull();
+    expect(screen.queryByTestId("site-create-template-name")).toBeNull();
   });
 
-  it("Next is disabled until site name and template name are valid", async () => {
+  it("blocks Next on Page and Virtual with a clear message", () => {
     renderWizard();
-    await waitFor(() => {
-      expect(screen.queryByTestId("site-create-templates-loading")).toBeNull();
-    });
+    const next = screen.getByTestId("site-create-next") as HTMLButtonElement;
+    expect(next.disabled).toBe(false);
+
+    fireEvent.click(screen.getByTestId("site-create-type-page"));
+    expect(
+      (screen.getByTestId("site-create-type-page") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.getByTestId("site-create-type-unavailable")).toBeTruthy();
+    expect(next.disabled).toBe(true);
+    fireEvent.click(next);
+    expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
+    expect(screen.queryByTestId("site-create-step-details")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("site-create-type-virtual"));
+    expect(
+      (screen.getByTestId("site-create-type-virtual") as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(screen.getByTestId("site-create-type-unavailable")).toBeTruthy();
+    expect(next.disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("site-create-type-traditional"));
+    expect(next.disabled).toBe(false);
+    expect(screen.queryByTestId("site-create-type-unavailable")).toBeNull();
+  });
+
+  it("Traditional skips template-name and base-template steps", () => {
+    renderWizard();
+    chooseTraditionalAndOpenDetails("Acme");
+    expect(screen.queryByTestId("site-create-template-name")).toBeNull();
+    expect(screen.queryByTestId("site-create-base-template")).toBeNull();
+
+    const next = screen.getByTestId("site-create-next") as HTMLButtonElement;
+    expect(next.disabled).toBe(false);
+    fireEvent.click(next);
+    expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
+    expect(screen.getByTestId("site-create-confirm-type").textContent).toMatch(
+      /Traditional/i,
+    );
+    expect(screen.getByTestId("site-create-confirm-summary").textContent).toContain(
+      "Acme",
+    );
+    expect(screen.queryByTestId("site-create-template-name")).toBeNull();
+    expect(screen.queryByTestId("site-create-base-template")).toBeNull();
+  });
+
+  it("Next on details is disabled until site name is valid", () => {
+    renderWizard();
+    fireEvent.click(screen.getByTestId("site-create-next"));
     const next = screen.getByTestId("site-create-next") as HTMLButtonElement;
     expect(next.disabled).toBe(true);
     fireEvent.change(screen.getByTestId("site-create-name"), {
       target: { value: "Acme" },
     });
-    // Template name auto-seeds from site name.
-    expect(
-      (screen.getByTestId("site-create-template-name") as HTMLInputElement)
-        .value,
-    ).toBe("AcmeTemplate");
     expect(next.disabled).toBe(false);
   });
 
-  it("filters invalid site name characters on input", async () => {
+  it("filters invalid site name characters on input", () => {
     renderWizard();
-    await waitFor(() => {
-      expect(screen.queryByTestId("site-create-templates-loading")).toBeNull();
-    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.change(screen.getByTestId("site-create-name"), {
       target: { value: "Bad Name!" },
     });
@@ -76,42 +124,16 @@ describe("SiteCreateWizard (#3002)", () => {
     ).toBe("BadName");
   });
 
-  it("advances through template and confirm steps", async () => {
-    renderWizard();
-    fireEvent.change(screen.getByTestId("site-create-name"), {
-      target: { value: "Acme" },
-    });
-    fireEvent.click(screen.getByTestId("site-create-next"));
-    expect(screen.getByTestId("site-create-step-template")).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
-    fireEvent.click(screen.getByTestId("site-create-next"));
-    expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
-    expect(screen.getByTestId("site-create-confirm-summary").textContent).toContain(
-      "Acme",
-    );
-    expect(
-      screen.getByTestId("site-create-confirm-managed-nav").textContent,
-    ).toMatch(/Yes/i);
-  });
-
   it("can opt out of managed navigation on a traditional site", async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Bare" });
     renderWizard({ submit });
-    fireEvent.change(screen.getByTestId("site-create-name"), {
-      target: { value: "Bare" },
-    });
+    chooseTraditionalAndOpenDetails("Bare");
     const checkbox = screen.getByTestId(
       "site-create-managed-nav",
     ) as HTMLInputElement;
     expect(checkbox.checked).toBe(true);
     fireEvent.click(checkbox);
     expect(checkbox.checked).toBe(false);
-    fireEvent.click(screen.getByTestId("site-create-next"));
-    await waitFor(() => {
-      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
     fireEvent.click(screen.getByTestId("site-create-next"));
     expect(
       screen.getByTestId("site-create-confirm-managed-nav").textContent,
@@ -123,19 +145,15 @@ describe("SiteCreateWizard (#3002)", () => {
     });
     const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
     expect(req.managedNavigation).toBe(false);
+    expect(req.baseTemplateName).toBe("perc.base.plain");
+    expect(req.templateName).toBe("BareTemplate");
   });
 
   it("Run invokes submit and fires onCreated with /Sites path", async () => {
     const submit = vi.fn().mockResolvedValue({ name: "Acme", id: "9" });
     const onCreated = vi.fn();
     renderWizard({ submit, onCreated });
-    fireEvent.change(screen.getByTestId("site-create-name"), {
-      target: { value: "Acme" },
-    });
-    fireEvent.click(screen.getByTestId("site-create-next"));
-    await waitFor(() => {
-      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
+    chooseTraditionalAndOpenDetails("Acme");
     fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.click(screen.getByTestId("site-create-next"));
     expect(screen.getByTestId("site-create-step-progress")).toBeTruthy();
@@ -162,13 +180,7 @@ describe("SiteCreateWizard (#3002)", () => {
   it("Run surfaces submit errors", async () => {
     const submit = vi.fn().mockRejectedValue(new Error("duplicate site"));
     renderWizard({ submit });
-    fireEvent.change(screen.getByTestId("site-create-name"), {
-      target: { value: "Acme" },
-    });
-    fireEvent.click(screen.getByTestId("site-create-next"));
-    await waitFor(() => {
-      expect(screen.getByTestId("site-create-base-template")).toBeTruthy();
-    });
+    chooseTraditionalAndOpenDetails("Acme");
     fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.click(screen.getByTestId("site-create-next"));
     fireEvent.click(screen.getByTestId("site-create-run"));
@@ -180,11 +192,8 @@ describe("SiteCreateWizard (#3002)", () => {
     );
   });
 
-  it("passes the zero serious/critical axe-core gate (step 0)", async () => {
+  it("passes the zero serious/critical axe-core gate (type step)", async () => {
     const { container } = renderWizard();
-    await waitFor(() => {
-      expect(screen.queryByTestId("site-create-templates-loading")).toBeNull();
-    });
     await renderA11yGate(container);
   });
 });

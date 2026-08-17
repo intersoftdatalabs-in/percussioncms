@@ -15,6 +15,7 @@ import {
   defaultTemplateNameForSite,
   filterSiteNameInput,
   filterTemplateNameInput,
+  isSiteCreateKindEnabled,
   SITE_DESCRIPTION_MAX_LENGTH,
   SITE_NAME_MAX_LENGTH,
   validateSiteName,
@@ -63,7 +64,8 @@ describe("siteCreateValidation (#3002)", () => {
     expect(clampSiteDescription(long).length).toBe(SITE_DESCRIPTION_MAX_LENGTH);
   });
 
-  it("canSubmitCreateSite requires site, template, and base template", () => {
+  it("canSubmitCreateSite requires site name; template/base optional for Traditional", () => {
+    expect(canSubmitCreateSite({ siteName: "A" })).toBe(true);
     expect(
       canSubmitCreateSite({
         siteName: "A",
@@ -85,5 +87,17 @@ describe("siteCreateValidation (#3002)", () => {
         baseTemplateName: "  ",
       }),
     ).toBe(false);
+    expect(canSubmitCreateSite({ siteName: "A", siteType: "page" })).toBe(
+      false,
+    );
+    expect(canSubmitCreateSite({ siteName: "A", siteType: "virtual" })).toBe(
+      false,
+    );
+  });
+
+  it("isSiteCreateKindEnabled is Traditional-only in slice 1", () => {
+    expect(isSiteCreateKindEnabled("traditional")).toBe(true);
+    expect(isSiteCreateKindEnabled("page")).toBe(false);
+    expect(isSiteCreateKindEnabled("virtual")).toBe(false);
   });
 });
