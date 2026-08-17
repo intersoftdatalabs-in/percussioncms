@@ -40,7 +40,8 @@ function assemblySpaUrl(baseUrl, query = "") {
 
 test.describe("modern React Active Assembly — preview host", () => {
   test.beforeEach(async ({ page }) => {
-    test.setTimeout(45_000);
+    // Login + assembly slot chrome; 60s leaves room after login surface wait.
+    test.setTimeout(60_000);
     await loginAsAdmin(page);
   });
 
