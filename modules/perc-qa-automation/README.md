@@ -1125,6 +1125,13 @@ await loginAsEditor(page);
 await loginAsContributor(page);
 ```
 
+`login` / `fillLoginForm` wait for a **visible** `perc-login-form` (or legacy
+`j_username`). A hidden `perc-login-root` mount is not the login UI — if
+`/Rhythmyx/login` already left `/login` or `perc-spa-app` / `assembly-host` is
+visible, fill is skipped (already authenticated). Pure classifier:
+`frontend/tests/helpers/login-surface.js` (`npm run test:unit` includes
+`login-surface.test.js`).
+
 ## Example Test
 
 ```javascript

@@ -198,3 +198,44 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+.fieldBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 6px 12px;
+  border-bottom: 1px solid #334155;
+  background: #0b1220;
+  font-size: 12px;
+}
+
+.fieldList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.fieldChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 2px 8px;
+  background: #1e293b;
+}
+
+.fieldEdit {
+  min-width: 8rem;
+  padding: 2px 6px;
+  border: 1px dashed #64748b;
+  border-radius: 3px;
+  outline: none;
+  color: #f8fafc;
+}
+
+.fieldEdit:focus {
+  border-color: #93c5fd;
+}

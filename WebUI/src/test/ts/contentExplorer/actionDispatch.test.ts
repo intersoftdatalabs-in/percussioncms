@@ -712,6 +712,20 @@ describe("actionDispatch", () => {
     expect(addToSlot).not.toHaveBeenCalled();
   });
 
+  it("slot add picker cancel does not POST", async () => {
+    const addToSlot = vi.fn();
+    const result = await dispatchAction(action({ name: "Slot_Add" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3 },
+      addToSlot,
+      pickSlotDependent: async () => null,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
+    expect(addToSlot).not.toHaveBeenCalled();
+  });
+
   it("slot add uses Content Browser pick + relationship REST", async () => {
     const addToSlot = vi.fn().mockResolvedValue({
       relationshipId: 9,

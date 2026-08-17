@@ -25,6 +25,7 @@ import {
 } from "../../../main/ts/assembly/AssemblyHost";
 import { AppRoutes } from "../../../main/ts/app/routes";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
+import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 
 function renderHost(
   search: string,
@@ -312,5 +313,128 @@ describe("AssemblyHost", () => {
       );
     });
     expect(screen.getByTestId("assembly-slot-change-dialog")).toBeTruthy();
+  });
+
+  const pageFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "sys_title", value: "Home" },
+      { name: "displaytitle", value: "Welcome" },
+    ],
+  };
+
+  it("edits known scalar fields on the assembled preview and saves via itemmanagement", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <a href="javascript:void(0)"><img class="PsAaObjectImage" src="field.gif" /></a>
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"displaytitle",42,"Display",0]'>Welcome</div>
+    `;
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffPgGeneric",
+        label: "Generic Page",
+        url: "../assembler/render?sys_template=7",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      } satisfies MenuAction,
+    ]);
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(pageFields);
+    const saveFields = vi.fn().mockResolvedValue({
+      ...pageFields,
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "displaytitle", value: "Updated inline" },
+      ],
+    });
+    const loadType = vi.fn().mockResolvedValue({
+      fields: [
+        { name: "sys_title", label: "Title", control: "sys_EditBox" },
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      ],
+    });
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview,
+      loadTemplates,
+      checkout,
+      loadFields,
+      saveFields,
+      loadType,
+      getPreviewDocument: () => previewDoc,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-chip-displaytitle")).toBeTruthy();
+    });
+    expect(checkout).toHaveBeenCalledWith("42");
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    expect(previewDoc.querySelector("img.PsAaObjectImage")).toBeNull();
+    const inline = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    inline.textContent = "Updated inline";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(
+      "Updated inline",
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /saved/i,
+    );
+  });
+
+  it("falls back to the overlay field strip when the assembled page has no markers", async () => {
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const loadTemplates = vi.fn().mockResolvedValue([
+      {
+        name: "rffPgGeneric",
+        label: "Generic Page",
+        url: "../assembler/render?sys_template=7",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      } satisfies MenuAction,
+    ]);
+    const saveFields = vi.fn().mockResolvedValue(pageFields);
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview,
+      loadTemplates,
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields: vi.fn().mockResolvedValue(pageFields),
+      saveFields,
+      loadType: vi.fn().mockResolvedValue({
+        fields: [{ name: "sys_title", label: "Title", control: "sys_EditBox" }],
+      }),
+      getPreviewDocument: () => document.implementation.createHTMLDocument("empty"),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-sys_title")).toBeTruthy();
+    });
+    screen.getByTestId("assembly-overlay-field-sys_title").textContent = "Renamed";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "sys_title")?.value).toBe("Renamed");
   });
 });
