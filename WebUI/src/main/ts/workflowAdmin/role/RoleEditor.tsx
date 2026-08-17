@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { post } from "../../api/client";
+import React, { useEffect, useMemo, useState } from "react";
+import { formatApiError, get, post } from "../../api/client";
+import { parseUserNameList } from "../../api/jsonList";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
 import { Role } from "./RolesSection";
+import { availableUsersMinusAssigned } from "./roleUsers";
 
 interface RoleEditorProps {
   role: Role | null; // null if creating
@@ -35,47 +37,55 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
   const [name, setName] = useState<string>(role?.name || "");
   const [description, setDescription] = useState<string>(role?.description || "");
   const [assignedUsers, setAssignedUsers] = useState<string[]>(role?.users || []);
-  const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+  const [allUsers, setAllUsers] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchAvailableUsers = async () => {
+    let cancelled = false;
+    const loadAllUsers = async () => {
       try {
-        const payload = {
-          Role: {
-            name: role?.name || name || "TempRole",
-            description,
-            users: assignedUsers,
-          },
-        };
-        const res = await post<{ UserList: { users: string[] } }>(
-          PATHS.ROLE_AVAILABLE_USERS,
-          payload
-        );
-        setAvailableUsers(res?.UserList?.users || []);
-      } catch {
-        setAvailableUsers([]);
+        const res = await get<unknown>(PATHS.USERS);
+        if (!cancelled) {
+          setAllUsers(parseUserNameList(res));
+        }
+      } catch (err: unknown) {
+        if (!cancelled) {
+          setAllUsers([]);
+          setError(formatApiError(err, message(WF_ADMIN_MSG.ERROR_GENERIC)));
+        }
       }
     };
-    fetchAvailableUsers();
-  }, [role, assignedUsers]);
+    void loadAllUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const availableUsers = useMemo(
+    () => availableUsersMinusAssigned(allUsers, assignedUsers),
+    [allUsers, assignedUsers],
+  );
 
   const handleAddUser = (user: string) => {
     setError(null);
-    setAssignedUsers((prev) => [...prev, user].sort());
+    setAssignedUsers((prev) =>
+      prev.includes(user) ? prev : [...prev, user].sort(),
+    );
   };
 
   const handleRemoveUser = async (user: string) => {
     setError(null);
-    // Validate remove users if updating
+    // Validate remove users if updating a persisted role
     if (role) {
       try {
         await post(PATHS.ROLE_REMOVE_USERS_VALIDATE, {
           UserList: { users: [user] },
         });
-      } catch (err: any) {
-        setError(err?.message || "Cannot remove user from this role.");
+      } catch (err: unknown) {
+        setError(
+          formatApiError(err, "Cannot remove user from this role."),
+        );
         return;
       }
     }
@@ -108,8 +118,8 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
         await post(PATHS.ROLE_CREATE, payload);
       }
       onSave();
-    } catch (err: any) {
-      setError(err?.message || message(WF_ADMIN_MSG.ERROR_GENERIC));
+    } catch (err: unknown) {
+      setError(formatApiError(err, message(WF_ADMIN_MSG.ERROR_GENERIC)));
     } finally {
       setIsSaving(false);
     }
@@ -120,7 +130,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h3>{role ? message(WF_ADMIN_MSG.EDIT_ROLE) : message(WF_ADMIN_MSG.CREATE_ROLE)}</h3>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button type="button" onClick={onCancel} disabled={isSaving}>
+          <button type="button" onClick={onCancel} disabled={isSaving} data-testid="cancel-role-button">
             {message(WF_ADMIN_MSG.CANCEL)}
           </button>
           <button type="submit" className="perc-button-primary" disabled={isSaving} data-testid="save-role-button">
@@ -131,6 +141,8 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
 
       {error && (
         <div
+          role="alert"
+          data-testid="role-editor-error"
           style={{
             color: "#d9534f",
             marginBottom: "16px",
@@ -174,7 +186,10 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
         {/* Assigned Users list */}
         <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", background: "#fff", overflow: "hidden" }}>
-          <div style={{ background: "#f8fafc", padding: "10px 16px", borderBottom: "1px solid #e2e8f0", fontWeight: 600 }}>
+          <div
+            data-testid="assigned-users-heading"
+            style={{ background: "#f8fafc", padding: "10px 16px", borderBottom: "1px solid #e2e8f0", fontWeight: 600 }}
+          >
             {message(WF_ADMIN_MSG.ROLE_MEMBERS)} ({assignedUsers.length})
           </div>
           <ul style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: "300px", overflowY: "auto" }} data-testid="assigned-users-list">
@@ -184,6 +199,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
               assignedUsers.map((user) => (
                 <li
                   key={user}
+                  data-testid={`assigned-user-row-${user}`}
                   style={{
                     padding: "10px 16px",
                     borderBottom: "1px solid #f1f5f9",
@@ -215,7 +231,10 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
 
         {/* Available Users list */}
         <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", background: "#fff", overflow: "hidden" }}>
-          <div style={{ background: "#f8fafc", padding: "10px 16px", borderBottom: "1px solid #e2e8f0", fontWeight: 600 }}>
+          <div
+            data-testid="available-users-heading"
+            style={{ background: "#f8fafc", padding: "10px 16px", borderBottom: "1px solid #e2e8f0", fontWeight: 600 }}
+          >
             {message(WF_ADMIN_MSG.AVAILABLE_USERS)} ({availableUsers.length})
           </div>
           <ul style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: "300px", overflowY: "auto" }} data-testid="available-users-list">
@@ -225,6 +244,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
               availableUsers.map((user) => (
                 <li
                   key={user}
+                  data-testid={`available-user-row-${user}`}
                   style={{
                     padding: "10px 16px",
                     borderBottom: "1px solid #f1f5f9",

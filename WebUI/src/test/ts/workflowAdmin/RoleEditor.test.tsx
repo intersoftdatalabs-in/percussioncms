@@ -1,0 +1,137 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { RoleEditor } from "../../../main/ts/workflowAdmin/role/RoleEditor";
+import * as client from "../../../main/ts/api/client";
+
+vi.mock("../../../main/ts/api/client", () => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+  formatApiError: (err: unknown, fallback: string) =>
+    err && typeof err === "object" && "message" in err
+      ? String((err as { message: string }).message)
+      : fallback,
+}));
+
+const ALL_USERS = ["Admin", "Contributor", "Editor"];
+
+function mockUsersGet(): void {
+  vi.mocked(client.get).mockImplementation(async (url: string) => {
+    if (url.includes("/user/user/users")) {
+      return { UserList: { users: ALL_USERS } };
+    }
+    return {};
+  });
+}
+
+describe("RoleEditor membership dual-list (#3504)", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mockUsersGet();
+    vi.mocked(client.post).mockResolvedValue({});
+  });
+
+  it("loads available users from GET all-users, not availableUsers POST", async () => {
+    render(<RoleEditor role={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("add-user-Admin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("add-user-Editor")).toBeTruthy();
+    expect(screen.getByTestId("add-user-Contributor")).toBeTruthy();
+    expect(screen.getByTestId("available-users-heading").textContent).toContain(
+      "(3)",
+    );
+
+    expect(client.get).toHaveBeenCalled();
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("keeps remaining users available after adding the first member", async () => {
+    render(<RoleEditor role={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("add-user-Admin")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("add-user-Admin"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("assigned-user-row-Admin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("add-user-Editor")).toBeTruthy();
+    expect(screen.getByTestId("add-user-Contributor")).toBeTruthy();
+    expect(screen.queryByTestId("add-user-Admin")).toBeNull();
+    expect(screen.getByTestId("available-users-heading").textContent).toContain(
+      "(2)",
+    );
+    expect(screen.getByTestId("assigned-users-heading").textContent).toContain(
+      "(1)",
+    );
+
+    fireEvent.click(screen.getByTestId("add-user-Editor"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("assigned-user-row-Editor")).toBeTruthy();
+    });
+    expect(screen.getByTestId("add-user-Contributor")).toBeTruthy();
+    expect(screen.getByTestId("available-users-heading").textContent).toContain(
+      "(1)",
+    );
+    expect(screen.getByTestId("assigned-users-heading").textContent).toContain(
+      "(2)",
+    );
+
+    expect(
+      vi.mocked(client.post).mock.calls.some((call) =>
+        String(call[0]).includes("availableUsers"),
+      ),
+    ).toBe(false);
+  });
+
+  it("returns a removed user to Available Users", async () => {
+    render(
+      <RoleEditor
+        role={{ name: "Authors", description: "", users: [] }}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("add-user-Contributor")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("add-user-Contributor"));
+    await waitFor(() => {
+      expect(screen.getByTestId("remove-user-Contributor")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("remove-user-Contributor"));
+    await waitFor(() => {
+      expect(screen.getByTestId("add-user-Contributor")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assigned-user-row-Contributor")).toBeNull();
+    expect(screen.getByTestId("available-users-heading").textContent).toContain(
+      "(3)",
+    );
+  });
+});
