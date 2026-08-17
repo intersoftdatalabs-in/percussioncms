@@ -18,10 +18,12 @@
 /**
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
- * use relationship REST (no Data Flow HTML).
+ * use relationship REST (no Data Flow HTML). Scalar field edits use
+ * contenteditable on known assembled nodes and persist through
+ * itemmanagement — not leftover Content Editor HTML.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import {
   findAllowedTemplateMenus,
@@ -43,6 +45,8 @@ import {
   type SlotCanvas,
 } from "../api/contentExplorer/slotRelationshipApi";
 import type { MenuAction, SelectionResult } from "../api/contentExplorer/types";
+import { getContentTypeDetail } from "../api/developer/contentTypesApi";
+import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import {
   dispatchAction,
@@ -50,11 +54,24 @@ import {
 } from "../contentExplorer/actionDispatch";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { createEditorItem } from "../editor/itemCreateApi";
+import {
+  checkoutEditorItem,
+  fetchItemEditorFields,
+  saveItemEditorFields,
+  type ItemEditorFields,
+} from "../editor/itemFieldsApi";
 import { EXPLORER_MSG } from "../contentExplorer/messages";
 import { message } from "../i18n/message";
 import { parsePositiveInt, withCmsContextPrefix } from "./assemblyHostUrl";
 import styles from "./AssemblyHost.module.css";
 import { ASSEMBLY_MSG } from "./messages";
+import {
+  applyFieldOverlay,
+  persistOverlayEdits,
+  readOverlayEdits,
+  scalarOverlayFields,
+  type OverlayField,
+} from "./overlayFields";
 import type { AssemblySlotContext } from "./slotContext";
 
 export interface AssemblyTemplateOption {
@@ -76,6 +93,14 @@ export interface AssemblyHostProps {
   loadAllowedTypes?: typeof fetchSlotAllowedTypes;
   loadAllowedTemplates?: typeof fetchSlotAllowedTemplates;
   createItem?: typeof createEditorItem;
+  loadFields?: (itemId: string) => Promise<ItemEditorFields>;
+  saveFields?: (
+    itemId: string,
+    payload: ItemEditorFields,
+  ) => Promise<ItemEditorFields>;
+  checkout?: (itemId: string) => Promise<void>;
+  loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
+  getPreviewDocument?: (frame: HTMLIFrameElement | null) => Document | null;
 }
 
 export function templateOptionsFromMenus(
@@ -134,6 +159,19 @@ function resolveAssemblerHref(previewUrl: string): string | null {
   return href;
 }
 
+export function previewDocumentFromFrame(
+  frame: HTMLIFrameElement | null,
+): Document | null {
+  if (frame == null) {
+    return null;
+  }
+  try {
+    return frame.contentDocument ?? frame.contentWindow?.document ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function AssemblyHost({
   fetchPreview = fetchPreviewLocation,
   loadTemplates = loadAssemblyTemplates,
@@ -145,6 +183,11 @@ export function AssemblyHost({
   loadAllowedTypes = fetchSlotAllowedTypes,
   loadAllowedTemplates = fetchSlotAllowedTemplates,
   createItem = createEditorItem,
+  loadFields = fetchItemEditorFields,
+  saveFields = saveItemEditorFields,
+  checkout = checkoutEditorItem,
+  loadType = getContentTypeDetail,
+  getPreviewDocument = previewDocumentFromFrame,
 }: AssemblyHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -170,6 +213,12 @@ export function AssemblyHost({
   const [pickedTemplate, setPickedTemplate] = useState("");
   const [pickedSlot, setPickedSlot] = useState("");
   const [pickedFolder, setPickedFolder] = useState("");
+  const [fieldPayload, setFieldPayload] = useState<ItemEditorFields | null>(null);
+  const [schemaFields, setSchemaFields] = useState<ContentTypeFieldSummary[]>([]);
+  const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
+  const [fieldNotice, setFieldNotice] = useState<string | null>(null);
+  const [savingFields, setSavingFields] = useState(false);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     document.title = message(ASSEMBLY_MSG.TITLE);
@@ -274,6 +323,69 @@ export function AssemblyHost({
     return templates.find((t) => t.id === templateId)?.label;
   }, [templates, templateId]);
 
+  const overlayFields: OverlayField[] = useMemo(() => {
+    if (fieldPayload == null) {
+      return [];
+    }
+    return scalarOverlayFields(fieldPayload, schemaFields);
+  }, [fieldPayload, schemaFields]);
+
+  useEffect(() => {
+    if (contentId == null) {
+      setFieldPayload(null);
+      setSchemaFields([]);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        await checkout(String(contentId));
+      } catch {
+        // Preview still works when checkout is unavailable.
+      }
+      try {
+        const fields = await loadFields(String(contentId));
+        if (cancelled) {
+          return;
+        }
+        setFieldPayload(fields);
+        if (fields.contentType) {
+          try {
+            const detail = await loadType(fields.contentType);
+            if (!cancelled) {
+              setSchemaFields(detail.fields ?? []);
+            }
+          } catch {
+            if (!cancelled) {
+              setSchemaFields([]);
+            }
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setFieldPayload(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [contentId, checkout, loadFields, loadType]);
+
+  const paintFieldOverlay = useCallback(() => {
+    const doc = getPreviewDocument(frameRef.current);
+    if (doc == null || overlayFields.length === 0 || contentId == null) {
+      setInlineFieldNames([]);
+      return;
+    }
+    const hits = applyFieldOverlay(doc, overlayFields, String(contentId));
+    setInlineFieldNames([...new Set(hits.map((h) => h.name))]);
+  }, [contentId, overlayFields, getPreviewDocument]);
+
+  useEffect(() => {
+    paintFieldOverlay();
+  }, [paintFieldOverlay, previewHref]);
+
   const refreshCanvas = useCallback(async () => {
     if (contentId == null) {
       setCanvas(null);
@@ -337,6 +449,39 @@ export function AssemblyHost({
     }
     if (result.refresh) {
       await refreshCanvas();
+    }
+  }
+
+  async function handleSaveFields(): Promise<void> {
+    if (contentId == null || fieldPayload == null) {
+      return;
+    }
+    setSavingFields(true);
+    setFieldNotice(null);
+    const ownerId = String(contentId);
+    const doc = getPreviewDocument(frameRef.current);
+    const iframeEdits = doc != null ? readOverlayEdits(doc, ownerId) : [];
+    const bar = typeof document !== "undefined"
+      ? document.querySelector('[data-testid="assembly-field-bar"]')
+      : null;
+    const barEdits = bar != null ? readOverlayEdits(bar, ownerId) : [];
+    const edits = [...iframeEdits, ...barEdits];
+    try {
+      const saved = await persistOverlayEdits({
+        ownerId,
+        ownerPayload: fieldPayload,
+        edits,
+        loadFields,
+        saveFields,
+        checkout,
+      });
+      setFieldPayload(saved);
+      setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVED));
+      paintFieldOverlay();
+    } catch {
+      setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVE_FAILED));
+    } finally {
+      setSavingFields(false);
     }
   }
 
@@ -499,6 +644,65 @@ export function AssemblyHost({
           </span>
         ) : null}
       </div>
+      <div className={styles.fieldBar} data-testid="assembly-field-bar">
+        <span className={styles.label}>{message(ASSEMBLY_MSG.FIELDS)}</span>
+        {overlayFields.length === 0 ? (
+          <span data-testid="assembly-field-empty">
+            {message(ASSEMBLY_MSG.FIELD_EMPTY)}
+          </span>
+        ) : (
+          <div className={styles.fieldList} data-testid="assembly-field-list">
+            {overlayFields.map((field) => {
+              const inline = inlineFieldNames.includes(field.name);
+              return (
+                <label
+                  key={field.name}
+                  className={styles.fieldChip}
+                  data-testid={`assembly-field-chip-${field.name}`}
+                >
+                  <span>{field.label}</span>
+                  {inline ? (
+                    <span data-testid={`assembly-field-inline-${field.name}`}>
+                      {message(ASSEMBLY_MSG.FIELD_INLINE)}
+                    </span>
+                  ) : (
+                    <span
+                      className={styles.fieldEdit}
+                      contentEditable
+                      suppressContentEditableWarning
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      role="textbox"
+                      aria-label={field.label}
+                    >
+                      {field.value}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        )}
+        <button
+          type="button"
+          className={styles.slotBtn}
+          data-testid="assembly-field-save"
+          disabled={
+            savingFields || fieldPayload == null || overlayFields.length === 0
+          }
+          onClick={() => void handleSaveFields()}
+        >
+          {message(
+            savingFields ? ASSEMBLY_MSG.FIELD_SAVING : ASSEMBLY_MSG.FIELD_SAVE,
+          )}
+        </button>
+        {fieldNotice ? (
+          <span role="status" data-testid="assembly-field-notice">
+            {fieldNotice}
+          </span>
+        ) : null}
+      </div>
       {dialog === "add" && selectedSlotId != null && contentId != null ? (
         <div className={styles.dialog} data-testid="assembly-slot-add-dialog">
           <div className={styles.dialogPanel}>
@@ -656,10 +860,14 @@ export function AssemblyHost({
           </div>
         ) : previewHref ? (
           <iframe
+            ref={frameRef}
             className={styles.iframe}
             data-testid="assembly-preview-frame"
             title={message(ASSEMBLY_MSG.IFRAME_TITLE)}
             src={previewHref}
+            onLoad={() => {
+              paintFieldOverlay();
+            }}
           />
         ) : null}
       </div>

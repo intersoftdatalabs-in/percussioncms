@@ -539,7 +539,7 @@ Response JSON (`PreviewLocation`):
 | `revision` | Revision used (current revision when the query omits `revision`) |
 
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
-summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`).
+summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`). The AA overlay maps known scalar fields on the assembled HTML and saves with `PUT /services/itemmanagement/item/fields/{id}` (same contract as the React Content Editor). It does not call leftover Active Assembly or Content Editor HTML.
 
 ### Active Assembly slot relationships
 
@@ -570,7 +570,7 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 | `PUT` | `/services/itemmanagement/item/binary/{id}/{field}` | Multipart upload (`file`) that replaces the binary field. Item must be checked out to the current user. |
 | `POST` | `/services/itemmanagement/item/create` | Create an item in a folder. JSON body is `{ "ItemCreateRequest": { contentType, folderPath, optional name, optional templateId } }` (JAXB root). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |
 
-Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels and control names come from `GET /services/contenttypes/{type}`. The React editor maps `sys_tinymce` to TinyMCE, `sys_File` / image controls to file upload, keyword and community names to pickers. It does not request leftover Content Editor HTML.
+Checkout / check-in remain `GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`. Content-type labels and control names come from `GET /services/contenttypes/{type}`. The React editor maps `sys_tinymce` to TinyMCE, `sys_File` / image controls to file upload, keyword and community names to pickers. The Active Assembly overlay reuses the same `GET`/`PUT` fields endpoints for known scalar text on the assembled preview. Neither host requests leftover Content Editor HTML.
 
 ## Assembly cache and navigation
 
