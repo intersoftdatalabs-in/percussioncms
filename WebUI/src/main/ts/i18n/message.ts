@@ -236,6 +236,14 @@ export const MSG = {
   USER_SIGNED_IN_AS: "perc.ui.dashboard.modern@Signed in as",
   USER_DEFAULT_NAME: "perc.ui.dashboard.modern@user",
   USER_LOGOUT: "perc.ui.common.label@Log Out",
+  USER_COMMUNITY: "perc.ui.dashboard.modern@Community",
+  USER_COMMUNITY_NONE: "perc.ui.dashboard.modern@None",
+  USER_COMMUNITY_SWITCH: "perc.ui.dashboard.modern@Switch",
+  USER_COMMUNITY_SWITCH_ARIA: "perc.ui.dashboard.modern@Switch community",
+  USER_COMMUNITY_LIST_ARIA: "perc.ui.dashboard.modern@Available communities",
+  USER_COMMUNITY_SWITCH_ERROR:
+    "perc.ui.dashboard.modern@Could not switch community.",
+  USER_COMMUNITY_SWITCHING: "perc.ui.dashboard.modern@Switching community…",
   /** Profile hub menu entry (#2393) — prefer PROFILE_MSG in profile/messages.ts for new code */
   USER_MY_PROFILE: "perc.ui.profile.modern@My profile",
   // Dashboard / Gadgets chrome
