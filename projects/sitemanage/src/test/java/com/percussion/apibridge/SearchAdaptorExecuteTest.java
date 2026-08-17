@@ -106,6 +106,39 @@ class SearchAdaptorExecuteTest {
   }
 
   @Test
+  void normalizeFolderPath_convertsExplorerSlashAndDropsRoot() {
+    assertEquals("//Sites/Demo", SearchAdaptor.normalizeFolderPath("/Sites/Demo"));
+    assertEquals("//Sites", SearchAdaptor.normalizeFolderPath("Sites"));
+    assertEquals("//Sites/Foo", SearchAdaptor.normalizeFolderPath("//Sites/Foo"));
+    assertNull(SearchAdaptor.normalizeFolderPath(null));
+    assertNull(SearchAdaptor.normalizeFolderPath("  "));
+    assertNull(SearchAdaptor.normalizeFolderPath("/"));
+    assertNull(SearchAdaptor.normalizeFolderPath("//"));
+    assertNull(SearchAdaptor.normalizeFolderPath("///"));
+  }
+
+  @Test
+  void normalizeRequest_dropsExplorerRootFolderPath() {
+    SearchExecuteRequest r = new SearchExecuteRequest();
+    r.setFolderPath("/");
+    r.setStartIndex(1);
+    SearchExecuteRequest n = SearchAdaptor.normalizeRequest(r);
+    assertNull(n.getFolderPath());
+    assertEquals(1, n.getStartIndex());
+  }
+
+  @Test
+  void applyExecuteOverrides_ignoresExplorerRootSoAllIsUnscoped() {
+    PSSearch s = mock(PSSearch.class);
+    when(s.getMaximumResultSize()).thenReturn(25);
+    SearchExecuteRequest r = new SearchExecuteRequest();
+    r.setFolderPath("/");
+    SearchAdaptor.applyExecuteOverrides(s, r);
+    verify(s, org.mockito.Mockito.never())
+        .setProperty(eq(PSSearch.PROP_FOLDER_PATH), any());
+  }
+
+  @Test
   void applyExecuteOverrides_defaultsUnlimitedMax() {
     PSSearch s = mock(PSSearch.class);
     when(s.getMaximumResultSize()).thenReturn(0);

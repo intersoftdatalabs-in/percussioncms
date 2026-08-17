@@ -185,4 +185,10 @@ describe("toRepositorySearchFolderPath (#3438)", () => {
     expect(toRepositorySearchFolderPath("\\Sites\\Foo")).toBe("//Sites/Foo");
     expect(toRepositorySearchFolderPath("///Sites//Foo")).toBe("//Sites/Foo");
   });
+
+  it("drops Explorer root so All / View_All is unscoped (#3517)", () => {
+    expect(toRepositorySearchFolderPath("/")).toBeUndefined();
+    expect(toRepositorySearchFolderPath("//")).toBeUndefined();
+    expect(toRepositorySearchFolderPath("///")).toBeUndefined();
+  });
 });
