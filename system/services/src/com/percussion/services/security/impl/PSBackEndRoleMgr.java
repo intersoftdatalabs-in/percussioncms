@@ -244,6 +244,69 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         }
     }
 
+    // see IPSBackEndRoleMgr interface
+    public void setSubjectAttribute(String subjectName, String attributeName, String value) {
+        if (StringUtils.isBlank(subjectName)) {
+            throw new IllegalArgumentException("subjectName may not be null or empty");
+        }
+        if (StringUtils.isBlank(attributeName)) {
+            throw new IllegalArgumentException("attributeName may not be null or empty");
+        }
+        RoleConfig config = null;
+        try {
+            config = getRoleConfig();
+            applySubjectAttribute(config.roleCfg, subjectName, attributeName, value);
+            config.objectStore.saveRoleConfiguration(
+                config.roleCfg, config.lockId, config.securityToken);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg =
+                "Failed to set attribute "
+                    + attributeName
+                    + " on user "
+                    + subjectName;
+            ms_log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        } finally {
+            if (config != null) {
+                releaseConfigLock(config.objectStore, config.lockId);
+            }
+        }
+    }
+
+    /**
+     * Writes {@code attributeName} on the global subject in {@code roleCfg}.
+     * Blank {@code value} stores an empty value list (treated as unset by
+     * default-community readers).
+     */
+    public static void applySubjectAttribute(
+        PSRoleConfiguration roleCfg,
+        String subjectName,
+        String attributeName,
+        String value) {
+        if (roleCfg == null) {
+            throw new IllegalArgumentException("roleCfg may not be null");
+        }
+        if (StringUtils.isBlank(subjectName)) {
+            throw new IllegalArgumentException("subjectName may not be null or empty");
+        }
+        if (StringUtils.isBlank(attributeName)) {
+            throw new IllegalArgumentException("attributeName may not be null or empty");
+        }
+        PSRelativeSubject relativeSub =
+            new PSRelativeSubject(subjectName, PSSubject.SUBJECT_TYPE_USER, null);
+        PSSubject subject = roleCfg.getGlobalSubject(relativeSub, true);
+        if (subject == null) {
+            throw new IllegalStateException(
+                "Unable to create or load global subject for " + subjectName);
+        }
+        String stored = value == null ? "" : value.trim();
+        List<String> values =
+            stored.isEmpty() ? new ArrayList<>() : Arrays.asList(stored);
+        subject.getAttributes().setAttribute(attributeName, values);
+    }
+
     /**
      * See {@link IPSBackEndRoleMgr#update(String, String)}.
      */

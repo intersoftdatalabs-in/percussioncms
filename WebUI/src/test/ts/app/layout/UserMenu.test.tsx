@@ -70,6 +70,7 @@ function profile(overrides: Partial<CurrentUserProfile> = {}): CurrentUserProfil
     roles: ["Editor"],
     communities: ["Default", "Corporate"],
     currentCommunity: "Default",
+    defaultCommunity: "Default",
     adminUser: false,
     designerUser: false,
     accessibilityUser: false,

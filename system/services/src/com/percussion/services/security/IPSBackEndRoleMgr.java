@@ -288,6 +288,20 @@ public interface IPSBackEndRoleMgr
     * @param subjectEmail subjectEmail never <code>null</code> might be empty.
     */
    public void setSubjectEmail(String subjectName, String subjectEmail);
+
+   /**
+    * Sets or clears a named global subject attribute (issue #3508).
+    *
+    * <p>Used for the signed-in user's {@code sys_defaultCommunity} (and other
+    * subject attributes). A blank {@code value} clears the stored attribute so
+    * role-level defaults apply again. Failures are thrown — callers must not
+    * treat a silent catch as success.
+    *
+    * @param subjectName never {@code null} or empty
+    * @param attributeName never {@code null} or empty
+    * @param value may be {@code null} or empty (clears the attribute)
+    */
+   public void setSubjectAttribute(String subjectName, String attributeName, String value);
    
    /**
     * Updates the description on the role for the provided roleName

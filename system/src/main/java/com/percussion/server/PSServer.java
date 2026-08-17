@@ -20,6 +20,7 @@ package com.percussion.server;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.PSAuthenticateUserUtils;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
@@ -3214,9 +3215,14 @@ public class PSServer {
    */
   private static String getUserDefaultCommunity(PSRequest request)
       throws PSInternalRequestCallException {
-    return request
-        .getUserSession()
-        .getCommunityId(request, getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY));
+    PSRequestContext requestContext = new PSRequestContext(request);
+    String communityName;
+    try {
+      communityName = PSAuthenticateUserUtils.resolveDefaultCommunityName(requestContext);
+    } catch (Exception e) {
+      communityName = getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY);
+    }
+    return request.getUserSession().getCommunityId(request, communityName);
   }
 
   /**

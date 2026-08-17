@@ -79,6 +79,21 @@ Use **Switch** to change the session community **without signing out**.
 - Setting a **default** community on the profile, or remembering the last community at the next
   login, is not part of this header control.
 
+## My profile — Account (default community)
+
+On **My profile → Account** (deep link `spa.jsp?entry=profile`), signed-in users can set their
+**default community**. The list is the same membership list as the header switch (communities
+your roles grant — not the full catalog).
+
+| Control | What it does |
+|---------|----------------|
+| **Default community** | Community applied at the **next sign-in** when Remember last community is not selected. **Use role default** clears your personal override so the role attribute `sys_defaultCommunity` applies. |
+| **Save default community** | Writes the value for the signed-in user only (`sys_defaultCommunity` on your user subject). Reload the page to confirm the stored value. You cannot set a community you do not belong to. |
+
+This does **not** change the current session community. Use **Switch** in the header for that.
+Directory / SSO accounts can still set a default community here (it is a CMS attribute, not a
+directory field).
+
 ## My profile — Security (password)
 
 Authenticated users open **My profile** from the header user menu (or deep link

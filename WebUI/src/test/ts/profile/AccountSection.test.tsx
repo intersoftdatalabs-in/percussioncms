@@ -35,6 +35,7 @@ function internalProfile(
     roles: ["Admin", "Editor"],
     communities: ["Default"],
     currentCommunity: "Default",
+    defaultCommunity: "Default",
     adminUser: true,
     designerUser: false,
     accessibilityUser: false,
@@ -60,6 +61,19 @@ describe("normalizeCurrentUser / isValidEmailAddress", () => {
     expect(profile.email).toBe("e@example.com");
     expect(profile.emailEditable).toBe(true);
     expect(profile.communities).toEqual(["Default", "Corporate"]);
+    expect(profile.defaultCommunity).toBe("");
+  });
+
+  it("unwraps stored defaultCommunity from GET current user", () => {
+    const profile = normalizeCurrentUser({
+      CurrentUser: {
+        name: "Admin",
+        communities: ["Default", "Corporate"],
+        currentCommunity: "Corporate",
+        defaultCommunity: "Default",
+      },
+    });
+    expect(profile.defaultCommunity).toBe("Default");
   });
 
   it("marks DIRECTORY as not email-editable", () => {
@@ -201,5 +215,131 @@ describe("AccountSection", () => {
       );
     });
     expect(loadProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("renders default community from profile.communities only", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Corporate",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community",
+    ) as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    expect(select.value).toBe("Corporate");
+    const options = Array.from(select.options).map((o) => o.value);
+    expect(options).toEqual(["", "Default", "Corporate"]);
+    expect(options).not.toContain("Unknown");
+  });
+
+  it("saves allowed default community and reloads returned value", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Default",
+      }),
+    );
+    const saveDefaultCommunity = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Corporate",
+      }),
+    );
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        saveDefaultCommunity={saveDefaultCommunity}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community",
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "Corporate" } });
+    fireEvent.click(
+      screen.getByTestId("perc-profile-account-default-community-save"),
+    );
+
+    await waitFor(() => {
+      expect(saveDefaultCommunity).toHaveBeenCalledWith("Corporate");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/default community was saved/i);
+    });
+    expect(select.value).toBe("Corporate");
+  });
+
+  it("shows an unavailable note when the user has no communities", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: [],
+        defaultCommunity: "",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community").textContent,
+      ).toMatch(/no communities/i);
+    });
+    expect(
+      screen.queryByTestId("perc-profile-account-default-community-save"),
+    ).toBeNull();
+  });
+
+  it("clears the stored default when Use role default is saved", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Default",
+      }),
+    );
+    const saveDefaultCommunity = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "",
+      }),
+    );
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        saveDefaultCommunity={saveDefaultCommunity}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community",
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(
+      screen.getByTestId("perc-profile-account-default-community-save"),
+    );
+
+    await waitFor(() => {
+      expect(saveDefaultCommunity).toHaveBeenCalledWith("");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/default community was saved/i);
+    });
   });
 });

@@ -35,6 +35,7 @@ function internalProfile(
     roles: ["Admin"],
     communities: ["Default"],
     currentCommunity: "Default",
+    defaultCommunity: "Default",
     adminUser: true,
     designerUser: false,
     accessibilityUser: false,

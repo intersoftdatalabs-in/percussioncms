@@ -18,6 +18,7 @@
 package com.percussion.cms;
 
 import com.percussion.design.objectstore.PSAttribute;
+import com.percussion.design.objectstore.PSSubject;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import java.util.ArrayList;
@@ -165,5 +166,108 @@ public class PSAuthenticateUserUtils {
       }
     }
     return attrValue;
+  }
+
+  /**
+   * First non-empty global subject attribute for the current user (issue #3508).
+   *
+   * <p>Used for {@link #SYS_DEFAULTCOMMUNITY} stored on the user subject rather
+   * than a role. Failures return {@code null} so callers can fall back to the
+   * role attribute.
+   */
+  public static String getUserSubjectAttribute(IPSRequestContext request, String srcAttrName) {
+    if (request == null || srcAttrName == null || srcAttrName.isBlank()) {
+      return null;
+    }
+    try {
+      String userName = request.getUserName();
+      if (userName == null || userName.isBlank()) {
+        return null;
+      }
+      List<PSSubject> subjects =
+          request.getSubjectGlobalAttributes(
+              userName, PSSubject.SUBJECT_TYPE_USER, null, srcAttrName, false);
+      return firstSubjectAttributeValue(subjects, srcAttrName);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * First non-empty value of {@code attrName} on any supplied subject.
+   *
+   * @param subjects may be {@code null}
+   * @param attrName never {@code null} for a useful result
+   * @return trimmed value, or {@code null}
+   */
+  public static String firstSubjectAttributeValue(List<PSSubject> subjects, String attrName) {
+    if (subjects == null || attrName == null || attrName.isBlank()) {
+      return null;
+    }
+    for (PSSubject subject : subjects) {
+      if (subject == null || subject.getAttributes() == null) {
+        continue;
+      }
+      PSAttribute attr = subject.getAttributes().getAttribute(attrName);
+      if (attr == null) {
+        continue;
+      }
+      List<?> values = attr.getValues();
+      if (values == null || values.isEmpty() || values.get(0) == null) {
+        continue;
+      }
+      String value = values.get(0).toString().trim();
+      if (!value.isEmpty()) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Default community name for login: user-subject {@link #SYS_DEFAULTCOMMUNITY}
+   * first, then the first non-empty role attribute (legacy).
+   */
+  public static String resolveDefaultCommunityName(IPSRequestContext request) throws Exception {
+    String subjectValue = getUserSubjectAttribute(request, SYS_DEFAULTCOMMUNITY);
+    if (subjectValue != null && !subjectValue.isBlank()) {
+      return subjectValue.trim();
+    }
+    String roleValue = getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY);
+    return roleValue == null ? null : roleValue.trim();
+  }
+
+  /**
+   * Pure resolver for tests and callers that already loaded both stores.
+   *
+   * @param subjectValue user-subject attribute, may be blank
+   * @param roleValue first role attribute, may be blank
+   * @return trimmed subject value when present, else trimmed role value, else {@code null}
+   */
+  public static String resolveDefaultCommunityName(String subjectValue, String roleValue) {
+    if (subjectValue != null && !subjectValue.isBlank()) {
+      return subjectValue.trim();
+    }
+    if (roleValue != null && !roleValue.isBlank()) {
+      return roleValue.trim();
+    }
+    return null;
+  }
+
+  /**
+   * True when {@code communityName} matches an allowed membership name
+   * (case-insensitive).
+   */
+  public static boolean isCommunityAllowed(String communityName, List<String> allowed) {
+    if (communityName == null || communityName.isBlank() || allowed == null) {
+      return false;
+    }
+    String wanted = communityName.trim();
+    for (String name : allowed) {
+      if (name != null && wanted.equalsIgnoreCase(name.trim())) {
+        return true;
+      }
+    }
+    return false;
   }
 }

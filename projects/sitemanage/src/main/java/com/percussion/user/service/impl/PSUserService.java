@@ -33,6 +33,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.PSAuthenticateUserUtils;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
@@ -981,6 +982,66 @@ public class PSUserService implements IPSUserService {
   }
 
   /**
+   * Self-service default community for the signed-in user only (issue #3508). Persists {@link
+   * PSAuthenticateUserUtils#SYS_DEFAULTCOMMUNITY} on the user subject. Blank body clears the
+   * stored default so role-level defaults apply at the next login.
+   */
+  @Override
+  @PUT
+  @Path("/defaultCommunity")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSCurrentUser updateMyDefaultCommunity(String communityName) throws PSDataServiceException {
+    PSCurrentUser current = getCurrentUser();
+    String canonical = canonicalizeAllowedCommunity(communityName, current.getCommunities());
+    if (canonical == null) {
+      PSParameterValidationUtils.validateParameters("updateMyDefaultCommunity")
+          .rejectField(
+              "defaultCommunity",
+              "Community is not in your allowed communities.",
+              communityName)
+          .throwIfInvalid();
+    }
+
+    try {
+      backEndRoleMgr.setSubjectAttribute(
+          current.getName(), PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY, canonical);
+    } catch (RuntimeException e) {
+      logSelfServiceAccountUpdateAudit(AuditOutcome.FAILURE);
+      log.error(
+          "Self-service default community update failed for user {}: {}",
+          current.getName(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    }
+
+    logSelfServiceAccountUpdateAudit(AuditOutcome.SUCCESS);
+    current.setDefaultCommunity(canonical);
+    return current;
+  }
+
+  /**
+   * Maps a requested community name onto the user's membership list. Blank request clears
+   * (returns empty string). Unknown / disallowed names return {@code null}.
+   */
+  static String canonicalizeAllowedCommunity(String requested, List<String> allowed) {
+    if (requested == null || requested.isBlank()) {
+      return "";
+    }
+    if (allowed == null) {
+      return null;
+    }
+    String trimmed = requested.trim();
+    for (String name : allowed) {
+      if (name != null && trimmed.equalsIgnoreCase(name.trim())) {
+        return name.trim();
+      }
+    }
+    return null;
+  }
+
+  /**
    * Best-effort audit for self-service account updates. Never throws — audit infrastructure must
    * not mask the primary operation outcome.
    */
@@ -1012,6 +1073,18 @@ public class PSUserService implements IPSUserService {
    * so account identity still returns.
    */
   private void enrichCurrentUserCommunities(PSCurrentUser currUser) {
+    try {
+      String storedDefault =
+          backEndRoleMgr.getSubjectAttribute(
+              currUser.getName(), PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY);
+      if (isNotBlank(storedDefault)) {
+        currUser.setDefaultCommunity(storedDefault);
+      }
+    } catch (Exception e) {
+      log.debug(
+          "Unable to load default community for current user: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req == null || req.getUserSession() == null) {
