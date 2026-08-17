@@ -34,6 +34,8 @@ vi.mock("../../../main/ts/api/user/userHomepageApi", () => ({
     PUBLISH: "Publish",
     WORKFLOW: "Workflow",
     WIDGET_BUILDER: "WidgetBuilder",
+    EXPLORER: "Explorer",
+    DEVELOPER: "Developer",
   },
 }));
 

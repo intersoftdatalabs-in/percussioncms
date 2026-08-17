@@ -79,6 +79,7 @@
             "admin",
             "widgetbuilder",
             "developer",
+            "explorer",
             "arch",
             "architecture",
             "navigation",
@@ -249,7 +250,8 @@
             entry = "design";
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
-                || "developer".equals(view))
+                || "developer".equals(view)
+                || "explorer".equals(view))
             entry = view;
         else
             entry = "home";

@@ -75,8 +75,8 @@ describe("PreferencesSection", () => {
     const loadLanding = vi
       .fn()
       .mockResolvedValueOnce("")
-      .mockResolvedValue("Architecture");
-    const saveLanding = vi.fn().mockResolvedValue("Architecture");
+      .mockResolvedValue("Explorer");
+    const saveLanding = vi.fn().mockResolvedValue("Explorer");
     const loadPreferenceCount = vi.fn().mockResolvedValue(0);
     renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
 
@@ -87,17 +87,17 @@ describe("PreferencesSection", () => {
     const select = screen.getByTestId(
       "perc-profile-preferences-landing",
     ) as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "Architecture" } });
+    fireEvent.change(select, { target: { value: "Explorer" } });
 
     const save = screen.getByTestId("perc-profile-preferences-save");
     expect((save as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(save);
 
     await waitFor(() => {
-      expect(saveLanding).toHaveBeenCalledWith("Architecture");
+      expect(saveLanding).toHaveBeenCalledWith("Explorer");
       expect(screen.getByTestId("perc-profile-preferences-success")).toBeTruthy();
     });
-    expect(select.value).toBe("Architecture");
+    expect(select.value).toBe("Explorer");
     expect(loadLanding).toHaveBeenCalledTimes(2);
   });
 
@@ -125,7 +125,7 @@ describe("PreferencesSection", () => {
 
   it("shows save error when reload does not persist the landing (#3207)", async () => {
     const loadLanding = vi.fn().mockResolvedValue("");
-    const saveLanding = vi.fn().mockResolvedValue("Architecture");
+    const saveLanding = vi.fn().mockResolvedValue("Explorer");
     const loadPreferenceCount = vi.fn().mockResolvedValue(0);
     renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
 
@@ -135,11 +135,11 @@ describe("PreferencesSection", () => {
     const select = screen.getByTestId(
       "perc-profile-preferences-landing",
     ) as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "Architecture" } });
+    fireEvent.change(select, { target: { value: "Explorer" } });
     fireEvent.click(screen.getByTestId("perc-profile-preferences-save"));
 
     await waitFor(() => {
-      expect(saveLanding).toHaveBeenCalledWith("Architecture");
+      expect(saveLanding).toHaveBeenCalledWith("Explorer");
       expect(screen.getByTestId("perc-profile-preferences-error")).toBeTruthy();
     });
     expect(screen.queryByTestId("perc-profile-preferences-success")).toBeNull();

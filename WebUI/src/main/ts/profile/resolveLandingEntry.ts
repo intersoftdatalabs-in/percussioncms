@@ -57,6 +57,10 @@ export function resolveHomepageToSpaEntry(
       return "admin";
     case HOMEPAGE_TYPES.WIDGET_BUILDER:
       return "widget-builder";
+    case HOMEPAGE_TYPES.EXPLORER:
+      return "explorer";
+    case HOMEPAGE_TYPES.DEVELOPER:
+      return "developer";
     default:
       break;
   }

@@ -123,6 +123,22 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
 
     const landing = page.getByTestId("perc-profile-preferences-landing");
     await expect(landing).toBeEnabled();
+    const optionValues = await landing.locator("option").evaluateAll((els) =>
+      els.map((o) => o.value),
+    );
+    expect(optionValues).toContain("Home");
+    expect(optionValues).toContain("Explorer");
+    expect(optionValues).toContain("Architecture");
+    expect(optionValues).toContain("Developer");
+    expect(optionValues).toContain("Publish");
+    expect(optionValues).toContain("Workflow");
+    const current = await landing.inputValue();
+    if (current !== "Editor") {
+      expect(optionValues).not.toContain("Editor");
+    }
+    if (current !== "Designer") {
+      expect(optionValues).not.toContain("Designer");
+    }
     await expect(
       page.getByTestId("perc-profile-preferences-save"),
     ).toBeVisible();
@@ -187,8 +203,8 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     await expect(landing).toBeVisible();
 
     const original = await landing.inputValue();
-    // Prefer Home ↔ Editor so both are allowed for Admin and product-backed.
-    const next = original === "Editor" ? "Home" : "Editor";
+    // Prefer Home ↔ Explorer so both are allowed for Admin and product-backed (#3536).
+    const next = original === "Explorer" ? "Home" : "Explorer";
 
     await landing.selectOption(next);
     await page.getByTestId("perc-profile-preferences-save").click();

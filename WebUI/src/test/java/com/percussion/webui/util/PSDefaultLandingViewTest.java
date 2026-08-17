@@ -19,7 +19,9 @@ package com.percussion.webui.util;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_ARCHITECTURE;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_DASHBOARD;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_DESIGNER;
+import static com.percussion.webui.util.PSDefaultLandingView.TYPE_DEVELOPER;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_EDITOR;
+import static com.percussion.webui.util.PSDefaultLandingView.TYPE_EXPLORER;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_HOME;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_PUBLISH;
 import static com.percussion.webui.util.PSDefaultLandingView.TYPE_WIDGET_BUILDER;
@@ -27,7 +29,9 @@ import static com.percussion.webui.util.PSDefaultLandingView.TYPE_WORKFLOW;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_ARCH;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_DASH;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_DESIGN;
+import static com.percussion.webui.util.PSDefaultLandingView.VIEW_DEVELOPER;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_EDITOR;
+import static com.percussion.webui.util.PSDefaultLandingView.VIEW_EXPLORER;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_HOME;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_PUBLISH;
 import static com.percussion.webui.util.PSDefaultLandingView.VIEW_WIDGET_BUILDER;
@@ -59,6 +63,8 @@ public class PSDefaultLandingViewTest {
     assertEquals(VIEW_WORKFLOW, PSDefaultLandingView.homepageTypeToViewKey(TYPE_WORKFLOW));
     assertEquals(
         VIEW_WIDGET_BUILDER, PSDefaultLandingView.homepageTypeToViewKey(TYPE_WIDGET_BUILDER));
+    assertEquals(VIEW_EXPLORER, PSDefaultLandingView.homepageTypeToViewKey(TYPE_EXPLORER));
+    assertEquals(VIEW_DEVELOPER, PSDefaultLandingView.homepageTypeToViewKey(TYPE_DEVELOPER));
   }
 
   @Test
@@ -74,6 +80,8 @@ public class PSDefaultLandingViewTest {
     assertEquals(VIEW_PUBLISH, PSDefaultLandingView.homepageTypeToViewKey("publish"));
     assertEquals(VIEW_WORKFLOW, PSDefaultLandingView.homepageTypeToViewKey("workflow"));
     assertEquals(VIEW_WIDGET_BUILDER, PSDefaultLandingView.homepageTypeToViewKey("widgetbuilder"));
+    assertEquals(VIEW_EXPLORER, PSDefaultLandingView.homepageTypeToViewKey("explorer"));
+    assertEquals(VIEW_DEVELOPER, PSDefaultLandingView.homepageTypeToViewKey("developer"));
   }
 
   @Test
@@ -93,6 +101,8 @@ public class PSDefaultLandingViewTest {
         VIEW_DASH, PSDefaultLandingView.resolveAuthorizedView(TYPE_DASHBOARD, false, false));
     assertEquals(
         VIEW_EDITOR, PSDefaultLandingView.resolveAuthorizedView(TYPE_EDITOR, false, false));
+    assertEquals(
+        VIEW_EXPLORER, PSDefaultLandingView.resolveAuthorizedView(TYPE_EXPLORER, false, false));
   }
 
   @Test
@@ -105,6 +115,8 @@ public class PSDefaultLandingViewTest {
         VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_PUBLISH, false, false));
     assertEquals(
         VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_WIDGET_BUILDER, false, false));
+    assertEquals(
+        VIEW_HOME, PSDefaultLandingView.resolveAuthorizedView(TYPE_DEVELOPER, false, false));
   }
 
   @Test
@@ -128,6 +140,8 @@ public class PSDefaultLandingViewTest {
     assertEquals(
         VIEW_WIDGET_BUILDER,
         PSDefaultLandingView.resolveAuthorizedView(TYPE_WIDGET_BUILDER, false, true));
+    assertEquals(
+        VIEW_DEVELOPER, PSDefaultLandingView.resolveAuthorizedView(TYPE_DEVELOPER, false, true));
   }
 
   @Test
@@ -143,6 +157,10 @@ public class PSDefaultLandingViewTest {
     assertEquals(
         VIEW_WIDGET_BUILDER,
         PSDefaultLandingView.resolveAuthorizedView(TYPE_WIDGET_BUILDER, true, false));
+    assertEquals(
+        VIEW_EXPLORER, PSDefaultLandingView.resolveAuthorizedView(TYPE_EXPLORER, true, false));
+    assertEquals(
+        VIEW_DEVELOPER, PSDefaultLandingView.resolveAuthorizedView(TYPE_DEVELOPER, true, false));
   }
 
   @Test
