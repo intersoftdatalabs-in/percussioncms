@@ -10,31 +10,32 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /**
  * Create Site wizard for Explorer Content → Create Site and Navigation
- * New Site (#3522 / parent #3512).
+ * New Site (#3520 / parent #3512).
  *
  * <p>First step is a site-type picker (Traditional / Page / Virtual).
- * Slice 1 ships a complete Traditional path: type → details (name,
- * description, optional managed nav) → confirm → progress. Traditional
- * does not prompt for a page or base template. Page and Virtual radios
- * are visible; Next stays on the type step with a clear message so those
- * kinds cannot silently create a traditional site.</p>
- *
- * <p>Traditional create still uses {@code POST /sitemanage/site/} via
- * {@link createTraditionalSite}. Template name and base template are
- * generated (not shown) so the existing Site body stays valid.</p>
+ * Traditional: type → details (name, description, optional managed nav)
+ * → confirm → progress. No page-template prompt.
+ * Page: type → details (name, description, managed nav locked on)
+ * → page/base template → confirm → progress. Create sends
+ * {@code pageBased: true} on the existing {@code POST /sitemanage/site/}
+ * contract. Virtual stays blocked until slice 3.</p>
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   createTraditionalSite,
+  listBaseTemplates,
+  pickDefaultBaseTemplate,
   PLAIN_BASE_TEMPLATE_NAME,
   siteFolderPath,
+  type BaseTemplateSummary,
   type CreateSiteRequest,
   type CreatedSiteSummary,
 } from "../../api/contentExplorer/siteCreateApi";
@@ -55,14 +56,21 @@ import {
   clampSiteDescription,
   defaultTemplateNameForSite,
   filterSiteNameInput,
+  filterTemplateNameInput,
   isSiteCreateKindEnabled,
+  managedNavigationForcedOn,
+  requiresPageTemplate,
   validateSiteName,
+  validateTemplateName,
+  wizardStepsForKind,
   type SiteCreateKind,
 } from "./siteCreateValidation";
 
 export interface SiteCreateWizardProps {
   /** Optional submit override (default: POST /sitemanage/site/). */
   submit?: (request: CreateSiteRequest) => Promise<CreatedSiteSummary>;
+  /** Optional base-template loader (default: GET readonly base templates). */
+  loadBaseTemplates?: () => Promise<BaseTemplateSummary[]>;
   /** Optional seed site name. */
   initialSiteName?: string;
   /** Fired after successful create with site name + folder path. */
@@ -75,9 +83,6 @@ export interface SiteCreateWizardProps {
   ariaLabel?: string;
   className?: string;
 }
-
-/** Traditional flow: type picker, details, confirm, progress. */
-const STEPS = ["type", "details", "confirm", "progress"] as const;
 
 const TYPE_TEST_IDS: Record<SiteCreateKind, string> = {
   traditional: "site-create-type-traditional",
@@ -101,6 +106,7 @@ export function SiteCreateWizard(
 ): React.JSX.Element {
   const {
     submit: submitOverride,
+    loadBaseTemplates = listBaseTemplates,
     initialSiteName = "",
     onCreated,
     onSettled,
@@ -108,18 +114,75 @@ export function SiteCreateWizard(
     className,
   } = props;
 
-  const [wizard, setWizard] = useState<WizardState>(() => createWizard(STEPS));
+  const [wizard, setWizard] = useState<WizardState>(() =>
+    createWizard(wizardStepsForKind("traditional")),
+  );
   const [siteType, setSiteType] = useState<SiteCreateKind>("traditional");
   const [siteName, setSiteName] = useState(() =>
     filterSiteNameInput(initialSiteName),
   );
   const [description, setDescription] = useState("");
-  /** Traditional sites only. Virtual Sites do not use this flag. */
+  const [templateName, setTemplateName] = useState(() =>
+    defaultTemplateNameForSite(initialSiteName),
+  );
+  const [templateNameFollowsSite, setTemplateNameFollowsSite] = useState(true);
+  const [baseTemplateName, setBaseTemplateName] = useState(
+    PLAIN_BASE_TEMPLATE_NAME,
+  );
   const [managedNavigation, setManagedNavigation] = useState(true);
+  const [templates, setTemplates] = useState<BaseTemplateSummary[]>([]);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
   const [createdName, setCreatedName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!requiresPageTemplate(siteType)) {
+      return;
+    }
+    let cancelled = false;
+    setTemplatesLoading(true);
+    loadBaseTemplates()
+      .then((list) => {
+        if (cancelled) return;
+        const rows = list ?? [];
+        setTemplates(rows);
+        setBaseTemplateName(pickDefaultBaseTemplate(rows));
+        setTemplatesError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setTemplates([]);
+        setBaseTemplateName(PLAIN_BASE_TEMPLATE_NAME);
+        setTemplatesError(
+          err instanceof Error && err.message
+            ? err.message
+            : message(EXPLORER_MSG.SITE_CREATE_TEMPLATES_ERROR),
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setTemplatesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadBaseTemplates, siteType]);
+
+  function handleSiteTypeChange(kind: SiteCreateKind): void {
+    setSiteType(kind);
+    if (managedNavigationForcedOn(kind)) {
+      setManagedNavigation(true);
+    }
+    setWizard((w) => ({
+      ...w,
+      steps: wizardStepsForKind(kind),
+    }));
+  }
 
   async function handleRun(): Promise<void> {
     const site = validateSiteName(siteName);
+    const pageFlow = requiresPageTemplate(siteType);
+    const tmpl = validateTemplateName(templateName);
+    const base = baseTemplateName.trim();
     if (!site.ok || !isSiteCreateKindEnabled(siteType)) {
       setWizard((w) =>
         finishWizard(w, {
@@ -130,15 +193,34 @@ export function SiteCreateWizard(
       onSettled?.(false);
       return;
     }
+    let resolvedTemplate = defaultTemplateNameForSite(site.name);
+    let resolvedBase = PLAIN_BASE_TEMPLATE_NAME;
+    if (pageFlow) {
+      if (!tmpl.ok || !base) {
+        setWizard((w) =>
+          finishWizard(w, {
+            kind: "error",
+            message: message(EXPLORER_MSG.SITE_CREATE_VALIDATION_PAGE),
+          }),
+        );
+        onSettled?.(false);
+        return;
+      }
+      resolvedTemplate = tmpl.name;
+      resolvedBase = base;
+    }
     setWizard((w) => ({ ...w, submitting: true }));
     const req: CreateSiteRequest = {
       name: site.name,
       label: site.name,
       description: clampSiteDescription(description),
-      baseTemplateName: PLAIN_BASE_TEMPLATE_NAME,
-      templateName: defaultTemplateNameForSite(site.name),
-      managedNavigation,
+      baseTemplateName: resolvedBase,
+      templateName: resolvedTemplate,
+      managedNavigation: pageFlow ? true : managedNavigation,
     };
+    if (pageFlow) {
+      req.pageBased = true;
+    }
     try {
       const fn = submitOverride ?? createTraditionalSite;
       const created = await fn(req);
@@ -155,25 +237,38 @@ export function SiteCreateWizard(
   }
 
   function handleSiteNameChange(value: string): void {
-    setSiteName(filterSiteNameInput(value));
+    const next = filterSiteNameInput(value);
+    setSiteName(next);
+    if (templateNameFollowsSite) {
+      setTemplateName(defaultTemplateNameForSite(next));
+    }
+  }
+
+  function handleTemplateNameChange(value: string): void {
+    setTemplateNameFollowsSite(false);
+    setTemplateName(filterTemplateNameInput(value));
   }
 
   function handleReset(): void {
-    setWizard((w) => resetWizard(w));
+    setWizard(() => createWizard(wizardStepsForKind("traditional")));
     setCreatedName(null);
     setSiteType("traditional");
     setManagedNavigation(true);
+    setTemplateName(defaultTemplateNameForSite(siteName));
+    setTemplateNameFollowsSite(true);
   }
 
   const typeReady = isSiteCreateKindEnabled(siteType);
   const detailsReady = validateSiteName(siteName).ok;
+  const templateReady = baseTemplateName.trim().length > 0;
   const canSubmit = canSubmitCreateSite({
     siteName,
     siteType,
-    templateName: defaultTemplateNameForSite(siteName),
-    baseTemplateName: PLAIN_BASE_TEMPLATE_NAME,
+    templateName,
+    baseTemplateName,
   });
   const stepId = currentStepId(wizard);
+  const navLocked = managedNavigationForcedOn(siteType);
 
   function renderStep(): React.JSX.Element {
     switch (stepId) {
@@ -205,7 +300,7 @@ export function SiteCreateWizard(
                   data-testid={TYPE_TEST_IDS[kind]}
                   value={kind}
                   checked={siteType === kind}
-                  onChange={() => setSiteType(kind)}
+                  onChange={() => handleSiteTypeChange(kind)}
                   style={{ marginRight: 8 }}
                 />
                 {typeLabel(kind)}
@@ -222,7 +317,20 @@ export function SiteCreateWizard(
               >
                 {message(EXPLORER_MSG.SITE_CREATE_TRADITIONAL_NOTE)}
               </p>
-            ) : (
+            ) : null}
+            {siteType === "page" ? (
+              <p
+                style={{
+                  color: "#555",
+                  fontSize: "0.85em",
+                  margin: "8px 0 0 24px",
+                }}
+                data-testid="site-create-page-note"
+              >
+                {message(EXPLORER_MSG.SITE_CREATE_PAGE_NOTE)}
+              </p>
+            ) : null}
+            {siteType === "virtual" ? (
               <p
                 role="status"
                 style={{
@@ -234,7 +342,7 @@ export function SiteCreateWizard(
               >
                 {message(EXPLORER_MSG.SITE_CREATE_TYPE_UNAVAILABLE)}
               </p>
-            )}
+            ) : null}
           </fieldset>
         );
       case "details":
@@ -282,8 +390,13 @@ export function SiteCreateWizard(
                 id="site-create-managed-nav"
                 type="checkbox"
                 data-testid="site-create-managed-nav"
-                checked={managedNavigation}
-                onChange={(e) => setManagedNavigation(e.target.checked)}
+                checked={navLocked ? true : managedNavigation}
+                disabled={navLocked}
+                onChange={(e) => {
+                  if (!navLocked) {
+                    setManagedNavigation(e.target.checked);
+                  }
+                }}
                 style={{ marginRight: 8 }}
               />
               {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_LABEL)}
@@ -296,8 +409,75 @@ export function SiteCreateWizard(
               }}
               data-testid="site-create-managed-nav-help"
             >
-              {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_HELP)}
+              {navLocked
+                ? message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_REQUIRED)
+                : message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_HELP)}
             </p>
+          </fieldset>
+        );
+      case "template":
+        return (
+          <fieldset data-testid="site-create-step-template">
+            <legend>{message(EXPLORER_MSG.SITE_CREATE_STEP_TEMPLATE)}</legend>
+            {templatesLoading ? (
+              <p role="status" data-testid="site-create-templates-loading">
+                {message(EXPLORER_MSG.SITE_CREATE_TEMPLATES_LOADING)}
+              </p>
+            ) : null}
+            {templatesError ? (
+              <p
+                role="alert"
+                data-testid="site-create-templates-error"
+                style={{ color: "#b00020" }}
+              >
+                {templatesError}
+              </p>
+            ) : null}
+            <label
+              htmlFor="site-create-template-name"
+              style={{ display: "block", margin: "4px 0" }}
+            >
+              {message(EXPLORER_MSG.SITE_CREATE_TEMPLATE_NAME_LABEL)}
+              <input
+                id="site-create-template-name"
+                type="text"
+                data-testid="site-create-template-name"
+                value={templateName}
+                maxLength={100}
+                onChange={(e) => handleTemplateNameChange(e.target.value)}
+                style={{ marginLeft: 8, width: 240 }}
+              />
+            </label>
+            <label
+              htmlFor="site-create-base-template"
+              style={{ display: "block", margin: "4px 0" }}
+            >
+              {message(EXPLORER_MSG.SITE_CREATE_BASE_TEMPLATE_LABEL)}
+              {templates.length > 0 ? (
+                <select
+                  id="site-create-base-template"
+                  data-testid="site-create-base-template"
+                  value={baseTemplateName}
+                  onChange={(e) => setBaseTemplateName(e.target.value)}
+                  style={{ marginLeft: 8, minWidth: 240 }}
+                >
+                  {templates.map((t) => (
+                    <option key={t.id ?? t.name} value={t.name}>
+                      {t.label || t.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id="site-create-base-template"
+                  type="text"
+                  data-testid="site-create-base-template"
+                  value={baseTemplateName}
+                  onChange={(e) => setBaseTemplateName(e.target.value)}
+                  style={{ marginLeft: 8, width: 240 }}
+                />
+              )}
+            </label>
           </fieldset>
         );
       case "confirm":
@@ -316,11 +496,27 @@ export function SiteCreateWizard(
                 <strong>{message(EXPLORER_MSG.SITE_CREATE_NAME_LABEL)}:</strong>{" "}
                 <code>{siteName}</code>
               </li>
+              {requiresPageTemplate(siteType) ? (
+                <>
+                  <li data-testid="site-create-confirm-template-name">
+                    <strong>
+                      {message(EXPLORER_MSG.SITE_CREATE_TEMPLATE_NAME_LABEL)}:
+                    </strong>{" "}
+                    <code>{templateName}</code>
+                  </li>
+                  <li data-testid="site-create-confirm-base-template">
+                    <strong>
+                      {message(EXPLORER_MSG.SITE_CREATE_BASE_TEMPLATE_LABEL)}:
+                    </strong>{" "}
+                    <code>{baseTemplateName}</code>
+                  </li>
+                </>
+              ) : null}
               <li data-testid="site-create-confirm-managed-nav">
                 <strong>
                   {message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_LABEL)}:
                 </strong>{" "}
-                {managedNavigation
+                {navLocked || managedNavigation
                   ? message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_YES)
                   : message(EXPLORER_MSG.SITE_CREATE_MANAGED_NAV_NO)}
               </li>
@@ -359,7 +555,8 @@ export function SiteCreateWizard(
   const nextDisabled =
     wizard.submitting ||
     (stepId === "type" && !typeReady) ||
-    (stepId === "details" && !detailsReady);
+    (stepId === "details" && !detailsReady) ||
+    (stepId === "template" && !templateReady);
 
   return (
     <section
@@ -379,7 +576,7 @@ export function SiteCreateWizard(
         style={{ color: "#888", margin: "0 0 8px 0" }}
       >
         {message(EXPLORER_MSG.WIZARD_STEP)} {wizard.current + 1}{" "}
-        {message(EXPLORER_MSG.WIZARD_OF)} {STEPS.length}
+        {message(EXPLORER_MSG.WIZARD_OF)} {wizard.steps.length}
       </p>
       {renderStep()}
       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>

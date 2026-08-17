@@ -111,9 +111,8 @@ export function clampSiteDescription(raw: string): string {
 }
 
 /**
- * Site kinds shown on the Create Site type picker (#3522 / parent #3512).
- * Slice 1 ships Traditional only; Page and Virtual stay blocked until
- * later slices.
+ * Site kinds on the Create Site type picker (#3512).
+ * Slice 2 enables Traditional and Page; Virtual stays blocked.
  */
 export type SiteCreateKind = "traditional" | "page" | "virtual";
 
@@ -124,20 +123,42 @@ export const SITE_CREATE_KINDS: readonly SiteCreateKind[] = [
 ];
 
 /**
- * True when the chosen kind may leave the type-picker step. Slice 1:
- * Traditional only.
+ * True when the chosen kind may leave the type-picker step.
  */
 export function isSiteCreateKindEnabled(kind: SiteCreateKind): boolean {
-  return kind === "traditional";
+  return kind === "traditional" || kind === "page";
+}
+
+/**
+ * Page sites require a page / base template step. Traditional does not.
+ */
+export function requiresPageTemplate(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Page sites force managed navigation on. Traditional may opt out.
+ */
+export function managedNavigationForcedOn(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Wizard step ids for the chosen kind. Page inserts a template step.
+ */
+export function wizardStepsForKind(kind: SiteCreateKind): readonly string[] {
+  if (kind === "page") {
+    return ["type", "details", "template", "confirm", "progress"];
+  }
+  return ["type", "details", "confirm", "progress"];
 }
 
 /**
  * True when the create form has enough fields to submit (client-side only).
  *
- * <p>Traditional (#3522) does not prompt for template/base — those values
- * are generated. When {@code siteType} is Traditional (default) and
- * template/base are omitted, only the site name is required. Page and
- * Virtual cannot submit from this slice.</p>
+ * <p>Traditional does not prompt for template/base — those values are
+ * generated. Page requires a template name and base template. Virtual
+ * cannot submit from this slice.</p>
  */
 export function canSubmitCreateSite(fields: {
   siteName: string;
@@ -153,9 +174,7 @@ export function canSubmitCreateSite(fields: {
   if (!site.ok) {
     return false;
   }
-  const hasTemplateFields =
-    fields.templateName != null || fields.baseTemplateName != null;
-  if (!hasTemplateFields) {
+  if (!requiresPageTemplate(kind)) {
     return true;
   }
   const tmpl = validateTemplateName(fields.templateName ?? "");

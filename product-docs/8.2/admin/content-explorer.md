@@ -163,22 +163,21 @@ Under the tree root **Sites** you see traditional site folders available to your
 select a sample site to browse FastForward folders and pages (About…, Files, Images,
 and the site NavTree).
 
-To create a new **traditional** repository Site from Explorer:
+To create a new Site from Explorer:
 
 1. Choose **Content → Create Site** (available without selecting an existing site).
-2. Complete the wizard: **Site type** (default **Traditional**) → site name and
-   optional managed navigation → confirm → create. Traditional does not prompt
-   for a page or base template. **Page** and **Virtual** are visible but not
-   creatable yet.
-3. On success, Explorer navigates to `/Sites/<new-site-name>`.
+2. On **Site type**, choose **Traditional** or **Page** (Virtual is listed but not available yet).
+3. **Traditional:** site name and optional managed navigation → confirm → create. There is no page-template prompt.
+4. **Page:** site name (managed navigation locked on) → template name and base template → confirm → create. The site is persisted as a CM1 page-based site.
+5. On success, Explorer navigates to `/Sites/<new-site-name>`.
 
-This Traditional path creates repository Sites only. Configure **Virtual Site** source properties
-(Git/filesystem) from **Developer → Sites** / Site detail — see
-[Sites & content structure](id:admin-sites) and [Virtual Sites](id:developer-virtual-sites).
+Configure **Virtual Site** source properties (Git/filesystem) from **Developer → Sites** /
+Site detail — see [Sites & content structure](id:admin-sites) and
+[Virtual Sites](id:developer-virtual-sites).
 
 Related Content menu commands:
 
-- **Create Site** — new traditional Site (no site context required)
+- **Create Site** — new Traditional or Page Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
 

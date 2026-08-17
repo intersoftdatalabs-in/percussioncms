@@ -47,6 +47,12 @@ export interface CreateSiteRequest {
    * without a CMS NavTree / homepage. Virtual Sites do not send this flag.
    */
   managedNavigation?: boolean;
+  /**
+   * CM1 page-based site ({@code pageBased} / {@code IS_PAGE_BASED} on
+   * POST /sitemanage/site/). Send {@code true} for Page type. Traditional
+   * omits this field.
+   */
+  pageBased?: boolean;
 }
 
 /** Minimal site summary returned after create (name is required for navigation). */
@@ -74,18 +80,20 @@ export function buildCreateSiteBody(req: CreateSiteRequest): {
   const home = (req.homePageTitle ?? DEFAULT_HOME_PAGE_TITLE).trim() || DEFAULT_HOME_PAGE_TITLE;
   const nav = (req.navigationTitle ?? home).trim() || home;
   const managedNavigation = req.managedNavigation !== false;
-  return {
-    Site: {
-      name,
-      label: (req.label ?? name).trim() || name,
-      description: (req.description ?? "").trim(),
-      homePageTitle: home,
-      navigationTitle: nav,
-      baseTemplateName: req.baseTemplateName.trim(),
-      templateName: req.templateName.trim(),
-      managedNavigation,
-    },
+  const site: Record<string, string | boolean> = {
+    name,
+    label: (req.label ?? name).trim() || name,
+    description: (req.description ?? "").trim(),
+    homePageTitle: home,
+    navigationTitle: nav,
+    baseTemplateName: req.baseTemplateName.trim(),
+    templateName: req.templateName.trim(),
+    managedNavigation,
   };
+  if (req.pageBased === true) {
+    site.pageBased = true;
+  }
+  return { Site: site };
 }
 
 /**
