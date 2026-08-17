@@ -165,6 +165,132 @@ export async function fetchFolderChildren(
   return normalizeList(data).map(normalizeContentItem) as FolderChild[];
 }
 
+/**
+ * Jackson list-wrapper keys used by sitemanage {@code PSTemplateSummaryList}
+ * and rest {@code TemplateSummaryList}.
+ */
+const TEMPLATE_LIST_KEYS = [
+  "TemplateSummary",
+  "templateSummary",
+  "TemplateSummaryList",
+  "templateSummaryList",
+  "Template",
+  "templates",
+  "entries",
+] as const;
+
+/**
+ * True when Jackson treated an {@code ArrayList} subclass as a bean
+ * ({@code {"empty":false}}) instead of a JSON array (#3368 / #3529).
+ */
+function isEmptyListBean(o: Record<string, unknown>): boolean {
+  if (!("empty" in o)) {
+    return false;
+  }
+  const hasId = o.id != null || o.Id != null || o.templateId != null;
+  const hasName =
+    o.name != null ||
+    o.Name != null ||
+    o.label != null ||
+    o.templateName != null ||
+    o.templateLabel != null;
+  return !hasId && !hasName;
+}
+
+function firstNonBlank(
+  o: Record<string, unknown>,
+  ...keys: string[]
+): string | undefined {
+  for (const key of keys) {
+    const v = o[key];
+    if (v != null && String(v).trim()) {
+      return String(v).trim();
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Map one site/rest template summary row. Accepts {@code id}/{@code name}
+ * (sitemanage) and {@code templateId}/{@code templateName} (rest). Nested
+ * {@code TemplateSummary} wraps from WRAP_ROOT_VALUE are unwrapped.
+ */
+export function mapTemplateSummary(raw: unknown): TemplateSummary | null {
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
+    return null;
+  }
+  const rec = raw as Record<string, unknown>;
+  const nested = rec.TemplateSummary ?? rec.templateSummary ?? rec.Template;
+  const o =
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : rec;
+  if (isEmptyListBean(o)) {
+    return null;
+  }
+  const id = firstNonBlank(o, "id", "Id", "templateId", "TemplateId");
+  if (!id) {
+    return null;
+  }
+  const name =
+    firstNonBlank(
+      o,
+      "name",
+      "Name",
+      "label",
+      "Label",
+      "templateName",
+      "templateLabel",
+      "TemplateName",
+    ) ?? id;
+  const thumb =
+    firstNonBlank(o, "imageThumbPath", "thumbPath", "imagePath") ?? undefined;
+  return { id, name, thumbPath: thumb };
+}
+
+/**
+ * Unwrap site-template GET payloads: Jackson {@code TemplateSummary} envelope,
+ * {@code TemplateSummaryList}, raw arrays, nested wraps, and the ArrayList
+ * {@code {empty:false}} bean (treated as empty). Rows without an id are
+ * dropped so the Create Page dropdown is not left on a blank “Select…”.
+ */
+export function unwrapTemplateSummaries(data: unknown): TemplateSummary[] {
+  if (data == null) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data
+      .map(mapTemplateSummary)
+      .filter((t): t is TemplateSummary => t != null);
+  }
+  const obj = asRecord(data);
+  if (!obj) {
+    return [];
+  }
+  if (isEmptyListBean(obj)) {
+    return [];
+  }
+  for (const key of TEMPLATE_LIST_KEYS) {
+    if (!(key in obj)) {
+      continue;
+    }
+    const list = obj[key];
+    if (Array.isArray(list)) {
+      return unwrapTemplateSummaries(list);
+    }
+    const nested = unwrapTemplateSummaries(list);
+    if (nested.length > 0) {
+      return nested;
+    }
+    const one = mapTemplateSummary(list);
+    if (one) {
+      return [one];
+    }
+  }
+  const one = mapTemplateSummary(obj);
+  return one ? [one] : [];
+}
+
 /** Templates for a site (classic getTemplates). */
 export async function fetchTemplatesForSite(
   siteName: string,
@@ -172,23 +298,7 @@ export async function fetchTemplatesForSite(
   const data = await get<unknown>(
     `${PATHS.TEMPLATES_BY_SITE}/${encodeURIComponent(siteName)}`,
   );
-  if (data && typeof data === "object" && "TemplateSummary" in data) {
-    const list = (data as { TemplateSummary: unknown }).TemplateSummary;
-    const arr = Array.isArray(list) ? list : list ? [list] : [];
-    return arr.map((t) => {
-      const o = t as Record<string, unknown>;
-      return {
-        id: String(o.id ?? ""),
-        name: String(o.name ?? o.label ?? o.id ?? ""),
-        thumbPath: o.imageThumbPath
-          ? String(o.imageThumbPath)
-          : o.thumbPath
-            ? String(o.thumbPath)
-            : undefined,
-      };
-    });
-  }
-  return [];
+  return unwrapTemplateSummaries(data);
 }
 
 /**

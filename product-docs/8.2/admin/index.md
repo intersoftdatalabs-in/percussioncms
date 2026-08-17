@@ -37,6 +37,12 @@ for those kinds) and opens the React Content Editor
 use **Open** on the wizard to open the new asset. Home Create does **not**
 open leftover `editAsset.jsp` or `?view=editor`.
 
+**Create page:** choose a **Site**, then a **Template**. The Template list
+loads that site's page templates. If the site catalog is empty, the wizard
+falls back to templates allowed for the page content type. You cannot create
+the page until a template is selected. Then pick the destination folder,
+title, and file name.
+
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
 form.
