@@ -249,6 +249,24 @@ describe("UserMenu", () => {
     );
   });
 
+  it("does not persist last community under the display-name fallback", async () => {
+    renderMenu({ userName: "  " });
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Default",
+      );
+    });
+    fireEvent.click(screen.getByTestId("perc-spa-community-switch"));
+    fireEvent.click(screen.getByTestId("perc-spa-community-option-corporate"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Corporate",
+      );
+    });
+    expect(switchSessionCommunity).toHaveBeenCalledWith("Corporate");
+    expect(prefs.saveUserPreference).not.toHaveBeenCalled();
+  });
+
   it("keeps the switched community when last-community persist fails", async () => {
     vi.mocked(prefs.saveUserPreference).mockRejectedValueOnce(
       new Error("prefs down"),

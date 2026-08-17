@@ -223,22 +223,37 @@ export function AccountSection({
     setSuccessMessage(null);
     setIsSavingRemember(true);
     try {
-      await saveRememberLast(loadState.profile.name, next);
+      try {
+        await saveRememberLast(loadState.profile.name, next);
+      } catch (err) {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setRememberLast(previous);
+        setFormError(
+          formatApiError(err, message(PROFILE_MSG.REMEMBER_LAST_SAVE_ERROR)),
+        );
+        return;
+      }
+      // Flag is already on the server. Do not revert the checkbox when only
+      // last-community persist fails — reload would still show remember=true.
       if (next) {
         const current = (loadState.profile.currentCommunity ?? "").trim();
         if (current) {
-          await persistLastCommunity(loadState.profile.name, current);
+          try {
+            await persistLastCommunity(loadState.profile.name, current);
+          } catch (err) {
+            if (isSessionRedirectError(err)) {
+              return;
+            }
+            setFormError(
+              formatApiError(err, message(PROFILE_MSG.REMEMBER_LAST_SAVE_ERROR)),
+            );
+            return;
+          }
         }
       }
       setSuccessMessage(message(PROFILE_MSG.REMEMBER_LAST_SAVE_SUCCESS));
-    } catch (err) {
-      if (isSessionRedirectError(err)) {
-        return;
-      }
-      setRememberLast(previous);
-      setFormError(
-        formatApiError(err, message(PROFILE_MSG.REMEMBER_LAST_SAVE_ERROR)),
-      );
     } finally {
       setIsSavingRemember(false);
     }

@@ -148,8 +148,13 @@ export function UserMenu(): React.ReactElement {
       dispatchSessionCommunityChanged(trimmed);
       // Write-only persist so login restore has a name. Do not GET prefs
       // from chrome (#3468 / #3458). Persist failure must not undo switch.
+      // Require the real login id — never fall back to the localized display
+      // name used for chrome when bootstrap.userName is missing.
       try {
-        await saveLastCommunity(bootstrap.userName ?? name, trimmed);
+        const userName = (bootstrap.userName ?? "").trim();
+        if (userName) {
+          await saveLastCommunity(userName, trimmed);
+        }
       } catch {
         // last-community write is best-effort
       }
