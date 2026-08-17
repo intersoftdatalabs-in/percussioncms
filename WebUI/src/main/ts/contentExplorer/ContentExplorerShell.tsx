@@ -104,12 +104,22 @@ import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
 import { ContextMenu } from "./ContextMenu";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
+import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
 import {
   replaceTemplatePickerSession,
   settleTemplatePickerSession,
   type TemplatePickerSession,
 } from "./templatePickerSession";
+import {
+  loadAllowedContentTypes,
+  type ContentTypeChoice,
+} from "./contentTypeChoices";
+import {
+  replaceContentTypePickerSession,
+  settleContentTypePickerSession,
+  type ContentTypePickerSession,
+} from "./contentTypePickerSession";
 import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
@@ -258,6 +268,8 @@ export interface ContentExplorerShellProps {
   loadSlotAllowedTemplates?: typeof fetchSlotAllowedTemplates;
   /** Test seam: allowed content types for slot create. */
   loadSlotAllowedTypes?: typeof fetchSlotAllowedTypes;
+  /** Test seam: allowed content types when New Item host has no children. */
+  loadContentTypes?: () => Promise<ContentTypeChoice[]>;
   /** Test seam: itemmanagement create before opening the React editor. */
   createItem?: typeof createEditorItem;
   /** Test seam: open spa.jsp?entry=editor after create. */
@@ -460,6 +472,7 @@ function ContentExplorerShellInner({
   addToSlot = addSlotRelationship,
   loadSlotAllowedTemplates = fetchSlotAllowedTemplates,
   loadSlotAllowedTypes = fetchSlotAllowedTypes,
+  loadContentTypes = loadAllowedContentTypes,
   createItem = createEditorItem,
   openWindow,
   bootstrap,
@@ -533,6 +546,9 @@ function ContentExplorerShellInner({
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
   const [slotCreatePickerOpen, setSlotCreatePickerOpen] = useState(false);
   const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
+  const [contentTypePicker, setContentTypePicker] =
+    useState<ContentTypePickerSession | null>(null);
+  const contentTypePickerRef = useRef<ContentTypePickerSession | null>(null);
   const [templatePicker, setTemplatePicker] =
     useState<TemplatePickerSession | null>(null);
   const templatePickerRef = useRef<TemplatePickerSession | null>(null);
@@ -792,6 +808,24 @@ function ContentExplorerShellInner({
     [loadMenuActions, loadWorkflowMenuActions],
   );
 
+  const pickContentType = useCallback((types: ContentTypeChoice[]) => {
+    return new Promise<string | null>((resolve) => {
+      const session = { types, resolve };
+      contentTypePickerRef.current = replaceContentTypePickerSession(
+        contentTypePickerRef.current,
+        session,
+      );
+      setContentTypePicker(session);
+    });
+  }, []);
+
+  const finishContentTypePicker = useCallback((name: string | null) => {
+    const current = contentTypePickerRef.current;
+    contentTypePickerRef.current = null;
+    setContentTypePicker(null);
+    settleContentTypePickerSession(current, name);
+  }, []);
+
   const pickPageTemplate = useCallback((templates: PageTemplateChoice[]) => {
     return new Promise<string | null>((resolve) => {
       const session = { templates, resolve };
@@ -812,6 +846,9 @@ function ContentExplorerShellInner({
 
   useEffect(() => {
     return () => {
+      const typeCurrent = contentTypePickerRef.current;
+      contentTypePickerRef.current = null;
+      settleContentTypePickerSession(typeCurrent, null);
       const current = templatePickerRef.current;
       templatePickerRef.current = null;
       settleTemplatePickerSession(current, null);
@@ -893,6 +930,8 @@ function ContentExplorerShellInner({
               setShowRevisions(true);
             },
             pickPageTemplate,
+            pickContentType,
+            loadContentTypes,
             slot,
             addToSlot,
             createItem,
@@ -935,6 +974,8 @@ function ContentExplorerShellInner({
       menuActions,
       contextMenu,
       pickPageTemplate,
+      pickContentType,
+      loadContentTypes,
       slot,
       addToSlot,
       createItem,
@@ -1679,6 +1720,13 @@ function ContentExplorerShellInner({
           />
         </div>
       )}
+      {contentTypePicker ? (
+        <ContentTypePickerDialog
+          types={contentTypePicker.types}
+          onPick={(name) => finishContentTypePicker(name)}
+          onCancel={() => finishContentTypePicker(null)}
+        />
+      ) : null}
       {templatePicker ? (
         <TemplatePickerDialog
           templates={templatePicker.templates}

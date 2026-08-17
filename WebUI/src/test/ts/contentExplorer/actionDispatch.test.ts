@@ -61,6 +61,11 @@ describe("actionDispatch", () => {
     expect(classifyAction(action({ name: "Quick_Edit" }))).toBe("editor");
   });
 
+  it("classifies New Item host as rest so the type picker can run", () => {
+    expect(classifyAction(action({ name: "New" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Create_New_Item" }))).toBe("rest");
+  });
+
   it("classifies Item_Preview and assembler URLs as rest", () => {
     expect(classifyAction(action({ name: "Item_Preview" }))).toBe("rest");
     expect(
@@ -288,14 +293,115 @@ describe("actionDispatch", () => {
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("contentId=99");
   });
 
-  it("New Item parent without a type asks to choose a type", async () => {
+  it("New Item host with no types still asks to choose a type", async () => {
     const createItem = vi.fn();
     const result = await dispatchAction(action({ name: "Create_New_Item" }), {
       item: item({ type: "folder", path: "/Sites/Demo" }),
       folderPath: "/Sites/Demo",
       createItem,
+      loadContentTypes: async () => [],
     });
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TYPE);
+    expect(createItem).not.toHaveBeenCalled();
+  });
+
+  it("New Item host opens a type picker and creates the picked type", async () => {
+    const openWindow = vi.fn();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "88",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const pickContentType = vi.fn().mockResolvedValue("rffEvent");
+    const result = await dispatchAction(action({ name: "New" }), {
+      item: item({ type: "folder", path: "/Sites/Demo", id: "1" }),
+      folderPath: "/Sites/Demo",
+      createItem,
+      openWindow,
+      pickContentType,
+      loadContentTypes: async () => [
+        { name: "percFile", label: "File" },
+        { name: "rffEvent", label: "Event" },
+      ],
+    });
+    expect(result.messageKey).toBeUndefined();
+    expect(result.refresh).toBe(true);
+    expect(pickContentType).toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/Demo",
+    });
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("contentId=88");
+  });
+
+  it("New Item host auto-selects a single allowed type", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "89",
+      folderPath: "//Sites/Demo",
+      name: "New-percFile",
+      contentType: "percFile",
+    });
+    const pickContentType = vi.fn();
+    const result = await dispatchAction(action({ name: "Create_New_Item" }), {
+      folderPath: "/Sites/Demo",
+      createItem,
+      openWindow: vi.fn(),
+      pickContentType,
+      loadContentTypes: async () => [{ name: "percFile", label: "File" }],
+    });
+    expect(result.refresh).toBe(true);
+    expect(pickContentType).not.toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "percFile",
+      folderPath: "/Sites/Demo",
+    });
+  });
+
+  it("New Item host uses type children without calling the catalog", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "90",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const loadContentTypes = vi.fn();
+    const pickContentType = vi.fn().mockResolvedValue("rffEvent");
+    await dispatchAction(
+      action({
+        name: "New",
+        children: [
+          { name: "percFile", label: "File", sortRank: 1, menuType: "MENUITEM" },
+          { name: "rffEvent", label: "Event", sortRank: 2, menuType: "MENUITEM" },
+        ],
+      }),
+      {
+        folderPath: "/Sites/Demo",
+        createItem,
+        openWindow: vi.fn(),
+        pickContentType,
+        loadContentTypes,
+      },
+    );
+    expect(loadContentTypes).not.toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/Demo",
+    });
+  });
+
+  it("does not create when the New Item type picker is cancelled", async () => {
+    const createItem = vi.fn();
+    const result = await dispatchAction(action({ name: "New" }), {
+      folderPath: "/Sites/Demo",
+      createItem,
+      pickContentType: async () => null,
+      loadContentTypes: async () => [
+        { name: "percFile", label: "File" },
+        { name: "rffEvent", label: "Event" },
+      ],
+    });
+    expect(result.messageKey).toBeUndefined();
     expect(createItem).not.toHaveBeenCalled();
   });
 

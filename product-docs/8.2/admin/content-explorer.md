@@ -118,7 +118,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | Action | What happens |
 |--------|----------------|
 | **Preview** (and per-template children) | Opens assembly preview (`GET /services/assembly/preview-location`) or the default page/asset preview. Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
-| **New Item** | Choose a content type under **New**. Explorer creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. Does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
+| **New Item** | Select a **site or folder** first, then choose **New Item**. When the catalog lists types under **New**, pick a type from that menu. When **New Item** is a single action (no type children), Explorer opens **Choose a content type** — pick a type and **OK**, or **Cancel** to leave the folder unchanged. Explorer then creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. It does **not** show *Choose a content type from New Item* as an error toast instead of the picker, and it does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open the CM1 editor (`?view=editor`). |
@@ -272,6 +272,9 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
 - When only a folder is active, the shell loads the same cascading action tree.
+  **New Item** without type children opens **Choose a content type** (same create
+  path as a type under **New**). It does not fail with a toast that says to
+  choose a type from a menu that is not there.
 - **Desktop-only** actions (for example custom application protocols that only DCE can run)
   are **hidden** in the web shell so operators are not offered controls that cannot succeed
   in the browser.
