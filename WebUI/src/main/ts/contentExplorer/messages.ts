@@ -337,6 +337,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select a folder first",
   ACTION_NEEDS_TYPE:
     "perc.ui.explorer@Choose a content type from New Item",
+  TYPE_PICKER_TITLE: "perc.ui.explorer@Choose a content type",
+  TYPE_PICKER_LABEL: "perc.ui.explorer@Content type",
   ACTION_NEEDS_TEMPLATE:
     "perc.ui.explorer@This page needs a template. Choose a site folder or use Home → Create.",
   ACTION_NEEDS_SLOT:

@@ -2172,6 +2172,56 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       /Custom URL views cannot be run/i,
     );
   });
+
+  it("New Item host opens a content-type picker instead of an error toast (#3513)", async () => {
+    stubPathFetch();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "101",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const openWindow = vi.fn();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "New",
+            label: "New Item",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadContentTypes={async () => [
+          { name: "percFile", label: "File" },
+          { name: "rffEvent", label: "Event" },
+        ]}
+        createItem={createItem}
+        openWindow={openWindow}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-New")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-New"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-type-picker")).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Choose a content type from New Item/i)).toBeNull();
+    fireEvent.change(screen.getByTestId("explorer-type-picker-select"), {
+      target: { value: "rffEvent" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-type-picker-ok"));
+    await waitFor(() => {
+      expect(createItem).toHaveBeenCalledWith({
+        contentType: "rffEvent",
+        folderPath: "/Sites/Demo",
+      });
+    });
+    expect(openWindow).toHaveBeenCalled();
+  });
 });
 
 describe("ContentExplorerShell missing BootstrapProvider (#3331)", () => {
