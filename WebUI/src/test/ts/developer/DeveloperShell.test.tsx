@@ -564,6 +564,8 @@ describe("DeveloperShell", () => {
   it("renders shell and loads content types by default", async () => {
     render(<DeveloperShell embedded />);
     expect(screen.getByTestId("perc-developer-shell")).toBeTruthy();
+    expect(screen.getByTestId("developer-related-links")).toBeTruthy();
+    expect(screen.getByTestId("developer-design-library-link")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });

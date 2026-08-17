@@ -16,11 +16,15 @@
  */
 
 /**
- * Primary product top-nav order and role gates (issue #2702 / #2784 / #3088 / #3201).
+ * Primary product top-nav order and role gates (issue #2702 / #2784 / #3088 / #3201 / #3514).
  *
  * Dashboard is intentionally omitted from top chrome (gadgets remain on Home
  * via deep link {@code /home/gadgets}). Administration + Admin tools collapse
  * to a single {@code admin} item labeled <strong>Admin</strong>.
+ *
+ * <p>Editor, Design, and Widget Builder are not top-nav items (#3514). Editor
+ * opens from Explorer / Preview / Home Create. Design is the template library
+ * under Developer. Widget Builder is a Developer sub-entry when enabled.</p>
  *
  * <p>Landing is the unified <strong>Admin tools</strong> shell at {@code /admin}
  * (#2784 / #3088 / #3201) — not a Workflow-only hub. Workflow / roles / users /
@@ -31,17 +35,18 @@
 export type TopNavItemId =
   | "home"
   | "explorer"
-  | "editor"
   | "architecture"
-  | "design"
   | "developer"
   | "publish"
-  | "admin"
-  | "widget-builder";
+  | "admin";
 
 export interface TopNavGates {
   isAdmin?: boolean;
   isDesigner?: boolean;
+  /**
+   * Widget Builder enablement. Not a top-nav gate (#3514); used by Developer
+   * sub-entry chrome via {@link isWidgetBuilderDeveloperEntry}.
+   */
   isWidgetBuilderActive?: boolean;
 }
 
@@ -77,26 +82,33 @@ export const ARCHITECTURE_NAV_LANDING = "/architecture";
 
 /**
  * Ordered top-nav item ids for the given role / feature gates.
- * Explorer is always immediately after Home.
+ * Explorer is always immediately after Home. Editor / Design / Widget Builder
+ * are not top-nav items (#3514).
  */
 export function topNavItemIds(gates: TopNavGates = {}): TopNavItemId[] {
   const isAdmin = !!gates.isAdmin;
   const isDesigner = !!gates.isDesigner || isAdmin;
   const canPublish = isAdmin || isDesigner;
-  const canWb =
-    !!gates.isWidgetBuilderActive && (isAdmin || isDesigner);
 
-  const items: TopNavItemId[] = ["home", "explorer", "editor"];
+  const items: TopNavItemId[] = ["home", "explorer"];
   if (canPublish) {
-    items.push("architecture", "design", "developer", "publish");
+    items.push("architecture", "developer", "publish");
   }
   if (isAdmin) {
     items.push("admin");
   }
-  if (canWb) {
-    items.push("widget-builder");
-  }
   return items;
+}
+
+/**
+ * Whether Widget Builder should appear as a Developer sub-entry (not top nav).
+ */
+export function isWidgetBuilderDeveloperEntry(
+  gates: TopNavGates = {},
+): boolean {
+  const isAdmin = !!gates.isAdmin;
+  const isDesigner = !!gates.isDesigner || isAdmin;
+  return !!gates.isWidgetBuilderActive && (isAdmin || isDesigner);
 }
 
 /**

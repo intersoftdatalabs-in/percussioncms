@@ -24,12 +24,15 @@ import { HOMEPAGE_TYPES } from "../../../main/ts/api/user/userHomepageApi";
 import { fallbackLabelFromKey } from "../../../main/ts/i18n/message";
 
 describe("profileLandingOptions", () => {
-  it("allows Home and Editor for any user", () => {
+  it("allows Home for any user and does not offer Editor or Design (#3514)", () => {
     expect(isProfileLandingAllowed("", {})).toBe(true);
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.HOME, {})).toBe(true);
-    expect(isProfileLandingAllowed(HOMEPAGE_TYPES.EDITOR, {})).toBe(true);
+    expect(isProfileLandingAllowed(HOMEPAGE_TYPES.EDITOR, {})).toBe(false);
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.DESIGNER, {})).toBe(false);
     expect(isProfileLandingAllowed(HOMEPAGE_TYPES.WORKFLOW, {})).toBe(false);
+    const opts = profileLandingOptions({ isAdmin: true, isDesigner: true });
+    expect(opts.some((o) => o.value === HOMEPAGE_TYPES.EDITOR)).toBe(false);
+    expect(opts.some((o) => o.value === HOMEPAGE_TYPES.DESIGNER)).toBe(false);
   });
 
   it("includes Architecture (Navigation) landing for designers", () => {
@@ -54,21 +57,25 @@ describe("profileLandingOptions", () => {
     ).toBe(false);
   });
 
-  it("opens Design for designers and Administration for admins", () => {
+  it("opens Administration for admins and keeps Design only as a stale current value", () => {
     expect(
       isProfileLandingAllowed(HOMEPAGE_TYPES.DESIGNER, { isDesigner: true }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       isProfileLandingAllowed(HOMEPAGE_TYPES.WORKFLOW, { isAdmin: true }),
     ).toBe(true);
     expect(
       isProfileLandingAllowed(HOMEPAGE_TYPES.DESIGNER, { isAdmin: true }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("keeps current value when no longer allowed", () => {
     const opts = profileLandingOptions({}, HOMEPAGE_TYPES.DESIGNER);
     expect(opts.some((o) => o.value === HOMEPAGE_TYPES.DESIGNER)).toBe(true);
+    const editorStale = profileLandingOptions({}, HOMEPAGE_TYPES.EDITOR);
+    expect(editorStale.some((o) => o.value === HOMEPAGE_TYPES.EDITOR)).toBe(
+      true,
+    );
   });
 
   it("labels the Architecture homepage type as Navigation (#3217)", () => {

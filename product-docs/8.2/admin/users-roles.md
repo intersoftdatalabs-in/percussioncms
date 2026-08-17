@@ -138,7 +138,7 @@ landing from **Admin → Users**.
 
 | Control | What it does |
 |---------|----------------|
-| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open (Home, Editor, **Navigation**, and additional screens when your roles include Designer or Admin). **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Use role default** clears your personal override so the role homepage applies. |
+| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open (Home, **Navigation**, and additional screens when your roles include Designer or Admin). **Editor** and **Design** are not offered as new choices (they are not top-nav items). **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. A stored Editor or Design override still appears so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
 | **Save preferences** | Writes the landing override for the signed-in user only. The value is reloaded from the server after save so a failed persist is not shown as success. |
 
 The stored-preference count is informational (existing preference entries for your

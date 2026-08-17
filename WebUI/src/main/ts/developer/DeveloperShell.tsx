@@ -45,6 +45,7 @@ import { TemplatesPanel } from "./TemplatesPanel";
 import { ViewsPanel } from "./ViewsPanel";
 import { WorkflowsPanel } from "./WorkflowsPanel";
 import { catalogColors } from "./catalogStyles";
+import { DeveloperRelatedLinks } from "./DeveloperRelatedLinks";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 
 
@@ -128,6 +129,7 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
         <p style={{ margin: 0, color: catalogColors.muted, maxWidth: "48rem" }}>
           {DEV_MSG.INTRO}
         </p>
+        <DeveloperRelatedLinks />
       </header>
 
       <nav

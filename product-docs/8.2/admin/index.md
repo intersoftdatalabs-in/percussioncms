@@ -18,9 +18,10 @@ For roles that can see the full chrome, the application top navigation is:
 
 1. **Home**
 2. **Explorer** (immediately after Home)
-3. **Editor** (React Content Editor — `spa.jsp?entry=editor` / `/editor`. Does not open leftover `?view=editor` or `editAsset.jsp`. Open an item from Explorer or Home, or create a page, blog post, or asset from **Home → Create**), Navigation, Design, Developer, Publish (role-gated)
+3. **Navigation**, **Developer**, **Publish** (Admin or Designer)
 4. **Admin** (administrators only — one item)
-5. Widget Builder (when that feature is active)
+
+**Editor**, **Design**, and **Widget Builder** are not top-nav items. Open the React Content Editor from Explorer **Edit**, Preview, or **Home → Create** (`spa.jsp?entry=editor` / `/editor` — not leftover `?view=editor` or `editAsset.jsp`). Open the template library from **Developer → Design** (or the existing `/design` deep link). Open Widget Builder from **Developer** when that feature is active.
 
 **Dashboard** is not a top-nav item. Dashboard gadgets remain on Home
 (`/home/gadgets`) and via homepage preference; they are not a separate

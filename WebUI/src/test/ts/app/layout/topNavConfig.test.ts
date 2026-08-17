@@ -21,6 +21,7 @@ import {
   ARCHITECTURE_NAV_LANDING,
   adminTopNavLabel,
   isAdminNavPath,
+  isWidgetBuilderDeveloperEntry,
   topNavItemIds,
 } from "../../../../main/ts/app/layout/topNavConfig";
 
@@ -58,13 +59,10 @@ describe("topNavItemIds (#2702)", () => {
     expect(ids).toEqual([
       "home",
       "explorer",
-      "editor",
       "architecture",
-      "design",
       "developer",
       "publish",
       "admin",
-      "widget-builder",
     ]);
   });
 
@@ -74,12 +72,40 @@ describe("topNavItemIds (#2702)", () => {
     ).toEqual([
       "home",
       "explorer",
-      "editor",
       "architecture",
-      "design",
       "developer",
       "publish",
     ]);
+  });
+
+  it("does not expose Editor, Design, or Widget Builder as top-nav items (#3514)", () => {
+    const ids = topNavItemIds({
+      isAdmin: true,
+      isDesigner: true,
+      isWidgetBuilderActive: true,
+    });
+    expect(ids).not.toContain("editor" as never);
+    expect(ids).not.toContain("design" as never);
+    expect(ids).not.toContain("widget-builder" as never);
+    expect(isWidgetBuilderDeveloperEntry({
+      isAdmin: true,
+      isDesigner: true,
+      isWidgetBuilderActive: true,
+    })).toBe(true);
+    expect(
+      isWidgetBuilderDeveloperEntry({
+        isAdmin: false,
+        isDesigner: true,
+        isWidgetBuilderActive: false,
+      }),
+    ).toBe(false);
+    expect(
+      isWidgetBuilderDeveloperEntry({
+        isAdmin: false,
+        isDesigner: false,
+        isWidgetBuilderActive: true,
+      }),
+    ).toBe(false);
   });
 });
 

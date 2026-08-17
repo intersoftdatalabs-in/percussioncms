@@ -15,13 +15,15 @@
  */
 
 /**
- * Top navigation restructure (#2702 / #2784 / #2953 / #3088 / #3201):
+ * Top navigation restructure (#2702 / #2784 / #2953 / #3088 / #3201 / #3514):
  * - Dashboard removed from SPA top chrome
  * - Explorer immediately after Home
  * - Single consolidated Admin labeled "Admin" (not "Administration")
  * - Admin lands on working Admin tools shell (/admin); workflow/roles/users/
  *   categories are in-shell tabs (sibling chrome removed in #3088).
  *   #3340 is not a revert: do not restore admin-sibling-workflow-link.
+ * - Editor, Design, and Widget Builder are not top-nav items (#3514).
+ *   Widget Builder is a Developer sub-entry when the feature is active.
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/top-nav-restructure.spec.js
@@ -77,6 +79,12 @@ test.describe("Top nav restructure (#2702 / #3201)", () => {
     await expect(admin).toHaveText(/^Admin$/);
     await expect(nav.getByTestId("nav-dashboard")).toHaveCount(0);
     await expect(nav.getByTestId("nav-workflow")).toHaveCount(0);
+    await expect(nav.getByTestId("nav-editor")).toHaveCount(0);
+    await expect(nav.getByTestId("nav-design")).toHaveCount(0);
+    await expect(nav.getByTestId("nav-widget-builder")).toHaveCount(0);
+    await expect(nav.getByTestId("nav-architecture")).toBeVisible();
+    await expect(nav.getByTestId("nav-developer")).toBeVisible();
+    await expect(nav.getByTestId("nav-publish")).toBeVisible();
     await expect(nav.getByRole("link", { name: "Dashboard", exact: true })).toHaveCount(
       0,
     );
@@ -131,25 +139,61 @@ test.describe("Top nav restructure (#2702 / #3201)", () => {
     );
   });
 
-  test("Editor opens the React host, not leftover ?view=editor @smoke @ui", async ({
+  test("Developer sub-entries open Design and optional Widget Builder (#3514) @smoke @ui", async ({
     page,
   }) => {
-    const blocked = [];
-    page.on("request", (req) => {
-      if (/view=editor/.test(req.url())) {
-        blocked.push(req.url());
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
       }
     });
+
     await loginAsAdmin(page);
     await page.goto(homeDeepLink(), { waitUntil: "domcontentloaded" });
     await expectSpaTopNav(page);
-    await page.getByTestId("nav-editor").click();
-    await expect(page.locator('[data-testid="editor-host"]')).toBeVisible({
+    await expect(page.getByTestId("nav-editor")).toHaveCount(0);
+    await expect(page.getByTestId("nav-design")).toHaveCount(0);
+    await expect(page.getByTestId("nav-widget-builder")).toHaveCount(0);
+
+    await page.getByTestId("nav-developer").click();
+    await expect(page.getByTestId("perc-developer-shell")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByTestId("developer-related-links")).toBeVisible({
+      timeout: 15_000,
+    });
+    const designLink = page.getByTestId("developer-design-library-link");
+    await expect(designLink).toBeVisible();
+    await designLink.click();
+    await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByTestId("nav-design")).toHaveCount(0);
+
+    await page.getByTestId("nav-developer").click();
+    await expect(page.getByTestId("perc-developer-shell")).toBeVisible({
       timeout: 20_000,
     });
-    await expect(page).not.toHaveURL(/view=editor/);
-    await expect(page.locator('[data-testid="editor-error"]')).toBeVisible();
-    expect(blocked, `leftover editor requested: ${blocked.join(" ")}`).toEqual(
+    const wb = page.getByTestId("developer-widget-builder-link");
+    if ((await wb.count()) > 0) {
+      await expect(wb).toBeVisible();
+      await wb.click();
+      await expect(page.getByTestId("widget-builder-app")).toBeVisible({
+        timeout: 30_000,
+      });
+      await expect(page.getByTestId("nav-widget-builder")).toHaveCount(0);
+    }
+
+    const unexpected = consoleErrors.filter(
+      (t) =>
+        !/favicon|404|net::ERR|Failed to load resource/i.test(t) &&
+        !/Download the React DevTools/i.test(t),
+    );
+    expect(unexpected, `JS console errors: ${unexpected.join(" | ")}`).toEqual(
       [],
     );
   });

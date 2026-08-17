@@ -19,7 +19,8 @@ In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The clas
 ## Open Design (SPA)
 
 1. Sign in as an **Admin** or **Designer**.
-2. Choose **Design** in the product top navigation, or open:
+2. Open **Developer** in the product top navigation and choose **Design** (template
+   library). Design is not a top-nav item. You can also open:
    - Query contract: `spa.jsp?entry=design&section=templates`
    - Path route: `/cm/app/design` or `/cm/app/design/templates`
    - Legacy bookmarks: `/cm/app/?view=design` and `/cm/app/admin.jsp` redirect here
@@ -28,11 +29,12 @@ In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The clas
      Admin). Until that cutover is on the server, `admin.jsp` may still show the
      classic CM1 Design list.
 3. The **Templates** tab lists assembly templates (label, name, id, description).
-   The shell loads under the same product top nav as Explorer, Navigation, Publish, and Admin.
+   The shell loads under the same product top nav as Explorer, Navigation, Developer, Publish, and Admin.
 
-Default landing can also be set to **Design** for a user or role. After sign-in
-with no deep-link return URL, the dispatcher applies that preference and opens the
-Design SPA.
+A stored **Design** default landing (from before this chrome change) still opens
+the Design SPA after sign-in. New profile and role landing lists do not offer
+Design as a destination — pick **Developer** surfaces via the remaining top-nav
+apps, or clear the override.
 
 ## Template library
 

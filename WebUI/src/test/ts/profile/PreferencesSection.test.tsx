@@ -75,8 +75,8 @@ describe("PreferencesSection", () => {
     const loadLanding = vi
       .fn()
       .mockResolvedValueOnce("")
-      .mockResolvedValue("Editor");
-    const saveLanding = vi.fn().mockResolvedValue("Editor");
+      .mockResolvedValue("Architecture");
+    const saveLanding = vi.fn().mockResolvedValue("Architecture");
     const loadPreferenceCount = vi.fn().mockResolvedValue(0);
     renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
 
@@ -87,17 +87,17 @@ describe("PreferencesSection", () => {
     const select = screen.getByTestId(
       "perc-profile-preferences-landing",
     ) as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "Editor" } });
+    fireEvent.change(select, { target: { value: "Architecture" } });
 
     const save = screen.getByTestId("perc-profile-preferences-save");
     expect((save as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(save);
 
     await waitFor(() => {
-      expect(saveLanding).toHaveBeenCalledWith("Editor");
+      expect(saveLanding).toHaveBeenCalledWith("Architecture");
       expect(screen.getByTestId("perc-profile-preferences-success")).toBeTruthy();
     });
-    expect(select.value).toBe("Editor");
+    expect(select.value).toBe("Architecture");
     expect(loadLanding).toHaveBeenCalledTimes(2);
   });
 
@@ -125,7 +125,7 @@ describe("PreferencesSection", () => {
 
   it("shows save error when reload does not persist the landing (#3207)", async () => {
     const loadLanding = vi.fn().mockResolvedValue("");
-    const saveLanding = vi.fn().mockResolvedValue("Editor");
+    const saveLanding = vi.fn().mockResolvedValue("Architecture");
     const loadPreferenceCount = vi.fn().mockResolvedValue(0);
     renderPrefs({ loadLanding, saveLanding, loadPreferenceCount });
 
@@ -135,11 +135,11 @@ describe("PreferencesSection", () => {
     const select = screen.getByTestId(
       "perc-profile-preferences-landing",
     ) as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "Editor" } });
+    fireEvent.change(select, { target: { value: "Architecture" } });
     fireEvent.click(screen.getByTestId("perc-profile-preferences-save"));
 
     await waitFor(() => {
-      expect(saveLanding).toHaveBeenCalledWith("Editor");
+      expect(saveLanding).toHaveBeenCalledWith("Architecture");
       expect(screen.getByTestId("perc-profile-preferences-error")).toBeTruthy();
     });
     expect(screen.queryByTestId("perc-profile-preferences-success")).toBeNull();

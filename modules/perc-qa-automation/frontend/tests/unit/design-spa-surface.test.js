@@ -37,7 +37,7 @@ const {
 describe("design-spa-surface helpers (#3307)", () => {
   it("exports stable Design SPA test ids", () => {
     assert.equal(TEST_IDS.shell, "perc-design-shell");
-    assert.equal(TEST_IDS.nav, "nav-design");
+    assert.equal(TEST_IDS.nav, "perc-spa-topnav");
     assert.equal(TEST_IDS.tabTemplates, "tab-design-templates");
     assert.equal(TEST_IDS.panel, "design-tpl-panel");
     assert.equal(TEST_IDS.create, "design-tpl-create");
