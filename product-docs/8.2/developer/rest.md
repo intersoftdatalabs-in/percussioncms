@@ -455,6 +455,15 @@ Execute looks up the same combined catalog (searches first, then views). Keys ac
 internal name (`View_All`), display label (`All`), GUID string, or numeric id. Custom URL
 searches and custom views return **400**.
 
+POST body is the JAXB envelope `{ "SearchExecuteRequest": { … } }` (flat
+`startIndex` / `folderPath` is also accepted). Optional fields: `folderPath`,
+`startIndex` (≥ 1), `maxResults` (≥ 1), `sortColumn`, `sortOrder` (`asc` /
+`desc`). `folderPath` may be repository form (`//Sites/...`) or Explorer form
+(`/Sites/...`). Explorer **root** (`/` or `//`) is ignored so **All** /
+`View_All` runs unscoped instead of failing `getIdByPath`. A successful execute
+returns a paged `SearchExecuteResult` (`children[]`, `totalCount`,
+`startIndex`) — an empty `children` array is a valid page, not an error.
+
 ## Content Explorer folders (Rhythmyx path façade)
 
 Public REST for **Rhythmyx** folder operations used by Content Explorer integrators and (later)

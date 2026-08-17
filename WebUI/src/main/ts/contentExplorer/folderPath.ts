@@ -206,15 +206,9 @@ export function isFolderIdLookupPath(
 export function toRepositorySearchFolderPath(
   path: string | null | undefined,
 ): string | undefined {
-  if (path == null) return undefined;
-  let p = path.trim().replace(/\\/g, "/");
-  if (p.length === 0) return undefined;
-  p = p.replace(/^[A-Za-z]:/, "");
-  if (p.length === 0) return undefined;
-  // Collapse all slashes first so //Sites and /Sites share one form.
-  p = p.replace(/\/{2,}/g, "/");
-  if (!p.startsWith("/")) {
-    p = `/${p}`;
-  }
-  return `/${p}`;
+  // Root `/` / `//` is not a repository folder. Sending `//` to execute makes
+  // getIdByPath fail and the operator sees java.io.IOException (#3517).
+  const explorer = normalizeExplorerFolderPath(path);
+  if (explorer == null) return undefined;
+  return `/${explorer}`;
 }

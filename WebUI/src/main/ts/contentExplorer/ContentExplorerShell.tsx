@@ -1399,6 +1399,7 @@ function ContentExplorerShellInner({
             listSavedSearches={listSavedSearches}
             executeSavedSearch={executeSavedSearch}
             initialCriteria={
+              isFolderIdLookupPath(selection.folderPath) &&
               selection.folderPath
                 ? { folderPath: selection.folderPath }
                 : undefined

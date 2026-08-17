@@ -135,6 +135,14 @@ describe("wrapSearchExecuteRequest", () => {
       SearchExecuteRequest: { folderPath: "//Sites", startIndex: 1 },
     });
   });
+
+  it("omits Explorer root folderPath so execute stays unscoped (#3517)", () => {
+    expect(
+      wrapSearchExecuteRequest({ folderPath: "/", startIndex: 1 }),
+    ).toEqual({
+      SearchExecuteRequest: { startIndex: 1 },
+    });
+  });
 });
 
 describe("executeSearch", () => {

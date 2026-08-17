@@ -17,6 +17,7 @@
 
 package com.percussion.rest.searches;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -27,6 +28,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * PSSearch}. Clients may only scope, page, and sort.
  */
 @XmlRootElement(name = "SearchExecuteRequest")
+@JsonRootName("SearchExecuteRequest")
 @Schema(description = "Optional overrides when executing a CX design search by id or name")
 public class SearchExecuteRequest {
 
