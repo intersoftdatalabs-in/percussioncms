@@ -35,6 +35,20 @@ import React, {
 } from "react";
 import { formatApiError } from "../api/client";
 import {
+  addSlotRelationship,
+  fetchSlotAllowedTemplates,
+} from "../api/contentExplorer/slotRelationshipApi";
+import { ContentBrowser } from "../contentBrowser/ContentBrowser";
+import type { AssemblySlotContext } from "../assembly/slotContext";
+import {
+  replaceSlotDependentPickerSession,
+  resolveSlotDependentPick,
+  settleSlotDependentPickerSession,
+  type SlotDependentPick,
+  type SlotDependentPickerSession,
+} from "../assembly/slotDependentPick";
+import { ASSEMBLY_MSG } from "../assembly/messages";
+import {
   loadExplorerMenuCatalog,
   parseExplorerContentId,
 } from "./menuCatalogLoad";
@@ -223,6 +237,16 @@ export interface ContentExplorerShellProps {
     idOrName: string,
     request?: ViewExecuteRequest | null,
   ) => Promise<ViewExecuteResult>;
+  /**
+   * Selected AA slot. Folder browse has none — slot add stays needs-slot.
+   * Tests / AA hosts inject a slot so Explorer Slot_Add can open Content
+   * Browser and POST {@code /services/assembly/slot-relationships}.
+   */
+  slot?: AssemblySlotContext | null;
+  /** Test seam: persist a slot relationship after Content Browser pick. */
+  addToSlot?: typeof addSlotRelationship;
+  /** Test seam: allowed snippet templates for the selected slot. */
+  loadSlotAllowedTemplates?: typeof fetchSlotAllowedTemplates;
 }
 
 type ContextMenuState = {
@@ -413,6 +437,9 @@ function ContentExplorerShellInner({
   executeSavedSearch,
   listViews = listViewsApi,
   executeView = executeViewApi,
+  slot = null,
+  addToSlot = addSlotRelationship,
+  loadSlotAllowedTemplates = fetchSlotAllowedTemplates,
   bootstrap,
 }: ContentExplorerShellProps & { bootstrap: SpaBootstrap }): React.ReactElement {
   const currentUserIdentities = useMemo(() => {
@@ -480,6 +507,8 @@ function ContentExplorerShellInner({
     null,
   );
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+  const [slotPickerOpen, setSlotPickerOpen] = useState(false);
+  const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
   const [templatePicker, setTemplatePicker] =
     useState<TemplatePickerSession | null>(null);
   const templatePickerRef = useRef<TemplatePickerSession | null>(null);
@@ -762,7 +791,27 @@ function ContentExplorerShellInner({
       const current = templatePickerRef.current;
       templatePickerRef.current = null;
       settleTemplatePickerSession(current, null);
+      const slotCurrent = slotPickerRef.current;
+      slotPickerRef.current = null;
+      settleSlotDependentPickerSession(slotCurrent, null);
     };
+  }, []);
+
+  const pickSlotDependent = useCallback((nextSlot: AssemblySlotContext) => {
+    return new Promise<SlotDependentPick | null>((resolve) => {
+      slotPickerRef.current = replaceSlotDependentPickerSession(
+        slotPickerRef.current,
+        { slot: nextSlot, resolve },
+      );
+      setSlotPickerOpen(true);
+    });
+  }, []);
+
+  const finishSlotPicker = useCallback((value: SlotDependentPick | null) => {
+    const current = slotPickerRef.current;
+    slotPickerRef.current = null;
+    setSlotPickerOpen(false);
+    settleSlotDependentPickerSession(current, value);
   }, []);
 
   /**
@@ -800,6 +849,9 @@ function ContentExplorerShellInner({
               setShowRevisions(true);
             },
             pickPageTemplate,
+            slot,
+            addToSlot,
+            pickSlotDependent,
           });
           if (result.messageKey) {
             const msg = message(result.messageKey);
@@ -836,6 +888,9 @@ function ContentExplorerShellInner({
       menuActions,
       contextMenu,
       pickPageTemplate,
+      slot,
+      addToSlot,
+      pickSlotDependent,
     ],
   );
 
@@ -1580,6 +1635,42 @@ function ContentExplorerShellInner({
           onPick={(id) => finishTemplatePicker(id)}
           onCancel={() => finishTemplatePicker(null)}
         />
+      ) : null}
+      {slotPickerOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-testid="explorer-slot-add-dialog"
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15,23,42,0.45)",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            zIndex: 40,
+            padding: 24,
+          }}
+        >
+          <ContentBrowser
+            mode="select"
+            allowItemSelect
+            allowFolderSelect={false}
+            title={message(ASSEMBLY_MSG.SLOT_BROWSER_TITLE)}
+            onCancel={() => finishSlotPicker(null)}
+            onConfirm={(selection) => {
+              void (async () => {
+                const slotId = slotPickerRef.current?.slot.slotId ?? 0;
+                const picked = await resolveSlotDependentPick(
+                  selection,
+                  slotId,
+                  loadSlotAllowedTemplates,
+                );
+                finishSlotPicker(picked);
+              })();
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );

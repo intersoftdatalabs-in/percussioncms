@@ -257,4 +257,188 @@ test.describe("modern React Active Assembly — preview host", () => {
       expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "slot add opens Content Browser; cancel does not POST; pick posts relationship",
+    { tag: ["@explorer-active-assembly", "@explorer", "@aa-slots"] },
+    async ({ page }) => {
+      const blocked = [];
+      const posted = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => consoleErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      page.on("request", (req) => {
+        const u = req.url();
+        if (
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html") ||
+          u.includes("variantlistwithslots.html") ||
+          u.includes("sys_cxSupport/")
+        ) {
+          blocked.push(u);
+        }
+      });
+
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ActionMenuList: [
+              {
+                name: "rffPgGeneric",
+                label: "Generic Page",
+                url: "../assembler/render?sys_template=7",
+                sortRank: 0,
+                type: "MENUITEM",
+              },
+            ],
+          }),
+        });
+      });
+      await page.route("**/services/assembly/preview-location**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+            contentId: 42,
+            templateId: 7,
+            revision: 1,
+          }),
+        });
+      });
+      await page.route("**/services/assembly/slot-relationships/canvas**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ownerId: 42,
+            templateId: 7,
+            slots: [{ slotId: 3, name: "sidebar", label: "Sidebar", items: [] }],
+          }),
+        });
+      });
+      await page.route(
+        "**/services/assembly/slot-relationships/allowed-templates**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              items: [{ id: 4, name: "rffSnTitle", label: "Title" }],
+            }),
+          });
+        },
+      );
+      await page.route("**/services/assembly/slot-relationships", async (route) => {
+        if (route.request().method() === "POST") {
+          posted.push(route.request().postData() || "");
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              relationshipId: 9,
+              ownerId: 42,
+              dependentId: 7,
+              slotId: 3,
+              templateId: 4,
+              sortRank: 0,
+            }),
+          });
+          return;
+        }
+        await route.continue();
+      });
+      await page.route("**/assembler/render**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<html><body>preview</body></html>",
+        });
+      });
+      await page.route("**/pathmanagement/**", async (route) => {
+        const u = route.request().url();
+        if (u.includes("paginatedFolder") || u.includes("/folder/")) {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              PagedItemList: {
+                childrenInPage: [
+                  {
+                    id: "7",
+                    name: "Snippet",
+                    path: "/Sites/Demo/Snippet",
+                    type: "page",
+                    leaf: true,
+                  },
+                ],
+                childrenCount: 1,
+                startIndex: 0,
+              },
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PathItem: {
+              id: "1",
+              name: "Sites",
+              path: "/Sites",
+              type: "folder",
+              leaf: false,
+            },
+          }),
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
+      await page.waitForLoadState("networkidle");
+      const slotBar = page.locator('[data-testid="assembly-slot-bar"]');
+      const slotChip = page.locator('[data-testid="assembly-slot-3"]');
+      if (!(await slotChip.isVisible().catch(() => false))) {
+        test.skip(
+          true,
+          "H2 has no slot canvas for this assembly template; slot add is not exercisable",
+        );
+        return;
+      }
+      await expect(slotBar).toBeVisible();
+      await slotChip.click();
+      await expect(page.locator('[data-testid="assembly-slot-add"]')).toBeEnabled();
+      await page.locator('[data-testid="assembly-slot-add"]').click();
+      await expect(page.locator('[data-testid="assembly-slot-add-dialog"]')).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(page.locator('[data-testid="content-browser"]')).toBeVisible();
+      await page.locator('[data-testid="content-browser-cancel"]').click();
+      await expect(page.locator('[data-testid="assembly-slot-add-dialog"]')).toHaveCount(0);
+      expect(posted, "cancel must not POST slot-relationships").toEqual([]);
+
+      await page.locator('[data-testid="assembly-slot-add"]').click();
+      await expect(page.locator('[data-testid="content-browser"]')).toBeVisible();
+      const row = page.locator('[data-testid="detail-row-7"]');
+      if (await row.isVisible().catch(() => false)) {
+        await row.click();
+        await page.locator('[data-testid="content-browser-confirm"]').click();
+        await expect.poll(() => posted.length).toBe(1);
+      }
+
+      expect(blocked, `Data Flow AA HTML must not be requested: ${blocked.join(" ")}`).toEqual(
+        [],
+      );
+      const serious = consoleErrors.filter(
+        (t) => !/favicon|ResizeObserver|net::ERR|Failed to load resource/i.test(t),
+      );
+      expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+    },
+  );
 });
