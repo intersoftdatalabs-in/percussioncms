@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +44,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
@@ -190,11 +192,18 @@ class SitesAdaptorTest {
 
     ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
     verify(siteManager).saveSite(saved.capture());
-    assertTrue(PSVirtualSiteHelper.isVirtual(saved.getValue()));
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
     assertEquals(
         "product-docs",
-        PSVirtualSiteHelper.findProperty(saved.getValue(), PSVirtualSiteHelper.PROP_SITE_KEY)
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SITE_KEY)
             .orElse(null));
+    assertEquals(100L, persisted.getSiteId());
+    assertFalse(persisted.getProperties().isEmpty());
+    for (PSSiteProperty property : persisted.getProperties()) {
+      assertSame(persisted, property.getSite(), property.getName());
+      assertEquals(100L, ((PSSite) property.getSite()).getSiteId());
+    }
   }
 
   @Test

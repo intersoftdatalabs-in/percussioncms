@@ -84,12 +84,12 @@ public class PSSiteProperty implements IPSCatalogItem, Serializable {
   Integer version;
 
   /**
-   * Parent site FK. Must be insertable so a new-site persist that also writes
-   * {@code RXASSEMBLERPROPERTIES} (managed-nav flag, Virtual source) includes
-   * {@code SITEID}. {@code insertable=false} produced H2 {@code NULL not
-   * allowed for column SITEID} on Create Site (#3511 / #3521).
+   * Owning {@code RXASSEMBLERPROPERTIES.SITEID} mapping. Must stay insertable so Hibernate 6 writes
+   * SITEID on INSERT (Create Site and Developer Virtual Site save). {@code insertable=false} plus a
+   * parent-side {@code @JoinColumn} omitted the column and H2 rejected {@code NULL SITEID} (#3511 /
+   * #3521). Parent {@link PSSite} properties use {@code mappedBy = "site"}.
    */
-  @ManyToOne(targetEntity = PSSite.class)
+  @ManyToOne(targetEntity = PSSite.class, optional = false)
   @JoinColumn(name = "SITEID", nullable = false)
   IPSSite site;
 

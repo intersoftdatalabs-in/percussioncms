@@ -326,11 +326,14 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean pageBased;
 
+    // mappedBy: child PSSiteProperty.site owns RXASSEMBLERPROPERTIES.SITEID so
+    // Hibernate 6 includes SITEID on INSERT (NOT NULL). Dual @JoinColumn made
+    // the child insertable=false and H2 rejected Virtual Site property saves.
     @OneToMany(targetEntity = PSSiteProperty.class,
+            mappedBy = "site",
             cascade = {CascadeType.ALL},
             fetch = FetchType.EAGER,
             orphanRemoval = true)
-    @JoinColumn(name = "SITEID")
     @Fetch(FetchMode.SUBSELECT)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<PSSiteProperty> properties = new HashSet<>();
@@ -818,6 +821,9 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         if (properties == null)
             properties = new HashSet<>();
 
+        if (prop.getSite() != this) {
+            prop.setSite(this);
+        }
         properties.add(prop);
     }
 
