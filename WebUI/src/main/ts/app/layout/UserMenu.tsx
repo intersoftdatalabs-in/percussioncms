@@ -30,12 +30,14 @@ import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
 import { resolveAvatarPresentation } from "../../profile/gravatar";
 import { PROFILE_MSG } from "../../profile/messages";
+import { saveLastCommunity } from "../../profile/rememberLastCommunity";
 import { UserAvatar } from "../../profile/UserAvatar";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import styles from "./AppLayout.module.css";
 import {
   communityOptionTestId,
   dispatchSessionCommunityChanged,
+  SESSION_COMMUNITY_CHANGED_EVENT,
 } from "./sessionCommunity";
 
 export function UserMenu(): React.ReactElement {
@@ -92,6 +94,20 @@ export function UserMenu(): React.ReactElement {
   }, [name, bootstrap.userName, allowExternal]);
 
   useEffect(() => {
+    const onChanged = (event: Event): void => {
+      const detail = (event as CustomEvent<{ community?: string }>).detail;
+      const next = (detail?.community ?? "").trim();
+      if (next) {
+        setCurrentCommunity(next);
+      }
+    };
+    window.addEventListener(SESSION_COMMUNITY_CHANGED_EVENT, onChanged);
+    return () => {
+      window.removeEventListener(SESSION_COMMUNITY_CHANGED_EVENT, onChanged);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!switchOpen) {
       return;
     }
@@ -130,6 +146,13 @@ export function UserMenu(): React.ReactElement {
       setCurrentCommunity(trimmed);
       setSwitchOpen(false);
       dispatchSessionCommunityChanged(trimmed);
+      // Write-only persist so login restore has a name. Do not GET prefs
+      // from chrome (#3468 / #3458). Persist failure must not undo switch.
+      try {
+        await saveLastCommunity(bootstrap.userName ?? name, trimmed);
+      } catch {
+        // last-community write is best-effort
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
