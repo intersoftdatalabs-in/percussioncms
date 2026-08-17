@@ -73,6 +73,13 @@ import {
   type OverlayField,
 } from "./overlayFields";
 import type { AssemblySlotContext } from "./slotContext";
+import {
+  replaceSlotDependentPickerSession,
+  resolveSlotDependentPick,
+  settleSlotDependentPickerSession,
+  type SlotDependentPick,
+  type SlotDependentPickerSession,
+} from "./slotDependentPick";
 
 export interface AssemblyTemplateOption {
   id: number;
@@ -219,6 +226,7 @@ export function AssemblyHost({
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
   const [savingFields, setSavingFields] = useState(false);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
+  const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
 
   useEffect(() => {
     document.title = message(ASSEMBLY_MSG.TITLE);
@@ -418,37 +426,66 @@ export function AssemblyHost({
         }
       : null;
 
+  const finishSlotDependentPick = useCallback((value: SlotDependentPick | null) => {
+    const current = slotPickerRef.current;
+    slotPickerRef.current = null;
+    setDialog((open) => (open === "add" ? null : open));
+    settleSlotDependentPickerSession(current, value);
+  }, []);
+
+  const pickSlotDependent = useCallback(
+    (slot: AssemblySlotContext) => {
+      return new Promise<SlotDependentPick | null>((resolve) => {
+        slotPickerRef.current = replaceSlotDependentPickerSession(
+          slotPickerRef.current,
+          { slot, resolve },
+        );
+        setDialog("add");
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      const current = slotPickerRef.current;
+      slotPickerRef.current = null;
+      settleSlotDependentPickerSession(current, null);
+    };
+  }, []);
+
   async function runSlotAction(name: string): Promise<void> {
     setSlotNotice(null);
-    const result = await dispatchAction(
-      { name, label: name, url: "", sortRank: 0, menuType: "MENUITEM" },
-      {
-        item: null,
-        slot: slotCtx,
-        addToSlot,
-        removeSlotRel,
-        moveSlotRel,
-        changeSlotTemplate,
-        createItem,
-        pickSlotDependent: async () => {
-          setDialog("add");
-          return null;
+    try {
+      const result = await dispatchAction(
+        { name, label: name, url: "", sortRank: 0, menuType: "MENUITEM" },
+        {
+          item: null,
+          slot: slotCtx,
+          addToSlot,
+          removeSlotRel,
+          moveSlotRel,
+          changeSlotTemplate,
+          createItem,
+          pickSlotDependent,
+          pickSlotCreate: async () => {
+            setDialog("create");
+            return null;
+          },
+          pickSlotTemplateSlot: async () => {
+            setDialog("change");
+            return null;
+          },
         },
-        pickSlotCreate: async () => {
-          setDialog("create");
-          return null;
-        },
-        pickSlotTemplateSlot: async () => {
-          setDialog("change");
-          return null;
-        },
-      },
-    );
-    if (result.messageKey) {
-      setSlotNotice(message(result.messageKey));
-    }
-    if (result.refresh) {
-      await refreshCanvas();
+      );
+      if (result.messageKey) {
+        setSlotNotice(message(result.messageKey));
+      }
+      if (result.refresh) {
+        await refreshCanvas();
+      }
+    } catch {
+      setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
     }
   }
 
@@ -711,35 +748,23 @@ export function AssemblyHost({
               allowItemSelect
               allowFolderSelect={false}
               title={message(ASSEMBLY_MSG.SLOT_BROWSER_TITLE)}
-              onCancel={() => setDialog(null)}
+              onCancel={() => finishSlotDependentPick(null)}
               onConfirm={(selection: SelectionResult) => {
                 void runSlotDialogWork(
                   async () => {
-                    const first = selection.items[0];
-                    const dep = parseExplorerContentId(first?.id);
-                    if (dep == null) {
-                      setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                      return;
-                    }
-                    let snippetTemplate = Number(pickedTemplate);
-                    if (!Number.isFinite(snippetTemplate) || snippetTemplate <= 0) {
-                      const tpls = await loadAllowedTemplates(selectedSlotId);
-                      snippetTemplate = tpls[0]?.id ?? 0;
-                    }
-                    if (snippetTemplate <= 0) {
-                      setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
-                      return;
-                    }
-                    await addToSlot({
-                      ownerId: contentId,
-                      dependentId: dep,
-                      slotId: selectedSlotId,
-                      templateId: snippetTemplate,
-                    });
-                    setDialog(null);
-                    await refreshCanvas();
+                    const slotId =
+                      slotPickerRef.current?.slot.slotId ?? selectedSlotId;
+                    const picked = await resolveSlotDependentPick(
+                      selection,
+                      slotId,
+                      loadAllowedTemplates,
+                    );
+                    finishSlotDependentPick(picked);
                   },
-                  () => setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED)),
+                  () => {
+                    finishSlotDependentPick(null);
+                    setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
+                  },
                 );
               }}
             />
