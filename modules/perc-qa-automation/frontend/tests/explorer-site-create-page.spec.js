@@ -20,7 +20,8 @@
  *
  * <p>Coverage:</p>
  * <ul>
- *   <li>Type picker: Page is selectable; Virtual stays blocked</li>
+ *   <li>Type picker: Page is selectable; Virtual stays enabled on the cluster
+ *       union (no typeUnavailable banner; Next remains enabled)</li>
  *   <li>Page flow: details (managed nav locked) → page/base template → confirm</li>
  *   <li>Traditional still skips the template step</li>
  *   <li>Live Page create persists on POST /sitemanage/site/ and lists under Sites</li>
@@ -113,7 +114,7 @@ function attachConsoleGate(page) {
 
 test.describe("Explorer Page site create (#3520 / #3512)", () => {
   test(
-    "type picker: Page selectable, Virtual blocked, Traditional skips template",
+    "type picker: Page selectable, Virtual enabled, Traditional skips template",
     { tag: ["@explorer-site-create-page", "@explorer", "@sites"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -133,15 +134,19 @@ test.describe("Explorer Page site create (#3520 / #3512)", () => {
         page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
       ).toBeVisible({ timeout: 10_000 });
 
-      await page.locator(`[data-testid="${TEST_IDS.typeVirtual}"]`).click();
+      const unavailable = page.locator(
+        `[data-testid="${TEST_IDS.typeUnavailable}"]`,
+      );
+      await page.locator(`[data-testid="${TEST_IDS.typeVirtual}"]`).check();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.typeUnavailable}"]`),
+        page.locator(`[data-testid="${TEST_IDS.virtualNote}"]`),
       ).toBeVisible();
+      await expect(unavailable).toHaveCount(0);
       await expect(
         page.locator(`[data-testid="${TEST_IDS.next}"]`),
-      ).toBeDisabled();
+      ).toBeEnabled();
 
-      await page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`).check();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.traditionalNote}"]`),
       ).toBeVisible();
@@ -166,10 +171,14 @@ test.describe("Explorer Page site create (#3520 / #3512)", () => {
 
       await page.locator(`[data-testid="${TEST_IDS.back}"]`).click();
       await page.locator(`[data-testid="${TEST_IDS.back}"]`).click();
-      await page.locator(`[data-testid="${TEST_IDS.typePage}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.typePage}"]`).check();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.pageNote}"]`),
       ).toBeVisible();
+      await expect(unavailable).toHaveCount(0);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.next}"]`),
+      ).toBeEnabled();
       await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.managedNav}"]`),
@@ -217,7 +226,7 @@ test.describe("Explorer Page site create (#3520 / #3512)", () => {
         page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
       ).toBeVisible({ timeout: 10_000 });
 
-      await page.locator(`[data-testid="${TEST_IDS.typePage}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.typePage}"]`).check();
       await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
 
       const siteName = uniqueQaSiteName("QaPage");

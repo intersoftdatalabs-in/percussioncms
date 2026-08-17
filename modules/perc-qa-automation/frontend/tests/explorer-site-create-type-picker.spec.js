@@ -21,7 +21,7 @@
  * <p>Covers Explorer Content → Create Site and Navigation New Site:</p>
  * <ul>
  *   <li>Type picker first (Traditional / Page / Virtual); Traditional default</li>
- *   <li>Page and Virtual stay on the type step with a clear message</li>
+ *   <li>Page and Virtual are enabled on the cluster union (do not block Next)</li>
  *   <li>Traditional: details → confirm with no template-name / base-template</li>
  * </ul>
  *
@@ -78,7 +78,7 @@ async function openExplorerCreateSiteOrSkip(page) {
 
 test.describe("Create Site type picker (#3522 / #3512)", () => {
   test(
-    "Explorer: type picker defaults Traditional; Page/Virtual block Next",
+    "Explorer: type picker defaults Traditional; Page/Virtual stay enabled",
     {
       tag: [
         "@explorer-site-create-type-picker",
@@ -120,26 +120,32 @@ test.describe("Create Site type picker (#3522 / #3512)", () => {
       ).toBeVisible();
 
       const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      const unavailable = page.locator(
+        `[data-testid="${TEST_IDS.typeUnavailable}"]`,
+      );
       await page.locator(`[data-testid="${TEST_IDS.typePage}"]`).check();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.typeUnavailable}"]`),
+        page.locator(`[data-testid="${TEST_IDS.pageNote}"]`),
       ).toBeVisible();
-      await expect(next).toBeDisabled();
+      await expect(unavailable).toHaveCount(0);
+      await expect(next).toBeEnabled();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.stepDetails}"]`),
       ).toHaveCount(0);
 
       await page.locator(`[data-testid="${TEST_IDS.typeVirtual}"]`).check();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.typeUnavailable}"]`),
+        page.locator(`[data-testid="${TEST_IDS.virtualNote}"]`),
       ).toBeVisible();
-      await expect(next).toBeDisabled();
+      await expect(unavailable).toHaveCount(0);
+      await expect(next).toBeEnabled();
 
       await page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`).check();
-      await expect(next).toBeEnabled();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.typeUnavailable}"]`),
-      ).toHaveCount(0);
+        page.locator(`[data-testid="${TEST_IDS.traditionalNote}"]`),
+      ).toBeVisible();
+      await expect(next).toBeEnabled();
+      await expect(unavailable).toHaveCount(0);
 
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
       expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);

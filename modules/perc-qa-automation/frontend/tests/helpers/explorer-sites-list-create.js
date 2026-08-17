@@ -29,11 +29,17 @@ const TEST_IDS = Object.freeze({
   typeTraditional: "site-create-type-traditional",
   typePage: "site-create-type-page",
   typeVirtual: "site-create-type-virtual",
+  /** Shown only when the selected kind is not enabled in the product. */
+  typeUnavailable: "site-create-type-unavailable",
+  pageNote: "site-create-page-note",
   siteName: "site-create-name",
   description: "site-create-description",
   templateName: "site-create-template-name",
   baseTemplate: "site-create-base-template",
   confirmSummary: "site-create-confirm-summary",
+  confirmType: "site-create-confirm-type",
+  confirmTemplateName: "site-create-confirm-template-name",
+  confirmBaseTemplate: "site-create-confirm-base-template",
   next: "site-create-next",
   back: "site-create-back",
   run: "site-create-run",
@@ -178,6 +184,20 @@ function folderChildrenUrl(baseUrl, cmsPath) {
 }
 
 /**
+ * Select Traditional on the type picker and advance to the details step.
+ * @param {import('@playwright/test').Page} page
+ */
+async function advanceTraditionalTypeStep(page) {
+  const typeStep = page.locator(`[data-testid="${TEST_IDS.stepType}"]`);
+  await typeStep.waitFor({ state: "visible", timeout: 10_000 });
+  await page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`).check();
+  await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+  await page
+    .locator(`[data-testid="${TEST_IDS.stepDetails}"]`)
+    .waitFor({ state: "visible", timeout: 10_000 });
+}
+
+/**
  * Open Content menu dropdown.
  * @param {import('@playwright/test').Page} page
  */
@@ -305,6 +325,7 @@ module.exports = {
   siteChildListCandidates,
   folderChildrenUrl,
   openContentMenu,
+  advanceTraditionalTypeStep,
   sitesTreeRootLocator,
   expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
