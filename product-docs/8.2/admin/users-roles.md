@@ -48,6 +48,21 @@ users after each Add. **Remove** returns that user to Available Users so you can
 re-assign them. Changes apply only when you **Submit**; **Cancel** discards the
 in-progress membership edits.
 
+The editor also has a **Default homepage** list. It is the same remaining top-nav
+apps as **My profile → Preferences** and **Admin → Users**: **Home**, **Explorer**,
+**Navigation**, **Developer**, **Publish**, and **Admin**. Members of the role land
+there after sign-in unless they set a personal override. **Editor** and **Design**
+are not new choices (they leave top nav); if the role already stored one of those
+values (or **Dashboard**), it still appears once so you can change it.
+
+### Admin → Users (default landing)
+
+Open **Admin → Users** (or deep link `spa.jsp?entry=admin&tab=users`) and edit a
+user. **Default landing page** lists the same remaining apps as profile Preferences
+(Explorer in; Editor/Design not offered as new choices). **Use role default**
+clears the user override so the role homepage applies. A stale stored Editor or
+Design value still appears once so you can clear it.
+
 ## Workflow
 
 Workflow states gate who can edit and publish. Common patterns:
@@ -138,7 +153,7 @@ landing from **Admin → Users**.
 
 | Control | What it does |
 |---------|----------------|
-| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open — the same remaining top-nav apps as chrome: **Home**, **Explorer**, **Navigation**, and (when your roles include Designer or Admin) **Developer**, **Publish**, and **Admin**. **Explorer** is stored as homepage type `Explorer` and opens the Content Explorer SPA. **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Editor** and **Design** are no longer offered as new choices (they are not top-nav items); if you already stored one of those values, it still appears once so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
+| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open — the same remaining top-nav apps as chrome and as **Admin → Users / Roles**: **Home**, **Explorer**, **Navigation**, and (when your roles include Designer or Admin) **Developer**, **Publish**, and **Admin**. **Explorer** is stored as homepage type `Explorer` and opens the Content Explorer SPA. **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Editor** and **Design** are no longer offered as new choices (they are not top-nav items); if you already stored one of those values, it still appears once so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
 | **Save preferences** | Writes the landing override for the signed-in user only. The value is reloaded from the server after save so a failed persist is not shown as success. |
 
 The stored-preference count is informational (existing preference entries for your

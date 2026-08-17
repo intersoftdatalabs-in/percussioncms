@@ -26,6 +26,8 @@ export interface Role {
   name: string;
   description: string;
   users: string[];
+  /** Canonical role homepage type (Home, Explorer, …). */
+  homepage?: string;
 }
 
 export const RolesSection: React.FC = () => {
@@ -53,9 +55,10 @@ export const RolesSection: React.FC = () => {
               name: role.name || name,
               description: role.description || "",
               users: asStringArray(role.users),
+              homepage: role.homepage || "Home",
             };
           } catch {
-            return { name, description: "", users: [] };
+            return { name, description: "", users: [], homepage: "Home" };
           }
         })
       );

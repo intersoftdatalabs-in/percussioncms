@@ -51,7 +51,7 @@ test.describe("Admin Users default landing page (#2211)", () => {
     );
     await expect(landingSelect).toBeVisible();
 
-    // Role-default + Home + Editor at minimum (Admin also gets Design/Admin options)
+    // Remaining-app list (#3537): role-default + Home + Explorer; Editor/Design not new
     const options = landingSelect.locator("option");
     const optionCount = await options.count();
     expect(optionCount).toBeGreaterThanOrEqual(3);
@@ -59,17 +59,23 @@ test.describe("Admin Users default landing page (#2211)", () => {
     const help = page.locator("[data-testid='user-default-landing-help']");
     await expect(help).toBeVisible();
 
-    // Select Home if available, or leave role default — ensure control is interactive
     const values = await options.evaluateAll((els) =>
       els.map((o) => o.value),
     );
     expect(values).toContain("");
     expect(values).toContain("Home");
-    expect(values).toContain("Editor");
+    expect(values).toContain("Explorer");
+    const current = await landingSelect.inputValue();
+    if (current !== "Editor") {
+      expect(values).not.toContain("Editor");
+    }
+    if (current !== "Designer") {
+      expect(values).not.toContain("Designer");
+    }
 
-    if (values.includes("Editor")) {
-      await landingSelect.selectOption("Editor");
-      await expect(landingSelect).toHaveValue("Editor");
+    if (values.includes("Explorer")) {
+      await landingSelect.selectOption("Explorer");
+      await expect(landingSelect).toHaveValue("Explorer");
     }
 
     // Cancel without saving permanent fixture data
@@ -78,5 +84,74 @@ test.describe("Admin Users default landing page (#2211)", () => {
       await cancelBtn.click();
       await expect(usersSection).toBeVisible({ timeout: 15000 });
     }
+  });
+});
+
+test.describe("Admin Roles default homepage (#3537)", () => {
+  test("Roles editor lists remaining top-nav apps, not Editor/Design", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await loginAsAdmin(page);
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=admin&tab=roles&_=${Date.now()}`,
+      { waitUntil: "domcontentloaded" },
+    );
+
+    const shell = page.locator("[data-testid='perc-admin-shell']");
+    await expect(shell).toBeVisible({ timeout: 30000 });
+
+    const rolesTab = page.locator("[data-testid='tab-roles']");
+    await expect(rolesTab).toBeVisible();
+    if ((await rolesTab.getAttribute("aria-selected")) !== "true") {
+      await rolesTab.click();
+    }
+
+    const rolesSection = page.locator("[data-testid='perc-roles-section']");
+    await expect(rolesSection).toBeVisible({ timeout: 30000 });
+
+    const adminEdit = page.locator("[data-testid='edit-role-Admin']");
+    const anyEdit = page.locator("[data-testid^='edit-role-']").first();
+    if (await adminEdit.count()) {
+      await adminEdit.click();
+    } else {
+      await expect(anyEdit).toBeVisible({ timeout: 30000 });
+      await anyEdit.click();
+    }
+
+    const editor = page.locator("[data-testid='perc-role-editor']");
+    await expect(editor).toBeVisible({ timeout: 15000 });
+
+    const homepageSelect = page.locator(
+      "[data-testid='role-default-homepage-select']",
+    );
+    await expect(homepageSelect).toBeVisible();
+    await expect(
+      page.locator("[data-testid='role-default-homepage-help']"),
+    ).toBeVisible();
+
+    const values = await homepageSelect.locator("option").evaluateAll((els) =>
+      els.map((o) => o.value),
+    );
+    expect(values).toContain("Home");
+    expect(values).toContain("Explorer");
+    expect(values).toContain("Architecture");
+    expect(values).toContain("Developer");
+    expect(values).toContain("Publish");
+    expect(values).toContain("Workflow");
+    const current = await homepageSelect.inputValue();
+    if (current !== "Editor") {
+      expect(values).not.toContain("Editor");
+    }
+    if (current !== "Designer") {
+      expect(values).not.toContain("Designer");
+    }
+
+    const cancelBtn = page.locator("[data-testid='cancel-role-button']");
+    await cancelBtn.click();
+    await expect(rolesSection).toBeVisible({ timeout: 15000 });
+    expect(pageErrors, `pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 });

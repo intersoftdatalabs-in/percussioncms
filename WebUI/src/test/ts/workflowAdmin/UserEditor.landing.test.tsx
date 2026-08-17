@@ -93,6 +93,12 @@ describe("UserEditor default landing", () => {
     });
 
     expect(screen.getByTestId("user-default-landing-help")).toBeTruthy();
+
+    const values = Array.from(select.options).map((o) => o.value);
+    expect(values).toContain("Home");
+    expect(values).toContain("Explorer");
+    expect(values).toContain("Editor");
+    expect(values).not.toContain("Designer");
   });
 
   it("saves landing override via setUserHomepageOverride on submit", async () => {

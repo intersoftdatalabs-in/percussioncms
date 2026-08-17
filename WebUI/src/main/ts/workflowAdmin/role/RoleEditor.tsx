@@ -21,6 +21,10 @@ import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
 import { Role } from "./RolesSection";
+import {
+  canonicalizeRoleHomepage,
+  roleLandingOptions,
+} from "./roleLandingOptions";
 import { availableUsersMinusAssigned } from "./roleUsers";
 
 interface RoleEditorProps {
@@ -37,9 +41,16 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
   const [name, setName] = useState<string>(role?.name || "");
   const [description, setDescription] = useState<string>(role?.description || "");
   const [assignedUsers, setAssignedUsers] = useState<string[]>(role?.users || []);
+  const [homepage, setHomepage] = useState<string>(
+    canonicalizeRoleHomepage(role?.homepage),
+  );
   const [allUsers, setAllUsers] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const homepageOptions = useMemo(
+    () => roleLandingOptions(homepage),
+    [homepage],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -106,7 +117,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
         name: name.trim(),
         description: description.trim(),
         users: assignedUsers,
-        homepage: "Home",
+        homepage: canonicalizeRoleHomepage(homepage),
         ...(role ? { oldName: role.name } : {}),
       },
     };
@@ -171,7 +182,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
           />
         </div>
 
-        <div>
+        <div style={{ marginBottom: "16px" }}>
           <label style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}>Description</label>
           <textarea
             value={description}
@@ -180,6 +191,47 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
             style={{ width: "100%", maxWidth: "600px", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
             data-testid="role-description-input"
           />
+        </div>
+
+        <div data-testid="role-default-homepage-block">
+          <label
+            htmlFor="perc-role-default-homepage"
+            style={{ display: "block", fontWeight: 600, marginBottom: "6px" }}
+          >
+            {message(WF_ADMIN_MSG.ROLE_HOMEPAGE)}
+          </label>
+          <select
+            id="perc-role-default-homepage"
+            value={homepage}
+            onChange={(e) => setHomepage(e.target.value)}
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #cbd5e1",
+            }}
+            data-testid="role-default-homepage-select"
+            aria-describedby="perc-role-default-homepage-help"
+          >
+            {homepageOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {message(opt.labelKey)}
+              </option>
+            ))}
+          </select>
+          <p
+            id="perc-role-default-homepage-help"
+            style={{
+              margin: "8px 0 0 0",
+              fontSize: "13px",
+              color: "#64748b",
+              maxWidth: "640px",
+            }}
+            data-testid="role-default-homepage-help"
+          >
+            {message(WF_ADMIN_MSG.ROLE_HOMEPAGE_HELP)}
+          </p>
         </div>
       </div>
 

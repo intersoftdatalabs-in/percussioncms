@@ -53,6 +53,9 @@ export const WF_ADMIN_MSG = {
   AVAILABLE_USERS: "perc.ui.role.view@Available Users",
   CONFIRM_DELETE_ROLE: "perc.ui.role.view@Are you sure you want to delete role \"{0}\"?",
   ROLE_NAME_REQUIRED: "perc.ui.role.view@Role name is required.",
+  ROLE_HOMEPAGE: "perc.ui.roles@Default homepage",
+  ROLE_HOMEPAGE_HELP:
+    "perc.ui.roles@Where members of this role land after sign-in when they have not set a personal default. Same remaining apps as User Profile and Admin Users (Home, Explorer, Navigation, Developer, Publish, Admin). Editor and Design are not new choices.",
 
   // Steps
   SECTION_STEPS: "perc.ui.workflow.steps.view@Workflow Steps",

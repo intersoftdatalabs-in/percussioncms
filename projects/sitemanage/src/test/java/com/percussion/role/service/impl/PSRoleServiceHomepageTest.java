@@ -18,8 +18,11 @@
 package com.percussion.role.service.impl;
 
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_DASHBOARD;
+import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_DEVELOPER;
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_EDITOR;
+import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_EXPLORER;
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_HOME;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_ARCHITECTURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
@@ -78,5 +81,27 @@ class PSRoleServiceHomepageTest {
         HOMEPAGE_TYPE_DASHBOARD,
         PSRoleService.resolveEffectiveHomepage(
             "", Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
+  }
+
+  @Test
+  void explorerWhenOnlyExplorerRole() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER, PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_EXPLORER)));
+  }
+
+  @Test
+  void remainingAppsResolveWhenHomeDashboardEditorAbsent() {
+    assertEquals(
+        HOMEPAGE_TYPE_ARCHITECTURE,
+        PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_ARCHITECTURE)));
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER, PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_DEVELOPER)));
+  }
+
+  @Test
+  void homeStillWinsOverExplorer() {
+    assertEquals(
+        HOMEPAGE_TYPE_HOME,
+        PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_HOME, HOMEPAGE_TYPE_EXPLORER)));
   }
 }
