@@ -242,6 +242,12 @@ public interface IPSUserService {
   /** Product homepage type: Widget Builder. */
   String HOMEPAGE_TYPE_WIDGET_BUILDER = "WidgetBuilder";
 
+  /** Product homepage type: Content Explorer ({@code view=explorer}). */
+  String HOMEPAGE_TYPE_EXPLORER = "Explorer";
+
+  /** Product homepage type: Developer / System Definition ({@code view=developer}). */
+  String HOMEPAGE_TYPE_DEVELOPER = "Developer";
+
   /**
    * Returns the persisted default landing-page override for the named user, or empty string when
    * unset. Never {@code null}. Does not apply role resolve.

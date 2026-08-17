@@ -16,7 +16,7 @@
  */
 
 /**
- * Default landing options for the profile Preferences section (#2396).
+ * Default landing options for the profile Preferences section (#2396 / #3536).
  *
  * <p>Values are product homepage types (PascalCase) already accepted by
  * {@code PSUserService} / login landing resolve. Labels reuse nav menu keys.
@@ -35,7 +35,11 @@ export interface ProfileLandingOption {
   labelKey: string;
 }
 
-/** Product options for the profile landing select. */
+/**
+ * Product options for the profile landing select (#3536 / parent #3515).
+ * Matches remaining top-nav apps (Home, Explorer, Navigation, Developer,
+ * Publish, Admin). Editor / Design are not offered as new choices.
+ */
 export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
   {
     value: "",
@@ -46,12 +50,8 @@ export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
     labelKey: "perc.ui.navMenu.home@Home",
   },
   {
-    value: HOMEPAGE_TYPES.EDITOR,
-    labelKey: "perc.ui.navMenu.webmgt@Editor",
-  },
-  {
-    value: HOMEPAGE_TYPES.DESIGNER,
-    labelKey: "perc.ui.navMenu.design@Design",
+    value: HOMEPAGE_TYPES.EXPLORER,
+    labelKey: "perc.ui.dashboard.modern@Explorer",
   },
   {
     value: HOMEPAGE_TYPES.ARCHITECTURE,
@@ -59,8 +59,31 @@ export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
     labelKey: "perc.ui.navMenu.architecture@Navigation",
   },
   {
+    value: HOMEPAGE_TYPES.DEVELOPER,
+    labelKey: "perc.ui.dashboard.modern@Developer",
+  },
+  {
+    value: HOMEPAGE_TYPES.PUBLISH,
+    labelKey: "perc.ui.navMenu.publish@Publish",
+  },
+  {
     value: HOMEPAGE_TYPES.WORKFLOW,
     labelKey: "perc.ui.navMenu.admin@Administration",
+  },
+] as const;
+
+/**
+ * Stored Editor/Design overrides stay visible once so the user can clear them
+ * after those items leave top nav (#3514 / #3536).
+ */
+export const STALE_PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
+  {
+    value: HOMEPAGE_TYPES.EDITOR,
+    labelKey: "perc.ui.navMenu.webmgt@Editor",
+  },
+  {
+    value: HOMEPAGE_TYPES.DESIGNER,
+    labelKey: "perc.ui.navMenu.design@Design",
   },
 ] as const;
 
@@ -76,10 +99,15 @@ export function isProfileLandingAllowed(
   homepageType: HomepageType | "",
   gates: ProfileLandingGates,
 ): boolean {
-  if (homepageType === "" || homepageType === HOMEPAGE_TYPES.HOME) {
+  if (
+    homepageType === "" ||
+    homepageType === HOMEPAGE_TYPES.HOME ||
+    homepageType === HOMEPAGE_TYPES.EXPLORER
+  ) {
     return true;
   }
-  // Editor / Design left product top nav (#3514 / #3536). Not new choices.
+  // Editor / Design left product top nav (#3514 / #3536). Not new choices;
+  // stale stored values use {@link profileLandingOptions} extra-current.
   if (
     homepageType === HOMEPAGE_TYPES.EDITOR ||
     homepageType === HOMEPAGE_TYPES.DESIGNER
@@ -90,6 +118,7 @@ export function isProfileLandingAllowed(
   const isDesigner = !!gates.isDesigner || isAdmin;
   switch (homepageType) {
     case HOMEPAGE_TYPES.ARCHITECTURE:
+    case HOMEPAGE_TYPES.DEVELOPER:
     case HOMEPAGE_TYPES.PUBLISH:
     case HOMEPAGE_TYPES.WIDGET_BUILDER:
       return isDesigner;
@@ -114,12 +143,10 @@ export function profileLandingOptions(
     isProfileLandingAllowed(opt.value, gates),
   );
   const current = currentValue == null ? "" : String(currentValue).trim();
-  if (
-    current &&
-    !allowed.some((o) => o.value === current) &&
-    PROFILE_LANDING_OPTIONS.some((o) => o.value === current)
-  ) {
-    const extra = PROFILE_LANDING_OPTIONS.find((o) => o.value === current);
+  if (current && !allowed.some((o) => o.value === current)) {
+    const extra =
+      PROFILE_LANDING_OPTIONS.find((o) => o.value === current) ??
+      STALE_PROFILE_LANDING_OPTIONS.find((o) => o.value === current);
     if (extra) {
       return [...allowed, extra];
     }

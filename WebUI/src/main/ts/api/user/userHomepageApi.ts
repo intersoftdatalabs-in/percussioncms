@@ -34,6 +34,8 @@ export const HOMEPAGE_TYPES = {
   PUBLISH: "Publish",
   WORKFLOW: "Workflow",
   WIDGET_BUILDER: "WidgetBuilder",
+  EXPLORER: "Explorer",
+  DEVELOPER: "Developer",
 } as const;
 
 export type HomepageType =
@@ -110,6 +112,8 @@ const HOMEPAGE_ALIAS: Record<string, HomepageType> = {
   widgetbuilder: HOMEPAGE_TYPES.WIDGET_BUILDER,
   "widget-builder": HOMEPAGE_TYPES.WIDGET_BUILDER,
   widget_builder: HOMEPAGE_TYPES.WIDGET_BUILDER,
+  explorer: HOMEPAGE_TYPES.EXPLORER,
+  developer: HOMEPAGE_TYPES.DEVELOPER,
 };
 
 /**

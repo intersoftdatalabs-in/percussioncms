@@ -215,27 +215,23 @@ public class PSUserService implements IPSUserService {
                   HOMEPAGE_TYPE_ARCHITECTURE,
                   HOMEPAGE_TYPE_PUBLISH,
                   HOMEPAGE_TYPE_WORKFLOW,
-                  HOMEPAGE_TYPE_WIDGET_BUILDER)));
+                  HOMEPAGE_TYPE_WIDGET_BUILDER,
+                  HOMEPAGE_TYPE_EXPLORER,
+                  HOMEPAGE_TYPE_DEVELOPER)));
 
   /** Maps canonical homepage type → {@code index.jsp} {@code view} key. */
   private static final Map<String, String> HOMEPAGE_TYPE_TO_VIEW_KEY =
-      Map.of(
-          HOMEPAGE_TYPE_HOME,
-          "home",
-          HOMEPAGE_TYPE_DASHBOARD,
-          "dash",
-          HOMEPAGE_TYPE_EDITOR,
-          "editor",
-          HOMEPAGE_TYPE_DESIGNER,
-          "design",
-          HOMEPAGE_TYPE_ARCHITECTURE,
-          "arch",
-          HOMEPAGE_TYPE_PUBLISH,
-          "publish",
-          HOMEPAGE_TYPE_WORKFLOW,
-          "workflow",
-          HOMEPAGE_TYPE_WIDGET_BUILDER,
-          "widgetbuilder");
+      Map.ofEntries(
+          Map.entry(HOMEPAGE_TYPE_HOME, "home"),
+          Map.entry(HOMEPAGE_TYPE_DASHBOARD, "dash"),
+          Map.entry(HOMEPAGE_TYPE_EDITOR, "editor"),
+          Map.entry(HOMEPAGE_TYPE_DESIGNER, "design"),
+          Map.entry(HOMEPAGE_TYPE_ARCHITECTURE, "arch"),
+          Map.entry(HOMEPAGE_TYPE_PUBLISH, "publish"),
+          Map.entry(HOMEPAGE_TYPE_WORKFLOW, "workflow"),
+          Map.entry(HOMEPAGE_TYPE_WIDGET_BUILDER, "widgetbuilder"),
+          Map.entry(HOMEPAGE_TYPE_EXPLORER, "explorer"),
+          Map.entry(HOMEPAGE_TYPE_DEVELOPER, "developer"));
 
   public static final String PERCUSSION_ADMIN_NAME = "PercussionAdmin";
   public static final String ADMIN_NAME = "Admin";
@@ -1219,7 +1215,7 @@ public class PSUserService implements IPSUserService {
                   + homepage
                   + "'. Allowed: "
                   + ALLOWED_HOMEPAGE_TYPES
-                  + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder).",
+                  + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder/explorer/developer).",
               homepage)
           .throwIfInvalid();
     }
@@ -1313,6 +1309,10 @@ public class PSUserService implements IPSUserService {
       case "widget-builder":
       case "widget_builder":
         return HOMEPAGE_TYPE_WIDGET_BUILDER;
+      case "explorer":
+        return HOMEPAGE_TYPE_EXPLORER;
+      case "developer":
+        return HOMEPAGE_TYPE_DEVELOPER;
       default:
         return null;
     }

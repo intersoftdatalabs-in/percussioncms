@@ -23,6 +23,8 @@ import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_HOME;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_ARCHITECTURE;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DESIGNER;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_PUBLISH;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DEVELOPER;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_EXPLORER;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_WIDGET_BUILDER;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_WORKFLOW;
 import static com.percussion.user.service.IPSUserService.META_DATA_HOMEPAGE_PREFIX;
@@ -105,6 +107,8 @@ class PSUserHomepageTest {
       assertEquals(HOMEPAGE_TYPE_WORKFLOW, PSUserService.normalizeHomepageType("Workflow"));
       assertEquals(
           HOMEPAGE_TYPE_WIDGET_BUILDER, PSUserService.normalizeHomepageType("WidgetBuilder"));
+      assertEquals(HOMEPAGE_TYPE_EXPLORER, PSUserService.normalizeHomepageType("Explorer"));
+      assertEquals(HOMEPAGE_TYPE_DEVELOPER, PSUserService.normalizeHomepageType("Developer"));
     }
 
     @Test
@@ -120,6 +124,8 @@ class PSUserHomepageTest {
       assertEquals(HOMEPAGE_TYPE_WORKFLOW, PSUserService.normalizeHomepageType("workflow"));
       assertEquals(
           HOMEPAGE_TYPE_WIDGET_BUILDER, PSUserService.normalizeHomepageType("widgetbuilder"));
+      assertEquals(HOMEPAGE_TYPE_EXPLORER, PSUserService.normalizeHomepageType("explorer"));
+      assertEquals(HOMEPAGE_TYPE_DEVELOPER, PSUserService.normalizeHomepageType("developer"));
     }
 
     @Test
@@ -142,6 +148,8 @@ class PSUserHomepageTest {
       assertEquals("workflow", PSUserService.homepageTypeToViewKey(HOMEPAGE_TYPE_WORKFLOW));
       assertEquals(
           "widgetbuilder", PSUserService.homepageTypeToViewKey(HOMEPAGE_TYPE_WIDGET_BUILDER));
+      assertEquals("explorer", PSUserService.homepageTypeToViewKey(HOMEPAGE_TYPE_EXPLORER));
+      assertEquals("developer", PSUserService.homepageTypeToViewKey(HOMEPAGE_TYPE_DEVELOPER));
       assertEquals("home", PSUserService.homepageTypeToViewKey(null));
       assertEquals("home", PSUserService.homepageTypeToViewKey("bogus"));
     }
