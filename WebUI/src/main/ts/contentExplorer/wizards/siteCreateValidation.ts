@@ -15,11 +15,12 @@
  */
 
 /**
- * Pure validation / name helpers for Explorer Create Site (#3002).
+ * Pure validation / name helpers for Explorer Create Site (#3002 / #3512).
  *
  * <p>Mirrors classic hostname filter for site names (alpha-numeric, dash,
  * dot) and provides default template-name derivation so the wizard shell
- * can be unit-tested without DOM or REST.</p>
+ * can be unit-tested without DOM or REST. Type-picker helpers encode
+ * Traditional / Page / Virtual product rules (#3512).</p>
  */
 
 /** Max length aligned with PSSiteDataRestService site-name allow-list (1–100). */
@@ -111,15 +112,103 @@ export function clampSiteDescription(raw: string): string {
 }
 
 /**
+ * Site kinds on the Create Site type picker (#3512).
+ * Slice 3 enables Traditional, Page, and Virtual.
+ */
+export type SiteCreateKind = "traditional" | "page" | "virtual";
+
+export const SITE_CREATE_KINDS: readonly SiteCreateKind[] = [
+  "traditional",
+  "page",
+  "virtual",
+];
+
+/**
+ * True when the chosen kind may leave the type-picker step.
+ */
+export function isSiteCreateKindEnabled(kind: SiteCreateKind): boolean {
+  return (
+    kind === "traditional" || kind === "page" || kind === "virtual"
+  );
+}
+
+/**
+ * Page sites require a page / base template step. Traditional and Virtual do not.
+ */
+export function requiresPageTemplate(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Page sites force managed navigation on. Traditional may opt out.
+ * Virtual never shows the managed-nav option.
+ */
+export function managedNavigationForcedOn(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Virtual sites have no managed-navigation checkbox (discriminator is sourceKind).
+ */
+export function hidesManagedNavigation(kind: SiteCreateKind): boolean {
+  return kind === "virtual";
+}
+
+/**
+ * Wizard step ids for the chosen kind. Page inserts a template step.
+ */
+export function wizardStepsForKind(kind: SiteCreateKind): readonly string[] {
+  if (kind === "page") {
+    return ["type", "details", "template", "confirm", "progress"];
+  }
+  return ["type", "details", "confirm", "progress"];
+}
+
+/**
+ * Optional Virtual {@code rootPath} on confirm. Blank is allowed (handoff
+ * to Developer → Sites). Reject {@code ..} traversal in the string.
+ */
+export function validateVirtualRootPath(
+  raw: string,
+): { ok: true; path: string | null } | { ok: false; reason: "unsafe" } {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) {
+    return { ok: true, path: null };
+  }
+  if (trimmed.includes("..")) {
+    return { ok: false, reason: "unsafe" };
+  }
+  return { ok: true, path: trimmed };
+}
+
+/**
  * True when the create form has enough fields to submit (client-side only).
+ *
+ * <p>Traditional and Virtual do not prompt for template/base. Page requires
+ * a template name and base template. Virtual root path is optional.</p>
  */
 export function canSubmitCreateSite(fields: {
   siteName: string;
-  templateName: string;
-  baseTemplateName: string;
+  templateName?: string;
+  baseTemplateName?: string;
+  siteType?: SiteCreateKind;
+  virtualRootPath?: string;
 }): boolean {
+  const kind = fields.siteType ?? "traditional";
+  if (!isSiteCreateKindEnabled(kind)) {
+    return false;
+  }
   const site = validateSiteName(fields.siteName);
-  const tmpl = validateTemplateName(fields.templateName);
+  if (!site.ok) {
+    return false;
+  }
+  if (kind === "virtual") {
+    return validateVirtualRootPath(fields.virtualRootPath ?? "").ok;
+  }
+  if (!requiresPageTemplate(kind)) {
+    return true;
+  }
+  const tmpl = validateTemplateName(fields.templateName ?? "");
   const base = (fields.baseTemplateName ?? "").trim();
-  return site.ok && tmpl.ok && base.length > 0;
+  return tmpl.ok && base.length > 0;
 }

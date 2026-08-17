@@ -12,6 +12,13 @@ tags: [developer, virtual-sites]
 **Virtual Sites** are Sites whose content originates outside the traditional Percussion content
 repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product documentation.
 
+Operators can create a **Virtual** type from **Content Explorer → Create Site** or
+**Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
+After the site folder is created, an optional Git root is saved with
+`PUT /services/sites/{nameOrId}/virtual` using the `VirtualSiteProperties` envelope. Full
+`rootPath` / config-file editing stays on **Developer → Sites**. See
+[Sites & content structure](id:admin-sites).
+
 ## Goals
 
 - Keep Git as the system of record for documentation (PR review, lockstep with product changes).

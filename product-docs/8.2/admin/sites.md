@@ -31,18 +31,30 @@ Traditional Sites store pages and assets in the Percussion **content repository*
 
 After a standard install with **sample sites** (installer **Install sample sites** / silent `--demo-sites`), the Sites tree typically includes stock demo sites such as **Corporate Investments** and **Enterprise Investments**. Those FastForward sample sites are traditional **Rhythmyx** sites (not CM1 page-based). The installer loads the FastForward type/template seed, the **ObjectStore** editors for those types (`psx_cerffGeneric.xml`, `psx_cerffPressRelease.xml`, and the other rff editors — CM1 `perc*` types still come from packages), the **sample content** graph (site folders, Files/Images, About sections, navons, and pages), plus hashed sample binaries under `rxconfig/FastForward/importFiles` (imported on first server start). If sample items exist but the server log shows `Invalid content type id (311)` (or other 301–316 ids), those ObjectStore editors were not copied — reinstall with `--demo-sites` from an installer that includes this step. FastForward **navigation** types stay at ids 313–315 (`rffNavImage` / `rffNavon` / `rffNavTree`). The `perc.nav` package installs `percNav*` under separate ids; the sample seed must not rename 313–315 to those package names (that unique-name clash aborts the rest of the type table and drops **Press Release** id 316). Site **names** may use underscores (`Corporate_Investments`) while the repository folder is `//Sites/CorporateInvestments` — Explorer binds expand/list to the site folder root. The Sites list includes **all** sites — Rhythmyx and CM1 page-based, with or without a publishing server or navigation tree. Opening **Navigation** for a demo site that already has an `rffNavTree` / `percNavTree` shows that tree; if a site has a folder root but no NavTree, first open creates one — see [Navigation & site structure](id:admin-architecture-navigation). Fresh evaluation or H2 QA stacks without sample seed may show an empty Sites list until you create a site or reinstall with sample data. A running install that was seeded before this content pass is **not** backfilled — reinstall with `--demo-sites` (or a new H2 `qa-up`) to get FastForward pages and navons.
 
-### Create a traditional Site from Explorer
+### Create a Site from Explorer (type picker)
 
-Use **Content Explorer** when you need a new traditional (repository) Site without leaving the product shell:
+Use **Content Explorer** or **Navigation → New Site** when you need a new Site without leaving the product shell. The first wizard step is **Site type**:
 
-1. Open **Content Explorer**.
-2. Choose **Content → Create Site**.
-3. On **Details**, enter a unique **Site name**, optional description, and the site **template name** (defaults from the site name). Traditional sites include **Include managed navigation** (checked by default). Leave it checked to create a NavTree and homepage. Uncheck it to create the site folder only — no NavTree and no homepage. You can add navigation later from Explorer. Virtual Sites do not use this option (`virtual.sourceKind` is their discriminator).
-4. On **Base template**, pick a base template from the catalog (or accept the default when the catalog is empty).
-5. On **Confirm**, review the summary (repository kind is **Traditional** — this flow does not create Virtual Sites) and whether managed navigation is **Yes** or **No**.
-6. Choose **Create** and wait for progress to complete. Explorer opens the new site under `/Sites/<name>`. With **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation. If the folder already has a NavTree or Navon, Create Site returns HTTP 400 with a clear error (not HTTP 500).
+| Type | Managed navigation | Page template | After create |
+|------|--------------------|---------------|--------------|
+| **Traditional** | Optional checkbox (on by default) | Not prompted | Repository site under `/Sites/<name>` |
+| **Page** | Locked on | Required (template name + base template) | Page-based site (`pageBased` on `POST /sitemanage/site/`) |
+| **Virtual** | Hidden (not used) | Not prompted | Site folder without NavTree; optional Git root is saved with `PUT /sites/{name}/virtual` |
 
-Virtual Site source settings (Git/filesystem) are configured later on the Site properties / Developer Sites surface — not in this Create Site wizard. See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
+1. Open **Content Explorer** (or **Navigation**).
+2. Choose **Content → Create Site** (Explorer) or **New Site** (Navigation).
+3. On **Site type**, choose **Traditional**, **Page**, or **Virtual**.
+4. On **Site details**, enter a unique **Site name** and optional description.
+   - **Traditional:** **Include managed navigation** is checked by default. Uncheck it to create the site folder only — no NavTree and no homepage. You can add navigation later from Explorer.
+   - **Page:** managed navigation stays checked and cannot be turned off.
+   - **Virtual:** the managed-navigation checkbox is not shown. The discriminator is `virtual.sourceKind`, not a NavTree flag.
+5. **Page** only: on **Base template**, enter a template name and pick a base template from the catalog.
+6. On **Confirm**, review the type and name. **Virtual** also offers an optional **Git root path**. Leave it blank to finish source settings later on **Developer → Sites**. If you enter a path, Create Site sends the existing `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…" } }` envelope (`PUT /services/sites/{name}/virtual`) after the site is created.
+7. Choose **Create site** and wait for progress to complete. Explorer opens the new site under `/Sites/<name>`.
+
+With **Traditional** and **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation. If the folder already has a NavTree or Navon, Create Site returns HTTP 400 with a clear error (not HTTP 500).
+
+Full Git `rootPath` / config-file editing remains on **Developer → Sites** (Virtual Site source panel). See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
 
 ## Virtual Sites (8.2)
 
