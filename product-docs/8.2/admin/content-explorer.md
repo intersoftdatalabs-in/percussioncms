@@ -163,19 +163,22 @@ Under the tree root **Sites** you see traditional site folders available to your
 select a sample site to browse FastForward folders and pages (About…, Files, Images,
 and the site NavTree).
 
-To create a new **traditional** repository Site from Explorer:
+To create a new Site from Explorer:
 
 1. Choose **Content → Create Site** (available without selecting an existing site).
-2. Complete the wizard: site name → base template → confirm → create.
-3. On success, Explorer navigates to `/Sites/<new-site-name>`.
+2. On **Site type**, choose **Traditional**, **Page**, or **Virtual**.
+3. Complete the remaining steps (name/description; managed navigation only for Traditional/Page;
+   page template only for Page; optional Git root on Virtual confirm).
+4. On success, Explorer navigates to `/Sites/<new-site-name>`.
 
-This wizard creates repository Sites only. Configure **Virtual Site** source properties
-(Git/filesystem) from **Developer → Sites** / Site detail — see
+**Virtual** create does not show managed navigation or a page template. If you supply a Git
+root path, the wizard PUTs the existing `VirtualSiteProperties` envelope after create.
+Otherwise finish source settings on **Developer → Sites**. See
 [Sites & content structure](id:admin-sites) and [Virtual Sites](id:developer-virtual-sites).
 
 Related Content menu commands:
 
-- **Create Site** — new traditional Site (no site context required)
+- **Create Site** — new Traditional, Page, or Virtual Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
 

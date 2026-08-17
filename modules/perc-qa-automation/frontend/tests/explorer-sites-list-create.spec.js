@@ -348,7 +348,7 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
   );
 
   test(
-    "Create Site wizard: details → template → confirm chrome",
+    "Create Site wizard: type → details → confirm chrome",
     { tag: ["@explorer-sites-list-create", "@explorer", "@sites"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -373,10 +373,24 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await expect(wizard).toBeVisible({ timeout: 10_000 });
 
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.stepDetails}"]`),
+        page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
       ).toBeVisible();
       await expect(
+        page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`),
+      ).toBeChecked();
+      await expect(
         page.locator(`[data-testid="${TEST_IDS.traditionalNote}"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.typeVirtual}"]`),
+      ).toBeEnabled();
+
+      const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      await expect(next).toBeEnabled({ timeout: 5_000 });
+      await next.click();
+
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.stepDetails}"]`),
       ).toBeVisible();
       const managedNav = page.locator(
         `[data-testid="${TEST_IDS.managedNav}"]`,
@@ -389,19 +403,9 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
       await expect(
         page.locator(`[data-testid="${TEST_IDS.templateName}"]`),
-      ).not.toHaveValue("");
+      ).toHaveCount(0);
 
-      const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
       await expect(next).toBeEnabled({ timeout: 5_000 });
-      await next.click();
-
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.stepTemplate}"]`),
-      ).toBeVisible({ timeout: 10_000 });
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.baseTemplate}"]`),
-      ).toBeVisible({ timeout: 15_000 });
-
       await next.click();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.stepConfirm}"]`),
@@ -443,18 +447,15 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
       ).toBeVisible({ timeout: 10_000 });
 
       const siteName = uniqueQaSiteName("QaCreate");
-      await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
-
       const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
+      ).toBeVisible();
       await expect(next).toBeEnabled({ timeout: 5_000 });
       await next.click();
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.stepTemplate}"]`),
-      ).toBeVisible({ timeout: 10_000 });
-      // Wait for base template control (list load or fallback input).
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.baseTemplate}"]`),
-      ).toBeVisible({ timeout: 20_000 });
+      await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
+
+      await expect(next).toBeEnabled({ timeout: 5_000 });
       await next.click();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.stepConfirm}"]`),

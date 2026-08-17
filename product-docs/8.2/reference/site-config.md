@@ -66,7 +66,7 @@ Traditional (repository) sites may store:
 |---------------|----------|---------|---------|
 | `navigation.managed` | No | `false` | When `false`, the site is created and treated as **without** a CMS NavTree/homepage. Absent or `true` is the default (include managed navigation). **Not used for Virtual Sites** — omit this flag when `virtual.sourceKind` is set; Virtual nav comes from the Git/Markdown tree. |
 
-Create Site (`POST /Rhythmyx/sitemanage/site/`) accepts `managedNavigation` on the `Site` body (`true` default). Public Site detail (`GET /sites/{nameOrId}`) returns `managedNavigation` for traditional sites only (`null`/omitted when Virtual).
+Create Site (`POST /Rhythmyx/sitemanage/site/`) accepts `managedNavigation` on the `Site` body (`true` default). **Virtual** create from the type picker sends `managedNavigation: false` and does not send `pageBased`. When a Git root is supplied, the wizard then `PUT`s `/sites/{nameOrId}/virtual` with the `VirtualSiteProperties` envelope. Public Site detail (`GET /sites/{nameOrId}`) returns `managedNavigation` for traditional sites only (`null`/omitted when Virtual).
 
 Cross-platform notes: prefer absolute paths (`C:\…` on Windows, `/opt/…` on Linux/macOS). Operators
 should not hardcode OS path separators in scripts — use the repo `scripts/build-cms-docs.*` wrappers
