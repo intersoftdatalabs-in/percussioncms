@@ -366,6 +366,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select an item in the slot first",
   ACTION_SLOT_FAILED:
     "perc.ui.explorer@Could not update the slot",
+  CONFIRM_SLOT_REMOVE:
+    "perc.ui.explorer@Remove this item from the slot?",
   TEMPLATE_PICKER_TITLE: "perc.ui.explorer@Choose a page template",
   TEMPLATE_PICKER_LABEL: "perc.ui.explorer@Template",
   CONFIRM_PURGE_BODY:

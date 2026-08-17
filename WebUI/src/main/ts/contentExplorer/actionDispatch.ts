@@ -905,6 +905,9 @@ async function dispatchSlotAction(
     }
     const relationshipId = slot.relationshipId;
     if (name === "arrange_remove") {
+      if (ctx.confirm && !ctx.confirm(EXPLORER_MSG.CONFIRM_SLOT_REMOVE)) {
+        return { kind: "rest" };
+      }
       await remove(relationshipId);
       return { kind: "rest", refresh: true };
     }

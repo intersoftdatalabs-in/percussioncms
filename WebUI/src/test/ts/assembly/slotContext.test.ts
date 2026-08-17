@@ -27,6 +27,9 @@ describe("slotContext", () => {
     expect(isSlotActionName("slot_add")).toBe(true);
     expect(isSlotActionName("slot_create")).toBe(true);
     expect(isSlotActionName("arrange_remove")).toBe(true);
+    expect(isSlotActionName("arrange_moveupleft")).toBe(true);
+    expect(isSlotActionName("change_template")).toBe(true);
+    expect(isSlotActionName("move_to_slot")).toBe(true);
     expect(isSlotActionName("item_activeassembly")).toBe(false);
   });
 

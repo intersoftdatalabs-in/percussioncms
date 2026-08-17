@@ -44,6 +44,7 @@ export const ASSEMBLY_MSG = {
   SLOT_MOVE_UP: "perc.ui.assembly@Move up",
   SLOT_MOVE_DOWN: "perc.ui.assembly@Move down",
   SLOT_CHANGE: "perc.ui.assembly@Change template",
+  SLOT_CHANGE_TITLE: "perc.ui.assembly@Change template or slot",
   SLOT_REMOVE: "perc.ui.assembly@Remove",
   SLOT_NEEDS_SLOT: "perc.ui.assembly@Select a slot first",
   SLOT_NEEDS_ITEM: "perc.ui.assembly@Select an item in the slot first",

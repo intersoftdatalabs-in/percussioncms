@@ -195,11 +195,14 @@ describe("AssemblyHost", () => {
       ],
     });
     const removeSlotRel = vi.fn().mockResolvedValue(undefined);
+    const moveSlotRel = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
     renderHost("?contentId=42&templateId=7", {
       fetchPreview,
       loadTemplates,
       loadCanvas,
       removeSlotRel,
+      moveSlotRel,
     });
     await waitFor(() => {
       expect(screen.getByTestId("assembly-slot-3")).toBeTruthy();
@@ -209,7 +212,23 @@ describe("AssemblyHost", () => {
       "disabled",
       true,
     );
+    expect(screen.getByTestId("assembly-slot-move-up")).toHaveProperty(
+      "disabled",
+      true,
+    );
     fireEvent.click(screen.getByTestId("assembly-slot-item-88"));
+    expect(screen.getByTestId("assembly-slot-move-up")).not.toHaveProperty(
+      "disabled",
+      true,
+    );
+    fireEvent.click(screen.getByTestId("assembly-slot-move-up"));
+    await waitFor(() => {
+      expect(moveSlotRel).toHaveBeenCalledWith(88, "UP");
+    });
+    fireEvent.click(screen.getByTestId("assembly-slot-move-down"));
+    await waitFor(() => {
+      expect(moveSlotRel).toHaveBeenCalledWith(88, "DOWN");
+    });
     fireEvent.click(screen.getByTestId("assembly-slot-remove"));
     await waitFor(() => {
       expect(removeSlotRel).toHaveBeenCalledWith(88);
@@ -308,6 +327,10 @@ describe("AssemblyHost", () => {
     fireEvent.click(screen.getByTestId("assembly-slot-change"));
     await waitFor(() => {
       expect(screen.getByTestId("assembly-slot-change-dialog")).toBeTruthy();
+      expect(
+        (screen.getByTestId("assembly-slot-change-template") as HTMLSelectElement)
+          .value,
+      ).toBe("4");
     });
     fireEvent.click(screen.getByTestId("assembly-slot-change-apply"));
     await waitFor(() => {
@@ -315,7 +338,8 @@ describe("AssemblyHost", () => {
         /could not update the slot/i,
       );
     });
-    expect(screen.getByTestId("assembly-slot-change-dialog")).toBeTruthy();
+    expect(screen.queryByTestId("assembly-slot-change-dialog")).toBeNull();
+    expect(changeSlotTemplate).toHaveBeenCalledWith(88, 3, 4);
   });
 
   const pageFields: ItemEditorFields = {
