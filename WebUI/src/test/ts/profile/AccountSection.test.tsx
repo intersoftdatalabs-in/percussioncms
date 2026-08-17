@@ -28,6 +28,14 @@ import {
   normalizeCurrentUser,
 } from "../../../main/ts/api/user/userProfileApi";
 
+vi.mock("../../../main/ts/api/preferences/preferencesApi", () => ({
+  getAllUserPreferences: vi.fn().mockResolvedValue([]),
+  saveUserPreference: vi.fn().mockResolvedValue({ name: "", value: "" }),
+  loadUserPreference: vi.fn().mockResolvedValue(null),
+  PREF_CATEGORY_SYS: "sys_preferences",
+  PREF_CONTEXT_PRIVATE: "private",
+}));
+
 function internalProfile(
   overrides: Partial<CurrentUserProfile> = {},
 ): CurrentUserProfile {
@@ -377,5 +385,127 @@ describe("AccountSection", () => {
         screen.getByTestId("perc-profile-account-success").textContent,
       ).toMatch(/default community was saved/i);
     });
+  });
+
+  it("reloads the remember-last checkbox from stored prefs", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: true, last: "Default" });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+      />,
+    );
+    await waitFor(() => {
+      const box = screen.getByTestId(
+        "perc-profile-account-remember-last",
+      ) as HTMLInputElement;
+      expect(box.checked).toBe(true);
+    });
+    expect(loadRememberLast).toHaveBeenCalledTimes(1);
+  });
+
+  it("persists remember-last and current community when enabled", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockResolvedValue(true);
+    const persistLastCommunity = vi.fn().mockResolvedValue("Default");
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+        persistLastCommunity={persistLastCommunity}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(saveRememberLast).toHaveBeenCalledWith("Admin", true);
+      expect(persistLastCommunity).toHaveBeenCalledWith("Admin", "Default");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/remember-last/i);
+    });
+  });
+
+  it("reverts the checkbox when remember-last save fails", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockRejectedValue({
+      status: 500,
+      statusText: "Err",
+      body: null,
+    });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-form-error"),
+      ).toBeTruthy();
+    });
+    const box = screen.getByTestId(
+      "perc-profile-account-remember-last",
+    ) as HTMLInputElement;
+    expect(box.checked).toBe(false);
+  });
+
+  it("keeps remember-last checked when only last-community persist fails", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockResolvedValue(true);
+    const persistLastCommunity = vi.fn().mockRejectedValue({
+      status: 500,
+      statusText: "Err",
+      body: null,
+    });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+        persistLastCommunity={persistLastCommunity}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(saveRememberLast).toHaveBeenCalledWith("Admin", true);
+      expect(persistLastCommunity).toHaveBeenCalledWith("Admin", "Default");
+      expect(
+        screen.getByTestId("perc-profile-account-form-error"),
+      ).toBeTruthy();
+    });
+    const box = screen.getByTestId(
+      "perc-profile-account-remember-last",
+    ) as HTMLInputElement;
+    expect(box.checked).toBe(true);
   });
 });

@@ -210,6 +210,10 @@
   word-break: break-word;
 }
 
+.checkbox {
+  margin: 0.25rem 0 0;
+}
+
 .statusRegion {
   margin-top: 0.85rem;
   min-height: 1.25rem;

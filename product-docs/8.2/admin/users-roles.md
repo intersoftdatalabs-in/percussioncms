@@ -76,8 +76,25 @@ Use **Switch** to change the session community **without signing out**.
   log out and back in.
 - If the switch is not allowed (unknown community or you are not a member of a role in that
   community), the header shows an error and keeps the previous community.
-- Setting a **default** community on the profile, or remembering the last community at the next
-  login, is not part of this header control.
+- Setting a **default** community on the profile is a separate **My profile → Account** control
+  (when available). Remembering the last community at the next login is the checkbox described
+  below — not this header **Switch** control.
+
+## My profile — Remember last community
+
+On **My profile → Account**, enable **Remember last community on next login** so the next
+sign-in automatically selects the last community you switched to.
+
+- The option is stored as a personal preference for the signed-in user. Reloading **Account**
+  shows the saved checkbox state.
+- After a successful header **Switch**, the product stores that community name for the next
+  login (when the option is on).
+- At the next sign-in, if the option is on **and** you still have access to that community,
+  the session switches to it. If the community is missing or no longer in your membership
+  list, sign-in continues with your default community (profile default when set, otherwise
+  the product role default). Login does not fail.
+- Turn the checkbox off to stop restoring the last community. The next login then uses the
+  default community only.
 
 ## My profile — Account (default community)
 

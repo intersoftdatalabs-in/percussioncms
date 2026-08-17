@@ -86,6 +86,9 @@ test.describe("Profile account @profile @account @smoke", () => {
     await expect(email).toBeVisible();
     await expect(email).toHaveAttribute("type", "email");
     await expect(page.getByTestId("perc-profile-account-save")).toBeVisible();
+    await expect(
+      page.getByTestId("perc-profile-account-remember-last"),
+    ).toBeVisible();
   });
 
   /**
@@ -255,5 +258,42 @@ test.describe("Profile account @profile @account @smoke", () => {
     expect(consoleErrors, `console-clean: ${consoleErrors.join(" | ")}`).toEqual(
       [],
     );
+  });
+
+  test("remember-last community checkbox persists and reloads (#3507)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await loginAsAdmin(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectAccountMounted(page);
+
+    const box = page.getByTestId("perc-profile-account-remember-last");
+    await expect(box).toBeVisible({ timeout: 30_000 });
+    const originallyChecked = await box.isChecked();
+
+    await box.click();
+    await expect(box).toBeChecked({ checked: !originallyChecked });
+    await expect(
+      page.getByTestId("perc-profile-account-success"),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("perc-profile-account-form-error")).toHaveCount(
+      0,
+    );
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectAccountMounted(page);
+    await expect(page.getByTestId("perc-profile-account-remember-last")).toBeChecked({
+      checked: !originallyChecked,
+    });
+
+    // Restore original so re-runs stay stable
+    const restored = page.getByTestId("perc-profile-account-remember-last");
+    await restored.click();
+    await expect(restored).toBeChecked({ checked: originallyChecked });
+    await expect(
+      page.getByTestId("perc-profile-account-success"),
+    ).toBeVisible({ timeout: 30_000 });
   });
 });

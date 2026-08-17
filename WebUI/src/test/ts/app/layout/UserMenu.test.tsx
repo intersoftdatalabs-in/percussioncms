@@ -18,7 +18,7 @@
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { BootstrapProvider } from "../../../../main/ts/app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../../../../main/ts/app/bootstrap/types";
 import { UserMenu } from "../../../../main/ts/app/layout/UserMenu";
@@ -46,7 +46,7 @@ vi.mock("../../../../main/ts/api/user/communitySwitchApi", async (importOriginal
 
 vi.mock("../../../../main/ts/api/preferences/preferencesApi", () => ({
   loadUserPreference: vi.fn().mockResolvedValue(null),
-  saveUserPreference: vi.fn(),
+  saveUserPreference: vi.fn().mockResolvedValue({ name: "", value: "" }),
   getAllUserPreferences: vi.fn().mockResolvedValue([]),
   PREF_CATEGORY_SYS: "sys_preferences",
   PREF_CONTEXT_PRIVATE: "private",
@@ -101,6 +101,13 @@ describe("UserMenu", () => {
     getCurrentUserProfile.mockResolvedValue(profile());
     switchSessionCommunity.mockReset();
     switchSessionCommunity.mockResolvedValue(undefined);
+    vi.mocked(prefs.saveUserPreference).mockReset();
+    vi.mocked(prefs.saveUserPreference).mockResolvedValue({
+      name: "",
+      value: "",
+    });
+    vi.mocked(prefs.getAllUserPreferences).mockClear();
+    vi.mocked(prefs.loadUserPreference).mockClear();
   });
 
   afterEach(() => {
@@ -202,6 +209,16 @@ describe("UserMenu", () => {
       });
       expect(switchSessionCommunity).toHaveBeenCalledWith("Corporate");
       expect(events).toEqual(["Corporate"]);
+      await waitFor(() => {
+        expect(prefs.saveUserPreference).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: "perc_profile_lastCommunity",
+            value: "Corporate",
+            userName: "editor1",
+          }),
+        );
+      });
+      expect(prefs.getAllUserPreferences).not.toHaveBeenCalled();
       expect(screen.getByTestId("perc-spa-logout").getAttribute("href")).toBe(
         "/logout",
       );
@@ -230,5 +247,65 @@ describe("UserMenu", () => {
     expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
       "Default",
     );
+  });
+
+  it("does not persist last community under the display-name fallback", async () => {
+    renderMenu({ userName: "  " });
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Default",
+      );
+    });
+    fireEvent.click(screen.getByTestId("perc-spa-community-switch"));
+    fireEvent.click(screen.getByTestId("perc-spa-community-option-corporate"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Corporate",
+      );
+    });
+    expect(switchSessionCommunity).toHaveBeenCalledWith("Corporate");
+    expect(prefs.saveUserPreference).not.toHaveBeenCalled();
+  });
+
+  it("keeps the switched community when last-community persist fails", async () => {
+    vi.mocked(prefs.saveUserPreference).mockRejectedValueOnce(
+      new Error("prefs down"),
+    );
+    renderMenu();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Default",
+      );
+    });
+    fireEvent.click(screen.getByTestId("perc-spa-community-switch"));
+    fireEvent.click(screen.getByTestId("perc-spa-community-option-corporate"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Corporate",
+      );
+    });
+    expect(switchSessionCommunity).toHaveBeenCalledWith("Corporate");
+    expect(screen.queryByTestId("perc-spa-community-switch-error")).toBeNull();
+  });
+
+  it("updates chrome when a session-start restore fires", async () => {
+    renderMenu();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Default",
+      );
+    });
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(SESSION_COMMUNITY_CHANGED_EVENT, {
+          detail: { community: "Corporate" },
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-spa-community-name").textContent).toBe(
+        "Corporate",
+      );
+    });
   });
 });

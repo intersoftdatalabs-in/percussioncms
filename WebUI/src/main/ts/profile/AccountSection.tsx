@@ -31,6 +31,12 @@ import {
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
 import { PROFILE_MSG } from "./messages";
+import {
+  loadRememberLastCommunityPrefs,
+  saveLastCommunity,
+  saveRememberLastCommunityFlag,
+  type RememberLastCommunityPrefs,
+} from "./rememberLastCommunity";
 import styles from "./AccountSection.module.css";
 
 export interface AccountSectionProps {
@@ -38,6 +44,9 @@ export interface AccountSectionProps {
   loadProfile?: () => Promise<CurrentUserProfile>;
   saveEmail?: (email: string) => Promise<CurrentUserProfile>;
   saveDefaultCommunity?: (name: string) => Promise<CurrentUserProfile>;
+  loadRememberLast?: () => Promise<RememberLastCommunityPrefs>;
+  saveRememberLast?: (userName: string, remember: boolean) => Promise<boolean>;
+  persistLastCommunity?: (userName: string, community: string) => Promise<string>;
 }
 
 type LoadState =
@@ -66,11 +75,16 @@ export function allowedDefaultCommunityDraft(
  * Account identity view/edit for the signed-in user (slice 2 / #2395).
  * Login id, provider, roles, and communities are read-only. Email is editable
  * only for internal accounts; directory-managed fields show localized hints.
+ * Default community (#3508) and remember-last community (#3507) are self-service
+ * controls on this form.
  */
 export function AccountSection({
   loadProfile = getCurrentUserProfile,
   saveEmail = updateMyAccountEmail,
   saveDefaultCommunity = updateMyDefaultCommunity,
+  loadRememberLast = loadRememberLastCommunityPrefs,
+  saveRememberLast = saveRememberLastCommunityFlag,
+  persistLastCommunity = saveLastCommunity,
 }: AccountSectionProps = {}): React.ReactElement {
   const reactId = useId();
   const formId = `perc-profile-account-form-${reactId}`;
@@ -81,11 +95,14 @@ export function AccountSection({
   const defaultCommunityHelpId = `perc-profile-account-default-community-help-${reactId}`;
   const defaultCommunityErrorId = `perc-profile-account-default-community-error-${reactId}`;
   const defaultCommunityFormId = `perc-profile-account-default-community-form-${reactId}`;
+  const rememberId = `perc-profile-account-remember-last-${reactId}`;
+  const rememberHelpId = `perc-profile-account-remember-last-help-${reactId}`;
   const statusId = `perc-profile-account-status-${reactId}`;
 
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [emailDraft, setEmailDraft] = useState("");
   const [defaultCommunityDraft, setDefaultCommunityDraft] = useState("");
+  const [rememberLast, setRememberLast] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [communityFieldError, setCommunityFieldError] = useState<string | null>(
     null,
@@ -94,6 +111,7 @@ export function AccountSection({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingCommunity, setIsSavingCommunity] = useState(false);
+  const [isSavingRemember, setIsSavingRemember] = useState(false);
 
   const load = useCallback(async () => {
     setLoadState({ status: "loading" });
@@ -101,10 +119,14 @@ export function AccountSection({
     setFormError(null);
     setSuccessMessage(null);
     try {
-      const profile = await loadProfile();
+      const [profile, rememberPrefs] = await Promise.all([
+        loadProfile(),
+        loadRememberLast().catch(() => ({ remember: false, last: "" })),
+      ]);
       setEmailDraft(profile.email ?? "");
       setDefaultCommunityDraft(allowedDefaultCommunityDraft(profile));
       setCommunityFieldError(null);
+      setRememberLast(rememberPrefs.remember);
       setLoadState({ status: "ready", profile });
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -115,7 +137,7 @@ export function AccountSection({
         message: formatApiError(err, message(PROFILE_MSG.ACCOUNT_LOAD_ERROR)),
       });
     }
-  }, [loadProfile]);
+  }, [loadProfile, loadRememberLast]);
 
   useEffect(() => {
     void load();
@@ -185,6 +207,55 @@ export function AccountSection({
       );
     } finally {
       setIsSavingCommunity(false);
+    }
+  };
+
+  const onRememberLastChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    if (loadState.status !== "ready") {
+      return;
+    }
+    const next = event.target.checked;
+    const previous = rememberLast;
+    setRememberLast(next);
+    setFormError(null);
+    setSuccessMessage(null);
+    setIsSavingRemember(true);
+    try {
+      try {
+        await saveRememberLast(loadState.profile.name, next);
+      } catch (err) {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setRememberLast(previous);
+        setFormError(
+          formatApiError(err, message(PROFILE_MSG.REMEMBER_LAST_SAVE_ERROR)),
+        );
+        return;
+      }
+      // Flag is already on the server. Do not revert the checkbox when only
+      // last-community persist fails — reload would still show remember=true.
+      if (next) {
+        const current = (loadState.profile.currentCommunity ?? "").trim();
+        if (current) {
+          try {
+            await persistLastCommunity(loadState.profile.name, current);
+          } catch (err) {
+            if (isSessionRedirectError(err)) {
+              return;
+            }
+            setFormError(
+              formatApiError(err, message(PROFILE_MSG.REMEMBER_LAST_SAVE_ERROR)),
+            );
+            return;
+          }
+        }
+      }
+      setSuccessMessage(message(PROFILE_MSG.REMEMBER_LAST_SAVE_SUCCESS));
+    } finally {
+      setIsSavingRemember(false);
     }
   };
 
@@ -567,6 +638,39 @@ export function AccountSection({
                 </p>
               </>
             )}
+          </dd>
+        </div>
+
+        <div className={styles.field}>
+          <dt>
+            <label
+              htmlFor={rememberId}
+              {...i18nKeyAttr(PROFILE_MSG.REMEMBER_LAST_LABEL)}
+            >
+              {message(PROFILE_MSG.REMEMBER_LAST_LABEL)}
+            </label>
+          </dt>
+          <dd>
+            <input
+              id={rememberId}
+              type="checkbox"
+              className={styles.checkbox}
+              checked={rememberLast}
+              disabled={isSavingRemember}
+              onChange={(e) => {
+                void onRememberLastChange(e);
+              }}
+              aria-describedby={rememberHelpId}
+              data-testid="perc-profile-account-remember-last"
+            />
+            <p
+              id={rememberHelpId}
+              className={styles.hint}
+              data-testid="perc-profile-account-remember-last-hint"
+              {...i18nKeyAttr(PROFILE_MSG.REMEMBER_LAST_HINT)}
+            >
+              {message(PROFILE_MSG.REMEMBER_LAST_HINT)}
+            </p>
           </dd>
         </div>
       </dl>
