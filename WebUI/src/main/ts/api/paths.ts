@@ -605,6 +605,13 @@ export const PATHS = {
   get USER_PROFILE() {
     return `${SERVICES_ROOT}/user/user/profile`;
   },
+  /**
+   * Self-service default community (PUT text/plain) — current user only
+   * (issue #3508). Blank body clears {@code sys_defaultCommunity}.
+   */
+  get USER_DEFAULT_COMMUNITY() {
+    return `${SERVICES_ROOT}/user/user/defaultCommunity`;
+  },
   get USER_LDAP_FIND() {
     return `${SERVICES_ROOT}/user/user/external/find`;
   },

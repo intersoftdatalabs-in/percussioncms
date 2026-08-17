@@ -170,4 +170,90 @@ test.describe("Profile account @profile @account @smoke", () => {
       ).toBeVisible({ timeout: 30_000 });
     }
   });
+
+  /**
+   * #3508 / parent #3505 slice 2 — default community save + reload from
+   * GET /user/user/current (sys_defaultCommunity). Options come from
+   * profile.communities only.
+   */
+  test("default community save and reload for Admin", async ({ page }) => {
+    test.setTimeout(120_000);
+
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        const text = msg.text();
+        if (
+          !/gravatar\.com/i.test(text) &&
+          !/Failed to load resource/i.test(text) &&
+          !/net::ERR_/i.test(text)
+        ) {
+          consoleErrors.push(text);
+        }
+      }
+    });
+
+    await loginAsAdmin(page);
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectAccountMounted(page);
+
+    const select = page.getByTestId(
+      "perc-profile-account-default-community-select",
+    );
+    await expect(select).toBeVisible();
+    await expect(select).toHaveJSProperty("tagName", "SELECT");
+
+    const membership = page.getByTestId("perc-profile-account-communities");
+    await expect(membership).toBeVisible();
+    const membershipText = ((await membership.textContent()) || "").trim();
+
+    const optionValues = await select.evaluate((el) =>
+      Array.from(el.options).map((o) => o.value).filter(Boolean),
+    );
+    expect(optionValues.length, "Admin must have at least one community").toBeGreaterThan(
+      0,
+    );
+    for (const name of optionValues) {
+      expect(
+        membershipText.toLowerCase().includes(name.toLowerCase()),
+        `option ${name} must appear in membership list`,
+      ).toBe(true);
+    }
+
+    const original = await select.inputValue();
+    const target =
+      optionValues.find((name) => name !== original) || optionValues[0];
+
+    await select.selectOption(target);
+    await page.getByTestId("perc-profile-account-default-community-save").click();
+    await expect(
+      page.getByTestId("perc-profile-account-success"),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(select).toHaveValue(target);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectAccountMounted(page);
+    await expect(
+      page.getByTestId("perc-profile-account-default-community-select"),
+    ).toHaveValue(target);
+
+    if (original !== target) {
+      await page
+        .getByTestId("perc-profile-account-default-community-select")
+        .selectOption(original);
+      await page
+        .getByTestId("perc-profile-account-default-community-save")
+        .click();
+      await expect(
+        page.getByTestId("perc-profile-account-success"),
+      ).toBeVisible({ timeout: 30_000 });
+    }
+
+    expect(consoleErrors, `console-clean: ${consoleErrors.join(" | ")}`).toEqual(
+      [],
+    );
+  });
 });

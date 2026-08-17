@@ -86,12 +86,14 @@ vi.mock("../../../main/ts/api/user/userProfileApi", () => ({
     roles: ["Admin"],
     communities: ["Default"],
     currentCommunity: "Default",
+    defaultCommunity: "Default",
     adminUser: true,
     designerUser: false,
     accessibilityUser: false,
     emailEditable: true,
   }),
   updateMyAccountEmail: vi.fn(),
+  updateMyDefaultCommunity: vi.fn(),
   // Mirror production isValidEmailAddress (userProfileApi) so shell tests do not mask shape bugs.
   isValidEmailAddress: (email: string) => {
     const value = (email ?? "").trim();

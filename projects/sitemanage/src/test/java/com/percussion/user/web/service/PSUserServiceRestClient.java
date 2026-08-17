@@ -107,6 +107,15 @@ public class PSUserServiceRestClient extends PSObjectRestClient implements IPSUs
   }
 
   @Override
+  public PSCurrentUser updateMyDefaultCommunity(final String communityName)
+      throws PSDataServiceException {
+    return putObjectToPath(
+        concatPath(getPath(), "defaultCommunity"),
+        communityName == null ? "" : communityName,
+        PSCurrentUser.class);
+  }
+
+  @Override
   public PSAccessLevel getAccessLevel(final PSAccessLevelRequest request) {
     return postObjectToPath(concatPath(getPath(), "accessLevel"), request, PSAccessLevel.class);
   }

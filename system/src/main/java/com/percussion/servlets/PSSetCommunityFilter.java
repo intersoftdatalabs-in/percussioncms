@@ -94,12 +94,30 @@ public class PSSetCommunityFilter implements Filter {
         return; // community ID has already been set on the session.
       }
 
-      String communityName =
-          PSAuthenticateUserUtils.getUserRoleAttribute(
-              reqCtx, PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY);
+      String communityName;
+      try {
+        communityName = PSAuthenticateUserUtils.resolveDefaultCommunityName(reqCtx);
+      } catch (Exception e) {
+        log.debug("Cannot resolve default community for user: {}", reqCtx.getUserName(), e);
+        return;
+      }
       if (StringUtils.isBlank(communityName)) {
         log.debug("Cannot find a default community for user: {}", reqCtx.getUserName());
         return; // do nothing if cannot find default community.
+      }
+
+      // Profile-stored default applies only while the user still has access.
+      if (psReq.getUserSession() != null) {
+        List<String> allowed = psReq.getUserSession().getUserCommunityNames(psReq);
+        if (allowed != null
+            && !allowed.isEmpty()
+            && !PSAuthenticateUserUtils.isCommunityAllowed(communityName, allowed)) {
+          log.debug(
+              "Stored default community {} is not allowed for user {}",
+              communityName,
+              reqCtx.getUserName());
+          return;
+        }
       }
 
       IPSBackEndRoleMgr mgr = PSRoleMgrLocator.getBackEndRoleManager();

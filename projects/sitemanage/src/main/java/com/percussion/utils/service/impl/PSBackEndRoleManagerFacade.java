@@ -19,12 +19,15 @@ package com.percussion.utils.service.impl;
 
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.services.security.IPSBackEndRoleMgr;
+import com.percussion.services.security.PSJaasUtils;
 import com.percussion.services.security.data.PSBackEndRole;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.security.auth.Subject;
 
 /**
  * Simplifies the Back-end role manager while also making it thread safe.
@@ -104,6 +107,35 @@ public class PSBackEndRoleManagerFacade {
       backEndRoleMgr.setSubjectEmail(subjectName, subjectEmail);
     } finally {
       lock.writeLock().unlock();
+    }
+  }
+
+  /** See {@link IPSBackEndRoleMgr#setSubjectAttribute(String, String, String)}. */
+  public void setSubjectAttribute(String subjectName, String attributeName, String value) {
+    lock.writeLock().lock();
+    try {
+      backEndRoleMgr.setSubjectAttribute(subjectName, attributeName, value);
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * First non-empty global subject attribute for {@code subjectName}. Empty when unset.
+   */
+  public String getSubjectAttribute(String subjectName, String attributeName) {
+    lock.readLock().lock();
+    try {
+      Set<Subject> subjects =
+          backEndRoleMgr.getGlobalSubjectAttributes(subjectName, attributeName, false);
+      if (subjects == null || subjects.isEmpty()) {
+        return "";
+      }
+      String value =
+          PSJaasUtils.getSubjectAttributeValue(subjects.iterator().next(), attributeName);
+      return value == null ? "" : value.trim();
+    } finally {
+      lock.readLock().unlock();
     }
   }
 

@@ -20,11 +20,13 @@ import {
   formatApiError,
   isSessionRedirectError,
 } from "../api/client";
+import { allowedSessionCommunities } from "../api/user/communitySwitchApi";
 import {
   type CurrentUserProfile,
   getCurrentUserProfile,
   isValidEmailAddress,
   updateMyAccountEmail,
+  updateMyDefaultCommunity,
 } from "../api/user/userProfileApi";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
@@ -35,12 +37,30 @@ export interface AccountSectionProps {
   /** Optional test double — defaults to live REST. */
   loadProfile?: () => Promise<CurrentUserProfile>;
   saveEmail?: (email: string) => Promise<CurrentUserProfile>;
+  saveDefaultCommunity?: (name: string) => Promise<CurrentUserProfile>;
 }
 
 type LoadState =
   | { status: "loading" }
   | { status: "error"; message: string }
   | { status: "ready"; profile: CurrentUserProfile };
+
+/**
+ * Select value for the stored default: membership spelling when still allowed,
+ * otherwise empty so the control never holds a stale unmatched option.
+ */
+export function allowedDefaultCommunityDraft(
+  profile: Pick<CurrentUserProfile, "communities" | "defaultCommunity">,
+): string {
+  const stored = (profile.defaultCommunity ?? "").trim();
+  if (!stored) {
+    return "";
+  }
+  const allowed = allowedSessionCommunities(profile.communities);
+  return (
+    allowed.find((name) => name.toLowerCase() === stored.toLowerCase()) ?? ""
+  );
+}
 
 /**
  * Account identity view/edit for the signed-in user (slice 2 / #2395).
@@ -50,20 +70,30 @@ type LoadState =
 export function AccountSection({
   loadProfile = getCurrentUserProfile,
   saveEmail = updateMyAccountEmail,
+  saveDefaultCommunity = updateMyDefaultCommunity,
 }: AccountSectionProps = {}): React.ReactElement {
   const reactId = useId();
   const formId = `perc-profile-account-form-${reactId}`;
   const emailId = `perc-profile-account-email-${reactId}`;
   const emailErrorId = `perc-profile-account-email-error-${reactId}`;
   const emailHelpId = `perc-profile-account-email-help-${reactId}`;
+  const defaultCommunityId = `perc-profile-account-default-community-${reactId}`;
+  const defaultCommunityHelpId = `perc-profile-account-default-community-help-${reactId}`;
+  const defaultCommunityErrorId = `perc-profile-account-default-community-error-${reactId}`;
+  const defaultCommunityFormId = `perc-profile-account-default-community-form-${reactId}`;
   const statusId = `perc-profile-account-status-${reactId}`;
 
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [emailDraft, setEmailDraft] = useState("");
+  const [defaultCommunityDraft, setDefaultCommunityDraft] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [communityFieldError, setCommunityFieldError] = useState<string | null>(
+    null,
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingCommunity, setIsSavingCommunity] = useState(false);
 
   const load = useCallback(async () => {
     setLoadState({ status: "loading" });
@@ -73,6 +103,8 @@ export function AccountSection({
     try {
       const profile = await loadProfile();
       setEmailDraft(profile.email ?? "");
+      setDefaultCommunityDraft(allowedDefaultCommunityDraft(profile));
+      setCommunityFieldError(null);
       setLoadState({ status: "ready", profile });
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -116,6 +148,43 @@ export function AccountSection({
       setFormError(formatApiError(err, message(PROFILE_MSG.SAVE_ERROR)));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const onSubmitDefaultCommunity = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (loadState.status !== "ready") {
+      return;
+    }
+    setCommunityFieldError(null);
+    setFormError(null);
+    setSuccessMessage(null);
+
+    const allowed = allowedSessionCommunities(loadState.profile.communities);
+    const trimmed = defaultCommunityDraft.trim();
+    if (
+      trimmed &&
+      !allowed.some((name) => name.toLowerCase() === trimmed.toLowerCase())
+    ) {
+      setCommunityFieldError(message(PROFILE_MSG.DEFAULT_COMMUNITY_INVALID));
+      return;
+    }
+
+    setIsSavingCommunity(true);
+    try {
+      const updated = await saveDefaultCommunity(trimmed);
+      setLoadState({ status: "ready", profile: updated });
+      setDefaultCommunityDraft(allowedDefaultCommunityDraft(updated));
+      setSuccessMessage(message(PROFILE_MSG.DEFAULT_COMMUNITY_SAVE_SUCCESS));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setFormError(
+        formatApiError(err, message(PROFILE_MSG.DEFAULT_COMMUNITY_SAVE_ERROR)),
+      );
+    } finally {
+      setIsSavingCommunity(false);
     }
   };
 
@@ -190,9 +259,12 @@ export function AccountSection({
     .filter(Boolean)
     .join(" ");
 
+  const allowedCommunities = allowedSessionCommunities(profile.communities);
   const dirty =
     profile.emailEditable &&
     emailDraft.trim() !== (profile.email ?? "").trim();
+  const communityDirty =
+    defaultCommunityDraft.trim() !== (profile.defaultCommunity ?? "").trim();
 
   return (
     <div className={styles.root} data-testid="perc-profile-account">
@@ -390,6 +462,111 @@ export function AccountSection({
             >
               {currentCommunityText}
             </span>
+          </dd>
+        </div>
+
+        <div className={styles.field}>
+          <dt>
+            <label
+              htmlFor={defaultCommunityId}
+              {...i18nKeyAttr(PROFILE_MSG.FIELD_DEFAULT_COMMUNITY)}
+            >
+              {message(PROFILE_MSG.FIELD_DEFAULT_COMMUNITY)}
+            </label>
+          </dt>
+          <dd>
+            {allowedCommunities.length > 0 ? (
+              <form
+                id={defaultCommunityFormId}
+                className={styles.communityForm}
+                onSubmit={(e) => void onSubmitDefaultCommunity(e)}
+                noValidate
+                data-testid="perc-profile-account-default-community-form"
+              >
+                <select
+                  id={defaultCommunityId}
+                  name="defaultCommunity"
+                  className={styles.select}
+                  value={defaultCommunityDraft}
+                  onChange={(e) => {
+                    setDefaultCommunityDraft(e.target.value);
+                    setCommunityFieldError(null);
+                    setSuccessMessage(null);
+                  }}
+                  disabled={isSavingCommunity}
+                  aria-invalid={communityFieldError ? true : undefined}
+                  aria-describedby={
+                    communityFieldError
+                      ? `${defaultCommunityHelpId} ${defaultCommunityErrorId}`
+                      : defaultCommunityHelpId
+                  }
+                  data-testid="perc-profile-account-default-community-select"
+                >
+                  <option
+                    value=""
+                    {...i18nKeyAttr(PROFILE_MSG.DEFAULT_COMMUNITY_NONE)}
+                  >
+                    {message(PROFILE_MSG.DEFAULT_COMMUNITY_NONE)}
+                  </option>
+                  {allowedCommunities.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                <p
+                  id={defaultCommunityHelpId}
+                  className={styles.hint}
+                  {...i18nKeyAttr(PROFILE_MSG.DEFAULT_COMMUNITY_HINT)}
+                >
+                  {message(PROFILE_MSG.DEFAULT_COMMUNITY_HINT)}
+                </p>
+                {communityFieldError && (
+                  <p
+                    id={defaultCommunityErrorId}
+                    className={styles.fieldError}
+                    role="alert"
+                    data-testid="perc-profile-account-default-community-error"
+                  >
+                    {communityFieldError}
+                  </p>
+                )}
+                <div className={styles.actions}>
+                  <button
+                    type="submit"
+                    className={styles.primaryButton}
+                    disabled={isSavingCommunity || !communityDirty}
+                    data-testid="perc-profile-account-default-community-save"
+                    {...i18nKeyAttr(
+                      isSavingCommunity
+                        ? PROFILE_MSG.SAVING
+                        : PROFILE_MSG.SAVE_DEFAULT_COMMUNITY,
+                    )}
+                  >
+                    {message(
+                      isSavingCommunity
+                        ? PROFILE_MSG.SAVING
+                        : PROFILE_MSG.SAVE_DEFAULT_COMMUNITY,
+                    )}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <span
+                  className={styles.readonlyValue}
+                  data-testid="perc-profile-account-default-community-unavailable"
+                >
+                  {message(PROFILE_MSG.DEFAULT_COMMUNITY_UNAVAILABLE)}
+                </span>
+                <p
+                  className={styles.hint}
+                  {...i18nKeyAttr(PROFILE_MSG.DEFAULT_COMMUNITY_HINT)}
+                >
+                  {message(PROFILE_MSG.DEFAULT_COMMUNITY_HINT)}
+                </p>
+              </>
+            )}
           </dd>
         </div>
       </dl>
