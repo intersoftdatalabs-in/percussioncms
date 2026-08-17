@@ -25,6 +25,7 @@ import {
 describe("slotContext", () => {
   it("recognizes Explorer slot action names", () => {
     expect(isSlotActionName("slot_add")).toBe(true);
+    expect(isSlotActionName("slot_create")).toBe(true);
     expect(isSlotActionName("arrange_remove")).toBe(true);
     expect(isSlotActionName("item_activeassembly")).toBe(false);
   });

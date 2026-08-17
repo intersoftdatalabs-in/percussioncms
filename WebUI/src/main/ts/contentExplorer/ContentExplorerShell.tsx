@@ -37,9 +37,17 @@ import { formatApiError } from "../api/client";
 import {
   addSlotRelationship,
   fetchSlotAllowedTemplates,
+  fetchSlotAllowedTypes,
 } from "../api/contentExplorer/slotRelationshipApi";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import type { AssemblySlotContext } from "../assembly/slotContext";
+import { SlotCreateDialog } from "../assembly/SlotCreateDialog";
+import {
+  replaceSlotCreatePickerSession,
+  settleSlotCreatePickerSession,
+  type SlotCreatePick,
+  type SlotCreatePickerSession,
+} from "../assembly/slotCreatePick";
 import {
   replaceSlotDependentPickerSession,
   resolveSlotDependentPick,
@@ -48,6 +56,7 @@ import {
   type SlotDependentPickerSession,
 } from "../assembly/slotDependentPick";
 import { ASSEMBLY_MSG } from "../assembly/messages";
+import { createEditorItem } from "../editor/itemCreateApi";
 import {
   loadExplorerMenuCatalog,
   parseExplorerContentId,
@@ -247,6 +256,16 @@ export interface ContentExplorerShellProps {
   addToSlot?: typeof addSlotRelationship;
   /** Test seam: allowed snippet templates for the selected slot. */
   loadSlotAllowedTemplates?: typeof fetchSlotAllowedTemplates;
+  /** Test seam: allowed content types for slot create. */
+  loadSlotAllowedTypes?: typeof fetchSlotAllowedTypes;
+  /** Test seam: itemmanagement create before opening the React editor. */
+  createItem?: typeof createEditorItem;
+  /** Test seam: open spa.jsp?entry=editor after create. */
+  openWindow?: (
+    url: string,
+    target?: string,
+    features?: string,
+  ) => Window | null;
 }
 
 type ContextMenuState = {
@@ -440,6 +459,9 @@ function ContentExplorerShellInner({
   slot = null,
   addToSlot = addSlotRelationship,
   loadSlotAllowedTemplates = fetchSlotAllowedTemplates,
+  loadSlotAllowedTypes = fetchSlotAllowedTypes,
+  createItem = createEditorItem,
+  openWindow,
   bootstrap,
 }: ContentExplorerShellProps & { bootstrap: SpaBootstrap }): React.ReactElement {
   const currentUserIdentities = useMemo(() => {
@@ -509,6 +531,8 @@ function ContentExplorerShellInner({
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [slotPickerOpen, setSlotPickerOpen] = useState(false);
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
+  const [slotCreatePickerOpen, setSlotCreatePickerOpen] = useState(false);
+  const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
   const [templatePicker, setTemplatePicker] =
     useState<TemplatePickerSession | null>(null);
   const templatePickerRef = useRef<TemplatePickerSession | null>(null);
@@ -794,6 +818,9 @@ function ContentExplorerShellInner({
       const slotCurrent = slotPickerRef.current;
       slotPickerRef.current = null;
       settleSlotDependentPickerSession(slotCurrent, null);
+      const createCurrent = slotCreatePickerRef.current;
+      slotCreatePickerRef.current = null;
+      settleSlotCreatePickerSession(createCurrent, null);
     };
   }, []);
 
@@ -812,6 +839,23 @@ function ContentExplorerShellInner({
     slotPickerRef.current = null;
     setSlotPickerOpen(false);
     settleSlotDependentPickerSession(current, value);
+  }, []);
+
+  const pickSlotCreate = useCallback((nextSlot: AssemblySlotContext) => {
+    return new Promise<SlotCreatePick | null>((resolve) => {
+      slotCreatePickerRef.current = replaceSlotCreatePickerSession(
+        slotCreatePickerRef.current,
+        { slot: nextSlot, resolve },
+      );
+      setSlotCreatePickerOpen(true);
+    });
+  }, []);
+
+  const finishSlotCreatePicker = useCallback((value: SlotCreatePick | null) => {
+    const current = slotCreatePickerRef.current;
+    slotCreatePickerRef.current = null;
+    setSlotCreatePickerOpen(false);
+    settleSlotCreatePickerSession(current, value);
   }, []);
 
   /**
@@ -851,7 +895,10 @@ function ContentExplorerShellInner({
             pickPageTemplate,
             slot,
             addToSlot,
+            createItem,
+            openWindow,
             pickSlotDependent,
+            pickSlotCreate,
           });
           if (result.messageKey) {
             const msg = message(result.messageKey);
@@ -890,7 +937,10 @@ function ContentExplorerShellInner({
       pickPageTemplate,
       slot,
       addToSlot,
+      createItem,
+      openWindow,
       pickSlotDependent,
+      pickSlotCreate,
     ],
   );
 
@@ -1669,6 +1719,30 @@ function ContentExplorerShellInner({
                 finishSlotPicker(picked);
               })();
             }}
+          />
+        </div>
+      ) : null}
+      {slotCreatePickerOpen ? (
+        <div
+          data-testid="explorer-slot-create-host"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 40,
+          }}
+        >
+          <SlotCreateDialog
+            slotId={slotCreatePickerRef.current?.slot.slotId ?? slot?.slotId ?? 0}
+            initialFolder={
+              slotCreatePickerRef.current?.slot.folderPath ??
+              selection.folderPath ??
+              ""
+            }
+            loadTypes={loadSlotAllowedTypes}
+            loadTemplates={loadSlotAllowedTemplates}
+            testIdPrefix="explorer-slot-create"
+            onCancel={() => finishSlotCreatePicker(null)}
+            onApply={(pick) => finishSlotCreatePicker(pick)}
           />
         </div>
       ) : null}

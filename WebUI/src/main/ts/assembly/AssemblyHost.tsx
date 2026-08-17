@@ -52,7 +52,6 @@ import {
   dispatchAction,
   parseTemplateIdFromAction,
 } from "../contentExplorer/actionDispatch";
-import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { createEditorItem } from "../editor/itemCreateApi";
 import {
   checkoutEditorItem,
@@ -73,6 +72,13 @@ import {
   type OverlayField,
 } from "./overlayFields";
 import type { AssemblySlotContext } from "./slotContext";
+import { SlotCreateDialog } from "./SlotCreateDialog";
+import {
+  replaceSlotCreatePickerSession,
+  settleSlotCreatePickerSession,
+  type SlotCreatePick,
+  type SlotCreatePickerSession,
+} from "./slotCreatePick";
 import {
   replaceSlotDependentPickerSession,
   resolveSlotDependentPick,
@@ -108,6 +114,12 @@ export interface AssemblyHostProps {
   checkout?: (itemId: string) => Promise<void>;
   loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
   getPreviewDocument?: (frame: HTMLIFrameElement | null) => Document | null;
+  /** Test seam: open the React editor host after create. */
+  openWindow?: (
+    url: string,
+    target?: string,
+    features?: string,
+  ) => Window | null;
 }
 
 export function templateOptionsFromMenus(
@@ -195,6 +207,7 @@ export function AssemblyHost({
   checkout = checkoutEditorItem,
   loadType = getContentTypeDetail,
   getPreviewDocument = previewDocumentFromFrame,
+  openWindow,
 }: AssemblyHostProps = {}): React.ReactElement {
   const [params] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -215,11 +228,8 @@ export function AssemblyHost({
     null | "add" | "create" | "change"
   >(null);
   const [choices, setChoices] = useState<SlotAllowedChoice[]>([]);
-  const [typeChoices, setTypeChoices] = useState<SlotAllowedChoice[]>([]);
-  const [pickedType, setPickedType] = useState("");
   const [pickedTemplate, setPickedTemplate] = useState("");
   const [pickedSlot, setPickedSlot] = useState("");
-  const [pickedFolder, setPickedFolder] = useState("");
   const [fieldPayload, setFieldPayload] = useState<ItemEditorFields | null>(null);
   const [schemaFields, setSchemaFields] = useState<ContentTypeFieldSummary[]>([]);
   const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
@@ -227,6 +237,7 @@ export function AssemblyHost({
   const [savingFields, setSavingFields] = useState(false);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
+  const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
 
   useEffect(() => {
     document.title = message(ASSEMBLY_MSG.TITLE);
@@ -422,7 +433,7 @@ export function AssemblyHost({
             selectedSlot?.items.find((i) => i.relationshipId === selectedRelId)
               ?.templateId ?? null,
           ownerTemplateId: templateId,
-          folderPath: pickedFolder || null,
+          folderPath: null,
         }
       : null;
 
@@ -431,6 +442,13 @@ export function AssemblyHost({
     slotPickerRef.current = null;
     setDialog((open) => (open === "add" ? null : open));
     settleSlotDependentPickerSession(current, value);
+  }, []);
+
+  const finishSlotCreatePick = useCallback((value: SlotCreatePick | null) => {
+    const current = slotCreatePickerRef.current;
+    slotCreatePickerRef.current = null;
+    setDialog((open) => (open === "create" ? null : open));
+    settleSlotCreatePickerSession(current, value);
   }, []);
 
   const pickSlotDependent = useCallback(
@@ -446,11 +464,24 @@ export function AssemblyHost({
     [],
   );
 
+  const pickSlotCreate = useCallback((slot: AssemblySlotContext) => {
+    return new Promise<SlotCreatePick | null>((resolve) => {
+      slotCreatePickerRef.current = replaceSlotCreatePickerSession(
+        slotCreatePickerRef.current,
+        { slot, resolve },
+      );
+      setDialog("create");
+    });
+  }, []);
+
   useEffect(() => {
     return () => {
       const current = slotPickerRef.current;
       slotPickerRef.current = null;
       settleSlotDependentPickerSession(current, null);
+      const createCurrent = slotCreatePickerRef.current;
+      slotCreatePickerRef.current = null;
+      settleSlotCreatePickerSession(createCurrent, null);
     };
   }, []);
 
@@ -467,11 +498,9 @@ export function AssemblyHost({
           moveSlotRel,
           changeSlotTemplate,
           createItem,
+          openWindow,
           pickSlotDependent,
-          pickSlotCreate: async () => {
-            setDialog("create");
-            return null;
-          },
+          pickSlotCreate,
           pickSlotTemplateSlot: async () => {
             setDialog("change");
             return null;
@@ -774,60 +803,11 @@ export function AssemblyHost({
       {dialog === "create" && selectedSlotId != null && contentId != null ? (
         <SlotCreateDialog
           slotId={selectedSlotId}
-          folderPath={pickedFolder}
-          typeChoices={typeChoices}
-          templateChoices={choices}
-          pickedType={pickedType}
-          pickedTemplate={pickedTemplate}
-          onFolder={setPickedFolder}
-          onType={setPickedType}
-          onTemplate={setPickedTemplate}
-          onLoad={async () => {
-            const types = await loadAllowedTypes(selectedSlotId);
-            setTypeChoices(types);
-            if (types[0] && !pickedType) {
-              setPickedType(types[0].name || String(types[0].id));
-            }
-            const tpls = await loadAllowedTemplates(selectedSlotId);
-            setChoices(tpls);
-            if (tpls[0] && !pickedTemplate) {
-              setPickedTemplate(String(tpls[0].id));
-            }
-          }}
-          onCancel={() => setDialog(null)}
-          onApply={() => {
-            void runSlotDialogWork(
-              async () => {
-                if (!pickedFolder || !pickedType) {
-                  setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                  return;
-                }
-                const snippetTemplateId = Number(pickedTemplate);
-                if (!Number.isFinite(snippetTemplateId) || snippetTemplateId <= 0) {
-                  setSlotNotice(message(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE));
-                  return;
-                }
-                const created = await createItem({
-                  contentType: pickedType,
-                  folderPath: pickedFolder,
-                });
-                const createdId = parseExplorerContentId(created.itemId);
-                if (createdId == null) {
-                  setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED));
-                  return;
-                }
-                await addToSlot({
-                  ownerId: contentId,
-                  dependentId: createdId,
-                  slotId: selectedSlotId,
-                  templateId: snippetTemplateId,
-                });
-                setDialog(null);
-                await refreshCanvas();
-              },
-              () => setSlotNotice(message(ASSEMBLY_MSG.SLOT_FAILED)),
-            );
-          }}
+          initialFolder=""
+          loadTypes={loadAllowedTypes}
+          loadTemplates={loadAllowedTemplates}
+          onCancel={() => finishSlotCreatePick(null)}
+          onApply={(pick) => finishSlotCreatePick(pick)}
         />
       ) : null}
       {dialog === "change" && selectedRelId != null ? (
@@ -895,88 +875,6 @@ export function AssemblyHost({
             }}
           />
         ) : null}
-      </div>
-    </div>
-  );
-}
-
-function SlotCreateDialog({
-  slotId,
-  folderPath,
-  typeChoices,
-  templateChoices,
-  pickedType,
-  pickedTemplate,
-  onFolder,
-  onType,
-  onTemplate,
-  onLoad,
-  onCancel,
-  onApply,
-}: {
-  slotId: number;
-  folderPath: string;
-  typeChoices: SlotAllowedChoice[];
-  templateChoices: SlotAllowedChoice[];
-  pickedType: string;
-  pickedTemplate: string;
-  onFolder: (path: string) => void;
-  onType: (value: string) => void;
-  onTemplate: (value: string) => void;
-  onLoad: () => Promise<void>;
-  onCancel: () => void;
-  onApply: () => void;
-}): React.ReactElement {
-  useEffect(() => {
-    void onLoad();
-  }, [slotId]);
-  return (
-    <div className={styles.dialog} data-testid="assembly-slot-create-dialog">
-      <div className={`${styles.dialogPanel} ${styles.picker}`}>
-        <label>
-          {message(ASSEMBLY_MSG.SLOT_FOLDER_LABEL)}
-          <input
-            data-testid="assembly-slot-create-folder"
-            value={folderPath}
-            onChange={(e) => onFolder(e.target.value)}
-          />
-        </label>
-        <label>
-          {message(ASSEMBLY_MSG.SLOT_TYPE_LABEL)}
-          <select
-            data-testid="assembly-slot-create-type"
-            value={pickedType}
-            onChange={(e) => onType(e.target.value)}
-          >
-            {typeChoices.map((t) => (
-              <option key={t.id} value={t.name || String(t.id)}>
-                {t.label || t.name || t.id}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {message(ASSEMBLY_MSG.SLOT_TEMPLATE_LABEL)}
-          <select
-            data-testid="assembly-slot-create-template"
-            value={pickedTemplate}
-            onChange={(e) => onTemplate(e.target.value)}
-          >
-            {templateChoices.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label || t.name || t.id}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className={styles.pickerActions}>
-          <button type="button" data-testid="assembly-slot-create-cancel" onClick={onCancel}>
-            {message(ASSEMBLY_MSG.SLOT_CANCEL)}
-          </button>
-          <button type="button" data-testid="assembly-slot-create-apply" onClick={onApply}>
-            {message(ASSEMBLY_MSG.SLOT_APPLY)}
-          </button>
-        </div>
       </div>
     </div>
   );

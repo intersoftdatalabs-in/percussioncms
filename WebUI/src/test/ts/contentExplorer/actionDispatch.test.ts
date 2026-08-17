@@ -796,6 +796,26 @@ describe("actionDispatch", () => {
     expect(changeSlotTemplate).toHaveBeenCalledWith(88, 5, 6);
   });
 
+  it("slot create picker cancel does not create or POST add", async () => {
+    const addToSlot = vi.fn();
+    const createItem = vi.fn();
+    const openWindow = vi.fn();
+    const result = await dispatchAction(action({ name: "Slot_Create" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3 },
+      addToSlot,
+      createItem,
+      openWindow,
+      pickSlotCreate: async () => null,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
+    expect(createItem).not.toHaveBeenCalled();
+    expect(addToSlot).not.toHaveBeenCalled();
+    expect(openWindow).not.toHaveBeenCalled();
+  });
+
   it("slot create opens the React editor after relationship add", async () => {
     const addToSlot = vi.fn().mockResolvedValue({
       relationshipId: 1,
@@ -825,8 +845,20 @@ describe("actionDispatch", () => {
       }),
     });
     expect(result.refresh).toBe(true);
-    expect(createItem).toHaveBeenCalled();
-    expect(addToSlot).toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/A",
+      templateId: undefined,
+    });
+    expect(addToSlot).toHaveBeenCalledWith({
+      ownerId: 42,
+      dependentId: 99,
+      slotId: 3,
+      templateId: 4,
+    });
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("entry=editor");
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).not.toMatch(
+      /editAsset\.jsp|itemassembly\.html/i,
+    );
   });
 });
