@@ -103,6 +103,9 @@ public class PSDefaultLandingViewTest {
         VIEW_EDITOR, PSDefaultLandingView.resolveAuthorizedView(TYPE_EDITOR, false, false));
     assertEquals(
         VIEW_EXPLORER, PSDefaultLandingView.resolveAuthorizedView(TYPE_EXPLORER, false, false));
+    // Explorer is not admin-gated; Designer stored landings must not fail closed (#3536).
+    assertEquals(
+        VIEW_EXPLORER, PSDefaultLandingView.resolveAuthorizedView(TYPE_EXPLORER, false, true));
   }
 
   @Test
@@ -142,6 +145,8 @@ public class PSDefaultLandingViewTest {
         PSDefaultLandingView.resolveAuthorizedView(TYPE_WIDGET_BUILDER, false, true));
     assertEquals(
         VIEW_DEVELOPER, PSDefaultLandingView.resolveAuthorizedView(TYPE_DEVELOPER, false, true));
+    assertEquals(
+        VIEW_EXPLORER, PSDefaultLandingView.resolveAuthorizedView(TYPE_EXPLORER, false, true));
   }
 
   @Test
@@ -168,6 +173,9 @@ public class PSDefaultLandingViewTest {
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_HOME, false, false));
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DASH, false, false));
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_EDITOR, false, false));
+    assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_EXPLORER, false, false));
+    assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_EXPLORER, false, true));
+    assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_EXPLORER, true, false));
     assertFalse(PSDefaultLandingView.isViewAuthorized(VIEW_DESIGN, false, false));
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DESIGN, false, true));
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DESIGN, true, false));
@@ -179,6 +187,7 @@ public class PSDefaultLandingViewTest {
   public void roleGatedClassification() {
     assertFalse(PSDefaultLandingView.isRoleGatedView(VIEW_HOME));
     assertFalse(PSDefaultLandingView.isRoleGatedView(VIEW_DASH));
+    assertFalse(PSDefaultLandingView.isRoleGatedView(VIEW_EXPLORER));
     assertTrue(PSDefaultLandingView.isRoleGatedView(VIEW_DESIGN));
     assertTrue(PSDefaultLandingView.isAdminOnlyView(VIEW_WORKFLOW));
     assertFalse(PSDefaultLandingView.isAdminOnlyView(VIEW_DESIGN));
