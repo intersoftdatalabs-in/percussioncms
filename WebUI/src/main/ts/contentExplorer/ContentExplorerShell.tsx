@@ -36,11 +36,16 @@ import React, {
 import { formatApiError } from "../api/client";
 import {
   addSlotRelationship,
+  changeSlotTemplateSlot,
   fetchSlotAllowedTemplates,
   fetchSlotAllowedTypes,
+  fetchSlotCanvas,
+  moveSlotRelationship,
+  removeSlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import type { AssemblySlotContext } from "../assembly/slotContext";
+import { SlotChangeDialog } from "../assembly/SlotChangeDialog";
 import { SlotCreateDialog } from "../assembly/SlotCreateDialog";
 import {
   replaceSlotCreatePickerSession,
@@ -55,6 +60,13 @@ import {
   type SlotDependentPick,
   type SlotDependentPickerSession,
 } from "../assembly/slotDependentPick";
+import {
+  replaceSlotTemplateSlotPickerSession,
+  settleSlotTemplateSlotPickerSession,
+  slotsFromContext,
+  type SlotTemplateSlotPick,
+  type SlotTemplateSlotPickerSession,
+} from "../assembly/slotTemplateSlotPick";
 import { ASSEMBLY_MSG } from "../assembly/messages";
 import { createEditorItem } from "../editor/itemCreateApi";
 import {
@@ -264,6 +276,14 @@ export interface ContentExplorerShellProps {
   slot?: AssemblySlotContext | null;
   /** Test seam: persist a slot relationship after Content Browser pick. */
   addToSlot?: typeof addSlotRelationship;
+  /** Test seam: remove a selected snippet relationship. */
+  removeSlotRel?: typeof removeSlotRelationship;
+  /** Test seam: move a selected snippet relationship. */
+  moveSlotRel?: typeof moveSlotRelationship;
+  /** Test seam: change template/slot for a selected snippet. */
+  changeSlotTemplate?: typeof changeSlotTemplateSlot;
+  /** Test seam: load AA canvas slots for the change-template picker. */
+  loadSlotCanvas?: typeof fetchSlotCanvas;
   /** Test seam: allowed snippet templates for the selected slot. */
   loadSlotAllowedTemplates?: typeof fetchSlotAllowedTemplates;
   /** Test seam: allowed content types for slot create. */
@@ -470,6 +490,10 @@ function ContentExplorerShellInner({
   executeView = executeViewApi,
   slot = null,
   addToSlot = addSlotRelationship,
+  removeSlotRel = removeSlotRelationship,
+  moveSlotRel = moveSlotRelationship,
+  changeSlotTemplate = changeSlotTemplateSlot,
+  loadSlotCanvas = fetchSlotCanvas,
   loadSlotAllowedTemplates = fetchSlotAllowedTemplates,
   loadSlotAllowedTypes = fetchSlotAllowedTypes,
   loadContentTypes = loadAllowedContentTypes,
@@ -546,6 +570,10 @@ function ContentExplorerShellInner({
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
   const [slotCreatePickerOpen, setSlotCreatePickerOpen] = useState(false);
   const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
+  const [slotTemplatePickerOpen, setSlotTemplatePickerOpen] = useState(false);
+  const slotTemplatePickerRef = useRef<SlotTemplateSlotPickerSession | null>(
+    null,
+  );
   const [contentTypePicker, setContentTypePicker] =
     useState<ContentTypePickerSession | null>(null);
   const contentTypePickerRef = useRef<ContentTypePickerSession | null>(null);
@@ -858,6 +886,9 @@ function ContentExplorerShellInner({
       const createCurrent = slotCreatePickerRef.current;
       slotCreatePickerRef.current = null;
       settleSlotCreatePickerSession(createCurrent, null);
+      const changeCurrent = slotTemplatePickerRef.current;
+      slotTemplatePickerRef.current = null;
+      settleSlotTemplateSlotPickerSession(changeCurrent, null);
     };
   }, []);
 
@@ -894,6 +925,41 @@ function ContentExplorerShellInner({
     setSlotCreatePickerOpen(false);
     settleSlotCreatePickerSession(current, value);
   }, []);
+
+  const pickSlotTemplateSlot = useCallback(
+    async (nextSlot: AssemblySlotContext) => {
+      let slots = slotsFromContext(nextSlot);
+      try {
+        const canvas = await loadSlotCanvas(
+          nextSlot.ownerId,
+          nextSlot.ownerTemplateId,
+        );
+        if (canvas.slots.length > 0) {
+          slots = canvas.slots;
+        }
+      } catch {
+        // Keep the selected slot only when canvas load fails.
+      }
+      return new Promise<SlotTemplateSlotPick | null>((resolve) => {
+        slotTemplatePickerRef.current = replaceSlotTemplateSlotPickerSession(
+          slotTemplatePickerRef.current,
+          { slot: nextSlot, slots, resolve },
+        );
+        setSlotTemplatePickerOpen(true);
+      });
+    },
+    [loadSlotCanvas],
+  );
+
+  const finishSlotTemplatePicker = useCallback(
+    (value: SlotTemplateSlotPick | null) => {
+      const current = slotTemplatePickerRef.current;
+      slotTemplatePickerRef.current = null;
+      setSlotTemplatePickerOpen(false);
+      settleSlotTemplateSlotPickerSession(current, value);
+    },
+    [],
+  );
 
   /**
    * Route toolbar / context-menu activations through the action dispatcher.
@@ -934,10 +1000,14 @@ function ContentExplorerShellInner({
             loadContentTypes,
             slot,
             addToSlot,
+            removeSlotRel,
+            moveSlotRel,
+            changeSlotTemplate,
             createItem,
             openWindow,
             pickSlotDependent,
             pickSlotCreate,
+            pickSlotTemplateSlot,
           });
           if (result.messageKey) {
             const msg = message(result.messageKey);
@@ -978,10 +1048,14 @@ function ContentExplorerShellInner({
       loadContentTypes,
       slot,
       addToSlot,
+      removeSlotRel,
+      moveSlotRel,
+      changeSlotTemplate,
       createItem,
       openWindow,
       pickSlotDependent,
       pickSlotCreate,
+      pickSlotTemplateSlot,
     ],
   );
 
@@ -1791,6 +1865,34 @@ function ContentExplorerShellInner({
             testIdPrefix="explorer-slot-create"
             onCancel={() => finishSlotCreatePicker(null)}
             onApply={(pick) => finishSlotCreatePicker(pick)}
+          />
+        </div>
+      ) : null}
+      {slotTemplatePickerOpen ? (
+        <div
+          data-testid="explorer-slot-change-host"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 40,
+          }}
+        >
+          <SlotChangeDialog
+            slots={
+              slotTemplatePickerRef.current?.slots ??
+              (slot != null ? slotsFromContext(slot) : [])
+            }
+            initialSlotId={
+              slotTemplatePickerRef.current?.slot.slotId ?? slot?.slotId ?? 0
+            }
+            initialTemplateId={
+              slotTemplatePickerRef.current?.slot.snippetTemplateId ??
+              slot?.snippetTemplateId
+            }
+            loadTemplates={loadSlotAllowedTemplates}
+            testIdPrefix="explorer-slot-change"
+            onCancel={() => finishSlotTemplatePicker(null)}
+            onApply={(pick) => finishSlotTemplatePicker(pick)}
           />
         </div>
       ) : null}

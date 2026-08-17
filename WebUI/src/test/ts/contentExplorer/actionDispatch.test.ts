@@ -865,6 +865,8 @@ describe("actionDispatch", () => {
       slot: { ownerId: 42, slotId: 3 },
       removeSlotRel,
     });
+    expect(missing.kind).toBe("rest");
+    expect(missing.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP);
     expect(missing.messageKey).toMatch(/item in the slot/i);
     expect(removeSlotRel).not.toHaveBeenCalled();
 
@@ -875,6 +877,37 @@ describe("actionDispatch", () => {
     });
     expect(ok.refresh).toBe(true);
     expect(removeSlotRel).toHaveBeenCalledWith(88);
+  });
+
+  it("arrange without a slot stays needs-slot, not Data Flow unavailable", async () => {
+    const removeSlotRel = vi.fn();
+    const moveSlotRel = vi.fn();
+    const changeSlotTemplate = vi.fn();
+    const missing = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      removeSlotRel,
+      moveSlotRel,
+      changeSlotTemplate,
+    });
+    expect(missing.kind).toBe("rest");
+    expect(missing.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_SLOT);
+    expect(missing.messageKey).not.toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(removeSlotRel).not.toHaveBeenCalled();
+    expect(moveSlotRel).not.toHaveBeenCalled();
+    expect(changeSlotTemplate).not.toHaveBeenCalled();
+  });
+
+  it("arrange remove confirm cancel does not DELETE", async () => {
+    const removeSlotRel = vi.fn();
+    const result = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      removeSlotRel,
+      confirm: () => false,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBeUndefined();
+    expect(removeSlotRel).not.toHaveBeenCalled();
   });
 
   it("arrange move and change template-slot use relationship REST", async () => {
@@ -893,13 +926,44 @@ describe("actionDispatch", () => {
       moveSlotRel,
     });
     expect(moveSlotRel).toHaveBeenCalledWith(88, "UP");
-    await dispatchAction(action({ name: "Arrange_ChangeTemplateSlot" }), {
+    await dispatchAction(action({ name: "Arrange_MoveDownRight" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      moveSlotRel,
+    });
+    expect(moveSlotRel).toHaveBeenCalledWith(88, "DOWN");
+    await dispatchAction(action({ name: "Change_Template" }), {
       item: item(),
       slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
       changeSlotTemplate,
       pickSlotTemplateSlot: async () => ({ slotId: 5, templateId: 6 }),
     });
     expect(changeSlotTemplate).toHaveBeenCalledWith(88, 5, 6);
+    await dispatchAction(action({ name: "Arrange_ChangeTemplateSlot" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+      pickSlotTemplateSlot: async () => ({ slotId: 5, templateId: 6 }),
+    });
+    expect(changeSlotTemplate).toHaveBeenCalledTimes(2);
+    await dispatchAction(action({ name: "Move_To_Slot" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+      pickSlotTemplateSlot: async () => ({ slotId: 9, templateId: 4 }),
+    });
+    expect(changeSlotTemplate).toHaveBeenCalledWith(88, 9, 4);
+  });
+
+  it("change template without a pick stays needs-template", async () => {
+    const changeSlotTemplate = vi.fn();
+    const result = await dispatchAction(action({ name: "Change_Template" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE);
+    expect(changeSlotTemplate).not.toHaveBeenCalled();
   });
 
   it("slot create picker cancel does not create or POST add", async () => {

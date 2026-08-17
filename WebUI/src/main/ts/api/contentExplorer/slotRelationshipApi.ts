@@ -222,8 +222,9 @@ export async function changeSlotTemplateSlot(
   templateId: number,
   index?: number,
 ): Promise<SlotRelationship> {
+  const id = requirePositiveRelationshipId(relationshipId);
   const res = await post<unknown>(
-    `${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${relationshipId}/template-slot`,
+    `${PATHS.ASSEMBLY_SLOT_RELATIONSHIPS}/${id}/template-slot`,
     { slotId, templateId, index },
   );
   return unwrapSlotRelationship(res);
