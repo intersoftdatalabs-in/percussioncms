@@ -37,6 +37,7 @@ const {
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
   isKnownExplorerSitesConsoleNoise,
+  advanceTraditionalTypeStep,
 } = require("../helpers/explorer-sites-list-create");
 
 describe("explorer-sites-list-create helpers (#3003)", () => {
@@ -50,11 +51,55 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(TEST_IDS.typeTraditional, "site-create-type-traditional");
     assert.equal(TEST_IDS.typePage, "site-create-type-page");
     assert.equal(TEST_IDS.typeVirtual, "site-create-type-virtual");
+    assert.equal(TEST_IDS.typeUnavailable, "site-create-type-unavailable");
+    assert.equal(TEST_IDS.pageNote, "site-create-page-note");
+    assert.equal(TEST_IDS.confirmType, "site-create-confirm-type");
+    assert.equal(TEST_IDS.confirmTemplateName, "site-create-confirm-template-name");
+    assert.equal(TEST_IDS.confirmBaseTemplate, "site-create-confirm-base-template");
     assert.equal(TEST_IDS.siteName, "site-create-name");
     assert.equal(TEST_IDS.run, "site-create-run");
     assert.equal(TEST_IDS.managedNav, "site-create-managed-nav");
     assert.equal(TEST_IDS.confirmManagedNav, "site-create-confirm-managed-nav");
     assert.equal(TEST_IDS.virtualRoot, "site-create-virtual-root");
+  });
+
+  it("advanceTraditionalTypeStep selects Traditional and clicks Next", async () => {
+    assert.equal(typeof advanceTraditionalTypeStep, "function");
+    const checks = [];
+    const clicks = [];
+    const waits = [];
+    const page = {
+      locator(sel) {
+        return {
+          async waitFor(opts) {
+            waits.push({ sel, opts });
+          },
+          async check() {
+            checks.push(sel);
+          },
+          async click() {
+            clicks.push(sel);
+          },
+        };
+      },
+    };
+    await advanceTraditionalTypeStep(page);
+    assert.ok(
+      checks.some((s) => s.includes(TEST_IDS.typeTraditional)),
+      `Traditional radio checked: ${checks.join(",")}`,
+    );
+    assert.ok(
+      clicks.some((s) => s.includes(TEST_IDS.next)),
+      `Next clicked: ${clicks.join(",")}`,
+    );
+    assert.ok(
+      waits.some((w) => w.sel.includes(TEST_IDS.stepType)),
+      "waits for type step",
+    );
+    assert.ok(
+      waits.some((w) => w.sel.includes(TEST_IDS.stepDetails)),
+      "waits for details step",
+    );
   });
 
   it("tracks parent epic and slice issue numbers", () => {
