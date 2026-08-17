@@ -111,15 +111,73 @@ export function clampSiteDescription(raw: string): string {
 }
 
 /**
+ * Site kinds on the Create Site type picker (#3512).
+ * Slice 2 enables Traditional and Page; Virtual stays blocked.
+ */
+export type SiteCreateKind = "traditional" | "page" | "virtual";
+
+export const SITE_CREATE_KINDS: readonly SiteCreateKind[] = [
+  "traditional",
+  "page",
+  "virtual",
+];
+
+/**
+ * True when the chosen kind may leave the type-picker step.
+ */
+export function isSiteCreateKindEnabled(kind: SiteCreateKind): boolean {
+  return kind === "traditional" || kind === "page";
+}
+
+/**
+ * Page sites require a page / base template step. Traditional does not.
+ */
+export function requiresPageTemplate(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Page sites force managed navigation on. Traditional may opt out.
+ */
+export function managedNavigationForcedOn(kind: SiteCreateKind): boolean {
+  return kind === "page";
+}
+
+/**
+ * Wizard step ids for the chosen kind. Page inserts a template step.
+ */
+export function wizardStepsForKind(kind: SiteCreateKind): readonly string[] {
+  if (kind === "page") {
+    return ["type", "details", "template", "confirm", "progress"];
+  }
+  return ["type", "details", "confirm", "progress"];
+}
+
+/**
  * True when the create form has enough fields to submit (client-side only).
+ *
+ * <p>Traditional does not prompt for template/base — those values are
+ * generated. Page requires a template name and base template. Virtual
+ * cannot submit from this slice.</p>
  */
 export function canSubmitCreateSite(fields: {
   siteName: string;
-  templateName: string;
-  baseTemplateName: string;
+  templateName?: string;
+  baseTemplateName?: string;
+  siteType?: SiteCreateKind;
 }): boolean {
+  const kind = fields.siteType ?? "traditional";
+  if (!isSiteCreateKindEnabled(kind)) {
+    return false;
+  }
   const site = validateSiteName(fields.siteName);
-  const tmpl = validateTemplateName(fields.templateName);
+  if (!site.ok) {
+    return false;
+  }
+  if (!requiresPageTemplate(kind)) {
+    return true;
+  }
+  const tmpl = validateTemplateName(fields.templateName ?? "");
   const base = (fields.baseTemplateName ?? "").trim();
-  return site.ok && tmpl.ok && base.length > 0;
+  return tmpl.ok && base.length > 0;
 }

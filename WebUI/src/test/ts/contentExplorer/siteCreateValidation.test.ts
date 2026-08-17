@@ -15,10 +15,14 @@ import {
   defaultTemplateNameForSite,
   filterSiteNameInput,
   filterTemplateNameInput,
+  isSiteCreateKindEnabled,
+  managedNavigationForcedOn,
+  requiresPageTemplate,
   SITE_DESCRIPTION_MAX_LENGTH,
   SITE_NAME_MAX_LENGTH,
   validateSiteName,
   validateTemplateName,
+  wizardStepsForKind,
 } from "../../../main/ts/contentExplorer/wizards/siteCreateValidation";
 
 describe("siteCreateValidation (#3002)", () => {
@@ -63,27 +67,74 @@ describe("siteCreateValidation (#3002)", () => {
     expect(clampSiteDescription(long).length).toBe(SITE_DESCRIPTION_MAX_LENGTH);
   });
 
-  it("canSubmitCreateSite requires site, template, and base template", () => {
+  it("canSubmitCreateSite Traditional requires only a site name", () => {
     expect(
       canSubmitCreateSite({
         siteName: "A",
+        siteType: "traditional",
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitCreateSite({
+        siteName: "",
+        siteType: "traditional",
+      }),
+    ).toBe(false);
+  });
+
+  it("canSubmitCreateSite Page requires template name and base template", () => {
+    expect(
+      canSubmitCreateSite({
+        siteName: "A",
+        siteType: "page",
         templateName: "ATemplate",
         baseTemplateName: "perc.base.plain",
       }),
     ).toBe(true);
     expect(
       canSubmitCreateSite({
-        siteName: "",
-        templateName: "ATemplate",
-        baseTemplateName: "perc.base.plain",
+        siteName: "A",
+        siteType: "page",
       }),
     ).toBe(false);
     expect(
       canSubmitCreateSite({
         siteName: "A",
+        siteType: "page",
         templateName: "ATemplate",
         baseTemplateName: "  ",
       }),
     ).toBe(false);
+    expect(
+      canSubmitCreateSite({
+        siteName: "A",
+        siteType: "virtual",
+        templateName: "ATemplate",
+        baseTemplateName: "perc.base.plain",
+      }),
+    ).toBe(false);
+  });
+
+  it("kind helpers enable Traditional and Page only", () => {
+    expect(isSiteCreateKindEnabled("traditional")).toBe(true);
+    expect(isSiteCreateKindEnabled("page")).toBe(true);
+    expect(isSiteCreateKindEnabled("virtual")).toBe(false);
+    expect(requiresPageTemplate("page")).toBe(true);
+    expect(requiresPageTemplate("traditional")).toBe(false);
+    expect(managedNavigationForcedOn("page")).toBe(true);
+    expect(managedNavigationForcedOn("traditional")).toBe(false);
+    expect(wizardStepsForKind("page")).toEqual([
+      "type",
+      "details",
+      "template",
+      "confirm",
+      "progress",
+    ]);
+    expect(wizardStepsForKind("traditional")).toEqual([
+      "type",
+      "details",
+      "confirm",
+      "progress",
+    ]);
   });
 });

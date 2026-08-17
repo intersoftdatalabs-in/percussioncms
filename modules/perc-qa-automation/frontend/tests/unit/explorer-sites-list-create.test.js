@@ -46,6 +46,8 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(TEST_IDS.createSiteMenu, "explorer-content-create-site");
     assert.equal(TEST_IDS.createSitePanel, "explorer-site-create-panel");
     assert.equal(TEST_IDS.wizard, "site-create-wizard");
+    assert.equal(TEST_IDS.stepType, "site-create-step-type");
+    assert.equal(TEST_IDS.typePage, "site-create-type-page");
     assert.equal(TEST_IDS.siteName, "site-create-name");
     assert.equal(TEST_IDS.run, "site-create-run");
     assert.equal(TEST_IDS.managedNav, "site-create-managed-nav");

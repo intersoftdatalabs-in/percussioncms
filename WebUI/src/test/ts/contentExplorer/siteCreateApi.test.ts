@@ -35,6 +35,24 @@ describe("siteCreateApi helpers (#3002)", () => {
     expect(body.Site.baseTemplateName).toBe("perc.base.plain");
     expect(body.Site.templateName).toBe("QA-SiteTemplate");
     expect(body.Site.managedNavigation).toBe(true);
+    expect(body.Site.pageBased).toBeUndefined();
+  });
+
+  it("buildCreateSiteBody sends pageBased only for Page sites", () => {
+    const page = buildCreateSiteBody({
+      name: "PageSite",
+      baseTemplateName: "perc.base.other",
+      templateName: "PageSiteTmpl",
+      pageBased: true,
+    });
+    expect(page.Site.pageBased).toBe(true);
+    expect(page.Site.managedNavigation).toBe(true);
+    const traditional = buildCreateSiteBody({
+      name: "Trad",
+      baseTemplateName: "perc.base.plain",
+      templateName: "TradTemplate",
+    });
+    expect(traditional.Site.pageBased).toBeUndefined();
   });
 
   it("buildCreateSiteBody sends managedNavigation false when opted out", () => {

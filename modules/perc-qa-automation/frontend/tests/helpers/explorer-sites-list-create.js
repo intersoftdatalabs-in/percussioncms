@@ -21,15 +21,24 @@ const TEST_IDS = Object.freeze({
   createSiteMenu: "explorer-content-create-site",
   createSitePanel: "explorer-site-create-panel",
   wizard: "site-create-wizard",
+  stepType: "site-create-step-type",
   stepDetails: "site-create-step-details",
   stepTemplate: "site-create-step-template",
   stepConfirm: "site-create-step-confirm",
   stepProgress: "site-create-step-progress",
+  typeTraditional: "site-create-type-traditional",
+  typePage: "site-create-type-page",
+  typeVirtual: "site-create-type-virtual",
+  typeUnavailable: "site-create-type-unavailable",
+  pageNote: "site-create-page-note",
   siteName: "site-create-name",
   description: "site-create-description",
   templateName: "site-create-template-name",
   baseTemplate: "site-create-base-template",
   confirmSummary: "site-create-confirm-summary",
+  confirmType: "site-create-confirm-type",
+  confirmTemplateName: "site-create-confirm-template-name",
+  confirmBaseTemplate: "site-create-confirm-base-template",
   next: "site-create-next",
   back: "site-create-back",
   run: "site-create-run",
@@ -241,6 +250,20 @@ function siteChildNamesFromTreeTestIds(nodeTestIds) {
  * @param {string} [prefix]
  * @returns {string}
  */
+/**
+ * Advance past the type-picker step (Traditional is the default).
+ * @param {import('@playwright/test').Page} page
+ */
+async function advanceTraditionalTypeStep(page) {
+  await page
+    .locator(`[data-testid="${TEST_IDS.stepType}"]`)
+    .waitFor({ state: "visible", timeout: 10_000 });
+  await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+  await page
+    .locator(`[data-testid="${TEST_IDS.stepDetails}"]`)
+    .waitFor({ state: "visible", timeout: 10_000 });
+}
+
 function uniqueQaSiteName(prefix = "QaSite") {
   const safe = String(prefix || "QaSite").replace(/[^A-Za-z0-9]/g, "");
   const stamp = Date.now().toString(36).slice(-6);
@@ -302,6 +325,7 @@ module.exports = {
   expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
+  advanceTraditionalTypeStep,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
