@@ -787,7 +787,9 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       target: { value: "Acme" },
     });
     fireEvent.click(screen.getByTestId("site-create-next"));
-    expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
+    });
     fireEvent.click(screen.getByTestId("site-create-next"));
     fetchSites.mockRejectedValue(new Error("catalog down"));
     fireEvent.click(screen.getByTestId("site-create-run"));

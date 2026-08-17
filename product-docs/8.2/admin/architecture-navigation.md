@@ -40,10 +40,8 @@ dispatcher applies that preference and opens the Navigation SPA — not Home.
 4. Expand and collapse nodes with the mouse or keyboard (Enter/Space, Arrow Left/Right).
 5. Use **Refresh** to reload the tree after external changes.
 6. Use **New Site** (Admin or Designer) to open the same Create Site wizard
-   used in Content Explorer. Choose **Traditional** (managed navigation optional,
-   no page-template prompt) or **Page** (managed navigation required, choose a
-   page/base template). After a successful create, the new site is selected
-   in this shell.
+   used in Content Explorer (Traditional / Page / Virtual type picker). After a
+   successful create, the new site is selected in this shell.
 7. Use **Copy Site** (Admin or Designer) with a site selected to open the
    existing site-copy wizard (same sitemanage copy service as Explorer). The
    source is prefilled from the current site. A copy already in progress blocks

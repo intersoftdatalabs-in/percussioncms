@@ -83,8 +83,14 @@ public class PSSiteProperty implements IPSCatalogItem, Serializable {
   @Column(name = "VERSION")
   Integer version;
 
+  /**
+   * Parent site FK. Must be insertable so a new-site persist that also writes
+   * {@code RXASSEMBLERPROPERTIES} (managed-nav flag, Virtual source) includes
+   * {@code SITEID}. {@code insertable=false} produced H2 {@code NULL not
+   * allowed for column SITEID} on Create Site (#3511 / #3521).
+   */
   @ManyToOne(targetEntity = PSSite.class)
-  @JoinColumn(name = "SITEID", nullable = false, insertable = false, updatable = false)
+  @JoinColumn(name = "SITEID", nullable = false)
   IPSSite site;
 
   @Column(name = "CONTEXTID")

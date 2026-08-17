@@ -329,13 +329,17 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     tmpSite.setCanonicalReplace(site.isCanonicalReplace());
     tmpSite.setPageBased(true);
     site.setSiteId(tmpSite.getSiteId());
-    if (isNew) {
-      persistManagedNavigationFlag(tmpSite, site.getManagedNavigation());
-    }
 
     publishWs.saveSite(tmpSite);
     site.setFolderPath(tmpSite.getFolderRoot());
     if (isNew) {
+      // After SITEID is assigned — property inserts need a non-null SITEID (#3511).
+      persistManagedNavigationFlag(tmpSite, site.getManagedNavigation());
+      if (tmpSite instanceof com.percussion.services.sitemgr.data.PSSite ps
+          && ps.getProperties() != null
+          && !ps.getProperties().isEmpty()) {
+        publishWs.saveSite(tmpSite);
+      }
       createPublishingItems(tmpSite, pubServer, true);
     }
 

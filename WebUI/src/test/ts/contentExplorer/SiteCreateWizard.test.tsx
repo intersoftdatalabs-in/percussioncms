@@ -35,11 +35,15 @@ function choosePageType(): void {
   fireEvent.click(screen.getByTestId("site-create-type-page"));
 }
 
+function chooseVirtualType(): void {
+  fireEvent.click(screen.getByTestId("site-create-type-virtual"));
+}
+
 function advanceFromType(): void {
   fireEvent.click(screen.getByTestId("site-create-next"));
 }
 
-describe("SiteCreateWizard (#3520 / parent #3512)", () => {
+describe("SiteCreateWizard (#3521 / parent #3512)", () => {
   it("starts on the type picker with Traditional selected", () => {
     renderWizard();
     expect(screen.getByTestId("site-create-wizard")).toBeTruthy();
@@ -55,15 +59,69 @@ describe("SiteCreateWizard (#3520 / parent #3512)", () => {
     expect(screen.queryByTestId("site-create-step-details")).toBeNull();
   });
 
-  it("blocks Next on Virtual and does not open details", () => {
-    renderWizard();
-    fireEvent.click(screen.getByTestId("site-create-type-virtual"));
-    expect(screen.getByTestId("site-create-type-unavailable")).toBeTruthy();
+  it("Virtual: enables Next, hides managed nav and page template", async () => {
+    const submit = vi.fn().mockResolvedValue({ name: "Docs" });
+    const applyVirtual = vi.fn().mockResolvedValue({ virtual: true });
+    renderWizard({ submit, applyVirtual });
+    chooseVirtualType();
+    expect(screen.getByTestId("site-create-virtual-note")).toBeTruthy();
+    expect(screen.queryByTestId("site-create-type-unavailable")).toBeNull();
     const next = screen.getByTestId("site-create-next") as HTMLButtonElement;
-    expect(next.disabled).toBe(true);
+    expect(next.disabled).toBe(false);
     fireEvent.click(next);
-    expect(screen.getByTestId("site-create-step-type")).toBeTruthy();
-    expect(screen.queryByTestId("site-create-step-details")).toBeNull();
+    expect(screen.getByTestId("site-create-step-details")).toBeTruthy();
+    expect(screen.queryByTestId("site-create-managed-nav")).toBeNull();
+    expect(screen.queryByTestId("site-create-template-name")).toBeNull();
+    fireEvent.change(screen.getByTestId("site-create-name"), {
+      target: { value: "Docs" },
+    });
+    fireEvent.click(next);
+    expect(screen.getByTestId("site-create-step-confirm")).toBeTruthy();
+    expect(screen.queryByTestId("site-create-step-template")).toBeNull();
+    expect(screen.queryByTestId("site-create-confirm-template-name")).toBeNull();
+    expect(screen.queryByTestId("site-create-confirm-managed-nav")).toBeNull();
+    expect(screen.getByTestId("site-create-virtual-source-note")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("site-create-virtual-root"), {
+      target: { value: "/opt/Percussion" },
+    });
+    fireEvent.click(next);
+    fireEvent.click(screen.getByTestId("site-create-run"));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+    const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
+    expect(req.name).toBe("Docs");
+    expect(req.managedNavigation).toBe(false);
+    expect(req.pageBased).toBeUndefined();
+    expect(req.virtualRootPath).toBe("/opt/Percussion");
+    expect(applyVirtual).toHaveBeenCalledWith(
+      "Docs",
+      expect.objectContaining({
+        sourceKind: "git-filesystem",
+        rootPath: "/opt/Percussion",
+      }),
+    );
+  });
+
+  it("Virtual: skips PUT when root path is blank (Developer handoff)", async () => {
+    const submit = vi.fn().mockResolvedValue({ name: "Handoff" });
+    const applyVirtual = vi.fn();
+    renderWizard({ submit, applyVirtual });
+    chooseVirtualType();
+    advanceFromType();
+    fireEvent.change(screen.getByTestId("site-create-name"), {
+      target: { value: "Handoff" },
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-run"));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+    const req: CreateSiteRequest = submit.mock.calls[0]?.[0];
+    expect(req.managedNavigation).toBe(false);
+    expect(req.virtualRootPath).toBeUndefined();
+    expect(applyVirtual).not.toHaveBeenCalled();
   });
 
   it("Traditional: Next on name only; no template step; nav optional", async () => {

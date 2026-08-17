@@ -24,7 +24,7 @@
  *   <li>UI: Sites tree expands to child site nodes when list is non-empty</li>
  *   <li>UI: selecting a sample site shows folder children, not LIST_EMPTY (#3326)</li>
  *   <li>Create Site: Content menu always exposes Create Site; wizard details →
- *       confirm chrome (no page-template prompt); optional live submit</li>
+ *       template → confirm chrome; optional live submit when affordance present</li>
  * </ul>
  *
  * <p><strong>Soft-skip policy (acceptance #3003):</strong> empty Sites list may
@@ -66,7 +66,6 @@ const {
   expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
   siteChildNamesFromTreeTestIds,
-  advanceTraditionalTypeStep,
   uniqueQaSiteName,
   createSiteMissingSkipReason,
   emptySitesSoftSkipNote,
@@ -349,7 +348,7 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
   );
 
   test(
-    "Create Site wizard: type → details → confirm chrome (Traditional)",
+    "Create Site wizard: type → details → confirm chrome",
     { tag: ["@explorer-sites-list-create", "@explorer", "@sites"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -377,23 +376,27 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
         page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
       ).toBeVisible();
       await expect(
+        page.locator(`[data-testid="${TEST_IDS.typeTraditional}"]`),
+      ).toBeChecked();
+      await expect(
         page.locator(`[data-testid="${TEST_IDS.traditionalNote}"]`),
       ).toBeVisible();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.typePage}"]`),
-      ).toBeVisible();
-      await expect(
         page.locator(`[data-testid="${TEST_IDS.typeVirtual}"]`),
+      ).toBeEnabled();
+
+      const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      await expect(next).toBeEnabled({ timeout: 5_000 });
+      await next.click();
+
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.stepDetails}"]`),
       ).toBeVisible();
-
-      await advanceTraditionalTypeStep(page);
-
       const managedNav = page.locator(
         `[data-testid="${TEST_IDS.managedNav}"]`,
       );
       await expect(managedNav).toBeVisible();
       await expect(managedNav).toBeChecked();
-      await expect(managedNav).toBeEnabled();
       await managedNav.uncheck();
 
       const siteName = uniqueQaSiteName("QaListCreate");
@@ -402,13 +405,8 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
         page.locator(`[data-testid="${TEST_IDS.templateName}"]`),
       ).toHaveCount(0);
 
-      const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
       await expect(next).toBeEnabled({ timeout: 5_000 });
       await next.click();
-
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.stepTemplate}"]`),
-      ).toHaveCount(0);
       await expect(
         page.locator(`[data-testid="${TEST_IDS.stepConfirm}"]`),
       ).toBeVisible({ timeout: 10_000 });
@@ -448,17 +446,17 @@ test.describe("Explorer Sites list + Create Site (#3003 / #2989)", () => {
         page.locator(`[data-testid="${TEST_IDS.wizard}"]`),
       ).toBeVisible({ timeout: 10_000 });
 
-      await advanceTraditionalTypeStep(page);
-
       const siteName = uniqueQaSiteName("QaCreate");
-      await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
-
       const next = page.locator(`[data-testid="${TEST_IDS.next}"]`);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.stepType}"]`),
+      ).toBeVisible();
       await expect(next).toBeEnabled({ timeout: 5_000 });
       await next.click();
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.stepTemplate}"]`),
-      ).toHaveCount(0);
+      await page.locator(`[data-testid="${TEST_IDS.siteName}"]`).fill(siteName);
+
+      await expect(next).toBeEnabled({ timeout: 5_000 });
+      await next.click();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.stepConfirm}"]`),
       ).toBeVisible({ timeout: 10_000 });

@@ -166,18 +166,19 @@ and the site NavTree).
 To create a new Site from Explorer:
 
 1. Choose **Content → Create Site** (available without selecting an existing site).
-2. On **Site type**, choose **Traditional** or **Page** (Virtual is listed but not available yet).
-3. **Traditional:** site name and optional managed navigation → confirm → create. There is no page-template prompt.
-4. **Page:** site name (managed navigation locked on) → template name and base template → confirm → create. The site is persisted as a CM1 page-based site.
-5. On success, Explorer navigates to `/Sites/<new-site-name>`.
+2. On **Site type**, choose **Traditional**, **Page**, or **Virtual**.
+3. Complete the remaining steps (name/description; managed navigation only for Traditional/Page;
+   page template only for Page; optional Git root on Virtual confirm).
+4. On success, Explorer navigates to `/Sites/<new-site-name>`.
 
-Configure **Virtual Site** source properties (Git/filesystem) from **Developer → Sites** /
-Site detail — see [Sites & content structure](id:admin-sites) and
-[Virtual Sites](id:developer-virtual-sites).
+**Virtual** create does not show managed navigation or a page template. If you supply a Git
+root path, the wizard PUTs the existing `VirtualSiteProperties` envelope after create.
+Otherwise finish source settings on **Developer → Sites**. See
+[Sites & content structure](id:admin-sites) and [Virtual Sites](id:developer-virtual-sites).
 
 Related Content menu commands:
 
-- **Create Site** — new Traditional or Page Site (no site context required)
+- **Create Site** — new Traditional, Page, or Virtual Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
 

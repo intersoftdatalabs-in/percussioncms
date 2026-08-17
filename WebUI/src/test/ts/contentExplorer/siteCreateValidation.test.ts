@@ -15,6 +15,7 @@ import {
   defaultTemplateNameForSite,
   filterSiteNameInput,
   filterTemplateNameInput,
+  hidesManagedNavigation,
   isSiteCreateKindEnabled,
   managedNavigationForcedOn,
   requiresPageTemplate,
@@ -22,10 +23,11 @@ import {
   SITE_NAME_MAX_LENGTH,
   validateSiteName,
   validateTemplateName,
+  validateVirtualRootPath,
   wizardStepsForKind,
 } from "../../../main/ts/contentExplorer/wizards/siteCreateValidation";
 
-describe("siteCreateValidation (#3002)", () => {
+describe("siteCreateValidation (#3002 / #3521)", () => {
   it("filterSiteNameInput keeps hostname-safe characters only", () => {
     expect(filterSiteNameInput("My Site!")).toBe("MySite");
     expect(filterSiteNameInput("a-b.c_d")).toBe("a-b.cd");
@@ -105,24 +107,62 @@ describe("siteCreateValidation (#3002)", () => {
         baseTemplateName: "  ",
       }),
     ).toBe(false);
+  });
+
+  it("canSubmitCreateSite Virtual requires name only; root is optional", () => {
     expect(
       canSubmitCreateSite({
-        siteName: "A",
+        siteName: "Docs",
         siteType: "virtual",
-        templateName: "ATemplate",
-        baseTemplateName: "perc.base.plain",
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitCreateSite({
+        siteName: "Docs",
+        siteType: "virtual",
+        virtualRootPath: "/opt/Percussion",
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitCreateSite({
+        siteName: "Docs",
+        siteType: "virtual",
+        virtualRootPath: "../escape",
+      }),
+    ).toBe(false);
+    expect(
+      canSubmitCreateSite({
+        siteName: "",
+        siteType: "virtual",
       }),
     ).toBe(false);
   });
 
-  it("kind helpers enable Traditional and Page only", () => {
+  it("validateVirtualRootPath allows blank and rejects traversal", () => {
+    expect(validateVirtualRootPath("")).toEqual({ ok: true, path: null });
+    expect(validateVirtualRootPath("  ")).toEqual({ ok: true, path: null });
+    expect(validateVirtualRootPath("/opt/docs")).toEqual({
+      ok: true,
+      path: "/opt/docs",
+    });
+    expect(validateVirtualRootPath("C:/docs/..")).toEqual({
+      ok: false,
+      reason: "unsafe",
+    });
+  });
+
+  it("kind helpers enable Traditional, Page, and Virtual", () => {
     expect(isSiteCreateKindEnabled("traditional")).toBe(true);
     expect(isSiteCreateKindEnabled("page")).toBe(true);
-    expect(isSiteCreateKindEnabled("virtual")).toBe(false);
+    expect(isSiteCreateKindEnabled("virtual")).toBe(true);
     expect(requiresPageTemplate("page")).toBe(true);
     expect(requiresPageTemplate("traditional")).toBe(false);
+    expect(requiresPageTemplate("virtual")).toBe(false);
     expect(managedNavigationForcedOn("page")).toBe(true);
     expect(managedNavigationForcedOn("traditional")).toBe(false);
+    expect(managedNavigationForcedOn("virtual")).toBe(false);
+    expect(hidesManagedNavigation("virtual")).toBe(true);
+    expect(hidesManagedNavigation("traditional")).toBe(false);
     expect(wizardStepsForKind("page")).toEqual([
       "type",
       "details",
@@ -131,6 +171,12 @@ describe("siteCreateValidation (#3002)", () => {
       "progress",
     ]);
     expect(wizardStepsForKind("traditional")).toEqual([
+      "type",
+      "details",
+      "confirm",
+      "progress",
+    ]);
+    expect(wizardStepsForKind("virtual")).toEqual([
       "type",
       "details",
       "confirm",

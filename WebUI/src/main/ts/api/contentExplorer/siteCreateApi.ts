@@ -15,17 +15,24 @@
  */
 
 /**
- * Site create transport for modern Explorer (#3002 / parent #2989).
+ * Site create transport for modern Explorer (#3002 / parent #2989 / #3512).
  *
  * <p>Reuses the proven sitemanage create contract used by classic
  * {@code perc_newsitedialog}: {@code POST /services/sitemanage/site/}
- * with a {@code Site} body. Traditional (repository) sites are the default —
- * no virtual properties are sent. Public REST {@code SitesAdaptor#createSite}
- * is intentionally not used (not implemented on the adaptor).</p>
+ * with a {@code Site} body. Traditional (repository) sites are the default.
+ * Virtual Sites create without managed nav / page template, then
+ * {@code PUT /services/sites/{nameOrId}/virtual} with the existing
+ * {@code VirtualSiteProperties} envelope (#3365 / #3521). Public REST
+ * {@code SitesAdaptor#createSite} is intentionally not used.</p>
  */
 
 import { formatApiError, get, post } from "../client";
 import { PATHS } from "../paths";
+import {
+  updateVirtualSiteProperties,
+} from "../developer/sitesApi";
+import type { VirtualSiteProperties } from "../developer/types";
+import { SOURCE_KIND_GIT_FILESYSTEM } from "../../developer/virtualSiteForm";
 
 /** Product default base template (IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME). */
 export const PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
@@ -44,15 +51,24 @@ export interface CreateSiteRequest {
   templateName: string;
   /**
    * Traditional sites only. Default true. When false, create the site folder
-   * without a CMS NavTree / homepage. Virtual Sites do not send this flag.
+   * without a CMS NavTree / homepage. Virtual Sites always send {@code false}.
    */
   managedNavigation?: boolean;
   /**
    * CM1 page-based site ({@code pageBased} / {@code IS_PAGE_BASED} on
    * POST /sitemanage/site/). Send {@code true} for Page type. Traditional
-   * omits this field.
+   * and Virtual omit this field.
    */
   pageBased?: boolean;
+  /**
+   * Optional Git/filesystem root for Virtual create. When set, the wizard
+   * PUTs {@code VirtualSiteProperties} after site create (#3521).
+   */
+  virtualRootPath?: string;
+  /** Optional {@code virtual.configFile} (simple name) for Virtual create. */
+  virtualConfigFile?: string;
+  /** Optional {@code virtual.siteKey} for Virtual create. */
+  virtualSiteKey?: string;
 }
 
 /** Minimal site summary returned after create (name is required for navigation). */
@@ -228,6 +244,61 @@ export async function createTraditionalSite(
   } catch (err: unknown) {
     throw new Error(formatApiError(err, "Could not create site"));
   }
+}
+
+/**
+ * Virtual {@code PUT /virtual} body after create. {@code null} when
+ * {@code virtualRootPath} is blank — operator finishes source on
+ * Developer → Sites.
+ */
+export function virtualPropertiesAfterCreate(
+  req: Pick<
+    CreateSiteRequest,
+    "virtualRootPath" | "virtualConfigFile" | "virtualSiteKey"
+  >,
+): VirtualSiteProperties | null {
+  const root = (req.virtualRootPath ?? "").trim();
+  if (!root) {
+    return null;
+  }
+  const config = (req.virtualConfigFile ?? "").trim();
+  const siteKey = (req.virtualSiteKey ?? "").trim();
+  return {
+    sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
+    rootPath: root,
+    configFile: config || null,
+    siteKey: siteKey || null,
+  };
+}
+
+/**
+ * Create a Virtual-capable site: traditional POST without managed nav,
+ * then {@code PUT /services/sites/{name}/virtual} when a root path is
+ * supplied. Full Git config may remain on Developer Sites.
+ */
+export async function createVirtualSite(
+  req: CreateSiteRequest,
+): Promise<CreatedSiteSummary> {
+  const created = await createTraditionalSite({
+    ...req,
+    managedNavigation: false,
+    pageBased: undefined,
+  });
+  const props = virtualPropertiesAfterCreate(req);
+  if (props == null) {
+    return created;
+  }
+  try {
+    await updateVirtualSiteProperties(created.name, props);
+  } catch (err: unknown) {
+    throw new Error(
+      formatApiError(
+        err,
+        "Site created but Virtual source could not be saved",
+      ),
+    );
+  }
+  return created;
 }
 
 /**
