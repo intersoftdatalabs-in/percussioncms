@@ -85,6 +85,7 @@ export function SlotChangeDialog({
           return;
         }
         setTemplateChoices(tpls);
+        setNotice(null);
         setPickedTemplate((cur) => cur || (tpls[0] ? String(tpls[0].id) : ""));
       } catch {
         if (!cancelled) {
