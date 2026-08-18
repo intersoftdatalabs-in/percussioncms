@@ -18,17 +18,28 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/** List wrapper for PSTemplateSummary. */
+/**
+ * List wrapper for PSTemplateSummary.
+ *
+ * <p>{@link JsonFormat.Shape#ARRAY} keeps Jackson from treating this {@code ArrayList} subclass as
+ * a bean ({@code {"empty":false}}) under {@code JacksonContextResolver} WRAP_ROOT_VALUE. That bean
+ * shape is HTTP 200 with no template rows, so Home → Create Page leaves the Template dropdown on
+ * “Select…” (#3529). Peer: {@code SiteList} (#3368).
+ */
 @XmlRootElement(name = "TemplateSummary")
 @ArraySchema(schema = @Schema(implementation = PSTemplateSummary.class))
 @JsonRootName("TemplateSummary")
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
+@XmlSeeAlso(PSTemplateSummary.class)
 public class PSTemplateSummaryList extends ArrayList<PSTemplateSummary> {
   private static final long serialVersionUID = 1L;
 

@@ -30,14 +30,17 @@ import {
   fetchMyContent,
   fetchRecentItems,
   fetchSites,
+  fetchTemplatesForSite,
   formatApiError,
   isBookmarkableItem,
   isMyPage,
   mapAssetType,
+  mapTemplateSummary,
   normalizeContentItem,
   removeFromMyPages,
   searchContent,
   templateHasWidget,
+  unwrapTemplateSummaries,
 } from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
 
@@ -350,6 +353,82 @@ describe("homeApi", () => {
     expect(isBookmarkableItem({ id: "1", folder: true })).toBe(false);
     expect(isBookmarkableItem({ id: "1", type: "Folder" })).toBe(false);
     expect(isBookmarkableItem({ name: "no-id" })).toBe(false);
+  });
+
+  it("unwrapTemplateSummaries maps TemplateSummary envelope and field aliases", () => {
+    expect(
+      unwrapTemplateSummaries({
+        TemplateSummary: [
+          { id: "1-101-7", name: "Home", imageThumbPath: "/t.png" },
+          { templateId: 1037, templateName: "perc.page", templateLabel: "Page" },
+        ],
+      }),
+    ).toEqual([
+      { id: "1-101-7", name: "Home", thumbPath: "/t.png" },
+      { id: "1037", name: "perc.page" },
+    ]);
+  });
+
+  it("unwrapTemplateSummaries accepts raw arrays and nested WRAP_ROOT_VALUE rows", () => {
+    expect(
+      unwrapTemplateSummaries([
+        { TemplateSummary: { id: "a", label: "Alpha" } },
+        { Id: "b", Name: "Beta" },
+      ]),
+    ).toEqual([
+      { id: "a", name: "Alpha" },
+      { id: "b", name: "Beta" },
+    ]);
+  });
+
+  it("unwrapTemplateSummaries treats ArrayList empty-bean as no templates", () => {
+    expect(unwrapTemplateSummaries({ TemplateSummary: { empty: false } })).toEqual(
+      [],
+    );
+    expect(unwrapTemplateSummaries({ empty: true })).toEqual([]);
+  });
+
+  it("unwrapTemplateSummaries unwraps TemplateSummaryList envelope", () => {
+    expect(
+      unwrapTemplateSummaries({
+        TemplateSummaryList: {
+          TemplateSummary: [{ id: "t9", name: "Base" }],
+        },
+      }),
+    ).toEqual([{ id: "t9", name: "Base" }]);
+  });
+
+  it("mapTemplateSummary drops rows without an id", () => {
+    expect(mapTemplateSummary({ name: "orphan" })).toBeNull();
+    expect(mapTemplateSummary({ empty: false })).toBeNull();
+  });
+
+  it("fetchTemplatesForSite unwraps the live TemplateSummary envelope", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
+        TemplateSummary: [
+          { id: "1-101-7", name: "Home" },
+          { templateId: "tmpl-2", templateLabel: "Article" },
+        ],
+      }),
+    );
+    const list = await fetchTemplatesForSite("QaSite3002");
+    expect(list).toEqual([
+      { id: "1-101-7", name: "Home" },
+      { id: "tmpl-2", name: "Article" },
+    ]);
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/sitemanage/sitetemplates/templates/");
+    expect(url).toContain(encodeURIComponent("QaSite3002"));
+  });
+
+  it("fetchTemplatesForSite returns empty for the Jackson ArrayList bean", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({ TemplateSummary: { empty: false } }),
+    );
+    await expect(fetchTemplatesForSite("Demo")).resolves.toEqual([]);
   });
 
   it("fetchSites surfaces API errors", async () => {

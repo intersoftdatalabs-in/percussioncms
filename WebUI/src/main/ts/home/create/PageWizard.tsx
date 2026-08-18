@@ -24,6 +24,7 @@ import {
   formatApiError,
 } from "../../api/home/homeApi";
 import type { SiteSummary, TemplateSummary } from "../../api/home/types";
+import { loadPageTemplates } from "../../editor/pageTemplates";
 import { openEditorHost } from "../../editor/openEditorHost";
 import { message, MSG } from "../../i18n/message";
 import {
@@ -80,12 +81,28 @@ export function PageWizard({
       return;
     }
     setBusy(true);
+    setTemplateId("");
     Promise.all([
       fetchTemplatesForSite(site),
       fetchFolderChildren(`/Sites/${site}`),
     ])
-      .then(([tmpls, children]) => {
-        setTemplates(tmpls);
+      .then(async ([tmpls, children]) => {
+        let resolved = tmpls;
+        if (resolved.length === 0) {
+          try {
+            const fallback = await loadPageTemplates(`/Sites/${site}`, "percPage");
+            resolved = fallback
+              .filter((t) => t.id)
+              .map((t) => ({ id: t.id, name: t.name || t.id }));
+          } catch (err) {
+            console.warn(
+              "[PageWizard] content-type template fallback failed",
+              site,
+              err,
+            );
+          }
+        }
+        setTemplates(resolved);
         const folderPaths = children
           .filter(
             (c) =>
@@ -176,6 +193,7 @@ export function PageWizard({
           <label htmlFor="pw-site">{message(MSG.CREATE_SITE)}</label>
           <select
             id="pw-site"
+            data-testid="page-wizard-site"
             value={site}
             onChange={(e) => setSite(e.target.value)}
             required
@@ -194,6 +212,7 @@ export function PageWizard({
         <label htmlFor="pw-template">{message(MSG.CREATE_TEMPLATE)}</label>
         <select
           id="pw-template"
+          data-testid="page-wizard-template"
           value={templateId}
           onChange={(e) => setTemplateId(e.target.value)}
           required
