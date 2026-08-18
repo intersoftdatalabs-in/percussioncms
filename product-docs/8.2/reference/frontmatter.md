@@ -55,6 +55,8 @@ Use stable id links in Markdown bodies:
 
 Relative `.md` links also work and are rewritten to site-root HTML paths during build.
 
+Assembled HTML also gets stable fragment ids on **h2** and **h3** headings (from `##` / `###` in Markdown). The built-in theme binds <code>&#36;{toc}</code> to an on-this-page list of those headings. See [Site configuration](id:reference-site-config).
+
 ## Related
 
 - [Site configuration](id:reference-site-config)

@@ -44,19 +44,28 @@ public final class PSVirtualSiteLayoutRenderer {
       String versionLabel,
       String versionSwitcherHtml)
       throws IOException, VirtualSiteException {
+    PSVirtualSiteHeadingToc.Result toc = PSVirtualSiteHeadingToc.build(contentHtml);
     Path layout = themeDir.resolve(layoutFile);
     if (!Files.isRegularFile(layout)) {
       // Built-in minimal layout when theme missing
       return defaultLayout(
-          siteTitle, pageTitle, description, contentHtml, navHtml, versionLabel, versionSwitcherHtml);
+          siteTitle,
+          pageTitle,
+          description,
+          toc.contentHtml(),
+          navHtml,
+          toc.tocHtml(),
+          versionLabel,
+          versionSwitcherHtml);
     }
     String template = Files.readString(layout, StandardCharsets.UTF_8);
     Map<String, Object> bindings = new HashMap<>();
     bindings.put("siteTitle", siteTitle);
     bindings.put("pageTitle", pageTitle);
     bindings.put("description", description != null ? description : "");
-    bindings.put("content", contentHtml);
+    bindings.put("content", toc.contentHtml());
     bindings.put("nav", navHtml);
+    bindings.put("toc", toc.tocHtml());
     bindings.put("versionLabel", versionLabel != null ? versionLabel : "");
     bindings.put("versionSwitcher", versionSwitcherHtml != null ? versionSwitcherHtml : "");
     return PSBindingPlaceholderRenderer.render(template, bindings);
@@ -120,6 +129,7 @@ public final class PSVirtualSiteLayoutRenderer {
       String description,
       String contentHtml,
       String navHtml,
+      String tocHtml,
       String versionLabel,
       String versionSwitcherHtml) {
     return "<!DOCTYPE html>\n"
@@ -153,6 +163,7 @@ public final class PSVirtualSiteLayoutRenderer {
         + "<h1>"
         + htmlEscape(pageTitle)
         + "</h1>\n"
+        + (tocHtml != null ? tocHtml : "")
         + contentHtml
         + "\n</main>\n"
         + "</div>\n"

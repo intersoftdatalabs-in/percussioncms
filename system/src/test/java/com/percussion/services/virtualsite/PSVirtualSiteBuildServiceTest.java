@@ -59,6 +59,11 @@ class PSVirtualSiteBuildServiceTest {
     assertTrue(html.contains("/8.2/getting-started/index.html"), html);
     assertFalse(html.contains("getting-started/index.md"), html);
     assertTrue(html.contains("href=\"/8.2/getting-started/install.html\""), html);
+    assertTrue(html.contains("class=\"vs-toc\""), html);
+    assertTrue(html.contains("id=\"sample-overview\""), html);
+    assertTrue(html.contains("href=\"#sample-overview\""), html);
+    assertTrue(html.contains("id=\"sample-details\""), html);
+    assertTrue(html.contains("href=\"#sample-details\""), html);
 
     Path install = out.resolve("8.2").resolve("getting-started").resolve("install.html");
     assertTrue(Files.isRegularFile(install));
