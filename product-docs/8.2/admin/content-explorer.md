@@ -324,7 +324,10 @@ From the **View** menu you can also toggle:
   hint instead of a blank panel.
 - **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
   suitable item is selected
-- **Clipboard** — multi-select copy/cut staging when items are selected
+- **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
+  the panel (even when empty) and shows a check mark while it is visible.
+  Use **Content → Add to clipboard** after multi-select to put items on the
+  clipboard; paste from the panel when a destination folder is selected.
 
 ## If Content Explorer cannot start
 
