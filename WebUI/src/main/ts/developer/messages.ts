@@ -760,6 +760,10 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_RETRY: "perc.ui.developer@Retry",
   SITE_VIRT_SOURCE_KIND: "perc.ui.developer@Source kind",
   SITE_VIRT_ROOT_PATH: "perc.ui.developer@Root path",
+  SITE_VIRT_REMOTE_URL: "perc.ui.developer@Remote URL",
+  SITE_VIRT_BRANCH: "perc.ui.developer@Branch",
+  SITE_VIRT_REMOTE_HINT:
+    "perc.ui.developer@Optional Git remote. Leave blank to keep the local root path. When set, Build clones or fetches on the CMS host (https://, ssh://, file://, or git@host:path). Branch defaults to main. The server validates the URL.",
   SITE_VIRT_CONFIG_FILE: "perc.ui.developer@Config file",
   SITE_VIRT_SITE_KEY: "perc.ui.developer@Site key",
   SITE_VIRT_KIND_REPOSITORY: "perc.ui.developer@Repository (traditional)",

@@ -422,6 +422,42 @@ export function VirtualSiteSourcePanel({
                 />
               </div>
               <div style={formRow}>
+                <label htmlFor="site-virt-remote-url">{DEV_MSG.SITE_VIRT_REMOTE_URL}</label>
+                <input
+                  id="site-virt-remote-url"
+                  data-testid="developer-site-virtual-remote-url"
+                  type="text"
+                  value={form.remoteUrl}
+                  onChange={(e) => setForm((prev) => ({ ...prev, remoteUrl: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="https://git.example.com/org/docs.git"
+                  autoComplete="off"
+                  spellCheck={false}
+                  disabled={busy}
+                />
+              </div>
+              <div style={formRow}>
+                <label htmlFor="site-virt-branch">{DEV_MSG.SITE_VIRT_BRANCH}</label>
+                <input
+                  id="site-virt-branch"
+                  data-testid="developer-site-virtual-branch"
+                  type="text"
+                  value={form.branch}
+                  onChange={(e) => setForm((prev) => ({ ...prev, branch: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="main"
+                  autoComplete="off"
+                  spellCheck={false}
+                  disabled={busy}
+                />
+              </div>
+              <p
+                style={{ ...mutedHintText, margin: "0 0 10px" }}
+                data-testid="developer-site-virtual-remote-hint"
+              >
+                {DEV_MSG.SITE_VIRT_REMOTE_HINT}
+              </p>
+              <div style={formRow}>
                 <label htmlFor="site-virt-config-file">{DEV_MSG.SITE_VIRT_CONFIG_FILE}</label>
                 <input
                   id="site-virt-config-file"

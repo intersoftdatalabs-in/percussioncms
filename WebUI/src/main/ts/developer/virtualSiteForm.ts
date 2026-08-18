@@ -32,6 +32,8 @@ export type VirtualSourceKindOption =
 export interface VirtualSiteFormModel {
   sourceKind: VirtualSourceKindOption;
   rootPath: string;
+  remoteUrl: string;
+  branch: string;
   configFile: string;
   siteKey: string;
 }
@@ -72,6 +74,8 @@ export function virtualPropsToForm(
   return {
     sourceKind: normalizeSourceKindOption(asOptionalString(props?.sourceKind)),
     rootPath: asOptionalString(props?.rootPath) ?? "",
+    remoteUrl: asOptionalString(props?.remoteUrl) ?? "",
+    branch: asOptionalString(props?.branch) ?? "",
     configFile: asOptionalString(props?.configFile) ?? "",
     siteKey: asOptionalString(props?.siteKey) ?? "",
   };
@@ -94,6 +98,10 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
   return {
     sourceKind: SOURCE_KIND_GIT_FILESYSTEM,
     rootPath: form.rootPath.trim() || null,
+    // Empty string (not omit) so Save can clear a stored remote on #3568;
+    // omitted remoteUrl/branch would keep the previous server value.
+    remoteUrl: form.remoteUrl.trim(),
+    branch: form.branch.trim(),
     configFile: form.configFile.trim() || null,
     siteKey: form.siteKey.trim() || null,
   };
@@ -101,7 +109,9 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
 
 /**
  * Lightweight client-side checks aligned with PSVirtualSiteHelper (not a full
- * NIO walk — server still validates on PUT).
+ * NIO walk — server still validates on PUT). Remote URL / branch are optional
+ * and are not validated here (checkout and fail-closed URL rules live on the
+ * server).
  *
  * @returns error message key fragment, or null when OK
  */
@@ -133,6 +143,8 @@ export function emptyVirtualSiteForm(): VirtualSiteFormModel {
   return {
     sourceKind: SOURCE_KIND_REPOSITORY,
     rootPath: "",
+    remoteUrl: "",
+    branch: "",
     configFile: "",
     siteKey: "",
   };

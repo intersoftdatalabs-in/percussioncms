@@ -128,9 +128,12 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
         await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
       }
 
-      // Switch to git-filesystem reveals root path + Build / Publish controls
+      // Switch to git-filesystem reveals root path, optional remote, + Build / Publish
       await kind.selectOption("git-filesystem");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-remote-hint"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
@@ -454,6 +457,8 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     let virtualState = {
       sourceKind: "repository",
       rootPath: null,
+      remoteUrl: null,
+      branch: null,
       configFile: null,
       siteKey: null,
       virtual: false,
@@ -496,6 +501,14 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
         virtualState = {
           sourceKind: envelope.sourceKind || "repository",
           rootPath: envelope.rootPath || null,
+          remoteUrl:
+            envelope.remoteUrl === undefined || envelope.remoteUrl === null
+              ? virtualState.remoteUrl
+              : envelope.remoteUrl || null,
+          branch:
+            envelope.branch === undefined || envelope.branch === null
+              ? virtualState.branch
+              : envelope.branch || null,
           configFile: envelope.configFile || null,
           siteKey: envelope.siteKey || null,
           virtual: envelope.sourceKind === "git-filesystem",
@@ -560,6 +573,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await page.locator('[data-testid="developer-site-virtual-source-kind"]').selectOption(
       "git-filesystem",
     );
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/docs/product-docs");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
 
@@ -570,10 +584,34 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(lastPutBody).toHaveProperty("VirtualSiteProperties");
     expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("git-filesystem");
     expect(lastPutBody.VirtualSiteProperties.rootPath).toBe("C:/docs/product-docs");
+    expect(lastPutBody.VirtualSiteProperties.remoteUrl ?? "").toBe("");
     expect(lastPutBody).not.toHaveProperty("sourceKind");
 
     await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+
+    await page
+      .locator('[data-testid="developer-site-virtual-remote-url"]')
+      .fill("https://git.example.com/org/docs.git");
+    await page.locator('[data-testid="developer-site-virtual-branch"]').fill("main");
+    lastPutBody = null;
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect
+      .poll(() => lastPutBody && lastPutBody.VirtualSiteProperties && lastPutBody.VirtualSiteProperties.remoteUrl)
+      .toBe("https://git.example.com/org/docs.git");
+    expect(lastPutBody.VirtualSiteProperties.branch).toBe("main");
+    expect(lastPutBody.VirtualSiteProperties.rootPath).toBe("C:/docs/product-docs");
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveValue(
+      "https://git.example.com/org/docs.git",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveValue("main");
+
+    lastPutBody = null;
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect
+      .poll(() => lastPutBody && lastPutBody.VirtualSiteProperties && lastPutBody.VirtualSiteProperties.remoteUrl)
+      .toBe("https://git.example.com/org/docs.git");
+    expect(lastPutBody.VirtualSiteProperties.branch).toBe("main");
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 });

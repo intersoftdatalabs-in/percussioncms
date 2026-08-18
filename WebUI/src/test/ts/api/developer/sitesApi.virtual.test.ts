@@ -45,6 +45,8 @@ describe("sitesApi virtual properties", () => {
     ).toEqual({
       sourceKind: "git-filesystem",
       rootPath: "/docs",
+      remoteUrl: undefined,
+      branch: undefined,
       configFile: undefined,
       siteKey: undefined,
       virtual: true,
@@ -59,9 +61,30 @@ describe("sitesApi virtual properties", () => {
     ).toEqual({
       sourceKind: "repository",
       rootPath: undefined,
+      remoteUrl: undefined,
+      branch: undefined,
       configFile: undefined,
       siteKey: undefined,
       virtual: false,
+    });
+    expect(
+      parseVirtualSiteProperties({
+        VirtualSiteProperties: {
+          sourceKind: "git-filesystem",
+          rootPath: "docs",
+          remoteUrl: "https://git.example.com/org/docs.git",
+          branch: "main",
+          virtual: true,
+        },
+      }),
+    ).toEqual({
+      sourceKind: "git-filesystem",
+      rootPath: "docs",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: undefined,
+      siteKey: undefined,
+      virtual: true,
     });
     expect(parseVirtualSiteProperties(null)).toEqual({});
   });
@@ -86,6 +109,40 @@ describe("sitesApi virtual properties", () => {
         rootPath: "C:/docs",
         configFile: null,
         siteKey: null,
+      },
+    });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "git-filesystem",
+        rootPath: "docs",
+        remoteUrl: "https://git.example.com/org/docs.git",
+        branch: "main",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "git-filesystem",
+        rootPath: "docs",
+        configFile: null,
+        siteKey: null,
+        remoteUrl: "https://git.example.com/org/docs.git",
+        branch: "main",
+      },
+    });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        remoteUrl: "",
+        branch: "",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        configFile: null,
+        siteKey: null,
+        remoteUrl: "",
+        branch: "",
       },
     });
   });
