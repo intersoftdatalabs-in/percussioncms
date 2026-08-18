@@ -26,18 +26,8 @@
  */
 
 import type { ClipboardItem, PSPathItem } from "../../api/contentExplorer/types";
+import { firstNonBlank } from "../firstNonBlank";
 import { isAssetContentType, isFolder } from "../selection";
-
-function firstNonBlank(
-  ...values: ReadonlyArray<string | number | null | undefined>
-): string | null {
-  for (const value of values) {
-    if (value == null) continue;
-    const text = String(value).trim();
-    if (text.length > 0) return text;
-  }
-  return null;
-}
 
 /**
  * Convert a selected Explorer row into clipboard state.

@@ -55,6 +55,18 @@ describe("unwrapExplorerWireId", () => {
     expect(unwrapExplorerWireId(null)).toBeUndefined();
     expect(unwrapExplorerWireId({})).toBeUndefined();
   });
+
+  it("does not build a composite GUID when a part is blank (#3557)", () => {
+    expect(
+      unwrapExplorerWireId({ hostId: "host", type: "", uuid: "uuid" }),
+    ).toBeUndefined();
+    expect(
+      unwrapExplorerWireId({ hostId: 1, type: 101, uuid: "   " }),
+    ).toBeUndefined();
+    expect(
+      unwrapExplorerWireId({ hostId: "", type: "101", uuid: "708" }),
+    ).toBeUndefined();
+  });
 });
 
 describe("bindExplorerPathItemId (#3546)", () => {
@@ -111,5 +123,20 @@ describe("bindExplorerPathItemId (#3546)", () => {
     const bound = bindExplorerPathItemId(folder);
     expect(bound.id).toBe("Corporate_Investments");
     expect(parseExplorerContentId(bound.id)).toBeNull();
+  });
+
+  it("does not overwrite an object id with an unparseable unwrap (#3557)", () => {
+    const item = page({
+      id: { stringValue: "abc" } as unknown as string,
+    });
+    const bound = bindExplorerPathItemId(item);
+    expect(bound).toBe(item);
+    expect(bound.id).toEqual({ stringValue: "abc" });
+  });
+
+  it("keeps the original item when id already matches as string/number (#3557)", () => {
+    const item = page({ id: 708 as unknown as string });
+    const bound = bindExplorerPathItemId(item);
+    expect(bound).toBe(item);
   });
 });

@@ -72,6 +72,18 @@ describe("toClipboardItem (#3551)", () => {
     expect(mapped?.kind).toBe("folder");
   });
 
+  it("maps a custom asset type with category ASSET as an asset (#3557)", () => {
+    const mapped = toClipboardItem(
+      row({
+        id: "c-1",
+        name: "hero",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    );
+    expect(mapped?.kind).toBe("asset");
+  });
+
   it("maps asset category case-insensitively", () => {
     const mapped = toClipboardItem(
       row({

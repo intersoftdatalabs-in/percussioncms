@@ -56,14 +56,29 @@ export function unwrapExplorerWireId(
   if (typeof stringValue === "string" && stringValue.trim()) {
     return stringValue.trim();
   }
-  if (typeof rec.id === "string" || typeof rec.id === "number") {
+  if (typeof rec.id === "number" && Number.isFinite(rec.id)) {
     return rec.id;
   }
-  const host = rec.hostId ?? rec.host_id;
-  const type = rec.type;
-  const uuid = rec.uuid;
+  if (typeof rec.id === "string" && rec.id.trim()) {
+    return rec.id.trim();
+  }
+  const host = guidPart(rec.hostId ?? rec.host_id);
+  const type = guidPart(rec.type);
+  const uuid = guidPart(rec.uuid);
   if (host != null && type != null && uuid != null) {
     return `${host}-${type}-${uuid}`;
+  }
+  return undefined;
+}
+
+/** Non-blank GUID segment. {@code 0} is a valid host id; empty string is not. */
+function guidPart(value: unknown): string | undefined {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(Math.trunc(value)) : undefined;
+  }
+  if (typeof value === "string") {
+    const text = value.trim();
+    return text.length > 0 ? text : undefined;
   }
   return undefined;
 }
@@ -105,6 +120,23 @@ export function parseExplorerContentId(
   }
   const n = Number(last);
   return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
+}
+
+/**
+ * Compare Explorer item ids without number/string mismatches
+ * ({@code "42"} vs {@code 42}) so list {@code aria-selected} tracks
+ * {@code selection.item} after a row click (#3467).
+ */
+export function sameExplorerItemId(
+  a: string | number | null | undefined,
+  b: string | number | null | undefined,
+): boolean {
+  if (a == null || b == null) {
+    return false;
+  }
+  const left = String(a).trim();
+  const right = String(b).trim();
+  return left.length > 0 && left === right;
 }
 
 function collectTypePropertyMap(
@@ -159,22 +191,14 @@ export function bindExplorerPathItemId(item: PSPathItem): PSPathItem {
     }
     const nextId =
       typeof unwrapped === "string" ? unwrapped.trim() : String(unwrapped);
-    if (item.id === nextId) {
+    if (sameExplorerItemId(item.id, nextId)) {
       return item;
     }
     return { ...item, id: nextId };
   }
 
-  const unwrappedId = unwrapExplorerWireId(item.id);
-  if (typeof unwrappedId === "string" && unwrappedId !== item.id) {
-    return { ...item, id: unwrappedId };
-  }
-  if (typeof unwrappedId === "number") {
-    const nextId = String(unwrappedId);
-    if (item.id === nextId) {
-      return item;
-    }
-    return { ...item, id: nextId };
-  }
+  // Nothing parseable — keep the original id (folder slugs, unparseable
+  // objects). Do not assign an unwrapped string that
+  // {@link parseExplorerContentId} rejected.
   return item;
 }

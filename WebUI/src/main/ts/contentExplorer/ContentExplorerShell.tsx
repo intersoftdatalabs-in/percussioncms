@@ -114,7 +114,7 @@ import {
 } from "./actionEnablement";
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
-import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
+import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
 import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
@@ -818,9 +818,9 @@ function ContentExplorerShellInner({
       if (clipboard == null) continue;
       items.push(clipboard);
     }
-    if (items.length > 0) {
-      setClipboardState((prev) => buildClipboard(prev, clipboardMode, items));
-    }
+    // Empty mapped set is a no-op (keep staged items). Opening the
+    // panel still happens so View → Clipboard stays checked.
+    setClipboardState((prev) => applyClipboardAdd(prev, clipboardMode, items));
     // Always mount the panel after Add so View → Clipboard is checked.
     // Clicking the View toggle after this would hide an already-open panel.
     setShowClipboard(true);
@@ -1748,7 +1748,10 @@ function ContentExplorerShellInner({
           >
             <RelationshipsView
               item={{
-                id: String(selection.item!.id),
+                id: String(
+                  parseExplorerContentId(selection.item!.id) ??
+                    selection.item!.id,
+                ),
                 path: selection.item!.path,
                 folderPath: selection.folderPath || undefined,
               }}

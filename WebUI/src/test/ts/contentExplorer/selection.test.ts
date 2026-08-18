@@ -370,4 +370,33 @@ describe("isAssetContentType (#3552 review)", () => {
       }),
     ).toBe(false);
   });
+
+  it("treats custom types with category ASSET as assets unless under /Sites (#3557)", () => {
+    expect(
+      isAssetContentType({
+        id: "c-1",
+        name: "hero",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    ).toBe(true);
+    expect(
+      isAssetContentType({
+        id: "c-2",
+        name: "hero",
+        path: "/Assets/uploads/hero",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    ).toBe(true);
+    expect(
+      isAssetContentType({
+        id: "c-3",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    ).toBe(false);
+  });
 });

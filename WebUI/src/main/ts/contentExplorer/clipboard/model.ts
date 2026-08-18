@@ -66,6 +66,23 @@ export function setClipboard(
   });
 }
 
+/**
+ * Add / replace clipboard contents from Explorer Add. An empty mapped
+ * set is a no-op so a failed bind does not wipe items the user already
+ * staged (#3557).
+ */
+export function applyClipboardAdd(
+  current: Clipboard,
+  operation: "copy" | "cut",
+  items: ReadonlyArray<ClipboardItem>,
+  now?: () => string,
+): Clipboard {
+  if (items.length === 0) {
+    return current;
+  }
+  return setClipboard(current, operation, items, now);
+}
+
 /** True when no items are held. */
 export function isEmpty(cb: Clipboard): boolean {
   return cb.items.length === 0;
