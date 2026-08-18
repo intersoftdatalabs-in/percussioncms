@@ -173,7 +173,7 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.CLIPBOARD_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_CLIPBOARD_ARIA,
           testId: "explorer-toggle-clipboard",
-          /** Always enabled so empty clipboard can still be viewed (#3544). */
+          /** Always enabled so empty clipboard can still be viewed (#3544 / #3551). */
           toggle: true,
         },
       ],

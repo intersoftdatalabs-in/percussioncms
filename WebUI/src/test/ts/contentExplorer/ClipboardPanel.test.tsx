@@ -33,6 +33,52 @@ function makeCb(items: ClipboardItem[]): Clipboard {
 }
 
 describe("ClipboardPanel", () => {
+  it("still mounts an empty clipboard list (host empty-panel contract #3551)", () => {
+    render(
+      <ClipboardPanel
+        clipboard={EMPTY_CLIPBOARD}
+        onClipboardChange={() => {}}
+        items={[]}
+        mode="copy"
+        onModeChange={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("clipboard-panel")).toBeTruthy();
+    expect(screen.getByTestId("clipboard-items")).toBeTruthy();
+    expect(screen.queryAllByTestId("clipboard-item-row")).toHaveLength(0);
+    expect(screen.getByTestId("clipboard-add")).toBeDisabled();
+  });
+
+  it("renders folder-kind Sites rows staged by Add to clipboard (#3551)", () => {
+    const sites: ClipboardItem[] = [
+      {
+        id: "s-1",
+        path: "/Sites/CorporateInvestments",
+        kind: "folder",
+        name: "CorporateInvestments",
+      },
+      {
+        id: "s-2",
+        path: "/Sites/EnterpriseInvestments",
+        kind: "folder",
+        name: "EnterpriseInvestments",
+      },
+    ];
+    render(
+      <ClipboardPanel
+        clipboard={makeCb(sites)}
+        onClipboardChange={() => {}}
+        items={sites}
+        mode="copy"
+        onModeChange={() => {}}
+      />,
+    );
+    const rows = screen.getAllByTestId("clipboard-item-row");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.textContent).toContain("/Sites/CorporateInvestments");
+    expect(rows[0]?.textContent).toContain("(folder)");
+  });
+
   it("renders the clipboard panel with size 0 when empty", () => {
     render(
       <ClipboardPanel

@@ -115,6 +115,7 @@ import {
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
+import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
@@ -155,6 +156,7 @@ import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { resolvePublishKind } from "./itemPublish";
 import {
   EMPTY_SELECTION,
+  explorerMultiSelectKey,
   isFolder,
   sameExplorerItemId,
   type Selection,
@@ -311,34 +313,6 @@ type ContextMenuState = {
   x: number;
   y: number;
 } | null;
-
-/**
- * Map a `PSPathItem` (detail-list / tree row shape) into a `ClipboardItem`
- * (clipboard-panel input shape). Single source of truth so the
- * "Add to clipboard" handler and the `<ClipboardPanel items>` prop
- * never disagree on the kind / name / accessLevel mapping.
- *
- * Returns `null` when the item has no stable id (`item.id` and
- * `item.path` both missing) so the caller can skip it instead of
- * injecting a row that would later fail the paste transport.
- */
-function toClipboardItem(item: PSPathItem): ClipboardItem | null {
-  const id = item.id ?? item.path;
-  if (id == null) return null;
-  const kind: ClipboardItem["kind"] =
-    item.type === "folder"
-      ? "folder"
-      : item.category === "asset" || item.type === "asset"
-        ? "asset"
-        : "page";
-  return {
-    id,
-    path: item.path,
-    kind,
-    name: item.name ?? item.title ?? item.path,
-    sourceAccessLevel: item.accessLevel,
-  };
-}
 
 const sidePanelStyle: React.CSSProperties = {
   padding: 8,
@@ -802,7 +776,7 @@ function ContentExplorerShellInner({
 
   const handleToggleSelectItem = useCallback(
     (item: PSPathItem, next: boolean) => {
-      const id = item.id ?? item.path;
+      const id = explorerMultiSelectKey(item);
       if (id == null) return;
       setMultiSelectedIds((prev) => {
         const nextSet = new Set(prev);
@@ -826,16 +800,20 @@ function ContentExplorerShellInner({
   }, []);
 
   const handleAddToClipboard = useCallback(() => {
-    if (multiSelectedItems.size === 0) return;
+    if (multiSelectedItems.size === 0 && multiSelectedIds.size === 0) return;
     const items: ClipboardItem[] = [];
     for (const item of multiSelectedItems.values()) {
       const clipboard = toClipboardItem(item);
       if (clipboard == null) continue;
       items.push(clipboard);
     }
-    setClipboardState((prev) => buildClipboard(prev, clipboardMode, items));
+    if (items.length > 0) {
+      setClipboardState((prev) => buildClipboard(prev, clipboardMode, items));
+    }
+    // Always mount the panel after Add so View → Clipboard is checked.
+    // Clicking the View toggle after this would hide an already-open panel.
     setShowClipboard(true);
-  }, [multiSelectedItems, clipboardMode]);
+  }, [multiSelectedItems, multiSelectedIds, clipboardMode]);
 
   const handleClearClipboard = useCallback(() => {
     setClipboardState(EMPTY_CLIPBOARD);

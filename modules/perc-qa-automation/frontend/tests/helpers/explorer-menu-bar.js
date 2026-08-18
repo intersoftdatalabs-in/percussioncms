@@ -17,7 +17,7 @@ const TEST_IDS = Object.freeze({
   viewDropdown: "explorer-menu-view-dropdown",
   helpDropdown: "explorer-menu-help-dropdown",
   toggleSearch: "explorer-toggle-search",
-  /** View → Clipboard (#3544) — panel toggle, enabled even when empty. */
+  /** View → Clipboard (#3544 / #3551) — panel toggle, enabled even when empty. */
   toggleClipboard: "explorer-toggle-clipboard",
   clipboardPanel: "explorer-clipboard-panel",
   /** Content → Search (#2850) — same panel as View → Search. */

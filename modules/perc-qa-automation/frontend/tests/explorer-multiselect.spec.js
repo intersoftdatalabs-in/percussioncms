@@ -90,9 +90,9 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
     await rowCheckboxes.nth(0).check();
     await rowCheckboxes.nth(1).check();
 
-    // #2731 / #3544: Add lives under Content; it also opens the clipboard
+    // #2731 / #3544 / #3551: Add lives under Content and opens the clipboard
     // panel. View → Clipboard must already be checked — do not click it
-    // again here or the toggle would hide the panel.
+    // again here or the toggle would hide the already-open panel.
     await page.locator('[data-testid="explorer-menu-content"]').click();
     await page.locator('[data-testid="explorer-clipboard-add"]').click();
 

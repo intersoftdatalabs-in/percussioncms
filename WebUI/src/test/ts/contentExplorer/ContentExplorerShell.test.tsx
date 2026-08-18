@@ -1216,6 +1216,85 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("Content → Add to clipboard mounts the panel with Sites rows (#3551)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "site-a",
+                  name: "CorporateInvestments",
+                  path: "/Sites/CorporateInvestments",
+                  type: "site",
+                  category: "SITE",
+                  accessLevel: "ADMIN",
+                },
+                {
+                  name: "EnterpriseInvestments",
+                  path: "/Sites/EnterpriseInvestments",
+                  type: "FSFolder",
+                  category: "site",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-site-a")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("detail-row-/Sites/EnterpriseInvestments"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("detail-select-site-a"));
+    fireEvent.click(
+      screen.getByTestId("detail-select-/Sites/EnterpriseInvestments"),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-multi-select-count")).toHaveTextContent(
+        "2",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-clipboard-add"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-clipboard-panel")).toBeInTheDocument();
+    });
+    expect(screen.getAllByTestId("clipboard-item-row")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("true");
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(

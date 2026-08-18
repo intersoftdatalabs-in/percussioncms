@@ -332,7 +332,9 @@ From the **View** menu you can also toggle:
 - **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
   the panel (even when empty) and shows a check mark while it is visible.
   Use **Content → Add to clipboard** after multi-select to put items on the
-  clipboard; paste from the panel when a destination folder is selected.
+  clipboard and open the panel (including **Sites** rows). Do not click
+  **View → Clipboard** again after Add — that hides the already-open panel.
+  Paste from the panel when a destination folder is selected.
 
 ## Translations
 

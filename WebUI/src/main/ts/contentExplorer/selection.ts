@@ -96,6 +96,31 @@ const PAGE_OR_ASSET_TYPE_KEYS = new Set([
 /** FastForward nav types are folder-like, not previewable items. */
 const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
 
+/**
+ * Stock / FastForward {@code type} names that are assets, not pages.
+ * Do not treat {@code category: ASSET} alone as an asset — the server
+ * defaults every non-{@code percPage} item to {@code ASSET}
+ * ({@code previewItem.resolvePreviewKind}).
+ */
+const ASSET_TYPE_KEYS = new Set([
+  "asset",
+  "percasset",
+  "rffimage",
+  "rfffile",
+  "rffnavimage",
+]);
+
+function firstNonBlank(
+  ...values: ReadonlyArray<string | number | null | undefined>
+): string | null {
+  for (const value of values) {
+    if (value == null) continue;
+    const text = String(value).trim();
+    if (text.length > 0) return text;
+  }
+  return null;
+}
+
 function folderTypeOrCategory(type: string, category: string): boolean {
   return (
     FOLDER_TYPE_KEYS.has(type) ||
@@ -129,6 +154,39 @@ export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   }
   // Customer / legacy type name: any non-folder type is an item.
   return type.length > 0;
+}
+
+/**
+ * True when the row is an asset (clipboard / preview kind), not a page.
+ *
+ * <p>{@code category === "resource"} is <em>not</em> an asset key here.
+ * {@link ITEM_CATEGORY_KEYS} treats {@code resource} as a workflowed
+ * item (page-or-asset), not as {@code ClipboardItem.kind === "asset"}.</p>
+ */
+export function isAssetContentType(item: PSPathItem | null): boolean {
+  if (!item || isFolder(item)) {
+    return false;
+  }
+  const type = (item.type ?? "").trim().toLowerCase();
+  if (ASSET_TYPE_KEYS.has(type)) {
+    return true;
+  }
+  const category = (item.category ?? "").trim().toLowerCase();
+  if (category === "asset" && (type === "asset" || type.length === 0)) {
+    return true;
+  }
+  const path = (item.path ?? "").trim().toLowerCase().replace(/\\/g, "/");
+  return path === "/assets" || path.startsWith("/assets/");
+}
+
+/**
+ * Stable multi-select map key. Prefer content id, then path. Do not fall
+ * back to {@code name} — two "Home" rows without id/path would collide.
+ *
+ * @return {@code null} when the row has no id or path
+ */
+export function explorerMultiSelectKey(item: PSPathItem): string | null {
+  return firstNonBlank(item.id, item.path);
 }
 
 export function isFolder(item: PSPathItem | null): boolean {
