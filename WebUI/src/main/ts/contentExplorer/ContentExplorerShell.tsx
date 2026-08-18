@@ -83,6 +83,7 @@ import {
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
+import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import {
   executeView as executeViewApi,
   listViews as listViewsApi,
@@ -152,7 +153,12 @@ import {
 } from "./ReducedActions";
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { resolvePublishKind } from "./itemPublish";
-import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
+import {
+  EMPTY_SELECTION,
+  isFolder,
+  sameExplorerItemId,
+  type Selection,
+} from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import {
   isFolderIdLookupPath,
@@ -605,7 +611,9 @@ function ContentExplorerShellInner({
     ...actionHandlers,
     onOpen: (item) => {
       if (isFolder(item)) {
-        setSelection({ folderPath: item.path, item: null });
+        const folderPath =
+          resolveExplorerListPath(item, item.path) ?? item.path;
+        setSelection({ folderPath, item: null });
         return;
       }
       onOpenItem(item);
@@ -748,7 +756,41 @@ function ContentExplorerShellInner({
   );
 
   const handleSelectItem = useCallback((item: PSPathItem) => {
-    setSelection((prev) => ({ ...prev, item }));
+    const bound = bindExplorerPathItemId(item);
+    setSelection((prev) => ({ ...prev, item: bound }));
+    // List rows that omit id / use a slug still resolve via path so
+    // View → Relationships can mount (#3546 / #2778).
+    if (
+      isFolder(bound) ||
+      parseExplorerContentId(bound.id) != null ||
+      !isFolderIdLookupPath(bound.path)
+    ) {
+      return;
+    }
+    void findItemByPath(bound.path)
+      .then((resolved) => {
+        const next = bindExplorerPathItemId({
+          ...bound,
+          ...resolved,
+          id: resolved.id ?? bound.id,
+          path: bound.path || resolved.path,
+        });
+        if (parseExplorerContentId(next.id) == null) {
+          return;
+        }
+        setSelection((prev) => {
+          if (prev.item == null) {
+            return prev;
+          }
+          const sameRow =
+            sameExplorerItemId(prev.item.id, bound.id) ||
+            (Boolean(prev.item.path) && prev.item.path === bound.path);
+          return sameRow ? { ...prev, item: next } : prev;
+        });
+      })
+      .catch(() => {
+        // Keep the list row; relationships stays hint if id never binds.
+      });
   }, []);
 
   const handleActivateItem = useCallback(
@@ -1152,6 +1194,10 @@ function ContentExplorerShellInner({
     !isFolder(selection.item) &&
     selection.item.id != null &&
     String(selection.item.id).trim().length > 0;
+  const hasRelationshipItem =
+    selection.item != null &&
+    !isFolder(selection.item) &&
+    parseExplorerContentId(selection.item.id) != null;
   const hasOpenSidePanel =
     showSearch ||
     showSecurity ||
@@ -1668,10 +1714,7 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.SUBFOLDER_COPY_SELECT_FOLDER)}
         </div>
       )}
-      {showRelationships &&
-        selection.item &&
-        selection.item.type !== "folder" &&
-        parseExplorerContentId(selection.item.id) != null && (
+      {showRelationships && hasRelationshipItem && (
           <section
             id="explorer-relationships-panel"
             style={sidePanelStyle}
@@ -1680,19 +1723,14 @@ function ContentExplorerShellInner({
           >
             <RelationshipsView
               item={{
-                id: String(selection.item.id),
-                path: selection.item.path,
+                id: String(selection.item!.id),
+                path: selection.item!.path,
                 folderPath: selection.folderPath || undefined,
               }}
             />
           </section>
         )}
-      {showRelationships &&
-        !(
-          selection.item &&
-          selection.item.type !== "folder" &&
-          parseExplorerContentId(selection.item.id) != null
-        ) && (
+      {showRelationships && !hasRelationshipItem && (
           <div
             id="explorer-relationships-panel"
             style={sidePanelStyle}

@@ -1619,6 +1619,224 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
   });
 
+  it("relationships panel mounts for a GUID-shaped content row (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("relationships-view")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("relationships panel binds slug rows via sys_contentid (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "ci-home",
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                  displayProperties: { sys_contentid: "708" },
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+  });
+
+  it("relationships panel resolves omitted list id via path lookup (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/path/item/")) {
+        return new Response(
+          JSON.stringify({
+            PathItem: {
+              id: "1-101-708",
+              name: "Home",
+              path: "/Sites/Corporate_Investments/Pages/Home",
+              type: "rffHome",
+              category: "PAGE",
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-row-/Sites/Corporate_Investments/Pages/Home"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(
+      screen.getByTestId("detail-row-/Sites/Corporate_Investments/Pages/Home"),
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+  });
+
   it("dependencies toggle shows select-item hint without a content selection (#2768)", async () => {
     stubPathFetch();
     renderShell(
