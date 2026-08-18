@@ -181,6 +181,9 @@ public class PSDefaultLandingViewTest {
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DESIGN, true, false));
     assertFalse(PSDefaultLandingView.isViewAuthorized(VIEW_WORKFLOW, false, true));
     assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_WORKFLOW, true, false));
+    assertFalse(PSDefaultLandingView.isViewAuthorized(VIEW_DEVELOPER, false, false));
+    assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DEVELOPER, false, true));
+    assertTrue(PSDefaultLandingView.isViewAuthorized(VIEW_DEVELOPER, true, false));
   }
 
   @Test
@@ -189,7 +192,10 @@ public class PSDefaultLandingViewTest {
     assertFalse(PSDefaultLandingView.isRoleGatedView(VIEW_DASH));
     assertFalse(PSDefaultLandingView.isRoleGatedView(VIEW_EXPLORER));
     assertTrue(PSDefaultLandingView.isRoleGatedView(VIEW_DESIGN));
+    assertTrue(PSDefaultLandingView.isRoleGatedView(VIEW_DEVELOPER));
     assertTrue(PSDefaultLandingView.isAdminOnlyView(VIEW_WORKFLOW));
     assertFalse(PSDefaultLandingView.isAdminOnlyView(VIEW_DESIGN));
+    assertFalse(PSDefaultLandingView.isAdminOnlyView(VIEW_DEVELOPER));
+    assertFalse(PSDefaultLandingView.isAdminOnlyView(VIEW_EXPLORER));
   }
 }
