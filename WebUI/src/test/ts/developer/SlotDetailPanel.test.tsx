@@ -113,4 +113,89 @@ describe("SlotDetailPanel", () => {
       DEV_MSG.SLOT_DETAIL_ERROR,
     );
   });
+
+  it("does not throw when associations is a Jackson empty bean (#3554)", async () => {
+    getSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      associations: { empty: false },
+      designGaps: [
+        { code: "SLOT_CREATE_DELETE", message: "Create / delete not supported" },
+      ],
+    });
+    render(<SlotDetailPanel idOrName="sys_AutoIndex" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-detail")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-assoc-empty")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-gaps").textContent).toContain(
+      "Create / delete not supported",
+    );
+    expect(
+      screen.getByTestId("developer-slot-gaps").querySelector(
+        '[data-gap-code="SLOT_CREATE_DELETE"]',
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("developer-slot-detail-error")).toBeNull();
+  });
+
+  it("renders JAXB finderArguments entries as readable strings (#3554)", async () => {
+    getSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      associations: {
+        contentTypeGuid: { stringValue: "0-2-316" },
+        templateGuid: { stringValue: "0-4-512" },
+      },
+      finderArguments: {
+        entry: [
+          { key: "template", value: "rffSnDateAndTitleLink" },
+          { key: "type", value: "sql" },
+          { key: "query", value: "SELECT 1" },
+        ],
+      },
+      designGaps: [
+        { code: "SLOT_CREATE_DELETE", message: "Create / delete not supported via this REST API" },
+      ],
+    });
+    render(<SlotDetailPanel idOrName="rffAutoPressReleases2007" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-title")).toBeTruthy();
+    });
+    const args = screen.getByTestId("developer-slot-args");
+    expect(args.textContent).toContain("template");
+    expect(args.textContent).toContain("rffSnDateAndTitleLink");
+    expect(args.textContent).toContain("type");
+    expect(args.textContent).toContain("sql");
+    expect(screen.getByTestId("developer-slot-assoc-row-0").textContent).toContain("0-2-316");
+    expect(screen.getByTestId("developer-slot-gaps").textContent).toContain(
+      "Create / delete not supported via this REST API",
+    );
+    expect(screen.queryByTestId("developer-slot-detail-error")).toBeNull();
+  });
+
+  it("unwraps a single association object and JAXB DesignGap envelope (#3554)", async () => {
+    getSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      associations: {
+        contentTypeGuid: { stringValue: "0-2-301" },
+        templateGuid: { stringValue: "0-10-1" },
+      },
+      designGaps: {
+        DesignGap: { code: "SLOT_ASSOC_GUIDS_ONLY", message: "Guids only on associations" },
+      },
+    });
+    render(<SlotDetailPanel idOrName="rffCalendar" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-assoc-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-assoc-row-0").textContent).toContain("0-2-301");
+    expect(screen.getByTestId("developer-slot-gaps").textContent).toContain(
+      "Guids only on associations",
+    );
+    expect(
+      screen.getByTestId("developer-slot-gaps").querySelector(
+        '[data-gap-code="SLOT_ASSOC_GUIDS_ONLY"]',
+      ),
+    ).toBeTruthy();
+  });
 });

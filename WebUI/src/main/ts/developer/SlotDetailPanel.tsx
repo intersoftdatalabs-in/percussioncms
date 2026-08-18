@@ -17,7 +17,17 @@
 
 import React, { useEffect, useState } from "react";
 import { getSlotDetail, updateSlotDetail } from "../api/developer/assemblyApi";
-import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
+import {
+  normalizeSlotAssociations,
+  normalizeSlotDesignGaps,
+  normalizeSlotStringMap,
+} from "../api/developer/slotLists";
+import {
+  designGapCode,
+  designGapKey,
+  formatDesignGap,
+  type DesignGapWire,
+} from "../api/developer/designGaps";
 import type { SlotAssociationSummary, SlotDetail } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -73,11 +83,15 @@ function associationsEqual(
   return true;
 }
 
-function cloneAssociations(list: SlotAssociationSummary[] | undefined): SlotAssociationSummary[] {
-  return (list || []).map((a) => ({
+function cloneAssociations(list: unknown): SlotAssociationSummary[] {
+  return normalizeSlotAssociations(list).map((a) => ({
     contentTypeGuid: a.contentTypeGuid ? { ...a.contentTypeGuid } : undefined,
     templateGuid: a.templateGuid ? { ...a.templateGuid } : undefined,
   }));
+}
+
+function slotDesignGaps(list: unknown): DesignGapWire[] {
+  return normalizeSlotDesignGaps(list);
 }
 
 export function SlotDetailPanel({
@@ -107,10 +121,13 @@ export function SlotDetailPanel({
     getSlotDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
-        setDetail(d);
+        const associations = cloneAssociations(d.associations);
+        const designGaps = slotDesignGaps(d.designGaps);
+        const finderArguments = normalizeSlotStringMap(d.finderArguments);
+        setDetail({ ...d, associations, designGaps, finderArguments });
         setLabel(d.label || "");
         setDescription(d.description || "");
-        setAssociations(cloneAssociations(d.associations));
+        setAssociations(associations);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -166,10 +183,18 @@ export function SlotDetailPanel({
             : a.templateGuid,
         })),
       });
-      setDetail(saved);
+      const savedAssocs = cloneAssociations(saved.associations);
+      const savedGaps = slotDesignGaps(saved.designGaps);
+      const savedArgs = normalizeSlotStringMap(saved.finderArguments);
+      setDetail({
+        ...saved,
+        associations: savedAssocs,
+        designGaps: savedGaps,
+        finderArguments: savedArgs,
+      });
       setLabel(saved.label || "");
       setDescription(saved.description || "");
-      setAssociations(cloneAssociations(saved.associations));
+      setAssociations(savedAssocs);
       setNotice(DEV_MSG.SLOT_SAVED);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.SLOT_SAVE_ERROR));
@@ -178,7 +203,8 @@ export function SlotDetailPanel({
     }
   }
 
-  const argEntries = Object.entries(detail?.finderArguments || {});
+  const argEntries = Object.entries(normalizeSlotStringMap(detail?.finderArguments));
+  const gaps = slotDesignGaps(detail?.designGaps);
 
   return (
     <div data-testid="developer-slot-detail">
@@ -269,7 +295,9 @@ export function SlotDetailPanel({
                   <li key={k}>
                     <span style={{ fontFamily: "monospace" }}>{k}</span>
                     {" = "}
-                    <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>{v}</span>
+                    <span style={{ fontFamily: "monospace", color: catalogColors.muted }}>
+                      {typeof v === "string" ? v : String(v ?? "")}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -426,11 +454,11 @@ export function SlotDetailPanel({
             </button>
           </div>
 
-          {(detail.designGaps || []).length > 0 ? (
+          {gaps.length > 0 ? (
             <section data-testid="developer-slot-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SLOT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {(detail.designGaps || []).map((g, i) => (
+                {gaps.map((g, i) => (
                   <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
                     {formatDesignGap(g)}
                   </li>
