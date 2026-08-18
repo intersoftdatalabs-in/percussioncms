@@ -323,7 +323,12 @@ From the **View** menu you can also toggle:
   confirmation before save. Without a selected folder the shell shows a select-folder
   hint instead of a blank panel.
 - **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
-  suitable item is selected
+  **page or asset** is selected (not a folder or site). On sample FastForward
+  sites, expand a site in the tree, open a section folder (for example
+  **AboutEnterpriseInvestments** — not only a `Pages` folder), and select a
+  content row. **View → Relationships** then mounts the relationships panel
+  (loading, results, empty, or an error). A folder-only or empty selection
+  keeps the select-item hint.
 - **Clipboard** — multi-select copy/cut staging when items are selected
 
 ## If Content Explorer cannot start

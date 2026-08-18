@@ -87,6 +87,36 @@ describe("joinPathUrl", () => {
 });
 
 describe("paginatedFolder", () => {
+  it("binds parseable content ids onto childrenInPage rows (#3546)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "ci-home",
+                name: "Home",
+                path: "/Sites/Corporate_Investments/Pages/Home",
+                type: "rffHome",
+                category: "PAGE",
+                displayProperties: { sys_contentid: "708" },
+              },
+            ],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const res = await paginatedFolder("/Sites/Corporate_Investments/Pages", {
+      startIndex: 0,
+      maxResults: 50,
+    });
+    expect(res.children).toHaveLength(1);
+    expect(res.children[0]?.id).toBe("708");
+  });
+
   it("builds the paginated URL with required pagination params", async () => {
     const fn = mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
