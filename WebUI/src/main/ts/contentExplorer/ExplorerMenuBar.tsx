@@ -52,8 +52,6 @@ export interface ExplorerMenuBarProps {
   showSubfolderCopy?: boolean;
   /** Multi-select size for clipboard-add disable + status badge. */
   multiSelectedCount: number;
-  /** Clipboard size — enables View → Clipboard when non-empty. */
-  clipboardItemCount: number;
   /**
    * True when the current folder/selection is under {@code /Sites/&lt;name&gt;}.
    * Enables Content → Site Copy (#2767).
@@ -186,15 +184,11 @@ function menuItemTestId(item: ExplorerMenuBarItem): string {
 function isItemDisabled(
   item: ExplorerMenuBarItem,
   multiSelectedCount: number,
-  clipboardItemCount: number,
   hasSiteContext: boolean,
   hasFolderContext: boolean,
 ): boolean {
   if (item.disabledWhen === "noSelection") {
     return multiSelectedCount === 0;
-  }
-  if (item.disabledWhen === "noClipboardContext") {
-    return multiSelectedCount === 0 && clipboardItemCount === 0;
   }
   if (item.disabledWhen === "noSiteContext") {
     return !hasSiteContext;
@@ -218,7 +212,6 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showSiteCopy = false,
     showSubfolderCopy = false,
     multiSelectedCount,
-    clipboardItemCount,
     hasSiteContext = false,
     hasFolderContext = false,
     displayFormats,
@@ -269,7 +262,6 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
       isItemDisabled(
         item,
         multiSelectedCount,
-        clipboardItemCount,
         hasSiteContext,
         hasFolderContext,
       )
@@ -343,7 +335,6 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                     const disabled = isItemDisabled(
                       item,
                       multiSelectedCount,
-                      clipboardItemCount,
                       hasSiteContext,
                       hasFolderContext,
                     );

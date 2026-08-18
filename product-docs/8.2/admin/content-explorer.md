@@ -122,7 +122,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open the CM1 editor (`?view=editor`). |
-| **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
+| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`1-101-708`); the panel uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
 | **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
@@ -323,8 +323,33 @@ From the **View** menu you can also toggle:
   confirmation before save. Without a selected folder the shell shows a select-folder
   hint instead of a blank panel.
 - **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
-  suitable item is selected
-- **Clipboard** — multi-select copy/cut staging when items are selected
+  **page or asset** is selected (not a folder or site). On sample FastForward
+  sites, expand a site in the tree, open a section folder (for example
+  **AboutEnterpriseInvestments** — not only a `Pages` folder), and select a
+  content row. **View → Relationships** then mounts the relationships panel
+  (loading, results, empty, or an error). A folder-only or empty selection
+  keeps the select-item hint. See **Translations** below for locale variants.
+- **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
+  the panel (even when empty) and shows a check mark while it is visible.
+  Use **Content → Add to clipboard** after multi-select to put items on the
+  clipboard; paste from the panel when a destination folder is selected.
+
+## Translations
+
+Open **View → Translations** after selecting a **page or asset** in the list (or use
+**Translate** on Server actions / the item context menu).
+
+The panel shows **this item’s current locale** and **related locale variants**, and lets
+an authorized user **Create variants** for catalog locales the item does not already
+have. Explorer list rows identify items with a Percussion content id. The id is often
+GUID-shaped (for example `1-101-708`); the panel uses the last segment (`708`) for
+both the variants request and create-variant. That GUID form must not fail with
+“Selected item does not have a numeric content id.”
+
+**Folders and sites** have no content id. With Translations open and only a folder or
+site selected, Explorer shows a select-item hint instead of the live panel.
+
+In-flight translation queue status is not available (product disposition).
 
 ## If Content Explorer cannot start
 
