@@ -34,6 +34,8 @@ describe("explorer-menu-bar helpers (#2731)", () => {
     assert.equal(TEST_IDS.menuView, "explorer-menu-view");
     assert.equal(TEST_IDS.menuHelp, "explorer-menu-help");
     assert.equal(TEST_IDS.toggleSearch, "explorer-toggle-search");
+    assert.equal(TEST_IDS.toggleClipboard, "explorer-toggle-clipboard");
+    assert.equal(TEST_IDS.clipboardPanel, "explorer-clipboard-panel");
     assert.equal(TEST_IDS.contentSearch, "explorer-menu-content-search");
     assert.equal(TEST_IDS.actionToolbar, "action-toolbar");
     assert.equal(TEST_IDS.serverActions, "explorer-server-actions");
