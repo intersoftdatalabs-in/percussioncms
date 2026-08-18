@@ -39,6 +39,7 @@ import {
 } from "../api/contentExplorer/translationsApi";
 import { formatApiError } from "../api/client";
 import { message } from "../i18n/message";
+import { parseExplorerContentId } from "./menuCatalogLoad";
 import { EXPLORER_MSG } from "./messages";
 
 export interface TranslationsPanelProps {
@@ -84,9 +85,15 @@ async function defaultCreateVariants(body: {
   return createTranslations(body);
 }
 
-function parseNumericItemId(itemId: string): number | null {
-  const n = Number(itemId);
-  return Number.isFinite(n) && n > 0 ? n : null;
+/**
+ * Resolve Explorer row id to a legacy content id.
+ *
+ * <p>List rows are usually Percussion GUIDs ({@code 1-101-708}); {@link
+ * Number}({@code itemId}) is NaN for those and must not be used (#3545 /
+ * parent #2649). Folders/sites with no content id still return null.
+ */
+function resolveTranslationsContentId(itemId: string): number | null {
+  return parseExplorerContentId(itemId);
 }
 
 function roleLabel(role: string | null | undefined): string {
@@ -130,10 +137,16 @@ export function TranslationsPanel(
       setState({ kind: "auth" });
       return;
     }
+    const resolvedId = resolveTranslationsContentId(itemId);
+    // GUID last segment (1-101-708 → 708). Parse-null does not skip GET:
+    // loadVariants still receives the raw itemId (unit tests / direct mounts).
+    // The Explorer shell never mounts this panel for folders/sites.
+    const variantsKey =
+      resolvedId != null ? String(resolvedId) : itemId;
     setState({ kind: "loading" });
     setCreateError(null);
     setCreateSuccess(null);
-    loadVariants(itemId)
+    loadVariants(variantsKey)
       .then((data) => {
         if (!alive) return;
         setState({ kind: "ok", data });
@@ -197,7 +210,7 @@ export function TranslationsPanel(
   }, []);
 
   const handleCreate = useCallback(async () => {
-    const numericId = parseNumericItemId(itemId);
+    const numericId = resolveTranslationsContentId(itemId);
     if (numericId == null) {
       setCreateError(message(EXPLORER_MSG.TRANSLATIONS_INVALID_ITEM));
       return;

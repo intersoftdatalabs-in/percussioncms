@@ -1193,6 +1193,76 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.queryByTestId("translations-panel")).toBeNull();
   });
 
+  it("GUID list row opens translations panel (not select-item hint) (#3545)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/content-explorer/translations/")) {
+        return new Response(
+          JSON.stringify({
+            itemId: 708,
+            locale: "en-us",
+            variants: [
+              { contentId: 708, locale: "en-us", role: "source", revision: 1 },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
+    await waitFor(() => {
+      expect(screen.getByTestId("translations-panel")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-translations-hint")).toBeNull();
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(screen.getByTestId("translations-current-locale-value")).toHaveTextContent(
+      "en-us",
+    );
+    expect(screen.getByTestId("translations-variant-row-708")).toBeTruthy();
+  });
+
   it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {
     stubPathFetch();
     const { container } = renderShell(
