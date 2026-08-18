@@ -85,30 +85,75 @@ function searchesExecuteUrl(baseUrl, idOrName) {
   return `${root}${PATH_SEARCHES}/${key}/execute`;
 }
 
+const SEARCH_DEF_WRAP_KEYS = Object.freeze([
+  "SearchDef",
+  "searchDef",
+  "SearchDefList",
+  "searchDefList",
+  "ArrayList",
+  "arrayList",
+  "items",
+]);
+
+const MAX_UNWRAP_DEPTH = 6;
+
 /**
- * Unwrap Jackson / list wrappers for {@code SearchDef[]} catalog payloads.
+ * True when {@code obj} looks like a design-search row (has a catalog key).
+ *
+ * @param {Record<string, unknown>} obj
+ * @returns {boolean}
+ */
+function hasSearchDefIdentity(obj) {
+  const name = obj.name != null ? String(obj.name).trim() : "";
+  if (name) {
+    return true;
+  }
+  const id = obj.id != null ? String(obj.id).trim() : "";
+  if (id && id !== "0") {
+    return true;
+  }
+  const label = obj.label != null ? String(obj.label).trim() : "";
+  return Boolean(label);
+}
+
+/**
+ * Unwrap Jackson / JAXB / ArrayList wrappers for {@code SearchDef[]} catalog
+ * payloads. Nested {@code SearchDefList.SearchDef} must not be treated as a
+ * single empty row (#3576).
  *
  * @param {unknown} payload
+ * @param {number} [depth]
  * @returns {Record<string, unknown>[]}
  */
-function unwrapSearchDefs(payload) {
-  if (payload == null) {
+function unwrapSearchDefs(payload, depth = 0) {
+  if (payload == null || depth > MAX_UNWRAP_DEPTH) {
     return [];
   }
   if (Array.isArray(payload)) {
-    return payload.filter((x) => x != null && typeof x === "object");
+    /** @type {Record<string, unknown>[]} */
+    const out = [];
+    for (const item of payload) {
+      if (item == null || typeof item !== "object") {
+        continue;
+      }
+      const rec = /** @type {Record<string, unknown>} */ (item);
+      if (!hasSearchDefIdentity(rec) && SEARCH_DEF_WRAP_KEYS.some((k) => rec[k] != null)) {
+        out.push(...unwrapSearchDefs(rec, depth + 1));
+      } else {
+        out.push(rec);
+      }
+    }
+    return out;
   }
   if (typeof payload === "object") {
     const obj = /** @type {Record<string, unknown>} */ (payload);
-    const raw = obj.SearchDef ?? obj.searchDef ?? obj.SearchDefList ?? obj.items;
-    if (raw == null) {
-      return [];
+    for (const key of SEARCH_DEF_WRAP_KEYS) {
+      if (obj[key] != null) {
+        return unwrapSearchDefs(obj[key], depth + 1);
+      }
     }
-    if (Array.isArray(raw)) {
-      return raw.filter((x) => x != null && typeof x === "object");
-    }
-    if (typeof raw === "object") {
-      return [/** @type {Record<string, unknown>} */ (raw)];
+    if (hasSearchDefIdentity(obj)) {
+      return [obj];
     }
   }
   return [];
@@ -219,21 +264,100 @@ function isCatalogSettled(kind) {
 }
 
 /**
+ * True when a picker {@code <option>} is the custom-URL marker
+ * ({@code SearchPanel} appends {@code  (URL)}).
+ *
+ * @param {{ value?: string, text?: string, label?: string } | null | undefined} option
+ * @returns {boolean}
+ */
+function isCustomSelectOption(option) {
+  if (option == null) {
+    return false;
+  }
+  const text = String(option.text ?? option.label ?? "").trim();
+  return /\(URL\)\s*$/.test(text);
+}
+
+/**
+ * First non-empty, non-custom select option (UI catalog).
+ *
+ * @param {{ value?: string, text?: string, label?: string }[]} options
+ * @returns {{ value: string, text: string } | null}
+ */
+function pickRunnableSelectOption(options) {
+  const list = Array.isArray(options) ? options : [];
+  for (const opt of list) {
+    const value = opt && opt.value != null ? String(opt.value).trim() : "";
+    if (!value) {
+      continue;
+    }
+    if (isCustomSelectOption(opt)) {
+      continue;
+    }
+    const text = String(opt.text ?? opt.label ?? value).trim();
+    return { value, text };
+  }
+  return null;
+}
+
+/**
+ * Soft-skip execute only when neither REST nor the picker expose a runnable
+ * design search. A visible picker with a catalog search must run (#3576).
+ *
+ * @param {{
+ *   runnable?: unknown,
+ *   pickerVisible?: boolean,
+ *   optionCount?: number,
+ *   hasRunnableOption?: boolean,
+ *   onlyCustom?: boolean,
+ *   catalogEmpty?: boolean,
+ * }} [detail]
+ * @returns {boolean}
+ */
+function shouldSkipMissingRunnableSearch(detail = {}) {
+  if (detail.runnable) {
+    return false;
+  }
+  if (detail.hasRunnableOption === true) {
+    return false;
+  }
+  if (
+    detail.pickerVisible === true &&
+    Number(detail.optionCount) > 0 &&
+    detail.onlyCustom !== true
+  ) {
+    return false;
+  }
+  if (detail.onlyCustom === true) {
+    return true;
+  }
+  return detail.catalogEmpty === true;
+}
+
+/**
  * Soft-skip message when QA fixture has no runnable design searches.
  *
- * @param {{ empty?: boolean, onlyCustom?: boolean, restStatus?: number }} [detail]
+ * @param {{
+ *   empty?: boolean,
+ *   onlyCustom?: boolean,
+ *   restStatus?: number,
+ *   pickerVisible?: boolean,
+ * }} [detail]
  * @returns {string}
  */
 function noRunnableSearchSkipMessage(detail = {}) {
   const parts = [
-    "No runnable design search in fixture for Explorer saved-search E2E (#2507).",
-    "Catalog empty or only custom-URL searches — soft skip after asserting catalog UI.",
+    "No runnable design search in fixture for Explorer saved-search E2E (#3576 / #2507).",
+    "Soft-skip only when catalog is empty or only custom-URL searches — never skip Run when a catalog search exists.",
   ];
   if (detail.empty) {
     parts.push("catalog empty.");
   }
   if (detail.onlyCustom) {
     parts.push("only customSearch=true entries.");
+  }
+  if (detail.pickerVisible === false) {
+    parts.push("picker not visible.");
   }
   if (detail.restStatus != null) {
     parts.push(`REST status=${detail.restStatus}.`);
@@ -279,7 +403,10 @@ module.exports = {
   searchDefKey,
   searchDefLabel,
   isCustomUrlSearch,
+  isCustomSelectOption,
+  pickRunnableSelectOption,
   pickRunnableSavedSearch,
+  shouldSkipMissingRunnableSearch,
   isCatalogSettled,
   noRunnableSearchSkipMessage,
   postExecuteRegionSelector,

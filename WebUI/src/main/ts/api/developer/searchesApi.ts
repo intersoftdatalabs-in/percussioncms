@@ -84,16 +84,75 @@ export const SEARCH_DESIGN_GAPS: string[] = [
   "Views are a separate catalog (Developer Views / UI-07)",
 ];
 
-function asArray<T>(payload: unknown): T[] {
-  if (payload == null) return [];
-  if (Array.isArray(payload)) return payload as T[];
-  if (typeof payload === "object") {
-    const obj = payload as Record<string, unknown>;
-    const raw = obj.SearchDef ?? obj.searchDef ?? obj.SearchDefList;
-    if (raw == null) return [];
-    return Array.isArray(raw) ? (raw as T[]) : [raw as T];
+const SEARCH_DEF_WRAP_KEYS = [
+  "SearchDef",
+  "searchDef",
+  "SearchDefList",
+  "searchDefList",
+  "ArrayList",
+  "arrayList",
+  "items",
+] as const;
+
+const MAX_UNWRAP_DEPTH = 6;
+
+function hasSearchDefIdentity(obj: Record<string, unknown>): boolean {
+  const name = obj.name != null ? String(obj.name).trim() : "";
+  if (name) {
+    return true;
+  }
+  const id = obj.id != null ? String(obj.id).trim() : "";
+  if (id && id !== "0") {
+    return true;
+  }
+  const label = obj.label != null ? String(obj.label).trim() : "";
+  return Boolean(label);
+}
+
+/**
+ * Unwrap Jackson / JAXB / ArrayList wrappers for {@link SearchDef} lists.
+ * Nested {@code SearchDefList.SearchDef} must not collapse to one empty row
+ * (#3576).
+ */
+export function unwrapSearchDefList(payload: unknown, depth = 0): SearchDef[] {
+  if (payload == null || depth > MAX_UNWRAP_DEPTH) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    const out: SearchDef[] = [];
+    for (const item of payload) {
+      if (item == null || typeof item !== "object") {
+        continue;
+      }
+      const rec = item as Record<string, unknown>;
+      if (
+        !hasSearchDefIdentity(rec) &&
+        SEARCH_DEF_WRAP_KEYS.some((k) => rec[k] != null)
+      ) {
+        out.push(...unwrapSearchDefList(rec, depth + 1));
+      } else {
+        out.push(item as SearchDef);
+      }
+    }
+    return out;
+  }
+  const obj = asRecord(payload);
+  if (obj == null) {
+    return [];
+  }
+  for (const key of SEARCH_DEF_WRAP_KEYS) {
+    if (obj[key] != null) {
+      return unwrapSearchDefList(obj[key], depth + 1);
+    }
+  }
+  if (hasSearchDefIdentity(obj)) {
+    return [obj as SearchDef];
   }
   return [];
+}
+
+function asArray<T>(payload: unknown): T[] {
+  return unwrapSearchDefList(payload) as T[];
 }
 
 function withGaps(s: SearchDef): SearchDef {

@@ -20,7 +20,10 @@ const {
   searchDefKey,
   searchDefLabel,
   isCustomUrlSearch,
+  isCustomSelectOption,
+  pickRunnableSelectOption,
   pickRunnableSavedSearch,
+  shouldSkipMissingRunnableSearch,
   isCatalogSettled,
   noRunnableSearchSkipMessage,
   postExecuteRegionSelector,
@@ -73,6 +76,24 @@ describe("explorer-saved-search helpers (#2507)", () => {
       unwrapSearchDefs({ searchDef: [{ name: "C" }, { name: "D" }] }),
       [{ name: "C" }, { name: "D" }],
     );
+    assert.deepEqual(
+      unwrapSearchDefs({
+        SearchDefList: {
+          SearchDef: [
+            { name: "View_All", label: "All" },
+            { name: "My Pages" },
+          ],
+        },
+      }),
+      [
+        { name: "View_All", label: "All" },
+        { name: "My Pages" },
+      ],
+    );
+    assert.deepEqual(unwrapSearchDefs({ ArrayList: [{ name: "E" }] }), [
+      { name: "E" },
+    ]);
+    assert.deepEqual(unwrapSearchDefs({ empty: true }), []);
   });
 
   it("searchDefKey prefers name then id", () => {
@@ -130,16 +151,74 @@ describe("explorer-saved-search helpers (#2507)", () => {
     assert.equal(picked.label, "All");
   });
 
+  it("pickRunnableSelectOption skips placeholder and custom URL options", () => {
+    assert.equal(isCustomSelectOption({ text: "Inbox (URL)" }), true);
+    assert.equal(isCustomSelectOption({ text: "All" }), false);
+    assert.equal(pickRunnableSelectOption([]), null);
+    assert.equal(
+      pickRunnableSelectOption([
+        { value: "", text: "Choose a saved search" },
+        { value: "Inbox", text: "Inbox (URL)" },
+      ]),
+      null,
+    );
+    const picked = pickRunnableSelectOption([
+      { value: "", text: "Choose…" },
+      { value: "Custom", text: "Custom (URL)" },
+      { value: "View_All", text: "All" },
+    ]);
+    assert.ok(picked);
+    assert.equal(picked.value, "View_All");
+  });
+
+  it("shouldSkipMissingRunnableSearch never skips when catalog search exists", () => {
+    assert.equal(
+      shouldSkipMissingRunnableSearch({
+        runnable: { key: "View_All" },
+      }),
+      false,
+    );
+    assert.equal(
+      shouldSkipMissingRunnableSearch({
+        pickerVisible: true,
+        optionCount: 2,
+        hasRunnableOption: true,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldSkipMissingRunnableSearch({
+        pickerVisible: true,
+        optionCount: 1,
+        onlyCustom: false,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldSkipMissingRunnableSearch({
+        onlyCustom: true,
+        pickerVisible: true,
+        optionCount: 1,
+      }),
+      true,
+    );
+    assert.equal(
+      shouldSkipMissingRunnableSearch({ catalogEmpty: true }),
+      true,
+    );
+  });
+
   it("isCatalogSettled and soft-skip message", () => {
     assert.equal(isCatalogSettled("loading"), false);
     assert.equal(isCatalogSettled("picker"), true);
     assert.equal(isCatalogSettled("empty"), true);
     assert.equal(isCatalogSettled("error"), true);
     const msg = noRunnableSearchSkipMessage({ empty: true, restStatus: 200 });
-    assert.match(msg, /#2507/);
-    assert.match(msg, /soft skip/i);
+    assert.match(msg, /#3576/);
+    assert.match(msg, /soft-skip/i);
     assert.match(msg, /empty/i);
     assert.match(msg, /200/);
+    assert.match(msg, /never skip/i);
   });
 
   it("region selectors include key test ids", () => {
