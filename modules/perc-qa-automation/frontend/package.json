@@ -19,7 +19,7 @@
     "test:developer-smoke:list": "playwright test --list tests/golden-unattended-smoke.spec.js tests/login.spec.js tests/developer-catalog-smoke.spec.js tests/developer-template-source-viewer.spec.js"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
     "dotenv": "^17.4.2",
     "playwright": "^1.58.0"
