@@ -158,6 +158,30 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
 
+## Slots (design catalog)
+
+Assembly **slots** used by **Developer → Slots** are exposed under `/services/slots`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/slots` | List slot summaries (label, name, description) |
+| `GET` | `/services/slots/{idOrName}` | Design detail (finder, associations, `designGaps`) |
+| `PUT` | `/services/slots/{idOrName}` | Update label, description, and/or content-type/template associations |
+
+JSON may wrap a single item as `SlotDetail`. `associations` and `designGaps` are arrays
+(`SlotAssociationSummary[]` and structured `{code,message}` gaps). Some Jackson/JAXB
+envelopes historically serialize a list as a single object, a `{ SlotAssociation: … }` /
+`{ DesignGap: … }` wrapper, or an empty-collection bean (`{ "empty": false }`).
+Finder arguments may appear as a JAXB map (`{ "entry": [ { "key", "value" }, … ] }`)
+instead of a flat `{ name: value }` object.
+
+**Developer → Slots** detail treats those non-array shapes as an empty list or unwraps
+the single item, and flattens finder-argument maps to readable `name = value` rows.
+The slot form stays on screen (or shows an in-panel error). It does
+**not** replace the Developer shell with **Unable to load Developer**. Capability gaps
+still render as the human-readable **message** (fallback **code**). Load failures stay
+in the slot detail panel — use **Back** to return to the catalog.
+
 ## Content types (design catalog)
 
 | Operation | Path | Notes |

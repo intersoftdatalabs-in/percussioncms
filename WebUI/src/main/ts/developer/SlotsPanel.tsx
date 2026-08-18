@@ -22,6 +22,7 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { SlotDetailPanel } from "./SlotDetailPanel";
 
 /** Open-key for detail; null when the row is not selectable. */
@@ -53,7 +54,14 @@ export function SlotsPanel(): React.ReactElement {
   }, []);
 
   if (selected) {
-    return <SlotDetailPanel idOrName={selected} onBack={() => setSelected(null)} />;
+    return (
+      <DeveloperSectionErrorBoundary
+        label={DEV_MSG.TAB_SLOTS}
+        testId="developer-slot-detail-error"
+      >
+        <SlotDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+      </DeveloperSectionErrorBoundary>
+    );
   }
 
   if (error) return <CatalogStatus testId="developer-slot-error" error>{error}</CatalogStatus>;
