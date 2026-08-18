@@ -182,6 +182,10 @@ import {
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
 import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+} from "../architecture/useDialogEscape";
 import { RelationshipsView } from "./views/RelationshipsView";
 import { DependencyViewer } from "./views/DependencyViewer";
 import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relationship";
@@ -543,6 +547,10 @@ function ContentExplorerShellInner({
   const [showSiteCopy, setShowSiteCopy] = useState(false);
   /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
   const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
+  const dismissSubfolderCopy = useCallback(() => {
+    setShowSubfolderCopy(false);
+  }, []);
+  const subfolderCopyPanelRef = useRef<HTMLElement | null>(null);
   const [showRelationships, setShowRelationships] = useState(false);
   const [showDependencies, setShowDependencies] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
@@ -726,6 +734,7 @@ function ContentExplorerShellInner({
       setContextMenu(null);
       setViewRun(null);
       setSelectedViewKey(null);
+      setShowSubfolderCopy(false);
       if (folder) onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
@@ -742,6 +751,7 @@ function ContentExplorerShellInner({
       setContextMenu(null);
       setViewRun(null);
       setSelectedViewKey(null);
+      setShowSubfolderCopy(false);
       onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
@@ -749,6 +759,7 @@ function ContentExplorerShellInner({
 
   const handleSelectItem = useCallback((item: PSPathItem) => {
     setSelection((prev) => ({ ...prev, item }));
+    setShowSubfolderCopy(false);
   }, []);
 
   const handleActivateItem = useCallback(
@@ -1186,6 +1197,12 @@ function ContentExplorerShellInner({
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
+            if (!showSubfolderCopy) {
+              const contentMenu = document.querySelector<HTMLElement>(
+                '[data-testid="explorer-menu-content"]',
+              );
+              captureDialogOpener(contentMenu ?? document.activeElement);
+            }
             setShowSubfolderCopy((v) => !v);
           }
           break;
@@ -1231,8 +1248,36 @@ function ContentExplorerShellInner({
       handleRefreshList,
       siteNameForCopy,
       sourceFolderPathForCopy,
+      showSubfolderCopy,
     ],
   );
+
+  useDialogEscape(showSubfolderCopy, false, dismissSubfolderCopy);
+
+  useEffect(() => {
+    if (!showSubfolderCopy) {
+      return;
+    }
+    function onDocMouseDown(e: MouseEvent): void {
+      const target = e.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      const panel = subfolderCopyPanelRef.current;
+      if (panel && panel.contains(target)) {
+        return;
+      }
+      const menuBar = document.querySelector(
+        '[data-testid="explorer-menu-bar"]',
+      );
+      if (menuBar instanceof Node && menuBar.contains(target)) {
+        return;
+      }
+      setShowSubfolderCopy(false);
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, [showSubfolderCopy]);
 
   const folderForActions: PSPathItem | null =
     selection.item && isFolder(selection.item)
@@ -1639,6 +1684,7 @@ function ContentExplorerShellInner({
       {showSubfolderCopy && sourceFolderPathForCopy && (
         <section
           id="explorer-subfolder-copy-panel"
+          ref={subfolderCopyPanelRef}
           style={sidePanelStyle}
           data-testid="explorer-subfolder-copy-panel"
           aria-label={message(EXPLORER_MSG.SUBFOLDER_COPY_PANEL_REGION)}
@@ -1650,6 +1696,7 @@ function ContentExplorerShellInner({
           <SubfolderCopyWizard
             key={`subfolder-copy-${sourceFolderPathForCopy}`}
             initialSource={sourceFolderPathForCopy}
+            onDismiss={dismissSubfolderCopy}
             onSettled={(ok) => {
               if (ok) {
                 setListEpoch((n) => n + 1);

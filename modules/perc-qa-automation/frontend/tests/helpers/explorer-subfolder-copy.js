@@ -16,6 +16,11 @@ const TEST_IDS = Object.freeze({
   subfolderCopyHint: "explorer-subfolder-copy-hint",
   wizard: "subfolder-copy-wizard",
   sourceInput: "subfolder-copy-source",
+  cancel: "subfolder-copy-cancel",
+  back: "subfolder-copy-back",
+  next: "subfolder-copy-next",
+  stepSource: "subfolder-copy-step-source",
+  stepTarget: "subfolder-copy-step-target",
   tree: "explorer-tree",
   detailList: "detail-list",
 });

@@ -15,11 +15,12 @@
  */
 
 /**
- * Playwright surface: #2792 / parent #2400 — Subfolder Copy wizard in Explorer shell.
+ * Playwright surface: #2792 / #3553 / parent #2400 — Subfolder Copy wizard.
  *
- * <p>Verifies Content → Subfolder Copy chrome on the modern SPA Explorer. Full
- * multi-folder submit is soft-skipped when the H2 fixture lacks a navigable
- * folder tree suitable for a destructive copy.</p>
+ * <p>Verifies Content → Subfolder Copy chrome on the modern SPA Explorer, plus
+ * Cancel / item-click dismiss (#3553). Full multi-folder submit is soft-skipped
+ * when the H2 fixture lacks a navigable folder tree suitable for a destructive
+ * copy.</p>
  *
  * <p>Tags: {@code @explorer-subfolder-copy} {@code @explorer} {@code @smoke}</p>
  *
@@ -93,6 +94,28 @@ async function tryEnterFolder(page) {
   return false;
 }
 
+/**
+ * Open the wizard when folder context exists. Returns false when the H2
+ * fixture has no navigable folder (soft-skip caller).
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<boolean>}
+ */
+async function tryOpenWizard(page) {
+  await tryEnterFolder(page);
+  await openContentMenu(page);
+  const menuItem = page.locator(
+    `[data-testid="${TEST_IDS.subfolderCopyMenu}"]`,
+  );
+  await expect(menuItem).toBeVisible({ timeout: 5_000 });
+  if (await menuItem.isDisabled()) {
+    return false;
+  }
+  await menuItem.click();
+  const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
+  await expect(wizard).toBeVisible({ timeout: 10_000 });
+  return true;
+}
+
 test.describe("modern React Content Explorer — subfolder copy chrome (#2792)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
@@ -163,6 +186,113 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
           .inputValue();
         expect(sourceVal.length).toBeGreaterThan(0);
       }
+    },
+  );
+
+  test(
+    "Cancel dismisses the Subfolder Copy overlay (#3553)",
+    { tag: ["@explorer-subfolder-copy", "@explorer"] },
+    async ({ page }) => {
+      test.setTimeout(60_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      const opened = await tryOpenWizard(page);
+      if (!opened) {
+        test.info().annotations.push({
+          type: "soft-skip",
+          description:
+            "No folder context under /Sites (H2 fixture may lack navigable folders).",
+        });
+        return;
+      }
+
+      const source = page.locator(`[data-testid="${TEST_IDS.sourceInput}"]`);
+      await expect(source).toBeVisible();
+      await source.fill("/Sites/Demo/Home");
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.stepTarget}"]`),
+      ).toBeVisible();
+
+      await page.locator(`[data-testid="${TEST_IDS.cancel}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.wizard}"]`),
+      ).toHaveCount(0, { timeout: 10_000 });
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.subfolderCopyPanel}"]`),
+      ).toHaveCount(0);
+      expect(pageErrors, `console/pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
+    "item click dismisses the Subfolder Copy overlay without POST (#3553)",
+    { tag: ["@explorer-subfolder-copy", "@explorer"] },
+    async ({ page }) => {
+      test.setTimeout(60_000);
+      const pageErrors = [];
+      const copyPosts = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+      page.on("request", (req) => {
+        if (
+          req.method() === "POST" &&
+          /folders\/copy|moveItem/i.test(req.url())
+        ) {
+          copyPosts.push(req.url());
+        }
+      });
+
+      const opened = await tryOpenWizard(page);
+      if (!opened) {
+        test.info().annotations.push({
+          type: "soft-skip",
+          description:
+            "No folder context under /Sites (H2 fixture may lack navigable folders).",
+        });
+        return;
+      }
+
+      const list = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
+      const rows = list.locator(
+        'tbody tr[data-testid^="detail-row-"]:not([aria-disabled="true"])',
+      );
+      const treeNodes = page.locator('[data-testid^="tree-node-"]');
+      if ((await rows.count()) > 0) {
+        await rows.first().click();
+      } else if ((await treeNodes.count()) > 0) {
+        await treeNodes.first().click();
+      } else {
+        await page.locator(`[data-testid="${TEST_IDS.shell}"]`).click({
+          position: { x: 8, y: 8 },
+        });
+      }
+
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.wizard}"]`),
+      ).toHaveCount(0, { timeout: 10_000 });
+      expect(copyPosts, `unexpected copy POST: ${copyPosts.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(pageErrors, `console/pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 

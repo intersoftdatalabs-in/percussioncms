@@ -182,6 +182,25 @@ Related Content menu commands:
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
 
+### Subfolder Copy
+
+**Content → Subfolder Copy** opens a wizard overlay when a folder is in context
+(the current tree folder, or a selected folder row). Source path is prefilled from
+that folder.
+
+| Control | Behavior |
+|---------|----------|
+| **Next** | Advance to the next step (source → target → confirm → run) |
+| **Back** | Return to the previous step. The overlay stays open |
+| **Cancel** | Close the wizard without copying. Cancel is **not** Back — it does not reset to step 1 while leaving the overlay up |
+| **Escape** | Same as Cancel: dismiss without submitting |
+| Tree or list item | Selecting another folder or item closes the wizard without submitting |
+| Click outside the wizard | Also dismisses without submitting |
+
+After Cancel, Escape, item-click, or click-away, focus returns to the Explorer
+**Content** menu so you can continue working in the shell. The wizard does not
+POST a folder copy until you reach the last step and choose **Submit**.
+
 ## Views → My Content → Inbox
 
 Desktop Content Explorer **Inbox** is **not** a separate Content Explorer root and is **not**
