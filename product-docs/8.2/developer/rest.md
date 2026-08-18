@@ -401,6 +401,26 @@ display format, max results, and case sensitivity stored on the view design.
 - The Developer SPA lists views via `GET`. Operator Inbox run-from-tree is Explorer
   **Views → My Content → Inbox**, not a free-floating Inbox root.
 
+## Workflows (design catalog)
+
+Workflow definitions used by **Developer → Workflows** (SY-04 browse) are exposed under
+`/services/workflowmanagement/workflows`. This is the existing stepped-workflow catalog,
+not a full graph editor and **not** an Object ACL surface (workflow DTOs have no GUID
+in this release).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/services/workflowmanagement/workflows/metadata` | List workflow metadata (`workflowName`, default flag, steps) |
+| `GET` | `/services/workflowmanagement/workflows/{name}` | Load one workflow by name (steps, staging roles, default flag) |
+
+JSON list and detail may wrap under Jackson / JAXB root `Workflow` (including nested
+`{ "Workflow": { "Workflow": { … } } }` envelopes). The name field is `workflowName`;
+some serializers also emit `name`. **Developer → Workflows** unwraps those envelopes
+and binds `workflowName` (or the `name` alias) before rendering detail. A wrapped
+payload without a top-level `workflowName` must still open **Default Workflow** /
+**Simple Workflow** instead of **Could not load workflow**. There is **no Object ACL**
+section on workflow detail.
+
 ## Design capability gaps (`designGaps`)
 
 Some Developer detail payloads include a **`designGaps`** array so clients know what the REST

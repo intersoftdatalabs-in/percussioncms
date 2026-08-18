@@ -103,6 +103,106 @@ function withGaps(w: WorkflowDef): WorkflowDef {
   };
 }
 
+/** Same envelope keys as the list plus the JAXB/Jackson class alias. */
+const DETAIL_WRAPPER_KEYS = [
+  "Workflow",
+  "workflow",
+  "PSUiWorkflow",
+  "uiWorkflow",
+] as const;
+
+/**
+ * Resolve a catalog name from {@code workflowName} or the Jackson {@code name} alias.
+ */
+function resolveWorkflowName(obj: Record<string, unknown>): string {
+  if (typeof obj.workflowName === "string" && obj.workflowName.trim()) {
+    return obj.workflowName.trim();
+  }
+  if (typeof obj.name === "string" && obj.name.trim()) {
+    return obj.name.trim();
+  }
+  return "";
+}
+
+/**
+ * Unwrap Jackson WRAP_ROOT / nested {@code Workflow} envelopes for a single detail
+ * payload. Mirrors {@link unwrapWorkflowWrapper} but returns one object, not a list.
+ */
+function unwrapWorkflowDetailObject(
+  obj: Record<string, unknown>,
+  depth: number,
+): Record<string, unknown> | null {
+  if (depth > 5) {
+    return null;
+  }
+  for (const key of DETAIL_WRAPPER_KEYS) {
+    const raw = obj[key];
+    if (raw == null) {
+      continue;
+    }
+    const nested = asJsonRecord(raw);
+    if (nested) {
+      const deeper = unwrapWorkflowDetailObject(nested, depth + 1);
+      if (deeper) {
+        return deeper;
+      }
+    }
+    if (Array.isArray(raw) && raw.length > 0) {
+      const first = asJsonRecord(raw[0]);
+      if (first) {
+        const deeper = unwrapWorkflowDetailObject(first, depth + 1);
+        if (deeper) {
+          return deeper;
+        }
+      }
+    }
+  }
+  if (looksLikeWorkflowItem(obj) || resolveWorkflowName(obj)) {
+    return obj;
+  }
+  return null;
+}
+
+/**
+ * Parse GET /services/workflowmanagement/workflows/{name}.
+ *
+ * Accepts a flat PSUiWorkflow body, Jackson WRAP_ROOT {@code { Workflow: { … } }},
+ * nested wrappers, a one-item array, and the {@code name} alias when
+ * {@code workflowName} is absent (#3562 / #2640).
+ */
+export function parseWorkflowDetail(payload: unknown): WorkflowDef {
+  if (payload == null) {
+    throw new Error("Workflow not found or empty response");
+  }
+  if (Array.isArray(payload)) {
+    if (payload.length === 0) {
+      throw new Error("Workflow not found or empty response");
+    }
+    return parseWorkflowDetail(payload[0]);
+  }
+  const obj = asJsonRecord(payload);
+  if (!obj) {
+    throw new Error("Workflow not found or empty response");
+  }
+  const unwrapped = unwrapWorkflowDetailObject(obj, 0);
+  if (!unwrapped) {
+    throw new Error("Workflow response missing workflowName");
+  }
+  const workflowName = resolveWorkflowName(unwrapped);
+  if (!workflowName) {
+    throw new Error("Workflow response missing workflowName");
+  }
+  const stepsRaw = unwrapped.workflowSteps ?? unwrapped.steps;
+  const detail: WorkflowDef = {
+    ...(unwrapped as WorkflowDef),
+    workflowName,
+  };
+  if (Array.isArray(stepsRaw)) {
+    detail.workflowSteps = stepsRaw as WorkflowDef["workflowSteps"];
+  }
+  return detail;
+}
+
 /**
  * GET /services/workflowmanagement/workflows/metadata
  * (existing stepped-workflow catalog; Developer SY-04 browse surface)
@@ -118,14 +218,6 @@ export async function listWorkflows(): Promise<WorkflowDef[]> {
 export async function getWorkflowDetail(name: string): Promise<WorkflowDef> {
   const key = encodeURIComponent(name);
   // PATHS.WORKFLOWS already ends with '/'
-  const detail = await get<WorkflowDef | null | undefined>(`${PATHS.WORKFLOWS}${key}`);
-  if (detail == null || typeof detail !== "object") {
-    throw new Error("Workflow not found or empty response");
-  }
-  const workflowName =
-    typeof detail.workflowName === "string" ? detail.workflowName.trim() : "";
-  if (!workflowName) {
-    throw new Error("Workflow response missing workflowName");
-  }
-  return withGaps(detail);
+  const payload = await get<unknown>(`${PATHS.WORKFLOWS}${key}`);
+  return withGaps(parseWorkflowDetail(payload));
 }

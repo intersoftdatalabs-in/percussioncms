@@ -84,6 +84,7 @@ export function WorkflowsPanel(): React.ReactElement {
                 key="open"
                 type="button"
                 data-testid="developer-wf-open"
+                data-wf-name={openKey}
                 aria-label={`Open ${openKey}`}
                 onClick={(ev) => {
                   ev.stopPropagation();
