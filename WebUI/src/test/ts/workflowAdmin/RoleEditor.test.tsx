@@ -17,6 +17,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { HOMEPAGE_TYPES } from "../../../main/ts/api/user/userHomepageApi";
 import { RoleEditor } from "../../../main/ts/workflowAdmin/role/RoleEditor";
 import * as client from "../../../main/ts/api/client";
 
@@ -132,6 +133,73 @@ describe("RoleEditor membership dual-list (#3504)", () => {
     expect(screen.queryByTestId("assigned-user-row-Contributor")).toBeNull();
     expect(screen.getByTestId("available-users-heading").textContent).toContain(
       "(3)",
+    );
+  });
+
+  it("exposes remaining-app homepage select and persists Explorer (#3537)", async () => {
+    const onSave = vi.fn();
+    render(
+      <RoleEditor
+        role={{ name: "Authors", description: "", users: [], homepage: "Home" }}
+        onSave={onSave}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("role-default-homepage-select")).toBeTruthy();
+    });
+
+    const select = screen.getByTestId(
+      "role-default-homepage-select",
+    ) as HTMLSelectElement;
+    const values = Array.from(select.options).map((o) => o.value);
+    expect(values).toContain(HOMEPAGE_TYPES.HOME);
+    expect(values).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(values).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).toContain(HOMEPAGE_TYPES.PUBLISH);
+    expect(values).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(values).not.toContain(HOMEPAGE_TYPES.EDITOR);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
+
+    fireEvent.change(select, { target: { value: HOMEPAGE_TYPES.EXPLORER } });
+    fireEvent.click(screen.getByTestId("save-role-button"));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalled();
+    });
+    const updateCall = vi
+      .mocked(client.post)
+      .mock.calls.find((call) => String(call[0]).includes("update"));
+    expect(updateCall).toBeTruthy();
+    const payload = updateCall![1] as { Role?: { homepage?: string } };
+    expect(payload.Role?.homepage).toBe(HOMEPAGE_TYPES.EXPLORER);
+  });
+
+  it("keeps a stale Editor homepage visible so it can be cleared", async () => {
+    render(
+      <RoleEditor
+        role={{
+          name: "Editors",
+          description: "",
+          users: [],
+          homepage: HOMEPAGE_TYPES.EDITOR,
+        }}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("role-default-homepage-select")).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "role-default-homepage-select",
+    ) as HTMLSelectElement;
+    expect(select.value).toBe(HOMEPAGE_TYPES.EDITOR);
+    expect(Array.from(select.options).map((o) => o.value)).toContain(
+      HOMEPAGE_TYPES.EDITOR,
     );
   });
 });

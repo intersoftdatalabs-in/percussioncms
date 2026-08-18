@@ -30,6 +30,8 @@ public interface IPSRoleService {
   String HOMEPAGE_TYPE_DASHBOARD = "Dashboard";
   String HOMEPAGE_TYPE_EDITOR = "Editor";
   String HOMEPAGE_TYPE_HOME = "Home";
+  String HOMEPAGE_TYPE_EXPLORER = "Explorer";
+  String HOMEPAGE_TYPE_DEVELOPER = "Developer";
 
   /**
    * Finds a role.

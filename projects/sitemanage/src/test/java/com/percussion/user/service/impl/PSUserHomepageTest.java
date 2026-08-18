@@ -22,6 +22,8 @@ import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_EDITOR;
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_HOME;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_ARCHITECTURE;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DESIGNER;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DEVELOPER;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_EXPLORER;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_PUBLISH;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DEVELOPER;
 import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_EXPLORER;

@@ -18,8 +18,14 @@
 package com.percussion.role.service.impl;
 
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_DASHBOARD;
+import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_DEVELOPER;
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_EDITOR;
+import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_EXPLORER;
 import static com.percussion.role.service.IPSRoleService.HOMEPAGE_TYPE_HOME;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_ARCHITECTURE;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DESIGNER;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_PUBLISH;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_WORKFLOW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
@@ -78,5 +84,123 @@ class PSRoleServiceHomepageTest {
         HOMEPAGE_TYPE_DASHBOARD,
         PSRoleService.resolveEffectiveHomepage(
             "", Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
+  }
+
+  @Test
+  void explorerWhenOnlyExplorerRole() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER, PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_EXPLORER)));
+  }
+
+  @Test
+  void remainingAppsResolveWhenHomeDashboardEditorAbsent() {
+    assertEquals(
+        HOMEPAGE_TYPE_ARCHITECTURE,
+        PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_ARCHITECTURE)));
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER, PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_DEVELOPER)));
+  }
+
+  @Test
+  void homeStillWinsOverExplorer() {
+    assertEquals(
+        HOMEPAGE_TYPE_HOME,
+        PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_HOME, HOMEPAGE_TYPE_EXPLORER)));
+  }
+
+  @Test
+  void remainingAppPriorityExplorerBeatsWorkflow() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_EXPLORER, HOMEPAGE_TYPE_WORKFLOW)));
+  }
+
+  @Test
+  void remainingAppPriorityExplorerBeatsArchitecture() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_EXPLORER, HOMEPAGE_TYPE_ARCHITECTURE)));
+  }
+
+  @Test
+  void remainingAppPriorityArchitectureBeatsDeveloper() {
+    assertEquals(
+        HOMEPAGE_TYPE_ARCHITECTURE,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_ARCHITECTURE, HOMEPAGE_TYPE_DEVELOPER)));
+  }
+
+  @Test
+  void remainingAppPriorityDeveloperBeatsDesigner() {
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_DEVELOPER, HOMEPAGE_TYPE_DESIGNER)));
+  }
+
+  @Test
+  void remainingAppPriorityDeveloperBeatsPublishAndWorkflow() {
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER,
+        PSRoleService.resolveUserHomepage(
+            Set.of(
+                HOMEPAGE_TYPE_DEVELOPER,
+                HOMEPAGE_TYPE_PUBLISH,
+                HOMEPAGE_TYPE_WORKFLOW,
+                HOMEPAGE_TYPE_DESIGNER)));
+  }
+
+  @Test
+  void remainingAppPriorityPublishBeatsWorkflow() {
+    assertEquals(
+        HOMEPAGE_TYPE_PUBLISH,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_PUBLISH, HOMEPAGE_TYPE_WORKFLOW)));
+  }
+
+  @Test
+  void remainingAppPriorityWorkflowBeatsDesigner() {
+    assertEquals(
+        HOMEPAGE_TYPE_WORKFLOW,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_WORKFLOW, HOMEPAGE_TYPE_DESIGNER)));
+  }
+
+  @Test
+  void editorStillBeatsRemainingApps() {
+    assertEquals(
+        HOMEPAGE_TYPE_EDITOR,
+        PSRoleService.resolveUserHomepage(
+            Set.of(HOMEPAGE_TYPE_EDITOR, HOMEPAGE_TYPE_EXPLORER, HOMEPAGE_TYPE_DEVELOPER)));
+  }
+
+  @Test
+  void effectiveExplorerOverrideBeatsRoleResolve() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER,
+        PSRoleService.resolveEffectiveHomepage(
+            HOMEPAGE_TYPE_EXPLORER, Set.of(HOMEPAGE_TYPE_WORKFLOW, HOMEPAGE_TYPE_DESIGNER)));
+  }
+
+  @Test
+  void effectiveDeveloperOverrideBeatsRoleResolve() {
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER,
+        PSRoleService.resolveEffectiveHomepage(HOMEPAGE_TYPE_DEVELOPER, Set.of(HOMEPAGE_TYPE_HOME)));
+  }
+
+  @Test
+  void effectiveNormalizesExplorerAndDeveloperAliases() {
+    assertEquals(
+        HOMEPAGE_TYPE_EXPLORER,
+        PSRoleService.resolveEffectiveHomepage("explorer", Set.of(HOMEPAGE_TYPE_HOME)));
+    assertEquals(
+        HOMEPAGE_TYPE_DEVELOPER,
+        PSRoleService.resolveEffectiveHomepage("developer", Set.of(HOMEPAGE_TYPE_HOME)));
+    assertEquals(
+        HOMEPAGE_TYPE_ARCHITECTURE,
+        PSRoleService.resolveEffectiveHomepage("navigation", Set.of(HOMEPAGE_TYPE_HOME)));
   }
 }

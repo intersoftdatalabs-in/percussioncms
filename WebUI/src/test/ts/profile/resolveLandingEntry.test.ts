@@ -77,7 +77,11 @@ describe("resolveHomepageToSpaEntry (#3219)", () => {
       "/developer",
     );
     expect(resolveHomepageToClientPath("explorer")).toBe("/explorer");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.EXPLORER)).toBe("/explorer");
     expect(resolveHomepageToClientPath("profile")).toBe("/profile");
     expect(resolveHomepageToClientPath("developer")).toBe("/developer");
+    expect(resolveHomepageToClientPath(HOMEPAGE_TYPES.DEVELOPER)).toBe(
+      "/developer",
+    );
   });
 });
