@@ -23,8 +23,10 @@
  * surface-filtered Playwright HARD GATE for the operator Inbox leaf.</p>
  *
  * <p>Soft-skip <strong>only</strong> when GET /services/views has no Inbox
- * design view. A visible Inbox leaf, empty assignment list, or execute
- * error must not skip (#3446).</p>
+ * design view <strong>and</strong> the product-route Inbox leaf is
+ * absent. A visible Views tree synthesizes Inbox; a visible leaf, empty
+ * assignment list (HTTP 200), or execute error must not skip
+ * (#3561 / #3446).</p>
  *
  * <h3>Unattended surface (QA mode)</h3>
  * <pre>
@@ -140,10 +142,32 @@ test.describe("Explorer Inbox (#3446 / #3118)", () => {
     const inboxDef = findInboxView(restBody);
     const defs = unwrapViewDefs(restBody);
 
+    const url = explorerEntryUrl(BASE_URL);
+    await page.goto(url, { waitUntil: "networkidle" });
+
+    const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
+    await expect(shell).toBeVisible({ timeout: 20_000 });
+
+    const viewsTree = page.locator(`[data-testid="${TEST_IDS.viewsTree}"]`);
+    const treeVisible = await viewsTree
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (treeVisible) {
+      await expandMyContentIfCollapsed(page);
+    }
+    const inboxLeaf = page.locator(inboxLeafSelector());
+    const leafVisible = await inboxLeaf
+      .first()
+      .isVisible()
+      .catch(() => false);
+
     if (
       shouldSkipMissingInboxCatalog({
         inboxDef,
         catalogEmpty: !inboxDef,
+        leafVisible,
+        treeVisible,
       })
     ) {
       test.skip(
@@ -151,26 +175,18 @@ test.describe("Explorer Inbox (#3446 / #3118)", () => {
         missingInboxSkipMessage({
           restStatus,
           catalogEmpty: defs.length === 0,
+          leafVisible,
         }),
       );
       return;
     }
 
-    const url = explorerEntryUrl(BASE_URL);
-    await page.goto(url, { waitUntil: "networkidle" });
-
-    const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
-    await expect(shell).toBeVisible({ timeout: 20_000 });
-
     await expectNoSeriousA11yViolations(page, {
       scope: `[data-testid="${TEST_IDS.shell}"]`,
     });
 
-    const viewsTree = page.locator(`[data-testid="${TEST_IDS.viewsTree}"]`);
     await expect(viewsTree).toBeVisible({ timeout: 20_000 });
     await expandMyContentIfCollapsed(page);
-
-    const inboxLeaf = page.locator(inboxLeafSelector());
     await expect(inboxLeaf.first()).toBeVisible({ timeout: 10_000 });
     expect(pageErrors, "uncaught pageerror on Explorer Inbox chrome").toEqual(
       [],
@@ -185,10 +201,32 @@ test.describe("Explorer Inbox (#3446 / #3118)", () => {
     const inboxDef = findInboxView(restBody);
     const defs = unwrapViewDefs(restBody);
 
+    const url = explorerEntryUrl(BASE_URL);
+    await page.goto(url, { waitUntil: "networkidle" });
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+    ).toBeVisible({ timeout: 20_000 });
+
+    const viewsTree = page.locator(`[data-testid="${TEST_IDS.viewsTree}"]`);
+    const treeVisible = await viewsTree
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (treeVisible) {
+      await expandMyContentIfCollapsed(page);
+    }
+    const inboxLeaf = page.locator(inboxLeafSelector());
+    const leafVisible = await inboxLeaf
+      .first()
+      .isVisible()
+      .catch(() => false);
+
     if (
       shouldSkipMissingInboxCatalog({
         inboxDef,
         catalogEmpty: !inboxDef,
+        leafVisible,
+        treeVisible,
       })
     ) {
       test.skip(
@@ -196,23 +234,16 @@ test.describe("Explorer Inbox (#3446 / #3118)", () => {
         missingInboxSkipMessage({
           restStatus,
           catalogEmpty: defs.length === 0,
+          leafVisible,
         }),
       );
       return;
     }
 
-    const url = explorerEntryUrl(BASE_URL);
-    await page.goto(url, { waitUntil: "networkidle" });
-    await expect(
-      page.locator(`[data-testid="${TEST_IDS.shell}"]`),
-    ).toBeVisible({ timeout: 20_000 });
-
     await expandMyContentIfCollapsed(page);
-
-    const inboxLeaf = page.locator(inboxLeafSelector());
     await expect(
       inboxLeaf.first(),
-      "Inbox catalog row must have a visible Explorer leaf (#3446)",
+      "Inbox catalog row must have a visible Explorer leaf (#3561 / #3446)",
     ).toBeVisible({ timeout: 15_000 });
 
     const executeBodies = [];

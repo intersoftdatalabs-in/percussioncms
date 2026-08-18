@@ -193,15 +193,27 @@ function inboxResultsSelector() {
 }
 
 /**
- * True when GET /services/views has no Inbox design view.
- * Soft-skip is allowed only in this case (#3446). A visible Inbox leaf
- * or a catalog that already lists Inbox must not skip.
+ * Soft-skip only when the product route has no Inbox leaf **and** GET
+ * /services/views has no Inbox design view. A visible Views tree
+ * synthesizes Inbox (`ensureInboxInMyContent`); never skip when the
+ * leaf or tree is on `spa.jsp?entry=explorer` (#3561 / #3446).
  *
- * @param {{ inboxDef?: unknown, catalogEmpty?: boolean }} [detail]
+ * @param {{
+ *   inboxDef?: unknown,
+ *   catalogEmpty?: boolean,
+ *   leafVisible?: boolean,
+ *   treeVisible?: boolean,
+ * }} [detail]
  * @returns {boolean}
  */
 function shouldSkipMissingInboxCatalog(detail = {}) {
+  if (detail.leafVisible === true) {
+    return false;
+  }
   if (detail.inboxDef) {
+    return false;
+  }
+  if (detail.treeVisible === true) {
     return false;
   }
   return detail.catalogEmpty === true;
@@ -215,11 +227,14 @@ function shouldSkipMissingInboxCatalog(detail = {}) {
  */
 function missingInboxSkipMessage(detail = {}) {
   const parts = [
-    "GET /services/views has no Inbox design view on this cell.",
-    "Soft-skip only when the Views catalog omits Inbox (#3446 / #3118).",
+    "GET /services/views has no Inbox design view and the product-route Inbox leaf is absent.",
+    "Soft-skip only when both the catalog and spa.jsp?entry=explorer leaf are missing (#3561 / #3446).",
   ];
   if (detail.catalogEmpty) {
     parts.push("GET /services/views returned no Inbox view.");
+  }
+  if (detail.leafVisible === false) {
+    parts.push("Inbox leaf not visible on product route.");
   }
   if (detail.restStatus != null) {
     parts.push(`REST status=${detail.restStatus}.`);
