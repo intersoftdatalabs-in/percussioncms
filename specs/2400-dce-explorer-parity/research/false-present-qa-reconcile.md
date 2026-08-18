@@ -64,7 +64,8 @@ Agent-merged product-route wiring remains valuable evidence that code landed, bu
 1. When a linked QA issue **passes**, flip that matrix row back to **Present** and cite the QA close comment.  
 2. When QA **Fails** with a fixable product defect, file/fix the p1 bug; keep matrix **Partial** until re-QA.  
 3. Sites hierarchy: prioritize [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) before new chrome features (#3102 suggested next actions).  
-4. Views (DCE category) + Inbox disposition remain on #3102 slices #3108 / #3110 — separate from this QA reconcile.
+4. Views (DCE category) + Inbox disposition remain on #3102 slices #3108 / #3110 — separate from this QA reconcile.  
+5. **2026-08-18:** Closing a **QA: Failed** ticket after residuals is **not** a Pass. [#3577](https://github.com/intersoftdatalabs-in/percussioncms/issues/3577) refreshed Partial citations and re-audited Relationships (**Present → Partial**). See [closed-qa-partial-citation-refresh.md](./closed-qa-partial-citation-refresh.md). **Do not** treat that docs slice as a Present flip.
 
 ---
 
@@ -73,3 +74,4 @@ Agent-merged product-route wiring remains valuable evidence that code landed, bu
 | Date | Note |
 |------|------|
 | 2026-08-11 | #3109: initial reconcile; nine capability rows Present → Partial; defend multi-select, detail list, host search, reduced actions, OUT translation, Object ACL Partial. |
+| 2026-08-18 | #3577: citations only — Failed QA tickets closed after residuals; no Present flip. Pointer: [closed-qa-partial-citation-refresh.md](./closed-qa-partial-citation-refresh.md). |
