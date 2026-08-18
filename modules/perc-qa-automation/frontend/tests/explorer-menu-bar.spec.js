@@ -96,6 +96,49 @@ test.describe("modern React Content Explorer — DCE menu bar chrome (#2731)", (
   );
 
   test(
+    "View → Clipboard opens empty panel and sets aria-checked (#3544)",
+    { tag: ["@explorer-menu-bar", "@explorer", "@issue-3544"] },
+    async ({ page }) => {
+      const errors = [];
+      page.on("pageerror", (err) => errors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") errors.push(msg.text());
+      });
+
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+      ).toBeVisible({ timeout: 15_000 });
+
+      await openViewMenu(page);
+      const toggle = page.locator(
+        `[data-testid="${TEST_IDS.toggleClipboard}"]`,
+      );
+      await expect(toggle).toBeVisible();
+      await expect(toggle).toBeEnabled();
+      await expect(toggle).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.clipboardPanel}"]`),
+      ).toHaveCount(0);
+
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-checked", "true");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.clipboardPanel}"]`),
+      ).toBeVisible({ timeout: 5_000 });
+
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.clipboardPanel}"]`),
+      ).toHaveCount(0);
+
+      expect(errors, `JS console/page errors: ${errors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
     "server action toolbar still mounts under menu bar",
     { tag: ["@explorer-menu-bar", "@explorer"] },
     async ({ page }) => {

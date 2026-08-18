@@ -90,12 +90,15 @@ test.describe("modern React Content Explorer — multi-select + clipboard (#2408
     await rowCheckboxes.nth(0).check();
     await rowCheckboxes.nth(1).check();
 
-    // #2731: clipboard-add lives under Content menu; clipboard toggle under View.
+    // #2731 / #3544 / #3551: Add lives under Content and opens the clipboard
+    // panel. View → Clipboard must already be checked — do not click it
+    // again here or the toggle would hide the already-open panel.
     await page.locator('[data-testid="explorer-menu-content"]').click();
     await page.locator('[data-testid="explorer-clipboard-add"]').click();
 
     await page.locator('[data-testid="explorer-menu-view"]').click();
-    await page.locator('[data-testid="explorer-toggle-clipboard"]').click();
+    const toggle = page.locator('[data-testid="explorer-toggle-clipboard"]');
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
     const panel = page.locator('[data-testid="explorer-clipboard-panel"]');
     await expect(panel).toBeVisible();
 

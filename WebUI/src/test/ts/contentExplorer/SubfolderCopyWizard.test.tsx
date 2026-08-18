@@ -74,6 +74,55 @@ describe("SubfolderCopyWizard", () => {
     );
   });
 
+  it("Back walks to the previous step and does not dismiss", () => {
+    const onDismiss = vi.fn();
+    const submit = vi.fn();
+    render(
+      <SubfolderCopyWizard submit={submit} onDismiss={onDismiss} />,
+    );
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("subfolder-copy-back"));
+    expect(screen.getByTestId("subfolder-copy-step-source")).toBeTruthy();
+    expect(screen.getByTestId("subfolder-copy-wizard")).toBeTruthy();
+    expect(onDismiss).not.toHaveBeenCalled();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
+  it("Cancel with onDismiss dismisses instead of resetWizard (#3553)", () => {
+    const onDismiss = vi.fn();
+    const submit = vi.fn();
+    render(
+      <SubfolderCopyWizard submit={submit} onDismiss={onDismiss} />,
+    );
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("subfolder-copy-cancel"));
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(submit).not.toHaveBeenCalled();
+    // Host unmounts; without unmount, Cancel must not reset to step 1.
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeTruthy();
+    expect(screen.queryByTestId("subfolder-copy-step-source")).toBeNull();
+  });
+
+  it("Cancel without onDismiss still resetWizard to step 0", () => {
+    render(<SubfolderCopyWizard />);
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("subfolder-copy-cancel"));
+    expect(screen.getByTestId("subfolder-copy-step-source")).toBeTruthy();
+    expect(screen.queryByTestId("subfolder-copy-step-target")).toBeNull();
+  });
+
   it("passes the zero serious/critical axe-core gate (step 0)", async () => {
     const { container } = render(<SubfolderCopyWizard />);
     await renderA11yGate(container);

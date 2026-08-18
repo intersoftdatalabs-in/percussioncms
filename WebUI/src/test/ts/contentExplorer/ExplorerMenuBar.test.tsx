@@ -34,7 +34,6 @@ function renderBar(
       showDependencies={false}
       showClipboard={false}
       multiSelectedCount={0}
-      clipboardItemCount={0}
       displayFormats={[]}
       selectedFormatKey=""
       onSelectFormat={onSelectFormat}
@@ -89,6 +88,37 @@ describe("ExplorerMenuBar (#2731)", () => {
     );
     fireEvent.click(contentSearch);
     expect(onCommand).toHaveBeenCalledWith("content-search");
+  });
+
+  it("View → Clipboard is enabled with empty clipboard and invokes view-clipboard (#3544)", () => {
+    const { onCommand } = renderBar({
+      multiSelectedCount: 0,
+      showClipboard: false,
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    const toggle = screen.getByTestId(
+      "explorer-toggle-clipboard",
+    ) as HTMLButtonElement;
+    expect(toggle.disabled).toBe(false);
+    expect(toggle.getAttribute("role")).toBe("menuitemcheckbox");
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(toggle.getAttribute("aria-controls")).toBe(
+      "explorer-clipboard-panel",
+    );
+    fireEvent.click(toggle);
+    expect(onCommand).toHaveBeenCalledWith("view-clipboard");
+  });
+
+  it("View → Clipboard reflects showClipboard on aria-checked (#3544)", () => {
+    renderBar({ showClipboard: true, multiSelectedCount: 0 });
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    const checked = screen.getByTestId("explorer-toggle-clipboard");
+    expect(checked.getAttribute("aria-checked")).toBe("true");
+    expect(checked.getAttribute("aria-expanded")).toBe("true");
+    expect(checked.getAttribute("aria-controls")).toBe(
+      "explorer-clipboard-panel",
+    );
   });
 
   it("View → Folder Security menu item invokes view-security (#3268)", () => {
