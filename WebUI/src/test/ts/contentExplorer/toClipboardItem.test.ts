@@ -85,6 +85,19 @@ describe("toClipboardItem (#3551)", () => {
     expect(mapped?.kind).toBe("asset");
   });
 
+  it("does not treat category resource as an asset (#3552 review)", () => {
+    const mapped = toClipboardItem(
+      row({
+        id: "r-1",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "RESOURCE",
+      }),
+    );
+    expect(mapped?.kind).toBe("page");
+  });
+
   it("maps page rows as pages", () => {
     const mapped = toClipboardItem(
       row({

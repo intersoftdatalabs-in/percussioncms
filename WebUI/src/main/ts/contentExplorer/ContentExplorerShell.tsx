@@ -153,7 +153,12 @@ import {
 } from "./ReducedActions";
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { resolvePublishKind } from "./itemPublish";
-import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
+import {
+  EMPTY_SELECTION,
+  explorerMultiSelectKey,
+  isFolder,
+  type Selection,
+} from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import {
   isFolderIdLookupPath,
@@ -733,8 +738,8 @@ function ContentExplorerShellInner({
 
   const handleToggleSelectItem = useCallback(
     (item: PSPathItem, next: boolean) => {
-      const id = item.id ?? item.path ?? item.name;
-      if (id == null || String(id).trim() === "") return;
+      const id = explorerMultiSelectKey(item);
+      if (id == null) return;
       setMultiSelectedIds((prev) => {
         const nextSet = new Set(prev);
         if (next) nextSet.add(id);

@@ -20,6 +20,8 @@ import {
   canAdmin,
   canRead,
   canWrite,
+  explorerMultiSelectKey,
+  isAssetContentType,
   isFolder,
   isPageOrAssetContentType,
   sameExplorerItemId,
@@ -271,5 +273,101 @@ describe("sameExplorerItemId / canRead (#3467)", () => {
     expect(canWrite(page("read"))).toBe(false);
     expect(canAdmin(page("admin"))).toBe(true);
     expect(canAdmin(page("write"))).toBe(false);
+  });
+});
+
+describe("explorerMultiSelectKey (#3552 review)", () => {
+  it("prefers id then path and never falls back to name", () => {
+    expect(
+      explorerMultiSelectKey({
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+      }),
+    ).toBe("42");
+    expect(
+      explorerMultiSelectKey({
+        name: "Home",
+        path: "/Sites/Demo/Home",
+      }),
+    ).toBe("/Sites/Demo/Home");
+    expect(
+      explorerMultiSelectKey({
+        id: "   ",
+        name: "Home",
+        path: "/Sites/Other/Home",
+      }),
+    ).toBe("/Sites/Other/Home");
+    expect(
+      explorerMultiSelectKey({
+        name: "Home",
+        path: "",
+      }),
+    ).toBeNull();
+  });
+
+  it("does not collide two nameless-id rows that share a display name", () => {
+    const a = explorerMultiSelectKey({ name: "Home", path: "" });
+    const b = explorerMultiSelectKey({ name: "Home", path: "  " });
+    expect(a).toBeNull();
+    expect(b).toBeNull();
+  });
+});
+
+describe("isAssetContentType (#3552 review)", () => {
+  it("treats stock asset types and /Assets paths as assets", () => {
+    expect(
+      isAssetContentType({
+        id: "a-1",
+        name: "hero.png",
+        path: "/Assets/hero.png",
+        type: "rffImage",
+      }),
+    ).toBe(true);
+    expect(
+      isAssetContentType({
+        id: "a-2",
+        name: "file",
+        path: "/Assets/docs/a.pdf",
+        type: "percAsset",
+      }),
+    ).toBe(true);
+    expect(
+      isAssetContentType({
+        id: "a-3",
+        name: "banner",
+        path: "/Assets/banner",
+        type: "asset",
+      }),
+    ).toBe(true);
+  });
+
+  it("does not treat category resource or percPage as assets", () => {
+    expect(
+      isAssetContentType({
+        id: "p-1",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "RESOURCE",
+      }),
+    ).toBe(false);
+    expect(
+      isAssetContentType({
+        id: "p-2",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "PAGE",
+      }),
+    ).toBe(false);
+    expect(
+      isAssetContentType({
+        id: "f-1",
+        name: "Files",
+        path: "/Assets/Files/",
+        type: "FSFolder",
+      }),
+    ).toBe(false);
   });
 });

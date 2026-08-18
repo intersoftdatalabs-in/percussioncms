@@ -26,7 +26,7 @@
  */
 
 import type { ClipboardItem, PSPathItem } from "../../api/contentExplorer/types";
-import { isFolder } from "../selection";
+import { isAssetContentType, isFolder } from "../selection";
 
 function firstNonBlank(
   ...values: ReadonlyArray<string | number | null | undefined>
@@ -37,12 +37,6 @@ function firstNonBlank(
     if (text.length > 0) return text;
   }
   return null;
-}
-
-function isAssetItem(item: PSPathItem): boolean {
-  const type = (item.type ?? "").trim().toLowerCase();
-  const category = (item.category ?? "").trim().toLowerCase();
-  return type === "asset" || category === "asset" || category === "resource";
 }
 
 /**
@@ -56,7 +50,7 @@ export function toClipboardItem(item: PSPathItem): ClipboardItem | null {
   const path = firstNonBlank(item.path, item.folderPath, item.name, id) ?? id;
   const kind: ClipboardItem["kind"] = isFolder(item)
     ? "folder"
-    : isAssetItem(item)
+    : isAssetContentType(item)
       ? "asset"
       : "page";
   return {
