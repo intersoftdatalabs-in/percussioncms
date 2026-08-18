@@ -21,7 +21,9 @@
  * as a horizontal action bar. Leaf {@code MENUITEM} actions activate on
  * click; parent {@code MENU} (or any action with {@code children[]})
  * opens a nested dropdown instead of dumping every child as a flat
- * button (#2730 / #2731). The Workflow group (#2732) is a special case:
+ * button (#2730 / #2731 / #3560). Envelope {@code children} are unwrapped
+ * and descendant names that also appear as roots are collapsed before
+ * render. The Workflow group (#2732) is a special case:
  * it renders as a labeled button group so each transition is one-click
  * invokable. Activation always goes to {@link ActionToolbarProps.onInvoke};
  * the host dispatcher executes REST / React handlers.</p>
@@ -35,6 +37,10 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import {
+  prepareToolbarActions,
+  unwrapMenuActionChildren,
+} from "./actionEnablement";
 import { WORKFLOW_MENU_NAME } from "./workflowMenuActions";
 
 export interface ActionToolbarProps {
@@ -107,7 +113,11 @@ const groupLabelStyle: React.CSSProperties = {
 };
 
 function hasChildren(action: MenuAction): boolean {
-  return (action.children?.length ?? 0) > 0;
+  return unwrapMenuActionChildren(action.children).length > 0;
+}
+
+function isWorkflowGroup(action: MenuAction): boolean {
+  return action.name.replace(/[\s-]/g, "_").toLowerCase() === WORKFLOW_MENU_NAME;
 }
 
 function activate(
@@ -123,14 +133,15 @@ function activate(
 }
 
 export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
-  const { actions, onInvoke, ariaLabel, emptyMessage, className } = props;
+  const { onInvoke, ariaLabel, emptyMessage, className } = props;
+  const actions = prepareToolbarActions(props.actions);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const baseId = useId();
 
   useEffect(() => {
     setOpenMenu(null);
-  }, [actions]);
+  }, [props.actions]);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -170,8 +181,8 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
       ) : (
         actions.map((a) => {
           // Workflow transitions (#2732): labeled one-click group.
-          if (hasChildren(a) && a.name === WORKFLOW_MENU_NAME) {
-            const children = a.children ?? [];
+          if (hasChildren(a) && isWorkflowGroup(a)) {
+            const children = unwrapMenuActionChildren(a.children);
             return (
               <span
                 key={a.name}
@@ -233,7 +244,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                   {a.label}
                   <span aria-hidden="true"> ▾</span>
                 </button>
-                {expanded && a.children ? (
+                {expanded ? (
                   <ul
                     id={menuId}
                     role="menu"
@@ -241,7 +252,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                     data-testid={`action-toolbar-menu-${a.name}`}
                     style={dropdownStyle}
                   >
-                    {a.children.map((child) => (
+                    {unwrapMenuActionChildren(a.children).map((child) => (
                       <li key={child.name} role="none">
                         <button
                           type="button"

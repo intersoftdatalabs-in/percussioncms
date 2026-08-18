@@ -290,9 +290,12 @@ catalog region apart from the Content / View / Help menu bar and the display-for
 
 Menus and toolbar buttons come from the server action catalog used by Content Explorer:
 
-- Cascading **MENU** parents render as **one toolbar control** with a dropdown (`▾`). Open
-  the parent to choose a child command. Child items are **not** shown as extra top-level
-  buttons while the menu is closed.
+- Cascading **MENU** parents render as **one toolbar control** with a dropdown (`▾`).
+  On a typical catalog that includes **Paste**, **Arrange**, **View**, and **Create**,
+  each of those names is a single control (`aria-haspopup=menu`). Open the parent to
+  choose a child command. Child items (for example **Move** under Paste, or
+  **View Properties** under View) are **not** shown as extra top-level buttons while
+  the menu is closed. **Workflow** transitions stay a labeled one-click button group.
 - When you select a content item, the shell keeps that cascading tree and may add
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
