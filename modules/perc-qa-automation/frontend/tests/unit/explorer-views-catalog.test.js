@@ -19,6 +19,8 @@ const {
   isCustomUrlView,
   isInboxView,
   pickRunnableView,
+  shouldSkipViewsCatalogSurface,
+  isViewsExecuteUrl,
 } = require("../helpers/explorer-views-catalog");
 
 describe("explorer-views-catalog helpers (#3116)", () => {
@@ -67,5 +69,25 @@ describe("explorer-views-catalog helpers (#3116)", () => {
     assert.equal(isInboxView({ name: "Outbox", customView: true }), false);
     assert.equal(isInboxView({ name: "//Views//MyContent/Inbox" }), true);
     assert.equal(isInboxView({ name: "//views//mycontent/inbox" }), true);
+  });
+
+  it("shouldSkipViewsCatalogSurface is false when tree or Inbox leaf is on route (#3561)", () => {
+    assert.equal(shouldSkipViewsCatalogSurface({ treeVisible: true }), false);
+    assert.equal(shouldSkipViewsCatalogSurface({ leafVisible: true }), false);
+    assert.equal(
+      shouldSkipViewsCatalogSurface({ treeVisible: false, leafVisible: false }),
+      false,
+    );
+  });
+
+  it("isViewsExecuteUrl matches POST execute paths", () => {
+    assert.equal(
+      isViewsExecuteUrl("http://cms/Rhythmyx/services/views/Inbox/execute"),
+      true,
+    );
+    assert.equal(
+      isViewsExecuteUrl("http://cms/Rhythmyx/services/views/Inbox"),
+      false,
+    );
   });
 });

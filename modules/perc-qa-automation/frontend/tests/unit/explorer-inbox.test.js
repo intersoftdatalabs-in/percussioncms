@@ -167,6 +167,7 @@ describe("explorer-inbox helpers (#3241)", () => {
       restStatus: 404,
     });
     assert.match(missing, /no Inbox design view/);
+    assert.match(missing, /product-route Inbox leaf is absent/);
     assert.match(missing, /REST status=404/);
     assert.match(missing, /no Inbox view/);
     const empty = noAssignmentsSkipMessage({ restStatus: 200 });
@@ -174,10 +175,32 @@ describe("explorer-inbox helpers (#3241)", () => {
     assert.match(empty, /REST status=200/);
   });
 
-  it("shouldSkipMissingInboxCatalog only when catalog has no Inbox", () => {
+  it("shouldSkipMissingInboxCatalog only when catalog and product-route leaf are both missing", () => {
     assert.equal(shouldSkipMissingInboxCatalog({ inboxDef: { name: "Inbox" } }), false);
     assert.equal(shouldSkipMissingInboxCatalog({ catalogEmpty: true }), true);
     assert.equal(shouldSkipMissingInboxCatalog({ catalogEmpty: false }), false);
+    assert.equal(
+      shouldSkipMissingInboxCatalog({
+        catalogEmpty: true,
+        leafVisible: true,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldSkipMissingInboxCatalog({
+        catalogEmpty: true,
+        treeVisible: true,
+      }),
+      false,
+    );
+    assert.equal(
+      shouldSkipMissingInboxCatalog({
+        catalogEmpty: true,
+        leafVisible: false,
+        treeVisible: false,
+      }),
+      true,
+    );
   });
 
   it("shouldExpandViewsGroup is false when already expanded", () => {

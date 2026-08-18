@@ -837,9 +837,9 @@ Views is the Explorer left-nav catalog (`explorer-views-tree`): My Content /
 Community / All / Other groups plus runnable leaves. Inbox (#3240 / #3241)
 is one leaf under My Content; this surface is the prerequisite for that leaf.
 
-**Soft-skip:** when the H2 cell has no Views tree (`#3116` not deployed) the
-catalog spec still asserts Explorer shell chrome where present. Full Views
-Playwright / a11y matrix is #3117.
+**Soft-skip:** none when the Views tree or Inbox leaf is on
+`spa.jsp?entry=explorer` (#3561). Missing chrome is a hard fail for this
+product-route surface. Full Views Playwright / a11y matrix is #3117.
 
 | Item | Value |
 |------|--------|
@@ -905,10 +905,10 @@ Operator Inbox is **Views → My Content → Inbox** (`//Views//MyContent/Inbox`
 not a CE root. Surface-filtered spec opens Explorer, asserts axe on the shell,
 then looks for `explorer-views-leaf-Inbox` (and related Views catalog testids).
 
-**Soft-skip:** when the H2 cell has no Views catalog / Inbox leaf (#3240 not
-deployed) or Inbox execute is not wired (#3239), or the fixture has no
-assignment rows after a successful empty run. Shell + a11y remain hard when
-the Explorer product route loads.
+**Soft-skip:** only when GET `/services/views` has no Inbox **and** the
+product-route Inbox leaf is absent. A visible Views tree synthesizes Inbox
+(`ensureInboxInMyContent`). Empty assignment list is success (HTTP 200),
+not skip. Do not skip when the leaf exists (#3561 / #3446).
 
 | Item | Value |
 |------|--------|

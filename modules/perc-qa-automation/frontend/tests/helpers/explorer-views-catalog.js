@@ -85,6 +85,30 @@ function pickRunnableView(defs) {
   return list.find((d) => viewDefKey(d) && !isCustomUrlView(d)) || null;
 }
 
+/**
+ * Product-route Views catalog (#3561) must not soft-skip when the
+ * Views tree or Inbox leaf is mounted on spa.jsp?entry=explorer.
+ *
+ * @param {{ treeVisible?: boolean, leafVisible?: boolean }} [detail]
+ * @returns {boolean}
+ */
+function shouldSkipViewsCatalogSurface(detail = {}) {
+  if (detail.treeVisible === true || detail.leafVisible === true) {
+    return false;
+  }
+  return false;
+}
+
+/**
+ * True when {@code url} is POST /services/views/{id}/execute.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isViewsExecuteUrl(url) {
+  return /\/services\/views\/[^/]+\/execute(?:\?|$)/i.test(String(url ?? ""));
+}
+
 module.exports = {
   TEST_IDS,
   PATH_VIEWS,
@@ -95,4 +119,6 @@ module.exports = {
   isCustomUrlView,
   isInboxView,
   pickRunnableView,
+  shouldSkipViewsCatalogSurface,
+  isViewsExecuteUrl,
 };
