@@ -731,6 +731,13 @@ export interface SiteDef {
 export interface VirtualSiteProperties {
   sourceKind?: string | null;
   rootPath?: string | null;
+  /**
+   * Optional Git remote ({@code virtual.remoteUrl}). When set, Build clones or
+   * fetches before discover (#3568). Blank keeps local {@code rootPath}.
+   */
+  remoteUrl?: string | null;
+  /** Optional Git branch when {@code remoteUrl} is set (default {@code main}). */
+  branch?: string | null;
   configFile?: string | null;
   siteKey?: string | null;
   /** Read-only on responses; ignored on write. */

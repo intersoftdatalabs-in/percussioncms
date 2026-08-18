@@ -56,8 +56,10 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_STATUS_REPO,
     );
     expect(screen.getByTestId("developer-site-virtual-source-kind")).toBeTruthy();
-    // Root path hidden until virtual selected
+    // Root path / remote hidden until virtual selected
     expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     // Repository sites must not show Build or Publish chrome
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
@@ -87,9 +89,50 @@ describe("VirtualSiteSourcePanel", () => {
     expect((screen.getByTestId("developer-site-virtual-site-key") as HTMLInputElement).value).toBe(
       "product-docs",
     );
+    expect(
+      (screen.getByTestId("developer-site-virtual-remote-url") as HTMLInputElement).value,
+    ).toBe("");
+    expect((screen.getByTestId("developer-site-virtual-branch") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("developer-site-virtual-remote-hint")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
+  });
+
+  it("loads and re-saves a stored remote URL so Save does not drop it", async () => {
+    const stored = {
+      sourceKind: "git-filesystem",
+      rootPath: "product-docs",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+      virtual: true,
+    };
+    getVirtual.mockResolvedValue(stored);
+    updateVirtual.mockResolvedValue(stored);
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-remote-url")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-remote-url") as HTMLInputElement).value,
+    ).toBe("https://git.example.com/org/docs.git");
+    expect((screen.getByTestId("developer-site-virtual-branch") as HTMLInputElement).value).toBe(
+      "main",
+    );
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Help", {
+      sourceKind: "git-filesystem",
+      rootPath: "product-docs",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
   });
 
   it("shows error state and retry on load failure", async () => {
@@ -157,6 +200,8 @@ describe("VirtualSiteSourcePanel", () => {
     expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
       sourceKind: "git-filesystem",
       rootPath: "C:/docs",
+      remoteUrl: "",
+      branch: "",
       configFile: null,
       siteKey: null,
     });
@@ -164,10 +209,68 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/docs");
+    expect(
+      (screen.getByTestId("developer-site-virtual-remote-url") as HTMLInputElement).value,
+    ).toBe("");
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
+  });
+
+  it("saves optional remote URL and branch with local root path", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "git-filesystem",
+        rootPath: "C:/docs",
+        remoteUrl: "https://git.example.com/org/docs.git",
+        branch: "main",
+        configFile: null,
+        siteKey: null,
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "git-filesystem" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-remote-url")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/docs" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-remote-url"), {
+      target: { value: "https://git.example.com/org/docs.git" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-branch"), {
+      target: { value: "main" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "git-filesystem",
+      rootPath: "C:/docs",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: null,
+      siteKey: null,
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-remote-url") as HTMLInputElement).value,
+    ).toBe("https://git.example.com/org/docs.git");
   });
 
   it("saves repository mode to clear virtual configuration", async () => {

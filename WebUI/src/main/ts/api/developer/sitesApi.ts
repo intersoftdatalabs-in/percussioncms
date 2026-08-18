@@ -347,6 +347,8 @@ export function parseVirtualSiteProperties(payload: unknown): VirtualSitePropert
   return {
     sourceKind: asNullableString(root.sourceKind),
     rootPath: asNullableString(root.rootPath),
+    remoteUrl: asNullableString(root.remoteUrl),
+    branch: asNullableString(root.branch),
     configFile: asNullableString(root.configFile),
     siteKey: asNullableString(root.siteKey),
     virtual: typeof root.virtual === "boolean" ? root.virtual : undefined,
@@ -363,13 +365,23 @@ export function parseVirtualSiteProperties(payload: unknown): VirtualSitePropert
 export function toVirtualSitePropertiesEnvelope(
   props: VirtualSiteProperties,
 ): { VirtualSiteProperties: Record<string, string | null> } {
+  const body: Record<string, string | null> = {
+    sourceKind: props.sourceKind ?? null,
+    rootPath: props.rootPath ?? null,
+    configFile: props.configFile ?? null,
+    siteKey: props.siteKey ?? null,
+  };
+  // Omit when undefined so older create/save callers (no remote) stay
+  // compatible with servers that do not yet declare the properties.
+  // Empty string is intentional: #3568 treats "" as clear, null/omit as keep.
+  if (props.remoteUrl !== undefined) {
+    body.remoteUrl = props.remoteUrl;
+  }
+  if (props.branch !== undefined) {
+    body.branch = props.branch;
+  }
   return {
-    VirtualSiteProperties: {
-      sourceKind: props.sourceKind ?? null,
-      rootPath: props.rootPath ?? null,
-      configFile: props.configFile ?? null,
-      siteKey: props.siteKey ?? null,
-    },
+    VirtualSiteProperties: body,
   };
 }
 

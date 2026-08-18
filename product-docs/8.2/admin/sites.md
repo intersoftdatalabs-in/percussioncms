@@ -54,7 +54,7 @@ Use **Content Explorer** or **Navigation → New Site** when you need a new Site
 
 With **Traditional** and **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation. If the folder already has a NavTree or Navon, Create Site returns HTTP 400 with a clear error (not HTTP 500).
 
-Full Git `rootPath` / config-file editing remains on **Developer → Sites** (Virtual Site source panel). See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
+Full Git `rootPath`, remote URL, branch, and config-file editing remains on **Developer → Sites** (Virtual Site source panel). See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
 
 ## Virtual Sites (8.2)
 
@@ -72,7 +72,9 @@ and Markdown tooling, not the classic page editor.
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
 | `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Phase 1 allow-list: **`git-filesystem` only**. Blank or `repository` = traditional Site. |
-| `virtual.rootPath` | Yes (when virtual) | absolute path to `product-docs` | Must be non-blank for Virtual Sites. Prefer absolute paths; use portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. |
+| `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
+| `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
+| `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
 | `virtual.configFile` | No | `_config.yaml` | Default `_config.yaml`. Simple file name under the root (no `..` or directory separators). |
 | `virtual.siteKey` | No | `product-docs` | Optional participant key; defaults to the Site name. |
 
@@ -116,21 +118,34 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    - **Source kind** — leave **Repository (traditional)** for ordinary CMS Sites
      (blank/`repository` on the server). Choose **Git filesystem** for Phase 1 Virtual Sites.
    - **Root path** — absolute or install-relative path to the documentation tree
-     (required when source kind is Virtual). Do not use `..` path segments.
+     (required when source kind is Virtual and no remote is set). Do not use `..`
+     path segments. When a **Remote URL** is set, this may be a relative folder
+     inside the checkout.
+   - **Remote URL** (optional) — Git remote (`https://`, `ssh://`, `file://`, or
+     `git@host:path`). Leave blank to keep the local **Root path**. When set,
+     **Build Virtual Site** clones or fetches on the CMS host (`git` must be on
+     the server `PATH`). The server validates the URL; the panel does not
+     re-implement checkout.
+   - **Branch** (optional) — branch to checkout when a remote is set. Defaults
+     to `main` on the server when blank.
    - **Config file** (optional) — simple file name under the root (default `_config.yaml`
      when unset). No path separators.
    - **Site key** (optional) — participant registry key; defaults to the Site name when blank.
 5. Choose **Save Virtual Site source**. The SPA sends the Jackson/JAXB envelope
-   `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…", … } }`
-   (not a bare `sourceKind` object). After a successful save the panel reloads
-   properties from GET so **Build Virtual Site** appears without a full page reload.
+   `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…",
+   "remoteUrl": "…", "branch": "…", … } }`
+   (not a bare `sourceKind` object). Blank remote URL still saves the local
+   `rootPath`. After a successful save the panel reloads properties from GET so
+   a stored remote is not dropped and **Build Virtual Site** appears without a
+   full page reload.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties).
 
 Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds,
-required root path when virtual, and safe path/config names. After root or config changes,
-re-run the offline docs build, the in-product **Build Virtual Site** action (below), or the
-CMS publish path to verify links.
+required local root path when virtual and no remote, safe remote URLs/branches, and
+safe path/config names. After root, remote, or config changes, re-run the offline
+docs build, the in-product **Build Virtual Site** action (below), or the CMS
+publish path to verify links.
 
 ### Build a Virtual Site from the product UI
 
@@ -140,9 +155,11 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.
-3. Confirm **Virtual Site source** is saved as **Git filesystem** with a valid **Root path**
-   that exists on the CMS host. If you just edited properties, choose **Save Virtual Site source**
-   first — the build uses the **saved** server properties, not unsaved form fields.
+3. Confirm **Virtual Site source** is saved as **Git filesystem** with either a valid **Root path**
+   on the CMS host **or** a saved **Remote URL** and **Branch**. If you just edited
+   properties, choose **Save Virtual Site source** first — the build uses the **saved**
+   server properties, not unsaved form fields. When a remote is set, Build clones or
+   fetches first (`git` must be on the CMS `PATH`).
 4. Choose **Build Virtual Site**.
 5. After a `git pull` or a local Markdown/frontmatter edit on the host, choose **Build Virtual
    Site** again. The build re-reads the current filesystem — **do not restart the CMS** just to
