@@ -90,6 +90,30 @@ describe("TranslationsPanel", () => {
     ).toBeNull();
   });
 
+  it("resolves GUID Explorer row ids for variants GET (#3545)", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    render(
+      <TranslationsPanel
+        itemId="1-101-708"
+        itemLabel="Home"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loadVariants).toHaveBeenCalledWith("708");
+    expect(screen.getByTestId("translations-current-locale-value")).toHaveTextContent(
+      "en-us",
+    );
+    expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
+    expect(screen.getByTestId("translations-variant-row-900")).toBeTruthy();
+  });
+
   it("create-variant POSTs selected locales via injection seam", async () => {
     const createVariants = vi.fn(async () => ({
       created: [
@@ -127,6 +151,73 @@ describe("TranslationsPanel", () => {
       expect(screen.getByTestId("translations-create-success")).toBeInTheDocument(),
     );
     expect(onCreated).toHaveBeenCalled();
+  });
+
+  it("create-variant POSTs GUID last-segment content id (#3545)", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    const createVariants = vi.fn(async () => ({
+      created: [
+        {
+          contentId: 901,
+          locale: "de-de",
+          role: "translation",
+          sourceContentId: 708,
+        },
+      ],
+    }));
+    render(
+      <TranslationsPanel
+        itemId="1-101-708"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    expect(loadVariants).toHaveBeenCalledWith("708");
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
+    expect(createVariants).toHaveBeenCalledWith({
+      itemIds: [708],
+      locales: ["de-de"],
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-create-success")).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByTestId("translations-create-error"),
+    ).toBeNull();
+  });
+
+  it("keeps the no-id create message for folder-like ids without a content id", async () => {
+    const createVariants = vi.fn(async () => ({ created: [] }));
+    render(
+      <TranslationsPanel
+        itemId="//Sites/Demo"
+        loadVariants={async () => SAMPLE_VARIANTS}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-create-error")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("translations-create-error")).toHaveTextContent(
+      /does not have a numeric content id/i,
+    );
+    expect(createVariants).not.toHaveBeenCalled();
   });
 
   it("maps create 403 to permission chrome", async () => {
