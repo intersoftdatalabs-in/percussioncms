@@ -11,6 +11,7 @@ const assert = require("node:assert/strict");
 const {
   EXPECTED_SAMPLE_SITE_NAMES,
   normalizeSiteName,
+  pathItemRows,
   pathItemNames,
   pagedItemListChildren,
   pagedItemListCount,
@@ -19,6 +20,8 @@ const {
   hasAnyExpectedSampleSite,
   isTruthyEnvFlag,
   shouldEnforceDemoSites,
+  isH2QaDemoSitesDefault,
+  shouldSoftSkipSitesList,
   demoSitesSkipReason,
 } = require("../helpers/demo-sites");
 
@@ -58,6 +61,19 @@ describe("pathItemNames", () => {
     assert.deepEqual(pathItemNames(null), []);
     assert.deepEqual(pathItemNames({}), []);
     assert.deepEqual(pathItemNames([]), []);
+  });
+
+  it("unwraps single PathItem object and nested PSPathItemList (#3575)", () => {
+    assert.deepEqual(pathItemNames({ PathItem: { name: "Sites" } }), ["Sites"]);
+    assert.deepEqual(
+      pathItemNames({
+        PSPathItemList: {
+          PathItem: [{ name: "Corporate Investments" }],
+        },
+      }),
+      ["Corporate Investments"],
+    );
+    assert.equal(pathItemRows({ PathItem: { name: "A" } }).length, 1);
   });
 });
 
@@ -108,6 +124,25 @@ describe("shouldEnforceDemoSites", () => {
     assert.equal(shouldEnforceDemoSites({ EXPECT_DEMO_SITES: "yes" }), true);
     assert.equal(shouldEnforceDemoSites({ EXPECT_DEMO_SITES: "0" }), false);
     assert.equal(shouldEnforceDemoSites({}), false);
+  });
+});
+
+describe("shouldSoftSkipSitesList (#3575)", () => {
+  it("never skips when REST listed children", () => {
+    assert.equal(shouldSoftSkipSitesList(["Corporate Investments"]), false);
+    assert.equal(shouldSoftSkipSitesList(["Corporate Investments"], {}), false);
+  });
+
+  it("never skips on H2 QA demo-sites default or EXPECT_DEMO_SITES", () => {
+    assert.equal(isH2QaDemoSitesDefault({ TEST_DB_TYPE: "h2" }), true);
+    assert.equal(
+      isH2QaDemoSitesDefault({ TEST_DB_TYPE: "h2", DEMO_SITES: "false" }),
+      false,
+    );
+    assert.equal(isH2QaDemoSitesDefault({ TEST_DB_TYPE: "postgresql" }), false);
+    assert.equal(shouldSoftSkipSitesList([], { TEST_DB_TYPE: "h2" }), false);
+    assert.equal(shouldSoftSkipSitesList([], { EXPECT_DEMO_SITES: "1" }), false);
+    assert.equal(shouldSoftSkipSitesList([], {}), true);
   });
 });
 

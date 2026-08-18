@@ -27,11 +27,12 @@
  *       template → confirm chrome; optional live submit when affordance present</li>
  * </ul>
  *
- * <p><strong>Soft-skip policy (acceptance #3003):</strong> empty Sites list may
- * soft-skip <em>list</em> assertions only when Create Site path is covered in this
- * surface. Set {@code EXPECT_DEMO_SITES=1} to hard-fail empty sample Sites
- * (peers {@code bug-1750}). Create Site missing (pre-#3002 image) skips with
- * BUG + durable issue URL.</p>
+ * <p><strong>Soft-skip policy (acceptance #3003 / #3575):</strong> empty Sites
+ * list may soft-skip <em>list</em> assertions only when Create Site path is
+ * covered and the cell is <em>not</em> H2 QA with demo-sites default
+ * ({@code TEST_DB_TYPE=h2}). Set {@code EXPECT_DEMO_SITES=1} to hard-fail
+ * empty sample Sites (peers {@code bug-1750}). Create Site missing
+ * (pre-#3002 image) skips with BUG + durable issue URL.</p>
  *
  * <p>Tags: {@code @explorer-sites-list-create} {@code @explorer} {@code @sites}
  * {@code @smoke}</p>
@@ -51,7 +52,7 @@ const {
   pathItemNames,
   hasAnyExpectedSampleSite,
   hasAllExpectedSampleSites,
-  shouldEnforceDemoSites,
+  shouldSoftSkipSitesList,
   EXPECTED_SAMPLE_SITE_NAMES,
 } = require("./helpers/demo-sites");
 const {
@@ -96,11 +97,9 @@ async function fetchSitesChildNames(request) {
  * @returns {"ok" | "soft-empty"}
  */
 function gateSitesListOrSoftSkip(names) {
-  if ((names || []).length > 0) {
-    return "ok";
-  }
-  if (shouldEnforceDemoSites()) {
-    // Hard regression: demo seed expected.
+  // H2 qa-up seeds demo-sites by default — do not soft-skip when sample
+  // Sites exist or when TEST_DB_TYPE=h2 (#3575 / parent #3102).
+  if (!shouldSoftSkipSitesList(names)) {
     expect(
       names,
       `Sites must list children after demo-sites install; expected samples: ${EXPECTED_SAMPLE_SITE_NAMES.join(", ")}`,
