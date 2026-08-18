@@ -133,13 +133,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
+      expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
     });
     // #2972: labeled Server actions chrome is always mounted for QA/operators.
     expect(screen.getByTestId("explorer-server-actions")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-server-actions-label"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
 
     const searchToggle = screen.getByTestId("explorer-toggle-search");
     expect(searchToggle.getAttribute("aria-expanded")).toBe("false");
