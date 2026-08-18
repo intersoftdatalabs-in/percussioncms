@@ -194,6 +194,24 @@ describe("TranslationsPanel", () => {
     ).toBeNull();
   });
 
+  it("GET variants with the raw itemId when parse yields null", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    render(
+      <TranslationsPanel
+        itemId="//Sites/Demo"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loadVariants).toHaveBeenCalledWith("//Sites/Demo");
+  });
+
   it("keeps the no-id create message for folder-like ids without a content id", async () => {
     const createVariants = vi.fn(async () => ({ created: [] }));
     render(

@@ -44,6 +44,13 @@ async function listWaitReady(page) {
   await page.locator('[data-testid="detail-list"]').waitFor({ timeout: 15_000 });
 }
 
+/** Click the first matching row; re-query if the locator detaches mid-click. */
+async function clickFirstRowWithDetachRetry(rows) {
+  await rows.first().click({ force: true, timeout: 10_000 }).catch(async () => {
+    await rows.first().click({ force: true, timeout: 10_000 }).catch(() => {});
+  });
+}
+
 /**
  * Open the first listed content row (page/asset), drilling one folder when
  * the current list is folders only. GUID-shaped {@code data-testid} values
@@ -55,7 +62,7 @@ async function selectFirstContentRow(page) {
     'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
   );
   if ((await itemRows.count()) > 0) {
-    await itemRows.first().click({ force: true, timeout: 10_000 });
+    await clickFirstRowWithDetachRetry(itemRows);
     return true;
   }
   const folderRows = list.locator(
@@ -66,15 +73,13 @@ async function selectFirstContentRow(page) {
   }
   await folderRows.first().dblclick({ force: true, timeout: 10_000 }).catch(
     async () => {
-      await folderRows.first().click({ force: true, timeout: 10_000 }).catch(
-        () => {},
-      );
+      await clickFirstRowWithDetachRetry(folderRows);
     },
   );
   await listWaitReady(page);
   await page.waitForLoadState("networkidle").catch(() => {});
   if ((await itemRows.count()) > 0) {
-    await itemRows.first().click({ force: true, timeout: 10_000 });
+    await clickFirstRowWithDetachRetry(itemRows);
     return true;
   }
   return false;

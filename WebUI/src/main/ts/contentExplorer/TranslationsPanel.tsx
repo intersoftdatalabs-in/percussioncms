@@ -138,8 +138,9 @@ export function TranslationsPanel(
       return;
     }
     const resolvedId = resolveTranslationsContentId(itemId);
-    // GUID last segment (1-101-708 → 708); fall back to the raw token so a
-    // numeric string still loads. Folders with no content id stay null.
+    // GUID last segment (1-101-708 → 708). Parse-null does not skip GET:
+    // loadVariants still receives the raw itemId (unit tests / direct mounts).
+    // The Explorer shell never mounts this panel for folders/sites.
     const variantsKey =
       resolvedId != null ? String(resolvedId) : itemId;
     setState({ kind: "loading" });
