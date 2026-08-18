@@ -23,49 +23,118 @@ import {
 } from "../../../main/ts/workflowAdmin/user/landingOptions";
 
 describe("landingOptionsForRoles", () => {
-  it("always includes role-default and Home/Editor for any roles", () => {
+  it("always includes role-default, Home, and Explorer; not Editor or Design (#3514)", () => {
     const opts = landingOptionsForRoles(["Contributor"]);
     const values = opts.map((o) => o.value);
     expect(values).toContain("");
     expect(values).toContain(HOMEPAGE_TYPES.HOME);
-    expect(values).toContain(HOMEPAGE_TYPES.EDITOR);
+    expect(values).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.EDITOR);
     expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).not.toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.PUBLISH);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(values).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
   });
 
-  it("includes Design and Architecture for Designer role", () => {
+  it("offers remaining top-nav apps and not Editor or Design (#3537)", () => {
+    const values = landingOptionsForRoles(["Admin"]).map((o) => o.value);
+    expect(values).toContain("");
+    expect(values).toContain(HOMEPAGE_TYPES.HOME);
+    expect(values).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(values).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).toContain(HOMEPAGE_TYPES.PUBLISH);
+    expect(values).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(values).not.toContain(HOMEPAGE_TYPES.EDITOR);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
+  });
+
+  it("includes Navigation/Developer/Publish for Designer without Admin or Design", () => {
     const opts = landingOptionsForRoles(["Designer"]);
     const values = opts.map((o) => o.value);
-    expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).toContain(HOMEPAGE_TYPES.EXPLORER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(values).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).toContain(HOMEPAGE_TYPES.PUBLISH);
     expect(values).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(values).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
     const arch = opts.find((o) => o.value === HOMEPAGE_TYPES.ARCHITECTURE);
     expect(fallbackLabelFromKey(arch!.labelKey)).toBe("Navigation");
   });
 
-  it("includes Administration (Workflow) for Admin role", () => {
+  it("includes Administration (Workflow) for Admin role without Design", () => {
     const opts = landingOptionsForRoles(["Admin"]);
     const values = opts.map((o) => o.value);
     expect(values).toContain(HOMEPAGE_TYPES.WORKFLOW);
-    expect(values).toContain(HOMEPAGE_TYPES.DESIGNER);
+    expect(values).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).not.toContain(HOMEPAGE_TYPES.DESIGNER);
     expect(values).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(values).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(values).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(values).toContain(HOMEPAGE_TYPES.PUBLISH);
   });
 
   it("keeps a currently stored disallowed value so admin can clear it", () => {
-    const opts = landingOptionsForRoles(
+    const workflow = landingOptionsForRoles(
       ["Contributor"],
       HOMEPAGE_TYPES.WORKFLOW,
     );
-    expect(opts.map((o) => o.value)).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(workflow.map((o) => o.value)).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    const editor = landingOptionsForRoles(
+      ["Contributor"],
+      HOMEPAGE_TYPES.EDITOR,
+    );
+    expect(editor.map((o) => o.value)).toContain(HOMEPAGE_TYPES.EDITOR);
+    const design = landingOptionsForRoles(
+      ["Contributor"],
+      HOMEPAGE_TYPES.DESIGNER,
+    );
+    expect(design.map((o) => o.value)).toContain(HOMEPAGE_TYPES.DESIGNER);
+    const widgetStale = landingOptionsForRoles(
+      ["Contributor"],
+      HOMEPAGE_TYPES.WIDGET_BUILDER,
+    );
+    expect(widgetStale.map((o) => o.value)).toContain(
+      HOMEPAGE_TYPES.WIDGET_BUILDER,
+    );
   });
 });
 
 describe("isLandingAllowedForRoles", () => {
-  it("allows Home and empty for empty roles", () => {
+  it("allows Home, Explorer, and empty for empty roles", () => {
     expect(isLandingAllowedForRoles("", [])).toBe(true);
     expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.HOME, [])).toBe(true);
-    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.EDITOR, [])).toBe(true);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.EXPLORER, [])).toBe(true);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.EDITOR, [])).toBe(false);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.DESIGNER, [])).toBe(false);
     expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.WORKFLOW, [])).toBe(false);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.WIDGET_BUILDER, [])).toBe(
+      false,
+    );
+  });
+
+  it("gates contributor vs designer vs admin (#3538)", () => {
+    expect(
+      isLandingAllowedForRoles(HOMEPAGE_TYPES.DEVELOPER, ["Contributor"]),
+    ).toBe(false);
+    expect(
+      isLandingAllowedForRoles(HOMEPAGE_TYPES.PUBLISH, ["Editor"]),
+    ).toBe(false);
+    expect(
+      isLandingAllowedForRoles(HOMEPAGE_TYPES.DEVELOPER, ["Designer"]),
+    ).toBe(true);
+    expect(
+      isLandingAllowedForRoles(HOMEPAGE_TYPES.WORKFLOW, ["Designer"]),
+    ).toBe(false);
+    expect(isLandingAllowedForRoles(HOMEPAGE_TYPES.WORKFLOW, ["Admin"])).toBe(
+      true,
+    );
+    expect(
+      isLandingAllowedForRoles(HOMEPAGE_TYPES.WIDGET_BUILDER, ["Admin"]),
+    ).toBe(false);
   });
 });

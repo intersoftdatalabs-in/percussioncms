@@ -90,6 +90,28 @@ export const PROFILE_MSG = {
   FIELD_ROLES: "perc.ui.profile.modern@Roles",
   FIELD_COMMUNITIES: "perc.ui.profile.modern@Communities",
   FIELD_CURRENT_COMMUNITY: "perc.ui.profile.modern@Current community",
+  FIELD_DEFAULT_COMMUNITY: "perc.ui.profile.modern@Default community",
+  DEFAULT_COMMUNITY_HINT:
+    "perc.ui.profile.modern@Used at the next sign-in when Remember last community is not selected. Only communities you can access are listed.",
+  DEFAULT_COMMUNITY_NONE:
+    "perc.ui.profile.modern@Use role default",
+  DEFAULT_COMMUNITY_UNAVAILABLE:
+    "perc.ui.profile.modern@No communities are assigned to your account.",
+  SAVE_DEFAULT_COMMUNITY: "perc.ui.profile.modern@Save default community",
+  DEFAULT_COMMUNITY_SAVE_SUCCESS:
+    "perc.ui.profile.modern@Your default community was saved.",
+  DEFAULT_COMMUNITY_SAVE_ERROR:
+    "perc.ui.profile.modern@Unable to save your default community. Choose a community you can access.",
+  DEFAULT_COMMUNITY_INVALID:
+    "perc.ui.profile.modern@Choose a community from the list.",
+  REMEMBER_LAST_LABEL:
+    "perc.ui.profile.modern@Remember last community on next login",
+  REMEMBER_LAST_HINT:
+    "perc.ui.profile.modern@When enabled, the next sign-in selects the last community you switched to if you still have access. Otherwise your default community is used.",
+  REMEMBER_LAST_SAVE_SUCCESS:
+    "perc.ui.profile.modern@Remember-last community preference saved.",
+  REMEMBER_LAST_SAVE_ERROR:
+    "perc.ui.profile.modern@Could not save the remember-last community preference.",
   PROVIDER_INTERNAL: "perc.ui.profile.modern@Internal",
   PROVIDER_DIRECTORY: "perc.ui.profile.modern@Directory",
   READONLY_HINT:

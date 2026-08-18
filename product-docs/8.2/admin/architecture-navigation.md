@@ -24,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
    - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
-3. The shell loads under the same product top nav as Explorer, Design, Publish, and Admin.
+3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
 `Architecture`, also accepted as `Navigation`) for a user or role. After sign-in
@@ -39,9 +39,9 @@ dispatcher applies that preference and opens the Navigation SPA — not Home.
 3. The **Navigation tree** panel loads the site’s sections (navons) from the server.
 4. Expand and collapse nodes with the mouse or keyboard (Enter/Space, Arrow Left/Right).
 5. Use **Refresh** to reload the tree after external changes.
-6. Use **New Site** (Admin or Designer) to open the same traditional-site wizard
-   used in Content Explorer. After a successful create, the new site is selected
-   in this shell.
+6. Use **New Site** (Admin or Designer) to open the same Create Site wizard
+   used in Content Explorer (Traditional / Page / Virtual type picker). After a
+   successful create, the new site is selected in this shell.
 7. Use **Copy Site** (Admin or Designer) with a site selected to open the
    existing site-copy wizard (same sitemanage copy service as Explorer). The
    source is prefilled from the current site. A copy already in progress blocks

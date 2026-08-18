@@ -61,9 +61,8 @@ describe("DisplayFormatsPanel", () => {
     expect(screen.getByText("Default")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-df-open"));
     await waitFor(() => {
-      expect(screen.getByTestId("developer-df-detail")).toBeTruthy();
+      expect(screen.getByTestId("developer-df-columns-table")).toBeTruthy();
     });
-    expect(screen.getByTestId("developer-df-columns-table")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-df-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-df-table")).toBeTruthy();

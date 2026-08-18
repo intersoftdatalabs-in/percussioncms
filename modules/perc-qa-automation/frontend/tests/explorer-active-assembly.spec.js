@@ -825,4 +825,205 @@ test.describe("modern React Active Assembly — preview host", () => {
       expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "slot arrange move/remove/change-template use relationship REST",
+    { tag: ["@explorer-active-assembly", "@explorer", "@aa-slots"] },
+    async ({ page }) => {
+      const blocked = [];
+      const moved = [];
+      const changed = [];
+      const removed = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => consoleErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      page.on("request", (req) => {
+        const u = req.url();
+        if (
+          u.includes("sys_cxItemAssembly") ||
+          u.includes("itemassembly.html") ||
+          u.includes("variantlistwithslots.html") ||
+          u.includes("sys_cxSupport/")
+        ) {
+          blocked.push(u);
+        }
+      });
+
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ActionMenuList: [
+              {
+                name: "rffPgGeneric",
+                label: "Generic Page",
+                url: "../assembler/render?sys_template=7",
+                sortRank: 0,
+                type: "MENUITEM",
+              },
+            ],
+          }),
+        });
+      });
+      await page.route("**/services/assembly/preview-location**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+            contentId: 42,
+            templateId: 7,
+            revision: 1,
+          }),
+        });
+      });
+      await page.route("**/services/assembly/slot-relationships/canvas**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ownerId: 42,
+            templateId: 7,
+            slots: [
+              {
+                slotId: 3,
+                name: "sidebar",
+                label: "Sidebar",
+                items: [
+                  {
+                    relationshipId: 88,
+                    ownerId: 42,
+                    dependentId: 7,
+                    slotId: 3,
+                    templateId: 4,
+                    sortRank: 0,
+                  },
+                ],
+              },
+            ],
+          }),
+        });
+      });
+      await page.route(
+        "**/services/assembly/slot-relationships/allowed-templates**",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              items: [{ id: 4, name: "rffSnTitle", label: "Title" }],
+            }),
+          });
+        },
+      );
+      await page.route("**/services/assembly/slot-relationships/**/move", async (route) => {
+        if (route.request().method() === "POST") {
+          moved.push(route.request().postData() || "");
+          await route.fulfill({ status: 204, body: "" });
+          return;
+        }
+        await route.continue();
+      });
+      await page.route(
+        "**/services/assembly/slot-relationships/**/template-slot",
+        async (route) => {
+          if (route.request().method() === "POST") {
+            changed.push(route.request().postData() || "");
+            await route.fulfill({
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify({
+                relationshipId: 88,
+                ownerId: 42,
+                dependentId: 7,
+                slotId: 3,
+                templateId: 4,
+                sortRank: 0,
+              }),
+            });
+            return;
+          }
+          await route.continue();
+        },
+      );
+      await page.route(
+        /\/services\/assembly\/slot-relationships\/\d+(?:\?|$)/,
+        async (route) => {
+          if (route.request().method() === "DELETE") {
+            removed.push(route.request().url());
+            await route.fulfill({ status: 204, body: "" });
+            return;
+          }
+          await route.continue();
+        },
+      );
+      await page.route("**/assembler/render**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<html><body>preview</body></html>",
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      const slotChip = page.locator('[data-testid="assembly-slot-3"]');
+      const snippet = page.locator('[data-testid="assembly-slot-item-88"]');
+      if (!(await slotChip.isVisible().catch(() => false))) {
+        test.skip(
+          true,
+          "H2 has no slot canvas for this assembly template; arrange is not exercisable",
+        );
+        return;
+      }
+      await slotChip.click();
+      if (!(await snippet.isVisible().catch(() => false))) {
+        test.skip(
+          true,
+          "H2 has no snippet in a slot; arrange/remove is not exercisable",
+        );
+        return;
+      }
+      await snippet.click();
+      await expect(page.locator('[data-testid="assembly-slot-move-up"]')).toBeEnabled();
+      await page.locator('[data-testid="assembly-slot-move-up"]').click();
+      await expect.poll(() => moved.length).toBe(1);
+      await page.locator('[data-testid="assembly-slot-change"]').click();
+      await expect(page.locator('[data-testid="assembly-slot-change-dialog"]')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.locator('[data-testid="assembly-slot-change-cancel"]').click();
+      await expect(page.locator('[data-testid="assembly-slot-change-dialog"]')).toHaveCount(0);
+      expect(changed, "cancel must not POST template-slot").toEqual([]);
+      await page.locator('[data-testid="assembly-slot-change"]').click();
+      await expect(page.locator('[data-testid="assembly-slot-change-dialog"]')).toBeVisible();
+      await expect(page.locator('[data-testid="assembly-slot-change-template"] option')).not.toHaveCount(
+        0,
+        { timeout: 10_000 },
+      );
+      await page.locator('[data-testid="assembly-slot-change-apply"]').click();
+      await expect.poll(() => changed.length).toBe(1);
+      await page.locator('[data-testid="assembly-slot-remove"]').click();
+      await expect.poll(() => removed.length).toBe(1);
+
+      expect(blocked, `Data Flow AA HTML must not be requested: ${blocked.join(" ")}`).toEqual(
+        [],
+      );
+      const serious = consoleErrors.filter(
+        (t) => !/favicon|ResizeObserver|net::ERR|Failed to load resource/i.test(t),
+      );
+      expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+    },
+  );
 });

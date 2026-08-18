@@ -36,6 +36,7 @@ import type { PSNodeRelationshipSummary } from "../../api/contentExplorer/relati
 import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
 import { composeFromServerSummary, labelFor } from "./dependencyModel";
+import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import { fetchNodeSummary } from "../../api/contentExplorer/relationshipsApi";
 
 export interface RelationshipsViewProps {
@@ -56,6 +57,24 @@ export interface RelationshipsViewProps {
 const IA_PRIMARY: ReadonlyArray<
   "outgoing" | "incoming" | "taxonomy" | "local"
 > = ["outgoing", "incoming", "taxonomy", "local"];
+
+/**
+ * REST {@code /relationships/{id}} needs a numeric content id. Explorer
+ * rows often carry a GUID ({@code 1-101-708}); taxonomy treats a
+ * non-path string as a JCR path and the summary returns 403.
+ */
+export function relationshipSummaryItemId(
+  raw: string | number | undefined,
+): string {
+  if (raw == null || raw === "") {
+    return "";
+  }
+  const parsed = parseExplorerContentId(raw);
+  if (parsed != null) {
+    return String(parsed);
+  }
+  return String(raw).trim();
+}
 
 async function defaultLoadServerSummary(
   itemId: string,
@@ -84,7 +103,7 @@ export function RelationshipsView(
   } = props;
   const summarise = composeSummary ?? defaultComposeSummary;
 
-  const itemId = item.id ?? "";
+  const itemId = relationshipSummaryItemId(item.id);
   const [state, setState] = React.useState<
     | { kind: "loading" }
     | { kind: "ok"; summary: PSNodeRelationshipSummary }

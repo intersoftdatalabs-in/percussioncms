@@ -86,12 +86,15 @@ describe("TopNav (#2702)", () => {
     expect(href === "/admin" || href.endsWith("/admin")).toBe(true);
   });
 
-  it("Editor is SPA NavLink to /editor and not leftover view=editor", () => {
+  it("does not render Editor, Design, or Widget Builder top-nav items (#3514)", () => {
     renderNav();
-    const editor = screen.getByTestId("nav-editor");
-    const href = editor.getAttribute("href") || "";
-    expect(href === "/editor" || href.endsWith("/editor")).toBe(true);
-    expect(href).not.toMatch(/view=editor/);
+    const nav = screen.getByTestId("perc-spa-topnav");
+    expect(within(nav).queryByTestId("nav-editor")).toBeNull();
+    expect(within(nav).queryByTestId("nav-design")).toBeNull();
+    expect(within(nav).queryByTestId("nav-widget-builder")).toBeNull();
+    expect(screen.getByTestId("nav-developer")).toBeTruthy();
+    expect(screen.getByTestId("nav-architecture")).toBeTruthy();
+    expect(screen.getByTestId("nav-publish")).toBeTruthy();
   });
 
   it("Architecture is SPA NavLink to /architecture (#3094)", () => {

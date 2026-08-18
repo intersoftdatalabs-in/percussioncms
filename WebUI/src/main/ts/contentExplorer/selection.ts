@@ -23,6 +23,9 @@
  */
 
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { firstNonBlank } from "./firstNonBlank";
+
+export { sameExplorerItemId } from "../api/contentExplorer/pathItemId";
 
 export interface Selection {
   /** Folder path that the list is currently showing children of. */
@@ -96,6 +99,40 @@ const PAGE_OR_ASSET_TYPE_KEYS = new Set([
 /** FastForward nav types are folder-like, not previewable items. */
 const RFF_NAV_TYPE_KEYS = new Set(["rffnavon", "rffnavtree"]);
 
+/**
+ * Stock / FastForward {@code type} names that are assets, not pages.
+ * Do not treat {@code category: ASSET} alone as an asset — the server
+ * defaults every non-{@code percPage} item to {@code ASSET}
+ * ({@code previewItem.resolvePreviewKind}).
+ */
+const ASSET_TYPE_KEYS = new Set([
+  "asset",
+  "percasset",
+  "rffimage",
+  "rfffile",
+  "rffnavimage",
+]);
+
+/**
+ * Stock / FastForward {@code type} names that are pages, not assets.
+ * Used so {@code category: ASSET} (server default for non-percPage
+ * items) does not reclassify known pages as assets.
+ */
+const PAGE_TYPE_KEYS = new Set([
+  "page",
+  "percpage",
+  "rffhome",
+  "rffevent",
+  "rffgeneric",
+  "rffgenericword",
+  "rffbrief",
+  "rffcalendar",
+  "rffcontacts",
+  "rffpressrelease",
+  "rffexternallink",
+  "rffautoindex",
+]);
+
 function folderTypeOrCategory(type: string, category: string): boolean {
   return (
     FOLDER_TYPE_KEYS.has(type) ||
@@ -131,6 +168,52 @@ export function isPageOrAssetContentType(item: PSPathItem | null): boolean {
   return type.length > 0;
 }
 
+/**
+ * True when the row is an asset (clipboard / preview kind), not a page.
+ *
+ * <p>{@code category === "resource"} is <em>not</em> an asset key here.
+ * {@link ITEM_CATEGORY_KEYS} treats {@code resource} as a workflowed
+ * item (page-or-asset), not as {@code ClipboardItem.kind === "asset"}.</p>
+ */
+export function isAssetContentType(item: PSPathItem | null): boolean {
+  if (!item || isFolder(item)) {
+    return false;
+  }
+  const type = (item.type ?? "").trim().toLowerCase();
+  const category = (item.category ?? "").trim().toLowerCase();
+  if (category === "page" || category === "landing_page") {
+    return false;
+  }
+  if (ASSET_TYPE_KEYS.has(type)) {
+    return true;
+  }
+  if (PAGE_TYPE_KEYS.has(type)) {
+    return false;
+  }
+  const path = (item.path ?? "").trim().toLowerCase().replace(/\\/g, "/");
+  if (path === "/assets" || path.startsWith("/assets/")) {
+    return true;
+  }
+  // Server defaults every non-percPage item to ASSET. Customer pages
+  // live under /Sites; treat those as pages. Custom asset types with
+  // category ASSET and no /Sites path (including missing path) are
+  // assets (#3557).
+  if (path === "/sites" || path.startsWith("/sites/")) {
+    return false;
+  }
+  return category === "asset";
+}
+
+/**
+ * Stable multi-select map key. Prefer content id, then path. Do not fall
+ * back to {@code name} — two "Home" rows without id/path would collide.
+ *
+ * @return {@code null} when the row has no id or path
+ */
+export function explorerMultiSelectKey(item: PSPathItem): string | null {
+  return firstNonBlank(item.id, item.path);
+}
+
 export function isFolder(item: PSPathItem | null): boolean {
   if (!item) return false;
   const type = (item.type ?? "").trim().toLowerCase();
@@ -147,23 +230,6 @@ export function isFolder(item: PSPathItem | null): boolean {
   if (item.leaf === true) return false;
   if (item.leaf === false) return true;
   return Boolean(item.hasFolderChildren);
-}
-
-/**
- * Compare Explorer item ids without number/string mismatches
- * ({@code "42"} vs {@code 42}) so list {@code aria-selected} tracks
- * {@code selection.item} after a row click (#3467).
- */
-export function sameExplorerItemId(
-  a: string | number | null | undefined,
-  b: string | number | null | undefined,
-): boolean {
-  if (a == null || b == null) {
-    return false;
-  }
-  const left = String(a).trim();
-  const right = String(b).trim();
-  return left.length > 0 && left === right;
 }
 
 /** Normalize wire ACL tokens so mixed-case server values compare consistently. */

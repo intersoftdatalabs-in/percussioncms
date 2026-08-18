@@ -31,34 +31,13 @@ import {
   findAllowedTemplateMenus,
   mapActionMenusToMenuActions,
 } from "../api/contentExplorer/actionMenuApi";
+import {
+  parseExplorerContentId,
+} from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 
-export function parseExplorerContentId(
-  id: string | number | undefined,
-): number | null {
-  if (id == null || id === "") {
-    return null;
-  }
-  if (typeof id === "number") {
-    return Number.isFinite(id) && id > 0 ? Math.trunc(id) : null;
-  }
-  const s = String(id).trim();
-  if (!s) {
-    return null;
-  }
-  const whole = Number(s);
-  if (Number.isFinite(whole) && whole > 0) {
-    return Math.trunc(whole);
-  }
-  // Percussion GUID host-type-uuid (e.g. 1-101-708) — content id is last segment.
-  const last = s.split("-").pop();
-  if (!last) {
-    return null;
-  }
-  const n = Number(last);
-  return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
-}
+export { parseExplorerContentId };
 
 function isCascadeParent(action: MenuAction): boolean {
   const type = (action.menuType ?? "").toUpperCase();

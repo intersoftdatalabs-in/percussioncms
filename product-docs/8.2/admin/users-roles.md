@@ -48,6 +48,21 @@ users after each Add. **Remove** returns that user to Available Users so you can
 re-assign them. Changes apply only when you **Submit**; **Cancel** discards the
 in-progress membership edits.
 
+The editor also has a **Default homepage** list. It is the same remaining top-nav
+apps as **My profile → Preferences** and **Admin → Users**: **Home**, **Explorer**,
+**Navigation**, **Developer**, **Publish**, and **Admin**. Members of the role land
+there after sign-in unless they set a personal override. **Editor** and **Design**
+are not new choices (they leave top nav); if the role already stored one of those
+values (or **Dashboard**), it still appears once so you can change it.
+
+### Admin → Users (default landing)
+
+Open **Admin → Users** (or deep link `spa.jsp?entry=admin&tab=users`) and edit a
+user. **Default landing page** lists the same remaining apps as profile Preferences
+(Explorer in; Editor/Design not offered as new choices). **Use role default**
+clears the user override so the role homepage applies. A stale stored Editor or
+Design value still appears once so you can clear it.
+
 ## Workflow
 
 Workflow states gate who can edit and publish. Common patterns:
@@ -76,8 +91,40 @@ Use **Switch** to change the session community **without signing out**.
   log out and back in.
 - If the switch is not allowed (unknown community or you are not a member of a role in that
   community), the header shows an error and keeps the previous community.
-- Setting a **default** community on the profile, or remembering the last community at the next
-  login, is not part of this header control.
+- Setting a **default** community on the profile is a separate **My profile → Account** control
+  (when available). Remembering the last community at the next login is the checkbox described
+  below — not this header **Switch** control.
+
+## My profile — Remember last community
+
+On **My profile → Account**, enable **Remember last community on next login** so the next
+sign-in automatically selects the last community you switched to.
+
+- The option is stored as a personal preference for the signed-in user. Reloading **Account**
+  shows the saved checkbox state.
+- After a successful header **Switch**, the product stores that community name for the next
+  login (when the option is on).
+- At the next sign-in, if the option is on **and** you still have access to that community,
+  the session switches to it. If the community is missing or no longer in your membership
+  list, sign-in continues with your default community (profile default when set, otherwise
+  the product role default). Login does not fail.
+- Turn the checkbox off to stop restoring the last community. The next login then uses the
+  default community only.
+
+## My profile — Account (default community)
+
+On **My profile → Account** (deep link `spa.jsp?entry=profile`), signed-in users can set their
+**default community**. The list is the same membership list as the header switch (communities
+your roles grant — not the full catalog).
+
+| Control | What it does |
+|---------|----------------|
+| **Default community** | Community applied at the **next sign-in** when Remember last community is not selected. **Use role default** clears your personal override so the role attribute `sys_defaultCommunity` applies. |
+| **Save default community** | Writes the value for the signed-in user only (`sys_defaultCommunity` on your user subject). Reload the page to confirm the stored value. You cannot set a community you do not belong to. |
+
+This does **not** change the current session community. Use **Switch** in the header for that.
+Directory / SSO accounts can still set a default community here (it is a CMS attribute, not a
+directory field).
 
 ## My profile — Security (password)
 
@@ -104,10 +151,29 @@ On the same **My profile** hub, open **Preferences** (or deep-link
 `spa.jsp?entry=profile#perc-profile-preferences`). Admins can also set a user's
 landing from **Admin → Users**.
 
+Homepage options are **permission-filtered** to the same screens top nav
+shows for that user. You cannot pick a landing you cannot open.
+
+| Role class | New landing choices |
+|------------|---------------------|
+| Contributor / Editor (no Designer or Admin) | **Use role default**, **Home**, **Explorer** |
+| Designer | Those plus **Navigation**, **Developer**, **Publish** |
+| Admin | Those plus **Admin** |
+
 | Control | What it does |
 |---------|----------------|
-| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open (Home, Editor, **Navigation**, and additional screens when your roles include Designer or Admin). **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Use role default** clears your personal override so the role homepage applies. |
+| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open — the same remaining top-nav apps as chrome and as **Admin → Users / Roles**, permission-filtered to your roles: **Home** and **Explorer** for everyone; **Navigation**, **Developer**, and **Publish** when you have Designer or Admin; **Admin** when you have Admin. **Explorer** is stored as homepage type `Explorer` and opens the Content Explorer SPA. **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Editor**, **Design**, and **Widget Builder** are not offered as new choices (they are not top-nav items); if you already stored one of those values, it still appears once so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
 | **Save preferences** | Writes the landing override for the signed-in user only. The value is reloaded from the server after save so a failed persist is not shown as success. |
+
+### Admin → Users (default landing)
+
+On **Admin → Users**, the user editor **Default landing** select uses the same
+remaining-app list and the **same permission filter**, based on the roles
+assigned to that user (not the signed-in admin). A Contributor-class account
+does not list **Admin**, **Developer**, or **Publish** as new choices. A
+Designer account lists Navigation / Developer / Publish but not Admin. An
+Admin account lists every remaining app including Explorer. A stored landing
+that is no longer allowed still appears once so it can be cleared.
 
 The stored-preference count is informational (existing preference entries for your
 account). A problem loading that list does **not** block changing the landing page.

@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  applyClipboardAdd,
   buildPasteSummary,
   canPasteInto,
   EMPTY_CLIPBOARD,
@@ -55,6 +56,36 @@ describe("setClipboard", () => {
     const cb = setClipboard(EMPTY_CLIPBOARD, "cut", arr);
     arr.push(item({ id: "i-2" }));
     expect(cb.items).toHaveLength(1);
+  });
+});
+
+describe("applyClipboardAdd (#3557)", () => {
+  it("is a no-op when the mapped item list is empty", () => {
+    const staged = setClipboard(EMPTY_CLIPBOARD, "copy", [item()], () =>
+      "2026-08-18T00:00:00.000Z",
+    );
+    const next = applyClipboardAdd(staged, "cut", [], () =>
+      "2026-08-18T01:00:00.000Z",
+    );
+    expect(next).toBe(staged);
+    expect(next.items).toHaveLength(1);
+    expect(next.operation).toBe("copy");
+  });
+
+  it("replaces staged items when the mapped list is non-empty", () => {
+    const staged = setClipboard(EMPTY_CLIPBOARD, "copy", [item()], () =>
+      "2026-08-18T00:00:00.000Z",
+    );
+    const next = applyClipboardAdd(
+      staged,
+      "cut",
+      [item({ id: "i-2" })],
+      () => "2026-08-18T01:00:00.000Z",
+    );
+    expect(next.operation).toBe("cut");
+    expect(next.items).toHaveLength(1);
+    expect(next.items[0]?.id).toBe("i-2");
+    expect(next.updatedAt).toBe("2026-08-18T01:00:00.000Z");
   });
 });
 

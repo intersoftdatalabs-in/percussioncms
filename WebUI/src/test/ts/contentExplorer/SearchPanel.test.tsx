@@ -431,6 +431,41 @@ describe("SearchPanel", () => {
       expect(onOpen).toHaveBeenCalledTimes(1);
     });
 
+    it("does not scope All / View_All to Explorer root folder (#3517)", async () => {
+      const executeSavedSearch = vi.fn().mockResolvedValue({
+        children: [],
+        totalCount: 0,
+        startIndex: 1,
+        searchName: "View_All",
+      });
+      render(
+        <SearchPanel
+          listSavedSearches={async () => [
+            { name: "View_All", label: "All", type: "View" },
+          ]}
+          executeSavedSearch={executeSavedSearch}
+          initialCriteria={{ folderPath: "/" }}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "View_All" },
+      });
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(executeSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      const req = executeSavedSearch.mock.calls[0]?.[1] as
+        | { folderPath?: string }
+        | undefined;
+      expect(req?.folderPath).toBeUndefined();
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
+      });
+    });
+
     it("blocks custom URL searches with a clear error", async () => {
       const executeSavedSearch = vi.fn();
       render(

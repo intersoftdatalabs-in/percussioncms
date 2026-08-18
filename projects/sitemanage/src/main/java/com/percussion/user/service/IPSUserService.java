@@ -146,6 +146,18 @@ public interface IPSUserService {
   public PSCurrentUser updateMyAccount(PSUserAccountUpdate update) throws PSDataServiceException;
 
   /**
+   * Self-service default community for the signed-in session user only (issue #3508). No user
+   * name on the path — no IDOR. Persists {@code sys_defaultCommunity} on the user subject.
+   * Blank name clears the stored default. The community must be in the user's allowed
+   * communities.
+   *
+   * @param communityName community name to store, may be blank (clears)
+   * @return refreshed {@link PSCurrentUser}, never {@code null}
+   * @throws PSDataServiceException when the name is not allowed or persist fails
+   */
+  public PSCurrentUser updateMyDefaultCommunity(String communityName) throws PSDataServiceException;
+
+  /**
    * Deletes the user with the given user name.
    *
    * @param name never <code>null</code> or empty.
@@ -229,6 +241,12 @@ public interface IPSUserService {
 
   /** Product homepage type: Widget Builder. */
   String HOMEPAGE_TYPE_WIDGET_BUILDER = "WidgetBuilder";
+
+  /** Product homepage type: Content Explorer ({@code view=explorer}). */
+  String HOMEPAGE_TYPE_EXPLORER = "Explorer";
+
+  /** Product homepage type: Developer / System Definition ({@code view=developer}). */
+  String HOMEPAGE_TYPE_DEVELOPER = "Developer";
 
   /**
    * Returns the persisted default landing-page override for the named user, or empty string when

@@ -30,7 +30,8 @@ const { softVisible } = require("./explorer-shell-chrome");
 
 /** Stable data-testid values on the Design SPA (WebUI design/*). */
 const TEST_IDS = Object.freeze({
-  nav: "nav-design",
+  /** Product chrome after #3514 (Design is no longer a top-nav item). */
+  nav: "perc-spa-topnav",
   shell: "perc-design-shell",
   tabTemplates: "tab-design-templates",
   panel: "design-tpl-panel",

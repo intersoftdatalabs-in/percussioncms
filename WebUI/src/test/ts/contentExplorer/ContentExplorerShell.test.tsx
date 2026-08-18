@@ -133,13 +133,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar")).toBeInTheDocument();
+      expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
     });
     // #2972: labeled Server actions chrome is always mounted for QA/operators.
     expect(screen.getByTestId("explorer-server-actions")).toBeInTheDocument();
     expect(
       screen.getByTestId("explorer-server-actions-label"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("action-toolbar-item-open")).toBeInTheDocument();
 
     const searchToggle = screen.getByTestId("explorer-toggle-search");
     expect(searchToggle.getAttribute("aria-expanded")).toBe("false");
@@ -1175,6 +1175,126 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("View → Clipboard opens the empty clipboard panel and toggles aria-checked (#3544)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument(),
+    );
+    openViewMenu();
+    const toggle = screen.getByTestId(
+      "explorer-toggle-clipboard",
+    ) as HTMLButtonElement;
+    expect(toggle.disabled).toBe(false);
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(screen.queryByTestId("explorer-clipboard-panel")).toBeNull();
+
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-clipboard-panel")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("true");
+
+    fireEvent.click(screen.getByTestId("explorer-toggle-clipboard"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-clipboard-panel")).toBeNull();
+    });
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("false");
+    await renderA11yGate(container);
+  });
+
+  it("Content → Add to clipboard mounts the panel with Sites rows (#3551)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "site-a",
+                  name: "CorporateInvestments",
+                  path: "/Sites/CorporateInvestments",
+                  type: "site",
+                  category: "SITE",
+                  accessLevel: "ADMIN",
+                },
+                {
+                  name: "EnterpriseInvestments",
+                  path: "/Sites/EnterpriseInvestments",
+                  type: "FSFolder",
+                  category: "site",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-site-a")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("detail-row-/Sites/EnterpriseInvestments"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("detail-select-site-a"));
+    fireEvent.click(
+      screen.getByTestId("detail-select-/Sites/EnterpriseInvestments"),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-multi-select-count")).toHaveTextContent(
+        "2",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-clipboard-add"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-clipboard-panel")).toBeInTheDocument();
+    });
+    expect(screen.getAllByTestId("clipboard-item-row")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("true");
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(
@@ -1191,6 +1311,76 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       ).toBeInTheDocument();
     });
     expect(screen.queryByTestId("translations-panel")).toBeNull();
+  });
+
+  it("GUID list row opens translations panel (not select-item hint) (#3545)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/content-explorer/translations/")) {
+        return new Response(
+          JSON.stringify({
+            itemId: 708,
+            locale: "en-us",
+            variants: [
+              { contentId: 708, locale: "en-us", role: "source", revision: 1 },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
+    await waitFor(() => {
+      expect(screen.getByTestId("translations-panel")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-translations-hint")).toBeNull();
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(screen.getByTestId("translations-current-locale-value")).toHaveTextContent(
+      "en-us",
+    );
+    expect(screen.getByTestId("translations-variant-row-708")).toBeTruthy();
   });
 
   it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {
@@ -1275,6 +1465,161 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(source.value).toBe("/Sites/Demo/Home");
     // T082a / WebUI AGENTS.md — a11y gate with Subfolder Copy panel open.
     await renderA11yGate(container);
+  });
+
+  it("Subfolder Copy Cancel unmounts the overlay instead of reset (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/Demo/Home" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("subfolder-copy-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+      expect(screen.queryByTestId("explorer-subfolder-copy-panel")).toBeNull();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("explorer-menu-content"),
+    );
+  });
+
+  it("Subfolder Copy Escape unmounts the overlay (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
+  });
+
+  it("Subfolder Copy Back stays mounted and changes step (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/Demo/Home" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("subfolder-copy-back"));
+    expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    expect(screen.getByTestId("subfolder-copy-step-source")).toBeInTheDocument();
+  });
+
+  it("selecting a detail item dismisses Subfolder Copy without POST (#3553)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
+  });
+
+  it("click-away outside Subfolder Copy dismisses the overlay (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.mouseDown(screen.getByTestId("content-explorer-shell"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
   });
 
   it("Content → Subfolder Copy is disabled without a folder path (#2792)", async () => {
@@ -1506,6 +1851,224 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     expect(screen.queryByTestId("relationships-view")).toBeNull();
     expect(screen.queryByTestId("explorer-relationships-panel")).toBeNull();
+  });
+
+  it("relationships panel mounts for a GUID-shaped content row (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("relationships-view")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("relationships panel binds slug rows via sys_contentid (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "ci-home",
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                  displayProperties: { sys_contentid: "708" },
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
+  });
+
+  it("relationships panel resolves omitted list id via path lookup (#3546)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/path/item/")) {
+        return new Response(
+          JSON.stringify({
+            PathItem: {
+              id: "1-101-708",
+              name: "Home",
+              path: "/Sites/Corporate_Investments/Pages/Home",
+              type: "rffHome",
+              category: "PAGE",
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("relationships")) {
+        return new Response(
+          JSON.stringify({
+            outgoing: { count: 0, byType: [] },
+            incoming: { count: 0, byType: [] },
+            taxonomy: { count: 0, nodes: [] },
+            local: { count: 0, links: [] },
+            reverse: { count: 0, byType: [] },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-row-/Sites/Corporate_Investments/Pages/Home"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(
+      screen.getByTestId("detail-row-/Sites/Corporate_Investments/Pages/Home"),
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-relationships"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-relationships-panel"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-relationships-hint")).toBeNull();
   });
 
   it("dependencies toggle shows select-item hint without a content selection (#2768)", async () => {
@@ -2171,6 +2734,56 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByTestId("explorer-view-results-error").textContent).toMatch(
       /Custom URL views cannot be run/i,
     );
+  });
+
+  it("New Item host opens a content-type picker instead of an error toast (#3513)", async () => {
+    stubPathFetch();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "101",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const openWindow = vi.fn();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "New",
+            label: "New Item",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadContentTypes={async () => [
+          { name: "percFile", label: "File" },
+          { name: "rffEvent", label: "Event" },
+        ]}
+        createItem={createItem}
+        openWindow={openWindow}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-New")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-New"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-type-picker")).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Choose a content type from New Item/i)).toBeNull();
+    fireEvent.change(screen.getByTestId("explorer-type-picker-select"), {
+      target: { value: "rffEvent" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-type-picker-ok"));
+    await waitFor(() => {
+      expect(createItem).toHaveBeenCalledWith({
+        contentType: "rffEvent",
+        folderPath: "/Sites/Demo",
+      });
+    });
+    expect(openWindow).toHaveBeenCalled();
   });
 });
 

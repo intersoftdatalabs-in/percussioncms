@@ -47,7 +47,12 @@ describe("userHomepageApi", () => {
     expect(canonicalizeHomepageType("Editor")).toBe(HOMEPAGE_TYPES.EDITOR);
     expect(canonicalizeHomepageType("editor")).toBe(HOMEPAGE_TYPES.EDITOR);
     expect(canonicalizeHomepageType("arch")).toBe(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(canonicalizeHomepageType("explorer")).toBe(HOMEPAGE_TYPES.EXPLORER);
+    expect(canonicalizeHomepageType("Explorer")).toBe(HOMEPAGE_TYPES.EXPLORER);
+    expect(canonicalizeHomepageType("developer")).toBe(HOMEPAGE_TYPES.DEVELOPER);
     expect(canonicalizeHomepageType('"Home"')).toBe(HOMEPAGE_TYPES.HOME);
+    expect(canonicalizeHomepageType("explorer")).toBe(HOMEPAGE_TYPES.EXPLORER);
+    expect(canonicalizeHomepageType("developer")).toBe(HOMEPAGE_TYPES.DEVELOPER);
   });
 
   it("getMyHomepageOverride treats 404 as empty override", async () => {

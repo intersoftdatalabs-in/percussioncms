@@ -9,7 +9,10 @@
  */
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { RelationshipsView } from "../../../main/ts/contentExplorer/views/RelationshipsView";
+import {
+  RelationshipsView,
+  relationshipSummaryItemId,
+} from "../../../main/ts/contentExplorer/views/RelationshipsView";
 import type { PSNodeRelationshipSummary } from "../../../main/ts/api/contentExplorer/relationship";
 import { renderA11yGate } from "./a11y";
 
@@ -84,6 +87,25 @@ describe("RelationshipsView", () => {
       ),
     );
     await renderA11yGate(container);
+  });
+
+  it("parses a GUID id before calling /relationships (#3557)", async () => {
+    expect(relationshipSummaryItemId("1-101-708")).toBe("708");
+    expect(relationshipSummaryItemId(708)).toBe("708");
+    const loader = vi.fn().mockResolvedValue(SYNTHETIC_SERVER);
+    render(
+      <RelationshipsView
+        item={{ id: "1-101-708", folderPath: "/Sites/Foo" }}
+        loadServerSummary={loader}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loader).toHaveBeenCalledWith("708");
   });
 
   it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {

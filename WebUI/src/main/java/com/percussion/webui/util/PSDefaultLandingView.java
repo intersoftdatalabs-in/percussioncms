@@ -43,6 +43,12 @@ public final class PSDefaultLandingView {
   public static final String VIEW_WORKFLOW = "workflow";
   public static final String VIEW_WIDGET_BUILDER = "widgetbuilder";
 
+  /** Content Explorer SPA ({@code spa.jsp?entry=explorer}). */
+  public static final String VIEW_EXPLORER = "explorer";
+
+  /** Developer / System Definition SPA ({@code spa.jsp?entry=developer}). */
+  public static final String VIEW_DEVELOPER = "developer";
+
   /** Canonical product homepage types (PascalCase), peer to role/user service constants. */
   public static final String TYPE_HOME = "Home";
 
@@ -53,6 +59,12 @@ public final class PSDefaultLandingView {
   public static final String TYPE_PUBLISH = "Publish";
   public static final String TYPE_WORKFLOW = "Workflow";
   public static final String TYPE_WIDGET_BUILDER = "WidgetBuilder";
+
+  /** Product homepage type: Content Explorer. */
+  public static final String TYPE_EXPLORER = "Explorer";
+
+  /** Product homepage type: Developer / System Definition. */
+  public static final String TYPE_DEVELOPER = "Developer";
 
   /**
    * Views that require Admin. Designer may open a subset ({@link #DESIGNER_ALLOWED_VIEWS});
@@ -65,32 +77,26 @@ public final class PSDefaultLandingView {
           VIEW_PUBLISH,
           VIEW_WORKFLOW,
           VIEW_WIDGET_BUILDER,
-          "developer",
+          VIEW_DEVELOPER,
           "admin");
 
   /** Subset of admin-gated views that Designers may open (matches index.jsp designerViews). */
   private static final Set<String> DESIGNER_ALLOWED_VIEWS =
-      Set.of(VIEW_DESIGN, VIEW_ARCH, VIEW_PUBLISH, VIEW_WIDGET_BUILDER, "developer");
+      Set.of(VIEW_DESIGN, VIEW_ARCH, VIEW_PUBLISH, VIEW_WIDGET_BUILDER, VIEW_DEVELOPER);
 
   /** Canonical type → view key. */
   private static final Map<String, String> TYPE_TO_VIEW =
-      Map.of(
-          TYPE_HOME,
-          VIEW_HOME,
-          TYPE_DASHBOARD,
-          VIEW_DASH,
-          TYPE_EDITOR,
-          VIEW_EDITOR,
-          TYPE_DESIGNER,
-          VIEW_DESIGN,
-          TYPE_ARCHITECTURE,
-          VIEW_ARCH,
-          TYPE_PUBLISH,
-          VIEW_PUBLISH,
-          TYPE_WORKFLOW,
-          VIEW_WORKFLOW,
-          TYPE_WIDGET_BUILDER,
-          VIEW_WIDGET_BUILDER);
+      Map.ofEntries(
+          Map.entry(TYPE_HOME, VIEW_HOME),
+          Map.entry(TYPE_DASHBOARD, VIEW_DASH),
+          Map.entry(TYPE_EDITOR, VIEW_EDITOR),
+          Map.entry(TYPE_DESIGNER, VIEW_DESIGN),
+          Map.entry(TYPE_ARCHITECTURE, VIEW_ARCH),
+          Map.entry(TYPE_PUBLISH, VIEW_PUBLISH),
+          Map.entry(TYPE_WORKFLOW, VIEW_WORKFLOW),
+          Map.entry(TYPE_WIDGET_BUILDER, VIEW_WIDGET_BUILDER),
+          Map.entry(TYPE_EXPLORER, VIEW_EXPLORER),
+          Map.entry(TYPE_DEVELOPER, VIEW_DEVELOPER));
 
   private PSDefaultLandingView() {}
 
@@ -144,6 +150,10 @@ public final class PSDefaultLandingView {
       case "widgetbuilder":
       case "widget-builder":
         return VIEW_WIDGET_BUILDER;
+      case "explorer":
+        return VIEW_EXPLORER;
+      case "developer":
+        return VIEW_DEVELOPER;
       default:
         return VIEW_HOME;
     }

@@ -18,12 +18,23 @@
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { AccountSection } from "../../../main/ts/profile/AccountSection";
+import {
+  AccountSection,
+  allowedDefaultCommunityDraft,
+} from "../../../main/ts/profile/AccountSection";
 import type { CurrentUserProfile } from "../../../main/ts/api/user/userProfileApi";
 import {
   isValidEmailAddress,
   normalizeCurrentUser,
 } from "../../../main/ts/api/user/userProfileApi";
+
+vi.mock("../../../main/ts/api/preferences/preferencesApi", () => ({
+  getAllUserPreferences: vi.fn().mockResolvedValue([]),
+  saveUserPreference: vi.fn().mockResolvedValue({ name: "", value: "" }),
+  loadUserPreference: vi.fn().mockResolvedValue(null),
+  PREF_CATEGORY_SYS: "sys_preferences",
+  PREF_CONTEXT_PRIVATE: "private",
+}));
 
 function internalProfile(
   overrides: Partial<CurrentUserProfile> = {},
@@ -35,6 +46,7 @@ function internalProfile(
     roles: ["Admin", "Editor"],
     communities: ["Default"],
     currentCommunity: "Default",
+    defaultCommunity: "Default",
     adminUser: true,
     designerUser: false,
     accessibilityUser: false,
@@ -60,6 +72,19 @@ describe("normalizeCurrentUser / isValidEmailAddress", () => {
     expect(profile.email).toBe("e@example.com");
     expect(profile.emailEditable).toBe(true);
     expect(profile.communities).toEqual(["Default", "Corporate"]);
+    expect(profile.defaultCommunity).toBe("");
+  });
+
+  it("unwraps stored defaultCommunity from GET current user", () => {
+    const profile = normalizeCurrentUser({
+      CurrentUser: {
+        name: "Admin",
+        communities: ["Default", "Corporate"],
+        currentCommunity: "Corporate",
+        defaultCommunity: "Default",
+      },
+    });
+    expect(profile.defaultCommunity).toBe("Default");
   });
 
   it("marks DIRECTORY as not email-editable", () => {
@@ -201,5 +226,286 @@ describe("AccountSection", () => {
       );
     });
     expect(loadProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("renders default community from profile.communities only", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Corporate",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community-select"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community-select",
+    ) as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    expect(select.value).toBe("Corporate");
+    const options = Array.from(select.options).map((o) => o.value);
+    expect(options).toEqual(["", "Default", "Corporate"]);
+    expect(options).not.toContain("Unknown");
+  });
+
+  it("falls back to empty select when stored default is not in membership", async () => {
+    expect(
+      allowedDefaultCommunityDraft({
+        communities: ["Default"],
+        defaultCommunity: "Stale Community",
+      }),
+    ).toBe("");
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "RemovedFromRole",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community-select"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community-select",
+    ) as HTMLSelectElement;
+    expect(select.value).toBe("");
+    expect(Array.from(select.options).map((o) => o.value)).toEqual([
+      "",
+      "Default",
+      "Corporate",
+    ]);
+  });
+
+  it("saves allowed default community and reloads returned value", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Default",
+      }),
+    );
+    const saveDefaultCommunity = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Corporate",
+      }),
+    );
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        saveDefaultCommunity={saveDefaultCommunity}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community-select"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community-select",
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "Corporate" } });
+    fireEvent.click(
+      screen.getByTestId("perc-profile-account-default-community-save"),
+    );
+
+    await waitFor(() => {
+      expect(saveDefaultCommunity).toHaveBeenCalledWith("Corporate");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/default community was saved/i);
+    });
+    expect(select.value).toBe("Corporate");
+  });
+
+  it("shows an unavailable note when the user has no communities", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: [],
+        defaultCommunity: "",
+      }),
+    );
+    render(<AccountSection loadProfile={loadProfile} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(
+          "perc-profile-account-default-community-unavailable",
+        ).textContent,
+      ).toMatch(/no communities/i);
+    });
+    expect(
+      screen.queryByTestId("perc-profile-account-default-community-save"),
+    ).toBeNull();
+  });
+
+  it("clears the stored default when Use role default is saved", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "Default",
+      }),
+    );
+    const saveDefaultCommunity = vi.fn().mockResolvedValue(
+      internalProfile({
+        communities: ["Default", "Corporate"],
+        defaultCommunity: "",
+      }),
+    );
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        saveDefaultCommunity={saveDefaultCommunity}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-default-community-select"),
+      ).toBeTruthy();
+    });
+    const select = screen.getByTestId(
+      "perc-profile-account-default-community-select",
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(
+      screen.getByTestId("perc-profile-account-default-community-save"),
+    );
+
+    await waitFor(() => {
+      expect(saveDefaultCommunity).toHaveBeenCalledWith("");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/default community was saved/i);
+    });
+  });
+
+  it("reloads the remember-last checkbox from stored prefs", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: true, last: "Default" });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+      />,
+    );
+    await waitFor(() => {
+      const box = screen.getByTestId(
+        "perc-profile-account-remember-last",
+      ) as HTMLInputElement;
+      expect(box.checked).toBe(true);
+    });
+    expect(loadRememberLast).toHaveBeenCalledTimes(1);
+  });
+
+  it("persists remember-last and current community when enabled", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockResolvedValue(true);
+    const persistLastCommunity = vi.fn().mockResolvedValue("Default");
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+        persistLastCommunity={persistLastCommunity}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(saveRememberLast).toHaveBeenCalledWith("Admin", true);
+      expect(persistLastCommunity).toHaveBeenCalledWith("Admin", "Default");
+      expect(
+        screen.getByTestId("perc-profile-account-success").textContent,
+      ).toMatch(/remember-last/i);
+    });
+  });
+
+  it("reverts the checkbox when remember-last save fails", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockRejectedValue({
+      status: 500,
+      statusText: "Err",
+      body: null,
+    });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-form-error"),
+      ).toBeTruthy();
+    });
+    const box = screen.getByTestId(
+      "perc-profile-account-remember-last",
+    ) as HTMLInputElement;
+    expect(box.checked).toBe(false);
+  });
+
+  it("keeps remember-last checked when only last-community persist fails", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadRememberLast = vi
+      .fn()
+      .mockResolvedValue({ remember: false, last: "" });
+    const saveRememberLast = vi.fn().mockResolvedValue(true);
+    const persistLastCommunity = vi.fn().mockRejectedValue({
+      status: 500,
+      statusText: "Err",
+      body: null,
+    });
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadRememberLast={loadRememberLast}
+        saveRememberLast={saveRememberLast}
+        persistLastCommunity={persistLastCommunity}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-account-remember-last"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-remember-last"));
+    await waitFor(() => {
+      expect(saveRememberLast).toHaveBeenCalledWith("Admin", true);
+      expect(persistLastCommunity).toHaveBeenCalledWith("Admin", "Default");
+      expect(
+        screen.getByTestId("perc-profile-account-form-error"),
+      ).toBeTruthy();
+    });
+    const box = screen.getByTestId(
+      "perc-profile-account-remember-last",
+    ) as HTMLInputElement;
+    expect(box.checked).toBe(true);
   });
 });

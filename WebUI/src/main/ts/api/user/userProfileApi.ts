@@ -22,7 +22,7 @@
  * on the path — no IDOR).</p>
  */
 
-import { get, put } from "../client";
+import { get, put, putPlainText } from "../client";
 import { PATHS } from "../paths";
 
 export type UserProviderType = "INTERNAL" | "DIRECTORY";
@@ -34,6 +34,8 @@ export interface CurrentUserProfile {
   roles: string[];
   communities: string[];
   currentCommunity: string;
+  /** Persisted {@code sys_defaultCommunity}; empty when unset. */
+  defaultCommunity: string;
   adminUser: boolean;
   designerUser: boolean;
   accessibilityUser: boolean;
@@ -109,6 +111,7 @@ export function normalizeCurrentUser(data: unknown): CurrentUserProfile {
     roles: asStringList(body.roles),
     communities: asStringList(body.communities),
     currentCommunity: asString(body.currentCommunity, "").trim(),
+    defaultCommunity: asString(body.defaultCommunity, "").trim(),
     adminUser: asBoolean(body.adminUser),
     designerUser: asBoolean(body.designerUser),
     accessibilityUser: asBoolean(body.accessibilityUser),
@@ -135,6 +138,20 @@ export async function updateMyAccountEmail(
     },
   };
   const data = await put<unknown>(PATHS.USER_PROFILE, body);
+  return normalizeCurrentUser(data);
+}
+
+/**
+ * PUT self-service default community. Server always targets the session user.
+ * Blank {@code communityName} clears the stored default.
+ */
+export async function updateMyDefaultCommunity(
+  communityName: string,
+): Promise<CurrentUserProfile> {
+  const data = await putPlainText<unknown>(
+    PATHS.USER_DEFAULT_COMMUNITY,
+    communityName == null ? "" : String(communityName).trim(),
+  );
   return normalizeCurrentUser(data);
 }
 

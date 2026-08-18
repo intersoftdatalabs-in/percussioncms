@@ -198,18 +198,54 @@ public class SearchAdaptor implements ISearchAdaptor {
     if (StringUtils.isNotBlank(out.getSortColumn())) {
       out.setSortColumn(out.getSortColumn().trim());
     }
-    if (StringUtils.isNotBlank(out.getFolderPath())) {
-      out.setFolderPath(out.getFolderPath().trim());
-    }
+    out.setFolderPath(normalizeFolderPath(out.getFolderPath()));
     return out;
+  }
+
+  /**
+   * Repository folder filter for execute ({@code //Sites/...}).
+   *
+   * <p>Explorer seeds {@code /} as the tree root. {@code getIdByPath("//")} is not a folder
+   * — {@code PSLocalExecutableSearch} wraps that as a nameless {@code IOException} and the
+   * operator sees {@code An error occurred while using search web service. Message:
+   * java.io.IOException} (#3517). Drop root / blank; convert a single leading slash to the
+   * {@code //} form {@code getIdByPath} requires.
+   *
+   * <p>CMS paths always use {@code /} (not OS file separators). Backslashes and a drive
+   * letter are stripped only so a pasted Windows-style string still becomes a repository
+   * path.
+   *
+   * @return {@code //Sites/...} form, or {@code null} when the path is empty or Explorer
+   *     root (unscoped execute)
+   */
+  static String normalizeFolderPath(String path) {
+    if (StringUtils.isBlank(path)) {
+      return null;
+    }
+    String p = path.trim().replace('\\', '/');
+    if (p.length() >= 2 && Character.isLetter(p.charAt(0)) && p.charAt(1) == ':') {
+      p = p.substring(2);
+    }
+    p = p.replaceAll("/{2,}", "/");
+    if (p.isEmpty() || "/".equals(p)) {
+      return null;
+    }
+    if (!p.startsWith("/")) {
+      p = "/" + p;
+    }
+    if ("/".equals(p)) {
+      return null;
+    }
+    return "/" + p;
   }
 
   static void applyExecuteOverrides(PSSearch search, SearchExecuteRequest req) {
     if (req == null || search == null) {
       return;
     }
-    if (StringUtils.isNotBlank(req.getFolderPath())) {
-      search.setProperty(PSSearch.PROP_FOLDER_PATH, req.getFolderPath().trim());
+    String folderPath = normalizeFolderPath(req.getFolderPath());
+    if (folderPath != null) {
+      search.setProperty(PSSearch.PROP_FOLDER_PATH, folderPath);
       // Default recurse when client scopes by folder (Explorer parity)
       if (StringUtils.isBlank(search.getProperty(PSSearch.PROP_FOLDER_PATH_RECURSE))) {
         search.setProperty(PSSearch.PROP_FOLDER_PATH_RECURSE, "true");

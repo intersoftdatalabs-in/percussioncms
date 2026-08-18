@@ -33,6 +33,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.PSAuthenticateUserUtils;
 import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
@@ -214,27 +215,23 @@ public class PSUserService implements IPSUserService {
                   HOMEPAGE_TYPE_ARCHITECTURE,
                   HOMEPAGE_TYPE_PUBLISH,
                   HOMEPAGE_TYPE_WORKFLOW,
-                  HOMEPAGE_TYPE_WIDGET_BUILDER)));
+                  HOMEPAGE_TYPE_WIDGET_BUILDER,
+                  HOMEPAGE_TYPE_EXPLORER,
+                  HOMEPAGE_TYPE_DEVELOPER)));
 
   /** Maps canonical homepage type → {@code index.jsp} {@code view} key. */
   private static final Map<String, String> HOMEPAGE_TYPE_TO_VIEW_KEY =
-      Map.of(
-          HOMEPAGE_TYPE_HOME,
-          "home",
-          HOMEPAGE_TYPE_DASHBOARD,
-          "dash",
-          HOMEPAGE_TYPE_EDITOR,
-          "editor",
-          HOMEPAGE_TYPE_DESIGNER,
-          "design",
-          HOMEPAGE_TYPE_ARCHITECTURE,
-          "arch",
-          HOMEPAGE_TYPE_PUBLISH,
-          "publish",
-          HOMEPAGE_TYPE_WORKFLOW,
-          "workflow",
-          HOMEPAGE_TYPE_WIDGET_BUILDER,
-          "widgetbuilder");
+      Map.ofEntries(
+          Map.entry(HOMEPAGE_TYPE_HOME, "home"),
+          Map.entry(HOMEPAGE_TYPE_DASHBOARD, "dash"),
+          Map.entry(HOMEPAGE_TYPE_EDITOR, "editor"),
+          Map.entry(HOMEPAGE_TYPE_DESIGNER, "design"),
+          Map.entry(HOMEPAGE_TYPE_ARCHITECTURE, "arch"),
+          Map.entry(HOMEPAGE_TYPE_PUBLISH, "publish"),
+          Map.entry(HOMEPAGE_TYPE_WORKFLOW, "workflow"),
+          Map.entry(HOMEPAGE_TYPE_WIDGET_BUILDER, "widgetbuilder"),
+          Map.entry(HOMEPAGE_TYPE_EXPLORER, "explorer"),
+          Map.entry(HOMEPAGE_TYPE_DEVELOPER, "developer"));
 
   public static final String PERCUSSION_ADMIN_NAME = "PercussionAdmin";
   public static final String ADMIN_NAME = "Admin";
@@ -981,6 +978,66 @@ public class PSUserService implements IPSUserService {
   }
 
   /**
+   * Self-service default community for the signed-in user only (issue #3508). Persists {@link
+   * PSAuthenticateUserUtils#SYS_DEFAULTCOMMUNITY} on the user subject. Blank body clears the
+   * stored default so role-level defaults apply at the next login.
+   */
+  @Override
+  @PUT
+  @Path("/defaultCommunity")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSCurrentUser updateMyDefaultCommunity(String communityName) throws PSDataServiceException {
+    PSCurrentUser current = getCurrentUser();
+    String canonical = canonicalizeAllowedCommunity(communityName, current.getCommunities());
+    if (canonical == null) {
+      PSParameterValidationUtils.validateParameters("updateMyDefaultCommunity")
+          .rejectField(
+              "defaultCommunity",
+              "Community is not in your allowed communities.",
+              communityName)
+          .throwIfInvalid();
+    }
+
+    try {
+      backEndRoleMgr.setSubjectAttribute(
+          current.getName(), PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY, canonical);
+    } catch (RuntimeException e) {
+      logSelfServiceAccountUpdateAudit(AuditOutcome.FAILURE);
+      log.error(
+          "Self-service default community update failed for user {}: {}",
+          current.getName(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    }
+
+    logSelfServiceAccountUpdateAudit(AuditOutcome.SUCCESS);
+    current.setDefaultCommunity(canonical);
+    return current;
+  }
+
+  /**
+   * Maps a requested community name onto the user's membership list. Blank request clears
+   * (returns empty string). Unknown / disallowed names return {@code null}.
+   */
+  static String canonicalizeAllowedCommunity(String requested, List<String> allowed) {
+    if (requested == null || requested.isBlank()) {
+      return "";
+    }
+    if (allowed == null) {
+      return null;
+    }
+    String trimmed = requested.trim();
+    for (String name : allowed) {
+      if (name != null && trimmed.equalsIgnoreCase(name.trim())) {
+        return name.trim();
+      }
+    }
+    return null;
+  }
+
+  /**
    * Best-effort audit for self-service account updates. Never throws — audit infrastructure must
    * not mask the primary operation outcome.
    */
@@ -1010,11 +1067,26 @@ public class PSUserService implements IPSUserService {
   /**
    * Best-effort session community summary for the profile hub. Failures are logged and left empty
    * so account identity still returns.
+   *
+   * <p>Stored {@code sys_defaultCommunity} is applied only after membership names are loaded, and
+   * only when it is still in that list — {@code GET /user/user/current} never returns a disallowed
+   * default.
    */
   private void enrichCurrentUserCommunities(PSCurrentUser currUser) {
+    String storedDefault = null;
+    try {
+      storedDefault =
+          backEndRoleMgr.getSubjectAttribute(
+              currUser.getName(), PSAuthenticateUserUtils.SYS_DEFAULTCOMMUNITY);
+    } catch (Exception e) {
+      log.debug(
+          "Unable to load default community for current user: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req == null || req.getUserSession() == null) {
+        applyAllowedStoredDefault(currUser, storedDefault);
         return;
       }
       String currentCommunity = req.getUserSession().getUserCurrentCommunity();
@@ -1032,6 +1104,16 @@ public class PSUserService implements IPSUserService {
           "Unable to load community summary for current user: {}",
           PSExceptionUtils.getMessageForLog(e));
     }
+    applyAllowedStoredDefault(currUser, storedDefault);
+  }
+
+  /**
+   * Sets {@code defaultCommunity} only when {@code storedDefault} is still in the user's
+   * membership list. Unknown or disallowed names become empty.
+   */
+  static void applyAllowedStoredDefault(PSCurrentUser currUser, String storedDefault) {
+    String canonical = canonicalizeAllowedCommunity(storedDefault, currUser.getCommunities());
+    currUser.setDefaultCommunity(canonical == null ? "" : canonical);
   }
 
   /**
@@ -1133,7 +1215,7 @@ public class PSUserService implements IPSUserService {
                   + homepage
                   + "'. Allowed: "
                   + ALLOWED_HOMEPAGE_TYPES
-                  + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder).",
+                  + " (or view keys home/dash/editor/design/arch/publish/workflow/widgetbuilder/explorer/developer).",
               homepage)
           .throwIfInvalid();
     }
@@ -1227,6 +1309,10 @@ public class PSUserService implements IPSUserService {
       case "widget-builder":
       case "widget_builder":
         return HOMEPAGE_TYPE_WIDGET_BUILDER;
+      case "explorer":
+        return HOMEPAGE_TYPE_EXPLORER;
+      case "developer":
+        return HOMEPAGE_TYPE_DEVELOPER;
       default:
         return null;
     }

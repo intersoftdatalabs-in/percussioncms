@@ -564,6 +564,8 @@ describe("DeveloperShell", () => {
   it("renders shell and loads content types by default", async () => {
     render(<DeveloperShell embedded />);
     expect(screen.getByTestId("perc-developer-shell")).toBeTruthy();
+    expect(screen.getByTestId("developer-related-links")).toBeTruthy();
+    expect(screen.getByTestId("developer-design-library-link")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
@@ -1149,6 +1151,33 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-detail-notice").textContent).toMatch(/saved/i);
     });
+  });
+
+  it("keeps Developer mounted when slot associations are a non-array Jackson envelope (#3554)", async () => {
+    const { getSlotDetail } = await import("../../../main/ts/api/developer/assemblyApi");
+    (getSlotDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      name: "sys_AutoIndex",
+      label: "Auto Index",
+      associations: { empty: false },
+      designGaps: {
+        DesignGap: { code: "SLOT_CREATE_DELETE", message: "Create / delete not supported" },
+      },
+    });
+    render(<DeveloperShell initialSection="slots" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Target/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    expect(screen.getByTestId("tab-developer-slots")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-assoc-empty")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-gaps").textContent).toContain(
+      "Create / delete not supported",
+    );
+    expect(screen.queryByTestId("developer-slot-detail-error")).toBeNull();
   });
 
   it("edits object ACL permissions on content type detail and saves", async () => {

@@ -20,8 +20,11 @@
  * <p>Verifies the modern React Content Explorer shell exposes the Translations
  * panel chrome and loads item locale / variants from the public REST façade
  * ({@code GET /rest/content-explorer/translations/{itemId}}). Create-variant
- * is exercised only when a content row with a numeric id is selectable and
- * the CMS returns target locales; chrome visibility is the hard gate.</p>
+ * is exercised when a content row is selectable (GUID last-segment ids such as
+ * {@code 1-101-708} → {@code 708}, #3545 / parent #2649). The client must not
+ * emit {@code Selected item does not have a numeric content id} for a
+ * GUID-shaped row. Folders/sites keep the select-item hint. Chrome visibility
+ * is the hard gate when no content row is listed.</p>
  *
  * <p>Tags: {@code @explorer-translations} {@code @p-trans} {@code @smoke}</p>
  *
@@ -32,10 +35,54 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  expectNoSeriousA11yViolations,
+} = require("./helpers/a11y");
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
   await page.locator('[data-testid="detail-list"]').waitFor({ timeout: 15_000 });
+}
+
+/** Click the first matching row; re-query if the locator detaches mid-click. */
+async function clickFirstRowWithDetachRetry(rows) {
+  await rows.first().click({ force: true, timeout: 10_000 }).catch(async () => {
+    await rows.first().click({ force: true, timeout: 10_000 }).catch(() => {});
+  });
+}
+
+/**
+ * Open the first listed content row (page/asset), drilling one folder when
+ * the current list is folders only. GUID-shaped {@code data-testid} values
+ * are valid (#3545).
+ */
+async function selectFirstContentRow(page) {
+  const list = page.locator('[data-testid="detail-list"]');
+  const itemRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+  );
+  if ((await itemRows.count()) > 0) {
+    await clickFirstRowWithDetachRetry(itemRows);
+    return true;
+  }
+  const folderRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  if ((await folderRows.count()) === 0) {
+    return false;
+  }
+  await folderRows.first().dblclick({ force: true, timeout: 10_000 }).catch(
+    async () => {
+      await clickFirstRowWithDetachRetry(folderRows);
+    },
+  );
+  await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
+  if ((await itemRows.count()) > 0) {
+    await clickFirstRowWithDetachRetry(itemRows);
+    return true;
+  }
+  return false;
 }
 
 test.describe("modern React Content Explorer — translations (P-Trans #2430)", () => {
@@ -114,19 +161,22 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
         return;
       }
 
-      const target = enabledCount > 0 ? enabledRows.first() : anyRows.first();
-      await target.click({ force: true, timeout: 10_000 }).catch(async () => {
-        // Re-query after detach from folder refresh.
-        const again = list
-          .locator('tbody tr[data-testid^="detail-row-"]')
-          .first();
-        await again.click({ force: true, timeout: 10_000 }).catch(() => {});
-      });
+      const selectedContent = await selectFirstContentRow(page);
+      if (!selectedContent) {
+        const target = enabledCount > 0 ? enabledRows.first() : anyRows.first();
+        await target.click({ force: true, timeout: 10_000 }).catch(async () => {
+          // Re-query after detach from folder refresh.
+          const again = list
+            .locator('tbody tr[data-testid^="detail-row-"]')
+            .first();
+          await again.click({ force: true, timeout: 10_000 }).catch(() => {});
+        });
+      }
 
       await page.locator('[data-testid="explorer-menu-view"]').click();
       await page.locator('[data-testid="explorer-toggle-translations"]').click();
 
-      // Either full panel (numeric content id) or select-item hint (folder / no id).
+      // Content row (including GUID 1-101-708) → panel; folder/site → hint.
       const panel = page.locator('[data-testid="translations-panel"]');
       const hint = page.locator('[data-testid="explorer-translations-hint"]');
       await expect(panel.or(hint)).toBeVisible({ timeout: 15_000 });
@@ -150,8 +200,130 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
           await expect(
             page.locator('[data-testid="translations-inflight-note"]'),
           ).toBeVisible();
+          await expectNoSeriousA11yViolations(page, {
+            scope: '[data-testid="translations-panel"]',
+          });
         }
+      } else {
+        await expect(hint).toBeVisible();
       }
+    },
+  );
+
+  test(
+    "create-variant on a content row does not emit numeric-id client error (#3545)",
+    { tag: ["@explorer-translations", "@p-trans"] },
+    async ({ page }) => {
+      test.setTimeout(75_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      const tree = page.locator('[data-testid="explorer-tree"]');
+      await expect(tree).toBeVisible({ timeout: 15_000 });
+      const sitesNode = page
+        .locator(
+          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+        )
+        .first();
+      if ((await sitesNode.count()) > 0) {
+        await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+        await listWaitReady(page);
+        await page.waitForLoadState("networkidle").catch(() => {});
+      }
+
+      const selectedContent = await selectFirstContentRow(page);
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-translations"]').click();
+
+      const panel = page.locator('[data-testid="translations-panel"]');
+      const hint = page.locator('[data-testid="explorer-translations-hint"]');
+      await expect(panel.or(hint)).toBeVisible({ timeout: 15_000 });
+
+      if (!selectedContent || (await panel.count()) === 0) {
+        await expect(hint).toBeVisible();
+        expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+          [],
+        );
+        return;
+      }
+
+      await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
+        timeout: 20_000,
+      });
+      const state = await panel.getAttribute("data-testid-state");
+      if (state !== "ok") {
+        expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+          [],
+        );
+        return;
+      }
+
+      await expect(
+        page.locator('[data-testid="translations-current-locale"]'),
+      ).toBeVisible();
+
+      const localeOptions = page.locator(
+        '[data-testid^="translations-locale-option-"]',
+      );
+      if ((await localeOptions.count()) === 0) {
+        expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+          [],
+        );
+        return;
+      }
+
+      /** @type {{ itemIds?: number[] } | null} */
+      let posted = null;
+      await page.route("**/rest/content-explorer/translations", async (route) => {
+        if (route.request().method() !== "POST") {
+          await route.continue();
+          return;
+        }
+        try {
+          posted = route.request().postDataJSON();
+        } catch {
+          posted = {};
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            created: [
+              {
+                contentId: 901,
+                locale: "xx-test",
+                role: "translation",
+              },
+            ],
+          }),
+        });
+      });
+
+      await localeOptions.first().click();
+      await page.locator('[data-testid="translations-create-submit"]').click();
+
+      await expect(
+        page.locator('[data-testid="translations-create-success"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="translations-create-error"]'),
+      ).toHaveCount(0);
+      await expect(
+        page.getByText(/does not have a numeric content id/i),
+      ).toHaveCount(0);
+
+      expect(posted, "create-variant POST should have been sent").not.toBeNull();
+      const ids = posted && Array.isArray(posted.itemIds) ? posted.itemIds : [];
+      expect(ids.length).toBeGreaterThan(0);
+      expect(Number(ids[0])).toBeGreaterThan(0);
+      expect(Number.isFinite(Number(ids[0]))).toBe(true);
+
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 });

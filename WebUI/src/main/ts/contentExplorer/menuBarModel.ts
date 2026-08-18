@@ -58,7 +58,6 @@ export interface ExplorerMenuBarItem {
   /** Optional disabled predicate flag name resolved by the host. */
   disabledWhen?:
     | "noSelection"
-    | "noClipboardContext"
     | "noSiteContext"
     | "noFolderContext";
 }
@@ -174,8 +173,8 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.CLIPBOARD_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_CLIPBOARD_ARIA,
           testId: "explorer-toggle-clipboard",
+          /** Always enabled so empty clipboard can still be viewed (#3544 / #3551). */
           toggle: true,
-          disabledWhen: "noClipboardContext",
         },
       ],
     },

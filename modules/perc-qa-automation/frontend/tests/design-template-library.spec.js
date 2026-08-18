@@ -51,9 +51,10 @@ test.describe("Design template library list shell (#2808)", () => {
   }) => {
     await page.goto(designTemplatesUrl(), { waitUntil: "networkidle" });
 
-    await expect(page.locator('[data-testid="nav-design"]')).toBeVisible({
+    await expect(page.locator('[data-testid="perc-spa-topnav"]')).toBeVisible({
       timeout: 20_000,
     });
+    await expect(page.locator('[data-testid="nav-design"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="perc-design-shell"]')).toBeVisible({
       timeout: 20_000,
     });

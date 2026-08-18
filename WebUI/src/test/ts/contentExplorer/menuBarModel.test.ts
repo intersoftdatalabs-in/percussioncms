@@ -53,6 +53,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(byId["view-clipboard"]).toBe("explorer-toggle-clipboard");
   });
 
+  it("View → Clipboard is an always-enabled toggle (#3544)", () => {
+    const view = buildExplorerMenuBarGroups().find((g) => g.id === "view");
+    const clipboard = view?.items.find((i) => i.id === "view-clipboard");
+    expect(clipboard?.toggle).toBe(true);
+    expect(clipboard?.disabledWhen).toBeUndefined();
+    expect(clipboard?.testId).toBe("explorer-toggle-clipboard");
+  });
+
   it("puts clipboard-add under Content with stable test id", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const add = content?.items.find((i) => i.id === "content-clipboard-add");

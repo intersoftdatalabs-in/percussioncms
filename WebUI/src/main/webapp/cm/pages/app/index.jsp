@@ -79,6 +79,7 @@
             "admin",
             "widgetbuilder",
             "developer",
+            "explorer",
             "arch",
             "architecture",
             "navigation",
@@ -86,7 +87,9 @@
             "dash"
     };
 
-    // List of views requiring admin role
+    // List of views requiring admin role.
+    // home / dash / explorer are ungated spaViews — they must stay off this list
+    // so Contributor and Designer stored landings are not reset (issue #3536).
     String[] adminViews = new String[]{
             "design",
             "arch",
@@ -99,7 +102,8 @@
             "admin"
     };
 
-    // List of views requiring designer role
+    // Subset of adminViews that Designer may open. Only consulted inside the
+    // isAdminView gate below — listing an ungated view (explorer) here is a no-op.
     String[] designerViews = new String[]{
             "design",
             "arch",
@@ -249,7 +253,8 @@
             entry = "design";
         else if ("home".equals(view) || "publish".equals(view)
                 || "admin".equals(view)
-                || "developer".equals(view))
+                || "developer".equals(view)
+                || "explorer".equals(view))
             entry = view;
         else
             entry = "home";

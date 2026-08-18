@@ -61,6 +61,11 @@ describe("actionDispatch", () => {
     expect(classifyAction(action({ name: "Quick_Edit" }))).toBe("editor");
   });
 
+  it("classifies New Item host as rest so the type picker can run", () => {
+    expect(classifyAction(action({ name: "New" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Create_New_Item" }))).toBe("rest");
+  });
+
   it("classifies Item_Preview and assembler URLs as rest", () => {
     expect(classifyAction(action({ name: "Item_Preview" }))).toBe("rest");
     expect(
@@ -288,14 +293,115 @@ describe("actionDispatch", () => {
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("contentId=99");
   });
 
-  it("New Item parent without a type asks to choose a type", async () => {
+  it("New Item host with no types still asks to choose a type", async () => {
     const createItem = vi.fn();
     const result = await dispatchAction(action({ name: "Create_New_Item" }), {
       item: item({ type: "folder", path: "/Sites/Demo" }),
       folderPath: "/Sites/Demo",
       createItem,
+      loadContentTypes: async () => [],
     });
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TYPE);
+    expect(createItem).not.toHaveBeenCalled();
+  });
+
+  it("New Item host opens a type picker and creates the picked type", async () => {
+    const openWindow = vi.fn();
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "88",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const pickContentType = vi.fn().mockResolvedValue("rffEvent");
+    const result = await dispatchAction(action({ name: "New" }), {
+      item: item({ type: "folder", path: "/Sites/Demo", id: "1" }),
+      folderPath: "/Sites/Demo",
+      createItem,
+      openWindow,
+      pickContentType,
+      loadContentTypes: async () => [
+        { name: "percFile", label: "File" },
+        { name: "rffEvent", label: "Event" },
+      ],
+    });
+    expect(result.messageKey).toBeUndefined();
+    expect(result.refresh).toBe(true);
+    expect(pickContentType).toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/Demo",
+    });
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("contentId=88");
+  });
+
+  it("New Item host auto-selects a single allowed type", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "89",
+      folderPath: "//Sites/Demo",
+      name: "New-percFile",
+      contentType: "percFile",
+    });
+    const pickContentType = vi.fn();
+    const result = await dispatchAction(action({ name: "Create_New_Item" }), {
+      folderPath: "/Sites/Demo",
+      createItem,
+      openWindow: vi.fn(),
+      pickContentType,
+      loadContentTypes: async () => [{ name: "percFile", label: "File" }],
+    });
+    expect(result.refresh).toBe(true);
+    expect(pickContentType).not.toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "percFile",
+      folderPath: "/Sites/Demo",
+    });
+  });
+
+  it("New Item host uses type children without calling the catalog", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "90",
+      folderPath: "//Sites/Demo",
+      name: "New-rffEvent",
+      contentType: "rffEvent",
+    });
+    const loadContentTypes = vi.fn();
+    const pickContentType = vi.fn().mockResolvedValue("rffEvent");
+    await dispatchAction(
+      action({
+        name: "New",
+        children: [
+          { name: "percFile", label: "File", sortRank: 1, menuType: "MENUITEM" },
+          { name: "rffEvent", label: "Event", sortRank: 2, menuType: "MENUITEM" },
+        ],
+      }),
+      {
+        folderPath: "/Sites/Demo",
+        createItem,
+        openWindow: vi.fn(),
+        pickContentType,
+        loadContentTypes,
+      },
+    );
+    expect(loadContentTypes).not.toHaveBeenCalled();
+    expect(createItem).toHaveBeenCalledWith({
+      contentType: "rffEvent",
+      folderPath: "/Sites/Demo",
+    });
+  });
+
+  it("does not create when the New Item type picker is cancelled", async () => {
+    const createItem = vi.fn();
+    const result = await dispatchAction(action({ name: "New" }), {
+      folderPath: "/Sites/Demo",
+      createItem,
+      pickContentType: async () => null,
+      loadContentTypes: async () => [
+        { name: "percFile", label: "File" },
+        { name: "rffEvent", label: "Event" },
+      ],
+    });
+    expect(result.messageKey).toBeUndefined();
     expect(createItem).not.toHaveBeenCalled();
   });
 
@@ -759,6 +865,8 @@ describe("actionDispatch", () => {
       slot: { ownerId: 42, slotId: 3 },
       removeSlotRel,
     });
+    expect(missing.kind).toBe("rest");
+    expect(missing.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP);
     expect(missing.messageKey).toMatch(/item in the slot/i);
     expect(removeSlotRel).not.toHaveBeenCalled();
 
@@ -769,6 +877,37 @@ describe("actionDispatch", () => {
     });
     expect(ok.refresh).toBe(true);
     expect(removeSlotRel).toHaveBeenCalledWith(88);
+  });
+
+  it("arrange without a slot stays needs-slot, not Data Flow unavailable", async () => {
+    const removeSlotRel = vi.fn();
+    const moveSlotRel = vi.fn();
+    const changeSlotTemplate = vi.fn();
+    const missing = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      removeSlotRel,
+      moveSlotRel,
+      changeSlotTemplate,
+    });
+    expect(missing.kind).toBe("rest");
+    expect(missing.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_SLOT);
+    expect(missing.messageKey).not.toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(removeSlotRel).not.toHaveBeenCalled();
+    expect(moveSlotRel).not.toHaveBeenCalled();
+    expect(changeSlotTemplate).not.toHaveBeenCalled();
+  });
+
+  it("arrange remove confirm cancel does not DELETE", async () => {
+    const removeSlotRel = vi.fn();
+    const result = await dispatchAction(action({ name: "Arrange_Remove" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      removeSlotRel,
+      confirm: () => false,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBeUndefined();
+    expect(removeSlotRel).not.toHaveBeenCalled();
   });
 
   it("arrange move and change template-slot use relationship REST", async () => {
@@ -787,13 +926,44 @@ describe("actionDispatch", () => {
       moveSlotRel,
     });
     expect(moveSlotRel).toHaveBeenCalledWith(88, "UP");
-    await dispatchAction(action({ name: "Arrange_ChangeTemplateSlot" }), {
+    await dispatchAction(action({ name: "Arrange_MoveDownRight" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      moveSlotRel,
+    });
+    expect(moveSlotRel).toHaveBeenCalledWith(88, "DOWN");
+    await dispatchAction(action({ name: "Change_Template" }), {
       item: item(),
       slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
       changeSlotTemplate,
       pickSlotTemplateSlot: async () => ({ slotId: 5, templateId: 6 }),
     });
     expect(changeSlotTemplate).toHaveBeenCalledWith(88, 5, 6);
+    await dispatchAction(action({ name: "Arrange_ChangeTemplateSlot" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+      pickSlotTemplateSlot: async () => ({ slotId: 5, templateId: 6 }),
+    });
+    expect(changeSlotTemplate).toHaveBeenCalledTimes(2);
+    await dispatchAction(action({ name: "Move_To_Slot" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+      pickSlotTemplateSlot: async () => ({ slotId: 9, templateId: 4 }),
+    });
+    expect(changeSlotTemplate).toHaveBeenCalledWith(88, 9, 4);
+  });
+
+  it("change template without a pick stays needs-template", async () => {
+    const changeSlotTemplate = vi.fn();
+    const result = await dispatchAction(action({ name: "Change_Template" }), {
+      item: item(),
+      slot: { ownerId: 42, slotId: 3, relationshipId: 88 },
+      changeSlotTemplate,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_TEMPLATE);
+    expect(changeSlotTemplate).not.toHaveBeenCalled();
   });
 
   it("slot create picker cancel does not create or POST add", async () => {

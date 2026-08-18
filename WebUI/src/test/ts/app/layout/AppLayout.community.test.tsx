@@ -20,7 +20,12 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppLayout } from "../../../../main/ts/app/layout/AppLayout";
+import { restoreLastCommunityIfNeeded } from "../../../../main/ts/app/layout/restoreLastCommunity";
 import { dispatchSessionCommunityChanged } from "../../../../main/ts/app/layout/sessionCommunity";
+
+vi.mock("../../../../main/ts/app/layout/restoreLastCommunity", () => ({
+  restoreLastCommunityIfNeeded: vi.fn().mockResolvedValue(null),
+}));
 
 vi.mock("../../../../main/ts/ui-themes/components", () => ({
   BrandBar: () => <div data-testid="brand-bar-stub" />,
@@ -44,6 +49,7 @@ function OutletProbe(): React.ReactElement {
 describe("AppLayout session community remount (#3506)", () => {
   beforeEach(() => {
     instanceSeq = 0;
+    vi.mocked(restoreLastCommunityIfNeeded).mockClear();
   });
 
   afterEach(() => {
@@ -80,5 +86,18 @@ describe("AppLayout session community remount (#3506)", () => {
       ),
     ).toBe("1");
     expect(screen.getByTestId("topnav-stub")).toBeTruthy();
+  });
+
+  it("restores last community once on session start", () => {
+    render(
+      <MemoryRouter basename="/cm/app" initialEntries={["/cm/app/home"]}>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="home" element={<OutletProbe />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(restoreLastCommunityIfNeeded).toHaveBeenCalledTimes(1);
   });
 });

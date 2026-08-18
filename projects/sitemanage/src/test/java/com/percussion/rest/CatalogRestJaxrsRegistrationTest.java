@@ -56,6 +56,9 @@ class CatalogRestJaxrsRegistrationTest {
   /** Inbox execute #3323 — must precede jacksonProvider on rest-jax-rs. */
   private static final String VIEW_EXECUTE_JSON_READER = "viewExecuteRequestJsonReader";
 
+  /** Explorer saved-search execute #3517 — must precede jacksonProvider on rest-jax-rs. */
+  private static final String SEARCH_EXECUTE_JSON_READER = "searchExecuteRequestJsonReader";
+
   /** Display Format Object ACL save #3378 — must precede jacksonProvider. */
   private static final String ACL_LIST_JSON_READER = "aclListJsonReader";
 
@@ -106,6 +109,7 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(providers >= 0 && providersEnd > providers, "rest-jax-rs providers block");
     String providerBlock = restBlock.substring(providers, providersEnd);
     int reader = providerBlock.indexOf("bean=\"" + VIEW_EXECUTE_JSON_READER + "\"");
+    int searchReader = providerBlock.indexOf("bean=\"" + SEARCH_EXECUTE_JSON_READER + "\"");
     int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
     int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
     int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
@@ -114,6 +118,11 @@ class CatalogRestJaxrsRegistrationTest {
         "rest-jax-rs providers must ref "
             + VIEW_EXECUTE_JSON_READER
             + " (missing → Inbox flat startIndex 400)");
+    assertTrue(
+        searchReader >= 0,
+        "rest-jax-rs providers must ref "
+            + SEARCH_EXECUTE_JSON_READER
+            + " (missing → saved-search execute envelope/startIndex 400)");
     assertTrue(
         aclReader >= 0,
         "rest-jax-rs providers must ref "
@@ -128,6 +137,9 @@ class CatalogRestJaxrsRegistrationTest {
     assertTrue(
         reader < jackson,
         VIEW_EXECUTE_JSON_READER + " must be listed before jacksonProvider");
+    assertTrue(
+        searchReader < jackson,
+        SEARCH_EXECUTE_JSON_READER + " must be listed before jacksonProvider");
     assertTrue(
         aclReader < jackson,
         ACL_LIST_JSON_READER + " must be listed before jacksonProvider");

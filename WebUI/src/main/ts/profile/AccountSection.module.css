@@ -76,6 +76,35 @@
   max-width: 28rem;
 }
 
+.select {
+  width: 100%;
+  max-width: 28rem;
+  box-sizing: border-box;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-border, #d8dee9);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--color-text, #181c2c);
+  background: var(--color-surface, #fff);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--color-primary, #4a6aa3);
+  outline-offset: 2px;
+}
+
+.select[aria-invalid="true"] {
+  border-color: var(--color-danger, #b42318);
+}
+
+.communityForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 28rem;
+}
+
 .emailInput {
   width: 100%;
   box-sizing: border-box;
@@ -179,6 +208,10 @@
   line-height: 1.45;
   color: var(--color-danger-strong, #991b1b);
   word-break: break-word;
+}
+
+.checkbox {
+  margin: 0.25rem 0 0;
 }
 
 .statusRegion {

@@ -53,6 +53,12 @@ import {
   type PageTemplateChoice,
 } from "../editor/pageTemplates";
 import {
+  contentTypeChoicesFromActions,
+  isNewItemHostActionName,
+  loadAllowedContentTypes,
+  type ContentTypeChoice,
+} from "./contentTypeChoices";
+import {
   isNewItemHostName,
   parseExplorerContentId,
 } from "./menuCatalogLoad";
@@ -178,6 +184,10 @@ export interface ActionDispatchContext {
   pickPageTemplate?: (
     templates: PageTemplateChoice[],
   ) => Promise<string | null>;
+  loadContentTypes?: () => Promise<ContentTypeChoice[]>;
+  pickContentType?: (
+    types: ContentTypeChoice[],
+  ) => Promise<string | null>;
   onPublish?: (item: PSPathItem) => Promise<void>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
@@ -283,7 +293,11 @@ export function classifyAction(action: MenuAction): ActionKind {
   if (name === "purge" || name === "publish_now") {
     return "rest";
   }
-  if (name === "create_new_item" || isNewItemHostName(action.parentName)) {
+  if (
+    name === "create_new_item" ||
+    isNewItemHostActionName(action.name) ||
+    isNewItemHostName(action.parentName)
+  ) {
     return "rest";
   }
   if (isDataFlowActionUrl(action.url)) {
@@ -319,11 +333,37 @@ export function isNewItemAction(
   action: MenuAction,
   parentName?: string,
 ): boolean {
-  const name = normalizeActionName(action.name);
-  if (name === "create_new_item") {
+  if (isNewItemHostActionName(action.name)) {
     return true;
   }
   return isNewItemHostName(parentName) || isNewItemHostName(action.parentName);
+}
+
+async function resolveNewItemContentType(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+): Promise<{ contentType?: string; messageKey?: string; cancelled?: boolean }> {
+  if (!isNewItemHostActionName(action.name)) {
+    return { contentType: action.name };
+  }
+  const fromChildren = contentTypeChoicesFromActions(action.children);
+  const load = ctx.loadContentTypes ?? loadAllowedContentTypes;
+  const types =
+    fromChildren.length > 0 ? fromChildren : await load();
+  if (types.length === 0) {
+    return { messageKey: EXPLORER_MSG.ACTION_NEEDS_TYPE };
+  }
+  if (types.length === 1) {
+    return { contentType: types[0].name };
+  }
+  if (!ctx.pickContentType) {
+    return { messageKey: EXPLORER_MSG.ACTION_NEEDS_TYPE };
+  }
+  const picked = await ctx.pickContentType(types);
+  if (!picked) {
+    return { cancelled: true };
+  }
+  return { contentType: picked };
 }
 
 export function isAaPreviewAction(
@@ -440,10 +480,6 @@ export async function dispatchAction(
   }
 
   if (isNewItemAction(action, ctx.parentName)) {
-    const typeName = normalizeActionName(action.name);
-    if (typeName === "create_new_item" || isNewItemHostName(action.name)) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TYPE };
-    }
     const folder = resolveFolderPathFromSelection(
       ctx.folderPath,
       item?.path,
@@ -452,10 +488,21 @@ export async function dispatchAction(
     if (!folder) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
     }
+    const resolved = await resolveNewItemContentType(action, ctx);
+    if (resolved.cancelled) {
+      return { kind: "rest" };
+    }
+    if (!resolved.contentType) {
+      return {
+        kind: "rest",
+        messageKey: resolved.messageKey ?? EXPLORER_MSG.ACTION_NEEDS_TYPE,
+      };
+    }
+    const contentType = resolved.contentType;
     let templateId: string | undefined;
-    if (isExplorerPageType(action.name)) {
+    if (isExplorerPageType(contentType)) {
       const load = ctx.loadPageTemplates ?? loadPageTemplates;
-      const templates = await load(folder, action.name);
+      const templates = await load(folder, contentType);
       if (templates.length === 0) {
         return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
       }
@@ -473,7 +520,7 @@ export async function dispatchAction(
     }
     const create = ctx.createItem ?? createEditorItem;
     const created = await create({
-      contentType: action.name,
+      contentType,
       folderPath: folder,
       templateId,
     });
@@ -858,6 +905,9 @@ async function dispatchSlotAction(
     }
     const relationshipId = slot.relationshipId;
     if (name === "arrange_remove") {
+      if (ctx.confirm && !ctx.confirm(EXPLORER_MSG.CONFIRM_SLOT_REMOVE)) {
+        return { kind: "rest" };
+      }
       await remove(relationshipId);
       return { kind: "rest", refresh: true };
     }

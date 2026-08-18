@@ -83,8 +83,14 @@ public class PSSiteProperty implements IPSCatalogItem, Serializable {
   @Column(name = "VERSION")
   Integer version;
 
-  @ManyToOne(targetEntity = PSSite.class)
-  @JoinColumn(name = "SITEID", nullable = false, insertable = false, updatable = false)
+  /**
+   * Owning {@code RXASSEMBLERPROPERTIES.SITEID} mapping. Must stay insertable so Hibernate 6 writes
+   * SITEID on INSERT (Create Site and Developer Virtual Site save). {@code insertable=false} plus a
+   * parent-side {@code @JoinColumn} omitted the column and H2 rejected {@code NULL SITEID} (#3511 /
+   * #3521). Parent {@link PSSite} properties use {@code mappedBy = "site"}.
+   */
+  @ManyToOne(targetEntity = PSSite.class, optional = false)
+  @JoinColumn(name = "SITEID", nullable = false)
   IPSSite site;
 
   @Column(name = "CONTEXTID")

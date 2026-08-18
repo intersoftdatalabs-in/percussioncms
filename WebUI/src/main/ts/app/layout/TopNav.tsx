@@ -33,16 +33,17 @@ import {
  * Product top navigation for the SPA shell.
  * SPA routes use client NavLink; unmigrated surfaces are full-page legacy exits.
  *
- * Order / labels: Home → Explorer → … → single Admin (issue #2702 / #3201).
- * Dashboard is not a top-nav item (gadgets remain under Home / deep link).
+ * Order / labels: Home → Explorer → Navigation → Developer → Publish →
+ * single Admin (issue #2702 / #3201 / #3514). Editor, Design, and Widget
+ * Builder are not top-nav items. Dashboard is not a top-nav item (gadgets
+ * remain under Home / deep link).
  */
 export function TopNav(): React.ReactElement {
-  const { isAdmin, isDesigner, isWidgetBuilderActive } = useSpaBootstrap();
+  const { isAdmin, isDesigner } = useSpaBootstrap();
   const location = useLocation();
   const itemIds = topNavItemIds({
     isAdmin,
     isDesigner,
-    isWidgetBuilderActive,
   });
 
   const linkClass = ({ isActive }: { isActive: boolean }): string =>
@@ -86,19 +87,6 @@ export function TopNav(): React.ReactElement {
                   </NavLink>
                 </li>
               );
-            case "editor":
-              return (
-                <li key={id}>
-                  <NavLink
-                    to="/editor"
-                    className={linkClass}
-                    data-testid="nav-editor"
-                    {...i18nKeyAttr(MSG.NAV_EDITOR)}
-                  >
-                    {message(MSG.NAV_EDITOR)}
-                  </NavLink>
-                </li>
-              );
             case "architecture":
               // SPA Navigation shell at /architecture (#3094 / #3217)
               return (
@@ -111,20 +99,6 @@ export function TopNav(): React.ReactElement {
                     {...i18nKeyAttr(MSG.NAV_ARCHITECTURE)}
                   >
                     {message(MSG.NAV_ARCHITECTURE)}
-                  </NavLink>
-                </li>
-              );
-            case "design":
-              return (
-                <li key={id}>
-                  <NavLink
-                    to="/design"
-                    className={linkClass}
-                    data-testid="nav-design"
-                    title={message(MSG.NAV_DESIGN_TITLE)}
-                    {...i18nKeyAttr(MSG.NAV_DESIGN)}
-                  >
-                    {message(MSG.NAV_DESIGN)}
                   </NavLink>
                 </li>
               );
@@ -174,19 +148,6 @@ export function TopNav(): React.ReactElement {
                     {...i18nKeyAttr(MSG.NAV_ADMIN)}
                   >
                     {adminTopNavLabel(message(MSG.NAV_ADMIN))}
-                  </NavLink>
-                </li>
-              );
-            case "widget-builder":
-              return (
-                <li key={id}>
-                  <NavLink
-                    to="/widget-builder"
-                    className={linkClass}
-                    data-testid="nav-widget-builder"
-                    {...i18nKeyAttr(MSG.NAV_WIDGET_BUILDER)}
-                  >
-                    {message(MSG.NAV_WIDGET_BUILDER)}
                   </NavLink>
                 </li>
               );

@@ -36,11 +36,16 @@ import React, {
 import { formatApiError } from "../api/client";
 import {
   addSlotRelationship,
+  changeSlotTemplateSlot,
   fetchSlotAllowedTemplates,
   fetchSlotAllowedTypes,
+  fetchSlotCanvas,
+  moveSlotRelationship,
+  removeSlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import type { AssemblySlotContext } from "../assembly/slotContext";
+import { SlotChangeDialog } from "../assembly/SlotChangeDialog";
 import { SlotCreateDialog } from "../assembly/SlotCreateDialog";
 import {
   replaceSlotCreatePickerSession,
@@ -55,6 +60,13 @@ import {
   type SlotDependentPick,
   type SlotDependentPickerSession,
 } from "../assembly/slotDependentPick";
+import {
+  replaceSlotTemplateSlotPickerSession,
+  settleSlotTemplateSlotPickerSession,
+  slotsFromContext,
+  type SlotTemplateSlotPick,
+  type SlotTemplateSlotPickerSession,
+} from "../assembly/slotTemplateSlotPick";
 import { ASSEMBLY_MSG } from "../assembly/messages";
 import { createEditorItem } from "../editor/itemCreateApi";
 import {
@@ -71,6 +83,7 @@ import {
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
 import { findItemByPath } from "../api/contentExplorer/pathApi";
+import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import {
   executeView as executeViewApi,
   listViews as listViewsApi,
@@ -101,15 +114,26 @@ import {
 } from "./actionEnablement";
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
-import { EMPTY_CLIPBOARD, setClipboard as buildClipboard } from "./clipboard/model";
+import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
+import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
+import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
 import {
   replaceTemplatePickerSession,
   settleTemplatePickerSession,
   type TemplatePickerSession,
 } from "./templatePickerSession";
+import {
+  loadAllowedContentTypes,
+  type ContentTypeChoice,
+} from "./contentTypeChoices";
+import {
+  replaceContentTypePickerSession,
+  settleContentTypePickerSession,
+  type ContentTypePickerSession,
+} from "./contentTypePickerSession";
 import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
@@ -130,7 +154,13 @@ import {
 } from "./ReducedActions";
 import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { resolvePublishKind } from "./itemPublish";
-import { EMPTY_SELECTION, isFolder, type Selection } from "./selection";
+import {
+  EMPTY_SELECTION,
+  explorerMultiSelectKey,
+  isFolder,
+  sameExplorerItemId,
+  type Selection,
+} from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import {
   isFolderIdLookupPath,
@@ -160,6 +190,10 @@ import {
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
 import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+} from "../architecture/useDialogEscape";
 import { RelationshipsView } from "./views/RelationshipsView";
 import { DependencyViewer } from "./views/DependencyViewer";
 import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relationship";
@@ -254,10 +288,20 @@ export interface ContentExplorerShellProps {
   slot?: AssemblySlotContext | null;
   /** Test seam: persist a slot relationship after Content Browser pick. */
   addToSlot?: typeof addSlotRelationship;
+  /** Test seam: remove a selected snippet relationship. */
+  removeSlotRel?: typeof removeSlotRelationship;
+  /** Test seam: move a selected snippet relationship. */
+  moveSlotRel?: typeof moveSlotRelationship;
+  /** Test seam: change template/slot for a selected snippet. */
+  changeSlotTemplate?: typeof changeSlotTemplateSlot;
+  /** Test seam: load AA canvas slots for the change-template picker. */
+  loadSlotCanvas?: typeof fetchSlotCanvas;
   /** Test seam: allowed snippet templates for the selected slot. */
   loadSlotAllowedTemplates?: typeof fetchSlotAllowedTemplates;
   /** Test seam: allowed content types for slot create. */
   loadSlotAllowedTypes?: typeof fetchSlotAllowedTypes;
+  /** Test seam: allowed content types when New Item host has no children. */
+  loadContentTypes?: () => Promise<ContentTypeChoice[]>;
   /** Test seam: itemmanagement create before opening the React editor. */
   createItem?: typeof createEditorItem;
   /** Test seam: open spa.jsp?entry=editor after create. */
@@ -273,34 +317,6 @@ type ContextMenuState = {
   x: number;
   y: number;
 } | null;
-
-/**
- * Map a `PSPathItem` (detail-list / tree row shape) into a `ClipboardItem`
- * (clipboard-panel input shape). Single source of truth so the
- * "Add to clipboard" handler and the `<ClipboardPanel items>` prop
- * never disagree on the kind / name / accessLevel mapping.
- *
- * Returns `null` when the item has no stable id (`item.id` and
- * `item.path` both missing) so the caller can skip it instead of
- * injecting a row that would later fail the paste transport.
- */
-function toClipboardItem(item: PSPathItem): ClipboardItem | null {
-  const id = item.id ?? item.path;
-  if (id == null) return null;
-  const kind: ClipboardItem["kind"] =
-    item.type === "folder"
-      ? "folder"
-      : item.category === "asset" || item.type === "asset"
-        ? "asset"
-        : "page";
-  return {
-    id,
-    path: item.path,
-    kind,
-    name: item.name ?? item.title ?? item.path,
-    sourceAccessLevel: item.accessLevel,
-  };
-}
 
 const sidePanelStyle: React.CSSProperties = {
   padding: 8,
@@ -458,8 +474,13 @@ function ContentExplorerShellInner({
   executeView = executeViewApi,
   slot = null,
   addToSlot = addSlotRelationship,
+  removeSlotRel = removeSlotRelationship,
+  moveSlotRel = moveSlotRelationship,
+  changeSlotTemplate = changeSlotTemplateSlot,
+  loadSlotCanvas = fetchSlotCanvas,
   loadSlotAllowedTemplates = fetchSlotAllowedTemplates,
   loadSlotAllowedTypes = fetchSlotAllowedTypes,
+  loadContentTypes = loadAllowedContentTypes,
   createItem = createEditorItem,
   openWindow,
   bootstrap,
@@ -506,6 +527,10 @@ function ContentExplorerShellInner({
   const [showSiteCopy, setShowSiteCopy] = useState(false);
   /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
   const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
+  const dismissSubfolderCopy = useCallback(() => {
+    setShowSubfolderCopy(false);
+  }, []);
+  const subfolderCopyPanelRef = useRef<HTMLElement | null>(null);
   const [showRelationships, setShowRelationships] = useState(false);
   const [showDependencies, setShowDependencies] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
@@ -533,6 +558,13 @@ function ContentExplorerShellInner({
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
   const [slotCreatePickerOpen, setSlotCreatePickerOpen] = useState(false);
   const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
+  const [slotTemplatePickerOpen, setSlotTemplatePickerOpen] = useState(false);
+  const slotTemplatePickerRef = useRef<SlotTemplateSlotPickerSession | null>(
+    null,
+  );
+  const [contentTypePicker, setContentTypePicker] =
+    useState<ContentTypePickerSession | null>(null);
+  const contentTypePickerRef = useRef<ContentTypePickerSession | null>(null);
   const [templatePicker, setTemplatePicker] =
     useState<TemplatePickerSession | null>(null);
   const templatePickerRef = useRef<TemplatePickerSession | null>(null);
@@ -561,7 +593,9 @@ function ContentExplorerShellInner({
     ...actionHandlers,
     onOpen: (item) => {
       if (isFolder(item)) {
-        setSelection({ folderPath: item.path, item: null });
+        const folderPath =
+          resolveExplorerListPath(item, item.path) ?? item.path;
+        setSelection({ folderPath, item: null });
         return;
       }
       onOpenItem(item);
@@ -682,6 +716,7 @@ function ContentExplorerShellInner({
       setContextMenu(null);
       setViewRun(null);
       setSelectedViewKey(null);
+      setShowSubfolderCopy(false);
       if (folder) onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
@@ -698,13 +733,49 @@ function ContentExplorerShellInner({
       setContextMenu(null);
       setViewRun(null);
       setSelectedViewKey(null);
+      setShowSubfolderCopy(false);
       onFolderActivated?.(path, folder);
     },
     [onFolderActivated],
   );
 
   const handleSelectItem = useCallback((item: PSPathItem) => {
-    setSelection((prev) => ({ ...prev, item }));
+    const bound = bindExplorerPathItemId(item);
+    setSelection((prev) => ({ ...prev, item: bound }));
+    setShowSubfolderCopy(false);
+    // List rows that omit id / use a slug still resolve via path so
+    // View → Relationships can mount (#3546 / #2778).
+    if (
+      isFolder(bound) ||
+      parseExplorerContentId(bound.id) != null ||
+      !isFolderIdLookupPath(bound.path)
+    ) {
+      return;
+    }
+    void findItemByPath(bound.path)
+      .then((resolved) => {
+        const next = bindExplorerPathItemId({
+          ...bound,
+          ...resolved,
+          id: resolved.id ?? bound.id,
+          path: bound.path || resolved.path,
+        });
+        if (parseExplorerContentId(next.id) == null) {
+          return;
+        }
+        setSelection((prev) => {
+          if (prev.item == null) {
+            return prev;
+          }
+          const sameRow =
+            sameExplorerItemId(prev.item.id, bound.id) ||
+            (Boolean(prev.item.path) && prev.item.path === bound.path);
+          return sameRow ? { ...prev, item: next } : prev;
+        });
+      })
+      .catch(() => {
+        // Keep the list row; relationships stays hint if id never binds.
+      });
   }, []);
 
   const handleActivateItem = useCallback(
@@ -716,7 +787,7 @@ function ContentExplorerShellInner({
 
   const handleToggleSelectItem = useCallback(
     (item: PSPathItem, next: boolean) => {
-      const id = item.id ?? item.path;
+      const id = explorerMultiSelectKey(item);
       if (id == null) return;
       setMultiSelectedIds((prev) => {
         const nextSet = new Set(prev);
@@ -740,16 +811,20 @@ function ContentExplorerShellInner({
   }, []);
 
   const handleAddToClipboard = useCallback(() => {
-    if (multiSelectedItems.size === 0) return;
+    if (multiSelectedItems.size === 0 && multiSelectedIds.size === 0) return;
     const items: ClipboardItem[] = [];
     for (const item of multiSelectedItems.values()) {
       const clipboard = toClipboardItem(item);
       if (clipboard == null) continue;
       items.push(clipboard);
     }
-    setClipboardState((prev) => buildClipboard(prev, clipboardMode, items));
+    // Empty mapped set is a no-op (keep staged items). Opening the
+    // panel still happens so View → Clipboard stays checked.
+    setClipboardState((prev) => applyClipboardAdd(prev, clipboardMode, items));
+    // Always mount the panel after Add so View → Clipboard is checked.
+    // Clicking the View toggle after this would hide an already-open panel.
     setShowClipboard(true);
-  }, [multiSelectedItems, clipboardMode]);
+  }, [multiSelectedItems, multiSelectedIds, clipboardMode]);
 
   const handleClearClipboard = useCallback(() => {
     setClipboardState(EMPTY_CLIPBOARD);
@@ -792,6 +867,24 @@ function ContentExplorerShellInner({
     [loadMenuActions, loadWorkflowMenuActions],
   );
 
+  const pickContentType = useCallback((types: ContentTypeChoice[]) => {
+    return new Promise<string | null>((resolve) => {
+      const session = { types, resolve };
+      contentTypePickerRef.current = replaceContentTypePickerSession(
+        contentTypePickerRef.current,
+        session,
+      );
+      setContentTypePicker(session);
+    });
+  }, []);
+
+  const finishContentTypePicker = useCallback((name: string | null) => {
+    const current = contentTypePickerRef.current;
+    contentTypePickerRef.current = null;
+    setContentTypePicker(null);
+    settleContentTypePickerSession(current, name);
+  }, []);
+
   const pickPageTemplate = useCallback((templates: PageTemplateChoice[]) => {
     return new Promise<string | null>((resolve) => {
       const session = { templates, resolve };
@@ -812,6 +905,9 @@ function ContentExplorerShellInner({
 
   useEffect(() => {
     return () => {
+      const typeCurrent = contentTypePickerRef.current;
+      contentTypePickerRef.current = null;
+      settleContentTypePickerSession(typeCurrent, null);
       const current = templatePickerRef.current;
       templatePickerRef.current = null;
       settleTemplatePickerSession(current, null);
@@ -821,6 +917,9 @@ function ContentExplorerShellInner({
       const createCurrent = slotCreatePickerRef.current;
       slotCreatePickerRef.current = null;
       settleSlotCreatePickerSession(createCurrent, null);
+      const changeCurrent = slotTemplatePickerRef.current;
+      slotTemplatePickerRef.current = null;
+      settleSlotTemplateSlotPickerSession(changeCurrent, null);
     };
   }, []);
 
@@ -858,6 +957,41 @@ function ContentExplorerShellInner({
     settleSlotCreatePickerSession(current, value);
   }, []);
 
+  const pickSlotTemplateSlot = useCallback(
+    async (nextSlot: AssemblySlotContext) => {
+      let slots = slotsFromContext(nextSlot);
+      try {
+        const canvas = await loadSlotCanvas(
+          nextSlot.ownerId,
+          nextSlot.ownerTemplateId,
+        );
+        if (canvas.slots.length > 0) {
+          slots = canvas.slots;
+        }
+      } catch {
+        // Keep the selected slot only when canvas load fails.
+      }
+      return new Promise<SlotTemplateSlotPick | null>((resolve) => {
+        slotTemplatePickerRef.current = replaceSlotTemplateSlotPickerSession(
+          slotTemplatePickerRef.current,
+          { slot: nextSlot, slots, resolve },
+        );
+        setSlotTemplatePickerOpen(true);
+      });
+    },
+    [loadSlotCanvas],
+  );
+
+  const finishSlotTemplatePicker = useCallback(
+    (value: SlotTemplateSlotPick | null) => {
+      const current = slotTemplatePickerRef.current;
+      slotTemplatePickerRef.current = null;
+      setSlotTemplatePickerOpen(false);
+      settleSlotTemplateSlotPickerSession(current, value);
+    },
+    [],
+  );
+
   /**
    * Route toolbar / context-menu activations through the action dispatcher.
    * Data Flow HTML URLs are never navigated (they 404 from the SPA).
@@ -893,12 +1027,18 @@ function ContentExplorerShellInner({
               setShowRevisions(true);
             },
             pickPageTemplate,
+            pickContentType,
+            loadContentTypes,
             slot,
             addToSlot,
+            removeSlotRel,
+            moveSlotRel,
+            changeSlotTemplate,
             createItem,
             openWindow,
             pickSlotDependent,
             pickSlotCreate,
+            pickSlotTemplateSlot,
           });
           if (result.messageKey) {
             const msg = message(result.messageKey);
@@ -935,12 +1075,18 @@ function ContentExplorerShellInner({
       menuActions,
       contextMenu,
       pickPageTemplate,
+      pickContentType,
+      loadContentTypes,
       slot,
       addToSlot,
+      removeSlotRel,
+      moveSlotRel,
+      changeSlotTemplate,
       createItem,
       openWindow,
       pickSlotDependent,
       pickSlotCreate,
+      pickSlotTemplateSlot,
     ],
   );
 
@@ -1037,6 +1183,10 @@ function ContentExplorerShellInner({
     !isFolder(selection.item) &&
     selection.item.id != null &&
     String(selection.item.id).trim().length > 0;
+  const hasRelationshipItem =
+    selection.item != null &&
+    !isFolder(selection.item) &&
+    parseExplorerContentId(selection.item.id) != null;
   const hasOpenSidePanel =
     showSearch ||
     showSecurity ||
@@ -1071,6 +1221,12 @@ function ContentExplorerShellInner({
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
+            if (!showSubfolderCopy) {
+              const contentMenu = document.querySelector<HTMLElement>(
+                '[data-testid="explorer-menu-content"]',
+              );
+              captureDialogOpener(contentMenu ?? document.activeElement);
+            }
             setShowSubfolderCopy((v) => !v);
           }
           break;
@@ -1116,8 +1272,36 @@ function ContentExplorerShellInner({
       handleRefreshList,
       siteNameForCopy,
       sourceFolderPathForCopy,
+      showSubfolderCopy,
     ],
   );
+
+  useDialogEscape(showSubfolderCopy, false, dismissSubfolderCopy);
+
+  useEffect(() => {
+    if (!showSubfolderCopy) {
+      return;
+    }
+    function onDocMouseDown(e: MouseEvent): void {
+      const target = e.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      const panel = subfolderCopyPanelRef.current;
+      if (panel && panel.contains(target)) {
+        return;
+      }
+      const menuBar = document.querySelector(
+        '[data-testid="explorer-menu-bar"]',
+      );
+      if (menuBar instanceof Node && menuBar.contains(target)) {
+        return;
+      }
+      setShowSubfolderCopy(false);
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, [showSubfolderCopy]);
 
   const folderForActions: PSPathItem | null =
     selection.item && isFolder(selection.item)
@@ -1189,7 +1373,6 @@ function ContentExplorerShellInner({
             showSiteCopy={showSiteCopy}
             showSubfolderCopy={showSubfolderCopy}
             multiSelectedCount={multiSelectedIds.size}
-            clipboardItemCount={clipboard.items.length}
             hasSiteContext={hasSiteContext}
             hasFolderContext={hasFolderContext}
             displayFormats={displayFormats}
@@ -1358,6 +1541,7 @@ function ContentExplorerShellInner({
             listSavedSearches={listSavedSearches}
             executeSavedSearch={executeSavedSearch}
             initialCriteria={
+              isFolderIdLookupPath(selection.folderPath) &&
               selection.folderPath
                 ? { folderPath: selection.folderPath }
                 : undefined
@@ -1523,6 +1707,7 @@ function ContentExplorerShellInner({
       {showSubfolderCopy && sourceFolderPathForCopy && (
         <section
           id="explorer-subfolder-copy-panel"
+          ref={subfolderCopyPanelRef}
           style={sidePanelStyle}
           data-testid="explorer-subfolder-copy-panel"
           aria-label={message(EXPLORER_MSG.SUBFOLDER_COPY_PANEL_REGION)}
@@ -1534,6 +1719,7 @@ function ContentExplorerShellInner({
           <SubfolderCopyWizard
             key={`subfolder-copy-${sourceFolderPathForCopy}`}
             initialSource={sourceFolderPathForCopy}
+            onDismiss={dismissSubfolderCopy}
             onSettled={(ok) => {
               if (ok) {
                 setListEpoch((n) => n + 1);
@@ -1553,10 +1739,7 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.SUBFOLDER_COPY_SELECT_FOLDER)}
         </div>
       )}
-      {showRelationships &&
-        selection.item &&
-        selection.item.type !== "folder" &&
-        parseExplorerContentId(selection.item.id) != null && (
+      {showRelationships && hasRelationshipItem && (
           <section
             id="explorer-relationships-panel"
             style={sidePanelStyle}
@@ -1565,19 +1748,17 @@ function ContentExplorerShellInner({
           >
             <RelationshipsView
               item={{
-                id: String(selection.item.id),
-                path: selection.item.path,
+                id: String(
+                  parseExplorerContentId(selection.item!.id) ??
+                    selection.item!.id,
+                ),
+                path: selection.item!.path,
                 folderPath: selection.folderPath || undefined,
               }}
             />
           </section>
         )}
-      {showRelationships &&
-        !(
-          selection.item &&
-          selection.item.type !== "folder" &&
-          parseExplorerContentId(selection.item.id) != null
-        ) && (
+      {showRelationships && !hasRelationshipItem && (
           <div
             id="explorer-relationships-panel"
             style={sidePanelStyle}
@@ -1679,6 +1860,13 @@ function ContentExplorerShellInner({
           />
         </div>
       )}
+      {contentTypePicker ? (
+        <ContentTypePickerDialog
+          types={contentTypePicker.types}
+          onPick={(name) => finishContentTypePicker(name)}
+          onCancel={() => finishContentTypePicker(null)}
+        />
+      ) : null}
       {templatePicker ? (
         <TemplatePickerDialog
           templates={templatePicker.templates}
@@ -1743,6 +1931,34 @@ function ContentExplorerShellInner({
             testIdPrefix="explorer-slot-create"
             onCancel={() => finishSlotCreatePicker(null)}
             onApply={(pick) => finishSlotCreatePicker(pick)}
+          />
+        </div>
+      ) : null}
+      {slotTemplatePickerOpen ? (
+        <div
+          data-testid="explorer-slot-change-host"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 40,
+          }}
+        >
+          <SlotChangeDialog
+            slots={
+              slotTemplatePickerRef.current?.slots ??
+              (slot != null ? slotsFromContext(slot) : [])
+            }
+            initialSlotId={
+              slotTemplatePickerRef.current?.slot.slotId ?? slot?.slotId ?? 0
+            }
+            initialTemplateId={
+              slotTemplatePickerRef.current?.slot.snippetTemplateId ??
+              slot?.snippetTemplateId
+            }
+            loadTemplates={loadSlotAllowedTemplates}
+            testIdPrefix="explorer-slot-change"
+            onCancel={() => finishSlotTemplatePicker(null)}
+            onApply={(pick) => finishSlotTemplatePicker(pick)}
           />
         </div>
       ) : null}

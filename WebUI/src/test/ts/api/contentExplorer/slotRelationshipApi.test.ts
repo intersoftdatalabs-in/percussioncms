@@ -105,7 +105,7 @@ describe("slotRelationshipApi unwrap", () => {
     expect(canvas.templateId).toBeNull();
   });
 
-  it("rejects non-positive relationship ids before remove/move", () => {
+  it("rejects non-positive relationship ids before remove/move/change", () => {
     expect(requirePositiveRelationshipId(9)).toBe(9);
     expect(() => requirePositiveRelationshipId(0)).toThrow(/positive id/);
     expect(() => requirePositiveRelationshipId(-3)).toThrow(/positive id/);

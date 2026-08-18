@@ -118,11 +118,11 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | Action | What happens |
 |--------|----------------|
 | **Preview** (and per-template children) | Opens assembly preview (`GET /services/assembly/preview-location`) or the default page/asset preview. Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
-| **New Item** | Choose a content type under **New**. Explorer creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. Does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
+| **New Item** | Select a **site or folder** first, then choose **New Item**. When the catalog lists types under **New**, pick a type from that menu. When **New Item** is a single action (no type children), Explorer opens **Choose a content type** — pick a type and **OK**, or **Cancel** to leave the folder unchanged. Explorer then creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. It does **not** show *Choose a content type from New Item* as an error toast instead of the picker, and it does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open the CM1 editor (`?view=editor`). |
-| **Translate** | Opens the Explorer **Translations** panel (create locale copies). Does not open the legacy translate XSL wizard. |
+| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`1-101-708`); the panel uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
 | **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
@@ -133,7 +133,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
 | **Publish Now** | Select a **page** or **asset** row in the list first (clicking only **Sites** or another folder is not enough). The toolbar and the item context menu hide Publish Now until a page or asset is selected. Explorer then confirms and demand-publishes (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Other types stay unavailable. Does not open the demand-publish servlet page. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure (same as classic Finder) — the **Server actions** error region shows the server warning (for example licensing / Publication stopped) and the list does not refresh as if published. Folder-only selection does not publish. |
 | **Active Assembly** | Opens a new window that assembles the selected item with its **page** or **snippet template** (`GET /services/assembly/preview-location` in an iframe). A light overlay shows the content id and template. Known **scalar text** fields on the assembled output become contenteditable (classic `PsAaField` wrappers, `data-perc-field` markers, or a unique assembled text value). **Save fields** writes through `PUT /services/itemmanagement/item/fields/{id}` — the same API as the React Content Editor. If the assembled page has no mappable nodes, the overlay lists those fields so you can still edit them. Rich text, file, image, keyword, and community stay on the Content Editor. If the requested template is missing from the item's available list, Explorer shows that mismatch instead of silently using another template. A failed template catalog load is an error, not a hidden preview retry. Does not open leftover Active Assembly HTML (`variantlistwithslots.html` / `itemassembly.html`) or leftover Content Editor HTML. |
-| **Slot add / create / arrange** | Available when a **slot** is selected on the Active Assembly canvas (`GET /services/assembly/slot-relationships/canvas`). **Add** (AA **Add**, or Explorer **Slot Add** when that slot is selected) opens Content Browser. Confirming a page or asset adds the snippet through `POST /services/assembly/slot-relationships` (allowed snippet template from the slot). Cancel leaves the slot unchanged and does not post. Folder browse without a selected slot stays **Select a slot in Active Assembly first** — Explorer does not open leftover `variantlistwithslots.html` / `itemassembly.html`. **Create** (AA **Create**, or Explorer **Slot Create** when that slot is selected) opens a type / snippet-template / folder picker from the slot's allowed lists. Apply creates the item (`POST /services/itemmanagement/item/create`) and opens the React Content Editor (`spa.jsp?entry=editor`) — not leftover `editAsset.jsp` or Data Flow create HTML — then adds the new item through `POST /services/assembly/slot-relationships`. Cancel closes the picker and does not create or add. **Arrange** (move up/down, change template/slot, remove) uses the selected relationship id. Folder browse has no slot — Explorer does not invent Arrange actions from a folder. Inline field edits use itemmanagement, not leftover Content Editor HTML. |
+| **Slot add / create / arrange** | Available when a **slot** is selected on the Active Assembly canvas (`GET /services/assembly/slot-relationships/canvas`). **Add** (AA **Add**, or Explorer **Slot Add** when that slot is selected) opens Content Browser. Confirming a page or asset adds the snippet through `POST /services/assembly/slot-relationships` (allowed snippet template from the slot). Cancel leaves the slot unchanged and does not post. Folder browse without a selected slot stays **Select a slot in Active Assembly first** — Explorer does not open leftover `variantlistwithslots.html` / `itemassembly.html`. **Create** (AA **Create**, or Explorer **Slot Create** when that slot is selected) opens a type / snippet-template / folder picker from the slot's allowed lists. Apply creates the item (`POST /services/itemmanagement/item/create`) and opens the React Content Editor (`spa.jsp?entry=editor`) — not leftover `editAsset.jsp` or Data Flow create HTML — then adds the new item through `POST /services/assembly/slot-relationships`. Cancel closes the picker and does not create or add. **Arrange** (AA **Move up** / **Move down** / **Change template** / **Remove**, or the matching Explorer **Arrange** / **Change Template** / **Move to Slot** actions) is available only when a **snippet** is selected in that slot. Move reorders through `POST /services/assembly/slot-relationships/{id}/move`. Remove confirms, then deletes the relationship (`DELETE /services/assembly/slot-relationships/{id}`). Change template opens a slot + snippet-template picker; Apply writes `POST /services/assembly/slot-relationships/{id}/template-slot`. Cancel leaves the relationship unchanged. Selecting only a slot (no snippet) shows **Select an item in the slot first**. Folder browse has no slot — Explorer does not invent Arrange actions from a folder and does not open leftover `itemassembly.html` / `variantlistwithslots.html`. Inline field edits use itemmanagement, not leftover Content Editor HTML. |
 
 Do not bookmark or paste `../sys_cxSupport/…html` URLs from older Desktop Content Explorer
 menus — they are not Explorer pages.
@@ -163,21 +163,43 @@ Under the tree root **Sites** you see traditional site folders available to your
 select a sample site to browse FastForward folders and pages (About…, Files, Images,
 and the site NavTree).
 
-To create a new **traditional** repository Site from Explorer:
+To create a new Site from Explorer:
 
 1. Choose **Content → Create Site** (available without selecting an existing site).
-2. Complete the wizard: site name → base template → confirm → create.
-3. On success, Explorer navigates to `/Sites/<new-site-name>`.
+2. On **Site type**, choose **Traditional**, **Page**, or **Virtual**.
+3. Complete the remaining steps (name/description; managed navigation only for Traditional/Page;
+   page template only for Page; optional Git root on Virtual confirm).
+4. On success, Explorer navigates to `/Sites/<new-site-name>`.
 
-This wizard creates repository Sites only. Configure **Virtual Site** source properties
-(Git/filesystem) from **Developer → Sites** / Site detail — see
+**Virtual** create does not show managed navigation or a page template. If you supply a Git
+root path, the wizard PUTs the existing `VirtualSiteProperties` envelope after create.
+Otherwise finish source settings on **Developer → Sites**. See
 [Sites & content structure](id:admin-sites) and [Virtual Sites](id:developer-virtual-sites).
 
 Related Content menu commands:
 
-- **Create Site** — new traditional Site (no site context required)
+- **Create Site** — new Traditional, Page, or Virtual Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
 - **Search** — same Search panel as **View → Search**
+
+### Subfolder Copy
+
+**Content → Subfolder Copy** opens a wizard overlay when a folder is in context
+(the current tree folder, or a selected folder row). Source path is prefilled from
+that folder.
+
+| Control | Behavior |
+|---------|----------|
+| **Next** | Advance to the next step (source → target → confirm → run) |
+| **Back** | Return to the previous step. The overlay stays open |
+| **Cancel** | Close the wizard without copying. Cancel is **not** Back — it does not reset to step 1 while leaving the overlay up |
+| **Escape** | Same as Cancel: dismiss without submitting |
+| Tree or list item | Selecting another folder or item closes the wizard without submitting |
+| Click outside the wizard | Also dismisses without submitting |
+
+After Cancel, Escape, item-click, or click-away, focus returns to the Explorer
+**Content** menu so you can continue working in the shell. The wizard does not
+POST a folder copy until you reach the last step and choose **Submit**.
 
 ## Views → My Content → Inbox
 
@@ -240,8 +262,11 @@ When the panel is open you can:
 2. Submit the search and open a hit or reveal it in its parent folder.
 3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
    The picker includes CX **searches and views**. The default **All** view (`View_All`) is
-   listed when that design object exists on the server. Custom URL searches stay listed
-   but cannot be run from Explorer.
+   listed when that design object exists on the server. **Run saved search** on **All**
+   (or any other standard/user search) returns matching items or an empty results page —
+   not a generic I/O error. At Explorer **root** (`/`) the run is unscoped (all content the
+   search allows). When a real folder such as `/Sites` is selected, the run is scoped to
+   that folder. Custom URL searches stay listed but cannot be run from Explorer.
 
 Closing **Search** again (view-tools button, **View → Search**, or **Content → Search**)
 hides the panel. Revealing a result in its folder also closes the panel so the
@@ -272,6 +297,9 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
 - When only a folder is active, the shell loads the same cascading action tree.
+  **New Item** without type children opens **Choose a content type** (same create
+  path as a type under **New**). It does not fail with a toast that says to
+  choose a type from a menu that is not there.
 - **Desktop-only** actions (for example custom application protocols that only DCE can run)
   are **hidden** in the web shell so operators are not offered controls that cannot succeed
   in the browser.
@@ -314,8 +342,35 @@ From the **View** menu you can also toggle:
   confirmation before save. Without a selected folder the shell shows a select-folder
   hint instead of a blank panel.
 - **Translations**, **Relationships**, and **Dependencies** — advanced item tools when a
-  suitable item is selected
-- **Clipboard** — multi-select copy/cut staging when items are selected
+  **page or asset** is selected (not a folder or site). On sample FastForward
+  sites, expand a site in the tree, open a section folder (for example
+  **AboutEnterpriseInvestments** — not only a `Pages` folder), and select a
+  content row. **View → Relationships** then mounts the relationships panel
+  (loading, results, empty, or an error). A folder-only or empty selection
+  keeps the select-item hint. See **Translations** below for locale variants.
+- **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
+  the panel (even when empty) and shows a check mark while it is visible.
+  Use **Content → Add to clipboard** after multi-select to put items on the
+  clipboard and open the panel (including **Sites** rows). Do not click
+  **View → Clipboard** again after Add — that hides the already-open panel.
+  Paste from the panel when a destination folder is selected.
+
+## Translations
+
+Open **View → Translations** after selecting a **page or asset** in the list (or use
+**Translate** on Server actions / the item context menu).
+
+The panel shows **this item’s current locale** and **related locale variants**, and lets
+an authorized user **Create variants** for catalog locales the item does not already
+have. Explorer list rows identify items with a Percussion content id. The id is often
+GUID-shaped (for example `1-101-708`); the panel uses the last segment (`708`) for
+both the variants request and create-variant. That GUID form must not fail with
+“Selected item does not have a numeric content id.”
+
+**Folders and sites** have no content id. With Translations open and only a folder or
+site selected, Explorer shows a select-item hint instead of the live panel.
+
+In-flight translation queue status is not available (product disposition).
 
 ## If Content Explorer cannot start
 

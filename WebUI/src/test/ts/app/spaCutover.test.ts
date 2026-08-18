@@ -28,6 +28,16 @@ function read(path: string): string {
   return readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 }
 
+/** Pull quoted entries from a JSP `String[] name = new String[]{ ... };` block. */
+function extractStringArray(text: string, name: string): string[] {
+  const re = new RegExp(
+    `String\\[\\]\\s+${name}\\s*=\\s*new String\\[\\]\\{([\\s\\S]*?)\\};`,
+  );
+  const match = text.match(re);
+  expect(match, `${name} array`).toBeTruthy();
+  return [...match![1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]);
+}
+
 /** Product host JSPs deleted in PR-8 (SPA owns these surfaces). */
 const DELETED_PRODUCT_HOSTS = [
   "cm/app/homeModern.jsp",
@@ -179,6 +189,21 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
 
   it("dual-tree index.jsp files stay aligned for SPA cutover", () => {
     expect(read(appIndex)).toBe(read(pagesIndex));
+  });
+
+  it("explorer is an ungated spaView (not adminViews) so Designer landings are not reset", () => {
+    for (const indexPath of [appIndex, pagesIndex]) {
+      const text = read(indexPath);
+      const spa = extractStringArray(text, "spaViews");
+      const admin = extractStringArray(text, "adminViews");
+      const designer = extractStringArray(text, "designerViews");
+      expect(spa).toContain("explorer");
+      // Gate at isAdminView && !admin: explorer must stay off adminViews.
+      // designerViews is only consulted inside that gate — listing explorer
+      // there would be a no-op and would not authorize Contributors.
+      expect(admin).not.toContain("explorer");
+      expect(designer).not.toContain("explorer");
+    }
   });
 });
 

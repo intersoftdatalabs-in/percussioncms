@@ -18,6 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
 import { BrandBar, BrandFooter } from "../../ui-themes/components";
+import { restoreLastCommunityIfNeeded } from "./restoreLastCommunity";
 import { SESSION_COMMUNITY_CHANGED_EVENT } from "./sessionCommunity";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";
@@ -47,6 +48,10 @@ export function AppLayout(): React.ReactElement {
     return () => {
       window.removeEventListener(SESSION_COMMUNITY_CHANGED_EVENT, onChanged);
     };
+  }, []);
+
+  useEffect(() => {
+    void restoreLastCommunityIfNeeded();
   }, []);
 
   if (isChromeLessPath(pathname)) {

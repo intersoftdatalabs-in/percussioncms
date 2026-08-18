@@ -41,6 +41,12 @@ public class PSCurrentUser extends PSUser {
   /** Active community name for the current session, or empty when unknown. */
   private String currentCommunity = "";
 
+  /**
+   * Persisted default community ({@code sys_defaultCommunity} on the user subject). Empty when
+   * unset so login falls back to the role attribute.
+   */
+  private String defaultCommunity = "";
+
   public PSCurrentUser() {
     super();
   }
@@ -106,5 +112,13 @@ public class PSCurrentUser extends PSUser {
 
   public void setCurrentCommunity(String currentCommunity) {
     this.currentCommunity = currentCommunity == null ? "" : currentCommunity;
+  }
+
+  public String getDefaultCommunity() {
+    return defaultCommunity;
+  }
+
+  public void setDefaultCommunity(String defaultCommunity) {
+    this.defaultCommunity = defaultCommunity == null ? "" : defaultCommunity;
   }
 }

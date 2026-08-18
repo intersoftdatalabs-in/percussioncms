@@ -16,6 +16,10 @@
  */
 package com.percussion.role.service.impl;
 
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_ARCHITECTURE;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_DESIGNER;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_PUBLISH;
+import static com.percussion.user.service.IPSUserService.HOMEPAGE_TYPE_WORKFLOW;
 import static org.springframework.util.StringUtils.trimWhitespace;
 
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
@@ -411,12 +415,12 @@ public class PSRoleService implements IPSRoleService {
     if (StringUtils.isBlank(roleName)) {
       throw new IllegalArgumentException("roleName must not be blank");
     }
-    if (StringUtils.isBlank(homepage)
-        || !(homepage.equals(HOMEPAGE_TYPE_DASHBOARD)
-            || homepage.equals(HOMEPAGE_TYPE_EDITOR)
-            || homepage.equals(HOMEPAGE_TYPE_HOME))) {
+    String normalized = PSUserService.normalizeHomepageType(homepage);
+    if (normalized == null) {
       // SPA product default landing is Home (not Dashboard)
       homepage = HOMEPAGE_TYPE_HOME;
+    } else {
+      homepage = normalized;
     }
     var key = META_DATA_HOMEPAGE_PREFIX + roleName;
     var md = mdService.find(key);
@@ -547,13 +551,13 @@ public class PSRoleService implements IPSRoleService {
   /**
    * Resolve effective homepage from the set of role homepage values (role-only; no user override).
    *
-   * <p>Product priority (SPA-first): Home &gt; Dashboard &gt; Editor. Empty/unset → Home.
+   * <p>Product priority (SPA-first): Home &gt; Dashboard &gt; Editor, then remaining top-nav
+   * apps (Explorer, Architecture, Developer, Publish, Workflow). Empty/unset → Home.
    *
    * <p>User-level override is applied in {@link #getUserHomepage()} before this method.
    *
    * @param userHomePages role homepage types, never {@code null} (may be empty)
-   * @return one of {@link #HOMEPAGE_TYPE_HOME}, {@link #HOMEPAGE_TYPE_DASHBOARD}, {@link
-   *     #HOMEPAGE_TYPE_EDITOR}
+   * @return a canonical homepage type, never {@code null}
    */
   static String resolveUserHomepage(Set<String> userHomePages) {
     if (userHomePages == null || userHomePages.isEmpty()) {
@@ -567,6 +571,24 @@ public class PSRoleService implements IPSRoleService {
     }
     if (userHomePages.contains(HOMEPAGE_TYPE_EDITOR)) {
       return HOMEPAGE_TYPE_EDITOR;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_EXPLORER)) {
+      return HOMEPAGE_TYPE_EXPLORER;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_ARCHITECTURE)) {
+      return HOMEPAGE_TYPE_ARCHITECTURE;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_DEVELOPER)) {
+      return HOMEPAGE_TYPE_DEVELOPER;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_PUBLISH)) {
+      return HOMEPAGE_TYPE_PUBLISH;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_WORKFLOW)) {
+      return HOMEPAGE_TYPE_WORKFLOW;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_DESIGNER)) {
+      return HOMEPAGE_TYPE_DESIGNER;
     }
     return HOMEPAGE_TYPE_HOME;
   }

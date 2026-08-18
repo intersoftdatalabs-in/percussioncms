@@ -100,8 +100,9 @@ export const EXPLORER_MSG = {
   SITE_COPY_SELECT_SITE:
     "perc.ui.explorer@Open a site under Sites to copy it.",
 
-  // Create Site (#3002 / parent #2989) — traditional repository default
+  // Create Site (#3002 / parent #2989 / type picker #3512 / Virtual #3521)
   SITE_CREATE_TITLE: "perc.ui.explorer@Create Site",
+  SITE_CREATE_STEP_TYPE: "perc.ui.explorer@Site type",
   SITE_CREATE_STEP_DETAILS: "perc.ui.explorer@Site details",
   SITE_CREATE_STEP_TEMPLATE: "perc.ui.explorer@Base template",
   SITE_CREATE_STEP_CONFIRM: "perc.ui.explorer@Confirm",
@@ -113,17 +114,35 @@ export const EXPLORER_MSG = {
   SITE_CREATE_TEMPLATE_NAME_LABEL: "perc.ui.explorer@Template name",
   SITE_CREATE_BASE_TEMPLATE_LABEL: "perc.ui.explorer@Base template",
   SITE_CREATE_TRADITIONAL_NOTE:
-    "perc.ui.explorer@Creates a traditional repository site (default).",
+    "perc.ui.explorer@Creates a traditional repository site. Managed navigation is optional. A page template is not required.",
+  SITE_CREATE_PAGE_NOTE:
+    "perc.ui.explorer@Creates a page-based site. Managed navigation is required. Choose a page template on the next step.",
+  SITE_CREATE_VIRTUAL_NOTE:
+    "perc.ui.explorer@Creates a Virtual site. Managed navigation and a page template are not used. Git source path can be set here or later on Developer Sites.",
+  SITE_CREATE_VIRTUAL_SOURCE_NOTE:
+    "perc.ui.explorer@Git source (root path, config file) is configured on Developer → Sites after create if you skip the optional path below.",
+  SITE_CREATE_VIRTUAL_ROOT_LABEL:
+    "perc.ui.explorer@Git root path (optional)",
+  SITE_CREATE_VIRTUAL_ROOT_HELP:
+    "perc.ui.explorer@Optional filesystem path for virtual.sourceKind git-filesystem. Leave blank to finish source settings on Developer → Sites.",
+  SITE_CREATE_VIRTUAL_ROOT_UNSAFE:
+    "perc.ui.explorer@Root path must not contain .. segments.",
   SITE_CREATE_REPOSITORY_KIND: "perc.ui.explorer@Repository",
+  SITE_CREATE_TYPE_LABEL: "perc.ui.explorer@Site type",
   SITE_CREATE_TRADITIONAL: "perc.ui.explorer@Traditional",
+  SITE_CREATE_TYPE_PAGE: "perc.ui.explorer@Page",
+  SITE_CREATE_TYPE_VIRTUAL: "perc.ui.explorer@Virtual",
   SITE_CREATE_MANAGED_NAV_LABEL: "perc.ui.explorer@Include managed navigation",
   SITE_CREATE_MANAGED_NAV_HELP:
     "perc.ui.explorer@When unchecked, the site folder is created without a NavTree or homepage. You can add navigation later in Explorer. Virtual Sites do not use this option.",
+  SITE_CREATE_MANAGED_NAV_REQUIRED:
+    "perc.ui.explorer@Page sites always include managed navigation.",
   SITE_CREATE_MANAGED_NAV_YES: "perc.ui.explorer@Yes",
   SITE_CREATE_MANAGED_NAV_NO: "perc.ui.explorer@No",
   SITE_CREATE_TEMPLATES_LOADING: "perc.ui.explorer@Loading base templates…",
   SITE_CREATE_TEMPLATES_ERROR: "perc.ui.explorer@Could not load base templates",
-  SITE_CREATE_VALIDATION:
+  SITE_CREATE_VALIDATION: "perc.ui.explorer@Enter a valid site name",
+  SITE_CREATE_VALIDATION_PAGE:
     "perc.ui.explorer@Enter a valid site name, template name, and base template",
   SITE_CREATE_SUBMIT: "perc.ui.explorer@Create site",
   SITE_CREATE_SUBMITTING: "perc.ui.explorer@Creating site…",
@@ -337,6 +356,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select a folder first",
   ACTION_NEEDS_TYPE:
     "perc.ui.explorer@Choose a content type from New Item",
+  TYPE_PICKER_TITLE: "perc.ui.explorer@Choose a content type",
+  TYPE_PICKER_LABEL: "perc.ui.explorer@Content type",
   ACTION_NEEDS_TEMPLATE:
     "perc.ui.explorer@This page needs a template. Choose a site folder or use Home → Create.",
   ACTION_NEEDS_SLOT:
@@ -345,6 +366,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select an item in the slot first",
   ACTION_SLOT_FAILED:
     "perc.ui.explorer@Could not update the slot",
+  CONFIRM_SLOT_REMOVE:
+    "perc.ui.explorer@Remove this item from the slot?",
   TEMPLATE_PICKER_TITLE: "perc.ui.explorer@Choose a page template",
   TEMPLATE_PICKER_LABEL: "perc.ui.explorer@Template",
   CONFIRM_PURGE_BODY:

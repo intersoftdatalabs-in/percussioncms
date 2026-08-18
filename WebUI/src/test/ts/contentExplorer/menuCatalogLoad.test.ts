@@ -49,6 +49,7 @@ describe("parseExplorerContentId", () => {
     expect(parseExplorerContentId("")).toBeNull();
     expect(parseExplorerContentId("nope")).toBeNull();
     expect(parseExplorerContentId("0")).toBeNull();
+    expect(parseExplorerContentId({ stringValue: "1-101-708" })).toBe(708);
   });
 });
 

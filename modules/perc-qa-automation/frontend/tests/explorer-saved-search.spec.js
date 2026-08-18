@@ -64,6 +64,9 @@ const {
   postExecuteRegionSelector,
   catalogSettledSelector,
   isCustomUrlSearch,
+  isDefaultAllView,
+  searchDefKey,
+  searchesExecuteUrl,
 } = require("./helpers/explorer-saved-search");
 
 // Tags live on individual test() titles only — Playwright ignores @tags on describe names.
@@ -234,12 +237,77 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     } else if (await emptyResults.isVisible()) {
       await expect(emptyResults).toBeVisible();
     } else {
-      // Execute may 500 on minimal H2 without search index — error region is
-      // valid wiring evidence (same contract as us5-search free-text path).
+      const errText = ((await errResults.textContent()) || "").trim();
+      // #3517: All / View_All (and other standard searches) must not surface
+      // the generic search-web-service IOException. Free-text FTS may still
+      // error without a Lucene index; design-search execute must not.
+      expect(
+        /java\.io\.IOException|search web service/i.test(errText),
+        `saved-search execute must not report I/O / search web service error: ${errText}`,
+      ).toBe(false);
+      if (runnable && /view_all|^all$/i.test(String(runnable.key))) {
+        throw new Error(
+          `All / View_All execute must show results or empty, not error: ${errText}`,
+        );
+      }
       await expect(errResults).toBeVisible();
       await expect(
         page.locator(`[data-testid="search-panel-retry"]`),
       ).toBeVisible();
+    }
+  });
+
+  test("REST: POST /services/searches/View_All/execute is 200 page not IOException @saved-search @explorer-saved-search", async ({
+    page,
+  }) => {
+    test.setTimeout(45_000);
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    const catalogRes = await page.request.get(
+      searchesCatalogUrl(BASE_URL, { includeViews: true }),
+      { headers },
+    );
+    if (catalogRes.status() === 401 || catalogRes.status() === 403) {
+      test.skip(true, `catalog auth ${catalogRes.status()} — no execute probe`);
+      return;
+    }
+    expect(catalogRes.status(), `catalog status=${catalogRes.status()}`).toBeLessThan(
+      500,
+    );
+    const defs = unwrapSearchDefs(
+      catalogRes.ok() ? await catalogRes.json().catch(() => null) : null,
+    );
+    const allView = defs.find((d) => isDefaultAllView(d));
+    if (!allView) {
+      test.skip(
+        true,
+        "H2 catalog has no All / View_All — soft-skip execute REST (#3517).",
+      );
+      return;
+    }
+    const key = searchDefKey(allView);
+    const execUrl = searchesExecuteUrl(BASE_URL, key);
+    const body = JSON.stringify({
+      SearchExecuteRequest: { startIndex: 1, maxResults: 25 },
+    });
+    const res = await page.request.post(execUrl, { headers, data: body });
+    const text = await res.text();
+    expect(
+      res.status(),
+      `POST ${execUrl} must not 5xx (status=${res.status()} body=${text.slice(0, 400)})`,
+    ).toBeLessThan(500);
+    expect([200, 401, 403]).toContain(res.status());
+    expect(
+      /java\.io\.IOException|search web service/i.test(text),
+      `execute body must not be generic I/O error: ${text.slice(0, 400)}`,
+    ).toBe(false);
+    if (res.status() === 200) {
+      const parsed = JSON.parse(text);
+      const envelope = parsed.SearchExecuteResult || parsed.searchExecuteResult || parsed;
+      expect(Array.isArray(envelope.children || [])).toBe(true);
     }
   });
 

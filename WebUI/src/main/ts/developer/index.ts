@@ -21,3 +21,4 @@ export {
   type DeveloperSection,
   type DeveloperShellProps,
 } from "./DeveloperShell";
+export { DeveloperRelatedLinks } from "./DeveloperRelatedLinks";

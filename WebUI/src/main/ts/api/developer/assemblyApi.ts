@@ -21,6 +21,11 @@ import {
   resolveTemplateObjectGuid,
 } from "../displayFormatGuid";
 import { PATHS } from "../paths";
+import {
+  normalizeSlotAssociations,
+  normalizeSlotDesignGaps,
+  normalizeSlotStringMap,
+} from "./slotLists";
 import type {
   CommunityDetail,
   CommunityRoleSummary,
@@ -33,6 +38,13 @@ import type {
   TemplateDetail,
   TemplateSummary,
 } from "./types";
+
+export {
+  asJacksonArray,
+  normalizeSlotAssociations,
+  normalizeSlotDesignGaps,
+  normalizeSlotStringMap,
+} from "./slotLists";
 
 /**
  * Jackson {@code @JsonRootName} / WRAP_ROOT_VALUE root for {@code TemplateDetail}.
@@ -112,6 +124,15 @@ export function wrapTemplateDetailForWire(
   return { [TEMPLATE_DETAIL_ROOT]: body };
 }
 
+function normalizeSlotDetail(detail: SlotDetail): SlotDetail {
+  return {
+    ...detail,
+    associations: normalizeSlotAssociations(detail.associations),
+    designGaps: normalizeSlotDesignGaps(detail.designGaps),
+    finderArguments: normalizeSlotStringMap(detail.finderArguments),
+  };
+}
+
 /**
  * Normalize a slots GET/PUT response to a flat {@link SlotDetail}.
  */
@@ -122,10 +143,10 @@ export function unwrapSlotDetail(payload: unknown): SlotDetail {
   }
   const nested = asRecord(root[SLOT_DETAIL_ROOT] ?? root.slotDetail);
   if (nested) {
-    return nested as SlotDetail;
+    return normalizeSlotDetail(nested as SlotDetail);
   }
   if ("name" in root || "label" in root || "associations" in root || "slotLayout" in root) {
-    return root as SlotDetail;
+    return normalizeSlotDetail(root as SlotDetail);
   }
   return {};
 }
