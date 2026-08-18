@@ -45,6 +45,32 @@ theme:
 - `theme.layout` is relative to `_theme/` (default `page.html`).
 - `nav[].id` values should match section landing page frontmatter `id`s.
 
+### Theme placeholders (`_theme/page.html`)
+
+The assembler binds dollar-brace placeholders (HTML-first, ADR-002) when it applies the
+layout. Write these tokens in `_theme` HTML only — the same syntax in Markdown bodies is
+substituted (missing bindings become empty).
+
+| Placeholder | Value |
+|-------------|--------|
+| <code>&#36;{siteTitle}</code> | Site title from `_config.yaml` |
+| <code>&#36;{pageTitle}</code> | Page frontmatter `title` |
+| <code>&#36;{description}</code> | Page frontmatter `description` (empty when omitted) |
+| <code>&#36;{content}</code> | Assembled Markdown HTML. h2–h3 headings receive stable `id` attributes for fragment links. |
+| <code>&#36;{nav}</code> | Site sidebar navigation HTML |
+| <code>&#36;{toc}</code> | In-page table of contents from that page’s h2–h3 headings. Empty when the page has none (no leftover token). |
+| <code>&#36;{versionLabel}</code> | Current version label |
+| <code>&#36;{versionSwitcher}</code> | Version `<select>` HTML when the site has more than one version; otherwise empty |
+
+<code>&#36;{toc}</code> is a `<nav class="vs-toc" aria-label="On this page">` list of links
+to `#heading-id`. Heading ids are derived from heading text (lowercase, hyphenated). Existing
+safe `id` values on headings are kept. Duplicate titles get a numeric suffix (`install`,
+`install-1`). Built-in theme `product-docs/_theme/page.html` includes <code>&#36;{toc}</code>
+above the article.
+
+Custom layouts may omit <code>&#36;{toc}</code>; heading ids are still written into
+<code>&#36;{content}</code>.
+
 ## CMS Site properties (Virtual)
 
 When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` columns):

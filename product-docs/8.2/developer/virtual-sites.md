@@ -46,6 +46,7 @@ product-docs/
 - Folder structure drives navigation hierarchy.
 - `index.md` is the landing page for a section.
 - One top-level folder per documentation version (for example `8.2/`).
+- Assembled pages bind theme placeholders including <code>&#36;{toc}</code> (h2–h3 heading TOC). See [Site configuration](id:reference-site-config).
 
 ## Stable identity
 
