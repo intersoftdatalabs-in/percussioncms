@@ -1467,6 +1467,161 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("Subfolder Copy Cancel unmounts the overlay instead of reset (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/Demo/Home" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("subfolder-copy-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+      expect(screen.queryByTestId("explorer-subfolder-copy-panel")).toBeNull();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("explorer-menu-content"),
+    );
+  });
+
+  it("Subfolder Copy Escape unmounts the overlay (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
+  });
+
+  it("Subfolder Copy Back stays mounted and changes step (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/Demo/Home" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    expect(screen.getByTestId("subfolder-copy-step-target")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("subfolder-copy-back"));
+    expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    expect(screen.getByTestId("subfolder-copy-step-source")).toBeInTheDocument();
+  });
+
+  it("selecting a detail item dismisses Subfolder Copy without POST (#3553)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
+  });
+
+  it("click-away outside Subfolder Copy dismisses the overlay (#3553)", async () => {
+    stubPathFetch();
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo/Home"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-content")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-subfolder-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("subfolder-copy-wizard")).toBeInTheDocument();
+    });
+    fireEvent.mouseDown(screen.getByTestId("content-explorer-shell"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("subfolder-copy-wizard")).toBeNull();
+    });
+  });
+
   it("Content → Subfolder Copy is disabled without a folder path (#2792)", async () => {
     stubPathFetch();
     const { container } = renderShell(

@@ -47,6 +47,11 @@ export interface SubfolderCopyWizardProps {
   ariaLabel?: string;
   className?: string;
   onSettled?: (ok: boolean) => void;
+  /**
+   * Host dismiss (Cancel / Escape). Unmounts the overlay; does not POST.
+   * When omitted, Cancel falls back to {@link resetWizard} for standalone mounts.
+   */
+  onDismiss?: () => void;
 }
 
 const STEPS = ["source", "target", "confirm", "progress"];
@@ -61,10 +66,22 @@ export function SubfolderCopyWizard(
     ariaLabel,
     className,
     onSettled,
+    onDismiss,
   } = props;
   const [wizard, setWizard] = useState<WizardState>(() => createWizard(STEPS));
   const [sourcePath, setSourcePath] = useState(initialSource);
   const [targetPath, setTargetPath] = useState(initialTarget);
+
+  function handleCancel(): void {
+    if (wizard.submitting) {
+      return;
+    }
+    if (onDismiss) {
+      onDismiss();
+      return;
+    }
+    setWizard((w) => resetWizard(w));
+  }
 
   async function handleRun(): Promise<void> {
     setWizard((w) => ({ ...w, submitting: true }));
@@ -229,7 +246,8 @@ export function SubfolderCopyWizard(
         <button
           type="button"
           data-testid="subfolder-copy-cancel"
-          onClick={() => setWizard((w) => resetWizard(w))}
+          disabled={wizard.submitting}
+          onClick={handleCancel}
         >
           {message(EXPLORER_MSG.WIZARD_CANCEL)}
         </button>

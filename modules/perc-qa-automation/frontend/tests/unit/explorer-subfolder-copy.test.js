@@ -34,6 +34,8 @@ describe("explorer-subfolder-copy helpers (#2792)", () => {
     assert.equal(TEST_IDS.subfolderCopyMenu, "explorer-content-subfolder-copy");
     assert.equal(TEST_IDS.wizard, "subfolder-copy-wizard");
     assert.equal(TEST_IDS.subfolderCopyPanel, "explorer-subfolder-copy-panel");
+    assert.equal(TEST_IDS.cancel, "subfolder-copy-cancel");
+    assert.equal(TEST_IDS.back, "subfolder-copy-back");
   });
 
   it("builds explorer SPA entry URL with cache buster", () => {
