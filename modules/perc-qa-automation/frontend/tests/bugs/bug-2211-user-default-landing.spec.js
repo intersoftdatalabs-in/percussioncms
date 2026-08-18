@@ -51,7 +51,8 @@ test.describe("Admin Users default landing page (#2211)", () => {
     );
     await expect(landingSelect).toBeVisible();
 
-    // Remaining-app list (#3537): role-default + Home + Explorer; Editor/Design not new
+    // Remaining-app list (#3537) + role gates (#3538): role-default + Home +
+    // Explorer; Editor/Design not new. Admin role checkbox proves picker filter.
     const options = landingSelect.locator("option");
     const optionCount = await options.count();
     expect(optionCount).toBeGreaterThanOrEqual(3);
@@ -73,7 +74,21 @@ test.describe("Admin Users default landing page (#2211)", () => {
       expect(values).not.toContain("Designer");
     }
 
-    if (values.includes("Explorer")) {
+    // Role list from USER_FIND can be empty on this stack; toggle Admin to
+    // prove the picker follows assigned-role gates (#3538).
+    const adminRole = editor.getByRole("checkbox", { name: /^Admin$/i });
+    await expect(adminRole).toBeVisible();
+    if (!(await adminRole.isChecked())) {
+      await adminRole.check();
+    }
+    await expect(landingSelect.locator('option[value="Workflow"]')).toHaveCount(
+      1,
+    );
+    await expect(landingSelect.locator('option[value="Developer"]')).toHaveCount(
+      1,
+    );
+
+    if ((await landingSelect.locator('option[value="Explorer"]').count()) > 0) {
       await landingSelect.selectOption("Explorer");
       await expect(landingSelect).toHaveValue("Explorer");
     }
@@ -83,6 +98,55 @@ test.describe("Admin Users default landing page (#2211)", () => {
     if (await cancelBtn.count()) {
       await cancelBtn.click();
       await expect(usersSection).toBeVisible({ timeout: 15000 });
+    }
+  });
+
+  test("Contributor user editor does not list Admin as a new landing (#3538)", async ({
+    page,
+  }) => {
+    await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
+
+    const shell = page.locator("[data-testid='perc-admin-shell']");
+    await expect(shell).toBeVisible({ timeout: 30000 });
+    await page.locator("[data-testid='tab-users']").click();
+
+    const usersSection = page.locator("[data-testid='perc-users-section']");
+    await expect(usersSection).toBeVisible({ timeout: 30000 });
+
+    const contributorEdit = page.locator(
+      "[data-testid='edit-user-Contributor']",
+    );
+    test.skip(
+      (await contributorEdit.count()) === 0,
+      "Contributor user not present on this stack",
+    );
+    await contributorEdit.click();
+
+    const editor = page.locator("[data-testid='perc-user-editor']");
+    await expect(editor).toBeVisible({ timeout: 15000 });
+    const landingSelect = page.locator(
+      "[data-testid='user-default-landing-select']",
+    );
+    await expect(landingSelect).toBeVisible();
+    const values = await landingSelect.locator("option").evaluateAll((els) =>
+      els.map((o) => o.value),
+    );
+    expect(values).toContain("Home");
+    expect(values).toContain("Explorer");
+    const current = await landingSelect.inputValue();
+    if (current !== "Workflow") {
+      expect(values).not.toContain("Workflow");
+    }
+    if (current !== "Developer") {
+      expect(values).not.toContain("Developer");
+    }
+    if (current !== "Publish") {
+      expect(values).not.toContain("Publish");
+    }
+
+    const cancelBtn = editor.locator("button", { hasText: /Cancel/i }).first();
+    if (await cancelBtn.count()) {
+      await cancelBtn.click();
     }
   });
 });

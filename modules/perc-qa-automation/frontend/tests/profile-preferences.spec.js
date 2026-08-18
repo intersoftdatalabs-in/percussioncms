@@ -32,7 +32,11 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  loginAsAdmin,
+  loginAsContributor,
+  BASE_URL,
+} = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 /** Form root for preferences edit (not the whole profile shell). */
@@ -188,6 +192,43 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     });
   });
 
+  test("Contributor profile does not list Admin/Developer/Publish (#3538)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const { jsErrors, httpErrors } = attachSurfaceErrorCollectors(page);
+    await loginAsContributor(page);
+
+    await page.goto(profileDeepLink(), { waitUntil: "domcontentloaded" });
+    await expectPreferencesMounted(page);
+    await page.getByTestId("perc-profile-nav-preferences").click();
+
+    const landing = page.getByTestId("perc-profile-preferences-landing");
+    await expect(landing).toBeEnabled();
+    const optionValues = await landing.locator("option").evaluateAll((els) =>
+      els.map((o) => o.value),
+    );
+    expect(optionValues).toContain("");
+    expect(optionValues).toContain("Home");
+    expect(optionValues).toContain("Explorer");
+    expect(optionValues).not.toContain("Workflow");
+    expect(optionValues).not.toContain("Developer");
+    expect(optionValues).not.toContain("Publish");
+    expect(optionValues).not.toContain("Architecture");
+    const current = await landing.inputValue();
+    if (current !== "Editor") {
+      expect(optionValues).not.toContain("Editor");
+    }
+    if (current !== "Designer") {
+      expect(optionValues).not.toContain("Designer");
+    }
+    if (current !== "WidgetBuilder") {
+      expect(optionValues).not.toContain("WidgetBuilder");
+    }
+    expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+    expect(httpErrors, httpErrors.join("\n")).toEqual([]);
+  });
+
   test("change landing preference, reload, value persists", async ({
     page,
   }) => {
@@ -203,8 +244,10 @@ test.describe("Profile preferences @profile @preferences @smoke", () => {
     await expect(landing).toBeVisible();
 
     const original = await landing.inputValue();
-    // Prefer Home ↔ Explorer so both are allowed for Admin and product-backed (#3536).
-    const next = original === "Explorer" ? "Home" : "Explorer";
+    // Prefer Home ↔ Architecture (long-supported persist types). Explorer is
+    // listed for Admin in the option-set test above; persist of Explorer
+    // requires the #3536 server catalog and can 400 on skip-image-build cells.
+    const next = original === "Architecture" ? "Home" : "Architecture";
 
     await landing.selectOption(next);
     await page.getByTestId("perc-profile-preferences-save").click();

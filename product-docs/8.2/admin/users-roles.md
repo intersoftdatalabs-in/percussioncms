@@ -151,10 +151,29 @@ On the same **My profile** hub, open **Preferences** (or deep-link
 `spa.jsp?entry=profile#perc-profile-preferences`). Admins can also set a user's
 landing from **Admin → Users**.
 
+Homepage options are **permission-filtered** to the same screens top nav
+shows for that user. You cannot pick a landing you cannot open.
+
+| Role class | New landing choices |
+|------------|---------------------|
+| Contributor / Editor (no Designer or Admin) | **Use role default**, **Home**, **Explorer** |
+| Designer | Those plus **Navigation**, **Developer**, **Publish** |
+| Admin | Those plus **Admin** |
+
 | Control | What it does |
 |---------|----------------|
-| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open — the same remaining top-nav apps as chrome and as **Admin → Users / Roles**: **Home**, **Explorer**, **Navigation**, and (when your roles include Designer or Admin) **Developer**, **Publish**, and **Admin**. **Explorer** is stored as homepage type `Explorer` and opens the Content Explorer SPA. **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Editor** and **Design** are no longer offered as new choices (they are not top-nav items); if you already stored one of those values, it still appears once so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
+| **Default landing page** | Where you go after sign-in. Choose a product screen you are allowed to open — the same remaining top-nav apps as chrome and as **Admin → Users / Roles**, permission-filtered to your roles: **Home** and **Explorer** for everyone; **Navigation**, **Developer**, and **Publish** when you have Designer or Admin; **Admin** when you have Admin. **Explorer** is stored as homepage type `Explorer` and opens the Content Explorer SPA. **Navigation** is stored as homepage type `Architecture` and opens the site Navigation SPA. **Editor**, **Design**, and **Widget Builder** are not offered as new choices (they are not top-nav items); if you already stored one of those values, it still appears once so you can change or clear it. **Use role default** clears your personal override so the role homepage applies. |
 | **Save preferences** | Writes the landing override for the signed-in user only. The value is reloaded from the server after save so a failed persist is not shown as success. |
+
+### Admin → Users (default landing)
+
+On **Admin → Users**, the user editor **Default landing** select uses the same
+remaining-app list and the **same permission filter**, based on the roles
+assigned to that user (not the signed-in admin). A Contributor-class account
+does not list **Admin**, **Developer**, or **Publish** as new choices. A
+Designer account lists Navigation / Developer / Publish but not Admin. An
+Admin account lists every remaining app including Explorer. A stored landing
+that is no longer allowed still appears once so it can be cleared.
 
 The stored-preference count is informational (existing preference entries for your
 account). A problem loading that list does **not** block changing the landing page.
