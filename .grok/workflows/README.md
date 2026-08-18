@@ -6,22 +6,23 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.0.1` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.0.2` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
 1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
-2. **Preflight** (one scout) — stale **In Progress** cleanup + **compact** issue inventory + skip signals (owned PR blockers, peer-eligible other-model PRs, independent APPROVEs, open CodeQL alert count).  
-3. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
-4. **Triage** — only if inventory is non-empty. Product-first then pN; oversized p1–p6 product → **create 3 PR-sized slices**; QA: Failed → implement residual.  
-5. **Peer PR review** — only if Preflight found other-model / no-model eligible PRs.  
-6. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent** (parent `## Agent progress` is not updated for those skip rows).  
-7. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
-8. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
-9. **Security audit** — only if Preflight `open_alert_count > 0`.  
-10. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
-11. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Same-night own-model PRs skip; the next tick can assign after a human or other-model review.  
-12. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
+2. **Preflight** (one scout) — stale **In Progress** cleanup + **compact** issue inventory (up to ~80) + skip signals (owned PR blockers, peer-eligible other-model PRs, independent APPROVEs, open CodeQL alert count).  
+3. **Reconcile** — close issues that are **100% implemented** (merged covering PR, no remaining slices). Close unassigned **QA: Failed** when the residual that fixed the fail steps is merged. Emit `implement_candidates` for leftovers. Default on.  
+4. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
+5. **Triage** — inventory + reconcile candidates. Product-first then pN; oversized p1–p6 product → **create 3 PR-sized slices**; QA: Failed → implement residual. **Covering PR = OPEN PR only.** A merged PR is close-or-implement, never skip-forever.  
+6. **Peer PR review** — only if Preflight found other-model / no-model eligible PRs.  
+7. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent** (parent `## Agent progress` is not updated for those skip rows).  
+8. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
+9. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
+10. **Security audit** — only if Preflight `open_alert_count > 0`.  
+11. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
+12. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Same-night own-model PRs skip; the next tick can assign after a human or other-model review.  
+13. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
 
 **Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
 
@@ -215,6 +216,9 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `unassigned_only` | bool | `true` | Only issues with **no assignees** |
 | `include_stale_in_progress_cleanup` | bool | `true` | Before PRE/Discover: remove **In Progress** when issue `updatedAt` is older than `stale_in_progress_hours` |
 | `stale_in_progress_hours` | int | `4` | Hours of no issue activity before an In Progress claim is cleared (capped 1–72) |
+| `include_reconcile` | bool | `true` | After Preflight: close 100% implemented open issues (including QA: Failed whose residual landed); emit leftover implement candidates |
+| `max_reconcile_closes` | int | `20` | Max issues to close per reconcile pass (capped 1–40) |
+| `max_reconcile_inspect` | int | `80` | Max open issues to inspect for close vs remaining work (capped 20–120) |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain after stale cleanup (before Discover/Triage) **and** after issue Work |
 | `include_peer_pr_review` | bool | `true` | After PRE: review other-model / no-model agent PRs missing reviews; optional squash-merge |
 | `max_peer_reviews` | int | `4` | Max peer PRs fully reviewed per run (capped 1–8) |
@@ -265,14 +269,20 @@ Human QA issues are handoff work (assigned), not unassigned residual implement s
 
 ### Issue lifecycle / close rules (no empty trackers)
 
+Every open issue is either **worked** or **closed**. Merged-but-still-open is a defect.
+
 | Situation | Required action |
 |-----------|-----------------|
-| Work complete, **no** open children / residuals / QA issues, **no** remaining steps | **Close** the issue (comment + reason + PR/child links). Do **not** leave it open “for tracking.” |
-| Candidate for human QA | **Work:** record candidacy only — never assign. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue and assign `qa_assignee`. Otherwise do **not** create or assign; open PR + `qa_deferred_quality` is enough |
+| Work complete, **no** open children / residuals, **no** remaining steps | **Close** the issue (comment + reason + merged PR/child links). Do **not** leave it open “for tracking.” Reconcile does this even when Work skipped the ticket. |
+| Covering PR | Only an **OPEN** PR covers a slice. A **merged** PR is history — close the issue or implement what is left. |
+| Unassigned **QA: Failed** whose residual PR (or absorbing cluster) **merged** and the fail steps are addressed | **Close** the QA ticket. Do not keep it open waiting for a retest that never happens. |
+| **QA: Failed** residual merged but **other** fail steps remain | File/queue a **new** implement residual. Do not skip as “residual already filed.” |
+| Assigned **QA: To Be Tested** | Leave it — human owns it. |
+| Candidate for human QA (new this-run PR) | **Work:** record candidacy only — never assign. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue and assign `qa_assignee`. |
 | Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
-| Open children or open QA or active linked PRs | **Do not close** the parent |
+| Open children or **open** linked PRs | **Do not close** the parent |
 
-Hard ban: epic/tracker issues open with **zero** related open child/QA issues and no next step.
+Hard ban: epic/tracker issues open with **zero** open children and no next step. Hard ban: skip-forever because a comment says `PR opened` after that PR merged.
 
 ### Residual issues (no quota phase)
 
@@ -344,6 +354,7 @@ Rough agent use (v2.0.0 — specialists are 0 when Preflight says there is nothi
 |-------|--------|
 | Identity | 0–1 (0 if stamp args passed) |
 | Preflight | 1 |
+| Reconcile | 0–1 (0 if `include_reconcile=false`) |
 | PR follow-up pre | 0–1 |
 | Triage | 0–1 |
 | Peer PR review | 0–1 |
