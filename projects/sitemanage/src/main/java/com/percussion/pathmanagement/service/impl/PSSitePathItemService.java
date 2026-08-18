@@ -109,33 +109,32 @@ public class PSSitePathItemService extends PSPathItemService {
           PSValidationException,
           DataServiceLoadException {
     var sfp = getSiteIdAndFolderPath(path);
-    PSSiteSummary site;
-    try {
-      site = siteDataService.find(sfp.getSiteId());
-    } catch (DataServiceLoadException | PSValidationException | IPSGenericDao.LoadException e) {
-      try {
-        site = siteDataService.findByPath(("/Sites/" + path).replace("//", "/"));
-      } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e1) {
-        // Site not found, assume orphaned path (messages from TMX; EN uses curly apostrophes)
-        var msg =
-            sfp.isOnlySiteId()
-                ? PSI18NTranslationKeyValues.getInstance()
-                        .getTranslationValue(
-                            "perc.ui.pathmanagement@Oops.  We can't find the site ")
-                    + sfp.getSiteId()
-                    + PSI18NTranslationKeyValues.getInstance()
-                        .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
-                : PSI18NTranslationKeyValues.getInstance()
-                    .getTranslationValue(
-                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"
-                            + " available.");
-        throw new PSPathNotFoundServiceException(msg);
-      }
+    var site = resolveSiteSummary(path, sfp);
+    if (site == null) {
+      // Orphaned / unknown site path (TMX; EN uses curly apostrophes)
+      var msg =
+          sfp.isOnlySiteId()
+              ? PSI18NTranslationKeyValues.getInstance()
+                      .getTranslationValue(
+                          "perc.ui.pathmanagement@Oops.  We can't find the site ")
+                  + sfp.getSiteId()
+                  + PSI18NTranslationKeyValues.getInstance()
+                      .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
+              : PSI18NTranslationKeyValues.getInstance()
+                  .getTranslationValue(
+                      "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"
+                          + " available.");
+      throw new PSPathNotFoundServiceException(msg);
     }
     // Only the site id.
     if (sfp.isOnlySiteId()) {
       var item = createPathItem();
       convert(site, item);
+      // convert() sets path from SITENAME (`/Corporate_Investments/`).
+      // Explorer also looks up FOLDER_ROOT (`/CorporateInvestments`).
+      // DispatchingPathService requires PathItem.path to start with the
+      // requested relative path (#3558).
+      item.setPath(requestedRelativeSitePath(path));
       return item;
     }
     try {
@@ -147,6 +146,77 @@ public class PSSitePathItemService extends PSPathItemService {
       }
       throw e;
     }
+  }
+
+  /**
+   * Resolve the site for a finder path without {@link IPSSiteDataService#find(String)}.
+   *
+   * <p>{@code find(id)} looks up SITENAME. Sample sites use SITENAME {@code
+   * Corporate_Investments} and FOLDER_ROOT {@code //Sites/CorporateInvestments}. Calling
+   * {@code find("CorporateInvestments")} (or {@code find("Demo")} for a typed missing path)
+   * throws after a failed site-name load and marks the Spring listing transaction
+   * rollback-only. REST {@code GET /path/item/{path}} then returns HTTP 500
+   * ({@code UnexpectedRollbackException}) instead of the folder item or 404 (#3558 / #3410).
+   */
+  PSSiteSummary resolveSiteSummary(String path, SiteIdAndFolderPath sfp)
+      throws PSValidationException {
+    if (sfp == null) {
+      return null;
+    }
+    try {
+      var byPath = siteDataService.findByPath(SITE_ROOT + path);
+      if (byPath != null) {
+        return byPath;
+      }
+    } catch (IPSDataService.DataServiceNotFoundException e) {
+      log.debug("findByPath missed site for {}", path);
+    }
+    var siteId = sfp.getSiteId();
+    if (siteId == null || siteId.isBlank()) {
+      return null;
+    }
+    var sites = siteDataService.findAll();
+    if (sites == null) {
+      return null;
+    }
+    for (var sum : sites) {
+      if (sum == null) {
+        continue;
+      }
+      if (siteFolderNameMatches(siteId, sum.getName())) {
+        return sum;
+      }
+      var folderPath = sum.getFolderPath();
+      if (folderPath != null && siteFolderNameMatches(siteId, folderPathLeaf(folderPath))) {
+        return sum;
+      }
+    }
+    return null;
+  }
+
+  /** Finder-relative site path (`/Name/`) matching the request, not an OS path. */
+  static String requestedRelativeSitePath(String path) {
+    var requested = path == null ? "/" : path.trim();
+    if (!requested.startsWith("/")) {
+      requested = "/" + requested;
+    }
+    if (!requested.endsWith("/")) {
+      requested = requested + "/";
+    }
+    return requested;
+  }
+
+  /** Last segment of a CMS folder path ({@code //} finder form, not an OS path). */
+  public static String folderPathLeaf(String folderPath) {
+    if (folderPath == null || folderPath.isEmpty()) {
+      return "";
+    }
+    var t = folderPath.trim();
+    while (t.endsWith("/")) {
+      t = t.substring(0, t.length() - 1);
+    }
+    var slash = t.lastIndexOf('/');
+    return slash >= 0 ? t.substring(slash + 1) : t;
   }
 
   protected void convert(PSSiteSummary site, PSPathItem item) {

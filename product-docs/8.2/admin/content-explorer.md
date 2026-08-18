@@ -34,7 +34,7 @@ service (roles may hide Design/Recycling for some users):
 
 | Root | Maps to | Purpose |
 |------|---------|---------|
-| **Sites** | `//Sites` | Traditional site folders and pages. Use the tree disclosure control (not only the row label) to expand **Sites**, then expand a sample site to list FastForward folders such as **AboutEnterpriseInvestments**, **Files**, and **Images** |
+| **Sites** | `//Sites` | Traditional site folders and pages. Use the tree disclosure control (not only the row label) to expand **Sites**, then expand a sample site to list FastForward folders such as **AboutEnterpriseInvestments**, **Files**, and **Images**. Sample-site **folder names** can differ from the site name (for example folder `CorporateInvestments` vs site `Corporate_Investments`); Explorer still opens the folder. A path that is not a site or folder (for example a typed `/Sites/Demo/Home` on a cell that only has the FastForward sample site) is treated as **not found** — it does not fail the Explorer with a server error |
 | **Folders** | `//Folders` | Classic Rhythmyx folder tree (including `$System$` and other repository folders) |
 | **Assets** | `//Folders/$System$/Assets` | Shared asset library (CM1 convenience root) |
 | **Design** | Design file-system area | Templates, themes, web resources (Admin/Designer) |
@@ -190,7 +190,7 @@ that folder.
 
 | Control | Behavior |
 |---------|----------|
-| **Next** | Advance to the next step (source → target → confirm → run) |
+| **Next** | Advance to the next step (source → target → confirm → run). Next does not copy and does not require the typed source path to exist; a missing fixture path such as `/Sites/Demo/Home` is not a server error |
 | **Back** | Return to the previous step. The overlay stays open |
 | **Cancel** | Close the wizard without copying. Cancel is **not** Back — it does not reset to step 1 while leaving the overlay up |
 | **Escape** | Same as Cancel: dismiss without submitting |
