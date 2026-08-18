@@ -7,6 +7,6 @@
     "minify": "node build-scripts/minify.mjs"
   },
   "devDependencies": {
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.2"
   }
 }
