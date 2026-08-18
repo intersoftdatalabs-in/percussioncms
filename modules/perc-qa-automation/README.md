@@ -184,6 +184,30 @@ Full context: `docker/README.md` → *Docker `Health.Status` (in-image
 HEALTHCHECK)* and `docs/developer-module/workbench-rest-and-qa-modes.md`
 § *H2 Docker one-shot*.
 
+### Explorer Sites/Assets tree + detail-list (#3575 / parent #3102)
+
+H2 operator proof that **Sites** and **Assets** appear in `explorer-tree` on
+`spa.jsp?entry=explorer` and a sample folder lists children in `detail-list`.
+Does **not** soft-skip when H2 QA has sample sites (`TEST_DB_TYPE=h2` / demo-sites
+default). Does **not** claim gap-matrix Present.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-sites-assets-tree-list.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-sites-assets-tree-list.js`, `tests/unit/explorer-sites-assets-tree-list.test.js` |
+| Tags | `@explorer-sites-assets-tree-list` `@explorer` `@sites` `@smoke` |
+| Soft skip | None when `TEST_DB_TYPE=h2` or REST lists Sites children; empty Sites on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-sites-assets-tree-list.spec.js
+```
+
+Peer: `explorer-sites-list-create` (list + Create Site). Parent operator issue #3102.
+
 ### Explorer Sites list + Create Site (#3003 / parent #2989)
 
 Surface for Explorer **Sites** listing and **Content → Create Site** (traditional site).

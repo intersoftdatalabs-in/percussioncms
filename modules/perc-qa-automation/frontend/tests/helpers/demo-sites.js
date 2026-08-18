@@ -117,16 +117,39 @@ function isPageTypeChild(item) {
   return type.length > 0 && type !== "folder" && type !== "fsfolder" && type !== "site";
 }
 
-function pathItemNames(body) {
+/**
+ * Unwrap path/folder JSON into PathItem rows.
+ * Accepts a bare array, {@code {PathItem:[...]}} / single-object wrap, or a
+ * nested {@code PSPathItemList} envelope so H2 sample sites are not treated
+ * as empty (false soft-skip, #3575).
+ *
+ * @param {unknown} body
+ * @returns {unknown[]}
+ */
+function pathItemRows(body) {
   if (body == null) {
     return [];
   }
-  const items = Array.isArray(body.PathItem)
-    ? body.PathItem
-    : Array.isArray(body)
-      ? body
-      : [];
-  return items
+  if (Array.isArray(body)) {
+    return body;
+  }
+  if (typeof body !== "object") {
+    return [];
+  }
+  const rec = body;
+  const direct = rec.PathItem ?? rec.pathItem;
+  if (direct != null) {
+    return Array.isArray(direct) ? direct : [direct];
+  }
+  const nested = rec.PSPathItemList ?? rec.PathItemList ?? rec.pathItemList;
+  if (nested != null && nested !== rec) {
+    return pathItemRows(nested);
+  }
+  return [];
+}
+
+function pathItemNames(body) {
+  return pathItemRows(body)
     .map((it) => (it && typeof it === "object" ? it.name : null))
     .filter((n) => typeof n === "string" && n.trim().length > 0)
     .map((n) => String(n).trim());
@@ -194,6 +217,46 @@ function shouldEnforceDemoSites(env = process.env) {
 }
 
 /**
+ * Stock CMS+H2 QA cells pass installer {@code --demo-sites} unless
+ * {@code DEMO_SITES} is an explicit falsey value.
+ *
+ * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
+ * @returns {boolean}
+ */
+function isH2QaDemoSitesDefault(env = process.env) {
+  const db = String(env.TEST_DB_TYPE || "").trim().toLowerCase();
+  if (db !== "h2") {
+    return false;
+  }
+  const raw = env.DEMO_SITES;
+  if (raw == null || String(raw).trim() === "") {
+    return true;
+  }
+  return isTruthyEnvFlag(raw);
+}
+
+/**
+ * Tree+list / Sites-list must not soft-skip when sample content is present,
+ * when {@code EXPECT_DEMO_SITES} is on, or on H2 QA (demo-sites default).
+ *
+ * @param {readonly string[] | null | undefined} names
+ * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
+ * @returns {boolean}
+ */
+function shouldSoftSkipSitesList(names, env = process.env) {
+  if ((names || []).length > 0) {
+    return false;
+  }
+  if (shouldEnforceDemoSites(env)) {
+    return false;
+  }
+  if (isH2QaDemoSitesDefault(env)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Skip reason when demo sample sites are not present and enforcement is off.
  * Durable issue URLs required (skip-with-BUG pattern).
  *
@@ -217,6 +280,7 @@ module.exports = {
   RESIDUAL_ISSUE,
   REPO_ISSUES,
   normalizeSiteName,
+  pathItemRows,
   pathItemNames,
   pagedItemListChildren,
   pagedItemListCount,
@@ -225,5 +289,7 @@ module.exports = {
   hasAnyExpectedSampleSite,
   isTruthyEnvFlag,
   shouldEnforceDemoSites,
+  isH2QaDemoSitesDefault,
+  shouldSoftSkipSitesList,
   demoSitesSkipReason,
 };
