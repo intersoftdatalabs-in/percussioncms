@@ -141,6 +141,77 @@ describe("ActionToolbar", () => {
     expect(screen.queryByTestId("action-toolbar-item-new-folder")).toBeNull();
   });
 
+  it("collapses dumped MENU children so they are not top-level buttons (#3560)", () => {
+    const dumped: MenuAction[] = [
+      {
+        name: "Paste",
+        label: "Paste",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          { name: "Move", label: "Move", sortRank: 0, menuType: "MENUITEM" },
+          {
+            name: "Paste_As_Link",
+            label: "Paste as Link",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      { name: "Move", label: "Move", sortRank: 1, menuType: "MENUITEM" },
+      {
+        name: "Paste_As_Link",
+        label: "Paste as Link",
+        sortRank: 2,
+        menuType: "MENUITEM",
+      },
+      { name: "Open", label: "Open", sortRank: 3, menuType: "MENUITEM" },
+    ];
+    render(<ActionToolbar actions={dumped} />);
+    expect(
+      screen.getByTestId("action-toolbar-item-Paste").getAttribute(
+        "aria-haspopup",
+      ),
+    ).toBe("menu");
+    expect(screen.queryByTestId("action-toolbar-item-Move")).toBeNull();
+    expect(screen.queryByTestId("action-toolbar-item-Paste_As_Link")).toBeNull();
+    expect(screen.getByTestId("action-toolbar-item-Open")).toBeTruthy();
+    expect(screen.getAllByRole("button").length).toBe(2);
+  });
+
+  it("unwraps envelope children so static MENU parents stay dropdowns (#3560)", () => {
+    const envelope = {
+      name: "Arrange",
+      label: "Arrange",
+      sortRank: 0,
+      menuType: "MENU",
+      children: {
+        ActionMenuList: [
+          {
+            name: "Arrange_MoveUpLeft",
+            label: "Move up",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    } as unknown as MenuAction;
+    render(<ActionToolbar actions={[envelope]} />);
+    expect(
+      screen.getByTestId("action-toolbar-item-Arrange").getAttribute(
+        "aria-haspopup",
+      ),
+    ).toBe("menu");
+    expect(
+      screen.queryByTestId("action-toolbar-item-Arrange_MoveUpLeft"),
+    ).toBeNull();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange"));
+    expect(screen.getByTestId("action-toolbar-menu-Arrange")).toBeTruthy();
+    expect(
+      screen.getByTestId("action-toolbar-item-Arrange_MoveUpLeft"),
+    ).toBeTruthy();
+  });
+
   it("renders cascading Workflow children as a labeled group (#2732)", () => {
     const onInvoke = vi.fn();
     const actions: MenuAction[] = [

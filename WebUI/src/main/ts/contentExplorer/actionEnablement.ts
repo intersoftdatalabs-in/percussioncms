@@ -39,6 +39,7 @@
  * </ul>
  */
 
+import { collapseFlattenedMenuActionRoots } from "../api/contentExplorer/actionMenuApi";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import { resolvePublishKind } from "./itemPublish";
@@ -140,8 +141,84 @@ export function isActionAllowedOnSurface(
   return true;
 }
 
+/**
+ * Unwrap {@link MenuAction.children} whether the tree is already mapped
+ * (array) or still carries a Jackson {@code ActionMenu}/{@code ActionMenuList}
+ * envelope. Toolbar chrome must see an array or MENU parents render as
+ * ordinary buttons (#3560).
+ */
+export function unwrapMenuActionChildren(
+  children: MenuAction[] | unknown,
+): MenuAction[] {
+  if (children == null) {
+    return [];
+  }
+  if (Array.isArray(children)) {
+    return children.filter(
+      (child): child is MenuAction =>
+        child != null && typeof child.name === "string" && child.name.length > 0,
+    );
+  }
+  if (typeof children === "object") {
+    const env = children as Record<string, unknown>;
+    const listed =
+      env.ActionMenuList ?? env.ActionMenu ?? env.actionMenuList ?? env.actionMenu;
+    if (Array.isArray(listed)) {
+      return unwrapMenuActionChildren(listed);
+    }
+    if (
+      listed &&
+      typeof listed === "object" &&
+      typeof (listed as MenuAction).name === "string"
+    ) {
+      return [listed as MenuAction];
+    }
+  }
+  return [];
+}
+
 function hasChildren(action: MenuAction): boolean {
-  return (action.children?.length ?? 0) > 0;
+  return unwrapMenuActionChildren(action.children).length > 0;
+}
+
+/**
+ * Recursively copy a tree so {@code children} is always an array (or omitted).
+ * Pure: does not mutate the input.
+ */
+export function normalizeMenuActionTree(
+  actions: MenuAction[] | null | undefined,
+): MenuAction[] {
+  if (actions == null || actions.length === 0) {
+    return [];
+  }
+  const out: MenuAction[] = [];
+  for (const action of actions) {
+    if (!action || !action.name) {
+      continue;
+    }
+    const kids = normalizeMenuActionTree(
+      unwrapMenuActionChildren(action.children),
+    );
+    if (kids.length === 0) {
+      const rest: MenuAction = { ...action };
+      delete rest.children;
+      out.push(rest);
+      continue;
+    }
+    out.push({ ...action, children: kids });
+  }
+  return out;
+}
+
+/**
+ * Toolbar-ready tree: unwrap envelopes, then drop roots that already
+ * appear as descendants so ActionToolbar cannot dump MENU children as
+ * extra top-level buttons (#3560 / #3379).
+ */
+export function prepareToolbarActions(
+  actions: MenuAction[] | null | undefined,
+): MenuAction[] {
+  return collapseFlattenedMenuActionRoots(normalizeMenuActionTree(actions));
 }
 
 function actionNameKey(name: string | undefined | null): string {
@@ -189,7 +266,10 @@ export function filterEnabledMenuActions(
     }
 
     if (hasChildren(action)) {
-      const filteredChildren = filterEnabledMenuActions(action.children, ctx);
+      const filteredChildren = filterEnabledMenuActions(
+        unwrapMenuActionChildren(action.children),
+        ctx,
+      );
       if (filteredChildren.length === 0) {
         // Cascade parent with no web-usable children: drop entirely.
         continue;
@@ -221,11 +301,13 @@ export function filterToolbarActions(
   baseHref?: string,
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
-  return filterEnabledMenuActions(actions, {
-    surface: "toolbar",
-    baseHref,
-    selectionItem,
-  });
+  return prepareToolbarActions(
+    filterEnabledMenuActions(actions, {
+      surface: "toolbar",
+      baseHref,
+      selectionItem,
+    }),
+  );
 }
 
 /**

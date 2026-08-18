@@ -39,11 +39,36 @@ const {
 const { collectMenuParents } = require("./helpers/explorer-action-toolbar-catalog");
 
 test.describe("modern React Content Explorer — nested ActionToolbar menus (#2730)", () => {
+  /** Uncaught page errors + unexpected console errors for C5. */
+  let pageErrors = [];
+
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
+    pageErrors = [];
+    page.on("pageerror", (err) => {
+      pageErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") return;
+      const text = msg.text();
+      if (
+        /Failed to load resource: the server responded with a status of (404|400)/i.test(
+          text,
+        )
+      ) {
+        return;
+      }
+      pageErrors.push(text);
+    });
     await loginAsAdmin(page);
     await page.goto(explorerSpaUrl(BASE_URL));
     await page.waitForLoadState("networkidle");
+  });
+
+  test.afterEach(() => {
+    expect(pageErrors, `JS page/console errors: ${pageErrors.join(" | ")}`).toEqual(
+      [],
+    );
   });
 
   test(
@@ -110,85 +135,78 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
         return { url: null, payload: null };
       });
 
+      expect(
+        catalog.url,
+        "GET /actions/find must succeed so nested chrome is asserted (#3560)",
+      ).toBeTruthy();
+
       const menuParents = collectMenuParents(catalog.payload);
       test.info().annotations.push({
         type: "note",
         description: `find() ${catalog.url || "unreached"} MENU parents=${menuParents.length}`,
       });
+      expect(
+        menuParents.length,
+        "H2 catalog must include cascading MENU parents (Paste/Arrange/View/Create)",
+      ).toBeGreaterThan(0);
+
+      const requiredNames = ["Paste", "Arrange", "View", "Create"];
+      const required = menuParents.filter((p) => requiredNames.includes(p.name));
+      expect(
+        required.map((p) => p.name).sort(),
+        "static MENU parents must stay nested in GET /actions/find",
+      ).toEqual([...requiredNames].sort());
 
       const parents = page.locator(
         `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"][aria-haspopup="menu"]`,
       );
 
-      if (menuParents.length > 0) {
-        // Live catalog has cascading MENU parents — must render dropdowns
-        // (#3379). Do not soft-skip.
-        await expect
-          .poll(async () => parents.count(), { timeout: 15_000 })
-          .toBeGreaterThan(0);
+      // Live catalog has cascading MENU parents — must render dropdowns
+      // (#3379 / #3560). Do not soft-skip.
+      await expect
+        .poll(async () => parents.count(), { timeout: 15_000 })
+        .toBeGreaterThan(0);
 
-        const parent = parents.first();
-        const parentTestId = await parent.getAttribute("data-testid");
-        const menuName = String(parentTestId || "").replace(
-          /^action-toolbar-item-/,
-          "",
+      for (const parentMenu of required) {
+        const parentBtn = page.locator(
+          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-${parentMenu.name}"][aria-haspopup="menu"]`,
         );
-
-        // Closed: children of every MENU parent must not appear as extra
-        // top-level toolbar buttons (#3379).
-        const closedTopLevel = page.locator(
-          `[data-testid="${TEST_IDS.actionToolbar}"] > button[data-testid^="action-toolbar-item-"], [data-testid="${TEST_IDS.actionToolbar}"] > div > button[data-testid^="action-toolbar-item-"]`,
-        );
-        const closedNames = await closedTopLevel.evaluateAll((els) =>
-          els.map((el) => el.getAttribute("data-testid") || ""),
-        );
-        for (const parentMenu of menuParents) {
-          for (const childName of parentMenu.childNames) {
-            expect(
-              closedNames.includes(`action-toolbar-item-${childName}`),
-              `closed toolbar dumped child "${childName}" of "${parentMenu.name}" as a top-level button`,
-            ).toBe(false);
-          }
-        }
-
-        await parent.click();
         await expect(
-          page.locator(`[data-testid="action-toolbar-menu-${menuName}"]`),
-        ).toBeVisible({ timeout: 5_000 });
-        const items = page.locator(
-          `[data-testid="action-toolbar-menu-${menuName}"] [role="menuitem"]`,
-        );
-        await expect(items.first()).toBeVisible();
-        return;
+          parentBtn,
+          `MENU parent "${parentMenu.name}" must be one aria-haspopup=menu control`,
+        ).toBeVisible();
       }
 
-      const parentCount = await parents.count();
-      if (parentCount === 0) {
-        test.info().annotations.push({
-          type: "note",
-          description:
-            "Live catalog has no MENU parents; nested chrome covered by WebUI Vitest.",
-        });
-        return;
-      }
-
-      const parent = parents.first();
-      const parentTestId = await parent.getAttribute("data-testid");
-      const menuName = String(parentTestId || "").replace(
-        /^action-toolbar-item-/,
-        "",
+      // Closed: children of every MENU parent must not appear as extra
+      // top-level toolbar buttons (#3379 / #3560).
+      const closedTopLevel = page.locator(
+        `[data-testid="${TEST_IDS.actionToolbar}"] > button[data-testid^="action-toolbar-item-"], [data-testid="${TEST_IDS.actionToolbar}"] > div > button[data-testid^="action-toolbar-item-"]`,
       );
-      await parent.click();
+      const closedNames = await closedTopLevel.evaluateAll((els) =>
+        els.map((el) => el.getAttribute("data-testid") || ""),
+      );
+      for (const parentMenu of menuParents) {
+        for (const childName of parentMenu.childNames) {
+          expect(
+            closedNames.includes(`action-toolbar-item-${childName}`),
+            `closed toolbar dumped child "${childName}" of "${parentMenu.name}" as a top-level button`,
+          ).toBe(false);
+        }
+      }
+
+      const firstRequired = required[0].name;
+      await page
+        .locator(
+          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-${firstRequired}"]`,
+        )
+        .click();
       await expect(
-        page.locator(`[data-testid="action-toolbar-menu-${menuName}"]`),
+        page.locator(`[data-testid="action-toolbar-menu-${firstRequired}"]`),
       ).toBeVisible({ timeout: 5_000 });
-      await expect(
-        page
-          .locator(
-            `[data-testid="action-toolbar-menu-${menuName}"] [role="menuitem"]`,
-          )
-          .first(),
-      ).toBeVisible();
+      const items = page.locator(
+        `[data-testid="action-toolbar-menu-${firstRequired}"] [role="menuitem"]`,
+      );
+      await expect(items.first()).toBeVisible();
     },
   );
 });

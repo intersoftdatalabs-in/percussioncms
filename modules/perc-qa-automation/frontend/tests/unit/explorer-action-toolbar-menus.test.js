@@ -68,6 +68,38 @@ describe("explorer-action-toolbar-menus helpers (#2730)", () => {
     assert.deepEqual(unwrapFindPayload(null), []);
   });
 
+  it("collectMenuParents finds static Paste/Arrange/View/Create parents (#3560)", () => {
+    const parents = collectMenuParents({
+      ActionMenu: [
+        {
+          name: "Paste",
+          menuType: "MENU",
+          children: [{ name: "Move" }, { name: "Paste_As_Link" }],
+        },
+        {
+          name: "Arrange",
+          menuType: "MENU",
+          children: [{ name: "Arrange_MoveUpLeft" }],
+        },
+        {
+          name: "View",
+          menuType: "MENU",
+          children: [{ name: "View_Properties" }],
+        },
+        {
+          name: "Create",
+          menuType: "MENU",
+          children: [{ name: "Translate" }],
+        },
+        { name: "Open", menuType: "MENUITEM" },
+      ],
+    });
+    assert.deepEqual(
+      parents.map((p) => p.name).sort(),
+      ["Arrange", "Create", "Paste", "View"],
+    );
+  });
+
   it("collectMenuParents returns every MENU parent so closed-toolbar checks cover all cascades", () => {
     const parents = collectMenuParents({
       ActionMenu: [

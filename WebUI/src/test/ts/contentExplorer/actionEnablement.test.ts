@@ -20,6 +20,9 @@ import {
   filterContextMenuActions,
   filterEnabledMenuActions,
   filterToolbarActions,
+  normalizeMenuActionTree,
+  prepareToolbarActions,
+  unwrapMenuActionChildren,
   isActionAllowedOnSurface,
   isToolbarPublishNowHidden,
   isClientHandledAction,
@@ -182,6 +185,55 @@ describe("filterEnabledMenuActions", () => {
     expect(filterEnabledMenuActions([], { surface: "toolbar", baseHref: BASE })).toEqual(
       [],
     );
+  });
+
+  it("collapses descendant names that were also dumped as toolbar roots (#3560)", () => {
+    const actions: MenuAction[] = [
+      {
+        name: "View",
+        label: "View",
+        sortRank: 1,
+        menuType: "MENU",
+        children: [
+          leaf({ name: "View_Properties", url: "/Rhythmyx/ok" }),
+          leaf({ name: "Flush_Cache", url: "/Rhythmyx/flush" }),
+        ],
+      },
+      leaf({ name: "View_Properties", url: "/Rhythmyx/ok", sortRank: 2 }),
+      leaf({ name: "Open", url: "/Rhythmyx/open", sortRank: 3 }),
+    ];
+    const filtered = filterToolbarActions(actions, BASE);
+    expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+      "View_Properties",
+      "Flush_Cache",
+    ]);
+  });
+
+  it("unwraps envelope children before toolbar enablement (#3560)", () => {
+    const actions = [
+      {
+        name: "Create",
+        label: "Create",
+        sortRank: 1,
+        menuType: "MENU",
+        children: {
+          ActionMenu: [
+            leaf({ name: "Translate", url: "/Rhythmyx/translate" }),
+            leaf({ name: "gone", url: "javascript:void(0)" }),
+          ],
+        },
+      } as unknown as MenuAction,
+    ];
+    expect(
+      unwrapMenuActionChildren(actions[0].children).map((c) => c.name),
+    ).toEqual(["Translate", "gone"]);
+    const filtered = filterToolbarActions(actions, BASE);
+    expect(filtered.map((a) => a.name)).toEqual(["Create"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual(["Translate"]);
+    expect(
+      prepareToolbarActions(normalizeMenuActionTree(actions)).map((a) => a.name),
+    ).toEqual(["Create"]);
   });
 
   it("keeps MENU children nested rather than hoisting them to the toolbar (#3379)", () => {
