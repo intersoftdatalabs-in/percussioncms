@@ -1175,6 +1175,47 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("View → Clipboard opens the empty clipboard panel and toggles aria-checked (#3544)", async () => {
+    stubPathFetch();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-menu-view")).toBeInTheDocument(),
+    );
+    openViewMenu();
+    const toggle = screen.getByTestId(
+      "explorer-toggle-clipboard",
+    ) as HTMLButtonElement;
+    expect(toggle.disabled).toBe(false);
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(screen.queryByTestId("explorer-clipboard-panel")).toBeNull();
+
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-clipboard-panel")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("true");
+
+    fireEvent.click(screen.getByTestId("explorer-toggle-clipboard"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-clipboard-panel")).toBeNull();
+    });
+    expect(
+      screen.getByTestId("explorer-toggle-clipboard").getAttribute(
+        "aria-checked",
+      ),
+    ).toBe("false");
+    await renderA11yGate(container);
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(

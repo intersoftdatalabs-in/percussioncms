@@ -1304,7 +1304,6 @@ function ContentExplorerShellInner({
             showSiteCopy={showSiteCopy}
             showSubfolderCopy={showSubfolderCopy}
             multiSelectedCount={multiSelectedIds.size}
-            clipboardItemCount={clipboard.items.length}
             hasSiteContext={hasSiteContext}
             hasFolderContext={hasFolderContext}
             displayFormats={displayFormats}
