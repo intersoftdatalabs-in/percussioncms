@@ -15,17 +15,22 @@
  */
 
 /**
- * Default landing options for Admin → Users editor (#2211 / #3537).
+ * Default landing options for Admin → Users editor (#2211 / #3537 / #3538).
  *
- * <p>Labels use nav menu i18n keys. Values are slice-2 canonical homepage
+ * <p>Labels use nav menu i18n keys. Values are remaining top-nav homepage
  * types (or empty for clear → role resolve). The option set matches User
- * Profile Preferences (parent #3515 / slice 1): Explorer in; Editor/Design
- * not offered as new choices after they left top nav (#3514). Options are
- * still filtered to screens the assigned roles may open (peer SPA TopNav
- * gates). Permission tightening beyond those gates is slice 3 (#3538).</p>
+ * Profile Preferences (parent #3515 / slice 1 / #3537): Explorer in;
+ * Editor/Design not offered as new choices after they left top nav (#3514).
+ * Options are filtered to screens the assigned roles may open via shared
+ * {@code isLandingAllowed} gates (#3538). Editor, Design, and Widget Builder
+ * are not offered as new choices.</p>
  */
 
 import { HOMEPAGE_TYPES, type HomepageType } from "../../api/user/userHomepageApi";
+import {
+  isLandingAllowed,
+  landingGatesFromRoles,
+} from "../../app/landing/landingPermission";
 
 export interface LandingOption {
   /** Canonical API value, or empty string for "use role default". */
@@ -35,10 +40,10 @@ export interface LandingOption {
 }
 
 /**
- * Product options exposed in the Users editor (#3537 / parent #3515).
+ * Product options exposed in the Users editor (#3537 / #3538 / parent #3515).
  * Empty value = no user override (role Homepage / Home fallback).
  * Matches remaining top-nav apps (Home, Explorer, Navigation, Developer,
- * Publish, Admin). Editor / Design are not offered as new choices.
+ * Publish, Admin). Editor / Design / Widget Builder are not new choices.
  */
 export const ALL_LANDING_OPTIONS: readonly LandingOption[] = [
   {
@@ -74,8 +79,8 @@ export const ALL_LANDING_OPTIONS: readonly LandingOption[] = [
 ] as const;
 
 /**
- * Stored Editor/Design overrides stay visible once so the admin can clear them
- * after those items leave top nav (#3514 / #3537).
+ * Stored Editor/Design/Widget Builder overrides stay visible once so the
+ * admin can clear them after those items leave top nav (#3514 / #3537 / #3538).
  */
 export const STALE_LANDING_OPTIONS: readonly LandingOption[] = [
   {
@@ -86,60 +91,21 @@ export const STALE_LANDING_OPTIONS: readonly LandingOption[] = [
     value: HOMEPAGE_TYPES.DESIGNER,
     labelKey: "perc.ui.navMenu.design@Design",
   },
+  {
+    value: HOMEPAGE_TYPES.WIDGET_BUILDER,
+    labelKey: "perc.ui.navMenu.admin@Widget Builder",
+  },
 ] as const;
-
-function roleSet(roles: readonly string[] | null | undefined): Set<string> {
-  const set = new Set<string>();
-  if (!roles) {
-    return set;
-  }
-  for (const r of roles) {
-    if (r != null && String(r).trim()) {
-      set.add(String(r).trim().toLowerCase());
-    }
-  }
-  return set;
-}
 
 /**
  * Whether a user with the given roles may open a landing type.
- * Aligns with SPA TopNav / RequireRole gates (Admin, Admin|Designer).
+ * Aligns with SPA TopNav / shared {@code isLandingAllowed} gates (#3538).
  */
 export function isLandingAllowedForRoles(
   homepageType: HomepageType | "",
   roles: readonly string[] | null | undefined,
 ): boolean {
-  if (
-    homepageType === "" ||
-    homepageType === HOMEPAGE_TYPES.HOME ||
-    homepageType === HOMEPAGE_TYPES.EXPLORER
-  ) {
-    return true;
-  }
-  // Editor / Design left product top nav (#3514 / #3537). Not new choices;
-  // stale stored values use {@link landingOptionsForRoles} extra-current.
-  if (
-    homepageType === HOMEPAGE_TYPES.EDITOR ||
-    homepageType === HOMEPAGE_TYPES.DESIGNER
-  ) {
-    return false;
-  }
-  const rs = roleSet(roles);
-  const isAdmin = rs.has("admin");
-  const isDesigner = rs.has("designer") || isAdmin;
-  switch (homepageType) {
-    case HOMEPAGE_TYPES.ARCHITECTURE:
-    case HOMEPAGE_TYPES.DEVELOPER:
-    case HOMEPAGE_TYPES.PUBLISH:
-    case HOMEPAGE_TYPES.WIDGET_BUILDER:
-      return isDesigner;
-    case HOMEPAGE_TYPES.WORKFLOW:
-      return isAdmin;
-    case HOMEPAGE_TYPES.DASHBOARD:
-      return true;
-    default:
-      return isAdmin;
-  }
+  return isLandingAllowed(homepageType, landingGatesFromRoles(roles));
 }
 
 /**

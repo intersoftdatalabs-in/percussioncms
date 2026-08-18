@@ -92,11 +92,41 @@ describe("profileLandingOptions", () => {
     ).toBe(false);
   });
 
-  it("keeps stale Editor/Design current values so the user can clear them", () => {
+  it("filters profile options by contributor vs designer vs admin (#3538)", () => {
+    const contributor = profileLandingOptions({}).map((o) => o.value);
+    expect(contributor).toEqual(["", HOMEPAGE_TYPES.HOME, HOMEPAGE_TYPES.EXPLORER]);
+    expect(contributor).not.toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(contributor).not.toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(contributor).not.toContain(HOMEPAGE_TYPES.PUBLISH);
+    expect(contributor).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(contributor).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
+
+    const designer = profileLandingOptions({ isDesigner: true }).map(
+      (o) => o.value,
+    );
+    expect(designer).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(designer).toContain(HOMEPAGE_TYPES.ARCHITECTURE);
+    expect(designer).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(designer).toContain(HOMEPAGE_TYPES.PUBLISH);
+    expect(designer).not.toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(designer).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
+
+    const admin = profileLandingOptions({ isAdmin: true }).map((o) => o.value);
+    expect(admin).toContain(HOMEPAGE_TYPES.EXPLORER);
+    expect(admin).toContain(HOMEPAGE_TYPES.DEVELOPER);
+    expect(admin).toContain(HOMEPAGE_TYPES.WORKFLOW);
+    expect(admin).not.toContain(HOMEPAGE_TYPES.WIDGET_BUILDER);
+  });
+
+  it("keeps stale Editor/Design/Widget Builder current values so the user can clear them", () => {
     const design = profileLandingOptions({}, HOMEPAGE_TYPES.DESIGNER);
     expect(design.some((o) => o.value === HOMEPAGE_TYPES.DESIGNER)).toBe(true);
     const editor = profileLandingOptions({}, HOMEPAGE_TYPES.EDITOR);
     expect(editor.some((o) => o.value === HOMEPAGE_TYPES.EDITOR)).toBe(true);
+    const widget = profileLandingOptions({}, HOMEPAGE_TYPES.WIDGET_BUILDER);
+    expect(widget.some((o) => o.value === HOMEPAGE_TYPES.WIDGET_BUILDER)).toBe(
+      true,
+    );
   });
 
   it("labels the Architecture homepage type as Navigation (#3217)", () => {

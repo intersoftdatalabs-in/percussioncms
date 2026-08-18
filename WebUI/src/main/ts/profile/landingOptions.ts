@@ -16,17 +16,22 @@
  */
 
 /**
- * Default landing options for the profile Preferences section (#2396 / #3536).
+ * Default landing options for the profile Preferences section (#2396 / #3536 / #3538).
  *
  * <p>Values are product homepage types (PascalCase) already accepted by
  * {@code PSUserService} / login landing resolve. Labels reuse nav menu keys.
  * Options are filtered from SPA bootstrap admin/designer flags (self-service
- * does not load full role lists). Editor and Design are not offered as new
+ * does not load full role lists) via the shared {@code isLandingAllowed}
+ * gates (#3538). Editor, Design, and Widget Builder are not offered as new
  * choices after they left top nav (#3514); a stored override still lists so
  * the user can clear it.</p>
  */
 
 import { HOMEPAGE_TYPES, type HomepageType } from "../api/user/userHomepageApi";
+import {
+  isLandingAllowed,
+  type LandingRoleGates,
+} from "../app/landing/landingPermission";
 
 export interface ProfileLandingOption {
   /** Canonical API value, or empty string for "use role default". */
@@ -73,8 +78,8 @@ export const PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
 ] as const;
 
 /**
- * Stored Editor/Design overrides stay visible once so the user can clear them
- * after those items leave top nav (#3514 / #3536).
+ * Stored Editor/Design/Widget Builder overrides stay visible once so the
+ * user can clear them after those items leave top nav (#3514 / #3536 / #3538).
  */
 export const STALE_PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
   {
@@ -85,12 +90,13 @@ export const STALE_PROFILE_LANDING_OPTIONS: readonly ProfileLandingOption[] = [
     value: HOMEPAGE_TYPES.DESIGNER,
     labelKey: "perc.ui.navMenu.design@Design",
   },
+  {
+    value: HOMEPAGE_TYPES.WIDGET_BUILDER,
+    labelKey: "perc.ui.navMenu.admin@Widget Builder",
+  },
 ] as const;
 
-export type ProfileLandingGates = {
-  isAdmin?: boolean;
-  isDesigner?: boolean;
-};
+export type ProfileLandingGates = LandingRoleGates;
 
 /**
  * Whether the signed-in user may choose a landing type (peer SPA nav gates).
@@ -99,36 +105,7 @@ export function isProfileLandingAllowed(
   homepageType: HomepageType | "",
   gates: ProfileLandingGates,
 ): boolean {
-  if (
-    homepageType === "" ||
-    homepageType === HOMEPAGE_TYPES.HOME ||
-    homepageType === HOMEPAGE_TYPES.EXPLORER
-  ) {
-    return true;
-  }
-  // Editor / Design left product top nav (#3514 / #3536). Not new choices;
-  // stale stored values use {@link profileLandingOptions} extra-current.
-  if (
-    homepageType === HOMEPAGE_TYPES.EDITOR ||
-    homepageType === HOMEPAGE_TYPES.DESIGNER
-  ) {
-    return false;
-  }
-  const isAdmin = !!gates.isAdmin;
-  const isDesigner = !!gates.isDesigner || isAdmin;
-  switch (homepageType) {
-    case HOMEPAGE_TYPES.ARCHITECTURE:
-    case HOMEPAGE_TYPES.DEVELOPER:
-    case HOMEPAGE_TYPES.PUBLISH:
-    case HOMEPAGE_TYPES.WIDGET_BUILDER:
-      return isDesigner;
-    case HOMEPAGE_TYPES.WORKFLOW:
-      return isAdmin;
-    case HOMEPAGE_TYPES.DASHBOARD:
-      return true;
-    default:
-      return isAdmin;
-  }
+  return isLandingAllowed(homepageType, gates);
 }
 
 /**
