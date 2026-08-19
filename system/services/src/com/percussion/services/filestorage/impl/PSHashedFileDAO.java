@@ -19,6 +19,7 @@ package com.percussion.services.filestorage.impl;
 import com.percussion.cms.IPSConstants;
 import com.percussion.services.filestorage.IPSHashedFileDAO;
 import com.percussion.services.filestorage.data.PSBinary;
+import com.percussion.services.filestorage.data.PSBinaryData;
 import com.percussion.services.filestorage.data.PSBinaryMetaEntry;
 import com.percussion.services.filestorage.data.PSBinaryMetaKey;
 import com.percussion.services.filestorage.data.PSHashedColumn;
@@ -97,8 +98,37 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
    public void save(PSBinary binary)
    {
-      getSession().merge(binary);
-      getSession().merge(binary.getData());
+      if (binary == null)
+      {
+         throw new IllegalArgumentException("binary may not be null");
+      }
+      Session session = getSession();
+      PSBinaryData data = binary.getData();
+      if (data != null)
+      {
+         // Foreign-id generator on PSBinaryData copies PSBinary.id; both sides
+         // must be linked before persist so Hibernate can assign the shared PK.
+         data.setBinary(binary);
+      }
+      if (binary.getId() == 0)
+      {
+         // New FastForward import: persist parent first (next-number id), then
+         // the blob row. merge() on a transient graph without this order throws
+         // TransientPropertyValueException for unsaved PSBinaryData.
+         session.persist(binary);
+         if (data != null && !session.contains(data))
+         {
+            session.persist(data);
+         }
+      }
+      else
+      {
+         session.merge(binary);
+         if (data != null)
+         {
+            session.merge(data);
+         }
+      }
    }
 
    /* (non-Javadoc)

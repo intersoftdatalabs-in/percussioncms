@@ -92,9 +92,16 @@ public class PSBinary implements Serializable
    private String hash;
 
    /**
-    * Reference to the table containing the binary content
+    * Reference to the table containing the binary content. Cascade persist/merge
+    * (not ALL) is required: {@link PSBinaryData} uses a foreign-id generator and
+    * this inverse {@code mappedBy} side has no owning FK. Without persist
+    * cascade, Hibernate 6 throws TransientPropertyValueException when FastForward
+    * import persists a new {@code PSBinary} that still references unsaved
+    * {@code PSBinaryData}. REMOVE is omitted so delete stays on the owning side
+    * / explicit DAO {@code remove}; orphanRemoval still drops detached data.
     */
-   @OneToOne(mappedBy = "binary", fetch = FetchType.LAZY, optional=false, orphanRemoval = true)
+   @OneToOne(mappedBy = "binary", fetch = FetchType.LAZY, optional=false, orphanRemoval = true,
+         cascade = {CascadeType.PERSIST, CascadeType.MERGE})
    @PrimaryKeyJoinColumn
    PSBinaryData data;
 
