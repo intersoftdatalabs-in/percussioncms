@@ -208,6 +208,31 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-sites-list-create` (list + Create Site). Parent operator issue #3102.
 
+### Architecture Create section no-skip (#3589 / parent #3092)
+
+H2 operator proof that **Create section** is enabled on
+`spa.jsp?entry=architecture` when a NavTree exists (`#3352` sample sites).
+Escape closes the dialog; a successful create or a fully enabled dialog is
+required. Does **not** soft-skip on H2 QA. Does **not** seed a second NavTree.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/architecture-create-section-noskip.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/architecture-create-section.js`, `tests/unit/architecture-create-section.test.js` |
+| Peers | `architecture-nav-mutations-smoke.spec.js` (H2 now hard-fails without treeitems), `architecture-a11y-smoke.spec.js`, `architecture-nav-tree-live.spec.js` |
+| Tags | `@architecture-create-section` `@smoke` `@ui` |
+| Soft skip | None when `TEST_DB_TYPE=h2` (demo-sites default); missing NavTree is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/architecture-create-section-noskip.spec.js
+```
+
+Peer: `architecture-nav-mutations-smoke` (structure action bar). Parent epic #3092.
+
 ### Explorer Sites list + Create Site (#3003 / parent #2989)
 
 Surface for Explorer **Sites** listing and **Content → Create Site** (traditional site).

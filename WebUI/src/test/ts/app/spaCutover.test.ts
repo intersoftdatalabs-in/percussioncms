@@ -56,6 +56,9 @@ const DELETED_PRODUCT_HOSTS = [
   "cm/pages/app/includes/retired_modern_redirect.jsp",
   "cm/app/includes/modern_shell_head.jsp",
   "rxlogin-classic.jsp",
+  // #3587: leftover Architecture JSP host retired; filter 301 keeps bookmarks
+  "cm/app/siteArchitecture.jsp",
+  "cm/pages/app/siteArchitecture.jsp",
 ] as const;
 
 /** Residual bridge dialog hosts (must remain). assetPicker is app-tree only. */
@@ -133,22 +136,31 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     }
   });
 
-  it("siteArchitecture.jsp hard-redirects to SPA Architecture (#3099)", () => {
+  it("siteArchitecture.jsp host is retired; filter keeps bookmark 301 (#3587)", () => {
     const hosts = [
       resolve(webappRoot, "cm/app/siteArchitecture.jsp"),
       resolve(webappRoot, "cm/pages/app/siteArchitecture.jsp"),
     ];
     for (const jsp of hosts) {
-      expect(existsSync(jsp), jsp).toBe(true);
-      const text = read(jsp);
-      // Retired host: redirect stub only (no site map widget / packed assets)
-      expect(text).toMatch(/setStatus\s*\(\s*301\s*\)/);
-      expect(text).toContain('view=arch');
-      expect(text).toContain("Location");
-      expect(text).not.toContain("perc_architecture.packed");
-      expect(text).not.toContain("perc_site_map");
-      expect(text).not.toMatch(/perc_site_map\s*\(/);
+      expect(existsSync(jsp), jsp).toBe(false);
     }
+    expect(
+      existsSync(resolve(__dirname, "../../../../war/app/siteArchitecture.jsp")),
+    ).toBe(false);
+    const filter = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+      ),
+    );
+    expect(filter).toContain("buildRetiredJspRedirectLocation");
+    expect(filter).toContain("sitearchitecture.jsp");
+    expect(filter).toContain("SC_MOVED_PERMANENTLY");
+    expect(filter).toContain("PSLegacyViewRedirect");
+    const webXml = read(resolve(webappRoot, "WEB-INF/web.xml"));
+    expect(webXml).toContain("PSRetiredJspRedirectServlet");
+    expect(webXml).toContain("/cm/app/siteArchitecture.jsp");
+    expect(webXml).toContain("<param-value>arch</param-value>");
   });
 
   it("does not pack retired perc_architecture bundles (#3099)", () => {

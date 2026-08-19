@@ -11,7 +11,8 @@ tags: [admin, architecture, navigation, ui]
 
 **Navigation** (site navigation / navon tree editor) runs in the modern SPA product
 chrome. In Percussion CMS 8.2 the primary entry is the SPA shell. The classic
-`siteArchitecture.jsp` page and `?view=arch` bookmarks hard-redirect into the SPA.
+`siteArchitecture.jsp` host is no longer shipped. Bookmarks to that URL and to
+`?view=arch` still open SPA Navigation.
 
 The product name is **Navigation**. The SPA route remains `/architecture` (and
 `spa.jsp?entry=architecture`) so existing bookmarks and homepage type
@@ -23,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
 2. Choose **Navigation** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
-   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
+   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL)
 3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
@@ -69,11 +70,15 @@ Sample / demo sites installed with **Install sample sites**
 (`Corporate_Investments`, `Enterprise_Investments` on a typical H2 QA or
 new-install seed) include FastForward **sample content**: site folders,
 section folders, `rffNavTree` / `rffNavon` items, and pages. Opening
-**Navigation** for those sites uses that seeded tree. If a site has a
-folder root but no NavTree (or you are on an older seed that only created
-empty site rows), the first **Navigation** open **creates a NavTree** at
-the site folder root so the tree panel can show `role="tree"`. Operators
-do **not** need to create navigation by hand for those demo sites.
+**Navigation** for those sites uses that seeded tree. The installer starts
+the FastForward navigation editors at type ids **313–315** (`rffNavImage` /
+`rffNavon` / `rffNavTree`). The `perc.nav` package installs `percNav*` under
+**1015–1017**. Do not create a second NavTree when sample `rffNavTree` items
+already exist. If a site has a folder root but no NavTree (or you are on an
+older seed that only created empty site rows), the first **Navigation** open
+**creates a NavTree** at the site folder root so the tree panel can show
+`role="tree"`. Operators do **not** need to create navigation by hand for
+those demo sites.
 
 The same create-on-first-open applies to any other entitled site that has a
 folder root but no NavTree yet (same path as **New Site**).
@@ -137,7 +142,8 @@ With a site selected, use the structure action bar above the tree:
 | **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
-| **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. |
+| **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. Folder ACL principals are not edited here; **Save** still sends the current `folderPermission` so the ACL is not dropped. |
+| **Folder ACL** | Opens **Folder ACL** for the selected regular section (including the site root). Add or remove users and roles on the section folder (Admin / Write / Read / View lists). **Save** on the ACL list posts `POST /pathmanagement/path/saveFolderProperties` when a folder GUID is available (same Explorer folder-security service). If pathmanagement has no folder GUID (some site-root PathItems), **Save** posts `POST /sitemanage/section/update` with the current `folderPermission` so principals are not dropped. **Close** or **Escape** does not post. Blog, section-link, and external-link nodes stay disabled. |
 | **Move section** | Opens a target-parent picker for the selected **non-root** section. Choose a regular section (not the section you are moving or one of its children) as the new parent, optionally a position among that parent's children, then **Move**. The shell posts `POST /sitemanage/section/move` and **refreshes the tree**. **Cancel** (or Escape) does not post. An invalid parent shows a clear message in the dialog — it does not produce an error 500. |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent (same move API, one step). |
 | **Convert to folder** | After confirmation, removes the selected regular (non-root) section and its sub-sections from Navigation. The folder and its pages stay in the site. |
@@ -160,10 +166,33 @@ and keeps the previously selected section when it still exists.
    **Requires login** and optionally list group names (comma-separated) in
    **Allow access to**. Otherwise login is inherited or unavailable and those
    fields stay read-only.
-5. Choose **Save**. The shell posts `POST /sitemanage/section/update` and
-   refreshes the tree. Folder ACL (`folderPermission`) from the load is sent
-   back unchanged.
+5. Choose **Save**. The shell reloads current properties (so a Folder ACL
+   save is not overwritten) then posts `POST /sitemanage/section/update` and
+   refreshes the tree. Folder ACL (`folderPermission`) from the latest load is
+   sent back so the ACL is not dropped.
 6. **Cancel** or **Escape** closes the dialog without posting.
+
+### Edit folder ACL principals
+
+1. Select a **regular section** (or the site root) in the Navigation tree.
+   Section links, external links, and blogs stay disabled.
+2. Choose **Folder ACL**. The shell resolves the section folder from its
+   path (`GET /pathmanagement/path/item/…`) and opens the same folder-security
+   lists used in Content Explorer.
+3. Add a principal: choose **Add** on Admin, Write, Read, or View, type the
+   user or role name, then confirm. Remove a principal with **Remove** on
+   that row.
+4. Choose **Save** on the ACL list to write principals. When the section
+   folder has a pathmanagement GUID, that posts
+   `POST /pathmanagement/path/saveFolderProperties`. Otherwise the shell
+   posts `POST /sitemanage/section/update` with `folderPermission` so a
+   later Properties save does not drop the list. A warning appears if the
+   change would lock you out of the folder.
+5. **Close** or **Escape** closes without posting further changes. Unsaved
+   list edits are discarded.
+6. **Section properties** **Save** still includes `folderPermission` from
+   the latest properties load so an ACL write is not wiped by a later title
+   or folder-name save.
 
 ### Move or reorder a section
 
@@ -221,9 +250,9 @@ blogs, section links, or external links.
 
 ### Still later
 
-Folder ACL user-list editing (write principals) and retirement of the legacy
-`siteArchitecture.jsp` host ship in follow-on slices. Blog authoring stays on
-Home / the Blogs gadget — Navigation will not grow a second blog editor.
+Blog authoring stays on Home / the Blogs gadget — Navigation will not grow a
+second blog editor. The classic `siteArchitecture.jsp` host is retired from the
+shipped WebUI app; bookmarks still land here via `?view=arch` and the former JSP URL.
 
 ## Current status (migration)
 
@@ -238,6 +267,7 @@ Home / the Blogs gadget — Navigation will not grow a second blog editor.
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Section properties (title / folder / target / CSS / login) | **Available** |
+| Folder ACL user-list write (add/remove principals) | **Available** |
 | Move section (target-parent picker + optional position) | **Available** |
 | Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
@@ -246,8 +276,8 @@ Home / the Blogs gadget — Navigation will not grow a second blog editor.
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
-| Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
-| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (#3099) |
+| Legacy `siteArchitecture.jsp` host retirement | **Available** (JSP removed from the shipped WebUI app; bookmarks still work) |
+| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (filter 301; #3099 / #3587) |
 
 ## Related
 

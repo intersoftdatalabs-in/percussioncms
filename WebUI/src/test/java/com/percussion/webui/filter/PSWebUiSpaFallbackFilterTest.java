@@ -135,11 +135,57 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void retiredSiteArchitectureJspRedirectsToArchView() {
+    assertEquals(
+        "/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/siteArchitecture.jsp", null));
+    assertEquals(
+        "/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/pages/app/siteArchitecture.jsp", ""));
+    assertEquals(
+        "/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/Rhythmyx/cm/app/siteArchitecture.jsp", null));
+    assertEquals(
+        "/cm/app/?view=arch&site=Site1",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/siteArchitecture.jsp", "site=Site1"));
+    assertEquals(
+        "/cm/app/?view=arch&site=Site1",
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/SiteArchitecture.jsp", "view=arch&site=Site1"));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation("/cm/app/admin.jsp", null));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation("/cm/app/home", null));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(null, "site=1"));
+  }
+
+  @Test
+  public void retiredArchitectureLocationGetsContextPrefix() {
+    assertEquals(
+        "/Rhythmyx/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", "/cm/app/?view=arch"));
+    assertEquals(
+        "/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.withContextPath("", "/cm/app/?view=arch"));
+    assertEquals(
+        "/Rhythmyx/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", "/Rhythmyx/cm/app/?view=arch"));
+    assertEquals("/cm/app/?view=arch", PSWebUiSpaFallbackFilter.withContextPath("/", "/cm/app/?view=arch"));
+    assertTrue(PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/rhythmyx/cm/app/sitearchitecture.jsp"));
+    assertTrue(
+        !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app/admin.jsp"));
+  }
+
+  @Test
   public void passesThroughRealJspsAndStaticAndNonSpa() {
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/spa.jsp", "entry=home"));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/index.jsp", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/dashboard.jsp", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/webmgt.jsp", null));
+    assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/siteArchitecture.jsp", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/assetPickerModern.jsp", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/js/legacy/foo.js", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/", null));

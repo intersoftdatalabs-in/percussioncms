@@ -74,14 +74,32 @@ import {
   loadSiteCopyInfo,
   suggestCopySiteName,
 } from "../api/architecture/siteAdminApi";
-import type { PSSiteCopyRequest } from "../api/contentExplorer/types";
+import type {
+  PSFolderProperties,
+  PSSiteCopyRequest,
+} from "../api/contentExplorer/types";
 import { fetchSites } from "../api/home/homeApi";
+import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
+import { resolveCurrentUserIdentities } from "../contentExplorer/currentUserIdentities";
 import { SiteCopyWizard } from "../contentExplorer/wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "../contentExplorer/wizards/SiteCreateWizard";
 import { catalogColors } from "../developer/catalogStyles";
 import { CreateSectionDialog } from "./CreateSectionDialog";
 import { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 import { ExternalLinkDialog } from "./ExternalLinkDialog";
+import { FolderAclDialog } from "./FolderAclDialog";
+import {
+  canEditFolderAcl,
+  defaultResolveSectionFolderId,
+  folderPropertiesFromSection,
+  isFolderPropertiesId,
+  resolveSectionFolderId,
+  resolveSectionFolderPath,
+} from "./folderAcl";
+import {
+  folderProperties as loadPathFolderProperties,
+  saveFolderProperties as savePathFolderProperties,
+} from "../api/contentExplorer/pathApi";
 import { MoveSectionDialog } from "./MoveSectionDialog";
 import { NavTree } from "./NavTree";
 import { RenameSectionDialog } from "./RenameSectionDialog";
@@ -118,6 +136,20 @@ export interface ArchitectureShellProps {
    * Default true — Architecture is already Admin/Designer gated (#3219 / #3303).
    */
   allowNewSite?: boolean;
+  /**
+   * Override folder-id resolution for Folder ACL (tests). Default uses
+   * pathmanagement {@code findItemByPath}.
+   */
+  resolveFolderId?: (path: string) => Promise<string | undefined>;
+  /**
+   * Identities for Folder ACL lockout detection. When omitted, resolved
+   * from SPA bootstrap (user name + Admin/Designer flags).
+   */
+  currentUserIdentities?: ReadonlyArray<string>;
+  /** Test override for {@code FolderSecurityPanel} load. */
+  loadFolderProperties?: (folderId: string) => Promise<PSFolderProperties>;
+  /** Test override for {@code FolderSecurityPanel} save. */
+  saveFolderProperties?: (props: PSFolderProperties) => Promise<void>;
 }
 
 type SitesLoadState =
@@ -134,7 +166,7 @@ type TreeLoadState =
 /**
  * Architecture / Navigation SPA shell
  * (#3094 shell + #3095 tree + #3096 mutations + #3097 landing/links
- * + #3304 landing picker/replace).
+ * + #3304 landing picker/replace + #3588 folder ACL write).
  */
 export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   initialSite = null,
@@ -142,11 +174,31 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   confirmFn,
   useLandingContentBrowser = true,
   allowNewSite = true,
+  resolveFolderId = defaultResolveSectionFolderId,
+  currentUserIdentities: currentUserIdentitiesProp,
+  loadFolderProperties,
+  saveFolderProperties: saveFolderPropertiesProp,
 }) => {
   const confirmAction = useCallback(
     (msg: string) => (confirmFn ? confirmFn(msg) : window.confirm(msg)),
     [confirmFn],
   );
+  const bootstrap = useSpaBootstrap();
+  const currentUserIdentities = useMemo(() => {
+    if (currentUserIdentitiesProp) {
+      return [...currentUserIdentitiesProp];
+    }
+    return resolveCurrentUserIdentities({
+      userName: bootstrap.userName,
+      isAdmin: bootstrap.isAdmin,
+      isDesigner: bootstrap.isDesigner,
+    });
+  }, [
+    currentUserIdentitiesProp,
+    bootstrap.userName,
+    bootstrap.isAdmin,
+    bootstrap.isDesigner,
+  ]);
 
   const [sitesState, setSitesState] = useState<SitesLoadState>({
     status: "loading",
@@ -178,6 +230,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   );
   const [propertiesInitial, setPropertiesInitial] =
     useState<SiteSectionPropertiesWire | null>(null);
+  const [folderAclOpen, setFolderAclOpen] = useState(false);
+  const [folderAclResolving, setFolderAclResolving] = useState(false);
+  const [folderAclFolderId, setFolderAclFolderId] = useState<string | null>(
+    null,
+  );
+  const [folderAclLoadError, setFolderAclLoadError] = useState<string | null>(
+    null,
+  );
+  const [folderAclUsePathSave, setFolderAclUsePathSave] = useState(false);
   const [landingOpen, setLandingOpen] = useState(false);
   const [sectionLinkOpen, setSectionLinkOpen] = useState(false);
   const [sectionLinkMode, setSectionLinkMode] = useState<"create" | "edit">(
@@ -470,6 +531,16 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   const canRename = canRenameNavNode(selectedNode) && !mutationBusy;
   const canProperties =
     canEditSectionProperties(selectedNode) && !mutationBusy;
+  const folderAclPathOptions = {
+    siteName: selectedSite,
+    isRoot: !!(
+      treeRoot &&
+      selectedNode &&
+      treeRoot.id === selectedNode.id
+    ),
+  };
+  const canFolderAcl =
+    canEditFolderAcl(selectedNode, folderAclPathOptions) && !mutationBusy;
   const canMove =
     canMoveNavNode(treeRoot, selectedNode) && !mutationBusy;
   const canMoveUp =
@@ -583,7 +654,15 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     (form: SectionPropertiesFormValues) => {
       if (!selectedNode || !propertiesInitial) return;
       void runMutation(async () => {
-        const next = applySectionPropertiesForm(propertiesInitial, form);
+        // Re-GET so a Folder ACL save that landed first is not overwritten
+        // with the stale folderPermission from the properties open.
+        let base = propertiesInitial;
+        try {
+          base = await loadSectionProperties(selectedNode.id);
+        } catch {
+          base = propertiesInitial;
+        }
+        const next = applySectionPropertiesForm(base, form);
         await updateSiteSection(next);
         setPropertiesOpen(false);
         setPropertiesInitial(null);
@@ -592,6 +671,117 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     },
     [selectedNode, propertiesInitial, runMutation],
   );
+
+  const folderAclLoadGen = useRef(0);
+
+  const openFolderAcl = useCallback(() => {
+    const pathOptions = {
+      siteName: selectedSite,
+      isRoot: !!(
+        treeRoot &&
+        selectedNode &&
+        treeRoot.id === selectedNode.id
+      ),
+    };
+    if (!selectedNode || !canEditFolderAcl(selectedNode, pathOptions)) {
+      setMutationError(ARCH_MSG.FOLDER_ACL_NO_FOLDER);
+      return;
+    }
+    setMutationError(null);
+    setFolderAclLoadError(null);
+    setFolderAclFolderId(null);
+    setFolderAclOpen(true);
+    setFolderAclResolving(true);
+    const folderPath = resolveSectionFolderPath(selectedNode, pathOptions);
+    const sectionId = selectedNode.id;
+    const gen = ++folderAclLoadGen.current;
+    void (async () => {
+      try {
+        const id = await resolveSectionFolderId(folderPath, resolveFolderId);
+        if (gen !== folderAclLoadGen.current) return;
+        const usePath = !!(id && isFolderPropertiesId(id));
+        setFolderAclUsePathSave(usePath);
+        // Pathmanagement site PathItems often omit a GUID. Folder ACL
+        // still opens using the section id + section folderPermission.
+        setFolderAclFolderId(usePath ? id : sectionId);
+        setFolderAclResolving(false);
+      } catch (err) {
+        if (gen !== folderAclLoadGen.current) return;
+        if (isSessionRedirectError(err)) return;
+        setFolderAclUsePathSave(false);
+        setFolderAclFolderId(sectionId);
+        setFolderAclResolving(false);
+        setFolderAclLoadError(null);
+      }
+    })();
+  }, [selectedNode, selectedSite, treeRoot, resolveFolderId]);
+
+  const loadFolderAcl = useCallback(
+    async (folderId: string): Promise<PSFolderProperties> => {
+      if (loadFolderProperties) {
+        return loadFolderProperties(folderId);
+      }
+      if (folderAclUsePathSave && isFolderPropertiesId(folderId)) {
+        return loadPathFolderProperties(folderId);
+      }
+      const sectionId = selectedNode?.id ?? folderId;
+      const props = await loadSectionProperties(sectionId);
+      const mapped = folderPropertiesFromSection(props);
+      // Architecture is Admin/Designer gated. Site-root section ACL often
+      // reports WRITE even when Admin is on the admin list — elevate so
+      // the Explorer panel can add/remove principals.
+      if (
+        mapped.permission &&
+        (bootstrap.isAdmin ||
+          currentUserIdentities.some(
+            (n) => n.toLowerCase() === "admin",
+          ))
+      ) {
+        mapped.permission = {
+          ...mapped.permission,
+          accessLevel: "ADMIN",
+        };
+      }
+      return mapped;
+    },
+    [
+      loadFolderProperties,
+      selectedNode,
+      bootstrap.isAdmin,
+      currentUserIdentities,
+      folderAclUsePathSave,
+    ],
+  );
+
+  const saveFolderAcl = useCallback(
+    async (props: PSFolderProperties): Promise<void> => {
+      if (saveFolderPropertiesProp) {
+        await saveFolderPropertiesProp(props);
+        return;
+      }
+      if (folderAclUsePathSave && isFolderPropertiesId(props.id)) {
+        await savePathFolderProperties(props);
+        return;
+      }
+      const sectionId = selectedNode?.id ?? props.id;
+      const current = await loadSectionProperties(sectionId);
+      await updateSiteSection({
+        ...current,
+        folderPermission: props.permission ?? current.folderPermission,
+      });
+    },
+    [saveFolderPropertiesProp, selectedNode, folderAclUsePathSave],
+  );
+
+  const closeFolderAcl = useCallback(() => {
+    if (mutationBusy || folderAclResolving) return;
+    folderAclLoadGen.current += 1;
+    setFolderAclOpen(false);
+    setFolderAclResolving(false);
+    setFolderAclLoadError(null);
+    setFolderAclFolderId(null);
+    setFolderAclUsePathSave(false);
+  }, [mutationBusy, folderAclResolving]);
 
   const onMove = useCallback(
     (direction: "up" | "down") => {
@@ -1357,6 +1547,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             canEditLink={canEditLink}
             canRename={canRename}
             canProperties={canProperties}
+            canFolderAcl={canFolderAcl}
             canMove={canMove}
             canMoveUp={canMoveUp}
             canMoveDown={canMoveDown}
@@ -1411,6 +1602,7 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
               setRenameOpen(true);
             }}
             onProperties={openProperties}
+            onFolderAcl={openFolderAcl}
             onMove={() => {
               setMutationError(null);
               if (!selectedNode || !canMoveNavNode(treeRoot, selectedNode)) {
@@ -1533,6 +1725,17 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
         initial={propertiesInitial}
         onCancel={closeProperties}
         onSubmit={onPropertiesSubmit}
+      />
+      <FolderAclDialog
+        open={folderAclOpen}
+        busy={folderAclResolving}
+        folderId={folderAclFolderId}
+        loadError={folderAclLoadError}
+        sectionTitle={selectedNode?.title ?? ""}
+        currentUserIdentities={currentUserIdentities}
+        onCancel={closeFolderAcl}
+        load={loadFolderAcl}
+        save={saveFolderAcl}
       />
       <ReplaceLandingPageDialog
         open={landingOpen}

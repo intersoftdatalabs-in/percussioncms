@@ -33,6 +33,17 @@ export { RenameSectionDialog } from "./RenameSectionDialog";
 export type { RenameSectionDialogProps } from "./RenameSectionDialog";
 export { SectionPropertiesDialog } from "./SectionPropertiesDialog";
 export type { SectionPropertiesDialogProps } from "./SectionPropertiesDialog";
+export { FolderAclDialog } from "./FolderAclDialog";
+export type { FolderAclDialogProps } from "./FolderAclDialog";
+export {
+  canEditFolderAcl,
+  defaultResolveSectionFolderId,
+  folderPropertiesFromSection,
+  isFolderPropertiesId,
+  resolveSectionFolderId,
+  resolveSectionFolderPath,
+} from "./folderAcl";
+export type { SectionFolderPathOptions } from "./folderAcl";
 export { ReplaceLandingPageDialog } from "./ReplaceLandingPageDialog";
 export type { ReplaceLandingPageDialogProps } from "./ReplaceLandingPageDialog";
 export { SectionLinkDialog } from "./SectionLinkDialog";

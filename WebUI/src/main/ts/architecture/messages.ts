@@ -46,7 +46,7 @@ const KEYS = {
     "perc.ui.architecture.modern@A site can exist without a NavTree. Add a navigation tree at the site root in Explorer, then refresh, or choose another site.",
   TREE_PANEL_TITLE: "perc.ui.architecture.modern@Navigation tree",
   TREE_STRUCTURE_NOTE:
-    "perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, properties, move, delete, landing page, or link editors.",
+    "perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, properties, folder ACL, move, delete, landing page, or link editors.",
   REFRESH: "perc.ui.architecture.modern@Refresh",
   ACTION_NEW_SITE: "perc.ui.architecture.modern@New Site",
   NEW_SITE_CLOSE: "perc.ui.architecture.modern@Close",
@@ -90,6 +90,7 @@ const KEYS = {
   ACTION_EDIT_LINK: "perc.ui.architecture.modern@Edit link",
   ACTION_RENAME: "perc.ui.architecture.modern@Rename",
   ACTION_PROPERTIES: "perc.ui.architecture.modern@Properties",
+  ACTION_FOLDER_ACL: "perc.ui.architecture.modern@Folder ACL",
   ACTION_MOVE: "perc.ui.architecture.modern@Move section",
   ACTION_MOVE_UP: "perc.ui.architecture.modern@Move up",
   ACTION_MOVE_DOWN: "perc.ui.architecture.modern@Move down",
@@ -115,7 +116,7 @@ const KEYS = {
   PROPERTIES_DIALOG_TITLE:
     "perc.ui.architecture.modern@Section properties",
   PROPERTIES_HINT:
-    "perc.ui.architecture.modern@Edit the selected section title, folder name, target window, CSS classes, and login settings.",
+    "perc.ui.architecture.modern@Edit the selected section title, folder name, target window, CSS classes, and login settings. Folder ACL principals are edited with Folder ACL (saved separately so this save does not drop the ACL).",
   PROPERTIES_TITLE_LABEL: "perc.ui.architecture.modern@Title",
   PROPERTIES_FOLDER_LABEL: "perc.ui.architecture.modern@Folder name",
   PROPERTIES_FOLDER_ROOT_HINT:
@@ -134,6 +135,16 @@ const KEYS = {
     "perc.ui.architecture.modern@Could not load section properties.",
   PROPERTIES_SUBMIT: "perc.ui.architecture.modern@Save",
   PROPERTIES_CANCEL: "perc.ui.architecture.modern@Cancel",
+  FOLDER_ACL_DIALOG_TITLE: "perc.ui.architecture.modern@Folder ACL",
+  FOLDER_ACL_HINT:
+    "perc.ui.architecture.modern@Add or remove users and roles on this section folder. Save the ACL list here. Section properties save still sends the current folder ACL so it is not dropped.",
+  FOLDER_ACL_CANCEL: "perc.ui.architecture.modern@Close",
+  FOLDER_ACL_LOADING:
+    "perc.ui.architecture.modern@Resolving section folder…",
+  FOLDER_ACL_NO_FOLDER:
+    "perc.ui.architecture.modern@Could not resolve the section folder for ACL editing.",
+  FOLDER_ACL_LOAD_ERROR:
+    "perc.ui.architecture.modern@Could not load folder ACL.",
   VALIDATION_CSS_TOO_LONG:
     "perc.ui.architecture.modern@CSS classes are too long (max 255 characters)",
   VALIDATION_CSS_CHARS:
@@ -335,6 +346,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   ACTION_EDIT_LINK: message(KEYS.ACTION_EDIT_LINK),
   ACTION_RENAME: message(KEYS.ACTION_RENAME),
   ACTION_PROPERTIES: message(KEYS.ACTION_PROPERTIES),
+  ACTION_FOLDER_ACL: message(KEYS.ACTION_FOLDER_ACL),
   ACTION_MOVE: message(KEYS.ACTION_MOVE),
   ACTION_MOVE_UP: message(KEYS.ACTION_MOVE_UP),
   ACTION_MOVE_DOWN: message(KEYS.ACTION_MOVE_DOWN),
@@ -370,6 +382,12 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   PROPERTIES_LOAD_ERROR: message(KEYS.PROPERTIES_LOAD_ERROR),
   PROPERTIES_SUBMIT: message(KEYS.PROPERTIES_SUBMIT),
   PROPERTIES_CANCEL: message(KEYS.PROPERTIES_CANCEL),
+  FOLDER_ACL_DIALOG_TITLE: message(KEYS.FOLDER_ACL_DIALOG_TITLE),
+  FOLDER_ACL_HINT: message(KEYS.FOLDER_ACL_HINT),
+  FOLDER_ACL_CANCEL: message(KEYS.FOLDER_ACL_CANCEL),
+  FOLDER_ACL_LOADING: message(KEYS.FOLDER_ACL_LOADING),
+  FOLDER_ACL_NO_FOLDER: message(KEYS.FOLDER_ACL_NO_FOLDER),
+  FOLDER_ACL_LOAD_ERROR: message(KEYS.FOLDER_ACL_LOAD_ERROR),
   VALIDATION_CSS_TOO_LONG: message(KEYS.VALIDATION_CSS_TOO_LONG),
   VALIDATION_CSS_CHARS: message(KEYS.VALIDATION_CSS_CHARS),
   DELETE_CONFIRM: message(KEYS.DELETE_CONFIRM),

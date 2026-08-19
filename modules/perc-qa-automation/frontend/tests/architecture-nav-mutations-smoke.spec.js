@@ -27,6 +27,10 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  shouldRequireNavTree,
+  missingNavTreeFailMessage,
+} = require("./helpers/architecture-create-section");
 
 function architectureUrl(extra = {}) {
   const q = new URLSearchParams({
@@ -189,6 +193,8 @@ test.describe("Architecture nav structure mutations (#3096)", () => {
           await page.keyboard.press("Escape");
           await expect(renameDialog).toHaveCount(0);
           await expect(renameBtn).toBeFocused();
+        } else if (shouldRequireNavTree()) {
+          expect(itemCount, missingNavTreeFailMessage()).toBeGreaterThan(0);
         } else if (await createBtn.isEnabled().catch(() => false)) {
           await createBtn.click();
           await expect(

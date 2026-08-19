@@ -1162,7 +1162,7 @@
 			</fileset>
 		</copy>
 		<property name="fastforwardfile.list"
-			value="psx_cerffAutoIndex.xml,psx_cerffBrief.xml,psx_cerffCalendar.xml,psx_cerffContacts.xml,psx_cerffEvent.xml,psx_cerffExternalLink.xml,psx_cerffFile.xml,psx_cerffGeneric.xml,psx_cerffGenericWord.xml,psx_cerffHome.xml,psx_cerffImage.xml,psx_cerffPressRelease.xml" />
+			value="psx_cerffAutoIndex.xml,psx_cerffBrief.xml,psx_cerffCalendar.xml,psx_cerffContacts.xml,psx_cerffEvent.xml,psx_cerffExternalLink.xml,psx_cerffFile.xml,psx_cerffGeneric.xml,psx_cerffGenericWord.xml,psx_cerffHome.xml,psx_cerffImage.xml,psx_cerffNavImage.xml,psx_cerffNavon.xml,psx_cerffNavTree.xml,psx_cerffPressRelease.xml" />
 		<echo>Update ObjectStore with latest files </echo>
 		<copy todir="${install.dir}/ObjectStore" failonerror="false"
 			overwrite="false">
@@ -1174,10 +1174,11 @@
 			</fileset>
 		</copy>
 		<property name="fastforwardfileReplace.list"
-			value="psx_cerffAutoIndex.xml,psx_cerffBrief.xml,psx_cerffCalendar.xml,psx_cerffContacts.xml,psx_cerffEvent.xml,psx_cerffExternalLink.xml,psx_cerffFile.xml,psx_cerffGeneric.xml,psx_cerffGenericWord.xml,psx_cerffHome.xml,psx_cerffImage.xml,psx_cerffPressRelease.xml" />
+			value="psx_cerffAutoIndex.xml,psx_cerffBrief.xml,psx_cerffCalendar.xml,psx_cerffContacts.xml,psx_cerffEvent.xml,psx_cerffExternalLink.xml,psx_cerffFile.xml,psx_cerffGeneric.xml,psx_cerffGenericWord.xml,psx_cerffHome.xml,psx_cerffImage.xml,psx_cerffNavImage.xml,psx_cerffNavon.xml,psx_cerffNavTree.xml,psx_cerffPressRelease.xml" />
 		<echo>Only copy Fastforward files, if already present  </echo>
 		<!-- Update rff* editors when already present, or always when demo-sites
-			 seeded those types. Do not overwrite leftover psx_cerffNav*.xml. -->
+			 seeded those types. Include leftover rff nav editors (313-315) so
+			 sample rffNavTree items load; perc.nav percNav* uses 1015-1017. -->
 		<for param="file" list="${fastforwardfileReplace.list}">
 			<sequential>
 				<if>
@@ -1849,9 +1850,9 @@
 			includeEmptyDirs="true">
 			<fileset dir="${install.src}">
 				<patternset refid="cache.file.excludes" />
-				<!-- Exclude leftover widget rffNav* ObjectStore copies (perc.nav owns
-					313-315). The 12 rff* editors (Generic, PressRelease, …) are copied
-					later by installSampleSites when install.demo.sites=true. -->
+				<!-- Exclude leftover widget rff* ObjectStore copies from the bulk
+					copy. The rff* editors (Generic, PressRelease, rff nav 313-315, …)
+					are copied later by installSampleSites when install.demo.sites=true. -->
 				<exclude name="**/psx_cerff*.xml" />
 				<exclude name="**/Assets.json" />
 				<exclude name="**/Pages.json" />

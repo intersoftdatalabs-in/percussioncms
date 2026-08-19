@@ -76,7 +76,7 @@ export function adminTopNavLabel(resolved: string): string {
 /**
  * Client path for Navigation top-nav NavLink and homepage SPA landing (#3094).
  * Primary Navigation entry (SPA). Legacy {@code ?view=arch} /
- * {@code siteArchitecture.jsp} hard-redirect here (#3099).
+ * {@code siteArchitecture.jsp} bookmarks 301 here (#3099 / #3587).
  */
 export const ARCHITECTURE_NAV_LANDING = "/architecture";
 
