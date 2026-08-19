@@ -27,7 +27,7 @@ import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.PSRelationshipServiceLocator;
 import com.percussion.util.IOTools;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -180,7 +180,7 @@ public class PSRelationshipConfigModel extends PSDesignModel
             PSRelationshipCommandHandler.getConfigurationSet();
          cfgSet.deleteConfig(name);
          PSWebserviceUtils.saveRelationshipConfigSet(cfgSet, 
-               IPSWebserviceErrors.DELETE_FAILED);
+               WebserviceErrorCodes.DELETE_FAILED);
       }
       catch (Exception e) 
       {

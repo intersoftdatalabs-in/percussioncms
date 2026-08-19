@@ -16,6 +16,7 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
@@ -64,6 +65,18 @@ public class PSWebserviceErrors
    public static String createErrorMessage(int code, Object... args)
    {
       return createErrorMessage(code, Locale.getDefault(), args);
+   }
+
+   /**
+    * Convenience overload that uses {@link IPSErrorCode#numericCode()} for bundle lookup.
+    *
+    * @param code catalogued error code, never {@code null}
+    */
+   public static String createErrorMessage(IPSErrorCode code, Object... args)
+   {
+      if (code == null)
+         throw new IllegalArgumentException("code may not be null");
+      return createErrorMessage(code.numericCode(), args);
    }
    
    /**

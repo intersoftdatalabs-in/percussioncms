@@ -16,6 +16,8 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * Thrown for services operating with community members. 
  */
@@ -39,6 +41,15 @@ public class PSUserNotMemberOfCommunityException extends PSErrorException
     */
    public PSUserNotMemberOfCommunityException(int code, String errorMessage, 
       String stack)
+   {
+      super(code, errorMessage, stack);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    */
+   public PSUserNotMemberOfCommunityException(IPSErrorCode code,
+      String errorMessage, String stack)
    {
       super(code, errorMessage, stack);
    }

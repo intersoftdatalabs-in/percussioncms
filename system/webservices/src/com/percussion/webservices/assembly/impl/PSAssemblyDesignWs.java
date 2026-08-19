@@ -45,7 +45,7 @@ import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
@@ -253,7 +253,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
          }
          catch (Exception e)
          {
-            int code = IPSWebserviceErrors.DELETE_FAILED;
+            var code = WebserviceErrorCodes.DELETE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
@@ -377,7 +377,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
             }
             catch (PSAssemblyException e)
             {
-               int code = IPSWebserviceErrors.DELETE_FAILED;
+               var code = WebserviceErrorCodes.DELETE_FAILED;
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,
@@ -535,7 +535,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
          }
          catch (PSAssemblyException e)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
@@ -604,7 +604,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
          }
          catch (Exception e)
          {
-            int code = IPSWebserviceErrors.SAVE_FAILED;
+            var code = WebserviceErrorCodes.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,
@@ -948,7 +948,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
                      PSObjectLock lock = lockService.findLockByObjectId(id, null,
                      null);
                      if (lock == null) {
-                        int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+                        var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                         PSDesignGuid guid = new PSDesignGuid(id);
                         PSErrorException error = new PSErrorException(code,
                         PSWebserviceErrors.createErrorMessage(code,
@@ -956,7 +956,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
                         ExceptionUtils.getFullStackTrace(new Exception()));
                         results.addError(id, error);
                      }else {
-                        int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+                        var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                         PSDesignGuid guid = new PSDesignGuid(id);
                         PSErrorException error = new PSErrorException(code,
                         PSWebserviceErrors.createErrorMessage(code,
@@ -982,7 +982,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
             }
             catch (Exception e)
             {
-               int code = IPSWebserviceErrors.SAVE_FAILED;
+               var code = WebserviceErrorCodes.SAVE_FAILED;
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,

@@ -17,6 +17,8 @@
 // REFACTORED: CP-JAVA11, CP-SOAP
 package com.percussion.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
+
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.services.security.PSServletRequestWrapper;
@@ -219,16 +221,16 @@ public class PSBaseSOAPImpl {
         try {
             var sessionOpt = getRhythmyxSession();
             if (sessionOpt.isEmpty()) {
-                var code = IPSWebserviceErrors.MISSING_SESSION;
+                var code = WebserviceErrorCodes.MISSING_SESSION;
                 logger.debug("Authentication Error: Missing session header");
-                throw new PSInvalidSessionFault(code,
+                throw new PSInvalidSessionFault(code.numericCode(),
                     PSWebserviceErrors.createErrorMessage(code, "Missing session header"),
                     "Missing required Rhythmyx session header");
             }
 
             var sessionId = sessionOpt.get();
             var request = getServletRequest().orElseThrow(() ->
-                new PSInvalidSessionFault(IPSWebserviceErrors.INVALID_SESSION,
+                new PSInvalidSessionFault(WebserviceErrorCodes.INVALID_SESSION.numericCode(),
                     "Servlet request not available", "No servlet request context"));
 
             PSSecurityFilter.authenticate(request, sessionId);
@@ -236,11 +238,11 @@ public class PSBaseSOAPImpl {
 
         } catch (LoginException | SOAPException ex) {
             var code = ex instanceof SOAPException
-                ? IPSWebserviceErrors.MISSING_SESSION
-                : IPSWebserviceErrors.INVALID_SESSION;
+                ? WebserviceErrorCodes.MISSING_SESSION
+                : WebserviceErrorCodes.INVALID_SESSION;
 
             logger.debug("Authentication Error Code: {}", code, ex);
-            throw new PSInvalidSessionFault(code,
+            throw new PSInvalidSessionFault(code.numericCode(),
                 PSWebserviceErrors.createErrorMessage(code, ex.toString()),
                 ExceptionUtils.getStackTrace(ex));
         }
@@ -311,10 +313,10 @@ public class PSBaseSOAPImpl {
             throw new IllegalArgumentException("serviceName may not be null.");
         }
 
-        var code = IPSWebserviceErrors.INVALID_CONTRACT;
+        var code = WebserviceErrorCodes.INVALID_CONTRACT;
         logger.error("SOAP Invalid Contract for service {}", serviceName, e);
 
-        throw new PSContractViolationFault(code,
+        throw new PSContractViolationFault(code.numericCode(),
             PSWebserviceErrors.createErrorMessage(code, serviceName, e.toString()),
             ExceptionUtils.getStackTrace(e));
     }
@@ -342,10 +344,10 @@ public class PSBaseSOAPImpl {
 
         if (e.getCause() instanceof PSAuthorizationException) {
             logger.debug("SOAP PSAuthorizationException for service {}", serviceName, e);
-            var code = IPSWebserviceErrors.NOT_AUTHORIZED;
+            var code = WebserviceErrorCodes.NOT_AUTHORIZED;
             var remoteUser = getRemoteUser().orElse("unknown");
 
-            throw new PSNotAuthorizedFault(code,
+            throw new PSNotAuthorizedFault(code.numericCode(),
                 PSWebserviceErrors.createErrorMessage(code, remoteUser, serviceName, e.toString()),
                 ExceptionUtils.getStackTrace(e));
         } else {

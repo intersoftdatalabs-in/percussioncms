@@ -42,7 +42,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.content.PSChildEntry;
 import com.percussion.webservices.content.PSField;
@@ -227,7 +227,7 @@ public class PSItemConverterUtils
          {
             throw new ConversionException(
                PSWebserviceErrors.createErrorMessage(
-                  IPSWebserviceErrors.UNKNOWN_FIELD_NAME, id.toString(),
+                  WebserviceErrorCodes.UNKNOWN_FIELD_NAME, id.toString(),
                   field.getName()));
          }
 

@@ -16,6 +16,8 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * Thrown for services operating on objects in an invalid state for that 
  * service. 
@@ -39,6 +41,15 @@ public class PSInvalidStateException extends PSErrorException
     * @see PSErrorException#PSErrorException(int, String, String)
     */
    public PSInvalidStateException(int code, String errorMessage, 
+      String stack)
+   {
+      super(code, errorMessage, stack);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    */
+   public PSInvalidStateException(IPSErrorCode code, String errorMessage,
       String stack)
    {
       super(code, errorMessage, stack);

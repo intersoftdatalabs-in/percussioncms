@@ -51,7 +51,7 @@ import com.percussion.services.ui.data.PSHierarchyNodeProperty;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.timing.PSTimer;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
@@ -764,7 +764,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
          catch (PSUiException e)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                   PSHierarchyNode.class.getName(), guid.getValue()), ExceptionUtils.getFullStackTrace(e));
@@ -906,7 +906,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
          catch (PSUiException e)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                   PSHierarchyNode.class.getName(), guid.getValue()), ExceptionUtils.getFullStackTrace(e));
@@ -1093,7 +1093,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                }
                catch (PSUiException e)
                {
-                  int code = IPSWebserviceErrors.SAVE_FAILED;
+                  var code = WebserviceErrorCodes.SAVE_FAILED;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                         PSHierarchyNode.class.getName(), guid.getValue(), e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
@@ -1105,7 +1105,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                PSObjectLock lock = lockService.findLockByObjectId(id, null, null);
                if (lock == null)
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                         PSHierarchyNode.class.getName(), guid.getValue()),
@@ -1114,7 +1114,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                }
                else
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                         PSHierarchyNode.class.getName(), guid.getValue(), lock.getLocker(), lock.getRemainingTime()),
@@ -1125,7 +1125,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
          catch (PSLockException e)
          {
-            int code = IPSWebserviceErrors.SAVE_FAILED;
+            var code = WebserviceErrorCodes.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                   PSHierarchyNode.class.getName(), guid.getValue(), e.getLocalizedMessage()),
@@ -1251,7 +1251,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
          catch (PSNavException e)
          {
-            int code = IPSWebserviceErrors.FAILED_TO_OBTAIN_PATH_FROM_OBJECT_ID;
+            var code = WebserviceErrorCodes.FAILED_TO_OBTAIN_PATH_FROM_OBJECT_ID;
             PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                   e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
@@ -1820,8 +1820,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          log.error(PSExceptionUtils.getMessageForLog(e));
 
          PSDesignGuid guid = new PSDesignGuid(id);
-         PSErrorException error = new PSErrorException(IPSWebserviceErrors.SAVE_FAILED,
-                 PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.SAVE_FAILED,
+         PSErrorException error = new PSErrorException(WebserviceErrorCodes.SAVE_FAILED,
+                 PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.SAVE_FAILED,
                          cz.getName(),
                guid.longValue(),
                          PSExceptionUtils.getMessageForLog(e)),
@@ -1858,7 +1858,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
          if (elem.length == 0) // if failed to load the object (not exist)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                   objClass.getName(), guid.longValue()), ExceptionUtils.getFullStackTrace(new Exception()));
 
@@ -1868,7 +1868,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
       catch (PSCmsException e)
       {
-         int code = IPSWebserviceErrors.LOAD_FAILED;
+         var code = WebserviceErrorCodes.LOAD_FAILED;
          throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
                objClass.getName(), guid.longValue()), ExceptionUtils.getFullStackTrace(e));
 
@@ -1978,7 +1978,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             if (parentId != null)
                parent = parentId.toString();
 
-            int code = IPSWebserviceErrors.MISSING_HIERARCHY_NODE_FOR_PARENT;
+            var code = WebserviceErrorCodes.MISSING_HIERARCHY_NODE_FOR_PARENT;
             throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code, name,
                   parent), ExceptionUtils.getFullStackTrace(new Exception()));
 
@@ -1989,7 +1989,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             if (parentId != null)
                parent = parentId.toString();
 
-            int code = IPSWebserviceErrors.DUPLICATE_HIERARCHY_NODE_FOR_PARENT;
+            var code = WebserviceErrorCodes.DUPLICATE_HIERARCHY_NODE_FOR_PARENT;
             throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code, name,
                   parent), ExceptionUtils.getFullStackTrace(new Exception()));
          }
@@ -2036,8 +2036,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          }
          else
          {
-            PSErrorException error = new PSErrorException(IPSWebserviceErrors.DELETE_FAILED,
-                    PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.DELETE_FAILED,
+            PSErrorException error = new PSErrorException(WebserviceErrorCodes.DELETE_FAILED,
+                    PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.DELETE_FAILED,
                   cz.getName(), id.longValue(), PSExceptionUtils.getMessageForLog(e)),
                     PSExceptionUtils.getDebugMessageForLog(e));
             results.addError(id, error);

@@ -16,6 +16,8 @@
  */
 package com.percussion.webservices;
 
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
+
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
@@ -33,6 +35,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.design.objectstore.PSRelationshipSet;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.design.PSDesignModelUtils;
@@ -459,7 +462,7 @@ public class PSWebserviceUtils
             Object error = errors.get(id);
             if (error instanceof PSErrorException)
             {
-               if (((PSErrorException) error).getCode() != IPSWebserviceErrors.OBJECT_NOT_FOUND)
+               if (((PSErrorException) error).getCode() != WebserviceErrorCodes.OBJECT_NOT_FOUND.numericCode())
                {
                   // error is for a persisted object, pass it through
                   newException.addError(id, error);
@@ -616,7 +619,7 @@ public class PSWebserviceUtils
 
       if (lock == null)
       {
-         int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+         var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
          PSDesignGuid guid = new PSDesignGuid(id);
          PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, cz.getName(), guid
@@ -626,7 +629,7 @@ public class PSWebserviceUtils
       }
       else
       {
-         int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+         var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
          PSDesignGuid guid = new PSDesignGuid(id);
          PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, cz.getName(), guid
@@ -676,7 +679,7 @@ public class PSWebserviceUtils
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
-         int code = IPSWebserviceErrors.SAVE_FAILED;
+         var code = WebserviceErrorCodes.SAVE_FAILED;
          PSDesignGuid guid = new PSDesignGuid(id);
          PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, cz.getName(), guid
@@ -699,7 +702,7 @@ public class PSWebserviceUtils
       String depTypes = PSDesignModelUtils.checkDependencies(id);
       if (depTypes != null)
       {
-         int code = IPSWebserviceErrors.DELETE_FAILED_DEPENDENTS;
+         var code = WebserviceErrorCodes.DELETE_FAILED_DEPENDENTS;
          PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
          String displayName = "Undefined";
          if(type!=null){
@@ -734,7 +737,7 @@ public class PSWebserviceUtils
 
       if (!pair.getFirst().isEmpty())
       {
-         int code = IPSWebserviceErrors.DELETE_ASSOCIATION_FAILED_DEPENDENTS;
+         var code = WebserviceErrorCodes.DELETE_ASSOCIATION_FAILED_DEPENDENTS;
          error = new PSErrorException(code, PSWebserviceErrors
                .createErrorMessage(code, Objects.requireNonNull(PSTypeEnum.valueOf(parent.getType()))
                      .getDisplayName(), parent.longValue(), Objects.requireNonNull(PSTypeEnum
@@ -829,8 +832,8 @@ public class PSWebserviceUtils
       PSComponentSummary summary = cms.loadComponentSummary(id,refresh);
       if (summary == null)
       {
-         throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+         throw new PSErrorException(WebserviceErrorCodes.OBJECT_NOT_FOUND,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.OBJECT_NOT_FOUND,
                      PSComponentSummary.class.getName(), id), ExceptionUtils
                      .getFullStackTrace(new Exception()));
       }
@@ -960,8 +963,8 @@ public class PSWebserviceUtils
       catch (PSAssemblyException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME, PSSlotType.class
+         throw new PSErrorException(WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME, PSSlotType.class
                      .getName(), name), ExceptionUtils.getFullStackTrace(e));
       }
    }
@@ -1019,8 +1022,8 @@ public class PSWebserviceUtils
       }
       catch (PSAssemblyException e)
       {
-         throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+         throw new PSErrorException(WebserviceErrorCodes.OBJECT_NOT_FOUND,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.OBJECT_NOT_FOUND,
                      IPSTemplateSlot.class.getName(), slotId), ExceptionUtils
                      .getFullStackTrace(e));
 
@@ -1054,8 +1057,8 @@ public class PSWebserviceUtils
       }
       catch (PSAssemblyException e)
       {
-         throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+         throw new PSErrorException(WebserviceErrorCodes.OBJECT_NOT_FOUND,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.OBJECT_NOT_FOUND,
                      IPSAssemblyTemplate.class.getName(), new PSDesignGuid(templateId).getValue()),
                ExceptionUtils.getFullStackTrace(e));
       }
@@ -1086,8 +1089,8 @@ public class PSWebserviceUtils
       catch (PSAssemblyException e)
       {
 
-        throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+        throw new PSErrorException(WebserviceErrorCodes.OBJECT_NOT_FOUND,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.OBJECT_NOT_FOUND,
                      IPSAssemblyTemplate.class.getName(), new PSDesignGuid(templateId).getValue()),
                ExceptionUtils.getFullStackTrace(e));
       }
@@ -1176,8 +1179,8 @@ public class PSWebserviceUtils
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
 
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS, e
+         throw new PSErrorException(WebserviceErrorCodes.FAILED_SAVE_RELATIONSHIPS,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_SAVE_RELATIONSHIPS, e
                      .getLocalizedMessage()), ExceptionUtils
                      .getFullStackTrace(e));
 
@@ -1245,8 +1248,8 @@ public class PSWebserviceUtils
       {
         log.error(PSExceptionUtils.getMessageForLog(e));
 
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS, PSExceptionUtils.getMessageForLog(e)), ExceptionUtils
+         throw new PSErrorException(WebserviceErrorCodes.FAILED_SAVE_RELATIONSHIPS,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_SAVE_RELATIONSHIPS, PSExceptionUtils.getMessageForLog(e)), ExceptionUtils
                      .getFullStackTrace(e));
       }
    }
@@ -1283,8 +1286,8 @@ public class PSWebserviceUtils
             var relOpt = relsvc.loadRelationship(id.getUUID());
             if (relOpt.isEmpty())
             {
-               throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP,
-                     PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP, id
+               throw new PSErrorException(WebserviceErrorCodes.FAILED_LOAD_RELATIONSHIP,
+                     PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_LOAD_RELATIONSHIP, id
                            .longValue(), "Relationship not found"), PSExceptionUtils.getDebugMessageForLog(new Exception()));
             }
             rel = relOpt.get();
@@ -1295,16 +1298,16 @@ public class PSWebserviceUtils
          {
             log.error(PSExceptionUtils.getMessageForLog(e));
 
-            throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP,
-                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP, id
+            throw new PSErrorException(WebserviceErrorCodes.FAILED_LOAD_RELATIONSHIP,
+                  PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_LOAD_RELATIONSHIP, id
                         .longValue(), PSExceptionUtils.getMessageForLog(e)), PSExceptionUtils.getDebugMessageForLog(e));
 
          }
 
          if (rel == null)
          {
-            throw new PSErrorException(IPSWebserviceErrors.CANNOT_FIND_RELATIONSHIP,
-                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_RELATIONSHIP, id
+            throw new PSErrorException(WebserviceErrorCodes.CANNOT_FIND_RELATIONSHIP,
+                  PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.CANNOT_FIND_RELATIONSHIP, id
                         .longValue()), PSExceptionUtils.getDebugMessageForLog(new Exception()));
          }
 
@@ -1326,8 +1329,8 @@ public class PSWebserviceUtils
          catch (PSCmsException e)
          {
             log.error(PSExceptionUtils.getMessageForLog(e));
-            PSErrorException error = new PSErrorException(IPSWebserviceErrors.FAILED_DELETE_RELATIONSHIPS,
-                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_DELETE_RELATIONSHIPS,
+            PSErrorException error = new PSErrorException(WebserviceErrorCodes.FAILED_DELETE_RELATIONSHIPS,
+                  PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_DELETE_RELATIONSHIPS,
                           PSExceptionUtils.getMessageForLog(e)), PSExceptionUtils.getDebugMessageForLog(e));
 
             results.addError(r.getGuid(), error);
@@ -1359,8 +1362,8 @@ public class PSWebserviceUtils
       if (!isItemCheckedOutToUser(summary))
       {
 
-         throw new PSErrorException(IPSWebserviceErrors.ITEM_NOT_CHECKOUT_BY_USER,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.ITEM_NOT_CHECKOUT_BY_USER, locator
+         throw new PSErrorException(WebserviceErrorCodes.ITEM_NOT_CHECKOUT_BY_USER,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.ITEM_NOT_CHECKOUT_BY_USER, locator
                      .getId(), getUserName()), ExceptionUtils
                      .getFullStackTrace(new Exception()));
       }
@@ -1416,7 +1419,7 @@ public class PSWebserviceUtils
          {
             throw new IllegalArgumentException(PSWebserviceErrors
                   .createErrorMessage(
-                        IPSWebserviceErrors.INVALID_EDIT_REVISION, lguid
+                        WebserviceErrorCodes.INVALID_EDIT_REVISION, lguid
                               .getContentId(), revision, getUserName()));
          }
          // if not checked, must be current rev
@@ -1424,7 +1427,7 @@ public class PSWebserviceUtils
          {
             throw new IllegalArgumentException(PSWebserviceErrors
                   .createErrorMessage(
-                        IPSWebserviceErrors.INVALID_CURRENT_REVISION, lguid
+                        WebserviceErrorCodes.INVALID_CURRENT_REVISION, lguid
                               .getContentId(), revision, getUserName()));
          }
       }
@@ -1528,8 +1531,8 @@ public class PSWebserviceUtils
       {
         log.error(PSExceptionUtils.getMessageForLog(e));
 
-         throw new PSErrorException(IPSWebserviceErrors.LOAD_OBJECTS_ERROR,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_OBJECTS_ERROR,
+         throw new PSErrorException(WebserviceErrorCodes.LOAD_OBJECTS_ERROR,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.LOAD_OBJECTS_ERROR,
                      PSRelationship.class.getName(),
                        filter.toString(),
                        PSExceptionUtils.getMessageForLog(e)),
@@ -1868,8 +1871,8 @@ public class PSWebserviceUtils
 
       if (wf == null)
       {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_WORKFLOW,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_WORKFLOW,
+         throw new PSErrorException(WebserviceErrorCodes.FAILED_LOAD_WORKFLOW,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_LOAD_WORKFLOW,
                      workflowId), ExceptionUtils
                      .getFullStackTrace(new Exception()));
       }
@@ -1896,8 +1899,8 @@ public class PSWebserviceUtils
             return s;
       }
 
-      throw new PSErrorException(IPSWebserviceErrors.CANNOT_FIND_WORKFLOW_STATE_ID,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_WORKFLOW_STATE_ID, id, wf.getGUID()
+      throw new PSErrorException(WebserviceErrorCodes.CANNOT_FIND_WORKFLOW_STATE_ID,
+            PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.CANNOT_FIND_WORKFLOW_STATE_ID, id, wf.getGUID()
                   .longValue(), wf.getName()), ExceptionUtils
                   .getFullStackTrace(new Exception()));
    }
@@ -1948,8 +1951,8 @@ public class PSWebserviceUtils
       catch (PSException e)
       {
          Throwable rootCause = PSExceptionHelper.findRootCause(e,false);
-         PSErrorException error = new PSErrorException(IPSWebserviceErrors.FAILED_TRANSITION_ITEM,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_TRANSITION_ITEM, trigger, id),
+         PSErrorException error = new PSErrorException(WebserviceErrorCodes.FAILED_TRANSITION_ITEM,
+               PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.FAILED_TRANSITION_ITEM, trigger, id),
                ExceptionUtils.getFullStackTrace(rootCause),e);
          throw new PSErrorException("Failed transition due to server error.",error);
 
@@ -2068,7 +2071,7 @@ public class PSWebserviceUtils
          }
          catch (RuntimeException e)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code, PSAclImpl.class
                         .getName(), id.longValue()), ExceptionUtils
@@ -2077,7 +2080,7 @@ public class PSWebserviceUtils
          }
          catch (PSServiceSecurityException e)
          {
-            int code = IPSWebserviceErrors.NOT_AUTHORIZED;
+            var code = WebserviceErrorCodes.NOT_AUTHORIZED;
             PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code, PSAclImpl.class
                         .getName(), id.longValue()), ExceptionUtils
@@ -2200,7 +2203,7 @@ public class PSWebserviceUtils
       if (type == null)
          throw new IllegalArgumentException("type must not be null.");
 
-      int code = IPSWebserviceErrors.OBJECT_ALREADY_EXISTS;
+      var code = WebserviceErrorCodes.OBJECT_ALREADY_EXISTS;
       throw new IllegalArgumentException(PSWebserviceErrors
             .createErrorMessage(code, type, name));
    }
@@ -2310,6 +2313,45 @@ public class PSWebserviceUtils
             PSWebserviceErrors.createErrorMessage(errorCode, e
                .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
 
+      }
+   }
+
+   /**
+    * Saves the specified relationship configurations, retaining the typed catalog
+    * code on any {@link PSErrorException} thrown.
+    *
+    * @param configSet the to be saved relationship config set, may not be
+    *    <code>null</code>.
+    * @param errorCode catalogued error code should an error occur, never
+    *    {@code null}.
+    */
+   public static void saveRelationshipConfigSet(
+      PSRelationshipConfigSet configSet, IPSErrorCode errorCode)
+         throws PSErrorException
+   {
+      if (configSet == null)
+         throw new IllegalArgumentException("configSet may not be null");
+      if (errorCode == null)
+         throw new IllegalArgumentException("errorCode may not be null");
+
+      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      Element root = configSet.toXml(doc);
+      PSXmlDocumentBuilder.replaceRoot(doc, root);
+      try
+      {
+         PSConfigManager.getInstance().saveConfig(
+            PSConfigurationFactory.RELATIONSHIPS_CFG, doc);
+
+         PSRelationshipCommandHandler.reloadConfigs();
+         IPSRelationshipService relsvc = PSRelationshipServiceLocator
+            .getRelationshipService();
+         relsvc.reloadConfigs();
+      }
+      catch (PSException e)
+      {
+         throw new PSErrorException(errorCode,
+            PSWebserviceErrors.createErrorMessage(errorCode, e
+               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
       }
    }
 

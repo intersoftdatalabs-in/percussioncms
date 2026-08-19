@@ -16,6 +16,7 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -34,6 +35,12 @@ public class PSErrorException extends RuntimeException
     * The error code.
     */
    private int code;
+
+   /**
+    * Typed catalog code when constructed via {@link IPSErrorCode} overloads;
+    * otherwise {@code null} for legacy int construction.
+    */
+   private transient IPSErrorCode typedErrorCode;
    
    /**
     * The error message, never <code>null</code> or empty after construction.
@@ -79,6 +86,22 @@ public class PSErrorException extends RuntimeException
       setErrorMessage(errorMessage);
       setStack(stack);
    }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}. Sets the legacy
+    * numeric code for SOAP / message lookup and retains the typed code for
+    * {@link #getTypedErrorCode()} / {@link #isAuditable()}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param errorMessage the error message, may be <code>null</code> or empty.
+    * @param stack the stack trace from where the error happened, not
+    *    <code>null</code> or empty.
+    */
+   public PSErrorException(IPSErrorCode code, String errorMessage, String stack)
+   {
+      this(requireCode(code).numericCode(), errorMessage, stack);
+      this.typedErrorCode = code;
+   }
    
    public PSErrorException(String errorMsg)
    {
@@ -105,6 +128,21 @@ public class PSErrorException extends RuntimeException
    }
 
    /**
+    * Typed construction with a causal exception.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param errorMessage the error message, may be <code>null</code> or empty.
+    * @param stack the stack trace from where the error happened, not
+    *    <code>null</code> or empty.
+    * @param e The original exception that needs to be set as cause.
+    */
+   public PSErrorException(IPSErrorCode code, String errorMessage, String stack, Exception e)
+   {
+      this(requireCode(code).numericCode(), errorMessage, stack, e);
+      this.typedErrorCode = code;
+   }
+
+   /**
     * Get the error code.
     * 
     * @return the error code uniquely identifies a specific error.
@@ -122,6 +160,46 @@ public class PSErrorException extends RuntimeException
    public void setCode(int code)
    {
       this.code = code;
+      this.typedErrorCode = null;
+   }
+
+   /**
+    * Set a catalogued error code. Retains {@code code} for
+    * {@link #getTypedErrorCode()} / {@link #isAuditable()}.
+    *
+    * @param code catalogued error code, never {@code null}
+    */
+   public void setCode(IPSErrorCode code)
+   {
+      this.code = requireCode(code).numericCode();
+      this.typedErrorCode = code;
+   }
+
+   /**
+    * Typed error code when constructed via {@link #PSErrorException(IPSErrorCode, String, String)}
+    * (or overloads); otherwise {@code null} for legacy int construction.
+    */
+   public IPSErrorCode getTypedErrorCode()
+   {
+      return typedErrorCode;
+   }
+
+   /**
+    * Whether dual-write should consider this exception auditable. Prefer the typed
+    * code when present; legacy int construction returns {@code false}.
+    */
+   public boolean isAuditable()
+   {
+      return typedErrorCode != null && typedErrorCode.isAuditable();
+   }
+
+   private static IPSErrorCode requireCode(IPSErrorCode code)
+   {
+      if (code == null)
+      {
+         throw new IllegalArgumentException("code may not be null");
+      }
+      return code;
    }
    
    /**
