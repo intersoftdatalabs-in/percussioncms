@@ -252,12 +252,21 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     }
     try {
       IPSAssemblyTemplate t = resolveTemplate(idOrName.trim());
-      if (t == null || t.getGUID() == null) {
+      if (t == null) {
         return false;
+      }
+      if (t.getGUID() == null) {
+        log.error(
+            "Template '{}' loaded without a GUID; refusing delete (corrupt identifier).",
+            idOrName);
+        throw new IllegalStateException(
+            "Template '" + idOrName + "' has no GUID (corrupt identifier); cannot delete");
       }
       asmSvc.deleteTemplate(t.getGUID());
       return true;
     } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (IllegalStateException e) {
       throw e;
     } catch (PSAssemblyException e) {
       if (e.getErrorCode() == IPSAssemblyErrors.TEMPLATE_MISSING) {

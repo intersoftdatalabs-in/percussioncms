@@ -78,6 +78,40 @@ class TemplateAdaptorDeleteTest {
   }
 
   @Test
+  void deleteTemplate_nullGuidIsCorruptionNotNotFound() throws Exception {
+    IPSAssemblyService asm = mock(IPSAssemblyService.class);
+    IPSContentWs contentWs = mock(IPSContentWs.class);
+    PSAssemblyTemplate corrupt = mock(PSAssemblyTemplate.class);
+    when(corrupt.getGUID()).thenReturn(null);
+    when(corrupt.getName()).thenReturn("corrupt.html");
+    when(asm.findTemplateByName("corrupt.html")).thenReturn(corrupt);
+
+    TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class, () -> adaptor.deleteTemplate(null, "corrupt.html"));
+    assertTrue(ex.getMessage().contains("no GUID"));
+    verify(asm, never()).deleteTemplate(org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  void deleteTemplate_returnsFalseWhenConcurrentDelete() throws Exception {
+    IPSAssemblyService asm = mock(IPSAssemblyService.class);
+    IPSContentWs contentWs = mock(IPSContentWs.class);
+    PSAssemblyTemplate existing = mockTemplate("site.html.snippet");
+    var guid = existing.getGUID();
+    when(asm.findTemplateByName("site.html.snippet")).thenReturn(existing);
+    org.mockito.Mockito.doThrow(
+            new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, "site.html.snippet"))
+        .when(asm)
+        .deleteTemplate(guid);
+
+    TemplateAdaptor adaptor = new TemplateAdaptor(asm, contentWs);
+    assertFalse(adaptor.deleteTemplate(null, "site.html.snippet"));
+    verify(asm).deleteTemplate(guid);
+  }
+
+  @Test
   void deleteTemplate_rejectsBlankId() {
     IPSAssemblyService asm = mock(IPSAssemblyService.class);
     IPSContentWs contentWs = mock(IPSContentWs.class);
