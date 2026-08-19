@@ -19,6 +19,7 @@ import {
   executeSearch,
   listExplorerSavedSearches,
   listSearches,
+  unwrapSearchDefList,
   unwrapSearchExecuteResult,
   wrapSearchExecuteRequest,
 } from "../../../main/ts/api/developer/searchesApi";
@@ -60,6 +61,28 @@ describe("unwrapSearchExecuteResult", () => {
   });
 });
 
+describe("unwrapSearchDefList", () => {
+  it("unwraps nested SearchDefList.SearchDef so the picker sees rows (#3576)", () => {
+    expect(
+      unwrapSearchDefList({
+        SearchDefList: {
+          SearchDef: [
+            { name: "View_All", label: "All" },
+            { name: "My Pages" },
+          ],
+        },
+      }).map((s) => s.name),
+    ).toEqual(["View_All", "My Pages"]);
+  });
+
+  it("unwraps ArrayList and ignores empty beans", () => {
+    expect(unwrapSearchDefList({ ArrayList: [{ name: "All Content" }] })).toEqual(
+      [{ name: "All Content" }],
+    );
+    expect(unwrapSearchDefList({ empty: true })).toEqual([]);
+  });
+});
+
 describe("listSearches", () => {
   it("GETs /searches without includeViews by default", async () => {
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
@@ -91,6 +114,22 @@ describe("listSearches", () => {
       `${PATHS.SEARCHES}?includeViews=true`,
     );
     expect(out.map((s) => s.name)).toEqual(["View_All", "My Pages"]);
+  });
+
+  it("listExplorerSavedSearches unwraps nested SearchDefList (#3576)", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          SearchDefList: {
+            SearchDef: [{ name: "View_All", label: "All" }],
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const out = await listExplorerSavedSearches();
+    expect(out).toHaveLength(1);
+    expect(out[0]?.name).toBe("View_All");
   });
 });
 

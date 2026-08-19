@@ -42,10 +42,10 @@
  *   python docker/scripts/perc-devctl.py qa-down
  * </pre>
  *
- * <p><strong>Fixture soft-skip:</strong> when GET /services/searches returns
- * no runnable (non-custom-URL) design search, the execute-path test soft-skips
- * after asserting catalog empty / picker-only-custom UI. Catalog mount and
- * shell toggle remain hard assertions.</p>
+ * <p><strong>Fixture soft-skip:</strong> execute soft-skips <em>only</em>
+ * when the catalog is empty or every row is a custom-URL search. A visible
+ * picker with a standard/user search (or REST View_All) must Run — do not
+ * skip (#3576 / parent #3102).</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -60,14 +60,41 @@ const {
   searchesCatalogUrl,
   unwrapSearchDefs,
   pickRunnableSavedSearch,
+  pickRunnableSelectOption,
+  shouldSkipMissingRunnableSearch,
   noRunnableSearchSkipMessage,
   postExecuteRegionSelector,
   catalogSettledSelector,
   isCustomUrlSearch,
+  isCustomSelectOption,
   isDefaultAllView,
   searchDefKey,
   searchesExecuteUrl,
 } = require("./helpers/explorer-saved-search");
+
+/**
+ * Collect uncaught page errors for the C5 zero-errors gate.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {string[]}
+ */
+function attachPageErrors(page) {
+  const pageErrors = [];
+  page.on("pageerror", (err) => {
+    pageErrors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("console", (msg) => {
+    if (msg.type() !== "error") {
+      return;
+    }
+    const text = String(msg.text() || "");
+    if (/Failed to load resource: the server responded with a status of (404|400)/i.test(text)) {
+      return;
+    }
+    pageErrors.push(text);
+  });
+  return pageErrors;
+}
 
 // Tags live on individual test() titles only — Playwright ignores @tags on describe names.
 test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
@@ -129,8 +156,8 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     page,
     request,
   }) => {
-    // Probe REST catalog so we know a runnable key before UI drive; soft-skip
-    // when QA H2 fixture has no design searches (documented acceptance).
+    const pageErrors = attachPageErrors(page);
+    // Probe REST catalog so we prefer View_All; UI picker is the no-skip gate.
     const headers = adminBasicAuthHeaders();
     const catalogUrl = searchesCatalogUrl(BASE_URL, { includeViews: true });
     let restStatus = 0;
@@ -167,16 +194,42 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
       timeout: 20_000,
     });
 
-    if (!runnable) {
-      // Soft path: empty catalog or custom-only — still prove UI state.
-      const empty = page.locator(`[data-testid="${TEST_IDS.savedEmpty}"]`);
-      const picker = page.locator(`[data-testid="${TEST_IDS.savedPicker}"]`);
+    const empty = page.locator(`[data-testid="${TEST_IDS.savedEmpty}"]`);
+    const picker = page.locator(`[data-testid="${TEST_IDS.savedPicker}"]`);
+    const pickerVisible = await picker.isVisible().catch(() => false);
+    const select = page.locator(`[data-testid="${TEST_IDS.savedSelect}"]`);
+    const selectOptions = pickerVisible
+      ? await select.locator("option").evaluateAll((opts) =>
+          opts.map((o) => ({
+            value: /** @type {HTMLOptionElement} */ (o).value,
+            text: String(/** @type {HTMLOptionElement} */ (o).textContent || ""),
+          })),
+        )
+      : [];
+    const uiRunnable = pickRunnableSelectOption(selectOptions);
+    const optionCount = selectOptions.filter((o) => String(o.value || "").trim())
+      .length;
+
+    if (
+      shouldSkipMissingRunnableSearch({
+        runnable,
+        pickerVisible,
+        optionCount,
+        hasRunnableOption: Boolean(uiRunnable),
+        onlyCustom,
+        catalogEmpty: defs.length === 0 && !pickerVisible,
+      })
+    ) {
       if (await empty.isVisible()) {
         await expect(empty).toBeVisible();
-      } else if (await picker.isVisible()) {
-        await expect(
-          page.locator(`[data-testid="${TEST_IDS.savedSelect}"]`),
-        ).toBeVisible();
+      } else if (pickerVisible) {
+        await expect(select).toBeVisible();
+        const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
+        const customOpt = selectOptions.find((o) => isCustomSelectOption(o));
+        if (customOpt && customOpt.value) {
+          await select.selectOption(customOpt.value);
+          await expect(runBtn).toBeDisabled();
+        }
       }
       test.skip(
         true,
@@ -184,28 +237,40 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
           empty: defs.length === 0,
           onlyCustom,
           restStatus,
+          pickerVisible,
         }),
       );
       return;
     }
 
-    const select = page.locator(`[data-testid="${TEST_IDS.savedSelect}"]`);
+    expect(
+      pickerVisible,
+      "catalog has a runnable search so SearchPanel picker must be visible (#3576)",
+    ).toBe(true);
     await expect(select).toBeVisible({ timeout: 10_000 });
 
-    // Prefer REST-known key; fall back to first non-empty option value.
-    const optionValues = await select.locator("option").evaluateAll((opts) =>
-      opts.map((o) => /** @type {HTMLOptionElement} */ (o).value).filter(Boolean),
-    );
-    const keyToPick = optionValues.includes(runnable.key)
-      ? runnable.key
-      : optionValues[0];
+    const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
+    const customOpt = selectOptions.find((o) => isCustomSelectOption(o));
+    if (customOpt && customOpt.value) {
+      await select.selectOption(customOpt.value);
+      await expect(runBtn).toBeDisabled();
+    }
+
+    const optionValues = selectOptions
+      .map((o) => String(o.value || "").trim())
+      .filter(Boolean);
+    const keyToPick =
+      runnable && optionValues.includes(runnable.key)
+        ? runnable.key
+        : uiRunnable
+          ? uiRunnable.value
+          : optionValues[0];
     expect(
       keyToPick,
       "saved-search select should expose at least one design search option",
     ).toBeTruthy();
 
     await select.selectOption(keyToPick);
-    const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
     await expect(runBtn).toBeEnabled({ timeout: 5_000 });
     await runBtn.click();
 
@@ -255,6 +320,9 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
         page.locator(`[data-testid="search-panel-retry"]`),
       ).toBeVisible();
     }
+    expect(pageErrors, "uncaught pageerror on saved-search picker/run").toEqual(
+      [],
+    );
   });
 
   test("REST: POST /services/searches/View_All/execute is 200 page not IOException @saved-search @explorer-saved-search", async ({
@@ -281,14 +349,21 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
       catalogRes.ok() ? await catalogRes.json().catch(() => null) : null,
     );
     const allView = defs.find((d) => isDefaultAllView(d));
-    if (!allView) {
+    const runnable = pickRunnableSavedSearch(defs);
+    if (defs.length === 0) {
       test.skip(
         true,
-        "H2 catalog has no All / View_All — soft-skip execute REST (#3517).",
+        "H2 catalog empty — soft-skip execute REST (no catalog search exists).",
       );
       return;
     }
-    const key = searchDefKey(allView);
+    expect(
+      allView || runnable,
+      `catalog has searches so execute must run (names=${defs
+        .map((d) => searchDefKey(d))
+        .join(",")})`,
+    ).toBeTruthy();
+    const key = allView ? searchDefKey(allView) : runnable.key;
     const execUrl = searchesExecuteUrl(BASE_URL, key);
     const body = JSON.stringify({
       SearchExecuteRequest: { startIndex: 1, maxResults: 25 },

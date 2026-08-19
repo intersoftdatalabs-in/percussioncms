@@ -827,9 +827,10 @@ SearchPanel → asserts catalog chrome (picker / empty / error) → when the
 fixture has a runnable design search, selects it and asserts post-execute
 results list, empty, or error region wiring.
 
-**Soft-skip:** if `GET /services/searches` has no non-custom-URL design search,
-the execute-path test soft-skips after catalog UI assertions (documented for
-minimal H2 fixtures). Shell open + catalog settle remain hard.
+**Soft-skip:** execute soft-skips **only** when the catalog is empty or every
+row is a custom-URL search. A visible picker (or REST catalog) with a
+standard/user search **must Run** — do not skip (#3576). Custom URL searches
+stay listed but Run stays disabled. Shell open + catalog settle remain hard.
 
 | Item | Value |
 |------|--------|
