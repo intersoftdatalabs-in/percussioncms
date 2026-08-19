@@ -20,6 +20,7 @@ package com.percussion.share.dao;
 import static com.percussion.test.TestAssertions.*;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
@@ -44,5 +45,22 @@ public class PSDateUtilsTest {
     assertNull(PSDateUtils.getDateFromString(""));
 
     assertThrows(ParseException.class, () -> PSDateUtils.getDateFromString("This is not a date!"));
+  }
+
+  /**
+   * FastForward / demo-site last-modified values are ISO-8601 with a trailing
+   * {@code Z}. Search indexing must parse them instead of ERROR-logging
+   * {@code Unparseable date}.
+   */
+  @Test
+  void testGetDateFromStringIso8601TrailingZ() throws Exception {
+    Date withMillis = PSDateUtils.getDateFromString("2008-11-02T00:00:00.000Z");
+    assertEquals(Instant.parse("2008-11-02T00:00:00.000Z"), withMillis.toInstant());
+
+    Date noMillis = PSDateUtils.getDateFromString("2008-11-02T00:00:00Z");
+    assertEquals(Instant.parse("2008-11-02T00:00:00Z"), noMillis.toInstant());
+
+    Date offsetColon = PSDateUtils.getDateFromString("2008-11-02T00:00:00.000+00:00");
+    assertEquals(Instant.parse("2008-11-02T00:00:00.000Z"), offsetColon.toInstant());
   }
 }

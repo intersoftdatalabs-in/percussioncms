@@ -1369,6 +1369,9 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       PSBinaryData binaryData = new PSBinaryData(hashDao.createBlob(is,meta.getLength()));
       Set<PSBinaryMetaEntry> dbMeta = convertMetaToDbMeta(meta);
       PSBinary binary = new PSBinary(meta.getHash(), binaryData, dbMeta);
+      // Constructor + setData already wire binaryData.binary; repeat after
+      // meta so the shared-PK OneToOne is linked before DAO persist.
+      binary.setData(binaryData);
       binary.setMetaEntries(dbMeta);
       binary.setExtractError(meta.hasParseError());
       binary.setLastAccessedDate(new Date());
