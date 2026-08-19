@@ -18,6 +18,9 @@ const {
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
   noListedPageSkipMessage,
+  isH2QaEnv,
+  shouldSkipListedPagePreview,
+  encodeCmsRelPath,
   isPreviewableRow,
   isListedPageRow,
   unwrapPathItems,
@@ -140,12 +143,18 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
   });
 
-  it("unwrapPathItems reads PathItem and PagedItemList children", () => {
+  it("unwrapPathItems reads PathItem, PagedItemList, and PSPathItemList (#3627)", () => {
     assert.deepEqual(
       unwrapPathItems({ PathItem: [{ name: "A" }, { name: "B" }] }).map(
         (i) => i.name,
       ),
       ["A", "B"],
+    );
+    assert.deepEqual(
+      unwrapPathItems({ PathItem: { name: "Solo", type: "percPage" } }).map(
+        (i) => i.name,
+      ),
+      ["Solo"],
     );
     assert.deepEqual(
       unwrapPathItems({
@@ -156,7 +165,64 @@ describe("explorer-preview-view helpers (#2733)", () => {
       }).map((i) => i.name),
       ["About"],
     );
+    assert.deepEqual(
+      unwrapPathItems({
+        PSPathItemList: {
+          PathItem: [{ name: "Corporate Investments" }],
+        },
+      }).map((i) => i.name),
+      ["Corporate Investments"],
+    );
     assert.deepEqual(unwrapPathItems(null), []);
+  });
+
+  it("shouldSkipListedPagePreview never skips when H2 or a previewable row exists (#3627)", () => {
+    assert.equal(
+      shouldSkipListedPagePreview(
+        { listedPage: { name: "Home" }, previewableRowCount: 0 },
+        {},
+      ),
+      false,
+    );
+    assert.equal(
+      shouldSkipListedPagePreview(
+        { listedPage: null, previewableRowCount: 1 },
+        {},
+      ),
+      false,
+    );
+    assert.equal(
+      shouldSkipListedPagePreview(
+        { listedPage: null, previewableRowCount: 0, h2: true },
+        {},
+      ),
+      false,
+    );
+    assert.equal(
+      shouldSkipListedPagePreview(
+        { listedPage: null, previewableRowCount: 0 },
+        { TEST_DB_TYPE: "h2" },
+      ),
+      false,
+    );
+    assert.equal(
+      shouldSkipListedPagePreview(
+        { listedPage: null, previewableRowCount: 0 },
+        { TEST_DB_TYPE: "mssql" },
+      ),
+      true,
+    );
+    assert.equal(isH2QaEnv({ TEST_DB_TYPE: "h2" }), true);
+    assert.equal(isH2QaEnv({ TEST_DB_TYPE: "mysql" }), false);
+  });
+
+  it("encodeCmsRelPath encodes site-name spaces", () => {
+    assert.equal(
+      encodeCmsRelPath("/Sites/Corporate Investments/Pages"),
+      "Sites/Corporate%20Investments/Pages",
+    );
+    assert.equal(encodeCmsRelPath("Sites/Demo"), "Sites/Demo");
+    assert.equal(encodeCmsRelPath(""), "");
   });
 
   it("resolveExplorerListPath prefers folderPath over site-name path", () => {
@@ -196,6 +262,12 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(
       isProductPagePreviewUrl(
         "/Rhythmyx/psx_cerffHome/rffHome.html?sys_command=preview&sys_contentid=551",
+      ),
+      true,
+    );
+    assert.equal(
+      isProductPagePreviewUrl(
+        "/Rhythmyx/cm/app/spa.jsp?entry=editor&contentId=551&mode=view",
       ),
       true,
     );
@@ -256,5 +328,10 @@ describe("explorer-preview-view helpers (#2733)", () => {
       /const\s*\{[^}]*adminBasicAuthHeaders[^}]*\}\s*=\s*require\(["']\.\/helpers\/auth["']\)/,
     );
     assert.match(src, /adminBasicAuthHeaders\s*\(\s*\)/);
+    assert.match(src, /shouldSkipListedPagePreview/);
+    assert.doesNotMatch(
+      src,
+      /if\s*\(\s*!listed\s*\)\s*\{\s*test\.skip/,
+    );
   });
 });
