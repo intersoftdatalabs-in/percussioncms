@@ -23,11 +23,10 @@ In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The clas
    library). Design is not a top-nav item. You can also open:
    - Query contract: `spa.jsp?entry=design&section=templates`
    - Path route: `/cm/app/design` or `/cm/app/design/templates`
-   - Legacy bookmarks: `/cm/app/?view=design` and `/cm/app/admin.jsp` redirect here
-     when the Design list cutover is installed. `admin.jsp` then always forces
-     `view=design` (a bookmark such as `admin.jsp?view=admin` still opens Design, not
-     Admin). Until that cutover is on the server, `admin.jsp` may still show the
-     classic CM1 Design list.
+   - Legacy bookmarks: `/cm/app/?view=design` and `/cm/app/admin.jsp` always
+     redirect here. `admin.jsp` forces `view=design` (a bookmark such as
+     `admin.jsp?view=admin` still opens Design, not Admin). The classic CM1
+     Design list is not a product entry for these bookmarks.
 3. The **Templates** tab lists assembly templates (label, name, id, description).
    The shell loads under the same product top nav as Explorer, Navigation, Developer, Publish, and Admin.
 

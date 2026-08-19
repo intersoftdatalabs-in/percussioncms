@@ -16,7 +16,7 @@
  */
 
 /**
- * Unit tests for Design SPA surface helpers (#3307) — no live CMS.
+ * Unit tests for Design SPA surface helpers (#3307 / #3578 / #3579) — no live CMS.
  */
 
 "use strict";
@@ -34,6 +34,7 @@ const {
   isTemplatesCollectionUrl,
   isTemplateCreatePost,
   createBodyHasWidgetXml,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
 } = require("../helpers/design-spa-surface");
 
@@ -97,15 +98,16 @@ describe("design-spa-surface helpers (#3307)", () => {
     );
   });
 
-  it("skips redirect when sibling #3306 cutover is absent", () => {
+  it("does not skip redirect when classic list chrome is still present (#3579 no-skip)", () => {
     assert.equal(
       skipReasonForChrome({
         shellPresent: true,
         wantRedirect: true,
         redirectToSpa: false,
       }),
-      SKIP.REDIRECT,
+      null,
     );
+    assert.equal(SKIP.REDIRECT, undefined);
   });
 
   it("runs when requested chrome is present", () => {
@@ -176,6 +178,36 @@ describe("design-spa-surface helpers (#3307)", () => {
       true,
     );
     assert.equal(createBodyHasWidgetXml(null), false);
+  });
+
+  it("matches Design SPA landing URLs after classic redirect", () => {
+    assert.equal(
+      isDesignSpaLandingUrl("http://127.0.0.1:2050/Rhythmyx/cm/app/?view=design"),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/spa.jsp?entry=design&section=templates",
+      ),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl("http://127.0.0.1:2050/Rhythmyx/cm/app/design"),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/?view=design#templates",
+      ),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/admin.jsp?view=admin",
+      ),
+      false,
+    );
+    assert.equal(isDesignSpaLandingUrl(""), false);
   });
 
   it("filters known console noise", () => {

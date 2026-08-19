@@ -16,12 +16,13 @@
  */
 
 /**
- * Design SPA surface helpers (#3307 / parent #2631).
+ * Design SPA surface helpers (#3307 / #3578 / #3579 / parent #2631).
  *
  * URL builders, stable test ids, and skip reasons for library + edit
  * consolidation. Create (#3305 / #3578) is required on H2 — do not skip
- * when design-tpl-create is missing. Sibling #3306 (classic list redirect)
- * may still skip cleanly when that cutover is not on the cell.
+ * when design-tpl-create is missing. Classic list redirect (#3306 / #3579)
+ * is required on perc-devctl qa-up H2 — do not skip when admin.jsp /
+ * ?view=design miss perc-design-shell.
  */
 
 "use strict";
@@ -58,8 +59,6 @@ const SKIP = Object.freeze({
   SHELL:
     "Design SPA chrome not on this QA cell (perc-design-shell missing) — skip; do not run full suite. Parent #2631 / #3307.",
   EDIT_EMPTY: "No templates in catalog — cannot exercise Design SPA editor.",
-  REDIRECT:
-    "Classic Design list still hosted (no perc-design-shell on admin.jsp / ?view=design; sibling #3306). Clean skip.",
 });
 
 /** Payload markers that would mean create still authored Widget definition XML. */
@@ -115,9 +114,7 @@ function designLegacyViewUrl(baseUrl) {
  * @param {{
  *   shellPresent?: boolean,
  *   catalogEmpty?: boolean,
- *   redirectToSpa?: boolean,
  *   wantEdit?: boolean,
- *   wantRedirect?: boolean,
  * }} flags
  * @returns {string|null} skip message, or null when the case should run
  */
@@ -128,9 +125,6 @@ function skipReasonForChrome(flags) {
   }
   if (f.wantEdit && f.catalogEmpty) {
     return SKIP.EDIT_EMPTY;
-  }
-  if (f.wantRedirect && !f.redirectToSpa) {
-    return SKIP.REDIRECT;
   }
   return null;
 }
@@ -181,6 +175,19 @@ function createBodyHasWidgetXml(payload) {
 }
 
 /**
+ * True when a landed URL is the Design SPA (view=design, entry=design, or
+ * /design path). Used by the no-skip H2 redirect gate (#3579).
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isDesignSpaLandingUrl(url) {
+  return /(?:[?&]view=design(?:[&?#]|$)|[?&]entry=design(?:[&?#]|$)|\/design(?:[/?#]|$))/i.test(
+    String(url || ""),
+  );
+}
+
+/**
  * Filter noisy third-party / resource console lines from a pageerror/console list.
  * @param {string[]} errors
  * @returns {string[]}
@@ -206,6 +213,7 @@ module.exports = {
   isTemplatesCollectionUrl,
   isTemplateCreatePost,
   createBodyHasWidgetXml,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
   softVisible,
 };
