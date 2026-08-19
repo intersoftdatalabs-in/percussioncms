@@ -1,0 +1,7 @@
+# Optional Virtual Site redirects. Missing file is a no-op.
+# Targets must be relative site paths or same-site http(s) URLs.
+# Open redirects (other hosts, protocol-relative, javascript:/data:) are rejected at build.
+redirects:
+  - from: /8.2/getting-started/installation.html
+    to: /8.2/getting-started/install.html
+    status: 301

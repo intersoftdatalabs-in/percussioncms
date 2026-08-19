@@ -1,0 +1,5 @@
+# Sample fixture: optional Virtual Site redirects (issue #3570).
+redirects:
+  - from: /8.2/getting-started/installation.html
+    to: /8.2/getting-started/install.html
+    status: 301

@@ -102,6 +102,29 @@ class PSVirtualSiteFilesystemPublisherTest {
   }
 
   @Test
+  void copyBuildToTarget_copiesRedirectArtifacts() throws Exception {
+    Path build = tempDir.resolve("build-redir");
+    Path pub = tempDir.resolve("published-redir");
+    Path html = build.resolve("8.2").resolve("old.html");
+    Files.createDirectories(html.getParent());
+    Files.writeString(html, "<html>moved</html>", StandardCharsets.UTF_8);
+    Files.writeString(
+        build.resolve("redirects.json"),
+        "[{\"from\":\"/8.2/old.html\",\"to\":\"/8.2/new.html\",\"status\":301}]\n",
+        StandardCharsets.UTF_8);
+
+    PSVirtualSitePublishCopyResult result =
+        PSVirtualSiteFilesystemPublisher.copyBuildToTarget(build, pub);
+
+    assertEquals(2, result.filesCopied());
+    assertTrue(Files.isRegularFile(pub.resolve("8.2").resolve("old.html")));
+    assertTrue(Files.isRegularFile(pub.resolve("redirects.json")));
+    assertTrue(
+        Files.readString(pub.resolve("redirects.json"), StandardCharsets.UTF_8)
+            .contains("/8.2/new.html"));
+  }
+
+  @Test
   void copyBuildFileCountToTarget_matchesCopyResultCount() throws Exception {
     Path build = tempDir.resolve("build-count");
     Path pub = tempDir.resolve("published-count");

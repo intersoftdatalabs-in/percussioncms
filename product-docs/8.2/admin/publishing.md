@@ -40,7 +40,8 @@ For Git/filesystem Virtual Sites such as product documentation:
   again — no CMS restart.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
-  publishing root). Staging `_meta` files are not copied.
+  publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`
+  from optional `_redirects.yaml` are copied with the site.
 
 ### Publish a Virtual Site to the Site filesystem target
 
@@ -55,7 +56,9 @@ For Git/filesystem Virtual Sites such as product documentation:
    instead. Run **Build Virtual Site** first if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
-7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root.
+7. Spot-check `index.html` (and version folders such as `8.2/`) under the Site root. If the
+   source tree includes `_redirects.yaml`, also spot-check a redirect HTML path and
+   `redirects.json`.
 
 **Clear operator errors (HTTP 400, not a silent no-op):**
 

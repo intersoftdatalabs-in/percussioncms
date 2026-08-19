@@ -45,6 +45,40 @@ theme:
 - `theme.layout` is relative to `_theme/` (default `page.html`).
 - `nav[].id` values should match section landing page frontmatter `id`s.
 
+## `_redirects.yaml` (optional)
+
+Located at `product-docs/_redirects.yaml`, beside `_config.yaml`. The file is **optional**:
+if it is missing, Virtual Site build continues and writes no redirect artifacts.
+
+```yaml
+redirects:
+  - from: /8.2/getting-started/installation.html
+    to: /8.2/getting-started/install.html
+    status: 301
+```
+
+### Rules
+
+- `redirects` is a list of mappings. Each entry requires non-blank `from` and `to`.
+- `from` is a site-relative path (leading `/` optional). A trailing `/` emits `index.html`
+  under that directory. Path traversal (`..`) and Windows/absolute segments are rejected.
+- `to` must be a **relative** site path or a **same-site** `http`/`https` URL whose host
+  matches `site.url` in `_config.yaml`. Protocol-relative (`//host/…`), other hosts,
+  `javascript:`, `data:`, and userinfo are **open redirects** and fail the build.
+- `status` is optional (default `301`). Allowed: `301`, `302`, `307`, `308`. Used in
+  `redirects.json` for operators/CDNs; static HTML always uses a meta refresh.
+- A `from` that would overwrite a page the build just assembled is rejected.
+
+### Build output
+
+When the file is present and valid, Phase 1 build writes:
+
+- Static redirect HTML at each `from` path (meta refresh + canonical link + body link)
+- `redirects.json` next to the assembled site (from/to/status map)
+
+**Publish Virtual Site** copies those files with the rest of the site (`_meta` is still
+skipped). See [Virtual Sites](id:developer-virtual-sites) and [Publishing](id:admin-publishing).
+
 ### Theme placeholders (`_theme/page.html`)
 
 The assembler binds dollar-brace placeholders (HTML-first, ADR-002) when it applies the
