@@ -150,7 +150,7 @@ describe("SearchPanel", () => {
     });
   });
 
-  it("renders the empty state when the search returns no rows", async () => {
+  it("renders empty-success (not error) when submit returns no rows (#3617)", async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(
       <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
