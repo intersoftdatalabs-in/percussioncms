@@ -159,6 +159,11 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
 });
 
 test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page);
+  });
+
   test("primary-nav entry points are modern-only after US6", async ({
     page,
   }) => {
@@ -171,6 +176,12 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     await page.goto(`${BASE_URL}/Rhythmyx/cm/app/webmgt.jsp?_=${Date.now()}`, {
       waitUntil: "networkidle",
     });
+
+    // Do not treat a login snapshot as a pass: wait for the signed-in
+    // explorer mount, then assert miller Finder chrome is gone.
+    await expect(
+      page.locator('[data-testid="content-explorer-shell"]'),
+    ).toBeVisible({ timeout: 15_000 });
 
     // The legacy Finder exposes a specific DOM signature (`.perc-mcol`).
     // After T031, only the legacy Finder chrome is gone — the modern
@@ -187,13 +198,38 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     // Spot-check the first modern entry point for serious/critical
     // a11y regressions. A failing test here is a release-blocker for
     // SC-009 (a11y) and SC-012 (FR-029 parity).
+    //
+    // Cycle-verify residual (#3613): this describe used to goto spa.jsp
+    // without loginAsAdmin, so axe include ran on Sign in and threw
+    // "No elements found for include". Login snapshot is not a pass.
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     await page.goto(
       `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`,
       { waitUntil: "networkidle" },
     );
+    const shell = page.locator('[data-testid="content-explorer-shell"]');
+    await expect(shell).toBeVisible({ timeout: 15_000 });
+    // Single include: comma-OR include is fragile (axe requires every
+    // listed selector to match). explorer-tree is nested in the shell.
     await expectNoSeriousA11yViolations(page, {
-      scope:
-        '[data-testid="content-explorer-shell"], [data-testid="explorer-tree"]',
+      scope: '[data-testid="content-explorer-shell"]',
     });
+    const unexpected = consoleErrors.filter(
+      (t) =>
+        !/ResizeObserver/i.test(t) &&
+        !/Download the React DevTools/i.test(t),
+    );
+    expect(unexpected, `console/page errors:\n${unexpected.join("\n")}`).toEqual(
+      [],
+    );
   });
 });
