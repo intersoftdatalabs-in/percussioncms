@@ -208,6 +208,33 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-sites-list-create` (list + Create Site). Parent operator issue #3102.
 
+### Explorer New-item type picker live (#3628 / parent #3102)
+
+H2 operator proof that **New Item** on `spa.jsp?entry=explorer` opens the
+**Choose a content type** picker against the live catalog (no stub of
+`GET /actions/find` or `POST /itemmanagement/item/create`). Select a
+Sites/Assets folder that exposes New, pick a real type, create HTTP 200
+(or documented empty-success 201/204). Does **not** skip when New is
+present. Does **not** request leftover Data Flow CE HTML. Does **not**
+claim gap-matrix Present.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-new-item-type-picker.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-new-item-type-picker.js`, `tests/unit/explorer-new-item-type-picker.test.js` |
+| Tags | `@explorer-new-item` `@explorer` |
+| Soft skip | None when the folder exposes New; missing host or empty picker is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-new-item-type-picker.spec.js
+```
+
+Peer: `explorer-content-editor` (template picker / leftover CE HTML). Parent #3102.
+
 ### Architecture Create section no-skip (#3589 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
