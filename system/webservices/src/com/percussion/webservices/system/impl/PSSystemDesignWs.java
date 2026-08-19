@@ -58,7 +58,7 @@ import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
@@ -191,7 +191,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          }
          catch (PSLockException e)
          {
-            int code = IPSWebserviceErrors.CREATE_EXTEND_LOCK_FAILED;
+            var code = WebserviceErrorCodes.CREATE_EXTEND_LOCK_FAILED;
             PSLockErrorException error = new PSLockErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, id.longValue(), e
                   .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e),
@@ -297,7 +297,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
             }
             catch (PSServiceSecurityException e)
             {
-               int code = IPSWebserviceErrors.DELETE_FAILED;
+               var code = WebserviceErrorCodes.DELETE_FAILED;
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,
@@ -357,7 +357,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
        * <code>PSErrorException</code> and no lock will be released.
        */
       PSWebserviceUtils.saveRelationshipConfigSet(configSet,
-            IPSWebserviceErrors.DELETE_FAILED);
+            WebserviceErrorCodes.DELETE_FAILED);
 
       /*
        * This may only have errors if no valid locks exist for any relationship
@@ -535,7 +535,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          }
          catch (PSLockException e)
          {
-            int code = IPSWebserviceErrors.CREATE_EXTEND_LOCK_FAILED;
+            var code = WebserviceErrorCodes.CREATE_EXTEND_LOCK_FAILED;
             PSLockErrorException error = new PSLockErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, id.longValue(), e
                   .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e),
@@ -838,7 +838,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          }
          catch (PSNotFoundException e)
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, PSItemFilter.class
@@ -914,7 +914,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          else
          // cannot find config with the id
          {
-            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
@@ -984,7 +984,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
             }
             catch (PSLockException e)
             {
-               int code = IPSWebserviceErrors.CREATE_LOCK_FAILED;
+               var code = WebserviceErrorCodes.CREATE_LOCK_FAILED;
                PSLockErrorException error = new PSLockErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code, property
                      .getClass().getName(), id.longValue(), e
@@ -1068,7 +1068,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          {
             if (lock == null)
             {
-               int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+               var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code, className,
@@ -1078,7 +1078,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
             }
             else
             {
-               int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+               var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                PSDesignGuid guid = new PSDesignGuid(id);
                PSErrorException error = new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code, className,
@@ -1099,7 +1099,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          /* assign error to all guids that don't already have one and skip
           * processing below
           */
-         int code = IPSWebserviceErrors.SAVE_FAILED;
+         var code = WebserviceErrorCodes.SAVE_FAILED;
          PSDesignGuid guid = new PSDesignGuid(-1);
          PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
@@ -1211,14 +1211,14 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
 
             if (lock == null)
             {
-               int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+               var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                PSDesignGuid guid = new PSDesignGuid(id);
-               throw new PSLockException(code, guid.getValue());
+               throw new PSLockException(code.numericCode(), guid.getValue());
             }
 
-            int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+            var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
             PSDesignGuid guid = new PSDesignGuid(id);
-            throw new PSLockException(code, guid.getValue(), lock.getLocker(),
+            throw new PSLockException(code.numericCode(), guid.getValue(), lock.getLocker(),
                lock.getRemainingTime());
          }
       }
@@ -1289,7 +1289,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
 
                if (lock == null)
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -1299,7 +1299,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
                }
                else
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -1312,7 +1312,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          }
          catch (Exception e)
          {
-            int code = IPSWebserviceErrors.SAVE_FAILED;
+            var code = WebserviceErrorCodes.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code, PSItemFilter.class
@@ -1388,7 +1388,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          throw results;
 
       PSWebserviceUtils.saveRelationshipConfigSet(configSet,
-            IPSWebserviceErrors.SAVE_FAILED);
+            WebserviceErrorCodes.SAVE_FAILED);
    }
 
    // @see IPSSystemDesignWs#saveSharedProperties(List, boolean, String, String)
@@ -1455,7 +1455,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
                   null);
                if (lock == null)
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -1465,7 +1465,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
                }
                else
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -1478,7 +1478,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
          }
          catch (PSLockException e)
          {
-            int code = IPSWebserviceErrors.SAVE_FAILED;
+            var code = WebserviceErrorCodes.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,

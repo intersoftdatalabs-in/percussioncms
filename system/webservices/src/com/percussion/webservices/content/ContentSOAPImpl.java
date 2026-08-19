@@ -44,7 +44,7 @@ import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSBaseSOAPImpl;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -619,8 +619,8 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       catch (PSUnknownContentTypeException e)
       {
          PSUnknownContentTypeFault fault = new PSUnknownContentTypeFault();
-         fault.setCode(IPSWebserviceErrors.UNKNOWN_CONTENT_TYPE);
-         fault.setErrorMessage(PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.UNKNOWN_CONTENT_TYPE, serviceName, createItemsRequest.getContentType(), e.getLocalizedMessage()));
+         fault.setCode(WebserviceErrorCodes.UNKNOWN_CONTENT_TYPE.numericCode());
+         fault.setErrorMessage(PSWebserviceErrors.createErrorMessage(WebserviceErrorCodes.UNKNOWN_CONTENT_TYPE, serviceName, createItemsRequest.getContentType(), e.getLocalizedMessage()));
          fault.setStack(ExceptionUtils.getFullStackTrace(e));
          throw new com.percussion.webservices.content.UnknownContentTypeFaultMessage(e.getLocalizedMessage(), fault);
       }

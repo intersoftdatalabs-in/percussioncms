@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.content.impl;
 
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +60,7 @@ public class PSContentBaseWs
       if (e == null)
          throw new IllegalArgumentException("e cannot be null");
 
-      int code = IPSWebserviceErrors.OPERATION_FAILED_ERROR;
+      var code = WebserviceErrorCodes.OPERATION_FAILED_ERROR;
       throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(
          code, operation, e.getLocalizedMessage()), ExceptionUtils
          .getFullStackTrace(e));
@@ -78,7 +78,7 @@ public class PSContentBaseWs
       if (e == null)
          throw new IllegalArgumentException("e cannot be null");
 
-      int code = IPSWebserviceErrors.UNEXPECTED_ERROR;
+      var code = WebserviceErrorCodes.UNEXPECTED_ERROR;
       throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(
          code, e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
 

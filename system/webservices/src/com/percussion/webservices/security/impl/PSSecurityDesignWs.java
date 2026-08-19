@@ -49,7 +49,7 @@ import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.security.data.PSCommunityVisibility;
 import com.percussion.webservices.security.data.PSRole;
 import com.percussion.webservices.PSWebserviceUtils;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
 import com.percussion.webservices.ExceptionUtils;
@@ -268,7 +268,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
             }
          }
 
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+         var code = WebserviceErrorCodes.OBJECT_NOT_FOUND;
          PSDesignGuid guid = new PSDesignGuid(id);
          PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code, PSCommunity.class
@@ -337,7 +337,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
             }
          }
 
-         int code = IPSWebserviceErrors.FAILED_RENAMING_ACLS;
+         var code = WebserviceErrorCodes.FAILED_RENAMING_ACLS;
          PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
                PSCommunity.class.getName(), message),
@@ -351,7 +351,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       }
       catch (RemoteException e)
       {
-         int code = IPSWebserviceErrors.FAILED_RENAMING_ACLS;
+         var code = WebserviceErrorCodes.FAILED_RENAMING_ACLS;
          PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
                PSCommunity.class.getName(), e.getLocalizedMessage()),
@@ -395,7 +395,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                lock = lockService.findLockByObjectId(id, null, null);
                if (lock == null)
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -405,7 +405,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                }
                else
                {
-                  int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
+                  var code = WebserviceErrorCodes.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                   PSDesignGuid guid = new PSDesignGuid(id);
                   PSErrorException error = new PSErrorException(code,
                      PSWebserviceErrors.createErrorMessage(code,
@@ -418,7 +418,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
          }
          catch (PSLockException e)
          {
-            int code = IPSWebserviceErrors.SAVE_FAILED;
+            var code = WebserviceErrorCodes.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
@@ -804,7 +804,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                break;
 
             default:
-               int code = IPSWebserviceErrors
+               var code = WebserviceErrorCodes
                   .UNSUPPORTD_COMMUNITY_VISIBILITY_LOOKUP_TYPE;
                throw new PSErrorException(code,
                   PSWebserviceErrors.createErrorMessage(code,

@@ -51,7 +51,7 @@ import com.percussion.system.utils.PSBaseBean;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSInvalidLocaleException;
@@ -329,7 +329,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
          // treat as contract violation
          if (e.getErrorCode() == IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY)
          {
-            int code = IPSWebserviceErrors.USER_NOT_MEMBER_COMMUNITY;
+            var code = WebserviceErrorCodes.USER_NOT_MEMBER_COMMUNITY;
             throw new PSUserNotMemberOfCommunityException(code,
                PSWebserviceErrors.createErrorMessage(code, name),
                ExceptionUtils.getFullStackTrace(e));
@@ -384,7 +384,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
          msgSfx.append(">");
 
          // throw invalid locale exception with a set of active locales
-         int errcode = IPSWebserviceErrors.INVALID_LOCALE;
+         var errcode = WebserviceErrorCodes.INVALID_LOCALE;
          throw new PSInvalidLocaleException(errcode, PSWebserviceErrors
             .createErrorMessage(errcode, code)+msgSfx.toString(), ExceptionUtils
             .getFullStackTrace(new Exception()));

@@ -42,7 +42,7 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.config.PSConfigManager;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -227,7 +227,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
       }
 
       // save the new one
-      PSWebserviceUtils.saveRelationshipConfigSet(cfgSet, IPSWebserviceErrors.SAVE_FAILED);
+      PSWebserviceUtils.saveRelationshipConfigSet(cfgSet, WebserviceErrorCodes.SAVE_FAILED);
 
       // log txn entry
       int action =

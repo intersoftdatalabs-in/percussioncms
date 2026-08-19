@@ -16,6 +16,7 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.services.locking.PSLockException;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.utils.guid.IPSGuid;
@@ -135,6 +136,19 @@ public class PSLockErrorException extends PSErrorException
    }
 
    /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param message the error message, may be <code>null</code> or empty.
+    * @param stack the stack trace from where the error happened, not
+    *    <code>null</code> or empty.
+    */
+   public PSLockErrorException(IPSErrorCode code, String message, String stack)
+   {
+      super(code, message, stack);
+   }
+
+   /**
     * Constructor the adds additional parameters to 
     * {@link #PSLockErrorException(int, String, String)}.
     * 
@@ -148,6 +162,28 @@ public class PSLockErrorException extends PSErrorException
    {
       super(code, message, stack);
       
+      setLocker(locker);
+      if (locker != null)
+         setRemainingTime(remainingTime);
+   }
+
+   /**
+    * Typed construction with locker metadata.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param message the error message, may be <code>null</code> or empty.
+    * @param stack the stack trace from where the error happened, not
+    *    <code>null</code> or empty.
+    * @param locker the name of the user locking the requested object, may
+    *    be <code>null</code>, not empty.
+    * @param remainingTime the remaining lock time, is ignored if the supplied
+    *    locker is <code>null</code>.
+    */
+   public PSLockErrorException(IPSErrorCode code, String message, String stack,
+      String locker, long remainingTime)
+   {
+      super(code, message, stack);
+
       setLocker(locker);
       if (locker != null)
          setRemainingTime(remainingTime);
