@@ -62,5 +62,9 @@ public class PSDateUtilsTest {
 
     Date offsetColon = PSDateUtils.getDateFromString("2008-11-02T00:00:00.000+00:00");
     assertEquals(Instant.parse("2008-11-02T00:00:00.000Z"), offsetColon.toInstant());
+
+    // Instant.parse is uppercase-Z only; lowercase z is handled by OffsetDateTime.parse.
+    Date lowerZ = PSDateUtils.getDateFromString("2008-11-02T00:00:00.000z");
+    assertEquals(Instant.parse("2008-11-02T00:00:00.000Z"), lowerZ.toInstant());
   }
 }

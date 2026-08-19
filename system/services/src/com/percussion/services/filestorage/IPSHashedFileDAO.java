@@ -42,8 +42,12 @@ public interface IPSHashedFileDAO
    public PSBinary getBinary(String hash);
 
    /**
-    * Save a binary
-    * @param binary
+    * Save a binary. {@code binary} must not be {@code null}; callers that
+    * look up by hash must skip save when the row is missing rather than
+    * relying on a no-op.
+    *
+    * @param binary the entity to persist or merge, never {@code null}
+    * @throws IllegalArgumentException if {@code binary} is {@code null}
     */
    public void save(PSBinary binary);
 

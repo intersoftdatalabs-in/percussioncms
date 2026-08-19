@@ -18,7 +18,9 @@ package com.percussion.services.filestorage.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -83,8 +85,14 @@ class PSBinaryPersistImportTest {
     EnumSet<CascadeType> cascades = EnumSet.noneOf(CascadeType.class);
     cascades.addAll(Arrays.asList(oneToOne.cascade()));
     assertTrue(
-        cascades.contains(CascadeType.ALL) || cascades.contains(CascadeType.PERSIST),
-        "PSBinary.data must cascade persist (or ALL) so FastForward import can save PSBinaryData");
+        cascades.contains(CascadeType.PERSIST),
+        "PSBinary.data must cascade persist so FastForward import can save PSBinaryData");
+    assertTrue(
+        cascades.contains(CascadeType.MERGE),
+        "PSBinary.data must cascade merge for existing hashed files");
+    assertTrue(
+        !cascades.contains(CascadeType.ALL) && !cascades.contains(CascadeType.REMOVE),
+        "Inverse OneToOne must not cascade REMOVE/ALL; delete stays on DAO/owning side");
   }
 
   @Test
@@ -159,5 +167,26 @@ class PSBinaryPersistImportTest {
     assertNotNull(created.getData());
     assertSame(created, created.getData().getBinary());
     assertEquals("abc123def456", created.getHash());
+  }
+
+  @Test
+  @DisplayName("save(null) throws rather than silently returning")
+  void saveNullThrows() {
+    assertThrows(IllegalArgumentException.class, () -> dao.save(null));
+    verify(session, never()).persist(any());
+    verify(session, never()).merge(any());
+  }
+
+  @Test
+  @DisplayName("getBinary does not save when the hash is missing")
+  void getBinaryMissingHashDoesNotSave() {
+    PSDbStorageService storage = new PSDbStorageService();
+    IPSHashedFileDAO hashDao = mock(IPSHashedFileDAO.class);
+    when(hashDao.getBinary("missing-hash")).thenReturn(null);
+    ReflectionTestUtils.setField(storage, "hashDao", hashDao);
+
+    assertNull(storage.getBinary("missing-hash"));
+    verify(hashDao, never()).save(any());
+    verify(hashDao, never()).save(null);
   }
 }

@@ -100,7 +100,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    {
       if (binary == null)
       {
-         return;
+         throw new IllegalArgumentException("binary may not be null");
       }
       Session session = getSession();
       PSBinaryData data = binary.getData();

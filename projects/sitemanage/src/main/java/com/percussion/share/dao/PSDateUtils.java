@@ -82,7 +82,7 @@ public class PSDateUtils {
       // Demo-site / search-index values are ISO-8601 with a trailing Z
       // (e.g. 2008-11-02T00:00:00.000Z). SimpleDateFormat pattern
       // ISO_8601_STRING uses RFC-822 Z and does not accept literal Z.
-      if (trimmed.endsWith("Z") || trimmed.endsWith("z")) {
+      if (trimmed.endsWith("Z")) {
         try {
           return Date.from(Instant.parse(trimmed));
         } catch (DateTimeException ignored) {

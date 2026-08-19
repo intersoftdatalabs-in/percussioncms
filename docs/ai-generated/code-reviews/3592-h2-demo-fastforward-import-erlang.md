@@ -37,3 +37,25 @@ None (hard-gate).
 - `PSDateUtilsTest` (sitemanage): 2 tests including `2008-11-02T00:00:00.000Z`
 - `cd system && ../mvnw.cmd clean install` BUILD SUCCESS (Tests run: 2168, Failures: 0, Errors: 0, Skipped: 238)
 - `cd projects/sitemanage && ../../mvnw.cmd clean install` BUILD SUCCESS (Tests run: 1250, Failures: 0, Errors: 0, Skipped: 125)
+
+## Re-review (PR #3602 Kilo threads)
+
+**Recommendation:** approve
+
+**Gate:** May commit/push: yes
+
+Addressed four unresolved Kilo review threads:
+
+1. `save(null)` now throws `IllegalArgumentException` (restores pre-mask contract). `PSDbStorageService.getBinary` saves only when a row exists.
+2. Inverse `@OneToOne` cascade narrowed to `PERSIST`+`MERGE` (no `ALL`/`REMOVE`).
+3. Redundant `binary.setData` after constructor removed.
+4. Dead `endsWith("z")` Instant branch removed; lowercase `z` still parses via `OffsetDateTime.parse`.
+
+No public method signature change. No path I/O. Cross-platform checklist N/A / clean.
+
+### Tests (this pass)
+
+- `PSBinaryPersistImportTest` (system): 7 tests, 0 fail (added `saveNullThrows`, `getBinaryMissingHashDoesNotSave`)
+- `PSDateUtilsTest` (sitemanage): lowercase `z` still parses to the same Instant as uppercase `Z`
+- `cd system && ../mvnw.cmd clean install` BUILD SUCCESS (Tests run: 2222, Failures: 0, Errors: 0, Skipped: 241)
+- `cd projects/sitemanage && ../../mvnw.cmd clean install` BUILD SUCCESS (Tests run: 1322, Failures: 0, Errors: 0, Skipped: 125)
