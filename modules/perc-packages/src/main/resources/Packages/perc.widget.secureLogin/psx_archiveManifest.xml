@@ -2,13 +2,7 @@
 
 
 <PSXArchiveManifest>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percSecureLogin-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\dev\rxconfig\Widgets\percSecureLogin.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percSecureLogin-xml\percSecureLogin.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef--7462949394166316985">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">

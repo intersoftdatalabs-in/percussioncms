@@ -29,3 +29,16 @@ Product packages must not reintroduce committed install Widget definition XML un
 See root `scripts/README.md` (Widget definition XML inventory gate) and
 `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
 
+## Archive-manifest Widget XML paths (#3582)
+
+Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
+`rxconfig/Widgets/*.xml` (or encoded `rxconfig_Widgets_`) when modern `widgets/` roots exist.
+Waiver is **`perc.Test` only**. Package build re-injects those user-dependencies on the staging
+copy via `PSWidgetXmlInstallEmitter` / `PSWidgetArchiveManifestInventory` so the built `.ppkg`
+still installs Widget XML.
+
+| Piece | Class |
+|-------|--------|
+| Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
+| Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
+

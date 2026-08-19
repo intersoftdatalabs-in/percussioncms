@@ -56,8 +56,9 @@ import java.util.zip.ZipOutputStream;
  * <p>Widget packages that author modern {@code widgets/&lt;stem&gt;/component-package.json} without
  * committed install Widget XML (batch A+B+C ship-exit #2883/#2884/#2885) materialize
  * {@code sys__UserDependency--rxconfig/Widgets/*.xml} before reorganize so deployer / {@code
- * PSWidgetDao} still receive the legacy install wire format. Dual-ship packages that still commit
- * Widget XML are left unchanged.
+ * PSWidgetDao} still receive the legacy install wire format. Source archive descriptors no longer
+ * author those Widget XML paths (#3582); install emit re-injects them on the staging copy.
+ * Dual-ship packages that still commit Widget XML are left unchanged.
  *
  * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}
  */

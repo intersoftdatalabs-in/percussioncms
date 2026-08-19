@@ -30,13 +30,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percRedirect_images_redirect--widget--icon--tray-png\redirect-widget-icon-tray.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percRedirect-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percRedirect.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percRedirect-xml\percRedirect.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef-2665817691603862185">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">

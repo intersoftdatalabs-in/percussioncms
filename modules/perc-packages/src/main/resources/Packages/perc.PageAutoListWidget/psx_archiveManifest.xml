@@ -60,13 +60,7 @@
 			<OriginalFile>rxs_ct_feeds_shared.xml</OriginalFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percPageAutoList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\Percussion_5.3.14_2016-06-13_port12401\rxconfig\Widgets\percPageAutoList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percPageAutoList-xml\percPageAutoList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes DependencyKey="ContentType-340">
 		<PSXDependencyFile fileType="ITEM_DEFINITION">
 			<RxFile>C:\WINDOWS\TEMP\percPageAutoList.itemDef.contentType</RxFile>

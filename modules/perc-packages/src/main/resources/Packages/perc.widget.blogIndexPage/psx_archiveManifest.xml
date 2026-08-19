@@ -36,13 +36,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_blogIndexPage_images_widgetIconBlogIndex-gif\widgetIconBlogIndex.gif</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percBlogIndexPage-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percBlogIndexPage.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percBlogIndexPage-xml\percBlogIndexPage.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef-6502868081449107528">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">

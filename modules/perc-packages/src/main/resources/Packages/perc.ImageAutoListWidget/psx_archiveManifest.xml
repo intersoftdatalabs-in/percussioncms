@@ -124,13 +124,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_imageAutoList_images_buttonBlueMinusOver-gif\buttonBlueMinusOver.gif</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percImageAutoList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percImageAutoList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percImageAutoList-xml\percImageAutoList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_imageAutoList_images_buttonBluePlusOver-gif">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

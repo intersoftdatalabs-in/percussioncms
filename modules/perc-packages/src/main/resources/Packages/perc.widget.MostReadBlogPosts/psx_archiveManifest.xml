@@ -9,13 +9,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percMostReadBlogPosts_images_percMostReadBlogPostsIcon-png\percMostReadBlogPostsIcon.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percMostReadBlogPosts-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percMostReadBlogPosts.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percMostReadBlogPosts-xml\percMostReadBlogPosts.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rxconfig_Resources_percMostReadBlogPosts-xml">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

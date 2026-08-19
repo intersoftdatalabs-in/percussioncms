@@ -93,13 +93,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_PSWidget__RawHtml_images_widgetHtmSampleBackground-png\widgetHtmSampleBackground.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percRawHtml-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percRawHtml.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percRawHtml-xml\percRawHtml.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes DependencyKey="ContentType-330">
 		<PSXDependencyFile fileType="ITEM_DEFINITION">
 			<RxFile>C:\Users\Santi\AppData\Local\Temp\PSWidgetProperties.itemDef.contentType</RxFile>
@@ -142,13 +136,7 @@
 			<ArchiveFile>ImageFile-rx_resources\images\ContentTypeIcons\filetypeIconsSimpleText.png\filetypeIconsSimpleText.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percRichText-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percRichText.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percRichText-xml\percRichText.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_PSWidget__RichText_images_widgetIconTextOver-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
@@ -184,13 +172,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_PSWidget__SimpleText_images_widgetIconSimpleTextOver-png\widgetIconSimpleTextOver.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percSimpleText-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percSimpleText.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percSimpleText-xml\percSimpleText.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_cm_themes_smoothness_jquery--ui--1-8-9-custom-css">

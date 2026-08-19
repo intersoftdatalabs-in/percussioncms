@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -37,11 +38,12 @@ import java.util.Objects;
  * <p><strong>Install wire format (transitional):</strong> package build materializes {@code
  * sys__UserDependency--rxconfig/Widgets/*.xml} from modern sources so deployer / {@code
  * PSWidgetDao} still receive legacy Widget XML. Product source trees for converted batches no
- * longer commit that XML.
+ * longer commit that XML, and no longer author {@code rxconfig/Widgets/*.xml} in archive
+ * descriptors (#3582). This emitter re-injects those archive entries on the staging copy.
  *
  * <p>Policy: materialize only when modern widget packages are present <em>and</em> the package has
- * no committed install Widget XML (so perc.Test may still commit Widget XML \(waiver\)).
- * Keep {@code PSLegacyDefinitionXmlShim} and upgrade-input compilers.
+ * no committed install Widget XML (so perc.Test may still commit Widget XML \(waiver\)). Keep
+ * {@code PSLegacyDefinitionXmlShim} and upgrade-input compilers.
  *
  * @see PSWidgetXmlDualShip
  * @see PSWidgetXmlPackageCompiler
@@ -74,8 +76,9 @@ public final class PSWidgetXmlInstallEmitter {
 
   /**
    * Materialize install-path Widget XML from modern {@code widgets/} sources when the package is
-   * modern-only (modern present, no committed Widget XML). No-op when dual-ship XML is still
-   * committed or when no modern widgets exist.
+   * modern-only (modern present, no committed Widget XML). Also re-injects archive-manifest Widget
+   * XML user-dependencies for those stems (#3582). No-op when dual-ship XML is still committed or
+   * when no modern widgets exist.
    *
    * @param packageDir product package source or staging copy
    * @return number of Widget XML files written
@@ -91,7 +94,7 @@ public final class PSWidgetXmlInstallEmitter {
     if (!PSWidgetXmlDualShip.hasModernWidgetSources(packageDir)) {
       return 0;
     }
-    // Packages with committed install XML are left alone \(e.g. waived perc.Test\).
+    // Packages with committed install XML are left alone (e.g. waived perc.Test).
     if (hasCommittedWidgetXml(packageDir)) {
       return 0;
     }
@@ -99,6 +102,7 @@ public final class PSWidgetXmlInstallEmitter {
     List<PSWidgetXmlCompileResult> modern = PSWidgetXmlDualShip.compileModernWidgets(packageDir);
     Path widgetsDir = PSWidgetXmlPackageCompiler.resolveWidgetsDir(packageDir);
     Files.createDirectories(widgetsDir);
+    List<String> stems = new ArrayList<>();
     int written = 0;
     for (PSWidgetXmlCompileResult result : modern) {
       PSWidgetXmlModel model = modelFromModern(result);
@@ -110,10 +114,13 @@ public final class PSWidgetXmlInstallEmitter {
         throw new PSWidgetXmlException(
             "Cannot emit install Widget XML without stem/id under " + packageDir);
       }
+      stems.add(stem);
       Path out = widgetsDir.resolve(stem + ".xml");
       Files.writeString(out, emitWidgetXml(model), StandardCharsets.UTF_8);
       written++;
     }
+    // Product source no longer authors Widget XML archive paths (#3582); re-inject on staging.
+    PSWidgetArchiveManifestInventory.ensureInstallWidgetXmlArchivePaths(packageDir, stems);
     return written;
   }
 
