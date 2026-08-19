@@ -43,7 +43,7 @@ The **Templates** tab lists assembly templates from `GET /services/templates`.
 | State | What you see |
 |-------|----------------|
 | List | A table of templates. Open a row to edit. |
-| Empty | **No templates found.** Use **Create template** when that control is present. |
+| Empty | **No templates found.** Use **Create template**. |
 | Error | An operator-facing message. The rest of the Design shell stays usable. |
 
 ## Create a template (no Widget XML)
@@ -66,10 +66,6 @@ written.**
 
 If create fails (duplicate name, invalid name, or server error), the dialog stays open and
 shows an operator-facing message. Correct the fields and try again.
-
-If **Create template** is not on this deployment yet, new templates remain on residual
-classic hosts (`editTemplate.jsp` and related upgrade-only JSPs) until that flow is
-installed. The library and editor on this page still apply.
 
 ## Edit assembler, slots, source, and bindings
 

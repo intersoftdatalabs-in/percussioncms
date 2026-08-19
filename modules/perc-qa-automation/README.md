@@ -759,20 +759,21 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
-#### Design SPA library + create/edit consolidation (#3307 / parent #2631)
+#### Design SPA library + create/edit consolidation (#3307 / #3578 / parent #2631)
 
 Surface-filtered companion for the Design SPA template library (list + editor) after
-Phase 4 shells (#2808–#2810). **Create** (#3305) and **classic list redirect** (#3306)
-are asserted when that chrome is on the QA cell; otherwise the spec **skips cleanly**
-(do not run the full suite).
+Phase 4 shells (#2808–#2810). **Create** (#3305 / #3578) is **required** on
+`perc-devctl qa-up` H2 (no skip). **Classic list redirect** (#3306) still skips
+cleanly when that cutover is not on the cell (do not run the full suite).
 
 | Item | Value |
 |------|--------|
-| Spec | `frontend/tests/design-spa-consolidation.spec.js` |
+| Spec (create, no-skip) | `frontend/tests/design-template-create.spec.js` |
+| Spec (consolidation) | `frontend/tests/design-spa-consolidation.spec.js` |
 | Helpers / unit | `frontend/tests/helpers/design-spa-surface.js`, `tests/unit/design-spa-surface.test.js` |
 | Tags | `@design-spa` `@smoke` `@ui` |
-| Soft skip (shell) | No `perc-design-shell` on the cell |
-| Soft skip (create) | No `design-tpl-create` (sibling #3305 not deployed) |
+| Soft skip (shell) | No `perc-design-shell` on the cell (library/edit cases only) |
+| Create | Fail if `design-tpl-create` is missing; assert `POST /services/templates` and no Widget XML |
 | Soft skip (redirect) | `admin.jsp` still classic CM1 list (sibling #3306 not deployed) |
 | Product docs | `product-docs/8.2/admin/design-templates.md` |
 
