@@ -1249,6 +1249,96 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("folder ACL is disabled until a regular section is selected (#3588)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-folder-acl",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByTestId(
+            "architecture-action-folder-acl",
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    });
+  });
+
+  it("opens folder ACL, add/remove write principal, cancel does not save (#3588)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const save = vi.fn().mockResolvedValue(undefined);
+    const load = vi.fn().mockResolvedValue({
+      id: "folder-c1",
+      name: "About",
+      permission: {
+        accessLevel: "ADMIN",
+        adminPrincipals: [{ type: "USER", name: "Admin" }],
+        writePrincipals: [],
+        readPrincipals: [],
+        viewPrincipals: [],
+      },
+    });
+    const resolveFolderId = vi.fn().mockResolvedValue("folder-c1");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        resolveFolderId={resolveFolderId}
+        loadFolderProperties={load}
+        saveFolderProperties={save}
+        currentUserIdentities={["Admin"]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-folder-acl"));
+    await waitFor(() => {
+      expect(resolveFolderId).toHaveBeenCalledWith("//Sites/Demo/About");
+      expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByTestId("folder-security-list-writePrincipals-add"),
+    );
+    fireEvent.change(
+      screen.getByTestId("folder-security-list-writePrincipals-input"),
+      { target: { value: "night3588" } },
+    );
+    fireEvent.click(
+      screen.getByTestId("folder-security-list-writePrincipals-add-confirm"),
+    );
+    expect(
+      screen.getByTestId(
+        "folder-security-list-writePrincipals-remove-night3588",
+      ),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByTestId(
+        "folder-security-list-writePrincipals-remove-night3588",
+      ),
+    );
+    fireEvent.click(screen.getByTestId("architecture-folder-acl-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-folder-acl-dialog")).toBeNull();
+    });
+    expect(save).not.toHaveBeenCalled();
+  });
+
   it("treats blog navons as read-only in Navigation (#3351)", async () => {
     const treeWithBlog = {
       ...treeFixture,
@@ -1292,6 +1382,13 @@ describe("ArchitectureShell (#3095/#3096)", () => {
       (
         screen.getByTestId(
           "architecture-action-properties",
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByTestId(
+          "architecture-action-folder-acl",
         ) as HTMLButtonElement
       ).disabled,
     ).toBe(true);

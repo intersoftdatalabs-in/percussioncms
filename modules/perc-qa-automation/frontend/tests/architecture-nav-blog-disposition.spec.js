@@ -106,6 +106,9 @@ test.describe("Architecture blog navon disposition (#3351)", () => {
           page.getByTestId("architecture-action-properties"),
         ).toBeDisabled();
         await expect(
+          page.getByTestId("architecture-action-folder-acl"),
+        ).toBeDisabled();
+        await expect(
           page.getByTestId("architecture-action-rename"),
         ).toBeDisabled();
       }

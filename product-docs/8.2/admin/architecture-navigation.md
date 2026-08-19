@@ -141,7 +141,8 @@ With a site selected, use the structure action bar above the tree:
 | **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
-| **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. |
+| **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. Folder ACL principals are not edited here; **Save** still sends the current `folderPermission` so the ACL is not dropped. |
+| **Folder ACL** | Opens **Folder ACL** for the selected regular section (including the site root). Add or remove users and roles on the section folder (Admin / Write / Read / View lists). **Save** on the ACL list posts `POST /pathmanagement/path/saveFolderProperties` when a folder GUID is available (same Explorer folder-security service). If pathmanagement has no folder GUID (some site-root PathItems), **Save** posts `POST /sitemanage/section/update` with the current `folderPermission` so principals are not dropped. **Close** or **Escape** does not post. Blog, section-link, and external-link nodes stay disabled. |
 | **Move section** | Opens a target-parent picker for the selected **non-root** section. Choose a regular section (not the section you are moving or one of its children) as the new parent, optionally a position among that parent's children, then **Move**. The shell posts `POST /sitemanage/section/move` and **refreshes the tree**. **Cancel** (or Escape) does not post. An invalid parent shows a clear message in the dialog — it does not produce an error 500. |
 | **Move up / Move down** | Reorders the selected section among its siblings under the same parent (same move API, one step). |
 | **Convert to folder** | After confirmation, removes the selected regular (non-root) section and its sub-sections from Navigation. The folder and its pages stay in the site. |
@@ -164,10 +165,33 @@ and keeps the previously selected section when it still exists.
    **Requires login** and optionally list group names (comma-separated) in
    **Allow access to**. Otherwise login is inherited or unavailable and those
    fields stay read-only.
-5. Choose **Save**. The shell posts `POST /sitemanage/section/update` and
-   refreshes the tree. Folder ACL (`folderPermission`) from the load is sent
-   back unchanged.
+5. Choose **Save**. The shell reloads current properties (so a Folder ACL
+   save is not overwritten) then posts `POST /sitemanage/section/update` and
+   refreshes the tree. Folder ACL (`folderPermission`) from the latest load is
+   sent back so the ACL is not dropped.
 6. **Cancel** or **Escape** closes the dialog without posting.
+
+### Edit folder ACL principals
+
+1. Select a **regular section** (or the site root) in the Navigation tree.
+   Section links, external links, and blogs stay disabled.
+2. Choose **Folder ACL**. The shell resolves the section folder from its
+   path (`GET /pathmanagement/path/item/…`) and opens the same folder-security
+   lists used in Content Explorer.
+3. Add a principal: choose **Add** on Admin, Write, Read, or View, type the
+   user or role name, then confirm. Remove a principal with **Remove** on
+   that row.
+4. Choose **Save** on the ACL list to write principals. When the section
+   folder has a pathmanagement GUID, that posts
+   `POST /pathmanagement/path/saveFolderProperties`. Otherwise the shell
+   posts `POST /sitemanage/section/update` with `folderPermission` so a
+   later Properties save does not drop the list. A warning appears if the
+   change would lock you out of the folder.
+5. **Close** or **Escape** closes without posting further changes. Unsaved
+   list edits are discarded.
+6. **Section properties** **Save** still includes `folderPermission` from
+   the latest properties load so an ACL write is not wiped by a later title
+   or folder-name save.
 
 ### Move or reorder a section
 
@@ -225,9 +249,9 @@ blogs, section links, or external links.
 
 ### Still later
 
-Folder ACL user-list editing (write principals) and retirement of the legacy
-`siteArchitecture.jsp` host ship in follow-on slices. Blog authoring stays on
-Home / the Blogs gadget — Navigation will not grow a second blog editor.
+Retirement of the legacy `siteArchitecture.jsp` host ships in a follow-on
+slice. Blog authoring stays on Home / the Blogs gadget — Navigation will not
+grow a second blog editor.
 
 ## Current status (migration)
 
@@ -242,6 +266,7 @@ Home / the Blogs gadget — Navigation will not grow a second blog editor.
 | Site navigation tree browse (navons / sections) | **Available** |
 | Structure editing (create / rename / reorder / delete) | **Available** |
 | Section properties (title / folder / target / CSS / login) | **Available** |
+| Folder ACL user-list write (add/remove principals) | **Available** |
 | Move section (target-parent picker + optional position) | **Available** |
 | Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
