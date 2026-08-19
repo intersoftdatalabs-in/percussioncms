@@ -16,6 +16,7 @@
  */
 package com.percussion.webui.filter;
 
+import com.percussion.webui.util.PSLegacyViewRedirect;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -39,6 +40,10 @@ import java.util.Set;
  * <p>GET {@code /cm/app/{entry}[/**]} and {@code /cm/pages/app/{entry}[/**]} → forward to the
  * tree's {@code spa.jsp} with an allowlisted {@code entry} (and section/tab when present). Real
  * JSPs, static assets, and non-SPA first segments pass through unchanged.
+ *
+ * <p>Retired Architecture hosts {@code /cm/app/siteArchitecture.jsp} and {@code
+ * /cm/pages/app/siteArchitecture.jsp} are not shipped (#3587). GET bookmarks 301 to SPA {@code
+ * ?view=arch} so operators keep the old URL.
  *
  * <p>Misplaced editor/chrome images under {@code /cm/app/images/**} or {@code
  * /cm/pages/app/images/**} are remapped to {@code /cm/images/**} so those URLs return 200 instead
@@ -92,12 +97,23 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       return;
     }
     HttpServletRequest httpReq = (HttpServletRequest) request;
-    if (!"GET".equalsIgnoreCase(httpReq.getMethod())) {
+    String method = httpReq.getMethod();
+    if (!"GET".equalsIgnoreCase(method) && !"HEAD".equalsIgnoreCase(method)) {
       chain.doFilter(request, response);
       return;
     }
 
     String pathWithinContext = pathWithinContext(httpReq);
+    String retiredLocation =
+        buildRetiredJspRedirectLocation(pathWithinContext, httpReq.getQueryString());
+    if (retiredLocation != null) {
+      HttpServletResponse httpResp = (HttpServletResponse) response;
+      httpResp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+      httpResp.setHeader(
+          "Location", withContextPath(httpReq.getContextPath(), retiredLocation));
+      return;
+    }
+
     String imageRemap = buildStaticImageRemapPath(pathWithinContext);
     if (imageRemap != null) {
       RequestDispatcher remapDispatcher = request.getRequestDispatcher(imageRemap);
@@ -143,6 +159,66 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       return "/";
     }
     return uri;
+  }
+
+  /**
+   * 301 Location for retired classic Architecture JSP bookmarks (#3587 / parent #3092).
+   *
+   * <p>The JSP hosts are no longer in the WAR. Bookmarks to {@code siteArchitecture.jsp} still
+   * land on SPA Architecture via {@link PSLegacyViewRedirect} ({@code view=arch}). Other JSPs
+   * return {@code null} (pass through).
+   *
+   * @param pathWithinContext webapp path (context may still be present if the container did not
+   *     strip it); may be null
+   * @param queryString raw query without {@code ?}; may be null
+   * @return SPA Location starting with {@code /cm/app/?view=arch}, or {@code null}
+   */
+  static String buildRetiredJspRedirectLocation(String pathWithinContext, String queryString) {
+    if (pathWithinContext == null || pathWithinContext.isEmpty()) {
+      return null;
+    }
+    if (isRetiredArchitectureJsp(pathWithinContext.toLowerCase(Locale.ROOT))) {
+      return PSLegacyViewRedirect.buildLocation("arch", queryString);
+    }
+    return null;
+  }
+
+  /**
+   * True when {@code lowerPath} is a retired Architecture JSP bookmark (app or pages tree). Accepts
+   * an optional leading context prefix such as {@code /rhythmyx} when {@link
+   * #pathWithinContext(HttpServletRequest)} could not strip it.
+   */
+  static boolean isRetiredArchitectureJsp(String lowerPath) {
+    if (lowerPath == null || !lowerPath.endsWith("/sitearchitecture.jsp")) {
+      return false;
+    }
+    return lowerPath.contains(APP_PREFIX + "/") || lowerPath.contains(PAGES_PREFIX + "/");
+  }
+
+  /**
+   * Prefix a root-relative Location with the servlet context path when the container deploys the
+   * WAR under a non-empty context ({@code /Rhythmyx}).
+   *
+   * @param contextPath {@code request.getContextPath()}; may be null or empty
+   * @param location root-relative Location from {@link PSLegacyViewRedirect}; never rewritten when
+   *     null/empty or already context-prefixed
+   * @return never null when {@code location} is non-null
+   */
+  public static String withContextPath(String contextPath, String location) {
+    if (location == null || location.isEmpty()) {
+      return location;
+    }
+    if (contextPath == null || contextPath.isEmpty() || "/".equals(contextPath)) {
+      return location;
+    }
+    String ctx = contextPath;
+    if (ctx.endsWith("/")) {
+      ctx = ctx.substring(0, ctx.length() - 1);
+    }
+    if (!location.startsWith("/") || location.startsWith(ctx + "/") || location.equals(ctx)) {
+      return location;
+    }
+    return ctx + location;
   }
 
   /**
