@@ -20,6 +20,9 @@ package com.percussion.share.dao;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -69,14 +72,30 @@ public class PSDateUtils {
    */
   public static Date getDateFromString(String date) throws ParseException {
     if (!StringUtils.isBlank(date)) {
-      DateFormat fmt = new SimpleDateFormat(ISO_8601_STRING);
       // JSON objects may return long milliseconds as time
       try {
         return new Date(Long.parseLong(date));
       } catch (NumberFormatException ignored) {
         // Not a long, continue parsing as date string
       }
-      var format = new StringBuilder(date);
+      String trimmed = date.trim();
+      // Demo-site / search-index values are ISO-8601 with a trailing Z
+      // (e.g. 2008-11-02T00:00:00.000Z). SimpleDateFormat pattern
+      // ISO_8601_STRING uses RFC-822 Z and does not accept literal Z.
+      if (trimmed.endsWith("Z")) {
+        try {
+          return Date.from(Instant.parse(trimmed));
+        } catch (DateTimeException ignored) {
+          // Fall through to OffsetDateTime / SimpleDateFormat
+        }
+      }
+      try {
+        return Date.from(OffsetDateTime.parse(trimmed).toInstant());
+      } catch (DateTimeException ignored) {
+        // Fall through to legacy SimpleDateFormat (RFC-822 offset, no colon)
+      }
+      DateFormat fmt = new SimpleDateFormat(ISO_8601_STRING);
+      var format = new StringBuilder(trimmed);
       if (format.length() > 2 && ":".equals(String.valueOf(format.charAt(format.length() - 3)))) {
         format.deleteCharAt(format.length() - 3);
       }
