@@ -16,12 +16,14 @@
  */
 
 /**
- * Design SPA surface helpers (#3307 / parent #2631).
+ * Design SPA surface helpers (#3307 / #3578 / #3579 / #3580 / parent #2631).
  *
- * URL builders, stable test ids, and skip reasons for library + create/edit
- * consolidation. Sibling slices #3305 (create) and #3306 (classic list
- * redirect) may not be on the QA cell — callers must skip cleanly instead of
- * running the full Playwright suite.
+ * URL builders, stable test ids, and skip reasons for library + edit
+ * consolidation. Create (#3305 / #3578) is required on H2 — do not skip
+ * when design-tpl-create is missing. Classic list redirect (#3306 / #3579)
+ * is required on perc-devctl qa-up H2 — do not skip when admin.jsp /
+ * ?view=design miss perc-design-shell. Delete (#3580) may skip cleanly
+ * when design-tpl-delete chrome is not on the cell.
  */
 
 "use strict";
@@ -42,7 +44,13 @@ const TEST_IDS = Object.freeze({
   createDialog: "design-tpl-create-dialog",
   createName: "design-tpl-create-name",
   createSubmit: "design-tpl-create-submit",
+  deleteRow: "design-tpl-delete-0",
+  deleteDialog: "design-tpl-delete-dialog",
+  deleteConfirm: "design-tpl-delete-confirm",
+  deleteSubmit: "design-tpl-delete-submit",
+  deleteCancel: "design-tpl-delete-cancel",
   editor: "design-tpl-editor",
+  editorDelete: "design-tpl-editor-delete",
   editorBack: "design-tpl-editor-back",
   editorSource: "design-tpl-editor-source-edit",
   editorName: "design-tpl-editor-name",
@@ -57,12 +65,14 @@ const CLASSIC_ASSIGNED_TEMPLATES_ID = "perc-assigned-templates";
 const SKIP = Object.freeze({
   SHELL:
     "Design SPA chrome not on this QA cell (perc-design-shell missing) — skip; do not run full suite. Parent #2631 / #3307.",
-  CREATE:
-    "Create-template chrome not on this QA cell (design-tpl-create missing; sibling #3305). Clean skip.",
+  DELETE:
+    "Delete-template chrome not on this QA cell (design-tpl-delete-0 missing; sibling #3580). Clean skip.",
   EDIT_EMPTY: "No templates in catalog — cannot exercise Design SPA editor.",
-  REDIRECT:
-    "Classic Design list still hosted (no perc-design-shell on admin.jsp / ?view=design; sibling #3306). Clean skip.",
 });
+
+/** Payload markers that would mean create still authored Widget definition XML. */
+const WIDGET_XML_RE =
+  /widgetXml|WidgetDef|sys_Widget|widgetDefinition|WidgetDefinition/i;
 
 /**
  * @param {string} baseUrl
@@ -112,12 +122,10 @@ function designLegacyViewUrl(baseUrl) {
  *
  * @param {{
  *   shellPresent?: boolean,
- *   createPresent?: boolean,
  *   catalogEmpty?: boolean,
- *   redirectToSpa?: boolean,
- *   wantCreate?: boolean,
+ *   wantDelete?: boolean,
+ *   deletePresent?: boolean,
  *   wantEdit?: boolean,
- *   wantRedirect?: boolean,
  * }} flags
  * @returns {string|null} skip message, or null when the case should run
  */
@@ -126,16 +134,71 @@ function skipReasonForChrome(flags) {
   if (!f.shellPresent) {
     return SKIP.SHELL;
   }
-  if (f.wantCreate && !f.createPresent) {
-    return SKIP.CREATE;
+  if (f.wantDelete && !f.deletePresent) {
+    return SKIP.DELETE;
   }
   if (f.wantEdit && f.catalogEmpty) {
     return SKIP.EDIT_EMPTY;
   }
-  if (f.wantRedirect && !f.redirectToSpa) {
-    return SKIP.REDIRECT;
-  }
   return null;
+}
+
+/**
+ * True when {@code url} is the templates collection (POST create), not
+ * {@code /services/templates/{idOrName}}.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isTemplatesCollectionUrl(url) {
+  try {
+    const pathname = new URL(String(url)).pathname.replace(/\/+$/, "");
+    return /\/services\/templates$/.test(pathname);
+  } catch {
+    return /\/services\/templates\/?(\?|$)/.test(String(url));
+  }
+}
+
+/**
+ * @param {{ method?: () => string, url?: () => string }|null|undefined} request
+ * @returns {boolean}
+ */
+function isTemplateCreatePost(request) {
+  if (!request || typeof request.method !== "function") {
+    return false;
+  }
+  if (String(request.method()).toUpperCase() !== "POST") {
+    return false;
+  }
+  const url = typeof request.url === "function" ? request.url() : "";
+  return isTemplatesCollectionUrl(url);
+}
+
+/**
+ * True when a create POST body still carries Widget definition XML.
+ *
+ * @param {unknown} payload
+ * @returns {boolean}
+ */
+function createBodyHasWidgetXml(payload) {
+  if (payload == null) {
+    return false;
+  }
+  const text = typeof payload === "string" ? payload : JSON.stringify(payload);
+  return WIDGET_XML_RE.test(text);
+}
+
+/**
+ * True when a landed URL is the Design SPA (view=design, entry=design, or
+ * /design path). Used by the no-skip H2 redirect gate (#3579).
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isDesignSpaLandingUrl(url) {
+  return /(?:[?&]view=design(?:[&?#]|$)|[?&]entry=design(?:[&?#]|$)|\/design(?:[/?#]|$))/i.test(
+    String(url || ""),
+  );
 }
 
 /**
@@ -161,6 +224,10 @@ module.exports = {
   designLegacyAdminUrl,
   designLegacyViewUrl,
   skipReasonForChrome,
+  isTemplatesCollectionUrl,
+  isTemplateCreatePost,
+  createBodyHasWidgetXml,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
   softVisible,
 };

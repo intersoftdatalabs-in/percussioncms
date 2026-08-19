@@ -15,82 +15,111 @@
  */
 
 /**
- * Design template-list legacy entry retirement (#3306 / parent #2631).
+ * Design template-list legacy entry retirement (#3306 / #3579 / parent #2631).
+ *
+ * Required on perc-devctl qa-up H2 — no skip when classic Design list is
+ * still hosted. Fail if admin.jsp / ?view=design do not land on
+ * perc-design-shell.
  *
  * Surface-filtered:
  *   npm run test:surface -- --path tests/design-legacy-redirect.spec.js
- *
- * Proves admin.jsp and ?view=design land on SPA Design template library
- * (not the retired CM1 Design list). Broader Design SPA Playwright is #3307.
  */
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  TEST_IDS,
+  CLASSIC_ASSIGNED_TEMPLATES_ID,
+  designLegacyAdminUrl,
+  designLegacyViewUrl,
+  isDesignSpaLandingUrl,
+  filterConsoleNoise,
+} = require("./helpers/design-spa-surface");
 
-test.describe("Design legacy list entry retirement (#3306)", () => {
+function tid(id) {
+  return `[data-testid="${id}"]`;
+}
+
+function attachConsoleGate(page) {
+  const errors = [];
+  page.on("pageerror", (err) => {
+    errors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      errors.push(msg.text());
+    }
+  });
+  return errors;
+}
+
+test.describe("Design legacy list entry retirement (#3306 / #3579)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
-  function attachPageErrorGate(page) {
-    const pageErrors = [];
-    page.on("pageerror", (err) => {
-      pageErrors.push(String(err && err.message ? err.message : err));
-    });
-    return pageErrors;
-  }
-
   test("admin.jsp hard-redirects to SPA Design @smoke @ui", async ({
     page,
   }) => {
-    const pageErrors = attachPageErrorGate(page);
-    const url = `${BASE_URL}/Rhythmyx/cm/app/admin.jsp?_=${Date.now()}`;
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    const consoleErrors = attachConsoleGate(page);
+    await page.goto(designLegacyAdminUrl(BASE_URL), {
+      waitUntil: "domcontentloaded",
+    });
 
-    await expect(page.getByTestId("perc-spa-topnav")).toBeVisible({
+    await expect(page.locator(tid(TEST_IDS.nav))).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+    await expect(page.locator(tid(TEST_IDS.shell))).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator("#perc-assigned-templates")).toHaveCount(0);
-    const finalUrl = page.url();
-    expect(finalUrl).toMatch(/design|entry=design|view=design/i);
-    expect(pageErrors, "uncaught pageerror on Design redirect").toEqual([]);
+    await expect(page.locator(`#${CLASSIC_ASSIGNED_TEMPLATES_ID}`)).toHaveCount(
+      0,
+    );
+    expect(isDesignSpaLandingUrl(page.url())).toBe(true);
+    expect(filterConsoleNoise(consoleErrors)).toEqual([]);
   });
 
   test("admin.jsp?view=admin still lands on SPA Design @smoke @ui", async ({
     page,
   }) => {
-    const pageErrors = attachPageErrorGate(page);
-    const url = `${BASE_URL}/Rhythmyx/cm/app/admin.jsp?view=admin&_=${Date.now()}`;
+    const consoleErrors = attachConsoleGate(page);
+    const url = `${BASE_URL.replace(/\/+$/, "")}/Rhythmyx/cm/app/admin.jsp?view=admin&_=${Date.now()}`;
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+    await expect(page.locator(tid(TEST_IDS.shell))).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator("#perc-assigned-templates")).toHaveCount(0);
+    await expect(page.locator(`#${CLASSIC_ASSIGNED_TEMPLATES_ID}`)).toHaveCount(
+      0,
+    );
     const finalUrl = page.url();
-    expect(finalUrl).toMatch(/design|entry=design|view=design/i);
+    expect(isDesignSpaLandingUrl(finalUrl)).toBe(true);
     expect(finalUrl).not.toMatch(/[?&]view=admin(?:&|$)/i);
-    expect(pageErrors, "uncaught pageerror on view= override").toEqual([]);
+    expect(filterConsoleNoise(consoleErrors)).toEqual([]);
   });
 
   test("?view=design deep link lands on SPA Design @smoke @ui", async ({
     page,
   }) => {
-    const pageErrors = attachPageErrorGate(page);
-    const url = `${BASE_URL}/Rhythmyx/cm/app/?view=design&_=${Date.now()}`;
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    const consoleErrors = attachConsoleGate(page);
+    await page.goto(designLegacyViewUrl(BASE_URL), {
+      waitUntil: "domcontentloaded",
+    });
 
-    await expect(page.getByTestId("perc-design-shell")).toBeVisible({
+    await expect(page.locator(tid(TEST_IDS.shell))).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.locator(tid(TEST_IDS.panel))).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByTestId("panel-design-templates")).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator("#perc-assigned-templates")).toHaveCount(0);
-    expect(pageErrors, "uncaught pageerror on view=design").toEqual([]);
+    await expect(page.locator(`#${CLASSIC_ASSIGNED_TEMPLATES_ID}`)).toHaveCount(
+      0,
+    );
+    expect(isDesignSpaLandingUrl(page.url())).toBe(true);
+    expect(filterConsoleNoise(consoleErrors)).toEqual([]);
   });
 });

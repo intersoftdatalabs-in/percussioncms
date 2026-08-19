@@ -32,6 +32,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -183,7 +184,8 @@ public class TemplatesResource {
       summary = "Get template design detail",
       description =
           "Template detail including bindings and slots. Source is included when present."
-              + " Create is POST /templates. Delete/lock remain unsupported (see designGaps).",
+              + " Create is POST /templates. Delete is DELETE /templates/{idOrName}."
+              + " Lock remains unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -217,7 +219,8 @@ public class TemplatesResource {
           "Updates mutable template fields: label, description, templateSource, and/or"
               + " assembler. When assembler is present it must be non-blank. When bindings or"
               + " slots is present (including empty), replaces that collection. Omit fields to"
-              + " leave unchanged. Name/id and delete remain unsupported (see designGaps).",
+              + " leave unchanged. Name/id remain unsupported. Delete is DELETE"
+              + " /templates/{idOrName}. Lock remains unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -275,6 +278,41 @@ public class TemplatesResource {
         throw new WebApplicationException("Failed to create template", 500);
       }
       return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Deletes an assembly template (no Widget definition XML).
+   *
+   * @param idOrName template uuid or unique name
+   * @return 204 when deleted
+   */
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete assembly template",
+      description =
+          "Deletes a template from the modern assembly catalog (package/manifest). Does not"
+              + " write Widget definition XML.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteTemplate(@PathParam("idOrName") String idOrName) {
+    try {
+      boolean deleted = adaptor.deleteTemplate(uriInfo.getBaseUri(), idOrName);
+      if (!deleted) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

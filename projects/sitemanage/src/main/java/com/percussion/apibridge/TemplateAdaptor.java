@@ -68,7 +68,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   /** API capability notes shared by every detail payload (not per-template data). */
   static final List<DesignGap> TEMPLATE_DESIGN_GAPS =
       List.of(
-          DesignGap.of("TPL_DELETE_LOCK", "Delete / lock not supported via this API"),
+          DesignGap.of("TPL_LOCK", "Lock not supported via this API"),
           DesignGap.of(
               "TPL_CONTENT_TYPE_ASSOC", "Content-type associations not listed on this payload"));
 
@@ -242,6 +242,46 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e.getMessage(),
           e);
       throw new IllegalStateException("Failed to create template", e);
+    }
+  }
+
+  @Override
+  public boolean deleteTemplate(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    try {
+      IPSAssemblyTemplate t = resolveTemplate(idOrName.trim());
+      if (t == null) {
+        return false;
+      }
+      if (t.getGUID() == null) {
+        log.error(
+            "Template '{}' loaded without a GUID; refusing delete (corrupt identifier).",
+            idOrName);
+        throw new IllegalStateException(
+            "Template '" + idOrName + "' has no GUID (corrupt identifier); cannot delete");
+      }
+      asmSvc.deleteTemplate(t.getGUID());
+      return true;
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      throw e;
+    } catch (PSAssemblyException e) {
+      if (e.getErrorCode() == IPSAssemblyErrors.TEMPLATE_MISSING) {
+        return false;
+      }
+      log.error("Failed to delete template {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to delete template", e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete template {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to delete template", e);
     }
   }
 

@@ -15,7 +15,9 @@
  */
 
 /**
- * Design SPA create template without Widget XML (#3305 / parent #2631).
+ * Design SPA create template without Widget XML (#3305 / #3578 / parent #2631).
+ *
+ * Required on perc-devctl qa-up H2 — no skip when create chrome is missing.
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/design-template-create.spec.js
@@ -27,6 +29,10 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  createBodyHasWidgetXml,
+  isTemplateCreatePost,
+} = require("./helpers/design-spa-surface");
 
 function designTemplatesUrl() {
   const q = new URLSearchParams({
@@ -81,7 +87,17 @@ test.describe("Design template create (#3305)", () => {
       page.locator('[data-testid="design-tpl-create-dialog"]'),
     ).toHaveAttribute("aria-describedby", "design-tpl-create-hint");
     await page.locator('[data-testid="design-tpl-create-name"]').fill(name);
+
+    const createPost = page.waitForResponse(
+      (r) => isTemplateCreatePost(r.request()),
+      { timeout: 20_000 },
+    );
     await page.locator('[data-testid="design-tpl-create-submit"]').click();
+    const postResp = await createPost;
+    expect(postResp.ok(), `POST /services/templates ${postResp.status()}`).toBe(
+      true,
+    );
+    expect(createBodyHasWidgetXml(postResp.request().postData())).toBe(false);
 
     await expect(
       page.locator('[data-testid="design-tpl-create-dialog"]'),

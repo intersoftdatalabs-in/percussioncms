@@ -16,7 +16,7 @@
  */
 
 /**
- * Unit tests for Design SPA surface helpers (#3307) — no live CMS.
+ * Unit tests for Design SPA surface helpers (#3307 / #3578 / #3579 / #3580) — no live CMS.
  */
 
 "use strict";
@@ -31,6 +31,10 @@ const {
   designLegacyAdminUrl,
   designLegacyViewUrl,
   skipReasonForChrome,
+  isTemplatesCollectionUrl,
+  isTemplateCreatePost,
+  createBodyHasWidgetXml,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
 } = require("../helpers/design-spa-surface");
 
@@ -41,7 +45,9 @@ describe("design-spa-surface helpers (#3307)", () => {
     assert.equal(TEST_IDS.tabTemplates, "tab-design-templates");
     assert.equal(TEST_IDS.panel, "design-tpl-panel");
     assert.equal(TEST_IDS.create, "design-tpl-create");
+    assert.equal(TEST_IDS.deleteDialog, "design-tpl-delete-dialog");
     assert.equal(TEST_IDS.editor, "design-tpl-editor");
+    assert.equal(TEST_IDS.editorDelete, "design-tpl-editor-delete");
     assert.equal(CLASSIC_ASSIGNED_TEMPLATES_ID, "perc-assigned-templates");
   });
 
@@ -71,15 +77,27 @@ describe("design-spa-surface helpers (#3307)", () => {
     );
   });
 
-  it("skips create when sibling #3305 chrome is absent", () => {
+  it("skips delete when sibling #3580 chrome is absent", () => {
+    assert.equal(
+      skipReasonForChrome({
+        shellPresent: true,
+        wantDelete: true,
+        deletePresent: false,
+      }),
+      SKIP.DELETE,
+    );
+  });
+
+  it("does not skip create when chrome is absent (#3578 no-skip)", () => {
     assert.equal(
       skipReasonForChrome({
         shellPresent: true,
         wantCreate: true,
         createPresent: false,
       }),
-      SKIP.CREATE,
+      null,
     );
+    assert.equal(SKIP.CREATE, undefined);
   });
 
   it("skips editor when catalog is empty", () => {
@@ -93,15 +111,16 @@ describe("design-spa-surface helpers (#3307)", () => {
     );
   });
 
-  it("skips redirect when sibling #3306 cutover is absent", () => {
+  it("does not skip redirect when classic list chrome is still present (#3579 no-skip)", () => {
     assert.equal(
       skipReasonForChrome({
         shellPresent: true,
         wantRedirect: true,
         redirectToSpa: false,
       }),
-      SKIP.REDIRECT,
+      null,
     );
+    assert.equal(SKIP.REDIRECT, undefined);
   });
 
   it("runs when requested chrome is present", () => {
@@ -110,6 +129,14 @@ describe("design-spa-surface helpers (#3307)", () => {
         shellPresent: true,
         wantCreate: true,
         createPresent: true,
+      }),
+      null,
+    );
+    assert.equal(
+      skipReasonForChrome({
+        shellPresent: true,
+        wantDelete: true,
+        deletePresent: true,
       }),
       null,
     );
@@ -129,6 +156,79 @@ describe("design-spa-surface helpers (#3307)", () => {
       }),
       null,
     );
+  });
+
+  it("matches POST /services/templates collection only", () => {
+    assert.equal(
+      isTemplatesCollectionUrl("http://127.0.0.1:2050/Rhythmyx/services/templates"),
+      true,
+    );
+    assert.equal(
+      isTemplatesCollectionUrl(
+        "http://127.0.0.1:2050/Rhythmyx/services/templates/Home",
+      ),
+      false,
+    );
+    assert.equal(
+      isTemplateCreatePost({
+        method: () => "POST",
+        url: () => "http://127.0.0.1:2050/Rhythmyx/services/templates",
+      }),
+      true,
+    );
+    assert.equal(
+      isTemplateCreatePost({
+        method: () => "GET",
+        url: () => "http://127.0.0.1:2050/Rhythmyx/services/templates",
+      }),
+      false,
+    );
+  });
+
+  it("rejects Widget XML on create payloads", () => {
+    assert.equal(
+      createBodyHasWidgetXml({
+        TemplateDetail: { name: "qa.create.tpl", assembler: "htmlAssembler" },
+      }),
+      false,
+    );
+    assert.equal(
+      createBodyHasWidgetXml(
+        JSON.stringify({ TemplateDetail: { widgetXml: "<Widget/>" } }),
+      ),
+      true,
+    );
+    assert.equal(createBodyHasWidgetXml(null), false);
+  });
+
+  it("matches Design SPA landing URLs after classic redirect", () => {
+    assert.equal(
+      isDesignSpaLandingUrl("http://127.0.0.1:2050/Rhythmyx/cm/app/?view=design"),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/spa.jsp?entry=design&section=templates",
+      ),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl("http://127.0.0.1:2050/Rhythmyx/cm/app/design"),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/?view=design#templates",
+      ),
+      true,
+    );
+    assert.equal(
+      isDesignSpaLandingUrl(
+        "http://127.0.0.1:2050/Rhythmyx/cm/app/admin.jsp?view=admin",
+      ),
+      false,
+    );
+    assert.equal(isDesignSpaLandingUrl(""), false);
   });
 
   it("filters known console noise", () => {

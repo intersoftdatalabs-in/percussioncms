@@ -58,8 +58,7 @@ public interface ITemplatesAdaptor {
    * Update mutable template design fields (label, description, source, assembler) and optionally
    * bindings / contained slots. When {@code body.assembler} is non-null, sets the assembler
    * extension name (must be non-blank). When {@code body.bindings} or {@code body.slots} is
-   * non-null, that collection is fully replaced (empty list clears). Name/id and delete remain
-   * out of scope.
+   * non-null, that collection is fully replaced (empty list clears). Name/id remain out of scope.
    *
    * @return updated detail, or {@code null} if not found
    */
@@ -75,4 +74,14 @@ public interface ITemplatesAdaptor {
    * @throws IllegalArgumentException when the name is invalid or already exists
    */
   TemplateDetail createTemplate(URI baseUri, TemplateDetail body);
+
+  /**
+   * Delete an assembly template by numeric id or unique name (no Widget XML).
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param idOrName template uuid or name
+   * @return {@code true} if deleted, {@code false} if not found
+   * @throws IllegalArgumentException when {@code idOrName} is blank
+   */
+  boolean deleteTemplate(URI baseUri, String idOrName);
 }
