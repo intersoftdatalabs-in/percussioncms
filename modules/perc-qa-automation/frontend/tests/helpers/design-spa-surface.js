@@ -42,7 +42,13 @@ const TEST_IDS = Object.freeze({
   createDialog: "design-tpl-create-dialog",
   createName: "design-tpl-create-name",
   createSubmit: "design-tpl-create-submit",
+  deleteRow: "design-tpl-delete-0",
+  deleteDialog: "design-tpl-delete-dialog",
+  deleteConfirm: "design-tpl-delete-confirm",
+  deleteSubmit: "design-tpl-delete-submit",
+  deleteCancel: "design-tpl-delete-cancel",
   editor: "design-tpl-editor",
+  editorDelete: "design-tpl-editor-delete",
   editorBack: "design-tpl-editor-back",
   editorSource: "design-tpl-editor-source-edit",
   editorName: "design-tpl-editor-name",
@@ -59,6 +65,8 @@ const SKIP = Object.freeze({
     "Design SPA chrome not on this QA cell (perc-design-shell missing) — skip; do not run full suite. Parent #2631 / #3307.",
   CREATE:
     "Create-template chrome not on this QA cell (design-tpl-create missing; sibling #3305). Clean skip.",
+  DELETE:
+    "Delete-template chrome not on this QA cell (design-tpl-delete-0 missing; sibling #3580). Clean skip.",
   EDIT_EMPTY: "No templates in catalog — cannot exercise Design SPA editor.",
   REDIRECT:
     "Classic Design list still hosted (no perc-design-shell on admin.jsp / ?view=design; sibling #3306). Clean skip.",
@@ -116,6 +124,8 @@ function designLegacyViewUrl(baseUrl) {
  *   catalogEmpty?: boolean,
  *   redirectToSpa?: boolean,
  *   wantCreate?: boolean,
+ *   wantDelete?: boolean,
+ *   deletePresent?: boolean,
  *   wantEdit?: boolean,
  *   wantRedirect?: boolean,
  * }} flags
@@ -128,6 +138,9 @@ function skipReasonForChrome(flags) {
   }
   if (f.wantCreate && !f.createPresent) {
     return SKIP.CREATE;
+  }
+  if (f.wantDelete && !f.deletePresent) {
+    return SKIP.DELETE;
   }
   if (f.wantEdit && f.catalogEmpty) {
     return SKIP.EDIT_EMPTY;

@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createTemplate,
+  deleteTemplate,
   listTemplates,
 } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
@@ -38,8 +39,15 @@ import {
   openButtonStyle,
 } from "../developer/catalogStyles";
 import { CreateTemplateDialog } from "./CreateTemplateDialog";
+import { DeleteTemplateDialog } from "./DeleteTemplateDialog";
 import { DESIGN_MSG } from "./messages";
 import { TemplateSourceEditor } from "./TemplateSourceEditor";
+
+/** Target for confirm-delete; {@code key} is the REST idOrName. */
+export type TemplateDeleteTarget = {
+  key: string;
+  label: string;
+};
 
 /** Open-key for source editor; null when the row is not selectable. */
 export function templateSelectionKey(t: TemplateSummary): string | null {
@@ -61,7 +69,7 @@ function listErrMsg(err: unknown, fallback: string): string {
 
 /**
  * Design template library (#2808 list + #2809 source/JEXL + #2810 assembler/slots
- * + #3305 create without Widget XML).
+ * + #3305 create + #3580 delete without Widget XML).
  */
 export function TemplateLibraryPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
@@ -70,6 +78,11 @@ export function TemplateLibraryPanel(): React.ReactElement {
   const [createOpen, setCreateOpen] = useState(false);
   const [createBusy, setCreateBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<TemplateDeleteTarget | null>(
+    null,
+  );
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
   const reload = useCallback(() => {
@@ -109,6 +122,10 @@ export function TemplateLibraryPanel(): React.ReactElement {
       <TemplateSourceEditor
         idOrName={selected}
         onBack={() => setSelected(null)}
+        onDeleted={() => {
+          setSelected(null);
+          reload();
+        }}
       />
     );
   }
@@ -175,6 +192,37 @@ export function TemplateLibraryPanel(): React.ReactElement {
     />
   );
 
+  const deleteDialog = (
+    <DeleteTemplateDialog
+      open={deleteTarget != null}
+      busy={deleteBusy}
+      error={deleteError}
+      label={deleteTarget?.label || ""}
+      onCancel={() => {
+        if (!deleteBusy) {
+          setDeleteTarget(null);
+          setDeleteError(null);
+        }
+      }}
+      onConfirm={() => {
+        if (!deleteTarget) return;
+        setDeleteBusy(true);
+        setDeleteError(null);
+        deleteTemplate(deleteTarget.key)
+          .then(() => {
+            setDeleteTarget(null);
+            reload();
+          })
+          .catch((e: unknown) => {
+            setDeleteError(listErrMsg(e, DESIGN_MSG.TPL_DELETE_ERROR));
+          })
+          .finally(() => {
+            setDeleteBusy(false);
+          });
+      }}
+    />
+  );
+
   if (error) {
     return (
       <div data-testid="design-tpl-panel">
@@ -183,6 +231,7 @@ export function TemplateLibraryPanel(): React.ReactElement {
           {error}
         </CatalogStatus>
         {dialog}
+        {deleteDialog}
       </div>
     );
   }
@@ -198,6 +247,7 @@ export function TemplateLibraryPanel(): React.ReactElement {
         <CatalogHint>{DESIGN_MSG.TPL_HINT}</CatalogHint>
         <CatalogStatus testId="design-tpl-empty">{DESIGN_MSG.TPL_EMPTY}</CatalogStatus>
         {dialog}
+        {deleteDialog}
       </div>
     );
   }
@@ -214,6 +264,7 @@ export function TemplateLibraryPanel(): React.ReactElement {
           DESIGN_MSG.TPL_COL_NAME,
           DESIGN_MSG.TPL_COL_ID,
           DESIGN_MSG.TPL_COL_DESCRIPTION,
+          DESIGN_MSG.TPL_COL_ACTIONS,
         ]}
         rows={sorted.map((t, index) => {
           const openKey = templateSelectionKey(t);
@@ -244,11 +295,37 @@ export function TemplateLibraryPanel(): React.ReactElement {
               <span key="d" style={mutedCell}>
                 {t.templateDescription || ""}
               </span>,
+              openKey ? (
+                <button
+                  key="delete"
+                  type="button"
+                  data-testid={`design-tpl-delete-${index}`}
+                  aria-label={DESIGN_MSG.TPL_DELETE_ARIA.replace("{0}", label)}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.error}`,
+                    color: catalogColors.error,
+                    borderRadius: 4,
+                    padding: "4px 8px",
+                    cursor: "pointer",
+                    font: "inherit",
+                  }}
+                  onClick={() => {
+                    setDeleteError(null);
+                    setDeleteTarget({ key: openKey, label });
+                  }}
+                >
+                  {DESIGN_MSG.TPL_DELETE}
+                </button>
+              ) : (
+                "—"
+              ),
             ],
           };
         })}
       />
       {dialog}
+      {deleteDialog}
     </div>
   );
 }

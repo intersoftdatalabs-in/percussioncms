@@ -152,9 +152,12 @@ Assembly templates used by the [Design SPA](id:admin-design-templates) are expos
 | `GET` | `/services/templates/{idOrName}` | Design detail (source, bindings, slots, assembler, `designGaps`) |
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, templateSource, assembler, bindings, and/or slots |
 | `POST` | `/services/templates` | Create a modern assembly template (**when installed**) — no Widget XML |
+| `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template — no Widget XML |
 | `POST` | `/services/templates/summaries-by-filter` | List summaries matching a `TemplateFilter` |
 
-`PUT` omits unchanged fields. Name/id and delete remain unsupported (`designGaps`).
+`PUT` omits unchanged fields. Name/id remain unsupported. Delete returns **204** when
+the template is removed and **404** when it is not found. Lock remains unsupported
+(`designGaps` code `TPL_LOCK`).
 Create (`POST /services/templates`) is the Design **Create template** contract when that
 slice is on the server; otherwise create stays on residual classic hosts.
 
@@ -225,6 +228,7 @@ Create uses the modern package/manifest model — **no Widget definition XML**.
 | `GET` | `/services/templates/{idOrName}` | Load design detail (source, bindings, slots, assembler) |
 | `PUT` | `/services/templates/{idOrName}` | Update label, description, source, assembler, bindings, slots |
 | `POST` | `/services/templates` | Create a modern assembly template (`name` required, unique, no spaces) |
+| `DELETE` | `/services/templates/{idOrName}` | Delete a modern assembly template (204; no Widget XML) |
 
 Create body is a Jackson-wrapped `TemplateDetail`:
 
@@ -241,10 +245,13 @@ Create body is a Jackson-wrapped `TemplateDetail`:
 
 When `assembler` is omitted, the server defaults to HTML-first
 (`Java/global/percussion/assembly/htmlAssembler`). `400` is returned for a missing or
-invalid name or a duplicate name. Delete and lock remain out of scope (`designGaps` code
-`TPL_DELETE_LOCK`).
+invalid name or a duplicate name.
 
-The Design SPA **Create template** action uses this POST. See
+`DELETE /services/templates/{idOrName}` removes the template from the assembly catalog
+and returns **204**. It does **not** write Widget definition XML. `404` means the name
+or id was not found. Lock remains out of scope (`designGaps` code `TPL_LOCK`).
+
+The Design SPA **Create template** action uses POST; **Delete** uses this DELETE. See
 [Design templates](id:admin-design-templates).
 
 ## Display formats (design catalog)

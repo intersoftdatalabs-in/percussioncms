@@ -25,11 +25,11 @@ import { message } from "../i18n/message";
 const KEYS = {
   TITLE: "perc.ui.design.modern@Design",
   INTRO:
-    "perc.ui.design.modern@Browse modern templates from the design catalog. Create a new template without Widget XML, or open a row to edit assembler, slots, source, and JEXL bindings.",
+    "perc.ui.design.modern@Browse modern templates from the design catalog. Create or delete a template without Widget XML, or open a row to edit assembler, slots, source, and JEXL bindings.",
   SHELL_LOADING: "perc.ui.design.modern@Loading Design…",
   TAB_TEMPLATES: "perc.ui.design.modern@Templates",
   TPL_HINT:
-    "perc.ui.design.modern@Assembly templates available in this CMS. Create a modern template (no Widget XML) or open a row to edit assembler, slots, source, and JEXL bindings.",
+    "perc.ui.design.modern@Assembly templates available in this CMS. Create or delete a modern template (no Widget XML), or open a row to edit assembler, slots, source, and JEXL bindings.",
   TPL_CREATE: "perc.ui.design.modern@Create template",
   TPL_CREATE_ARIA: "perc.ui.design.modern@Create a new assembly template",
   TPL_CREATE_TITLE: "perc.ui.design.modern@Create template",
@@ -47,6 +47,15 @@ const KEYS = {
   TPL_CREATE_NAME_FORMAT:
     "perc.ui.design.modern@Name must start with a letter and use only letters, digits, '.', '_' or '-'.",
   TPL_CREATE_ASSEMBLER_REQUIRED: "perc.ui.design.modern@Choose an assembler.",
+  TPL_DELETE: "perc.ui.design.modern@Delete",
+  TPL_DELETE_ARIA: "perc.ui.design.modern@Delete template {0}",
+  TPL_DELETE_TITLE: "perc.ui.design.modern@Delete template",
+  TPL_DELETE_HINT:
+    "perc.ui.design.modern@Permanently removes this assembly template from the catalog. No Widget definition XML is written.",
+  TPL_DELETE_CONFIRM: "perc.ui.design.modern@Delete {0}? This cannot be undone.",
+  TPL_DELETE_SUBMIT: "perc.ui.design.modern@Delete",
+  TPL_DELETE_CANCEL: "perc.ui.design.modern@Cancel",
+  TPL_DELETE_ERROR: "perc.ui.design.modern@Could not delete template.",
   TPL_LOADING: "perc.ui.design.modern@Loading templates…",
   TPL_EMPTY: "perc.ui.design.modern@No templates found.",
   TPL_ERROR: "perc.ui.design.modern@Could not load templates.",
@@ -54,6 +63,7 @@ const KEYS = {
   TPL_COL_NAME: "perc.ui.design.modern@Name",
   TPL_COL_ID: "perc.ui.design.modern@Id",
   TPL_COL_DESCRIPTION: "perc.ui.design.modern@Description",
+  TPL_COL_ACTIONS: "perc.ui.design.modern@Actions",
   TPL_OPEN_ARIA: "perc.ui.design.modern@Edit template assembler, slots, source, and bindings for {0}",
   DRAWER_TITLE: "perc.ui.design.modern@Template details",
   DRAWER_CLOSE: "perc.ui.design.modern@Close",
@@ -78,6 +88,8 @@ const KEYS = {
   EDITOR_SAVE_ERROR: "perc.ui.design.modern@Could not save template.",
   EDITOR_SAVED: "perc.ui.design.modern@Template assembler, slots, source, and bindings saved.",
   EDITOR_SAVE: "perc.ui.design.modern@Save",
+  EDITOR_DELETE: "perc.ui.design.modern@Delete",
+  EDITOR_DELETE_ARIA: "perc.ui.design.modern@Delete this template",
   EDITOR_SOURCE: "perc.ui.design.modern@Template source",
   EDITOR_SOURCE_HINT:
     "perc.ui.design.modern@Velocity / assembler source text for this template.",

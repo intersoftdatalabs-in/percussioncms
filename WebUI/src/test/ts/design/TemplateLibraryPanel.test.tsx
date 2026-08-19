@@ -31,12 +31,14 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
   createTemplate: vi.fn(),
+  deleteTemplate: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),
 }));
 
 const listTemplates = assemblyApi.listTemplates as ReturnType<typeof vi.fn>;
 const createTemplate = assemblyApi.createTemplate as ReturnType<typeof vi.fn>;
+const deleteTemplate = assemblyApi.deleteTemplate as ReturnType<typeof vi.fn>;
 const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
   typeof vi.fn
 >;
@@ -59,6 +61,7 @@ describe("TemplateLibraryPanel (#2808)", () => {
     };
     listTemplates.mockReset();
     createTemplate.mockReset();
+    deleteTemplate.mockReset();
     getTemplateDetail.mockReset();
     getSlotDetail.mockReset();
     getSlotDetail.mockResolvedValue({
@@ -231,5 +234,83 @@ describe("TemplateLibraryPanel (#2808)", () => {
         "already exists",
       );
     });
+  });
+
+  it("deletes a template from the library after confirm", async () => {
+    listTemplates
+      .mockResolvedValueOnce([
+        {
+          templateId: 101,
+          templateName: "site.html.snippet",
+          templateLabel: "HTML snippet",
+        },
+      ])
+      .mockResolvedValueOnce([]);
+    deleteTemplate.mockResolvedValue(undefined);
+    render(<TemplateLibraryPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-delete-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-delete-0"));
+    expect(screen.getByTestId("design-tpl-delete-dialog")).toBeTruthy();
+    expect(screen.getByTestId("design-tpl-delete-confirm").textContent).toContain(
+      "HTML snippet",
+    );
+    fireEvent.click(screen.getByTestId("design-tpl-delete-submit"));
+    await waitFor(() => {
+      expect(deleteTemplate).toHaveBeenCalledWith("site.html.snippet");
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("design-tpl-delete-dialog")).toBeNull();
+      expect(screen.getByTestId("design-tpl-empty")).toBeTruthy();
+    });
+  });
+
+  it("cancel on delete confirm does not call deleteTemplate", async () => {
+    listTemplates.mockResolvedValue([
+      {
+        templateId: 101,
+        templateName: "site.html.snippet",
+        templateLabel: "HTML snippet",
+      },
+    ]);
+    render(<TemplateLibraryPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-delete-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-delete-0"));
+    fireEvent.click(screen.getByTestId("design-tpl-delete-cancel"));
+    expect(deleteTemplate).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("design-tpl-delete-dialog")).toBeNull();
+    expect(screen.getByTestId("design-tpl-table").textContent).toContain(
+      "site.html.snippet",
+    );
+  });
+
+  it("shows operator-facing delete errors", async () => {
+    listTemplates.mockResolvedValue([
+      {
+        templateId: 101,
+        templateName: "site.html.snippet",
+        templateLabel: "HTML snippet",
+      },
+    ]);
+    deleteTemplate.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: { message: "in use" },
+    });
+    render(<TemplateLibraryPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-delete-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-delete-0"));
+    fireEvent.click(screen.getByTestId("design-tpl-delete-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-delete-error").textContent).toContain(
+        "in use",
+      );
+    });
+    expect(screen.getByTestId("design-tpl-delete-dialog")).toBeTruthy();
   });
 });
