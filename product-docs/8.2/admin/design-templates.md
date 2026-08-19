@@ -1,7 +1,7 @@
 ---
 id: admin-design-templates
 title: Design templates
-description: Create and edit modern assembly templates in the Design SPA; classic list bookmarks redirect here
+description: Create, edit, and delete modern assembly templates in the Design SPA; classic list bookmarks redirect here
 version: "8.2"
 order: 44
 tags: [admin, design, templates, ui]
@@ -10,8 +10,9 @@ tags: [admin, design, templates, ui]
 # Design templates
 
 **Design** is the SPA surface for the modern assembly **template library**. Designers and
-administrators list existing templates and **create new templates** using the public REST
-catalog (`/services/templates`). Create does **not** author Widget definition XML.
+administrators list existing templates, **create new templates**, and **delete** templates
+using the public REST catalog (`/services/templates`). Create and delete do **not** author
+Widget definition XML.
 
 In Percussion CMS 8.2 the primary template-list entry is the SPA shell. The classic
 `admin.jsp` Design page and `?view=design` bookmarks hard-redirect into the SPA.
@@ -66,6 +67,22 @@ written.**
 If create fails (duplicate name, invalid name, or server error), the dialog stays open and
 shows an operator-facing message. Correct the fields and try again.
 
+## Delete a template
+
+1. On the Templates library, choose **Delete** on the row you want to remove. You can
+   also open the template and choose **Delete** on the editor.
+2. Confirm in the dialog. Delete permanently removes the assembly template from the
+   catalog. **No Widget definition XML is written.**
+3. After a successful delete the library list refreshes. The deleted name is gone.
+
+Delete uses `DELETE /services/templates/{idOrName}` (`idOrName` is the unique name or
+numeric id). If delete fails (template in use, not found, or server error), the confirm
+dialog stays open with an operator-facing message. Choose **Cancel** to leave the
+template unchanged.
+
+Lock and content-type associations remain out of scope on this REST surface (see
+`designGaps` on the template detail payload).
+
 ## Edit assembler, slots, source, and bindings
 
 Open a template row from the library. The editor (same Design tab) lets you:
@@ -76,10 +93,8 @@ Open a template row from the library. The editor (same Design tab) lets you:
 - Add, edit, or remove **JEXL bindings** (saved as a full replace)
 
 Choose **Save**. Success and validation errors stay on the editor. Use **Templates** to
-return to the library.
-
-Content-type associations, delete, and lock are not available on this REST surface yet
-(see `designGaps` on the template detail payload).
+return to the library. **Delete** on the editor asks for confirmation, then returns you
+to the refreshed library.
 
 The visual layout editor may still open residual classic hosts (`editTemplate.jsp` and
 related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmarks to the
@@ -87,7 +102,7 @@ related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmark
 
 ## Related
 
-- [REST API](id:developer-rest) — `GET`/`POST`/`PUT /services/templates`
+- [REST API](id:developer-rest) — `GET`/`POST`/`PUT`/`DELETE /services/templates`
 - [Extensions & packages](id:developer-extensions)
 - [Navigation & site structure](id:admin-architecture-navigation)
 - [Administration](id:admin)

@@ -25,10 +25,12 @@ import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSummary;
 import java.net.URI;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /** Test adaptor for Templates API bridge. */
 @Component
+@Lazy
 public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
   @Override
@@ -54,5 +56,10 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
   @Override
   public TemplateDetail createTemplate(URI baseUri, TemplateDetail body) {
     return null;
+  }
+
+  @Override
+  public boolean deleteTemplate(URI baseUri, String idOrName) {
+    return false;
   }
 }

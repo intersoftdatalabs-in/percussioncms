@@ -16,13 +16,14 @@
  */
 
 /**
- * Design SPA surface helpers (#3307 / #3578 / #3579 / parent #2631).
+ * Design SPA surface helpers (#3307 / #3578 / #3579 / #3580 / parent #2631).
  *
  * URL builders, stable test ids, and skip reasons for library + edit
  * consolidation. Create (#3305 / #3578) is required on H2 — do not skip
  * when design-tpl-create is missing. Classic list redirect (#3306 / #3579)
  * is required on perc-devctl qa-up H2 — do not skip when admin.jsp /
- * ?view=design miss perc-design-shell.
+ * ?view=design miss perc-design-shell. Delete (#3580) may skip cleanly
+ * when design-tpl-delete chrome is not on the cell.
  */
 
 "use strict";
@@ -43,7 +44,13 @@ const TEST_IDS = Object.freeze({
   createDialog: "design-tpl-create-dialog",
   createName: "design-tpl-create-name",
   createSubmit: "design-tpl-create-submit",
+  deleteRow: "design-tpl-delete-0",
+  deleteDialog: "design-tpl-delete-dialog",
+  deleteConfirm: "design-tpl-delete-confirm",
+  deleteSubmit: "design-tpl-delete-submit",
+  deleteCancel: "design-tpl-delete-cancel",
   editor: "design-tpl-editor",
+  editorDelete: "design-tpl-editor-delete",
   editorBack: "design-tpl-editor-back",
   editorSource: "design-tpl-editor-source-edit",
   editorName: "design-tpl-editor-name",
@@ -58,6 +65,8 @@ const CLASSIC_ASSIGNED_TEMPLATES_ID = "perc-assigned-templates";
 const SKIP = Object.freeze({
   SHELL:
     "Design SPA chrome not on this QA cell (perc-design-shell missing) — skip; do not run full suite. Parent #2631 / #3307.",
+  DELETE:
+    "Delete-template chrome not on this QA cell (design-tpl-delete-0 missing; sibling #3580). Clean skip.",
   EDIT_EMPTY: "No templates in catalog — cannot exercise Design SPA editor.",
 });
 
@@ -114,6 +123,8 @@ function designLegacyViewUrl(baseUrl) {
  * @param {{
  *   shellPresent?: boolean,
  *   catalogEmpty?: boolean,
+ *   wantDelete?: boolean,
+ *   deletePresent?: boolean,
  *   wantEdit?: boolean,
  * }} flags
  * @returns {string|null} skip message, or null when the case should run
@@ -122,6 +133,9 @@ function skipReasonForChrome(flags) {
   const f = flags || {};
   if (!f.shellPresent) {
     return SKIP.SHELL;
+  }
+  if (f.wantDelete && !f.deletePresent) {
+    return SKIP.DELETE;
   }
   if (f.wantEdit && f.catalogEmpty) {
     return SKIP.EDIT_EMPTY;

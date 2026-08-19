@@ -19,6 +19,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   TEMPLATE_DETAIL_ROOT,
   createTemplate,
+  deleteTemplate,
   getTemplateDetail,
   unwrapTemplateDetail,
   updateTemplateDetail,
@@ -177,5 +178,16 @@ describe("getTemplateDetail / updateTemplateDetail wire binding (#3039)", () => 
       },
     });
     expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.TEMPLATES);
+  });
+
+  it("deleteTemplate sends DELETE to templates/{idOrName}", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+    await deleteTemplate("site.html.snippet");
+    expect(fetchMock).toHaveBeenCalled();
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain(`${PATHS.TEMPLATES}/`);
+    expect(url).toContain(encodeURIComponent("site.html.snippet"));
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
   });
 });

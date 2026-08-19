@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  deleteTemplate,
   getTemplateDetail,
   updateSlotDetail,
   updateTemplateDetail,
@@ -40,6 +41,7 @@ import {
 } from "../developer/catalogStyles";
 import { AssemblerPicker } from "./AssemblerPicker";
 import { isValidAssemblerValue } from "./assemblerOptions";
+import { DeleteTemplateDialog } from "./DeleteTemplateDialog";
 import { DESIGN_MSG } from "./messages";
 import {
   dirtySlotSaves,
@@ -105,9 +107,11 @@ function dash(value: string | number | null | undefined): string {
 export function TemplateSourceEditor({
   idOrName,
   onBack,
+  onDeleted,
 }: {
   idOrName: string;
   onBack: () => void;
+  onDeleted?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<TemplateDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +119,9 @@ export function TemplateSourceEditor({
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [source, setSource] = useState("");
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
   const [assembler, setAssembler] = useState("");
@@ -252,6 +259,27 @@ export function TemplateSourceEditor({
       setBusy(false);
     }
   }
+
+  async function handleDelete() {
+    setDeleteBusy(true);
+    setDeleteError(null);
+    setError(null);
+    try {
+      await deleteTemplate(idOrName);
+      setDeleteOpen(false);
+      if (onDeleted) {
+        onDeleted();
+      } else {
+        onBack();
+      }
+    } catch (err: unknown) {
+      setDeleteError(editorErrMsg(err, DESIGN_MSG.TPL_DELETE_ERROR));
+    } finally {
+      setDeleteBusy(false);
+    }
+  }
+
+  const deleteLabel = detail?.label || detail?.name || idOrName;
 
   return (
     <div data-testid="design-tpl-editor">
@@ -480,12 +508,12 @@ export function TemplateSourceEditor({
             />
           </section>
 
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: "16px", display: "flex", gap: 8 }}>
             <button
               type="button"
               data-testid="design-tpl-editor-save"
               aria-label={DESIGN_MSG.EDITOR_SAVE}
-              disabled={busy || !dirty}
+              disabled={busy || deleteBusy || !dirty}
               onClick={() => void handleSave()}
               style={{
                 padding: "8px 16px",
@@ -493,14 +521,49 @@ export function TemplateSourceEditor({
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
-                cursor: busy || !dirty ? "not-allowed" : "pointer",
+                cursor: busy || deleteBusy || !dirty ? "not-allowed" : "pointer",
               }}
             >
               {DESIGN_MSG.EDITOR_SAVE}
             </button>
+            <button
+              type="button"
+              data-testid="design-tpl-editor-delete"
+              aria-label={DESIGN_MSG.EDITOR_DELETE_ARIA}
+              disabled={busy || deleteBusy}
+              onClick={() => {
+                setDeleteError(null);
+                setDeleteOpen(true);
+              }}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: catalogColors.error,
+                border: `1px solid ${catalogColors.error}`,
+                borderRadius: "4px",
+                cursor: busy || deleteBusy ? "not-allowed" : "pointer",
+              }}
+            >
+              {DESIGN_MSG.EDITOR_DELETE}
+            </button>
           </div>
         </>
       ) : null}
+      <DeleteTemplateDialog
+        open={deleteOpen}
+        busy={deleteBusy}
+        error={deleteError}
+        label={deleteLabel}
+        onCancel={() => {
+          if (!deleteBusy) {
+            setDeleteOpen(false);
+            setDeleteError(null);
+          }
+        }}
+        onConfirm={() => {
+          void handleDelete();
+        }}
+      />
     </div>
   );
 }

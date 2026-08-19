@@ -759,23 +759,26 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
-#### Design SPA library + create/edit consolidation (#3307 / #3578 / #3579 / parent #2631)
+#### Design SPA library + create/edit consolidation (#3307 / #3578 / #3579 / #3580 / parent #2631)
 
 Surface-filtered companion for the Design SPA template library (list + editor) after
 Phase 4 shells (#2808–#2810). **Create** (#3305 / #3578) and **classic list
 redirect** (#3306 / #3579) are **required** on `perc-devctl qa-up` H2 (no skip).
+**Delete** (#3580) skips cleanly when delete chrome is not on the cell.
 Do not run the full suite.
 
 | Item | Value |
 |------|--------|
 | Spec (create, no-skip) | `frontend/tests/design-template-create.spec.js` |
 | Spec (redirect, no-skip) | `frontend/tests/design-legacy-redirect.spec.js` |
+| Spec (delete) | `frontend/tests/design-template-delete.spec.js` |
 | Spec (consolidation) | `frontend/tests/design-spa-consolidation.spec.js` |
 | Helpers / unit | `frontend/tests/helpers/design-spa-surface.js`, `tests/unit/design-spa-surface.test.js` |
 | Tags | `@design-spa` `@smoke` `@ui` |
 | Soft skip (shell) | No `perc-design-shell` on the cell (library/edit cases only) |
 | Create | Fail if `design-tpl-create` is missing; assert `POST /services/templates` and no Widget XML |
 | Redirect | Fail if `admin.jsp` / `?view=design` do not land on `perc-design-shell` |
+| Soft skip (delete) | No `design-tpl-delete-0` (sibling #3580 not deployed) |
 | Product docs | `product-docs/8.2/admin/design-templates.md` |
 
 ```bash
@@ -786,10 +789,12 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/design-template-create.spec.js
 
 npm run test:surface -- --path tests/design-legacy-redirect.spec.js
+npm run test:surface -- --path tests/design-template-delete.spec.js
 npm run test:surface -- --path tests/design-spa-consolidation.spec.js --grep "create template when chrome present"
 npm run test:surface -- --path tests/design-spa-consolidation.spec.js --grep "legacy Design list"
 npm run test:surface:list -- --path tests/design-template-create.spec.js
 npm run test:surface:list -- --path tests/design-legacy-redirect.spec.js
+npm run test:surface:list -- --path tests/design-template-delete.spec.js
 npm run test:surface -- --tag design-spa
 ```
 

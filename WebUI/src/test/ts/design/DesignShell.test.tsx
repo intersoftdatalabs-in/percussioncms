@@ -28,6 +28,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn(),
   getTemplateDetail: vi.fn(),
   createTemplate: vi.fn(),
+  deleteTemplate: vi.fn(),
   updateTemplateDetail: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),

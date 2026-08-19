@@ -16,7 +16,7 @@
  */
 
 /**
- * Unit tests for Design SPA surface helpers (#3307 / #3578 / #3579) — no live CMS.
+ * Unit tests for Design SPA surface helpers (#3307 / #3578 / #3579 / #3580) — no live CMS.
  */
 
 "use strict";
@@ -45,7 +45,9 @@ describe("design-spa-surface helpers (#3307)", () => {
     assert.equal(TEST_IDS.tabTemplates, "tab-design-templates");
     assert.equal(TEST_IDS.panel, "design-tpl-panel");
     assert.equal(TEST_IDS.create, "design-tpl-create");
+    assert.equal(TEST_IDS.deleteDialog, "design-tpl-delete-dialog");
     assert.equal(TEST_IDS.editor, "design-tpl-editor");
+    assert.equal(TEST_IDS.editorDelete, "design-tpl-editor-delete");
     assert.equal(CLASSIC_ASSIGNED_TEMPLATES_ID, "perc-assigned-templates");
   });
 
@@ -72,6 +74,17 @@ describe("design-spa-surface helpers (#3307)", () => {
     assert.equal(
       skipReasonForChrome({ shellPresent: false }),
       SKIP.SHELL,
+    );
+  });
+
+  it("skips delete when sibling #3580 chrome is absent", () => {
+    assert.equal(
+      skipReasonForChrome({
+        shellPresent: true,
+        wantDelete: true,
+        deletePresent: false,
+      }),
+      SKIP.DELETE,
     );
   });
 
@@ -116,6 +129,14 @@ describe("design-spa-surface helpers (#3307)", () => {
         shellPresent: true,
         wantCreate: true,
         createPresent: true,
+      }),
+      null,
+    );
+    assert.equal(
+      skipReasonForChrome({
+        shellPresent: true,
+        wantDelete: true,
+        deletePresent: true,
       }),
       null,
     );

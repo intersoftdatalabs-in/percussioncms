@@ -23,10 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.DesignGap;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -192,6 +194,39 @@ public class TemplatesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class, () -> resource.createTemplate(new TemplateDetail()));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteTemplateSuccess() {
+    when(adaptor.deleteTemplate(any(), eq("site.html.snippet"))).thenReturn(true);
+    Response out = resource.deleteTemplate("site.html.snippet");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteTemplate(any(), eq("site.html.snippet"));
+  }
+
+  @Test
+  public void deleteTemplateNotFound() {
+    when(adaptor.deleteTemplate(any(), eq("missing"))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteTemplate("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteTemplateBadRequest() {
+    when(adaptor.deleteTemplate(any(), eq("  ")))
+        .thenThrow(new IllegalArgumentException("idOrName is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteTemplate("  "));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteTemplateWrapsFailures() {
+    when(adaptor.deleteTemplate(any(), eq("boom"))).thenThrow(new IllegalStateException("fail"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteTemplate("boom"));
     assertEquals(500, ex.getResponse().getStatus());
   }
 }

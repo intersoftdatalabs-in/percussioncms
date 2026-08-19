@@ -25,6 +25,7 @@ import { DESIGN_MSG } from "../../../main/ts/design/messages";
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
+  deleteTemplate: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),
 }));
@@ -35,6 +36,7 @@ const getTemplateDetail = assemblyApi.getTemplateDetail as ReturnType<
 const updateTemplateDetail = assemblyApi.updateTemplateDetail as ReturnType<
   typeof vi.fn
 >;
+const deleteTemplate = assemblyApi.deleteTemplate as ReturnType<typeof vi.fn>;
 const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
 
 const baseDetail = {
@@ -58,6 +60,7 @@ describe("TemplateSourceEditor (#2809)", () => {
     };
     getTemplateDetail.mockReset();
     updateTemplateDetail.mockReset();
+    deleteTemplate.mockReset();
     getSlotDetail.mockReset();
     getSlotDetail.mockResolvedValue({
       name: "main",
@@ -149,5 +152,29 @@ describe("TemplateSourceEditor (#2809)", () => {
     );
     fireEvent.click(screen.getByTestId("design-tpl-editor-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("deletes from the editor after confirm", async () => {
+    const onDeleted = vi.fn();
+    deleteTemplate.mockResolvedValue(undefined);
+    render(
+      <TemplateSourceEditor
+        idOrName="site.base"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-editor-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-editor-delete"));
+    expect(screen.getByTestId("design-tpl-delete-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("design-tpl-delete-submit"));
+    await waitFor(() => {
+      expect(deleteTemplate).toHaveBeenCalledWith("site.base");
+    });
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalled();
+    });
   });
 });

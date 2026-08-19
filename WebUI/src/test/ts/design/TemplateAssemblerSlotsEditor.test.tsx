@@ -25,6 +25,7 @@ import { DESIGN_MSG } from "../../../main/ts/design/messages";
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
   updateTemplateDetail: vi.fn(),
+  deleteTemplate: vi.fn(),
   getSlotDetail: vi.fn(),
   updateSlotDetail: vi.fn(),
 }));

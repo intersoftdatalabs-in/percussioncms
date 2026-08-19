@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, post, put } from "../client";
+import { del, get, post, put } from "../client";
 import {
   normalizeDesignObjectGuid,
   resolveTemplateObjectGuid,
@@ -246,6 +246,15 @@ export async function createTemplate(
     wrapTemplateDetailForWire(body),
   );
   return unwrapTemplateDetail(payload);
+}
+
+/**
+ * DELETE /services/templates/{idOrName} — remove a modern assembly template.
+ * Does not write Widget definition XML. 204 has no body.
+ */
+export async function deleteTemplate(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await del<void>(`${PATHS.TEMPLATES}/${key}`);
 }
 
 /** GET /services/slots */
