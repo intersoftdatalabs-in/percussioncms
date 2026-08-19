@@ -17,8 +17,10 @@
 package com.percussion.cms.objectstore;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -61,6 +63,57 @@ public final class PSNavNameAliases {
   /** {@code percNavon} or {@code rffNavon} (any case). */
   public static boolean isNavonTypeName(String typeName) {
     return "navon".equals(navRoleKey(typeName));
+  }
+
+  /** {@code percNavImage} or {@code rffNavImage} (any case). */
+  public static boolean isNavImageTypeName(String typeName) {
+    return "navimage".equals(navRoleKey(typeName));
+  }
+
+  /** True for perc/rff NavTree, Navon, or Nav Image type names. */
+  public static boolean isNavTypeName(String typeName) {
+    return isNavTreeTypeName(typeName)
+        || isNavonTypeName(typeName)
+        || isNavImageTypeName(typeName);
+  }
+
+  /**
+   * When a FastForward {@code rffNav*} type (313–315) is missing from the JCR
+   * configuration map but a {@code percNav*} sibling is registered (1015–1017),
+   * or the inverse, return the registered alias id. Both pairs share {@code
+   * RXS_CT_NAV*} tables, so items of the missing id load with the alias
+   * mapping. Returns {@code null} when the missing id is not a nav type or no
+   * sibling is registered.
+   */
+  public static Long findRegisteredNavAliasTypeId(
+      long missingTypeId,
+      Function<Long, String> typeIdToName,
+      Collection<Long> registeredTypeIds) {
+    if (typeIdToName == null || registeredTypeIds == null || registeredTypeIds.isEmpty()) {
+      return null;
+    }
+    String missingName = typeNameQuietly(typeIdToName, missingTypeId);
+    if (!isNavTypeName(missingName)) {
+      return null;
+    }
+    for (Long registered : registeredTypeIds) {
+      if (registered == null || registered.longValue() == missingTypeId) {
+        continue;
+      }
+      String registeredName = typeNameQuietly(typeIdToName, registered);
+      if (sameNavRole(missingName, registeredName)) {
+        return registered;
+      }
+    }
+    return null;
+  }
+
+  private static String typeNameQuietly(Function<Long, String> typeIdToName, long typeId) {
+    try {
+      return typeIdToName.apply(typeId);
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   /**

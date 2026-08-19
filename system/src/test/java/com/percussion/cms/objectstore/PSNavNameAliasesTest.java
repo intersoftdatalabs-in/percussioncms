@@ -18,9 +18,11 @@ package com.percussion.cms.objectstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class PSNavNameAliasesTest {
@@ -58,6 +60,37 @@ class PSNavNameAliasesTest {
     assertTrue(PSNavNameAliases.isNavonTypeName("rffNavon"));
     assertTrue(PSNavNameAliases.isNavonTypeName("percNavon"));
     assertFalse(PSNavNameAliases.isNavonTypeName("rffNavTree"));
+    assertTrue(PSNavNameAliases.isNavImageTypeName("rffNavImage"));
+    assertTrue(PSNavNameAliases.isNavImageTypeName("percNavImage"));
+    assertTrue(PSNavNameAliases.isNavTypeName("rffNavTree"));
+    assertFalse(PSNavNameAliases.isNavTypeName("percPage"));
+    assertFalse(PSNavNameAliases.isNavTypeName(null));
+  }
+
+  @Test
+  void findRegisteredNavAliasTypeIdMapsRffNavTreeToPercNavTree() {
+    Map<Long, String> names =
+        Map.of(
+            315L, "rffNavTree",
+            1017L, "percNavTree",
+            314L, "rffNavon",
+            1016L, "percNavon",
+            1001L, "percPage");
+    assertEquals(
+        1017L,
+        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, names.keySet()));
+    assertEquals(
+        315L,
+        PSNavNameAliases.findRegisteredNavAliasTypeId(1017L, names::get, names.keySet()));
+    assertEquals(
+        1016L,
+        PSNavNameAliases.findRegisteredNavAliasTypeId(314L, names::get, names.keySet()));
+    assertNull(
+        PSNavNameAliases.findRegisteredNavAliasTypeId(1001L, names::get, names.keySet()));
+    assertNull(
+        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, List.of(315L, 1001L)));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, List.of()));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, null, names.keySet()));
   }
 
   @Test

@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
+import com.percussion.services.contentmgr.impl.IPSTypeKey;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -92,5 +95,18 @@ class PSServicesContentmgrTypedTest {
     Map<String, Object> remapped = PSContentRepository.remapFolderId(raw);
     assertEquals(8, remapped.get("rx:sys_contentid"));
     assertNull(remapped.get(IPSContentPropertyConstants.RX_SYS_FOLDERID));
+  }
+
+  @Test
+  @DisplayName("rffNavTree 315 aliases to percNavTree 1017 JCR mapping")
+  void resolveNavAliasTypeIdMapsRffNavTreeToPerc() {
+    Set<IPSTypeKey> registered =
+        Set.of(new PSContentTypeKey(1017), new PSContentTypeKey(1001));
+    Map<Long, String> names =
+        Map.of(315L, "rffNavTree", 1017L, "percNavTree", 1001L, "percPage");
+    assertEquals(
+        1017L, PSContentRepository.resolveNavAliasTypeId(315L, registered, names::get));
+    assertNull(PSContentRepository.resolveNavAliasTypeId(1001L, registered, names::get));
+    assertNull(PSContentRepository.resolveNavAliasTypeId(315L, List.of(), names::get));
   }
 }
