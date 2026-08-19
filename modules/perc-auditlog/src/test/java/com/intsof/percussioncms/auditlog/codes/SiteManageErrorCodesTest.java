@@ -22,7 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.intsof.percussioncms.auditlog.AuditContext;
+import com.intsof.percussioncms.auditlog.AuditLogId;
 import com.intsof.percussioncms.auditlog.AuditModule;
+import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import org.junit.jupiter.api.Test;
 
 class SiteManageErrorCodesTest {
@@ -38,5 +43,20 @@ class SiteManageErrorCodesTest {
     assertNotNull(code.userMessageTemplate());
     assertNotNull(code.logMessageTemplate());
     assertTrue(code.qualifiedCode().startsWith("CFG-"));
+  }
+
+  @Test
+  void deletingBadSiteRecordSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD.numericCode(),
+            AuditContext.empty());
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
   }
 }
