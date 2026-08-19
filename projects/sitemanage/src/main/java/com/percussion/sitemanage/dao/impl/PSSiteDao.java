@@ -20,6 +20,7 @@ package com.percussion.sitemanage.dao.impl;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSException;
 import com.percussion.fastforward.managednav.IPSNavigationErrors;
@@ -38,7 +39,6 @@ import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSitePublishProperties;
 import com.percussion.sitemanage.data.PSSiteSummary;
-import com.percussion.sitemanage.error.IPSSiteManageErrors;
 import com.percussion.util.PSPathUtil;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.publishing.PSPublishingWsLocator;
@@ -160,7 +160,8 @@ public class PSSiteDao implements IPSiteDao {
     } catch (PSNavException e) {
       if (e.getErrorCode() == IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH) {
         var ex =
-            new PSException(IPSSiteManageErrors.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD, name);
+            new PSException(
+                SiteManageErrorCodes.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD, name);
         log.warn(PSExceptionUtils.getMessageForLog(ex));
         log.debug(ex);
         this.delete(sum.getId());
