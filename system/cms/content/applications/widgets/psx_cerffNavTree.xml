@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PSXApplication active="no" enabled="yes" hidden="no" id="1058" startPriority="0" version="2.0">
+<PSXApplication active="yes" enabled="yes" hidden="no" id="1058" startPriority="0" version="2.0">
 	<name>psx_cerffNavTree</name>
 	<description>NavTree Content Editor</description>
 	<requestRoot>psx_cerffNavTree</requestRoot>

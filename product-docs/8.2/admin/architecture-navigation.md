@@ -69,11 +69,15 @@ Sample / demo sites installed with **Install sample sites**
 (`Corporate_Investments`, `Enterprise_Investments` on a typical H2 QA or
 new-install seed) include FastForward **sample content**: site folders,
 section folders, `rffNavTree` / `rffNavon` items, and pages. Opening
-**Navigation** for those sites uses that seeded tree. If a site has a
-folder root but no NavTree (or you are on an older seed that only created
-empty site rows), the first **Navigation** open **creates a NavTree** at
-the site folder root so the tree panel can show `role="tree"`. Operators
-do **not** need to create navigation by hand for those demo sites.
+**Navigation** for those sites uses that seeded tree. The installer starts
+the FastForward navigation editors at type ids **313–315** (`rffNavImage` /
+`rffNavon` / `rffNavTree`). The `perc.nav` package installs `percNav*` under
+**1015–1017**. Do not create a second NavTree when sample `rffNavTree` items
+already exist. If a site has a folder root but no NavTree (or you are on an
+older seed that only created empty site rows), the first **Navigation** open
+**creates a NavTree** at the site folder root so the tree panel can show
+`role="tree"`. Operators do **not** need to create navigation by hand for
+those demo sites.
 
 The same create-on-first-open applies to any other entitled site that has a
 folder root but no NavTree yet (same path as **New Site**).

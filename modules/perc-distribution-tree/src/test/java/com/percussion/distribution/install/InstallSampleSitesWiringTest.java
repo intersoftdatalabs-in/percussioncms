@@ -129,9 +129,22 @@ class InstallSampleSitesWiringTest {
             && targetBody.contains("ObjectStore"),
         "installSampleSites must copy FastForward rff ObjectStore editors; sample items use"
             + " CONTENTTYPEID 301-316 and PSItemDefManager only registers running apps");
-    assertFalse(
-        targetBody.contains("psx_cerffNavImage.xml"),
-        "do not copy leftover psx_cerffNav* editors; perc.nav owns types 313-315");
+    assertTrue(
+        targetBody.contains("psx_cerffNavImage.xml")
+            && targetBody.contains("psx_cerffNavon.xml")
+            && targetBody.contains("psx_cerffNavTree.xml"),
+        "installSampleSites must copy rff nav editors 313-315 so sample rffNavTree items load"
+            + " (perc.nav percNav* remaps to 1015-1017; do not seed a second NavTree)");
+    Path widgets = Path.of("..", "..", "system", "cms", "content", "applications", "widgets");
+    for (String navEditor :
+        new String[] {"psx_cerffNavImage.xml", "psx_cerffNavon.xml", "psx_cerffNavTree.xml"}) {
+      Path editor = widgets.resolve(navEditor);
+      assertTrue(Files.isRegularFile(editor), "missing widget editor " + editor);
+      String xml = Files.readString(editor, StandardCharsets.UTF_8);
+      assertTrue(
+          xml.contains("active=\"yes\""),
+          navEditor + " must start (active=yes) so type 313-315 register for sample NavTrees");
+    }
     Path importFiles =
         Path.of("..", "..", "system", "FastForward", "SampleContent", "importFiles");
     assertTrue(
