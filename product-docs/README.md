@@ -9,6 +9,7 @@ This directory is intentionally separate from repository `docs/` (engineering / 
 ```text
 product-docs/
   _config.yaml       # site title, versions, nav, theme
+  _redirects.yaml    # optional same-site redirects (missing file is a no-op)
   _theme/            # HTML-first layout templates
   assets/            # static CSS/images
   8.2/               # versioned Markdown content

@@ -63,10 +63,10 @@ public class PSVirtualSiteBuildService {
   /**
    * Build a Virtual Site from a filesystem root into {@code outputRoot}.
    *
-   * <p>Every invocation reloads {@code _config.yaml}, re-discovers and re-loads Markdown from the
-   * current tree, then overwrites emitted HTML. The same service instance does not reuse parsed
-   * pages from a previous build — operators do not need a JVM restart after {@code git pull} or a
-   * local edit.
+   * <p>Every invocation reloads {@code _config.yaml}, optional {@code _redirects.yaml}, and
+   * re-discovers and re-loads Markdown from the current tree, then overwrites emitted HTML. Missing
+   * {@code _redirects.yaml} is a no-op. The same service instance does not reuse parsed pages from
+   * a previous build — operators do not need a JVM restart after {@code git pull} or a local edit.
    *
    * @param siteRoot source tree (contains {@code _config.yaml})
    * @param outputRoot destination for HTML + assets
@@ -77,10 +77,20 @@ public class PSVirtualSiteBuildService {
       throws IOException, VirtualSiteException {
     VirtualSiteConfig config =
         VirtualSiteConfigLoader.load(siteRoot, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, siteKey);
-    return build(config, outputRoot);
+    List<VirtualRedirect> redirects =
+        VirtualRedirectsLoader.loadOptional(siteRoot, config.siteUrl());
+    return build(config, outputRoot, redirects);
   }
 
   public PSVirtualSiteBuildResult build(VirtualSiteConfig config, Path outputRoot)
+      throws IOException, VirtualSiteException {
+    List<VirtualRedirect> redirects =
+        VirtualRedirectsLoader.loadOptional(config.root(), config.siteUrl());
+    return build(config, outputRoot, redirects);
+  }
+
+  private PSVirtualSiteBuildResult build(
+      VirtualSiteConfig config, Path outputRoot, List<VirtualRedirect> redirects)
       throws IOException, VirtualSiteException {
     // Barrier: only paths that pass requireSafeBuildRoot reach NIO create/write sinks.
     Path safeOut = requireSafeBuildRoot(outputRoot);
@@ -171,6 +181,8 @@ public class PSVirtualSiteBuildService {
     if (Files.isDirectory(config.themeDir().resolve("assets"))) {
       copyAssets(config.themeDir().resolve("assets"), safeOut.resolve("assets"));
     }
+
+    written.addAll(VirtualRedirectsEmitter.emit(redirects, safeOut, written));
 
     participants.flush(config.siteKey());
 

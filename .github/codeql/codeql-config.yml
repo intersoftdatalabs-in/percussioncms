@@ -301,6 +301,7 @@ query-filters:
         - "projects/sitemanage/src/main/java/com/percussion/apibridge/SitesAdaptor.java"
         - "system/services/src/com/percussion/services/virtualsite/PSVirtualSiteBuildService.java"
         - "system/services/src/com/percussion/services/virtualsite/PSInMemoryVirtualParticipantService.java"
+        - "system/services/src/com/percussion/services/virtualsite/VirtualRedirectsEmitter.java"
       reason: >-
         Documented multi-pass T043 residuals after structural guards (includes
         PSThemeService from PR #1361 + broader residual batch PR #1362) plus
@@ -317,8 +318,10 @@ query-filters:
         (PSThemeServiceSecurityTest, PSRegionCSSFileServiceSecurityTest,
         PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest,
         SitesAdaptorTest requireSafeOutputRoot / buildVirtualSite,
-        PSVirtualSiteBuildServiceTest / PSInMemoryVirtualParticipantServiceTest
-        path-injection barriers, etc.). Do not re-edit sinks only to chase IDs.
+        PSVirtualSiteBuildServiceTest / PSInMemoryVirtualParticipantServiceTest /
+        VirtualRedirectsEmitterTest path-injection barriers, etc.).
+        VirtualRedirectsEmitter (#1983) writes redirects.json via resolveHref
+        after requireSafeBuildRoot. Do not re-edit sinks only to chase IDs.
   # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
   # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
   # without user data in factory map; src set via .attr after sanitize.

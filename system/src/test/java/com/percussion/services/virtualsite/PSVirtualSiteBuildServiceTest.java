@@ -91,6 +91,23 @@ class PSVirtualSiteBuildServiceTest {
     String report = Files.readString(linkReport, StandardCharsets.UTF_8);
     assertTrue(report.contains("OK"), report);
     assertTrue(result.writtenFiles().contains("link-report.txt"), result.writtenFiles()::toString);
+
+    Path redirectHtml =
+        out.resolve("8.2").resolve("getting-started").resolve("installation.html");
+    assertTrue(Files.isRegularFile(redirectHtml), "missing redirect HTML " + redirectHtml);
+    String redirectBody = Files.readString(redirectHtml, StandardCharsets.UTF_8);
+    assertTrue(redirectBody.contains("/8.2/getting-started/install.html"), redirectBody);
+    assertTrue(redirectBody.contains("http-equiv=\"refresh\""), redirectBody);
+    Path redirectsMap = out.resolve("redirects.json");
+    assertTrue(Files.isRegularFile(redirectsMap), "missing redirects.json");
+    String map = Files.readString(redirectsMap, StandardCharsets.UTF_8);
+    assertTrue(map.contains("/8.2/getting-started/installation.html"), map);
+    assertTrue(map.contains("\"status\":301"), map);
+    assertTrue(
+        result.writtenFiles().contains("8.2/getting-started/installation.html"),
+        result.writtenFiles()::toString);
+    assertTrue(
+        result.writtenFiles().contains("redirects.json"), result.writtenFiles()::toString);
   }
 
   @Test
@@ -172,6 +189,9 @@ class PSVirtualSiteBuildServiceTest {
     assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
     assertFalse(secondHtml.contains("First Title"), secondHtml);
     assertNotEquals(firstHtml, secondHtml);
+    assertFalse(
+        Files.exists(out.resolve("redirects.json")),
+        "missing _redirects.yaml must be a no-op (no redirects.json)");
   }
 
   @Test
@@ -272,6 +292,114 @@ class PSVirtualSiteBuildServiceTest {
     assertThrows(
         VirtualSiteException.class,
         () -> PSVirtualSiteBuildService.resolveHref(base, "C:/windows/evil.html"));
+  }
+
+  @Test
+  void buildRejectsOpenRedirectTarget() throws Exception {
+    Path siteRoot = tempDir.resolve("open-redir-site");
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Open
+          url: https://example.test/docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body>{{content}}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        versionDir.resolve("index.md"),
+        """
+        ---
+        id: open-home
+        title: Home
+        ---
+
+        Home.
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_redirects.yaml"),
+        """
+        redirects:
+          - from: /old.html
+            to: https://evil.example/phish
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () ->
+                new PSVirtualSiteBuildService()
+                    .build(siteRoot, tempDir.resolve("open-redir-out"), "open"));
+    assertTrue(ex.getMessage().toLowerCase().contains("open redirect"), ex.getMessage());
+    assertFalse(Files.exists(tempDir.resolve("open-redir-out").resolve("old.html")));
+  }
+
+  @Test
+  void buildRejectsRedirectThatWouldOverwriteAPage() throws Exception {
+    Path siteRoot = tempDir.resolve("collide-redir-site");
+    Path versionDir = siteRoot.resolve("8.2");
+    Files.createDirectories(versionDir);
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: Collide
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body>{{content}}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        versionDir.resolve("index.md"),
+        """
+        ---
+        id: collide-home
+        title: Home
+        ---
+
+        Home.
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_redirects.yaml"),
+        """
+        redirects:
+          - from: /8.2/index.html
+            to: /8.2/elsewhere.html
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () ->
+                new PSVirtualSiteBuildService()
+                    .build(siteRoot, tempDir.resolve("collide-out"), "collide"));
+    assertTrue(ex.getMessage().toLowerCase().contains("overwrite"), ex.getMessage());
   }
 
   @Test

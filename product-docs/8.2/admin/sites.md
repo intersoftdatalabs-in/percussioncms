@@ -81,6 +81,20 @@ and Markdown tooling, not the classic page editor.
 Invalid combinations (unknown source kind, missing root, unsafe path, config path traversal) are
 rejected by server validation with clear error messages.
 
+### Optional `_redirects.yaml`
+
+Place `_redirects.yaml` beside `_config.yaml` in the Virtual Site source root (for product
+docs: `product-docs/_redirects.yaml`). **Build Virtual Site** honors it when present:
+
+- Missing file is a no-op (the build still succeeds).
+- Each `from` becomes a static HTML redirect page; the build also writes `redirects.json`
+  next to the assembled site.
+- Targets must stay on this site (relative path or `site.url` host). Off-site / `//host`
+  targets fail the build (open-redirect protection).
+- **Publish Virtual Site** copies those artifacts with the rest of the HTML.
+
+See [Site configuration](id:reference-site-config) for the YAML contract.
+
 ### Browse Sites in Developer
 
 **Developer → Sites** lists **all** CMS Sites from `GET /services/sites` (traditional repository

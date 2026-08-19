@@ -33,6 +33,7 @@ Repository root:
 ```text
 product-docs/
   _config.yaml
+  _redirects.yaml    # optional
   _theme/
   assets/
   8.2/
@@ -47,6 +48,9 @@ product-docs/
 - `index.md` is the landing page for a section.
 - One top-level folder per documentation version (for example `8.2/`).
 - Assembled pages bind theme placeholders including <code>&#36;{toc}</code> (h2–h3 heading TOC). See [Site configuration](id:reference-site-config).
+- Optional `_redirects.yaml` next to `_config.yaml` emits static redirect HTML and
+  `redirects.json`. Missing file is a no-op. Targets must be relative or same-site;
+  open redirects fail the build. Contract: [Site configuration](id:reference-site-config).
 
 ## Stable identity
 

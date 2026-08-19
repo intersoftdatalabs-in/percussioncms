@@ -87,7 +87,8 @@ public final class PSVirtualSiteFilesystemPublisher {
    * Copy assembled static files from {@code buildOutput} into {@code target}.
    *
    * <p>Skips the {@code _meta} participant-registry directory. Overwrites existing files; does not
-   * delete stale files already under the target.
+   * delete stale files already under the target. Redirect HTML and {@code redirects.json} emitted
+   * by the build are ordinary files and are copied with the rest of the site.
    *
    * @param buildOutput directory written by {@link PSVirtualSiteBuildService}
    * @param target Site filesystem publish root
