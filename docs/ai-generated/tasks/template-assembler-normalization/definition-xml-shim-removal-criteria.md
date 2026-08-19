@@ -29,13 +29,13 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 
 | ID | Criterion | Status | Evidence on `main` / links | What still blocks |
 |----|-----------|--------|----------------------------|-------------------|
-| **M1** | Zero product package definition-XML as ship format (ADR-004) | **PASS** (Widget non-waived) | Cluster [#2897](https://github.com/intersoftdatalabs-in/percussioncms/pull/2897) (batches A+B+C #2883/#2884/#2885): **1** remaining Widget def XML under Packages (`perc.Test` waiver only; was **48**). **77** `component-package.json` under Packages. G4 Widget gate [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) / #3026 | Pages/Gadgets broader ship-path wording residual; waived Test package only |
+| **M1** | Zero product package definition-XML as ship format (ADR-004) | **PASS** (Widget non-waived; Pages/Gadgets ship-path 0) | Cluster [#2897](https://github.com/intersoftdatalabs-in/percussioncms/pull/2897) (batches A+B+C #2883/#2884/#2885): **1** remaining Widget def XML under Packages (`perc.Test` waiver only; was **48**). **77** `component-package.json` under Packages. G4 Widget gate [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) / #3026; Pages/Gadgets ship-path gate #3581 | Waived Test package only; Page `*.templateDef` dual-ship/native is a separate surface |
 | **M2** | Zero (or waived) runtime legacy definition-XML loads | **PARTIAL / FAIL overall** | **Merged on main:** [#3045](https://github.com/intersoftdatalabs-in/percussioncms/pull/3045) #3024 (`PSWidgetDao` modern-first + INFO + selection kinds); [#3071](https://github.com/intersoftdatalabs-in/percussioncms/pull/3071) #3025 (`GadgetRegistry` dual-load metrics). **This cluster absorbs:** #3130 product/H2 `modernPackageRoots` defaults; #3131 cumulative counters + CI harness; #3132 criteria snapshot | Still need zero (or waived) runtime legacy rate over the time-box; customer XML remains valid fallback; **#2852 blocked** |
 | **M3** | Customer upgrade window closed or residual waived | **FAIL** | Compilers + dual-run checklist exist; 8.2 dual-run window **open by design** | Need support inventory / waived residual list + closed upgrade window (or documented residual customers) |
 | **G1** | `modules/perc-packages` clean install green after removal | **N/A (pre-removal)** | Module green on current dual-run code; deletion not started | Required only on the future removal PR |
 | **G2** | Behavioral modern-only selection tests | **PARTIAL** | `PSLegacyDefinitionXmlShimTest` + `PSWidgetDaoTest` modern/legacy/neither on main | Modern-only (no legacy fallback) tests belong on removal PR |
 | **G3** | No production refs to deleted dual-run APIs after removal | **N/A (pre-removal)** | Callers still **required**: `PSWidgetDao`, `GadgetRegistry` fallback | Pass only after deletion rewires consumers |
-| **G4** | CI fails if product definition XML reappears under Packages ship paths | **PASS (Widget path)** | `PSWidgetDefinitionXmlInventory` + Surefire [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) #3026; waive `perc.Test` only | Pages/Gadgets ship-path inventory residual under broader G4 wording |
+| **G4** | CI fails if product definition XML reappears under Packages ship paths | **PASS** (Widget + Pages + Gadgets) | Widget: `PSWidgetDefinitionXmlInventory` + Surefire [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) #3026; Pages/Gadgets: `PSPageDefinitionXmlInventory` / `PSGadgetDefinitionXmlInventory` / `PSDefinitionXmlShipPathInventory` #3581; waive `perc.Test` only | None for ship-path inventory; keep shim (#2852) |
 | **G5** | Reverse-dep consumers green after removal | **N/A (pre-removal)** | sitemanage / WebUI dual-run tests green with shim present | Re-run sitemanage + WebUI on removal PR |
 | **G6** | Cross-platform Path/Files only in load paths | **PASS (current surfaces)** | Widget inventory + shim use `Path`/`Files`; DAO roots use `Path.of` | Re-check any replacement load path on removal PR |
 
@@ -86,6 +86,8 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 **Snapshot 2026-08-12 (slice #3131):** **PARTIAL M2 (evidence harness)** — cumulative dual-run / dual-load counters + snapshot/summary APIs + CI harness tests for `PSWidgetDao` and `GadgetRegistry` (see **How to measure M2** below). Still **FAIL overall** until production installs show zero (or waived) legacy rate over the time-box. Shim **must remain** (#2852).
 
 **Snapshot 2026-08-12 (criteria refresh #3132):** **PARTIAL M2 / FAIL overall** — Status snapshot table at top of this doc reaffirms M1 PASS (Widget non-waived), M2 PARTIAL, M3 FAIL, G4 Widget PASS. **Do not claim M2 PASS** from wiring/defaults/harness alone. **#2852 remains blocked** until M1–M3 + G1–G6.
+
+**Snapshot 2026-08-18 (#3581):** G4 Pages/Gadgets ship-path inventory landed (see G4 row). **M2/M3 unchanged.** **#2852 remains blocked.**
 
 | Surface | Status in this cluster | Metric visibility | Legacy still required? |
 |---------|------------------------|-------------------|------------------------|
@@ -193,9 +195,21 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 | Explicit waive | `perc.Test` only (`WAIVED_PACKAGE_DIRS`) |
 | Path I/O | `Path.resolve` / `Files` only (G6-aligned) |
 
-Pages/Gadgets ship-path inventory remains residual under the broader G4 wording; Widget path is the Phase 3 residual closed by #3026.
+**Snapshot 2026-08-18 (G4 Pages/Gadgets inventory gate #3581):** **PASS G4 for Pages and Gadgets ship paths** — automated assertion in `modules/perc-packages` (peer of Widget #3026):
 
-**Snapshot 2026-08-12 (#3132):** G-status summary matches the **Status snapshot** table above: G4 Widget **PASS** on main; G2 **PARTIAL** (dual-run selection tests, not modern-only deletion tests); G1/G3/G5 **N/A** until removal PR; G6 **PASS** for current Path/Files surfaces. **None of this unlocks #2852** without M2/M3.
+| Piece | Location |
+|-------|----------|
+| Shared scanner + optional CLI | `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory` (`PAGE` / `GADGET` / `ALL`) |
+| Page inventory API + CLI | `com.percussion.packages.pagexml.PSPageDefinitionXmlInventory` |
+| Gadget inventory API + CLI | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` |
+| Surefire gates | `PSPageDefinitionXmlInventoryTest`, `PSGadgetDefinitionXmlInventoryTest`, `PSDefinitionXmlShipPathInventoryTest` (product tree zero non-waived; TempDir proves failure when dummy non-waived XML is introduced) |
+| Explicit waive | `perc.Test` only (`WAIVED_PACKAGE_DIRS`) |
+| Path I/O | `Path.resolve` / `Files` only (G6-aligned) |
+| Ship paths | `sys__UserDependency--rxconfig/Pages\|Gadgets` and `rxconfig/Pages\|Gadgets` (shim-recognized layouts). Modern `pages/` / catalog JSON is not definition XML. |
+
+Widget path remains PASS (#3026). Broader G4 wording (Widgets/Pages/Gadgets) is now automated. **Does not unlock #2852** (M2/M3 still fail; shim stays).
+
+**Snapshot 2026-08-12 (#3132):** G-status summary (superseded for G4 by #3581): G4 Widget **PASS** on main; G2 **PARTIAL** (dual-run selection tests, not modern-only deletion tests); G1/G3/G5 **N/A** until removal PR; G6 **PASS** for current Path/Files surfaces. **None of this unlocks #2852** without M2/M3.
 
 ---
 
@@ -248,6 +262,8 @@ Javadoc-only alignment references:
 |---------|--------------|--------------------|---------------------------|
 | Widget install load | `projects/sitemanage/.../dao/impl/PSWidgetDao` → `${rxdeploydir}/rxconfig/Widgets` + default/optional `widgetDao.modernPackageRoots` | **Live** dual-run selection (#3024); **product defaults** to `${rxdeploydir}/Packages/Modern` (+ classpath materialize) (#3130); content still from Widgets XML wire | **Yes** for product modern-only content path; selection wired + defaults; keep shim until M2 metrics pass |
 | Product Widget package XML | `modules/perc-packages/.../Packages/**/sys__UserDependency--rxconfig/Widgets/*.xml` | **1** remaining (`perc.Test` waiver only; was **48**); install materialize for modern-only; **G4 inventory gate** `PSWidgetDefinitionXmlInventory` / #3026 | M1 Widget portion PASS; G4 Widget path automated; keep shim until M2/M3 |
+| Product Page package XML | `…/Packages/**/{sys__UserDependency--rxconfig,rxconfig}/Pages/*.xml` | **0** on product tree; **G4 inventory gate** `PSPageDefinitionXmlInventory` / #3581 | G4 Page path automated; modern `pages/` authoring is not this path; keep shim until M2/M3 |
+| Product Gadget package XML | `…/Packages/**/{sys__UserDependency--rxconfig,rxconfig}/Gadgets/*.xml` | **0** on product tree; **G4 inventory gate** `PSGadgetDefinitionXmlInventory` / #3581 | G4 Gadget path automated; WebUI `GadgetRegistry.xml` is outside Packages ship paths; keep shim until M2/M3 |
 | Widget XML compilers | `…/widgetxml/PSWidgetXml*` | Upgrade-input compilers; keep after runtime shim exit | **No** (upgrade input OK) |
 | Page dual-ship / native | `…/pagexml/PSPageXmlDualShip`, `PSPageXmlNativeInstall`, `PSPageXmlInstallPolicy` | Native for base/responsive; dual-ship default elsewhere | Separate checklist ([dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)) |
 | Gadget catalog ship | `modules/perc-packages/.../catalogs/gadgets/gadget-catalog.json` | Modern catalog present | Preferred path |
