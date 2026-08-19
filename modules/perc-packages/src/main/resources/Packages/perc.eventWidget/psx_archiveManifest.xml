@@ -37,13 +37,7 @@
 			<ArchiveFile>ContentType-335\percEventAsset.schemaDef.contentType</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percEvent-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percEvent.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percEvent-xml\percEvent.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_event_images_widgetEventSampleBackground-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

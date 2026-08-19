@@ -37,13 +37,7 @@
 			<ArchiveFile>ImageFile-rx_resources\images\ContentTypeIcons\filetypeIconsLogin.png\filetypeIconsLogin.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percLogin-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\dev\rxconfig\Widgets\percLogin.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percLogin-xml\percLogin.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_widgets_login_js_loginform-min-js">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

@@ -2,13 +2,7 @@
 
 
 <PSXArchiveManifest>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percTwitterSummaryCards-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\dev\rxconfig\Widgets\percTwitterSummaryCards.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percTwitterSummaryCards-xml\percTwitterSummaryCards.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes DependencyKey="ContentType-638">
 		<PSXDependencyFile fileType="ITEM_DEFINITION">
 			<RxFile>C:\Users\NATE__~1\AppData\Local\Temp\percTwitterCards.itemDef.contentType</RxFile>

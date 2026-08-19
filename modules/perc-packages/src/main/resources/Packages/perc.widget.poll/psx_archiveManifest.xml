@@ -59,13 +59,7 @@
 			<ArchiveFile>sys__UserDependency--web__resources_widgets_percPoll_js_percPoll-min-js\percPoll.min.js</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percPoll-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percPoll.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percPoll-xml\percPoll.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rxconfig_Resources_percPoll-xml">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

@@ -6130,24 +6130,7 @@
 									<RequiredClasses />
 								</PSXDeployableObject>
 							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Widgets/percDepartment.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Widgets/percDepartment.xml"
-										dependencyType="User" displayName="percDepartment.xml"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
@@ -6238,24 +6221,7 @@
 									<RequiredClasses />
 								</PSXDeployableObject>
 							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Widgets/percDirectory.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Widgets/percDirectory.xml"
-										dependencyType="User" displayName="percDirectory.xml"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
@@ -6346,24 +6312,7 @@
 									<RequiredClasses />
 								</PSXDeployableObject>
 							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Widgets/percOrganization.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Widgets/percOrganization.xml"
-										dependencyType="User" displayName="percOrganization.xml"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
@@ -6455,24 +6404,7 @@
 									<RequiredClasses />
 								</PSXDeployableObject>
 							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Widgets/percPerson.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Widgets/percPerson.xml"
-										dependencyType="User" displayName="percPerson.xml"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"

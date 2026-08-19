@@ -16,16 +16,52 @@ From this module directory (standalone, preferred):
 ../../mvnw clean install
 ```
 
-## G4 Widget definition XML inventory gate (#3026)
+## G4 definition XML inventory gates (#3026 Widget, #3581 Pages/Gadgets)
 
-Product packages must not reintroduce committed install Widget definition XML under
-`sys__UserDependency--rxconfig/Widgets/` except the explicit waiver **`perc.Test`**.
+Product packages must not reintroduce committed install definition XML under
+`sys__UserDependency--rxconfig/{Widgets,Pages,Gadgets}/` (or `rxconfig/{Pages,Gadgets}/`
+for Pages/Gadgets) except the explicit waiver **`perc.Test`**.
 
 | Piece | Class |
 |-------|--------|
-| Inventory API + CLI | `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory` |
-| Surefire assertion | `PSWidgetDefinitionXmlInventoryTest` |
+| Widget inventory API + CLI | `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory` |
+| Widget Surefire | `PSWidgetDefinitionXmlInventoryTest` |
+| Shared Page/Gadget scanner | `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory` |
+| Page inventory API + CLI | `com.percussion.packages.pagexml.PSPageDefinitionXmlInventory` |
+| Page Surefire | `PSPageDefinitionXmlInventoryTest` |
+| Gadget inventory API + CLI | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` |
+| Gadget Surefire | `PSGadgetDefinitionXmlInventoryTest` |
 
-See root `scripts/README.md` (Widget definition XML inventory gate) and
+Modern authoring (`pages/`, `widgets/`, `gadget-catalog.json`) is not definition XML.
+Do not delete `PSLegacyDefinitionXmlShim` (#2852 blocked).
+
+See root `scripts/README.md` (definition XML inventory gates) and
 `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
+
+## Archive-manifest Widget XML paths (#3582)
+
+Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
+`rxconfig/Widgets/*.xml` (or encoded `rxconfig_Widgets_`) when modern `widgets/` roots exist.
+Waiver is **`perc.Test` only**. Package build re-injects those user-dependencies on the staging
+copy via `PSWidgetXmlInstallEmitter` / `PSWidgetArchiveManifestInventory` so the built `.ppkg`
+still installs Widget XML.
+
+| Piece | Class |
+|-------|--------|
+| Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
+| Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
+
+## M2 product/H2 zero-legacy-selection evidence (#3583)
+
+Non-waived product / H2 widget package roots must select modern-first
+(`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
+`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **`perc.Test`**
+only. The runtime shim stays (#2852); this is **not** M2 PASS overall (M3 still
+FAIL).
+
+| Piece | Class |
+|-------|--------|
+| Evidence API + CLI | `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence` |
+| Surefire assertion | `PSProductPackageRootSelectionEvidenceTest` |
+| DAO H2 harness | `projects/sitemanage` `PSWidgetDaoProductH2ZeroLegacySelectionTest` |
 

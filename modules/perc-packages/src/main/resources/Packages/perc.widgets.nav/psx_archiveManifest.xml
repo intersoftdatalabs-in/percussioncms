@@ -2,13 +2,7 @@
 
 
 <PSXArchiveManifest>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percNavBar-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percNavBar.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percNavBar-xml\percNavBar.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_images_widgetIconBreadcrumb-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
@@ -107,13 +101,7 @@
 			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_navbar-js\navbar.js</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percNavBreadcrumb-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percNavBreadcrumb.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percNavBreadcrumb-xml\percNavBreadcrumb.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_css_superfish--navbar-css">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

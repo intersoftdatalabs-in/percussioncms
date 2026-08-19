@@ -117,13 +117,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_fileAutoList_images_widgetIconFileAutoListOver-png\widgetIconFileAutoListOver.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percFileAutoList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percFileAutoList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percFileAutoList-xml\percFileAutoList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_controls_percResourceAutoListControl_css_jquery-resourceAutoList-css">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

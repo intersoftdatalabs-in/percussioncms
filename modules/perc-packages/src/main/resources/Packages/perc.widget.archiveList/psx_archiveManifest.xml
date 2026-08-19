@@ -59,13 +59,7 @@
 			<ArchiveFile>sys__UserDependency--rxconfig_Resources_percArchiveList-xml\percArchiveList.xml</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percArchiveList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\ins\dev\rxconfig\Widgets\percArchiveList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percArchiveList-xml\percArchiveList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes DependencyKey="ContentType-351">
 		<PSXDependencyFile fileType="ITEM_DEFINITION">
 			<RxFile>C:\Users\Usuario\AppData\Local\Temp\percArchiveList.itemDef.contentType</RxFile>

@@ -16,13 +16,7 @@
 			<ArchiveFile>ContentType-337\percSimpleAutoList.schemaDef.contentType</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_simplePageAutoList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\installs\dev\cm20101130\rxconfig\Widgets\simplePageAutoList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_simplePageAutoList-xml\simplePageAutoList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef--7722608960670269336">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">
@@ -51,11 +45,5 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_simpleList_images_widgetIconTextAutoList-png\widgetIconTextAutoList.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_simpleTextAutoList-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\installs\dev\cm20101130\rxconfig\Widgets\simpleTextAutoList.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_simpleTextAutoList-xml\simpleTextAutoList.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 </PSXArchiveManifest>

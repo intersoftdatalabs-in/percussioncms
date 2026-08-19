@@ -30,13 +30,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percCookieConsent_images_percCookieConsentIcon-png\percCookieConsentIcon.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percCookieConsent-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>c:\DevEnv\Installs\dev\rxconfig\Widgets\percCookieConsent.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percCookieConsent-xml\percCookieConsent.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_widgets_cookieConsent_css_cookie--consent-css">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
