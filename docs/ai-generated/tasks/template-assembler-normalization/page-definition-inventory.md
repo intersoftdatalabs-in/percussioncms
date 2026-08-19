@@ -19,7 +19,7 @@ Unlike widgets (`rxconfig/Widgets/*.xml`), product **page layout** packaging is 
 | Thumbnail resources | `sys__UserDependency--rx_resources/images/TemplateImages/…` | Palette thumbs (not compiled in #2770) |
 | Package identity | `psx_archiveInfo.xml` | Version / publisher / CMS range for compiler context |
 
-There is **no** product tree under `rxconfig/Pages/*.xml` in `modules/perc-packages` today. The dual-run shim still recognizes `rxconfig/Pages` for customer installs (see [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md)).
+There is **no** product tree under `rxconfig/Pages/*.xml` in `modules/perc-packages` today. The dual-run shim still recognizes `rxconfig/Pages` for customer installs (see [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md)). **G4 ship-path inventory (#3581):** `PSPageDefinitionXmlInventory` + Surefire fails CI if non-waived Page definition XML reappears under `sys__UserDependency--rxconfig/Pages` or `rxconfig/Pages` (waiver: `perc.Test` only).
 
 CM1 **page item** region trees / widget instances live in site storage (sitemanage domain), not as package `*.templateDef` files. This slice covers **packaged page templates** only; page-item composition upgrade remains a residual under #2630 when storage write-path is ready.
 

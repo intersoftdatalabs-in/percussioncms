@@ -63,17 +63,21 @@ Path-filtered CI / local **smoke** around `build-cms-docs` (issue #2704).
   `tmp/product-docs-site/` always has a path and at least one file (partial build
   output is preserved when the builder emits anything before failing).
 
-### Widget definition XML inventory gate (G4 / #3026)
+### Definition XML inventory gates (G4 / #3026 Widget, #3581 Pages/Gadgets)
 
-**Not a Python script.** Phase 5 criteria **G4** for product Widget definition XML under
-`Packages/**/sys__UserDependency--rxconfig/Widgets/` is enforced in Maven Surefire for
-`modules/perc-packages`:
+**Not a Python script.** Phase 5 criteria **G4** for product definition XML under Packages
+ship paths is enforced in Maven Surefire for `modules/perc-packages`:
 
-- Class: `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory`
-- Tests: `PSWidgetDefinitionXmlInventoryTest` (green on product tree; fails if a dummy
-  non-waived fixture XML is introduced under a non-waived package)
-- Explicit waiver: **`perc.Test` only**
-- Cross-platform: `Path` / `Files` only (no hardcoded separators)
+| Kind | Ship paths | API | Surefire |
+|------|------------|-----|----------|
+| Widget | `sys__UserDependency--rxconfig/Widgets/` | `com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory` | `PSWidgetDefinitionXmlInventoryTest` |
+| Page | `sys__UserDependency--rxconfig/Pages/` and `rxconfig/Pages/` | `com.percussion.packages.pagexml.PSPageDefinitionXmlInventory` | `PSPageDefinitionXmlInventoryTest` |
+| Gadget | `sys__UserDependency--rxconfig/Gadgets/` and `rxconfig/Gadgets/` | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` | `PSGadgetDefinitionXmlInventoryTest` |
+
+Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory`
+(combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy non-waived fixture XML is introduced
+under a non-waived package. Explicit waiver: **`perc.Test` only**. Cross-platform: `Path` /
+`Files` only (no hardcoded separators).
 
 Optional CLI (after compiling the module):
 
@@ -82,12 +86,28 @@ cd modules\perc-packages
 ..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
   -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory ^
   -Dexec.args="src\main\resources\Packages"
+
+..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
+  -Dexec.mainClass=com.percussion.packages.pagexml.PSPageDefinitionXmlInventory ^
+  -Dexec.args="src\main\resources\Packages"
+
+..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
+  -Dexec.mainClass=com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory ^
+  -Dexec.args="src\main\resources\Packages"
 ```
 
 ```bash
 cd modules/perc-packages
 ../../mvnw -q exec:java -Dexec.classpathScope=compile \
   -Dexec.mainClass=com.percussion.packages.widgetxml.PSWidgetDefinitionXmlInventory \
+  -Dexec.args="src/main/resources/Packages"
+
+../../mvnw -q exec:java -Dexec.classpathScope=compile \
+  -Dexec.mainClass=com.percussion.packages.pagexml.PSPageDefinitionXmlInventory \
+  -Dexec.args="src/main/resources/Packages"
+
+../../mvnw -q exec:java -Dexec.classpathScope=compile \
+  -Dexec.mainClass=com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory \
   -Dexec.args="src/main/resources/Packages"
 ```
 

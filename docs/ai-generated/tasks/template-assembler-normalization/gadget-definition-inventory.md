@@ -97,6 +97,8 @@ Compiler for upgrade-input `GadgetRegistry.xml` → modern ship format (landed a
 
 **WebUI dual-load (#2788 / #3025):** runtime prefers `gadget-catalog.json` with legacy `GadgetRegistry.xml` fallback; INFO selection metrics and test-visible last-load source/entry count. **Still residual:** delete product/legacy `GadgetRegistry.xml` fallback only when Phase 5 criteria pass (#2852 / M2–M3) — not unattended mass-delete.
 
+**G4 Packages ship-path inventory (#3581):** `PSGadgetDefinitionXmlInventory` + Surefire fails CI if non-waived Gadget definition XML reappears under `Packages/**/sys__UserDependency--rxconfig/Gadgets` or `Packages/**/rxconfig/Gadgets` (waiver: `perc.Test` only). This does **not** cover WebUI `GadgetRegistry.xml` (outside Packages ship paths).
+
 ## Related docs
 
 - `docs/ai-generated/tasks/completed/GADGET-MODERNIZATION-ANALYSIS.md`
