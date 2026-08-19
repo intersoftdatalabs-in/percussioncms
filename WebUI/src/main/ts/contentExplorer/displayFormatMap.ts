@@ -110,14 +110,60 @@ export function resolvePathItemProperty(
   return "";
 }
 
+/**
+ * Numeric id accepted by pathmanagement {@code displayFormatId}
+ * ({@code Integer}). Names such as {@code FolderList} 400 the list.
+ *
+ * <p>Prefers {@code displayId > 0}, then Guid uuid / last GUID segment.
+ * Returns empty when no numeric id can be resolved — callers must not
+ * send the empty string as {@code displayFormatId}.</p>
+ */
+export function resolvePathmanagementDisplayFormatId(df: {
+  displayId?: number;
+  guid?: { uuid?: number | string; stringValue?: string };
+  guidString?: string;
+}): string {
+  if (df.displayId != null && Number.isFinite(df.displayId) && df.displayId > 0) {
+    return String(df.displayId);
+  }
+  const uuid = df.guid?.uuid;
+  const uuidNum = typeof uuid === "number" ? uuid : Number(uuid);
+  if (Number.isFinite(uuidNum) && uuidNum > 0) {
+    return String(uuidNum);
+  }
+  const guidStr = (df.guid?.stringValue || df.guidString || "").trim();
+  if (guidStr) {
+    const last = guidStr.split("-").pop();
+    const lastNum = Number(last);
+    if (Number.isFinite(lastNum) && lastNum > 0) {
+      return String(lastNum);
+    }
+  }
+  return "";
+}
+
+/** True when {@code id} is a positive integer suitable for pathmanagement. */
+export function isNumericDisplayFormatId(
+  id: string | null | undefined,
+): boolean {
+  if (id == null) {
+    return false;
+  }
+  return /^[1-9]\d*$/.test(String(id).trim());
+}
+
 /** Stable key for a display format option in the shell selector. */
 export function displayFormatOptionKey(df: {
   displayId?: number;
   name?: string;
   internalName?: string;
+  guid?: { uuid?: number | string; stringValue?: string };
+  guidString?: string;
 }): string {
-  if (df.displayId != null && Number.isFinite(df.displayId)) {
-    return String(df.displayId);
-  }
-  return df.internalName || df.name || "";
+  return (
+    resolvePathmanagementDisplayFormatId(df) ||
+    df.internalName ||
+    df.name ||
+    ""
+  );
 }

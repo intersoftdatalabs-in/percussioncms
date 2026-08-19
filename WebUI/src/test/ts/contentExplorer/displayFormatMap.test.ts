@@ -17,8 +17,10 @@
 import { describe, expect, it } from "vitest";
 import {
   displayFormatOptionKey,
+  isNumericDisplayFormatId,
   mapDisplayFormatToDetailColumns,
   resolvePathItemProperty,
+  resolvePathmanagementDisplayFormatId,
   toDetailDisplayFormat,
 } from "../../../main/ts/contentExplorer/displayFormatMap";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
@@ -75,5 +77,45 @@ describe("displayFormatMap", () => {
   it("displayFormatOptionKey prefers displayId", () => {
     expect(displayFormatOptionKey({ displayId: 7, name: "x" })).toBe("7");
     expect(displayFormatOptionKey({ name: "Default" })).toBe("Default");
+  });
+
+  it("resolvePathmanagementDisplayFormatId ignores displayId 0 and names", () => {
+    expect(resolvePathmanagementDisplayFormatId({ displayId: 0, name: "FolderList" })).toBe(
+      "",
+    );
+    expect(
+      resolvePathmanagementDisplayFormatId({
+        displayId: 0,
+        guid: { uuid: 12, stringValue: "0-31-12" },
+      }),
+    ).toBe("12");
+    expect(
+      resolvePathmanagementDisplayFormatId({
+        guidString: "0-31-9",
+      }),
+    ).toBe("9");
+    expect(resolvePathmanagementDisplayFormatId({ displayId: 3 })).toBe("3");
+  });
+
+  it("displayFormatOptionKey does not use displayId 0 as the option value", () => {
+    expect(
+      displayFormatOptionKey({ displayId: 0, name: "FolderList" }),
+    ).toBe("FolderList");
+    expect(
+      displayFormatOptionKey({
+        displayId: 0,
+        name: "FolderList",
+        guidString: "0-31-4",
+      }),
+    ).toBe("4");
+  });
+
+  it("isNumericDisplayFormatId accepts positive integers only", () => {
+    expect(isNumericDisplayFormatId("3")).toBe(true);
+    expect(isNumericDisplayFormatId(" 12 ")).toBe(true);
+    expect(isNumericDisplayFormatId("0")).toBe(false);
+    expect(isNumericDisplayFormatId("FolderList")).toBe(false);
+    expect(isNumericDisplayFormatId("")).toBe(false);
+    expect(isNumericDisplayFormatId(null)).toBe(false);
   });
 });

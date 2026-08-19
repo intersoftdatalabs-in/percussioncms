@@ -30,6 +30,7 @@ import {
   lastExisting,
   moveItem,
   MOVE_FOLDER_ITEM_ROOT,
+  isNumericDisplayFormatId,
   paginatedFolder,
   saveFolderProperties,
   unwrapFolderProperties,
@@ -86,6 +87,14 @@ describe("joinPathUrl", () => {
   });
 });
 
+describe("isNumericDisplayFormatId", () => {
+  it("accepts positive integers only", () => {
+    expect(isNumericDisplayFormatId("7")).toBe(true);
+    expect(isNumericDisplayFormatId("0")).toBe(false);
+    expect(isNumericDisplayFormatId("FolderList")).toBe(false);
+  });
+});
+
 describe("paginatedFolder", () => {
   it("binds parseable content ids onto childrenInPage rows (#3546)", async () => {
     mockFetch(async () => {
@@ -135,6 +144,30 @@ describe("paginatedFolder", () => {
     });
     expect(res.children ?? res.items ?? []).toEqual([]);
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it("includes numeric displayFormatId and omits names (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      return new Response(JSON.stringify({ startIndex: 0, maxResults: 50 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await paginatedFolder("/Sites/Foo", {
+      startIndex: 0,
+      maxResults: 50,
+      displayFormatId: "7",
+    });
+    await paginatedFolder("/Sites/Foo", {
+      startIndex: 0,
+      maxResults: 50,
+      displayFormatId: "FolderList",
+    });
+    expect(seen[0]).toContain("displayFormatId=7");
+    expect(seen[1]).not.toContain("displayFormatId=");
   });
 
   it("passes optional sortColumn / sortOrder / category / type when set", async () => {
