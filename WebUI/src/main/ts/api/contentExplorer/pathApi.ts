@@ -70,6 +70,19 @@ export interface PaginatedFolderParams {
   type?: string;
 }
 
+/**
+ * Pathmanagement {@code displayFormatId} is JAX-RS {@code Integer}.
+ * Names (e.g. {@code FolderList}) and {@code 0} are not valid ids.
+ */
+export function isNumericDisplayFormatId(
+  id: string | null | undefined,
+): boolean {
+  if (id == null) {
+    return false;
+  }
+  return /^[1-9]\d*$/.test(String(id).trim());
+}
+
 /** Wrapper shapes for endpoints that return DTOs. These are internal —
  * the typed API functions below unwrap and return the inner type. */
 interface PSPathItemListResponse {
@@ -167,7 +180,9 @@ export async function paginatedFolder(
   if (params.sortColumn) q.set("sortColumn", params.sortColumn);
   if (params.sortOrder) q.set("sortOrder", params.sortOrder);
   if (params.child !== undefined) q.set("child", String(params.child));
-  if (params.displayFormatId) q.set("displayFormatId", params.displayFormatId);
+  if (isNumericDisplayFormatId(params.displayFormatId)) {
+    q.set("displayFormatId", String(params.displayFormatId).trim());
+  }
   if (params.category) q.set("category", params.category);
   if (params.type) q.set("type", params.type);
   const res = await get<PSPagedItemListResponse>(

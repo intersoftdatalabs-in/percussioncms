@@ -18,6 +18,7 @@ import { describe, expect, it } from "vitest";
 import {
   getDisplayFormatDetail,
   listDisplayFormats,
+  listExplorerFolderDisplayFormats,
   normalizeDisplayFormatColumns,
   objectGuidString,
   unwrapDisplayFormat,
@@ -73,6 +74,48 @@ describe("displayFormatsApi", () => {
       );
     });
     const list = await listDisplayFormats({ validForFolder: true });
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe("FolderList");
+  });
+
+  it("listExplorerFolderDisplayFormats falls back when folder filter is empty (#3618)", async () => {
+    const urls: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      urls.push(url);
+      if (url.includes("validForFolder=true")) {
+        return new Response(JSON.stringify({ DisplayFormat: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          DisplayFormat: [
+            { name: "Simple", displayId: 1 },
+            { name: "By_Type", displayId: 3 },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const list = await listExplorerFolderDisplayFormats();
+    expect(urls.some((u) => u.includes("validForFolder=true"))).toBe(true);
+    expect(list).toHaveLength(2);
+    expect(list[0].displayId).toBe(1);
+    expect(list[1].name).toBe("By_Type");
+  });
+
+  it("listExplorerFolderDisplayFormats keeps folder-valid rows when present", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          DisplayFormat: [{ name: "FolderList", displayId: 2, validForFolder: true }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const list = await listExplorerFolderDisplayFormats();
     expect(list).toHaveLength(1);
     expect(list[0].name).toBe("FolderList");
   });

@@ -284,8 +284,11 @@ stay available either way.
 ## Display format
 
 Use the **display format** selector next to the menu bar to choose list columns for the
-current folder (`validForFolder` formats). Changing the format reloads the detail list with
-the selected columns.
+current folder. Explorer prefers folder-valid formats (`validForFolder`). If that filtered
+catalog is empty, it lists the full display-format catalog so you can still switch columns.
+Changing the format reloads the detail list using that format's numeric id
+(`displayFormatId`) so headings and cell values match the selected columns. The selector
+stays available if the catalog fails to load (a short error appears next to it).
 
 ## Server actions and context menu
 

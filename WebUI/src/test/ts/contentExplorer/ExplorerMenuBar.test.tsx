@@ -58,6 +58,18 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(screen.queryByTestId("explorer-display-format-error")).toBeNull();
   });
 
+  it("notifies onSelectFormat with the numeric option key (#3618)", () => {
+    const { onSelectFormat } = renderBar({
+      displayFormats: [
+        { name: "FolderList", displayId: 3, displayName: "Folder list" },
+      ],
+    });
+    fireEvent.change(screen.getByTestId("explorer-display-format"), {
+      target: { value: "3" },
+    });
+    expect(onSelectFormat).toHaveBeenCalledWith("3");
+  });
+
   it("keeps the display-format selector when catalog load failed (#3208)", () => {
     renderBar({ displayFormatLoadError: "formats down" });
     expect(screen.getByTestId("explorer-display-format")).toBeTruthy();
