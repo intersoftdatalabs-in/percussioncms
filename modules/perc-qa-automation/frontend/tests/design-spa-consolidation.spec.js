@@ -25,8 +25,9 @@
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
  * Library + edit run when Design chrome is on the cell (#2808–#2810).
- * Create (#3305) and classic-list redirect (#3306) skip cleanly when that
- * chrome is not deployed yet.
+ * Create (#3305) still skips cleanly when that chrome is not deployed yet.
+ * Classic-list redirect (#3306 / #3579) is required on H2 — fail if
+ * admin.jsp / ?view=design do not land on perc-design-shell.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -37,11 +38,11 @@ const {
 const {
   TEST_IDS,
   CLASSIC_ASSIGNED_TEMPLATES_ID,
-  SKIP,
   designTemplatesUrl,
   designLegacyAdminUrl,
   designLegacyViewUrl,
   skipReasonForChrome,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
   softVisible,
 } = require("./helpers/design-spa-surface");
@@ -193,7 +194,7 @@ test.describe("Design SPA consolidation (#3307)", () => {
     expect(filterConsoleNoise(consoleErrors)).toEqual([]);
   });
 
-  test("legacy Design list lands on SPA when cutover present @smoke @ui @design-spa", async ({
+  test("legacy Design list lands on SPA (#3579 no-skip) @smoke @ui @design-spa", async ({
     page,
   }) => {
     const consoleErrors = attachConsoleGate(page);
@@ -201,28 +202,13 @@ test.describe("Design SPA consolidation (#3307)", () => {
       waitUntil: "domcontentloaded",
     });
 
-    const spaShell = page.locator(tid(TEST_IDS.shell));
-    const redirectToSpa = await softVisible(spaShell, 15_000);
-    const redirectSkip = skipReasonForChrome({
-      shellPresent: true,
-      wantRedirect: true,
-      redirectToSpa,
-    });
-    if (redirectSkip) {
-      // Extra evidence: classic list marker may still be present on main.
-      const classic = page.locator(`#${CLASSIC_ASSIGNED_TEMPLATES_ID}`);
-      if (await softVisible(classic, 3_000)) {
-        test.skip(true, `${SKIP.REDIRECT} Classic #${CLASSIC_ASSIGNED_TEMPLATES_ID} still visible.`);
-      }
-      test.skip(true, redirectSkip);
-    }
-
     await expect(page.locator(tid(TEST_IDS.shell))).toBeVisible({
-      timeout: 15_000,
+      timeout: 30_000,
     });
     await expect(
       page.locator(`#${CLASSIC_ASSIGNED_TEMPLATES_ID}`),
     ).toHaveCount(0);
+    expect(isDesignSpaLandingUrl(page.url())).toBe(true);
 
     await page.goto(designLegacyViewUrl(BASE_URL), {
       waitUntil: "domcontentloaded",
@@ -230,6 +216,7 @@ test.describe("Design SPA consolidation (#3307)", () => {
     await expect(page.locator(tid(TEST_IDS.shell))).toBeVisible({
       timeout: 20_000,
     });
+    expect(isDesignSpaLandingUrl(page.url())).toBe(true);
     expect(filterConsoleNoise(consoleErrors)).toEqual([]);
   });
 });

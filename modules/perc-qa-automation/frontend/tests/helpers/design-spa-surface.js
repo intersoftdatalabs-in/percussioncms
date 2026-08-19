@@ -16,12 +16,13 @@
  */
 
 /**
- * Design SPA surface helpers (#3307 / parent #2631).
+ * Design SPA surface helpers (#3307 / #3579 / parent #2631).
  *
  * URL builders, stable test ids, and skip reasons for library + create/edit
- * consolidation. Sibling slices #3305 (create) and #3306 (classic list
- * redirect) may not be on the QA cell — callers must skip cleanly instead of
- * running the full Playwright suite.
+ * consolidation. Classic list redirect (#3306 / #3579) is required on
+ * perc-devctl qa-up H2 — do not skip when admin.jsp / ?view=design miss
+ * perc-design-shell. Sibling #3305 (create) may still skip cleanly when
+ * that chrome is not on the cell.
  */
 
 "use strict";
@@ -60,8 +61,6 @@ const SKIP = Object.freeze({
   CREATE:
     "Create-template chrome not on this QA cell (design-tpl-create missing; sibling #3305). Clean skip.",
   EDIT_EMPTY: "No templates in catalog — cannot exercise Design SPA editor.",
-  REDIRECT:
-    "Classic Design list still hosted (no perc-design-shell on admin.jsp / ?view=design; sibling #3306). Clean skip.",
 });
 
 /**
@@ -114,10 +113,8 @@ function designLegacyViewUrl(baseUrl) {
  *   shellPresent?: boolean,
  *   createPresent?: boolean,
  *   catalogEmpty?: boolean,
- *   redirectToSpa?: boolean,
  *   wantCreate?: boolean,
  *   wantEdit?: boolean,
- *   wantRedirect?: boolean,
  * }} flags
  * @returns {string|null} skip message, or null when the case should run
  */
@@ -132,10 +129,20 @@ function skipReasonForChrome(flags) {
   if (f.wantEdit && f.catalogEmpty) {
     return SKIP.EDIT_EMPTY;
   }
-  if (f.wantRedirect && !f.redirectToSpa) {
-    return SKIP.REDIRECT;
-  }
   return null;
+}
+
+/**
+ * True when a landed URL is the Design SPA (view=design, entry=design, or
+ * /design path). Used by the no-skip H2 redirect gate (#3579).
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isDesignSpaLandingUrl(url) {
+  return /(?:[?&]view=design(?:[&?#]|$)|[?&]entry=design(?:[&?#]|$)|\/design(?:[/?#]|$))/i.test(
+    String(url || ""),
+  );
 }
 
 /**
@@ -161,6 +168,7 @@ module.exports = {
   designLegacyAdminUrl,
   designLegacyViewUrl,
   skipReasonForChrome,
+  isDesignSpaLandingUrl,
   filterConsoleNoise,
   softVisible,
 };

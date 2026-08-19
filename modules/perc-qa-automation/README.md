@@ -759,21 +759,22 @@ npm run test:surface:list -- --path tests/profile-shell.spec.js
 npm run test:surface:list -- --tag profile
 ```
 
-#### Design SPA library + create/edit consolidation (#3307 / parent #2631)
+#### Design SPA library + create/edit consolidation (#3307 / #3579 / parent #2631)
 
 Surface-filtered companion for the Design SPA template library (list + editor) after
-Phase 4 shells (#2808–#2810). **Create** (#3305) and **classic list redirect** (#3306)
-are asserted when that chrome is on the QA cell; otherwise the spec **skips cleanly**
-(do not run the full suite).
+Phase 4 shells (#2808–#2810). **Classic list redirect** (#3306 / #3579) is
+**required** on `perc-devctl qa-up` H2 (no skip). **Create** (#3305) still skips
+cleanly when that chrome is not on the cell (do not run the full suite).
 
 | Item | Value |
 |------|--------|
-| Spec | `frontend/tests/design-spa-consolidation.spec.js` |
+| Spec (redirect, no-skip) | `frontend/tests/design-legacy-redirect.spec.js` |
+| Spec (consolidation) | `frontend/tests/design-spa-consolidation.spec.js` |
 | Helpers / unit | `frontend/tests/helpers/design-spa-surface.js`, `tests/unit/design-spa-surface.test.js` |
 | Tags | `@design-spa` `@smoke` `@ui` |
-| Soft skip (shell) | No `perc-design-shell` on the cell |
+| Soft skip (shell) | No `perc-design-shell` on the cell (library/edit cases only) |
 | Soft skip (create) | No `design-tpl-create` (sibling #3305 not deployed) |
-| Soft skip (redirect) | `admin.jsp` still classic CM1 list (sibling #3306 not deployed) |
+| Redirect | Fail if `admin.jsp` / `?view=design` do not land on `perc-design-shell` |
 | Product docs | `product-docs/8.2/admin/design-templates.md` |
 
 ```bash
@@ -781,9 +782,10 @@ cd modules/perc-qa-automation/frontend
 # After perc-devctl qa-up (use printed TEST_CMS_URL):
 TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
-  npm run test:surface -- --path tests/design-spa-consolidation.spec.js
+  npm run test:surface -- --path tests/design-legacy-redirect.spec.js
 
-npm run test:surface:list -- --path tests/design-spa-consolidation.spec.js
+npm run test:surface -- --path tests/design-spa-consolidation.spec.js --grep "legacy Design list"
+npm run test:surface:list -- --path tests/design-legacy-redirect.spec.js
 npm run test:surface -- --tag design-spa
 ```
 
