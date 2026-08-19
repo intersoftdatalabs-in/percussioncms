@@ -71,13 +71,7 @@
 			<ArchiveFile>sys__UserDependency--rxconfig_Resources_percDirectory-xml\percDirectory.xml</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percOrganization-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percOrganization.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percOrganization-xml\percOrganization.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_percDepartment_images_percDepartmentIcon-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
@@ -107,13 +101,7 @@
 			<OriginalFile>widgets\percDirectory\css\directoryDropdown.css</OriginalFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percDirectory-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percDirectory.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percDirectory-xml\percDirectory.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_AssetFinder_js_AssetFinder-js">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
@@ -281,13 +269,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_stylesheets_controls_percAssetFinderControl-xsl\percAssetFinderControl.xsl</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percPerson-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percPerson.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percPerson-xml\percPerson.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rxconfig_Resources_percOrganization-xml">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
@@ -402,11 +384,5 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_AssetFinder_css_AssetFinder-css\AssetFinder.css</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percDepartment-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percDepartment.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percDepartment-xml\percDepartment.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 </PSXArchiveManifest>

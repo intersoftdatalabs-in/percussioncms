@@ -417,13 +417,7 @@
 			<ArchiveFile>sys__UserDependency--web__resources_widgets_form_images_calendar-gif\calendar.gif</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percForm-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Widgets\percForm.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percForm-xml\percForm.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_form_images_radio--button--icon--over-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

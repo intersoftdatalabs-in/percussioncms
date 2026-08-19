@@ -30,11 +30,5 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_result_images_widgetIconLinkResult-png\widgetIconLinkResult.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percResult-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percResult.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percResult-xml\percResult.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 </PSXArchiveManifest>

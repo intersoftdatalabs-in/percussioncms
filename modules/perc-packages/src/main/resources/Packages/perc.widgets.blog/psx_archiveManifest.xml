@@ -23,13 +23,7 @@
 			<ArchiveFile>ContentType-357\percBlogPostAsset.schemaDef.contentType</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percBlogPost-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percBlogPost.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percBlogPost-xml\percBlogPost.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef--6788329741293191107">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">

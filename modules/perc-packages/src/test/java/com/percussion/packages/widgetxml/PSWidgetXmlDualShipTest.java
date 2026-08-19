@@ -111,6 +111,7 @@ class PSWidgetXmlDualShipTest {
       assertFalse(
           PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
           pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2883)");
+      assertNoAuthoredWidgetXmlArchivePaths(product, pkgName);
 
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
       // compilePackage falls back to modern when XML absent.
@@ -138,6 +139,11 @@ class PSWidgetXmlDualShipTest {
           written,
           pkgName + " materialize-install must write one XML per modern widget");
       assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      assertTrue(
+          PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
+              Files.readString(
+                  staging.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME))),
+          pkgName + " staging archiveInfo must list Widget XML after install emit (#3582)");
       installXmlWritten += written;
 
       List<PSWidgetXmlCompileResult> fromMaterialized =
@@ -258,6 +264,7 @@ class PSWidgetXmlDualShipTest {
       assertFalse(
           PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
           pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2884)");
+      assertNoAuthoredWidgetXmlArchivePaths(product, pkgName);
 
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
       // compilePackage falls back to modern when XML absent.
@@ -285,6 +292,11 @@ class PSWidgetXmlDualShipTest {
           written,
           pkgName + " materialize-install must write one XML per modern widget");
       assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      assertTrue(
+          PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
+              Files.readString(
+                  staging.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME))),
+          pkgName + " staging archiveInfo must list Widget XML after install emit (#3582)");
       installXmlWritten += written;
 
       List<PSWidgetXmlCompileResult> fromMaterialized =
@@ -388,6 +400,7 @@ class PSWidgetXmlDualShipTest {
       assertFalse(
           PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
           pkgName + " must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#2885)");
+      assertNoAuthoredWidgetXmlArchivePaths(product, pkgName);
 
       List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
       // compilePackage falls back to modern when XML absent.
@@ -415,6 +428,11 @@ class PSWidgetXmlDualShipTest {
           written,
           pkgName + " materialize-install must write one XML per modern widget");
       assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+      assertTrue(
+          PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
+              Files.readString(
+                  staging.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME))),
+          pkgName + " staging archiveInfo must list Widget XML after install emit (#3582)");
       installXmlWritten += written;
 
       List<PSWidgetXmlCompileResult> fromMaterialized =
@@ -499,6 +517,23 @@ class PSWidgetXmlDualShipTest {
       throw new AssertionError("expected IllegalArgumentException");
     } catch (IllegalArgumentException expected) {
       assertTrue(expected.getMessage().contains(".."));
+    }
+  }
+
+  private static void assertNoAuthoredWidgetXmlArchivePaths(Path product, String pkgName)
+      throws Exception {
+    for (String fileName :
+        List.of(
+            PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME,
+            PSWidgetArchiveManifestInventory.ARCHIVE_MANIFEST_FILE_NAME)) {
+      Path descriptor = product.resolve(fileName);
+      if (!Files.isRegularFile(descriptor)) {
+        continue;
+      }
+      String xml = Files.readString(descriptor);
+      assertFalse(
+          PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(xml),
+          pkgName + " must not author rxconfig/Widgets/*.xml in " + fileName + " (#3582)");
     }
   }
 

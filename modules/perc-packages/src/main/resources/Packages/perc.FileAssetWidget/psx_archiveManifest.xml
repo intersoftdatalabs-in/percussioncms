@@ -43,13 +43,7 @@
 			<ArchiveFile>AclDef-7023114102759227515\perc.fileBinary.templateDef.aclDef</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percFile-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percFile.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percFile-xml\percFile.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="AclDef--2005495941909446534">
 		<PSXDependencyFile fileType="SERVICEGENERATED_XML">

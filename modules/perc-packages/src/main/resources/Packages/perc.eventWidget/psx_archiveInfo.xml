@@ -1338,24 +1338,7 @@
 						supportsIdTypes="no" supportsParentId="no"
 						supportsUserDependencies="yes">
 						<Dependencies>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Widgets/percEvent.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Widgets/percEvent.xml"
-										dependencyType="User" displayName="percEvent.xml"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
+							
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"

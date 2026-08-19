@@ -333,13 +333,7 @@
 			<ArchiveFile>sys__UserDependency--rx__resources_widgets_commentsForm_images_form--minus-png\form-minus.png</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percCommentsForm-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>C:\ins\dev\rxconfig\Widgets\percCommentsForm.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percCommentsForm-xml\percCommentsForm.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rx__resources_widgets_commentsForm_images_ButtonApplyOver-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">

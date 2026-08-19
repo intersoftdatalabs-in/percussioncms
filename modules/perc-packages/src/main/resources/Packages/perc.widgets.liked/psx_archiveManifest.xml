@@ -2,13 +2,7 @@
 
 
 <PSXArchiveManifest>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--rxconfig_Widgets_percLiked-xml">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percLiked.xml</RxFile>
-			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percLiked-xml\percLiked.xml</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
+	
 	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--web__resources_widgets_liked_images_IconLikeDisabled-png">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
