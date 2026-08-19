@@ -2419,6 +2419,40 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("free-text submit empty transport is empty-success not error (#3617)", async () => {
+    stubPathFetch();
+    const search = vi.fn(async () => ({
+      children: [],
+      totalCount: 0,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+        search={search}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() =>
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "no-hits" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-empty")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("search-panel-error")).toBeNull();
+  });
+
   it("passes listSavedSearches and executeSavedSearch into SearchPanel (#2850)", async () => {
     stubPathFetch();
     const listSavedSearches = vi.fn(async () => [
