@@ -36,3 +36,16 @@ Standalone `cd system && ../mvnw.cmd clean install` → **BUILD SUCCESS**.
 `PSVirtualSiteFilesystemPublisherTest`: Tests run: 11, Failures: 0.  
 Module Surefire: Tests run: 2231, Failures: 0, Errors: 0, Skipped: 241.  
 `scripts\ci-smoke-product-docs.bat` → OK (redirect HTML + `redirects.json` emitted).
+
+## Re-review (PR #3603 CodeQL #1983)
+
+**Recommendation:** approve  
+**Gate:** May commit/push: yes
+
+`redirects.json` is no longer `safeOut.resolve(constant)` (CodeQL residual on `Files.writeString(map)`). It now goes through modeled `resolveHref` after `requireSafeBuildRoot`. Path query-filter + suppressions.md row for #1983. Tests: `VirtualRedirectsEmitterTest` writes under outputRoot and rejects `../` outputRoot.
+
+Cross-platform path checklist: `Path`/`resolveHref`/`@TempDir`; `startsWith` on normalized absolute paths. Clean.
+
+Standalone `cd system && ../mvnw.cmd clean install` → **BUILD SUCCESS**.  
+`VirtualRedirectsEmitterTest`: Tests run: 2, Failures: 0.  
+Module Surefire: Tests run: 2233, Failures: 0, Errors: 0, Skipped: 241.

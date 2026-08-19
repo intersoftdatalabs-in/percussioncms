@@ -65,7 +65,9 @@ public final class VirtualRedirectsEmitter {
           outFile, redirectHtml(redirect.to()), StandardCharsets.UTF_8); // codeql[java/path-injection]
       written.add(href);
     }
-    Path map = safeOut.resolve(REDIRECTS_MAP_FILE); // codeql[java/path-injection]
+    // Constant filename under the same resolveHref barrier as HTML (rejects
+    // .. / NUL / absolute; stays under requireSafeBuildRoot).
+    Path map = PSVirtualSiteBuildService.resolveHref(safeOut, REDIRECTS_MAP_FILE);
     Files.writeString(map, toJsonMap(redirects), StandardCharsets.UTF_8); // codeql[java/path-injection]
     written.add(REDIRECTS_MAP_FILE);
     return written;
