@@ -48,3 +48,13 @@ None (blocking).
 - Playwright H2: `architecture-create-section-noskip.spec.js` 2 passed; `architecture-nav-mutations-smoke.spec.js` 1 passed
 - console-clean=yes; server.log-clean=yes for the post-restart test window (no new type-315 ERROR)
 - `scripts/ci-smoke-product-docs.bat` OK
+
+## Re-review (PR #3604 Kilo threads)
+
+**Recommendation:** approve  
+**Gate:** May commit/push: yes
+
+Removed dead `isSampleDemoSite` fallback in `firstSampleDemoSite` (same membership as the `SAMPLE_DEMO_SITE_NAMES` loop). Second Playwright test now includes the site-list payload in the `demoSite` assertion, matching the first test. No path I/O. No public API change.
+
+- `npm run test:unit` → 325 pass, 0 fail
+- `cd modules/perc-qa-automation && ../../mvnw.cmd clean install` → BUILD SUCCESS

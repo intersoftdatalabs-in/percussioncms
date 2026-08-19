@@ -123,8 +123,7 @@ function firstSampleDemoSite(names) {
       return String(match).trim();
     }
   }
-  const any = list.find((n) => isSampleDemoSite(n));
-  return any ? String(any).trim() : null;
+  return null;
 }
 
 /**

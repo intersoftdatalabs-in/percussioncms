@@ -154,10 +154,12 @@ test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
 
     const sitesResp = await page.request.get(siteListUrl(BASE_URL));
     expect(sitesResp.ok()).toBeTruthy();
-    const demoSite = firstSampleDemoSite(
-      siteNamesFromPayload(await sitesResp.json()),
-    );
-    expect(demoSite).toBeTruthy();
+    const names = siteNamesFromPayload(await sitesResp.json());
+    const demoSite = firstSampleDemoSite(names);
+    expect(
+      demoSite,
+      `QA cell must list a #3352 sample site; got ${JSON.stringify(names)}`,
+    ).toBeTruthy();
 
     await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
       waitUntil: "domcontentloaded",
