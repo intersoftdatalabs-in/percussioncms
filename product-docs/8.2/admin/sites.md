@@ -141,6 +141,12 @@ blank). Load failures show **Could not load sites** rather than the empty state.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties).
 
+To use a **Git remote** as the system of record (clone/fetch on Build), set **Remote URL**
+and **Branch** on this panel (or `virtual.remoteUrl` / `virtual.branch` via
+`PUT /services/sites/{name}/virtual`) — see
+[Virtual Sites (developer)](id:developer-virtual-sites). Leave **Remote URL** blank to keep
+a local Git checkout path.
+
 Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds,
 required local root path when virtual and no remote, safe remote URLs/branches, and
 safe path/config names. After root, remote, or config changes, re-run the offline
@@ -161,9 +167,10 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
    server properties, not unsaved form fields. When a remote is set, Build clones or
    fetches first (`git` must be on the CMS `PATH`).
 4. Choose **Build Virtual Site**.
-5. After a `git pull` or a local Markdown/frontmatter edit on the host, choose **Build Virtual
-   Site** again. The build re-reads the current filesystem — **do not restart the CMS** just to
-   pick up those edits. There is no file watcher; the next explicit build is the refresh.
+5. After a `git pull` or a local Markdown/frontmatter edit on the host — or after the remote
+   branch moves — choose **Build Virtual Site** again. The build re-reads the current tree
+   (and re-fetches when a remote is configured) — **do not restart the CMS** just to pick up
+   those edits. There is no file watcher; the next explicit build is the refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).

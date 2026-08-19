@@ -85,7 +85,7 @@ public interface ISiteAdaptor {
   /**
    * Creates or updates Virtual Site properties for a site identified by name or GUID string.
    * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list, required root path
-   * when virtual, safe path / config file name).
+   * when virtual and remote is blank, optional remoteUrl/branch, safe path / config file name).
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null
@@ -98,9 +98,10 @@ public interface ISiteAdaptor {
    * Builds a Virtual Site from configured {@code virtual.*} properties (Phase 1:
    * {@code git-filesystem}).
    *
-   * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, runs {@code
-   * PSVirtualSiteBuildService} with portable NIO {@code Path} I/O, and returns pages-written plus
-   * link-problem summary. Requires Admin (or equivalent site-manage) authorization.
+   * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
+   * virtual.remoteUrl} into a contained work directory, runs {@code PSVirtualSiteBuildService} with
+   * portable NIO {@code Path} I/O, and returns pages-written plus link-problem summary. Requires
+   * Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param request optional body (output root override); may be null

@@ -29,18 +29,22 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * <ul>
  *   <li>{@code virtual.sourceKind}
  *   <li>{@code virtual.rootPath}
+ *   <li>{@code virtual.remoteUrl}
+ *   <li>{@code virtual.branch}
  *   <li>{@code virtual.configFile}
  *   <li>{@code virtual.siteKey}
  * </ul>
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a traditional repository
- * Site. Phase 1 virtual adapter: {@code git-filesystem}.
+ * Site. Phase 1 virtual adapter: {@code git-filesystem}. Optional {@code remoteUrl} + {@code branch}
+ * fetch/clone into a contained work directory before discover; blank remote keeps local {@code
+ * rootPath}.
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
- * {@code configFile}, and {@code siteKey} under root {@code VirtualSiteProperties}. Optional
- * getters historically produced JAXB {@code unexpected element sourceKind} on PUT (#3365 / QA
- * #3030).
+ * {@code remoteUrl}, {@code branch}, {@code configFile}, and {@code siteKey} under root {@code
+ * VirtualSiteProperties}. Optional getters historically produced JAXB {@code unexpected element
+ * sourceKind} on PUT (#3365 / QA #3030).
  */
 @XmlRootElement(name = "VirtualSiteProperties")
 @JsonRootName("VirtualSiteProperties")
@@ -49,7 +53,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
     name = "VirtualSiteProperties",
     description =
         "Virtual Site source configuration (virtual.sourceKind, virtual.rootPath,"
-            + " virtual.configFile, virtual.siteKey)")
+            + " virtual.remoteUrl, virtual.branch, virtual.configFile, virtual.siteKey)")
 public class VirtualSiteProperties {
 
   @Schema(
@@ -60,10 +64,23 @@ public class VirtualSiteProperties {
 
   @Schema(
       description =
-          "Filesystem path to the Virtual Site root (absolute or install-relative). Required when"
-              + " sourceKind is virtual.",
+          "Filesystem path to the Virtual Site root (absolute or install-relative) when remoteUrl"
+              + " is blank. When remoteUrl is set, optional relative path inside the checkout.",
       example = "C:/workspaces/product-docs")
   private String rootPath;
+
+  @Schema(
+      description =
+          "Optional Git remote (https://, ssh://, file://, or git@host:path). When set, Build"
+              + " clones or fetches into a contained work directory before discover. Blank keeps"
+              + " local-path git-filesystem.",
+      example = "https://git.example.com/org/product-docs.git")
+  private String remoteUrl;
+
+  @Schema(
+      description = "Git branch to checkout when remoteUrl is set. Optional; default main.",
+      example = "main")
+  private String branch;
 
   @Schema(
       description = "Config file name under rootPath. Optional; default _config.yaml.",
@@ -101,6 +118,22 @@ public class VirtualSiteProperties {
 
   public void setRootPath(String rootPath) {
     this.rootPath = rootPath;
+  }
+
+  public String getRemoteUrl() {
+    return remoteUrl;
+  }
+
+  public void setRemoteUrl(String remoteUrl) {
+    this.remoteUrl = remoteUrl;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  public void setBranch(String branch) {
+    this.branch = branch;
   }
 
   public String getConfigFile() {
