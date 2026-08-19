@@ -26,11 +26,18 @@
  *
  * <p>Server is authoritative: actions not in the supplied list are
  * hidden (FR-011). Action execution is the host's responsibility — this
- * component is presentation-only.</p>
+ * component is presentation-only. Envelope {@code children} are unwrapped
+ * and descendant names that also appear as roots are collapsed so MENU
+ * parents stay nested (same catalog as the toolbar) rather than a flat
+ * label dump (#3629).</p>
  */
 
 import React, { useEffect, useId, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
+import {
+  prepareMenuActionTree,
+  unwrapMenuActionChildren,
+} from "./actionEnablement";
 
 export interface ContextMenuProps {
   /** Server-provided menu actions (already filtered for the current selection). */
@@ -67,13 +74,14 @@ function activate(
 }
 
 export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
-  const { actions, onInvoke, onClose, ariaLabel, className } = props;
+  const { onInvoke, onClose, ariaLabel, className } = props;
+  const actions = prepareMenuActionTree(props.actions);
   const [openPivot, setOpenPivot] = useState<string | null>(null);
   const baseId = useId();
 
   useEffect(() => {
     setOpenPivot(null);
-  }, [actions]);
+  }, [props.actions]);
 
   function handleContainerKey(e: React.KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") {
@@ -104,6 +112,14 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
       className={className}
       data-testid="context-menu"
       onKeyDown={handleContainerKey}
+      style={{
+        background: "#fff",
+        border: "1px solid #bbb",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+        minWidth: 180,
+        maxHeight: "70vh",
+        overflowY: "auto",
+      }}
     >
       {actions.length === 0 ? (
         <div role="presentation" data-testid="context-menu-empty">
@@ -115,7 +131,8 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
           style={{ listStyle: "none", padding: 0, margin: 0 }}
         >
           {actions.map((action) => {
-            const isPivot = (action.children?.length ?? 0) > 0;
+            const kids = unwrapMenuActionChildren(action.children);
+            const isPivot = kids.length > 0;
             const expanded = openPivot === action.name;
             const submenuId = `${baseId}-${action.name}-submenu`;
             return (
@@ -141,11 +158,12 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                   {action.label}
                   {isPivot ? <span aria-hidden="true"> ▶</span> : null}
                 </div>
-                {isPivot && expanded && action.children ? (
+                {isPivot && expanded ? (
                   <ul
                     id={submenuId}
                     role="menu"
                     aria-label={`${action.label} submenu`}
+                    data-testid={`context-menu-submenu-${action.name}`}
                     style={{
                       listStyle: "none",
                       paddingLeft: 16,
@@ -153,7 +171,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                       borderLeft: "2px solid #ccc",
                     }}
                   >
-                    {action.children.map((c) => (
+                    {kids.map((c) => (
                       <li
                         key={c.name}
                         role="none"

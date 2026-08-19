@@ -117,6 +117,7 @@ import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
 import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
+import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
@@ -849,17 +850,25 @@ function ContentExplorerShellInner({
           if (requestId !== contextMenuRequestIdRef.current) return;
           // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
           const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: filterContextMenuActions(merged, undefined, item),
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         } catch {
           if (requestId !== contextMenuRequestIdRef.current) return;
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: [],
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         }
       })();

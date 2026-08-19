@@ -296,6 +296,9 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
   choose a child command. Child items (for example **Move** under Paste, or
   **View Properties** under View) are **not** shown as extra top-level buttons while
   the menu is closed. **Workflow** transitions stay a labeled one-click button group.
+- **Right-click a selected list row** (Sites, Assets, or a folder with children)
+  opens the same catalog as a **nested context menu** — MENU parents stay
+  expandable, not a flat list of every child label. Desktop-only actions stay hidden.
 - When you select a content item, the shell keeps that cascading tree and may add
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
