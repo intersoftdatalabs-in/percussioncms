@@ -25,8 +25,9 @@
  * QA mode: perc-devctl qa-up → TEST_CMS_URL + ADMIN_* → test:surface → qa-down.
  *
  * Library + edit run when Design chrome is on the cell (#2808–#2810).
- * Create (#3305) and classic-list redirect (#3306) skip cleanly when that
- * chrome is not deployed yet.
+ * Create (#3305 / #3578) is required — fail if design-tpl-create is missing.
+ * Classic-list redirect (#3306) still skips cleanly when that cutover is not
+ * deployed yet.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -160,15 +161,7 @@ test.describe("Design SPA consolidation (#3307)", () => {
     await openDesignLibrary(page);
 
     const createBtn = page.locator(tid(TEST_IDS.create));
-    const createPresent = await softVisible(createBtn, 8_000);
-    const createSkip = skipReasonForChrome({
-      shellPresent: true,
-      wantCreate: true,
-      createPresent,
-    });
-    if (createSkip) {
-      test.skip(true, createSkip);
-    }
+    await expect(createBtn).toBeVisible({ timeout: 30_000 });
 
     const error = page.locator(tid(TEST_IDS.error));
     if (await error.isVisible()) {

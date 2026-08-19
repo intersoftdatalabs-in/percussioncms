@@ -31,6 +31,9 @@ const {
   designLegacyAdminUrl,
   designLegacyViewUrl,
   skipReasonForChrome,
+  isTemplatesCollectionUrl,
+  isTemplateCreatePost,
+  createBodyHasWidgetXml,
   filterConsoleNoise,
 } = require("../helpers/design-spa-surface");
 
@@ -71,15 +74,16 @@ describe("design-spa-surface helpers (#3307)", () => {
     );
   });
 
-  it("skips create when sibling #3305 chrome is absent", () => {
+  it("does not skip create when chrome is absent (#3578 no-skip)", () => {
     assert.equal(
       skipReasonForChrome({
         shellPresent: true,
         wantCreate: true,
         createPresent: false,
       }),
-      SKIP.CREATE,
+      null,
     );
+    assert.equal(SKIP.CREATE, undefined);
   });
 
   it("skips editor when catalog is empty", () => {
@@ -129,6 +133,49 @@ describe("design-spa-surface helpers (#3307)", () => {
       }),
       null,
     );
+  });
+
+  it("matches POST /services/templates collection only", () => {
+    assert.equal(
+      isTemplatesCollectionUrl("http://127.0.0.1:2050/Rhythmyx/services/templates"),
+      true,
+    );
+    assert.equal(
+      isTemplatesCollectionUrl(
+        "http://127.0.0.1:2050/Rhythmyx/services/templates/Home",
+      ),
+      false,
+    );
+    assert.equal(
+      isTemplateCreatePost({
+        method: () => "POST",
+        url: () => "http://127.0.0.1:2050/Rhythmyx/services/templates",
+      }),
+      true,
+    );
+    assert.equal(
+      isTemplateCreatePost({
+        method: () => "GET",
+        url: () => "http://127.0.0.1:2050/Rhythmyx/services/templates",
+      }),
+      false,
+    );
+  });
+
+  it("rejects Widget XML on create payloads", () => {
+    assert.equal(
+      createBodyHasWidgetXml({
+        TemplateDetail: { name: "qa.create.tpl", assembler: "htmlAssembler" },
+      }),
+      false,
+    );
+    assert.equal(
+      createBodyHasWidgetXml(
+        JSON.stringify({ TemplateDetail: { widgetXml: "<Widget/>" } }),
+      ),
+      true,
+    );
+    assert.equal(createBodyHasWidgetXml(null), false);
   });
 
   it("filters known console noise", () => {
