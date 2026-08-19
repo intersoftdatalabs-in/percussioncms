@@ -18,7 +18,13 @@
 
 package com.percussion.sitemanage.error;
 
-/** Defines the error codes produced by the site management service. */
+/**
+ * Legacy int bridge for site-management service error codes.
+ *
+ * <p>New production call sites must use {@link
+ * com.intsof.percussioncms.auditlog.codes.SiteManageErrorCodes}. Do not delete this interface until
+ * the family migration is complete.
+ */
 public interface IPSSiteManageErrors {
   /** Error code category for site management service errors. */
   int SITE_MANAGE_SERVICE_CATEGORY = 18251; // through 1900

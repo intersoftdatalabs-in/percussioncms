@@ -37,7 +37,7 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.publishing.IPSPublishingWs;
@@ -193,7 +193,7 @@ public class PSPublishingWs implements IPSPublishingWs
       }
       catch (PSFilterException e)
       {
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
+         var code = WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME;
          throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                      IPSItemFilter.class.getName(), name),
@@ -211,7 +211,7 @@ public class PSPublishingWs implements IPSPublishingWs
       }
       catch (PSNotFoundException e)
       {
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
+         var code = WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME;
          throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                      IPSContentList.class.getName(), name),
@@ -230,7 +230,7 @@ public class PSPublishingWs implements IPSPublishingWs
       }
       catch (PSNotFoundException e)
       {
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
+         var code = WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME;
          throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                      IPSPublishingContext.class.getName(), contextname),
@@ -254,7 +254,7 @@ public class PSPublishingWs implements IPSPublishingWs
       if (site != null)
          return site;
 
-      int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
+      var code = WebserviceErrorCodes.OBJECT_NOT_FOUND_BY_NAME;
       PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
                   IPSSite.class.getName(), sitename),

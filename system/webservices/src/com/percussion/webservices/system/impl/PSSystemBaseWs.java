@@ -21,7 +21,7 @@ import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.logging.log4j.LogManager;
@@ -67,7 +67,7 @@ public class PSSystemBaseWs
       catch (PSException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         int code = IPSWebserviceErrors.FAILED_LOAD_REL_CONFIGS;
+         var code = WebserviceErrorCodes.FAILED_LOAD_REL_CONFIGS;
          throw new PSErrorException(code, PSWebserviceErrors
                .createErrorMessage(code,PSExceptionUtils.getMessageForLog(e)),
                  PSExceptionUtils.getDebugMessageForLog(e));

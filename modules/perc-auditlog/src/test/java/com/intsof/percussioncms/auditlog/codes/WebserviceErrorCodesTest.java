@@ -20,10 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.AuditEventType;
+import com.intsof.percussioncms.auditlog.AuditLogId;
 import com.intsof.percussioncms.auditlog.AuditModule;
+import com.intsof.percussioncms.auditlog.DefaultAuditLogService;
+import com.intsof.percussioncms.auditlog.LegacyErrorCodeRegistry;
+import com.intsof.percussioncms.auditlog.sink.CapturingAuditLogSink;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -84,5 +90,59 @@ class WebserviceErrorCodesTest {
     assertEquals(32, WebserviceErrorCodes.ACCESS_CONTROL_ERROR.numericCode());
     assertEquals(72, WebserviceErrorCodes.NOT_AUTHORIZED.numericCode());
     assertEquals(73, WebserviceErrorCodes.FAILED_TO_OBTAIN_PATH_FROM_OBJECT_ID.numericCode());
+  }
+
+  @Test
+  void collidingSessionCodesDualWriteViaEnumNotFlatInt() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId invalid =
+        svc.log(
+            WebserviceErrorCodes.INVALID_SESSION,
+            AuditContext.builder().actor("jdoe").build(),
+            "sid");
+    assertFalse(invalid.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(WebserviceErrorCodes.INVALID_SESSION, sink.records().get(0).code());
+    assertTrue(sink.records().get(0).formattedLine().startsWith("[SYS-3]-"));
+
+    AuditLogId missing =
+        svc.log(
+            WebserviceErrorCodes.MISSING_SESSION,
+            AuditContext.builder().actor("jdoe").build());
+    assertFalse(missing.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertEquals(WebserviceErrorCodes.MISSING_SESSION, sink.records().get(1).code());
+  }
+
+  @Test
+  void accessControlDualWritesViaRegisteredInt() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            WebserviceErrorCodes.ACCESS_CONTROL_ERROR.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "guid",
+            "READ");
+
+    assertFalse(id.value().equals(LegacyErrorCodeRegistry.SKIPPED.value()));
+    assertSame(WebserviceErrorCodes.ACCESS_CONTROL_ERROR, sink.records().get(0).code());
+  }
+
+  @Test
+  void operationalSaveFailedSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        svc.log(
+            WebserviceErrorCodes.SAVE_FAILED,
+            AuditContext.builder().actor("jdoe").build(),
+            "obj");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
   }
 }

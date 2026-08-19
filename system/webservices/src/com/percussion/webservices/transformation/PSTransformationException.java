@@ -16,6 +16,7 @@
  */
 package com.percussion.webservices.transformation;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.utils.exceptions.PSBaseException;
 
 public class PSTransformationException extends PSBaseException
@@ -24,6 +25,8 @@ public class PSTransformationException extends PSBaseException
     * Compiler generated serial version ID used for serialization.
     */
    private static final long serialVersionUID = -763062444961430893L;
+
+   private transient IPSErrorCode typedErrorCode;
 
    /*
     * (non-Javadoc)
@@ -54,6 +57,55 @@ public class PSTransformationException extends PSBaseException
       Object... arrayArgs)
    {
       super(msgCode, cause, arrayArgs);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    *
+    * @param code catalogued error code, never {@code null}
+    */
+   public PSTransformationException(IPSErrorCode code)
+   {
+      super(requireCode(code).numericCode());
+      this.typedErrorCode = code;
+   }
+
+   /**
+    * Typed construction with message arguments.
+    *
+    * @param code catalogued error code, never {@code null}
+    * @param arrayArgs message arguments; may be {@code null}
+    */
+   public PSTransformationException(IPSErrorCode code, Object... arrayArgs)
+   {
+      super(requireCode(code).numericCode(), arrayArgs);
+      this.typedErrorCode = code;
+   }
+
+   /**
+    * Typed error code when constructed via {@link IPSErrorCode} overloads;
+    * otherwise {@code null}.
+    */
+   public IPSErrorCode getTypedErrorCode()
+   {
+      return typedErrorCode;
+   }
+
+   /**
+    * Whether dual-write should consider this exception auditable.
+    */
+   public boolean isAuditable()
+   {
+      return typedErrorCode != null && typedErrorCode.isAuditable();
+   }
+
+   private static IPSErrorCode requireCode(IPSErrorCode code)
+   {
+      if (code == null)
+      {
+         throw new IllegalArgumentException("code may not be null");
+      }
+      return code;
    }
 
    /*

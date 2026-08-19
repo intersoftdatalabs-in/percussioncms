@@ -26,7 +26,7 @@ import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.util.PSCharSets;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -161,7 +161,7 @@ public class PSUiBaseWs
       catch (Exception e)
       {
 
-         int code = IPSWebserviceErrors.FIND_FAILED;
+         var code = WebserviceErrorCodes.FIND_FAILED;
          // Report the requested component type (search/view/action/display format), not a hardcoded
          // PSAction — callers use this for PSSearch and others; wrong type misled GH-2712 triage.
          PSErrorException error = new PSErrorException(code, PSWebserviceErrors

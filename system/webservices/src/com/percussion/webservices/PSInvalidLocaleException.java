@@ -16,6 +16,8 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * Thrown for services operating with locales. 
  */
@@ -38,6 +40,15 @@ public class PSInvalidLocaleException extends PSErrorException
     * @see PSErrorException#PSErrorException(int, String, String)
     */
    public PSInvalidLocaleException(int code, String errorMessage, 
+      String stack)
+   {
+      super(code, errorMessage, stack);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    */
+   public PSInvalidLocaleException(IPSErrorCode code, String errorMessage,
       String stack)
    {
       super(code, errorMessage, stack);

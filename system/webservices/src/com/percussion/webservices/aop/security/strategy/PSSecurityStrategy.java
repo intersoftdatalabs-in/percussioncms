@@ -24,7 +24,7 @@ import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
@@ -425,7 +425,7 @@ public abstract class PSSecurityStrategy
          } catch (com.percussion.services.security.PSServiceSecurityException e) {
             m_log.warn("Failed to load ACLs for object ids: " + e.getMessage());
             PSDesignGuid dguid = new PSDesignGuid(ids.get(0));
-            int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+            var code = WebserviceErrorCodes.ACCESS_CONTROL_ERROR;
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                   dguid.toString(), perm),
@@ -519,7 +519,7 @@ public abstract class PSSecurityStrategy
       } catch (Exception e) {
          m_log.warn("Failed to load ACL for guid " + guid + ": " + e.getMessage());
          PSDesignGuid dguid = new PSDesignGuid(guid);
-         int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+         var code = WebserviceErrorCodes.ACCESS_CONTROL_ERROR;
          PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                      dguid.toString(), perm),
@@ -567,7 +567,7 @@ public abstract class PSSecurityStrategy
          } catch (Exception e) {
             m_log.warn("Failed to calculate user access level for guid " + guid + ": " + e.getMessage());
             PSDesignGuid dguid = new PSDesignGuid(guid);
-            int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+            var code = WebserviceErrorCodes.ACCESS_CONTROL_ERROR;
             PSErrorException error = new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                   dguid.toString(), perm),
@@ -581,7 +581,7 @@ public abstract class PSSecurityStrategy
       if (!hasAccess(perm, accessLevel))
       {
          PSDesignGuid dguid = new PSDesignGuid(guid);
-         int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+         var code = WebserviceErrorCodes.ACCESS_CONTROL_ERROR;
          PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
                dguid.toString(), perm),

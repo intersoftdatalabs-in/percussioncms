@@ -16,7 +16,9 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import com.intsof.percussioncms.auditlog.codes.TransformationErrorCodes;
 import com.percussion.cms.IPSConstants;
+import com.percussion.webservices.transformation.PSTransformationException;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
@@ -144,7 +146,9 @@ public class PSConverter implements Converter
       Converter converter = getBeanUtils().getConvertUtils().lookup(type);
       if (converter == null)
          throw new ConversionException(
-            "No converter registered for type " + type.getName());
+            new PSTransformationException(
+               TransformationErrorCodes.NO_CONVERTER_FOUND, type.getName())
+               .getLocalizedMessage());
       
       return converter;
    }

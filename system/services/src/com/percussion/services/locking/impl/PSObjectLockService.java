@@ -28,7 +28,7 @@ import com.percussion.services.utils.orm.PSCriteriaQueryRepeater;
 import com.percussion.services.utils.orm.PSORMUtils;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
@@ -218,7 +218,7 @@ public class PSObjectLockService
 
             createLock(id, session, user, version, overrideLock);
          } catch (PSLockException e) {
-            int code = IPSWebserviceErrors.CREATE_LOCK_FAILED;
+            var code = WebserviceErrorCodes.CREATE_LOCK_FAILED;
             PSLockErrorException error = new PSLockErrorException(code,
                     PSWebserviceErrors.createErrorMessage(code,
                             value.getClass().getName(), new PSDesignGuid(id).getValue(),

@@ -16,6 +16,8 @@
  */
 package com.percussion.webservices;
 
+import com.percussion.error.IPSErrorCode;
+
 /**
  * Thrown for services operating with unknown child tables. 
  */
@@ -38,6 +40,15 @@ public class PSUnknownChildException extends PSErrorException
     * @see PSErrorException#PSErrorException(int, String, String)
     */
    public PSUnknownChildException(int code, String errorMessage, 
+      String stack)
+   {
+      super(code, errorMessage, stack);
+   }
+
+   /**
+    * Typed construction from a catalogued {@link IPSErrorCode}.
+    */
+   public PSUnknownChildException(IPSErrorCode code, String errorMessage,
       String stack)
    {
       super(code, errorMessage, stack);

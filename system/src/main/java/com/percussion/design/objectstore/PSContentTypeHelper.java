@@ -51,7 +51,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.webservices.IPSWebserviceErrors;
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
@@ -535,7 +535,7 @@ public class PSContentTypeHelper {
    */
   public static void validateUniqueName(String name) {
     if (doesContentTypeExist(name)) {
-      int code = IPSWebserviceErrors.OBJECT_ALREADY_EXISTS;
+      var code = WebserviceErrorCodes.OBJECT_ALREADY_EXISTS;
       throw new IllegalArgumentException(
           PSWebserviceErrors.createErrorMessage(code, PSTypeEnum.NODEDEF, name));
     }
