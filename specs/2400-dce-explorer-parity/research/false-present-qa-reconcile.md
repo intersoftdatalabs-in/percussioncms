@@ -19,9 +19,11 @@ Agent-merged product-route wiring remains valuable evidence that code landed, bu
 
 ---
 
+**Live GitHub (2026-08-19):** the **Failed** / **open** words in the table below are the **2026-08-11 snapshot**. Do not cite them as current. Residual [#3619](https://github.com/intersoftdatalabs-in/percussioncms/issues/3619) / [partial-citation-residual-after-3577.md](./partial-citation-residual-after-3577.md): `#2588` `#2741` `#2745` `#2783` `#2607` are **CLOSED Failed**; `#2729` `#2856` `#2988` `#3101` **Passed**; `#2989` **closed**; `#2645` remains **open** (To Be Tested). **No Present flip.**
+
 ## Rows flipped Present → Partial
 
-| Matrix capability | Linked QA / bugs (state at reconcile) | Why Partial |
+| Matrix capability | Linked QA / bugs (state at 2026-08-11 reconcile) | Why Partial |
 |-------------------|----------------------------------------|-------------|
 | Sites/folders tree | [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) open p1 (Sites not loaded / no create); [#3101](https://github.com/intersoftdatalabs-in/percussioncms/issues/3101) open dual-run folder QA | Hierarchy not operator-usable for Sites sample content |
 | Full product shell composition | [#2588](https://github.com/intersoftdatalabs-in/percussioncms/issues/2588) **Failed** | Shell/DF/search chrome QA failed |
@@ -65,7 +67,8 @@ Agent-merged product-route wiring remains valuable evidence that code landed, bu
 2. When QA **Fails** with a fixable product defect, file/fix the p1 bug; keep matrix **Partial** until re-QA.  
 3. Sites hierarchy: prioritize [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) before new chrome features (#3102 suggested next actions).  
 4. Views (DCE category) + Inbox disposition remain on #3102 slices #3108 / #3110 — separate from this QA reconcile.  
-5. **2026-08-18:** Closing a **QA: Failed** ticket after residuals is **not** a Pass. [#3577](https://github.com/intersoftdatalabs-in/percussioncms/issues/3577) refreshed Partial citations and re-audited Relationships (**Present → Partial**). See [closed-qa-partial-citation-refresh.md](./closed-qa-partial-citation-refresh.md). **Do not** treat that docs slice as a Present flip.
+5. **2026-08-18:** Closing a **QA: Failed** ticket after residuals is **not** a Pass. [#3577](https://github.com/intersoftdatalabs-in/percussioncms/issues/3577) refreshed Partial citations and re-audited Relationships (**Present → Partial**). See [closed-qa-partial-citation-refresh.md](./closed-qa-partial-citation-refresh.md). **Do not** treat that docs slice as a Present flip.  
+6. **2026-08-19:** [#3619](https://github.com/intersoftdatalabs-in/percussioncms/issues/3619) leftover of #3577 — snapshot table + closed proof tickets (`#3575`/`#3576`/`#3592`) no longer cited as open. See [partial-citation-residual-after-3577.md](./partial-citation-residual-after-3577.md). **Do not** treat that docs slice as a Present flip.
 
 ---
 
@@ -75,3 +78,4 @@ Agent-merged product-route wiring remains valuable evidence that code landed, bu
 |------|------|
 | 2026-08-11 | #3109: initial reconcile; nine capability rows Present → Partial; defend multi-select, detail list, host search, reduced actions, OUT translation, Object ACL Partial. |
 | 2026-08-18 | #3577: citations only — Failed QA tickets closed after residuals; no Present flip. Pointer: [closed-qa-partial-citation-refresh.md](./closed-qa-partial-citation-refresh.md). |
+| 2026-08-19 | #3619: leftover of #3577 — snapshot no longer reads as live Failed/open; proof tickets closed. Pointer: [partial-citation-residual-after-3577.md](./partial-citation-residual-after-3577.md). |

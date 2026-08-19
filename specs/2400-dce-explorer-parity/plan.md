@@ -35,7 +35,7 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 | Folder-valid display format list | `GET /rest/displayformats?validForFolder=true` | **Done** (PR #2412) |
 | Column cell data | Use `PSPathItem.displayProperties` / `columnData` when `displayFormatId` set on paginatedFolder | **Done** for shell path (PR #2412) |
 | Workflow / modified columns empty | If still empty after format id, extend path list DTO in sitemanage (not invent on client) | Open if QA finds empty columns |
-| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | **Done** A–D (#2504–#2507); matrix **Partial** until human QA passes (#3109) — QA #2607 Failed / #2645 open / #2729 Failed |
+| Saved search **execute** | **Façade** `POST /rest/searches/{idOrName}/execute` (disposition #2504 / [research note](./research/saved-search-execute-disposition.md)); implement #2505 + Explorer #2506 + Playwright #2507 | **Done** A–D (#2504–#2507); matrix **Partial** until human QA passes (#3109 / #3619) — original QA #2607 **Failed, closed**; #2729 **Passed**; remaining #2645 open To Be Tested |
 | Translation workflow | Spike existing i18n/item endpoints; new façade only if needed | Inventory **Done** (#2428); REST **Done** (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)); Explorer UI **Done** (#2430 / [PR #2648](https://github.com/intersoftdatalabs-in/percussioncms/pull/2648)); in-flight + session **OUT** signed (#2829 / [p-trans-out-disposition.md](./research/p-trans-out-disposition.md)); human QA #2649 |
 
 ## Phase 3 — Action / workflow depth
@@ -59,8 +59,8 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 **Agent implement first-wave under #2400 is largely complete** (as of 2026-08-10). Prefer **human QA** and **p1 hierarchy bugs** over inventing new chrome slices — **except** product-IN **Missing** rows with an IA map (product IN/OUT first; do not invent OUT).
 
-1. **#3102 / #3109** — gap matrix no longer claims **Present** for shell/DF/search, menu, toolbar, saved search, Sites tree while QA is Failed/open; see [false-present-qa-reconcile.md](./research/false-present-qa-reconcile.md)  
-2. **#2989** (and related folder QA) — Sites/hierarchy p1 before new chrome features  
+1. **#3102 / #3109 / #3577 / #3619** — gap matrix no longer claims **Present** for shell/DF/search, menu, toolbar, saved search, Sites tree while QA is Failed/open; live citations in [gap-matrix.md](./contracts/gap-matrix.md) and [partial-citation-residual-after-3577.md](./research/partial-citation-residual-after-3577.md) (do not cite closed Failed as open)  
+2. **Sites/hierarchy** — original [#2989](https://github.com/intersoftdatalabs-in/percussioncms/issues/2989) **closed**; dual-run QA [#3101](https://github.com/intersoftdatalabs-in/percussioncms/issues/3101) **Passed**; H2 proof [#3575](https://github.com/intersoftdatalabs-in/percussioncms/issues/3575)/[#3592](https://github.com/intersoftdatalabs-in/percussioncms/issues/3592) **closed**. Matrix stays **Partial** (no Passed human QA).  
 3. **#2411 / #2829** — translation: locales+create **Present**; in-flight/session **OUT** (docs #2829); **no queue implement** without product re-open; human QA **#2649**  
 4. **Human QA handoffs** on #2400 Agent progress (shell, menus, wizards, search, ACL peers) — not agent re-implement  
 5. **Object ACL** remains **Partial** on gap-matrix → existing ACL epics (#2274 family), not new #2400 chrome spam  
