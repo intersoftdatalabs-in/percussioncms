@@ -179,6 +179,84 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void validatePassesForRemoteWithoutLocalRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/docs/product-docs.git"),
+            prop(PSVirtualSiteHelper.PROP_BRANCH, "main"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertTrue(PSVirtualSiteHelper.hasRemote(site));
+    assertEquals("main", PSVirtualSiteHelper.branch(site));
+  }
+
+  @Test
+  void validatePassesForRemoteWithRelativeSubPath() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/repo.git"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "product-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+  }
+
+  @Test
+  void validateRejectsUnsafeRemoteUrl() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "http://evil.example/../x"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertFalse(ex.getMessage().contains("http://evil.example"));
+  }
+
+  @Test
+  void validateRejectsAbsoluteRootWhenRemoteSet() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/repo.git"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "C:/docs/product-docs"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+    assertTrue(ex.getMessage().toLowerCase().contains("relative"));
+  }
+
+  @Test
+  void validateRejectsParentSegmentInRemoteSubPath() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/repo.git"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "../outside"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+  }
+
+  @Test
+  void branchDefaultsToMain() {
+    PSSite site = siteWith(prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"));
+    assertEquals(PSVirtualSiteHelper.DEFAULT_BRANCH, PSVirtualSiteHelper.branch(site));
+    assertEquals(PSVirtualSiteHelper.DEFAULT_BRANCH, PSVirtualSiteHelper.branch(null));
+  }
+
+  @Test
+  void resolveDiscoverRootUsesCheckoutAndRelativeSubPath() throws Exception {
+    Path checkout = Path.of("work", "docs-checkout").normalize();
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/repo.git"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "product-docs"));
+    Path resolved = PSVirtualSiteHelper.resolveDiscoverRoot(site, checkout);
+    assertEquals(checkout.resolve("product-docs").normalize(), resolved);
+  }
+
+  @Test
   void validateRejectsBlankRootPathWhenVirtual() {
     PSSite site =
         siteWith(

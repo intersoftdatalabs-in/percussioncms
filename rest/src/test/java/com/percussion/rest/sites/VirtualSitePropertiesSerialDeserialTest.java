@@ -49,7 +49,9 @@ public class VirtualSitePropertiesSerialDeserialTest {
   private static VirtualSiteProperties sample() {
     VirtualSiteProperties props = new VirtualSiteProperties();
     props.setSourceKind("git-filesystem");
-    props.setRootPath("C:/docs/product-docs");
+    props.setRootPath("product-docs");
+    props.setRemoteUrl("https://git.example.com/org/product-docs.git");
+    props.setBranch("main");
     props.setConfigFile("_config.yaml");
     props.setSiteKey("product-docs");
     props.setVirtual(true);
@@ -71,13 +73,17 @@ public class VirtualSitePropertiesSerialDeserialTest {
     assertTrue(json.contains("\"sourceKind\""), json);
     assertTrue(json.contains("\"git-filesystem\""), json);
     assertTrue(json.contains("\"rootPath\""), json);
+    assertTrue(json.contains("\"remoteUrl\""), json);
+    assertTrue(json.contains("\"branch\""), json);
     assertFalse(
         json.contains("\"empty\"") && json.contains("\"present\""),
         "sourceKind must be a plain string, not an Optional bean: " + json);
 
     VirtualSiteProperties roundTrip = mapper.readValue(json, VirtualSiteProperties.class);
     assertEquals("git-filesystem", roundTrip.getSourceKind());
-    assertEquals("C:/docs/product-docs", roundTrip.getRootPath());
+    assertEquals("product-docs", roundTrip.getRootPath());
+    assertEquals("https://git.example.com/org/product-docs.git", roundTrip.getRemoteUrl());
+    assertEquals("main", roundTrip.getBranch());
     assertEquals("_config.yaml", roundTrip.getConfigFile());
     assertEquals("product-docs", roundTrip.getSiteKey());
     assertEquals(Boolean.TRUE, roundTrip.getVirtual());
@@ -96,7 +102,9 @@ public class VirtualSitePropertiesSerialDeserialTest {
 
     VirtualSiteProperties roundTrip = mapper.readValue(json, VirtualSiteProperties.class);
     assertEquals("git-filesystem", roundTrip.getSourceKind());
-    assertEquals("C:/docs/product-docs", roundTrip.getRootPath());
+    assertEquals("product-docs", roundTrip.getRootPath());
+    assertEquals("https://git.example.com/org/product-docs.git", roundTrip.getRemoteUrl());
+    assertEquals("main", roundTrip.getBranch());
   }
 
   @Test
@@ -138,13 +146,17 @@ public class VirtualSitePropertiesSerialDeserialTest {
     assertTrue(xml.contains("sourceKind"), xml);
     assertTrue(xml.contains("git-filesystem"), xml);
     assertTrue(xml.contains("rootPath"), xml);
+    assertTrue(xml.contains("remoteUrl"), xml);
+    assertTrue(xml.contains("branch"), xml);
     assertFalse(xml.contains("<empty>"), "must not marshal Optional beans: " + xml);
 
     Unmarshaller unmarshaller = ctx.createUnmarshaller();
     VirtualSiteProperties roundTrip =
         (VirtualSiteProperties) unmarshaller.unmarshal(new StringReader(xml));
     assertEquals("git-filesystem", roundTrip.getSourceKind());
-    assertEquals("C:/docs/product-docs", roundTrip.getRootPath());
+    assertEquals("product-docs", roundTrip.getRootPath());
+    assertEquals("https://git.example.com/org/product-docs.git", roundTrip.getRemoteUrl());
+    assertEquals("main", roundTrip.getBranch());
     assertEquals("_config.yaml", roundTrip.getConfigFile());
     assertEquals("product-docs", roundTrip.getSiteKey());
   }

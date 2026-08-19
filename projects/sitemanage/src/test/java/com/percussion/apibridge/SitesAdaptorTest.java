@@ -45,11 +45,14 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
+import com.percussion.services.virtualsite.PSGitRemoteCheckout;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
+import java.time.Duration;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,12 +95,16 @@ class SitesAdaptorTest {
     put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, "C:/docs/product-docs");
     put(site, PSVirtualSiteHelper.PROP_CONFIG_FILE, "custom.yaml");
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "product-docs");
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    put(site, PSVirtualSiteHelper.PROP_BRANCH, "release/8.2");
 
     VirtualSiteProperties v = SitesAdaptor.readVirtual(site);
     assertEquals("git-filesystem", v.getSourceKind());
     assertEquals("C:/docs/product-docs", v.getRootPath());
     assertEquals("custom.yaml", v.getConfigFile());
     assertEquals("product-docs", v.getSiteKey());
+    assertEquals("https://git.example.com/org/docs.git", v.getRemoteUrl());
+    assertEquals("release/8.2", v.getBranch());
     assertTrue(Boolean.TRUE.equals(v.getVirtual()));
   }
 
@@ -199,6 +206,7 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SITE_KEY)
             .orElse(null));
     assertEquals(100L, persisted.getSiteId());
+    assertTrue(PSVirtualSiteHelper.remoteUrl(persisted).isEmpty());
     assertFalse(persisted.getProperties().isEmpty());
     for (PSSiteProperty property : persisted.getProperties()) {
       assertSame(persisted, property.getSite(), property.getName());
@@ -253,6 +261,88 @@ class SitesAdaptorTest {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("git-filesystem");
     // rootPath missing
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("Help", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_persistsRemoteWithoutLocalRoot() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("Help");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("Help");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("Help")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("git-filesystem");
+    body.setRemoteUrl("https://git.example.com/org/product-docs.git");
+    body.setBranch("main");
+    body.setRootPath("product-docs");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("Help", body);
+    assertEquals("https://git.example.com/org/product-docs.git", out.getRemoteUrl());
+    assertEquals("main", out.getBranch());
+    assertEquals("product-docs", out.getRootPath());
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    assertEquals(
+        "https://git.example.com/org/product-docs.git",
+        PSVirtualSiteHelper.remoteUrl(saved.getValue()).orElse(null));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_omittedRemoteKeepsExisting() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("Help");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("Help");
+    modifiable.setGUID(siteGuid);
+    put(modifiable, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(modifiable, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    put(modifiable, PSVirtualSiteHelper.PROP_BRANCH, "main");
+    put(modifiable, PSVirtualSiteHelper.PROP_ROOT_PATH, "product-docs");
+    when(siteManager.findSite("Help")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("git-filesystem");
+    body.setRootPath("product-docs");
+    body.setSiteKey("docs");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("Help", body);
+    assertEquals("https://git.example.com/org/docs.git", out.getRemoteUrl());
+    assertEquals("main", out.getBranch());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_rejectsUnsafeRemote() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("Help");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("Help");
+    modifiable.setGUID(siteGuid);
+    when(siteManager.findSite("Help")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("git-filesystem");
+    body.setRemoteUrl("http://evil.example/../x");
 
     WebApplicationException ex =
         assertThrows(
@@ -407,6 +497,47 @@ class SitesAdaptorTest {
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
     assertTrue(Files.isRegularFile(out.resolve("8.2").resolve("index.html")));
     assertTrue(Files.isRegularFile(out.resolve("link-report.txt")));
+  }
+
+  @Test
+  void buildVirtualSite_remoteCheckoutThenDiscover() throws Exception {
+    Path out = tempDir.resolve("remote-out");
+    PSGitRemoteCheckout remote =
+        new PSGitRemoteCheckout(
+            (cwd, command, output) -> {
+              if (command.contains("clone")) {
+                Path dest = Path.of(command.get(command.size() - 1));
+                try {
+                  createMinimalVirtualTree(dest);
+                } catch (IOException e) {
+                  throw e;
+                } catch (Exception e) {
+                  throw new IOException(e);
+                }
+                Files.createDirectories(dest.resolve(".git"));
+              }
+              return 0;
+            },
+            Duration.ofSeconds(10));
+
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    put(site, PSVirtualSiteHelper.PROP_BRANCH, "main");
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    SitesAdaptor building =
+        new SitesAdaptor(
+            siteManager, () -> true, key -> out, null, remote);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    VirtualSiteBuildResult result = building.buildVirtualSite("Help", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(out.resolve("8.2").resolve("index.html")));
   }
 
   @Test

@@ -40,7 +40,12 @@ import org.apache.commons.lang3.StringUtils;
  * <ul>
  *   <li>{@code virtual.sourceKind} — allow-listed adapter wire name (e.g. {@code git-filesystem});
  *       blank or {@code repository} ⇒ traditional repository Site
- *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root (required when virtual)
+ *   <li>{@code virtual.rootPath} — filesystem path to Virtual Site root when no remote is set
+ *       (required when virtual and {@code virtual.remoteUrl} is blank); when a remote is set,
+ *       an optional relative path inside the checkout
+ *   <li>{@code virtual.remoteUrl} — optional Git remote (https / ssh / file / {@code git@host:path});
+ *       blank keeps local-path {@code git-filesystem} behavior
+ *   <li>{@code virtual.branch} — optional ref to checkout; default {@code main}
  *   <li>{@code virtual.configFile} — optional; default {@code _config.yaml}; simple file name only
  *   <li>{@code virtual.siteKey} — optional participant key; default site name
  * </ul>
@@ -54,9 +59,14 @@ public final class PSVirtualSiteHelper {
   public static final String PROP_ROOT_PATH = "virtual.rootPath";
   public static final String PROP_CONFIG_FILE = "virtual.configFile";
   public static final String PROP_SITE_KEY = "virtual.siteKey";
+  public static final String PROP_REMOTE_URL = "virtual.remoteUrl";
+  public static final String PROP_BRANCH = "virtual.branch";
 
   /** Wire name for traditional repository-backed Sites. */
   public static final String SOURCE_KIND_REPOSITORY = "repository";
+
+  /** Default Git branch when {@link #PROP_BRANCH} is blank. */
+  public static final String DEFAULT_BRANCH = "main";
 
   private PSVirtualSiteHelper() {}
 
@@ -122,6 +132,38 @@ public final class PSVirtualSiteHelper {
   }
 
   /**
+   * Configured Git remote when {@link #PROP_REMOTE_URL} is non-blank.
+   *
+   * @param site may be null
+   * @return trimmed remote URL
+   */
+  public static Optional<String> remoteUrl(IPSSite site) {
+    return findProperty(site, PROP_REMOTE_URL).filter(StringUtils::isNotBlank);
+  }
+
+  /**
+   * Whether a Virtual Site is configured to fetch from a Git remote before discover.
+   *
+   * @param site may be null
+   * @return true when {@link #PROP_REMOTE_URL} is non-blank
+   */
+  public static boolean hasRemote(IPSSite site) {
+    return remoteUrl(site).isPresent();
+  }
+
+  /**
+   * Branch to checkout. Blank / missing {@link #PROP_BRANCH} ⇒ {@link #DEFAULT_BRANCH}.
+   *
+   * @param site may be null
+   * @return non-blank branch name
+   */
+  public static String branch(IPSSite site) {
+    return findProperty(site, PROP_BRANCH)
+        .filter(StringUtils::isNotBlank)
+        .orElse(DEFAULT_BRANCH);
+  }
+
+  /**
    * Validates the Virtual Site property contract.
    *
    * <p>Traditional repository Sites (missing/blank {@code virtual.sourceKind} or value {@code
@@ -129,9 +171,12 @@ public final class PSVirtualSiteHelper {
    *
    * <ul>
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()})
-   *   <li>provide a non-blank {@code virtual.rootPath}
+   *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
+   *   <li>when {@code virtual.remoteUrl} is set: a safe Git URL (https / ssh / file / {@code
+   *       git@host:path}); optional {@code virtual.branch}; optional relative {@code
+   *       virtual.rootPath} inside the checkout (no {@code ..}, not absolute)
    *   <li>use a safe root path after NIO {@link Path#normalize()} (no empty path; no remaining {@code
-   *       ..} segments)
+   *       ..} segments) when a local root is required
    *   <li>when set, use a simple {@code virtual.configFile} name (no directory separators or {@code
    *       ..})
    * </ul>
@@ -161,33 +206,128 @@ public final class PSVirtualSiteHelper {
               + " for traditional Sites).");
     }
 
-    Optional<String> rootRaw = findProperty(site, PROP_ROOT_PATH);
-    if (rootRaw.isEmpty()) {
-      throw new VirtualSiteException(
-          PROP_ROOT_PATH + " is required when " + PROP_SOURCE_KIND + " is '" + kind + "'.");
-    }
+    Optional<String> remoteRaw = remoteUrl(site);
+    if (remoteRaw.isPresent()) {
+      PSGitRemoteCheckout.requireSafeRemoteUrl(remoteRaw.get());
+      String branchRaw = findProperty(site, PROP_BRANCH).orElse("");
+      if (StringUtils.isNotBlank(branchRaw)) {
+        PSGitRemoteCheckout.requireSafeBranch(branchRaw);
+      }
+      Optional<String> rootRaw = findProperty(site, PROP_ROOT_PATH);
+      if (rootRaw.isPresent()) {
+        validateRemoteSubPath(rootRaw.get());
+      }
+    } else {
+      Optional<String> rootRaw = findProperty(site, PROP_ROOT_PATH);
+      if (rootRaw.isEmpty()) {
+        throw new VirtualSiteException(
+            PROP_ROOT_PATH
+                + " is required when "
+                + PROP_SOURCE_KIND
+                + " is '"
+                + kind
+                + "' and "
+                + PROP_REMOTE_URL
+                + " is blank.");
+      }
 
-    Path root;
-    try {
-      root = Path.of(rootRaw.get()).normalize();
-    } catch (InvalidPathException e) {
-      throw new VirtualSiteException(
-          PROP_ROOT_PATH + " is not a valid filesystem path: '" + rootRaw.get() + "'.", e);
-    }
+      Path root;
+      try {
+        root = Path.of(rootRaw.get()).normalize();
+      } catch (InvalidPathException e) {
+        throw new VirtualSiteException(
+            PROP_ROOT_PATH + " is not a valid filesystem path: '" + rootRaw.get() + "'.", e);
+      }
 
-    if (!isSafeRootPath(root)) {
-      throw new VirtualSiteException(
-          PROP_ROOT_PATH
-              + " must be a non-empty path with no '..' segments after normalize (cross-platform NIO"
-              + " Path). Rejected: '"
-              + rootRaw.get()
-              + "'.");
+      if (!isSafeRootPath(root)) {
+        throw new VirtualSiteException(
+            PROP_ROOT_PATH
+                + " must be a non-empty path with no '..' segments after normalize (cross-platform NIO"
+                + " Path). Rejected: '"
+                + rootRaw.get()
+                + "'.");
+      }
     }
 
     Optional<String> configRaw = findProperty(site, PROP_CONFIG_FILE);
     if (configRaw.isPresent()) {
       validateConfigFileName(configRaw.get());
     }
+  }
+
+  /**
+   * When a remote is configured, {@link #PROP_ROOT_PATH} is an optional relative path inside the
+   * checkout (for example {@code product-docs}). Absolute paths and remaining {@code ..} are
+   * rejected.
+   *
+   * @param raw property value, not blank
+   * @throws VirtualSiteException when the sub-path is unsafe
+   */
+  public static void validateRemoteSubPath(String raw) throws VirtualSiteException {
+    if (StringUtils.isBlank(raw)) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH + " must not be blank when set (omit it to use the checkout root).");
+    }
+    Path sub;
+    try {
+      sub = Path.of(raw.trim()).normalize();
+    } catch (InvalidPathException e) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH + " is not a valid filesystem path: '" + raw + "'.", e);
+    }
+    if (sub.isAbsolute() || raw.indexOf(':') >= 0) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH
+              + " must be a relative path inside the Git checkout when "
+              + PROP_REMOTE_URL
+              + " is set. Rejected absolute path.");
+    }
+    if (!isSafeRootPath(sub)) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH
+              + " must be a non-empty relative path with no '..' segments after normalize when "
+              + PROP_REMOTE_URL
+              + " is set. Rejected: '"
+              + raw
+              + "'.");
+    }
+  }
+
+  /**
+   * Discover root after an optional Git checkout.
+   *
+   * <p>When {@code checkoutRoot} is null, returns the local {@link #rootPath(IPSSite)}. When a
+   * checkout is supplied, returns that directory or a validated relative sub-path under it.
+   *
+   * @param site configured site
+   * @param checkoutRoot checkout work directory, or null for local-path mode
+   * @return discover root
+   * @throws VirtualSiteException when the path is missing or escapes the checkout
+   */
+  public static Path resolveDiscoverRoot(IPSSite site, Path checkoutRoot)
+      throws VirtualSiteException {
+    if (checkoutRoot == null) {
+      return rootPath(site)
+          .orElseThrow(
+              () ->
+                  new VirtualSiteException(
+                      PROP_ROOT_PATH + " is required when " + PROP_REMOTE_URL + " is blank."));
+    }
+    Path safeCheckout = checkoutRoot.normalize();
+    if (!isSafeRootPath(safeCheckout)) {
+      throw new VirtualSiteException("Git checkout work directory is not a safe path.");
+    }
+    Optional<String> raw = findProperty(site, PROP_ROOT_PATH);
+    if (raw.isEmpty()) {
+      return safeCheckout;
+    }
+    validateRemoteSubPath(raw.get());
+    Path resolved = safeCheckout.resolve(Path.of(raw.get().trim())).normalize();
+    if (!resolved.startsWith(safeCheckout)) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH + " escapes the Git checkout work directory.");
+    }
+    return resolved;
   }
 
   /**

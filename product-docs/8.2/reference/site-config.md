@@ -78,7 +78,9 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
 | `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Adapter wire name. **Allow-list (Phase 1):** `git-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. |
-| `virtual.rootPath` | Yes (when virtual) | absolute or install-relative path to tree | Filesystem source root. Non-blank when virtual. NIO `Path` normalize; no empty path / remaining `..` segments. |
+| `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
+| `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
+| `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
 | `virtual.configFile` | No | `_config.yaml` | Optional; default `_config.yaml`. Simple file name only (no separators / `..`). |
 | `virtual.siteKey` | No | `product-docs` | Participant registry key; default Site name, else `default`. |
 
@@ -128,13 +130,16 @@ GET uses the same envelope. The Developer Sites **Save Virtual Site source** act
 wrap and then GET-roundtrips so Build chrome appears without a full reload.
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
-enforced server-side (allow-listed source kinds, required root path when virtual, portable
-path safety).
+enforced server-side (allow-listed source kinds, required local root path when virtual and
+remote is blank, safe remote URL/branch, portable path safety).
 
 #### Build Virtual Site (`POST …/virtual/build`)
 
-Runs the Phase 1 static build for a Site configured with `virtual.sourceKind=git-filesystem`
-and a valid `virtual.rootPath` (directory must exist on the CMS host). Requires **Admin**.
+Runs the Phase 1 static build for a Site configured with `virtual.sourceKind=git-filesystem`.
+When `virtual.remoteUrl` is set, the server clones or fetches that branch into a contained
+work directory, then discovers Markdown from the checkout (optional relative `virtual.rootPath`).
+When remote is blank, `virtual.rootPath` must be an existing directory on the CMS host.
+Requires **Admin**. `git` must be on the CMS `PATH` for remotes.
 
 | Status | When |
 |--------|------|

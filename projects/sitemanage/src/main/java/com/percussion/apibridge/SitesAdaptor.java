@@ -38,6 +38,7 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.virtualsite.PSGitFilesystemVirtualSiteSource;
+import com.percussion.services.virtualsite.PSGitRemoteCheckout;
 import com.percussion.services.virtualsite.PSInMemoryVirtualParticipantService;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
@@ -120,6 +121,9 @@ public class SitesAdaptor implements ISiteAdaptor {
    */
   private final BuildRunner buildRunner;
 
+  /** Git remote checkout before discover; tests may inject a stub. */
+  private final PSGitRemoteCheckout gitRemoteCheckout;
+
   /** Functional hook for the static build (production or test double). */
   @FunctionalInterface
   interface BuildRunner {
@@ -161,6 +165,20 @@ public class SitesAdaptor implements ISiteAdaptor {
       BooleanSupplier adminChecker,
       Function<String, Path> defaultOutputRootResolver,
       BuildRunner buildRunner) {
+    this(siteManager, adminChecker, defaultOutputRootResolver, buildRunner, null);
+  }
+
+  /**
+   * Fully injectable constructor including Git remote checkout.
+   *
+   * @param gitRemoteCheckout null uses the production {@link PSGitRemoteCheckout}
+   */
+  SitesAdaptor(
+      IPSSiteManager siteManager,
+      BooleanSupplier adminChecker,
+      Function<String, Path> defaultOutputRootResolver,
+      BuildRunner buildRunner,
+      PSGitRemoteCheckout gitRemoteCheckout) {
     this.siteManager = siteManager != null ? siteManager : PSSiteManagerLocator.getSiteManager();
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.defaultOutputRootResolver =
@@ -168,6 +186,8 @@ public class SitesAdaptor implements ISiteAdaptor {
             ? defaultOutputRootResolver
             : SitesAdaptor::defaultOutputRootForSiteKey;
     this.buildRunner = buildRunner;
+    this.gitRemoteCheckout =
+        gitRemoteCheckout != null ? gitRemoteCheckout : new PSGitRemoteCheckout();
   }
 
   @Override
@@ -258,6 +278,9 @@ public class SitesAdaptor implements ISiteAdaptor {
         PSVirtualSiteHelper.putProperty(
             psSite, contextId, PSVirtualSiteHelper.PROP_CONFIG_FILE, null);
         PSVirtualSiteHelper.putProperty(psSite, contextId, PSVirtualSiteHelper.PROP_SITE_KEY, null);
+        PSVirtualSiteHelper.putProperty(
+            psSite, contextId, PSVirtualSiteHelper.PROP_REMOTE_URL, null);
+        PSVirtualSiteHelper.putProperty(psSite, contextId, PSVirtualSiteHelper.PROP_BRANCH, null);
       } else {
         PSVirtualSiteHelper.putProperty(
             psSite, contextId, PSVirtualSiteHelper.PROP_SOURCE_KIND, sourceKind);
@@ -267,6 +290,15 @@ public class SitesAdaptor implements ISiteAdaptor {
             psSite, contextId, PSVirtualSiteHelper.PROP_CONFIG_FILE, configFile);
         PSVirtualSiteHelper.putProperty(
             psSite, contextId, PSVirtualSiteHelper.PROP_SITE_KEY, siteKey);
+        // Null (omitted on the wire) keeps an existing remote so older UIs do not wipe it.
+        if (props.getRemoteUrl() != null) {
+          PSVirtualSiteHelper.putProperty(
+              psSite, contextId, PSVirtualSiteHelper.PROP_REMOTE_URL, blankToNull(props.getRemoteUrl()));
+        }
+        if (props.getBranch() != null) {
+          PSVirtualSiteHelper.putProperty(
+              psSite, contextId, PSVirtualSiteHelper.PROP_BRANCH, blankToNull(props.getBranch()));
+        }
       }
 
       try {
@@ -331,19 +363,29 @@ public class SitesAdaptor implements ISiteAdaptor {
           Response.Status.BAD_REQUEST);
     }
 
-    Path siteRoot =
-        PSVirtualSiteHelper.rootPath(site)
-            .orElseThrow(
-                () ->
-                    new WebApplicationException(
-                        PSVirtualSiteHelper.PROP_ROOT_PATH + " is required for Virtual Site build",
-                        Response.Status.BAD_REQUEST));
-    if (!Files.isDirectory(siteRoot)) {
+    Path siteRoot;
+    try {
+      siteRoot = resolveDiscoverRoot(site);
+    } catch (VirtualSiteException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (IOException e) {
+      log.error(
+          "Virtual Site Git checkout I/O failed for '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
       throw new WebApplicationException(
-          PSVirtualSiteHelper.PROP_ROOT_PATH
-              + " is not an existing directory: '"
-              + siteRoot
-              + "'",
+          "Virtual Site Git checkout failed: " + PSGitRemoteCheckout.redact(e.getMessage()),
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (!Files.isDirectory(siteRoot)) {
+      String which =
+          PSVirtualSiteHelper.hasRemote(site)
+              ? "Git checkout / relative rootPath"
+              : PSVirtualSiteHelper.PROP_ROOT_PATH;
+      throw new WebApplicationException(
+          which + " is not an existing directory: '" + siteRoot + "'",
           Response.Status.BAD_REQUEST);
     }
 
@@ -517,6 +559,10 @@ public class SitesAdaptor implements ISiteAdaptor {
         .ifPresent(v::setConfigFile);
     PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_SITE_KEY)
         .ifPresent(v::setSiteKey);
+    PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_REMOTE_URL)
+        .ifPresent(v::setRemoteUrl);
+    PSVirtualSiteHelper.findProperty(site, PSVirtualSiteHelper.PROP_BRANCH)
+        .ifPresent(v::setBranch);
     v.setVirtual(PSVirtualSiteHelper.isVirtual(site));
     return v;
   }
@@ -921,6 +967,39 @@ public class SitesAdaptor implements ISiteAdaptor {
           Response.Status.BAD_REQUEST);
     }
     return path.normalize();
+  }
+
+  /**
+   * Local discover root, or a Git checkout work tree when {@code virtual.remoteUrl} is set.
+   *
+   * @param site validated virtual site
+   * @return existing or newly fetched tree
+   */
+  Path resolveDiscoverRoot(IPSSite site) throws VirtualSiteException, IOException {
+    if (!PSVirtualSiteHelper.hasRemote(site)) {
+      return PSVirtualSiteHelper.resolveDiscoverRoot(site, null);
+    }
+    Path workBase = defaultCheckoutWorkBase();
+    return gitRemoteCheckout.ensureCurrent(site, workBase);
+  }
+
+  /**
+   * Contained checkout parent: {@code {rxDir}/tmp/virtual-site-checkouts} when the install root is
+   * known, else {@code {java.io.tmpdir}/percussion-virtual-site-checkouts}.
+   */
+  static Path defaultCheckoutWorkBase() {
+    try {
+      File rx = PSServer.getRxDir();
+      if (rx != null) {
+        Path base = rx.toPath().normalize();
+        if (PSVirtualSiteHelper.isSafeRootPath(base)) {
+          return base.resolve("tmp").resolve("virtual-site-checkouts");
+        }
+      }
+    } catch (RuntimeException e) {
+      log.debug("PSServer.getRxDir unavailable for virtual checkout work base: {}", e.getMessage());
+    }
+    return Path.of(System.getProperty("java.io.tmpdir"), "percussion-virtual-site-checkouts");
   }
 
   /**
