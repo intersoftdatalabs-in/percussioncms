@@ -381,7 +381,6 @@ public final class PSProductPackageRootSelectionEvidence {
       System.err.println(
           "  or H2 install Packages/Modern after classpath materialize");
       System.exit(2);
-      return;
     }
     Path root = Path.of(args[0]).toAbsolutePath().normalize();
     Report report = scanWidgetPackageRoots(root);
