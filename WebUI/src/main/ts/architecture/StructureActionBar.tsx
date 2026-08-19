@@ -35,6 +35,7 @@ export interface StructureActionBarProps {
   canEditLink: boolean;
   canRename: boolean;
   canProperties: boolean;
+  canFolderAcl: boolean;
   canMove: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
@@ -48,6 +49,7 @@ export interface StructureActionBarProps {
   onEditLink: () => void;
   onRename: () => void;
   onProperties: () => void;
+  onFolderAcl: () => void;
   onMove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -85,6 +87,7 @@ export function StructureActionBar({
   canEditLink,
   canRename,
   canProperties,
+  canFolderAcl,
   canMove,
   canMoveUp,
   canMoveDown,
@@ -98,6 +101,7 @@ export function StructureActionBar({
   onEditLink,
   onRename,
   onProperties,
+  onFolderAcl,
   onMove,
   onMoveUp,
   onMoveDown,
@@ -112,6 +116,7 @@ export function StructureActionBar({
   const editLinkEnabled = canEditLink && !busy;
   const renameEnabled = canRename && !busy;
   const propertiesEnabled = canProperties && !busy;
+  const folderAclEnabled = canFolderAcl && !busy;
   const moveEnabled = canMove && !busy;
   const upEnabled = canMoveUp && !busy;
   const downEnabled = canMoveDown && !busy;
@@ -219,6 +224,18 @@ export function StructureActionBar({
         style={buttonStyle(propertiesEnabled)}
       >
         {ARCH_MSG.ACTION_PROPERTIES}
+      </button>
+      <button
+        type="button"
+        data-testid="architecture-action-folder-acl"
+        disabled={!folderAclEnabled}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onFolderAcl();
+        }}
+        style={buttonStyle(folderAclEnabled)}
+      >
+        {ARCH_MSG.ACTION_FOLDER_ACL}
       </button>
       <button
         type="button"
