@@ -114,6 +114,23 @@
         <servlet-name>JavaScriptServlet</servlet-name>
         <url-pattern>/JavaScriptServlet</url-pattern>
     </servlet-mapping>
+    <!-- #3587: exact mapping beats *.jsp so retired Architecture bookmarks 301. -->
+    <servlet>
+        <servlet-name>PSRetiredArchitectureRedirect</servlet-name>
+        <servlet-class>com.percussion.webui.servlet.PSRetiredJspRedirectServlet</servlet-class>
+        <init-param>
+            <param-name>view</param-name>
+            <param-value>arch</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PSRetiredArchitectureRedirect</servlet-name>
+        <url-pattern>/cm/app/siteArchitecture.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredArchitectureRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/siteArchitecture.jsp</url-pattern>
+    </servlet-mapping>
     
     
     <filter>

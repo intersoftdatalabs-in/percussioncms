@@ -97,7 +97,7 @@ const SHELLS = [
   },
   {
     name: "siteArchitecture",
-    // #3099: classic JSP hard-redirects to SPA Architecture (not explorer mount)
+    // #3099 / #3587: retired JSP URL 301s to SPA Architecture (not explorer mount)
     path: "/Rhythmyx/cm/app/siteArchitecture.jsp",
     asserted: true,
     expectModernShell: false,
@@ -143,7 +143,7 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
         await expect(shellEl).toBeVisible({ timeout: 15_000 });
       }
       if (shell.expectArchitectureSpa) {
-        // #3099: siteArchitecture.jsp → SPA Architecture shell (multi-hop redirect)
+        // #3099 / #3587: siteArchitecture.jsp bookmark → SPA Architecture shell
         await expect(page.getByTestId("perc-architecture-shell")).toBeVisible({
           timeout: 30_000,
         });

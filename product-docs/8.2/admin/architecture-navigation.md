@@ -11,7 +11,8 @@ tags: [admin, architecture, navigation, ui]
 
 **Navigation** (site navigation / navon tree editor) runs in the modern SPA product
 chrome. In Percussion CMS 8.2 the primary entry is the SPA shell. The classic
-`siteArchitecture.jsp` page and `?view=arch` bookmarks hard-redirect into the SPA.
+`siteArchitecture.jsp` host is no longer shipped. Bookmarks to that URL and to
+`?view=arch` still open SPA Navigation.
 
 The product name is **Navigation**. The SPA route remains `/architecture` (and
 `spa.jsp?entry=architecture`) so existing bookmarks and homepage type
@@ -23,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
 2. Choose **Navigation** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
-   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` redirect here
+   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL)
 3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
@@ -249,9 +250,9 @@ blogs, section links, or external links.
 
 ### Still later
 
-Retirement of the legacy `siteArchitecture.jsp` host ships in a follow-on
-slice. Blog authoring stays on Home / the Blogs gadget — Navigation will not
-grow a second blog editor.
+Blog authoring stays on Home / the Blogs gadget — Navigation will not grow a
+second blog editor. The classic `siteArchitecture.jsp` host is retired from the
+shipped WebUI app; bookmarks still land here via `?view=arch` and the former JSP URL.
 
 ## Current status (migration)
 
@@ -275,8 +276,8 @@ grow a second blog editor.
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |
 | Playwright surface smokes (shell / tree / mutations / links / a11y) | **Available** |
-| Legacy `siteArchitecture.jsp` retirement | **Planned** after SPA parity |
-| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (#3099) |
+| Legacy `siteArchitecture.jsp` host retirement | **Available** (JSP removed from the shipped WebUI app; bookmarks still work) |
+| Legacy `siteArchitecture.jsp` / `?view=arch` | **Redirected** to SPA Navigation (filter 301; #3099 / #3587) |
 
 ## Related
 

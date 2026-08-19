@@ -102,7 +102,7 @@ Product shell hosts (`explorerModern.jsp`, `homeModern.jsp`, etc.) were **remove
 
 The legacy Miller-column Finder is hard-cut in 8.2:
 
-- JSP entry points in `cm/app/` (webmgt, dashboard, admin, editAsset, editTemplate, adminWorkflow, users, siteArchitecture) no longer include `finder.jsp` / `finder_js.jsp` and no longer mount `$.Percussion.PercFinderView()`.
+- JSP entry points in `cm/app/` (webmgt, dashboard, admin, editAsset, editTemplate, adminWorkflow, users) no longer include `finder.jsp` / `finder_js.jsp` and no longer mount `$.Percussion.PercFinderView()`. `siteArchitecture.jsp` is not shipped; bookmarks 301 to SPA Navigation.
 - The Desktop Content Explorer (DCE) is **not required for core admin** in 8.2 (CE-not-required sign-off, SC-007).
 - Per-host migration: `host-asset-picker`, `host-page-picker`, `host-folder-picker` are migrated to the modern `ContentBrowser` (PRs #1391 + #1394). `host-aa-contentbrowser-dialog` is deferred to 8.3 (Dojo Track A blocker per the WebUI AGENTS.md Track A "no new Dojo code" rule). `host-home-library` is optional (gated on the 989 widget builder).
 - Pre-existing Java finder consumers still remain in the legacy view/plugin layer (e.g. `PercFolderPropertiesDialog`, `PercNavigationManager`, `perc_newsitedialog`, `PercContributorUiAdaptor`); these are the per-host follow-up migration tracked in `specs/992-react-content-explorer/checklists/cutover-inventory.md` §C. They are not on the 8.2 critical path; they remain functional through 8.2.x.

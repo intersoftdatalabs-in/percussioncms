@@ -16,7 +16,7 @@ export default defineConfig({
     lib: {
       entry: {
         "jslibMin/perc_dashboard.packed.min": "./src/main/bundles/perc_dashboard.bundle.js",
-        // perc_architecture exclusive pack retired (#3099) — siteArchitecture.jsp redirects to SPA
+        // perc_architecture exclusive pack retired (#3099) — siteArchitecture.jsp host removed (#3587)
         "jslibMin/perc_webmgt.packed.min": "./src/main/bundles/perc_webmgt.bundle.js",
         "jslibMin/perc_users.packed.min": "./src/main/bundles/perc_users.bundle.js",
         "jslibMin/perc_editTemplate.packed.min":
