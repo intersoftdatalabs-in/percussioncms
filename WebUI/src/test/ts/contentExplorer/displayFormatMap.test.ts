@@ -22,6 +22,7 @@ import {
   resolvePathItemProperty,
   resolvePathmanagementDisplayFormatId,
   toDetailDisplayFormat,
+  uuidFromPercussionGuidString,
 } from "../../../main/ts/contentExplorer/displayFormatMap";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 
@@ -98,6 +99,10 @@ describe("displayFormatMap", () => {
   });
 
   it("displayFormatOptionKey does not use displayId 0 as the option value", () => {
+    expect(displayFormatOptionKey({ displayId: 0 })).toBe("");
+    expect(
+      displayFormatOptionKey({ displayId: 0, internalName: "CX" }),
+    ).toBe("CX");
     expect(
       displayFormatOptionKey({ displayId: 0, name: "FolderList" }),
     ).toBe("FolderList");
@@ -108,6 +113,24 @@ describe("displayFormatMap", () => {
         guidString: "0-31-4",
       }),
     ).toBe("4");
+  });
+
+  it("uuidFromPercussionGuidString follows PSGuid host-type-uuid / host-uuid", () => {
+    expect(uuidFromPercussionGuidString("0-31-12")).toBe("12");
+    expect(uuidFromPercussionGuidString("0-12")).toBe("12");
+    expect(uuidFromPercussionGuidString("0-31-0")).toBe("");
+    expect(uuidFromPercussionGuidString("0-31-12-extra")).toBe("");
+    expect(uuidFromPercussionGuidString("not-a-guid")).toBe("");
+    expect(uuidFromPercussionGuidString("")).toBe("");
+  });
+
+  it("resolvePathmanagementDisplayFormatId ignores non-contract GUID strings", () => {
+    expect(
+      resolvePathmanagementDisplayFormatId({ guidString: "foo-bar-9" }),
+    ).toBe("");
+    expect(
+      resolvePathmanagementDisplayFormatId({ guidString: "0-31-12-99" }),
+    ).toBe("");
   });
 
   it("isNumericDisplayFormatId accepts positive integers only", () => {

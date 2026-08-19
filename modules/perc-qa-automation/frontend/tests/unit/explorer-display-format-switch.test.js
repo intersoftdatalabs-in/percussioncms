@@ -29,7 +29,6 @@ const {
   isNumericDisplayFormatId,
   nonEmptySelectOptionValues,
   isPaginatedFolderDisplayFormatRequest,
-  shouldSkipDisplayFormatSwitch,
   explorerSpaUrl,
 } = require("../helpers/explorer-display-format-switch");
 
@@ -88,11 +87,25 @@ describe("explorer-display-format-switch helpers (#3618)", () => {
     assert.deepEqual(nonEmptySelectOptionValues(["", "3", "8"]), ["3", "8"]);
   });
 
-  it("isPaginatedFolderDisplayFormatRequest matches displayFormatId", () => {
+  it("isPaginatedFolderDisplayFormatRequest matches displayFormatId exactly", () => {
     const url =
       "http://127.0.0.1:9992/Rhythmyx/services/pathmanagement/path/paginatedFolder/Sites/Foo?startIndex=0&maxResults=50&displayFormatId=8";
     assert.equal(isPaginatedFolderDisplayFormatRequest(url, "8"), true);
     assert.equal(isPaginatedFolderDisplayFormatRequest(url, "3"), false);
+    assert.equal(
+      isPaginatedFolderDisplayFormatRequest(
+        url.replace("displayFormatId=8", "displayFormatId=80"),
+        "8",
+      ),
+      false,
+    );
+    assert.equal(
+      isPaginatedFolderDisplayFormatRequest(
+        url.replace("displayFormatId=8", "displayFormatId=18"),
+        "8",
+      ),
+      false,
+    );
     assert.equal(
       isPaginatedFolderDisplayFormatRequest(
         "http://x/pathmanagement/path/folder/Sites",
@@ -100,15 +113,5 @@ describe("explorer-display-format-switch helpers (#3618)", () => {
       ),
       false,
     );
-  });
-
-  it("shouldSkipDisplayFormatSwitch is false when ≥2 formats or options exist", () => {
-    assert.equal(
-      shouldSkipDisplayFormatSwitch({ optionCount: 2, formatCount: 2 }),
-      false,
-    );
-    assert.equal(shouldSkipDisplayFormatSwitch({ optionCount: 3 }), false);
-    assert.equal(shouldSkipDisplayFormatSwitch({ formatCount: 2 }), false);
-    assert.equal(shouldSkipDisplayFormatSwitch({}), false);
   });
 });

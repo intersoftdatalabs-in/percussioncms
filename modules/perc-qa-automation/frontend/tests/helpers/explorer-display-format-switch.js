@@ -112,44 +112,34 @@ function nonEmptySelectOptionValues(values) {
 }
 
 /**
- * True when {@code url} is a paginatedFolder request for {@code formatId}.
+ * True when {@code url} is a paginatedFolder request whose
+ * {@code displayFormatId} query param equals {@code formatId} exactly
+ * (so {@code 8} does not match {@code 80}).
  *
  * @param {string | null | undefined} url
  * @param {string} formatId
  * @returns {boolean}
  */
 function isPaginatedFolderDisplayFormatRequest(url, formatId) {
-  const u = String(url || "");
-  if (!u.includes("/paginatedFolder/")) {
+  const raw = String(url || "");
+  if (!raw.includes("/paginatedFolder/")) {
     return false;
   }
   const id = String(formatId || "").trim();
   if (!id) {
     return false;
   }
-  return (
-    u.includes(`displayFormatId=${encodeURIComponent(id)}`) ||
-    u.includes(`displayFormatId=${id}`)
-  );
-}
-
-/**
- * Display-format switch (#3618) must not soft-skip when the selector has
- * more than one option or the catalog lists two or more formats.
- *
- * @param {{
- *   optionCount?: number,
- *   formatCount?: number,
- * }} [detail]
- * @returns {boolean}
- */
-function shouldSkipDisplayFormatSwitch(detail = {}) {
-  const options = Number(detail.optionCount) || 0;
-  const formats = Number(detail.formatCount) || 0;
-  if (options > 1 || formats >= 2) {
-    return false;
+  let query = "";
+  try {
+    query = new URL(raw, "http://localhost").search;
+  } catch {
+    const q = raw.indexOf("?");
+    query = q >= 0 ? raw.slice(q) : "";
   }
-  return false;
+  const params = new URLSearchParams(
+    query.startsWith("?") ? query.slice(1) : query,
+  );
+  return params.get("displayFormatId") === id;
 }
 
 module.exports = {
@@ -167,5 +157,4 @@ module.exports = {
   isNumericDisplayFormatId,
   nonEmptySelectOptionValues,
   isPaginatedFolderDisplayFormatRequest,
-  shouldSkipDisplayFormatSwitch,
 };

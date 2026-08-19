@@ -54,7 +54,6 @@ const {
   isNumericDisplayFormatId,
   nonEmptySelectOptionValues,
   isPaginatedFolderDisplayFormatRequest,
-  shouldSkipDisplayFormatSwitch,
   sitesTreeRootLocator,
   expandExplorerTreeNode,
   sitesTreeDescendantsLocator,
@@ -110,12 +109,8 @@ test.describe("Explorer display-format switch (#3618 / #3102)", () => {
       test.setTimeout(30_000);
       const formats = await fetchExplorerDisplayFormats(request);
       expect(
-        shouldSkipDisplayFormatSwitch({ formatCount: formats.length }),
-        "must not soft-skip display-format switch when catalog has formats (#3618)",
-      ).toBe(false);
-      expect(
         formats.length,
-        `H2 validForFolder catalog should have ≥2 formats; got ${formats.length}`,
+        `H2 catalog should have ≥2 formats (fail, do not skip); got ${formats.length}`,
       ).toBeGreaterThanOrEqual(2);
     },
   );
@@ -134,10 +129,9 @@ test.describe("Explorer display-format switch (#3618 / #3102)", () => {
       test.setTimeout(90_000);
       const formats = await fetchExplorerDisplayFormats(page.request);
       expect(
-        shouldSkipDisplayFormatSwitch({ formatCount: formats.length }),
-        "must not soft-skip when ≥2 catalog formats exist (#3618)",
-      ).toBe(false);
-      expect(formats.length).toBeGreaterThanOrEqual(2);
+        formats.length,
+        "must fail (not skip) when catalog has fewer than 2 formats (#3618)",
+      ).toBeGreaterThanOrEqual(2);
 
       const sitesProbe = await page.request.get(SITES_URL, {
         headers: adminBasicAuthHeaders(),
@@ -175,12 +169,9 @@ test.describe("Explorer display-format switch (#3618 / #3102)", () => {
         ),
       );
       expect(
-        shouldSkipDisplayFormatSwitch({
-          optionCount: optionValues.length + 1,
-          formatCount: formats.length,
-        }),
-        "must not soft-skip when the selector has more than one option (#3618)",
-      ).toBe(false);
+        optionValues.length,
+        "must fail (not skip) when the selector has fewer than one format option (#3618)",
+      ).toBeGreaterThanOrEqual(1);
       const numericOptions = optionValues.filter((v) =>
         isNumericDisplayFormatId(v),
       );
@@ -249,13 +240,8 @@ test.describe("Explorer display-format switch (#3618 / #3102)", () => {
         .evaluateAll((els) => els.map((el) => el.getAttribute("data-testid") || ""));
       expect(
         switchedHeaders.length,
-        "detail-list must keep column headers after the format switch",
+        `detail-list must keep column headers after the format switch; pre=${JSON.stringify(defaultHeaders)} post=${JSON.stringify(switchedHeaders)}`,
       ).toBeGreaterThan(0);
-      // Default (empty) is name/type/path. A catalog format typically drops Path
-      // or adds Title/Modified — when headers differ that is extra proof.
-      if (defaultHeaders.join(",") !== switchedHeaders.join(",")) {
-        expect(switchedHeaders).not.toEqual(defaultHeaders);
-      }
 
       const unexpected = jsErrors.filter(
         (t) => !isKnownExplorerSitesConsoleNoise(t),
