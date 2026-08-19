@@ -855,6 +855,68 @@ npm run test:surface:list -- --path tests/explorer-shell-chrome.spec.js
 npm run test:surface:list -- --tag explorer-shell-chrome
 ```
 
+#### Explorer simple/extended search submit (#3617 / parent #3102)
+
+Surface-filtered companion for **submitting** free-text (and extended chrome
+when present) from product Explorer (`spa.jsp?entry=explorer`). US5
+`searchModern.jsp` is **not** this operator path. When SearchPanel is mounted,
+submit must POST `extendedresults` HTTP **200** and show **results or
+empty-success** — no soft-skip, no error-as-success. Gap-matrix Simple /
+extended search stays **Partial**.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-search-submit.spec.js` |
+| Tags | `@explorer-search-submit` `@explorer` `@search` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-search-submit.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-search-submit.js` |
+| Product peer | `WebUI/.../SearchPanel.tsx` + `ContentExplorerShell` + Vitest |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-search-submit.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-search-submit
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-search-submit.spec.js
+npm run test:surface:list -- --tag explorer-search-submit
+```
+
+#### Explorer display-format switch (#3618 / parent #3102)
+
+Surface-filtered proof that changing the Explorer **display format** selector
+reloads the detail list with pathmanagement `displayFormatId` (and updated
+columns). **No soft-skip** when the selector has more than one option or the
+catalog has ≥2 `validForFolder` formats. Do not flip gap-matrix Present.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-display-format-switch.spec.js` |
+| Tags | `@explorer-display-format-switch` `@explorer` `@display-format` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-display-format-switch.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-display-format-switch.js` |
+| Product peer | `WebUI/.../ContentExplorerShell.tsx` + `DetailList` + `displayFormatMap` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-display-format-switch.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-display-format-switch
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-display-format-switch.spec.js
+npm run test:surface:list -- --tag explorer-display-format-switch
+```
+
 #### Explorer saved-search picker (#2507 / parent #2409 / #2400 slice D)
 
 Surface-filtered live-CMS companion to WebUI SearchPanel saved-search picker

@@ -185,6 +185,20 @@ class PSSiteSectionServiceLoadTreeEmptyTest {
   }
 
   @Test
+  void loadTreeUsesExistingRffNavTreeWithoutSeedingSecond() throws Exception {
+    PSLegacyGuid existing = new PSLegacyGuid(360, 1);
+    when(navService.findNavigationIdFromFolder("//Sites/Demo")).thenReturn(existing);
+    stubCreatedNavTreeLoad(existing);
+
+    PSSectionNode tree = service.loadTree("Demo");
+    assertEquals(new PSLegacyGuid(360, -1).toString(), tree.getId());
+    assertEquals("Demo", tree.getTitle());
+    verify(navService, never())
+        .addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt());
+    verify(siteMgr, never()).deleteSite(any());
+  }
+
+  @Test
   void loadTreeUsesExistingNavTreeAfterConcurrentCreate() throws Exception {
     PSLegacyGuid raced = new PSLegacyGuid(361, 1);
     when(navService.addNavTreeToFolder(anyString(), anyString(), anyString(), anyInt()))

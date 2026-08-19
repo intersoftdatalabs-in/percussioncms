@@ -167,6 +167,93 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     ).toBe("true");
   });
 
+  it("switching display format remounts the list with displayFormatId (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "p-1",
+                  name: "Welcome",
+                  path: "/Sites/Foo/Welcome",
+                  type: "page",
+                  title: "Welcome Page",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Foo"
+        loadDisplayFormats={async () => [
+          {
+            name: "FolderList",
+            displayId: 3,
+            displayName: "Folder list",
+            columns: [{ source: "sys_title" }, { source: "sys_contenttypename" }],
+          },
+          {
+            name: "ByDate",
+            displayId: 8,
+            displayName: "By date",
+            columns: [
+              { source: "sys_title" },
+              { source: "sys_contentlastmodifieddate" },
+            ],
+          },
+        ]}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(screen.getByTestId("detail-col-header-path")).toBeTruthy();
+    expect(screen.getByTestId("detail-list").getAttribute("data-display-format-id")).toBe(
+      "",
+    );
+
+    const select = screen.getByTestId(
+      "explorer-display-format",
+    ) as HTMLSelectElement;
+    await waitFor(() => {
+      expect(Array.from(select.options).some((o) => o.value === "8")).toBe(true);
+    });
+    fireEvent.change(select, { target: { value: "8" } });
+    expect(select.value).toBe("8");
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-list").getAttribute("data-display-format-id"),
+      ).toBe("8");
+    });
+    expect(screen.getByTestId("detail-col-header-title")).toBeTruthy();
+    expect(screen.getByTestId("detail-col-header-modified")).toBeTruthy();
+    expect(screen.queryByTestId("detail-col-header-path")).toBeNull();
+    expect(seen.some((u) => u.includes("displayFormatId=8"))).toBe(true);
+    expect(seen.some((u) => u.includes("displayFormatId=FolderList"))).toBe(
+      false,
+    );
+  });
+
   it("opens Search under the header from the always-visible view-tool toggle (#3208)", async () => {
     stubPathFetch();
     const { container } = renderShell(
@@ -2417,6 +2504,40 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
     });
+  });
+
+  it("free-text submit empty transport is empty-success not error (#3617)", async () => {
+    stubPathFetch();
+    const search = vi.fn(async () => ({
+      children: [],
+      totalCount: 0,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+        search={search}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() =>
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "no-hits" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-empty")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("search-panel-error")).toBeNull();
   });
 
   it("passes listSavedSearches and executeSavedSearch into SearchPanel (#2850)", async () => {

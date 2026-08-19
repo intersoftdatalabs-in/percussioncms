@@ -28,6 +28,7 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemChild;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.cms.objectstore.server.IPSItemDefElementProcessor;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
@@ -149,6 +150,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.clearIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQuery;
@@ -503,10 +505,86 @@ public class PSContentRepository
      */
     public static PSTypeConfiguration getTypeConfiguration(int contenttypeid)
     {
-        synchronized (ms_configuration)
+        return lookupTypeConfiguration(contenttypeid);
+    }
+
+    /**
+     * JCR type map lookup with perc/rff Managed Nav alias fallback (#3611).
+     * {@code perc.nav} can drop the Hibernate mapping for FastForward ids
+     * 313–315 while {@link PSItemDefManager} still catalogs {@code rffNav*}
+     * editors. Those items share {@code RXS_CT_NAV*} with {@code percNav*}
+     * (1015–1017), so the registered sibling mapping loads the node.
+     */
+    static PSTypeConfiguration lookupTypeConfiguration(long contentTypeId)
+    {
+        PSTypeConfiguration config = ms_configuration.get(new PSContentTypeKey(contentTypeId));
+        if (config != null)
         {
-            PSContentTypeKey key = new PSContentTypeKey(contenttypeid);
-            return ms_configuration.get(key);
+            return config;
+        }
+        return lookupNavAliasTypeConfiguration(contentTypeId);
+    }
+
+    static PSTypeConfiguration lookupNavAliasTypeConfiguration(long contentTypeId)
+    {
+        Long aliasId =
+            resolveNavAliasTypeId(
+                contentTypeId,
+                ms_configuration.keySet(),
+                PSContentRepository::contentTypeNameQuietly);
+        if (aliasId == null)
+        {
+            return null;
+        }
+        PSTypeConfiguration alias = ms_configuration.get(new PSContentTypeKey(aliasId));
+        if (alias != null)
+        {
+            ms_log.debug(
+                "Using JCR type configuration {} as perc/rff alias for content type id {}",
+                aliasId,
+                contentTypeId);
+        }
+        return alias;
+    }
+
+    /**
+     * Package-visible so unit tests can pin perc/rff JCR alias selection
+     * without a live ItemDefManager (#3611).
+     */
+    static Long resolveNavAliasTypeId(
+        long missingTypeId,
+        Iterable<IPSTypeKey> registeredKeys,
+        Function<Long, String> typeIdToName)
+    {
+        if (registeredKeys == null)
+        {
+            return null;
+        }
+        Set<Long> registered = new HashSet<>();
+        for (IPSTypeKey k : registeredKeys)
+        {
+            if (k instanceof PSContentTypeKey)
+            {
+                registered.add(k.getContentType());
+            }
+        }
+        return PSNavNameAliases.findRegisteredNavAliasTypeId(
+            missingTypeId, typeIdToName, registered);
+    }
+
+    private static String contentTypeNameQuietly(long typeId)
+    {
+        try
+        {
+            return PSItemDefManager.getInstance().contentTypeIdToName(typeId);
+        }
+        catch (PSInvalidContentTypeException e)
+        {
+            return null;
+        }
+        catch (RuntimeException e)
+        {
+            return null;
         }
     }
 
@@ -674,9 +752,8 @@ public class PSContentRepository
                     if (summary == null)
                         continue;
                     GeneratedClassBase instance = loadedInstances.get(legacyguid);
-                    // Create type key
-                    IPSTypeKey key = new PSContentTypeKey(summary.getContentTypeId());
-                    PSTypeConfiguration config = ms_configuration.get(key);
+                    PSTypeConfiguration config =
+                            lookupTypeConfiguration(summary.getContentTypeId());
                     if (config == null)
                     {
                         throw new RepositoryException(
@@ -882,8 +959,7 @@ public class PSContentRepository
             long type = s.getContentTypeId();
             if (typeToClassMap.get(type) == null)
             {
-                IPSTypeKey key = new PSContentTypeKey(type);
-                PSTypeConfiguration config = ms_configuration.get(key);
+                PSTypeConfiguration config = lookupTypeConfiguration(type);
                 if (config == null)
                 {
                     ms_log.error("No content type info found for content type id: {}",type);
@@ -1644,8 +1720,12 @@ public class PSContentRepository
                 // level cache has already booted the data.
                 if (s == null)
                     continue;
-                IPSTypeKey key = new PSContentTypeKey(s.getContentTypeId());
-                PSTypeConfiguration config = ms_configuration.get(key);
+                PSTypeConfiguration config =
+                        lookupTypeConfiguration(s.getContentTypeId());
+                if (config == null)
+                {
+                    continue;
+                }
                 List<PSTypeConfiguration.ImplementingClass> classes = config
                         .getImplementingClasses();
                 for (PSTypeConfiguration.ImplementingClass ic : classes)
@@ -1839,8 +1919,7 @@ public class PSContentRepository
         // types
         for (Long typeid : typeids)
         {
-            IPSTypeKey key = new PSContentTypeKey(typeid);
-            PSTypeConfiguration type = ms_configuration.get(key);
+            PSTypeConfiguration type = lookupTypeConfiguration(typeid);
             if (type == null)
             {
                 throw new InvalidQueryException("Unknown content type id "
@@ -2014,8 +2093,7 @@ public class PSContentRepository
                                IPSQueryNode internalwhere, int maxresults,
                                Map<String, ? extends Object> params) throws InvalidQueryException
     {
-        IPSTypeKey key = new PSContentTypeKey(typeid);
-        PSTypeConfiguration type = ms_configuration.get(key);
+        PSTypeConfiguration type = lookupTypeConfiguration(typeid);
         if (type == null)
         {
             // Demoted from WARN in v8.1.7 PR #853 / GH-849: this fires frequently for obsolete

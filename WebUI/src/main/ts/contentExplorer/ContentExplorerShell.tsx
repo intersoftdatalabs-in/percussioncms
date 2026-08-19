@@ -74,7 +74,7 @@ import {
   parseExplorerContentId,
 } from "./menuCatalogLoad";
 import {
-  listDisplayFormats,
+  listExplorerFolderDisplayFormats,
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
@@ -138,6 +138,7 @@ import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
   displayFormatOptionKey,
+  resolvePathmanagementDisplayFormatId,
   toDetailDisplayFormat,
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
@@ -406,7 +407,7 @@ async function defaultRunWorkflowTransition(
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */
 async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
-  return listDisplayFormats({ validForFolder: true });
+  return listExplorerFolderDisplayFormats();
 }
 
 async function defaultResolveFolderId(
@@ -700,7 +701,9 @@ function ContentExplorerShellInner({
     );
   }, [selectedFormat]);
 
-  const displayFormatId = selectedFormatKey || null;
+  const displayFormatId = selectedFormat
+    ? resolvePathmanagementDisplayFormatId(selectedFormat) || null
+    : null;
 
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {

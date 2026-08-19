@@ -24,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
 2. Choose **Navigation** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
-   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL)
+   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL). Those landings load SPA Navigation console-clean: `GET /Rhythmyx/services/sitemanage/section/tree/{site}` is HTTP 200 (FastForward `rffNavTree` via perc/rff JCR alias), not HTTP 500.
 3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
@@ -94,6 +94,14 @@ Rhythmyx FastForward sites store the same tree as **`rffNavTree` / `rffNavon`**
 names as the same Navigation types. A site that already has an `rffNavTree` at
 the folder root is **not** empty — do not create a second tree. New sites
 created in this product use the `percNav*` names.
+
+`GET /Rhythmyx/services/sitemanage/section/tree/{site}` for a FastForward sample
+site (for example **Corporate_Investments**) returns **HTTP 200** with the seeded
+`rffNavTree` nodes — not HTTP 500 and not an empty tree. Sample items stay on
+type ids **313–315**. The `perc.nav` package registers `percNav*` under
+**1015–1017** and may omit a separate JCR mapping for 313–315; the server still
+loads those items through the matching perc/rff mapping (shared `RXS_CT_NAV*`
+tables). A site with no NavTree item still returns HTTP 200 with an empty tree.
 
 ## Keyboard and accessibility
 
