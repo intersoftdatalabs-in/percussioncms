@@ -51,3 +51,17 @@ still installs Widget XML.
 | Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
 | Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
 
+## M2 product/H2 zero-legacy-selection evidence (#3583)
+
+Non-waived product / H2 widget package roots must select modern-first
+(`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
+`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **`perc.Test`**
+only. The runtime shim stays (#2852); this is **not** M2 PASS overall (M3 still
+FAIL).
+
+| Piece | Class |
+|-------|--------|
+| Evidence API + CLI | `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence` |
+| Surefire assertion | `PSProductPackageRootSelectionEvidenceTest` |
+| DAO H2 harness | `projects/sitemanage` `PSWidgetDaoProductH2ZeroLegacySelectionTest` |
+

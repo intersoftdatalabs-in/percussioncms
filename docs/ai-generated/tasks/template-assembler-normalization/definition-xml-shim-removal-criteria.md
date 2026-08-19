@@ -2,8 +2,8 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Criteria **not met** (snapshot **2026-08-12**) — shim **must remain**; [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) **blocked** until M1–M3 + G1–G6 |
-| **Issue** | Criteria lock [#2835](https://github.com/intersoftdatalabs-in/percussioncms/issues/2835); M2 snapshot refresh [#3132](https://github.com/intersoftdatalabs-in/percussioncms/issues/3132); removal residual [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) |
+| **Status** | Criteria **not met** (snapshot **2026-08-18**) — shim **must remain**; [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) **blocked** until M1–M3 + G1–G6 |
+| **Issue** | Criteria lock [#2835](https://github.com/intersoftdatalabs-in/percussioncms/issues/2835); M2 snapshot refresh [#3132](https://github.com/intersoftdatalabs-in/percussioncms/issues/3132); product/H2 zero-legacy-selection evidence [#3583](https://github.com/intersoftdatalabs-in/percussioncms/issues/3583); removal residual [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) |
 | **Parent** | [#2632](https://github.com/intersoftdatalabs-in/percussioncms/issues/2632) Phase 5 · Grandparent [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) · Phase 3 tracker [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) |
 | **Depends on** | Phase 3 [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) product off definition XML; dual-run policy [#2752](https://github.com/intersoftdatalabs-in/percussioncms/issues/2752) |
 | **Policy / selection** | [dual-run-legacy-definition-xml-shim.md](./dual-run-legacy-definition-xml-shim.md) |
@@ -23,14 +23,14 @@ This document is the **hard gate** for deleting or hard-disabling the legacy def
 
 **Hard ban (removal residual):** do **not** start implementation on [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) (shim / dual-run deletion) until **every** row in the Status snapshot table below is **PASS** (or explicitly waived with owner + sunset). Partial M2 infrastructure is **not** “ready to remove.”
 
-## Status snapshot (2026-08-12) — `main` + open evidence PRs
+## Status snapshot (2026-08-18) — `main` + open evidence PRs
 
-Re-verify against current `main` before any removal PR. Counts below were taken from this worktree after `git fetch origin main` / hard reset to `origin/main` on **2026-08-12**.
+Re-verify against current `main` before any removal PR. Counts below were taken from this worktree after `git fetch origin main` / hard reset to `origin/main` on **2026-08-18**.
 
 | ID | Criterion | Status | Evidence on `main` / links | What still blocks |
 |----|-----------|--------|----------------------------|-------------------|
 | **M1** | Zero product package definition-XML as ship format (ADR-004) | **PASS** (Widget non-waived; Pages/Gadgets ship-path 0) | Cluster [#2897](https://github.com/intersoftdatalabs-in/percussioncms/pull/2897) (batches A+B+C #2883/#2884/#2885): **1** remaining Widget def XML under Packages (`perc.Test` waiver only; was **48**). **77** `component-package.json` under Packages. G4 Widget gate [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) / #3026; Pages/Gadgets ship-path gate #3581 | Waived Test package only; Page `*.templateDef` dual-ship/native is a separate surface |
-| **M2** | Zero (or waived) runtime legacy definition-XML loads | **PARTIAL / FAIL overall** | **Merged on main:** [#3045](https://github.com/intersoftdatalabs-in/percussioncms/pull/3045) #3024 (`PSWidgetDao` modern-first + INFO + selection kinds); [#3071](https://github.com/intersoftdatalabs-in/percussioncms/pull/3071) #3025 (`GadgetRegistry` dual-load metrics). **This cluster absorbs:** #3130 product/H2 `modernPackageRoots` defaults; #3131 cumulative counters + CI harness; #3132 criteria snapshot | Still need zero (or waived) runtime legacy rate over the time-box; customer XML remains valid fallback; **#2852 blocked** |
+| **M2** | Zero (or waived) runtime legacy definition-XML loads | **PARTIAL / FAIL overall** | **Merged on main:** [#3045](https://github.com/intersoftdatalabs-in/percussioncms/pull/3045) #3024 (`PSWidgetDao` modern-first + INFO + selection kinds); [#3071](https://github.com/intersoftdatalabs-in/percussioncms/pull/3071) #3025 (`GadgetRegistry` dual-load metrics); #3130/#3131/#3132 defaults + counters + snapshot. **This cluster (#3583):** CI-assertable product/H2 package-root + DAO selection — zero non-waived `LEGACY_WIDGET_XML` (`PSProductPackageRootSelectionEvidence` + `PSWidgetDaoProductH2ZeroLegacySelectionTest`); waived `perc.Test` + customer-only still legacy | Product/H2 **selection evidence green**; live time-box / support inventory still open; customer XML remains valid fallback; **do not claim M2 PASS**; **#2852 blocked** |
 | **M3** | Customer upgrade window closed or residual waived | **FAIL** | Compilers + dual-run checklist exist; 8.2 dual-run window **open by design** | Need support inventory / waived residual list + closed upgrade window (or documented residual customers) |
 | **G1** | `modules/perc-packages` clean install green after removal | **N/A (pre-removal)** | Module green on current dual-run code; deletion not started | Required only on the future removal PR |
 | **G2** | Behavioral modern-only selection tests | **PARTIAL** | `PSLegacyDefinitionXmlShimTest` + `PSWidgetDaoTest` modern/legacy/neither on main | Modern-only (no legacy fallback) tests belong on removal PR |
@@ -39,7 +39,7 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 | **G5** | Reverse-dep consumers green after removal | **N/A (pre-removal)** | sitemanage / WebUI dual-run tests green with shim present | Re-run sitemanage + WebUI on removal PR |
 | **G6** | Cross-platform Path/Files only in load paths | **PASS (current surfaces)** | Widget inventory + shim use `Path`/`Files`; DAO roots use `Path.of` | Re-check any replacement load path on removal PR |
 
-### Decision (2026-08-12)
+### Decision (2026-08-18)
 
 | Question | Answer |
 |----------|--------|
@@ -89,12 +89,15 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 
 **Snapshot 2026-08-18 (#3581):** G4 Pages/Gadgets ship-path inventory landed (see G4 row). **M2/M3 unchanged.** **#2852 remains blocked.**
 
+**Snapshot 2026-08-18 (slice #3583):** **PARTIAL M2 (product/H2 selection evidence)** — Surefire now **fails** if a non-waived product/H2 widget package root would use the legacy shim or if `PSWidgetDao` H2 defaults select `LEGACY_WIDGET_XML` for a known product widget stem. Probe: `PSProductPackageRootSelectionEvidence` (perc-packages) + `PSWidgetDaoProductH2ZeroLegacySelectionTest` (sitemanage). Waiver: `perc.Test` / `PSWidget_TestProperties` only. Customer-only XML still selects `LEGACY_WIDGET_XML` (shim **kept**). **Do not claim M2 PASS** or removal-ready — live time-box / support inventory and **M3 FAIL** still block #2852.
+
 | Surface | Status in this cluster | Metric visibility | Legacy still required? |
 |---------|------------------------|-------------------|------------------------|
 | Widget selection wire | #3024 on main | Per-poll INFO + selection kinds | **Yes** until zero-legacy rate |
 | Gadget dual-load | #3025 on main | INFO + last source/entry count | **Yes** — classpath fallback retained |
 | Product modern roots default | #3130 (this cluster) | Defaults + tests | Customer-only XML still selects legacy |
 | Cumulative counters + CI harness | #3131 (this cluster) | Snapshot/summary APIs + harness tests | Process-lifetime rate still needs zero/waived window |
+| Product/H2 zero-legacy-selection evidence | #3583 (this slice) | `wouldUseLegacyShim` / kind on product + H2 materialized roots; DAO H2 defaults | Customer-only + waived `perc.Test` still legacy; shim kept |
 
 ### How to measure M2 (evidence harness)
 
@@ -116,15 +119,25 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 
 ```text
 # from projects/sitemanage (repo-root mvnw)
-..\..\mvnw.cmd -Dtest=PSWidgetDaoTest,PSWidgetDaoSelectionMetricsHarnessTest test
+..\..\mvnw.cmd -Dtest=PSWidgetDaoTest,PSWidgetDaoSelectionMetricsHarnessTest,PSWidgetDaoProductH2ZeroLegacySelectionTest test
 # or full module gate:
 ..\..\mvnw.cmd clean install
 ```
 
 - `com.percussion.pagemanagement.dao.PSWidgetDaoTest` — modern preferred, legacy fallback, neither throws, poll kinds (#3024)
 - `com.percussion.pagemanagement.dao.PSWidgetDaoSelectionMetricsHarnessTest` — counters, snapshot, summary, reset, mixed select+poll (#3131)
+- `com.percussion.pagemanagement.dao.PSWidgetDaoProductH2ZeroLegacySelectionTest` — H2 blank-property defaults + classpath materialize; zero unexpected `LEGACY_WIDGET_XML` on non-waived product stems; customer-only stays legacy (#3583)
 
-**M2 pass signal (widget path):** over the agreed window, `legacyWidgetXml` / `getLegacySelectionCount()` is **0** (or waived list with owner + sunset), and product widgets select `MODERN_COMPONENT_PACKAGE` when modern roots are configured.
+```text
+# from modules/perc-packages (repo-root mvnw)
+..\..\mvnw.cmd -Dtest=PSProductPackageRootSelectionEvidenceTest test
+# or full module gate:
+..\..\mvnw.cmd clean install
+```
+
+- `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence` / `PSProductPackageRootSelectionEvidenceTest` — product `Packages/` roots + H2 `Packages/Modern` materialize: `wouldUseLegacyShim == false` / kind MODERN for non-waived widget packages; fails if dummy non-waived LEGACY_* is introduced; waived `perc.Test` may remain legacy (#3583)
+
+**M2 pass signal (widget path):** over the agreed window, `legacyWidgetXml` / `getLegacySelectionCount()` is **0** (or waived list with owner + sunset), and product widgets select `MODERN_COMPONENT_PACKAGE` when modern roots are configured. **#3583** makes the product/H2 *selection* half of that signal CI-assertable; it does **not** close the live time-box or M3.
 
 #### Gadget registry (`WebUI` — `GadgetRegistry`)
 
@@ -170,6 +183,8 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 **Snapshot 2026-08-11:** **FAIL M3** — compilers and dual-run operator checklist exist; customer upgrade window is **still open** by design for 8.2 dual-run. No production metric stream yet to prove “zero loads.”
 
 **Snapshot 2026-08-12 (#3132):** **FAIL M3** — unchanged. Compilers, dual-run operator checklist (expanded for H2 `qa-up` + product install), and M2 measurement recipes exist; customer upgrade window remains **open**. Support residual list not closed. **#2852 still blocked** on M3 (and remaining M2 evidence) even if M1 stays PASS.
+
+**Snapshot 2026-08-18 (#3583):** **FAIL M3** — unchanged. Product/H2 selection evidence does **not** close the customer upgrade window. **Do not claim removal-ready.**
 
 ---
 
@@ -231,9 +246,9 @@ Widget path remains PASS (#3026). Broader G4 wording (Widgets/Pages/Gadgets) is 
 
 ---
 
-## 4. Inventory snapshot (grep / tree) — 2026-08-11 (reaffirmed 2026-08-12 on `main`)
+## 4. Inventory snapshot (grep / tree) — 2026-08-11 (reaffirmed 2026-08-18 on `main`)
 
-**2026-08-12 re-check on `origin/main`:** product Packages Widget def XML count still **1** (`perc.Test` only); `PSWidgetDao` still the sole production caller of `PSLegacyDefinitionXmlShim`; `GadgetRegistry` dual-load still live with metrics. No thin dead-path deletion candidate.
+**2026-08-18 re-check on `origin/main` + #3583:** product Packages Widget def XML count still **1** (`perc.Test` only); `PSWidgetDao` still the sole production caller of `PSLegacyDefinitionXmlShim`; `GadgetRegistry` dual-load still live with metrics. Product/H2 widget-root selection is now CI-assertable (`PSProductPackageRootSelectionEvidence`). No thin dead-path deletion candidate.
 
 ### 4.1 Selection API package (`modules/perc-packages`)
 
@@ -244,6 +259,8 @@ Widget path remains PASS (#3026). Broader G4 wording (Widgets/Pages/Gadgets) is 
 | `…/shim/PSDefinitionSourceSelection.java` | Selection result + `isLegacyXml()` | Yes |
 | `…/shim/PSDefinitionSourceNotFoundException.java` | Neither modern nor legacy | Yes |
 | `…/shim/PSLegacyDefinitionXmlShimTest.java` | Unit coverage for selection | Test only |
+| `…/shim/PSProductPackageRootSelectionEvidence.java` | Product/H2 zero-legacy-selection probe (#3583) | Evidence only — does **not** delete the shim |
+| `…/shim/PSProductPackageRootSelectionEvidenceTest.java` | Product tree + H2 materialize + fail-on-dummy-legacy | Test only |
 
 **Production callers of `PSLegacyDefinitionXmlShim` (excluding self + tests):**
 
@@ -326,6 +343,7 @@ Copy into the residual issue / PR when M1–M3 evidence exists:
 | Product/H2 default modern package roots | Open [#3130](https://github.com/intersoftdatalabs-in/percussioncms/issues/3130) / PR [#3134](https://github.com/intersoftdatalabs-in/percussioncms/pull/3134) | M2 infrastructure; **not** shim deletion |
 | Dual-run selection metrics evidence harness | Open [#3131](https://github.com/intersoftdatalabs-in/percussioncms/issues/3131) / PR [#3136](https://github.com/intersoftdatalabs-in/percussioncms/pull/3136) | M2 measurement; **not** shim deletion |
 | Criteria M2 snapshot + operator checklist | [#3132](https://github.com/intersoftdatalabs-in/percussioncms/issues/3132) (this refresh) | Docs only; keeps #2852 correctly blocked |
+| Product/H2 runtime zero-legacy-selection evidence | [#3583](https://github.com/intersoftdatalabs-in/percussioncms/issues/3583) | Assertable product/H2 MODERN selection; **not** M2 PASS; **not** shim deletion |
 | Page dual-ship code retirement | [dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md) | Parallel, not identical |
 
 **#2852 gate statement (authoritative for agents):** implement shim/fallback deletion **only** after this doc’s Status snapshot shows **M1 PASS**, **M2 PASS** (zero or waived legacy rate with attached evidence), **M3 PASS** (or waived residual customers), and **G1–G6 PASS** on the removal PR. Until then leave dual-run code in place.
