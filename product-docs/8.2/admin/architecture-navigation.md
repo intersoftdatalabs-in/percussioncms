@@ -24,7 +24,7 @@ The product name is **Navigation**. The SPA route remains `/architecture` (and
 2. Choose **Navigation** in the product top navigation, or open the SPA entry:
    - Query contract: `spa.jsp?entry=architecture`
    - Path route: `/cm/app/architecture` (optional site segment or `?site=` for context)
-   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL)
+   - Legacy bookmarks: `/cm/app/?view=arch` and `/cm/app/siteArchitecture.jsp` still redirect here (the JSP file is gone; the server 301s the old URL). Those landings load SPA Navigation console-clean: `GET /Rhythmyx/services/sitemanage/section/tree/{site}` is HTTP 200 (FastForward `rffNavTree` via perc/rff JCR alias), not HTTP 500.
 3. The shell loads under the same product top nav as Explorer, Developer, Publish, and Admin.
 
 Default landing can also be set to **Navigation** (stored homepage type
