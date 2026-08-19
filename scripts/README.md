@@ -93,6 +93,37 @@ cd modules/perc-packages
 
 Criteria doc: `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
 
+### M2 product/H2 zero-legacy-selection evidence (#3583)
+
+**Not a Python script.** Phase 5 **M2** product/H2 *selection* evidence is
+enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
+
+- Class: `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence`
+- Tests: `PSProductPackageRootSelectionEvidenceTest` (product tree + H2
+  classpath materialize; fails if a dummy non-waived package selects
+  `LEGACY_*`)
+- DAO harness: `PSWidgetDaoProductH2ZeroLegacySelectionTest` (blank
+  `widgetDao.modernPackageRoots` + `rxdeploydir` materialize)
+- Explicit waiver: **`perc.Test`** / `PSWidget_TestProperties` only
+- **Keep** `PSLegacyDefinitionXmlShim` (#2852). Do **not** treat a green scan
+  as M2 PASS / removal-ready (M3 still FAIL).
+
+Optional CLI (after compiling the module):
+
+```bat
+cd modules\perc-packages
+..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
+  -Dexec.mainClass=com.percussion.packages.shim.PSProductPackageRootSelectionEvidence ^
+  -Dexec.args="src\main\resources\Packages"
+```
+
+```bash
+cd modules/perc-packages
+../../mvnw -q exec:java -Dexec.classpathScope=compile \
+  -Dexec.mainClass=com.percussion.packages.shim.PSProductPackageRootSelectionEvidence \
+  -Dexec.args="src/main/resources/Packages"
+```
+
 ### Third-party license inventory (Maven + npm merge)
 
 **Not a Python script.** Merged inventory generation for issue #1689 lives in

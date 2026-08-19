@@ -69,10 +69,13 @@ import org.springframework.stereotype.Component;
  * from modern packages by package-build emitters). Selection records which dual-run source won for
  * each id.
  *
- * <p><strong>M2 evidence harness (#3131):</strong> cumulative modern / legacy selection counters
- * ({@link #getModernSelectionCount()}, {@link #getLegacySelectionCount()}), per-poll kinds, and
- * {@link #formatSelectionMetricsSummary()} are test- and support-visible so Phase 5 M2 is not only
- * INFO log text. Reset with {@link #resetSelectionMetrics()} in tests / probes only.
+ * <p><strong>M2 evidence harness (#3131 / #3583):</strong> cumulative modern / legacy selection
+ * counters ({@link #getModernSelectionCount()}, {@link #getLegacySelectionCount()}), per-poll
+ * kinds, and {@link #formatSelectionMetricsSummary()} are test- and support-visible so Phase 5 M2
+ * is not only INFO log text. Reset with {@link #resetSelectionMetrics()} in tests / probes only.
+ * Product/H2 zero-legacy-selection: {@code PSProductPackageRootSelectionEvidence} plus
+ * {@code PSWidgetDaoProductH2ZeroLegacySelectionTest} fail on unexpected {@code LEGACY_*} for
+ * non-waived product widgets. The shim is <strong>not</strong> deleted (#2852).
  *
  * <p>Paths use portable {@link Path} / {@link File#pathSeparator} for multi-root lists.
  */
