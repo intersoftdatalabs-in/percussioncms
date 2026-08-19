@@ -40,6 +40,9 @@ describe("explorer-action-toolbar-menus helpers (#2730)", () => {
       TEST_IDS.serverActionsError,
       "explorer-server-actions-error",
     );
+    assert.equal(TEST_IDS.contextMenu, "context-menu");
+    assert.equal(TEST_IDS.contextMenuEmpty, "context-menu-empty");
+    assert.equal(TEST_IDS.contextMenuAnchor, "explorer-context-menu-anchor");
   });
 
   it("collectMenuParents finds nested MENU children and parentId links (#3379)", () => {

@@ -211,6 +211,19 @@ export function normalizeMenuActionTree(
 }
 
 /**
+ * Shared unwrap + collapse for Explorer surfaces: Jackson
+ * {@code ActionMenu}/{@code ActionMenuList} envelopes become arrays,
+ * then descendant names that were also dumped as roots are dropped so
+ * neither the toolbar nor the item context menu can flatten MENU
+ * children (#3560 toolbar / #3629 context menu).
+ */
+export function prepareMenuActionTree(
+  actions: MenuAction[] | null | undefined,
+): MenuAction[] {
+  return collapseFlattenedMenuActionRoots(normalizeMenuActionTree(actions));
+}
+
+/**
  * Toolbar-ready tree: unwrap envelopes, then drop roots that already
  * appear as descendants so ActionToolbar cannot dump MENU children as
  * extra top-level buttons (#3560 / #3379).
@@ -218,7 +231,7 @@ export function normalizeMenuActionTree(
 export function prepareToolbarActions(
   actions: MenuAction[] | null | undefined,
 ): MenuAction[] {
-  return collapseFlattenedMenuActionRoots(normalizeMenuActionTree(actions));
+  return prepareMenuActionTree(actions);
 }
 
 function actionNameKey(name: string | undefined | null): string {
@@ -312,15 +325,19 @@ export function filterToolbarActions(
 
 /**
  * Convenience: filter for the item/folder context menu popup.
+ * Unwraps envelopes and collapses flattened MENU children so right-click
+ * chrome matches the toolbar catalog (#3629) instead of a label dump.
  */
 export function filterContextMenuActions(
   actions: MenuAction[] | null | undefined,
   baseHref?: string,
   selectionItem?: PSPathItem | null,
 ): MenuAction[] {
-  return filterEnabledMenuActions(actions, {
-    surface: "contextmenu",
-    baseHref,
-    selectionItem,
-  });
+  return prepareMenuActionTree(
+    filterEnabledMenuActions(actions, {
+      surface: "contextmenu",
+      baseHref,
+      selectionItem,
+    }),
+  );
 }
