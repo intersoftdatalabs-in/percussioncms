@@ -55,38 +55,125 @@ export interface ExplorerTreeProps {
   onActivate?: (path: string, folder: PSPathItem) => void;
   /**
    * When this value changes (and is non-zero), reload children of the
-   * selected folder even if they were already loaded. Used after Create
-   * Folder (#3640) and Rename (#3645) so the tree shows the new name
-   * without a manual Refresh. Hosts should pass a dedicated folder-mutation
-   * epoch, not the detail-list epoch.
+   * selected folder, its tree parent, and the tree root even if they were
+   * already loaded. Used after Create Folder (#3640), Rename (#3645 / #3652),
+   * and Delete (#3646 / #3653) so the tree shows the new name (or drops the
+   * deleted name) without a manual Refresh. Hosts should pass a dedicated
+   * folder-mutation epoch, not the detail-list epoch.
    */
   childrenEpoch?: number;
 }
 
 /**
- * Compare tree node keys with list paths that may differ only by a trailing
- * slash ({@code /Assets} vs {@code /Assets/}).
+ * Compare tree node keys with list paths that may differ by a trailing
+ * slash or a repository {@code //} prefix ({@code /Assets} vs
+ * {@code /Assets/} vs {@code //Assets}).
  */
 export function normalizeExplorerTreePathKey(
   path: string | null | undefined,
 ): string {
-  const raw = String(path ?? "").trim();
-  if (!raw || raw === "/") {
+  let p = String(path ?? "").trim().replace(/\\/g, "/");
+  if (!p || p === "/") {
     return "/";
   }
-  return raw.replace(/\/+$/, "") || "/";
+  p = p.replace(/^[A-Za-z]:/, "");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  p = p.replace(/\/{2,}/g, "/");
+  if (!p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  return p.replace(/\/+$/, "") || "/";
 }
 
-function resolveLoadedNodePath(
-  nodes: Record<string, NodeState>,
+/**
+ * Parent of a CMS tree path ({@code /Sites/Foo} → {@code /Sites}).
+ * Root {@code /} has no parent.
+ */
+export function parentExplorerTreePath(
+  path: string | null | undefined,
+): string | null {
+  const n = normalizeExplorerTreePathKey(path);
+  if (n === "/") {
+    return null;
+  }
+  const i = n.lastIndexOf("/");
+  if (i <= 0) {
+    return "/";
+  }
+  return n.slice(0, i) || "/";
+}
+
+function pathKeyMatches(
+  candidate: string | null | undefined,
+  wanted: ReadonlySet<string>,
+): boolean {
+  if (candidate == null || String(candidate).trim().length === 0) {
+    return false;
+  }
+  return wanted.has(normalizeExplorerTreePathKey(candidate));
+}
+
+/**
+ * Node keys to force-reload on a folder-mutation epoch.
+ *
+ * <p>Product Explorer seeds {@code initialPath="/"} while the selected list
+ * path may be a repository {@code folderPath} ({@code /Folders/$System$/Assets})
+ * and the visible tree node is keyed by finder {@code path} ({@code /Assets}).
+ * Reloading only {@code selectedPath} + root leaves the expanded parent's
+ * children stale after Delete/Rename (#3653 / #3652). Match loaded children
+ * by path <em>or</em> folderPath, and always include the tree parent of
+ * {@code selectedPath} so a tree-selected deleted folder drops from its
+ * parent without View → Refresh.</p>
+ *
+ * <p>Does not walk every loaded node — expanded siblings stay cached
+ * (#3645 review).</p>
+ */
+export function collectChildrenEpochReloadPaths(
+  nodes: Record<string, { children: ReadonlyArray<Pick<PSPathItem, "path" | "folderPath">> }>,
   selectedPath: string | null,
-  fallback: string,
-): string {
-  const target = normalizeExplorerTreePathKey(selectedPath ?? fallback);
-  const hit = Object.keys(nodes).find(
-    (key) => normalizeExplorerTreePathKey(key) === target,
-  );
-  return hit ?? selectedPath ?? fallback;
+  initialPath: string,
+): string[] {
+  const out = new Set<string>();
+  const hasNode = (key: string | null | undefined): boolean =>
+    key != null && Object.prototype.hasOwnProperty.call(nodes, key);
+  if (initialPath) {
+    out.add(initialPath);
+  }
+  const selectedKey = resolveLoadedNodePath(nodes, selectedPath, initialPath);
+  if (hasNode(selectedKey)) {
+    out.add(selectedKey);
+  }
+  const wanted = new Set<string>();
+  const addWanted = (p: string | null | undefined): void => {
+    const n = normalizeExplorerTreePathKey(p);
+    if (n !== "/") {
+      wanted.add(n);
+    }
+  };
+  addWanted(selectedPath);
+  addWanted(selectedKey);
+  addWanted(parentExplorerTreePath(selectedPath));
+  addWanted(parentExplorerTreePath(selectedKey));
+
+  for (const [key, state] of Object.entries(nodes)) {
+    if (pathKeyMatches(key, wanted)) {
+      out.add(key);
+    }
+    for (const child of state.children ?? []) {
+      if (
+        pathKeyMatches(child.path, wanted) ||
+        pathKeyMatches(child.folderPath, wanted)
+      ) {
+        out.add(key);
+        if (hasNode(child.path)) {
+          out.add(child.path);
+        }
+      }
+    }
+  }
+  return [...out];
 }
 
 interface NodeState {
@@ -102,6 +189,39 @@ const EMPTY_STATE: NodeState = {
   error: null,
   children: [],
 };
+
+function resolveLoadedNodePath(
+  nodes: Record<string, unknown>,
+  selectedPath: string | null,
+  fallback: string,
+): string {
+  const target = normalizeExplorerTreePathKey(selectedPath ?? fallback);
+  const hit = Object.keys(nodes).find(
+    (key) => normalizeExplorerTreePathKey(key) === target,
+  );
+  return hit ?? selectedPath ?? fallback;
+}
+
+function findFolderItemForPath(
+  nodes: Record<string, NodeState>,
+  path: string,
+): PSPathItem | null {
+  const target = normalizeExplorerTreePathKey(path);
+  for (const state of Object.values(nodes)) {
+    for (const child of state.children) {
+      if (normalizeExplorerTreePathKey(child.path) === target) {
+        return child;
+      }
+      if (
+        child.folderPath &&
+        normalizeExplorerTreePathKey(child.folderPath) === target
+      ) {
+        return child;
+      }
+    }
+  }
+  return null;
+}
 
 export function ExplorerTree({
   initialPath = "/",
@@ -155,19 +275,19 @@ export function ExplorerTree({
       return;
     }
     const snapshot = nodesRef.current;
-    const selected = resolveLoadedNodePath(
+    const toReload = collectChildrenEpochReloadPaths(
       snapshot,
       selectedPathRef.current,
       initialPath,
     );
-    const toReload = new Set<string>([selected, initialPath]);
     for (const path of toReload) {
-      void ensureLoaded(path, null, true);
+      // Pass the PathItem when we have it so force-reload uses
+      // folderPath (Assets → //Folders/$System$/Assets) not the finder key.
+      void ensureLoaded(path, findFolderItemForPath(snapshot, path), true);
     }
-    // Reload only the selected folder (and the tree root). Do not walk
-    // every loaded node — hosts used to pass listEpoch and that shotgun
-    // refetch (#3645 review). selectedPath is read from a ref so selection
-    // clicks after an epoch bump do not re-run this effect (#3640).
+    // Reload selected + its tree parent + root. selectedPath is read from
+    // a ref so selection clicks after an epoch bump do not re-run this
+    // effect (#3640). Do not walk every loaded node (#3645 review).
   }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(

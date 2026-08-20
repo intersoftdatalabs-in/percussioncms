@@ -143,7 +143,11 @@ import {
   toDetailDisplayFormat,
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
-import { ExplorerTree } from "./ExplorerTree";
+import {
+  ExplorerTree,
+  normalizeExplorerTreePathKey,
+  parentExplorerTreePath,
+} from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
@@ -655,15 +659,26 @@ function ContentExplorerShellInner({
       const impl = actionHandlers?.onDelete ?? stockReducedHandlers.onDelete;
       await impl(item);
       setSelection((prev) => {
-        const deleted = String(item.path ?? "").replace(/\/+$/, "");
-        const selected = String(prev.item?.path ?? "").replace(/\/+$/, "");
+        const deleted = normalizeExplorerTreePathKey(item.path);
+        const deletedFolder = normalizeExplorerTreePathKey(
+          item.folderPath ?? item.path,
+        );
+        const selectedRow = normalizeExplorerTreePathKey(prev.item?.path);
+        const currentFolder = normalizeExplorerTreePathKey(prev.folderPath);
+        const deletingOpenFolder =
+          currentFolder !== "/" &&
+          (currentFolder === deleted || currentFolder === deletedFolder);
         return {
-          folderPath: prev.folderPath,
-          item: deleted && selected === deleted ? null : prev.item,
+          folderPath: deletingOpenFolder
+            ? parentExplorerTreePath(prev.folderPath) ?? prev.folderPath
+            : prev.folderPath,
+          item: deleted && selectedRow === deleted ? null : prev.item,
         };
       });
       // #3645 split folderTreeEpoch from the list epoch; list-only refresh
-      // would leave the deleted name in the tree.
+      // would leave the deleted name in the tree. ExplorerTree also reloads
+      // the parent node keyed by finder path when selectedPath is a
+      // repository folderPath (#3653).
       handleRefreshListAndTree();
     },
     // Product Copy folder (flag off) POSTs public REST copy/folder then

@@ -119,4 +119,98 @@ describe("ContentExplorerShell delete folder (#3646)", () => {
     });
     await renderA11yGate(container);
   });
+
+  it("drops the deleted name from the tree when product initialPath is / (#3653)", async () => {
+    const SITES = {
+      id: "sites-root",
+      path: "/Sites",
+      name: "Sites",
+      type: "folder",
+      folderPath: "//Sites",
+      hasFolderChildren: true,
+    };
+    let deleted = false;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/pathmanagement/path/deleteFolder")) {
+        deleted = true;
+        return new Response("0", {
+          status: 200,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+      if (url.includes("/pathmanagement/path/delete/") && !url.includes("deleteFolder")) {
+        return new Response("missing", { status: 404 });
+      }
+      const pathOnly = url.split("?")[0];
+      const isRootList =
+        /\/path\/folder\/?$/.test(pathOnly) ||
+        /\/paginatedFolder\/?$/.test(pathOnly);
+      const isSitesList =
+        /\/folder\/Sites\/?$/.test(pathOnly) ||
+        /\/paginatedFolder\/Sites/.test(pathOnly);
+      const kids = isRootList
+        ? [SITES]
+        : isSitesList
+          ? deleted
+            ? []
+            : [DISPOSABLE]
+          : [];
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: kids,
+              childrenCount: kids.length,
+              startIndex: 0,
+            },
+            PathItem: kids,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+        actionHandlers={{
+          confirm: () => true,
+        }}
+      />,
+    );
+
+    const sitesNode = await screen.findByTestId("tree-node-/Sites");
+    const toggle = sitesNode.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() => {
+      expect(screen.getByTestId("tree-node-/Sites/qa3646")).toBeInTheDocument();
+    });
+
+    const row = await screen.findByTestId("detail-row-n-3646");
+    fireEvent.click(row);
+
+    const deleteBtn = await screen.findByTestId("action-delete");
+    expect(deleteBtn).toBeEnabled();
+    fireEvent.click(deleteBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("detail-row-n-3646")).not.toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("tree-node-/Sites/qa3646"),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText("qa3646")).not.toBeInTheDocument();
+    await renderA11yGate(container);
+  });
 });
