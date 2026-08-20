@@ -389,6 +389,30 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `architecture-nav-mutations-smoke` (structure action bar). Parent epic #3092.
 
+### Architecture Finder-drop replace landing page (#3660 / parent #3092)
+
+H2 operator proof that dropping a Finder **page** onto a Navigation section
+POSTs `replaceLandingPage` when tree GET is HTTP 200. Folder / non-page drop
+and Escape do **not** POST. Does **not** skip when a sample NavTree exists.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/architecture-nav-landing-drop.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/architecture-landing-drop.js`, `tests/unit/architecture-landing-drop.test.js` |
+| Peers | `architecture-nav-landing-picker.spec.js`, `architecture-nav-tree-live.spec.js` |
+| Tags | `@smoke` `@ui` |
+| Soft skip | None when `TEST_DB_TYPE=h2` and tree GET is 200 |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/architecture-nav-landing-drop.spec.js
+```
+
+Peer: `architecture-nav-landing-picker` (toolbar picker). Parent epic #3092.
+
 ### Explorer Sites list + Create Site (#3003 / parent #2989)
 
 Surface for Explorer **Sites** listing and **Content → Create Site** (traditional site).

@@ -109,6 +109,7 @@ import { SectionLinkDialog } from "./SectionLinkDialog";
 import { SitePicker } from "./SitePicker";
 import { StructureActionBar } from "./StructureActionBar";
 import { canPostReplaceLandingPage } from "./landingPagePicker";
+import type { LandingPageDropRequest } from "./landingPageDrop";
 import { ARCH_MSG } from "./messages";
 import { useDialogEscape } from "./useDialogEscape";
 
@@ -1003,6 +1004,29 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
     [selectedNode, runMutation],
   );
 
+  const onLandingPageDrop = useCallback(
+    (request: LandingPageDropRequest) => {
+      const pageId = String(request.pageId ?? "").trim();
+      const sectionId = String(request.sectionId ?? "").trim();
+      if (!canPostReplaceLandingPage(sectionId, pageId)) {
+        return;
+      }
+      setSelectedNodeId(sectionId);
+      void runMutation(async () => {
+        const result = await replaceLandingPage({
+          sectionId,
+          newLandingPageId: pageId,
+        });
+        setLandingStatus({
+          sectionId: result.sectionId || sectionId,
+          pageId: result.newLandingPageId || pageId,
+          pageName: result.newLandingPageName || request.pageLabel || pageId,
+        });
+      });
+    },
+    [runMutation],
+  );
+
   const onSectionLinkSubmit = useCallback(
     (targetSectionId: string) => {
       if (sectionLinkMode === "create") {
@@ -1648,11 +1672,24 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
             loading={treeLoading}
             error={treeError}
             selectedId={selectedNodeId}
+            selectedSite={selectedSite}
+            dropBusy={mutationBusy}
+            onLandingPageDrop={onLandingPageDrop}
             onSelect={(node) => {
               setSelectedNodeId(node.id);
               setMutationError(null);
             }}
           />
+          <p
+            style={{
+              margin: "0.35rem 0 0",
+              color: catalogColors.muted,
+              fontSize: "0.8rem",
+            }}
+            data-testid="architecture-landing-drop-hint"
+          >
+            {ARCH_MSG.LANDING_DROP_HINT}
+          </p>
           <p
             style={{
               margin: "0.75rem 0 0",

@@ -1159,6 +1159,95 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     expect(replaceSpy).not.toHaveBeenCalled();
   });
 
+  it("Finder page drop posts replaceLandingPage and refreshes the tree (#3660)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    const treeSpy = vi
+      .spyOn(sectionApi, "loadSectionTree")
+      .mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage").mockResolvedValue({
+      sectionId: "c1",
+      newLandingPageId: "page-guid-drop",
+      newLandingPageName: "Dropped Page",
+      oldLandingPageName: "index",
+    });
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    const dt = {
+      dropEffect: "copy",
+      effectAllowed: "copy",
+      types: ["application/x-percussion-finder-page"],
+      getData: () =>
+        JSON.stringify({
+          id: "page-guid-drop",
+          name: "Dropped Page",
+          path: "//Sites/Demo/Dropped",
+          type: "page",
+          category: "PAGE",
+        }),
+    };
+    fireEvent.drop(screen.getByTestId("nav-tree-item-c1"), {
+      dataTransfer: dt,
+    });
+    await waitFor(() => {
+      expect(replaceSpy).toHaveBeenCalledWith({
+        sectionId: "c1",
+        newLandingPageId: "page-guid-drop",
+      });
+    });
+    await waitFor(() => {
+      expect(treeSpy.mock.calls.length).toBeGreaterThan(1);
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-landing-current").textContent,
+      ).toMatch(/Dropped Page/);
+    });
+    expect(screen.getByTestId("architecture-landing-drop-hint")).toBeTruthy();
+  });
+
+  it("folder drop and invalid MIME do not call replaceLandingPage (#3660)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    const replaceSpy = vi.spyOn(sectionApi, "replaceLandingPage");
+
+    render(
+      <ArchitectureShell
+        embedded
+        initialSite="Demo"
+        useLandingContentBrowser={false}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.drop(screen.getByTestId("nav-tree-item-c1"), {
+      dataTransfer: {
+        types: ["application/x-percussion-finder-folder"],
+        getData: () =>
+          JSON.stringify({ id: "f1", name: "Folder", type: "folder" }),
+      },
+    });
+    fireEvent.drop(screen.getByTestId("nav-tree-item-c1"), {
+      dataTransfer: {
+        types: ["text/html"],
+        getData: () => "<p>nope</p>",
+      },
+    });
+    fireEvent.keyDown(screen.getByTestId("nav-tree-item-c1"), { key: "Escape" });
+    expect(replaceSpy).not.toHaveBeenCalled();
+  });
+
   it("properties is disabled until a regular section is selected (#3353)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
