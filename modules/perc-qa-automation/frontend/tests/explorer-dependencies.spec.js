@@ -15,12 +15,13 @@
  */
 
 /**
- * Playwright surface: #2768 / parent #2400 — Explorer Dependency Viewer shell chrome.
+ * Playwright surface: #2768 / #3571 / parent #2400 — Explorer Dependency Viewer.
  *
- * <p>Verifies the modern React Content Explorer mounts View → Dependencies and
- * either shows the select-item hint or the DependencyViewer panel (reusing the
- * existing relationship summary REST loaders). Soft-skip deep relationship
- * assertions when the QA fixture has no selectable content item.</p>
+ * <p>Verifies the modern React Content Explorer mounts View → Dependencies.
+ * Empty selection shows the select-item hint. A selected non-folder content
+ * row (numeric or GUID last-segment) must mount {@code explorer-dependencies-panel}
+ * / {@code dependency-viewer} — do not treat the hint as a pass when a content
+ * row exists (H2 QA / parent #2776).</p>
  *
  * <p>Tags: {@code @explorer-dependencies} {@code @p-adv} {@code @smoke}</p>
  *
@@ -38,7 +39,29 @@ async function listWaitReady(page) {
   await page.locator('[data-testid="detail-list"]').waitFor({ timeout: 15_000 });
 }
 
-test.describe("modern React Content Explorer — dependency viewer (#2768)", () => {
+function attachConsoleCleanGate(page) {
+  const pageErrors = [];
+  const consoleErrors = [];
+  page.on("pageerror", (err) => {
+    pageErrors.push(String(err && err.message ? err.message : err));
+  });
+  page.on("console", (msg) => {
+    if (msg.type() !== "error") {
+      return;
+    }
+    const text = msg.text();
+    // Network 4xx/5xx on Explorer chrome / thin H2 relationship REST is
+    // console "error" but not an uncaught JS exception (C5d). Auth/error
+    // viewer states are in-scope for #3571.
+    if (/Failed to load resource/i.test(text)) {
+      return;
+    }
+    consoleErrors.push(text);
+  });
+  return { pageErrors, consoleErrors };
+}
+
+test.describe("modern React Content Explorer — dependency viewer (#2768 / #3571)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
     await loginAsAdmin(page);
@@ -52,6 +75,7 @@ test.describe("modern React Content Explorer — dependency viewer (#2768)", () 
     "shell mounts dependencies toggle and select-item hint",
     { tag: ["@explorer-dependencies", "@p-adv", "@smoke"] },
     async ({ page }) => {
+      const { pageErrors, consoleErrors } = attachConsoleCleanGate(page);
       const shell = page.locator('[data-testid="content-explorer-shell"]');
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
@@ -77,90 +101,148 @@ test.describe("modern React Content Explorer — dependency viewer (#2768)", () 
       await expect(
         page.locator('[data-testid="dependency-viewer"]'),
       ).toHaveCount(0);
+      await expect(
+        page.locator('[data-testid="explorer-dependencies-panel"]'),
+      ).toHaveCount(0);
+      expect(pageErrors, "uncaught pageerror on dependencies hint").toEqual([]);
+      expect(consoleErrors, "console error on dependencies hint").toEqual([]);
     },
   );
 
   test(
-    "selecting a list row opens dependency viewer or select-item hint",
+    "selecting a content row mounts the dependency viewer (#3571)",
     { tag: ["@explorer-dependencies", "@p-adv"] },
     async ({ page }) => {
-      test.setTimeout(60_000);
+      test.setTimeout(90_000);
+      const { pageErrors, consoleErrors } = attachConsoleCleanGate(page);
       const shell = page.locator('[data-testid="content-explorer-shell"]');
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
-      // Navigate into a structural root so the list has selectable children.
-      const tree = page.locator('[data-testid="explorer-tree"]');
-      await expect(tree).toBeVisible({ timeout: 15_000 });
-      const sitesNode = page
-        .locator(
-          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
-        )
-        .first();
-      if ((await sitesNode.count()) > 0) {
-        // No force:true / silent catch — surface navigation failures.
-        await sitesNode.click({ timeout: 10_000 });
-        await listWaitReady(page);
-        await page.waitForLoadState("networkidle").catch(() => {});
+      async function fetchChildren(folderPath) {
+        const suffix = String(folderPath || "")
+          .replace(/^\/+/, "")
+          .replace(/\/+$/, "");
+        const url = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/paginatedFolder/${suffix}?startIndex=0&maxResults=50`;
+        const res = await page.request.get(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok()) {
+          return [];
+        }
+        const body = await res.json();
+        return body?.PagedItemList?.childrenInPage ?? [];
       }
+
+      function isContentChild(child) {
+        const type = String(child?.type ?? "").trim().toLowerCase();
+        const category = String(child?.category ?? "").trim().toLowerCase();
+        if (
+          type === "folder" ||
+          type === "fsfolder" ||
+          type === "site" ||
+          category === "folder" ||
+          category === "site" ||
+          category === "section_folder"
+        ) {
+          return false;
+        }
+        if (
+          category === "page" ||
+          category === "asset" ||
+          category === "landing_page"
+        ) {
+          return true;
+        }
+        return type.length > 0 && type !== "folder";
+      }
+
+      async function findFolderWithContent(startPath, depth) {
+        const children = await fetchChildren(startPath);
+        const items = children.filter(isContentChild);
+        if (items.length > 0) {
+          return { folderPath: startPath, items };
+        }
+        if (depth <= 0) {
+          return null;
+        }
+        for (const child of children) {
+          const next =
+            child.folderPath ||
+            child.path ||
+            (child.name
+              ? `${startPath.replace(/\/+$/, "")}/${child.name}`
+              : null);
+          if (!next) continue;
+          const found = await findFolderWithContent(next, depth - 1);
+          if (found) return found;
+        }
+        return null;
+      }
+
+      const found = await findFolderWithContent("/Sites", 4);
+      expect(
+        found,
+        "H2 sample sites should list at least one page/asset under Sites",
+      ).toBeTruthy();
+
+      const folderPath = found.folderPath.replace(/\/+$/, "") || "/Sites";
+      await page.goto(
+        `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&path=${encodeURIComponent(folderPath)}&_=${Date.now()}`,
+      );
+      await page.waitForLoadState("networkidle");
+      await listWaitReady(page);
 
       const list = page.locator('[data-testid="detail-list"]');
       await expect(list).toBeVisible({ timeout: 15_000 });
 
-      const enabledRows = list.locator(
-        'tbody tr[data-testid^="detail-row-"]:not([aria-disabled="true"])',
+      const itemRow = list.locator(
+        'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
       );
-      const anyRows = list.locator('tbody tr[data-testid^="detail-row-"]');
-      const enabledCount = await enabledRows.count();
-      const anyCount = await anyRows.count();
-      if (enabledCount === 0 && anyCount === 0) {
-        // Soft path: empty list fixtures still prove chrome wiring via hint.
-        await page.locator('[data-testid="explorer-menu-view"]').click();
-        await page
-          .locator('[data-testid="explorer-toggle-dependencies"]')
-          .click();
-        await expect(
-          page.locator('[data-testid="explorer-dependencies-hint"]'),
-        ).toBeVisible({ timeout: 5_000 });
-        return;
-      }
 
-      const target = enabledCount > 0 ? enabledRows.first() : anyRows.first();
-      try {
-        await target.click({ timeout: 10_000 });
-      } catch (err) {
-        const again = list
-          .locator('tbody tr[data-testid^="detail-row-"]')
-          .first();
-        await again.click({ timeout: 10_000 });
+      if ((await itemRow.count()) === 0) {
+        const first = found.items[0];
+        const idKey = first.id ?? first.path;
+        const byId = list.locator(`[data-testid="detail-row-${idKey}"]`);
+        expect(
+          await byId.count(),
+          "content row from pathmanagement must appear in the detail list",
+        ).toBeGreaterThan(0);
+        await byId.first().click({ force: true, timeout: 10_000 });
+      } else {
+        await itemRow.first().click({ force: true, timeout: 10_000 });
       }
 
       await page.locator('[data-testid="explorer-menu-view"]').click();
       await page.locator('[data-testid="explorer-toggle-dependencies"]').click();
 
-      // Either full viewer (content id) or select-item hint (folder / no id).
+      const region = page.locator(
+        '[data-testid="explorer-dependencies-panel"]',
+      );
       const panel = page.locator('[data-testid="dependency-viewer"]');
-      const hint = page.locator('[data-testid="explorer-dependencies-hint"]');
-      await expect(panel.or(hint)).toBeVisible({ timeout: 15_000 });
+      await expect(region).toBeVisible({ timeout: 15_000 });
+      await expect(panel).toBeVisible({ timeout: 15_000 });
+      await expect(
+        page.locator('[data-testid="explorer-dependencies-hint"]'),
+      ).toHaveCount(0);
+      await expect(panel).toHaveAttribute(
+        "data-testid-state",
+        /ok|loading|auth|error/,
+      );
+      await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
+        timeout: 20_000,
+      });
+      expect(
+        pageErrors,
+        "uncaught pageerror on dependencies mount",
+      ).toEqual([]);
+      expect(
+        consoleErrors,
+        "console error on dependencies mount",
+      ).toEqual([]);
 
-      if ((await panel.count()) > 0) {
-        await expect(panel).toHaveAttribute(
-          "data-testid-state",
-          /ok|loading|auth|error/,
-        );
-        // Soft-skip strict ok when relationships REST/fixture is thin.
-        await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
-          timeout: 20_000,
-        });
-        const state = await panel.getAttribute("data-testid-state");
-        if (state === "ok") {
-          await expect(
-            page.locator('[data-testid="dependency-dimensions"]'),
-          ).toBeVisible();
-          await expect(
-            page.locator('[data-testid="dependency-row-outgoing"]'),
-          ).toBeVisible();
-        }
-      }
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
     },
   );
 });

@@ -41,7 +41,7 @@ describe("DependencyViewer", () => {
   it("renders the 6 dimension rows for a page item", async () => {
     render(
       <DependencyViewer
-        item={{ id: "p-1", folderPath: "/Sites/Foo" }}
+        item={{ id: "42", folderPath: "/Sites/Foo" }}
         aaLinkCount={2}
         loadServerSummary={mockLoad}
       />,
@@ -63,7 +63,7 @@ describe("DependencyViewer", () => {
   it("shows the AA count when known", async () => {
     render(
       <DependencyViewer
-        item={{ id: "x", folderPath: "/p" }}
+        item={{ id: "42", folderPath: "/p" }}
         aaLinkCount={5}
         loadServerSummary={mockLoad}
       />,
@@ -80,7 +80,7 @@ describe("DependencyViewer", () => {
 
   it("no longer renders the client-side preview banner (US8 ships)", async () => {
     render(
-      <DependencyViewer item={{ id: "x" }} loadServerSummary={mockLoad} />,
+      <DependencyViewer item={{ id: "42" }} loadServerSummary={mockLoad} />,
     );
     await waitFor(() =>
       expect(screen.queryByTestId("dependency-viewer")).toHaveAttribute(
@@ -95,7 +95,7 @@ describe("DependencyViewer", () => {
     const d = deferred<PSNodeRelationshipSummary>(SYNTHETIC_SERVER);
     render(
       <DependencyViewer
-        item={{ id: "x" }}
+        item={{ id: "42" }}
         loadServerSummary={() => d.promise}
       />,
     );
@@ -116,7 +116,7 @@ describe("DependencyViewer", () => {
     const denied = { status: 403, statusText: "Forbidden" };
     render(
       <DependencyViewer
-        item={{ id: "private" }}
+        item={{ id: "42" }}
         loadServerSummary={() => Promise.reject(denied)}
       />,
     );
@@ -131,7 +131,7 @@ describe("DependencyViewer", () => {
   it("passes the zero serious/critical axe-core gate", async () => {
     const { container } = render(
       <DependencyViewer
-        item={{ id: "x", folderPath: "/p" }}
+        item={{ id: "42", folderPath: "/p" }}
         aaLinkCount={3}
         loadServerSummary={mockLoad}
       />,
@@ -142,6 +142,39 @@ describe("DependencyViewer", () => {
         "ok",
       ),
     );
+    await renderA11yGate(container);
+  });
+
+  it("parses a GUID id before calling /relationships (#3571)", async () => {
+    const loader = vi.fn().mockResolvedValue(SYNTHETIC_SERVER);
+    const { container } = render(
+      <DependencyViewer
+        item={{ id: "1-101-708", folderPath: "/Sites/Foo" }}
+        loadServerSummary={loader}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("dependency-viewer")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loader).toHaveBeenCalledWith("708");
+    await renderA11yGate(container);
+  });
+
+  it("renders error and does not call loadServerSummary for an unparseable id", async () => {
+    const loader = vi.fn();
+    const { container } = render(
+      <DependencyViewer item={{ id: "nope" }} loadServerSummary={loader} />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("dependency-viewer")).toHaveAttribute(
+        "data-testid-state",
+        "error",
+      ),
+    );
+    expect(loader).not.toHaveBeenCalled();
     await renderA11yGate(container);
   });
 

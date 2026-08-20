@@ -2342,6 +2342,221 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("dependencies panel mounts for a GUID-shaped content row (#3571)", async () => {
+    const loadDependencySummary = vi.fn(async () => ({
+      outgoing: { count: 0, byType: [] as { type: string; count: number }[] },
+      incoming: { count: 0, byType: [] as { type: string; count: number }[] },
+      taxonomy: { count: 0, nodes: [] as string[] },
+      local: { count: 0, links: [] as { type: string; targetId: string }[] },
+      reverse: { count: 0, byType: [] as { type: string; count: number }[] },
+    }));
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Corporate_Investments/Pages/Home",
+                  type: "rffHome",
+                  category: "PAGE",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/Pages"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadDependencySummary={loadDependencySummary}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-dependencies"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-dependencies-panel"),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("dependency-viewer")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(loadDependencySummary).toHaveBeenCalledWith("708");
+    });
+    expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("dependencies panel resolves omitted list id via path lookup (#3571)", async () => {
+    const loadDependencySummary = vi.fn(async () => ({
+      outgoing: { count: 0, byType: [] as { type: string; count: number }[] },
+      incoming: { count: 0, byType: [] as { type: string; count: number }[] },
+      taxonomy: { count: 0, nodes: [] as string[] },
+      local: { count: 0, links: [] as { type: string; targetId: string }[] },
+      reverse: { count: 0, byType: [] as { type: string; count: number }[] },
+    }));
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/path/item/")) {
+        return new Response(
+          JSON.stringify({
+            PathItem: {
+              id: "1-101-708",
+              name: "theme.css",
+              path: "/Sites/Corporate_Investments/web_resources/theme/theme.css",
+              type: "rffFile",
+              category: "ASSET",
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  name: "theme.css",
+                  path: "/Sites/Corporate_Investments/web_resources/theme/theme.css",
+                  type: "rffFile",
+                  category: "ASSET",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments/web_resources/theme"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadDependencySummary={loadDependencySummary}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(
+          "detail-row-/Sites/Corporate_Investments/web_resources/theme/theme.css",
+        ),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(
+      screen.getByTestId(
+        "detail-row-/Sites/Corporate_Investments/web_resources/theme/theme.css",
+      ),
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-dependencies"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-dependencies-panel"),
+      ).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("dependency-viewer")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(loadDependencySummary).toHaveBeenCalledWith("708");
+    });
+    expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("dependencies toggle keeps select-item hint for a folder row (#3571)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "99",
+                  name: "Pages",
+                  path: "/Sites/Corporate_Investments/Pages/",
+                  type: "Folder",
+                  category: "FOLDER",
+                  accessLevel: "READ",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Corporate_Investments"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-99")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-99"));
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-dependencies"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-dependencies-hint"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-dependencies-panel")).toBeNull();
+    expect(screen.queryByTestId("dependency-viewer")).toBeNull();
+    await renderA11yGate(container);
+  });
+
   it("root initialPath does not call resolveFolderId (#3468)", async () => {
     stubPathFetch();
     const resolveFolderId = vi.fn(async () => "should-not-run");
