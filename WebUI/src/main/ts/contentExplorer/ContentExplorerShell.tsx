@@ -601,6 +601,13 @@ function ContentExplorerShellInner({
   const handlers: ReducedActionHandlers = {
     ...stockReducedHandlers,
     ...actionHandlers,
+    // Product Rename must refresh list + tree after pathmanagement succeeds
+    // so operators see the new name without View → Refresh (#3645).
+    onRename: async (item, newName) => {
+      const impl = actionHandlers?.onRename ?? stockReducedHandlers.onRename;
+      await impl(item, newName);
+      handleRefreshList();
+    },
     onOpen: (item) => {
       if (isFolder(item)) {
         const folderPath =

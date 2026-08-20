@@ -56,7 +56,9 @@ export interface ExplorerTreeProps {
   /**
    * When this value changes (and is non-zero), reload children of the
    * selected folder even if they were already loaded. Used after Create
-   * Folder so the tree shows the new name without a manual Refresh (#3640).
+   * Folder (#3640) and Rename (#3645) so the tree shows the new name
+   * without a manual Refresh. Hosts should pass a dedicated folder-mutation
+   * epoch, not the detail-list epoch.
    */
   childrenEpoch?: number;
 }
@@ -167,8 +169,9 @@ export function ExplorerTree({
     for (const path of toReload) {
       void ensureLoaded(path, null, true);
     }
-    // selectedPath is read from a ref so selection clicks after a create-folder
-    // epoch bump do not reload every loaded tree node (#3640 review).
+    // selectedPath is read from a ref so selection clicks after a
+    // create-folder / rename epoch bump do not reload every loaded tree
+    // node (#3640 / #3645 review).
   }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(

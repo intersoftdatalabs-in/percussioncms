@@ -319,11 +319,18 @@ describe("ExplorerTree", () => {
     expect(normalizeExplorerTreePathKey("")).toBe("/");
   });
 
-  it("reloads selected folder children when childrenEpoch changes (#3640)", async () => {
+  it("reloads selected folder children when childrenEpoch changes (#3640 #3645)", async () => {
     const NEW_FOLDER: PSPathItem = {
       id: "new-1",
       path: "/Sites/New",
       name: "New",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    const RENAMED_FOLDER: PSPathItem = {
+      id: "ren-1",
+      path: "/Sites/Renamed",
+      name: "Renamed",
       type: "folder",
       hasFolderChildren: false,
     };
@@ -333,7 +340,11 @@ describe("ExplorerTree", () => {
       if (url.endsWith("/pathmanagement/path/folder/Sites")) {
         sitesCalls += 1;
         if (sitesCalls > 1) {
-          return pathItemListResponse([ROOT_FOLDER, NEW_FOLDER]);
+          return pathItemListResponse([
+            ROOT_FOLDER,
+            NEW_FOLDER,
+            RENAMED_FOLDER,
+          ]);
         }
         return pathItemListResponse([ROOT_FOLDER]);
       }
@@ -351,6 +362,7 @@ describe("ExplorerTree", () => {
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
     );
     expect(screen.queryByTestId("tree-node-/Sites/New")).toBeNull();
+    expect(screen.queryByTestId("tree-node-/Sites/Renamed")).toBeNull();
     rerender(
       <ExplorerTree
         initialPath="/Sites"
@@ -362,6 +374,7 @@ describe("ExplorerTree", () => {
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
     );
+    expect(screen.getByTestId("tree-node-/Sites/Renamed")).toBeInTheDocument();
     expect(sitesCalls).toBeGreaterThan(1);
     const callsAfterEpoch = sitesCalls;
     rerender(

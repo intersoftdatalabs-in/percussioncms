@@ -272,6 +272,32 @@ describe("folderMutations dual-run routing (#3074)", () => {
     );
   });
 
+  it("flag off: renameFolder POSTs pathmanagement RenameFolderItem wrap (#3645)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    let last = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          PathItem: { name: "Renamed", path: "/Assets/Renamed/" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const item = await renameFolder({
+      path: "/Assets/Old",
+      newName: "Renamed",
+    });
+    expect(last).toContain("/pathmanagement/path/renameFolder");
+    expect(last).not.toContain("/content-explorer/folders");
+    expect(posted).toEqual({
+      RenameFolderItem: { path: "/Assets/Old/", name: "Renamed" },
+    });
+    expect(item.name).toBe("Renamed");
+  });
+
   it("flag off: deleteItem uses pathmanagement", async () => {
     setRxFolderMutationsFlagOverride(false);
     let last = "";
