@@ -99,9 +99,11 @@ created in this product use the `percNav*` names.
 site (for example **Corporate_Investments**) returns **HTTP 200** with the seeded
 `rffNavTree` nodes — not HTTP 500 and not an empty tree. Sample items stay on
 type ids **313–315**. The `perc.nav` package registers `percNav*` under
-**1015–1017** and may omit a separate JCR mapping for 313–315; the server still
-loads those items through the matching perc/rff mapping (shared `RXS_CT_NAV*`
-tables). A site with no NavTree item still returns HTTP 200 with an empty tree.
+**1015–1017** and may omit a separate JCR mapping for 313–315 (and may omit the
+FastForward editor from the running catalog). The server still loads those
+items through the matching perc/rff mapping (shared `RXS_CT_NAV*` tables),
+including when the catalog has no name for type 315. A site with no NavTree
+item still returns HTTP 200 with an empty tree.
 
 ## Keyboard and accessibility
 

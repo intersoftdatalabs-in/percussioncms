@@ -509,11 +509,13 @@ public class PSContentRepository
     }
 
     /**
-     * JCR type map lookup with perc/rff Managed Nav alias fallback (#3611).
+     * JCR type map lookup with perc/rff Managed Nav alias fallback (#3611 / #3612).
      * {@code perc.nav} can drop the Hibernate mapping for FastForward ids
      * 313–315 while {@link PSItemDefManager} still catalogs {@code rffNav*}
-     * editors. Those items share {@code RXS_CT_NAV*} with {@code percNav*}
-     * (1015–1017), so the registered sibling mapping loads the node.
+     * editors — or drop the ItemDef catalog entry as well. Those items share
+     * {@code RXS_CT_NAV*} with {@code percNav*} (1015–1017), so the registered
+     * sibling mapping loads the node. Well-known ids 313–315 / 1015–1017 still
+     * match when the catalog has no name for the missing id.
      */
     static PSTypeConfiguration lookupTypeConfiguration(long contentTypeId)
     {
