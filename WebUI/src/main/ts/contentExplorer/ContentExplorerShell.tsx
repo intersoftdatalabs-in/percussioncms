@@ -662,7 +662,9 @@ function ContentExplorerShellInner({
           item: deleted && selected === deleted ? null : prev.item,
         };
       });
-      handleRefreshList();
+      // #3645 split folderTreeEpoch from the list epoch; list-only refresh
+      // would leave the deleted name in the tree.
+      handleRefreshListAndTree();
     },
     // Product Copy folder (flag off) POSTs public REST copy/folder then
     // opens the destination so operators see the copy without Refresh (#3647).
@@ -673,7 +675,8 @@ function ContentExplorerShellInner({
       if (dest) {
         setSelection({ folderPath: dest, item: null });
       }
-      handleRefreshList();
+      // Same split-epoch as Delete/Rename: dest list + dest tree children.
+      handleRefreshListAndTree();
     },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
