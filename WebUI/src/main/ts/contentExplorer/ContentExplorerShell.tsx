@@ -664,6 +664,17 @@ function ContentExplorerShellInner({
       });
       handleRefreshList();
     },
+    // Product Copy folder (flag off) POSTs public REST copy/folder then
+    // opens the destination so operators see the copy without Refresh (#3647).
+    onCopy: async (item, targetPath) => {
+      const impl = actionHandlers?.onCopy ?? stockReducedHandlers.onCopy;
+      await impl(item, targetPath);
+      const dest = String(targetPath || "").trim();
+      if (dest) {
+        setSelection({ folderPath: dest, item: null });
+      }
+      handleRefreshList();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;
