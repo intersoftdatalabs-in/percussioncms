@@ -145,6 +145,23 @@ describe("DependencyViewer", () => {
     await renderA11yGate(container);
   });
 
+  it("parses a GUID id before calling /relationships (#3571)", async () => {
+    const loader = vi.fn().mockResolvedValue(SYNTHETIC_SERVER);
+    render(
+      <DependencyViewer
+        item={{ id: "1-101-708", folderPath: "/Sites/Foo" }}
+        loadServerSummary={loader}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("dependency-viewer")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loader).toHaveBeenCalledWith("708");
+  });
+
   it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
     const loader = vi.fn();
     render(<DependencyViewer item={{}} loadServerSummary={loader} />);

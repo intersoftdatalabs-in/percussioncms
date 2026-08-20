@@ -744,7 +744,8 @@ function ContentExplorerShellInner({
     setSelection((prev) => ({ ...prev, item: bound }));
     setShowSubfolderCopy(false);
     // List rows that omit id / use a slug still resolve via path so
-    // View → Relationships can mount (#3546 / #2778).
+    // View → Relationships and View → Dependencies can mount
+    // (#3546 / #2778 / #3571).
     if (
       isFolder(bound) ||
       parseExplorerContentId(bound.id) != null ||
@@ -1178,15 +1179,14 @@ function ContentExplorerShellInner({
     [selection.folderPath, selection.item?.path, selection.item?.type],
   );
   const hasFolderContext = sourceFolderPathForCopy != null;
-  const hasDependencyItem =
-    selection.item != null &&
-    !isFolder(selection.item) &&
-    selection.item.id != null &&
-    String(selection.item.id).trim().length > 0;
   const hasRelationshipItem =
     selection.item != null &&
     !isFolder(selection.item) &&
     parseExplorerContentId(selection.item.id) != null;
+  // Same eligibility as Relationships: numeric id or GUID last-segment
+  // (host-type-uuid). A non-empty slug such as theme.css is not enough
+  // (#3571 / parent #2776).
+  const hasDependencyItem = hasRelationshipItem;
   const hasOpenSidePanel =
     showSearch ||
     showSecurity ||
@@ -1778,7 +1778,10 @@ function ContentExplorerShellInner({
           >
             <DependencyViewer
               item={{
-                id: String(selection.item!.id),
+                id: String(
+                  parseExplorerContentId(selection.item!.id) ??
+                    selection.item!.id,
+                ),
                 path: selection.item!.path,
                 folderPath: selection.folderPath ?? undefined,
               }}

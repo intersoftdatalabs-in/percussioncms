@@ -25,6 +25,7 @@ import {
   labelFor,
   totalKnownEdges,
 } from "./dependencyModel";
+import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import { fetchNodeSummary } from "../../api/contentExplorer/relationshipsApi";
 
 export interface DependencyItem {
@@ -88,7 +89,11 @@ export function DependencyViewer(
   } = props;
   const summarise = composeSummary ?? defaultComposeSummary;
 
-  const itemId = item.id ?? "";
+  // REST /relationships/{id} needs a numeric content id. List rows often
+  // carry host-type-uuid (1-101-708); last segment is the content id (#3571).
+  const parsedId = parseExplorerContentId(item.id);
+  const itemId =
+    parsedId != null ? String(parsedId) : String(item.id ?? "").trim();
   const [state, setState] = React.useState<
     | { kind: "loading" }
     | { kind: "ok"; summary: PSNodeRelationshipSummary }

@@ -702,11 +702,13 @@ npm run test:surface:list -- --path tests/explorer-relationships.spec.js
 npm run test:surface:list -- --tag explorer-relationships
 ```
 
-#### Explorer dependency viewer (#2768 / parent #2400)
+#### Explorer dependency viewer (#2768 / #3571 / parent #2400)
 
-View → Dependencies shell chrome + optional DependencyViewer mount for a
-selected content item (reuses relationship summary REST). Soft-skip deep
-relationship count assertions when the QA fixture has no selectable row.
+View → Dependencies shell chrome + DependencyViewer mount for a selected
+non-folder content row (numeric id or GUID last-segment). Empty / folder
+selection still shows the select-item hint. Do **not** treat the hint as a
+pass when a content row exists. Empty/error dimension states are OK on thin
+H2 fixtures once the viewer mounts.
 
 | Item | Value |
 |------|--------|
