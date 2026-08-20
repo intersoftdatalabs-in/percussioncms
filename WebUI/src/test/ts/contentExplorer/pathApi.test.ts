@@ -32,6 +32,7 @@ import {
   MOVE_FOLDER_ITEM_ROOT,
   isNumericDisplayFormatId,
   paginatedFolder,
+  renameFolder,
   saveFolderProperties,
   unwrapFolderProperties,
   unwrapPrincipalList,
@@ -209,16 +210,22 @@ describe("paginatedFolder", () => {
 });
 
 describe("pathmanagement URL shape (no double-slash)", () => {
-  function mockJson(body: unknown = { PathItem: [] }): { lastUrl: () => string } {
+  function mockJson(body: unknown = { PathItem: [] }): {
+    lastUrl: () => string;
+    lastBody: () => unknown;
+  } {
     let last = "";
-    mockFetch(async (input) => {
+    let lastBody: unknown;
+    mockFetch(async (input, init) => {
       last = typeof input === "string" ? input : (input as Request).url;
+      const raw = (init as RequestInit | undefined)?.body;
+      lastBody = raw ? JSON.parse(String(raw)) : undefined;
       return new Response(JSON.stringify(body), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     });
-    return { lastUrl: () => last };
+    return { lastUrl: () => last, lastBody: () => lastBody };
   }
 
   it("findChildren root uses folder/ not folder//", async () => {
@@ -293,6 +300,18 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     await addNewFolder("/Sites/", "New");
     expect(cap.lastUrl()).toContain("/path/addNewFolder/Sites?name=New");
     expect(cap.lastUrl()).not.toContain("addNewFolder//");
+  });
+
+  it("renameFolder posts server field name with a trailing slash path (#3640)", async () => {
+    const cap = mockJson({ PathItem: { name: "qa3640", path: "/Assets/qa3640/" } });
+    await renameFolder({ path: "/Assets/New-Folder", newName: "qa3640" });
+    expect(cap.lastUrl()).toContain("/path/renameFolder");
+    expect(cap.lastBody()).toEqual({
+      RenameFolderItem: {
+        path: "/Assets/New-Folder/",
+        name: "qa3640",
+      },
+    });
   });
 
   it("deleteItem joins without double slash", async () => {

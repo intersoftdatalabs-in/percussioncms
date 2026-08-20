@@ -56,6 +56,34 @@ import type {
   PSRenameFolderItem,
 } from "./types";
 
+function folderDisplayNamesEqual(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/**
+ * Pathmanagement {@code addNewFolder} ignores {@code ?name=} and always
+ * creates {@code New-Folder} (unique suffix). Apply the operator-prompted
+ * name via rename so product Create Folder matches the dialog (#3640).
+ */
+async function applyRequestedFolderName(
+  created: PSPathItem,
+  requested: string,
+): Promise<PSPathItem> {
+  const wanted = String(requested ?? "").trim();
+  if (!wanted) {
+    return created;
+  }
+  const got = String(created?.name ?? "").trim();
+  if (got && folderDisplayNamesEqual(got, wanted)) {
+    return created;
+  }
+  const createdPath = String(created?.path ?? "").trim();
+  if (!createdPath) {
+    return created;
+  }
+  return pathRenameFolder({ path: createdPath, newName: wanted });
+}
+
 /**
  * Create a folder. Dual-run: RX REST under Folders/Sites when flag on.
  */
@@ -67,7 +95,8 @@ export async function addNewFolder(
     const created = await addRxFolder(path, name);
     return rxFolderToPathItem(created);
   }
-  return pathAddNewFolder(path, name);
+  const created = await pathAddNewFolder(path, name);
+  return applyRequestedFolderName(created, name);
 }
 
 /**

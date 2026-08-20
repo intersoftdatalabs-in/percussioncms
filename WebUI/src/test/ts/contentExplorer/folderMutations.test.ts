@@ -48,6 +48,54 @@ describe("folderMutations dual-run routing (#3074)", () => {
     expect(last).not.toContain("/content-explorer/folders");
   });
 
+  it("flag off: addNewFolder renames when pathmanagement returns New-Folder (#3640)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    const urls: string[] = [];
+    const bodies: unknown[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      urls.push(url);
+      const raw = (init as RequestInit | undefined)?.body;
+      if (raw) {
+        bodies.push(JSON.parse(String(raw)));
+      }
+      if (url.includes("/pathmanagement/path/addNewFolder")) {
+        return new Response(
+          JSON.stringify({
+            PathItem: {
+              name: "New-Folder",
+              path: "/Folders/$System$/Assets/New-Folder/",
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          PathItem: {
+            name: "qa3640",
+            path: "/Folders/$System$/Assets/qa3640/",
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const item = await addNewFolder("/Assets", "qa3640");
+    expect(urls.some((u) => u.includes("/pathmanagement/path/addNewFolder"))).toBe(
+      true,
+    );
+    expect(urls.some((u) => u.includes("/pathmanagement/path/renameFolder"))).toBe(
+      true,
+    );
+    expect(item.name).toBe("qa3640");
+    expect(bodies[0]).toMatchObject({
+      RenameFolderItem: {
+        path: "/Folders/$System$/Assets/New-Folder/",
+        name: "qa3640",
+      },
+    });
+  });
+
   it("flag on + RX path: addNewFolder uses content-explorer folders REST", async () => {
     setRxFolderMutationsFlagOverride(true);
     let last = "";

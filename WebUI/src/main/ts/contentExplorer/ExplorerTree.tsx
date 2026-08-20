@@ -22,7 +22,7 @@
  * Empty/error states use the shared TMX keys from {@link EXPLORER_MSG}.</p>
  */
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { formatApiError } from "../api/client";
 import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
@@ -53,6 +53,38 @@ export interface ExplorerTreeProps {
    * detail list when a new folder is selected.
    */
   onActivate?: (path: string, folder: PSPathItem) => void;
+  /**
+   * When this value changes (and is non-zero), reload children of the
+   * selected folder even if they were already loaded. Used after Create
+   * Folder so the tree shows the new name without a manual Refresh (#3640).
+   */
+  childrenEpoch?: number;
+}
+
+/**
+ * Compare tree node keys with list paths that may differ only by a trailing
+ * slash ({@code /Assets} vs {@code /Assets/}).
+ */
+export function normalizeExplorerTreePathKey(
+  path: string | null | undefined,
+): string {
+  const raw = String(path ?? "").trim();
+  if (!raw || raw === "/") {
+    return "/";
+  }
+  return raw.replace(/\/+$/, "") || "/";
+}
+
+function resolveLoadedNodePath(
+  nodes: Record<string, NodeState>,
+  selectedPath: string | null,
+  fallback: string,
+): string {
+  const target = normalizeExplorerTreePathKey(selectedPath ?? fallback);
+  const hit = Object.keys(nodes).find(
+    (key) => normalizeExplorerTreePathKey(key) === target,
+  );
+  return hit ?? selectedPath ?? fallback;
 }
 
 interface NodeState {
@@ -74,6 +106,7 @@ export function ExplorerTree({
   selectedPath,
   onSelectFolder,
   onActivate,
+  childrenEpoch = 0,
 }: ExplorerTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => ({
     [initialPath]: true,
@@ -81,12 +114,16 @@ export function ExplorerTree({
   const [nodes, setNodes] = useState<Record<string, NodeState>>(() => ({
     [initialPath]: EMPTY_STATE,
   }));
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+  const selectedPathRef = useRef(selectedPath);
+  selectedPathRef.current = selectedPath;
 
   const ensureLoaded = useCallback(
-    async (path: string, folder?: PSPathItem | null) => {
+    async (path: string, folder?: PSPathItem | null, force?: boolean) => {
       setNodes((prev) => {
         const cur = prev[path] ?? EMPTY_STATE;
-        if (cur.loaded || cur.loading) return prev;
+        if (!force && (cur.loaded || cur.loading)) return prev;
         return { ...prev, [path]: { ...cur, loading: true, error: null } };
       });
       try {
@@ -110,6 +147,29 @@ export function ExplorerTree({
   useEffect(() => {
     void ensureLoaded(initialPath);
   }, [ensureLoaded, initialPath]);
+
+  useEffect(() => {
+    if (!childrenEpoch) {
+      return;
+    }
+    const snapshot = nodesRef.current;
+    const selected = resolveLoadedNodePath(
+      snapshot,
+      selectedPathRef.current,
+      initialPath,
+    );
+    const toReload = new Set<string>([selected, initialPath]);
+    for (const [path, state] of Object.entries(snapshot)) {
+      if (state.loaded) {
+        toReload.add(path);
+      }
+    }
+    for (const path of toReload) {
+      void ensureLoaded(path, null, true);
+    }
+    // selectedPath is read from a ref so selection clicks after a create-folder
+    // epoch bump do not reload every loaded tree node (#3640 review).
+  }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(
     (path: string, folder: PSPathItem) => {

@@ -590,8 +590,16 @@ function ContentExplorerShellInner({
     undefined,
   );
 
+  const handleRefreshList = useCallback(() => {
+    setListEpoch((n) => n + 1);
+    setError(null);
+    setActionInvokeError(null);
+  }, []);
+
+  const stockReducedHandlers = useMemo(() => defaultReducedActionHandlers(), []);
+
   const handlers: ReducedActionHandlers = {
-    ...defaultReducedActionHandlers(),
+    ...stockReducedHandlers,
     ...actionHandlers,
     onOpen: (item) => {
       if (isFolder(item)) {
@@ -609,15 +617,17 @@ function ContentExplorerShellInner({
       (async (item) => {
         await openPreviewItem(item);
       }),
+    // Product Create Folder must refresh list + tree after pathmanagement
+    // succeeds so operators see the new name without View → Refresh (#3640).
+    onCreateFolder: async (parent, name) => {
+      const impl =
+        actionHandlers?.onCreateFolder ?? stockReducedHandlers.onCreateFolder;
+      await impl(parent, name);
+      handleRefreshList();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;
-
-  const handleRefreshList = useCallback(() => {
-    setListEpoch((n) => n + 1);
-    setError(null);
-    setActionInvokeError(null);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -1504,6 +1514,7 @@ function ContentExplorerShellInner({
           selectedPath={selection.folderPath}
           onSelectFolder={handleSelectFolder}
           onActivate={handleActivate}
+          childrenEpoch={listEpoch}
         />
         <ViewsCatalogTree
           listViews={listViews}
