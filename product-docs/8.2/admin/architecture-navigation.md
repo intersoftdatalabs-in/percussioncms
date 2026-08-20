@@ -95,6 +95,21 @@ names as the same Navigation types. A site that already has an `rffNavTree` at
 the folder root is **not** empty — do not create a second tree. New sites
 created in this product use the `percNav*` names.
 
+`GET /Rhythmyx/services/sitemanage/section/tree/{site}` for a FastForward sample
+site (for example **Corporate_Investments**) returns **HTTP 200** with the seeded
+`rffNavTree` nodes — not HTTP 500 and not an empty tree. Sample items stay on
+type ids **313–315**. The `perc.nav` package registers `percNav*` under
+**1015–1017** and may omit a separate JCR mapping for 313–315 (and may omit the
+FastForward editor from the running catalog). The server still loads those
+items through the matching perc/rff mapping (shared `RXS_CT_NAV*` tables),
+including when the catalog has no name for type 315. A site with no NavTree
+item still returns HTTP 200 with an empty tree.
+
+When that tree GET is HTTP 200 with nodes, the Navigation tree shows
+`role="treeitem"` rows and **Create section** stays enabled. **Escape** closes
+the Create section dialog. Do not create a second NavTree for a sample site
+that already has an `rffNavTree`.
+
 ## Keyboard and accessibility
 
 The navigation tree follows the ARIA tree pattern. **Tab** moves focus into
