@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import org.junit.jupiter.api.Test;
@@ -135,6 +137,22 @@ class PSNavNameAliasesTest {
     assertEquals(
         1015L, PSNavNameAliases.findRegisteredNavAliasTypeId(313L, names, List.of(1015L)));
     assertEquals(0, nameLookups.get());
+  }
+
+  @Test
+  void findRegisteredNavAliasTypeIdPicksLowestIdWhenMultipleShareRole() {
+    Map<Long, String> names =
+        Map.of(
+            42L, "rffNavTree",
+            5000L, "percNavTree",
+            4000L, "percNavTree",
+            3000L, "percPage");
+    Set<Long> unordered = new HashSet<>(List.of(5000L, 4000L, 3000L));
+    assertEquals(
+        4000L, PSNavNameAliases.findRegisteredNavAliasTypeId(42L, names::get, unordered));
+    unordered = new HashSet<>(List.of(3000L, 5000L, 4000L));
+    assertEquals(
+        4000L, PSNavNameAliases.findRegisteredNavAliasTypeId(42L, names::get, unordered));
   }
 
   @Test

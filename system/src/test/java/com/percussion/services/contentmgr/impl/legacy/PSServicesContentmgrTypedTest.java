@@ -19,8 +19,11 @@ package com.percussion.services.contentmgr.impl.legacy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
 import com.percussion.services.contentmgr.impl.IPSTypeKey;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -44,6 +47,7 @@ class PSServicesContentmgrTypedTest {
 
   @AfterEach
   void clearNavAliasCache() {
+    PSContentRepository.putTypeConfigurationForTest(PSNavNameAliases.PERC_NAV_TREE_TYPE_ID, null);
     PSContentRepository.clearNavAliasTypeIdCache();
   }
 
@@ -151,8 +155,38 @@ class PSServicesContentmgrTypedTest {
     assertFalse(PSContentRepository.navAliasTypeIdCacheContains(315L));
     assertNull(PSContentRepository.lookupNavAliasTypeConfiguration(315L));
     assertTrue(PSContentRepository.navAliasTypeIdCacheContains(315L));
+    assertEquals(
+        PSContentRepository.NO_NAV_ALIAS, PSContentRepository.navAliasCachedTypeId(315L));
     assertNull(PSContentRepository.lookupNavAliasTypeConfiguration(315L));
     PSContentRepository.clearNavAliasTypeIdCache();
     assertFalse(PSContentRepository.navAliasTypeIdCacheContains(315L));
+  }
+
+  @Test
+  @DisplayName("nav alias type-id cache memos resolved perc/rff alias ids")
+  void lookupNavAliasTypeConfigurationCachesPositiveAliasId() {
+    PSTypeConfiguration first = mock(PSTypeConfiguration.class);
+    PSTypeConfiguration second = mock(PSTypeConfiguration.class);
+    PSContentRepository.putTypeConfigurationForTest(PSNavNameAliases.PERC_NAV_TREE_TYPE_ID, first);
+    PSContentRepository.clearNavAliasTypeIdCache();
+    assertFalse(
+        PSContentRepository.navAliasTypeIdCacheContains(PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
+    assertSame(
+        first,
+        PSContentRepository.lookupNavAliasTypeConfiguration(
+            PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
+    assertTrue(
+        PSContentRepository.navAliasTypeIdCacheContains(PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
+    assertEquals(
+        PSNavNameAliases.PERC_NAV_TREE_TYPE_ID,
+        PSContentRepository.navAliasCachedTypeId(PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
+    PSContentRepository.putTypeConfigurationForTest(PSNavNameAliases.PERC_NAV_TREE_TYPE_ID, second);
+    assertSame(
+        second,
+        PSContentRepository.lookupNavAliasTypeConfiguration(
+            PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
+    assertEquals(
+        PSNavNameAliases.PERC_NAV_TREE_TYPE_ID,
+        PSContentRepository.navAliasCachedTypeId(PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
   }
 }

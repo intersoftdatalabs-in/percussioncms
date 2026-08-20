@@ -18,6 +18,7 @@ package com.percussion.cms.objectstore;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -148,8 +149,9 @@ public final class PSNavNameAliases {
    * a {@code percNav*} sibling is registered (1015–1017), or the inverse, return the registered
    * alias id. Both pairs share {@code RXS_CT_NAV*} tables, so items of the missing id load with the
    * alias mapping. Name lookup may return null when ItemDef dropped the FastForward catalog entry;
-   * well-known ids still match by role. Returns {@code null} when the missing id is not a nav type
-   * or no sibling is registered.
+   * well-known ids still match by role. When multiple registered types share the same nav role, the
+   * lowest type id is returned so the result does not depend on collection iteration order. Returns
+   * {@code null} when the missing id is not a nav type or no sibling is registered.
    */
   public static Long findRegisteredNavAliasTypeId(
       long missingTypeId,
@@ -166,7 +168,9 @@ public final class PSNavNameAliases {
     if (missingRole.isEmpty()) {
       return null;
     }
-    for (Long registered : registeredTypeIds) {
+    List<Long> ordered = new ArrayList<>(registeredTypeIds);
+    ordered.sort(Comparator.nullsLast(Comparator.naturalOrder()));
+    for (Long registered : ordered) {
       if (registered == null || registered.longValue() == missingTypeId) {
         continue;
       }

@@ -583,7 +583,7 @@ public class PSContentRepository
                             PSContentRepository::contentTypeNameQuietly);
                     return resolved == null ? NO_NAV_ALIAS : resolved;
                 });
-        if (aliasId == null || aliasId == NO_NAV_ALIAS)
+        if (aliasId == NO_NAV_ALIAS)
         {
             return null;
         }
@@ -606,6 +606,32 @@ public class PSContentRepository
     static boolean navAliasTypeIdCacheContains(long contentTypeId)
     {
         return ms_navAliasTypeIdCache.containsKey(contentTypeId);
+    }
+
+    /**
+     * Cached perc/rff alias type id, {@link #NO_NAV_ALIAS} for a completed
+     * negative lookup, or {@code null} when this id has not been memoized.
+     */
+    static Long navAliasCachedTypeId(long contentTypeId)
+    {
+        return ms_navAliasTypeIdCache.get(contentTypeId);
+    }
+
+    /**
+     * Test-only: install or remove a JCR type mapping without {@link #configure}.
+     * Callers must remove the entry in {@code @AfterEach}.
+     */
+    static void putTypeConfigurationForTest(long contentTypeId, PSTypeConfiguration config)
+    {
+        PSContentTypeKey key = new PSContentTypeKey(contentTypeId);
+        if (config == null)
+        {
+            ms_configuration.remove(key);
+        }
+        else
+        {
+            ms_configuration.put(key, config);
+        }
     }
 
     /**
