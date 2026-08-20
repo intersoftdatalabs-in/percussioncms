@@ -309,6 +309,8 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - Actions of type **context menu** appear on right-click, not as permanent toolbar buttons.
 - Workflow transition triggers (when available for the selected item) appear as a labeled
   **one-click button group** on the toolbar and in the context menu (not a dropdown).
+  Select a **page or other workflowed content item** — **folders** (including Sites
+  and folder rows in the list) do not show Workflow transitions.
 - If the catalog cannot be loaded, the **Server actions** region stays visible with a short
   error message (and an empty-action placeholder) rather than disappearing from the page.
 

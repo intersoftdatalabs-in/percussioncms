@@ -16,8 +16,10 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  coerceTransitionTriggers,
   getItemWorkflowTransitions,
   transitionItem,
+  unwrapItemStateTransition,
 } from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
 import * as client from "../../../main/ts/api/client";
 import { PATHS } from "../../../main/ts/api/paths";
@@ -47,10 +49,53 @@ describe("itemWorkflowApi (#2732)", () => {
     expect(result.transitionTriggers).toEqual(["Submit"]);
   });
 
+  it("getItemWorkflowTransitions unwraps Jackson ItemStateTransition envelope", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      ItemStateTransition: {
+        itemId: "101-1",
+        stateName: "Draft",
+        transitionTriggers: ["Submit", "Approve"],
+      },
+    });
+    const result = await getItemWorkflowTransitions("101-1");
+    expect(result.itemId).toBe("101-1");
+    expect(result.stateName).toBe("Draft");
+    expect(result.transitionTriggers).toEqual(["Submit", "Approve"]);
+  });
+
   it("getItemWorkflowTransitions returns empty triggers for blank id without fetch", async () => {
     const result = await getItemWorkflowTransitions("  ");
     expect(client.get).not.toHaveBeenCalled();
     expect(result.transitionTriggers).toEqual([]);
+  });
+
+  it("unwrapItemStateTransition accepts flat DTO and JAXB string wrappers", () => {
+    expect(
+      unwrapItemStateTransition({
+        itemId: "9",
+        stateName: "Review",
+        transitionTriggers: "Submit",
+      }).transitionTriggers,
+    ).toEqual(["Submit"]);
+    expect(
+      unwrapItemStateTransition({
+        PSItemStateTransition: {
+          itemId: "9",
+          transitionTriggers: { string: ["Approve", "Reject"] },
+        },
+      }).transitionTriggers,
+    ).toEqual(["Approve", "Reject"]);
+    expect(unwrapItemStateTransition(null).transitionTriggers).toEqual([]);
+  });
+
+  it("coerceTransitionTriggers ignores blank and unknown shapes", () => {
+    expect(coerceTransitionTriggers(undefined)).toEqual([]);
+    expect(coerceTransitionTriggers("  ")).toEqual([]);
+    expect(coerceTransitionTriggers({ empty: false })).toEqual([]);
+    expect(coerceTransitionTriggers(["Submit", "  ", "Approve"])).toEqual([
+      "Submit",
+      "Approve",
+    ]);
   });
 
   it("transitionItem fetches trigger via transitionWithComments path", async () => {
