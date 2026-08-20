@@ -295,23 +295,42 @@ public abstract class PSPathItemService implements IPSPathService {
   @Override
   public PSNoContent moveItem(PSMoveFolderItem request)
       throws PSDataServiceException, PSPathServiceException, PSItemWorkflowServiceException {
-    var path = request.getTargetFolderPath();
-    var relativePath = path.substring(path.indexOf('/'));
-    if (relativePath.charAt(relativePath.length() - 1) != '/') {
-      relativePath += "/";
-    }
-    var targetPath = getFullFolderPath(relativePath);
-
-    path = request.getItemPath();
-    relativePath = path.substring(path.indexOf('/'));
-    if (relativePath.charAt(relativePath.length() - 1) != '/') {
-      relativePath += "/";
-    }
-    var itemPath = getFullFolderPath(relativePath);
+    notNull(request, "request");
+    // Finder /Assets and single-slash /Folders must become repository //
+    // before folderHelper.findItem / moveItem (#3655). getFullFolderPath
+    // prefixes the matched service root and would turn /Assets/src into
+    // //Folders/$System$/Assets/Assets/src.
+    var targetPath = toMoveRepositoryPath(request.getTargetFolderPath());
+    var itemPath = toMoveRepositoryPath(request.getItemPath());
     validateUserAccessBeforeMove(itemPath, targetPath);
     folderHelper.moveItem(targetPath, itemPath, true);
 
     return new PSNoContent("moveItem");
+  }
+
+  /**
+   * Convert a finder or repository path for {@link #moveItem(PSMoveFolderItem)}.
+   *
+   * <p>{@link PSPathUtils#getFolderPath(String)} maps {@code /Assets} and
+   * {@code /Folders} to {@code //} so {@code folderHelper} does not throw
+   * "Path must start with '//'".
+   *
+   * @param path finder or repository path, never blank
+   * @return repository path ending with {@code /}, never {@code null}
+   */
+  static String toMoveRepositoryPath(String path) {
+    notEmpty(path, "path");
+    String p = path.trim().replace('\\', '/');
+    // Prompt/seed values may omit the finder leading slash (Assets/foo).
+    // getFolderPath only maps /Assets and /Sites when they start with '/'.
+    if (!p.startsWith("/")) {
+      p = "/" + p;
+    }
+    String repo = PSPathUtils.getFolderPath(p);
+    if (!repo.endsWith("/")) {
+      repo += "/";
+    }
+    return repo;
   }
 
   private void validateUserAccessBeforeMove(String srcPath, String targetPath)

@@ -100,9 +100,10 @@ public class PSPathUtils {
    *
    * <p>Public REST copy/folder and copy/item must run this on source and target
    * ({@code FolderAdaptor#copyFolder}, {@code FolderAdaptor#copyFolderItem}).
-   * Finder {@code /Assets} and single-slash {@code /Folders/$System$/Assets}
+   * Pathmanagement {@code PSPathItemService#moveItem} uses the same conversion
+   * (#3655). Finder {@code /Assets} and single-slash {@code /Folders/$System$/Assets}
    * otherwise fail {@code folderHelper.findFolder}/{@code findItem} with
-   * "Path must start with '//'" (#3647 / #3656).
+   * "Path must start with '//'" (#3647 / #3656 / #3655).
    *
    * @param path the finder path, may not be <code>null</code>.
    * @return the normalized path starting with {@code //}, never <code>null</code>,

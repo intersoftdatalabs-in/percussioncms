@@ -64,6 +64,28 @@ public class PSPathUtilsTest {
    * yield {@code //} or folderHelper throws "Path must start with '//'"
    * (#3647).
    */
+  /**
+   * Pathmanagement moveItem source/dest from Explorer are finder or
+   * single-slash repository form. Same {@link PSPathUtils#getFolderPath}
+   * conversion as copy (#3655).
+   */
+  @Test
+  public void testGetFolderPathMoveFolder() {
+    assertEquals(
+        "//Folders/$System$/Assets/qa3655/src",
+        PSPathUtils.getFolderPath("/Assets/qa3655/src"));
+    assertEquals(
+        "//Folders/$System$/Assets/qa3655/dst",
+        PSPathUtils.getFolderPath("/Assets/qa3655/dst"));
+    assertEquals(
+        "//Folders/$System$/Assets/qa3655/src",
+        PSPathUtils.getFolderPath("/Folders/$System$/Assets/qa3655/src"));
+    assertEquals(
+        "//Folders/$System$/Assets/qa3655/src",
+        PSPathUtils.getFolderPath("//Folders/$System$/Assets/qa3655/src"));
+    assertEquals("//Sites/Help", PSPathUtils.getFolderPath("/Sites/Help"));
+  }
+
   @Test
   public void testGetFolderPathCopyFolderDest() {
     assertEquals(
