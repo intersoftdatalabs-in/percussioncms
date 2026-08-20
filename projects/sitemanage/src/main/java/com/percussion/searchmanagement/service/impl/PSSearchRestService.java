@@ -104,6 +104,8 @@ public class PSSearchRestService {
               criteria.getFolderPath(), PSOperationContext.SEARCH)) {
         criteria.setFolderPath(null);
       }
+      // Root `/` / `//` is unscoped — getIdByPath("//") is HTTP 500 (#3617).
+      criteria.setFolderPath(PSSearchFolderScope.forSearch(criteria.getFolderPath()));
 
       // Minimal free-text criteria (query + paging only) is valid; supply classic default format.
       if (criteria.getFormatId() == null) {

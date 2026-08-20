@@ -25,6 +25,7 @@ import {
   labelFor,
   totalKnownEdges,
 } from "./dependencyModel";
+import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import { fetchNodeSummary } from "../../api/contentExplorer/relationshipsApi";
 
 export interface DependencyItem {
@@ -88,7 +89,13 @@ export function DependencyViewer(
   } = props;
   const summarise = composeSummary ?? defaultComposeSummary;
 
-  const itemId = item.id ?? "";
+  // REST /relationships/{id} needs a numeric content id. List rows often
+  // carry host-type-uuid (1-101-708); last segment is the content id (#3571).
+  // Unparseable ids must not fall back to the raw string (that 404s the REST
+  // path); shell already gates on parseExplorerContentId.
+  const parsedId = parseExplorerContentId(item.id);
+  const itemId = parsedId != null ? String(parsedId) : "";
+  const rawId = String(item.id ?? "").trim();
   const [state, setState] = React.useState<
     | { kind: "loading" }
     | { kind: "ok"; summary: PSNodeRelationshipSummary }
@@ -98,6 +105,13 @@ export function DependencyViewer(
 
   React.useEffect(() => {
     let alive = true;
+    if (!itemId && rawId) {
+      setState({
+        kind: "error",
+        message: rawId,
+      });
+      return;
+    }
     if (!itemId) {
       // No item id → don't fire a network round-trip; the rest endpoint
       // would 404 on the empty path segment. Render the auth placeholder
@@ -131,7 +145,7 @@ export function DependencyViewer(
     return () => {
       alive = false;
     };
-  }, [itemId, loadServerSummary]);
+  }, [itemId, rawId, loadServerSummary]);
 
   if (state.kind === "loading") {
     return (

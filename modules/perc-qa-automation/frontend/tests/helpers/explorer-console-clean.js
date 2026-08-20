@@ -98,6 +98,19 @@ function formatHits(hits) {
     .join("\n");
 }
 
+/**
+ * Transient browser/network console noise on thin H2 Explorer fixtures.
+ * Does not swallow uncaught {@code pageerror} / TypeError.
+ *
+ * @param {string | null | undefined} text
+ * @returns {boolean}
+ */
+function isKnownExplorerTransientNetworkConsoleNoise(text) {
+  return /favicon|Download the React DevTools|ResizeObserver|third-party|Failed to load resource|net::ERR_|CORS|Access-Control-Allow-Origin|ERR_CERT|certificate|SSL handshake|mixed content|Mixed Content/i.test(
+    String(text || ""),
+  );
+}
+
 module.exports = {
   TEST_IDS,
   explorerSpaUrl,
@@ -105,4 +118,5 @@ module.exports = {
   isTrackedHttpStatus,
   attachProductStatusCollector,
   formatHits,
+  isKnownExplorerTransientNetworkConsoleNoise,
 };

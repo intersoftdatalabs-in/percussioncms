@@ -17,15 +17,22 @@
 package com.percussion.cms.objectstore;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * perc* and rff* names (and their {@code psx_ce*} content-editor apps) are the same Managed Nav
  * roles. Catalog, config, and CE registration must treat them as aliases.
  */
 public final class PSNavNameAliases {
+
+  private static final Logger log = LogManager.getLogger(PSNavNameAliases.class);
 
   private PSNavNameAliases() {}
 
@@ -61,6 +68,138 @@ public final class PSNavNameAliases {
   /** {@code percNavon} or {@code rffNavon} (any case). */
   public static boolean isNavonTypeName(String typeName) {
     return "navon".equals(navRoleKey(typeName));
+  }
+
+  /** {@code percNavImage} or {@code rffNavImage} (any case). */
+  public static boolean isNavImageTypeName(String typeName) {
+    return "navimage".equals(navRoleKey(typeName));
+  }
+
+  /** True for perc/rff NavTree, Navon, or Nav Image type names. */
+  public static boolean isNavTypeName(String typeName) {
+    return isNavTreeTypeName(typeName)
+        || isNavonTypeName(typeName)
+        || isNavImageTypeName(typeName);
+  }
+
+  /**
+   * FastForward sample-site installer ids ({@code rffNavImage} / {@code rffNavon} / {@code
+   * rffNavTree}).
+   */
+  public static final long RFF_NAV_IMAGE_TYPE_ID = 313L;
+
+  public static final long RFF_NAVON_TYPE_ID = 314L;
+
+  public static final long RFF_NAV_TREE_TYPE_ID = 315L;
+
+  /**
+   * {@code perc.nav} package ids ({@code percNavImage} / {@code percNavon} / {@code percNavTree}).
+   */
+  public static final long PERC_NAV_IMAGE_TYPE_ID = 1015L;
+
+  public static final long PERC_NAVON_TYPE_ID = 1016L;
+
+  public static final long PERC_NAV_TREE_TYPE_ID = 1017L;
+
+  /**
+   * Role key for the well-known FastForward / perc.nav type ids when the catalog has no name for
+   * that id. Empty when {@code typeId} is not one of those ids.
+   */
+  public static String wellKnownNavRole(long typeId) {
+    if (typeId == RFF_NAV_IMAGE_TYPE_ID || typeId == PERC_NAV_IMAGE_TYPE_ID) {
+      return "navimage";
+    }
+    if (typeId == RFF_NAVON_TYPE_ID || typeId == PERC_NAVON_TYPE_ID) {
+      return "navon";
+    }
+    if (typeId == RFF_NAV_TREE_TYPE_ID || typeId == PERC_NAV_TREE_TYPE_ID) {
+      return "navtree";
+    }
+    return "";
+  }
+
+  /**
+   * Sibling FastForward / perc.nav type id that shares {@code RXS_CT_NAV*} tables. {@code 313↔1015},
+   * {@code 314↔1016}, {@code 315↔1017}. {@code null} when {@code typeId} is not one of those ids.
+   */
+  public static Long wellKnownNavAliasTypeId(long typeId) {
+    if (typeId == RFF_NAV_IMAGE_TYPE_ID) {
+      return PERC_NAV_IMAGE_TYPE_ID;
+    }
+    if (typeId == RFF_NAVON_TYPE_ID) {
+      return PERC_NAVON_TYPE_ID;
+    }
+    if (typeId == RFF_NAV_TREE_TYPE_ID) {
+      return PERC_NAV_TREE_TYPE_ID;
+    }
+    if (typeId == PERC_NAV_IMAGE_TYPE_ID) {
+      return RFF_NAV_IMAGE_TYPE_ID;
+    }
+    if (typeId == PERC_NAVON_TYPE_ID) {
+      return RFF_NAVON_TYPE_ID;
+    }
+    if (typeId == PERC_NAV_TREE_TYPE_ID) {
+      return RFF_NAV_TREE_TYPE_ID;
+    }
+    return null;
+  }
+
+  /**
+   * When a FastForward {@code rffNav*} type (313–315) is missing from the JCR configuration map but
+   * a {@code percNav*} sibling is registered (1015–1017), or the inverse, return the registered
+   * alias id. Both pairs share {@code RXS_CT_NAV*} tables, so items of the missing id load with the
+   * alias mapping. Name lookup may return null when ItemDef dropped the FastForward catalog entry;
+   * well-known ids still match by role. When multiple registered types share the same nav role, the
+   * lowest type id is returned so the result does not depend on collection iteration order. Returns
+   * {@code null} when the missing id is not a nav type or no sibling is registered.
+   */
+  public static Long findRegisteredNavAliasTypeId(
+      long missingTypeId,
+      Function<Long, String> typeIdToName,
+      Collection<Long> registeredTypeIds) {
+    if (typeIdToName == null || registeredTypeIds == null || registeredTypeIds.isEmpty()) {
+      return null;
+    }
+    Long wellKnownAlias = wellKnownNavAliasTypeId(missingTypeId);
+    if (wellKnownAlias != null && registeredTypeIds.contains(wellKnownAlias)) {
+      return wellKnownAlias;
+    }
+    String missingRole = navRoleForType(missingTypeId, typeIdToName);
+    if (missingRole.isEmpty()) {
+      return null;
+    }
+    List<Long> ordered = new ArrayList<>(registeredTypeIds);
+    ordered.sort(Comparator.nullsLast(Comparator.naturalOrder()));
+    for (Long registered : ordered) {
+      if (registered == null || registered.longValue() == missingTypeId) {
+        continue;
+      }
+      if (missingRole.equals(navRoleForType(registered, typeIdToName))) {
+        return registered;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Catalog name role, else well-known FastForward / perc.nav id role. Never {@code null}; empty
+   * when neither source identifies a nav type.
+   */
+  static String navRoleForType(long typeId, Function<Long, String> typeIdToName) {
+    String fromName = navRoleKey(typeNameQuietly(typeIdToName, typeId));
+    if (!fromName.isEmpty()) {
+      return fromName;
+    }
+    return wellKnownNavRole(typeId);
+  }
+
+  private static String typeNameQuietly(Function<Long, String> typeIdToName, long typeId) {
+    try {
+      return typeIdToName.apply(typeId);
+    } catch (RuntimeException e) {
+      log.debug("Nav alias catalog name lookup failed for content type id {}", typeId, e);
+      return null;
+    }
   }
 
   /**

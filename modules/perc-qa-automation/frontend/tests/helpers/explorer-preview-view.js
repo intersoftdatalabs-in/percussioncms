@@ -100,9 +100,67 @@ function noPreviewableItemSkipMessage() {
 function noListedPageSkipMessage() {
   return (
     "No listed page-type child under Sites/Pages after REST walk; " +
-    "Preview open requires a page row (parent #2745 / slice #3456). " +
+    "Preview open requires a page row (parent #2745 / slice #3456 / #3627). " +
     "If sample-site Pages listing is on the tip (#3457), this skip is a defect."
   );
+}
+
+/**
+ * QA H2 matrix ({@code TEST_DB_TYPE=h2}) must not soft-skip Preview.
+ * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
+ * @returns {boolean}
+ */
+function isH2QaEnv(env = process.env) {
+  const db = String(env.TEST_DB_TYPE || env.TEST_DATABASE || "")
+    .trim()
+    .toLowerCase();
+  return db === "h2";
+}
+
+/**
+ * Soft-skip Preview open only when this is not H2 QA, REST found no page,
+ * and the Explorer list has no previewable row. H2 demo-sites fail instead
+ * of skip (#3627).
+ *
+ * @param {{
+ *   listedPage?: unknown,
+ *   previewableRowCount?: number,
+ *   uiHasPreviewableRow?: boolean,
+ *   h2?: boolean,
+ * }} [detail]
+ * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
+ * @returns {boolean}
+ */
+function shouldSkipListedPagePreview(detail = {}, env = process.env) {
+  if (detail.listedPage) {
+    return false;
+  }
+  if ((detail.previewableRowCount || 0) > 0) {
+    return false;
+  }
+  if (detail.uiHasPreviewableRow === true) {
+    return false;
+  }
+  if (detail.h2 === true || isH2QaEnv(env)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Encode a CMS relative path for pathmanagement URLs (spaces in site names).
+ * Logical CMS paths use {@code /}; this is URL encoding, not OS join.
+ * @param {string} cmsPath
+ * @returns {string}
+ */
+function encodeCmsRelPath(cmsPath) {
+  return String(cmsPath || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
 }
 
 /**
@@ -170,20 +228,34 @@ function isListedPageRow(row) {
 
 /**
  * Unwrap pathmanagement folder or paginatedFolder JSON to item objects.
+ * Accepts {@code PathItem} array or single object, nested
+ * {@code PSPathItemList}, and {@code PagedItemList.childrenInPage}
+ * (array or single) so H2 sample pages are not treated as empty (#3627).
  * @param {unknown} body
  * @returns {object[]}
  */
 function unwrapPathItems(body) {
-  if (body == null || typeof body !== "object") return [];
-  const root = /** @type {Record<string, unknown>} */ (body);
-  if (Array.isArray(root.PathItem)) return root.PathItem;
+  if (body == null) return [];
   if (Array.isArray(body)) return body;
-  const paged =
+  if (typeof body !== "object") return [];
+  const root = /** @type {Record<string, unknown>} */ (body);
+  const pagedWrap =
     root.PagedItemList && typeof root.PagedItemList === "object"
       ? /** @type {Record<string, unknown>} */ (root.PagedItemList)
-      : root;
-  if (Array.isArray(paged.childrenInPage)) return paged.childrenInPage;
-  if (Array.isArray(paged.children)) return paged.children;
+      : null;
+  if (pagedWrap) {
+    const kids = pagedWrap.childrenInPage ?? pagedWrap.children;
+    if (kids == null) return [];
+    return Array.isArray(kids) ? kids : [kids];
+  }
+  const direct = root.PathItem ?? root.pathItem;
+  if (direct != null) {
+    return Array.isArray(direct) ? direct : [direct];
+  }
+  const nested = root.PSPathItemList ?? root.PathItemList ?? root.pathItemList;
+  if (nested != null && nested !== root) {
+    return unwrapPathItems(nested);
+  }
   return [];
 }
 
@@ -232,6 +304,8 @@ function isProductPagePreviewUrl(url) {
   if (u.includes("/pagemanagement/render/page/")) return true;
   if (u.includes("/assembler/render")) return true;
   if (u.includes("percmobilepreview=")) return true;
+  // Product editor-or-preview host (#3627) — spa.jsp?entry=editor&mode=view.
+  if (u.includes("entry=editor") && u.includes("mode=view")) return true;
   // Classic CE preview requires the command — not any URL with "preview"
   // near /psx_ce (e.g. /psx_ce/admin/preview-settings).
   if (u.includes("sys_command=preview")) return true;
@@ -310,6 +384,9 @@ module.exports = {
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
   noListedPageSkipMessage,
+  isH2QaEnv,
+  shouldSkipListedPagePreview,
+  encodeCmsRelPath,
   isPreviewableRow,
   isListedPageRow,
   unwrapPathItems,

@@ -165,12 +165,22 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
       });
     });
 
-    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await page.goto(`${EXPLORER_URL}&path=/Sites`, { waitUntil: "networkidle" });
     await expect(
       page.locator('[data-testid="content-explorer-shell"]'),
     ).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('[data-testid="action-toolbar"]')).toBeVisible();
     await expect(page.locator('[data-testid="detail-list"]')).toBeVisible();
+
+    const sitesNode = page
+      .locator(
+        '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+      )
+      .first();
+    if ((await sitesNode.count()) > 0) {
+      await sitesNode.click({ timeout: 10_000 });
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
 
     // Desktop-only probe must never appear on the toolbar (filtered).
     await expect(
@@ -178,17 +188,14 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     ).toHaveCount(0);
 
     const row = page
-      .locator('[data-testid^="detail-row-"]:not([aria-disabled="true"])')
+      .locator(
+        '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"]:not([aria-disabled="true"])',
+      )
       .first();
-    if ((await row.count()) === 0) {
-      // Empty folder or only disabled root rows: still assert chrome.
-      test.info().annotations.push({
-        type: "note",
-        description:
-          "No enabled detail rows on this CMS folder; skipped context-menu click path",
-      });
-      return;
-    }
+    await expect(
+      row,
+      "H2 Explorer must have ≥1 enabled Sites detail row; no soft-skip (#3629)",
+    ).toBeVisible({ timeout: 15_000 });
     await row.click({ button: "right" });
     await expect(page.locator('[data-testid="context-menu"]')).toBeVisible({
       timeout: 10_000,

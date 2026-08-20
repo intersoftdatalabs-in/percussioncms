@@ -138,7 +138,7 @@ public class PSSearchService implements IPSSearchService {
                 .collect(Collectors.toList());
         searchParams.setSearchFields(wsSearchFields);
       }
-      var folderPath = criteria.getFolderPath();
+      var folderPath = PSSearchFolderScope.forSearch(criteria.getFolderPath());
       if (!StringUtils.isBlank(folderPath)) {
         searchParams.setFolderPathFilter(folderPath, true);
       }
@@ -256,7 +256,7 @@ public class PSSearchService implements IPSSearchService {
       query = excludeLocalWorkflow(query, searchParams);
       searchParams.setFTSQuery(query);
 
-      var folderPath = criteria.getFolderPath();
+      var folderPath = PSSearchFolderScope.forSearch(criteria.getFolderPath());
       if (!StringUtils.isBlank(folderPath)) {
         searchParams.setFolderPathFilter(folderPath, true);
       }
