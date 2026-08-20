@@ -99,6 +99,24 @@ describe("ReducedActions", () => {
     expect(screen.getByTestId("action-preview")).toBeDisabled();
   });
 
+  it("keeps Open enabled for folders so browse does not use the editor (#3638)", () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={FOLDER}
+        handlers={handlers}
+        hasPreviewHandler={true}
+        onError={() => undefined}
+      />,
+    );
+    const open = screen.getByTestId("action-open");
+    expect(open).toBeEnabled();
+    fireEvent.click(open);
+    expect(calls.onOpen).toHaveLength(1);
+    expect(calls.onOpen[0]).toMatchObject({ type: "folder" });
+  });
+
   it("disables Preview for folders even when a handler is present (#2733)", () => {
     const { handlers } = makeHandlers();
     render(

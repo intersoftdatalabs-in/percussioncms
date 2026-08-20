@@ -62,4 +62,41 @@ describe("openInEditor (#3330)", () => {
     expect(dest).toContain("contentId=55");
     expect(dest).not.toContain("view=editor");
   });
+
+  it("does not open leftover CM1 editor for folders even with a path (#3638)", () => {
+    const openWindow = vi.fn();
+    const findByPath = vi.fn();
+    openInEditor(
+      {
+        id: "ci-folder",
+        name: "Pages",
+        path: "/Sites/Demo/Pages/",
+        type: "Folder",
+      },
+      { openWindow, findByPath },
+    );
+    expect(openWindow).not.toHaveBeenCalled();
+    expect(findByPath).not.toHaveBeenCalled();
+  });
+
+  it("resolves an unparseable id via path to spa.jsp?entry=editor (#3638)", async () => {
+    const openWindow = vi.fn().mockReturnValue({});
+    const findByPath = vi.fn().mockResolvedValue({ id: "1-101-88" });
+    openInEditor(
+      {
+        id: "ci-home",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "page",
+      },
+      { openWindow, findByPath },
+    );
+    await vi.waitFor(() => expect(openWindow).toHaveBeenCalled());
+    expect(findByPath).toHaveBeenCalledWith("/Sites/Demo/Home");
+    const dest = String(openWindow.mock.calls[0]?.[0] ?? "");
+    expect(dest).toContain("entry=editor");
+    expect(dest).toContain("contentId=88");
+    expect(dest).not.toContain("view=editor");
+    expect(dest).not.toContain("editAsset.jsp");
+  });
 });
