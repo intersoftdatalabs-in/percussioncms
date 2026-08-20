@@ -161,17 +161,13 @@ export function ExplorerTree({
       initialPath,
     );
     const toReload = new Set<string>([selected, initialPath]);
-    for (const [path, state] of Object.entries(snapshot)) {
-      if (state.loaded) {
-        toReload.add(path);
-      }
-    }
     for (const path of toReload) {
       void ensureLoaded(path, null, true);
     }
-    // selectedPath is read from a ref so selection clicks after a
-    // create-folder / rename epoch bump do not reload every loaded tree
-    // node (#3640 / #3645 review).
+    // Reload only the selected folder (and the tree root). Do not walk
+    // every loaded node — hosts used to pass listEpoch and that shotgun
+    // refetch (#3645 review). selectedPath is read from a ref so selection
+    // clicks after an epoch bump do not re-run this effect (#3640).
   }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(

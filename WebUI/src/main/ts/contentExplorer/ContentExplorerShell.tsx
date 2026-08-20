@@ -577,6 +577,13 @@ function ContentExplorerShellInner({
    */
   const contextMenuRequestIdRef = useRef(0);
   const [listEpoch, setListEpoch] = useState(0);
+  /**
+   * Folder-mutation epoch for {@link ExplorerTree} only. Must not reuse
+   * {@code listEpoch} — paste, site/subfolder copy, translations, revision
+   * restore, and generic action refresh bump the detail list without
+   * shotgun-reloading every expanded tree node (#3645 review).
+   */
+  const [folderTreeEpoch, setFolderTreeEpoch] = useState(0);
   const [multiSelectedIds, setMultiSelectedIds] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
   );
@@ -596,6 +603,15 @@ function ContentExplorerShellInner({
     setActionInvokeError(null);
   }, []);
 
+  const handleRefreshFolderTree = useCallback(() => {
+    setFolderTreeEpoch((n) => n + 1);
+  }, []);
+
+  const handleRefreshListAndTree = useCallback(() => {
+    handleRefreshList();
+    handleRefreshFolderTree();
+  }, [handleRefreshList, handleRefreshFolderTree]);
+
   const stockReducedHandlers = useMemo(() => defaultReducedActionHandlers(), []);
 
   const handlers: ReducedActionHandlers = {
@@ -606,7 +622,7 @@ function ContentExplorerShellInner({
     onRename: async (item, newName) => {
       const impl = actionHandlers?.onRename ?? stockReducedHandlers.onRename;
       await impl(item, newName);
-      handleRefreshList();
+      handleRefreshListAndTree();
     },
     onOpen: (item) => {
       if (isFolder(item)) {
@@ -630,7 +646,7 @@ function ContentExplorerShellInner({
       const impl =
         actionHandlers?.onCreateFolder ?? stockReducedHandlers.onCreateFolder;
       await impl(parent, name);
-      handleRefreshList();
+      handleRefreshListAndTree();
     },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
@@ -1260,7 +1276,7 @@ function ContentExplorerShellInner({
           }
           break;
         case "view-refresh":
-          handleRefreshList();
+          handleRefreshListAndTree();
           break;
         case "view-security":
           setShowSecurity((v) => !v);
@@ -1298,7 +1314,7 @@ function ContentExplorerShellInner({
     },
     [
       handleAddToClipboard,
-      handleRefreshList,
+      handleRefreshListAndTree,
       siteNameForCopy,
       sourceFolderPathForCopy,
       showSubfolderCopy,
@@ -1499,7 +1515,7 @@ function ContentExplorerShellInner({
               data-testid="explorer-refresh-list"
               aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
               title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
-              onClick={handleRefreshList}
+              onClick={handleRefreshListAndTree}
             >
               {message(EXPLORER_MSG.ACTION_REFRESH)}
             </button>
@@ -1515,13 +1531,18 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
         </div>
       )}
-      <div style={navColumnStyle} data-testid="explorer-nav">
+      <div
+        style={navColumnStyle}
+        data-testid="explorer-nav"
+        data-list-epoch={listEpoch}
+        data-folder-tree-epoch={folderTreeEpoch}
+      >
         <ExplorerTree
           initialPath={initialPath}
           selectedPath={selection.folderPath}
           onSelectFolder={handleSelectFolder}
           onActivate={handleActivate}
-          childrenEpoch={listEpoch}
+          childrenEpoch={folderTreeEpoch}
         />
         <ViewsCatalogTree
           listViews={listViews}

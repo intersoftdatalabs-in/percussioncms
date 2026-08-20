@@ -114,6 +114,10 @@ describe("ContentExplorerShell create folder (#3640)", () => {
       expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
     });
     expect(screen.getByTestId("tree-node-/Sites/qa3640")).toBeInTheDocument();
+    const nav = screen.getByTestId("explorer-nav");
+    expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
+      0,
+    );
     await renderA11yGate(container);
   });
 });

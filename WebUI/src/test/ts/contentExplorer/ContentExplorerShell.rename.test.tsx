@@ -116,6 +116,11 @@ describe("ContentExplorerShell rename folder (#3645)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("tree-node-/Sites/qa3645")).toBeInTheDocument();
     });
+    const nav = screen.getByTestId("explorer-nav");
+    expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
+      0,
+    );
+    expect(Number(nav.getAttribute("data-list-epoch"))).toBeGreaterThan(0);
     await renderA11yGate(container);
   });
 });

@@ -391,4 +391,61 @@ describe("ExplorerTree", () => {
     expect(sitesCalls).toBe(callsAfterEpoch);
     await renderA11yGate(container);
   });
+
+  it("does not force-reload expanded sibling folders on childrenEpoch (#3645)", async () => {
+    const OTHER: PSPathItem = {
+      id: "other-1",
+      path: "/Sites/Other",
+      name: "Other",
+      type: "folder",
+      hasFolderChildren: true,
+    };
+    let sitesCalls = 0;
+    let fooCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        return pathItemListResponse([ROOT_FOLDER, OTHER]);
+      }
+      if (url.endsWith("/pathmanagement/path/folder/Sites/Foo")) {
+        fooCalls += 1;
+        return pathItemListResponse([CHILD_FOLDER]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+    );
+    const node = screen.getByTestId("tree-node-/Sites/Foo");
+    const toggle = node.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/Foo/Bar"),
+      ).toBeInTheDocument(),
+    );
+    expect(fooCalls).toBe(1);
+    const sitesAfterExpand = sitesCalls;
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(sitesAfterExpand));
+    expect(fooCalls).toBe(1);
+    await renderA11yGate(container);
+  });
 });
