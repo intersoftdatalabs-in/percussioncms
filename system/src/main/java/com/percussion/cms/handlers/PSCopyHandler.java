@@ -212,12 +212,15 @@ class PSCopyHandler implements IPSCopyHandler {
     }
     createCopy(source.getId(), curRev, target.getId(), target.getRevision(), data);
 
-    // Clone auto-checkin runs sys_wfPerformTransition against a just-inserted
-    // CONTENTSTATUS row whose CONTENTSTATEID is still 0/null (#3667 / #3662).
-    // Skip that check-in so copy/item can return 200. The insert mappings still
-    // write WORKFLOWAPPID / initial state when the UDF succeeds; loadFromHibernate
-    // coerces remaining 0s. {@code checkin} is kept on the IPSCopyHandler
-    // contract for other callers.
+    // Auto-checkin is suppressed for every checkin=true caller of this method
+    // (#3667 / #3662). The only production caller is
+    // PSCloneCommandHandler.executeCloneRequest (PSCloneFactory.createItemClone
+    // for all item clones, not only Explorer copy/item). sys_wfPerformTransition
+    // fails when CONTENTSTATEID is still 0/null on the just-inserted row.
+    // Insert mappings still write WORKFLOWAPPID / initial state when the UDF
+    // succeeds; loadFromHibernate / commit() coerce remaining 0s. The checkin
+    // flag stays on IPSCopyHandler for binary compatibility; it no longer
+    // performs a workflow check-in.
     if (checkin && m_ceHandler.getCmsObject() != null && m_ceHandler.getCmsObject().isWorkflowable()) {
       log.debug(
           "Skipping clone auto-checkin for contentId={} (#3667)", target.getId());

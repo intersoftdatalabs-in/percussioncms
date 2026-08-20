@@ -32,8 +32,10 @@ public interface IPSCopyHandler {
    * @param source the locator of the source to be copied, not <code>null</code>.
    * @param target the locator to use for the new target, not <code>null</code>.
    * @param data the execution data to operate on, not <code>null</code>.
-   * @param checkin <code>true</code> to checkin the created copy, <code>false</code> to leave it
-   *     checked out.
+   * @param checkin historically <code>true</code> to checkin the created copy, <code>false</code>
+   *     to leave it checked out. {@link PSCopyHandler} currently ignores this and never
+   *     auto-checkins clones (#3667), because the new CONTENTSTATUS row can still have
+   *     CONTENTSTATEID 0.
    * @throws IllegalArgumentException for any <code>null</code> parameter.
    * @throws PSAuthorizationException if the user is not authorized to create a copy.
    * @throws PSInternalRequestCallException if anything goes wrong through internal requests.

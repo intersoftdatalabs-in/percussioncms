@@ -1486,9 +1486,7 @@ public class FolderAdaptor implements IFolderAdaptor {
           // Clone insert already persisted; Spring still marked the wrapping
           // TX rollback-only (Hibernate vs clone JDBC). Treat as success so
           // Explorer Copy is HTTP 200 and the dest list can show the copy.
-          log.warn(
-              "copy/item NewCopy insert completed with rollback-only TX (#3667): {}",
-              e.getMessage());
+          log.warn("copy/item NewCopy insert completed with rollback-only TX (#3667)", e);
         }
       }
     } catch (PSErrorResultsException | PSPathNotFoundServiceException | PSDataServiceException e) {

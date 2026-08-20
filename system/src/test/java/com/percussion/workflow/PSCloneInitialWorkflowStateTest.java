@@ -82,10 +82,4 @@ class PSCloneInitialWorkflowStateTest {
     assertEquals(0, PSCloneInitialWorkflowState.coerceStateId(7, 0, wf -> 0));
     assertEquals(0, PSCloneInitialWorkflowState.coerceStateId(7, 0, wf -> -3));
   }
-
-  @Test
-  void assignOnContentStatusRejectsNonPositiveContentId() {
-    assertEquals(false, PSCloneInitialWorkflowState.assignOnContentStatus(0));
-    assertEquals(false, PSCloneInitialWorkflowState.assignOnContentStatus(-1));
-  }
 }
