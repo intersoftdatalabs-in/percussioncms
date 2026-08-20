@@ -355,7 +355,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
 
       Iterator<Serializable> clones = data.getRequest().getClones();
       List<PSLocator> cloneIds = new ArrayList<PSLocator>();
-      log.error("Cloning failed rolling back clone items");
+      log.error("Cloning failed rolling back clone items", e);
       IPSSqlPurgeHelper purgeHelper = PSSqlPurgeHelperLocator.getPurgeHelper();
       while (clones.hasNext()) {
         PSLocator loc = (PSLocator) clones.next();

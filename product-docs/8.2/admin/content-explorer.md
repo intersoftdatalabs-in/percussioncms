@@ -20,7 +20,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Menu bar** (Content / View / Help) | Product commands: search, create site, clipboard, site/subfolder copy, view tools |
 | **Display format** | Column layout for the folder list (`validForFolder` formats). Always shown next to the menu bar; a short error stays next to the selector if the catalog cannot be loaded |
 | **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
-| **Reduced actions** | Always-available open / preview / **Create Folder** / rename / move / **Copy** / **Delete**. **Create Folder** uses the selected Sites or Assets (or other writable) folder as the parent. On the product Explorer URL (`spa.jsp?entry=explorer`, without `?rxFolderMutations=1`) it calls pathmanagement `addNewFolder`; after success the detail list and the tree children of that parent refresh so the new name appears without a manual **Refresh**. **Copy** (selected folder) prompts for a destination folder path and posts public REST `POST /rest/folders/copy/folder` (`CopyFolderItemRequest`); it does **not** require `?rxFolderMutations=1`. After a successful copy, Explorer opens the destination so the copy appears in the destination list and tree without a manual **Refresh**. Copy folder is not the Content → Subfolder Copy wizard. **Delete** is enabled for a selected **folder** (not a page). Confirm, then Explorer recycles it through pathmanagement `POST …/path/deleteFolder` (`DeleteFolderCriteria`, `shouldPurge=false`). After HTTP 200 the folder name leaves the detail list and tree without a manual **Refresh**. Delete does not require `?rxFolderMutations=1` and does not call `/path/delete/{path}` (that resource does not exist). |
+| **Reduced actions** | Always-available open / preview / **Create Folder** / **Rename** / move / **Copy** / **Delete**. **Create Folder** uses the selected Sites or Assets (or other writable) folder as the parent. On the product Explorer URL (`spa.jsp?entry=explorer`, without `?rxFolderMutations=1`) it calls pathmanagement `addNewFolder`; after success the detail list and the tree children of that parent refresh so the new name appears without a manual **Refresh**. **Rename** (selected folder) prompts for a new name and posts pathmanagement `POST …/path/renameFolder` (`RenameFolderItem`). After HTTP 200 the new name appears in the detail list and in the folder tree without a manual **Refresh** — the tree reloads the parent that lists the folder, including when the tree node key (`/Assets`) differs from the list path (`//Folders/$System$/Assets`). **Copy** prompts for a destination folder path. A selected **folder** posts public REST `POST /rest/folders/copy/folder`; a selected **page, file, or asset** posts `POST /rest/folders/copy/item`. Both use a `CopyFolderItemRequest` body (`itemPath` + `targetFolderPath`) and do **not** require `?rxFolderMutations=1`. After a successful copy, Explorer opens the destination so the copy appears in the destination list without a manual **Refresh**. Folder copies also appear under the destination in the tree. Copy is not the Content → Subfolder Copy wizard. **Delete** is enabled for a selected **folder** (not a page). Confirm, then Explorer recycles it through pathmanagement `POST …/path/deleteFolder` (`DeleteFolderCriteria`, `shouldPurge=false`). After HTTP 200 the folder name leaves the detail list and tree without a manual **Refresh**. Delete does not require `?rxFolderMutations=1` and does not call `/path/delete/{path}` (that resource does not exist). |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Explorer **executes** these in the SPA (REST + React). It does **not** open legacy Data Flow `.html` pages (those URLs 404 from `/cm/app/explorer`). Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
@@ -90,25 +90,30 @@ your role allows them). A `500` whose message mentions
 (fixed in 8.2 for the `relatedObject` field) — collect that response body for
 support.
 
-## Folder mutations dual-run (optional)
+## Folder mutations dual-run (diagnostic)
 
 By default, Explorer **create / rename / move / delete** folder actions use the same
-pathmanagement REST surface as browse. Operators and QA can opt into a dual-run path that
-sends those mutations under **Folders** and **Sites** to the Rhythmyx content-explorer
-folders REST façade (`/Rhythmyx/rest/content-explorer/folders`) while list/pagination stay
-on pathmanagement.
+pathmanagement REST surface as browse. **Operators use this flag-off product URL**
+(`spa.jsp?entry=explorer` without `?rxFolderMutations=1`). The dual-run switch is a
+**diagnostic leftover** for QA and integrators validating the Rhythmyx content-explorer
+folders REST façade. **Do not enable `perc.explorer.rxFolderMutations` in production.**
+
+When QA appends `?rxFolderMutations=1`, Create Folder / Rename / Delete under **Folders**
+and **Sites** go through `/Rhythmyx/rest/content-explorer/folders` (HTTP 200) while
+list/pagination stay on pathmanagement. The product default stays **off**.
 
 | Setting | Detail |
 |---------|--------|
 | Name | `perc.explorer.rxFolderMutations` |
-| Default | **off** |
-| Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
+| Default | **off** — leave it off for operators |
+| Diagnostic enable (QA only) | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
 | Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only. The Assets library is **not** in scope even when its repository path is `/Folders/$System$/Assets` or `//Folders/$System$/Assets`. |
 | Unchanged | Browse/list, folder ACL (security panel), `/Assets` (including `/Folders/$System$/Assets` and `//Folders/$System$/Assets`), `/Design`, `/Recycling` (including `/Folders/$System$/Recycling`) |
-| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). |
+| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). Copy does not require the dual-run flag. |
+| Copy item (page/file/asset) | Public REST `POST /rest/folders/copy/item` with the same `CopyFolderItemRequest` root. Not `copy/folder` (that endpoint 500s for non-folders). |
 
-Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
-production unless you are validating the RX folder façade with QA.
+Documented for integrators on [Public REST](id:developer-rest). Production and operator
+day-to-day Explorer stay on pathmanagement (flag **off**).
 
 ## Server actions (how they run)
 

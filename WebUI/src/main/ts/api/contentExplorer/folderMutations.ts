@@ -27,14 +27,16 @@
  * REST façade {@code RxFolder} property model is not a drop-in for CM1
  * {@code PSFolderProperties} security UI.</p>
  *
- * <p>Copy uses public REST {@code POST /folders/copy/folder}
+ * <p>Copy uses public REST {@code POST /folders/copy/folder} for folders and
+ * {@code POST /folders/copy/item} for pages/files/assets
  * ({@code CopyFolderItemRequest}) — {@code PSMoveFolderItem} is move-only
- * and has no {@code copy} field (#3362). RX façade v1 has no copy.</p>
+ * and has no {@code copy} field (#3362 / #3656). RX façade v1 has no copy.</p>
  */
 
 import {
   addNewFolder as pathAddNewFolder,
   copyFolder as pathCopyFolder,
+  copyFolderItem as pathCopyFolderItem,
   deleteItem as pathDeleteItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
@@ -125,6 +127,15 @@ export async function renameFolder(
  */
 export async function copyFolder(body: PSCopyRequest): Promise<void> {
   await pathCopyFolder(body);
+}
+
+/**
+ * Copy a non-folder item via {@code FoldersResource#copyFolderItem}.
+ * Calling {@link copyFolder} for a page/file/asset 500s; keep endpoints
+ * distinct (#3656).
+ */
+export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
+  await pathCopyFolderItem(body);
 }
 
 /**

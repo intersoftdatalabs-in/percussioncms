@@ -65,6 +65,9 @@ export interface AddFolderRequest {
  */
 export const ADD_FOLDER_REQUEST_ROOT = "AddFolderRequest";
 
+/** Jackson / JAXB root for {@link RxFolder} ({@code @XmlRootElement(name = "RxFolder")}). */
+export const RX_FOLDER_ROOT = "RxFolder";
+
 /** Wire envelope required by WRAP_ROOT_VALUE / JAXB on folder create. */
 export type AddFolderRequestEnvelope = {
   AddFolderRequest: AddFolderRequest;
@@ -75,6 +78,23 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     return value as Record<string, unknown>;
   }
   return null;
+}
+
+/**
+ * Unwrap Jackson {@code RxFolder} root wrap (WRAP_ROOT_VALUE) used by the
+ * content-explorer folders façade. Flat payloads pass through.
+ */
+export function unwrapRxFolder(value: unknown): RxFolder {
+  const rec = asRecord(value);
+  if (rec == null) {
+    return {};
+  }
+  const nested = asRecord(rec.RxFolder);
+  const folder = (nested ?? rec) as RxFolder;
+  if (!folder.id && folder.contentId != null) {
+    folder.id = String(folder.contentId);
+  }
+  return folder;
 }
 
 /**
@@ -92,6 +112,23 @@ export function wrapAddFolderRequest(
     }
   }
   return { AddFolderRequest: request as AddFolderRequest };
+}
+
+/**
+ * Wrap save fields under {@link RX_FOLDER_ROOT} so JAXB accepts PUT by-id.
+ * Does not double-wrap an already-enveloped payload.
+ */
+export function wrapRxFolder(
+  folder: Partial<RxFolder> | { RxFolder: Partial<RxFolder> },
+): { RxFolder: Partial<RxFolder> } {
+  const rec = asRecord(folder);
+  if (rec != null) {
+    const nested = rec[RX_FOLDER_ROOT];
+    if (asRecord(nested) != null) {
+      return { RxFolder: nested as Partial<RxFolder> };
+    }
+  }
+  return { RxFolder: folder as Partial<RxFolder> };
 }
 
 export interface FolderChildrenRequest {
@@ -163,17 +200,18 @@ function byIdUrl(id: string): string {
 
 /** Map REST {@link RxFolder} to Explorer {@link PSPathItem} for callers that expect pathmanagement shape. */
 export function rxFolderToPathItem(folder: RxFolder | null | undefined): PSPathItem {
-  if (!folder) {
+  const unwrapped = unwrapRxFolder(folder);
+  if (!unwrapped || (!unwrapped.id && !unwrapped.name && !unwrapped.path)) {
     return { name: "", path: "" };
   }
   // Prefer finder-style single-slash path when REST returns // form so tree keys match.
-  let path = folder.path ?? "";
+  let path = unwrapped.path ?? "";
   if (path.startsWith("//")) {
     path = path.slice(1);
   }
   return {
-    id: folder.id,
-    name: folder.name ?? "",
+    id: unwrapped.id,
+    name: unwrapped.name ?? "",
     path,
     type: "folder",
     category: "folder",
@@ -183,12 +221,12 @@ export function rxFolderToPathItem(folder: RxFolder | null | undefined): PSPathI
 
 /** Load folder by RX/finder path. */
 export async function loadFolderByPath(path: string): Promise<RxFolder> {
-  return get<RxFolder>(byPathUrl(path));
+  return unwrapRxFolder(await get<unknown>(byPathUrl(path)));
 }
 
 /** Load folder by guid / content id. */
 export async function loadFolderById(id: string): Promise<RxFolder> {
-  return get<RxFolder>(byIdUrl(id));
+  return unwrapRxFolder(await get<unknown>(byIdUrl(id)));
 }
 
 /** Create a single folder under {@code parentPath}. */
@@ -201,7 +239,9 @@ export async function addRxFolder(
   if (sourcePath) {
     fields.sourcePath = sourcePath;
   }
-  return post<RxFolder>(RX_FOLDER_REST_BASE, wrapAddFolderRequest(fields));
+  return unwrapRxFolder(
+    await post<unknown>(RX_FOLDER_REST_BASE, wrapAddFolderRequest(fields)),
+  );
 }
 
 /** Save folder fields (rename via {@code name}). */
@@ -209,7 +249,7 @@ export async function saveRxFolder(
   id: string,
   body: Partial<RxFolder>,
 ): Promise<RxFolder> {
-  return put<RxFolder>(byIdUrl(id), body);
+  return unwrapRxFolder(await put<unknown>(byIdUrl(id), wrapRxFolder(body)));
 }
 
 /** Move children from source parent to target parent. */

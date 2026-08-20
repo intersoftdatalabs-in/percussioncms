@@ -233,6 +233,33 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-create-folder` (product-route Create Folder). Parent #3102.
 
+### Explorer RX folder mutations flag-on no-skip (#3654 / parent #3102)
+
+H2 operator proof that **Create / Rename / Delete** on
+`spa.jsp?entry=explorer&rxFolderMutations=1` go through content-explorer
+folders REST (HTTP 200), refresh list+tree, and **do not** post
+pathmanagement mutations. Product default stays **flag off** — this
+surface is diagnostic only. **No skip** when the façade GET by-path is
+200 on the QA image.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-rx-folder-mutations.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-rx-folder-mutations.js`, `tests/unit/explorer-rx-folder-mutations.test.js` |
+| Tags | `@explorer-rx-folder-mutations` `@explorer` `@folder` `@smoke` |
+| Soft skip | None when the content-explorer folders façade is on the image; missing façade is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-rx-folder-mutations.spec.js
+```
+
+Peer: `explorer-create-folder` / `explorer-rename-folder` / `explorer-delete-folder`
+(product-route, flag **off**). Parent #3102. Out of scope: Move (#3655).
+
 ### Explorer Copy selected folder on product route (#3647 / parent #3102)
 
 H2 operator proof that **Copy** of a selected disposable folder on
@@ -256,6 +283,32 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
   npm run test:surface -- --path tests/explorer-copy-folder.spec.js
 ```
+
+### Explorer Copy selected item (non-folder) on product route (#3656 / parent #3102)
+
+H2 operator proof that **Copy** of a selected disposable **item** (page/file/asset,
+not a folder) on `spa.jsp?entry=explorer` (no `rxFolderMutations=1`) posts
+`POST /rest/folders/copy/item` HTTP 200 and the copy appears in the
+destination list without View→Refresh. Does **not** POST `/folders/copy/folder`.
+Does **not** copy golden sample pages — seeds a disposable asset under Assets.
+Does **not** soft-skip when H2 QA has Assets. Distinct from folder Copy (#3647).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-copy-item.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-copy-item.js`, `tests/unit/explorer-copy-item.test.js` |
+| Tags | `@explorer-copy-item` `@explorer` `@item` `@smoke` |
+| Soft skip | None when Assets parent exists; missing parent on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-copy-item.spec.js
+```
+
+Peer: `explorer-copy-folder` (product-route Copy folder). Parent #3102.
 
 ### Explorer New-item type picker live (#3628 / parent #3102)
 
@@ -335,6 +388,30 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 ```
 
 Peer: `architecture-nav-mutations-smoke` (structure action bar). Parent epic #3092.
+
+### Architecture Finder-drop replace landing page (#3660 / parent #3092)
+
+H2 operator proof that dropping a Finder **page** onto a Navigation section
+POSTs `replaceLandingPage` when tree GET is HTTP 200. Folder / non-page drop
+and Escape do **not** POST. Does **not** skip when a sample NavTree exists.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/architecture-nav-landing-drop.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/architecture-landing-drop.js`, `tests/unit/architecture-landing-drop.test.js` |
+| Peers | `architecture-nav-landing-picker.spec.js`, `architecture-nav-tree-live.spec.js` |
+| Tags | `@smoke` `@ui` |
+| Soft skip | None when `TEST_DB_TYPE=h2` and tree GET is 200 |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/architecture-nav-landing-drop.spec.js
+```
+
+Peer: `architecture-nav-landing-picker` (toolbar picker). Parent epic #3092.
 
 ### Explorer Sites list + Create Site (#3003 / parent #2989)
 

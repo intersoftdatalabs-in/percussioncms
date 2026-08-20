@@ -681,8 +681,9 @@ function ContentExplorerShellInner({
       // repository folderPath (#3653).
       handleRefreshListAndTree();
     },
-    // Product Copy folder (flag off) POSTs public REST copy/folder then
-    // opens the destination so operators see the copy without Refresh (#3647).
+    // Product Copy (flag off) POSTs public REST copy/folder for folders and
+    // copy/item for pages/files/assets, then opens the destination so the
+    // copy appears without View → Refresh (#3647 / #3656).
     onCopy: async (item, targetPath) => {
       const impl = actionHandlers?.onCopy ?? stockReducedHandlers.onCopy;
       await impl(item, targetPath);

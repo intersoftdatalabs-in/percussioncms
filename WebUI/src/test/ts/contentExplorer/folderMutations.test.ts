@@ -17,6 +17,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   addNewFolder,
+  copyFolder,
+  copyFolderItem,
   deleteItem,
   moveItem,
   renameFolder,
@@ -163,16 +165,18 @@ describe("folderMutations dual-run routing (#3074)", () => {
     expect(last).not.toContain("/content-explorer/folders");
   });
 
-  it("flag on: renameFolder loads by path then PUTs by id", async () => {
+  it("flag on: renameFolder loads by path then PUTs by id (no pathmanagement)", async () => {
     setRxFolderMutationsFlagOverride(true);
-    const urls: string[] = [];
+    const calls: Array<{ url: string; method: string }> = [];
     mockFetch(async (input, init) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      urls.push(url);
       const method = (init as RequestInit)?.method ?? "GET";
+      calls.push({ url, method });
       if (method === "GET") {
         return new Response(
-          JSON.stringify({ id: "2-101-1", name: "Old", path: "//Folders/Old" }),
+          JSON.stringify({
+            RxFolder: { id: "2-101-1", name: "Old", path: "//Folders/Old" },
+          }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
@@ -182,8 +186,11 @@ describe("folderMutations dual-run routing (#3074)", () => {
       );
     });
     const item = await renameFolder({ path: "/Folders/Old", newName: "NewName" });
-    expect(urls.some((u) => u.includes("/by-path/"))).toBe(true);
-    expect(urls.some((u) => u.includes("/by-id/2-101-1"))).toBe(true);
+    expect(calls.some((c) => c.method === "GET" && c.url.includes("/content-explorer/folders/by-path/"))).toBe(
+      true,
+    );
+    expect(calls.some((c) => c.method === "PUT" && c.url.includes("/by-id/2-101-1"))).toBe(true);
+    expect(calls.every((c) => !c.url.includes("/pathmanagement/"))).toBe(true);
     expect(item.name).toBe("NewName");
   });
 
@@ -220,6 +227,52 @@ describe("folderMutations dual-run routing (#3074)", () => {
     });
   });
 
+  it("copyFolderItem uses /folders/copy/item, not copy/folder or moveItem (#3656)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    let last = "";
+    let body: unknown;
+    mockFetch(async (input, init) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      body = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolderItem({
+      sourcePath: "/Assets/qa3656_src",
+      targetPath: "/Assets/qa3656_dst",
+    });
+    expect(last).toContain("/folders/copy/item");
+    expect(last).not.toContain("/folders/copy/folder");
+    expect(last).not.toContain("/pathmanagement/path/moveItem");
+    expect(body).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Assets/qa3656_src",
+        targetFolderPath: "/Assets/qa3656_dst",
+      },
+    });
+    expect(body).not.toHaveProperty("sourcePath");
+  });
+
+  it("copyFolder stays on /folders/copy/folder even when the dual-run flag is on", async () => {
+    setRxFolderMutationsFlagOverride(true);
+    let last = "";
+    mockFetch(async (input) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolder({
+      sourcePath: "/Folders/Child",
+      targetPath: "/Folders/Other",
+    });
+    expect(last).toContain("/folders/copy/folder");
+    expect(last).not.toContain("/folders/copy/item");
+  });
+
   it("copy uses /folders/copy/folder, not moveItem or a bare sourcePath root", async () => {
     setRxFolderMutationsFlagOverride(true);
     let last = "";
@@ -248,28 +301,33 @@ describe("folderMutations dual-run routing (#3074)", () => {
     expect(body).not.toHaveProperty("sourcePath");
   });
 
-  it("flag on: deleteItem DELETEs by resolved folder id", async () => {
+  it("flag on: deleteItem DELETEs by resolved folder id (no pathmanagement)", async () => {
     setRxFolderMutationsFlagOverride(true);
-    const urls: string[] = [];
+    const calls: Array<{ url: string; method: string }> = [];
     mockFetch(async (input, init) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      urls.push(url);
       const method = (init as RequestInit)?.method ?? "GET";
+      calls.push({ url, method });
       if (method === "GET") {
         return new Response(
-          JSON.stringify({ id: "4-101-1", name: "Gone", path: "//Folders/Gone" }),
+          JSON.stringify({
+            RxFolder: { id: "4-101-1", name: "Gone", path: "//Folders/Gone" },
+          }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
       return new Response(null, { status: 204 });
     });
     await deleteItem("/Folders/Gone");
-    expect(urls.some((u) => u.includes("DELETE") || u.includes("/by-id/4-101-1"))).toBe(
-      true,
-    );
-    expect(urls.some((u) => u.includes("/by-id/4-101-1") && u.includes("purge="))).toBe(
-      true,
-    );
+    expect(
+      calls.some(
+        (c) =>
+          c.method === "DELETE" &&
+          c.url.includes("/content-explorer/folders/by-id/4-101-1") &&
+          c.url.includes("purge="),
+      ),
+    ).toBe(true);
+    expect(calls.every((c) => !c.url.includes("/pathmanagement/"))).toBe(true);
   });
 
   it("flag off: renameFolder POSTs pathmanagement RenameFolderItem wrap (#3645)", async () => {

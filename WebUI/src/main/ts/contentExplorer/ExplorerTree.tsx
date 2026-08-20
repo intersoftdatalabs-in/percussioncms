@@ -65,25 +65,25 @@ export interface ExplorerTreeProps {
 }
 
 /**
- * Compare tree node keys with list paths that may differ by a trailing
- * slash or a repository {@code //} prefix ({@code /Assets} vs
- * {@code /Assets/} vs {@code //Assets}).
+ * Canonical tree node key. CMS paths are URL-style {@code /} (not OS
+ * separators). Collapse repository {@code //} prefixes and trailing slashes
+ * so {@code //Assets} and {@code /Assets/} match {@code /Assets}.
  */
 export function normalizeExplorerTreePathKey(
   path: string | null | undefined,
 ): string {
-  let p = String(path ?? "").trim().replace(/\\/g, "/");
-  if (!p || p === "/") {
+  const raw = String(path ?? "").trim().replace(/\\/g, "/");
+  if (!raw || raw === "/") {
     return "/";
   }
-  p = p.replace(/^[A-Za-z]:/, "");
+  let p = raw.replace(/^[A-Za-z]:/, "");
   while (p.startsWith("//")) {
     p = p.slice(1);
   }
-  p = p.replace(/\/{2,}/g, "/");
   if (!p.startsWith("/")) {
     p = `/${p}`;
   }
+  p = p.replace(/\/{2,}/g, "/");
   return p.replace(/\/+$/, "") || "/";
 }
 
@@ -105,6 +105,13 @@ export function parentExplorerTreePath(
   return n.slice(0, i) || "/";
 }
 
+/** Immediate parent of a canonical tree path ({@code /} for roots). */
+export function parentExplorerTreePathKey(
+  path: string | null | undefined,
+): string {
+  return parentExplorerTreePath(path) ?? "/";
+}
+
 function pathKeyMatches(
   candidate: string | null | undefined,
   wanted: ReadonlySet<string>,
@@ -113,6 +120,44 @@ function pathKeyMatches(
     return false;
   }
   return wanted.has(normalizeExplorerTreePathKey(candidate));
+}
+
+function lookupNodeKey(
+  record: Record<string, unknown>,
+  path: string | null | undefined,
+): string | undefined {
+  const target = normalizeExplorerTreePathKey(path);
+  return Object.keys(record).find(
+    (key) => normalizeExplorerTreePathKey(key) === target,
+  );
+}
+
+function pathItemMatchesSelected(
+  item: Pick<PSPathItem, "path" | "folderPath"> | null | undefined,
+  selectedPath: string | null | undefined,
+): boolean {
+  if (item == null || selectedPath == null || selectedPath === "") {
+    return false;
+  }
+  const target = normalizeExplorerTreePathKey(selectedPath);
+  return (
+    normalizeExplorerTreePathKey(item.path) === target ||
+    normalizeExplorerTreePathKey(item.folderPath) === target ||
+    normalizeExplorerTreePathKey(resolveExplorerListPath(item, item.path)) ===
+      target
+  );
+}
+
+function resolveLoadedNodePath(
+  nodes: Record<string, unknown>,
+  selectedPath: string | null,
+  fallback: string,
+): string {
+  const target = normalizeExplorerTreePathKey(selectedPath ?? fallback);
+  const hit = Object.keys(nodes).find(
+    (key) => normalizeExplorerTreePathKey(key) === target,
+  );
+  return hit ?? selectedPath ?? fallback;
 }
 
 /**
@@ -131,7 +176,10 @@ function pathKeyMatches(
  * (#3645 review).</p>
  */
 export function collectChildrenEpochReloadPaths(
-  nodes: Record<string, { children: ReadonlyArray<Pick<PSPathItem, "path" | "folderPath">> }>,
+  nodes: Record<
+    string,
+    { children: ReadonlyArray<Pick<PSPathItem, "path" | "folderPath">> }
+  >,
   selectedPath: string | null,
   initialPath: string,
 ): string[] {
@@ -181,6 +229,97 @@ interface NodeState {
   loading: boolean;
   error: string | null;
   children: PSPathItem[];
+  /** Path actually sent to {@link findChildren} (folderPath vs finder id). */
+  listPath?: string;
+}
+
+/**
+ * Node keys to refetch after a folder mutation. Matches the selected list
+ * path against tree keys <em>and</em> stored {@code listPath} values so a
+ * finder id ({@code /Assets}) is not left stale when the shell selected
+ * {@code //Folders/$System$/Assets} (#3652 / #3653).
+ */
+function collectEpochReloadKeys(
+  nodes: Record<string, NodeState>,
+  selectedPath: string | null,
+  initialPath: string,
+): string[] {
+  const keys = new Set<string>();
+  const addExisting = (path: string | null | undefined) => {
+    const hit = lookupNodeKey(nodes, path);
+    if (hit != null) {
+      keys.add(hit);
+    }
+  };
+  addExisting(initialPath);
+  addExisting(selectedPath);
+  addExisting(parentExplorerTreePathKey(selectedPath ?? initialPath));
+  const selectedNorm = normalizeExplorerTreePathKey(
+    selectedPath ?? initialPath,
+  );
+  for (const [key, state] of Object.entries(nodes)) {
+    if (
+      state.listPath != null &&
+      normalizeExplorerTreePathKey(state.listPath) === selectedNorm
+    ) {
+      keys.add(key);
+    }
+    if (
+      state.children.some((child) =>
+        pathItemMatchesSelected(child, selectedPath),
+      )
+    ) {
+      keys.add(key);
+    }
+  }
+  if (keys.size === 0) {
+    keys.add(normalizeExplorerTreePathKey(initialPath));
+  }
+  return [...keys];
+}
+
+function applyLoadedChildren(
+  prev: Record<string, NodeState>,
+  path: string,
+  children: PSPathItem[],
+  listPath: string,
+): Record<string, NodeState> {
+  const key =
+    lookupNodeKey(prev, path) ?? normalizeExplorerTreePathKey(path);
+  const oldChildren = prev[key]?.children ?? [];
+  const next: Record<string, NodeState> = { ...prev };
+  for (const alias of Object.keys(next)) {
+    if (
+      alias !== key &&
+      normalizeExplorerTreePathKey(alias) === normalizeExplorerTreePathKey(key)
+    ) {
+      delete next[alias];
+    }
+  }
+  next[key] = {
+    loaded: true,
+    loading: false,
+    error: null,
+    children,
+    listPath,
+  };
+  const newPathKeys = new Set(
+    children.map((child) => normalizeExplorerTreePathKey(child.path)),
+  );
+  for (const child of oldChildren) {
+    const oldNorm = normalizeExplorerTreePathKey(child.path);
+    if (newPathKeys.has(oldNorm)) {
+      continue;
+    }
+    const stale = lookupNodeKey(next, child.path);
+    if (
+      stale != null &&
+      normalizeExplorerTreePathKey(stale) !== normalizeExplorerTreePathKey(key)
+    ) {
+      delete next[stale];
+    }
+  }
+  return next;
 }
 
 const EMPTY_STATE: NodeState = {
@@ -189,18 +328,6 @@ const EMPTY_STATE: NodeState = {
   error: null,
   children: [],
 };
-
-function resolveLoadedNodePath(
-  nodes: Record<string, unknown>,
-  selectedPath: string | null,
-  fallback: string,
-): string {
-  const target = normalizeExplorerTreePathKey(selectedPath ?? fallback);
-  const hit = Object.keys(nodes).find(
-    (key) => normalizeExplorerTreePathKey(key) === target,
-  );
-  return hit ?? selectedPath ?? fallback;
-}
 
 function findFolderItemForPath(
   nodes: Record<string, NodeState>,
@@ -231,10 +358,10 @@ export function ExplorerTree({
   childrenEpoch = 0,
 }: ExplorerTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => ({
-    [initialPath]: true,
+    [normalizeExplorerTreePathKey(initialPath)]: true,
   }));
   const [nodes, setNodes] = useState<Record<string, NodeState>>(() => ({
-    [initialPath]: EMPTY_STATE,
+    [normalizeExplorerTreePathKey(initialPath)]: EMPTY_STATE,
   }));
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
@@ -243,27 +370,50 @@ export function ExplorerTree({
 
   const ensureLoaded = useCallback(
     async (path: string, folder?: PSPathItem | null, force?: boolean) => {
+      const key =
+        lookupNodeKey(nodesRef.current, path) ??
+        normalizeExplorerTreePathKey(path);
       setNodes((prev) => {
-        const cur = prev[path] ?? EMPTY_STATE;
+        const curKey = lookupNodeKey(prev, key) ?? key;
+        const cur = prev[curKey] ?? EMPTY_STATE;
         if (!force && (cur.loaded || cur.loading)) return prev;
-        return { ...prev, [path]: { ...cur, loading: true, error: null } };
+        return { ...prev, [curKey]: { ...cur, loading: true, error: null } };
       });
       try {
-        const listPath = resolveExplorerListPath(folder, path) ?? path;
+        const existing =
+          nodesRef.current[key] ??
+          nodesRef.current[lookupNodeKey(nodesRef.current, path) ?? ""];
+        const listPath =
+          resolveExplorerListPath(folder, path) ?? existing?.listPath ?? path;
         const children = await findChildren(listPath);
-        setNodes((prev) => ({
-          ...prev,
-          [path]: { loaded: true, loading: false, error: null, children },
-        }));
+        setNodes((prev) => applyLoadedChildren(prev, key, children, listPath));
       } catch (err) {
         const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
-        setNodes((prev) => ({
-          ...prev,
-          [path]: { loaded: true, loading: false, error: msg, children: [] },
-        }));
+        const rootKey = normalizeExplorerTreePathKey(initialPath);
+        const isRoot = normalizeExplorerTreePathKey(key) === rootKey;
+        setNodes((prev) => {
+          if (!isRoot && force) {
+            const next = { ...prev };
+            const hit = lookupNodeKey(next, key);
+            if (hit != null && normalizeExplorerTreePathKey(hit) !== rootKey) {
+              delete next[hit];
+            }
+            return next;
+          }
+          const curKey = lookupNodeKey(prev, key) ?? key;
+          return {
+            ...prev,
+            [curKey]: {
+              loaded: true,
+              loading: false,
+              error: msg,
+              children: [],
+            },
+          };
+        });
       }
     },
-    [],
+    [initialPath],
   );
 
   useEffect(() => {
@@ -275,26 +425,52 @@ export function ExplorerTree({
       return;
     }
     const snapshot = nodesRef.current;
-    const toReload = collectChildrenEpochReloadPaths(
-      snapshot,
-      selectedPathRef.current,
-      initialPath,
-    );
-    for (const path of toReload) {
+    const toReload = [
+      ...new Set([
+        ...collectChildrenEpochReloadPaths(
+          snapshot,
+          selectedPathRef.current,
+          initialPath,
+        ),
+        ...collectEpochReloadKeys(
+          snapshot,
+          selectedPathRef.current,
+          initialPath,
+        ),
+      ]),
+    ];
+    setExpanded((prev) => {
+      const next = { ...prev };
+      for (const reloadPath of toReload) {
+        next[normalizeExplorerTreePathKey(reloadPath)] = true;
+      }
+      return next;
+    });
+    for (const reloadPath of toReload) {
       // Pass the PathItem when we have it so force-reload uses
       // folderPath (Assets → //Folders/$System$/Assets) not the finder key.
-      void ensureLoaded(path, findFolderItemForPath(snapshot, path), true);
+      void ensureLoaded(
+        reloadPath,
+        findFolderItemForPath(snapshot, reloadPath),
+        true,
+      );
     }
-    // Reload selected + its tree parent + root. selectedPath is read from
-    // a ref so selection clicks after an epoch bump do not re-run this
-    // effect (#3640). Do not walk every loaded node (#3645 review).
+    // Reload selected + its listing parent + root. Keep the parent expanded
+    // so rename/delete is visible without View → Refresh. selectedPath is
+    // read from a ref so selection clicks after an epoch bump do not re-run
+    // this effect (#3640). Do not walk every loaded node (#3645 review).
   }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(
     (path: string, folder: PSPathItem) => {
-      setExpanded((prev) => ({ ...prev, [path]: !prev[path] }));
-      if (!nodes[path]?.loaded) {
-        void ensureLoaded(path, folder);
+      const key = normalizeExplorerTreePathKey(path);
+      setExpanded((prev) => ({
+        ...prev,
+        [key]: !(prev[key] ?? prev[path] ?? false),
+      }));
+      const node = nodes[key] ?? nodes[lookupNodeKey(nodes, path) ?? ""];
+      if (!node?.loaded) {
+        void ensureLoaded(key, folder);
       }
       onActivate?.(path, folder);
     },
@@ -306,16 +482,22 @@ export function ExplorerTree({
     depth: number,
   ): React.ReactElement => {
     const path = folder.path;
-    const isOpen = expanded[path] ?? false;
-    const state = nodes[path] ?? EMPTY_STATE;
+    const pathKey = normalizeExplorerTreePathKey(path);
+    const isOpen = expanded[pathKey] ?? expanded[path] ?? false;
+    const state =
+      nodes[pathKey] ??
+      nodes[lookupNodeKey(nodes, path) ?? ""] ??
+      EMPTY_STATE;
     const listPath = resolveExplorerListPath(folder, path);
+    const selectedNorm = normalizeExplorerTreePathKey(selectedPath);
     const selected =
-      selectedPath === path ||
-      (listPath != null && selectedPath === listPath);
+      selectedNorm === pathKey ||
+      (listPath != null &&
+        selectedNorm === normalizeExplorerTreePathKey(listPath));
     const folderish = isFolder(folder);
 
     return (
-      <div key={path} data-testid={`tree-node-${path}`}>
+      <div key={pathKey} data-testid={`tree-node-${path}`}>
         <div
           role="treeitem"
           aria-expanded={folderish ? isOpen : undefined}
@@ -376,7 +558,10 @@ export function ExplorerTree({
     );
   };
 
-  const rootState = nodes[initialPath] ?? EMPTY_STATE;
+  const rootKey =
+    lookupNodeKey(nodes, initialPath) ??
+    normalizeExplorerTreePathKey(initialPath);
+  const rootState = nodes[rootKey] ?? nodes[initialPath] ?? EMPTY_STATE;
   const error = useMemo(() => {
     if (rootState.error) return rootState.error;
     const firstError = Object.values(nodes).find((n) => n.error)?.error;

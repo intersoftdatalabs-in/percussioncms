@@ -22,6 +22,7 @@ import {
   renderDisplayFormatCell,
   resolveDisplayFormatColumns,
 } from "../../../main/ts/contentExplorer/DetailList";
+import { FINDER_PAGE_MIME } from "../../../main/ts/architecture/landingPageDrop";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
@@ -93,6 +94,12 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-1").getAttribute("data-row-kind")).toBe(
       "item",
     );
+    expect(screen.getByTestId("detail-row-p-1").getAttribute("draggable")).toBe(
+      "true",
+    );
+    expect(
+      screen.getByTestId("detail-row-p-1").getAttribute("data-finder-mime"),
+    ).toBe(FINDER_PAGE_MIME);
     expect(screen.getByTestId("detail-pagination")).toHaveTextContent(
       /Page 1 of 1/,
     );

@@ -78,6 +78,44 @@ public class PSPathUtilsTest {
     assertEquals("//Sites/Help", PSPathUtils.getFolderPath("/Sites/Help"));
   }
 
+  /**
+   * Public REST copy/item source is a listed item path (single-slash
+   * {@code /Folders/$System$/Assets/…/item} or finder {@code /Assets/…/item}).
+   * {@link PSPathUtils#getFolderPath} must still yield {@code //} so
+   * {@code folderHelper.findItem} does not throw "Path must start with '//'"
+   * (#3656).
+   */
+  @Test
+  public void testGetFolderPathCopyItemSource() {
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("/Folders/$System$/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("//Folders/$System$/Assets/src/item"));
+  }
+
+  /**
+   * {@link PSPathUtils#toRepositoryPath} is the item-copy helper: same {@code //}
+   * promotion as {@link PSPathUtils#getFolderPath} and must keep the leaf (#3656).
+   */
+  @Test
+  public void testToRepositoryPathKeepsItemLeaf() {
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.toRepositoryPath("/Folders/$System$/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.toRepositoryPath("/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.toRepositoryPath("//Folders/$System$/Assets/src/item"));
+    assertEquals("//Sites/Help", PSPathUtils.toRepositoryPath("/Sites/Help"));
+  }
+
   @Test
   public void testGetBasePath() {
     var trailing = "/Sites/mysite/mymain/mysecond/";

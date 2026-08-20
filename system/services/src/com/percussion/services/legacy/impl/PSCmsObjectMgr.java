@@ -1505,7 +1505,9 @@ public class PSCmsObjectMgr
    {
       Session sess = getSession();
 
-         return sess.createQuery("from PSRelationshipConfigName where lower(config_name) like :name", PSRelationshipConfigName.class)
+         return sess.createQuery(
+                 "from PSRelationshipConfigName where lower(configName) like :name",
+                 PSRelationshipConfigName.class)
                .setParameter("name", name.toLowerCase()).list().stream();
 
       }

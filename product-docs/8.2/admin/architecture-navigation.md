@@ -154,7 +154,7 @@ With a site selected, use the structure action bar above the tree:
 | **Create section from folder** | Promotes an existing site folder to a section under the selected parent (or site root). Choose the folder and a landing page that already exists in that folder. The server creates a navon and attaches the folder. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
-| **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. |
+| **Landing page** | Opens the product **page picker** (Content Browser, pages only) so you can assign a different landing page to the selected regular section. Confirming a page calls `POST /section/replaceLandingPage` and **refreshes the tree** while keeping the section selected. The assigned page name is shown on the selected section. **Cancel** or an empty pick does not call the server and does not produce an error 500 — the dialog shows “No page selected” until a page is chosen. Folders and assets cannot be assigned. You can also **drop a page** from Explorer (Finder listing) onto a regular section in the Navigation tree — including non-root sections. A successful drop uses the same `POST /section/replaceLandingPage` and refreshes the tree. Dropping a folder, asset, or other non-page item, or pressing **Escape** to cancel the drag, does not post and does not produce an error 500. Section links, external links, and blogs are not drop targets. |
 | **Edit link** | Edits the selected section link (new target) or external link (text, URL, target window). |
 | **Rename** | Renames the selected regular section (updates section title / landing link title). |
 | **Properties** | Opens **Section properties** for the selected regular section (including the site root). Edit **title**, **folder name** (not on the site root), **target window**, **CSS classes**, and **Requires login** / **Allow access to** group names when the site is secure. **Save** posts `GET /section/properties/{id}` then `POST /section/update` (`SiteSectionProperties`). **Cancel** or **Escape** closes without posting. Validation errors (empty title, invalid folder name, invalid CSS class tokens) stay in the dialog — they do not produce an HTTP 500. Folder ACL principals are not edited here; **Save** still sends the current `folderPermission` so the ACL is not dropped. |
@@ -236,6 +236,16 @@ or **Move section** and pick the current parent with a new position.
 5. If no page is selected, **Replace landing page** stays disabled and the dialog
    shows **No page selected** — the server is not called.
 
+You can also assign a landing page by **dropping** it from Explorer:
+
+1. In Explorer, drag a **page** listing (not a folder or asset).
+2. Drop it on a **regular section** in the Navigation tree (any regular section,
+   not only the site root).
+3. On success the shell posts `POST /section/replaceLandingPage` and refreshes
+   the tree without reloading the page. The section shows the new landing name.
+4. Dropping a folder or non-page item does not post and does not produce an
+   error 500. Press **Escape** to cancel the drag without saving.
+
 ### Blog sections (signed support — #3351)
 
 Blog-type navons are **recognizable** in the Navigation tree (a **Blog** type
@@ -287,6 +297,7 @@ shipped WebUI app; bookmarks still land here via `?view=arch` and the former JSP
 | Convert section to folder / create section from folder | **Available** |
 | Landing page / section-link / external-link parity | **Available** |
 | Landing page picker + replace (`replaceLandingPage`) | **Available** |
+| Replace landing page by dropping an Explorer/Finder page onto a section | **Available** |
 | Blog navon type (badge + read-only structure) | **Available** (signed #3351; create/edit blogs on Home Blogs gadget) |
 | Keyboard / ARIA tree + Escape dialogs | **Available** |
 | `perc.ui.architecture.modern` TMX chrome keys | **Available** (en-us feature keys; other locales via nightly i18n) |

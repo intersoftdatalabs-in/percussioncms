@@ -55,6 +55,7 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSFolderPermission;
+import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
@@ -506,6 +507,12 @@ public class PSItemService implements IPSItemService {
       item.setFolderPaths(Collections.singletonList(folder));
       Map<String, Object> fields = new HashMap<>();
       fields.put("sys_title", name);
+      int workflowId = workflowIdForCreateFolder(folder);
+      if (workflowId > 0) {
+        // New-copy clone requires stateId > 0; folder default workflow
+        // matches asset upload create (#3656).
+        fields.put("sys_workflowid", String.valueOf(workflowId));
+      }
       item.setFields(fields);
       PSContentItem saved = contentItemDao.save(item);
       String id = saved.getId();
@@ -517,6 +524,39 @@ public class PSItemService implements IPSItemService {
       throw e;
     } catch (Exception e) {
       throw new PSItemServiceException("Could not create the item.", e);
+    }
+  }
+
+  /**
+   * Folder default workflow for New Item create. Missing/unknown folders
+   * return 0 so create still proceeds (editor can assign later).
+   */
+  int workflowIdForCreateFolder(String repositoryFolder) {
+    try {
+      IPSItemSummary summary = folderHelper.findItem(repositoryFolder);
+      if (summary == null || StringUtils.isBlank(summary.getId())) {
+        return 0;
+      }
+      String folderId = summary.getId();
+      String type = StringUtils.defaultString(summary.getType());
+      if (!"Folder".equalsIgnoreCase(type) && !"folder".equalsIgnoreCase(type)) {
+        IPSGuid parent = folderHelper.getParentFolderId(idMapper.getGuid(folderId), true);
+        if (parent == null) {
+          return 0;
+        }
+        folderId = idMapper.getString(parent);
+      }
+      PSFolderProperties props = folderHelper.findFolderProperties(folderId);
+      if (props == null) {
+        return 0;
+      }
+      return folderHelper.getValidWorkflowId(props);
+    } catch (Exception e) {
+      log.warn(
+          "Could not resolve folder workflow for create in {}: {}",
+          repositoryFolder,
+          e.getMessage());
+      return 0;
     }
   }
 
