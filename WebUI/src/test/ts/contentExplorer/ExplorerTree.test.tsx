@@ -18,7 +18,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import {
   ExplorerTree,
+  collectChildrenEpochReloadPaths,
   normalizeExplorerTreePathKey,
+  parentExplorerTreePath,
 } from "../../../main/ts/contentExplorer/ExplorerTree";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
@@ -317,6 +319,64 @@ describe("ExplorerTree", () => {
     expect(normalizeExplorerTreePathKey("/Assets/")).toBe("/Assets");
     expect(normalizeExplorerTreePathKey("/")).toBe("/");
     expect(normalizeExplorerTreePathKey("")).toBe("/");
+    expect(normalizeExplorerTreePathKey("//Assets")).toBe("/Assets");
+    expect(normalizeExplorerTreePathKey("//Folders/$System$/Assets")).toBe(
+      "/Folders/$System$/Assets",
+    );
+  });
+
+  it("parentExplorerTreePath walks one segment", () => {
+    expect(parentExplorerTreePath("/Sites/Foo")).toBe("/Sites");
+    expect(parentExplorerTreePath("/Folders/$System$/Assets")).toBe(
+      "/Folders/$System$",
+    );
+    expect(parentExplorerTreePath("/Sites")).toBe("/");
+    expect(parentExplorerTreePath("/")).toBeNull();
+  });
+
+  it("collectChildrenEpochReloadPaths reloads finder parent for repository selectedPath (#3653)", () => {
+    const nodes = {
+      "/": {
+        children: [
+          {
+            path: "/Assets",
+            folderPath: "//Folders/$System$/Assets",
+          },
+          { path: "/Sites", folderPath: "//Sites" },
+        ],
+      },
+      "/Assets": {
+        children: [{ path: "/Assets/qa3653", folderPath: "//Folders/$System$/Assets/qa3653" }],
+      },
+      "/Sites": {
+        children: [{ path: "/Sites/Other", folderPath: "//Sites/Other" }],
+      },
+    };
+    const paths = collectChildrenEpochReloadPaths(
+      nodes,
+      "/Folders/$System$/Assets",
+      "/",
+    );
+    expect(paths).toContain("/");
+    expect(paths).toContain("/Assets");
+    expect(paths).not.toContain("/Sites");
+  });
+
+  it("collectChildrenEpochReloadPaths reloads tree parent when selected is the deleted child (#3653)", () => {
+    const nodes = {
+      "/": { children: [{ path: "/Sites", folderPath: "//Sites" }] },
+      "/Sites": {
+        children: [{ path: "/Sites/qa3653", folderPath: "//Sites/qa3653" }],
+      },
+    };
+    const paths = collectChildrenEpochReloadPaths(
+      nodes,
+      "/Sites/qa3653",
+      "/",
+    );
+    expect(paths).toContain("/");
+    expect(paths).toContain("/Sites");
+    expect(paths).not.toContain("/Sites/qa3653");
   });
 
   it("reloads selected folder children when childrenEpoch changes (#3640 #3645)", async () => {
@@ -446,6 +506,264 @@ describe("ExplorerTree", () => {
     );
     await waitFor(() => expect(sitesCalls).toBeGreaterThan(sitesAfterExpand));
     expect(fooCalls).toBe(1);
+    await renderA11yGate(container);
+  });
+
+  it("force-reloads Assets children when selectedPath is repository folderPath (#3653)", async () => {
+    const ASSETS: PSPathItem = {
+      id: "assets-root",
+      path: "/Assets",
+      name: "Assets",
+      type: "folder",
+      folderPath: "//Folders/$System$/Assets",
+      hasFolderChildren: true,
+    };
+    const DISPOSABLE: PSPathItem = {
+      id: "qa-3653",
+      path: "/Assets/qa3653",
+      name: "qa3653",
+      type: "folder",
+      folderPath: "//Folders/$System$/Assets/qa3653",
+      hasFolderChildren: false,
+    };
+    let assetsListCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (
+        url.endsWith("/pathmanagement/path/folder/") ||
+        /\/pathmanagement\/path\/folder\/?$/.test(url)
+      ) {
+        return pathItemListResponse([ASSETS]);
+      }
+      if (
+        url.includes("/pathmanagement/path/folder/Folders/") &&
+        url.includes("Assets")
+      ) {
+        assetsListCalls += 1;
+        return pathItemListResponse(assetsListCalls > 1 ? [] : [DISPOSABLE]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+    );
+    const assetsNode = screen.getByTestId("tree-node-/Assets");
+    const toggle = assetsNode.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets/qa3653")).toBeInTheDocument(),
+    );
+    expect(screen.getByText("qa3653")).toBeInTheDocument();
+    rerender(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/Folders/$System$/Assets"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1));
+    await waitFor(() =>
+      expect(screen.queryByTestId("tree-node-/Assets/qa3653")).toBeNull(),
+    );
+    expect(screen.queryByText("qa3653")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("shows renamed child after childrenEpoch when selectedPath is repository folderPath (#3652)", async () => {
+    const ASSETS: PSPathItem = {
+      id: "assets-root",
+      path: "/Assets",
+      name: "Assets",
+      type: "folder",
+      folderPath: "//Folders/$System$/Assets",
+      hasFolderChildren: true,
+    };
+    const OLD_FOLDER: PSPathItem = {
+      id: "qa-3652",
+      path: "/Assets/OldFolder",
+      name: "OldFolder",
+      type: "folder",
+      folderPath: "//Folders/$System$/Assets/OldFolder",
+      hasFolderChildren: false,
+    };
+    const NEW_FOLDER: PSPathItem = {
+      id: "qa-3652",
+      path: "/Assets/qa3652r",
+      name: "qa3652r",
+      type: "folder",
+      folderPath: "//Folders/$System$/Assets/qa3652r",
+      hasFolderChildren: false,
+    };
+    let assetsListCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (
+        url.endsWith("/pathmanagement/path/folder/") ||
+        /\/pathmanagement\/path\/folder\/?$/.test(url)
+      ) {
+        return pathItemListResponse([ASSETS]);
+      }
+      if (
+        url.includes("/pathmanagement/path/folder/Folders/") &&
+        url.includes("Assets")
+      ) {
+        assetsListCalls += 1;
+        return pathItemListResponse(
+          assetsListCalls > 1 ? [NEW_FOLDER] : [OLD_FOLDER],
+        );
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+    );
+    const assetsNode = screen.getByTestId("tree-node-/Assets");
+    const toggle = assetsNode.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(screen.getByText("OldFolder")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/Folders/$System$/Assets"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() => expect(assetsListCalls).toBeGreaterThan(1));
+    await waitFor(() =>
+      expect(screen.getByText("qa3652r")).toBeInTheDocument(),
+    );
+    expect(screen.queryByText("OldFolder")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("force-reloads parent children when selectedPath is the deleted folder (#3653)", async () => {
+    const DISPOSABLE: PSPathItem = {
+      id: "qa-3653b",
+      path: "/Sites/qa3653b",
+      name: "qa3653b",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let sitesCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        return pathItemListResponse(sitesCalls > 1 ? [] : [DISPOSABLE]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/qa3653b"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/qa3653b")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/qa3653b"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1));
+    await waitFor(() =>
+      expect(screen.queryByTestId("tree-node-/Sites/qa3653b")).toBeNull(),
+    );
+    expect(screen.queryByText("qa3653b")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("force-reloads parent children after epoch when product root is / (#3653)", async () => {
+    const SITES: PSPathItem = {
+      id: "sites-root",
+      path: "/Sites",
+      name: "Sites",
+      type: "folder",
+      folderPath: "//Sites",
+      hasFolderChildren: true,
+    };
+    const DISPOSABLE: PSPathItem = {
+      id: "qa-3653c",
+      path: "/Sites/qa3653c",
+      name: "qa3653c",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let sitesCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (
+        url.endsWith("/pathmanagement/path/folder/") ||
+        /\/pathmanagement\/path\/folder\/?$/.test(url)
+      ) {
+        return pathItemListResponse([SITES]);
+      }
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        return pathItemListResponse(sitesCalls > 1 ? [] : [DISPOSABLE]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites")).toBeInTheDocument(),
+    );
+    const sitesNode = screen.getByTestId("tree-node-/Sites");
+    const toggle = sitesNode.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/qa3653c")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/Sites/qa3653c"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() => expect(sitesCalls).toBeGreaterThan(1));
+    await waitFor(() =>
+      expect(screen.queryByTestId("tree-node-/Sites/qa3653c")).toBeNull(),
+    );
+    expect(screen.queryByText("qa3653c")).toBeNull();
     await renderA11yGate(container);
   });
 });
