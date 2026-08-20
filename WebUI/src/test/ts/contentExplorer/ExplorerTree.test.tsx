@@ -16,7 +16,10 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ExplorerTree } from "../../../main/ts/contentExplorer/ExplorerTree";
+import {
+  ExplorerTree,
+  normalizeExplorerTreePathKey,
+} from "../../../main/ts/contentExplorer/ExplorerTree";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
@@ -306,6 +309,60 @@ describe("ExplorerTree", () => {
     await waitFor(() =>
       expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeTruthy(),
     );
+    await renderA11yGate(container);
+  });
+
+  it("normalizeExplorerTreePathKey treats trailing slashes as the same folder", () => {
+    expect(normalizeExplorerTreePathKey("/Assets")).toBe("/Assets");
+    expect(normalizeExplorerTreePathKey("/Assets/")).toBe("/Assets");
+    expect(normalizeExplorerTreePathKey("/")).toBe("/");
+    expect(normalizeExplorerTreePathKey("")).toBe("/");
+  });
+
+  it("reloads selected folder children when childrenEpoch changes (#3640)", async () => {
+    const NEW_FOLDER: PSPathItem = {
+      id: "new-1",
+      path: "/Sites/New",
+      name: "New",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let sitesCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        if (sitesCalls > 1) {
+          return pathItemListResponse([ROOT_FOLDER, NEW_FOLDER]);
+        }
+        return pathItemListResponse([ROOT_FOLDER]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId("tree-node-/Sites/New")).toBeNull();
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
+    );
+    expect(sitesCalls).toBeGreaterThan(1);
     await renderA11yGate(container);
   });
 });

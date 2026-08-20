@@ -230,10 +230,29 @@ export async function addNewFolder(
   return res?.PathItem ?? ({} as PSPathItem);
 }
 
+/**
+ * Jackson / JAXB root for sitemanage {@code PSRenameFolderItem}
+ * ({@code @XmlRootElement(name = "RenameFolderItem")}). The Java field is
+ * {@code name}, not the SPA alias {@code newName}.
+ */
+export const RENAME_FOLDER_ITEM_ROOT = "RenameFolderItem";
+
+function withFolderTrailingSlash(path: string): string {
+  const p = String(path || "").trim();
+  if (!p || p === "/") {
+    return p;
+  }
+  return p.endsWith("/") ? p : `${p}/`;
+}
+
 export async function renameFolder(
   body: PSRenameFolderItem,
 ): Promise<PSPathItem> {
-  const res = await post<PSPathItemResponse>(PATHS.PATH_RENAME_FOLDER, body);
+  const path = withFolderTrailingSlash(String(body.path ?? "").trim());
+  const name = String(body.newName ?? "").trim();
+  const res = await post<PSPathItemResponse>(PATHS.PATH_RENAME_FOLDER, {
+    [RENAME_FOLDER_ITEM_ROOT]: { path, name },
+  });
   return res?.PathItem ?? ({} as PSPathItem);
 }
 
