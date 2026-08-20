@@ -40,41 +40,33 @@ function renderShell(ui: ReactElement) {
   );
 }
 
-const CREATED = {
-  id: "n-3640",
-  path: "/Sites/qa3640",
-  name: "qa3640",
+const OLD_FOLDER = {
+  id: "f-3645",
+  path: "/Sites/OldFolder",
+  name: "OldFolder",
   type: "folder",
-  accessLevel: "WRITE",
+  accessLevel: "WRITE" as const,
 };
 
-describe("ContentExplorerShell create folder (#3640)", () => {
-  it("refreshes the detail list after Create Folder succeeds", async () => {
-    let created = false;
+const RENAMED_FOLDER = {
+  ...OLD_FOLDER,
+  path: "/Sites/qa3645",
+  name: "qa3645",
+};
+
+describe("ContentExplorerShell rename folder (#3645)", () => {
+  it("refreshes the detail list and tree after Rename succeeds", async () => {
+    let renamed = false;
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.includes("/pathmanagement/path/addNewFolder")) {
-        return new Response(
-          JSON.stringify({
-            PathItem: {
-              id: "n-3640",
-              path: "/Sites/New-Folder/",
-              name: "New-Folder",
-              type: "folder",
-              accessLevel: "WRITE",
-            },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
       if (url.includes("/pathmanagement/path/renameFolder")) {
-        created = true;
-        return new Response(JSON.stringify({ PathItem: CREATED }), {
+        renamed = true;
+        return new Response(JSON.stringify({ PathItem: RENAMED_FOLDER }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
       }
-      const kids = created ? [CREATED] : [];
+      const kids = renamed ? [RENAMED_FOLDER] : [OLD_FOLDER];
       if (url.includes("paginatedFolder") || url.includes("/folder/")) {
         return new Response(
           JSON.stringify({
@@ -101,23 +93,34 @@ describe("ContentExplorerShell create folder (#3640)", () => {
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         actionHandlers={{
-          prompt: () => "qa3640",
+          prompt: () => "qa3645",
         }}
       />,
     );
 
-    const createBtn = await screen.findByTestId("action-create-folder");
-    expect(createBtn).toBeEnabled();
-    fireEvent.click(createBtn);
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-f-3645")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-f-3645"));
+
+    const renameBtn = await screen.findByTestId("action-rename");
+    expect(renameBtn).toBeEnabled();
+    fireEvent.click(renameBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
+      expect(screen.getByTestId("detail-cell-name-f-3645")).toHaveTextContent(
+        "qa3645",
+      );
     });
-    expect(screen.getByTestId("tree-node-/Sites/qa3640")).toBeInTheDocument();
+    expect(renamed).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("tree-node-/Sites/qa3645")).toBeInTheDocument();
+    });
     const nav = screen.getByTestId("explorer-nav");
     expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
       0,
     );
+    expect(Number(nav.getAttribute("data-list-epoch"))).toBeGreaterThan(0);
     await renderA11yGate(container);
   });
 });

@@ -603,3 +603,37 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
     expect(posted).not.toHaveProperty("sourcePath");
   });
 });
+
+/**
+ * #3645 — Jackson WRAP_ROOT_VALUE / JAXB RenameFolderItem. SPA {@code newName}
+ * maps to server field {@code name}; a bare {path,newName} body 400s.
+ */
+describe("renameFolder Jackson root wrap (#3645)", () => {
+  it("posts RenameFolderItem with trailing-slash path and server field name", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          PathItem: { name: "qa3645", path: "/Assets/qa3645/" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const item = await renameFolder({
+      path: "/Assets/Old-Folder",
+      newName: "qa3645",
+    });
+    expect(url).toContain("/path/renameFolder");
+    expect(posted).toEqual({
+      RenameFolderItem: {
+        path: "/Assets/Old-Folder/",
+        name: "qa3645",
+      },
+    });
+    expect(posted).not.toHaveProperty("newName");
+    expect(item.name).toBe("qa3645");
+  });
+});
