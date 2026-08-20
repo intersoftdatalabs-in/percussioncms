@@ -109,4 +109,20 @@ class PSServicesContentmgrTypedTest {
     assertNull(PSContentRepository.resolveNavAliasTypeId(1001L, registered, names::get));
     assertNull(PSContentRepository.resolveNavAliasTypeId(315L, List.of(), names::get));
   }
+
+  @Test
+  @DisplayName("rffNavTree 315 aliases to percNavTree 1017 when ItemDef has no name for 315")
+  void resolveNavAliasTypeIdMapsRffNavTreeWhenMissingNameUnknown() {
+    Set<IPSTypeKey> registered =
+        Set.of(new PSContentTypeKey(1017), new PSContentTypeKey(1001));
+    assertEquals(
+        1017L,
+        PSContentRepository.resolveNavAliasTypeId(
+            315L, registered, id -> id == 1017L ? "percNavTree" : null));
+    assertEquals(
+        1017L, PSContentRepository.resolveNavAliasTypeId(315L, registered, id -> null));
+    assertNull(
+        PSContentRepository.resolveNavAliasTypeId(
+            315L, Set.of(new PSContentTypeKey(1001)), id -> null));
+  }
 }
