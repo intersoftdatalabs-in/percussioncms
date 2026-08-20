@@ -74,7 +74,7 @@ import {
   parseExplorerContentId,
 } from "./menuCatalogLoad";
 import {
-  listDisplayFormats,
+  listExplorerFolderDisplayFormats,
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
@@ -117,6 +117,7 @@ import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
 import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
+import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
@@ -138,6 +139,7 @@ import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
   displayFormatOptionKey,
+  resolvePathmanagementDisplayFormatId,
   toDetailDisplayFormat,
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
@@ -406,7 +408,7 @@ async function defaultRunWorkflowTransition(
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */
 async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
-  return listDisplayFormats({ validForFolder: true });
+  return listExplorerFolderDisplayFormats();
 }
 
 async function defaultResolveFolderId(
@@ -588,8 +590,16 @@ function ContentExplorerShellInner({
     undefined,
   );
 
+  const handleRefreshList = useCallback(() => {
+    setListEpoch((n) => n + 1);
+    setError(null);
+    setActionInvokeError(null);
+  }, []);
+
+  const stockReducedHandlers = useMemo(() => defaultReducedActionHandlers(), []);
+
   const handlers: ReducedActionHandlers = {
-    ...defaultReducedActionHandlers(),
+    ...stockReducedHandlers,
     ...actionHandlers,
     onOpen: (item) => {
       if (isFolder(item)) {
@@ -607,15 +617,17 @@ function ContentExplorerShellInner({
       (async (item) => {
         await openPreviewItem(item);
       }),
+    // Product Create Folder must refresh list + tree after pathmanagement
+    // succeeds so operators see the new name without View → Refresh (#3640).
+    onCreateFolder: async (parent, name) => {
+      const impl =
+        actionHandlers?.onCreateFolder ?? stockReducedHandlers.onCreateFolder;
+      await impl(parent, name);
+      handleRefreshList();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;
-
-  const handleRefreshList = useCallback(() => {
-    setListEpoch((n) => n + 1);
-    setError(null);
-    setActionInvokeError(null);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -700,7 +712,9 @@ function ContentExplorerShellInner({
     );
   }, [selectedFormat]);
 
-  const displayFormatId = selectedFormatKey || null;
+  const displayFormatId = selectedFormat
+    ? resolvePathmanagementDisplayFormatId(selectedFormat) || null
+    : null;
 
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {
@@ -744,7 +758,8 @@ function ContentExplorerShellInner({
     setSelection((prev) => ({ ...prev, item: bound }));
     setShowSubfolderCopy(false);
     // List rows that omit id / use a slug still resolve via path so
-    // View → Relationships can mount (#3546 / #2778).
+    // View → Relationships and View → Dependencies can mount
+    // (#3546 / #2778 / #3571).
     if (
       isFolder(bound) ||
       parseExplorerContentId(bound.id) != null ||
@@ -849,17 +864,25 @@ function ContentExplorerShellInner({
           if (requestId !== contextMenuRequestIdRef.current) return;
           // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
           const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: filterContextMenuActions(merged, undefined, item),
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         } catch {
           if (requestId !== contextMenuRequestIdRef.current) return;
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: [],
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         }
       })();
@@ -1178,15 +1201,14 @@ function ContentExplorerShellInner({
     [selection.folderPath, selection.item?.path, selection.item?.type],
   );
   const hasFolderContext = sourceFolderPathForCopy != null;
-  const hasDependencyItem =
-    selection.item != null &&
-    !isFolder(selection.item) &&
-    selection.item.id != null &&
-    String(selection.item.id).trim().length > 0;
   const hasRelationshipItem =
     selection.item != null &&
     !isFolder(selection.item) &&
     parseExplorerContentId(selection.item.id) != null;
+  // Same eligibility as Relationships: numeric id or GUID last-segment
+  // (host-type-uuid). A non-empty slug such as theme.css is not enough
+  // (#3571 / parent #2776).
+  const hasDependencyItem = hasRelationshipItem;
   const hasOpenSidePanel =
     showSearch ||
     showSecurity ||
@@ -1492,6 +1514,7 @@ function ContentExplorerShellInner({
           selectedPath={selection.folderPath}
           onSelectFolder={handleSelectFolder}
           onActivate={handleActivate}
+          childrenEpoch={listEpoch}
         />
         <ViewsCatalogTree
           listViews={listViews}
@@ -1778,7 +1801,10 @@ function ContentExplorerShellInner({
           >
             <DependencyViewer
               item={{
-                id: String(selection.item!.id),
+                id: String(
+                  parseExplorerContentId(selection.item!.id) ??
+                    selection.item!.id,
+                ),
                 path: selection.item!.path,
                 folderPath: selection.folderPath ?? undefined,
               }}

@@ -30,7 +30,9 @@ import {
   lastExisting,
   moveItem,
   MOVE_FOLDER_ITEM_ROOT,
+  isNumericDisplayFormatId,
   paginatedFolder,
+  renameFolder,
   saveFolderProperties,
   unwrapFolderProperties,
   unwrapPrincipalList,
@@ -86,6 +88,14 @@ describe("joinPathUrl", () => {
   });
 });
 
+describe("isNumericDisplayFormatId", () => {
+  it("accepts positive integers only", () => {
+    expect(isNumericDisplayFormatId("7")).toBe(true);
+    expect(isNumericDisplayFormatId("0")).toBe(false);
+    expect(isNumericDisplayFormatId("FolderList")).toBe(false);
+  });
+});
+
 describe("paginatedFolder", () => {
   it("binds parseable content ids onto childrenInPage rows (#3546)", async () => {
     mockFetch(async () => {
@@ -137,6 +147,30 @@ describe("paginatedFolder", () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
+  it("includes numeric displayFormatId and omits names (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      return new Response(JSON.stringify({ startIndex: 0, maxResults: 50 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await paginatedFolder("/Sites/Foo", {
+      startIndex: 0,
+      maxResults: 50,
+      displayFormatId: "7",
+    });
+    await paginatedFolder("/Sites/Foo", {
+      startIndex: 0,
+      maxResults: 50,
+      displayFormatId: "FolderList",
+    });
+    expect(seen[0]).toContain("displayFormatId=7");
+    expect(seen[1]).not.toContain("displayFormatId=");
+  });
+
   it("passes optional sortColumn / sortOrder / category / type when set", async () => {
     const fn = mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
@@ -176,16 +210,22 @@ describe("paginatedFolder", () => {
 });
 
 describe("pathmanagement URL shape (no double-slash)", () => {
-  function mockJson(body: unknown = { PathItem: [] }): { lastUrl: () => string } {
+  function mockJson(body: unknown = { PathItem: [] }): {
+    lastUrl: () => string;
+    lastBody: () => unknown;
+  } {
     let last = "";
-    mockFetch(async (input) => {
+    let lastBody: unknown;
+    mockFetch(async (input, init) => {
       last = typeof input === "string" ? input : (input as Request).url;
+      const raw = (init as RequestInit | undefined)?.body;
+      lastBody = raw ? JSON.parse(String(raw)) : undefined;
       return new Response(JSON.stringify(body), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     });
-    return { lastUrl: () => last };
+    return { lastUrl: () => last, lastBody: () => lastBody };
   }
 
   it("findChildren root uses folder/ not folder//", async () => {
@@ -260,6 +300,18 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     await addNewFolder("/Sites/", "New");
     expect(cap.lastUrl()).toContain("/path/addNewFolder/Sites?name=New");
     expect(cap.lastUrl()).not.toContain("addNewFolder//");
+  });
+
+  it("renameFolder posts server field name with a trailing slash path (#3640)", async () => {
+    const cap = mockJson({ PathItem: { name: "qa3640", path: "/Assets/qa3640/" } });
+    await renameFolder({ path: "/Assets/New-Folder", newName: "qa3640" });
+    expect(cap.lastUrl()).toContain("/path/renameFolder");
+    expect(cap.lastBody()).toEqual({
+      RenameFolderItem: {
+        path: "/Assets/New-Folder/",
+        name: "qa3640",
+      },
+    });
   });
 
   it("deleteItem joins without double slash", async () => {

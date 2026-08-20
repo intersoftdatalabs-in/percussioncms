@@ -23,8 +23,12 @@
  */
 
 import type { DisplayFormatColumn } from "../api/contentExplorer/displayFormatsApi";
+import { isNumericDisplayFormatId } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import type { DetailColumnId, DetailDisplayFormat } from "./DetailList";
+
+/** Re-export the pathmanagement id predicate so callers share one implementation. */
+export { isNumericDisplayFormatId };
 
 /** Known CX system field sources → list column ids. */
 const SOURCE_TO_COLUMN: Record<string, DetailColumnId> = {
@@ -110,14 +114,76 @@ export function resolvePathItemProperty(
   return "";
 }
 
-/** Stable key for a display format option in the shell selector. */
+/**
+ * Extract the native uuid from a Percussion Guid wire string.
+ *
+ * <p>{@code PSGuid.toString()} is {@code {hostId}-{type}-{uuid}} (three
+ * numeric segments). Untyped form is {@code {hostId}-{uuid}}. In both
+ * contracts the last segment is the uuid used as pathmanagement
+ * {@code displayFormatId}. Reject any other hyphen layout so a mid-string
+ * type id cannot be mistaken for the uuid.</p>
+ */
+export function uuidFromPercussionGuidString(guidStr: string): string {
+  const parts = guidStr.trim().split("-");
+  if (parts.length !== 2 && parts.length !== 3) {
+    return "";
+  }
+  if (!parts.every((p) => /^\d+$/.test(p))) {
+    return "";
+  }
+  const uuid = parts[parts.length - 1];
+  return isNumericDisplayFormatId(uuid) ? uuid : "";
+}
+
+/**
+ * Numeric id accepted by pathmanagement {@code displayFormatId}
+ * ({@code Integer}). Names such as {@code FolderList} 400 the list.
+ *
+ * <p>Prefers {@code displayId > 0}, then Guid uuid, then the uuid segment
+ * of a typed/untyped Guid string. {@code displayId === 0} is not a valid
+ * pathmanagement id (unpersisted / unset) — do not stringify it.
+ * Returns empty when no numeric id can be resolved — callers must not
+ * send the empty string as {@code displayFormatId}.</p>
+ */
+export function resolvePathmanagementDisplayFormatId(df: {
+  displayId?: number;
+  guid?: { uuid?: number | string; stringValue?: string };
+  guidString?: string;
+}): string {
+  if (df.displayId != null && Number.isFinite(df.displayId) && df.displayId > 0) {
+    return String(df.displayId);
+  }
+  const uuid = df.guid?.uuid;
+  const uuidNum = typeof uuid === "number" ? uuid : Number(uuid);
+  if (Number.isFinite(uuidNum) && uuidNum > 0) {
+    return String(uuidNum);
+  }
+  const guidStr = (df.guid?.stringValue || df.guidString || "").trim();
+  if (guidStr) {
+    return uuidFromPercussionGuidString(guidStr);
+  }
+  return "";
+}
+
+/**
+ * Stable key for a display format option in the shell selector.
+ *
+ * <p>{@code displayId === 0} is never used as the option value: that id is
+ * not accepted by pathmanagement, so keying React {@code &lt;option&gt;}
+ * as {@code "0"} would select a format that then 400s the folder list.
+ * Fall through to Guid uuid, then {@code internalName}/{@code name}.</p>
+ */
 export function displayFormatOptionKey(df: {
   displayId?: number;
   name?: string;
   internalName?: string;
+  guid?: { uuid?: number | string; stringValue?: string };
+  guidString?: string;
 }): string {
-  if (df.displayId != null && Number.isFinite(df.displayId)) {
-    return String(df.displayId);
-  }
-  return df.internalName || df.name || "";
+  return (
+    resolvePathmanagementDisplayFormatId(df) ||
+    df.internalName ||
+    df.name ||
+    ""
+  );
 }

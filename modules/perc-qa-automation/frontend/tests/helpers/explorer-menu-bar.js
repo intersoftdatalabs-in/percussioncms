@@ -25,6 +25,10 @@ const TEST_IDS = Object.freeze({
   searchPanel: "explorer-search-panel",
   /** Server-driven ActionToolbar (#2730 nested MENU dropdowns). */
   actionToolbar: "action-toolbar",
+  /** Item/folder context menu on detail-row right-click (#3629). */
+  contextMenu: "context-menu",
+  contextMenuEmpty: "context-menu-empty",
+  contextMenuAnchor: "explorer-context-menu-anchor",
   /** Shell region wrapping ActionToolbar under ExplorerMenuBar. */
   serverActions: "explorer-server-actions",
   /** Visible chrome label for the server-actions region (#2972). */

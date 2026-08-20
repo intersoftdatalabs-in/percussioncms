@@ -208,6 +208,60 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-sites-list-create` (list + Create Site). Parent operator issue #3102.
 
+### Explorer New-item type picker live (#3628 / parent #3102)
+
+H2 operator proof that **New Item** on `spa.jsp?entry=explorer` opens the
+**Choose a content type** picker against the live catalog (no stub of
+`GET /actions/find` or `POST /itemmanagement/item/create`). Select a
+Sites/Assets folder that exposes New, pick a real type, create HTTP 200
+(or documented empty-success 201/204). Does **not** skip when New is
+present. Does **not** request leftover Data Flow CE HTML. Does **not**
+claim gap-matrix Present.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-new-item-type-picker.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-new-item-type-picker.js`, `tests/unit/explorer-new-item-type-picker.test.js` |
+| Tags | `@explorer-new-item` `@explorer` |
+| Soft skip | None when the folder exposes New; missing host or empty picker is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-new-item-type-picker.spec.js
+```
+
+Peer: `explorer-content-editor` (template picker / leftover CE HTML). Parent #3102.
+
+### Explorer Workflow transition no-skip (#3639 / parent #3102)
+
+H2 operator proof that selecting a **content item** on `spa.jsp?entry=explorer`
+shows `action-toolbar-group-workflow` and an invokable `workflow-transition:*`
+control (HTTP 200 or documented 4xx reject). **Folders** must not show Workflow
+transitions. Does **not** fixture-skip when REST lists a page, or on
+`TEST_DB_TYPE=h2`. Does **not** claim gap-matrix Present. Does **not** steal
+human QA #2743.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-workflow-transitions.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-workflow-transitions.js`, `tests/unit/explorer-workflow-transitions.test.js` |
+| Tags | `@explorer-workflow` `@workflow` `@smoke` |
+| Soft skip | None on H2 / when REST lists an eligible item; empty Sites/Pages on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-workflow-transitions.spec.js
+```
+
+Peer: `explorer-preview-view` (Sites → Pages walk). Product: `itemWorkflowApi`
+Jackson unwrap + `workflowMenuActions` merge. Parent operator issue #3102.
+
 ### Architecture Create section no-skip (#3589 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
@@ -702,11 +756,13 @@ npm run test:surface:list -- --path tests/explorer-relationships.spec.js
 npm run test:surface:list -- --tag explorer-relationships
 ```
 
-#### Explorer dependency viewer (#2768 / parent #2400)
+#### Explorer dependency viewer (#2768 / #3571 / parent #2400)
 
-View → Dependencies shell chrome + optional DependencyViewer mount for a
-selected content item (reuses relationship summary REST). Soft-skip deep
-relationship count assertions when the QA fixture has no selectable row.
+View → Dependencies shell chrome + DependencyViewer mount for a selected
+non-folder content row (numeric id or GUID last-segment). Empty / folder
+selection still shows the select-item hint. Do **not** treat the hint as a
+pass when a content row exists. Empty/error dimension states are OK on thin
+H2 fixtures once the viewer mounts.
 
 | Item | Value |
 |------|--------|
@@ -853,6 +909,68 @@ npm run test:surface -- --tag explorer-shell-chrome
 # List only (no live CMS)
 npm run test:surface:list -- --path tests/explorer-shell-chrome.spec.js
 npm run test:surface:list -- --tag explorer-shell-chrome
+```
+
+#### Explorer simple/extended search submit (#3617 / parent #3102)
+
+Surface-filtered companion for **submitting** free-text (and extended chrome
+when present) from product Explorer (`spa.jsp?entry=explorer`). US5
+`searchModern.jsp` is **not** this operator path. When SearchPanel is mounted,
+submit must POST `extendedresults` HTTP **200** and show **results or
+empty-success** — no soft-skip, no error-as-success. Gap-matrix Simple /
+extended search stays **Partial**.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-search-submit.spec.js` |
+| Tags | `@explorer-search-submit` `@explorer` `@search` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-search-submit.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-search-submit.js` |
+| Product peer | `WebUI/.../SearchPanel.tsx` + `ContentExplorerShell` + Vitest |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-search-submit.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-search-submit
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-search-submit.spec.js
+npm run test:surface:list -- --tag explorer-search-submit
+```
+
+#### Explorer display-format switch (#3618 / parent #3102)
+
+Surface-filtered proof that changing the Explorer **display format** selector
+reloads the detail list with pathmanagement `displayFormatId` (and updated
+columns). **No soft-skip** when the selector has more than one option or the
+catalog has ≥2 `validForFolder` formats. Do not flip gap-matrix Present.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-display-format-switch.spec.js` |
+| Tags | `@explorer-display-format-switch` `@explorer` `@display-format` `@smoke` |
+| Unit (no CMS) | `npm run test:unit` (includes `explorer-display-format-switch.test.js`) |
+| Helper | `frontend/tests/helpers/explorer-display-format-switch.js` |
+| Product peer | `WebUI/.../ContentExplorerShell.tsx` + `DetailList` + `displayFormatMap` |
+
+```bash
+# After qa-up — path-filtered only (do not run full suite)
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-or-docker-exec> \
+  npm run test:surface -- --path tests/explorer-display-format-switch.spec.js
+
+# Tag form
+npm run test:surface -- --tag explorer-display-format-switch
+
+# List only (no live CMS)
+npm run test:surface:list -- --path tests/explorer-display-format-switch.spec.js
+npm run test:surface:list -- --tag explorer-display-format-switch
 ```
 
 #### Explorer saved-search picker (#2507 / parent #2409 / #2400 slice D)

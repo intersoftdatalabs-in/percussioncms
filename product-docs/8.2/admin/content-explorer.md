@@ -20,7 +20,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Menu bar** (Content / View / Help) | Product commands: search, create site, clipboard, site/subfolder copy, view tools |
 | **Display format** | Column layout for the folder list (`validForFolder` formats). Always shown next to the menu bar; a short error stays next to the selector if the catalog cannot be loaded |
 | **View tools** | Always-visible **Search**, **Folder Security**, and **Refresh** buttons under the reduced actions / Server actions rows (the same commands remain under **View**; Folder Security is one toolbar control, not a pair of identical buttons) |
-| **Reduced actions** | Always-available open / preview / create folder / rename / move / copy / delete |
+| **Reduced actions** | Always-available open / preview / **Create Folder** / rename / move / copy / delete. **Create Folder** uses the selected Sites or Assets (or other writable) folder as the parent. On the product Explorer URL (`spa.jsp?entry=explorer`, without `?rxFolderMutations=1`) it calls pathmanagement `addNewFolder`; after success the detail list and the tree children of that parent refresh so the new name appears without a manual **Refresh**. |
 | **Server actions** (labeled toolbar) | Configuration-driven actions from the CMS action catalog (`rest/actions`) for the current selection. Explorer **executes** these in the SPA (REST + React). It does **not** open legacy Data Flow `.html` pages (those URLs 404 from `/cm/app/explorer`). Always shown as a labeled chrome region under the reduced actions row — even when the catalog is empty or temporarily fails to load |
 | **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
@@ -117,13 +117,13 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 
 | Action | What happens |
 |--------|----------------|
-| **Preview** (and per-template children) | Opens assembly preview (`GET /services/assembly/preview-location`) or the default page/asset preview. Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
+| **Preview** (and per-template children) | Select a **page** or **asset** row first (folder rows stay Preview-disabled). Listed pages with a content id open the chrome-less editor in **view** mode (`spa.jsp?entry=editor&mode=view`) — a same-origin HTTP 200 host. Pages without an id use the Finder site-path URL (`/Sites/…?percmobilepreview=`). Assets open the asset view URL. Per-template children still use assembly preview (`GET /services/assembly/preview-location`). Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
 | **New Item** | Select a **site or folder** first, then choose **New Item**. When the catalog lists types under **New**, pick a type from that menu. When **New Item** is a single action (no type children), Explorer opens **Choose a content type** — pick a type and **OK**, or **Cancel** to leave the folder unchanged. Explorer then creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. It does **not** show *Choose a content type from New Item* as an error toast instead of the picker, and it does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
 | **Workflow** | Allowed transitions run through itemmanagement (not `wfactionset.html`) |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
-| **Edit / Quick Edit / View content** | Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open the CM1 editor (`?view=editor`). |
+| **Edit / Quick Edit / View content** | Select a **page** or **asset** row first. Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Explorer **Open** on that same selected row lands the same React editor host (HTTP 200). **Folders** stay non-editable: Edit / Quick Edit / View content stay hidden, and Open on a folder browses into it instead of opening the editor. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open leftover Content Editor HTML (`?view=editor`, `editAsset.jsp`, `rx_ce`, `checkoutedit.xml`). |
 | **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`1-101-708`); the panel uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
-| **Impact Analysis** | Opens the Explorer **Dependencies** panel for the selected item. |
+| **Impact Analysis** | Opens the Explorer **Dependencies** panel for the **selected page or asset**. List row ids may be GUID-shaped (`1-101-708`); the viewer uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
 | **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
 | **Audit Trail** | Same Revisions panel, audit-trail tab. |
@@ -259,7 +259,10 @@ the folder tree and detail list.
 When the panel is open you can:
 
 1. Enter free-text criteria (scoped to the current folder path when a folder is active).
-2. Submit the search and open a hit or reveal it in its parent folder.
+2. Submit the search from this Explorer page (`spa.jsp?entry=explorer` — the
+   `searchModern.jsp` pilot is not required). The server answers **200** with
+   matching items **or** an empty results page. Open a hit or reveal it in its
+   parent folder.
 3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
    The picker includes CX **searches and views**. The default **All** view (`View_All`) is
    listed when that design object exists on the server. **Run saved search** on **All**
@@ -272,15 +275,20 @@ Closing **Search** again (view-tools button, **View → Search**, or **Content �
 hides the panel. Revealing a result in its folder also closes the panel so the
 tree/list can show the destination.
 
-Extended search uses the same sitemanage search services as other product hosts; on
-minimal fixtures without a search index, free-text may show an error state while the
-panel chrome (input, submit, optional saved-search picker) remains available.
+Extended search uses the same sitemanage search services as other product hosts.
+Submit on the product Explorer route returns matching items or an **empty-success**
+page (including a quiet or missing search index). A 500 error panel after Submit
+is a product defect — the input, Submit button, and optional saved-search picker
+stay available either way.
 
 ## Display format
 
 Use the **display format** selector next to the menu bar to choose list columns for the
-current folder (`validForFolder` formats). Changing the format reloads the detail list with
-the selected columns.
+current folder. Explorer prefers folder-valid formats (`validForFolder`). If that filtered
+catalog is empty, it lists the full display-format catalog so you can still switch columns.
+Changing the format reloads the detail list using that format's numeric id
+(`displayFormatId`) so headings and cell values match the selected columns. The selector
+stays available if the catalog fails to load (a short error appears next to it).
 
 ## Server actions and context menu
 
@@ -296,6 +304,9 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
   choose a child command. Child items (for example **Move** under Paste, or
   **View Properties** under View) are **not** shown as extra top-level buttons while
   the menu is closed. **Workflow** transitions stay a labeled one-click button group.
+- **Right-click a selected list row** (Sites, Assets, or a folder with children)
+  opens the same catalog as a **nested context menu** — MENU parents stay
+  expandable, not a flat list of every child label. Desktop-only actions stay hidden.
 - When you select a content item, the shell keeps that cascading tree and may add
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
@@ -309,6 +320,8 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - Actions of type **context menu** appear on right-click, not as permanent toolbar buttons.
 - Workflow transition triggers (when available for the selected item) appear as a labeled
   **one-click button group** on the toolbar and in the context menu (not a dropdown).
+  Select a **page or other workflowed content item** — **folders** (including Sites
+  and folder rows in the list) do not show Workflow transitions.
 - If the catalog cannot be loaded, the **Server actions** region stays visible with a short
   error message (and an empty-action placeholder) rather than disappearing from the page.
 
@@ -348,9 +361,11 @@ From the **View** menu you can also toggle:
   **page or asset** is selected (not a folder or site). On sample FastForward
   sites, expand a site in the tree, open a section folder (for example
   **AboutEnterpriseInvestments** — not only a `Pages` folder), and select a
-  content row. **View → Relationships** then mounts the relationships panel
-  (loading, results, empty, or an error). A folder-only or empty selection
-  keeps the select-item hint. See **Translations** below for locale variants.
+  content row. **View → Relationships** or **View → Dependencies** then mounts
+  the matching panel (loading, results, empty, or an error). List row ids may
+  be GUID-shaped (`1-101-708`); both panels use the last segment as the
+  content id. A folder-only or empty selection keeps the select-item hint.
+  See **Translations** below for locale variants.
 - **Clipboard** — copy/cut staging panel. **View → Clipboard** always opens
   the panel (even when empty) and shows a check mark while it is visible.
   Use **Content → Add to clipboard** after multi-select to put items on the

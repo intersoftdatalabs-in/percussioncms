@@ -222,4 +222,42 @@ describe("ContextMenu", () => {
     const { baseElement } = render(<ContextMenu actions={ACTIONS} />);
     await renderA11yGate(baseElement);
   });
+
+  it("unwraps envelope children so MENU parents stay nested (#3629)", () => {
+    const envelope = {
+      name: "View",
+      label: "View",
+      sortRank: 0,
+      menuType: "MENU",
+      children: {
+        ActionMenuList: [
+          {
+            name: "View_Properties",
+            label: "View Properties",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    } as unknown as MenuAction;
+    render(
+      <ContextMenu
+        actions={[
+          envelope,
+          {
+            name: "View_Properties",
+            label: "View Properties",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+      />,
+    );
+    const pivot = screen.getByTestId("context-menu-item-View");
+    expect(pivot.getAttribute("aria-haspopup")).toBe("menu");
+    expect(screen.queryByTestId("context-menu-item-View_Properties")).toBeNull();
+    fireEvent.click(pivot);
+    expect(screen.getByTestId("context-menu-submenu-View")).toBeTruthy();
+    expect(screen.getByTestId("context-menu-item-View_Properties")).toBeTruthy();
+  });
 });

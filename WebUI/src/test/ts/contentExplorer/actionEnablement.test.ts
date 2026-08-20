@@ -21,10 +21,12 @@ import {
   filterEnabledMenuActions,
   filterToolbarActions,
   normalizeMenuActionTree,
+  prepareMenuActionTree,
   prepareToolbarActions,
   unwrapMenuActionChildren,
   isActionAllowedOnSurface,
   isToolbarPublishNowHidden,
+  isToolbarEditorActionHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
   isWebExecutableLeaf,
@@ -204,7 +206,17 @@ describe("filterEnabledMenuActions", () => {
     ];
     const filtered = filterToolbarActions(actions, BASE);
     expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
-    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual(["Flush_Cache"]);
+    const withPage = filterToolbarActions(actions, BASE, {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    });
+    expect(withPage.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
       "Flush_Cache",
     ]);
@@ -326,5 +338,90 @@ describe("filterEnabledMenuActions", () => {
     expect(
       filterContextMenuActions(actions, BASE, page).map((a) => a.name),
     ).toEqual(["open", "Publish_Now"]);
+  });
+
+  it("unwraps envelope children and collapses dumped descendants on the context menu (#3629)", () => {
+    const actions = [
+      {
+        name: "View",
+        label: "View",
+        sortRank: 1,
+        menuType: "MENU",
+        children: {
+          ActionMenuList: [
+            leaf({ name: "View_Properties", url: "/Rhythmyx/ok" }),
+            leaf({ name: "gone", url: "javascript:void(0)" }),
+          ],
+        },
+      } as unknown as MenuAction,
+      leaf({ name: "View_Properties", url: "/Rhythmyx/ok", sortRank: 2 }),
+      leaf({ name: "Open", url: "/Rhythmyx/open", sortRank: 3 }),
+    ];
+    expect(
+      unwrapMenuActionChildren(actions[0].children).map((c) => c.name),
+    ).toEqual(["View_Properties", "gone"]);
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    // No selection: View_Properties is editor-scoped (#3638) so View
+    // becomes empty after the javascript child is dropped.
+    expect(filterContextMenuActions(actions, BASE).map((a) => a.name)).toEqual([
+      "Open",
+    ]);
+    const filtered = filterContextMenuActions(actions, BASE, page);
+    expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+      "View_Properties",
+    ]);
+    expect(
+      prepareMenuActionTree(normalizeMenuActionTree(actions)).map((a) => a.name),
+    ).toEqual(["View", "Open"]);
+    expect(prepareToolbarActions(actions).map((a) => a.name)).toEqual([
+      "View",
+      "Open",
+    ]);
+  });
+
+  it("hides toolbar Edit until a page or asset is selected (#3638)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Edit", label: "Edit" }),
+      leaf({ name: "Quick_Edit", label: "Quick Edit" }),
+    ];
+    expect(filterToolbarActions(actions, BASE, null).map((a) => a.name)).toEqual(
+      ["open"],
+    );
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }).map((a) => a.name),
+    ).toEqual(["open", "Edit", "Quick_Edit"]);
+    expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
+    expect(
+      isToolbarEditorActionHidden(leaf({ name: "open" }), {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }),
+    ).toBe(false);
   });
 });

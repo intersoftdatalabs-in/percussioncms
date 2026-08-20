@@ -12,6 +12,8 @@ const {
   isDoubleSlashPathmanagementUrl,
   isHumanReadableErrorText,
   EXPECTED_ROOT_FOLDER_NAMES,
+  encodePathmanagementPath,
+  paginatedFolderUrl,
 } = require("../helpers/pathmanagement-url");
 
 describe("isDoubleSlashPathmanagementUrl", () => {
@@ -104,5 +106,26 @@ describe("EXPECTED_ROOT_FOLDER_NAMES", () => {
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Folders"));
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Assets"));
     assert.ok(EXPECTED_ROOT_FOLDER_NAMES.includes("Design"));
+  });
+});
+
+describe("encodePathmanagementPath / paginatedFolderUrl", () => {
+  it("encodes spaces and special characters per segment", () => {
+    assert.equal(encodePathmanagementPath("/Sites/Corporate Investments"), "Sites/Corporate%20Investments");
+    assert.equal(encodePathmanagementPath("/Sites/Foo/Bar & Baz"), "Sites/Foo/Bar%20%26%20Baz");
+    assert.equal(encodePathmanagementPath("/Sites/"), "Sites");
+    assert.equal(encodePathmanagementPath("/"), "");
+  });
+
+  it("builds paginatedFolder URLs without a double slash", () => {
+    const url = paginatedFolderUrl(
+      "http://127.0.0.1:9993",
+      "/Sites/Corporate Investments/",
+    );
+    assert.equal(
+      url,
+      "http://127.0.0.1:9993/Rhythmyx/services/pathmanagement/path/paginatedFolder/Sites/Corporate%20Investments?startIndex=0&maxResults=50",
+    );
+    assert.equal(isDoubleSlashPathmanagementUrl(url), false);
   });
 });

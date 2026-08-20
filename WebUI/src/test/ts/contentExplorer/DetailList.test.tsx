@@ -931,4 +931,70 @@ describe("T092b / FR-027: display-format column resolution", () => {
       screen.getByTestId("detail-col-header-path").textContent,
     ).toMatch(/Path/);
   });
+
+  it("sends numeric displayFormatId and stamps data-display-format-id (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [sample],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        displayFormat={{ columns: ["title", "modified"] }}
+        displayFormatId="7"
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(seen.some((u) => u.includes("displayFormatId=7"))).toBe(true);
+    expect(screen.getByTestId("detail-list").getAttribute("data-display-format-id")).toBe(
+      "7",
+    );
+    expect(screen.getByTestId("detail-col-header-title")).toBeTruthy();
+    expect(screen.queryByTestId("detail-col-header-path")).toBeNull();
+  });
+
+  it("does not send a named displayFormatId (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [sample],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        displayFormatId="FolderList"
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(seen.some((u) => u.includes("displayFormatId="))).toBe(false);
+  });
 });
