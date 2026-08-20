@@ -105,8 +105,8 @@ class PSSiteSectionRestServiceLoadTreeEmptyTest {
   void loadTreeDoesNotMapType315FailureToEmptyTree() throws Exception {
     when(siteSectionService.loadTree("Corporate_Investments"))
         .thenThrow(
-            new RuntimeException("Failed to find items by IDs: No content type info found for content type id: 315"));
-    assertThrows(
-        RuntimeException.class, () -> rest.loadTree("Corporate_Investments"));
+            new RuntimeException(
+                "Failed to find items by IDs: No content type info found for content type id: 315"));
+    assertThrows(RuntimeException.class, () -> rest.loadTree("Corporate_Investments"));
   }
 }

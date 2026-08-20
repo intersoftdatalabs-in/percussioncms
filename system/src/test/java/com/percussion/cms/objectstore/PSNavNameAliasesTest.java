@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 
 class PSNavNameAliasesTest {
@@ -77,18 +79,13 @@ class PSNavNameAliasesTest {
             1016L, "percNavon",
             1001L, "percPage");
     assertEquals(
-        1017L,
-        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, names.keySet()));
+        1017L, PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, names.keySet()));
     assertEquals(
-        315L,
-        PSNavNameAliases.findRegisteredNavAliasTypeId(1017L, names::get, names.keySet()));
+        315L, PSNavNameAliases.findRegisteredNavAliasTypeId(1017L, names::get, names.keySet()));
     assertEquals(
-        1016L,
-        PSNavNameAliases.findRegisteredNavAliasTypeId(314L, names::get, names.keySet()));
-    assertNull(
-        PSNavNameAliases.findRegisteredNavAliasTypeId(1001L, names::get, names.keySet()));
-    assertNull(
-        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, List.of(315L, 1001L)));
+        1016L, PSNavNameAliases.findRegisteredNavAliasTypeId(314L, names::get, names.keySet()));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(1001L, names::get, names.keySet()));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, List.of(315L, 1001L)));
     assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names::get, List.of()));
     assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, null, names.keySet()));
   }
@@ -110,13 +107,43 @@ class PSNavNameAliasesTest {
     assertEquals(
         1017L,
         PSNavNameAliases.findRegisteredNavAliasTypeId(315L, id -> null, List.of(1017L, 1001L)));
-    assertNull(
-        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, id -> null, List.of(1001L)));
-    assertNull(
-        PSNavNameAliases.findRegisteredNavAliasTypeId(42L, id -> null, List.of(1017L)));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(315L, id -> null, List.of(1001L)));
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(42L, id -> null, List.of(1017L)));
     assertEquals("navtree", PSNavNameAliases.wellKnownNavRole(315L));
     assertEquals("navtree", PSNavNameAliases.wellKnownNavRole(1017L));
     assertEquals("", PSNavNameAliases.wellKnownNavRole(1001L));
+    assertEquals(1017L, PSNavNameAliases.wellKnownNavAliasTypeId(315L));
+    assertEquals(315L, PSNavNameAliases.wellKnownNavAliasTypeId(1017L));
+    assertEquals(1016L, PSNavNameAliases.wellKnownNavAliasTypeId(314L));
+    assertEquals(1015L, PSNavNameAliases.wellKnownNavAliasTypeId(313L));
+    assertNull(PSNavNameAliases.wellKnownNavAliasTypeId(1001L));
+  }
+
+  @Test
+  void findRegisteredNavAliasTypeIdShortCircuitsWellKnownWithoutNameScan() {
+    AtomicInteger nameLookups = new AtomicInteger();
+    Function<Long, String> names =
+        id -> {
+          nameLookups.incrementAndGet();
+          throw new IllegalStateException("catalog must not be scanned");
+        };
+    assertEquals(
+        1017L,
+        PSNavNameAliases.findRegisteredNavAliasTypeId(315L, names, List.of(1017L, 1001L)));
+    assertEquals(
+        1016L, PSNavNameAliases.findRegisteredNavAliasTypeId(314L, names, List.of(1016L)));
+    assertEquals(
+        1015L, PSNavNameAliases.findRegisteredNavAliasTypeId(313L, names, List.of(1015L)));
+    assertEquals(0, nameLookups.get());
+  }
+
+  @Test
+  void findRegisteredNavAliasTypeIdSwallowsNameLookupFailuresForUnknownIds() {
+    Function<Long, String> boom =
+        id -> {
+          throw new IllegalStateException("catalog down");
+        };
+    assertNull(PSNavNameAliases.findRegisteredNavAliasTypeId(42L, boom, List.of(1001L)));
   }
 
   @Test

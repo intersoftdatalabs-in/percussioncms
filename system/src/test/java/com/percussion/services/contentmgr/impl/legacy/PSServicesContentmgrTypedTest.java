@@ -17,6 +17,7 @@
 package com.percussion.services.contentmgr.impl.legacy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,11 @@ import org.junit.jupiter.api.Test;
 @Tag("UnitTest")
 @DisplayName("services.contentmgr package generics")
 class PSServicesContentmgrTypedTest {
+
+  @AfterEach
+  void clearNavAliasCache() {
+    PSContentRepository.clearNavAliasTypeIdCache();
+  }
 
   @Test
   @DisplayName("asStringObjectMap copies keys as strings and skips null keys")
@@ -124,5 +131,28 @@ class PSServicesContentmgrTypedTest {
     assertNull(
         PSContentRepository.resolveNavAliasTypeId(
             315L, Set.of(new PSContentTypeKey(1001)), id -> null));
+  }
+
+  @Test
+  @DisplayName("public getTypeConfiguration is exact-match only (no perc/rff write alias)")
+  void publicGetTypeConfigurationDoesNotApplyNavAlias() {
+    assertNull(PSContentRepository.lookupTypeConfigurationExact(315L));
+    assertNull(PSContentRepository.getTypeConfiguration(315));
+    assertEquals(
+        1017L,
+        PSContentRepository.resolveNavAliasTypeId(
+            315L, Set.of(new PSContentTypeKey(1017)), id -> null));
+  }
+
+  @Test
+  @DisplayName("nav alias type-id cache memos negative lookups")
+  void lookupNavAliasTypeConfigurationCachesNegativeResult() {
+    PSContentRepository.clearNavAliasTypeIdCache();
+    assertFalse(PSContentRepository.navAliasTypeIdCacheContains(315L));
+    assertNull(PSContentRepository.lookupNavAliasTypeConfiguration(315L));
+    assertTrue(PSContentRepository.navAliasTypeIdCacheContains(315L));
+    assertNull(PSContentRepository.lookupNavAliasTypeConfiguration(315L));
+    PSContentRepository.clearNavAliasTypeIdCache();
+    assertFalse(PSContentRepository.navAliasTypeIdCacheContains(315L));
   }
 }

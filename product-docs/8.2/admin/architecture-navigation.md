@@ -105,6 +105,11 @@ items through the matching perc/rff mapping (shared `RXS_CT_NAV*` tables),
 including when the catalog has no name for type 315. A site with no NavTree
 item still returns HTTP 200 with an empty tree.
 
+When that tree GET is HTTP 200 with nodes, the Navigation tree shows
+`role="treeitem"` rows and **Create section** stays enabled. **Escape** closes
+the Create section dialog. Do not create a second NavTree for a sample site
+that already has an `rffNavTree`.
+
 ## Keyboard and accessibility
 
 The navigation tree follows the ARIA tree pattern. **Tab** moves focus into
