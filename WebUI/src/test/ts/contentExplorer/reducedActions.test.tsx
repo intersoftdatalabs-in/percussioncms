@@ -17,7 +17,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
-import { ReducedActions } from "../../../main/ts/contentExplorer/ReducedActions";
+import {
+  defaultReducedActionHandlers,
+  ReducedActions,
+} from "../../../main/ts/contentExplorer/ReducedActions";
 import type { ReducedActionHandlers } from "../../../main/ts/contentExplorer/ReducedActions";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
@@ -288,6 +291,35 @@ describe("ReducedActions", () => {
     fireEvent.click(screen.getByTestId("action-delete"));
     await waitFor(() => expect(onError).toHaveBeenCalled());
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
+  });
+
+  it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const urls: string[] = [];
+    mockFetch(async (input, init) => {
+      urls.push(typeof input === "string" ? input : (input as Request).url);
+      JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onCopy(FOLDER, "/Assets/Dst");
+    expect(urls.at(-1)).toContain("/folders/copy/folder");
+    expect(urls.at(-1)).not.toContain("/folders/copy/item");
+
+    const asset: PSPathItem = {
+      id: "a-3656",
+      path: "/Assets/qa3656_src",
+      name: "qa3656_src",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    await handlers.onCopy(asset, "/Assets/Dst");
+    expect(urls.at(-1)).toContain("/folders/copy/item");
+    expect(urls.at(-1)).not.toContain("/folders/copy/folder");
   });
 
   it("passes the zero serious/critical axe-core gate (admin item)", () => {

@@ -78,6 +78,26 @@ public class PSPathUtilsTest {
     assertEquals("//Sites/Help", PSPathUtils.getFolderPath("/Sites/Help"));
   }
 
+  /**
+   * Public REST copy/item source is a listed item path (single-slash
+   * {@code /Folders/$System$/Assets/…/item} or finder {@code /Assets/…/item}).
+   * {@link PSPathUtils#getFolderPath} must still yield {@code //} so
+   * {@code folderHelper.findItem} does not throw "Path must start with '//'"
+   * (#3656).
+   */
+  @Test
+  public void testGetFolderPathCopyItemSource() {
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("/Folders/$System$/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("/Assets/src/item"));
+    assertEquals(
+        "//Folders/$System$/Assets/src/item",
+        PSPathUtils.getFolderPath("//Folders/$System$/Assets/src/item"));
+  }
+
   @Test
   public void testGetBasePath() {
     var trailing = "/Sites/mysite/mymain/mysecond/";

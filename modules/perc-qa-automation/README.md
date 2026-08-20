@@ -257,6 +257,32 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/explorer-copy-folder.spec.js
 ```
 
+### Explorer Copy selected item (non-folder) on product route (#3656 / parent #3102)
+
+H2 operator proof that **Copy** of a selected disposable **item** (page/file/asset,
+not a folder) on `spa.jsp?entry=explorer` (no `rxFolderMutations=1`) posts
+`POST /rest/folders/copy/item` HTTP 200 and the copy appears in the
+destination list without View→Refresh. Does **not** POST `/folders/copy/folder`.
+Does **not** copy golden sample pages — seeds a disposable asset under Assets.
+Does **not** soft-skip when H2 QA has Assets. Distinct from folder Copy (#3647).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-copy-item.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-copy-item.js`, `tests/unit/explorer-copy-item.test.js` |
+| Tags | `@explorer-copy-item` `@explorer` `@item` `@smoke` |
+| Soft skip | None when Assets parent exists; missing parent on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-copy-item.spec.js
+```
+
+Peer: `explorer-copy-folder` (product-route Copy folder). Parent #3102.
+
 ### Explorer New-item type picker live (#3628 / parent #3102)
 
 H2 operator proof that **New Item** on `spa.jsp?entry=explorer` opens the

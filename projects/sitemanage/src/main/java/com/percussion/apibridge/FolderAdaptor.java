@@ -1449,15 +1449,22 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       checkAPIPermission();
 
-      String correctedItemPath = PSPathUtils.fixSiteFolderPath(siteDataService, itemPath);
-      String correctedTargetPath = PSPathUtils.fixSiteFolderPath(siteDataService, targetFolderPath);
+      // Same as copyFolder (#3647): finder /Assets and single-slash
+      // /Folders/$System$/Assets fail folderHelper.findItem with
+      // "Path must start with '//'" (#3656).
+      String correctedItemPath =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.getFolderPath(itemPath));
+      String correctedTargetPath =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.getFolderPath(targetFolderPath));
 
       PSDataItemSummary sourceItem =
           (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
 
       // If it is a page, treat it special
       if (sourceItem.isPage()) {
-        pageService.copy(sourceItem.getId(), targetFolderPath, true);
+        pageService.copy(sourceItem.getId(), correctedTargetPath, true);
       } else if (sourceItem.isFolder()) {
         throw new BackendException(
             "Bad call to copyFolderItem.  copyFolder must be called to copy a folder.");
@@ -1472,8 +1479,9 @@ public class FolderAdaptor implements IFolderAdaptor {
 
         paths.add(correctedTargetPath);
 
-        // Copy it like an item
-        List<PSCoreItem> items = contentService.newCopies(guids, paths, "NewCopy", false);
+        // Same as PSItemService folder/item copy: relationshipType null.
+        // "NewCopy" runs PSConditionalCloneHandler and 500s on H2 (#3656).
+        List<PSCoreItem> items = contentService.newCopies(guids, paths, null, false);
       }
     } catch (PSErrorResultsException | PSPathNotFoundServiceException | PSDataServiceException e) {
       throw new BackendException(e);

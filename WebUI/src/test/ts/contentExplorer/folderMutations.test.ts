@@ -17,6 +17,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   addNewFolder,
+  copyFolder,
+  copyFolderItem,
   deleteItem,
   moveItem,
   renameFolder,
@@ -218,6 +220,52 @@ describe("folderMutations dual-run routing (#3074)", () => {
       targetPath: "/Folders/Other",
       childIds: ["3-101-1"],
     });
+  });
+
+  it("copyFolderItem uses /folders/copy/item, not copy/folder or moveItem (#3656)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    let last = "";
+    let body: unknown;
+    mockFetch(async (input, init) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      body = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolderItem({
+      sourcePath: "/Assets/qa3656_src",
+      targetPath: "/Assets/qa3656_dst",
+    });
+    expect(last).toContain("/folders/copy/item");
+    expect(last).not.toContain("/folders/copy/folder");
+    expect(last).not.toContain("/pathmanagement/path/moveItem");
+    expect(body).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Assets/qa3656_src",
+        targetFolderPath: "/Assets/qa3656_dst",
+      },
+    });
+    expect(body).not.toHaveProperty("sourcePath");
+  });
+
+  it("copyFolder stays on /folders/copy/folder even when the dual-run flag is on", async () => {
+    setRxFolderMutationsFlagOverride(true);
+    let last = "";
+    mockFetch(async (input) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      return new Response(JSON.stringify({ message: "Copied OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolder({
+      sourcePath: "/Folders/Child",
+      targetPath: "/Folders/Other",
+    });
+    expect(last).toContain("/folders/copy/folder");
+    expect(last).not.toContain("/folders/copy/item");
   });
 
   it("copy uses /folders/copy/folder, not moveItem or a bare sourcePath root", async () => {

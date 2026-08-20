@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +33,7 @@ import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
+import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.publisher.IPSPublisherService;
@@ -39,6 +41,8 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.useritems.IPSUserItemsDao;
 import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.PSContentItem;
+import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.webservices.content.IPSContentWs;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,6 +130,32 @@ class PSItemServiceCreatePageTest {
     assertEquals("About", cap.getValue().getLinkTitle());
     assertEquals("tpl-1", cap.getValue().getTemplateId());
     assertEquals("//Sites/Demo", cap.getValue().getFolderPath());
+  }
+
+  @Test
+  void createAssetAssignsFolderWorkflow() throws Exception {
+    PSContentItem saved = new PSContentItem();
+    saved.setId("1-101-7");
+    when(contentItemDao.save(any(PSContentItem.class))).thenReturn(saved);
+    IPSItemSummary folder = mock(IPSItemSummary.class);
+    when(folder.getId()).thenReturn("folder-1");
+    when(folder.getType()).thenReturn("Folder");
+    when(folderHelper.findItem("//Folders/$System$/Assets")).thenReturn(folder);
+    PSFolderProperties props = mock(PSFolderProperties.class);
+    when(folderHelper.findFolderProperties("folder-1")).thenReturn(props);
+    when(folderHelper.getValidWorkflowId(props)).thenReturn(5);
+
+    PSItemCreateRequest req = new PSItemCreateRequest();
+    req.setContentType("percSimpleTextAsset");
+    req.setFolderPath("//Folders/$System$/Assets");
+    req.setName("qa3656");
+
+    var result = service.createEditorItem(req);
+    assertEquals("1-101-7", result.getItemId());
+    ArgumentCaptor<PSContentItem> cap = ArgumentCaptor.forClass(PSContentItem.class);
+    verify(contentItemDao).save(cap.capture());
+    assertEquals("5", cap.getValue().getFields().get("sys_workflowid"));
+    assertEquals("qa3656", cap.getValue().getFields().get("sys_title"));
   }
 
   @Test
