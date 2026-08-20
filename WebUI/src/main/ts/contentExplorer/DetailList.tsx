@@ -215,6 +215,10 @@ export function columnHeaderLabel(
   }
 }
 import { message } from "../i18n/message";
+import {
+  finderDragMimeForItem,
+  serializeFinderItemDrag,
+} from "../architecture/landingPageDrop";
 import { isPreviewableItem } from "./previewItem";
 import { canRead, isFolder, sameExplorerItemId } from "./selection";
 import {
@@ -535,10 +539,31 @@ export function DetailList({
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
+                data-finder-mime={
+                  visible ? finderDragMimeForItem(item) : undefined
+                }
+                draggable={visible}
                 style={rowStyle(selected)}
                 role="row"
                 aria-selected={selected}
                 aria-disabled={!visible}
+                onDragStart={(e) => {
+                  if (!visible) {
+                    e.preventDefault();
+                    return;
+                  }
+                  const mime = finderDragMimeForItem(item);
+                  const payload = serializeFinderItemDrag({
+                    id: item.id,
+                    name: item.name,
+                    path: item.path,
+                    type: item.type,
+                    category: item.category,
+                  });
+                  e.dataTransfer.setData(mime, payload);
+                  e.dataTransfer.setData("text/plain", payload);
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
                 onClick={() => visible && onSelectItem(item)}
                 onDoubleClick={() => visible && onActivateItem?.(item)}
                 onContextMenu={(e) => {

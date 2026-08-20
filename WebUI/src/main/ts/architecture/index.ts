@@ -66,6 +66,23 @@ export type {
   LandingPagePickItem,
   LandingPageSelection,
 } from "./landingPagePicker";
+export {
+  FINDER_FOLDER_MIME,
+  FINDER_ITEM_MIME,
+  FINDER_PAGE_MIME,
+  canAcceptLandingPageDragOver,
+  finderDragMimeForItem,
+  mapLandingPageDrop,
+  serializeFinderItemDrag,
+} from "./landingPageDrop";
+export type {
+  DropDataLike,
+  FinderItemDragPayload,
+  LandingPageDropOptions,
+  LandingPageDropReason,
+  LandingPageDropRequest,
+  LandingPageDropResult,
+} from "./landingPageDrop";
 export { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 export type { ArchitectureMsgKey } from "./messages";
 export {

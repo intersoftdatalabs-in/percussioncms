@@ -212,6 +212,8 @@ const KEYS = {
     "perc.ui.architecture.modern@Landing page is now {0}.",
   LANDING_BLOCKED:
     "perc.ui.architecture.modern@Landing page can only be set on a regular section.",
+  LANDING_DROP_HINT:
+    "perc.ui.architecture.modern@Drop a page from Explorer onto a regular section to replace its landing page. Folders, assets, and Escape cancel without saving.",
   // Section link (#3097)
   SECTION_LINK_DIALOG_TITLE: "perc.ui.architecture.modern@Create section link",
   SECTION_LINK_EDIT_TITLE: "perc.ui.architecture.modern@Edit section link",
@@ -434,6 +436,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   LANDING_EMPTY_STATE: message(KEYS.LANDING_EMPTY_STATE),
   LANDING_ASSIGNED: message(KEYS.LANDING_ASSIGNED),
   LANDING_BLOCKED: message(KEYS.LANDING_BLOCKED),
+  LANDING_DROP_HINT: message(KEYS.LANDING_DROP_HINT),
   SECTION_LINK_DIALOG_TITLE: message(KEYS.SECTION_LINK_DIALOG_TITLE),
   SECTION_LINK_EDIT_TITLE: message(KEYS.SECTION_LINK_EDIT_TITLE),
   SECTION_LINK_TARGET_LABEL: message(KEYS.SECTION_LINK_TARGET_LABEL),

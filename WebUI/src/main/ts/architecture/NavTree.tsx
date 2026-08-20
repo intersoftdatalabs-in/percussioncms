@@ -23,7 +23,13 @@
  * the selected node.</p>
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { NavTreeNode } from "../api/architecture/types";
 import { catalogColors } from "../developer/catalogStyles";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
@@ -31,6 +37,15 @@ import type { SectionType } from "../api/architecture/types";
 import { isNavBranch } from "./treeModel";
 import { ARCH_MSG, ARCH_MSG_KEYS } from "./messages";
 import { collectVisibleNavNodes, resolveNavTreeKey } from "./navTreeKeyboard";
+import {
+  canAcceptLandingPageDragOver,
+  mapLandingPageDrop,
+} from "./landingPageDrop";
+import type {
+  DropDataLike,
+  LandingPageDropRequest,
+} from "./landingPageDrop";
+import { canReplaceLandingPage } from "../api/architecture/sectionMutations";
 
 /** i18n type badge for nav tree rows (#3098 / #3351 blog). */
 function typeBadgeMeta(
@@ -69,6 +84,15 @@ export interface NavTreeProps {
   /** Optional controlled selection (section id). */
   selectedId?: string | null;
   onSelect?: (node: NavTreeNode) => void;
+  /**
+   * Site name used to reject Finder pages from another site (CM1 path
+   * check). Empty skips the site match.
+   */
+  selectedSite?: string | null;
+  /** When true, drops must not POST. */
+  dropBusy?: boolean;
+  /** Finder page drop onto a regular section (#3660). */
+  onLandingPageDrop?: (request: LandingPageDropRequest) => void;
 }
 
 const treeContainerStyle: React.CSSProperties = {
@@ -120,6 +144,11 @@ const TREE_ITEM_FOCUS_CSS = `
   outline: 2px solid ${catalogColors.accent};
   outline-offset: -2px;
 }
+.perc-architecture-nav-tree-item[data-drop-active="true"] {
+  outline: 2px dashed ${catalogColors.accent};
+  outline-offset: -2px;
+  background: #d9eef6;
+}
 `;
 
 const toggleStyle: React.CSSProperties = {
@@ -153,12 +182,18 @@ export function NavTree({
   error = null,
   selectedId = null,
   onSelect,
+  selectedSite = null,
+  dropBusy = false,
+  onLandingPageDrop,
 }: NavTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [focusedId, setFocusedId] = useState<string | null>(
     selectedId ?? root?.id ?? null,
   );
+  const [dropActiveId, setDropActiveId] = useState<string | null>(null);
   const treeRef = useRef<HTMLDivElement | null>(null);
+  const dropActiveIdRef = useRef<string | null>(null);
+  dropActiveIdRef.current = dropActiveId;
 
   const rootId = root?.id ?? null;
   useEffect(() => {
@@ -202,8 +237,69 @@ export function NavTree({
     el?.focus();
   }, []);
 
+  const dropOptions = useMemo(
+    () => ({ selectedSite, busy: dropBusy }),
+    [selectedSite, dropBusy],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") {
+        return;
+      }
+      if (dropActiveIdRef.current) {
+        setDropActiveId(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const handleLandingDragOver = useCallback(
+    (e: React.DragEvent, node: NavTreeNode) => {
+      const dt = e.dataTransfer as DropDataLike | null;
+      if (!canAcceptLandingPageDragOver(dt, node, dropOptions)) {
+        return;
+      }
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      if (dropActiveIdRef.current !== node.id) {
+        setDropActiveId(node.id);
+      }
+    },
+    [dropOptions],
+  );
+
+  const handleLandingDrop = useCallback(
+    (e: React.DragEvent, node: NavTreeNode) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropActiveId(null);
+      const mapped = mapLandingPageDrop(
+        e.dataTransfer as DropDataLike | null,
+        node,
+        dropOptions,
+      );
+      if (!mapped.ok) {
+        return;
+      }
+      onSelect?.(node);
+      onLandingPageDrop?.({
+        sectionId: mapped.sectionId,
+        pageId: mapped.pageId,
+        pageLabel: mapped.pageLabel,
+      });
+    },
+    [dropOptions, onSelect, onLandingPageDrop],
+  );
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, node: NavTreeNode) => {
+      if (e.key === "Escape" && dropActiveIdRef.current) {
+        setDropActiveId(null);
+        e.preventDefault();
+        return;
+      }
       if (!root) return;
       const result = resolveNavTreeKey(e.key, node, root, expanded);
       if (result.action === "none") {
@@ -262,12 +358,24 @@ export function NavTree({
           className="perc-architecture-nav-tree-item"
           data-testid={`nav-tree-item-${node.id}`}
           data-section-type={node.sectionType}
+          data-landing-drop={
+            canReplaceLandingPage(node) ? "true" : "false"
+          }
+          data-drop-active={dropActiveId === node.id ? "true" : undefined}
           style={nodeRowStyle(selected, depth)}
           onClick={() => {
             setFocusedId(node.id);
             onSelect?.(node);
           }}
           onKeyDown={(e) => handleKeyDown(e, node)}
+          onDragEnter={(e) => handleLandingDragOver(e, node)}
+          onDragOver={(e) => handleLandingDragOver(e, node)}
+          onDragLeave={() => {
+            if (dropActiveIdRef.current === node.id) {
+              setDropActiveId(null);
+            }
+          }}
+          onDrop={(e) => handleLandingDrop(e, node)}
         >
           <span
             style={toggleStyle}

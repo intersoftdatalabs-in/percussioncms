@@ -19,8 +19,30 @@ import { cleanup, createEvent, fireEvent, render, screen } from "@testing-librar
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NavTree } from "../../../main/ts/architecture/NavTree";
+import {
+  FINDER_FOLDER_MIME,
+  FINDER_PAGE_MIME,
+  serializeFinderItemDrag,
+} from "../../../main/ts/architecture/landingPageDrop";
 import { ARCH_MSG_KEYS } from "../../../main/ts/architecture/messages";
 import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
+
+function mockDataTransfer(map: Record<string, string>) {
+  const store = new Map(Object.entries(map));
+  return {
+    dropEffect: "none",
+    effectAllowed: "copy",
+    get types() {
+      return [...store.keys()];
+    },
+    setData(type: string, value: string) {
+      store.set(type, value);
+    },
+    getData(type: string) {
+      return store.get(type) ?? "";
+    },
+  };
+}
 
 const sampleRoot: NavTreeNode = {
   id: "root",
@@ -252,5 +274,87 @@ describe("NavTree (#3095 / #3354)", () => {
     ).toMatch(/no navigation tree/i);
     expect(screen.getByTestId("architecture-nav-tree-empty-hint")).toBeTruthy();
     expect(screen.queryByRole("tree")).toBeNull();
+  });
+
+  it("drops a Finder page onto a regular section and ignores folders (#3660)", () => {
+    const onDrop = vi.fn();
+    const onSelect = vi.fn();
+    render(
+      <NavTree
+        root={sampleRoot}
+        selectedId="root"
+        selectedSite="Demo"
+        onSelect={onSelect}
+        onLandingPageDrop={onDrop}
+      />,
+    );
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    expect(rootItem.getAttribute("data-landing-drop")).toBe("true");
+    expect(
+      screen.getByTestId("nav-tree-item-link-1").getAttribute("data-landing-drop"),
+    ).toBe("false");
+
+    fireEvent.drop(rootItem, {
+      dataTransfer: mockDataTransfer({
+        [FINDER_PAGE_MIME]: serializeFinderItemDrag({
+          id: "page-9",
+          name: "Picked",
+          path: "//Sites/Demo/Picked",
+          type: "page",
+        }),
+      }),
+    });
+    expect(onDrop).toHaveBeenCalledWith({
+      sectionId: "root",
+      pageId: "page-9",
+      pageLabel: "Picked",
+    });
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "root" }),
+    );
+
+    onDrop.mockClear();
+    fireEvent.drop(rootItem, {
+      dataTransfer: mockDataTransfer({
+        [FINDER_FOLDER_MIME]: serializeFinderItemDrag({
+          id: "f1",
+          name: "Folder",
+          type: "folder",
+        }),
+      }),
+    });
+    expect(onDrop).not.toHaveBeenCalled();
+
+    onDrop.mockClear();
+    fireEvent.drop(screen.getByTestId("nav-tree-item-blog-1"), {
+      dataTransfer: mockDataTransfer({
+        [FINDER_PAGE_MIME]: serializeFinderItemDrag({
+          id: "page-9",
+          type: "page",
+        }),
+      }),
+    });
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it("Escape during dragover does not fire a landing drop (#3660)", () => {
+    const onDrop = vi.fn();
+    render(
+      <NavTree
+        root={sampleRoot}
+        selectedId="root"
+        onLandingPageDrop={onDrop}
+      />,
+    );
+    const rootItem = screen.getByTestId("nav-tree-item-root");
+    fireEvent.dragOver(rootItem, {
+      dataTransfer: mockDataTransfer({
+        [FINDER_PAGE_MIME]: "",
+      }),
+    });
+    expect(rootItem.getAttribute("data-drop-active")).toBe("true");
+    fireEvent.keyDown(rootItem, { key: "Escape" });
+    expect(rootItem.getAttribute("data-drop-active")).not.toBe("true");
+    expect(onDrop).not.toHaveBeenCalled();
   });
 });
