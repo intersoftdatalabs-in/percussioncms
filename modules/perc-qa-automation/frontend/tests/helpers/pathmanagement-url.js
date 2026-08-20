@@ -56,8 +56,40 @@ const EXPECTED_ROOT_FOLDER_NAMES = Object.freeze([
   "Design",
 ]);
 
+/**
+ * Encode each {@code /}-separated CMS path segment (peer of WebUI
+ * {@code pathApi.encodePath}). Empty segments are dropped so {@code /Sites/}
+ * becomes {@code Sites}, never {@code //Sites}.
+ *
+ * @param {string | null | undefined} path
+ * @returns {string}
+ */
+function encodePathmanagementPath(path) {
+  return String(path || "")
+    .split("/")
+    .filter((seg) => seg.length > 0)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+}
+
+/**
+ * pathmanagement paginatedFolder GET used by Explorer dependency specs.
+ *
+ * @param {string} baseUrl
+ * @param {string | null | undefined} folderPath
+ * @returns {string}
+ */
+function paginatedFolderUrl(baseUrl, folderPath) {
+  const suffix = encodePathmanagementPath(folderPath);
+  const base = String(baseUrl || "").replace(/\/+$/, "");
+  const slashSuffix = suffix ? `/${suffix}` : "/";
+  return `${base}/Rhythmyx/services/pathmanagement/path/paginatedFolder${slashSuffix}?startIndex=0&maxResults=50`;
+}
+
 module.exports = {
   isDoubleSlashPathmanagementUrl,
   isHumanReadableErrorText,
   EXPECTED_ROOT_FOLDER_NAMES,
+  encodePathmanagementPath,
+  paginatedFolderUrl,
 };

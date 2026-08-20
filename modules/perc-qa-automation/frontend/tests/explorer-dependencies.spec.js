@@ -33,6 +33,10 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const { paginatedFolderUrl } = require("./helpers/pathmanagement-url");
+const {
+  isKnownExplorerTransientNetworkConsoleNoise,
+} = require("./helpers/explorer-console-clean");
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
@@ -50,10 +54,10 @@ function attachConsoleCleanGate(page) {
       return;
     }
     const text = msg.text();
-    // Network 4xx/5xx on Explorer chrome / thin H2 relationship REST is
-    // console "error" but not an uncaught JS exception (C5d). Auth/error
-    // viewer states are in-scope for #3571.
-    if (/Failed to load resource/i.test(text)) {
+    // Network 4xx/5xx, CORS, mixed-content, and cert failures on thin H2
+    // fixtures are console "error" but not uncaught JS (C5d). Auth/error
+    // viewer states stay in-scope for #3571.
+    if (isKnownExplorerTransientNetworkConsoleNoise(text)) {
       return;
     }
     consoleErrors.push(text);
@@ -119,10 +123,7 @@ test.describe("modern React Content Explorer — dependency viewer (#2768 / #357
       await expect(shell).toBeVisible({ timeout: 15_000 });
 
       async function fetchChildren(folderPath) {
-        const suffix = String(folderPath || "")
-          .replace(/^\/+/, "")
-          .replace(/\/+$/, "");
-        const url = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/paginatedFolder/${suffix}?startIndex=0&maxResults=50`;
+        const url = paginatedFolderUrl(BASE_URL, folderPath);
         const res = await page.request.get(url, {
           headers: { Accept: "application/json" },
         });

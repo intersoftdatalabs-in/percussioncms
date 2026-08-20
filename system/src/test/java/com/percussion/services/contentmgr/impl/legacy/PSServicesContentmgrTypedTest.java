@@ -189,4 +189,21 @@ class PSServicesContentmgrTypedTest {
         PSNavNameAliases.PERC_NAV_TREE_TYPE_ID,
         PSContentRepository.navAliasCachedTypeId(PSNavNameAliases.RFF_NAV_TREE_TYPE_ID));
   }
+
+  @Test
+  @DisplayName("putTypeConfigurationForTest is visible to exact lookup then removable")
+  void putTypeConfigurationForTestRoundTrip() {
+    PSTypeConfiguration stub = mock(PSTypeConfiguration.class);
+    PSContentRepository.putTypeConfigurationForTest(
+        PSNavNameAliases.PERC_NAV_TREE_TYPE_ID, stub);
+    assertSame(
+        stub,
+        PSContentRepository.lookupTypeConfigurationExact(
+            PSNavNameAliases.PERC_NAV_TREE_TYPE_ID));
+    PSContentRepository.putTypeConfigurationForTest(
+        PSNavNameAliases.PERC_NAV_TREE_TYPE_ID, null);
+    assertNull(
+        PSContentRepository.lookupTypeConfigurationExact(
+            PSNavNameAliases.PERC_NAV_TREE_TYPE_ID));
+  }
 }

@@ -619,18 +619,24 @@ public class PSContentRepository
 
     /**
      * Test-only: install or remove a JCR type mapping without {@link #configure}.
-     * Callers must remove the entry in {@code @AfterEach}.
+     * Mutates {@link #ms_configuration} under the same monitor as other static
+     * mutators. {@link #m_rwlock} is instance-scoped and cannot be taken here;
+     * callers must run sequentially (not parallel JUnit workers) and remove the
+     * entry in {@code @AfterEach}.
      */
     static void putTypeConfigurationForTest(long contentTypeId, PSTypeConfiguration config)
     {
         PSContentTypeKey key = new PSContentTypeKey(contentTypeId);
-        if (config == null)
+        synchronized (ms_configuration)
         {
-            ms_configuration.remove(key);
-        }
-        else
-        {
-            ms_configuration.put(key, config);
+            if (config == null)
+            {
+                ms_configuration.remove(key);
+            }
+            else
+            {
+                ms_configuration.put(key, config);
+            }
         }
     }
 

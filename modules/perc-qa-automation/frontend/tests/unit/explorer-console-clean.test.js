@@ -21,6 +21,7 @@ const {
   isProductPathUrl,
   isTrackedHttpStatus,
   formatHits,
+  isKnownExplorerTransientNetworkConsoleNoise,
 } = require("../helpers/explorer-console-clean");
 
 describe("explorer-console-clean helpers (#3458)", () => {
@@ -75,5 +76,36 @@ describe("explorer-console-clean helpers (#3458)", () => {
       },
     ]);
     assert.match(text, /GET 404 .*preferences\/x/);
+  });
+
+  it("isKnownExplorerTransientNetworkConsoleNoise covers H2 fixture noise", () => {
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise(
+        "Failed to load resource: the server responded with a status of 404",
+      ),
+      true,
+    );
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise("net::ERR_FAILED"),
+      true,
+    );
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise(
+        "Access to fetch at 'http://x' has been blocked by CORS policy",
+      ),
+      true,
+    );
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise("Mixed Content: the page was loaded over HTTPS"),
+      true,
+    );
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise("net::ERR_CERT_AUTHORITY_INVALID"),
+      true,
+    );
+    assert.equal(
+      isKnownExplorerTransientNetworkConsoleNoise("Uncaught TypeError: boom"),
+      false,
+    );
   });
 });
