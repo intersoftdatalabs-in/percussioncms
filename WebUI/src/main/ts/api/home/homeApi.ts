@@ -302,6 +302,34 @@ export async function fetchTemplatesForSite(
 }
 
 /**
+ * Base / responsive read-only template catalog
+ * ({@code GET /pagemanagement/template/summary/all/readonly}).
+ */
+export async function fetchReadonlyTemplateSummaries(): Promise<
+  TemplateSummary[]
+> {
+  const data = await get<unknown>(PATHS.TEMPLATES_READONLY);
+  return unwrapTemplateSummaries(data);
+}
+
+/**
+ * Templates for Architecture Create section: prefer the site catalog, then
+ * the read-only library so operators can still pick a landing template when
+ * the site has no associated templates (typical H2 sample-site seed).
+ */
+export async function fetchTemplatesForSectionCreate(
+  siteName: string,
+): Promise<TemplateSummary[]> {
+  const site = siteName.trim()
+    ? await fetchTemplatesForSite(siteName)
+    : [];
+  if (site.length > 0) {
+    return site;
+  }
+  return fetchReadonlyTemplateSummaries();
+}
+
+/**
  * Widget definition ids for blog templates.
  * Blog List (index) → percBlogIndexPage; Blog Post → percBlogPost.
  */

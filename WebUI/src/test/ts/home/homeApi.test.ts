@@ -31,6 +31,7 @@ import {
   fetchRecentItems,
   fetchSites,
   fetchTemplatesForSite,
+  fetchTemplatesForSectionCreate,
   formatApiError,
   isBookmarkableItem,
   isMyPage,
@@ -429,6 +430,24 @@ describe("homeApi", () => {
       mockJsonResponse({ TemplateSummary: { empty: false } }),
     );
     await expect(fetchTemplatesForSite("Demo")).resolves.toEqual([]);
+  });
+
+  it("fetchTemplatesForSectionCreate falls back to the readonly catalog (#3661)", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock
+      .mockResolvedValueOnce(
+        mockJsonResponse({ TemplateSummary: [] }),
+      )
+      .mockResolvedValueOnce(
+        mockJsonResponse({
+          TemplateSummary: [{ id: "0-4-1050", name: "perc.base.plain" }],
+        }),
+      );
+    const list = await fetchTemplatesForSectionCreate("Corporate_Investments");
+    expect(list).toEqual([{ id: "0-4-1050", name: "perc.base.plain" }]);
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls[0]).toContain("/sitemanage/sitetemplates/templates/");
+    expect(urls[1]).toContain("/pagemanagement/template/summary/all/readonly");
   });
 
   it("fetchSites surfaces API errors", async () => {

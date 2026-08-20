@@ -103,6 +103,7 @@ const KEYS = {
   CREATE_PARENT_LABEL: "perc.ui.architecture.modern@Parent section",
   CREATE_TITLE_LABEL: "perc.ui.architecture.modern@Title",
   CREATE_URL_LABEL: "perc.ui.architecture.modern@URL name",
+  CREATE_PAGE_NAME_LABEL: "perc.ui.architecture.modern@Landing page name",
   CREATE_TEMPLATE_LABEL: "perc.ui.architecture.modern@Template",
   CREATE_TEMPLATE_LOADING: "perc.ui.architecture.modern@Loading templates…",
   CREATE_TEMPLATE_EMPTY:
@@ -360,6 +361,7 @@ export const ARCH_MSG: { readonly [K in ArchitectureMsgKey]: string } = {
   CREATE_PARENT_LABEL: message(KEYS.CREATE_PARENT_LABEL),
   CREATE_TITLE_LABEL: message(KEYS.CREATE_TITLE_LABEL),
   CREATE_URL_LABEL: message(KEYS.CREATE_URL_LABEL),
+  CREATE_PAGE_NAME_LABEL: message(KEYS.CREATE_PAGE_NAME_LABEL),
   CREATE_TEMPLATE_LABEL: message(KEYS.CREATE_TEMPLATE_LABEL),
   CREATE_TEMPLATE_LOADING: message(KEYS.CREATE_TEMPLATE_LOADING),
   CREATE_TEMPLATE_EMPTY: message(KEYS.CREATE_TEMPLATE_EMPTY),

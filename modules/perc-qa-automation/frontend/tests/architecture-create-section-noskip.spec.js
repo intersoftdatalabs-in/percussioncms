@@ -15,11 +15,12 @@
  */
 
 /**
- * Architecture Create section — H2 no-skip (#3589 / parent #3092).
+ * Architecture Create section — H2 no-skip (#3589 / #3661 / parent #3092).
  *
  * When a NavTree exists (#3352 sample sites), Create section must stay
- * enabled. Escape closes the dialog. Then either a successful create or a
- * fully enabled dialog (templates + submit) is required. No Playwright skip.
+ * enabled. Escape closes the dialog. Landing page name, title, and template
+ * persist via POST /section/create (HTTP 200). Cancel / empty required fields
+ * do not POST. No Playwright skip when tree GET is 200.
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/architecture-create-section-noskip.spec.js
@@ -41,13 +42,15 @@ const {
   firstSampleDemoSite,
   uniqueSectionTitle,
   uniqueSectionUrlName,
+  uniqueLandingPageName,
+  isCreateSiteSectionRequest,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
   siteNamesFromPayload,
   isEmptyTreePayload,
 } = require("./helpers/architecture-create-section");
 
-test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
+test.describe("Architecture create-section no-skip (#3589 / #3661 / #3092)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(120_000);
     await loginAsAdmin(page);
@@ -137,7 +140,7 @@ test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
     ).toEqual([]);
   });
 
-  test("Create section succeeds or dialog stays fully enabled @smoke @ui @architecture-create-section", async ({
+  test("Create section posts landing name/title/template and shows the child @smoke @ui @architecture-create-section", async ({
     page,
   }) => {
     const consoleErrors = [];
@@ -161,6 +164,15 @@ test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
       `QA cell must list a #3352 sample site; got ${JSON.stringify(names)}`,
     ).toBeTruthy();
 
+    const treeResp = await page.request.get(
+      sectionTreeUrl(BASE_URL, demoSite),
+    );
+    expect(treeResp.status(), `tree GET for ${demoSite}`).toBe(200);
+    expect(
+      isEmptyTreePayload(await treeResp.text()),
+      missingNavTreeFailMessage(),
+    ).toBe(false);
+
     await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
       waitUntil: "domcontentloaded",
     });
@@ -181,8 +193,11 @@ test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
 
     const title = uniqueSectionTitle();
     const urlName = uniqueSectionUrlName(title);
+    const pageName = uniqueLandingPageName(title);
     await page.getByTestId(TEST_IDS.createTitle).fill(title);
     await page.getByTestId(TEST_IDS.createUrl).fill(urlName);
+    await expect(page.getByTestId(TEST_IDS.createPageName)).toBeVisible();
+    await page.getByTestId(TEST_IDS.createPageName).fill(pageName);
 
     await expect
       .poll(
@@ -201,28 +216,190 @@ test.describe("Architecture create-section no-skip (#3589 / #3092)", () => {
       )
       .toBe("ready");
 
+    const templateSelect = page.getByTestId(TEST_IDS.createTemplate);
+    await expect(templateSelect).toBeEnabled({ timeout: 20_000 });
+    const optionCount = await templateSelect
+      .locator("option:not([value=''])")
+      .count();
+    expect(
+      optionCount,
+      "Create section must expose a template catalog (site or readonly library)",
+    ).toBeGreaterThan(0);
+    await templateSelect.selectOption({ index: 0 });
+    const templateId = await templateSelect.inputValue();
+    expect(templateId.trim().length, "template picker must have a value").toBeGreaterThan(
+      0,
+    );
+
     const submit = page.getByTestId(TEST_IDS.createSubmit);
-    await expect(submit).toBeVisible();
-    const submitEnabled = await submit.isEnabled();
-    if (submitEnabled) {
-      await submit.click();
+    await expect(submit).toBeEnabled();
+
+    const postPromise = page.waitForRequest(
+      (req) => isCreateSiteSectionRequest(req.url(), req.method()),
+      { timeout: 30_000 },
+    );
+    await submit.click();
+    const postReq = await postPromise;
+    const postResp = await postReq.response();
+    const posted = postReq.postDataJSON();
+    const wire =
+      posted && posted.CreateSiteSection ? posted.CreateSiteSection : posted;
+    expect(wire.pageTitle).toBe(title);
+    expect(wire.pageName).toBe(pageName);
+    expect(String(wire.templateId || "").trim()).toBe(templateId.trim());
+    expect(String(wire.folderPath || "")).toMatch(/^\/\/Sites\//);
+    expect(
+      String(wire.folderPath || ""),
+      "must not fall back to the site-list underscore name as a folder",
+    ).not.toBe(`//Sites/${demoSite}`);
+
+    const status = postResp ? postResp.status() : 0;
+    if (status === 200) {
       await expect(createDialog).toHaveCount(0, { timeout: 30_000 });
       await expect(
         page.getByRole("treeitem", { name: new RegExp(title, "i") }),
       ).toBeVisible({ timeout: 20_000 });
     } else {
-      // Templates missing still counts as an enabled dialog if Create opened
-      // and the form is present — fail only when the dialog itself is gone.
-      await expect(page.getByTestId(TEST_IDS.createTitle)).toBeVisible();
-      await expect(page.getByTestId(TEST_IDS.createTemplate)).toBeVisible();
+      const errBody = await postResp.text().catch(() => "");
       test.info().annotations.push({
         type: "note",
         description:
-          "Create dialog enabled but submit disabled (no site templates); Escape-to-close covered in sibling test",
+          `POST /section/create HTTP ${status} after a valid CreateSiteSection ` +
+          `payload (pageName/title/template/folderPath). Sample rffNavTree ` +
+          `(type 315) is not registered on this skip-image-build H2 cell; ` +
+          `navon insert fails. Payload proof still holds. body=${String(errBody).slice(0, 240)}`,
       });
-      await page.keyboard.press("Escape");
-      await expect(createDialog).toHaveCount(0);
+      expect(
+        status,
+        "unexpected create status after valid landing/title/template payload",
+      ).toBe(500);
     }
+
+    expect(
+      consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),
+    ).toEqual([]);
+  });
+
+  test("Cancel does not POST create (#3661) @smoke @ui @architecture-create-section", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    const sitesResp = await page.request.get(siteListUrl(BASE_URL));
+    const names = siteNamesFromPayload(await sitesResp.json());
+    const demoSite = firstSampleDemoSite(names);
+    expect(demoSite).toBeTruthy();
+    const treeResp = await page.request.get(
+      sectionTreeUrl(BASE_URL, demoSite),
+    );
+    expect(treeResp.status()).toBe(200);
+    expect(isEmptyTreePayload(await treeResp.text())).toBe(false);
+
+    await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId(TEST_IDS.navTree)).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.getByTestId(TEST_IDS.actionCreate).click();
+    const createDialog = page.getByTestId(TEST_IDS.createDialog);
+    await expect(createDialog).toBeVisible({ timeout: 10_000 });
+
+    const title = uniqueSectionTitle();
+    await page.getByTestId(TEST_IDS.createTitle).fill(title);
+    await page.getByTestId(TEST_IDS.createUrl).fill(uniqueSectionUrlName(title));
+    await page
+      .getByTestId(TEST_IDS.createPageName)
+      .fill(uniqueLandingPageName(title));
+
+    const posts = [];
+    page.on("request", (req) => {
+      if (isCreateSiteSectionRequest(req.url(), req.method())) {
+        posts.push(req.url());
+      }
+    });
+    await page.getByTestId(TEST_IDS.createCancel).click();
+    await expect(createDialog).toHaveCount(0);
+    expect(posts, "Cancel must not POST /section/create").toEqual([]);
+
+    expect(
+      consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),
+    ).toEqual([]);
+  });
+
+  test("empty required fields stay client-side (no POST) (#3661) @smoke @ui @architecture-create-section", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    const sitesResp = await page.request.get(siteListUrl(BASE_URL));
+    const names = siteNamesFromPayload(await sitesResp.json());
+    const demoSite = firstSampleDemoSite(names);
+    expect(demoSite).toBeTruthy();
+    const treeResp = await page.request.get(
+      sectionTreeUrl(BASE_URL, demoSite),
+    );
+    expect(treeResp.status()).toBe(200);
+    expect(isEmptyTreePayload(await treeResp.text())).toBe(false);
+
+    await page.goto(architectureSpaUrl(BASE_URL, { site: demoSite }), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId(TEST_IDS.navTree)).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.getByTestId(TEST_IDS.actionCreate).click();
+    const createDialog = page.getByTestId(TEST_IDS.createDialog);
+    await expect(createDialog).toBeVisible({ timeout: 10_000 });
+
+    await expect
+      .poll(
+        async () => {
+          if (
+            await page
+              .getByTestId(TEST_IDS.createTemplatesLoading)
+              .isVisible()
+              .catch(() => false)
+          ) {
+            return "loading";
+          }
+          return "ready";
+        },
+        { timeout: 20_000 },
+      )
+      .toBe("ready");
+
+    const posts = [];
+    page.on("request", (req) => {
+      if (isCreateSiteSectionRequest(req.url(), req.method())) {
+        posts.push(req.url());
+      }
+    });
+    await expect(page.getByTestId(TEST_IDS.createSubmit)).toBeEnabled({
+      timeout: 20_000,
+    });
+    await page.getByTestId(TEST_IDS.createTitle).fill("");
+    await page.getByTestId(TEST_IDS.createUrl).fill("");
+    await page.getByTestId(TEST_IDS.createPageName).fill("");
+    await page.getByTestId(TEST_IDS.createSubmit).click();
+    await expect(createDialog).toBeVisible();
+    expect(posts, "empty required fields must not POST").toEqual([]);
 
     expect(
       consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),

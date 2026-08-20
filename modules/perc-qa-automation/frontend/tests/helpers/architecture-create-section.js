@@ -50,7 +50,9 @@ const TEST_IDS = Object.freeze({
   createDialog: "architecture-create-dialog",
   createTitle: "architecture-create-title-input",
   createUrl: "architecture-create-url-input",
+  createPageName: "architecture-create-page-name-input",
   createTemplate: "architecture-create-template-select",
+  createCancel: "architecture-create-cancel",
   createTemplatesLoading: "architecture-create-templates-loading",
   createSubmit: "architecture-create-submit",
   createError: "architecture-create-error",
@@ -153,6 +155,36 @@ function uniqueSectionUrlName(title) {
 }
 
 /**
+ * Landing page file name for {@link uniqueSectionTitle} (adds .html).
+ *
+ * @param {string} title
+ * @returns {string}
+ */
+function uniqueLandingPageName(title) {
+  const base = uniqueSectionUrlName(title);
+  if (!base) {
+    return "";
+  }
+  return /\.html$/i.test(base) ? base : `${base}.html`;
+}
+
+/**
+ * True when the request is {@code POST /sitemanage/section/create}
+ * (not createSectionFromFolder / createSectionLink).
+ *
+ * @param {string} url
+ * @param {string} [method]
+ * @returns {boolean}
+ */
+function isCreateSiteSectionRequest(url, method = "POST") {
+  if (String(method || "").toUpperCase() !== "POST") {
+    return false;
+  }
+  const path = String(url || "").split("?")[0];
+  return /\/sitemanage\/section\/create$/.test(path);
+}
+
+/**
  * @param {unknown} err
  * @returns {boolean}
  */
@@ -185,6 +217,8 @@ module.exports = {
   firstSampleDemoSite,
   uniqueSectionTitle,
   uniqueSectionUrlName,
+  uniqueLandingPageName,
+  isCreateSiteSectionRequest,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
   SAMPLE_DEMO_SITE_NAMES,

@@ -24,7 +24,10 @@ export type { SitePickerProps, SiteOption } from "./SitePicker";
 export { StructureActionBar } from "./StructureActionBar";
 export type { StructureActionBarProps } from "./StructureActionBar";
 export { CreateSectionDialog } from "./CreateSectionDialog";
-export type { CreateSectionDialogProps } from "./CreateSectionDialog";
+export type {
+  CreateSectionDialogFields,
+  CreateSectionDialogProps,
+} from "./CreateSectionDialog";
 export { CreateSectionFromFolderDialog } from "./CreateSectionFromFolderDialog";
 export type { CreateSectionFromFolderDialogProps } from "./CreateSectionFromFolderDialog";
 export { MoveSectionDialog } from "./MoveSectionDialog";

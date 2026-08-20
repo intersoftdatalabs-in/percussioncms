@@ -59,9 +59,14 @@ import {
   findSiblingPlacement,
   isExternalLinkType,
   isSectionLinkType,
+  mapCreateSectionDialogToFields,
+  resolveCreateFolderPath,
   resolveCreateParentFolderPath,
 } from "../api/architecture/sectionMutations";
-import type { SectionPropertiesFormValues } from "../api/architecture/sectionMutations";
+import type {
+  CreateSectionDialogFields,
+  SectionPropertiesFormValues,
+} from "../api/architecture/sectionMutations";
 import type {
   NavTreeNode,
   SiteSectionPropertiesWire,
@@ -574,24 +579,22 @@ export const ArchitectureShell: React.FC<ArchitectureShellProps> = ({
   );
 
   const onCreateSubmit = useCallback(
-    (input: { title: string; urlName: string; templateId: string }) => {
+    (input: CreateSectionDialogFields) => {
       if (!selectedSite || !createParent) return;
-      const folderPath = resolveCreateParentFolderPath(
-        createParent,
-        selectedSite,
-      );
       void runMutation(async () => {
-        await createSiteSection({
-          pageTitle: input.title,
-          pageLinkTitle: input.title,
-          pageName: input.urlName,
-          pageUrlIdentifier: input.urlName,
-          templateId: input.templateId,
-          folderPath,
-          sectionType: "section",
-          copyTemplates: true,
-          target: "_self",
-        });
+        let loadedFolderPath: string | null = null;
+        if (!createParent.folderPath?.trim() && createParent.id) {
+          const loaded = await loadSection(createParent.id);
+          loadedFolderPath = loaded.folderPath ?? null;
+        }
+        const folderPath = resolveCreateFolderPath(
+          createParent,
+          loadedFolderPath,
+          selectedSite,
+        );
+        await createSiteSection(
+          mapCreateSectionDialogToFields(input, folderPath),
+        );
         setCreateOpen(false);
       });
     },

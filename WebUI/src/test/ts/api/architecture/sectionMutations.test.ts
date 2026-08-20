@@ -21,6 +21,8 @@ import {
   applyTitleToProperties,
   buildCreateSectionFromFolderBody,
   buildCreateSiteSectionBody,
+  mapCreateSectionDialogToFields,
+  validateCreateSectionForm,
   buildMoveSiteSectionBody,
   buildReparentMove,
   buildSiblingReorderMove,
@@ -44,6 +46,7 @@ import {
   listMoveTargetPositions,
   omitNavSubtree,
   parseSiteSectionPropertiesPayload,
+  resolveCreateFolderPath,
   resolveCreateParentFolderPath,
   splitCmsPagePath,
   validateLandingPageName,
@@ -174,8 +177,58 @@ describe("sectionMutations (#3096)", () => {
       sectionType: "section",
     });
     expect(create.CreateSiteSection.pageTitle).toBe("Products");
+    expect(create.CreateSiteSection.pageName).toBe("products");
+    expect(create.CreateSiteSection.templateId).toBe("tpl-1");
     expect(create.CreateSiteSection.folderPath).toBe("//Sites/Demo");
     expect(create.CreateSiteSection.copyTemplates).toBe(true);
+
+    const fromDialog = mapCreateSectionDialogToFields(
+      {
+        title: " Products ",
+        urlName: " products ",
+        pageName: " products.html ",
+        templateId: " tpl-1 ",
+      },
+      "/Sites/Demo",
+    );
+    const mappedBody = buildCreateSiteSectionBody(fromDialog);
+    expect(mappedBody.CreateSiteSection).toEqual(
+      expect.objectContaining({
+        pageTitle: "Products",
+        pageLinkTitle: "Products",
+        pageName: "products.html",
+        pageUrlIdentifier: "products",
+        templateId: "tpl-1",
+        folderPath: "//Sites/Demo",
+        sectionType: "section",
+        copyTemplates: true,
+        target: "_self",
+      }),
+    );
+    expect(validateCreateSectionForm({
+      title: "Products",
+      urlName: "products",
+      pageName: "products.html",
+      templateId: "tpl-1",
+    })).toBeNull();
+    expect(validateCreateSectionForm({
+      title: "",
+      urlName: "products",
+      pageName: "products.html",
+      templateId: "tpl-1",
+    })).toMatch(/required/i);
+    expect(validateCreateSectionForm({
+      title: "Products",
+      urlName: "products",
+      pageName: "",
+      templateId: "tpl-1",
+    })).toMatch(/required/i);
+    expect(validateCreateSectionForm({
+      title: "Products",
+      urlName: "products",
+      pageName: "products.html",
+      templateId: "  ",
+    })).toMatch(/template/i);
 
     const blogCreate = buildCreateSiteSectionBody({
       pageTitle: " News ",
@@ -279,6 +332,20 @@ describe("sectionMutations (#3096)", () => {
       "//Sites/Demo/Parent",
     );
     expect(resolveCreateParentFolderPath(null, "Demo")).toBe("//Sites/Demo");
+    expect(
+      resolveCreateFolderPath(
+        { ...parent, folderPath: null },
+        "//Sites/CorporateInvestments",
+        "Corporate_Investments",
+      ),
+    ).toBe("//Sites/CorporateInvestments");
+    expect(
+      resolveCreateFolderPath(
+        { ...parent, folderPath: null },
+        null,
+        "Corporate_Investments",
+      ),
+    ).toBe("//Sites/Corporate_Investments");
 
     const props = applyTitleToProperties(
       { id: "1", title: "Old", folderName: "old" },

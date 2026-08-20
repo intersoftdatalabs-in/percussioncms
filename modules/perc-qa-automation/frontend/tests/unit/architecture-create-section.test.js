@@ -32,6 +32,8 @@ const {
   firstSampleDemoSite,
   uniqueSectionTitle,
   uniqueSectionUrlName,
+  uniqueLandingPageName,
+  isCreateSiteSectionRequest,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
   SAMPLE_DEMO_SITE_NAMES,
@@ -41,6 +43,8 @@ describe("architecture-create-section helpers (#3589)", () => {
   it("exports stable product test ids", () => {
     assert.equal(TEST_IDS.actionCreate, "architecture-action-create");
     assert.equal(TEST_IDS.createDialog, "architecture-create-dialog");
+    assert.equal(TEST_IDS.createPageName, "architecture-create-page-name-input");
+    assert.equal(TEST_IDS.createCancel, "architecture-create-cancel");
     assert.equal(TEST_IDS.navTree, "architecture-nav-tree");
     assert.equal(SECTION_TITLE_PREFIX, "QA3589");
   });
@@ -113,6 +117,39 @@ describe("architecture-create-section helpers (#3589)", () => {
     assert.equal(title, "QA3589-1710000000000");
     assert.equal(uniqueSectionUrlName(title), "qa3589-1710000000000");
     assert.equal(uniqueSectionUrlName("QA 3589 Title!"), "qa-3589-title");
+    assert.equal(uniqueLandingPageName(title), "qa3589-1710000000000.html");
+    assert.equal(uniqueLandingPageName("QA 3589 Title!"), "qa-3589-title.html");
+  });
+
+  it("matches POST /section/create and not sibling create endpoints (#3661)", () => {
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create",
+        "POST",
+      ),
+      true,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create?x=1",
+        "POST",
+      ),
+      true,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/createSectionFromFolder",
+        "POST",
+      ),
+      false,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create",
+        "GET",
+      ),
+      false,
+    );
   });
 
   it("filters known console noise and describes a missing-tree fail", () => {

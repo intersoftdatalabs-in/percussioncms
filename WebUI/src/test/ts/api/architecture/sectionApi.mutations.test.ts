@@ -70,6 +70,7 @@ describe("sectionApi mutations (#3096)", () => {
       expect.objectContaining({
         CreateSiteSection: expect.objectContaining({
           pageTitle: "News",
+          pageName: "news",
           templateId: "tpl-1",
           folderPath: "//Sites/Demo",
         }),

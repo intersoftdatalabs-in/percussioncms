@@ -150,7 +150,7 @@ With a site selected, use the structure action bar above the tree:
 
 | Action | Behavior |
 |--------|----------|
-| **Create section** | Opens a dialog to add a regular section (title, URL name, template) under the selected section, or under the site root when nothing is selected. Requires a site template. |
+| **Create section** | Opens a dialog to add a regular section with a landing page under the selected section, or under the site root when nothing is selected. Enter **title**, **URL name** (folder segment), **landing page name** (file name, for example `products.html`), and a **template** from the site catalog. **Create** posts `POST /section/create` (`CreateSiteSection`). Empty required fields stay in the dialog (no HTTP 500). **Cancel** or **Escape** does not post. |
 | **Create section from folder** | Promotes an existing site folder to a section under the selected parent (or site root). Choose the folder and a landing page that already exists in that folder. The server creates a navon and attaches the folder. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
@@ -167,6 +167,28 @@ With a site selected, use the structure action bar above the tree:
 Server errors from create, convert, create-from-folder, rename, properties, move, delete, landing-page, or link mutations are
 shown in the panel (no silent failure). The tree reloads after a successful mutation
 and keeps the previously selected section when it still exists.
+
+### Create a section with a landing page
+
+1. Select a **regular section** (or the site root) in the Navigation tree as
+   the parent. Section links and external links cannot host children.
+2. Choose **Create section**. The dialog lists the parent and loads templates
+   for the current site.
+3. Enter **Title** (required). **URL name** and **Landing page name** fill from
+   the title until you edit them. URL name is the folder segment (letters,
+   numbers, dash, underscore, period). Landing page name is the page file
+   (for example `index.html` or `about-us.html`).
+4. Choose a **Template** from the site catalog. If the site has no associated
+   templates, the dialog lists the shared template library (base / responsive).
+   Create stays disabled until templates load.
+5. Choose **Create**. The shell posts `POST /sitemanage/section/create` with
+   `CreateSiteSection` (`pageTitle`, `pageName`, `pageUrlIdentifier`,
+   `templateId`) and **refreshes the tree**. The new section appears under the
+   parent.
+6. **Cancel** or **Escape** closes without posting.
+7. If a required field is empty or invalid (title, URL name, landing page
+   name, or template), the error stays in the dialog — the server is not
+   called and this does not produce an HTTP 500.
 
 ### Edit section properties
 

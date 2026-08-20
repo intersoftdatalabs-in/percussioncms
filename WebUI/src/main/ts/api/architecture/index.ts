@@ -75,6 +75,8 @@ export {
   buildCreateSectionFromFolderBody,
   buildCreateSectionLinkPath,
   buildCreateSiteSectionBody,
+  mapCreateSectionDialogToFields,
+  validateCreateSectionForm,
   buildMoveSiteSectionBody,
   buildReplaceLandingPageBody,
   buildReparentMove,
@@ -105,6 +107,7 @@ export {
   parseReplaceLandingPagePayload,
   parseSiteSectionPayload,
   parseSiteSectionPropertiesPayload,
+  resolveCreateFolderPath,
   resolveCreateParentFolderPath,
   splitCmsPagePath,
   validateExternalUrl,
@@ -115,7 +118,10 @@ export {
   validateSectionTitle,
   validateSourceFolderPath,
 } from "./sectionMutations";
-export type { SectionPropertiesFormValues } from "./sectionMutations";
+export type {
+  CreateSectionDialogFields,
+  SectionPropertiesFormValues,
+} from "./sectionMutations";
 export type {
   CreateExternalLinkFields,
   CreateSectionFromFolderFields,
