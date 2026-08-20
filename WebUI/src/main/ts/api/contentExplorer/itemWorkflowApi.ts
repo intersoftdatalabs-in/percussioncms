@@ -16,11 +16,18 @@
 
 /**
  * Thin client for sitemanage itemmanagement workflow endpoints used by
- * Explorer menus (#2732 / parent #2400).
+ * Explorer menus (#2732 / parent #2400 / slice #3639).
  *
  * <p>Provider: {@code PSItemWorkflowService} under
  * {@code /services/itemmanagement/workflow/*}. Mirrors the same surface
  * {@code WorkflowActionsPanel} already uses — no new REST contract.</p>
+ *
+ * <p>{@code PSItemStateTransition} is {@code @XmlRootElement(name =
+ * "ItemStateTransition")}. REST {@code JacksonContextResolver} enables
+ * {@code WRAP_ROOT_VALUE}, so GET {@code getTransitions} arrives as
+ * {@code { ItemStateTransition: { transitionTriggers: [...] } }}. Callers
+ * must unwrap before reading triggers or the Explorer Workflow group stays
+ * empty on live H2.</p>
  */
 
 import { get } from "../client";
@@ -47,6 +54,92 @@ export interface ItemTransitionResults {
   [key: string]: unknown;
 }
 
+/** Jackson / JAXB root names for {@link ItemStateTransition}. */
+export const ITEM_STATE_TRANSITION_ROOTS = [
+  "ItemStateTransition",
+  "PSItemStateTransition",
+] as const;
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (value != null && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+function asOptionalString(value: unknown): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  const s = String(value).trim();
+  return s.length > 0 ? s : undefined;
+}
+
+/**
+ * Coerce Jackson list / single-string / JAXB {@code string} wrappers to
+ * trigger names. Empty or unknown shapes become {@code []}.
+ */
+export function coerceTransitionTriggers(raw: unknown): string[] {
+  if (raw == null) {
+    return [];
+  }
+  if (typeof raw === "string") {
+    const t = raw.trim();
+    return t.length > 0 ? [t] : [];
+  }
+  if (Array.isArray(raw)) {
+    return raw
+      .map((entry) => String(entry ?? "").trim())
+      .filter((entry) => entry.length > 0);
+  }
+  const obj = asRecord(raw);
+  if (!obj) {
+    return [];
+  }
+  for (const key of [
+    "string",
+    "String",
+    "transitionTriggers",
+    "transitionTrigger",
+  ]) {
+    if (!(key in obj)) {
+      continue;
+    }
+    const inner = coerceTransitionTriggers(obj[key]);
+    if (inner.length > 0) {
+      return inner;
+    }
+  }
+  return [];
+}
+
+/**
+ * Unwrap Jackson WRAP_ROOT {@code ItemStateTransition} (or a flat DTO).
+ */
+export function unwrapItemStateTransition(
+  data: unknown,
+): ItemStateTransition {
+  const root = asRecord(data);
+  if (!root) {
+    return { transitionTriggers: [] };
+  }
+  let body: Record<string, unknown> = root;
+  for (const name of ITEM_STATE_TRANSITION_ROOTS) {
+    const nested = asRecord(root[name]);
+    if (nested) {
+      body = nested;
+      break;
+    }
+  }
+  return {
+    itemId: asOptionalString(body.itemId),
+    stateId: asOptionalString(body.stateId),
+    stateName: asOptionalString(body.stateName),
+    workflowId: asOptionalString(body.workflowId),
+    transitionTriggers: coerceTransitionTriggers(body.transitionTriggers),
+  };
+}
+
 /**
  * List allowed workflow transition trigger names for a content item.
  *
@@ -59,9 +152,10 @@ export async function getItemWorkflowTransitions(
   if (!id) {
     return { transitionTriggers: [] };
   }
-  return get<ItemStateTransition>(
+  const data = await get<unknown>(
     `${PATHS.ITEM_WORKFLOW_TRANSITIONS}${encodeURIComponent(id)}`,
   );
+  return unwrapItemStateTransition(data);
 }
 
 /**
