@@ -38,6 +38,7 @@ import {
   deleteItem as pathDeleteItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
+  type DeleteFolderOptions,
 } from "./pathApi";
 import {
   addRxFolder,
@@ -172,19 +173,22 @@ export async function moveItem(body: PSMoveFolderItem): Promise<void> {
  * delete by id. On failure to resolve a folder (e.g. content item path),
  * falls back to pathmanagement delete so non-folder deletes still work.</p>
  */
-export async function deleteItem(path: string): Promise<void> {
+export async function deleteItem(
+  path: string,
+  options?: DeleteFolderOptions,
+): Promise<void> {
   if (shouldUseRxFolderMutations(path)) {
     try {
       const folder = await loadFolderByPath(path);
       if (folder?.id) {
-        await deleteRxFolder(folder.id, false);
+        await deleteRxFolder(folder.id, Boolean(options?.shouldPurge));
         return;
       }
     } catch {
       // Non-folder or not found on RX surface — pathmanagement handles items.
     }
   }
-  await pathDeleteItem(path);
+  await pathDeleteItem(path, options);
 }
 
 /** Re-export flag helpers for call sites / tests. */

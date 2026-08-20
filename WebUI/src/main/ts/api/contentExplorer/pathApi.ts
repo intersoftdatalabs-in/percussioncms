@@ -385,8 +385,72 @@ export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
   await post<void>(PATHS.FOLDERS_COPY_ITEM, wrapCopyFolderItemRequest(body));
 }
 
-export async function deleteItem(path: string): Promise<void> {
-  await post<PSPathItemResponse>(joinPathUrl(PATHS.PATH_DELETE_ITEM, path));
+/**
+ * Jackson / JAXB root for sitemanage {@code PSDeleteFolderCriteria}
+ * ({@code @XmlRootElement(name = "DeleteFolderCriteria")}).
+ * {@code PSPathService#deleteFolderService} has no {@code /path/delete/{path}}
+ * resource — product Delete must POST this envelope (#3646).
+ */
+export const DELETE_FOLDER_CRITERIA_ROOT = "DeleteFolderCriteria";
+
+export type DeleteFolderSkipItems = "YES" | "NO" | "EMPTY";
+
+export type DeleteFolderOptions = {
+  guid?: string;
+  shouldPurge?: boolean;
+  skipItems?: DeleteFolderSkipItems;
+};
+
+export type DeleteFolderCriteriaFields = {
+  path: string;
+  skipItems: DeleteFolderSkipItems;
+  shouldPurge: boolean;
+  guid: string;
+};
+
+export type DeleteFolderCriteriaEnvelope = {
+  DeleteFolderCriteria: DeleteFolderCriteriaFields;
+};
+
+/**
+ * Pathmanagement {@code PSDeleteFolderCriteria.guid} is only used for audit
+ * {@code getContentId}. Empty string is required (null NPEs
+ * {@code getGuid().isEmpty()}); non-GUID SPA ids must not be sent.
+ */
+export function folderDeleteGuid(raw: unknown): string {
+  const g = String(raw ?? "").trim();
+  return /^\d+-\d+(-\d+)*$/.test(g) ? g : "";
+}
+
+/**
+ * Wrap pathmanagement folder delete. Always send {@code guid} (empty string
+ * when unknown) — {@code getGuid().isEmpty()} NPEs on a null guid.
+ */
+export function wrapDeleteFolderCriteria(
+  path: string,
+  options?: DeleteFolderOptions,
+): DeleteFolderCriteriaEnvelope {
+  return {
+    DeleteFolderCriteria: {
+      path: withFolderTrailingSlash(String(path ?? "").trim()),
+      skipItems: options?.skipItems ?? "NO",
+      shouldPurge: Boolean(options?.shouldPurge),
+      guid: folderDeleteGuid(options?.guid),
+    },
+  };
+}
+
+/**
+ * Recycle (default) or purge a folder via {@code POST …/path/deleteFolder}.
+ */
+export async function deleteItem(
+  path: string,
+  options?: DeleteFolderOptions,
+): Promise<void> {
+  await post<unknown>(
+    PATHS.PATH_DELETE_FOLDER,
+    wrapDeleteFolderCriteria(path, options),
+  );
 }
 
 /**

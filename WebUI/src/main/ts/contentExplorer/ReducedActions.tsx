@@ -322,7 +322,7 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       await copyFolder({ sourcePath: item.path, targetPath });
     },
     onDelete: async (item) => {
-      await deleteItem(item.path);
+      await deleteItem(item.path, { guid: item.id });
     },
   };
 }

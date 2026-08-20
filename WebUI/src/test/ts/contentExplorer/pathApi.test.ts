@@ -20,6 +20,8 @@ import {
   copyFolder,
   COPY_FOLDER_ITEM_REQUEST_ROOT,
   deleteItem,
+  wrapDeleteFolderCriteria,
+  folderDeleteGuid,
   encodePath,
   findChildren,
   findItemByPath,
@@ -314,11 +316,32 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     });
   });
 
-  it("deleteItem joins without double slash", async () => {
-    const cap = mockJson({});
-    await deleteItem("/Sites/Foo");
-    expect(cap.lastUrl()).toContain("/path/delete/Sites/Foo");
-    expect(cap.lastUrl()).not.toContain("delete//");
+  it("deleteItem POSTs DeleteFolderCriteria wrap to deleteFolder (#3646)", async () => {
+    const cap = mockJson("0");
+    await deleteItem("/Sites/Foo", { guid: "1-101-1" });
+    expect(cap.lastUrl()).toContain("/path/deleteFolder");
+    expect(cap.lastUrl()).not.toContain("/path/delete/Sites");
+    expect(cap.lastBody()).toEqual({
+      DeleteFolderCriteria: {
+        path: "/Sites/Foo/",
+        skipItems: "NO",
+        shouldPurge: false,
+        guid: "1-101-1",
+      },
+    });
+  });
+
+  it("wrapDeleteFolderCriteria always sends guid string (never null)", () => {
+    expect(wrapDeleteFolderCriteria("/Assets/Bar")).toEqual({
+      DeleteFolderCriteria: {
+        path: "/Assets/Bar/",
+        skipItems: "NO",
+        shouldPurge: false,
+        guid: "",
+      },
+    });
+    expect(folderDeleteGuid("n-3646")).toBe("");
+    expect(folderDeleteGuid("1-101-708")).toBe("1-101-708");
   });
 
   it("validatePath joins without double slash", async () => {
