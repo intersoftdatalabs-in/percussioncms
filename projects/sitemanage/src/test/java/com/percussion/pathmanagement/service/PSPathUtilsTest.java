@@ -58,6 +58,26 @@ public class PSPathUtilsTest {
     assertEquals("//Folders/$System$", PSPathUtils.getFolderPath("/Folders/$System$"));
   }
 
+  /**
+   * Public REST copy/folder dest paths from Explorer are finder or
+   * single-slash repository form. {@link PSPathUtils#getFolderPath} must
+   * yield {@code //} or folderHelper throws "Path must start with '//'"
+   * (#3647).
+   */
+  @Test
+  public void testGetFolderPathCopyFolderDest() {
+    assertEquals(
+        "//Folders/$System$/Assets/qa/dst",
+        PSPathUtils.getFolderPath("/Assets/qa/dst"));
+    assertEquals(
+        "//Folders/$System$/Assets/qa/dst",
+        PSPathUtils.getFolderPath("/Folders/$System$/Assets/qa/dst"));
+    assertEquals(
+        "//Folders/$System$/Assets/qa/dst",
+        PSPathUtils.getFolderPath("//Folders/$System$/Assets/qa/dst"));
+    assertEquals("//Sites/Help", PSPathUtils.getFolderPath("/Sites/Help"));
+  }
+
   @Test
   public void testGetBasePath() {
     var trailing = "/Sites/mysite/mymain/mysecond/";

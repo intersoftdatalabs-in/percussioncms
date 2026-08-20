@@ -98,6 +98,11 @@ public class PSPathUtils {
    * Given a finder path, this will return the corresponding internal folder path. Also, paths
    * starting with '/' will be normalized to start with '//'.
    *
+   * <p>Public REST copy/folder must run this on <em>both</em> source and target
+   * ({@code FolderAdaptor#copyFolder}). Finder {@code /Assets} and single-slash
+   * {@code /Folders/$System$/Assets} otherwise fail {@code folderHelper.findFolder}
+   * with "Path must start with '//'" (#3647).
+   *
    * @param path the finder path, may not be <code>null</code>.
    * @return the normalized folder path, never <code>null</code>, may be empty.
    */
