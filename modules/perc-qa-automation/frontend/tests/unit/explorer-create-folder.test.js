@@ -31,7 +31,6 @@ const {
   isPathmanagementRenameFolderUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
-  shouldSkipCreateFolder,
   uniqueCreateFolderName,
   unwrapCreatedPathItem,
 } = require("../helpers/explorer-create-folder");
@@ -102,20 +101,6 @@ describe("explorer-create-folder helpers (#3640)", () => {
     assert.equal(isCreateFolderSuccessStatus(200), true);
     assert.equal(isCreateFolderSuccessStatus(201), true);
     assert.equal(isCreateFolderSuccessStatus(500), false);
-  });
-
-  it("shouldSkipCreateFolder is false when a Sites/Assets parent exists", () => {
-    assert.equal(
-      shouldSkipCreateFolder({ sitesRootVisible: true }),
-      false,
-    );
-    assert.equal(
-      shouldSkipCreateFolder({ assetsRootVisible: true }),
-      false,
-    );
-    assert.equal(shouldSkipCreateFolder({ restParentOk: true }), false);
-    assert.equal(shouldSkipCreateFolder({ testDbType: "h2" }), false);
-    assert.equal(shouldSkipCreateFolder({}), false);
   });
 
   it("uniqueCreateFolderName is stable for a given timestamp", () => {

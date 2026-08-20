@@ -59,7 +59,6 @@ const {
   isPathmanagementRenameFolderUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
-  shouldSkipCreateFolder,
   uniqueCreateFolderName,
   unwrapCreatedPathItem,
   treeRootLocator,
@@ -92,13 +91,6 @@ test.describe("Explorer Create Folder on product route (#3640 / #3102)", () => {
       const assetsStatus = await getStatus(request, assetsFolderUrl(BASE_URL));
       const sitesStatus = await getStatus(request, sitesFolderUrl(BASE_URL));
       const restParentOk = assetsStatus === 200 || sitesStatus === 200;
-      expect(
-        shouldSkipCreateFolder({
-          restParentOk,
-          testDbType: process.env.TEST_DB_TYPE,
-        }),
-        "must not soft-skip Create Folder when a Sites/Assets parent exists (#3640)",
-      ).toBe(false);
       expect(
         restParentOk,
         `H2 demo-sites should expose /Assets or /Sites; got Assets=${assetsStatus} Sites=${sitesStatus}`,
@@ -163,15 +155,6 @@ test.describe("Explorer Create Folder on product route (#3640 / #3102)", () => {
         .first()
         .isVisible({ timeout: 8_000 })
         .catch(() => false);
-
-      expect(
-        shouldSkipCreateFolder({
-          sitesRootVisible: sitesVisible,
-          assetsRootVisible: assetsVisible,
-          testDbType: process.env.TEST_DB_TYPE,
-        }),
-        "must not skip Create Folder when Sites/Assets is on the tree",
-      ).toBe(false);
 
       const parentNode = assetsVisible ? assetsRoot.first() : sitesRoot.first();
       const parentLabel = assetsVisible ? "Assets" : "Sites";

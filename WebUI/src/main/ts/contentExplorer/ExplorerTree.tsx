@@ -116,6 +116,8 @@ export function ExplorerTree({
   }));
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
+  const selectedPathRef = useRef(selectedPath);
+  selectedPathRef.current = selectedPath;
 
   const ensureLoaded = useCallback(
     async (path: string, folder?: PSPathItem | null, force?: boolean) => {
@@ -151,7 +153,11 @@ export function ExplorerTree({
       return;
     }
     const snapshot = nodesRef.current;
-    const selected = resolveLoadedNodePath(snapshot, selectedPath, initialPath);
+    const selected = resolveLoadedNodePath(
+      snapshot,
+      selectedPathRef.current,
+      initialPath,
+    );
     const toReload = new Set<string>([selected, initialPath]);
     for (const [path, state] of Object.entries(snapshot)) {
       if (state.loaded) {
@@ -161,7 +167,9 @@ export function ExplorerTree({
     for (const path of toReload) {
       void ensureLoaded(path, null, true);
     }
-  }, [childrenEpoch, ensureLoaded, initialPath, selectedPath]);
+    // selectedPath is read from a ref so selection clicks after a create-folder
+    // epoch bump do not reload every loaded tree node (#3640 review).
+  }, [childrenEpoch, ensureLoaded, initialPath]);
 
   const toggle = useCallback(
     (path: string, folder: PSPathItem) => {

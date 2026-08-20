@@ -125,35 +125,6 @@ function isCreateFolderSuccessStatus(status) {
 }
 
 /**
- * Product-route Create Folder must not soft-skip when a Sites/Assets parent
- * is on the tree or REST-listed, or when the cell is H2.
- *
- * @param {{
- *   sitesRootVisible?: boolean,
- *   assetsRootVisible?: boolean,
- *   restParentOk?: boolean,
- *   testDbType?: string,
- * }} [detail]
- * @returns {boolean}
- */
-function shouldSkipCreateFolder(detail = {}) {
-  if (
-    detail.sitesRootVisible === true ||
-    detail.assetsRootVisible === true ||
-    detail.restParentOk === true
-  ) {
-    return false;
-  }
-  const db = String(
-    detail.testDbType || process.env.TEST_DB_TYPE || "",
-  ).toLowerCase();
-  if (db === "h2") {
-    return false;
-  }
-  return false;
-}
-
-/**
  * Unique folder name for this slice (cleanup via recycle after).
  *
  * @param {number} [nowMs]
@@ -198,7 +169,6 @@ module.exports = {
   isPathmanagementRenameFolderUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
-  shouldSkipCreateFolder,
   uniqueCreateFolderName,
   unwrapCreatedPathItem,
   treeRootLocator,

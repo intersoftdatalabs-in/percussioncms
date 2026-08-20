@@ -363,6 +363,19 @@ describe("ExplorerTree", () => {
       expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
     );
     expect(sitesCalls).toBeGreaterThan(1);
+    const callsAfterEpoch = sitesCalls;
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/Foo"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/New")).toBeInTheDocument(),
+    );
+    expect(sitesCalls).toBe(callsAfterEpoch);
     await renderA11yGate(container);
   });
 });
