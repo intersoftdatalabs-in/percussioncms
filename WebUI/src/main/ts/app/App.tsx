@@ -21,6 +21,10 @@ import { ensureMkdLanguage } from "../i18n/mkdLanguage";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { BootstrapProvider } from "./bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "./bootstrap/types";
+import {
+  captureRxFolderMutationsFromSearch,
+  RX_FOLDER_MUTATIONS_QUERY_PARAM,
+} from "../api/contentExplorer/rxFolderMutationsFlag";
 import { parseEntryQuery } from "./deepLinks/parseEntryQuery";
 import { detectSpaBasename } from "./deepLinks/spaBasename";
 import { AppRoutes } from "./routes";
@@ -73,8 +77,18 @@ export function applyEntryQueryToPath(
   const parsed = parseEntryQuery(search);
   const [pathPart, queryPart] = parsed.clientPath.split("?");
   let next = `${basename}${pathPart.startsWith("/") ? pathPart : `/${pathPart}`}`;
-  if (queryPart) {
-    next += `?${queryPart}`;
+  // Persist diagnostic dual-run before the spa.jsp query is dropped (#3654).
+  captureRxFolderMutationsFromSearch(search);
+  const outParams = new URLSearchParams(queryPart || "");
+  if (params.has(RX_FOLDER_MUTATIONS_QUERY_PARAM)) {
+    const rx = params.get(RX_FOLDER_MUTATIONS_QUERY_PARAM);
+    if (rx != null && rx !== "") {
+      outParams.set(RX_FOLDER_MUTATIONS_QUERY_PARAM, rx);
+    }
+  }
+  const outSearch = outParams.toString();
+  if (outSearch) {
+    next += `?${outSearch}`;
   }
   if (typeof window !== "undefined" && window.history?.replaceState) {
     try {

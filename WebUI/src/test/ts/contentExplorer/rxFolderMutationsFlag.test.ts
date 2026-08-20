@@ -16,6 +16,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  captureRxFolderMutationsFromSearch,
   isRxCapableFolderPath,
   isRxFolderMutationsEnabled,
   RX_FOLDER_MUTATIONS_STORAGE_KEY,
@@ -64,6 +65,21 @@ describe("rxFolderMutationsFlag", () => {
   it("reads window global when set", () => {
     (window as unknown as Record<string, unknown>)[RX_FOLDER_MUTATIONS_WINDOW_KEY] = true;
     expect(isRxFolderMutationsEnabled()).toBe(true);
+  });
+
+  it("query rxFolderMutations=1 persists to sessionStorage (#3654)", () => {
+    expect(captureRxFolderMutationsFromSearch("?entry=explorer&rxFolderMutations=1")).toBe(
+      true,
+    );
+    expect(sessionStorage.getItem(RX_FOLDER_MUTATIONS_STORAGE_KEY)).toBe("true");
+    expect(isRxFolderMutationsEnabled()).toBe(true);
+  });
+
+  it("query rxFolderMutations=0 persists off to sessionStorage", () => {
+    sessionStorage.setItem(RX_FOLDER_MUTATIONS_STORAGE_KEY, "true");
+    expect(captureRxFolderMutationsFromSearch("?rxFolderMutations=0")).toBe(false);
+    expect(sessionStorage.getItem(RX_FOLDER_MUTATIONS_STORAGE_KEY)).toBe("false");
+    expect(isRxFolderMutationsEnabled()).toBe(false);
   });
 });
 

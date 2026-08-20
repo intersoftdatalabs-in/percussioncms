@@ -90,26 +90,30 @@ your role allows them). A `500` whose message mentions
 (fixed in 8.2 for the `relatedObject` field) — collect that response body for
 support.
 
-## Folder mutations dual-run (optional)
+## Folder mutations dual-run (diagnostic)
 
 By default, Explorer **create / rename / move / delete** folder actions use the same
-pathmanagement REST surface as browse. Operators and QA can opt into a dual-run path that
-sends those mutations under **Folders** and **Sites** to the Rhythmyx content-explorer
-folders REST façade (`/Rhythmyx/rest/content-explorer/folders`) while list/pagination stay
-on pathmanagement.
+pathmanagement REST surface as browse. **Operators use this flag-off product URL**
+(`spa.jsp?entry=explorer` without `?rxFolderMutations=1`). The dual-run switch is a
+**diagnostic leftover** for QA and integrators validating the Rhythmyx content-explorer
+folders REST façade. **Do not enable `perc.explorer.rxFolderMutations` in production.**
+
+When QA appends `?rxFolderMutations=1`, Create Folder / Rename / Delete under **Folders**
+and **Sites** go through `/Rhythmyx/rest/content-explorer/folders` (HTTP 200) while
+list/pagination stay on pathmanagement. The product default stays **off**.
 
 | Setting | Detail |
 |---------|--------|
 | Name | `perc.explorer.rxFolderMutations` |
-| Default | **off** |
-| Enable in browser | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
+| Default | **off** — leave it off for operators |
+| Diagnostic enable (QA only) | Append `?rxFolderMutations=1` to the Explorer URL, or set storage key `perc.explorer.rxFolderMutations` to `true` |
 | Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only. The Assets library is **not** in scope even when its repository path is `/Folders/$System$/Assets` or `//Folders/$System$/Assets`. |
 | Unchanged | Browse/list, folder ACL (security panel), `/Assets` (including `/Folders/$System$/Assets` and `//Folders/$System$/Assets`), `/Design`, `/Recycling` (including `/Folders/$System$/Recycling`) |
-| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). |
+| Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). Copy does not require the dual-run flag. |
 | Copy item (page/file/asset) | Public REST `POST /rest/folders/copy/item` with the same `CopyFolderItemRequest` root. Not `copy/folder` (that endpoint 500s for non-folders). |
 
-Documented for integrators on [Public REST](id:developer-rest). Leave the flag **off** in
-production unless you are validating the RX folder façade with QA.
+Documented for integrators on [Public REST](id:developer-rest). Production and operator
+day-to-day Explorer stay on pathmanagement (flag **off**).
 
 ## Server actions (how they run)
 
