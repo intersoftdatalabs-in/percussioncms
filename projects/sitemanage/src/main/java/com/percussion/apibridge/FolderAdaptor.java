@@ -1449,15 +1449,14 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       checkAPIPermission();
 
-      // Same as copyFolder (#3647): finder /Assets and single-slash
-      // /Folders/$System$/Assets fail folderHelper.findItem with
-      // "Path must start with '//'" (#3656).
+      // Finder /Assets and /Folders/... need //. toRepositoryPath keeps the
+      // item leaf so findItem resolves the source item, not its parent (#3656).
       String correctedItemPath =
           PSPathUtils.fixSiteFolderPath(
-              siteDataService, PSPathUtils.getFolderPath(itemPath));
+              siteDataService, PSPathUtils.toRepositoryPath(itemPath));
       String correctedTargetPath =
           PSPathUtils.fixSiteFolderPath(
-              siteDataService, PSPathUtils.getFolderPath(targetFolderPath));
+              siteDataService, PSPathUtils.toRepositoryPath(targetFolderPath));
 
       PSDataItemSummary sourceItem =
           (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);

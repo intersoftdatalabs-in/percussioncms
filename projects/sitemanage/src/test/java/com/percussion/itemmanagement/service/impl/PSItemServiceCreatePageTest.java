@@ -44,6 +44,7 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.impl.PSContentItem;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -156,6 +157,37 @@ class PSItemServiceCreatePageTest {
     verify(contentItemDao).save(cap.capture());
     assertEquals("5", cap.getValue().getFields().get("sys_workflowid"));
     assertEquals("qa3656", cap.getValue().getFields().get("sys_title"));
+  }
+
+  @Test
+  void createAssetAssignsParentFolderWorkflowWhenPathIsNotFolder() throws Exception {
+    PSContentItem saved = new PSContentItem();
+    saved.setId("1-101-8");
+    when(contentItemDao.save(any(PSContentItem.class))).thenReturn(saved);
+    IPSItemSummary itemAtPath = mock(IPSItemSummary.class);
+    when(itemAtPath.getId()).thenReturn("item-1");
+    when(itemAtPath.getType()).thenReturn("percSimpleTextAsset");
+    when(folderHelper.findItem("//Folders/$System$/Assets/qa3656")).thenReturn(itemAtPath);
+    IPSGuid itemGuid = mock(IPSGuid.class);
+    IPSGuid parentGuid = mock(IPSGuid.class);
+    when(idMapper.getGuid("item-1")).thenReturn(itemGuid);
+    when(folderHelper.getParentFolderId(itemGuid, true)).thenReturn(parentGuid);
+    when(idMapper.getString(parentGuid)).thenReturn("parent-folder-1");
+    PSFolderProperties props = mock(PSFolderProperties.class);
+    when(folderHelper.findFolderProperties("parent-folder-1")).thenReturn(props);
+    when(folderHelper.getValidWorkflowId(props)).thenReturn(9);
+
+    PSItemCreateRequest req = new PSItemCreateRequest();
+    req.setContentType("percSimpleTextAsset");
+    req.setFolderPath("//Folders/$System$/Assets/qa3656");
+    req.setName("qa3656-child");
+
+    var result = service.createEditorItem(req);
+    assertEquals("1-101-8", result.getItemId());
+    ArgumentCaptor<PSContentItem> cap = ArgumentCaptor.forClass(PSContentItem.class);
+    verify(contentItemDao).save(cap.capture());
+    assertEquals("9", cap.getValue().getFields().get("sys_workflowid"));
+    verify(folderHelper).getParentFolderId(itemGuid, true);
   }
 
   @Test

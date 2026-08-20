@@ -105,7 +105,8 @@ public class PSPathUtils {
    * "Path must start with '//'" (#3647 / #3656).
    *
    * @param path the finder path, may not be <code>null</code>.
-   * @return the normalized folder path, never <code>null</code>, may be empty.
+   * @return the normalized path starting with {@code //}, never <code>null</code>,
+   *     may be empty. Does not strip a trailing item segment.
    */
   public static String getFolderPath(String path) {
     notNull(path);
@@ -130,6 +131,18 @@ public class PSPathUtils {
     }
 
     return serverPath;
+  }
+
+  /**
+   * Normalize a CMS path (folder or listed item) to repository form starting with
+   * {@code //}. Same conversion as {@link #getFolderPath(String)}; named for item
+   * copies so callers do not assume the leaf is stripped (#3656).
+   *
+   * @param path finder or repository path, may not be <code>null</code>
+   * @return repository path, never <code>null</code>
+   */
+  public static String toRepositoryPath(String path) {
+    return getFolderPath(path);
   }
 
   /**
