@@ -28,12 +28,13 @@ const {
   architectureSpaUrl,
   siteListUrl,
   sectionTreeUrl,
+  sectionCreateUrl,
+  isCreateSiteSectionRequest,
   shouldRequireNavTree,
   firstSampleDemoSite,
   uniqueSectionTitle,
   uniqueSectionUrlName,
   uniqueLandingPageName,
-  isCreateSiteSectionRequest,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
   SAMPLE_DEMO_SITE_NAMES,
@@ -72,6 +73,41 @@ describe("architecture-create-section helpers (#3589)", () => {
     assert.equal(
       sectionTreeUrl("http://127.0.0.1:9992", "A B"),
       "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/tree/A%20B",
+    );
+  });
+
+  it("matches POST /section/create and not sibling mutation URLs", () => {
+    assert.equal(
+      sectionCreateUrl("http://127.0.0.1:9992/"),
+      "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create",
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create",
+        "POST",
+      ),
+      true,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/create?x=1",
+        "post",
+      ),
+      true,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/createSectionLink/a/b",
+        "POST",
+      ),
+      false,
+    );
+    assert.equal(
+      isCreateSiteSectionRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/tree/Corporate_Investments",
+        "GET",
+      ),
+      false,
     );
   });
 

@@ -97,6 +97,32 @@ function sectionTreeUrl(baseUrl, siteName) {
 }
 
 /**
+ * POST create-section endpoint used by the Navigation SPA.
+ *
+ * @param {string} baseUrl
+ * @returns {string}
+ */
+function sectionCreateUrl(baseUrl) {
+  const root = String(baseUrl || "").replace(/\/+$/, "");
+  return `${root}/Rhythmyx/services/sitemanage/section/create`;
+}
+
+/**
+ * True for {@code POST …/section/create} (not createSectionLink / createSectionFromFolder).
+ *
+ * @param {unknown} url
+ * @param {unknown} method
+ * @returns {boolean}
+ */
+function isCreateSiteSectionRequest(url, method) {
+  if (String(method || "").toUpperCase() !== "POST") {
+    return false;
+  }
+  const path = String(url || "");
+  return /\/section\/create(\/|\?|$)/i.test(path) && !/createSection/i.test(path);
+}
+
+/**
  * H2 QA with sample sites (#3352) must hard-fail when NavTree is absent.
  *
  * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} [env]
@@ -213,6 +239,8 @@ module.exports = {
   architectureSpaUrl,
   siteListUrl,
   sectionTreeUrl,
+  sectionCreateUrl,
+  isCreateSiteSectionRequest,
   shouldRequireNavTree,
   firstSampleDemoSite,
   uniqueSectionTitle,

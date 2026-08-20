@@ -163,7 +163,7 @@ public class PSNavUtil {
 
     PSNavConfig config = PSNavConfig.getInstance();
 
-    return config.getNavonTypes().contains(summary.getContentTypeGUID());
+    return config.getNavonTypeIds().contains(summary.getContentTypeId());
   }
 
   /**
@@ -199,7 +199,7 @@ public class PSNavUtil {
     if (summary == null) throw new IllegalArgumentException("summary cannot be null");
 
     PSNavConfig config = PSNavConfig.getInstance();
-    return config.getNavTreeTypes().contains(summary.getContentTypeGUID());
+    return config.getNavTreeTypeIds().contains(summary.getContentTypeId());
   }
 
   /**

@@ -19,9 +19,11 @@ package com.percussion.cms.objectstore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.LongPredicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -142,6 +144,65 @@ public final class PSNavNameAliases {
       return RFF_NAV_TREE_TYPE_ID;
     }
     return null;
+  }
+
+  /** True for FastForward / perc.nav Navon type ids {@code 314} and {@code 1016}. */
+  public static boolean isWellKnownNavonTypeId(long typeId) {
+    return "navon".equals(wellKnownNavRole(typeId));
+  }
+
+  /** True for FastForward / perc.nav NavTree type ids {@code 315} and {@code 1017}. */
+  public static boolean isWellKnownNavTreeTypeId(long typeId) {
+    return "navtree".equals(wellKnownNavRole(typeId));
+  }
+
+  /** True for FastForward / perc.nav Nav Image type ids {@code 313} and {@code 1015}. */
+  public static boolean isWellKnownNavImageTypeId(long typeId) {
+    return "navimage".equals(wellKnownNavRole(typeId));
+  }
+
+  /** True for any well-known perc/rff NavImage, Navon, or NavTree type id. */
+  public static boolean isWellKnownNavTypeId(long typeId) {
+    return !wellKnownNavRole(typeId).isEmpty();
+  }
+
+  /**
+   * Appends well-known perc/rff sibling ids so relationship filters find sample {@code rffNavTree}
+   * 315 when only {@code percNavTree} 1017 is registered (and the inverse). Existing ids stay first
+   * so {@code get(0)} still prefers the registered create type. Never {@code null}.
+   */
+  public static List<Long> expandWithWellKnownAliasTypeIds(Collection<Long> typeIds) {
+    LinkedHashSet<Long> out = new LinkedHashSet<>();
+    if (typeIds != null) {
+      for (Long id : typeIds) {
+        if (id != null) {
+          out.add(id);
+        }
+      }
+      for (Long id : List.copyOf(out)) {
+        Long alias = wellKnownNavAliasTypeId(id);
+        if (alias != null) {
+          out.add(alias);
+        }
+      }
+    }
+    return List.copyOf(out);
+  }
+
+  /**
+   * Registered id for {@code typeId}, else the well-known perc/rff sibling when that sibling is
+   * registered. Returns {@code typeId} unchanged when neither is registered. Used by ItemDef so
+   * sample items at 313–315 check out with perc.nav editors 1015–1017 (#3672).
+   */
+  public static long resolveRegisteredTypeId(long typeId, LongPredicate registered) {
+    if (registered != null && registered.test(typeId)) {
+      return typeId;
+    }
+    Long alias = wellKnownNavAliasTypeId(typeId);
+    if (alias != null && registered != null && registered.test(alias)) {
+      return alias;
+    }
+    return typeId;
   }
 
   /**

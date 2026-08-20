@@ -107,8 +107,12 @@ item still returns HTTP 200 with an empty tree.
 
 When that tree GET is HTTP 200 with nodes, the Navigation tree shows
 `role="treeitem"` rows and **Create section** stays enabled. **Escape** closes
-the Create section dialog. Do not create a second NavTree for a sample site
-that already has an `rffNavTree`.
+the Create section dialog. Creating a regular section under that sample tree
+(`POST /Rhythmyx/services/sitemanage/section/create`) returns **HTTP 200** —
+the server treats FastForward types **313–315** as the same Managed Nav roles
+as `percNav*` **1015–1017**, so `addNavonToFolder` succeeds without seeding a
+second NavTree. The new section appears as a treeitem. Do not create a second
+NavTree for a sample site that already has an `rffNavTree`.
 
 ## Keyboard and accessibility
 

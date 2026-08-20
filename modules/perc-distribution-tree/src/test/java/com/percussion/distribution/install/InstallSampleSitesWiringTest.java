@@ -351,6 +351,24 @@ class InstallSampleSitesWiringTest {
     assertTrue(navIds.contains("319"), "EI NavTree contentid 319 missing; found " + navIds);
     assertTrue(navIds.contains("553"), "CI NavTree contentid 553 missing; found " + navIds);
 
+    Set<String> navTypeById = new LinkedHashSet<>();
+    for (int i = 0; i < rows.getLength(); i++) {
+      Element row = (Element) rows.item(i);
+      String id = columnValue(row, "CONTENTID");
+      if ("319".equals(id) || "553".equals(id)) {
+        navTypeById.add(id + "=" + columnValue(row, "CONTENTTYPEID"));
+        assertTrue(
+            "315".equals(columnValue(row, "CONTENTTYPEID")),
+            "sample NavTree "
+                + id
+                + " must stay on rffNavTree type 315 (do not seed percNavTree 1017);"
+                + " was CONTENTTYPEID="
+                + columnValue(row, "CONTENTTYPEID"));
+      }
+    }
+    assertTrue(navTypeById.contains("319=315"), "EI NavTree 319 type 315 missing; " + navTypeById);
+    assertTrue(navTypeById.contains("553=315"), "CI NavTree 553 type 315 missing; " + navTypeById);
+
     Element rels = findTable(doc, "PSX_OBJECTRELATIONSHIP");
     if (rels == null) {
       fail("RxffSampleTableData.xml must declare PSX_OBJECTRELATIONSHIP");
