@@ -21,6 +21,7 @@ import {
   collectChildrenEpochReloadPaths,
   normalizeExplorerTreePathKey,
   parentExplorerTreePath,
+  parentExplorerTreePathKey,
 } from "../../../main/ts/contentExplorer/ExplorerTree";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
@@ -317,9 +318,10 @@ describe("ExplorerTree", () => {
   it("normalizeExplorerTreePathKey treats trailing slashes as the same folder", () => {
     expect(normalizeExplorerTreePathKey("/Assets")).toBe("/Assets");
     expect(normalizeExplorerTreePathKey("/Assets/")).toBe("/Assets");
+    expect(normalizeExplorerTreePathKey("//Assets")).toBe("/Assets");
+    expect(normalizeExplorerTreePathKey("//Assets/")).toBe("/Assets");
     expect(normalizeExplorerTreePathKey("/")).toBe("/");
     expect(normalizeExplorerTreePathKey("")).toBe("/");
-    expect(normalizeExplorerTreePathKey("//Assets")).toBe("/Assets");
     expect(normalizeExplorerTreePathKey("//Folders/$System$/Assets")).toBe(
       "/Folders/$System$/Assets",
     );
@@ -332,6 +334,12 @@ describe("ExplorerTree", () => {
     );
     expect(parentExplorerTreePath("/Sites")).toBe("/");
     expect(parentExplorerTreePath("/")).toBeNull();
+  });
+
+  it("parentExplorerTreePathKey returns / for roots (#3652)", () => {
+    expect(parentExplorerTreePathKey("/Assets/qa3645r_1")).toBe("/Assets");
+    expect(parentExplorerTreePathKey("/Assets")).toBe("/");
+    expect(parentExplorerTreePathKey("/")).toBe("/");
   });
 
   it("collectChildrenEpochReloadPaths reloads finder parent for repository selectedPath (#3653)", () => {
@@ -766,4 +774,185 @@ describe("ExplorerTree", () => {
     expect(screen.queryByText("qa3653c")).toBeNull();
     await renderA11yGate(container);
   });
+
+  it("epoch bump reloads parent children when selectedPath is the list path not the tree key (#3652)", async () => {
+    const ASSETS: PSPathItem = {
+      id: "assets-1",
+      path: "/Assets",
+      folderPath: "//Folders/$System$/Assets",
+      name: "Assets",
+      type: "folder",
+      hasFolderChildren: true,
+    };
+    const OLD_FOLDER: PSPathItem = {
+      id: "ren-1",
+      path: "/Assets/Old",
+      name: "Old",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    const RENAMED_FOLDER: PSPathItem = {
+      id: "ren-1",
+      path: "/Assets/Renamed",
+      name: "Renamed",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let assetsCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (
+        url.endsWith("/pathmanagement/path/folder/") ||
+        url.endsWith("/pathmanagement/path/folder")
+      ) {
+        return pathItemListResponse([ASSETS]);
+      }
+      if (
+        url.endsWith("/pathmanagement/path/folder/Assets") ||
+        url.includes("/pathmanagement/path/folder/Folders/%24System%24/Assets")
+      ) {
+        assetsCalls += 1;
+        if (assetsCalls > 1) {
+          return pathItemListResponse([RENAMED_FOLDER]);
+        }
+        return pathItemListResponse([OLD_FOLDER]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/Folders/$System$/Assets"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets")).toBeInTheDocument(),
+    );
+    const toggle = screen
+      .getByTestId("tree-node-/Assets")
+      .querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets/Old")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/"
+        selectedPath="/Folders/$System$/Assets"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Assets/Renamed")).toBeInTheDocument(),
+    );
+    expect(screen.getByText("Renamed")).toBeInTheDocument();
+    expect(screen.queryByTestId("tree-node-/Assets/Old")).toBeNull();
+    expect(assetsCalls).toBeGreaterThan(1);
+    await renderA11yGate(container);
+  });
+
+  it("epoch bump reloads parent children when selectedPath is the renamed child's old path (#3652)", async () => {
+    const OLD_FOLDER: PSPathItem = {
+      id: "ren-2",
+      path: "/Sites/OldChild",
+      name: "OldChild",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    const RENAMED_FOLDER: PSPathItem = {
+      id: "ren-2",
+      path: "/Sites/NewChild",
+      name: "NewChild",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let sitesCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        if (sitesCalls > 1) {
+          return pathItemListResponse([ROOT_FOLDER, RENAMED_FOLDER]);
+        }
+        return pathItemListResponse([ROOT_FOLDER, OLD_FOLDER]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/OldChild"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/OldChild")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/OldChild"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/NewChild")).toBeInTheDocument(),
+    );
+    expect(screen.getByText("NewChild")).toBeInTheDocument();
+    expect(screen.queryByTestId("tree-node-/Sites/OldChild")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("epoch bump drops a deleted child from parent children (#3653)", async () => {
+    const DOOMED: PSPathItem = {
+      id: "del-1",
+      path: "/Sites/Doomed",
+      name: "Doomed",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    let sitesCalls = 0;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        sitesCalls += 1;
+        if (sitesCalls > 1) {
+          return pathItemListResponse([ROOT_FOLDER]);
+        }
+        return pathItemListResponse([ROOT_FOLDER, DOOMED]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { rerender, container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/Doomed"
+        onSelectFolder={() => undefined}
+        childrenEpoch={0}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Doomed")).toBeInTheDocument(),
+    );
+    rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/Doomed"
+        onSelectFolder={() => undefined}
+        childrenEpoch={1}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("tree-node-/Sites/Doomed")).toBeNull(),
+    );
+    expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument();
+    await renderA11yGate(container);
+  });
 });
+
