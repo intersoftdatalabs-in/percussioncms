@@ -18,6 +18,7 @@ import { describe, expect, it } from "vitest";
 import {
   addNewFolder,
   copyFolder,
+  copyFolderItem,
   COPY_FOLDER_ITEM_REQUEST_ROOT,
   deleteItem,
   wrapDeleteFolderCriteria,
@@ -616,11 +617,39 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
       targetPath: "/Folders/Other",
     });
     expect(url).toContain("/folders/copy/folder");
+    expect(url).not.toContain("/folders/copy/item");
     expect(url).not.toContain("/pathmanagement/path/moveItem");
     expect(posted).toEqual({
       CopyFolderItemRequest: {
         itemPath: "/Folders/Child",
         targetFolderPath: "/Folders/Other",
+      },
+    });
+    expect(posted).not.toHaveProperty("sourcePath");
+  });
+
+  it("copyFolderItem POSTs CopyFolderItemRequest to /folders/copy/item, not copy/folder (#3656)", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await copyFolderItem({
+      sourcePath: "/Assets/qa3656_src",
+      targetPath: "/Assets/qa3656_dst",
+    });
+    expect(url).toContain("/folders/copy/item");
+    expect(url).not.toContain("/folders/copy/folder");
+    expect(url).not.toContain("/pathmanagement/path/moveItem");
+    expect(posted).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Assets/qa3656_src",
+        targetFolderPath: "/Assets/qa3656_dst",
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");

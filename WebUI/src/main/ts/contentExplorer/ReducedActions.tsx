@@ -35,6 +35,7 @@ import { formatApiError } from "../api/client";
 import {
   addNewFolder,
   copyFolder,
+  copyFolderItem,
   deleteItem,
   moveItem,
   renameFolder,
@@ -319,7 +320,14 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       await moveItem({ sourcePath: item.path, targetPath });
     },
     onCopy: async (item, targetPath) => {
-      await copyFolder({ sourcePath: item.path, targetPath });
+      const body = { sourcePath: item.path, targetPath };
+      // Folders: POST /folders/copy/folder. Pages/files/assets:
+      // POST /folders/copy/item — copy/folder 500s for non-folders (#3656).
+      if (isFolder(item)) {
+        await copyFolder(body);
+      } else {
+        await copyFolderItem(body);
+      }
     },
     onDelete: async (item) => {
       await deleteItem(item.path, { guid: item.id });
