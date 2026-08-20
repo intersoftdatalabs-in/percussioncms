@@ -360,7 +360,20 @@ describe("filterEnabledMenuActions", () => {
     expect(
       unwrapMenuActionChildren(actions[0].children).map((c) => c.name),
     ).toEqual(["View_Properties", "gone"]);
-    const filtered = filterContextMenuActions(actions, BASE);
+    const page = {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    };
+    // No selection: View_Properties is editor-scoped (#3638) so View
+    // becomes empty after the javascript child is dropped.
+    expect(filterContextMenuActions(actions, BASE).map((a) => a.name)).toEqual([
+      "Open",
+    ]);
+    const filtered = filterContextMenuActions(actions, BASE, page);
     expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
     expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
