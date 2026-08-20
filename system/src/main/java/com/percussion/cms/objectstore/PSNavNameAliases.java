@@ -22,12 +22,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * perc* and rff* names (and their {@code psx_ce*} content-editor apps) are the same Managed Nav
  * roles. Catalog, config, and CE registration must treat them as aliases.
  */
 public final class PSNavNameAliases {
+
+  private static final Logger log = LogManager.getLogger(PSNavNameAliases.class);
 
   private PSNavNameAliases() {}
 
@@ -114,6 +118,32 @@ public final class PSNavNameAliases {
   }
 
   /**
+   * Sibling FastForward / perc.nav type id that shares {@code RXS_CT_NAV*} tables. {@code 313↔1015},
+   * {@code 314↔1016}, {@code 315↔1017}. {@code null} when {@code typeId} is not one of those ids.
+   */
+  public static Long wellKnownNavAliasTypeId(long typeId) {
+    if (typeId == RFF_NAV_IMAGE_TYPE_ID) {
+      return PERC_NAV_IMAGE_TYPE_ID;
+    }
+    if (typeId == RFF_NAVON_TYPE_ID) {
+      return PERC_NAVON_TYPE_ID;
+    }
+    if (typeId == RFF_NAV_TREE_TYPE_ID) {
+      return PERC_NAV_TREE_TYPE_ID;
+    }
+    if (typeId == PERC_NAV_IMAGE_TYPE_ID) {
+      return RFF_NAV_IMAGE_TYPE_ID;
+    }
+    if (typeId == PERC_NAVON_TYPE_ID) {
+      return RFF_NAVON_TYPE_ID;
+    }
+    if (typeId == PERC_NAV_TREE_TYPE_ID) {
+      return RFF_NAV_TREE_TYPE_ID;
+    }
+    return null;
+  }
+
+  /**
    * When a FastForward {@code rffNav*} type (313–315) is missing from the JCR configuration map but
    * a {@code percNav*} sibling is registered (1015–1017), or the inverse, return the registered
    * alias id. Both pairs share {@code RXS_CT_NAV*} tables, so items of the missing id load with the
@@ -127,6 +157,10 @@ public final class PSNavNameAliases {
       Collection<Long> registeredTypeIds) {
     if (typeIdToName == null || registeredTypeIds == null || registeredTypeIds.isEmpty()) {
       return null;
+    }
+    Long wellKnownAlias = wellKnownNavAliasTypeId(missingTypeId);
+    if (wellKnownAlias != null && registeredTypeIds.contains(wellKnownAlias)) {
+      return wellKnownAlias;
     }
     String missingRole = navRoleForType(missingTypeId, typeIdToName);
     if (missingRole.isEmpty()) {
@@ -159,6 +193,7 @@ public final class PSNavNameAliases {
     try {
       return typeIdToName.apply(typeId);
     } catch (RuntimeException e) {
+      log.debug("Nav alias catalog name lookup failed for content type id {}", typeId, e);
       return null;
     }
   }

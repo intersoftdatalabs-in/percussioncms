@@ -454,6 +454,16 @@ public class PSContentRepository
     private static final Map<IPSTypeKey, PSTypeConfiguration> ms_configuration = new ConcurrentHashMap<>();
 
     /**
+     * Memoized perc/rff JCR alias type ids keyed by the missing content-type id.
+     * {@link #NO_NAV_ALIAS} means a completed lookup found no sibling. Cleared
+     * when {@link #ms_configuration} keys change ({@link #configure}).
+     */
+    private static final ConcurrentHashMap<Long, Long> ms_navAliasTypeIdCache = new ConcurrentHashMap<>();
+
+    /** Sentinel in {@link #ms_navAliasTypeIdCache} for a negative (no alias) result. */
+    static final long NO_NAV_ALIAS = Long.MIN_VALUE;
+
+    /**
      * Stores correspondances between content summary "properties" and the system
      * field names. This is derived at startup from the system def normally, and
      * a subset is created for unit testing. Never <code>null</code> and never
@@ -496,8 +506,12 @@ public class PSContentRepository
     }
 
     /**
-     * Get a given content type configuration. Child configurations can be
-     * obtained from the parent
+     * Exact JCR mapping only — no perc/rff alias. Public callers and any future
+     * write path must use this so an aliased Hibernate mapping cannot re-stamp a
+     * FastForward id (315) as perc.nav (1017) on persist. Load/query/evict use
+     * {@link #lookupTypeConfiguration(long)} which may alias for read-only
+     * Hibernate class resolution. This repository's {@link #save} is
+     * unimplemented ({@link Capability#READ} only).
      *
      * @param contenttypeid the content type id
      * @return the type configuration, this will return <code>null</code> if
@@ -505,19 +519,28 @@ public class PSContentRepository
      */
     public static PSTypeConfiguration getTypeConfiguration(int contenttypeid)
     {
-        return lookupTypeConfiguration(contenttypeid);
+        return lookupTypeConfigurationExact(contenttypeid);
     }
 
     /**
-     * JCR type map lookup with perc/rff Managed Nav alias fallback (#3611).
-     * {@code perc.nav} can drop the Hibernate mapping for FastForward ids
-     * 313–315 while {@link PSItemDefManager} still catalogs {@code rffNav*}
-     * editors. Those items share {@code RXS_CT_NAV*} with {@code percNav*}
-     * (1015–1017), so the registered sibling mapping loads the node.
+     * Exact JCR type map lookup with no perc/rff alias.
+     */
+    static PSTypeConfiguration lookupTypeConfigurationExact(long contentTypeId)
+    {
+        return ms_configuration.get(new PSContentTypeKey(contentTypeId));
+    }
+
+    /**
+     * JCR type map lookup with perc/rff Managed Nav alias fallback (#3611) for
+     * read/load/query/evict. {@code perc.nav} can drop the Hibernate mapping for
+     * FastForward ids 313–315 while {@link PSItemDefManager} still catalogs
+     * {@code rffNav*} editors. Those items share {@code RXS_CT_NAV*} with
+     * {@code percNav*} (1015–1017), so the registered sibling mapping loads the
+     * node. Do not use this for persist/write of the content-type id.
      */
     static PSTypeConfiguration lookupTypeConfiguration(long contentTypeId)
     {
-        PSTypeConfiguration config = ms_configuration.get(new PSContentTypeKey(contentTypeId));
+        PSTypeConfiguration config = lookupTypeConfigurationExact(contentTypeId);
         if (config != null)
         {
             return config;
@@ -527,16 +550,42 @@ public class PSContentRepository
 
     static PSTypeConfiguration lookupNavAliasTypeConfiguration(long contentTypeId)
     {
+        Long cached = ms_navAliasTypeIdCache.get(contentTypeId);
+        if (cached != null)
+        {
+            return cached == NO_NAV_ALIAS ? null : lookupTypeConfigurationExact(cached);
+        }
+        Long wellKnown = PSNavNameAliases.wellKnownNavAliasTypeId(contentTypeId);
+        if (wellKnown != null)
+        {
+            PSTypeConfiguration wellKnownConfig = lookupTypeConfigurationExact(wellKnown);
+            if (wellKnownConfig != null)
+            {
+                ms_navAliasTypeIdCache.put(contentTypeId, wellKnown);
+                ms_log.debug(
+                    "Using JCR type configuration {} as perc/rff alias for content type id {}",
+                    wellKnown,
+                    contentTypeId);
+                return wellKnownConfig;
+            }
+        }
         Long aliasId =
-            resolveNavAliasTypeId(
+            ms_navAliasTypeIdCache.computeIfAbsent(
                 contentTypeId,
-                ms_configuration.keySet(),
-                PSContentRepository::contentTypeNameQuietly);
-        if (aliasId == null)
+                id ->
+                {
+                    Long resolved =
+                        resolveNavAliasTypeId(
+                            id,
+                            ms_configuration.keySet(),
+                            PSContentRepository::contentTypeNameQuietly);
+                    return resolved == null ? NO_NAV_ALIAS : resolved;
+                });
+        if (aliasId == null || aliasId == NO_NAV_ALIAS)
         {
             return null;
         }
-        PSTypeConfiguration alias = ms_configuration.get(new PSContentTypeKey(aliasId));
+        PSTypeConfiguration alias = lookupTypeConfigurationExact(aliasId);
         if (alias != null)
         {
             ms_log.debug(
@@ -545,6 +594,16 @@ public class PSContentRepository
                 contentTypeId);
         }
         return alias;
+    }
+
+    static void clearNavAliasTypeIdCache()
+    {
+        ms_navAliasTypeIdCache.clear();
+    }
+
+    static boolean navAliasTypeIdCacheContains(long contentTypeId)
+    {
+        return ms_navAliasTypeIdCache.containsKey(contentTypeId);
     }
 
     /**
@@ -559,6 +618,17 @@ public class PSContentRepository
         if (registeredKeys == null)
         {
             return null;
+        }
+        Long wellKnown = PSNavNameAliases.wellKnownNavAliasTypeId(missingTypeId);
+        if (wellKnown != null)
+        {
+            for (IPSTypeKey k : registeredKeys)
+            {
+                if (k instanceof PSContentTypeKey && k.getContentType() == wellKnown)
+                {
+                    return wellKnown;
+                }
+            }
         }
         Set<Long> registered = new HashSet<>();
         for (IPSTypeKey k : registeredKeys)
@@ -584,6 +654,7 @@ public class PSContentRepository
         }
         catch (RuntimeException e)
         {
+            ms_log.debug("Content type name lookup failed for id {}", typeId, e);
             return null;
         }
     }
@@ -959,6 +1030,8 @@ public class PSContentRepository
             long type = s.getContentTypeId();
             if (typeToClassMap.get(type) == null)
             {
+                // Alias mapping is Hibernate class only; the map key stays the
+                // requested type id (e.g. 315) so loads cannot re-stamp 1017.
                 PSTypeConfiguration config = lookupTypeConfiguration(type);
                 if (config == null)
                 {
@@ -1319,6 +1392,7 @@ public class PSContentRepository
         }
         finally
         {
+            clearNavAliasTypeIdCache();
             m_rwlock.writeLock().unlock();
         }
     }
