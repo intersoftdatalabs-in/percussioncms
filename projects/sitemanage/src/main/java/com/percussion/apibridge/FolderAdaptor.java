@@ -1490,9 +1490,16 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       checkAPIPermission();
 
-      String correctedTarget = PSPathUtils.fixSiteFolderPath(siteDataService, targetFolderPath);
+      // Both sides need getFolderPath: finder /Assets and single-slash
+      // /Folders/$System$/Assets fail folderHelper.findFolder with
+      // "Path must start with '//'" (#3647). Source already converted;
+      // target used to skip getFolderPath.
+      String correctedTarget =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.getFolderPath(targetFolderPath));
       String correctedSource =
-          PSPathUtils.fixSiteFolderPath(siteDataService, PSPathUtils.getFolderPath(folderPath));
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.getFolderPath(folderPath));
       String targetFolderName = PSPathUtils.getFolderName(correctedSource);
 
       PSDataItemSummary item = getFolderPathItem(correctedSource);

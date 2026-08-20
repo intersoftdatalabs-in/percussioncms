@@ -196,6 +196,26 @@ describe("ReducedActions", () => {
     expect(screen.getByTestId("action-delete")).toBeEnabled();
   });
 
+  it("fires onRename when the user enters a new name via the prompt helper (#3645)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.prompt = () => "Renamed";
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={FOLDER}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("action-rename")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("action-rename"));
+    await waitFor(() => expect(calls.onRename).toHaveLength(1));
+    expect(calls.onRename[0]).toMatchObject({
+      item: FOLDER,
+      newName: "Renamed",
+    });
+  });
+
   it("fires onCreateFolder when the user enters a name via the prompt helper", async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "My Folder";

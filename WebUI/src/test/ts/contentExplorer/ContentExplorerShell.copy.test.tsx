@@ -40,42 +40,39 @@ function renderShell(ui: ReactElement) {
   );
 }
 
-const CREATED = {
-  id: "n-3640",
-  path: "/Sites/qa3640",
-  name: "qa3640",
+const SOURCE = {
+  id: "f-3647-src",
+  path: "/Assets/qa3647_src",
+  name: "qa3647_src",
   type: "folder",
-  accessLevel: "WRITE",
+  accessLevel: "WRITE" as const,
+  folderPath: "/Assets",
 };
 
-describe("ContentExplorerShell create folder (#3640)", () => {
-  it("refreshes the detail list after Create Folder succeeds", async () => {
-    let created = false;
+const COPIED = {
+  id: "f-3647-copy",
+  path: "/Assets/qa3647_src-2",
+  name: "qa3647_src-2",
+  type: "folder",
+  accessLevel: "WRITE" as const,
+  folderPath: "/Assets",
+};
+
+describe("ContentExplorerShell copy folder (#3647)", () => {
+  it("refreshes destination list and tree after Copy succeeds", async () => {
+    let copied = false;
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.includes("/pathmanagement/path/addNewFolder")) {
-        return new Response(
-          JSON.stringify({
-            PathItem: {
-              id: "n-3640",
-              path: "/Sites/New-Folder/",
-              name: "New-Folder",
-              type: "folder",
-              accessLevel: "WRITE",
-            },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      if (url.includes("/pathmanagement/path/renameFolder")) {
-        created = true;
-        return new Response(JSON.stringify({ PathItem: CREATED }), {
+      if (url.includes("/folders/copy/folder")) {
+        copied = true;
+        return new Response(JSON.stringify({ message: "Copied OK" }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
       }
-      const kids = created ? [CREATED] : [];
+      const parentKids = copied ? [SOURCE, COPIED] : [SOURCE];
       if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        const kids = parentKids;
         return new Response(
           JSON.stringify({
             PagedItemList: {
@@ -96,28 +93,27 @@ describe("ContentExplorerShell create folder (#3640)", () => {
 
     const { container } = renderShell(
       <ContentExplorerShell
-        initialPath="/Sites"
+        initialPath="/Assets"
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         actionHandlers={{
-          prompt: () => "qa3640",
+          prompt: () => "/Assets",
         }}
       />,
     );
 
-    const createBtn = await screen.findByTestId("action-create-folder");
-    expect(createBtn).toBeEnabled();
-    fireEvent.click(createBtn);
+    const sourceRow = await screen.findByTestId("detail-row-f-3647-src");
+    fireEvent.click(sourceRow);
+    const copyBtn = await screen.findByTestId("action-copy");
+    expect(copyBtn).toBeEnabled();
+    fireEvent.click(copyBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
+      expect(copied).toBe(true);
+      expect(screen.getByTestId("detail-row-f-3647-copy")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("tree-node-/Sites/qa3640")).toBeInTheDocument();
-    const nav = screen.getByTestId("explorer-nav");
-    expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
-      0,
-    );
+    expect(screen.getByTestId("tree-node-/Assets/qa3647_src-2")).toBeInTheDocument();
     await renderA11yGate(container);
   });
 });

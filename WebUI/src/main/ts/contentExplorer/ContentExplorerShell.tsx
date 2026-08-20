@@ -577,6 +577,13 @@ function ContentExplorerShellInner({
    */
   const contextMenuRequestIdRef = useRef(0);
   const [listEpoch, setListEpoch] = useState(0);
+  /**
+   * Folder-mutation epoch for {@link ExplorerTree} only. Must not reuse
+   * {@code listEpoch} — paste, site/subfolder copy, translations, revision
+   * restore, and generic action refresh bump the detail list without
+   * shotgun-reloading every expanded tree node (#3645 review).
+   */
+  const [folderTreeEpoch, setFolderTreeEpoch] = useState(0);
   const [multiSelectedIds, setMultiSelectedIds] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
   );
@@ -596,11 +603,27 @@ function ContentExplorerShellInner({
     setActionInvokeError(null);
   }, []);
 
+  const handleRefreshFolderTree = useCallback(() => {
+    setFolderTreeEpoch((n) => n + 1);
+  }, []);
+
+  const handleRefreshListAndTree = useCallback(() => {
+    handleRefreshList();
+    handleRefreshFolderTree();
+  }, [handleRefreshList, handleRefreshFolderTree]);
+
   const stockReducedHandlers = useMemo(() => defaultReducedActionHandlers(), []);
 
   const handlers: ReducedActionHandlers = {
     ...stockReducedHandlers,
     ...actionHandlers,
+    // Product Rename must refresh list + tree after pathmanagement succeeds
+    // so operators see the new name without View → Refresh (#3645).
+    onRename: async (item, newName) => {
+      const impl = actionHandlers?.onRename ?? stockReducedHandlers.onRename;
+      await impl(item, newName);
+      handleRefreshListAndTree();
+    },
     onOpen: (item) => {
       if (isFolder(item)) {
         const folderPath =
@@ -623,7 +646,37 @@ function ContentExplorerShellInner({
       const impl =
         actionHandlers?.onCreateFolder ?? stockReducedHandlers.onCreateFolder;
       await impl(parent, name);
-      handleRefreshList();
+      handleRefreshListAndTree();
+    },
+    // Product Delete must recycle via pathmanagement deleteFolder (flag off)
+    // and refresh list + tree so the name disappears without View → Refresh
+    // (#3646). Clear the deleted row so Delete does not stay armed.
+    onDelete: async (item) => {
+      const impl = actionHandlers?.onDelete ?? stockReducedHandlers.onDelete;
+      await impl(item);
+      setSelection((prev) => {
+        const deleted = String(item.path ?? "").replace(/\/+$/, "");
+        const selected = String(prev.item?.path ?? "").replace(/\/+$/, "");
+        return {
+          folderPath: prev.folderPath,
+          item: deleted && selected === deleted ? null : prev.item,
+        };
+      });
+      // #3645 split folderTreeEpoch from the list epoch; list-only refresh
+      // would leave the deleted name in the tree.
+      handleRefreshListAndTree();
+    },
+    // Product Copy folder (flag off) POSTs public REST copy/folder then
+    // opens the destination so operators see the copy without Refresh (#3647).
+    onCopy: async (item, targetPath) => {
+      const impl = actionHandlers?.onCopy ?? stockReducedHandlers.onCopy;
+      await impl(item, targetPath);
+      const dest = String(targetPath || "").trim();
+      if (dest) {
+        setSelection({ folderPath: dest, item: null });
+      }
+      // Same split-epoch as Delete/Rename: dest list + dest tree children.
+      handleRefreshListAndTree();
     },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
@@ -1253,7 +1306,7 @@ function ContentExplorerShellInner({
           }
           break;
         case "view-refresh":
-          handleRefreshList();
+          handleRefreshListAndTree();
           break;
         case "view-security":
           setShowSecurity((v) => !v);
@@ -1291,7 +1344,7 @@ function ContentExplorerShellInner({
     },
     [
       handleAddToClipboard,
-      handleRefreshList,
+      handleRefreshListAndTree,
       siteNameForCopy,
       sourceFolderPathForCopy,
       showSubfolderCopy,
@@ -1492,7 +1545,7 @@ function ContentExplorerShellInner({
               data-testid="explorer-refresh-list"
               aria-label={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
               title={message(EXPLORER_MSG.ACTION_REFRESH_ARIA)}
-              onClick={handleRefreshList}
+              onClick={handleRefreshListAndTree}
             >
               {message(EXPLORER_MSG.ACTION_REFRESH)}
             </button>
@@ -1508,13 +1561,18 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
         </div>
       )}
-      <div style={navColumnStyle} data-testid="explorer-nav">
+      <div
+        style={navColumnStyle}
+        data-testid="explorer-nav"
+        data-list-epoch={listEpoch}
+        data-folder-tree-epoch={folderTreeEpoch}
+      >
         <ExplorerTree
           initialPath={initialPath}
           selectedPath={selection.folderPath}
           onSelectFolder={handleSelectFolder}
           onActivate={handleActivate}
-          childrenEpoch={listEpoch}
+          childrenEpoch={folderTreeEpoch}
         />
         <ViewsCatalogTree
           listViews={listViews}

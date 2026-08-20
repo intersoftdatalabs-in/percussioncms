@@ -395,8 +395,18 @@ export const PATHS = {
   get FOLDERS_COPY_ITEM() {
     return `${REST_ROOT}/folders/copy/item`;
   },
+  /**
+   * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
+   * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
+   */
+  get PATH_DELETE_FOLDER() {
+    return `${SERVICES_ROOT}/pathmanagement/path/deleteFolder`;
+  },
+  /**
+   * Alias of {@link PATH_DELETE_FOLDER} (product ReducedActions delete).
+   */
   get PATH_DELETE_ITEM() {
-    return `${SERVICES_ROOT}/pathmanagement/path/delete`;
+    return this.PATH_DELETE_FOLDER;
   },
   get PATH_FOLDER_PROPERTIES() {
     return `${SERVICES_ROOT}/pathmanagement/path/folderProperties`;

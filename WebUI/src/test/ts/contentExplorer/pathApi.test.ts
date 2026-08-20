@@ -20,6 +20,8 @@ import {
   copyFolder,
   COPY_FOLDER_ITEM_REQUEST_ROOT,
   deleteItem,
+  wrapDeleteFolderCriteria,
+  folderDeleteGuid,
   encodePath,
   findChildren,
   findItemByPath,
@@ -314,11 +316,32 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     });
   });
 
-  it("deleteItem joins without double slash", async () => {
-    const cap = mockJson({});
-    await deleteItem("/Sites/Foo");
-    expect(cap.lastUrl()).toContain("/path/delete/Sites/Foo");
-    expect(cap.lastUrl()).not.toContain("delete//");
+  it("deleteItem POSTs DeleteFolderCriteria wrap to deleteFolder (#3646)", async () => {
+    const cap = mockJson("0");
+    await deleteItem("/Sites/Foo", { guid: "1-101-1" });
+    expect(cap.lastUrl()).toContain("/path/deleteFolder");
+    expect(cap.lastUrl()).not.toContain("/path/delete/Sites");
+    expect(cap.lastBody()).toEqual({
+      DeleteFolderCriteria: {
+        path: "/Sites/Foo/",
+        skipItems: "NO",
+        shouldPurge: false,
+        guid: "1-101-1",
+      },
+    });
+  });
+
+  it("wrapDeleteFolderCriteria always sends guid string (never null)", () => {
+    expect(wrapDeleteFolderCriteria("/Assets/Bar")).toEqual({
+      DeleteFolderCriteria: {
+        path: "/Assets/Bar/",
+        skipItems: "NO",
+        shouldPurge: false,
+        guid: "",
+      },
+    });
+    expect(folderDeleteGuid("n-3646")).toBe("");
+    expect(folderDeleteGuid("1-101-708")).toBe("1-101-708");
   });
 
   it("validatePath joins without double slash", async () => {
@@ -601,5 +624,39 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");
+  });
+});
+
+/**
+ * #3645 — Jackson WRAP_ROOT_VALUE / JAXB RenameFolderItem. SPA {@code newName}
+ * maps to server field {@code name}; a bare {path,newName} body 400s.
+ */
+describe("renameFolder Jackson root wrap (#3645)", () => {
+  it("posts RenameFolderItem with trailing-slash path and server field name", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          PathItem: { name: "qa3645", path: "/Assets/qa3645/" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const item = await renameFolder({
+      path: "/Assets/Old-Folder",
+      newName: "qa3645",
+    });
+    expect(url).toContain("/path/renameFolder");
+    expect(posted).toEqual({
+      RenameFolderItem: {
+        path: "/Assets/Old-Folder/",
+        name: "qa3645",
+      },
+    });
+    expect(posted).not.toHaveProperty("newName");
+    expect(item.name).toBe("qa3645");
   });
 });

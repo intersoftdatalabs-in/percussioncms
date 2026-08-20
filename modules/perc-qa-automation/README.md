@@ -208,6 +208,55 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-sites-list-create` (list + Create Site). Parent operator issue #3102.
 
+### Explorer Delete selected folder on product route (#3646 / parent #3102)
+
+H2 operator proof that **Delete** on `spa.jsp?entry=explorer` (flag **off**,
+not `rxFolderMutations=1`) recycles an empty disposable folder this test
+created (`qa3646_*`) via pathmanagement `POST …/path/deleteFolder`
+(HTTP 200) and refreshes tree/list. **No skip** when a Sites/Assets parent
+exists. Never deletes shipped sample pages.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-delete-folder.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-delete-folder.js`, `tests/unit/explorer-delete-folder.test.js` |
+| Tags | `@explorer-delete-folder` `@explorer` `@folder` `@smoke` |
+| Soft skip | None when `/Assets` or `/Sites` exists; missing parent is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-delete-folder.spec.js
+```
+
+Peer: `explorer-create-folder` (product-route Create Folder). Parent #3102.
+
+### Explorer Copy selected folder on product route (#3647 / parent #3102)
+
+H2 operator proof that **Copy** of a selected disposable folder on
+`spa.jsp?entry=explorer` (no `rxFolderMutations=1`) posts
+`POST /rest/folders/copy/folder` HTTP 200 and the copy appears in the
+destination tree/list. Does **not** soft-skip when H2 QA has Sites/Assets.
+Does **not** claim gap-matrix Present. Distinct from Subfolder Copy wizard
+and clipboard paste. Distinct spec from rename/delete siblings (#3645/#3646).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-copy-folder.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-copy-folder.js`, `tests/unit/explorer-copy-folder.test.js` |
+| Tags | `@explorer-copy-folder` `@explorer` `@folder` `@smoke` |
+| Soft skip | None when Assets or Sites parent exists; missing parent on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-copy-folder.spec.js
+```
+
 ### Explorer New-item type picker live (#3628 / parent #3102)
 
 H2 operator proof that **New Item** on `spa.jsp?entry=explorer` opens the

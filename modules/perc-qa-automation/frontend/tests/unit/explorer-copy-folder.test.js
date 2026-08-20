@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Unit tests for explorer-copy-folder helpers (#3647) — no live CMS.
+ */
+
+"use strict";
+
+const { describe, it } = require("node:test");
+const assert = require("node:assert/strict");
+const {
+  COPY_TEST_IDS,
+  explorerProductCopyFolderUrl,
+  hasRxFolderMutationsQuery,
+  isFoldersCopyFolderUrl,
+  isFoldersCopyItemUrl,
+  isPathmanagementMoveItemUrl,
+  isRxContentExplorerFoldersUrl,
+  isCopyFolderSuccessStatus,
+  uniqueCopyFolderName,
+  expectedSameParentCopyName,
+  unwrapPathItem,
+  wrapCopyFolderItemRequest,
+  isCopyFolderItemRequestEnvelope,
+} = require("../helpers/explorer-copy-folder");
+
+describe("explorer-copy-folder helpers (#3647)", () => {
+  it("exports stable product test ids", () => {
+    assert.equal(COPY_TEST_IDS.shell, "content-explorer-shell");
+    assert.equal(COPY_TEST_IDS.tree, "explorer-tree");
+    assert.equal(COPY_TEST_IDS.detailList, "detail-list");
+    assert.equal(COPY_TEST_IDS.actionCopy, "action-copy");
+  });
+
+  it("builds product explorer URL without rxFolderMutations", () => {
+    const url = explorerProductCopyFolderUrl("http://127.0.0.1:9992/");
+    assert.match(url, /\/Rhythmyx\/cm\/app\/spa\.jsp\?entry=explorer&_=\d+/);
+    assert.equal(hasRxFolderMutationsQuery(url), false);
+    assert.equal(
+      hasRxFolderMutationsQuery(
+        "http://127.0.0.1:9992/Rhythmyx/cm/app/spa.jsp?entry=explorer&rxFolderMutations=1",
+      ),
+      true,
+    );
+    assert.equal(hasRxFolderMutationsQuery("http://x/?rxFolderMutations=0"), false);
+  });
+
+  it("classifies copy/folder vs moveItem vs RX folders URLs", () => {
+    assert.equal(
+      isFoldersCopyFolderUrl(
+        "http://127.0.0.1/Rhythmyx/rest/folders/copy/folder",
+      ),
+      true,
+    );
+    assert.equal(
+      isFoldersCopyItemUrl("http://127.0.0.1/Rhythmyx/rest/folders/copy/item"),
+      true,
+    );
+    assert.equal(
+      isFoldersCopyFolderUrl(
+        "http://127.0.0.1/Rhythmyx/rest/folders/copy/item",
+      ),
+      false,
+    );
+    assert.equal(
+      isPathmanagementMoveItemUrl(
+        "http://127.0.0.1/Rhythmyx/services/pathmanagement/path/moveItem",
+      ),
+      true,
+    );
+    assert.equal(
+      isRxContentExplorerFoldersUrl(
+        "http://127.0.0.1/Rhythmyx/rest/content-explorer/folders",
+      ),
+      true,
+    );
+    assert.equal(
+      isRxContentExplorerFoldersUrl(
+        "http://127.0.0.1/Rhythmyx/rest/folders/copy/folder",
+      ),
+      false,
+    );
+  });
+
+  it("wraps CopyFolderItemRequest and rejects a bare sourcePath root", () => {
+    const wrapped = wrapCopyFolderItemRequest("/Assets/Src", "/Assets/Dst");
+    assert.deepEqual(wrapped, {
+      CopyFolderItemRequest: {
+        itemPath: "/Assets/Src",
+        targetFolderPath: "/Assets/Dst",
+      },
+    });
+    assert.equal(isCopyFolderItemRequestEnvelope(wrapped), true);
+    assert.equal(
+      isCopyFolderItemRequestEnvelope({
+        sourcePath: "/Assets/Src",
+        targetPath: "/Assets/Dst",
+      }),
+      false,
+    );
+  });
+
+  it("unwraps PathItem and treats 200/201 as success", () => {
+    assert.equal(isCopyFolderSuccessStatus(200), true);
+    assert.equal(isCopyFolderSuccessStatus(201), true);
+    assert.equal(isCopyFolderSuccessStatus(400), false);
+    assert.deepEqual(unwrapPathItem({ PathItem: { name: "A", path: "/A" } }), {
+      name: "A",
+      path: "/A",
+    });
+    assert.deepEqual(unwrapPathItem({ name: "flat" }), { name: "flat" });
+    assert.deepEqual(unwrapPathItem(null), {});
+  });
+
+  it("uniqueCopyFolderName and same-parent copy suffix are stable", () => {
+    assert.equal(uniqueCopyFolderName("qa3647_src", 1), "qa3647_src_1");
+    assert.match(uniqueCopyFolderName(), /^qa3647_\d+$/);
+    assert.equal(expectedSameParentCopyName("qa3647_src"), "qa3647_src-2");
+  });
+});

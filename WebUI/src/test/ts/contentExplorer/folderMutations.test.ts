@@ -272,17 +272,55 @@ describe("folderMutations dual-run routing (#3074)", () => {
     );
   });
 
-  it("flag off: deleteItem uses pathmanagement", async () => {
+  it("flag off: renameFolder POSTs pathmanagement RenameFolderItem wrap (#3645)", async () => {
     setRxFolderMutationsFlagOverride(false);
     let last = "";
-    mockFetch(async (input) => {
+    let posted: unknown;
+    mockFetch(async (input, init) => {
       last = typeof input === "string" ? input : (input as Request).url;
-      return new Response(JSON.stringify({}), {
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          PathItem: { name: "Renamed", path: "/Assets/Renamed/" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const item = await renameFolder({
+      path: "/Assets/Old",
+      newName: "Renamed",
+    });
+    expect(last).toContain("/pathmanagement/path/renameFolder");
+    expect(last).not.toContain("/content-explorer/folders");
+    expect(posted).toEqual({
+      RenameFolderItem: { path: "/Assets/Old/", name: "Renamed" },
+    });
+    expect(item.name).toBe("Renamed");
+  });
+
+  it("flag off: deleteItem uses pathmanagement deleteFolder", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    let last = "";
+    let lastBody: unknown;
+    mockFetch(async (input, init) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      const raw = (init as RequestInit | undefined)?.body;
+      lastBody = raw ? JSON.parse(String(raw)) : undefined;
+      return new Response("0", {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" },
       });
     });
-    await deleteItem("/Folders/Gone");
-    expect(last).toContain("/pathmanagement/path/delete");
+    await deleteItem("/Folders/Gone", { guid: "4-101-1" });
+    expect(last).toContain("/pathmanagement/path/deleteFolder");
+    expect(last).not.toContain("/content-explorer/folders");
+    expect(lastBody).toEqual({
+      DeleteFolderCriteria: {
+        path: "/Folders/Gone/",
+        skipItems: "NO",
+        shouldPurge: false,
+        guid: "4-101-1",
+      },
+    });
   });
 });

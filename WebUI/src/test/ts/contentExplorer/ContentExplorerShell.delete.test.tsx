@@ -3,6 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -40,41 +41,32 @@ function renderShell(ui: ReactElement) {
   );
 }
 
-const CREATED = {
-  id: "n-3640",
-  path: "/Sites/qa3640",
-  name: "qa3640",
+const DISPOSABLE = {
+  id: "n-3646",
+  path: "/Sites/qa3646",
+  name: "qa3646",
   type: "folder",
   accessLevel: "WRITE",
 };
 
-describe("ContentExplorerShell create folder (#3640)", () => {
-  it("refreshes the detail list after Create Folder succeeds", async () => {
-    let created = false;
+describe("ContentExplorerShell delete folder (#3646)", () => {
+  it("POSTs deleteFolder then refreshes list and tree", async () => {
+    let deleted = false;
+    const deleteUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.includes("/pathmanagement/path/addNewFolder")) {
-        return new Response(
-          JSON.stringify({
-            PathItem: {
-              id: "n-3640",
-              path: "/Sites/New-Folder/",
-              name: "New-Folder",
-              type: "folder",
-              accessLevel: "WRITE",
-            },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      if (url.includes("/pathmanagement/path/renameFolder")) {
-        created = true;
-        return new Response(JSON.stringify({ PathItem: CREATED }), {
+      if (url.includes("/pathmanagement/path/deleteFolder")) {
+        deleted = true;
+        deleteUrls.push(url);
+        return new Response("0", {
           status: 200,
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain" },
         });
       }
-      const kids = created ? [CREATED] : [];
+      if (url.includes("/pathmanagement/path/delete/") && !url.includes("deleteFolder")) {
+        return new Response("missing", { status: 404 });
+      }
+      const kids = deleted ? [] : [DISPOSABLE];
       if (url.includes("paginatedFolder") || url.includes("/folder/")) {
         return new Response(
           JSON.stringify({
@@ -101,23 +93,30 @@ describe("ContentExplorerShell create folder (#3640)", () => {
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         actionHandlers={{
-          prompt: () => "qa3640",
+          confirm: () => true,
         }}
       />,
     );
 
-    const createBtn = await screen.findByTestId("action-create-folder");
-    expect(createBtn).toBeEnabled();
-    fireEvent.click(createBtn);
+    const row = await screen.findByTestId("detail-row-n-3646");
+    fireEvent.click(row);
+
+    const deleteBtn = await screen.findByTestId("action-delete");
+    expect(deleteBtn).toBeEnabled();
+    fireEvent.click(deleteBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId("detail-row-n-3640")).toBeInTheDocument();
+      expect(deleteUrls.length).toBeGreaterThan(0);
     });
-    expect(screen.getByTestId("tree-node-/Sites/qa3640")).toBeInTheDocument();
-    const nav = screen.getByTestId("explorer-nav");
-    expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
-      0,
-    );
+    expect(deleteUrls.every((u) => u.includes("deleteFolder"))).toBe(true);
+    await waitFor(() => {
+      expect(screen.queryByTestId("detail-row-n-3646")).not.toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("tree-node-/Sites/qa3646"),
+      ).not.toBeInTheDocument();
+    });
     await renderA11yGate(container);
   });
 });
