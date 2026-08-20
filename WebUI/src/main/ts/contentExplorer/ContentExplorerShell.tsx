@@ -648,6 +648,22 @@ function ContentExplorerShellInner({
       await impl(parent, name);
       handleRefreshListAndTree();
     },
+    // Product Delete must recycle via pathmanagement deleteFolder (flag off)
+    // and refresh list + tree so the name disappears without View → Refresh
+    // (#3646). Clear the deleted row so Delete does not stay armed.
+    onDelete: async (item) => {
+      const impl = actionHandlers?.onDelete ?? stockReducedHandlers.onDelete;
+      await impl(item);
+      setSelection((prev) => {
+        const deleted = String(item.path ?? "").replace(/\/+$/, "");
+        const selected = String(prev.item?.path ?? "").replace(/\/+$/, "");
+        return {
+          folderPath: prev.folderPath,
+          item: deleted && selected === deleted ? null : prev.item,
+        };
+      });
+      handleRefreshList();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;

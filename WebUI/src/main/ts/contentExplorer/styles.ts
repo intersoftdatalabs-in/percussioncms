@@ -245,7 +245,8 @@ export const itemIconStyle: CSSProperties = {
 
 export const emptyStateStyle: CSSProperties = {
   padding: "24px 16px",
-  color: "#777",
+  // #777 on #fff is ~4.48:1 (fails WCAG AA). #555 is ~7.5:1 (#3646 empty list).
+  color: "#555",
   fontStyle: "italic",
   textAlign: "center",
 };
