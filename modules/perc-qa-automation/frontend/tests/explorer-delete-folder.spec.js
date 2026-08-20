@@ -16,9 +16,10 @@
  */
 
 /**
- * Playwright surface: #3646 / parent #3102 — Explorer Delete selected folder
+ * Playwright surface: #3646 / #3653 / parent #3102 — Explorer Delete selected folder
  * on the product route ({@code spa.jsp?entry=explorer}) without
- * {@code rxFolderMutations=1}.
+ * {@code rxFolderMutations=1}. After deleteFolder HTTP 200 the name must
+ * leave {@code [data-testid=explorer-tree]} without View → Refresh.
  *
  * <p>Coverage:</p>
  * <ul>
@@ -82,7 +83,7 @@ async function getStatus(request, url) {
   return res.status();
 }
 
-test.describe("Explorer Delete Folder on product route (#3646 / #3102)", () => {
+test.describe("Explorer Delete Folder on product route (#3646 / #3653 / #3102)", () => {
   test(
     "REST: Sites or Assets parent exists (no skip)",
     { tag: TAGS },

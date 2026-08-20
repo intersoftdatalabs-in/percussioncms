@@ -16,9 +16,11 @@
  */
 
 /**
- * Playwright surface: #3645 / parent #3102 — Explorer Rename on the
+ * Playwright surface: #3645 / #3652 / parent #3102 — Explorer Rename on the
  * product route ({@code spa.jsp?entry=explorer}) without
- * {@code rxFolderMutations=1}.
+ * {@code rxFolderMutations=1}. After renameFolder HTTP 200 the new name
+ * must be visible in {@code [data-testid=explorer-tree]} without View →
+ * Refresh (tree node keys / childrenEpoch parent reload).
  *
  * <p>Coverage:</p>
  * <ul>
