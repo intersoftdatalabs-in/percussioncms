@@ -119,7 +119,7 @@ function expectedSameParentCopyName(sourceName) {
  */
 function expectedCopiedItemNames(sourceName) {
   const n = String(sourceName || "").trim();
-  return n ? [n, expectedSameParentCopyName(n)] : [];
+  return n ? [n, `${n}-1`, expectedSameParentCopyName(n)] : [];
 }
 
 /**

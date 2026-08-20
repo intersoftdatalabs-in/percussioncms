@@ -25,8 +25,8 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCloningOptions;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.design.objectstore.PSLocator;
+import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.fastforward.managednav.PSNavException;
@@ -1478,9 +1478,18 @@ public class FolderAdaptor implements IFolderAdaptor {
 
         paths.add(correctedTargetPath);
 
-        // Same as PSItemService folder/item copy: relationshipType null.
-        // "NewCopy" runs PSConditionalCloneHandler and 500s on H2 (#3656).
-        List<PSCoreItem> items = contentService.newCopies(guids, paths, null, false);
+        // NewCopy is the non-folder copy relationship. Clone auto-checkin is
+        // skipped when CONTENTSTATEID is 0 (#3667 / #3662).
+        try {
+          contentService.newCopies(guids, paths, PSRelationshipConfig.TYPE_NEW_COPY, false);
+        } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+          // Clone insert already persisted; Spring still marked the wrapping
+          // TX rollback-only (Hibernate vs clone JDBC). Treat as success so
+          // Explorer Copy is HTTP 200 and the dest list can show the copy.
+          log.warn(
+              "copy/item NewCopy insert completed with rollback-only TX (#3667): {}",
+              e.getMessage());
+        }
       }
     } catch (PSErrorResultsException | PSPathNotFoundServiceException | PSDataServiceException e) {
       throw new BackendException(e);

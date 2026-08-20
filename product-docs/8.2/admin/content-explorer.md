@@ -110,7 +110,7 @@ list/pagination stay on pathmanagement. The product default stays **off**.
 | Scope when on | `/Folders` and `/Sites` (and repository `//…` forms) only. The Assets library is **not** in scope even when its repository path is `/Folders/$System$/Assets` or `//Folders/$System$/Assets`. |
 | Unchanged | Browse/list, folder ACL (security panel), `/Assets` (including `/Folders/$System$/Assets` and `//Folders/$System$/Assets`), `/Design`, `/Recycling` (including `/Folders/$System$/Recycling`) |
 | Copy folder | Public REST `POST /rest/folders/copy/folder` with a `CopyFolderItemRequest` root (`itemPath` + `targetFolderPath`). Not pathmanagement `moveItem` (that DTO is move-only). Copy does not require the dual-run flag. |
-| Copy item (page/file/asset) | Public REST `POST /rest/folders/copy/item` with the same `CopyFolderItemRequest` root. Not `copy/folder` (that endpoint 500s for non-folders). |
+| Copy item (page/file/asset) | Public REST `POST /rest/folders/copy/item` with the same `CopyFolderItemRequest` root. Not `copy/folder` (that endpoint 500s for non-folders). The copy is a NewCopy of the item in the destination folder and starts in that item's workflow **initial state**. |
 
 Documented for integrators on [Public REST](id:developer-rest). Production and operator
 day-to-day Explorer stay on pathmanagement (flag **off**).

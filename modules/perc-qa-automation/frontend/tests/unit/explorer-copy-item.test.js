@@ -165,6 +165,7 @@ describe("explorer-copy-item helpers (#3656)", () => {
     assert.equal(expectedSameParentCopyName("qa3656src"), "qa3656src-2");
     assert.deepEqual(expectedCopiedItemNames("qa3656src"), [
       "qa3656src",
+      "qa3656src-1",
       "qa3656src-2",
     ]);
     assert.equal(isCopyFolderSuccessStatus(200), true);

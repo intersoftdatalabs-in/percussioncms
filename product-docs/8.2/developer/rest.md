@@ -572,7 +572,7 @@ the product Explorer URL with the flag **off**.
 | When on | Mutations under `/Folders` and `/Sites` (and `//Folders` / `//Sites`) use this REST surface. Do **not** treat `/Folders/$System$/Assets` or `//Folders/$System$/Assets` as RX Folders — those are the Assets library. |
 | Still on pathmanagement | List/paginate, ACL folder-properties save, non-RX roots (`/Assets`, `/Folders/$System$/Assets`, `//Folders/$System$/Assets`, `/Design`, `/Recycling`, `/Folders/$System$/Recycling`, …) |
 | Copy folder | `POST /rest/folders/copy/folder` with JSON root `CopyFolderItemRequest` (`itemPath`, `targetFolderPath`). Explorer Copy / Subfolder Copy must not POST a bare `sourcePath` object to pathmanagement `moveItem` (HTTP 400 unexpected element `sourcePath`). |
-| Copy item | `POST /rest/folders/copy/item` with the same JSON root `CopyFolderItemRequest`. Explorer Copy of a selected page, file, or asset must use this endpoint — `copy/folder` 500s for non-folders. |
+| Copy item | `POST /rest/folders/copy/item` with the same JSON root `CopyFolderItemRequest`. Explorer Copy of a selected page, file, or asset must use this endpoint — `copy/folder` 500s for non-folders. Server NewCopy check-in assigns the workflow initial state when the new row has no `CONTENTSTATEID`. |
 
 See also [Content Explorer](id:admin-content-explorer) dual-run notes.
 

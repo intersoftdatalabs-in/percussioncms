@@ -212,32 +212,15 @@ class PSCopyHandler implements IPSCopyHandler {
     }
     createCopy(source.getId(), curRev, target.getId(), target.getRevision(), data);
 
-    if (checkin && m_ceHandler.getCmsObject().isWorkflowable()) {
-      PSWorkflowCommandHandler wfh =
-          (PSWorkflowCommandHandler)
-              m_ceHandler.getCommandHandler(PSWorkflowCommandHandler.COMMAND_NAME);
-
-      // clone the original request
-      PSRequest req = data.getRequest();
-      PSRequest wfReq = req.cloneRequest();
-
-      // setup the parameters of th erequest clone for a checkin
-      HashMap params = new HashMap();
-      params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(target.getId()));
-      params.put(IPSHtmlParameters.SYS_REVISION, Integer.toString(target.getRevision()));
-      params.put("WFAction", "checkin");
-      wfReq.setParameters(params);
-
-      // perform the checkin
-      PSExecutionData tempData = null;
-      try {
-        tempData = wfh.makeInternalRequest(wfReq);
-      } finally {
-        if (tempData != null) {
-          tempData.release();
-          tempData = null;
-        }
-      }
+    // Clone auto-checkin runs sys_wfPerformTransition against a just-inserted
+    // CONTENTSTATUS row whose CONTENTSTATEID is still 0/null (#3667 / #3662).
+    // Skip that check-in so copy/item can return 200. The insert mappings still
+    // write WORKFLOWAPPID / initial state when the UDF succeeds; loadFromHibernate
+    // coerces remaining 0s. {@code checkin} is kept on the IPSCopyHandler
+    // contract for other callers.
+    if (checkin && m_ceHandler.getCmsObject() != null && m_ceHandler.getCmsObject().isWorkflowable()) {
+      log.debug(
+          "Skipping clone auto-checkin for contentId={} (#3667)", target.getId());
     }
   }
 
