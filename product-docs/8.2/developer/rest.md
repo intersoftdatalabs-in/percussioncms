@@ -556,17 +556,19 @@ Accept either repository form or a documented single-slash form; the server norm
 Prefer the generated **OpenAPI** schema for wire field names. Auth and folder ACLs of the underlying
 content web service still apply.
 
-### Dual-run mutation flag (Explorer clients)
+### Dual-run mutation flag (Explorer clients — diagnostic)
 
 Content Explorer can optionally route **folder mutations** (create / rename / move / delete)
 under **Folders** and **Sites** to this façade while **browse / list / pagination** stay on
-pathmanagement.
+pathmanagement. This is a **QA / diagnostic dual-run leftover**, not a production operator
+switch. **Do not enable `perc.explorer.rxFolderMutations` in production.** Operators use
+the product Explorer URL with the flag **off**.
 
 | Item | Value |
 |------|--------|
 | Operator property name | `perc.explorer.rxFolderMutations` |
 | Default | **off** (pathmanagement only — zero behavior change) |
-| Client enable (QA / dual-run) | URL `?rxFolderMutations=1`, or `sessionStorage` / `localStorage` key `perc.explorer.rxFolderMutations=true`, or `window.__PERC_RX_FOLDER_MUTATIONS__ = true` |
+| Client enable (QA / dual-run only) | URL `?rxFolderMutations=1`, or `sessionStorage` / `localStorage` key `perc.explorer.rxFolderMutations=true`, or `window.__PERC_RX_FOLDER_MUTATIONS__ = true` |
 | When on | Mutations under `/Folders` and `/Sites` (and `//Folders` / `//Sites`) use this REST surface. Do **not** treat `/Folders/$System$/Assets` or `//Folders/$System$/Assets` as RX Folders — those are the Assets library. |
 | Still on pathmanagement | List/paginate, ACL folder-properties save, non-RX roots (`/Assets`, `/Folders/$System$/Assets`, `//Folders/$System$/Assets`, `/Design`, `/Recycling`, `/Folders/$System$/Recycling`, …) |
 | Copy folder | `POST /rest/folders/copy/folder` with JSON root `CopyFolderItemRequest` (`itemPath`, `targetFolderPath`). Explorer Copy / Subfolder Copy must not POST a bare `sourcePath` object to pathmanagement `moveItem` (HTTP 400 unexpected element `sourcePath`). |
@@ -576,7 +578,8 @@ See also [Content Explorer](id:admin-content-explorer) dual-run notes.
 ### Migration notes
 
 - Content Explorer **browse / pagination** remains on pathmanagement until a deliberate client
-  switch; mutation dual-run is **default off** (`perc.explorer.rxFolderMutations`).
+  switch; mutation dual-run is **default off** (`perc.explorer.rxFolderMutations`). Operators
+  stay on that default. Do **not** turn the diagnostic flag on in production.
 - Do not confuse with foldermanagement workflow assignment (`/services/folders`) or CM1
   `FoldersResource` section APIs.
 

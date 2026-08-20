@@ -232,6 +232,20 @@ describe("path-based SPA URLs (PR-9)", () => {
     expect(window.location.pathname).toBe("/cm/app/home/library");
   });
 
+  it("applyEntryQueryToPath keeps rxFolderMutations on explorer path (#3654)", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/cm/app/spa.jsp?entry=explorer&rxFolderMutations=1",
+    );
+    const next = applyEntryQueryToPath(
+      "/cm/app/spa.jsp",
+      "?entry=explorer&rxFolderMutations=1",
+      "/cm/app",
+    );
+    expect(next).toBe("/cm/app/explorer?rxFolderMutations=1");
+  });
+
   afterEach(() => {
     window.history.replaceState({}, "", "/");
   });

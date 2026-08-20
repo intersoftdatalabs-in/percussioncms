@@ -107,12 +107,13 @@ function readWindowGlobal(): boolean | null {
   return null;
 }
 
-function readQueryParam(): boolean | null {
+function readQueryParamFromSearch(search: string | null | undefined): boolean | null {
+  if (search == null || search === "") {
+    return null;
+  }
   try {
-    if (typeof window === "undefined" || !window.location?.search) {
-      return null;
-    }
-    const params = new URLSearchParams(window.location.search);
+    const raw = search.startsWith("?") ? search.slice(1) : search;
+    const params = new URLSearchParams(raw);
     if (!params.has(RX_FOLDER_MUTATIONS_QUERY_PARAM)) {
       return null;
     }
@@ -120,6 +121,46 @@ function readQueryParam(): boolean | null {
   } catch {
     return null;
   }
+}
+
+function readQueryParam(): boolean | null {
+  try {
+    if (typeof window === "undefined" || !window.location?.search) {
+      return null;
+    }
+    return readQueryParamFromSearch(window.location.search);
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionFlag(value: boolean): void {
+  try {
+    if (typeof sessionStorage === "undefined") {
+      return;
+    }
+    sessionStorage.setItem(RX_FOLDER_MUTATIONS_STORAGE_KEY, value ? "true" : "false");
+  } catch {
+    /* private mode */
+  }
+}
+
+/**
+ * Persist {@code ?rxFolderMutations=} from a spa.jsp entry URL before the SPA
+ * rewrites to a path route (which would otherwise drop the diagnostic query).
+ *
+ * @returns parsed flag, or {@code null} when the param is absent
+ */
+export function captureRxFolderMutationsFromSearch(
+  search: string | null | undefined = typeof window !== "undefined"
+    ? window.location.search
+    : "",
+): boolean | null {
+  const parsed = readQueryParamFromSearch(search);
+  if (parsed !== null) {
+    writeSessionFlag(parsed);
+  }
+  return parsed;
 }
 
 /**
@@ -133,6 +174,7 @@ export function isRxFolderMutationsEnabled(): boolean {
   }
   const fromQuery = readQueryParam();
   if (fromQuery !== null) {
+    writeSessionFlag(fromQuery);
     return fromQuery;
   }
   try {

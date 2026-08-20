@@ -25,7 +25,9 @@ import {
   RX_FOLDER_REST_BASE,
   rxFolderToPathItem,
   saveRxFolder,
+  unwrapRxFolder,
   wrapAddFolderRequest,
+  wrapRxFolder,
 } from "../../../main/ts/api/contentExplorer/rxFolderApi";
 import { mockFetch } from "./setup";
 
@@ -101,6 +103,20 @@ describe("wrapAddFolderRequest", () => {
   });
 });
 
+describe("wrapRxFolder", () => {
+  it("wraps save fields under RxFolder for JAXB PUT (#3654)", () => {
+    expect(wrapRxFolder({ name: "Renamed" })).toEqual({
+      RxFolder: { name: "Renamed" },
+    });
+  });
+
+  it("does not double-wrap an already enveloped RxFolder", () => {
+    expect(wrapRxFolder({ RxFolder: { name: "X" } })).toEqual({
+      RxFolder: { name: "X" },
+    });
+  });
+});
+
 describe("rxFolderApi HTTP", () => {
   it("loadFolderByPath hits content-explorer folders by-path", async () => {
     let last = "";
@@ -114,6 +130,21 @@ describe("rxFolderApi HTTP", () => {
     const folder = await loadFolderByPath("/Folders");
     expect(last).toContain(`${RX_FOLDER_REST_BASE}/by-path/Folders`);
     expect(folder.name).toBe("Folders");
+  });
+
+  it("loadFolderByPath unwraps RxFolder WRAP_ROOT_VALUE (#3654)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          RxFolder: { id: "2-101-9", name: "Child", path: "//Folders/Child" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const folder = await loadFolderByPath("/Folders/Child/");
+    expect(folder.id).toBe("2-101-9");
+    expect(folder.name).toBe("Child");
+    expect(unwrapRxFolder({ RxFolder: { id: "x" } }).id).toBe("x");
   });
 
   it("addRxFolder POSTs AddFolderRequest root with name + parentPath", async () => {
@@ -135,12 +166,14 @@ describe("rxFolderApi HTTP", () => {
     expect(created.id).toBe("9-101-1");
   });
 
-  it("saveRxFolder PUTs by id", async () => {
+  it("saveRxFolder PUTs by id with RxFolder wrap", async () => {
     let method = "";
     let url = "";
+    let body: unknown;
     mockFetch(async (input, init) => {
       method = (init as RequestInit)?.method ?? "GET";
       url = typeof input === "string" ? input : (input as Request).url;
+      body = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
       return new Response(
         JSON.stringify({ id: "9-101-1", name: "Renamed" }),
         { status: 200, headers: { "Content-Type": "application/json" } },
@@ -149,6 +182,7 @@ describe("rxFolderApi HTTP", () => {
     await saveRxFolder("9-101-1", { name: "Renamed" });
     expect(method).toBe("PUT");
     expect(url).toContain("/by-id/9-101-1");
+    expect(body).toEqual({ RxFolder: { name: "Renamed" } });
   });
 
   it("moveRxFolderChildren POSTs move-children", async () => {

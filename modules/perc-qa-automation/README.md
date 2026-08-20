@@ -233,6 +233,33 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-create-folder` (product-route Create Folder). Parent #3102.
 
+### Explorer RX folder mutations flag-on no-skip (#3654 / parent #3102)
+
+H2 operator proof that **Create / Rename / Delete** on
+`spa.jsp?entry=explorer&rxFolderMutations=1` go through content-explorer
+folders REST (HTTP 200), refresh list+tree, and **do not** post
+pathmanagement mutations. Product default stays **flag off** — this
+surface is diagnostic only. **No skip** when the façade GET by-path is
+200 on the QA image.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-rx-folder-mutations.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-rx-folder-mutations.js`, `tests/unit/explorer-rx-folder-mutations.test.js` |
+| Tags | `@explorer-rx-folder-mutations` `@explorer` `@folder` `@smoke` |
+| Soft skip | None when the content-explorer folders façade is on the image; missing façade is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-rx-folder-mutations.spec.js
+```
+
+Peer: `explorer-create-folder` / `explorer-rename-folder` / `explorer-delete-folder`
+(product-route, flag **off**). Parent #3102. Out of scope: Move (#3655).
+
 ### Explorer Copy selected folder on product route (#3647 / parent #3102)
 
 H2 operator proof that **Copy** of a selected disposable folder on
