@@ -26,6 +26,7 @@ import {
   unwrapMenuActionChildren,
   isActionAllowedOnSurface,
   isToolbarPublishNowHidden,
+  isToolbarEditorActionHidden,
   isClientHandledAction,
   isDesktopOnlyActionUrl,
   isWebExecutableLeaf,
@@ -205,7 +206,17 @@ describe("filterEnabledMenuActions", () => {
     ];
     const filtered = filterToolbarActions(actions, BASE);
     expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
-    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual(["Flush_Cache"]);
+    const withPage = filterToolbarActions(actions, BASE, {
+      id: "42",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      type: "percPage",
+      category: "page",
+      leaf: true,
+    });
+    expect(withPage.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
       "Flush_Cache",
     ]);
@@ -361,5 +372,43 @@ describe("filterEnabledMenuActions", () => {
       "View",
       "Open",
     ]);
+  });
+
+  it("hides toolbar Edit until a page or asset is selected (#3638)", () => {
+    const actions: MenuAction[] = [
+      leaf({ name: "open" }),
+      leaf({ name: "Edit", label: "Edit" }),
+      leaf({ name: "Quick_Edit", label: "Quick Edit" }),
+    ];
+    expect(filterToolbarActions(actions, BASE, null).map((a) => a.name)).toEqual(
+      ["open"],
+    );
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }).map((a) => a.name),
+    ).toEqual(["open"]);
+    expect(
+      filterToolbarActions(actions, BASE, {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      }).map((a) => a.name),
+    ).toEqual(["open", "Edit", "Quick_Edit"]);
+    expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
+    expect(
+      isToolbarEditorActionHidden(leaf({ name: "open" }), {
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+      }),
+    ).toBe(false);
   });
 });

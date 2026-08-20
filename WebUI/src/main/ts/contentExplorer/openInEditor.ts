@@ -27,6 +27,10 @@ import {
   buildEditorHostUrl,
   editorWindowName,
 } from "../editor/editorHostUrl";
+import {
+  openEditorHost,
+  type OpenEditorHostDeps,
+} from "../editor/openEditorHost";
 import { parseExplorerContentId } from "./menuCatalogLoad";
 import { isFolder } from "./selection";
 
@@ -34,21 +38,36 @@ import { isFolder } from "./selection";
  * Open a content item in the React content editor. Folders stay in Explorer
  * browse — they are not workflowed pages (#3330). Does not open CM1
  * {@code ?view=editor}.
+ *
+ * <p>Numeric / GUID ids open immediately. Slug or omitted ids fall back to
+ * path lookup ({@link openEditorHost}) so Open/Edit still lands
+ * {@code spa.jsp?entry=editor} (#3638).</p>
  */
-export function openInEditor(item: PSPathItem): void {
+export function openInEditor(
+  item: PSPathItem,
+  deps: OpenEditorHostDeps = {},
+): void | Promise<void> {
   if (isFolder(item)) {
-    return;
-  }
-  const contentId = parseExplorerContentId(item.id);
-  if (contentId == null) {
     return;
   }
   if (typeof window === "undefined") {
     return;
   }
-  window.open(
-    buildEditorHostUrl(contentId, "edit"),
-    editorWindowName(contentId),
-    EDITOR_WINDOW_FEATURES,
-  );
+  const contentId = parseExplorerContentId(item.id);
+  if (contentId != null) {
+    const open =
+      deps.openWindow ??
+      ((url, target, features) => window.open(url, target, features));
+    open(
+      buildEditorHostUrl(contentId, "edit"),
+      editorWindowName(contentId),
+      EDITOR_WINDOW_FEATURES,
+    );
+    return;
+  }
+  const path = String(item.path ?? "").trim();
+  if (!path) {
+    return;
+  }
+  return openEditorHost({ id: item.id, path, mode: "edit" }, deps).then(() => undefined);
 }

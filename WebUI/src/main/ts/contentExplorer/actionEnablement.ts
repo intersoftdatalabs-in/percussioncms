@@ -43,6 +43,7 @@ import { collapseFlattenedMenuActionRoots } from "../api/contentExplorer/actionM
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import { resolvePublishKind } from "./itemPublish";
+import { isFolder } from "./selection";
 
 /** Where the filtered menu will be rendered. */
 export type ActionSurface = "toolbar" | "contextmenu";
@@ -254,6 +255,34 @@ export function isToolbarPublishNowHidden(
 }
 
 /**
+ * Edit / Quick Edit / View content need a selected page or asset.
+ * Folder-only catalogs still include those leaves; hiding them keeps
+ * Sites non-editable (#3638). Toolbar {@code Open} stays — folders
+ * browse; items open the React editor.
+ */
+const EDITOR_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "edit",
+  "edit_content",
+  "edit_properties",
+  "quick_edit",
+  "view_content",
+  "view_properties",
+  "revision_viewcontent",
+  "revision_viewproperties",
+  "revision_promote",
+]);
+
+export function isToolbarEditorActionHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!EDITOR_ACTION_KEYS.has(actionNameKey(action.name))) {
+    return false;
+  }
+  return !selectionItem || isFolder(selectionItem);
+}
+
+/**
  * Recursively filter a {@link MenuAction} tree for product Explorer
  * surfaces. Pure: does not mutate the input array or child arrays.
  *
@@ -299,6 +328,9 @@ export function filterEnabledMenuActions(
       continue;
     }
     if (isToolbarPublishNowHidden(action, ctx.selectionItem)) {
+      continue;
+    }
+    if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
     out.push(action);
