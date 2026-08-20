@@ -74,7 +74,7 @@ import {
   parseExplorerContentId,
 } from "./menuCatalogLoad";
 import {
-  listDisplayFormats,
+  listExplorerFolderDisplayFormats,
   normalizeDisplayFormatColumns,
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
@@ -117,6 +117,7 @@ import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
 import { toClipboardItem } from "./clipboard/toClipboardItem";
 import { ContextMenu } from "./ContextMenu";
+import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import type { PageTemplateChoice } from "../editor/pageTemplates";
@@ -138,6 +139,7 @@ import { resolveCurrentUserIdentities } from "./currentUserIdentities";
 import { DetailList } from "./DetailList";
 import {
   displayFormatOptionKey,
+  resolvePathmanagementDisplayFormatId,
   toDetailDisplayFormat,
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
@@ -406,7 +408,7 @@ async function defaultRunWorkflowTransition(
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */
 async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
-  return listDisplayFormats({ validForFolder: true });
+  return listExplorerFolderDisplayFormats();
 }
 
 async function defaultResolveFolderId(
@@ -700,7 +702,9 @@ function ContentExplorerShellInner({
     );
   }, [selectedFormat]);
 
-  const displayFormatId = selectedFormatKey || null;
+  const displayFormatId = selectedFormat
+    ? resolvePathmanagementDisplayFormatId(selectedFormat) || null
+    : null;
 
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {
@@ -849,17 +853,25 @@ function ContentExplorerShellInner({
           if (requestId !== contextMenuRequestIdRef.current) return;
           // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
           const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: filterContextMenuActions(merged, undefined, item),
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         } catch {
           if (requestId !== contextMenuRequestIdRef.current) return;
+          const pos = clampContextMenuPosition(clientX, clientY, {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
           setContextMenu({
             actions: [],
-            x: clientX,
-            y: clientY,
+            x: pos.x,
+            y: pos.y,
           });
         }
       })();

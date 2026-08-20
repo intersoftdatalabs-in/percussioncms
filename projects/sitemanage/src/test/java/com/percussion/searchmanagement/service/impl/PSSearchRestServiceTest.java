@@ -96,6 +96,22 @@ class PSSearchRestServiceTest {
   }
 
   @Test
+  void sanitizeCriteriaClearsRootFolderPathAsUnscoped() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("a");
+    criteria.setFolderPath("//");
+    restService.sanitizeCriteria(criteria);
+    assertNull(criteria.getFolderPath());
+    criteria.setFolderPath("/");
+    restService.sanitizeCriteria(criteria);
+    assertNull(criteria.getFolderPath());
+    criteria.setFolderPath("//Sites");
+    restService.sanitizeCriteria(criteria);
+    assertEquals("//Sites", criteria.getFolderPath());
+  }
+
+  @Test
   void sanitizeCriteriaCoercesNonPositiveStartIndexToOne() {
     PSSearchRestService restService = new PSSearchRestService(null, null, null);
     PSSearchCriteria criteria = new PSSearchCriteria();

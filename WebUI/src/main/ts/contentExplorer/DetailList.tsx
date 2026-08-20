@@ -37,7 +37,10 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { paginatedFolder } from "../api/contentExplorer/pathApi";
+import {
+  isNumericDisplayFormatId,
+  paginatedFolder,
+} from "../api/contentExplorer/pathApi";
 import type { PSPathItem, PSPagedResult } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 
@@ -232,6 +235,23 @@ import { EXPLORER_MSG } from "./messages";
 
 const PAGE_SIZE = 50;
 
+function detailListRootProps(
+  folderPath: string | null,
+  displayFormatId?: string | null,
+): {
+  style: typeof listStyle;
+  "data-testid": "detail-list";
+  "data-folder-path": string;
+  "data-display-format-id": string;
+} {
+  return {
+    style: listStyle,
+    "data-testid": "detail-list",
+    "data-folder-path": folderPath ?? "",
+    "data-display-format-id": displayFormatId ?? "",
+  };
+}
+
 function FolderClosedGlyph(): React.ReactElement {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
@@ -346,8 +366,8 @@ export function DetailList({
       startIndex,
       maxResults: PAGE_SIZE,
     };
-    if (displayFormatId) {
-      params.displayFormatId = displayFormatId;
+    if (isNumericDisplayFormatId(displayFormatId)) {
+      params.displayFormatId = String(displayFormatId).trim();
     }
     paginatedFolder(folderPath, params)
       .then((res) => {
@@ -408,11 +428,7 @@ export function DetailList({
 
   if (!folderPath) {
     return (
-      <div
-        style={listStyle}
-        data-testid="detail-list"
-        data-folder-path={folderPath ?? ""}
-      >
+      <div {...detailListRootProps(folderPath, displayFormatId)}>
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -421,11 +437,7 @@ export function DetailList({
   }
   if (error) {
     return (
-      <div
-        style={listStyle}
-        data-testid="detail-list"
-        data-folder-path={folderPath ?? ""}
-      >
+      <div {...detailListRootProps(folderPath, displayFormatId)}>
         <div style={errorStateStyle} role="alert">
           {message(EXPLORER_MSG.LIST_LOAD_ERROR)}: {error}
         </div>
@@ -434,22 +446,14 @@ export function DetailList({
   }
   if (loading && children.length === 0) {
     return (
-      <div
-        style={listStyle}
-        data-testid="detail-list"
-        data-folder-path={folderPath ?? ""}
-      >
+      <div {...detailListRootProps(folderPath, displayFormatId)}>
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_LOADING)}</div>
       </div>
     );
   }
   if (!loading && children.length === 0) {
     return (
-      <div
-        style={listStyle}
-        data-testid="detail-list"
-        data-folder-path={folderPath ?? ""}
-      >
+      <div {...detailListRootProps(folderPath, displayFormatId)}>
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -458,11 +462,7 @@ export function DetailList({
   }
 
   return (
-    <div
-      style={listStyle}
-      data-testid="detail-list"
-      data-folder-path={folderPath ?? ""}
-    >
+    <div {...detailListRootProps(folderPath, displayFormatId)}>
       <table style={tableStyle}>
         <thead style={theadStyle}>
           <tr>

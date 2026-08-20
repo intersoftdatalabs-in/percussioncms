@@ -37,6 +37,7 @@ describe("explorer-shell-chrome helpers (#2850)", () => {
     assert.equal(TEST_IDS.searchPanelHost, "explorer-search-panel");
     assert.equal(TEST_IDS.searchPanel, "search-panel");
     assert.equal(TEST_IDS.searchInput, "search-panel-input");
+    assert.equal(TEST_IDS.searchSubmit, "search-panel-submit");
     assert.equal(TEST_IDS.displayFormat, "explorer-display-format");
     assert.equal(TEST_IDS.displayFormatError, "explorer-display-format-error");
     assert.equal(TEST_IDS.viewTools, "explorer-view-tools");

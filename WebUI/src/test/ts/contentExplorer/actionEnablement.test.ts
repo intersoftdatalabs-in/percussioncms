@@ -21,6 +21,7 @@ import {
   filterEnabledMenuActions,
   filterToolbarActions,
   normalizeMenuActionTree,
+  prepareMenuActionTree,
   prepareToolbarActions,
   unwrapMenuActionChildren,
   isActionAllowedOnSurface,
@@ -326,5 +327,39 @@ describe("filterEnabledMenuActions", () => {
     expect(
       filterContextMenuActions(actions, BASE, page).map((a) => a.name),
     ).toEqual(["open", "Publish_Now"]);
+  });
+
+  it("unwraps envelope children and collapses dumped descendants on the context menu (#3629)", () => {
+    const actions = [
+      {
+        name: "View",
+        label: "View",
+        sortRank: 1,
+        menuType: "MENU",
+        children: {
+          ActionMenuList: [
+            leaf({ name: "View_Properties", url: "/Rhythmyx/ok" }),
+            leaf({ name: "gone", url: "javascript:void(0)" }),
+          ],
+        },
+      } as unknown as MenuAction,
+      leaf({ name: "View_Properties", url: "/Rhythmyx/ok", sortRank: 2 }),
+      leaf({ name: "Open", url: "/Rhythmyx/open", sortRank: 3 }),
+    ];
+    expect(
+      unwrapMenuActionChildren(actions[0].children).map((c) => c.name),
+    ).toEqual(["View_Properties", "gone"]);
+    const filtered = filterContextMenuActions(actions, BASE);
+    expect(filtered.map((a) => a.name)).toEqual(["View", "Open"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+      "View_Properties",
+    ]);
+    expect(
+      prepareMenuActionTree(normalizeMenuActionTree(actions)).map((a) => a.name),
+    ).toEqual(["View", "Open"]);
+    expect(prepareToolbarActions(actions).map((a) => a.name)).toEqual([
+      "View",
+      "Open",
+    ]);
   });
 });

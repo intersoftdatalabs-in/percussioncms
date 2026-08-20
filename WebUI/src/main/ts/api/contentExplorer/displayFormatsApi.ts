@@ -87,6 +87,21 @@ export async function listDisplayFormats(
   return asArray(payload);
 }
 
+/**
+ * Explorer folder-list catalog. Prefer {@code validForFolder=true}; when that
+ * filter is empty (H2 summary rows omit usage flags — #3618) fall back to the
+ * unfiltered catalog so the selector can still switch {@code displayFormatId}.
+ */
+export async function listExplorerFolderDisplayFormats(): Promise<
+  DisplayFormat[]
+> {
+  const folder = await listDisplayFormats({ validForFolder: true });
+  if (folder.length > 0) {
+    return folder;
+  }
+  return listDisplayFormats();
+}
+
 /** GET /services/displayformats/{idOrName} */
 export async function getDisplayFormatDetail(
   idOrName: string,

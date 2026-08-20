@@ -20,10 +20,13 @@
  * <p>Replaces the US1 default no-op preview with the same product surfaces the
  * classic Finder uses:</p>
  * <ul>
- *   <li><strong>Pages</strong> — {@code GET …/pagemanagement/render/page/{id}}
- *       (legacy {@code PAGE_PREVIEW}) when a content id is present; otherwise a
- *       site-path friendly URL with {@code percmobilepreview} (Finder selection
- *       path).</li>
+ *   <li><strong>Pages</strong> — product editor-or-preview host
+ *       ({@code spa.jsp?entry=editor&mode=view}) when a content id is
+ *       present so H2 listed pages open HTTP 200 (FastForward site-path
+ *       assembly 500s when nav types are unregistered). Finder site-path
+ *       ({@code folderPaths + name} / {@code path} +
+ *       {@code percmobilepreview}) when there is no id. Render service
+ *       is the last fallback (#3627).</li>
  *   <li><strong>Assets</strong> — {@code GET …/assetmanagement/asset/assetViewUrl/{id}}
  *       (plain text URL) then {@code window.open}.</li>
  * </ul>
@@ -33,8 +36,10 @@
  */
 
 import { get } from "../api/client";
-import { PATHS, SERVICES_ROOT } from "../api/paths";
+import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { PATHS, SERVICES_ROOT } from "../api/paths";
+import { buildEditorHostUrl } from "../editor/editorHostUrl";
 import { isFolder, isPageOrAssetContentType } from "./selection";
 
 /** Discriminator used by UI chrome and skip logic in Playwright. */
@@ -140,6 +145,45 @@ const ASSET_PREVIEW_TYPE_KEYS = new Set([
   "rfffile",
 ]);
 
+function firstFolderPath(item: PSPathItem): string {
+  // Wire may send folderPaths as a string or string[] (Finder uses a string).
+  const raw: unknown = item.folderPaths;
+  if (typeof raw === "string" && raw.trim()) {
+    return raw.trim();
+  }
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      if (typeof entry === "string" && entry.trim()) {
+        return entry.trim();
+      }
+    }
+  }
+  if (typeof item.folderPath === "string" && item.folderPath.trim()) {
+    return item.folderPath.trim();
+  }
+  return "";
+}
+
+/**
+ * Finder-equivalent Sites page path: {@code folderPaths + name}, then
+ * {@code item.path}. Empty when the item is not under {@code /Sites/}.
+ */
+export function resolvePagePreviewPath(item: PSPathItem): string {
+  const parent = firstFolderPath(item);
+  const name = (item.name ?? "").trim();
+  if (parent && name) {
+    const joined = normalizeCmsPath(`${normalizeCmsPath(parent)}/${name}`);
+    if (joined.toLowerCase().startsWith("/sites/")) {
+      return joined;
+    }
+  }
+  const path = normalizeCmsPath(item.path);
+  if (path.toLowerCase().startsWith("/sites/")) {
+    return path;
+  }
+  return "";
+}
+
 function isAssetPreviewType(pathLower: string, typeOnly: string): boolean {
   if (ASSET_PREVIEW_TYPE_KEYS.has(typeOnly)) {
     return true;
@@ -226,7 +270,19 @@ export function resolvePreviewTarget(
       needsFetch: true,
     };
   }
-  // page
+  // page — editor-or-preview host when id is known (HTTP 200 on H2).
+  const contentId = parseExplorerContentId(item.id);
+  if (contentId != null) {
+    return {
+      kind: "page",
+      url: buildEditorHostUrl(contentId, "view"),
+      needsFetch: false,
+    };
+  }
+  const siteUrl = buildSitePathPreviewUrl(resolvePagePreviewPath(item));
+  if (siteUrl) {
+    return { kind: "page", url: siteUrl, needsFetch: false };
+  }
   const id = (item.id ?? "").trim();
   if (id) {
     return {
@@ -235,12 +291,7 @@ export function resolvePreviewTarget(
       needsFetch: false,
     };
   }
-  const siteUrl = buildSitePathPreviewUrl(item.path);
-  return {
-    kind: siteUrl ? "page" : "none",
-    url: siteUrl,
-    needsFetch: false,
-  };
+  return { kind: "none", url: "", needsFetch: false };
 }
 
 function defaultOpenWindow(

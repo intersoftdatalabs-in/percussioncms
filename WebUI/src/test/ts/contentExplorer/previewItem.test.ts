@@ -23,6 +23,7 @@ import {
   isPreviewableItem,
   normalizeCmsPath,
   openPreviewItem,
+  resolvePagePreviewPath,
   resolvePreviewKind,
   resolvePreviewTarget,
 } from "../../../main/ts/contentExplorer/previewItem";
@@ -122,9 +123,9 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(isPreviewableItem(listed)).toBe(true);
     const target = resolvePreviewTarget(listed, "/services");
     expect(target.kind).toBe("page");
-    expect(target.url).toBe(
-      `/services/pagemanagement/render/page/${encodeURIComponent(listed.id!)}`,
-    );
+    expect(target.url).toContain("entry=editor");
+    expect(target.url).toContain("contentId=9");
+    expect(target.url).toContain("mode=view");
     expect(
       isPreviewableItem({
         name: "Home",
@@ -151,12 +152,50 @@ describe("previewItem pure helpers (#2733)", () => {
     ).toContain("/Sites/Demo/Home?");
   });
 
-  it("resolvePreviewTarget prefers page render id over site path", () => {
+  it("resolvePagePreviewPath prefers Finder folderPaths + name (#3627)", () => {
+    expect(
+      resolvePagePreviewPath({
+        id: "1-101-551",
+        name: "Home",
+        path: "/Sites/Corporate_Investments/Home",
+        folderPath: "//Sites/CorporateInvestments",
+        type: "rffHome",
+      }),
+    ).toBe("/Sites/CorporateInvestments/Home");
+    expect(
+      resolvePagePreviewPath({
+        id: "1-101-552",
+        name: "About",
+        path: "/Sites/Corporate_Investments/About",
+        folderPaths: ["//Sites/CorporateInvestments"],
+        type: "rffGeneric",
+      }),
+    ).toBe("/Sites/CorporateInvestments/About");
+    expect(
+      resolvePagePreviewPath({
+        name: "About",
+        path: "/Sites/Demo/Pages/About",
+        type: "percPage",
+      }),
+    ).toBe("/Sites/Demo/Pages/About");
+    expect(
+      resolvePagePreviewPath({
+        id: "9",
+        name: "logo.png",
+        path: "/Assets/logo.png",
+        type: "asset",
+      }),
+    ).toBe("");
+  });
+
+  it("resolvePreviewTarget prefers editor-or-preview host when id is present (#3627)", () => {
     const t = resolvePreviewTarget(PAGE, "/services");
     expect(t.kind).toBe("page");
     expect(t.needsFetch).toBe(false);
-    expect(t.url).toContain("/pagemanagement/render/page/");
-    expect(t.url).toContain(encodeURIComponent(PAGE.id!));
+    expect(t.url).toContain("entry=editor");
+    expect(t.url).toContain("contentId=1");
+    expect(t.url).toContain("mode=view");
+    expect(t.url).not.toContain("/pagemanagement/render/page/");
 
     const pathOnly = resolvePreviewTarget(
       { name: "Home", path: "/Sites/Demo/Home", type: "page" },
@@ -165,13 +204,25 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(pathOnly.url).toContain("/Sites/Demo/Home?");
     expect(pathOnly.needsFetch).toBe(false);
 
+    const guidPage = resolvePreviewTarget(
+      {
+        id: "16777215-101-88",
+        name: "Home",
+        path: "/Other/Home",
+        type: "percPage",
+      },
+      "/services",
+    );
+    expect(guidPage.url).toContain("contentId=88");
+    expect(guidPage.url).toContain("mode=view");
+
     const assetT = resolvePreviewTarget(ASSET, "/services");
     expect(assetT.kind).toBe("asset");
     expect(assetT.needsFetch).toBe(true);
     expect(assetT.url).toContain("assetViewUrl");
   });
 
-  it("openPreviewItem opens page render URL without fetch", async () => {
+  it("openPreviewItem opens editor view host without fetch (#3627)", async () => {
     const openWindow = vi.fn(() => null);
     const fetchText = vi.fn();
     await openPreviewItem(PAGE, {
@@ -182,9 +233,9 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(fetchText).not.toHaveBeenCalled();
     expect(openWindow).toHaveBeenCalledTimes(1);
     const url = openWindow.mock.calls[0][0] as string;
-    expect(url).toBe(
-      `/services/pagemanagement/render/page/${encodeURIComponent(PAGE.id!)}`,
-    );
+    expect(url).toContain("entry=editor");
+    expect(url).toContain("contentId=1");
+    expect(url).toContain("mode=view");
   });
 
   it("openPreviewItem fetches asset view URL then opens body", async () => {

@@ -19,6 +19,7 @@ import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
+import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import { renderA11yGate } from "./a11y";
@@ -165,6 +166,93 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         "aria-expanded",
       ),
     ).toBe("true");
+  });
+
+  it("switching display format remounts the list with displayFormatId (#3618)", async () => {
+    const seen: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      seen.push(url);
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "p-1",
+                  name: "Welcome",
+                  path: "/Sites/Foo/Welcome",
+                  type: "page",
+                  title: "Welcome Page",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Foo"
+        loadDisplayFormats={async () => [
+          {
+            name: "FolderList",
+            displayId: 3,
+            displayName: "Folder list",
+            columns: [{ source: "sys_title" }, { source: "sys_contenttypename" }],
+          },
+          {
+            name: "ByDate",
+            displayId: 8,
+            displayName: "By date",
+            columns: [
+              { source: "sys_title" },
+              { source: "sys_contentlastmodifieddate" },
+            ],
+          },
+        ]}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(screen.getByTestId("detail-col-header-path")).toBeTruthy();
+    expect(screen.getByTestId("detail-list").getAttribute("data-display-format-id")).toBe(
+      "",
+    );
+
+    const select = screen.getByTestId(
+      "explorer-display-format",
+    ) as HTMLSelectElement;
+    await waitFor(() => {
+      expect(Array.from(select.options).some((o) => o.value === "8")).toBe(true);
+    });
+    fireEvent.change(select, { target: { value: "8" } });
+    expect(select.value).toBe("8");
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("detail-list").getAttribute("data-display-format-id"),
+      ).toBe("8");
+    });
+    expect(screen.getByTestId("detail-col-header-title")).toBeTruthy();
+    expect(screen.getByTestId("detail-col-header-modified")).toBeTruthy();
+    expect(screen.queryByTestId("detail-col-header-path")).toBeNull();
+    expect(seen.some((u) => u.includes("displayFormatId=8"))).toBe(true);
+    expect(seen.some((u) => u.includes("displayFormatId=FolderList"))).toBe(
+      false,
+    );
   });
 
   it("opens Search under the header from the always-visible view-tool toggle (#3208)", async () => {
@@ -644,6 +732,98 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     // Desktop-only URL still filtered from context menu.
     expect(screen.queryByTestId("context-menu-item-desktop-cx")).toBeNull();
+  });
+
+  it("right-click context menu keeps nested MENU parents (#3629)", async () => {
+    const loadMenuActions = vi.fn(async () => [
+      {
+        name: "View",
+        label: "View",
+        sortRank: 1,
+        menuType: "MENU" as const,
+        children: {
+          ActionMenuList: [
+            {
+              name: "View_Properties",
+              label: "View Properties",
+              sortRank: 1,
+              menuType: "MENUITEM" as const,
+              url: "/Rhythmyx/ok",
+            },
+          ],
+        },
+      } as unknown as MenuAction,
+      {
+        name: "View_Properties",
+        label: "View Properties",
+        sortRank: 2,
+        menuType: "MENUITEM" as const,
+        url: "/Rhythmyx/ok",
+      },
+      {
+        name: "Open",
+        label: "Open",
+        sortRank: 3,
+        menuType: "MENUITEM" as const,
+        url: "/Rhythmyx/open",
+      },
+    ]);
+
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "501",
+                  name: "page-five",
+                  path: "/Sites/page-five",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 1,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-501")).toBeInTheDocument();
+    });
+    fireEvent.contextMenu(screen.getByTestId("detail-row-501"), {
+      clientX: 12,
+      clientY: 24,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("context-menu")).toBeInTheDocument();
+      expect(screen.getByTestId("context-menu-item-View")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId("context-menu-item-View").getAttribute("aria-haspopup"),
+    ).toBe("menu");
+    expect(screen.getByTestId("context-menu-item-Open")).toBeInTheDocument();
+    expect(screen.queryByTestId("context-menu-item-View_Properties")).toBeNull();
   });
 
   it("merges workflow transition group into toolbar and invokes transition (#2732)", async () => {
@@ -2417,6 +2597,40 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
     });
+  });
+
+  it("free-text submit empty transport is empty-success not error (#3617)", async () => {
+    stubPathFetch();
+    const search = vi.fn(async () => ({
+      children: [],
+      totalCount: 0,
+      startIndex: 1,
+    }));
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listSavedSearches={async () => []}
+        search={search}
+      />,
+    );
+    openViewMenu();
+    fireEvent.click(screen.getByTestId("explorer-toggle-search"));
+    await waitFor(() =>
+      expect(screen.getByTestId("search-panel-input")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "no-hits" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-empty")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("search-panel-error")).toBeNull();
   });
 
   it("passes listSavedSearches and executeSavedSearch into SearchPanel (#2850)", async () => {
