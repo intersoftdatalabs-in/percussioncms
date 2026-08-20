@@ -2282,7 +2282,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       });
     });
 
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites/Corporate_Investments/web_resources/theme"
         loadDisplayFormats={async () => []}
@@ -2318,6 +2318,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(loadDependencySummary).toHaveBeenCalledWith("708");
     });
     expect(screen.queryByTestId("explorer-dependencies-hint")).toBeNull();
+    await renderA11yGate(container);
   });
 
   it("dependencies toggle keeps select-item hint for a folder row (#3571)", async () => {
@@ -2351,7 +2352,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       });
     });
 
-    renderShell(
+    const { container } = renderShell(
       <ContentExplorerShell
         initialPath="/Sites/Corporate_Investments"
         loadDisplayFormats={async () => []}
@@ -2373,6 +2374,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
     expect(screen.queryByTestId("explorer-dependencies-panel")).toBeNull();
     expect(screen.queryByTestId("dependency-viewer")).toBeNull();
+    await renderA11yGate(container);
   });
 
   it("root initialPath does not call resolveFolderId (#3468)", async () => {

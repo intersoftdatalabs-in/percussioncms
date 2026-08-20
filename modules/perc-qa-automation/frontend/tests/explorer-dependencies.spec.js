@@ -239,6 +239,10 @@ test.describe("modern React Content Explorer — dependency viewer (#2768 / #357
         consoleErrors,
         "console error on dependencies mount",
       ).toEqual([]);
+
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
     },
   );
 });
