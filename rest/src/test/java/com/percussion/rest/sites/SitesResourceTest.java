@@ -372,6 +372,19 @@ public class SitesResourceTest {
         text.contains(
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),
         "getVirtualSitePreviewStatus return sink must carry same-line codeql[java/xss]");
+    String previewStatusBlock =
+        text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/preview\")"));
+    String previewFileBlock =
+        text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/preview/{relPath:.*}\")"));
+    assertTrue(
+        previewStatusBlock.contains("csv-filesystem"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention csv-filesystem");
+    assertTrue(
+        previewFileBlock.contains("csv-filesystem"),
+        "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
+    assertTrue(
+        previewFileBlock.contains("20 MB"),
+        "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");
     assertTrue(
         text.contains(".build(); // codeql[java/xss]"),
         "previewVirtualSiteFile Response.ok sink must carry same-line codeql[java/xss]");

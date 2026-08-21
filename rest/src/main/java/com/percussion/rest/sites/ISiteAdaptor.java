@@ -117,24 +117,29 @@ public interface ISiteAdaptor {
   /**
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
-   * <p>Missing output is {@code available=false} with a message (not a 500). Requires Admin.
+   * <p>Last-output based: {@code git-filesystem} and {@code csv-filesystem} sites are both
+   * previewable after a successful assemble. Missing output is {@code available=false} with a
+   * message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return status (never null)
-   * @throws jakarta.ws.rs.WebApplicationException 400 when the site is not Virtual, 403 when not
-   *     authorized, 404 when site not found
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the site is not Virtual or sourceKind is
+   *     unknown, 403 when not authorized, 404 when site not found
    */
   VirtualSitePreviewStatus getVirtualSitePreviewStatus(String nameOrId);
 
   /**
    * Streams one file from the last Virtual Site build output (path-traversal safe).
    *
+   * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem}
+   * and {@code csv-filesystem}.
+   *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled
    *     home
    * @return file bytes and media type (never null)
-   * @throws jakarta.ws.rs.WebApplicationException 400 unsafe path / not virtual, 403 not Admin, 404
-   *     site or file missing
+   * @throws jakarta.ws.rs.WebApplicationException 400 unsafe path / not virtual / unknown
+   *     sourceKind / file larger than 20 MB, 403 not Admin, 404 site or file missing
    */
   VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath);
 

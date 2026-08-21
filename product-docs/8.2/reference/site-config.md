@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **Build** (`POST …/virtual/build`) and **Publish** (`POST …/virtual/publish`) run the matching adapter. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **Build** (`POST …/virtual/build`) and **Publish** (`POST …/virtual/publish`) run the matching adapter. Preview REST (`GET …/virtual/preview`) is last-output based for both kinds. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -166,7 +166,8 @@ wrap and then GET-roundtrips so Build chrome appears without a full reload.
 `csv-filesystem` uses the same wrap (`"sourceKind": "csv-filesystem"`). PUT with a safe
 `rootPath` succeeds and GET returns that kind. Paths with remaining `..` after NIO
 normalize, unknown kinds, and `remoteUrl` on CSV are **400**. In-product
-`POST …/virtual/build` is still `git-filesystem` only.
+`POST …/virtual/build` and `POST …/virtual/publish` run the matching adapter for
+`git-filesystem` and `csv-filesystem`.
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required local root path when virtual and
@@ -209,13 +210,24 @@ See [Sites & content structure](id:admin-sites).
 #### Preview assembled Virtual Site (`GET …/virtual/preview`)
 
 Admin-only. Reports whether the last build output can be opened (`available`, `homePath`,
-`outputPath`). Missing or failed builds return **200** with `available=false` and a message
-(not 500). Traditional repository Sites return **400**.
+`outputPath`). Preview is **last-output based** and works for both **`git-filesystem`** and
+**`csv-filesystem`** Virtual Sites (not git-only). Missing or failed builds return **200**
+with `available=false` and a message (not 500). Traditional repository Sites and unknown
+`virtual.sourceKind` values return **400**.
 
 `GET …/virtual/preview/{relPath}` streams one file from that last output root (portable NIO
 resolution, no `..` after normalize). HTML root-relative `href`/`src` values are rewritten to
 the preview prefix so the assembled site is navigable in the browser. Missing files return
-**404**. The Developer UI **Preview assembled site** control uses these endpoints.
+**404**. Path traversal (`../`) and files larger than **20 MB** (`MAX_PREVIEW_FILE_BYTES`)
+return **400**. The Developer UI **Preview assembled site** control uses these endpoints.
+
+After REST Build (`POST …/virtual/build`) for `git-filesystem` or `csv-filesystem`, the
+server records the last output path (including a custom `outputRoot`) so preview streams
+that tree. Offline CLI assemble (`PSVirtualSiteBuildMain`) does **not** record that pointer:
+CLI output is previewable only when `outputRoot` is exactly the default
+`{install}/tmp/virtual-sites/{siteKey}` (or `{java.io.tmpdir}/percussion-virtual-sites/{siteKey}`
+when the install root is unavailable). A custom CLI output path is not previewable until REST
+Build records it.
 
 #### Publish Virtual Site (`POST …/virtual/publish`)
 
