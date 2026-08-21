@@ -166,6 +166,47 @@ describe("ExplorerTree", () => {
     ).toHaveAttribute("data-node-name", "Corporate_Investments");
   });
 
+  it("exposes folderPath leaf when site name is a GUID (#3684)", async () => {
+    const SITE_CHILD: PSPathItem = {
+      id: "16777215-101-703",
+      path: "/Sites/16777215-101-703/",
+      folderPath: "//Sites/CorporateInvestments",
+      name: "16777215-101-703",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        return pathItemListResponse([SITE_CHILD]);
+      }
+      return pathItemListResponse([]);
+    });
+    render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath={null}
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
+      ).toBeInTheDocument(),
+    );
+    const node = screen.getByTestId("tree-node-/Sites/16777215-101-703/");
+    expect(node).toHaveAttribute("data-node-name", "CorporateInvestments");
+    expect(node).toHaveAttribute(
+      "data-folder-path",
+      "//Sites/CorporateInvestments",
+    );
+    expect(screen.getByText("CorporateInvestments")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("tree-toggle-/Sites/16777215-101-703/"),
+    ).toBeInTheDocument();
+  });
+
   it("loads children on first expand (lazy)", async () => {
     let rootCalls = 0;
     let childCalls = 0;
@@ -194,8 +235,7 @@ describe("ExplorerTree", () => {
     expect(rootCalls).toBe(1);
     expect(childCalls).toBe(0);
     // Expand is on the toggle control (not the row select handler).
-    const toggle = screen.getByTestId("tree-toggle-/Sites/Foo");
-    fireEvent.click(toggle);
+    fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
     await waitFor(() =>
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),

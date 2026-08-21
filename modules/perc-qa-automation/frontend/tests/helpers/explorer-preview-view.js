@@ -325,23 +325,36 @@ function foldSiteName(name) {
 
 /**
  * Site folder names for a listed page (finder underscore + repository).
- * @param {{ path?: string, folderPath?: string }} listed
+ * Also derives a site hint from page titles such as
+ * {@code Corporate Investments Home} (#3684).
+ * @param {{ path?: string, folderPath?: string, name?: string }} listed
  * @returns {string[]}
  */
 function listedPageSiteNames(listed) {
   if (!listed) return [];
   const names = [];
   const seen = new Set();
+  const addName = (raw) => {
+    const name = String(raw || "").trim();
+    if (!name) return;
+    const key = foldSiteName(name);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    names.push(name);
+  };
   for (const raw of [listed.folderPath, listed.path]) {
     if (!raw) continue;
     const p = resolveExplorerListPath({ path: String(raw) });
     const parts = p.replace(/^\/+/, "").split("/").filter(Boolean);
     if (parts.length < 2 || parts[0].toLowerCase() !== "sites") continue;
-    const name = parts[1];
-    const key = foldSiteName(name);
-    if (!name || seen.has(key)) continue;
-    seen.add(key);
-    names.push(name);
+    addName(parts[1]);
+  }
+  const pageName = listed.name ? String(listed.name).trim() : "";
+  if (pageName) {
+    const stripped = pageName.replace(/\s+Home$/i, "").trim();
+    if (stripped && foldSiteName(stripped).length >= 8) {
+      addName(stripped);
+    }
   }
   return names;
 }
@@ -378,20 +391,48 @@ function detailRowMatchesFoldedSite(rowText, wantedFolded) {
 }
 
 /**
+ * True when a tree testid is a Sites <em>root</em> child
+ * ({@code tree-node-/Sites/Corporate_Investments/}), not a nested
+ * {@code /Sites/{site}/Pages} node.
+ * @param {string} testid
+ * @returns {boolean}
+ */
+function isExplorerSiteRootTestId(testid) {
+  const rest = String(testid || "")
+    .replace(/^tree-node-/i, "")
+    .replace(/\\/g, "/");
+  const segs = rest
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter(Boolean);
+  return segs.length === 2 && segs[0].toLowerCase() === "sites";
+}
+
+/**
  * Match a Sites tree node to REST-listed site names. Finder path testids
- * ({@code tree-node-/Sites/Corporate_Investments/}) and GUID path + visible
- * name ({@code tree-node-/Sites/16777215-101-703/} + Corporate_Investments
- * / {@code data-node-name}) both match (#3684 / #3001).
+ * ({@code tree-node-/Sites/Corporate_Investments/}), GUID path + visible
+ * name, {@code data-node-name}, and {@code data-folder-path} (repository
+ * {@code CorporateInvestments}) all match (#3684 / #3001).
  * @param {string} testid
  * @param {string} innerText
  * @param {string} [nodeName]
  * @param {Iterable<string>} wantedFolded
+ * @param {string} [folderPath]
  * @returns {boolean}
  */
-function treeNodeMatchesFoldedSite(testid, innerText, nodeName, wantedFolded) {
+function treeNodeMatchesFoldedSite(
+  testid,
+  innerText,
+  nodeName,
+  wantedFolded,
+  folderPath,
+) {
   const wanted = [...(wantedFolded || [])].filter(Boolean);
   if (wanted.length === 0) return true;
-  const haystacks = [testid, innerText, nodeName].map((s) => foldSiteName(s));
+  const haystacks = [testid, innerText, nodeName, folderPath].map((s) =>
+    foldSiteName(s),
+  );
   return wanted.some((n) => haystacks.some((h) => h.includes(n)));
 }
 
@@ -416,4 +457,5 @@ module.exports = {
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
   treeNodeMatchesFoldedSite,
+  isExplorerSiteRootTestId,
 };

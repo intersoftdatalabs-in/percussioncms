@@ -29,6 +29,7 @@ const {
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
+  isExplorerSiteRootTestId,
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
   treeNodeMatchesFoldedSite,
@@ -292,6 +293,23 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(foldSiteName("Corporate_Investments"), "corporateinvestments");
   });
 
+  it("listedPageSiteNames adds a site hint from Corporate Investments Home (#3684)", () => {
+    assert.deepEqual(
+      listedPageSiteNames({
+        name: "Corporate Investments Home",
+        path: "/Sites/16777215-101-703/Home",
+      }),
+      ["16777215-101-703", "Corporate Investments"],
+    );
+    assert.deepEqual(
+      listedPageSiteNames({
+        name: "Home",
+        path: "/Assets/x",
+      }),
+      [],
+    );
+  });
+
   it("noPreviewableItemSkipMessage is stable and cites issue", () => {
     assert.match(noPreviewableItemSkipMessage(), /#2733/);
   });
@@ -321,7 +339,23 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
   });
 
-  it("treeNodeMatchesFoldedSite matches finder path and GUID+name (#3684)", () => {
+  it("isExplorerSiteRootTestId rejects nested Pages nodes", () => {
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/"),
+      true,
+    );
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/16777215-101-703/"),
+      true,
+    );
+    assert.equal(isExplorerSiteRootTestId("tree-node-/Sites/"), false);
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/Pages/"),
+      false,
+    );
+  });
+
+  it("treeNodeMatchesFoldedSite matches finder path, GUID+name, and folderPath (#3684)", () => {
     assert.equal(
       treeNodeMatchesFoldedSite(
         "tree-node-/Sites/Corporate_Investments/",
@@ -337,6 +371,16 @@ describe("explorer-preview-view helpers (#2733)", () => {
         "Corporate_Investments",
         "Corporate_Investments",
         ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "16777215-101-703",
+        "16777215-101-703",
+        ["corporateinvestments"],
+        "//Sites/CorporateInvestments",
       ),
       true,
     );

@@ -57,6 +57,7 @@ const {
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
   treeNodeMatchesFoldedSite,
+  isExplorerSiteRootTestId,
 } = require("./helpers/explorer-preview-view");
 
 const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
@@ -191,111 +192,27 @@ async function findEligibleWorkflowItemViaRest(request) {
 }
 
 /**
- * Open Sites → the site that owns {@code listed} via the explorer tree
- * (peer #3575 / #3684; detail-list folder-icon open can leave the Sites
- * root selected) → Pages when the listed item is not already visible.
- * Tree matching uses finder path testids, {@code data-node-name}, and
- * visible label so GUID site paths still open Corporate_Investments.
- * @param {import("@playwright/test").Page} page
- * @param {object} [listed]
+ * Expand the Sites tree node (tree-toggle testid, else aria-hidden peer).
+ * @param {import("@playwright/test").Locator} sitesNode
  */
-async function openSitesThenPages(page, listed) {
-  const tree = page.locator(`[data-testid="${TEST_IDS.tree}"]`);
-  const sitesNode = tree
-    .locator(
-      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
-    )
-    .first();
-  await expect(sitesNode).toBeVisible({ timeout: 15_000 });
-  await sitesNode.click({ force: true });
-  await listWaitReady(page);
-  await page.waitForLoadState("networkidle").catch(() => {});
-
+async function expandSitesTreeNode(sitesNode) {
   const treeitem = sitesNode.locator('[role="treeitem"]').first();
   const expanded = await treeitem.getAttribute("aria-expanded");
-  if (expanded !== "true") {
-    const toggle = sitesNode
-      .locator(
-        '[data-testid="tree-toggle-/Sites/"], [data-testid="tree-toggle-/Sites"]',
-      )
-      .first();
-    if ((await toggle.count()) > 0) {
-      await toggle.click();
-    }
-  }
-  const siteTreeNodes = tree.locator(
-    '[data-testid^="tree-node-/Sites/"]:not([data-testid="tree-node-/Sites/"])',
-  );
-  await expect(siteTreeNodes.first()).toBeVisible({ timeout: 15_000 });
-
-  const wanted = new Set(
-    listedPageSiteNames(listed).map((n) => foldSiteName(n)),
-  );
-  const listedName = listed && listed.name ? String(listed.name) : "";
-  const siteCount = await siteTreeNodes.count();
-  let clicked = false;
-  const seen = [];
-  for (let i = 0; i < siteCount; i += 1) {
-    const node = siteTreeNodes.nth(i);
-    const testid = (await node.getAttribute("data-testid")) || "";
-    const nodeName = (await node.getAttribute("data-node-name")) || "";
-    const label = ((await node.innerText().catch(() => "")) || "").trim();
-    seen.push(`${testid}|${nodeName || label}`);
-    const nameMatch =
-      wanted.size === 0 ||
-      treeNodeMatchesFoldedSite(testid, label, nodeName, wanted);
-    if (!nameMatch) continue;
-    await node.click({ force: true });
-    clicked = true;
-    break;
-  }
-  if (!clicked) {
-    const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
-    const siteRows = list.locator(
-      'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
-    );
-    const rowCount = await siteRows.count();
-    for (let i = 0; i < rowCount; i += 1) {
-      const row = siteRows.nth(i);
-      const rowText = ((await row.innerText().catch(() => "")) || "").trim();
-      const itemName = (await row.getAttribute("data-item-name")) || "";
-      const nameMatch =
-        wanted.size === 0 ||
-        detailRowMatchesFoldedSite(rowText, wanted) ||
-        treeNodeMatchesFoldedSite("", rowText, itemName, wanted);
-      if (!nameMatch) continue;
-      await openDetailFolderRow(row);
-      clicked = true;
-      break;
-    }
-  }
-  if (!clicked && wanted.size > 0) {
-    throw new Error(
-      `REST listed page ${listedName || listed.id} but UI did not open a ` +
-        `matching site among ${[...wanted].join(", ")} ` +
-        `(tree=${seen.join("; ") || "none"})`,
-    );
-  }
-  if (!clicked) {
-    await siteTreeNodes.first().click({ force: true });
-  }
-  await listWaitReady(page);
-  await page.waitForLoadState("networkidle").catch(() => {});
-
-  const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
-  if (await listHasListedOrItemRow(list, listedName)) {
+  if (expanded === "true") {
     return;
   }
-  await openPagesFolderIfPresent(page, list);
-  if (await listHasListedOrItemRow(list, listedName)) {
+  const toggle = sitesNode
+    .locator(
+      '[data-testid="tree-toggle-/Sites/"], [data-testid="tree-toggle-/Sites"]',
+    )
+    .first();
+  if ((await toggle.count()) > 0) {
+    await toggle.click();
     return;
   }
-  if (wanted.size > 0) {
-    throw new Error(
-      `REST listed page ${listedName || listed.id} but UI did not open a ` +
-        `matching site among ${[...wanted].join(", ")} ` +
-        `(tree=${seen.join("; ") || "none"})`,
-    );
+  const ariaToggle = sitesNode.locator('[aria-hidden="true"]').first();
+  if ((await ariaToggle.count()) > 0) {
+    await ariaToggle.click();
   }
 }
 
@@ -315,25 +232,160 @@ async function listHasListedOrItemRow(list, listedName) {
   if (!listedName) {
     return false;
   }
+  const aliases = [listedName];
+  if (/\bHome\b/i.test(listedName) && listedName !== "Home") {
+    aliases.push("Home");
+  }
   const rows = list.locator('tbody tr[data-testid^="detail-row-"]');
   const rowCount = await rows.count();
   for (let i = 0; i < rowCount; i += 1) {
-    const itemName = (await rows.nth(i).getAttribute("data-item-name")) || "";
-    if (itemName === listedName) {
-      return true;
-    }
-  }
-  const homeAlias = /\bHome\b/i.test(listedName) ? "Home" : "";
-  if (!homeAlias) {
-    return false;
-  }
-  for (let i = 0; i < rowCount; i += 1) {
-    const itemName = (await rows.nth(i).getAttribute("data-item-name")) || "";
-    if (itemName === homeAlias) {
+    const row = rows.nth(i);
+    const itemName = (await row.getAttribute("data-item-name")) || "";
+    const text = ((await row.innerText().catch(() => "")) || "").trim();
+    if (
+      aliases.some(
+        (alias) => itemName === alias || detailRowHasExactName(text, alias),
+      )
+    ) {
       return true;
     }
   }
   return false;
+}
+
+/**
+ * After opening a site, succeed if items (or the listed page) are visible,
+ * otherwise open Pages chrome and re-check.
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} list
+ * @param {string} listedName
+ * @returns {Promise<boolean>}
+ */
+async function siteListingHasContent(page, list, listedName) {
+  if (await listHasListedOrItemRow(list, listedName)) {
+    return true;
+  }
+  await openPagesFolderIfPresent(page, list);
+  return listHasListedOrItemRow(list, listedName);
+}
+
+/**
+ * Open Sites → the site that owns {@code listed} via the explorer tree
+ * (peer #3575 / #3684). GUID path testids still match when
+ * {@code data-node-name} / {@code data-folder-path} / visible label fold
+ * to Corporate_Investments. If names do not match, try every site node
+ * until the listed page (or any item row) is visible — FastForward has
+ * two sample sites.
+ * @param {import("@playwright/test").Page} page
+ * @param {object} [listed]
+ */
+async function openSitesThenPages(page, listed) {
+  const tree = page.locator(`[data-testid="${TEST_IDS.tree}"]`);
+  const sitesNode = tree
+    .locator(
+      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"]',
+    )
+    .first();
+  await expect(sitesNode).toBeVisible({ timeout: 15_000 });
+  await sitesNode.click({ force: true });
+  await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await expandSitesTreeNode(sitesNode);
+
+  const siteTreeNodes = tree.locator(
+    '[data-testid^="tree-node-/Sites/"]:not([data-testid="tree-node-/Sites/"])',
+  );
+  await expect(siteTreeNodes.first()).toBeVisible({ timeout: 15_000 });
+
+  const wanted = new Set(
+    listedPageSiteNames(listed).map((n) => foldSiteName(n)),
+  );
+  const listedName = listed && listed.name ? String(listed.name) : "";
+  const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
+  const seen = [];
+  const siteCount = await siteTreeNodes.count();
+
+  const trySiteNode = async (node) => {
+    await node.click({ force: true });
+    await listWaitReady(page);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    return siteListingHasContent(page, list, listedName);
+  };
+
+  /** @type {string[]} */
+  const matchingTestIds = [];
+  /** @type {string[]} */
+  const allSiteTestIds = [];
+  for (let i = 0; i < siteCount; i += 1) {
+    const node = siteTreeNodes.nth(i);
+    const testid = (await node.getAttribute("data-testid")) || "";
+    if (!isExplorerSiteRootTestId(testid)) {
+      continue;
+    }
+    const nodeName = (await node.getAttribute("data-node-name")) || "";
+    const folderPath = (await node.getAttribute("data-folder-path")) || "";
+    const label = ((await node.innerText().catch(() => "")) || "").trim();
+    seen.push(`${testid}|${nodeName || label}|${folderPath}`);
+    allSiteTestIds.push(testid);
+    const nameMatch =
+      wanted.size === 0 ||
+      treeNodeMatchesFoldedSite(
+        testid,
+        label,
+        nodeName,
+        wanted,
+        folderPath,
+      );
+    if (nameMatch) {
+      matchingTestIds.push(testid);
+    }
+  }
+
+  for (const testid of matchingTestIds) {
+    const node = tree.locator(`[data-testid="${testid}"]`).first();
+    if (await trySiteNode(node)) {
+      return;
+    }
+  }
+
+  const siteRows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  await sitesNode.click({ force: true });
+  await listWaitReady(page);
+  const rowCount = await siteRows.count();
+  for (let i = 0; i < rowCount; i += 1) {
+    const row = siteRows.nth(i);
+    const rowText = ((await row.innerText().catch(() => "")) || "").trim();
+    const itemName = (await row.getAttribute("data-item-name")) || "";
+    const nameMatch =
+      wanted.size === 0 ||
+      detailRowMatchesFoldedSite(rowText, wanted) ||
+      treeNodeMatchesFoldedSite("", rowText, itemName, wanted);
+    if (!nameMatch) continue;
+    await openDetailFolderRow(row);
+    if (await siteListingHasContent(page, list, listedName)) {
+      return;
+    }
+    await sitesNode.click({ force: true });
+    await listWaitReady(page);
+  }
+
+  // GUID-only tree labels: still open each sample site until the listed
+  // page appears (peer explorer-content-editor, #3684 Cycle Verify).
+  for (const testid of allSiteTestIds) {
+    if (matchingTestIds.includes(testid)) continue;
+    const node = tree.locator(`[data-testid="${testid}"]`).first();
+    if (await trySiteNode(node)) {
+      return;
+    }
+  }
+
+  throw new Error(
+    `REST listed page ${listedName || (listed && listed.id)} but UI did ` +
+      `not open a matching site among ${[...wanted].join(", ") || "none"} ` +
+      `(tree=${seen.join("; ") || "none"})`,
+  );
 }
 
 /**

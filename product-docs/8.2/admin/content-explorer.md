@@ -166,9 +166,10 @@ Editor HTML (`checkoutedit.xml`, `contenteditorurls.html`, `?view=editor`).
 
 Under the tree root **Sites** you see traditional site folders available to your community
 (sample sites after a demo-sites install, plus any sites you create). The tree label and
-the list **Name** column show the **site name** (for example `Corporate_Investments`),
-not an internal identifier. Expand **Sites** and select a sample site to browse
-FastForward folders and pages (About…, Files, Images, and the site NavTree).
+the list **Name** column show the **site name** (for example `Corporate_Investments`
+or `Corporate Investments`), not an internal identifier. Expand **Sites** and
+select a sample site to browse FastForward folders and pages (About…, Files, Images,
+and the site NavTree).
 
 To create a new Site from Explorer:
 
