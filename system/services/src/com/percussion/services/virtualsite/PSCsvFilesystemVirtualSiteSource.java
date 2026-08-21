@@ -37,7 +37,9 @@ import java.util.stream.Stream;
  * with {@link VirtualSiteException}.
  *
  * <p>Stateless: {@link #discover} and {@link #load} always {@link Files#readString} the current
- * CSV bytes. No parse cache is kept on the instance or in statics.
+ * CSV bytes. No path/mtime parse cache is kept on the instance or in statics — a second build
+ * in the same JVM after a CSV edit must see the new rows. {@code _config.yaml} is reloaded by
+ * {@link PSVirtualSiteBuildService}, not this source.
  *
  * <p>Filesystem I/O uses portable NIO {@link Path} / {@link Files} only.
  */

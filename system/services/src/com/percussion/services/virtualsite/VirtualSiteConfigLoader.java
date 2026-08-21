@@ -32,7 +32,13 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-/** Loads {@code _config.yaml} from a Virtual Site root (optional fallback for CSV trees). */
+/**
+ * Loads {@code _config.yaml} from a Virtual Site root (optional fallback for CSV trees).
+ *
+ * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
+ * child directories). No process-lifetime YAML cache — a second build after a config edit sees
+ * the new title/versions without a JVM restart.
+ */
 public final class VirtualSiteConfigLoader {
 
   public static final String DEFAULT_CONFIG_FILE = "_config.yaml";
