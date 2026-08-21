@@ -308,9 +308,10 @@ public class SitesResource {
       summary = "Virtual Site preview status",
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
+              + " Last-output based for git-filesystem and csv-filesystem (not git-only)."
               + " Uses the last build output path (default {install}/tmp/virtual-sites/{siteKey})."
               + " Missing or failed builds return 200 with available=false (not 500). Requires"
-              + " Admin. Traditional repository Sites return 400.",
+              + " Admin. Traditional repository Sites and unknown sourceKind values return 400.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -354,10 +355,12 @@ public class SitesResource {
   @Operation(
       summary = "Preview Virtual Site file",
       description =
-          "Streams a file from the last Virtual Site build output. Paths are resolved with portable"
-              + " NIO Path under the last output root (no '..' after normalize). HTML root-relative"
-              + " href/src/url() values are rewritten to this preview prefix so navigation works."
-              + " Requires Admin. Missing files return 404 (not 500).",
+          "Streams a file from the last Virtual Site build output (git-filesystem or"
+              + " csv-filesystem). Paths are resolved with portable NIO Path under the last output"
+              + " root (no '..' after normalize). HTML root-relative href/src/url() values are"
+              + " rewritten to this preview prefix so navigation works. Requires Admin. Missing"
+              + " files return 404 (not 500). Unsafe paths and unknown/repository sourceKind return"
+              + " 400.",
       responses = {
         @ApiResponse(responseCode = "200", description = "File bytes"),
         @ApiResponse(responseCode = "400", description = "Not virtual / unsafe path"),

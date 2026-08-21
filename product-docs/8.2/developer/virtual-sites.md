@@ -12,7 +12,8 @@ tags: [developer, virtual-sites]
 **Virtual Sites** are Sites whose content originates outside the traditional Percussion content
 repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product documentation. A
 **CSV / filesystem** adapter (`csv-filesystem`) can discover the same assemble pipeline from
-CSV files (offline CLI; REST Build remains git-filesystem).
+CSV files (offline CLI; REST Build remains git-filesystem). Preview REST
+(`GET …/virtual/preview`) is last-output based and works for both kinds.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -90,7 +91,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST is still git-filesystem only; `csv-filesystem` is the offline SPI/CLI adapter. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST is still git-filesystem only; `csv-filesystem` is the offline SPI/CLI adapter. Preview REST streams last-build HTML for both kinds. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -258,8 +259,10 @@ when you change server code, Site properties that were never saved, or the proce
 
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
-assembled file stream). Missing output returns status `available=false` (HTTP 200) or file HTTP
-404 — not 500. See [Sites & content structure](id:admin-sites) and
+assembled file stream). Preview is last-output based and works for **`git-filesystem` and
+`csv-filesystem`** (not git-only). Missing output returns status `available=false` (HTTP 200)
+or file HTTP 404 — not 500. Path traversal (`../`) is **400**. Repository and unknown
+`sourceKind` values are **400**. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).
 
 ## CMS-integrated publish (Site filesystem target)
@@ -289,7 +292,8 @@ silent no-op). See [Publishing](id:admin-publishing).
 
 - CMS UI editing of Virtual items as normal content types
 - Automatic migration of the full legacy help site
-- REST/UI Build for `csv-filesystem` (offline CLI only in this slice)
+- REST/UI Build for `csv-filesystem` (offline CLI/SPI assemble in this slice; last-build
+  Preview REST already streams csv-filesystem output)
 - SQL/API adapters
 - Fake classic content-list generators for virtual items
 

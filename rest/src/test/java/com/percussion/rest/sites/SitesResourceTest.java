@@ -288,6 +288,9 @@ public class SitesResourceTest {
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),
         "getVirtualSitePreviewStatus return sink must carry same-line codeql[java/xss]");
     assertTrue(
+        text.contains("git-filesystem and csv-filesystem"),
+        "preview OpenAPI must mention csv-filesystem last-build (not git-only)");
+    assertTrue(
         text.contains(".build(); // codeql[java/xss]"),
         "previewVirtualSiteFile Response.ok sink must carry same-line codeql[java/xss]");
     assertTrue(

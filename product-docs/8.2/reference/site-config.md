@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. `csv-filesystem` is the offline CSV source (required columns `id`, `title`, `body`); REST Build remains git-filesystem. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. `csv-filesystem` is the offline CSV source (required columns `id`, `title`, `body`); REST Build remains git-filesystem. Preview REST (`GET …/virtual/preview`) is last-output based for both kinds. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -197,13 +197,18 @@ See [Sites & content structure](id:admin-sites).
 #### Preview assembled Virtual Site (`GET …/virtual/preview`)
 
 Admin-only. Reports whether the last build output can be opened (`available`, `homePath`,
-`outputPath`). Missing or failed builds return **200** with `available=false` and a message
-(not 500). Traditional repository Sites return **400**.
+`outputPath`). Preview is **last-output based** and works for both **`git-filesystem`** and
+**`csv-filesystem`** Virtual Sites (not git-only). Missing or failed builds return **200**
+with `available=false` and a message (not 500). Traditional repository Sites and unknown
+`virtual.sourceKind` values return **400**.
 
 `GET …/virtual/preview/{relPath}` streams one file from that last output root (portable NIO
 resolution, no `..` after normalize). HTML root-relative `href`/`src` values are rewritten to
 the preview prefix so the assembled site is navigable in the browser. Missing files return
-**404**. The Developer UI **Preview assembled site** control uses these endpoints.
+**404**. Path traversal (`../`) is rejected with **400**. The Developer UI **Preview assembled
+site** control uses these endpoints. After a successful `csv-filesystem` assemble (CLI
+`PSVirtualSiteBuildMain … csv-filesystem`, or REST Build when that kind is enabled), the same
+preview URLs stream the last CSV-assembled HTML.
 
 #### Publish Virtual Site (`POST …/virtual/publish`)
 

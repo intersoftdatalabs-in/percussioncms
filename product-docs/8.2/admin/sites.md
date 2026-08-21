@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. CMS Build/UI still use git-filesystem; `csv-filesystem` is the offline CSV adapter (see [Virtual Sites](id:developer-virtual-sites)). |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. CMS Build/UI still use git-filesystem; `csv-filesystem` is the offline CSV adapter (see [Virtual Sites](id:developer-virtual-sites)). Preview REST streams last-build HTML for both kinds. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -200,7 +200,10 @@ When **Source kind** is **Git filesystem** (Virtual), the Site detail panel show
 ### Preview the assembled Virtual Site
 
 After a successful **Build Virtual Site**, operators can open the assembled documentation
-home from the same Site detail panel (no CLI, no `file://` path).
+home from the same Site detail panel (no CLI, no `file://` path). This includes
+**`csv-filesystem`** last-build output as well as **`git-filesystem`** — preview is not
+git-only. After a CSV assemble (CLI or REST Build), `GET /services/sites/{name}/virtual/preview`
+reports `available` + `homePath`, and `GET …/virtual/preview/{path}` streams the HTML.
 
 1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
 2. Choose **Preview assembled site**.
