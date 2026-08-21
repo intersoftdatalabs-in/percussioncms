@@ -258,7 +258,34 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 ```
 
 Peer: `explorer-create-folder` / `explorer-rename-folder` / `explorer-delete-folder`
-(product-route, flag **off**). Parent #3102. Out of scope: Move (#3655).
+(product-route, flag **off**). Parent #3102.
+
+### Explorer Move selected folder on product route (#3655 / parent #3102)
+
+H2 operator proof that **Move** of a selected empty disposable folder on
+`spa.jsp?entry=explorer` (no `rxFolderMutations=1`) posts
+`POST …/pathmanagement/path/moveItem` HTTP 200 (`MoveFolderItem` wrap) and
+the folder leaves the source tree/list and appears under the destination
+without View → Refresh. Does **not** soft-skip when H2 QA has Sites/Assets.
+Does **not** claim gap-matrix Present. Distinct from Copy (#3647) and
+clipboard paste.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-move-folder.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-move-folder.js`, `tests/unit/explorer-move-folder.test.js` |
+| Tags | `@explorer-move-folder` `@explorer` `@folder` `@smoke` |
+| Soft skip | None when Assets or Sites parent exists; missing parent on H2 is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-move-folder.spec.js
+```
+
+Peer: `explorer-copy-folder` (product-route Copy folder). Parent #3102.
 
 ### Explorer Copy selected folder on product route (#3647 / parent #3102)
 

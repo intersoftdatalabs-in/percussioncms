@@ -293,6 +293,30 @@ describe("ReducedActions", () => {
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
   });
 
+  it("default onMove POSTs MoveFolderItem wrap to pathmanagement moveItem (#3655)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ NoContent: { operation: "moveItem" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onMove(FOLDER, "/Sites/Dst");
+    expect(url).toContain("/pathmanagement/path/moveItem");
+    expect(url).not.toContain("/content-explorer/folders");
+    expect(posted).toEqual({
+      MoveFolderItem: {
+        itemPath: "/Sites/Foo",
+        targetFolderPath: "/Sites/Dst",
+      },
+    });
+    expect(posted).not.toHaveProperty("sourcePath");
+  });
+
   it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];

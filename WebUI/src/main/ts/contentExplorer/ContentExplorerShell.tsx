@@ -694,6 +694,18 @@ function ContentExplorerShellInner({
       // Same split-epoch as Delete/Rename: dest list + dest tree children.
       handleRefreshListAndTree();
     },
+    // Product Move (flag off) POSTs pathmanagement moveItem, then opens the
+    // destination and bumps list+tree epochs so source drops the folder and
+    // dest shows it without View → Refresh (#3655).
+    onMove: async (item, targetPath) => {
+      const impl = actionHandlers?.onMove ?? stockReducedHandlers.onMove;
+      await impl(item, targetPath);
+      const dest = String(targetPath || "").trim();
+      if (dest) {
+        setSelection({ folderPath: dest, item: null });
+      }
+      handleRefreshListAndTree();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;

@@ -549,6 +549,28 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
     expect(wrapped.MoveFolderItem).not.toHaveProperty("copy");
   });
 
+  it("wrapMoveFolderItem keeps Assets finder paths (server getFolderPath, #3655)", () => {
+    const wrapped = wrapMoveFolderItem({
+      sourcePath: "/Assets/qa3655_src",
+      targetPath: "/Assets/qa3655_dst",
+    });
+    expect(wrapped.MoveFolderItem).toEqual({
+      itemPath: "/Assets/qa3655_src",
+      targetFolderPath: "/Assets/qa3655_dst",
+    });
+  });
+
+  it("wrapMoveFolderItem prefixes a missing finder slash (#3655)", () => {
+    const wrapped = wrapMoveFolderItem({
+      sourcePath: "Assets/qa3655_src",
+      targetPath: "Assets/qa3655_dst/",
+    });
+    expect(wrapped.MoveFolderItem).toEqual({
+      itemPath: "/Assets/qa3655_src",
+      targetFolderPath: "/Assets/qa3655_dst/",
+    });
+  });
+
   it("wrapMoveFolderItem accepts itemPath aliases and does not double-wrap", () => {
     expect(
       wrapMoveFolderItem({

@@ -293,6 +293,12 @@ export type CopyFolderItemRequestEnvelope = {
   CopyFolderItemRequest: { itemPath: string; targetFolderPath: string };
 };
 
+function withFinderLeadingSlash(path: string): string {
+  const p = String(path || "").trim().replace(/\\/g, "/");
+  if (!p) return p;
+  return p.startsWith("/") ? p : `/${p}`;
+}
+
 function resolveFolderItemPaths(
   body: PSMoveFolderItem | PSCopyRequest,
   op: string,
@@ -310,11 +316,23 @@ function resolveFolderItemPaths(
   return { itemPath, targetFolderPath };
 }
 
+function resolveMoveFolderItemPaths(
+  body: PSMoveFolderItem,
+): { itemPath: string; targetFolderPath: string } {
+  const resolved = resolveFolderItemPaths(body, "moveItem");
+  return {
+    itemPath: withFinderLeadingSlash(resolved.itemPath),
+    targetFolderPath: withFinderLeadingSlash(resolved.targetFolderPath),
+  };
+}
+
 /**
  * Wrap move fields under {@link MOVE_FOLDER_ITEM_ROOT}. Maps SPA
  * {@code sourcePath}/{@code targetPath} to server {@code itemPath}/
- * {@code targetFolderPath}. Never includes {@code copy} or a bare
- * {@code sourcePath} root.
+ * {@code targetFolderPath}. Finder {@code /Assets} and {@code /Sites}
+ * stay as posted; {@code PSPathItemService#moveItem} runs
+ * {@code getFolderPath} so {@code folderHelper} sees {@code //} (#3655).
+ * Never includes {@code copy} or a bare {@code sourcePath} root.
  */
 export function wrapMoveFolderItem(
   request: PSMoveFolderItem | MoveFolderItemEnvelope,
@@ -324,18 +342,12 @@ export function wrapMoveFolderItem(
     const nested = rec[MOVE_FOLDER_ITEM_ROOT];
     if (asRecord(nested) != null) {
       return {
-        MoveFolderItem: resolveFolderItemPaths(
-          nested as PSMoveFolderItem,
-          "moveItem",
-        ),
+        MoveFolderItem: resolveMoveFolderItemPaths(nested as PSMoveFolderItem),
       };
     }
   }
   return {
-    MoveFolderItem: resolveFolderItemPaths(
-      request as PSMoveFolderItem,
-      "moveItem",
-    ),
+    MoveFolderItem: resolveMoveFolderItemPaths(request as PSMoveFolderItem),
   };
 }
 
