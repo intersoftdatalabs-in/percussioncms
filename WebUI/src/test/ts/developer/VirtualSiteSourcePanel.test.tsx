@@ -56,6 +56,12 @@ describe("VirtualSiteSourcePanel", () => {
       DEV_MSG.SITE_VIRT_STATUS_REPO,
     );
     expect(screen.getByTestId("developer-site-virtual-source-kind")).toBeTruthy();
+    const kindSelect = screen.getByTestId(
+      "developer-site-virtual-source-kind",
+    ) as HTMLSelectElement;
+    const kindValues = Array.from(kindSelect.options).map((o) => o.value);
+    expect(kindValues).toEqual(["repository", "git-filesystem", "csv-filesystem"]);
+    expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
     expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
@@ -271,6 +277,107 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-remote-url") as HTMLInputElement).value,
     ).toBe("https://git.example.com/org/docs.git");
+  });
+
+  it("loads csv-filesystem values with root path only (no Git remotes or Build)", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("csv-filesystem");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/csv-docs");
+    expect(screen.getByTestId("developer-site-virtual-csv-hint")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves csv-filesystem configuration without Git remote fields", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "csv-filesystem",
+        rootPath: "C:/csv-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "csv-filesystem" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/csv-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/csv-docs");
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching csv-filesystem back to repository hides virtual fields", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-csv-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
   });
 
   it("saves repository mode to clear virtual configuration", async () => {

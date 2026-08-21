@@ -726,7 +726,8 @@ export interface SiteDef {
  * ({@code GET|PUT /services/sites/{nameOrId}/virtual}).
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
- * traditional repository Site. Phase 1 virtual adapter: {@code git-filesystem}.
+ * traditional repository Site. Allow-listed virtual adapters:
+ * {@code git-filesystem}, {@code csv-filesystem}.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

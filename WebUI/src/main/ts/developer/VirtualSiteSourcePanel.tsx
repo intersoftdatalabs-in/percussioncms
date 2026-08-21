@@ -45,10 +45,13 @@ import {
   shouldShowVirtualPublishChrome,
 } from "./virtualSiteBuild";
 import {
+  SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_REPOSITORY,
   emptyVirtualSiteForm,
   formToVirtualProps,
+  isCsvFilesystemSourceKind,
+  isGitFilesystemSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
   virtualPropsToForm,
@@ -325,7 +328,9 @@ export function VirtualSiteSourcePanel({
   }
 
   const virtualMode = isVirtualSourceKind(form.sourceKind);
-  /** Build/publish chrome only for virtual source kinds (never for repository). */
+  const gitMode = isGitFilesystemSourceKind(form.sourceKind);
+  const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
+  /** Build/publish chrome is git-filesystem only (never repository or CSV). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
@@ -402,6 +407,9 @@ export function VirtualSiteSourcePanel({
               <option value={SOURCE_KIND_GIT_FILESYSTEM}>
                 {DEV_MSG.SITE_VIRT_KIND_GIT_FILESYSTEM}
               </option>
+              <option value={SOURCE_KIND_CSV_FILESYSTEM}>
+                {DEV_MSG.SITE_VIRT_KIND_CSV_FILESYSTEM}
+              </option>
             </select>
           </div>
 
@@ -421,71 +429,83 @@ export function VirtualSiteSourcePanel({
                   disabled={busy}
                 />
               </div>
-              <div style={formRow}>
-                <label htmlFor="site-virt-remote-url">{DEV_MSG.SITE_VIRT_REMOTE_URL}</label>
-                <input
-                  id="site-virt-remote-url"
-                  data-testid="developer-site-virtual-remote-url"
-                  type="text"
-                  value={form.remoteUrl}
-                  onChange={(e) => setForm((prev) => ({ ...prev, remoteUrl: e.target.value }))}
-                  style={inputStyle}
-                  placeholder="https://git.example.com/org/docs.git"
-                  autoComplete="off"
-                  spellCheck={false}
-                  disabled={busy}
-                />
-              </div>
-              <div style={formRow}>
-                <label htmlFor="site-virt-branch">{DEV_MSG.SITE_VIRT_BRANCH}</label>
-                <input
-                  id="site-virt-branch"
-                  data-testid="developer-site-virtual-branch"
-                  type="text"
-                  value={form.branch}
-                  onChange={(e) => setForm((prev) => ({ ...prev, branch: e.target.value }))}
-                  style={inputStyle}
-                  placeholder="main"
-                  autoComplete="off"
-                  spellCheck={false}
-                  disabled={busy}
-                />
-              </div>
-              <p
-                style={{ ...mutedHintText, margin: "0 0 10px" }}
-                data-testid="developer-site-virtual-remote-hint"
-              >
-                {DEV_MSG.SITE_VIRT_REMOTE_HINT}
-              </p>
-              <div style={formRow}>
-                <label htmlFor="site-virt-config-file">{DEV_MSG.SITE_VIRT_CONFIG_FILE}</label>
-                <input
-                  id="site-virt-config-file"
-                  data-testid="developer-site-virtual-config-file"
-                  type="text"
-                  value={form.configFile}
-                  onChange={(e) => setForm((prev) => ({ ...prev, configFile: e.target.value }))}
-                  style={inputStyle}
-                  placeholder="_config.yaml"
-                  autoComplete="off"
-                  spellCheck={false}
-                  disabled={busy}
-                />
-              </div>
-              <div style={formRow}>
-                <label htmlFor="site-virt-site-key">{DEV_MSG.SITE_VIRT_SITE_KEY}</label>
-                <input
-                  id="site-virt-site-key"
-                  data-testid="developer-site-virtual-site-key"
-                  type="text"
-                  value={form.siteKey}
-                  onChange={(e) => setForm((prev) => ({ ...prev, siteKey: e.target.value }))}
-                  style={inputStyle}
-                  autoComplete="off"
-                  spellCheck={false}
-                  disabled={busy}
-                />
-              </div>
+              {csvMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-csv-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_CSV_HINT}
+                </p>
+              ) : null}
+              {gitMode ? (
+                <>
+                  <div style={formRow}>
+                    <label htmlFor="site-virt-remote-url">{DEV_MSG.SITE_VIRT_REMOTE_URL}</label>
+                    <input
+                      id="site-virt-remote-url"
+                      data-testid="developer-site-virtual-remote-url"
+                      type="text"
+                      value={form.remoteUrl}
+                      onChange={(e) => setForm((prev) => ({ ...prev, remoteUrl: e.target.value }))}
+                      style={inputStyle}
+                      placeholder="https://git.example.com/org/docs.git"
+                      autoComplete="off"
+                      spellCheck={false}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div style={formRow}>
+                    <label htmlFor="site-virt-branch">{DEV_MSG.SITE_VIRT_BRANCH}</label>
+                    <input
+                      id="site-virt-branch"
+                      data-testid="developer-site-virtual-branch"
+                      type="text"
+                      value={form.branch}
+                      onChange={(e) => setForm((prev) => ({ ...prev, branch: e.target.value }))}
+                      style={inputStyle}
+                      placeholder="main"
+                      autoComplete="off"
+                      spellCheck={false}
+                      disabled={busy}
+                    />
+                  </div>
+                  <p
+                    style={{ ...mutedHintText, margin: "0 0 10px" }}
+                    data-testid="developer-site-virtual-remote-hint"
+                  >
+                    {DEV_MSG.SITE_VIRT_REMOTE_HINT}
+                  </p>
+                  <div style={formRow}>
+                    <label htmlFor="site-virt-config-file">{DEV_MSG.SITE_VIRT_CONFIG_FILE}</label>
+                    <input
+                      id="site-virt-config-file"
+                      data-testid="developer-site-virtual-config-file"
+                      type="text"
+                      value={form.configFile}
+                      onChange={(e) => setForm((prev) => ({ ...prev, configFile: e.target.value }))}
+                      style={inputStyle}
+                      placeholder="_config.yaml"
+                      autoComplete="off"
+                      spellCheck={false}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div style={formRow}>
+                    <label htmlFor="site-virt-site-key">{DEV_MSG.SITE_VIRT_SITE_KEY}</label>
+                    <input
+                      id="site-virt-site-key"
+                      data-testid="developer-site-virtual-site-key"
+                      type="text"
+                      value={form.siteKey}
+                      onChange={(e) => setForm((prev) => ({ ...prev, siteKey: e.target.value }))}
+                      style={inputStyle}
+                      autoComplete="off"
+                      spellCheck={false}
+                      disabled={busy}
+                    />
+                  </div>
+                </>
+              ) : null}
             </>
           ) : null}
 
