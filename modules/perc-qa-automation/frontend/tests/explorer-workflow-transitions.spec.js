@@ -31,7 +31,7 @@
  * from {@code modules/perc-qa-automation/frontend}.</p>
  */
 
-const { test, expect } = require("@playwright/test");
+const { test, expect, errors } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
@@ -214,7 +214,11 @@ async function openSitesThenPages(page, listed) {
   const treeitem = sitesNode.locator('[role="treeitem"]').first();
   const expanded = await treeitem.getAttribute("aria-expanded");
   if (expanded !== "true") {
-    const toggle = sitesNode.locator('[aria-hidden="true"]').first();
+    const toggle = sitesNode
+      .locator(
+        '[data-testid="tree-toggle-/Sites/"], [data-testid="tree-toggle-/Sites"]',
+      )
+      .first();
     if ((await toggle.count()) > 0) {
       await toggle.click();
     }
@@ -289,7 +293,8 @@ async function openSitesThenPages(page, listed) {
   if (wanted.size > 0) {
     throw new Error(
       `REST listed page ${listedName || listed.id} but UI did not open a ` +
-        `matching site among ${[...wanted].join(", ")}`,
+        `matching site among ${[...wanted].join(", ")} ` +
+        `(tree=${seen.join("; ") || "none"})`,
     );
   }
 }
@@ -310,20 +315,25 @@ async function listHasListedOrItemRow(list, listedName) {
   if (!listedName) {
     return false;
   }
-  const byName = list
-    .locator('tbody tr[data-testid^="detail-row-"]')
-    .filter({ hasText: listedName });
-  if ((await byName.count()) > 0) {
-    return true;
+  const rows = list.locator('tbody tr[data-testid^="detail-row-"]');
+  const rowCount = await rows.count();
+  for (let i = 0; i < rowCount; i += 1) {
+    const itemName = (await rows.nth(i).getAttribute("data-item-name")) || "";
+    if (itemName === listedName) {
+      return true;
+    }
   }
   const homeAlias = /\bHome\b/i.test(listedName) ? "Home" : "";
   if (!homeAlias) {
     return false;
   }
-  const homeRow = list
-    .locator('tbody tr[data-testid^="detail-row-"]')
-    .filter({ hasText: homeAlias });
-  return (await homeRow.count()) > 0;
+  for (let i = 0; i < rowCount; i += 1) {
+    const itemName = (await rows.nth(i).getAttribute("data-item-name")) || "";
+    if (itemName === homeAlias) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -335,7 +345,10 @@ async function openDetailFolderRow(row) {
   try {
     await icon.waitFor({ state: "attached", timeout: 1_000 });
     await icon.click();
-  } catch {
+  } catch (err) {
+    if (!(err instanceof errors.TimeoutError)) {
+      throw err;
+    }
     await row.dblclick({ force: true });
   }
   const page = row.page();

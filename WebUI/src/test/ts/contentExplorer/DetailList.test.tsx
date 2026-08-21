@@ -863,7 +863,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     };
     expect(renderDisplayFormatCell("name", site)).toBe("Corporate_Investments");
     mockFolderPage([site]);
-    render(
+    const { container } = render(
       <DetailList
         folderPath="/Sites"
         selectedItemId={null}
@@ -878,6 +878,7 @@ describe("T092b / FR-027: display-format column resolution", () => {
     expect(row).toHaveAttribute("data-row-kind", "folder");
     expect(row).toHaveAttribute("data-item-name", "Corporate_Investments");
     expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
+    await renderA11yGate(container);
   });
 
   it("columnHeaderLabel returns translated headers", () => {

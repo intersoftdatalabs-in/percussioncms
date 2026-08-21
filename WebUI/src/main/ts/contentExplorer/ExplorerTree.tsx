@@ -538,6 +538,7 @@ export function ExplorerTree({
               if (folderish) toggle(path, folder);
             }}
             aria-hidden="true"
+            data-testid={folderish ? `tree-toggle-${path}` : undefined}
           >
             {folderish ? (isOpen ? "▾" : "▸") : " "}
           </span>

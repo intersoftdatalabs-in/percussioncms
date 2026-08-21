@@ -208,6 +208,9 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
       src,
       /\[data-testid\^="tree-node-\/Sites\/"\]:not\(\[data-testid="tree-node-\/Sites\/"\]\)/,
     );
-    assert.match(src, /aria-hidden="true"/);
+    assert.match(src, /tree-toggle-\/Sites/);
+    assert.match(src, /errors\.TimeoutError/);
+    assert.match(src, /getAttribute\("data-item-name"\)/);
+    assert.match(src, /tree=\$\{seen\.join/);
   });
 });
