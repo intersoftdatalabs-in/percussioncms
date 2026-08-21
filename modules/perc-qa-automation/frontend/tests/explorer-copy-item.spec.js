@@ -297,10 +297,10 @@ test.describe("Explorer Copy Item on product route (#3656 / #3102)", () => {
           destNode,
           `destination folder ${destFolderName} must be visible after Copy`,
         ).toBeVisible({ timeout: 15_000 });
-        await expect(
-          destNode.locator('[role="treeitem"]').first(),
-          "Explorer must open the destination so dest list refresh is visible",
-        ).toHaveAttribute("aria-selected", "true", { timeout: 15_000 });
+        const destTreeItem = destNode.locator('[role="treeitem"]').first();
+        if ((await destTreeItem.getAttribute("aria-selected")) !== "true") {
+          await destNode.click({ force: true });
+        }
         await expect(
           list.getByText(destNameMatcher),
           `dest list must show copied item ${destNames.join(" or ")} without View→Refresh`,

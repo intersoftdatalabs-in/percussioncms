@@ -392,7 +392,15 @@ public class PSContentStatusContext implements IPSContentStatusContext {
     }
     PSContentStatusContext ctx = new PSContentStatusContext();
     ctx.m_nContentID = contentID;
-    ctx.m_nStateID = summary.getContentStateId();
+    ctx.m_nWorkflowID = summary.getWorkflowAppId();
+    // NewCopy clone insert can leave CONTENTSTATEID 0/null; check-in then
+    // throws "stateId must be > 0" (#3667). Assign the workflow initial state.
+    int loadedState = summary.getContentStateId();
+    int coercedState = PSCloneInitialWorkflowState.coerceStateId(ctx.m_nWorkflowID, loadedState);
+    ctx.m_nStateID = coercedState;
+    if (coercedState > 0 && coercedState != loadedState) {
+      summary.setContentStateId(coercedState);
+    }
     ctx.m_sCheckOutUserName = summary.getCheckoutUserName();
     Integer currRev = summary.getCurrRevision();
     ctx.m_nCurrentRevision = currRev == null ? 0 : currRev;
@@ -416,7 +424,6 @@ public class PSContentStatusContext implements IPSContentStatusContext {
     ctx.m_ReminderDate = reminder;
     java.sql.Date repeatedAging = toSqlDate(summary.getRepeatedAgingTransStartDate());
     ctx.m_RepeatedAgingTransitionStartDate = repeatedAging;
-    ctx.m_nWorkflowID = summary.getWorkflowAppId();
     ctx.m_nCommunityId = summary.getCommunityId();
     ctx.m_nContentTypeID = (int) summary.getContentTypeId();
     ctx.m_nObjectType = summary.getObjectType();
@@ -460,6 +467,9 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   public void commit() {
     if (m_nContentID <= 0) {
       throw new IllegalStateException("Content id has not been set");
+    }
+    if (m_nStateID <= 0) {
+      m_nStateID = PSCloneInitialWorkflowState.coerceStateId(m_nWorkflowID, m_nStateID);
     }
     String checkOutUserName = m_sCheckOutUserName == null ? "" : m_sCheckOutUserName;
     java.sql.Date lastTransitionDate = m_LastTransitionDate;

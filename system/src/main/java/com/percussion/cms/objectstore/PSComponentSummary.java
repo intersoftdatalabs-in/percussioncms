@@ -384,17 +384,20 @@ public final class PSComponentSummary extends PSDbComponent implements Serializa
   }
 
   /**
-   * @return Item's current workflow state id. Greater than 0 for a workflowable object.
+   * @return Item's current workflow state id. Greater than 0 for a workflowable object. {@code 0}
+   *     if Hibernate left {@code CONTENTSTATEID} null on a new clone row — never unbox null (NewCopy
+   *     check-in / {@code sys_wfPerformTransition}).
    */
   public int getContentStateId() {
-    return m_contentStateId;
+    return m_contentStateId == null ? 0 : m_contentStateId;
   }
 
   /**
-   * @return Item's workflow id. Greater than 0 for a workflowable object.
+   * @return Item's workflow id. Greater than 0 for a workflowable object. {@code 0} if the column is
+   *     null.
    */
   public int getWorkflowAppId() {
-    return m_workflowAppId;
+    return m_workflowAppId == null ? 0 : m_workflowAppId;
   }
 
   /**

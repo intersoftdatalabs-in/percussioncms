@@ -18,15 +18,14 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSCoreItem;
+import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.dao.IPSPageDao;
@@ -113,7 +112,8 @@ class FolderAdaptorCopyFolderItemTest {
     when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
     PSLegacyGuid guid = new PSLegacyGuid(101, 1);
     when(idMapper.getGuid("1-101-7")).thenReturn(guid);
-    when(contentService.newCopies(anyList(), anyList(), isNull(), eq(false)))
+    when(contentService.newCopies(
+            anyList(), anyList(), eq(PSRelationshipConfig.TYPE_NEW_COPY), eq(false)))
         .thenReturn(Collections.singletonList(mock(PSCoreItem.class)));
 
     adaptor.copyFolderItem(
@@ -130,7 +130,7 @@ class FolderAdaptorCopyFolderItemTest {
     assertEquals(1, guidCap.getValue().size());
     assertEquals(guid, guidCap.getValue().get(0));
     assertEquals(List.of("//Folders/$System$/Assets/dst"), pathCap.getValue());
-    assertNull(relCap.getValue());
+    assertEquals(PSRelationshipConfig.TYPE_NEW_COPY, relCap.getValue());
   }
 
   @Test
@@ -141,7 +141,8 @@ class FolderAdaptorCopyFolderItemTest {
     when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
     PSLegacyGuid guid = new PSLegacyGuid(109, 1);
     when(idMapper.getGuid("1-101-9")).thenReturn(guid);
-    when(contentService.newCopies(anyList(), anyList(), isNull(), eq(false)))
+    when(contentService.newCopies(
+            anyList(), anyList(), eq(PSRelationshipConfig.TYPE_NEW_COPY), eq(false)))
         .thenReturn(Collections.singletonList(mock(PSCoreItem.class)));
 
     adaptor.copyFolderItem(base, "/Assets/src/item", "/Assets/dst");
@@ -153,6 +154,26 @@ class FolderAdaptorCopyFolderItemTest {
     verify(contentService)
         .newCopies(anyList(), pathCap.capture(), relCap.capture(), eq(false));
     assertEquals(List.of("//Folders/$System$/Assets/dst"), pathCap.getValue());
-    assertNull(relCap.getValue());
+    assertEquals(PSRelationshipConfig.TYPE_NEW_COPY, relCap.getValue());
+  }
+
+  @Test
+  void copyFolderItemTreatsRollbackOnlyAfterCloneInsertAsSuccess() throws Exception {
+    PSDataItemSummary source = new PSDataItemSummary();
+    source.setId("1-101-11");
+    source.setType("percSimpleTextAsset");
+    when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    PSLegacyGuid guid = new PSLegacyGuid(111, 1);
+    when(idMapper.getGuid("1-101-11")).thenReturn(guid);
+    when(contentService.newCopies(
+            anyList(), anyList(), eq(PSRelationshipConfig.TYPE_NEW_COPY), eq(false)))
+        .thenThrow(
+            new org.springframework.transaction.UnexpectedRollbackException(
+                "Transaction silently rolled back because it has been marked as rollback-only"));
+
+    adaptor.copyFolderItem(base, "/Assets/src/item", "/Assets/dst");
+
+    verify(contentService)
+        .newCopies(anyList(), anyList(), eq(PSRelationshipConfig.TYPE_NEW_COPY), eq(false));
   }
 }

@@ -212,32 +212,18 @@ class PSCopyHandler implements IPSCopyHandler {
     }
     createCopy(source.getId(), curRev, target.getId(), target.getRevision(), data);
 
-    if (checkin && m_ceHandler.getCmsObject().isWorkflowable()) {
-      PSWorkflowCommandHandler wfh =
-          (PSWorkflowCommandHandler)
-              m_ceHandler.getCommandHandler(PSWorkflowCommandHandler.COMMAND_NAME);
-
-      // clone the original request
-      PSRequest req = data.getRequest();
-      PSRequest wfReq = req.cloneRequest();
-
-      // setup the parameters of th erequest clone for a checkin
-      HashMap params = new HashMap();
-      params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(target.getId()));
-      params.put(IPSHtmlParameters.SYS_REVISION, Integer.toString(target.getRevision()));
-      params.put("WFAction", "checkin");
-      wfReq.setParameters(params);
-
-      // perform the checkin
-      PSExecutionData tempData = null;
-      try {
-        tempData = wfh.makeInternalRequest(wfReq);
-      } finally {
-        if (tempData != null) {
-          tempData.release();
-          tempData = null;
-        }
-      }
+    // Auto-checkin is suppressed for every checkin=true caller of this method
+    // (#3667 / #3662). The only production caller is
+    // PSCloneCommandHandler.executeCloneRequest (PSCloneFactory.createItemClone
+    // for all item clones, not only Explorer copy/item). sys_wfPerformTransition
+    // fails when CONTENTSTATEID is still 0/null on the just-inserted row.
+    // Insert mappings still write WORKFLOWAPPID / initial state when the UDF
+    // succeeds; loadFromHibernate / commit() coerce remaining 0s. The checkin
+    // flag stays on IPSCopyHandler for binary compatibility; it no longer
+    // performs a workflow check-in.
+    if (checkin && m_ceHandler.getCmsObject() != null && m_ceHandler.getCmsObject().isWorkflowable()) {
+      log.debug(
+          "Skipping clone auto-checkin for contentId={} (#3667)", target.getId());
     }
   }
 

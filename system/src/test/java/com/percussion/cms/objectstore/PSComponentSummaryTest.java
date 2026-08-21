@@ -323,4 +323,23 @@ public class PSComponentSummaryTest {
     assertEquals(12, summary.getNextAgingTransition());
     assertEquals(30, summary.getContentAgingTime());
   }
+
+  /**
+   * Hibernate leaves CONTENTSTATEID / WORKFLOWAPPID null on a new clone
+   * CONTENTSTATUS row. Primitive getters must not unbox that to an NPE —
+   * {@code sys_wfPerformTransition} then sees stateId 0 (#3667).
+   */
+  @Test
+  public void testNullWorkflowFieldsDoNotUnbox() {
+    PSComponentSummary summary =
+        new PSComponentSummary(300, 1, 1, 1, PSComponentSummary.TYPE_ITEM, "clone_state", 301, -1);
+
+    assertEquals(0, summary.getContentStateId());
+    assertEquals(0, summary.getWorkflowAppId());
+
+    summary.setContentStateId(5);
+    summary.setWorkflowAppId(7);
+    assertEquals(5, summary.getContentStateId());
+    assertEquals(7, summary.getWorkflowAppId());
+  }
 }
