@@ -13,8 +13,9 @@ tags: [developer, virtual-sites]
 repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product documentation. A
 **CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
 CSV files. Operators can run it offline (CLI) or from CMS REST
-`POST /sites/{nameOrId}/virtual/build`. Developer **Sites** shows **Build Virtual Site**
-for **CSV filesystem** as well as Git filesystem.
+`POST /sites/{nameOrId}/virtual/build` and `POST /sites/{nameOrId}/virtual/publish`.
+Developer **Sites** shows **Build Virtual Site** and **Publish Virtual Site** for
+**CSV filesystem** as well as Git filesystem.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -166,8 +167,9 @@ REST `PUT /sites/{nameOrId}/virtual` may store `sourceKind=csv-filesystem` (allo
 Developer Sites can select **CSV filesystem** and save a root path. **Build Virtual Site**
 (`POST …/virtual/build`) discovers CSV rows under `virtual.rootPath` and writes HTML
 (`pagesWritten` in the JSON result). Developer **Sites** shows the same **Build Virtual Site**
-control for **CSV filesystem** (and Git filesystem). Unknown kinds remain **400**.
-Publish to the Site filesystem for CSV is a later slice.
+control for **CSV filesystem** (and Git filesystem). **Publish Virtual Site**
+(`POST …/virtual/publish`) then copies assembled HTML to the Site filesystem root.
+Unknown kinds remain **400**.
 
 ## CMS-integrated build (REST and WebUI)
 
@@ -218,8 +220,8 @@ without reloading the page.
 
 CSV trees use the same envelope with `"sourceKind": "csv-filesystem"` and a portable-safe
 `rootPath` (no remaining `..` after NIO normalize). `GET` after `PUT` returns `csv-filesystem`.
-`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` remains
-`git-filesystem` only.
+`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` and
+`POST …/virtual/publish` run for both `git-filesystem` and `csv-filesystem`.
 
 ### Git remote fetch before Build
 
@@ -286,7 +288,7 @@ POST /sites/{nameOrId}/virtual/publish
 
 The server:
 
-1. Validates the Site is a Git-filesystem Virtual Site.
+1. Validates the Site is a Git-filesystem or CSV-filesystem Virtual Site.
 2. Selects the Site filesystem publish root (must be configured, safe after NIO normalize, and
    distinct from `virtual.rootPath`).
 3. Runs the same build as `POST …/virtual/build`.
@@ -300,7 +302,6 @@ silent no-op). See [Publishing](id:admin-publishing).
 
 - CMS UI editing of Virtual items as normal content types
 - Automatic migration of the full legacy help site
-- Publish assembled CSV output to the Site filesystem (`POST …/virtual/publish`)
 - SQL/API adapters
 - Fake classic content-list generators for virtual items
 

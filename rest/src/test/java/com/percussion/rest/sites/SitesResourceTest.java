@@ -363,6 +363,11 @@ public class SitesResourceTest {
     assertTrue(
         text.contains("csv-filesystem"),
         "buildVirtualSite OpenAPI description must mention csv-filesystem");
+    String publishBlock =
+        text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/publish\")"));
+    assertTrue(
+        publishBlock.contains("csv-filesystem"),
+        "publishVirtualSite OpenAPI description must mention csv-filesystem");
     assertTrue(
         text.contains(
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),

@@ -52,8 +52,31 @@ class PSVirtualSiteFilesystemPublisherTest {
     VirtualSiteException ex =
         assertThrows(
             VirtualSiteException.class,
-            () -> PSVirtualSiteFilesystemPublisher.selectFilesystemTarget(site));
-    assertTrue(ex.getMessage().contains(".."));
+            () -> PSVirtualSiteFilesystemPublisher.selectFilesystemTarget(site, null));
+    assertTrue(
+        ex.getMessage().toLowerCase().contains("relative")
+            || ex.getMessage().contains(".."),
+        ex.getMessage());
+  }
+
+  @Test
+  void selectFilesystemTarget_resolvesRelativeRootAgainstInstallDir() throws Exception {
+    Path install = tempDir.resolve("install").normalize();
+    Path virtualSrc = tempDir.resolve("src").normalize();
+    PSSite site = virtualSite(virtualSrc, Path.of("..", "CI_Home").toString());
+    Path selected = PSVirtualSiteFilesystemPublisher.selectFilesystemTarget(site, install);
+    assertEquals(install.getParent().resolve("CI_Home").normalize(), selected);
+    assertFalse(selected.toString().contains(".."));
+  }
+
+  @Test
+  void selectFilesystemTarget_relativeRootWithoutInstallFailsClosed() {
+    PSSite site = virtualSite(tempDir.resolve("src"), "../CI_Home");
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> PSVirtualSiteFilesystemPublisher.selectFilesystemTarget(site, null));
+    assertTrue(ex.getMessage().toLowerCase().contains("relative"), ex.getMessage());
   }
 
   @Test

@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **Build** (`POST …/virtual/build`) runs the matching adapter. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **Build** (`POST …/virtual/build`) and **Publish** (`POST …/virtual/publish`) run the matching adapter. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -219,8 +219,10 @@ the preview prefix so the assembled site is navigable in the browser. Missing fi
 
 #### Publish Virtual Site (`POST …/virtual/publish`)
 
-Runs the same build, then copies the assembled tree to the Site **filesystem publish location**
-(`IPSSite.root`). Requires **Admin**. Staging `_meta` is not copied.
+Runs the same build for `git-filesystem` or `csv-filesystem`, then copies the assembled tree
+to the Site **filesystem publish location** (`IPSSite.root`) using portable NIO `Path` /
+`Files`. Relative Site roots are resolved against the CMS install directory, then rejected if
+any `..` remains. Requires **Admin**. Staging `_meta` is not copied.
 
 | Status | When |
 |--------|------|
@@ -229,9 +231,10 @@ Runs the same build, then copies the assembled tree to the Site **filesystem pub
 | `403` | Caller is not Admin |
 | `404` | Site not found |
 
-Configure a dedicated Site root (not the Markdown source path). Operators can run the same
-action from **Developer → Sites → Site detail → Publish Virtual Site** (Admin; hidden for
-repository Sites). See [Publishing](id:admin-publishing).
+Configure a dedicated Site root (not the Markdown or CSV source path). Operators can run the
+same action from **Developer → Sites → Site detail → Publish Virtual Site** (Admin; **Git
+filesystem** and **CSV filesystem**; hidden for repository Sites). See
+[Publishing](id:admin-publishing).
 
 ## Related
 

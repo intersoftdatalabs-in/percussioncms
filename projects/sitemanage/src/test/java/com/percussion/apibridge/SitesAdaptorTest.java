@@ -825,6 +825,100 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void publishVirtualSite_csvFilesystemInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalCsvTree(tempDir.resolve("csv-pub-src"));
+    Path staging = tempDir.resolve("csv-pub-staging");
+    Path publishTo = tempDir.resolve("csv-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>CSV published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("CsvHelp");
+    assertEquals("CsvHelp", result.getSiteName());
+    assertEquals("csv-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("CSV published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_csvFilesystemBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalCsvTree(tempDir.resolve("csv-real-pub-src"));
+    Path staging = tempDir.resolve("csv-real-pub-staging");
+    Path publishTo = tempDir.resolve("csv-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("CsvHelp");
+    assertEquals("CsvHelp", result.getSiteName());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("CSV Home"), body);
+    assertTrue(body.contains("Hello from CSV"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+  }
+
+  @Test
+  void publishVirtualSite_csvFilesystemRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("csv-src").toString());
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("CsvHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   void publishVirtualSite_buildsThenCopiesToSiteRoot() throws Exception {
     Path siteRoot = createMinimalVirtualTree(tempDir.resolve("pub-src"));
     Path staging = tempDir.resolve("pub-staging");
