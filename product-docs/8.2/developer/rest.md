@@ -135,7 +135,7 @@ Explorer chrome does not probe the named preference. A blank list entry (or no e
 | Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; `git-filesystem` or `csv-filesystem`. Git fetches `remoteUrl` when set; CSV reads a local CSV tree (`rootPath`; optional `_config.yaml`). Same action as **Developer → Sites → Build Virtual Site**. Unknown `sourceKind` is **400**. |
 | Virtual preview status | `GET /services/sites/{nameOrId}/virtual/preview` | Admin-only; last build availability |
 | Virtual preview file | `GET /services/sites/{nameOrId}/virtual/preview/{relPath}` | Admin-only; assembled file stream |
-| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; build then copy to Site filesystem root. Same action as **Developer → Sites → Publish Virtual Site** |
+| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; `git-filesystem` or `csv-filesystem`. Builds then copies assembled files to the Site filesystem root (`IPSSite.root`). Same action as **Developer → Sites → Publish Virtual Site**. Repository / unknown kinds are **400**. |
 
 An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty catalog chrome
 appears only when this list **and** the sitemanage `GET /sitemanage/site/` `SiteSummary` fallback

@@ -71,7 +71,7 @@ export function isVirtualSourceKind(kind: string | null | undefined): boolean {
   return v.length > 0 && v !== SOURCE_KIND_REPOSITORY;
 }
 
-/** True when source kind is the Git filesystem adapter (Build/Publish chrome). */
+/** True when source kind is the Git filesystem adapter (remote URL/branch fields). */
 export function isGitFilesystemSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_GIT_FILESYSTEM;
 }

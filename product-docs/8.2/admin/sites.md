@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** (REST and Developer Sites) runs the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -155,9 +155,8 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    `sourceKind` object). For CSV it sends `{ "VirtualSiteProperties": {
    "sourceKind": "csv-filesystem", "rootPath": "…" } }` (no `remoteUrl`). After
    a successful save the panel reloads properties from GET so the kind and root
-   persist without a full page reload. **Build Virtual Site** appears for
-   **Git filesystem** and **CSV filesystem**. **Publish Virtual Site** remains
-   Git filesystem only.
+   persist without a full page reload. **Build Virtual Site** and **Publish
+   Virtual Site** appear for **Git filesystem** and **CSV filesystem**.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties). Switching
    the select back to Repository hides virtual fields immediately; Save is still
@@ -184,10 +183,9 @@ require a Git remote; `_config.yaml` is optional.
 
 ### Build a Virtual Site from the product UI
 
-When **Source kind** is **Git filesystem** or **CSV filesystem**, the Site detail panel shows a
-**Build Virtual Site** control. Traditional **Repository** Sites do **not** show this control
-(no misleading virtual-build chrome). **Publish Virtual Site** still appears for Git
-filesystem only.
+When **Source kind** is **Git filesystem** or **CSV filesystem**, the Site detail panel shows
+**Build Virtual Site** and **Publish Virtual Site**. Traditional **Repository** Sites do **not**
+show these controls (no misleading virtual-build or virtual-publish chrome).
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.
@@ -250,8 +248,9 @@ site to the Site's configured filesystem publish location:
 1. Set the Site **publishing filesystem root** (Site root / `IPSSite.root`) to a dedicated
    directory on the CMS host (not the Markdown `virtual.rootPath`).
 2. As **Admin**, open **Developer → Sites → Site detail** for the Virtual Site.
-3. Confirm **Source kind** is **Git filesystem** and **Save Virtual Site source** if you
-   changed properties. Traditional **Repository** Sites never show Publish chrome.
+3. Confirm **Source kind** is **Git filesystem** or **CSV filesystem** and **Save Virtual
+   Site source** if you changed properties. Traditional **Repository** Sites never show
+   Publish chrome.
 4. Choose **Publish Virtual Site**. The panel shows a busy state, then success with
    **files copied** and the **destination path**, or a clear error (not Admin, still a
    repository Site on the server, missing or unsafe Site root).

@@ -139,8 +139,8 @@ public interface ISiteAdaptor {
   VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath);
 
   /**
-   * Builds a Virtual Site and copies the static output to the Site filesystem publish root ({@code
-   * IPSSite.getRoot()}).
+   * Builds a Virtual Site ({@code git-filesystem} or {@code csv-filesystem}) and copies the static
+   * output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. Failures are operator-facing 4xx (not

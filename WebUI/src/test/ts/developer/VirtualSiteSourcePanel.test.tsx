@@ -279,7 +279,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("https://git.example.com/org/docs.git");
   });
 
-  it("loads csv-filesystem values with root path and Build chrome (no Git remotes or Publish)", async () => {
+  it("loads csv-filesystem values with root path and Build/Publish chrome (no Git remotes)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "csv-filesystem",
       rootPath: "C:/csv-docs",
@@ -302,7 +302,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -357,7 +357,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("C:/csv-docs");
     expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -382,6 +382,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-csv-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
   it("saves repository mode to clear virtual configuration", async () => {
@@ -483,7 +484,7 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-build-link-list")).toBeNull();
   });
 
-  it("shows Build chrome for csv-filesystem and success result without Publish", async () => {
+  it("shows Build chrome for csv-filesystem and success result", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "csv-filesystem",
       rootPath: "C:/csv-docs",
@@ -502,7 +503,7 @@ describe("VirtualSiteSourcePanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
     });
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
@@ -514,6 +515,37 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("2");
     expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
       "csv-docs",
+    );
+  });
+
+  it("shows Publish chrome for csv-filesystem and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "C:/inetpub/wwwroot/csv-help",
+      filesCopied: 4,
+      pagesWritten: 2,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("4");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "csv-help",
     );
   });
 

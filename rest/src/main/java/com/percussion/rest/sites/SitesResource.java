@@ -410,11 +410,12 @@ public class SitesResource {
   @Operation(
       summary = "Publish Virtual Site to Site filesystem target",
       description =
-          "Runs the Phase 1 Virtual Site static build (same as POST …/virtual/build) then copies"
-              + " assembled HTML/assets to the Site publishing filesystem location (IPSSite.root)."
-              + " Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
-              + " overlap with virtual.rootPath return 4xx with an operator-readable message"
-              + " (never a silent no-op).",
+          "Runs the Virtual Site static build (same as POST …/virtual/build) for git-filesystem"
+              + " or csv-filesystem, then copies assembled HTML/assets to the Site publishing"
+              + " filesystem location (IPSSite.root) using portable NIO Path I/O. Requires Admin."
+              + " Traditional repository Sites, missing/unsafe Site root, or overlap with"
+              + " virtual.rootPath return 4xx with an operator-readable message (never a silent"
+              + " no-op).",
       responses = {
         @ApiResponse(
             responseCode = "200",

@@ -142,8 +142,8 @@ function validationMessage(
 /**
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
- * build ({@code POST …/virtual/build}) for git-filesystem and csv-filesystem, or
- * publish ({@code POST …/virtual/publish}) for git-filesystem.
+ * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
+ * for git-filesystem and csv-filesystem.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -332,7 +332,7 @@ export function VirtualSiteSourcePanel({
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
   /** Build chrome: git-filesystem and csv-filesystem (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Publish chrome: git-filesystem only (CSV publish is a later slice). */
+  /** Publish chrome: git-filesystem and csv-filesystem (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;

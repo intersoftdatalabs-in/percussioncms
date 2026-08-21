@@ -770,7 +770,7 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_GIT_FILESYSTEM: "perc.ui.developer@Git filesystem",
   SITE_VIRT_KIND_CSV_FILESYSTEM: "perc.ui.developer@CSV filesystem",
   SITE_VIRT_CSV_HINT:
-    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site. Publish remains Git filesystem.",
+    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build or Publish Virtual Site.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

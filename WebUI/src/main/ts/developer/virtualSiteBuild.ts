@@ -34,12 +34,13 @@ export function shouldShowVirtualBuildChrome(
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Publish remains git-filesystem only until the CSV publish slice.
+ * Git-filesystem and csv-filesystem both run POST /virtual/publish (build then
+ * copy to IPSSite.root). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  return (sourceKind ?? "").trim().toLowerCase() === "git-filesystem";
+  return shouldShowVirtualBuildChrome(sourceKind);
 }
 
 /**

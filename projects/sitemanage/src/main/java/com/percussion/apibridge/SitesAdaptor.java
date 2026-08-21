@@ -424,6 +424,10 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
   }
 
+  /**
+   * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem and
+   * csv-filesystem Virtual Sites. Fail-closed on blank/unsafe/overlapping publish roots.
+   */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
     requireAdmin();

@@ -16,7 +16,8 @@
 
 /**
  * Copy the CSV Virtual Site QA fixture into the H2 Docker cell so
- * Developer Sites Build can POST /virtual/build against a real tree.
+ * Developer Sites Build/Publish can POST /virtual/build and /virtual/publish
+ * against a real tree.
  */
 
 const { execFileSync } = require("node:child_process");

@@ -46,12 +46,13 @@ For Git/filesystem or CSV/filesystem Virtual Sites such as product documentation
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem Virtual Site (see [Sites](id:admin-sites)).
+2. Configure the Site as a Git-filesystem or CSV-filesystem Virtual Site (see [Sites](id:admin-sites)).
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
-   host. Do **not** point it at `virtual.rootPath` (the Markdown source tree).
+   host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
+   install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
-5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible only
-   when source kind is Virtual). The panel reports files copied and the destination path,
+5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
+   **Git filesystem** and **CSV filesystem**; hidden for repository). The panel reports files copied and the destination path,
    or a clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
    instead. Run **Build Virtual Site** first if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any

@@ -17,6 +17,8 @@
 package com.percussion.services.virtualsite;
 
 import com.percussion.services.sitemgr.IPSSite;
+import com.percussion.utils.io.PathUtils;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -42,11 +44,28 @@ public final class PSVirtualSiteFilesystemPublisher {
   /**
    * Resolve the Site filesystem publish target from {@link IPSSite#getRoot()}.
    *
+   * <p>Relative roots (legacy demo values such as {@code ../CI_Home}) are resolved against the CMS
+   * install directory with portable NIO {@link Path}, then re-checked for remaining {@code ..}.
+   *
    * @param site CMS Site, not null
    * @return normalized target path (not required to exist yet)
    * @throws VirtualSiteException when root is blank, unsafe, or overlaps the Virtual source tree
    */
   public static Path selectFilesystemTarget(IPSSite site) throws VirtualSiteException {
+    return selectFilesystemTarget(site, detectInstallRoot());
+  }
+
+  /**
+   * Resolve the Site filesystem publish target, using {@code installRoot} for relative Site roots.
+   *
+   * @param site CMS Site, not null
+   * @param installRoot CMS install directory used to resolve relative {@link IPSSite#getRoot()}
+   *     values; may be null (relative roots then fail closed)
+   * @return normalized target path (not required to exist yet)
+   * @throws VirtualSiteException when root is blank, unsafe, or overlaps the Virtual source tree
+   */
+  public static Path selectFilesystemTarget(IPSSite site, Path installRoot)
+      throws VirtualSiteException {
     if (site == null) {
       throw new VirtualSiteException("Site is required to select a filesystem publish target.");
     }
@@ -58,11 +77,22 @@ public final class PSVirtualSiteFilesystemPublisher {
     }
     Path target;
     try {
-      target = Path.of(raw.trim()).normalize();
+      target = Path.of(raw.trim());
     } catch (InvalidPathException e) {
       throw new VirtualSiteException(
           "Site filesystem publish root is not a valid path: '" + raw.trim() + "'.", e);
     }
+    if (!target.isAbsolute()) {
+      if (installRoot == null || !PSVirtualSiteHelper.isSafeRootPath(installRoot)) {
+        throw new VirtualSiteException(
+            "Site filesystem publish root is relative and cannot be resolved against the CMS"
+                + " install directory. Rejected: '"
+                + raw.trim()
+                + "'.");
+      }
+      target = installRoot.toAbsolutePath().normalize().resolve(target);
+    }
+    target = target.normalize();
     if (!PSVirtualSiteHelper.isSafeRootPath(target)) {
       throw new VirtualSiteException(
           "Site filesystem publish root must be a non-empty path with no '..' segments after"
@@ -163,6 +193,26 @@ public final class PSVirtualSiteFilesystemPublisher {
   public static int copyBuildFileCountToTarget(Path buildOutput, Path target)
       throws VirtualSiteException, IOException {
     return copyBuildToTarget(buildOutput, target).filesCopied();
+  }
+
+  /**
+   * CMS install directory for resolving relative {@link IPSSite#getRoot()} values. Fail-closed
+   * ({@code null}) when the install root is missing or unsafe.
+   */
+  static Path detectInstallRoot() {
+    try {
+      File rx = PathUtils.getRxDir();
+      if (rx == null) {
+        return null;
+      }
+      Path install = rx.toPath().toAbsolutePath().normalize();
+      if (!PSVirtualSiteHelper.isSafeRootPath(install)) {
+        return null;
+      }
+      return install;
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   static boolean isMetaTree(Path relative) {
