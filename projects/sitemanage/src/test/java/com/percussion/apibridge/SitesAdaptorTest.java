@@ -47,8 +47,10 @@ import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.services.virtualsite.PSGitRemoteCheckout;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
+import com.percussion.services.virtualsite.PSVirtualSiteBuildService;
 import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
+import com.percussion.services.virtualsite.VirtualSiteSourceType;
 import java.time.Duration;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
@@ -1007,6 +1009,82 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void preview_rejectsUnknownSourceKind() {
+    PSSite site = new PSSite();
+    site.setName("Mystery");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-adapter");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("virt-root").toString());
+    when(siteManager.findSite("Mystery")).thenReturn(site);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.getVirtualSitePreviewStatus("Mystery"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void previewCsvFilesystem_lastBuildHomeAndRejectsTraversal() throws Exception {
+    Path csvRoot = createMinimalCsvTree(tempDir.resolve("csv-src"));
+    Path defaultOut = tempDir.resolve("csv-preview-default");
+    Path built = tempDir.resolve("csv-preview-built");
+
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.CSV_FILESYSTEM);
+    PSVirtualSiteBuildResult assembled = service.build(csvRoot, built, "csv-docs");
+    assertTrue(assembled.pageCount() > 0);
+    assertTrue(Files.isRegularFile(built.resolve("8.2").resolve("index.html")));
+
+    PSSite site = virtualCsvSite(csvRoot);
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("csv-docs", built);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("CsvHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("CsvHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("CSV Home"), html);
+    assertTrue(html.contains("Hello from CSV"), html);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("CsvHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("CsvHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewCsvFilesystem_missingBuildIsUnavailableNot500() throws Exception {
+    Path csvRoot = Files.createDirectories(tempDir.resolve("csv-empty-src"));
+    Path defaultOut = tempDir.resolve("csv-preview-default-empty");
+    PSSite site = virtualCsvSite(csvRoot);
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("CsvHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertTrue(status.getMessage() != null && status.getMessage().contains("No assembled"));
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("CsvHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -1058,6 +1136,19 @@ class SitesAdaptorTest {
     return site;
   }
 
+  private PSSite virtualCsvSite(Path csvRoot) {
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        csvRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    return site;
+  }
+
   private static Path createMinimalVirtualTree(Path siteRoot) throws Exception {
     Path versionDir = siteRoot.resolve("8.2");
     Files.createDirectories(versionDir);
@@ -1101,7 +1192,7 @@ class SitesAdaptorTest {
         siteRoot.resolve("_config.yaml"),
         """
         site:
-          title: CSV Docs
+          title: CSV Help
         versions:
           - id: "8.2"
             label: "8.2"
@@ -1117,7 +1208,7 @@ class SitesAdaptorTest {
         StandardCharsets.UTF_8);
     Files.writeString(
         siteRoot.resolve("8.2").resolve("pages.csv"),
-        "id,title,body,path,order\ncsv-home,CSV Home,Hello from CSV.,index.md,1\n",
+        "id,title,body,path,order\nhome,CSV Home,Hello from CSV.,index.md,1\n",
         StandardCharsets.UTF_8);
     return siteRoot;
   }

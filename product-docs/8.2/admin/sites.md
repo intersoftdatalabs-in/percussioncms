@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** (REST and Developer Sites) runs the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** (REST and Developer Sites) runs the matching adapter. After Build, **Preview assembled site** streams last-build HTML for both kinds. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -220,11 +220,15 @@ filesystem only.
 
 ### Preview the assembled Virtual Site
 
-After a successful **Build Virtual Site**, operators can open the assembled documentation
-home from the same Site detail panel (no CLI, no `file://` path).
+After a successful **Build Virtual Site**, operators can open the assembled home from the
+same Site detail panel (no CLI, no `file://` path). Preview is last-output based: it works
+for **Git filesystem** and **CSV filesystem** (not git-only). Traditional **Repository**
+Sites hide both **Build Virtual Site** and **Preview assembled site**.
 
 1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
-2. Choose **Preview assembled site**.
+2. For **CSV filesystem**, confirm **Source kind** is **CSV filesystem**, the **Root path**
+   is saved, and **Build Virtual Site** completed. Then choose **Preview assembled site**.
+   Git filesystem uses the same Preview control after its Build.
 3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
    when present) in a new tab. Navigation stays on the same-origin preview URL
    (`GET /services/sites/{name}/virtual/preview/{path}`).
@@ -233,9 +237,9 @@ home from the same Site detail panel (no CLI, no `file://` path).
    does not return HTTP 500.
 
 The preview stream reads the last recorded `outputPath` from the build (default
-`{install}/tmp/virtual-sites/{siteKey}`). It is **Admin-only**, path-traversal safe, and
-does not invent a second assembler. Traditional **Repository** Sites do not show Preview
-chrome. Git and CSV Virtual Sites both show Preview next to **Build Virtual Site**.
+`{install}/tmp/virtual-sites/{siteKey}`). After a CSV assemble, `GET /services/sites/{name}/virtual/preview`
+reports `available` + `homePath`, and `GET …/virtual/preview/{path}` streams the HTML.
+It is **Admin-only**, path-traversal safe, and does not invent a second assembler.
 
 Integrators can call the same operation over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
