@@ -165,6 +165,52 @@ class PSNavNameAliasesTest {
   }
 
   @Test
+  void expandWithWellKnownAliasTypeIdsAppendsRffAfterPerc() {
+    assertEquals(
+        List.of(1017L, 315L),
+        PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(1017L)));
+    assertEquals(
+        List.of(1016L, 314L),
+        PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(1016L)));
+    assertEquals(
+        List.of(1015L, 313L),
+        PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(1015L)));
+    assertEquals(
+        List.of(1017L, 1016L, 315L, 314L),
+        PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(1017L, 1016L)));
+    assertEquals(
+        List.of(315L, 1017L),
+        PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(315L)));
+    assertEquals(List.of(1001L), PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of(1001L)));
+    assertTrue(PSNavNameAliases.expandWithWellKnownAliasTypeIds(null).isEmpty());
+    assertTrue(PSNavNameAliases.expandWithWellKnownAliasTypeIds(List.of()).isEmpty());
+  }
+
+  @Test
+  void resolveRegisteredTypeIdUsesPercSiblingWhenRffMissing() {
+    java.util.function.LongPredicate percOnly = id -> id == 1017L || id == 1016L || id == 1015L;
+    assertEquals(1017L, PSNavNameAliases.resolveRegisteredTypeId(315L, percOnly));
+    assertEquals(1016L, PSNavNameAliases.resolveRegisteredTypeId(314L, percOnly));
+    assertEquals(1015L, PSNavNameAliases.resolveRegisteredTypeId(313L, percOnly));
+    assertEquals(1017L, PSNavNameAliases.resolveRegisteredTypeId(1017L, percOnly));
+    assertEquals(42L, PSNavNameAliases.resolveRegisteredTypeId(42L, percOnly));
+    assertEquals(315L, PSNavNameAliases.resolveRegisteredTypeId(315L, id -> false));
+    assertEquals(315L, PSNavNameAliases.resolveRegisteredTypeId(315L, null));
+  }
+
+  @Test
+  void wellKnownNavTypeIdHelpers() {
+    assertTrue(PSNavNameAliases.isWellKnownNavTreeTypeId(315L));
+    assertTrue(PSNavNameAliases.isWellKnownNavTreeTypeId(1017L));
+    assertTrue(PSNavNameAliases.isWellKnownNavonTypeId(314L));
+    assertTrue(PSNavNameAliases.isWellKnownNavonTypeId(1016L));
+    assertTrue(PSNavNameAliases.isWellKnownNavImageTypeId(313L));
+    assertTrue(PSNavNameAliases.isWellKnownNavTypeId(315L));
+    assertFalse(PSNavNameAliases.isWellKnownNavTypeId(1001L));
+    assertFalse(PSNavNameAliases.isWellKnownNavonTypeId(315L));
+  }
+
+  @Test
   void splitConfiguredNamesDropsEmptyTokens() {
     assertEquals(List.of("percNavon", "rffNavon"), PSNavNameAliases.splitConfiguredNames("percNavon,rffNavon"));
     assertEquals(List.of("perc.nav.slot", "rffNav"), PSNavNameAliases.splitConfiguredNames("perc.nav.slot; rffNav"));

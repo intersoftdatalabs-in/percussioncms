@@ -466,11 +466,15 @@ public class PSNavFolderUtils {
       setFieldValue(navon, "sys_contentstartdate", new PSDateValue(new Date()));
       ms_log.debug("navon community id {}", communityId);
       setFieldValue(navon, "sys_communityid", new PSTextValue(String.valueOf(communityId)));
-      Object workflowId = req.getPrivateObject(SYS_WORKFLOWID);
-      if (workflowId == null) {
-        workflowId = navonDef.getWorkflowId();
+      // percNavon uses the type default workflow. Folder-path workflows on
+      // FastForward sample sites are often 0 / unassigned and leave
+      // CONTENTSTATEID=0 so later check-in/checkout throws (#3672 / #3364).
+      int wf = navonDef.getWorkflowId();
+      if (wf <= 0) {
+        wf = parsePositiveInt(req.getPrivateObject(SYS_WORKFLOWID), 0);
       }
-      setFieldValue(navon, SYS_WORKFLOWID, new PSTextValue(String.valueOf(workflowId)));
+      setFieldValue(navon, SYS_WORKFLOWID, new PSTextValue(String.valueOf(wf)));
+      setFieldValue(navon, "sys_contentstateid", new PSTextValue("1"));
       ms_log.debug("before new navon save");
       navon.save(req.getSecurityToken());
       ms_log.debug("after save");
@@ -480,7 +484,11 @@ public class PSNavFolderUtils {
       int revision = navon.getRevision();
       ms_log.debug("new revision is {}", revision);
       PSLocator navonLoc = new PSLocator(contentId, revision);
-      checkInItem(req, navonLoc);
+      ensureNavonWorkflowState(contentId, wf);
+      // Do not check-in here. Sample / H2 workflows throw stateId=0 from
+      // sys_wfPerformTransition and mark the Spring TX rollback-only, which
+      // drops the state persist and landing checkout then 500s (#3364 / #3672).
+      // The navon is a valid folder child once related below.
 
       PSComponentSummary navonSummary = PSNavUtil.getItemSummary(req, navonLoc);
 
@@ -495,7 +503,7 @@ public class PSNavFolderUtils {
       }
       return navonSummary;
     } catch (Exception ex) {
-      ms_log.error(ex);
+      ms_log.error("addNavonToFolder failed for loc={}", folderLoc, ex);
       throw new PSNavException(PSNavFolderUtils.class.getName(), ex);
     }
   }
@@ -517,7 +525,20 @@ public class PSNavFolderUtils {
     }
     PSItemDefManager defMgr = PSItemDefManager.getInstance();
     try {
-      PSItemDefinition itemDef = defMgr.getItemDef(loc, req.getSecurityToken());
+      PSItemDefinition itemDef;
+      try {
+        itemDef = defMgr.getItemDef(loc, req.getSecurityToken());
+      } catch (PSInvalidContentTypeException missingType) {
+        // Brand-new percNavon under sample rffNavTree 315 may not be in the
+        // ItemDef catalog by locator yet; use the registered perc sibling.
+        long fallback = PSNavConfig.getInstance().getNavonTypeIds().get(0);
+        ms_log.warn(
+            "Navon check-in locator type missing for {}; using registered navon type {}",
+            loc,
+            fallback,
+            missingType);
+        itemDef = defMgr.getItemDef(fallback, req.getSecurityToken());
+      }
       String editorURL = itemDef.getEditorUrl();
       Map pMap = new HashMap();
       pMap.put(IPSHtmlParameters.SYS_COMMAND, "workflow");
@@ -525,10 +546,88 @@ public class PSNavFolderUtils {
       pMap.put(IPSHtmlParameters.SYS_CONTENTID, loc.getPart(PSLocator.KEY_ID));
       pMap.put(IPSHtmlParameters.SYS_REVISION, loc.getPart(PSLocator.KEY_REVISION));
       IPSInternalRequest ir = req.getInternalRequest(editorURL, pMap, false);
+      if (ir == null) {
+        throw new PSNavException(
+            "No internal request for navon check-in editor URL " + editorURL + " loc=" + loc);
+      }
       ir.performUpdate();
+    } catch (PSNavException ex) {
+      if (isSampleWorkflowCheckinFailure(ex)) {
+        ms_log.warn(
+            "Skipping navon check-in after save (sample workflow); loc={}", loc, ex);
+        return;
+      }
+      throw ex;
     } catch (Exception ex) {
-      throw new PSNavException(ex);
+      if (isSampleWorkflowCheckinFailure(ex)) {
+        ms_log.warn(
+            "Skipping navon check-in after save (sample workflow); loc={}", loc, ex);
+        return;
+      }
+      ms_log.error("Failed to check in navon loc={}", loc, ex);
+      throw new PSNavException("Failed to check in navon " + loc, ex);
     }
+  }
+
+  /**
+   * FastForward / H2 sample workflows leave a new percNavon at state 0, so
+   * {@code sys_wfPerformTransition} throws {@code stateId must be > 0} (same as NavTree
+   * save-without-checkin, #3364 / #3672). The item is still a valid folder child.
+   */
+  /**
+   * FastForward sample folders can leave a new percNavon at CONTENTSTATEID 0. Persist Draft (1) and
+   * a type workflow so later checkout for the landing page succeeds (#3672).
+   */
+  static void ensureNavonWorkflowState(int contentId, int workflowId) {
+    try {
+      IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
+      PSComponentSummary sum = mgr.loadComponentSummary(contentId);
+      if (sum == null) {
+        return;
+      }
+      boolean dirty = false;
+      if (sum.getContentStateId() <= 0) {
+        sum.setContentStateId(1);
+        dirty = true;
+      }
+      if (sum.getWorkflowAppId() <= 0 && workflowId > 0) {
+        sum.setWorkflowAppId(workflowId);
+        dirty = true;
+      }
+      if (dirty) {
+        mgr.saveComponentSummaries(Collections.singletonList(sum));
+      }
+    } catch (Exception e) {
+      ms_log.warn("Could not persist initial workflow state for navon {}", contentId, e);
+    }
+  }
+
+  /** Positive int from a request private object, else {@code fallback}. */
+  static int parsePositiveInt(Object raw, int fallback) {
+    if (raw == null) {
+      return fallback;
+    }
+    try {
+      int value = Integer.parseInt(String.valueOf(raw).trim());
+      return value > 0 ? value : fallback;
+    } catch (NumberFormatException e) {
+      return fallback;
+    }
+  }
+
+  static boolean isSampleWorkflowCheckinFailure(Throwable ex) {
+    for (Throwable t = ex; t != null; t = t.getCause()) {
+      String msg = t.getMessage();
+      if (msg != null
+          && (msg.contains("stateId must be > 0")
+              || msg.contains("sys_wfPerformTransition"))) {
+        return true;
+      }
+      if (t == t.getCause()) {
+        break;
+      }
+    }
+    return false;
   }
 
   /**

@@ -411,13 +411,18 @@ public class PSNavConfig
     */
    public boolean isManagedNavType(IPSGuid ctypeGuid){
 
+      if(ctypeGuid == null)
+         return false;
+
       if(m_navonTypes.contains(ctypeGuid))
          return true;
 
       if(m_navTreeTypes.contains(ctypeGuid))
          return true;
 
-      return false;
+      // Sample rffNav* items stay on 313-315 when perc.nav owns 1015-1017 (#3672).
+      return PSNavNameAliases.isWellKnownNavonTypeId(ctypeGuid.longValue())
+          || PSNavNameAliases.isWellKnownNavTreeTypeId(ctypeGuid.longValue());
    }
 
    /**
@@ -437,11 +442,7 @@ public class PSNavConfig
     */
    public List<Long> getNavonTypeIds()
    {
-      List<Long> ret = new ArrayList<>();
-      for(IPSGuid g : m_navonTypes){
-         ret.add(g.longValue());
-      }
-      return ret;
+      return typeIdsWithWellKnownAliases(m_navonTypes);
    }
    
    /**
@@ -468,11 +469,25 @@ public class PSNavConfig
    }
 
    public List<Long> getNavTreeTypeIds(){
+      return typeIdsWithWellKnownAliases(m_navTreeTypes);
+   }
+
+   /**
+    * Registered nav type ids plus well-known perc/rff siblings so folder queries
+    * find sample {@code rffNavTree} 315 when only {@code percNavTree} 1017 is in
+    * the catalog. Existing ids stay first so {@code get(0)} still creates with
+    * the registered perc type (#3672). Never {@code null}.
+    */
+   static List<Long> typeIdsWithWellKnownAliases(List<IPSGuid> types) {
       List<Long> ret = new ArrayList<>();
-      for(IPSGuid g : m_navTreeTypes){
-         ret.add(g.longValue());
+      if (types != null) {
+         for (IPSGuid g : types) {
+            if (g != null) {
+               ret.add(g.longValue());
+            }
+         }
       }
-      return ret;
+      return PSNavNameAliases.expandWithWellKnownAliasTypeIds(ret);
    }
    /**
     * Gets the NavTree Info Variant as an object.
@@ -1352,10 +1367,6 @@ public class PSNavConfig
    }
 
    public List<Long> getNavImageTypeIds() {
-      List<Long> ret = new ArrayList<>();
-      for(IPSGuid g : m_navImageTypes){
-         ret.add(g.longValue());
-      }
-      return ret;
+      return typeIdsWithWellKnownAliases(m_navImageTypes);
    }
 }

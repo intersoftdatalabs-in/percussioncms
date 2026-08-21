@@ -391,14 +391,15 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 Peer: `explorer-preview-view` (Sites → Pages walk). Product: `itemWorkflowApi`
 Jackson unwrap + `workflowMenuActions` merge. Parent operator issue #3102.
 
-### Architecture Create section no-skip (#3589 / #3661 / parent #3092)
+### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
 `spa.jsp?entry=architecture` when a NavTree exists (`#3352` sample sites).
 Escape closes the dialog. Landing page **name**, **title**, and **template**
-persist via `POST /section/create` (HTTP 200; tree shows the child). Cancel
-and empty required fields do **not** POST. Does **not** soft-skip on H2 QA
-when tree GET is 200. Does **not** seed a second NavTree.
+persist via `POST /section/create` (HTTP 200 under sample `rffNavTree` type 315;
+tree shows the child). Cancel and empty required fields do **not** POST. Does
+**not** soft-skip on H2 QA when tree GET is 200. Does **not** seed a second
+NavTree. Does **not** treat POST 500 as success.
 
 | Item | Value |
 |------|--------|

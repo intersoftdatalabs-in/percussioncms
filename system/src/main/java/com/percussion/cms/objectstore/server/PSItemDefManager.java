@@ -336,7 +336,7 @@ public class PSItemDefManager {
      * we don't use the access methods for the member here because we don't
      * have a security token
      */
-    List<?> defs = m_itemDefMap.get(contentTypeId);
+    List<?> defs = getItemDefEntries(contentTypeId);
     if (null == defs) throw new PSInvalidContentTypeException("" + contentTypeId);
     return ((PSItemDefSummary) defs.get(1)).getName();
   }
@@ -384,7 +384,7 @@ public class PSItemDefManager {
      * we don't use the access methods for the member here because we don't
      * have a security token
      */
-    List<?> defs = m_itemDefMap.get(contentTypeId);
+    List<?> defs = getItemDefEntries(contentTypeId);
     if (null == defs) throw new PSInvalidContentTypeException("" + contentTypeId);
     return ((PSItemDefSummary) defs.get(1)).getLabel();
   }
@@ -586,9 +586,10 @@ public class PSItemDefManager {
   public PSItemDefinition getItemDef(long contentTypeId, int communityId)
       throws PSInvalidContentTypeException {
 
-    if (!isVisibleToCommunity(contentTypeId, communityId)) return null;
+    long resolved = resolveRegisteredNavItemDefTypeId(contentTypeId);
+    if (!isVisibleToCommunity(resolved, communityId)) return null;
 
-    List<Object> defs = m_itemDefMap.get(contentTypeId);
+    List<Object> defs = m_itemDefMap.get(resolved);
     if (defs == null) throw new PSInvalidContentTypeException(String.valueOf(contentTypeId));
     return (PSItemDefinition) defs.get(0);
   }
@@ -693,9 +694,31 @@ public class PSItemDefManager {
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   public PSCmsObject getCmsObject(long contentTypeId) {
-    List<?> defs = m_itemDefMap.get(new Long(contentTypeId));
+    List<?> defs = getItemDefEntries(contentTypeId);
     if (defs == null) return null;
     else return (PSCmsObject) defs.get(3);
+  }
+
+  /**
+   * Running catalog entry for {@code contentTypeId}, or the perc/rff well-known sibling when sample
+   * FastForward types 313–315 are unregistered and perc.nav owns 1015–1017 (#3672).
+   */
+  private List<Object> getItemDefEntries(long contentTypeId) {
+    List<Object> defs = m_itemDefMap.get(contentTypeId);
+    if (defs != null) {
+      return defs;
+    }
+    long resolved = resolveRegisteredNavItemDefTypeId(contentTypeId);
+    if (resolved != contentTypeId) {
+      return m_itemDefMap.get(resolved);
+    }
+    return null;
+  }
+
+  /** Package-visible so tests can pin 315 → 1017 without a live catalog. */
+  long resolveRegisteredNavItemDefTypeId(long contentTypeId) {
+    return PSNavNameAliases.resolveRegisteredTypeId(
+        contentTypeId, id -> m_itemDefMap.containsKey(id));
   }
 
   /**
@@ -997,7 +1020,11 @@ public class PSItemDefManager {
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   private PSItemDefSummary getItemDefSummary(long contentTypeId) {
-    return (PSItemDefSummary) ((List<?>) (m_itemDefMap.get(contentTypeId))).get(1);
+    List<?> defs = getItemDefEntries(contentTypeId);
+    if (defs == null) {
+      return null;
+    }
+    return (PSItemDefSummary) defs.get(1);
   }
 
   /**
@@ -1008,7 +1035,7 @@ public class PSItemDefManager {
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   public PSContentEditor getContentEditorDef(long contentTypeId) {
-    List<?> defs = m_itemDefMap.get(contentTypeId);
+    List<?> defs = getItemDefEntries(contentTypeId);
     if (defs == null) return null;
     else return (PSContentEditor) defs.get(2);
   }

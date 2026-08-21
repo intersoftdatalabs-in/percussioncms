@@ -15,12 +15,14 @@
  */
 
 /**
- * Architecture Create section — H2 no-skip (#3589 / #3661 / parent #3092).
+ * Architecture Create section — H2 no-skip (#3589 / #3661 / #3672 / parent #3092).
  *
  * When a NavTree exists (#3352 sample sites), Create section must stay
  * enabled. Escape closes the dialog. Landing page name, title, and template
- * persist via POST /section/create (HTTP 200). Cancel / empty required fields
- * do not POST. No Playwright skip when tree GET is 200.
+ * persist via POST /section/create (HTTP 200 under sample rffNavTree type 315)
+ * and the new child appears as a treeitem. Cancel / empty required fields
+ * do not POST. No Playwright skip when tree GET is 200. Do not treat POST 500
+ * as success.
  *
  * Surface-filtered only:
  *   npm run test:surface -- --path tests/architecture-create-section-noskip.spec.js
@@ -50,7 +52,7 @@ const {
   isEmptyTreePayload,
 } = require("./helpers/architecture-create-section");
 
-test.describe("Architecture create-section no-skip (#3589 / #3661 / #3092)", () => {
+test.describe("Architecture create-section no-skip (#3589 / #3661 / #3672 / #3092)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(120_000);
     await loginAsAdmin(page);
@@ -140,7 +142,7 @@ test.describe("Architecture create-section no-skip (#3589 / #3661 / #3092)", () 
     ).toEqual([]);
   });
 
-  test("Create section posts landing name/title/template and shows the child @smoke @ui @architecture-create-section", async ({
+  test("Create section posts landing name/title/template HTTP 200 and shows the child @smoke @ui @architecture-create-section", async ({
     page,
   }) => {
     const consoleErrors = [];
@@ -232,7 +234,10 @@ test.describe("Architecture create-section no-skip (#3589 / #3661 / #3092)", () 
     );
 
     const submit = page.getByTestId(TEST_IDS.createSubmit);
-    await expect(submit).toBeEnabled();
+    await expect(
+      submit,
+      "Create section submit must be enabled when tree GET is 200",
+    ).toBeEnabled({ timeout: 20_000 });
 
     const postPromise = page.waitForRequest(
       (req) => isCreateSiteSectionRequest(req.url(), req.method()),
@@ -253,27 +258,14 @@ test.describe("Architecture create-section no-skip (#3589 / #3661 / #3092)", () 
       "must not fall back to the site-list underscore name as a folder",
     ).not.toBe(`//Sites/${demoSite}`);
 
-    const status = postResp ? postResp.status() : 0;
-    if (status === 200) {
-      await expect(createDialog).toHaveCount(0, { timeout: 30_000 });
-      await expect(
-        page.getByRole("treeitem", { name: new RegExp(title, "i") }),
-      ).toBeVisible({ timeout: 20_000 });
-    } else {
-      const errBody = await postResp.text().catch(() => "");
-      test.info().annotations.push({
-        type: "note",
-        description:
-          `POST /section/create HTTP ${status} after a valid CreateSiteSection ` +
-          `payload (pageName/title/template/folderPath). Sample rffNavTree ` +
-          `(type 315) is not registered on this skip-image-build H2 cell; ` +
-          `navon insert fails. Payload proof still holds. body=${String(errBody).slice(0, 240)}`,
-      });
-      expect(
-        status,
-        "unexpected create status after valid landing/title/template payload",
-      ).toBe(500);
-    }
+    expect(
+      postResp && postResp.status(),
+      "POST /section/create must be HTTP 200 under sample rffNavTree (type 315); do not annotate 500",
+    ).toBe(200);
+    await expect(createDialog).toHaveCount(0, { timeout: 30_000 });
+    await expect(
+      page.getByRole("treeitem", { name: new RegExp(title, "i") }),
+    ).toBeVisible({ timeout: 20_000 });
 
     expect(
       consoleErrors.filter((e) => !isKnownArchitectureConsoleNoise(e)),
