@@ -74,6 +74,10 @@ export function resolveSiteNameFromSelection(
  * pathmanagement {@code PathItem.folderPath} is the repository folder;
  * {@code PathItem.path} is the finder id (often the site name). Prefer
  * {@code folderPath} so expand/list hits the seeded site folder.</p>
+ *
+ * <p>Tree <em>selection</em> of a site root uses
+ * {@link resolveExplorerSiteBrowsePath} so the detail list opens Pages
+ * chrome (#3696). This helper stays the site folder itself for expand/list.</p>
  */
 export function resolveExplorerListPath(
   item: Pick<PSPathItem, "path" | "folderPath"> | null | undefined,
@@ -88,6 +92,54 @@ export function resolveExplorerListPath(
     return fromPath;
   }
   return normalizeExplorerFolderPath(fallback);
+}
+
+/**
+ * Append the CM1 {@code Pages} chrome segment to a site-root list path.
+ * Idempotent when {@code path} already ends with {@code /Pages}.
+ * CMS paths always use {@code /} (not OS separators).
+ */
+export function appendExplorerPagesSegment(
+  path: string | null | undefined,
+): string | null {
+  const base = normalizeExplorerFolderPath(path);
+  if (base == null) {
+    return null;
+  }
+  const trimmed = base === "/" ? "/" : base.replace(/\/+$/, "");
+  if (trimmed === "/") {
+    return trimmed;
+  }
+  const leaf = lastCmsPathSegment(trimmed);
+  if (leaf.toLowerCase() === "pages") {
+    return trimmed;
+  }
+  return `${trimmed}/Pages`;
+}
+
+/**
+ * Detail-list path after the operator selects a Sites tree node.
+ *
+ * <p>FastForward sample sites inject a virtual {@code Pages} folder
+ * ({@code #3457}). Selecting the site root must list that Pages chrome so
+ * a REST-listed page (for example Corporate Investments Home) is a
+ * previewable detail row without a second folder-icon click (#3696).</p>
+ */
+export function resolveExplorerSiteBrowsePath(
+  item: Pick<PSPathItem, "path" | "folderPath" | "type"> | null | undefined,
+  fallback?: string | null,
+): string | null {
+  const base = resolveExplorerListPath(item, fallback);
+  if (base == null) {
+    return null;
+  }
+  const siteLike =
+    isExplorerSiteRootItem(item) ||
+    isExplorerSiteRootItem({ path: base, type: "folder" });
+  if (!siteLike) {
+    return base;
+  }
+  return appendExplorerPagesSegment(base);
 }
 
 /**

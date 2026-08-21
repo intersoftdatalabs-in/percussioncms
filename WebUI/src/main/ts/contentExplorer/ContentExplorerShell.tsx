@@ -174,6 +174,7 @@ import {
 } from "./folderPath";
 import {
   resolveExplorerListPath,
+  resolveExplorerSiteBrowsePath,
   resolveSiteNameFromSelection,
 } from "./sitePath";
 import {
@@ -800,7 +801,9 @@ function ContentExplorerShellInner({
   const handleSelectFolder = useCallback(
     (path: string, folder: PSPathItem | null) => {
       setSelection({
-        folderPath: resolveExplorerListPath(folder, path) ?? path,
+        // Site roots list Pages chrome so a REST-listed page is previewable
+        // after the tree click (#3696). Nested folders keep their own path.
+        folderPath: resolveExplorerSiteBrowsePath(folder, path) ?? path,
         item: null,
       });
       // Reset multi-select when the folder changes: stale ids are not

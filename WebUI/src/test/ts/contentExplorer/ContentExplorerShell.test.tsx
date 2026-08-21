@@ -2557,6 +2557,126 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it.each([
+    ["mouse click", (el: Element) => fireEvent.click(el)],
+    ["keyboard Enter", (el: Element) => fireEvent.keyDown(el, { key: "Enter" })],
+  ])(
+    "selecting a site tree node lists Pages children via %s (#3696)",
+    async (_label, activate) => {
+    const site = {
+      id: "site-ci",
+      name: "Corporate_Investments",
+      path: "/Sites/Corporate_Investments/",
+      folderPath: "//Sites/CorporateInvestments",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+      accessLevel: "READ" as const,
+    };
+    const home = {
+      id: "594",
+      name: "Corporate Investments Home",
+      path: "/Sites/CorporateInvestments/Pages/Home",
+      type: "percPage",
+      leaf: true,
+      accessLevel: "WRITE" as const,
+    };
+    const pagesFolder = {
+      id: "pages-1",
+      name: "Pages",
+      path: "/Sites/Corporate_Investments/Pages/",
+      folderPath: "//Sites/CorporateInvestments/Pages",
+      type: "Folder",
+      category: "FOLDER",
+      leaf: false,
+      accessLevel: "READ" as const,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const pathPart = url.split("?")[0] ?? url;
+      if (pathPart.endsWith("/pathmanagement/path/folder/Sites")) {
+        return new Response(JSON.stringify({ PathItem: [site] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (
+        pathPart.includes("/paginatedFolder/Sites/CorporateInvestments/Pages")
+      ) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [home],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (
+        pathPart.endsWith("/paginatedFolder/Sites") ||
+        pathPart.endsWith("/paginatedFolder/Sites/")
+      ) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [site],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (pathPart.includes("/folder/Sites/CorporateInvestments")) {
+        return new Response(JSON.stringify({ PathItem: [pagesFolder] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          PagedItemList: { childrenInPage: [], childrenCount: 0, startIndex: 0 },
+          PathItem: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
+      ).toBeInTheDocument();
+    });
+    activate(
+      screen
+        .getByTestId("tree-node-/Sites/Corporate_Investments/")
+        .querySelector('[role="treeitem"]')!,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-594")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("detail-list")).toHaveAttribute(
+      "data-folder-path",
+      "/Sites/CorporateInvestments/Pages",
+    );
+    expect(screen.getByTestId("detail-row-594")).toHaveAttribute(
+      "data-previewable",
+      "true",
+    );
+    await renderA11yGate(container);
+    },
+  );
+
   it("root initialPath does not call resolveFolderId (#3468)", async () => {
     stubPathFetch();
     const resolveFolderId = vi.fn(async () => "should-not-run");
