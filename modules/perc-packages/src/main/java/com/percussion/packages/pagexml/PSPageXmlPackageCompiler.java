@@ -102,7 +102,7 @@ public final class PSPageXmlPackageCompiler {
    * List {@code *.templateDef} files at package root, sorted by file name (case-insensitive).
    * Portable: uses {@link DirectoryStream} + {@link Path}, not hardcoded separators.
    */
-  static List<Path> listTemplateDefs(Path packageDir) throws IOException {
+  public static List<Path> listTemplateDefs(Path packageDir) throws IOException {
     List<Path> files = new ArrayList<>();
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(packageDir, "*.templateDef")) {
       for (Path p : stream) {

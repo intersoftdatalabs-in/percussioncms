@@ -589,6 +589,12 @@ public final class PSComponentPackageManifest {
      * emitted.
      */
     private String locationPrefix;
+    /**
+     * Legacy assembly {@code <template-type>} ({@code Shared} / {@code Local}); optional. When
+     * null, install defaults to {@code Shared}. Binary asset templates in widget packages may be
+     * {@code Local} (issue #3674).
+     */
+    private String legacyTemplateType;
     private List<Binding> bindings = new ArrayList<>();
 
     public String getName() {
@@ -663,6 +669,14 @@ public final class PSComponentPackageManifest {
       this.locationPrefix = locationPrefix;
     }
 
+    public String getLegacyTemplateType() {
+      return legacyTemplateType;
+    }
+
+    public void setLegacyTemplateType(String legacyTemplateType) {
+      this.legacyTemplateType = legacyTemplateType;
+    }
+
     public List<Binding> getBindings() {
       return bindings;
     }
@@ -688,6 +702,7 @@ public final class PSComponentPackageManifest {
           && Objects.equals(publishWhen, that.publishWhen)
           && Objects.equals(locationSuffix, that.locationSuffix)
           && Objects.equals(locationPrefix, that.locationPrefix)
+          && Objects.equals(legacyTemplateType, that.legacyTemplateType)
           && Objects.equals(bindings, that.bindings);
     }
 
@@ -703,6 +718,7 @@ public final class PSComponentPackageManifest {
           publishWhen,
           locationSuffix,
           locationPrefix,
+          legacyTemplateType,
           bindings);
     }
   }

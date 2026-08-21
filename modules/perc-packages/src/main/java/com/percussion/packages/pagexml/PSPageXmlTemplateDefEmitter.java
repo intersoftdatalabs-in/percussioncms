@@ -82,10 +82,14 @@ public final class PSPageXmlTemplateDefEmitter {
     String outputFormat = toLegacyOutputFormat(t.getType());
     String body = templateSource != null ? templateSource : "";
     String guidValue = guid != null ? guid.trim() : "";
-    String mime = firstNonBlank(t.getMimeType(), DEFAULT_MIME);
+    boolean binary = "binary".equalsIgnoreCase(t.getType());
+    // Binary asset templates bind $sys.mimetype; do not inject HTML defaults (#3674).
+    String mime = firstNonBlank(t.getMimeType(), binary ? "" : DEFAULT_MIME);
+    String charset = binary ? "" : DEFAULT_CHARSET;
     String publishWhen = firstNonBlank(t.getPublishWhen(), DEFAULT_PUBLISH_WHEN);
     String locationPrefix = t.getLocationPrefix() != null ? t.getLocationPrefix() : "";
     String locationSuffix = t.getLocationSuffix() != null ? t.getLocationSuffix() : "";
+    String templateType = firstNonBlank(t.getLegacyTemplateType(), DEFAULT_TEMPLATE_TYPE);
 
     StringBuilder xml = new StringBuilder(Math.max(512, body.length() + 512));
     xml.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>  <assembly-template id=\"1\">\n");
@@ -97,7 +101,7 @@ public final class PSPageXmlTemplateDefEmitter {
         .append("</active-assembly-type>\n");
     xml.append("    <assembler>").append(escapeXml(assembler)).append("</assembler>\n");
     xml.append("    <assembly-url>").append(DEFAULT_ASSEMBLY_URL).append("</assembly-url>\n");
-    xml.append("    <charset>").append(DEFAULT_CHARSET).append("</charset>\n");
+    appendMaybeEmpty(xml, "charset", charset);
     xml.append("    <description>").append(escapeXml(description)).append("</description>\n");
     xml.append("    <global-template/>\n");
     xml.append("    <global-template-usage>")
@@ -118,13 +122,13 @@ public final class PSPageXmlTemplateDefEmitter {
           .append(escapeXml(locationSuffix))
           .append("</location-suffix>\n");
     }
-    xml.append("    <mime-type>").append(escapeXml(mime)).append("</mime-type>\n");
+    appendMaybeEmpty(xml, "mime-type", mime);
     xml.append("    <name>").append(escapeXml(name)).append("</name>\n");
     xml.append("    <output-format>").append(escapeXml(outputFormat)).append("</output-format>\n");
     xml.append("    <publish-when>").append(escapeXml(publishWhen)).append("</publish-when>\n");
     xml.append("    <style-sheet-path/>\n");
     xml.append("    <template>").append(escapeXml(body)).append("</template>\n");
-    xml.append("    <template-type>").append(DEFAULT_TEMPLATE_TYPE).append("</template-type>\n");
+    xml.append("    <template-type>").append(escapeXml(templateType)).append("</template-type>\n");
     xml.append("    <type>TEMPLATE</type>\n");
     xml.append("    <variant>false</variant>\n");
     xml.append("  </assembly-template>\n");
@@ -155,6 +159,7 @@ public final class PSPageXmlTemplateDefEmitter {
       case "dispatchassembler" -> "Java/global/percussion/assembly/dispatchAssembler";
       case "resourceassembler" -> "Java/global/percussion/assembly/resourceAssembler";
       case "pagedatabaseassembler" -> "Java/global/percussion/assembly/pageDatabaseAssembler";
+      case "binaryassembler" -> "Java/global/percussion/assembly/binaryAssembler";
       default -> "Java/global/percussion/assembly/" + leaf;
     };
   }
@@ -216,6 +221,20 @@ public final class PSPageXmlTemplateDefEmitter {
 
   static String escapeXmlAttr(String s) {
     return escapeXml(s).replace("'", "&apos;");
+  }
+
+  private static void appendMaybeEmpty(StringBuilder xml, String tag, String value) {
+    if (value == null || value.isEmpty()) {
+      xml.append("    <").append(tag).append("/>\n");
+      return;
+    }
+    xml.append("    <")
+        .append(tag)
+        .append(">")
+        .append(escapeXml(value))
+        .append("</")
+        .append(tag)
+        .append(">\n");
   }
 
   private static String firstNonBlank(String... values) {

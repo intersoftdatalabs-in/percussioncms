@@ -430,6 +430,91 @@ class PSPageXmlNativeInstallTest {
   }
 
   @Test
+  void productFileAssetWidget_nativeBinaryTemplate() throws Exception {
+    Path product = locatePackage("perc.FileAssetWidget");
+    if (product == null) {
+      System.err.println("WARN: perc.FileAssetWidget not found; skipping native binary test");
+      return;
+    }
+
+    assertEquals(PSPageXmlInstallMode.NATIVE, PSPageXmlInstallPolicy.resolve(product));
+    assertTrue(PSPageXmlDualShip.hasModernPageSources(product));
+    assertTrue(
+        PSPageXmlPackageCompiler.listTemplateDefs(product).isEmpty(),
+        "must not author root perc.fileBinary.templateDef");
+
+    Path staging = tempDir.resolve("file-binary-src");
+    Path archive = tempDir.resolve("file-binary-archive");
+    copyTree(product, staging);
+    Files.createDirectories(archive);
+
+    int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(staging, archive);
+    assertEquals(1, written);
+    assertFalse(Files.isRegularFile(staging.resolve("perc.fileBinary.templateDef")));
+
+    Path staged =
+        archive.resolve("TemplateDef-607").resolve("perc.fileBinary.templateDef");
+    assertTrue(Files.isRegularFile(staged));
+    PSPageXmlModel install = PSPageXmlParser.parse(staged);
+    assertEquals("perc.fileBinary", install.getName());
+    assertEquals("0-4-607", install.getGuid());
+    assertEquals("Java/global/percussion/assembly/binaryAssembler", install.getAssembler());
+    assertEquals("Binary", install.getOutputFormat());
+    assertEquals("Shared", install.getTemplateType());
+    assertTrue(install.getMimeType() == null || install.getMimeType().isBlank());
+    assertEquals(6, install.getBindings().size());
+    assertEquals("$sys.binary", install.getBindings().get(0).getVariable());
+  }
+
+  @Test
+  void productWidgetsImage_nativeBinaryTemplates() throws Exception {
+    Path product = locatePackage("perc.widgets.image");
+    if (product == null) {
+      System.err.println("WARN: perc.widgets.image not found; skipping native binary test");
+      return;
+    }
+
+    assertEquals(PSPageXmlInstallMode.NATIVE, PSPageXmlInstallPolicy.resolve(product));
+    assertTrue(PSPageXmlDualShip.hasModernPageSources(product));
+    assertTrue(PSPageXmlPackageCompiler.listTemplateDefs(product).isEmpty());
+
+    Path staging = tempDir.resolve("image-binary-src");
+    Path archive = tempDir.resolve("image-binary-archive");
+    copyTree(product, staging);
+    Files.createDirectories(archive);
+
+    int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(staging, archive);
+    assertEquals(2, written);
+
+    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    assertEquals("0-4-618", guids.get("perc.imagemainbinary"));
+    assertEquals("0-4-620", guids.get("perc.imagethumbbinary"));
+
+    Path main =
+        archive.resolve("TemplateDef-618").resolve("perc.imageMainBinary.templateDef");
+    Path thumb =
+        archive.resolve("TemplateDef-620").resolve("perc.imageThumbBinary.templateDef");
+    assertTrue(Files.isRegularFile(main));
+    assertTrue(Files.isRegularFile(thumb));
+
+    PSPageXmlModel mainModel = PSPageXmlParser.parse(main);
+    assertEquals("perc.imageMainBinary", mainModel.getName());
+    assertEquals("0-4-618", mainModel.getGuid());
+    assertEquals("Binary", mainModel.getOutputFormat());
+    assertEquals("Local", mainModel.getTemplateType());
+    assertEquals(
+        "Java/global/percussion/assembly/binaryAssembler", mainModel.getAssembler());
+    assertEquals(6, mainModel.getBindings().size());
+
+    PSPageXmlModel thumbModel = PSPageXmlParser.parse(thumb);
+    assertEquals("perc.imageThumbBinary", thumbModel.getName());
+    assertEquals("perc.imageThumbnailBinary", thumbModel.getLabel());
+    assertEquals("0-4-620", thumbModel.getGuid());
+    assertEquals("Local", thumbModel.getTemplateType());
+    assertEquals(2, thumbModel.getBindings().size());
+  }
+
+  @Test
   void packageInstallProps_isCopiedAsRootFileInProductTree() throws Exception {
     Path product = locatePackage("perc.baseTemplates");
     if (product == null) {

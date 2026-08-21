@@ -20,6 +20,7 @@ package com.percussion.packages.pagexml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -219,6 +220,9 @@ class PSPageXmlCompilerTest {
         "velocityAssembler",
         PSPageXmlCompiler.mapAssembler("Java/global/percussion/assembly/velocityAssembler"));
     assertEquals("htmlAssembler", PSPageXmlCompiler.mapAssembler("htmlAssembler"));
+    assertEquals(
+        "binaryAssembler",
+        PSPageXmlCompiler.mapAssembler("Java/global/percussion/assembly/binaryAssembler"));
   }
 
   @Test
@@ -226,6 +230,94 @@ class PSPageXmlCompilerTest {
     assertEquals("page", PSPageXmlCompiler.mapTemplateType("Page", "pageAssembler"));
     assertEquals("global", PSPageXmlCompiler.mapTemplateType("Global", "velocityAssembler"));
     assertEquals("snippet", PSPageXmlCompiler.mapTemplateType("Snippet", "velocityAssembler"));
+    assertEquals("binary", PSPageXmlCompiler.mapTemplateType("Binary", "binaryAssembler"));
+  }
+
+  @Test
+  void compileFileBinary_bindingsAssemblerAndSharedType() throws Exception {
+    PSPageXmlModel model =
+        parseClasspath("/pagexml/perc.fileBinary.templateDef", "perc.fileBinary.templateDef");
+    assertEquals("perc.fileBinary", model.getName());
+    assertEquals("Binary", model.getOutputFormat());
+    assertEquals("Java/global/percussion/assembly/binaryAssembler", model.getAssembler());
+    assertEquals("Shared", model.getTemplateType());
+    assertEquals(6, model.getBindings().size());
+    assertEquals("$sys.binary", model.getBindings().get(0).getVariable());
+    assertEquals("$sys.mimetype", model.getBindings().get(1).getVariable());
+
+    PSPageXmlCompileResult result = PSPageXmlCompiler.compile(model, fileWidgetLikeContext());
+    PSComponentPackageManifestValidator.validate(result.getManifest());
+    PSComponentPackageManifest.TemplateRef t = result.getManifest().getTemplates().get(0);
+    assertEquals("perc.fileBinary", result.getManifest().getId());
+    assertEquals("binary", t.getType());
+    assertEquals("binaryAssembler", t.getAssembler());
+    assertEquals("templates/perc.fileBinary.vm", t.getSourceRef());
+    assertNull(t.getLegacyTemplateType());
+    assertEquals(6, t.getBindings().size());
+    assertEquals("$sys.binary", t.getBindings().get(0).getVariable());
+    assertEquals(
+        "$sys.item.getProperty(\"rx:item_file_attachment\")",
+        t.getBindings().get(0).getExpression());
+  }
+
+  @Test
+  void compileImageBinaries_localTemplateType() throws Exception {
+    PSPageXmlModel main =
+        parseClasspath(
+            "/pagexml/perc.imageMainBinary.templateDef", "perc.imageMainBinary.templateDef");
+    PSPageXmlCompileResult mainResult =
+        PSPageXmlCompiler.compile(main, imageWidgetLikeContext());
+    PSComponentPackageManifestValidator.validate(mainResult.getManifest());
+    assertEquals("perc.imageMainBinary", mainResult.getManifest().getId());
+    assertEquals("Local", mainResult.getManifest().getTemplates().get(0).getLegacyTemplateType());
+    assertEquals("binary", mainResult.getManifest().getTemplates().get(0).getType());
+    assertEquals(
+        "binaryAssembler", mainResult.getManifest().getTemplates().get(0).getAssembler());
+
+    PSPageXmlModel thumb =
+        parseClasspath(
+            "/pagexml/perc.imageThumbBinary.templateDef", "perc.imageThumbBinary.templateDef");
+    assertEquals("perc.imageThumbBinary", thumb.getName());
+    assertEquals("perc.imageThumbnailBinary", thumb.getLabel());
+    PSPageXmlCompileResult thumbResult =
+        PSPageXmlCompiler.compile(thumb, imageWidgetLikeContext());
+    PSComponentPackageManifestValidator.validate(thumbResult.getManifest());
+    assertEquals("perc.imageThumbBinary", thumbResult.getManifest().getId());
+    assertEquals("perc.imageThumbnailBinary", thumbResult.getManifest().getName());
+    assertEquals("Local", thumbResult.getManifest().getTemplates().get(0).getLegacyTemplateType());
+    assertEquals(2, thumbResult.getManifest().getTemplates().get(0).getBindings().size());
+  }
+
+  @Test
+  void productWidgetBinaryPages_compileFromModernSources() throws Exception {
+    Path filePkg = locatePackage("perc.FileAssetWidget");
+    Path imagePkg = locatePackage("perc.widgets.image");
+    if (filePkg == null || imagePkg == null) {
+      System.err.println("WARN: widget packages not found; skipping product binary page compile");
+      return;
+    }
+
+    List<PSPageXmlCompileResult> fileResults = PSPageXmlPackageCompiler.compilePackage(filePkg);
+    assertEquals(1, fileResults.size());
+    PSComponentPackageManifestValidator.validate(fileResults.get(0).getManifest());
+    assertEquals("perc.fileBinary", fileResults.get(0).getManifest().getId());
+    assertEquals("binary", fileResults.get(0).getManifest().getTemplates().get(0).getType());
+    assertEquals(
+        "binaryAssembler",
+        fileResults.get(0).getManifest().getTemplates().get(0).getAssembler());
+
+    List<PSPageXmlCompileResult> imageResults = PSPageXmlPackageCompiler.compilePackage(imagePkg);
+    assertEquals(2, imageResults.size());
+    Map<String, PSPageXmlCompileResult> byId =
+        imageResults.stream()
+            .collect(Collectors.toMap(r -> r.getManifest().getId(), r -> r, (a, b) -> a));
+    assertTrue(byId.containsKey("perc.imageMainBinary"));
+    assertTrue(byId.containsKey("perc.imageThumbBinary"));
+    for (PSPageXmlCompileResult r : imageResults) {
+      PSComponentPackageManifestValidator.validate(r.getManifest());
+      assertEquals("binary", r.getManifest().getTemplates().get(0).getType());
+      assertEquals("Local", r.getManifest().getTemplates().get(0).getLegacyTemplateType());
+    }
   }
 
   private static PSPageXmlPackageContext baseTemplatesLikeContext() {
@@ -237,6 +329,32 @@ class PSPageXmlCompilerTest {
     ctx.setPublisherName("Percussion Software Inc.");
     ctx.setPublisherUrl("http://www.percussion.com");
     ctx.setCmsMin("1.0.0");
+    ctx.setCmsMax("9.0.0");
+    return ctx;
+  }
+
+  private static PSPageXmlPackageContext fileWidgetLikeContext() {
+    PSPageXmlPackageContext ctx = new PSPageXmlPackageContext();
+    ctx.setPackageId("perc.FileAssetWidget");
+    ctx.setPackageName("perc.FileAssetWidget");
+    ctx.setVersion("1.1.6");
+    ctx.setDescription("FileAssetWidget");
+    ctx.setPublisherName("Percussion Software Inc.");
+    ctx.setPublisherUrl("https://www.percussion.com");
+    ctx.setCmsMin("1.0.0");
+    ctx.setCmsMax("9.0.0");
+    return ctx;
+  }
+
+  private static PSPageXmlPackageContext imageWidgetLikeContext() {
+    PSPageXmlPackageContext ctx = new PSPageXmlPackageContext();
+    ctx.setPackageId("perc.widgets.image");
+    ctx.setPackageName("perc.widgets.image");
+    ctx.setVersion("1.1.8");
+    ctx.setDescription("Image Widget");
+    ctx.setPublisherName("Percussion Software");
+    ctx.setPublisherUrl("http://www.percussion.com");
+    ctx.setCmsMin("1.0.1");
     ctx.setCmsMax("9.0.0");
     return ctx;
   }
@@ -264,8 +382,11 @@ class PSPageXmlCompilerTest {
    * (Maven surefire cwd = module root).
    */
   private static Path locateBaseTemplatesPackage() {
-    Path candidate =
-        Path.of("src", "main", "resources", "Packages", "perc.baseTemplates");
+    return locatePackage("perc.baseTemplates");
+  }
+
+  private static Path locatePackage(String packageName) {
+    Path candidate = Path.of("src", "main", "resources", "Packages", packageName);
     if (Files.isDirectory(candidate)) {
       return candidate.toAbsolutePath().normalize();
     }
@@ -275,7 +396,7 @@ class PSPageXmlCompilerTest {
             .resolve("main")
             .resolve("resources")
             .resolve("Packages")
-            .resolve("perc.baseTemplates");
+            .resolve(packageName);
     return Files.isDirectory(alt) ? alt : null;
   }
 }
