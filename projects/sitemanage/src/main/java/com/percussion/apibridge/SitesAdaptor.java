@@ -37,7 +37,6 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.sitemgr.data.PSSite;
-import com.percussion.services.virtualsite.PSGitFilesystemVirtualSiteSource;
 import com.percussion.services.virtualsite.PSGitRemoteCheckout;
 import com.percussion.services.virtualsite.PSInMemoryVirtualParticipantService;
 import com.percussion.services.virtualsite.PSVirtualSiteBuildResult;
@@ -351,17 +350,9 @@ public class SitesAdaptor implements ISiteAdaptor {
             .orElseThrow(
                 () ->
                     new WebApplicationException(
-                        "Unsupported virtual.sourceKind for build",
+                        "Unsupported virtual.sourceKind for build. Allowed: "
+                            + String.join(", ", PSVirtualSiteHelper.allowedSourceKindWireNames()),
                         Response.Status.BAD_REQUEST));
-    if (type != VirtualSiteSourceType.GIT_FILESYSTEM) {
-      throw new WebApplicationException(
-          "Build is only supported for virtual.sourceKind="
-              + VirtualSiteSourceType.GIT_FILESYSTEM.wireName()
-              + " (got "
-              + type.wireName()
-              + ")",
-          Response.Status.BAD_REQUEST);
-    }
 
     Path siteRoot;
     try {
@@ -369,14 +360,17 @@ public class SitesAdaptor implements ISiteAdaptor {
     } catch (VirtualSiteException e) {
       throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
     } catch (IOException e) {
+      boolean remote = PSVirtualSiteHelper.hasRemote(site);
       log.error(
-          "Virtual Site Git checkout I/O failed for '{}' ({}): {}",
+          "Virtual Site {} I/O failed for '{}' ({}): {}",
+          remote ? "Git checkout" : "root path",
           nameOrId,
           e.getClass().getName(),
           e.getMessage(),
           e);
       throw new WebApplicationException(
-          "Virtual Site Git checkout failed: " + PSGitRemoteCheckout.redact(e.getMessage()),
+          (remote ? "Virtual Site Git checkout failed: " : "Virtual Site root path failed: ")
+              + PSGitRemoteCheckout.redact(e.getMessage()),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
     if (!Files.isDirectory(siteRoot)) {
@@ -401,8 +395,8 @@ public class SitesAdaptor implements ISiteAdaptor {
       Path metaDir = outputRoot.resolve("_meta"); // codeql[java/path-injection]
       Files.createDirectories(metaDir); // codeql[java/path-injection]
 
-      VirtualSiteConfig config = VirtualSiteConfigLoader.load(siteRoot, configFile, siteKey);
-      PSVirtualSiteBuildResult built = runBuild(config, outputRoot, metaDir);
+      VirtualSiteConfig config = loadBuildConfig(type, siteRoot, configFile, siteKey);
+      PSVirtualSiteBuildResult built = runBuild(type, config, outputRoot, metaDir);
       recordLastOutputRoot(siteKey, outputRoot);
       return toWireResult(site.getName(), siteKey, built);
     } catch (VirtualSiteException e) {
@@ -499,15 +493,28 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
   }
 
+  /**
+   * Load {@code _config.yaml} (required for git-filesystem). CSV trees may omit the file and
+   * infer versions from child directories.
+   */
+  static VirtualSiteConfig loadBuildConfig(
+      VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
+      throws IOException, VirtualSiteException {
+    if (type == VirtualSiteSourceType.CSV_FILESYSTEM) {
+      return VirtualSiteConfigLoader.loadOrDefault(siteRoot, configFile, siteKey);
+    }
+    return VirtualSiteConfigLoader.load(siteRoot, configFile, siteKey);
+  }
+
   private PSVirtualSiteBuildResult runBuild(
-      VirtualSiteConfig config, Path outputRoot, Path metaDir) throws Exception {
+      VirtualSiteSourceType type, VirtualSiteConfig config, Path outputRoot, Path metaDir)
+      throws Exception {
     if (buildRunner != null) {
       return buildRunner.build(config, outputRoot);
     }
     PSVirtualSiteBuildService service =
-        new PSVirtualSiteBuildService(
-            new PSGitFilesystemVirtualSiteSource(),
-            new PSInMemoryVirtualParticipantService(metaDir));
+        PSVirtualSiteBuildService.forSourceType(
+            type, new PSInMemoryVirtualParticipantService(metaDir));
     return service.build(config, outputRoot);
   }
 

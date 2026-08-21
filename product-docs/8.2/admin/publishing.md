@@ -31,13 +31,13 @@ channels (static files, FTP, database, custom locations).
 
 ## Virtual Sites and docs builds
 
-For Git/filesystem Virtual Sites such as product documentation:
+For Git/filesystem or CSV/filesystem Virtual Sites such as product documentation:
 
-- Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session.
+- Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`.
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
-  current Git/filesystem tree. After `git pull` or a local Markdown edit, run Build (or Publish)
-  again — no CMS restart.
+  current Git/filesystem or CSV tree (`csv-filesystem`). After `git pull`, a local Markdown
+  edit, or a CSV change, run Build (or Publish) again — no CMS restart.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`

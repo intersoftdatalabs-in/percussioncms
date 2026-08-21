@@ -97,13 +97,14 @@ public interface ISiteAdaptor {
   VirtualSiteProperties updateVirtualSiteProperties(String nameOrId, VirtualSiteProperties props);
 
   /**
-   * Builds a Virtual Site from configured {@code virtual.*} properties (Phase 1:
-   * {@code git-filesystem}).
+   * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem} or
+   * {@code csv-filesystem}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
-   * virtual.remoteUrl} into a contained work directory, runs {@code PSVirtualSiteBuildService} with
-   * portable NIO {@code Path} I/O, and returns pages-written plus link-problem summary. Requires
-   * Admin (or equivalent site-manage) authorization.
+   * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
+   * PSVirtualSiteBuildService.forSourceType} with portable NIO {@code Path} I/O, and returns
+   * pages-written plus link-problem summary. Unknown source kinds return 400. Requires Admin (or
+   * equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param request optional body (output root override); may be null
