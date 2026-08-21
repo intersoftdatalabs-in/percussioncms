@@ -198,7 +198,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
   it("enables create when a regular section is selected (#3350)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
-    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
       { id: "tpl-1", name: "Base" },
     ]);
 
@@ -230,7 +230,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
   it("enables create under root and opens create dialog", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
-    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
       { id: "tpl-1", name: "Base" },
     ]);
 
@@ -630,7 +630,7 @@ describe("ArchitectureShell (#3095/#3096)", () => {
   it("create under a selected non-root section posts that parent folderPath", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
-    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
       { id: "tpl-1", name: "Base" },
     ]);
     const createSpy = vi
@@ -652,6 +652,15 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
       target: { value: "child-page" },
     });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-create-page-name-input"),
+      ).toBeTruthy();
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "child-page.html" } },
+    );
     // Template may auto-select; ensure one is chosen if a select is present.
     const tpl = screen.queryByTestId("architecture-create-template-select");
     if (tpl) {
@@ -664,6 +673,67 @@ describe("ArchitectureShell (#3095/#3096)", () => {
           folderPath: "//Sites/Demo/About",
           templateId: "tpl-1",
           pageTitle: "Child Page",
+          pageLinkTitle: "Child Page",
+          pageName: "child-page.html",
+          pageUrlIdentifier: "child-page",
+        }),
+      );
+    });
+  });
+
+  it("loads parent section folderPath when the tree omits it (#3661)", async () => {
+    const noPathTree = {
+      ...treeFixture,
+      folderPath: null,
+      children: treeFixture.children.map((c) => ({ ...c, folderPath: null })),
+    };
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(noPathTree);
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
+      { id: "tpl-1", name: "Base" },
+    ]);
+    vi.spyOn(sectionApi, "loadSection").mockResolvedValue({
+      id: "c1",
+      title: "About",
+      folderPath: "//Sites/CorporateInvestments/About",
+      sectionType: "section",
+    });
+    const createSpy = vi
+      .spyOn(sectionApi, "createSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    fireEvent.click(screen.getByTestId("architecture-action-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Child Page" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "child-page" },
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "child-page.html" } },
+    );
+    const tpl = screen.queryByTestId("architecture-create-template-select");
+    if (tpl) {
+      fireEvent.change(tpl, { target: { value: "tpl-1" } });
+    }
+    fireEvent.click(screen.getByTestId("architecture-create-submit"));
+    await waitFor(() => {
+      expect(sectionApi.loadSection).toHaveBeenCalledWith("c1");
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          folderPath: "//Sites/CorporateInvestments/About",
+          pageName: "child-page.html",
+          pageTitle: "Child Page",
+          templateId: "tpl-1",
         }),
       );
     });

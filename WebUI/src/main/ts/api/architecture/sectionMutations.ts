@@ -343,6 +343,58 @@ export function resolveCreateParentFolderPath(
 }
 
 /**
+ * Folder path for {@code POST /section/create}. Prefers the tree node's
+ * {@code folderPath}, then a freshly loaded section path (the nav tree wire
+ * often omits folderPath), then the site-name fallback.
+ */
+export function resolveCreateFolderPath(
+  parent: NavTreeNode | null,
+  loadedFolderPath: string | null | undefined,
+  siteName: string,
+): string {
+  const fromParent = parent?.folderPath != null ? parent.folderPath.trim() : "";
+  if (fromParent) {
+    return toRepositoryCmsPath(fromParent);
+  }
+  const fromLoaded = loadedFolderPath != null ? loadedFolderPath.trim() : "";
+  if (fromLoaded) {
+    return toRepositoryCmsPath(fromLoaded);
+  }
+  return resolveCreateParentFolderPath(parent, siteName);
+}
+
+/**
+ * Dialog fields for Architecture Create section (landing page + template).
+ */
+export interface CreateSectionDialogFields {
+  title: string;
+  urlName: string;
+  pageName: string;
+  templateId: string;
+}
+
+/**
+ * Map New Section dialog fields onto {@code CreateSiteSection} wire fields.
+ * {@code pageName} is the landing-page file name (not the folder URL).
+ */
+export function mapCreateSectionDialogToFields(
+  input: CreateSectionDialogFields,
+  folderPath: string,
+): CreateSiteSectionFields {
+  return {
+    pageTitle: input.title.trim(),
+    pageLinkTitle: input.title.trim(),
+    pageName: input.pageName.trim(),
+    pageUrlIdentifier: input.urlName.trim(),
+    templateId: input.templateId.trim(),
+    folderPath,
+    sectionType: "section",
+    copyTemplates: true,
+    target: "_self",
+  };
+}
+
+/**
  * Build Jackson-rooted create body for {@code POST /section/create}.
  */
 export function buildCreateSiteSectionBody(
@@ -656,6 +708,27 @@ export function validateLandingPageName(name: string): string | null {
   if (t.includes("/") || t.includes("\\")) {
     return message(
       "perc.ui.architecture.modern@Landing page name must be a file name, not a path",
+    );
+  }
+  return null;
+}
+
+/**
+ * Client-side validation for Create section (no POST on empty/invalid).
+ * Returns the first error message or {@code null} when valid.
+ */
+export function validateCreateSectionForm(
+  input: CreateSectionDialogFields,
+): string | null {
+  const titleErr = validateSectionTitle(input.title);
+  if (titleErr) return titleErr;
+  const urlErr = validateSectionFolderName(input.urlName);
+  if (urlErr) return urlErr;
+  const pageErr = validateLandingPageName(input.pageName);
+  if (pageErr) return pageErr;
+  if (!input.templateId.trim()) {
+    return message(
+      "perc.ui.architecture.modern@No templates are available for this site.",
     );
   }
   return null;

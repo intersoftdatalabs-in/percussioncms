@@ -16,12 +16,13 @@
  */
 
 /**
- * Create regular section dialog for Architecture (#3096).
- * Section-link / external-link / convert-folder are Slice E.
+ * Create regular section dialog for Architecture (#3661 / parent #3092).
+ * Collects landing page name, title, and template; persist via POST /section/create.
+ * Section-link / external-link / convert-folder are other slices.
  */
 
 import React, { useEffect, useState } from "react";
-import { fetchTemplatesForSite } from "../api/home/homeApi";
+import { fetchTemplatesForSectionCreate } from "../api/home/homeApi";
 import type { TemplateSummary } from "../api/home/types";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import {
@@ -30,11 +31,13 @@ import {
 } from "../home/create/filenameUtils";
 import { catalogColors } from "../developer/catalogStyles";
 import {
-  validateSectionFolderName,
-  validateSectionTitle,
+  validateCreateSectionForm,
+  type CreateSectionDialogFields,
 } from "../api/architecture/sectionMutations";
 import { ARCH_MSG } from "./messages";
 import { useDialogEscape } from "./useDialogEscape";
+
+export type { CreateSectionDialogFields };
 
 export interface CreateSectionDialogProps {
   open: boolean;
@@ -42,11 +45,7 @@ export interface CreateSectionDialogProps {
   parentTitle: string;
   busy: boolean;
   onCancel: () => void;
-  onSubmit: (input: {
-    title: string;
-    urlName: string;
-    templateId: string;
-  }) => void;
+  onSubmit: (input: CreateSectionDialogFields) => void;
 }
 
 const overlayStyle: React.CSSProperties = {
@@ -92,6 +91,9 @@ export function CreateSectionDialog({
   const [urlName, setUrlName] = useState("");
   /** When true, stop auto-mirroring title → URL so manual URL edits stick. */
   const [urlNameTouched, setUrlNameTouched] = useState(false);
+  const [pageName, setPageName] = useState("");
+  /** When true, stop auto-mirroring title → landing file name. */
+  const [pageNameTouched, setPageNameTouched] = useState(false);
   const [templateId, setTemplateId] = useState("");
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -107,6 +109,8 @@ export function CreateSectionDialog({
     setTitle("");
     setUrlName("");
     setUrlNameTouched(false);
+    setPageName("");
+    setPageNameTouched(false);
     setTemplateId("");
     setLocalError(null);
     setTemplatesError(null);
@@ -115,7 +119,7 @@ export function CreateSectionDialog({
     setTemplatesLoading(true);
     void (async () => {
       try {
-        const list = await fetchTemplatesForSite(siteName);
+        const list = await fetchTemplatesForSectionCreate(siteName);
         if (cancelled) return;
         setTemplates(list);
         setTemplateId(list[0]?.id ?? "");
@@ -141,32 +145,34 @@ export function CreateSectionDialog({
   const onTitleChange = (v: string) => {
     setTitle(v);
     setLocalError(null);
+    const fileName = titleToPageFileName(v);
     if (!urlNameTouched) {
-      const base = titleToPageFileName(v).replace(/\.html$/i, "");
+      const base = fileName.replace(/\.html$/i, "");
       setUrlName(sanitizeFileNameInput(base));
+    }
+    if (!pageNameTouched) {
+      setPageName(sanitizeFileNameInput(fileName));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
-    const titleErr = validateSectionTitle(title);
-    if (titleErr) {
-      setLocalError(titleErr);
-      return;
-    }
-    const urlErr = validateSectionFolderName(urlName);
-    if (urlErr) {
-      setLocalError(urlErr);
-      return;
-    }
-    if (!templateId.trim()) {
-      setLocalError(ARCH_MSG.CREATE_TEMPLATE_EMPTY);
+    const form: CreateSectionDialogFields = {
+      title,
+      urlName,
+      pageName,
+      templateId,
+    };
+    const formErr = validateCreateSectionForm(form);
+    if (formErr) {
+      setLocalError(formErr);
       return;
     }
     onSubmit({
       title: title.trim(),
       urlName: urlName.trim(),
+      pageName: pageName.trim(),
       templateId: templateId.trim(),
     });
   };
@@ -233,6 +239,25 @@ export function CreateSectionDialog({
                 setUrlNameTouched(true);
                 setLocalError(null);
                 setUrlName(sanitizeFileNameInput(e.target.value));
+              }}
+              required
+              disabled={busy}
+              style={fieldStyle}
+            />
+          </label>
+          <label
+            htmlFor="architecture-create-page-name-input"
+            style={{ display: "block", fontSize: "0.9rem" }}
+          >
+            {ARCH_MSG.CREATE_PAGE_NAME_LABEL}
+            <input
+              id="architecture-create-page-name-input"
+              data-testid="architecture-create-page-name-input"
+              value={pageName}
+              onChange={(e) => {
+                setPageNameTouched(true);
+                setLocalError(null);
+                setPageName(sanitizeFileNameInput(e.target.value));
               }}
               required
               disabled={busy}

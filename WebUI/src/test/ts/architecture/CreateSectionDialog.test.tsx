@@ -27,7 +27,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateSectionDialog } from "../../../main/ts/architecture/CreateSectionDialog";
 import * as homeApi from "../../../main/ts/api/home/homeApi";
 
-describe("CreateSectionDialog (#3350 / #3155)", () => {
+describe("CreateSectionDialog (#3661 / #3350 / #3155)", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => {
@@ -35,7 +35,7 @@ describe("CreateSectionDialog (#3350 / #3155)", () => {
         return at >= 0 ? key.slice(at + 1) : key;
       },
     };
-    vi.spyOn(homeApi, "fetchTemplatesForSite").mockResolvedValue([
+    vi.spyOn(homeApi, "fetchTemplatesForSectionCreate").mockResolvedValue([
       { id: "tpl-1", name: "Base" },
     ]);
   });
@@ -122,5 +122,134 @@ describe("CreateSectionDialog (#3350 / #3155)", () => {
     );
     expect(document.activeElement).toBe(opener);
     opener.remove();
+  });
+
+  it("submits landing page name, title, and template (#3661)", async () => {
+    const onSubmit = vi.fn();
+    render(
+      <CreateSectionDialog
+        open
+        siteName="Demo"
+        parentTitle="Home"
+        busy={false}
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-create-template-select"),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Products" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "products" },
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "products.html" } },
+    );
+    fireEvent.change(screen.getByTestId("architecture-create-template-select"), {
+      target: { value: "tpl-1" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-create-submit"));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      title: "Products",
+      urlName: "products",
+      pageName: "products.html",
+      templateId: "tpl-1",
+    });
+  });
+
+  it("autofills landing page name from title until edited (#3661)", async () => {
+    render(
+      <CreateSectionDialog
+        open
+        siteName="Demo"
+        parentTitle="Home"
+        busy={false}
+        onCancel={() => undefined}
+        onSubmit={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-create-page-name-input"),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "About Us" },
+    });
+    expect(
+      (screen.getByTestId(
+        "architecture-create-page-name-input",
+      ) as HTMLInputElement).value,
+    ).toBe("about-us.html");
+    expect(
+      (screen.getByTestId(
+        "architecture-create-url-input",
+      ) as HTMLInputElement).value,
+    ).toBe("about-us");
+  });
+
+  it("does not submit when landing page name is empty (#3661)", async () => {
+    const onSubmit = vi.fn();
+    render(
+      <CreateSectionDialog
+        open
+        siteName="Demo"
+        parentTitle="Home"
+        busy={false}
+        onCancel={() => undefined}
+        onSubmit={onSubmit}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("architecture-create-template-select"),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Products" },
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-url-input"), {
+      target: { value: "products" },
+    });
+    fireEvent.change(
+      screen.getByTestId("architecture-create-page-name-input"),
+      { target: { value: "" } },
+    );
+    const form = screen.getByRole("dialog").querySelector("form");
+    expect(form).toBeTruthy();
+    fireEvent.submit(form as HTMLFormElement);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId("architecture-create-error")).toBeTruthy();
+  });
+
+  it("cancel does not submit (#3661)", async () => {
+    const onSubmit = vi.fn();
+    const onCancel = vi.fn();
+    render(
+      <CreateSectionDialog
+        open
+        siteName="Demo"
+        parentTitle="Home"
+        busy={false}
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-create-cancel")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-create-title-input"), {
+      target: { value: "Products" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-create-cancel"));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });
