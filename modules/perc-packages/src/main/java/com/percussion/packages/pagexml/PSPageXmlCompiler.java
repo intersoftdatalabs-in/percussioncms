@@ -137,6 +137,11 @@ public final class PSPageXmlCompiler {
     if (model.getLocationPrefix() != null && !model.getLocationPrefix().isBlank()) {
       template.setLocationPrefix(model.getLocationPrefix());
     }
+    if (model.getTemplateType() != null
+        && !model.getTemplateType().isBlank()
+        && !"Shared".equalsIgnoreCase(model.getTemplateType().trim())) {
+      template.setLegacyTemplateType(model.getTemplateType().trim());
+    }
     template.setBindings(buildBindings(model));
     List<PSComponentPackageManifest.TemplateRef> templates = new ArrayList<>();
     templates.add(template);
@@ -314,6 +319,9 @@ public final class PSPageXmlCompiler {
       }
       if (leafLower.equals("pagedatabaseassembler")) {
         return "pageDatabaseAssembler";
+      }
+      if (leafLower.equals("binaryassembler")) {
+        return "binaryAssembler";
       }
       return leaf;
     }

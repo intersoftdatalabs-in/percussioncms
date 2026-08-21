@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.imageThumbBinary",
+  "name": "perc.imageThumbnailBinary",
+  "version": "1.1.8",
+  "description": "Image Widget",
+  "publisher": {
+    "name": "Percussion Software",
+    "url": "http://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.1",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.3",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "perc.imageThumbnailBinary",
+    "category": "binary",
+    "description": "Binary assembler template for percImageAsset thumbnail (imageThumbBinary).",
+    "paletteVisible": false
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.imageThumbBinary",
+      "type": "binary",
+      "assembler": "binaryAssembler",
+      "sourceRef": "templates/perc.imageThumbBinary.vm",
+      "legacyTemplateType": "Local",
+      "bindings": [
+        {
+          "variable": "$sys.binary",
+          "expression": "$sys.item.getProperty('rx:img2')"
+        },
+        {
+          "variable": "$sys.mimetype",
+          "expression": "$sys.item.getProperty('rx:img2_type')"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

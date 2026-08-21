@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "id": "perc.fileBinary",
+  "name": "perc.fileBinary",
+  "version": "1.1.6",
+  "description": "FileAssetWidget",
+  "publisher": {
+    "name": "Percussion Software Inc.",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "9.0.0"
+  },
+  "dependencies": [
+    {
+      "name": "perc.Baseline",
+      "version": "1.0.3",
+      "implied": true
+    }
+  ],
+  "catalog": {
+    "kind": "page",
+    "title": "perc.fileBinary",
+    "category": "binary",
+    "description": "Binary assembler template for percFileAsset (fileBinary).",
+    "paletteVisible": false
+  },
+  "contentTypes": [],
+  "templates": [
+    {
+      "name": "perc.fileBinary",
+      "type": "binary",
+      "assembler": "binaryAssembler",
+      "sourceRef": "templates/perc.fileBinary.vm",
+      "bindings": [
+        {
+          "variable": "$sys.binary",
+          "expression": "$sys.item.getProperty(\"rx:item_file_attachment\")"
+        },
+        {
+          "variable": "$sys.mimetype",
+          "expression": "$sys.item.getProperty(\"rx:item_file_attachment_type\")"
+        },
+        {
+          "variable": "$sys.metadata.linktext",
+          "expression": "$sys.item.getProperty('displaytitle').String "
+        },
+        {
+          "variable": "$sys.metadata.dcterms:created",
+          "expression": "$tools.date.format(\"yyyy-MM-dd'T'HH:mm:ss\",$sys.item.getProperty(\"rx:sys_contentcreateddate\").Date)"
+        },
+        {
+          "variable": "$sys.metadata.dcterms:title",
+          "expression": "$sys.item.getProperty('displaytitle').String "
+        },
+        {
+          "variable": "$sys.metadata.dcterms:format",
+          "expression": "$sys.mimetype.String"
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "resources": [],
+  "userPreferences": [],
+  "cssPreferences": []
+}

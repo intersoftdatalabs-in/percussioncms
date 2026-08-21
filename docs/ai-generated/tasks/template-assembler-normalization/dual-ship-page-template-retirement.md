@@ -37,6 +37,8 @@ Policy code: `com.percussion.packages.pagexml.PSPageXmlInstallPolicy` (aligns wi
 | `perc.baseTemplates` | `package-install.properties` → `native` | 20 page layouts |
 | `perc.responsiveTemplates` | `package-install.properties` → `native` | Banded / Basic / plain |
 | `perc.Baseline` | `package-install.properties` → `native` | 7 system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`, `perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) — #3673 |
+| `perc.FileAssetWidget` | `package-install.properties` → `native` | `perc.fileBinary` leftover binary TemplateDef (#3674) — assembly `pages/` peer, not Widget XML |
+| `perc.widgets.image` | `package-install.properties` → `native` | `perc.imageMainBinary` / `perc.imageThumbBinary` leftover binary TemplateDefs (#3674) |
 
 ## Retirement checklist (per package)
 
@@ -55,7 +57,7 @@ Dual-ship **code path** can be deleted when **all** hold:
 - [x] Native install API + policy exist (`PSPageXmlNativeInstall` / `PSPageXmlInstallPolicy`) — #2806
 - [x] `perc.baseTemplates` / `perc.responsiveTemplates` use native mode — #2806
 - [x] Remaining page layout packages on native (`perc.Baseline` system templates — #3673)
-- [ ] Widget packages that still dual-ship any page-like templateDefs inventoried and converted or explicitly dual-ship-retained
+- [x] Widget leftover binary TemplateDefs inventoried and converted (#3674): `perc.fileBinary`, `perc.imageMainBinary`, `perc.imageThumbBinary` are `output-format=Binary` / `binaryAssembler` (not page layouts). Converted to `pages/<id>/component-package.json` + native install (Widget XML emitter cannot emit TemplateDef). Product tree has zero authored root `*.templateDef`.
 - [ ] CI / product package build has zero `dual-ship page templateDefs` log lines (or only waived packages)
 - [ ] Docs (this file + page inventory + ADR-004) mark dual-ship retired
 - [ ] Follow-up removes `PSPageXmlDualShip.materializeInstallTemplateDefs` call sites when unused

@@ -264,9 +264,10 @@ public final class PSPageXmlDualShip {
       PSComponentPackageManifest.TemplateRef t = manifest.getTemplates().get(0);
       model.setAssembler(PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(t.getAssembler()));
       model.setOutputFormat(PSPageXmlTemplateDefEmitter.toLegacyOutputFormat(t.getType()));
+      boolean binary = t.getType() != null && "binary".equalsIgnoreCase(t.getType().trim());
       if (t.getMimeType() != null && !t.getMimeType().isBlank()) {
         model.setMimeType(t.getMimeType());
-      } else {
+      } else if (!binary) {
         model.setMimeType("text/html");
       }
       if (t.getPublishWhen() != null && !t.getPublishWhen().isBlank()) {
@@ -278,13 +279,20 @@ public final class PSPageXmlDualShip {
       if (t.getLocationPrefix() != null) {
         model.setLocationPrefix(t.getLocationPrefix());
       }
+      if (t.getLegacyTemplateType() != null && !t.getLegacyTemplateType().isBlank()) {
+        model.setTemplateType(t.getLegacyTemplateType().trim());
+      }
     } else {
       model.setMimeType("text/html");
     }
     model.setTemplateBody(templateSource);
     model.setRegionHoles(PSPageXmlParser.extractRegionHoles(templateSource));
-    model.setCharset("UTF-8");
-    model.setTemplateType("Shared");
+    boolean binaryModel =
+        model.getOutputFormat() != null && "Binary".equalsIgnoreCase(model.getOutputFormat());
+    model.setCharset(binaryModel ? "" : "UTF-8");
+    if (model.getTemplateType() == null || model.getTemplateType().isBlank()) {
+      model.setTemplateType("Shared");
+    }
     model.setActiveAssemblyType("Normal");
 
     // Each template ref keeps its own source — do not reuse templates[0] for siblings.

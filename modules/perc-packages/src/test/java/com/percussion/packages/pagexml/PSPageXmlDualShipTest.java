@@ -551,6 +551,58 @@ class PSPageXmlDualShipTest {
   }
 
   @Test
+  void emit_binary_emptyMimeCharset_andLocalTemplateType() throws Exception {
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setSchemaVersion(PSComponentPackageManifest.SUPPORTED_SCHEMA_VERSION);
+    manifest.setId("perc.imageThumbBinary");
+    manifest.setName("perc.imageThumbnailBinary");
+    manifest.setVersion("1.1.8");
+    PSComponentPackageManifest.Catalog catalog = new PSComponentPackageManifest.Catalog();
+    catalog.setKind("page");
+    catalog.setTitle("perc.imageThumbnailBinary");
+    catalog.setCategory("binary");
+    catalog.setPaletteVisible(Boolean.FALSE);
+    manifest.setCatalog(catalog);
+
+    PSComponentPackageManifest.TemplateRef t = new PSComponentPackageManifest.TemplateRef();
+    t.setName("perc.imageThumbBinary");
+    t.setType("binary");
+    t.setAssembler("binaryAssembler");
+    t.setSourceRef("templates/perc.imageThumbBinary.vm");
+    t.setLegacyTemplateType("Local");
+    PSComponentPackageManifest.Binding b1 = new PSComponentPackageManifest.Binding();
+    b1.setVariable("$sys.binary");
+    b1.setExpression("$sys.item.getProperty('rx:img2')");
+    PSComponentPackageManifest.Binding b2 = new PSComponentPackageManifest.Binding();
+    b2.setVariable("$sys.mimetype");
+    b2.setExpression("$sys.item.getProperty('rx:img2_type')");
+    t.setBindings(List.of(b1, b2));
+    manifest.setTemplates(List.of(t));
+    manifest.setSlots(List.of());
+    manifest.setContentTypes(List.of());
+    manifest.setResources(List.of());
+    manifest.setUserPreferences(List.of());
+    manifest.setCssPreferences(List.of());
+    PSComponentPackageManifestValidator.validate(manifest);
+
+    String xml = PSPageXmlTemplateDefEmitter.emit(manifest, "", "0-4-620");
+    PSPageXmlModel reparsed = PSPageXmlParser.parse(xml);
+    assertEquals("perc.imageThumbBinary", reparsed.getName());
+    assertEquals("perc.imageThumbnailBinary", reparsed.getLabel());
+    assertEquals("0-4-620", reparsed.getGuid());
+    assertEquals("Binary", reparsed.getOutputFormat());
+    assertEquals("Local", reparsed.getTemplateType());
+    assertEquals(
+        "Java/global/percussion/assembly/binaryAssembler", reparsed.getAssembler());
+    assertTrue(reparsed.getMimeType() == null || reparsed.getMimeType().isBlank());
+    assertTrue(reparsed.getCharset() == null || reparsed.getCharset().isBlank());
+    assertEquals(2, reparsed.getBindings().size());
+    assertEquals("$sys.binary", reparsed.getBindings().get(0).getVariable());
+    assertTrue(xml.contains("<charset/>"));
+    assertTrue(xml.contains("<mime-type/>"));
+  }
+
+  @Test
   void toLegacyAssemblerPath_knownShortNames() {
     assertEquals(
         "Java/global/percussion/assembly/pageAssembler",
@@ -567,6 +619,9 @@ class PSPageXmlDualShipTest {
     assertEquals(
         "Java/global/percussion/assembly/pageDatabaseAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("pageDatabaseAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/binaryAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("binaryAssembler"));
     assertEquals(
         "Java/global/percussion/assembly/pageAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(
