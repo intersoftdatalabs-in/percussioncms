@@ -203,10 +203,12 @@ public class SitesResource {
   @Operation(
       summary = "Update Virtual Site properties",
       description =
-          "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper: Phase 1"
-              + " sourceKind allow-list (git-filesystem), required non-blank rootPath when virtual"
-              + " and remoteUrl is blank, optional remoteUrl+branch (https/ssh/file/git@host:path;"
-              + " fail-closed on unsafe URLs / '..'), safe NIO path, simple configFile name."
+          "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper:"
+              + " sourceKind allow-list (git-filesystem, csv-filesystem), required non-blank"
+              + " rootPath when virtual and remoteUrl is blank, optional remoteUrl+branch for"
+              + " git-filesystem only (https/ssh/file/git@host:path; fail-closed on unsafe URLs /"
+              + " '..'; csv-filesystem rejects remoteUrl), safe NIO path, simple configFile name."
+              + " GET after PUT round-trips the stored sourceKind. Unknown kinds return 400."
               + " Blank/repository sourceKind clears virtual configuration.",
       responses = {
         @ApiResponse(
