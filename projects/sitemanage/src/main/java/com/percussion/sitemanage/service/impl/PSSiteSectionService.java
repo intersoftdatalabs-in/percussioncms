@@ -414,11 +414,9 @@ public class PSSiteSectionService implements IPSSiteSectionService {
       contentSrv.checkinItems(Collections.singletonList(landingPageId), null);
     }
 
-    // Add the landing page to navon
-    PSItemStatus status = contentSrv.prepareForEdit(navonId);
-    navSrv.addLandingPageToNavnode(landingPageId, navonId, asmBridge.getDispatchTemplate());
-    contentSrv.releaseFromEdit(status, false);
-    contentSrv.checkinItems(Collections.singletonList(navonId), null);
+    // Add the landing page to navon. Do not checkinItems — sample workflows
+    // NPE in PSContentWs.checkinItems and mark the TX rollback-only (#3676).
+    attachLandingPageWithoutForcedCheckin(landingPageId, navonId);
 
     // approve the navon if landing page is pending or live but navon is not
     if (workflowHelper.isItemInApproveState(idMapper.getContentId(landingPageId))
@@ -1959,14 +1957,69 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     page = pageDao.save(page);
     IPSGuid pageId = idMapper.getGuid(page.getId());
 
-    // attach landing page to navon
-    PSItemStatus status = contentSrv.prepareForEdit(navonId);
-    navSrv.addLandingPageToNavnode(pageId, navonId, asmBridge.getDispatchTemplate());
-    contentSrv.releaseFromEdit(status, false);
-
-    contentSrv.checkinItems(Collections.singletonList(pageId), null);
+    attachLandingPageWithoutForcedCheckin(pageId, navonId);
 
     return page;
+  }
+
+  /**
+   * Link the landing page to the navon without {@code checkinItems}. Sample /
+   * H2 Default Workflow NPEs in {@code PSContentWs.checkinItems} ({@code
+   * sys_contentstateid} missing, stateId 0) and marks the Spring TX
+   * rollback-only, so POST {@code /section/create} returns 500 (#3364 / #3676
+   * / #3678). The page is a valid folder child once related as the landing
+   * page. Fresh percNavon is already checked out from save.
+   */
+  void attachLandingPageWithoutForcedCheckin(IPSGuid pageId, IPSGuid navonId) {
+    notNull(pageId);
+    notNull(navonId);
+    PSItemStatus status = null;
+    try {
+      try {
+        status = contentSrv.prepareForEdit(navonId);
+      } catch (RuntimeException e) {
+        if (!isSampleWorkflowLandingAttachFailure(e)) {
+          throw e;
+        }
+        log.warn(
+            "Skipping navon prepareForEdit for section landing attach; navon={}", navonId, e);
+      }
+      navSrv.addLandingPageToNavnode(pageId, navonId, asmBridge.getDispatchTemplate());
+    } finally {
+      if (status != null) {
+        try {
+          contentSrv.releaseFromEdit(status, false);
+        } catch (RuntimeException e) {
+          log.warn("releaseFromEdit after landing attach failed; navon={}", navonId, e);
+        }
+      }
+    }
+  }
+
+  static boolean isSampleWorkflowLandingAttachFailure(Throwable ex) {
+    if (ex == null) {
+      return false;
+    }
+    for (Throwable t = ex; t != null; t = t.getCause()) {
+      if (t instanceof NullPointerException) {
+        return true;
+      }
+      String msg = t.getMessage();
+      if (msg != null) {
+        String m = msg.toLowerCase(java.util.Locale.ROOT);
+        if (m.contains("stateid must be > 0")
+            || m.contains("sys_wfperformtransition")
+            || m.contains("sys_contentstateid")
+            || m.contains("workflow id is not loadable")
+            || m.contains("pscontentws")) {
+          return true;
+        }
+      }
+      if (t == t.getCause()) {
+        break;
+      }
+    }
+    return false;
   }
 
   /*

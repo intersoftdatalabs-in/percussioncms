@@ -42,6 +42,21 @@ class PSNavFolderUtilsCheckinFailureTest {
   }
 
   @Test
+  void attachFailureDetectsMissingStateFieldAndNpe() {
+    assertTrue(
+        PSNavFolderUtils.isSampleWorkflowAttachFailure(
+            new IllegalStateException("Field sys_contentstateid not found")));
+    assertTrue(
+        PSNavFolderUtils.isSampleWorkflowAttachFailure(
+            new IllegalArgumentException("Workflow id is not loadable: 0")));
+    assertTrue(PSNavFolderUtils.isSampleWorkflowAttachFailure(new NullPointerException()));
+    assertFalse(
+        PSNavFolderUtils.isSampleWorkflowCheckinFailure(
+            new IllegalStateException("Field sys_contentstateid not found")));
+    assertFalse(PSNavFolderUtils.isSampleWorkflowAttachFailure(new PSNavException("duplicate")));
+  }
+
+  @Test
   void parsePositiveIntRejectsZeroAndJunk() {
     assertEquals(4, PSNavFolderUtils.parsePositiveInt("4", 1));
     assertEquals(7, PSNavFolderUtils.parsePositiveInt(7, 1));

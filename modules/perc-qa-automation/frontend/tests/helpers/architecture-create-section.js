@@ -195,22 +195,6 @@ function uniqueLandingPageName(title) {
 }
 
 /**
- * True when the request is {@code POST /sitemanage/section/create}
- * (not createSectionFromFolder / createSectionLink).
- *
- * @param {string} url
- * @param {string} [method]
- * @returns {boolean}
- */
-function isCreateSiteSectionRequest(url, method = "POST") {
-  if (String(method || "").toUpperCase() !== "POST") {
-    return false;
-  }
-  const path = String(url || "").split("?")[0];
-  return /\/sitemanage\/section\/create$/.test(path);
-}
-
-/**
  * @param {unknown} err
  * @returns {boolean}
  */
@@ -246,7 +230,6 @@ module.exports = {
   uniqueSectionTitle,
   uniqueSectionUrlName,
   uniqueLandingPageName,
-  isCreateSiteSectionRequest,
   isKnownArchitectureConsoleNoise,
   missingNavTreeFailMessage,
   SAMPLE_DEMO_SITE_NAMES,

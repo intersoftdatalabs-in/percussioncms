@@ -616,12 +616,43 @@ public class PSNavFolderUtils {
   }
 
   static boolean isSampleWorkflowCheckinFailure(Throwable ex) {
+    return isSampleWorkflowFailure(ex, false);
+  }
+
+  /**
+   * Same as {@link #isSampleWorkflowCheckinFailure(Throwable)} plus the landing-attach
+   * NPEs ({@code Field sys_contentstateid not found} / {@code PSContentWs.checkinItems}
+   * NPE) when a new percNavon has no workflow state (#3676 / #3678).
+   */
+  static boolean isSampleWorkflowAttachFailure(Throwable ex) {
+    return isSampleWorkflowFailure(ex, true);
+  }
+
+  /**
+   * FastForward / H2 sample workflows leave a new percNavon at CONTENTSTATEID 0 or
+   * omit {@code sys_contentstateid} on the item def, so checkout/check-in NPEs or
+   * throws {@code stateId must be > 0} (#3364 / #3672 / #3676).
+   *
+   * @param includeNpe {@code true} for landing-page attach (treat NPE as skippable)
+   */
+  static boolean isSampleWorkflowFailure(Throwable ex, boolean includeAttachSignals) {
+    if (ex == null) {
+      return false;
+    }
     for (Throwable t = ex; t != null; t = t.getCause()) {
-      String msg = t.getMessage();
-      if (msg != null
-          && (msg.contains("stateId must be > 0")
-              || msg.contains("sys_wfPerformTransition"))) {
+      if (includeAttachSignals && t instanceof NullPointerException) {
         return true;
+      }
+      String msg = t.getMessage();
+      if (msg != null) {
+        String m = msg.toLowerCase(java.util.Locale.ROOT);
+        if (m.contains("stateid must be > 0") || m.contains("sys_wfperformtransition")) {
+          return true;
+        }
+        if (includeAttachSignals
+            && (m.contains("sys_contentstateid") || m.contains("workflow id is not loadable"))) {
+          return true;
+        }
       }
       if (t == t.getCause()) {
         break;
