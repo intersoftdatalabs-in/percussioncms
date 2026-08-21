@@ -13,7 +13,8 @@ tags: [developer, virtual-sites]
 repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product documentation. A
 **CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
 CSV files. Operators can run it offline (CLI) or from CMS REST
-`POST /sites/{nameOrId}/virtual/build`. Developer Sites Build chrome for CSV is a later slice.
+`POST /sites/{nameOrId}/virtual/build`. Developer **Sites** shows **Build Virtual Site**
+for **CSV filesystem** as well as Git filesystem.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -298,7 +299,7 @@ silent no-op). See [Publishing](id:admin-publishing).
 
 - CMS UI editing of Virtual items as normal content types
 - Automatic migration of the full legacy help site
-- Developer Sites Build chrome for `csv-filesystem` (REST Build is available)
+- Publish assembled CSV output to the Site filesystem (`POST …/virtual/publish`)
 - SQL/API adapters
 - Fake classic content-list generators for virtual items
 

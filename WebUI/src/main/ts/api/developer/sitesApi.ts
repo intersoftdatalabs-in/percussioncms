@@ -444,11 +444,14 @@ export async function buildVirtualSite(
   request?: VirtualSiteBuildRequest | null,
 ): Promise<VirtualSiteBuildResult> {
   const key = encodeURIComponent(nameOrId.trim());
-  const body =
+  const inner =
     request && typeof request.outputRoot === "string" && request.outputRoot.trim()
       ? { outputRoot: request.outputRoot.trim() }
       : {};
-  const payload = await post<unknown>(`${PATHS.SITES}/${key}/virtual/build`, body);
+  // Jackson/JAXB root wrap — a bare `{}` is rejected (NoSuchElementException → HTTP 400).
+  const payload = await post<unknown>(`${PATHS.SITES}/${key}/virtual/build`, {
+    VirtualSiteBuildRequest: inner,
+  });
   return parseVirtualSiteBuildResult(payload);
 }
 

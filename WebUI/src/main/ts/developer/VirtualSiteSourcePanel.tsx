@@ -142,8 +142,8 @@ function validationMessage(
 /**
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
- * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
- * when source kind is Virtual.
+ * build ({@code POST …/virtual/build}) for git-filesystem and csv-filesystem, or
+ * publish ({@code POST …/virtual/publish}) for git-filesystem.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -330,8 +330,9 @@ export function VirtualSiteSourcePanel({
   const virtualMode = isVirtualSourceKind(form.sourceKind);
   const gitMode = isGitFilesystemSourceKind(form.sourceKind);
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
-  /** Build/publish chrome is git-filesystem only (never repository or CSV). */
+  /** Build chrome: git-filesystem and csv-filesystem (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
+  /** Publish chrome: git-filesystem only (CSV publish is a later slice). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -526,7 +527,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: only when form source kind is Virtual (never for repository). */}
+          {/* Build chrome: git-filesystem and csv-filesystem (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"

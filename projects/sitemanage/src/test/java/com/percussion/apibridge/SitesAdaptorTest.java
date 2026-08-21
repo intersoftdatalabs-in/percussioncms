@@ -502,23 +502,6 @@ class SitesAdaptorTest {
   }
 
   @Test
-  void buildVirtualSite_rejectsCsvFilesystem() {
-    PSSite site = new PSSite();
-    site.setName("CsvHelp");
-    site.setGUID(siteGuid);
-    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
-    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("csv-docs").toString());
-    when(siteManager.findSite("CsvHelp")).thenReturn(site);
-
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> adaptor.buildVirtualSite("CsvHelp", null));
-    assertEquals(400, ex.getResponse().getStatus());
-    assertTrue(String.valueOf(ex.getMessage()).contains("git-filesystem"));
-    assertTrue(String.valueOf(ex.getMessage()).contains("csv-filesystem"));
-  }
-
-  @Test
   void buildVirtualSite_rejectsRepositorySite() {
     PSSite site = new PSSite();
     site.setName("Corp");
