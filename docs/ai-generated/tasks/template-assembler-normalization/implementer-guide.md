@@ -265,13 +265,13 @@ Dual-ship is a **package-build** bridge (materialize root `*.templateDef` for de
 | **dual-ship** (default) | Materialize root `*.templateDef` → reorganize into archive `TemplateDef-N/` |
 | **native** | Skip root dual-ship; stage `TemplateDef-N/` from modern `pages/` (`page.installMode=native`) |
 
-**Already native:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806). Remaining packages (e.g. Baseline system templates) stay on dual-ship until converted.
+**Already native:** `perc.baseTemplates`, `perc.responsiveTemplates` (#2806), `perc.Baseline` (#3673). Remaining dual-ship is widget leftover binary `*.templateDef` (#3674), not page-layout packages.
 
 | Concept | Layer | Status |
 |---------|-------|--------|
 | Dual-run **definition XML shim** | Runtime modern vs legacy XML | Time-boxed; Phase 5 #2632 |
 | Dual-ship **page templateDef** | Package-build install bridge | Optional; native preferred for converted packages |
-| Native **page install** | Build stages TemplateDef from modern pages | Landed for base/responsive |
+| Native **page install** | Build stages TemplateDef from modern pages | Landed for base/responsive/Baseline |
 
 ---
 

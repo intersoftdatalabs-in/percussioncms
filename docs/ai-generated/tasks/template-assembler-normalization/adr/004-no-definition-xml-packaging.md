@@ -73,7 +73,7 @@ Compiler for upgrade-input Page / assembly `*.templateDef` → Component Package
 
 **#2786 (landed):** `perc.baseTemplates` and `perc.responsiveTemplates` **author** modern `pages/<id>/component-package.json` + sources.
 
-**#2806 (landed):** native package install — those packages set `page.installMode=native` so dual-ship root `*.templateDef` generation is off; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/` from modern pages. Dual-ship remains default for packages that have not opted in. Retirement checklist: [../dual-ship-page-template-retirement.md](../dual-ship-page-template-retirement.md). Baseline system templates remain residual under #2630.
+**#2806 / #3673 (landed):** native package install — `perc.baseTemplates`, `perc.responsiveTemplates`, and `perc.Baseline` set `page.installMode=native` so dual-ship root `*.templateDef` generation is off; `PSPageXmlNativeInstall` stages archive `TemplateDef-N/` from modern pages. Dual-ship remains default for packages that have not opted in (widget leftover binary templateDefs). Retirement checklist: [../dual-ship-page-template-retirement.md](../dual-ship-page-template-retirement.md).
 
 ## Gadget registry compiler (slice #2771)
 

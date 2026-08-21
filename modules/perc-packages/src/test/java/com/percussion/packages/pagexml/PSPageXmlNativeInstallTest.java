@@ -311,6 +311,125 @@ class PSPageXmlNativeInstallTest {
   }
 
   @Test
+  void productBaseline_nativeInstallMode_archiveParityWithoutDualShipRoots() throws Exception {
+    Path product = locatePackage("perc.Baseline");
+    if (product == null) {
+      System.err.println("WARN: perc.Baseline not found; skipping native product test");
+      return;
+    }
+
+    assertEquals(
+        PSPageXmlInstallMode.NATIVE,
+        PSPageXmlInstallPolicy.resolve(product),
+        "Baseline must opt into native install (#3673)");
+    assertFalse(PSPageXmlInstallPolicy.isDualShipEnabled(product));
+    assertTrue(PSPageXmlDualShip.hasModernPageSources(product));
+    assertTrue(
+        PSPageXmlPackageCompiler.listTemplateDefs(product).isEmpty(),
+        "must not author root *.templateDef");
+
+    for (String stem :
+        List.of(
+            "perc.page",
+            "perc.pageDatabase",
+            "perc.pageDispatcher",
+            "perc.pageXml",
+            "perc.sys.resource",
+            "perc.widget",
+            "perc.widgetDispatcher")) {
+      assertTrue(
+          Files.isRegularFile(product.resolve(stem + ".templateDef.aclDef")),
+          "ACL side-car must remain: " + stem);
+    }
+
+    Path staging = tempDir.resolve("baseline-native-src");
+    Path archive = tempDir.resolve("baseline-native-archive");
+    copyTree(product, staging);
+    Files.createDirectories(archive);
+
+    assertFalse(Files.isRegularFile(staging.resolve("perc.page.templateDef")));
+
+    int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(staging, archive);
+    assertEquals(7, written, "expected 7 Baseline system templates, got " + written);
+
+    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
+    assertEquals("0-4-602", guids.get("perc.page"));
+    assertEquals("0-4-604", guids.get("perc.pagedatabase"));
+    assertEquals("0-4-606", guids.get("perc.pagedispatcher"));
+    assertEquals("0-4-608", guids.get("perc.pagexml"));
+    assertEquals("0-4-610", guids.get("perc.sys.resource"));
+    assertEquals("0-4-612", guids.get("perc.widget"));
+    assertEquals("0-4-614", guids.get("perc.widgetdispatcher"));
+
+    Path page =
+        archive.resolve("TemplateDef-602").resolve("perc.page.templateDef");
+    assertTrue(Files.isRegularFile(page), "archive TemplateDef-602/perc.page.templateDef");
+    PSPageXmlModel pageInstall = PSPageXmlParser.parse(page);
+    assertEquals("perc.page", pageInstall.getName());
+    assertEquals("0-4-602", pageInstall.getGuid());
+    assertEquals(
+        "Java/global/percussion/assembly/velocityAssembler", pageInstall.getAssembler());
+    assertEquals("Global", pageInstall.getOutputFormat());
+
+    Path pageXml =
+        archive.resolve("TemplateDef-608").resolve("perc.pageXml.templateDef");
+    assertTrue(Files.isRegularFile(pageXml), "archive TemplateDef-608/perc.pageXml.templateDef");
+    PSPageXmlModel xmlInstall = PSPageXmlParser.parse(pageXml);
+    assertEquals("perc.pageXml", xmlInstall.getName());
+    assertEquals("0-4-608", xmlInstall.getGuid());
+    assertEquals(
+        "Java/global/percussion/assembly/pageVariantAssembler", xmlInstall.getAssembler());
+    assertEquals("Snippet", xmlInstall.getOutputFormat());
+    assertEquals("text/xml", xmlInstall.getMimeType());
+    assertEquals(".xml", xmlInstall.getLocationSuffix());
+
+    Path widget =
+        archive.resolve("TemplateDef-612").resolve("perc.widget.templateDef");
+    assertTrue(Files.isRegularFile(widget), "archive TemplateDef-612/perc.widget.templateDef");
+    PSPageXmlModel widgetInstall = PSPageXmlParser.parse(widget);
+    assertEquals("perc.widget", widgetInstall.getName());
+    assertEquals("0-4-612", widgetInstall.getGuid());
+    assertEquals(
+        "Java/global/percussion/assembly/velocityAssembler", widgetInstall.getAssembler());
+    assertEquals("Snippet", widgetInstall.getOutputFormat());
+
+    Path resource =
+        archive.resolve("TemplateDef-610").resolve("perc.sys.resource.templateDef");
+    assertTrue(
+        Files.isRegularFile(resource), "archive TemplateDef-610/perc.sys.resource.templateDef");
+    PSPageXmlModel resourceInstall = PSPageXmlParser.parse(resource);
+    assertEquals("perc.sys.resource", resourceInstall.getName());
+    assertEquals("0-4-610", resourceInstall.getGuid());
+    assertEquals(
+        "Java/global/percussion/assembly/resourceAssembler", resourceInstall.getAssembler());
+    assertEquals("Page", resourceInstall.getOutputFormat());
+
+    for (String stem :
+        List.of(
+            "perc.page",
+            "perc.pageDatabase",
+            "perc.pageDispatcher",
+            "perc.pageXml",
+            "perc.sys.resource",
+            "perc.widget",
+            "perc.widgetDispatcher")) {
+      assertFalse(
+          Files.isRegularFile(staging.resolve(stem + ".templateDef")),
+          "native install must not dual-ship root " + stem + ".templateDef");
+    }
+
+    Path dualStaging = tempDir.resolve("baseline-dual-parity");
+    copyTree(product, dualStaging);
+    PSPageXmlDualShip.materializeInstallTemplateDefs(dualStaging);
+    String dualPageXml =
+        Files.readString(dualStaging.resolve("perc.page.templateDef"), StandardCharsets.UTF_8);
+    assertEquals(
+        normalizeNewlines(dualPageXml),
+        normalizeNewlines(Files.readString(page, StandardCharsets.UTF_8)),
+        "native perc.page archive XML must match dual-ship emit");
+  }
+
+  @Test
   void packageInstallProps_isCopiedAsRootFileInProductTree() throws Exception {
     Path product = locatePackage("perc.baseTemplates");
     if (product == null) {
@@ -318,6 +437,21 @@ class PSPageXmlNativeInstallTest {
     }
     Path props = product.resolve(PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS);
     assertTrue(Files.isRegularFile(props));
+    Properties p = new Properties();
+    try (var in = Files.newInputStream(props)) {
+      p.load(in);
+    }
+    assertEquals("native", p.getProperty(PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE));
+  }
+
+  @Test
+  void packageInstallProps_baselineIsNative() throws Exception {
+    Path product = locatePackage("perc.Baseline");
+    if (product == null) {
+      return;
+    }
+    Path props = product.resolve(PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS);
+    assertTrue(Files.isRegularFile(props), "perc.Baseline package-install.properties (#3673)");
     Properties p = new Properties();
     try (var in = Files.newInputStream(props)) {
       p.load(in);
