@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. `csv-filesystem` is the offline CSV source (required columns `id`, `title`, `body`); REST Build remains git-filesystem. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **Build** (`POST …/virtual/build`) runs the matching adapter. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -169,11 +169,18 @@ remote is blank, safe remote URL/branch, portable path safety).
 
 #### Build Virtual Site (`POST …/virtual/build`)
 
-Runs the Phase 1 static build for a Site configured with `virtual.sourceKind=git-filesystem`.
-When `virtual.remoteUrl` is set, the server clones or fetches that branch into a contained
-work directory, then discovers Markdown from the checkout (optional relative `virtual.rootPath`).
-When remote is blank, `virtual.rootPath` must be an existing directory on the CMS host.
-Requires **Admin**. `git` must be on the CMS `PATH` for remotes.
+Runs the static build for a Site configured with `virtual.sourceKind=git-filesystem` or
+`csv-filesystem`. Unknown kinds return **400**.
+
+- **git-filesystem** — when `virtual.remoteUrl` is set, the server clones or fetches that branch
+  into a contained work directory, then discovers Markdown from the checkout (optional relative
+  `virtual.rootPath`). When remote is blank, `virtual.rootPath` must be an existing directory on
+  the CMS host. `git` must be on the CMS `PATH` for remotes.
+- **csv-filesystem** — `virtual.rootPath` is a CSV tree (version folders with `*.csv`).
+  `_config.yaml` is optional. Required columns `id`, `title`, `body`; unsafe `path` values and
+  missing columns fail closed (**400**). Git remotes are not used.
+
+Requires **Admin**.
 
 | Status | When |
 |--------|------|

@@ -23,8 +23,9 @@ import java.util.stream.Stream;
 /**
  * Selects an {@link IPSVirtualSiteSource} for a registered {@link VirtualSiteSourceType}.
  *
- * <p>Used by {@link PSVirtualSiteBuildService} so offline / CLI builds can switch adapters
- * without the REST Sites UI (csv-filesystem REST expose is a later slice).
+ * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
+ * /sites/{nameOrId}/virtual/build}) so git-filesystem and csv-filesystem share one assemble
+ * pipeline.
  */
 public final class PSVirtualSiteSourceFactory {
 

@@ -20,16 +20,19 @@ import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-/** Loads {@code _config.yaml} from a Virtual Site root. */
+/** Loads {@code _config.yaml} from a Virtual Site root (optional fallback for CSV trees). */
 public final class VirtualSiteConfigLoader {
 
   public static final String DEFAULT_CONFIG_FILE = "_config.yaml";
@@ -60,6 +63,87 @@ public final class VirtualSiteConfigLoader {
     try (InputStream in = Files.newInputStream(configPath)) {
       return parse(root, in, siteKey, configPath.toString());
     }
+  }
+
+  /**
+   * Load {@code _config.yaml} when present; otherwise synthesize a CSV-friendly default from
+   * immediate child version directories (no Markdown tree required).
+   *
+   * <p>Missing config is allowed only for this fallback. A present but invalid YAML still fails
+   * closed. Child folders named {@code assets}, or whose names start with {@code _} or {@code .},
+   * are skipped. Empty trees (no version folder) fail closed.
+   *
+   * @param root Virtual Site root directory
+   * @param configFileName config file name, may be null for default
+   * @param siteKey participant/site key
+   * @return config
+   */
+  public static VirtualSiteConfig loadOrDefault(Path root, String configFileName, String siteKey)
+      throws IOException, VirtualSiteException {
+    if (root == null) {
+      throw new VirtualSiteException("Virtual Site root is null");
+    }
+    String name =
+        configFileName == null || configFileName.isBlank() ? DEFAULT_CONFIG_FILE : configFileName;
+    Path configPath = root.resolve(name);
+    if (Files.isRegularFile(configPath)) {
+      return load(root, name, siteKey);
+    }
+    return defaultFromVersionDirectories(root, siteKey);
+  }
+
+  /**
+   * Infer versions from immediate child directories of {@code root} when {@code _config.yaml} is
+   * omitted (CSV trees).
+   *
+   * @param root site root, not null
+   * @param siteKey participant key
+   * @return config with at least one version
+   */
+  static VirtualSiteConfig defaultFromVersionDirectories(Path root, String siteKey)
+      throws IOException, VirtualSiteException {
+    if (!Files.isDirectory(root)) {
+      throw new VirtualSiteException("CSV site root is not a directory: " + root);
+    }
+    if (!PSVirtualSiteHelper.isSafeRootPath(root)) {
+      throw new VirtualSiteException("CSV site root is missing or unsafe");
+    }
+    Path safeRoot = root.normalize();
+    List<String> folders = new ArrayList<>();
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(safeRoot)) {
+      for (Path child : stream) {
+        if (!Files.isDirectory(child)) {
+          continue;
+        }
+        Path normalized = child.normalize();
+        if (!normalized.startsWith(safeRoot)) {
+          throw new VirtualSiteException("Version path escapes site root: " + child);
+        }
+        String folder = child.getFileName().toString();
+        if (folder.startsWith("_")
+            || folder.startsWith(".")
+            || "assets".equalsIgnoreCase(folder)) {
+          continue;
+        }
+        folders.add(folder);
+      }
+    }
+    folders.sort(Comparator.comparing(s -> s.toLowerCase(Locale.ROOT)));
+    if (folders.isEmpty()) {
+      throw new VirtualSiteException(
+          "CSV source has no _config.yaml and no version folder (add _config.yaml or a version"
+              + " directory such as 8.2)");
+    }
+    boolean prefer82 = folders.contains("8.2");
+    List<VersionSpec> versions = new ArrayList<>();
+    boolean first = true;
+    for (String folder : folders) {
+      boolean def = prefer82 ? "8.2".equals(folder) : first;
+      versions.add(new VersionSpec(folder, folder, folder, def));
+      first = false;
+    }
+    String title = siteKey != null && !siteKey.isBlank() ? siteKey : "CSV Site";
+    return new VirtualSiteConfig(safeRoot, title, "", "page.html", versions, List.of(), siteKey);
   }
 
   @SuppressWarnings("unchecked")

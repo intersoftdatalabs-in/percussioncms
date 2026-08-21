@@ -255,11 +255,13 @@ public class SitesResource {
   @Operation(
       summary = "Build Virtual Site",
       description =
-          "Runs the Phase 1 Virtual Site static build for a site configured with"
-              + " virtual.sourceKind=git-filesystem. When virtual.remoteUrl is set, the server"
-              + " clones or fetches that branch into a contained work directory, then reuses the"
-              + " git-filesystem discover path. Blank remote keeps local virtual.rootPath. Uses"
-              + " PSVirtualSiteBuildService with portable NIO Path I/O. Requires"
+          "Runs the Virtual Site static build for a site configured with"
+              + " virtual.sourceKind=git-filesystem or csv-filesystem. git-filesystem: when"
+              + " virtual.remoteUrl is set, the server clones or fetches that branch into a"
+              + " contained work directory, then discovers Markdown. csv-filesystem: rootPath is a"
+              + " CSV tree (optional _config.yaml; required columns id, title, body; fail-closed on"
+              + " unsafe paths). Unknown source kinds return 400. Uses"
+              + " PSVirtualSiteBuildService.forSourceType with portable NIO Path I/O. Requires"
               + " Admin. Traditional repository Sites and invalid source kinds/paths return 4xx."
               + " Optional body may set outputRoot; otherwise the server writes under"
               + " {install}/tmp/virtual-sites/{siteKey}. Link problems are reported in the result"
