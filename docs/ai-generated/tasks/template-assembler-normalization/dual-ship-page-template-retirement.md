@@ -36,6 +36,7 @@ Policy code: `com.percussion.packages.pagexml.PSPageXmlInstallPolicy` (aligns wi
 |---------|-----------|-------|
 | `perc.baseTemplates` | `package-install.properties` → `native` | 20 page layouts |
 | `perc.responsiveTemplates` | `package-install.properties` → `native` | Banded / Basic / plain |
+| `perc.Baseline` | `package-install.properties` → `native` | 7 system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`, `perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) — #3673 |
 
 ## Retirement checklist (per package)
 
@@ -53,7 +54,7 @@ Dual-ship **code path** can be deleted when **all** hold:
 
 - [x] Native install API + policy exist (`PSPageXmlNativeInstall` / `PSPageXmlInstallPolicy`) — #2806
 - [x] `perc.baseTemplates` / `perc.responsiveTemplates` use native mode — #2806
-- [ ] Remaining page layout packages on native (e.g. `perc.Baseline` system templates after #2805)
+- [x] Remaining page layout packages on native (`perc.Baseline` system templates — #3673)
 - [ ] Widget packages that still dual-ship any page-like templateDefs inventoried and converted or explicitly dual-ship-retained
 - [ ] CI / product package build has zero `dual-ship page templateDefs` log lines (or only waived packages)
 - [ ] Docs (this file + page inventory + ADR-004) mark dual-ship retired
@@ -69,7 +70,7 @@ Runtime install still uses `PSTemplateDefDependencyHandler` and assembly-templat
 |---------|-------|--------|
 | Dual-run **definition XML shim** | Runtime selection modern vs Widget/Page/Gadget XML | Time-boxed; Phase 5 #2632 — criteria: [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) |
 | Dual-ship **page templateDef** | Package-build install bridge for page layouts | Optional; native preferred for converted packages |
-| Native **page install** | Package-build stages TemplateDef archive from modern pages | Landed #2806 for base/responsive |
+| Native **page install** | Package-build stages TemplateDef archive from modern pages | Landed #2806 for base/responsive; #3673 for Baseline |
 
 ## See also
 
