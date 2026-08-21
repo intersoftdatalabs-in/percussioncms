@@ -38,6 +38,12 @@ public interface IPSIdMapper {
   /**
    * Performs string to {@link IPSGuid} translation.
    *
+   * <p>Accepts a hyphenated {@code host-type-uuid} GUID, a packed long that already
+   * carries a type, or a <strong>bare numeric content id</strong> (for example
+   * {@code 594} from Explorer Preview {@code GET .../workflow/checkIn/594}). Bare
+   * numeric tokens with no GUID type bits are mapped as {@link
+   * PSTypeEnum#LEGACY_CONTENT} via {@link #getGuidFromContentId(long)}.
+   *
    * @param id the string representation of the id, never blank
    * @return the id as an {@link IPSGuid}, never {@code null}
    */
@@ -73,6 +79,10 @@ public interface IPSIdMapper {
   /**
    * Gets the content ID from the string representation of an item GUID.
    *
+   * <p>Accepts the same forms as {@link #getGuid(String)}, including a
+   * <strong>bare numeric content id</strong> (for example {@code 594}), because
+   * this method routes through {@link #getGuid(String)}.
+   *
    * @param guid the string representation of an item GUID, not blank
    * @return the content ID
    */
@@ -80,6 +90,10 @@ public interface IPSIdMapper {
 
   /**
    * Converts string to {@link IPSGuid} for an item ID.
+   *
+   * <p>Accepts the same forms as {@link #getGuid(String)}, including a
+   * <strong>bare numeric content id</strong> (for example {@code 594}), because
+   * this method routes through {@link #getGuid(String)}.
    *
    * @param id the item ID, never blank
    * @return the item GUID with "correct" version number, never {@code null}

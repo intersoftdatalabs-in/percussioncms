@@ -15,7 +15,7 @@
  */
 
 /**
- * Playwright surface: #2733 / #3456 / #3463 / #3627 — Explorer preview
+ * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 — Explorer preview
  * for a listed page on {@code spa.jsp?entry=explorer}.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
@@ -47,6 +47,8 @@ const {
   listedPageSiteNames,
   foldSiteName,
   detailRowHasExactName,
+  workflowCheckInPath,
+  numericContentIdFromItemId,
 } = require("./helpers/explorer-preview-view");
 
 const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
@@ -309,6 +311,16 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
       test.setTimeout(90_000);
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const checkInFailures = [];
+      page.on("response", (res) => {
+        const u = res.url();
+        if (
+          /\/itemmanagement\/workflow\/checkIn\//i.test(u) &&
+          res.status() >= 500
+        ) {
+          checkInFailures.push(`${res.status()} ${u}`);
+        }
+      });
 
       // Use the logged-in page request (session cookies). Isolated
       // APIRequestContext basic-auth is often redirected to login.
@@ -425,6 +437,39 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );
+      expect(
+        checkInFailures,
+        `checkIn must not 500 for listed page (#3688): ${checkInFailures.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
+
+  test(
+    "numeric checkIn for listed page content id does not 500 (#3688)",
+    { tag: ["@explorer-preview-view", "@preview"] },
+    async ({ request }) => {
+      test.setTimeout(30_000);
+      const auth = {
+        ...adminBasicAuthHeaders(),
+        Accept: "application/json",
+      };
+      const listed = await findListedPageViaRest(request);
+      const numericIds = [
+        "594",
+        numericContentIdFromItemId(listed && listed.id),
+      ].filter((id, i, all) => id && all.indexOf(id) === i);
+      for (const numericId of numericIds) {
+        const checkInUrl = `${BASE_URL}${workflowCheckInPath(
+          "/Rhythmyx/services",
+          numericId,
+        )}`;
+        const res = await request.get(checkInUrl, { headers: auth });
+        const body = (await res.text()).slice(0, 400);
+        expect(
+          res.status(),
+          `GET ${checkInUrl} must not 500 for bare numeric content id; body=${body}`,
+        ).toBeLessThan(500);
+      }
     },
   );
 });
