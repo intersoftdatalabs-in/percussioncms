@@ -33,6 +33,17 @@ export function shouldShowVirtualBuildChrome(
 }
 
 /**
+ * True when Preview assembled site should be shown.
+ * Same allow-list as Build: last-output preview for git-filesystem and
+ * csv-filesystem. Repository / blank / unknown kinds stay hidden.
+ */
+export function shouldShowVirtualPreviewChrome(
+  sourceKind: string | null | undefined,
+): boolean {
+  return shouldShowVirtualBuildChrome(sourceKind);
+}
+
+/**
  * True when the Publish Virtual Site control should be shown.
  * Publish remains git-filesystem only until the CSV publish slice.
  */

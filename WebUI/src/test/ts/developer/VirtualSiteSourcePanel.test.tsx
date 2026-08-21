@@ -662,6 +662,38 @@ describe("VirtualSiteSourcePanel", () => {
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
 
+  it("shows Preview chrome for csv-filesystem and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="CsvHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-csv-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_CSV_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("CsvHelp");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
   it("shows empty preview state when no assembled site exists", async () => {
     window.open = vi.fn();
     getVirtual.mockResolvedValue({

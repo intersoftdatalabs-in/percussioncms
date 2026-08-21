@@ -42,6 +42,7 @@ import {
   formatVirtualSitePublishSummary,
   sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
+  shouldShowVirtualPreviewChrome,
   shouldShowVirtualPublishChrome,
 } from "./virtualSiteBuild";
 import {
@@ -332,6 +333,8 @@ export function VirtualSiteSourcePanel({
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
   /** Build chrome: git-filesystem and csv-filesystem (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
+  /** Preview chrome: same kinds as Build (last-output REST, not git-only). */
+  const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
   /** Publish chrome: git-filesystem only (CSV publish is a later slice). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
@@ -553,15 +556,17 @@ export function VirtualSiteSourcePanel({
                 >
                   {building ? DEV_MSG.SITE_VIRT_BUILDING : DEV_MSG.SITE_VIRT_BUILD}
                 </button>
-                <button
-                  type="button"
-                  data-testid="developer-site-virtual-preview"
-                  style={busy || previewBusy ? disabledSecondaryButton : secondaryButton}
-                  disabled={busy || previewBusy}
-                  onClick={() => void onPreview()}
-                >
-                  {DEV_MSG.SITE_VIRT_PREVIEW}
-                </button>
+                {showPreviewChrome ? (
+                  <button
+                    type="button"
+                    data-testid="developer-site-virtual-preview"
+                    style={busy || previewBusy ? disabledSecondaryButton : secondaryButton}
+                    disabled={busy || previewBusy}
+                    onClick={() => void onPreview()}
+                  >
+                    {DEV_MSG.SITE_VIRT_PREVIEW}
+                  </button>
+                ) : null}
                 {showPublishChrome ? (
                   <button
                     type="button"
@@ -574,12 +579,14 @@ export function VirtualSiteSourcePanel({
                   </button>
                 ) : null}
               </div>
-              <p
-                style={{ ...mutedHintText, margin: "8px 0 0" }}
-                data-testid="developer-site-virtual-preview-hint"
-              >
-                {DEV_MSG.SITE_VIRT_PREVIEW_HINT}
-              </p>
+              {showPreviewChrome ? (
+                <p
+                  style={{ ...mutedHintText, margin: "8px 0 0" }}
+                  data-testid="developer-site-virtual-preview-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_PREVIEW_HINT}
+                </p>
+              ) : null}
               {showPublishChrome ? (
                 <>
                   <p
@@ -613,7 +620,7 @@ export function VirtualSiteSourcePanel({
                 </div>
               ) : null}
 
-              {previewError ? (
+              {showPreviewChrome && previewError ? (
                 <div
                   role="alert"
                   data-testid="developer-site-virtual-preview-error"
