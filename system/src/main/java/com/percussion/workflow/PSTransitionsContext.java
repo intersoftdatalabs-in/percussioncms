@@ -81,8 +81,9 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   private List<PSTransition> m_hRows = null;
 
   /**
-   * Current cursor position into {@link #m_hRows}; {@code -1} before the first {@link #moveNext()}
-   * call. Only used by the Hibernate-backed factories. Added for #1561 Phase 4d-1a.
+   * Current cursor position into {@link #m_hRows}. Hibernate factories leave this at {@code 0} when
+   * the list is non-empty (JDBC constructor parity) and {@code -1} when empty. Only used by the
+   * Hibernate-backed factories. Added for #1561 Phase 4d-1a.
    */
   private int m_hCursorIndex = -1;
 
@@ -292,7 +293,8 @@ public class PSTransitionsContext implements IPSTransitionsContext {
    * @param fromStateId the source state id; must be {@code > 0}.
    * @return the populated context, never {@code null}; may be empty if no transitions are
    *     configured for the state. The cursor is already on the first row when the list is
-   *     non-empty (same as the JDBC constructor). Call {@link #moveNext()} to advance.
+   *     non-empty (same as the JDBC constructor). Iterate with process-current-then-{@link
+   *     #moveNext()} (do-while); {@code while (moveNext())} skips the first transition.
    */
   public static PSTransitionsContext loadAllFromHibernate(int workflowId, int fromStateId) {
     if (workflowId <= 0) {

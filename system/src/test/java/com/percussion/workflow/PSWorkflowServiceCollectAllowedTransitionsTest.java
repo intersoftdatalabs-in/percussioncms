@@ -17,74 +17,76 @@
 package com.percussion.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum;
+import com.percussion.services.workflow.impl.PSWorkflowService;
 import java.sql.SQLException;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Hibernate factory cursor must sit on the first row (JDBC constructor parity). {@code
- * PSExitPerformTransition} reads {@link PSTransitionsContext#getTransitionFromStateID()} without
- * calling {@code moveNext()} first; a cursor at {@code -1} left from-state {@code 0} and made
- * Explorer Expire (and every other trigger) HTTP 500 {@code INVALID_TRANSITION} (#3668).
+ * {@link PSWorkflowService#collectAllowedTransitions} must include the first Hibernate row.
+ * {@code populateFromHibernate} sits on row 0 (JDBC constructor parity, #3668); {@code while
+ * (tc.moveNext())} skipped Expire / the only allowed SOAP transition (#3683).
  */
 @Tag("UnitTest")
-class PSTransitionsContextPopulateFromHibernateTest {
+class PSWorkflowServiceCollectAllowedTransitionsTest {
 
   @Test
-  void emptyRowsLeaveCountZeroAndFromStateUnset() {
+  void emptyContextReturnsEmptyList() throws SQLException {
     PSTransitionsContext ctx = new PSTransitionsContext();
     ctx.populateFromHibernate(6, List.of());
 
-    assertTrue(ctx.isEmpty());
-    assertEquals(0, ctx.getTransitionCount());
-    assertEquals(0, ctx.getTransitionFromStateID());
+    List<PSTransitionInfo> out =
+        PSWorkflowService.collectAllowedTransitions(
+            ctx, true, "alice", List.of("Admin"), "Admin", List.of());
+
+    assertTrue(out.isEmpty());
   }
 
   @Test
-  void firstRowIsReadableWithoutMoveNext() {
-    PSTransitionsContext ctx = new PSTransitionsContext();
-    ctx.populateFromHibernate(
-        6, List.of(transition(8, "Expire", 3, 5), transition(9, "Quick Edit", 3, 4)));
-
-    assertFalse(ctx.isEmpty());
-    assertEquals(2, ctx.getTransitionCount());
-    assertEquals(8, ctx.getTransitionID());
-    assertEquals("Expire", ctx.getTransitionActionTrigger());
-    assertEquals(3, ctx.getTransitionFromStateID());
-    assertEquals(5, ctx.getTransitionToStateID());
+  void nullContextReturnsEmptyList() throws SQLException {
+    List<PSTransitionInfo> out =
+        PSWorkflowService.collectAllowedTransitions(
+            null, true, "alice", List.of("Admin"), "Admin", List.of());
+    assertTrue(out.isEmpty());
   }
 
   @Test
-  void moveNextAdvancesPastTheAlreadyPositionedFirstRow() throws SQLException {
-    PSTransitionsContext ctx = new PSTransitionsContext();
-    ctx.populateFromHibernate(
-        6, List.of(transition(8, "Expire", 3, 5), transition(9, "Quick Edit", 3, 4)));
-
-    assertTrue(ctx.moveNext());
-    assertEquals(9, ctx.getTransitionID());
-    assertEquals("Quick Edit", ctx.getTransitionActionTrigger());
-    assertEquals(4, ctx.getTransitionToStateID());
-    assertFalse(ctx.moveNext());
-  }
-
-  @Test
-  void doWhileIncludesTheAlreadyPositionedFirstRow() throws SQLException {
+  void singleRowIsIncludedWithoutCallingMoveNextFirst() throws SQLException {
     PSTransitionsContext ctx = new PSTransitionsContext();
     ctx.populateFromHibernate(6, List.of(transition(8, "Expire", 3, 5)));
 
-    List<Integer> ids = new java.util.ArrayList<>();
-    do {
-      ids.add(ctx.getTransitionID());
-    } while (ctx.moveNext());
-    assertEquals(List.of(8), ids);
+    List<PSTransitionInfo> out =
+        PSWorkflowService.collectAllowedTransitions(
+            ctx, true, "alice", List.of("Admin"), "Admin", List.of());
+
+    assertEquals(1, out.size());
+    assertEquals(8, out.get(0).getId());
+    assertEquals("Expire", out.get(0).getTrigger());
+    assertEquals(5, out.get(0).getToStateId());
+  }
+
+  @Test
+  void twoRowsAreBothIncluded() throws SQLException {
+    PSTransitionsContext ctx = new PSTransitionsContext();
+    ctx.populateFromHibernate(
+        6, List.of(transition(8, "Expire", 3, 5), transition(9, "Quick Edit", 3, 4)));
+
+    List<PSTransitionInfo> out =
+        PSWorkflowService.collectAllowedTransitions(
+            ctx, true, "alice", List.of("Admin"), "Admin", List.of());
+
+    assertEquals(2, out.size());
+    assertEquals(8, out.get(0).getId());
+    assertEquals("Expire", out.get(0).getTrigger());
+    assertEquals(9, out.get(1).getId());
+    assertEquals("Quick Edit", out.get(1).getTrigger());
   }
 
   private static PSTransition transition(int id, String trigger, long fromState, long toState) {
