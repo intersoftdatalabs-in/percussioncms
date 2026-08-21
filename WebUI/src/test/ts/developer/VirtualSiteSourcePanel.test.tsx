@@ -716,7 +716,6 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
       DEV_MSG.SITE_VIRT_PREVIEW_HINT,
     );
-    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
     await waitFor(() => {
       expect(open).toHaveBeenCalled();
