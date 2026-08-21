@@ -200,4 +200,108 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
       scope: '[data-testid="content-browser-search-panel"]',
     });
   });
+
+  /**
+   * #3714: CMS search returns content-type names (Image, percPage) while
+   * the host filter is allowedTypes [page, asset]. Open must select the
+   * hit so Confirm enables.
+   */
+  test("asset-picker search Open of a CMS type (Image/page) enables Confirm @content-browser-search @host-asset-picker @issue-3714", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => {
+      pageErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        pageErrors.push(msg.text());
+      }
+    });
+
+    await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
+    const dialog = page.locator('[data-testid="content-browser"]');
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await expect(dialog).toHaveAttribute("data-enable-search", "true");
+
+    const input = page.locator('[data-testid="search-panel-input"]');
+    const submit = page.locator('[data-testid="search-panel-submit"]');
+    await expect(input).toBeVisible({ timeout: 10_000 });
+
+    const queries = ["jpg", "Image", "Home"];
+    let hasResults = false;
+    for (const q of queries) {
+      await input.fill(q);
+      await submit.click();
+      const settled = page
+        .locator(
+          '[data-testid="search-panel-results"], [data-testid="search-panel-empty"], [data-testid="search-panel-error"]',
+        )
+        .first();
+      await expect(settled).toBeVisible({ timeout: 20_000 });
+      if (await page.locator('[data-testid="search-panel-results"]').isVisible()) {
+        hasResults = true;
+        break;
+      }
+    }
+    expect(
+      hasResults,
+      "QA H2 cell must return at least one search hit (jpg/Image/Home)",
+    ).toBe(true);
+
+    const rows = page.locator('[data-testid="search-panel-result-row"]');
+    await expect(rows.first()).toBeVisible();
+    const rowCount = await rows.count();
+    const folderish = (type) =>
+      type === "folder" ||
+      type === "fsfolder" ||
+      type === "site" ||
+      type.includes("navon") ||
+      type.includes("navtree");
+    const isAssetish = (type) =>
+      type.includes("image") ||
+      type === "file" ||
+      type === "asset" ||
+      type === "rfffile" ||
+      type === "percasset";
+    let chosen = -1;
+    for (let i = 0; i < rowCount; i++) {
+      const type = (
+        (await rows.nth(i).getAttribute("data-item-type")) || ""
+      ).toLowerCase();
+      if (folderish(type)) {
+        continue;
+      }
+      if (isAssetish(type)) {
+        chosen = i;
+        break;
+      }
+      if (chosen < 0) {
+        chosen = i;
+      }
+    }
+    expect(chosen, "search results must include a non-folder page or asset").toBeGreaterThanOrEqual(
+      0,
+    );
+    await rows
+      .nth(chosen)
+      .locator("button[data-testid^='search-panel-open-']")
+      .click();
+
+    await expect(
+      page.locator('[data-testid="content-browser-error"]'),
+    ).toHaveCount(0);
+    const confirm = page.locator('[data-testid="content-browser-confirm"]');
+    await expect(confirm).toBeEnabled({ timeout: 10_000 });
+    const summary = page.locator(
+      '[data-testid="content-browser-selection-summary"]',
+    );
+    await expect(summary).not.toHaveText(/No items selected/i);
+    await confirm.click();
+    const result = page.locator('[data-testid="perc-content-browser-result"]');
+    await expect(result).toContainText("Confirmed:", { timeout: 10_000 });
+    await expect(result).toContainText("items");
+
+    expect(pageErrors, `browser errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
 });
