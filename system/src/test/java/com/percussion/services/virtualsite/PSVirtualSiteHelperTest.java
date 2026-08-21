@@ -182,6 +182,18 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void validateRejectsPathTraversalForCsvFilesystem() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "../outside"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+    assertTrue(ex.getMessage().contains(".."));
+  }
+
+  @Test
   void validateRejectsUnknownSourceKind() {
     PSSite site =
         siteWith(
@@ -192,6 +204,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_SOURCE_KIND));
     assertTrue(ex.getMessage().contains("sql-api"));
     assertTrue(ex.getMessage().contains("git-filesystem"));
+    assertTrue(ex.getMessage().contains("csv-filesystem"));
   }
 
   @Test

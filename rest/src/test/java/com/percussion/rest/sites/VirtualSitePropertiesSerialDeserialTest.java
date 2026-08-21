@@ -162,6 +162,26 @@ public class VirtualSitePropertiesSerialDeserialTest {
   }
 
   @Test
+  public void productionMapperRoundTripsCsvFilesystemSourceKind() {
+    VirtualSiteProperties props = new VirtualSiteProperties();
+    props.setSourceKind("csv-filesystem");
+    props.setRootPath("csv-docs");
+    props.setSiteKey("csv-help");
+    props.setVirtual(true);
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(VirtualSiteProperties.class);
+    String json = mapper.writeValueAsString(props);
+    assertTrue(json.contains("\"VirtualSiteProperties\""), json);
+    assertTrue(json.contains("\"csv-filesystem\""), json);
+
+    VirtualSiteProperties roundTrip = mapper.readValue(json, VirtualSiteProperties.class);
+    assertEquals("csv-filesystem", roundTrip.getSourceKind());
+    assertEquals("csv-docs", roundTrip.getRootPath());
+    assertEquals("csv-help", roundTrip.getSiteKey());
+    assertEquals(Boolean.TRUE, roundTrip.getVirtual());
+  }
+
+  @Test
   public void jaxbRejectsBareSourceKindRoot() throws Exception {
     JAXBContext ctx = JAXBContext.newInstance(VirtualSiteProperties.class);
     Unmarshaller unmarshaller = ctx.createUnmarshaller();

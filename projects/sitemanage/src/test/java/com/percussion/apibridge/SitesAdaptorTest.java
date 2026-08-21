@@ -215,6 +215,109 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void updateVirtualSiteProperties_csvFilesystemRoundTripsOnGet() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("CsvHelp");
+    existing.setGUID(siteGuid);
+
+    PSSite modifiable = new PSSite();
+    modifiable.setName("CsvHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("CsvHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("csv-filesystem");
+    body.setRootPath("C:/csv-docs");
+    body.setSiteKey("csv-help");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("CsvHelp", body);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    assertEquals("csv-filesystem", out.getSourceKind());
+    assertEquals("C:/csv-docs", out.getRootPath());
+    assertEquals("csv-help", out.getSiteKey());
+
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
+    assertEquals(
+        "csv-filesystem",
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SOURCE_KIND)
+            .orElse(null));
+
+    when(siteManager.findSite("CsvHelp")).thenReturn(persisted);
+    VirtualSiteProperties loaded = adaptor.getVirtualSiteProperties("CsvHelp");
+    assertEquals("csv-filesystem", loaded.getSourceKind());
+    assertEquals("C:/csv-docs", loaded.getRootPath());
+    assertTrue(Boolean.TRUE.equals(loaded.getVirtual()));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_csvRejectsParentRootPath() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("CsvHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("CsvHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("CsvHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("csv-filesystem");
+    body.setRootPath("../outside");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("CsvHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_csvRejectsRemoteUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("CsvHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("CsvHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("CsvHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("csv-filesystem");
+    body.setRootPath("C:/csv-docs");
+    body.setRemoteUrl("https://git.example.com/org/docs.git");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("CsvHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void updateVirtualSiteProperties_rejectsUnknownSourceKind() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("Help");
@@ -541,6 +644,144 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_csvFilesystemWritesHtml() throws Exception {
+    Path siteRoot = createMinimalCsvTree(tempDir.resolve("csv-src"));
+    Path out = tempDir.resolve("csv-out");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("CsvHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("CSV Home"), body);
+    assertTrue(body.contains("Hello from CSV"), body);
+  }
+
+  @Test
+  void buildVirtualSite_csvFilesystemOptionalConfigYaml() throws Exception {
+    Path siteRoot = tempDir.resolve("csv-noconfig");
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.writeString(
+        siteRoot.resolve("8.2").resolve("pages.csv"),
+        "id,title,body,path,order\nhome,No Config,Body from CSV.,index.md,1\n",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("csv-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("CsvHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(Files.isRegularFile(out.resolve("8.2").resolve("index.html")));
+  }
+
+  @Test
+  void buildVirtualSite_csvFilesystemMissingColumn400() throws Exception {
+    Path siteRoot = tempDir.resolve("csv-missing-col");
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: CSV
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("8.2").resolve("pages.csv"),
+        "id,title\nx,Y\n",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("csv-missing-col-out");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("CsvHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("body"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_csvFilesystemUnsafePath400() throws Exception {
+    Path siteRoot = tempDir.resolve("csv-unsafe");
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.writeString(
+        siteRoot.resolve("8.2").resolve("pages.csv"),
+        "id,title,body,path\nesc,Esc,body,../outside.md\n",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("csv-unsafe-out");
+
+    PSSite site = new PSSite();
+    site.setName("CsvHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("CsvHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("CsvHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).toLowerCase().contains("path"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_unknownSourceKind400() {
+    Path siteRoot = tempDir.resolve("sql-root");
+    PSSite site = new PSSite();
+    site.setName("Help");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-api");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toString());
+    when(siteManager.findSite("Help")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("Help", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    String msg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(msg.contains("unsupported") || msg.contains("sql-api"), msg);
+  }
+
+  @Test
   void publishVirtualSite_rejectsRepositorySite() {
     PSSite site = new PSSite();
     site.setName("Corp");
@@ -849,6 +1090,34 @@ class SitesAdaptorTest {
 
         Welcome.
         """,
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  private static Path createMinimalCsvTree(Path siteRoot) throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: CSV Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("8.2").resolve("pages.csv"),
+        "id,title,body,path,order\ncsv-home,CSV Home,Hello from CSV.,index.md,1\n",
         StandardCharsets.UTF_8);
     return siteRoot;
   }

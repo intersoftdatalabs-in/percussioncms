@@ -145,6 +145,19 @@ describe("sitesApi virtual properties", () => {
         branch: "",
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "csv-filesystem",
+        rootPath: "C:/csv-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "csv-filesystem",
+        rootPath: "C:/csv-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {
@@ -223,7 +236,7 @@ describe("sitesApi virtual properties", () => {
     const out = await buildVirtualSite("Help Docs");
     expect(post).toHaveBeenCalledWith(
       expect.stringMatching(/\/sites\/Help%20Docs\/virtual\/build$/),
-      {},
+      { VirtualSiteBuildRequest: {} },
     );
     expect(out.pagesWritten).toBe(5);
     expect(out.outputPath).toContain("virtual-sites");
@@ -234,7 +247,7 @@ describe("sitesApi virtual properties", () => {
     await buildVirtualSite("Help", { outputRoot: "C:/custom/out" });
     expect(post).toHaveBeenCalledWith(
       expect.stringMatching(/\/sites\/Help\/virtual\/build$/),
-      { outputRoot: "C:/custom/out" },
+      { VirtualSiteBuildRequest: { outputRoot: "C:/custom/out" } },
     );
   });
 

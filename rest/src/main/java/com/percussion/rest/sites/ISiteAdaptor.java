@@ -84,8 +84,10 @@ public interface ISiteAdaptor {
 
   /**
    * Creates or updates Virtual Site properties for a site identified by name or GUID string.
-   * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list, required root path
-   * when virtual and remote is blank, optional remoteUrl/branch, safe path / config file name).
+   * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list {@code
+   * git-filesystem} / {@code csv-filesystem}, required root path when virtual and remote is blank,
+   * optional remoteUrl/branch for git-filesystem only, safe path / config file name). GET after PUT
+   * round-trips the stored {@code sourceKind}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null
@@ -95,13 +97,14 @@ public interface ISiteAdaptor {
   VirtualSiteProperties updateVirtualSiteProperties(String nameOrId, VirtualSiteProperties props);
 
   /**
-   * Builds a Virtual Site from configured {@code virtual.*} properties (Phase 1:
-   * {@code git-filesystem}).
+   * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem} or
+   * {@code csv-filesystem}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
-   * virtual.remoteUrl} into a contained work directory, runs {@code PSVirtualSiteBuildService} with
-   * portable NIO {@code Path} I/O, and returns pages-written plus link-problem summary. Requires
-   * Admin (or equivalent site-manage) authorization.
+   * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
+   * PSVirtualSiteBuildService.forSourceType} with portable NIO {@code Path} I/O, and returns
+   * pages-written plus link-problem summary. Unknown source kinds return 400. Requires Admin (or
+   * equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param request optional body (output root override); may be null

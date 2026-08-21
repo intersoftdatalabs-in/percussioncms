@@ -22,23 +22,24 @@ import type {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Repository / blank source kinds must not display build chrome.
+ * Git-filesystem and csv-filesystem Virtual Sites both run POST /virtual/build.
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
 ): boolean {
   const v = (sourceKind ?? "").trim().toLowerCase();
-  return v.length > 0 && v !== "repository";
+  return v === "git-filesystem" || v === "csv-filesystem";
 }
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Repository / blank source kinds must not display publish chrome.
+ * Publish remains git-filesystem only until the CSV publish slice.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  return shouldShowVirtualBuildChrome(sourceKind);
+  return (sourceKind ?? "").trim().toLowerCase() === "git-filesystem";
 }
 
 /**

@@ -13,21 +13,25 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome only for virtual source kinds", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem and csv-filesystem", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
     expect(shouldShowVirtualBuildChrome("Repository")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("sql-api")).toBe(false);
     expect(shouldShowVirtualBuildChrome("git-filesystem")).toBe(true);
     expect(shouldShowVirtualBuildChrome("  git-filesystem  ")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("csv-filesystem")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("CSV-Filesystem")).toBe(true);
   });
 
-  it("shouldShowVirtualPublishChrome only for virtual source kinds", () => {
+  it("shouldShowVirtualPublishChrome only for git-filesystem", () => {
     expect(shouldShowVirtualPublishChrome(null)).toBe(false);
     expect(shouldShowVirtualPublishChrome("")).toBe(false);
     expect(shouldShowVirtualPublishChrome("repository")).toBe(false);
     expect(shouldShowVirtualPublishChrome("Repository")).toBe(false);
     expect(shouldShowVirtualPublishChrome("git-filesystem")).toBe(true);
+    expect(shouldShowVirtualPublishChrome("csv-filesystem")).toBe(false);
   });
 
   it("formatVirtualSitePublishSummary reports files copied and dest path", () => {

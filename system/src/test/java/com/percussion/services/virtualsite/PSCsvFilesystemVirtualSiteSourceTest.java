@@ -306,6 +306,25 @@ class PSCsvFilesystemVirtualSiteSourceTest {
     assertTrue(body.contains("Hello from CSV"), body);
   }
 
+  @Test
+  void buildServiceOptionalConfigYamlEmitsHtml() throws Exception {
+    Path root = tempDir.resolve("build-csv-noconfig");
+    Files.createDirectories(root.resolve("8.2"));
+    Files.writeString(
+        root.resolve("8.2").resolve("pages.csv"),
+        "id,title,body,path\nhome,Bare CSV,Hello.,index.md\n",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("build-csv-noconfig-out");
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.CSV_FILESYSTEM);
+    PSVirtualSiteBuildResult result = service.build(root, out, "csv-docs");
+    assertEquals(1, result.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("Bare CSV"), body);
+  }
+
   private static Path writeSite(Path root) throws Exception {
     Files.createDirectories(root.resolve("8.2"));
     Files.createDirectories(root.resolve("_theme"));

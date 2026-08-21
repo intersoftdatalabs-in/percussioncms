@@ -750,7 +750,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
-    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git/filesystem). Blank/repository keeps traditional repository content.",
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem or CSV filesystem). Blank/repository keeps traditional repository content.",
   SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
   SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
   SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
@@ -768,6 +768,9 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_SITE_KEY: "perc.ui.developer@Site key",
   SITE_VIRT_KIND_REPOSITORY: "perc.ui.developer@Repository (traditional)",
   SITE_VIRT_KIND_GIT_FILESYSTEM: "perc.ui.developer@Git filesystem",
+  SITE_VIRT_KIND_CSV_FILESYSTEM: "perc.ui.developer@CSV filesystem",
+  SITE_VIRT_CSV_HINT:
+    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site. Publish remains Git filesystem.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

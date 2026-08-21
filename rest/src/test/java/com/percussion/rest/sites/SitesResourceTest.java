@@ -38,6 +38,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 @Tag("UnitTest")
 public class SitesResourceTest {
@@ -46,6 +47,8 @@ public class SitesResourceTest {
   private SitesResource resource;
   private Logger previousLog;
   private Logger mockLog;
+
+  @TempDir Path tempDir;
 
   @BeforeEach
   public void setUp() {
@@ -151,6 +154,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsCsvFilesystem() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("csv-filesystem");
+    v.setRootPath("C:/csv-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("CsvHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("CsvHelp");
+    assertEquals("csv-filesystem", out.getSourceKind());
+    assertEquals("C:/csv-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("CsvHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsCsvFilesystem() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("csv-filesystem");
+    body.setRootPath("C:/csv-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("csv-filesystem");
+    saved.setRootPath("C:/csv-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("CsvHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("CsvHelp", body);
+    assertEquals("csv-filesystem", out.getSourceKind());
+    assertEquals("C:/csv-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("CsvHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesNullBody400() {
     WebApplicationException ex =
         assertThrows(
@@ -175,6 +211,47 @@ public class SitesResourceTest {
     assertEquals(3, out.getPagesWritten().intValue());
     assertEquals("C:/tmp/out", out.getOutputPath());
     verify(adaptor).buildVirtualSite("Help", req);
+  }
+
+  @Test
+  public void buildVirtualSiteCsvFilesystemFixtureDelegates() throws Exception {
+    Path csvRoot = tempDir.resolve("csv-site");
+    Files.createDirectories(csvRoot.resolve("8.2"));
+    Files.writeString(
+        csvRoot.resolve("8.2").resolve("pages.csv"),
+        "id,title,body,path,order\ncsv-home,CSV Home,Hello from CSV.,index.md,1\n",
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("csv-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("CsvHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("CsvHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("CsvHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(csvRoot.resolve("8.2").resolve("pages.csv")));
+    verify(adaptor).buildVirtualSite("CsvHelp", req);
+  }
+
+  @Test
+  public void buildVirtualSiteUnknownKindPropagates400() {
+    when(adaptor.buildVirtualSite(eq("Help"), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Unsupported virtual.sourceKind", Response.Status.BAD_REQUEST));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.buildVirtualSite("Help", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor).buildVirtualSite("Help", null);
   }
 
   @Test
@@ -283,6 +360,9 @@ public class SitesResourceTest {
         text.contains(
             "return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]"),
         "buildVirtualSite return sink must carry same-line codeql[java/xss]");
+    assertTrue(
+        text.contains("csv-filesystem"),
+        "buildVirtualSite OpenAPI description must mention csv-filesystem");
     assertTrue(
         text.contains(
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),

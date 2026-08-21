@@ -11,8 +11,10 @@ tags: [developer, virtual-sites]
 
 **Virtual Sites** are Sites whose content originates outside the traditional Percussion content
 repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product documentation. A
-**CSV / filesystem** adapter (`csv-filesystem`) can discover the same assemble pipeline from
-CSV files (offline CLI; REST Build remains git-filesystem).
+**CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
+CSV files. Operators can run it offline (CLI) or from CMS REST
+`POST /sites/{nameOrId}/virtual/build`. Developer **Sites** shows **Build Virtual Site**
+for **CSV filesystem** as well as Git filesystem.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -90,7 +92,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST is still git-filesystem only; `csv-filesystem` is the offline SPI/CLI adapter. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs the matching adapter. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -134,10 +136,11 @@ Markdown links cannot be resolved.
 
 ### Offline build from CSV (`csv-filesystem`)
 
-The `csv-filesystem` adapter discovers pages from `*.csv` files under each version folder in
-`_config.yaml` (the same `_config.yaml` / `_theme` contract as git-filesystem). Git remains
-optional; operators can assemble a static site from a spreadsheet export without ingesting rows
-as CMS content items.
+The `csv-filesystem` adapter discovers pages from `*.csv` files under each version folder.
+`_config.yaml` is **optional** (when omitted, each immediate child folder other than `_theme` /
+`assets` is a version). `_theme` is optional (built-in layout). Do not require a Markdown docs
+tree — CSV `body` is the page source. Git remotes are not used (`virtual.remoteUrl` is rejected
+for this kind).
 
 Required CSV columns (header row, case-insensitive):
 
@@ -153,20 +156,23 @@ Missing required columns, blank `id`/`title`, duplicate ids, or an unsafe `path`
 (`VirtualSiteException`). Each discover/load re-reads the current CSV bytes (no process-lifetime
 parse cache).
 
-CLI (from a tree that already has `_config.yaml`):
+CLI (optional `_config.yaml`):
 
 ```text
 PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] csv-filesystem
 ```
 
-REST `PUT /sites/{nameOrId}/virtual` may store `sourceKind=csv-filesystem` (allow-listed), but
-**Build Virtual Site** (`POST …/virtual/build`) and the Developer Sites UI still run the
-git-filesystem adapter only. Use the offline CLI for CSV trees until the REST/UI slices land.
+REST `PUT /sites/{nameOrId}/virtual` may store `sourceKind=csv-filesystem` (allow-listed).
+Developer Sites can select **CSV filesystem** and save a root path. **Build Virtual Site**
+(`POST …/virtual/build`) discovers CSV rows under `virtual.rootPath` and writes HTML
+(`pagesWritten` in the JSON result). Developer **Sites** shows the same **Build Virtual Site**
+control for **CSV filesystem** (and Git filesystem). Unknown kinds remain **400**.
+Publish to the Site filesystem for CSV is a later slice.
 
 ## CMS-integrated build (REST and WebUI)
 
-When a CMS Site has Virtual properties configured, an **Admin** can trigger the same build path
-from the running server:
+When a CMS Site has Virtual properties configured (`git-filesystem` or `csv-filesystem`), an
+**Admin** can trigger the matching build path from the running server:
 
 ```http
 POST /sites/{nameOrId}/virtual/build
@@ -209,6 +215,11 @@ A bare `{ "sourceKind": "git-filesystem", … }` body is rejected (**400**, JAXB
 element `sourceKind`). GET returns the same envelope (or a plain object the SPA unwraps).
 After save, the Developer Sites panel GET-roundtrips so `virtual=true` and Build chrome appear
 without reloading the page.
+
+CSV trees use the same envelope with `"sourceKind": "csv-filesystem"` and a portable-safe
+`rootPath` (no remaining `..` after NIO normalize). `GET` after `PUT` returns `csv-filesystem`.
+`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` remains
+`git-filesystem` only.
 
 ### Git remote fetch before Build
 
@@ -289,7 +300,7 @@ silent no-op). See [Publishing](id:admin-publishing).
 
 - CMS UI editing of Virtual items as normal content types
 - Automatic migration of the full legacy help site
-- REST/UI Build for `csv-filesystem` (offline CLI only in this slice)
+- Publish assembled CSV output to the Site filesystem (`POST …/virtual/publish`)
 - SQL/API adapters
 - Fake classic content-list generators for virtual items
 
