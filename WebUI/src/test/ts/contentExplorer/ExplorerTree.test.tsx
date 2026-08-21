@@ -161,6 +161,9 @@ describe("ExplorerTree", () => {
       ).toBeInTheDocument(),
     );
     expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
+    ).toHaveAttribute("data-node-name", "Corporate_Investments");
   });
 
   it("loads children on first expand (lazy)", async () => {
@@ -178,7 +181,7 @@ describe("ExplorerTree", () => {
       }
       return pathItemListResponse([]);
     });
-    render(
+    const { container } = render(
       <ExplorerTree
         initialPath="/Sites"
         selectedPath={null}
@@ -191,16 +194,15 @@ describe("ExplorerTree", () => {
     expect(rootCalls).toBe(1);
     expect(childCalls).toBe(0);
     // Expand is on the toggle control (not the row select handler).
-    const node = screen.getByTestId("tree-node-/Sites/Foo");
-    const toggle = node.querySelector('[aria-hidden="true"]');
-    expect(toggle).toBeTruthy();
-    fireEvent.click(toggle!);
+    const toggle = screen.getByTestId("tree-toggle-/Sites/Foo");
+    fireEvent.click(toggle);
     await waitFor(() =>
       expect(
         screen.getByTestId("tree-node-/Sites/Foo/Bar"),
       ).toBeInTheDocument(),
     );
     expect(childCalls).toBe(1);
+    await renderA11yGate(container);
   });
 
   it("lists site children using folderPath not sitename (#3326)", async () => {

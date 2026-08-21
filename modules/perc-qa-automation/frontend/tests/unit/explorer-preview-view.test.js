@@ -31,6 +31,7 @@ const {
   foldSiteName,
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
+  treeNodeMatchesFoldedSite,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -316,6 +317,54 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
     assert.equal(
       detailRowMatchesFoldedSite(rowText, ["enterpriseinvestments"]),
+      false,
+    );
+  });
+
+  it("treeNodeMatchesFoldedSite matches finder path and GUID+name (#3684)", () => {
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/Corporate_Investments/",
+        "Corporate_Investments",
+        "Corporate_Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "Corporate_Investments",
+        "Corporate_Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "Corporate Investments",
+        "Corporate Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "",
+        "",
+        ["corporateinvestments"],
+      ),
+      false,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/Enterprise_Investments/",
+        "Enterprise_Investments",
+        "Enterprise_Investments",
+        ["corporateinvestments"],
+      ),
       false,
     );
   });
