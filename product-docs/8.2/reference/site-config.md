@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` | Adapter wire name. **Allow-list (Phase 1):** `git-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. `csv-filesystem` is the offline CSV source (required columns `id`, `title`, `body`); REST Build remains git-filesystem. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |

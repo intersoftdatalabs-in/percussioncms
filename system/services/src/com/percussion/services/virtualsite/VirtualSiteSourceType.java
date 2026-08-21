@@ -17,10 +17,13 @@
 package com.percussion.services.virtualsite;
 
 /**
- * Registered Virtual Site adapter kinds. Phase 1 implements {@link #GIT_FILESYSTEM} only.
+ * Registered Virtual Site adapter kinds. Phase 1 implements {@link #GIT_FILESYSTEM}; {@link
+ * #CSV_FILESYSTEM} is the next filesystem adapter (offline discover/load from CSV).
  */
 public enum VirtualSiteSourceType {
-  GIT_FILESYSTEM("git-filesystem");
+  GIT_FILESYSTEM("git-filesystem"),
+  /** Local CSV / directory of CSVs (stable {@code id} column; Markdown in {@code body}). */
+  CSV_FILESYSTEM("csv-filesystem");
 
   private final String wireName;
 

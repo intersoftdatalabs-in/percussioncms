@@ -21,7 +21,10 @@ import java.nio.file.Path;
 /**
  * CLI entry for offline Virtual Site builds.
  *
- * <p>Usage: {@code PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey]}
+ * <p>Usage: {@code PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] [sourceKind]}
+ *
+ * <p>{@code sourceKind} defaults to {@code git-filesystem}. Pass {@code csv-filesystem} for a
+ * CSV tree (see product-docs Virtual Sites).
  */
 public final class PSVirtualSiteBuildMain {
 
@@ -30,18 +33,30 @@ public final class PSVirtualSiteBuildMain {
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(
-          "Usage: PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey]");
+          "Usage: PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] [sourceKind]");
       System.exit(2);
     }
     Path siteRoot = Path.of(args[0]);
     Path outputRoot = Path.of(args[1]);
     String siteKey = args.length >= 3 ? args[2] : "product-docs";
+    VirtualSiteSourceType sourceType = VirtualSiteSourceType.GIT_FILESYSTEM;
+    if (args.length >= 4) {
+      sourceType = VirtualSiteSourceType.fromWireName(args[3]);
+      if (sourceType == null) {
+        System.err.println(
+            "Unknown sourceKind '"
+                + args[3]
+                + "'. Allowed: "
+                + String.join(", ", PSVirtualSiteHelper.allowedSourceKindWireNames()));
+        System.exit(2);
+      }
+    }
 
     Path participantDir = outputRoot.resolve("_meta");
     IPSVirtualParticipantService participants =
         new PSInMemoryVirtualParticipantService(participantDir);
     PSVirtualSiteBuildService service =
-        new PSVirtualSiteBuildService(new PSGitFilesystemVirtualSiteSource(), participants);
+        PSVirtualSiteBuildService.forSourceType(sourceType, participants);
 
     PSVirtualSiteBuildResult result = service.build(siteRoot, outputRoot, siteKey);
     System.out.println(

@@ -21,6 +21,7 @@ import java.util.List;
 
 /**
  * SPI for Virtual Site content sources. Phase 1: {@link PSGitFilesystemVirtualSiteSource}.
+ * CSV / flat-file adapter: {@link PSCsvFilesystemVirtualSiteSource} ({@code csv-filesystem}).
  * Future adapters (SQL, API, …) implement this interface.
  *
  * <p>Filesystem implementations must read <em>current</em> file contents on every {@link
