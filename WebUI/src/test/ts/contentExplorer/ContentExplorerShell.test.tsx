@@ -2557,7 +2557,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
-  it("selecting a site tree node lists Pages children (#3696)", async () => {
+  it.each([
+    ["mouse click", (el: Element) => fireEvent.click(el)],
+    ["keyboard Enter", (el: Element) => fireEvent.keyDown(el, { key: "Enter" })],
+  ])(
+    "selecting a site tree node lists Pages children via %s (#3696)",
+    async (_label, activate) => {
     const site = {
       id: "site-ci",
       name: "Corporate_Investments",
@@ -2652,7 +2657,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
         screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
       ).toBeInTheDocument();
     });
-    fireEvent.click(
+    activate(
       screen
         .getByTestId("tree-node-/Sites/Corporate_Investments/")
         .querySelector('[role="treeitem"]')!,
@@ -2669,7 +2674,8 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       "true",
     );
     await renderA11yGate(container);
-  });
+    },
+  );
 
   it("root initialPath does not call resolveFolderId (#3468)", async () => {
     stubPathFetch();

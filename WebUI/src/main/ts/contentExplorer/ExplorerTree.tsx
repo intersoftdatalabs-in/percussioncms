@@ -549,7 +549,13 @@ export function ExplorerTree({
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               onSelectFolder(path, folder);
-              if (folderish) toggle(path, folder);
+              // Site roots match label click: expand Pages without
+              // onActivate, which overwrites the shell Pages path (#3696).
+              if (folderish && isExplorerSiteRootItem(folder)) {
+                if (!isOpen) expandIfCollapsed(path, folder);
+              } else if (folderish) {
+                toggle(path, folder);
+              }
               return;
             }
             // ARIA tree keyboard navigation (WCAG 2.1):

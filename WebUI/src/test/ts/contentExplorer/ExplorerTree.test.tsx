@@ -15,7 +15,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ExplorerTree,
   collectChildrenEpochReloadPaths,
@@ -308,57 +308,68 @@ describe("ExplorerTree", () => {
     ).toBe(false);
   });
 
-  it("selecting a site node expands Pages without a second toggle (#3696)", async () => {
-    const SITE_CHILD: PSPathItem = {
-      id: "Corporate_Investments",
-      path: "/Sites/Corporate_Investments/",
-      folderPath: "//Sites/CorporateInvestments",
-      name: "Corporate_Investments",
-      type: "site",
-      leaf: false,
-      hasFolderChildren: true,
-    };
-    const PAGES: PSPathItem = {
-      id: "pages-1",
-      path: "/Sites/CorporateInvestments/Pages",
-      name: "Pages",
-      type: "folder",
-      hasFolderChildren: false,
-    };
-    mockFetch(async (input) => {
-      const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
-        return pathItemListResponse([SITE_CHILD]);
-      }
-      if (url.endsWith("/pathmanagement/path/folder/Sites/CorporateInvestments")) {
-        return pathItemListResponse([PAGES]);
-      }
-      return pathItemListResponse([]);
-    });
-    const { container } = render(
-      <ExplorerTree
-        initialPath="/Sites"
-        selectedPath={null}
-        onSelectFolder={() => undefined}
-      />,
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
-      ).toBeInTheDocument(),
-    );
-    fireEvent.click(
-      screen
+  it.each([
+    ["mouse click", (el: Element) => fireEvent.click(el)],
+    ["keyboard Enter", (el: Element) => fireEvent.keyDown(el, { key: "Enter" })],
+    ["keyboard Space", (el: Element) => fireEvent.keyDown(el, { key: " " })],
+  ])(
+    "selecting a site node expands Pages without onActivate (%s, #3696)",
+    async (_label, activate) => {
+      const SITE_CHILD: PSPathItem = {
+        id: "Corporate_Investments",
+        path: "/Sites/Corporate_Investments/",
+        folderPath: "//Sites/CorporateInvestments",
+        name: "Corporate_Investments",
+        type: "site",
+        leaf: false,
+        hasFolderChildren: true,
+      };
+      const PAGES: PSPathItem = {
+        id: "pages-1",
+        path: "/Sites/CorporateInvestments/Pages",
+        name: "Pages",
+        type: "folder",
+        hasFolderChildren: false,
+      };
+      mockFetch(async (input) => {
+        const url = typeof input === "string" ? input : (input as Request).url;
+        if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+          return pathItemListResponse([SITE_CHILD]);
+        }
+        if (
+          url.endsWith("/pathmanagement/path/folder/Sites/CorporateInvestments")
+        ) {
+          return pathItemListResponse([PAGES]);
+        }
+        return pathItemListResponse([]);
+      });
+      const onActivate = vi.fn();
+      const { container } = render(
+        <ExplorerTree
+          initialPath="/Sites"
+          selectedPath={null}
+          onSelectFolder={() => undefined}
+          onActivate={onActivate}
+        />,
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
+        ).toBeInTheDocument(),
+      );
+      const treeitem = screen
         .getByTestId("tree-node-/Sites/Corporate_Investments/")
-        .querySelector('[role="treeitem"]')!,
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
-      ).toBeInTheDocument(),
-    );
-    await renderA11yGate(container);
-  });
+        .querySelector('[role="treeitem"]')!;
+      activate(treeitem);
+      await waitFor(() =>
+        expect(
+          screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
+        ).toBeInTheDocument(),
+      );
+      expect(onActivate).not.toHaveBeenCalled();
+      await renderA11yGate(container);
+    },
+  );
 
   it("fires onSelectFolder when a row is activated", async () => {
     mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
