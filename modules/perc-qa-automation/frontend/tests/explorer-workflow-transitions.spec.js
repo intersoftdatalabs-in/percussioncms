@@ -15,8 +15,8 @@
  */
 
 /**
- * Playwright surface: #3639 / parent #3102 / #2732 — Explorer Workflow
- * transition no-skip on H2.
+ * Playwright surface: #3668 / #3639 / parent #2732 / #2400 — Explorer
+ * Workflow transition perform HTTP 200 on H2.
  *
  * <p>Selecting a content row on {@code spa.jsp?entry=explorer} must show
  * {@code action-toolbar-group-workflow} and an invokable
@@ -44,7 +44,7 @@ const {
   shouldSkipWorkflowTransitionProof,
   noEligibleItemSkipMessage,
   h2MissingEligibleMessage,
-  isHonestTransitionStatus,
+  isSuccessfulTransitionStatus,
   isWorkflowTransitionInvokeUrl,
   JSON_ACCEPT_HEADERS,
 } = require("./helpers/explorer-workflow-transitions");
@@ -305,17 +305,19 @@ function attachConsoleGuard(page, bucket, transitionStatuses) {
     if (msg.type() !== "error") return;
     const text = msg.text();
     if (
-      /Failed to load resource: the server responded with a status of (404|400)/i.test(
+      /Failed to load resource: the server responded with a status of (404|400|500)/i.test(
         text,
       )
     ) {
+      // Chrome resource-status noise. Transition HTTP is asserted via
+      // {@code transitionStatuses} (must be 200 — #3668).
       return;
     }
     bucket.push(text);
   });
 }
 
-test.describe("modern React Content Explorer - workflow transitions (#3639 / #2732)", () => {
+test.describe("modern React Content Explorer - workflow transitions (#3668 / #3639 / #2732)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
     await loginAsAdmin(page);
@@ -424,9 +426,14 @@ test.describe("modern React Content Explorer - workflow transitions (#3639 / #27
         "content item row must show action-toolbar-group-workflow (#3639)",
       ).toBeVisible({ timeout: 15_000 });
 
-      const transitionBtn = page
-        .locator(`[data-testid^="${TEST_IDS.workflowTransitionPrefix}"]`)
-        .first();
+      const expireBtn = page.locator(
+        `[data-testid="${TEST_IDS.workflowTransitionPrefix}Expire"]`,
+      );
+      const anyTransition = page.locator(
+        `[data-testid^="${TEST_IDS.workflowTransitionPrefix}"]`,
+      );
+      const transitionBtn =
+        (await expireBtn.count()) > 0 ? expireBtn.first() : anyTransition.first();
       await expect(
         transitionBtn,
         "Workflow group must include a workflow-transition:* control",
@@ -442,14 +449,12 @@ test.describe("modern React Content Explorer - workflow transitions (#3639 / #27
         .toBeGreaterThan(0);
       const status = transitionStatuses[transitionStatuses.length - 1];
       expect(
-        isHonestTransitionStatus(status),
-        `workflow transition HTTP ${status} (expect 200, 4xx, or workflow 500 with error chrome)`,
+        isSuccessfulTransitionStatus(status),
+        `listed workflow transition HTTP ${status} (expect 200; 500 Expire is #3668)`,
       ).toBe(true);
-      if (status !== 200) {
-        await expect(
-          page.locator('[data-testid="explorer-server-actions-error"]'),
-        ).toBeVisible({ timeout: 10_000 });
-      }
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
 
       if ((await folderRows.count()) > 0) {
         await folderRows.first().click({ force: true });
@@ -476,20 +481,9 @@ test.describe("modern React Content Explorer - workflow transitions (#3639 / #27
         }
       }
 
-      const unexpected = pageErrors.filter((text) => {
-        if (
-          /Failed to load resource: the server responded with a status of 500/i.test(
-            text,
-          ) &&
-          transitionStatuses.includes(500)
-        ) {
-          return false;
-        }
-        return true;
-      });
       expect(
-        unexpected,
-        `JS page/console errors: ${unexpected.join(" | ")}`,
+        pageErrors,
+        `JS page/console errors: ${pageErrors.join(" | ")}`,
       ).toEqual([]);
     },
   );

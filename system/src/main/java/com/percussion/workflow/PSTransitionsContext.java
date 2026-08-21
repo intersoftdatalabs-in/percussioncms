@@ -215,6 +215,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param transitionId the transition id; must be {@code > 0}.
    * @return the populated context, never {@code null}; may have count 0 if no transition matches.
+   *     When a row is found the cursor is already on that row (JDBC constructor parity).
    */
   public static PSTransitionsContext loadFromHibernate(int workflowId, int transitionId) {
     if (workflowId <= 0) {
@@ -250,6 +251,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
    * @param trigger the action trigger name; must not be {@code null} or empty.
    * @param fromStateId the source state id; must be {@code > 0}.
    * @return the populated context, never {@code null}; may have count 0 if no transition matches.
+   *     When a row is found the cursor is already on that row (JDBC constructor parity).
    */
   public static PSTransitionsContext loadFromHibernate(
       int workflowId, String trigger, int fromStateId) {
@@ -289,7 +291,8 @@ public class PSTransitionsContext implements IPSTransitionsContext {
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param fromStateId the source state id; must be {@code > 0}.
    * @return the populated context, never {@code null}; may be empty if no transitions are
-   *     configured for the state. Move the cursor with {@link #moveNext()} to inspect each row.
+   *     configured for the state. The cursor is already on the first row when the list is
+   *     non-empty (same as the JDBC constructor). Call {@link #moveNext()} to advance.
    */
   public static PSTransitionsContext loadAllFromHibernate(int workflowId, int fromStateId) {
     if (workflowId <= 0) {
@@ -316,19 +319,26 @@ public class PSTransitionsContext implements IPSTransitionsContext {
 
   /**
    * Populates the in-memory state from a list of {@link PSTransition} ({@code TRANSITIONS}) rows.
-   * Mirrors the cursor accumulated in the raw-JDBC constructors so consumers iterating via {@link
-   * #moveNext()} see the same {@code transitionId / label / trigger / toState / approvals /
-   * comments / roles / actions} sequence. Added for #1561 Phase 4d-1a.
+   * Mirrors the raw-JDBC constructors, which call {@link #moveNext()} before returning so getters
+   * ({@link #getTransitionFromStateID()}, {@link #getTransitionActionTrigger()}) already reflect
+   * the first row. {@code PSExitPerformTransition} reads those getters without a further {@code
+   * moveNext()} — leaving the cursor at {@code -1} made from-state {@code 0} and every user trigger
+   * (including Explorer Expire) fail with {@code INVALID_TRANSITION} (#3668).
    *
    * @param workflowId the workflow id.
    * @param rows the Hibernate rows; may be empty but never {@code null}.
    */
   void populateFromHibernate(int workflowId, java.util.List<PSTransition> rows) {
     this.workflowID = workflowId;
-    this.m_hRows = rows;
-    this.m_nCount = rows.size();
-    this.m_hCursorIndex = -1;
-    // moveNext() will populate the row fields on first call.
+    java.util.List<PSTransition> list = rows == null ? java.util.List.of() : rows;
+    this.m_hRows = list;
+    this.m_nCount = list.size();
+    if (list.isEmpty()) {
+      this.m_hCursorIndex = -1;
+      return;
+    }
+    this.m_hCursorIndex = 0;
+    populateRowFromHibernate(list.get(0));
   }
 
   /**
