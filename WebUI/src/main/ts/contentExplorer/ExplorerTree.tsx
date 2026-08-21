@@ -29,7 +29,11 @@ import type { PSPathItem } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
 import { isSafeExplorerTreeChild } from "./folderPath";
-import { explorerSiteDisplayName, resolveExplorerListPath } from "./sitePath";
+import {
+  explorerSiteDisplayName,
+  isExplorerSiteRootItem,
+  resolveExplorerListPath,
+} from "./sitePath";
 import { isFolder } from "./selection";
 import {
   emptyStateStyle,
@@ -477,6 +481,28 @@ export function ExplorerTree({
     [ensureLoaded, nodes, onActivate],
   );
 
+  /**
+   * Open a collapsed node without toggling closed and without listing the
+   * site root. Site label click drills Pages in the shell; expanding here
+   * only reveals the Pages tree child so it can highlight (#3696).
+   */
+  const expandIfCollapsed = useCallback(
+    (path: string, folder: PSPathItem) => {
+      const key = normalizeExplorerTreePathKey(path);
+      setExpanded((prev) => {
+        if (prev[key] ?? prev[path] ?? false) {
+          return prev;
+        }
+        return { ...prev, [key]: true };
+      });
+      const node = nodes[key] ?? nodes[lookupNodeKey(nodes, path) ?? ""];
+      if (!node?.loaded) {
+        void ensureLoaded(key, folder);
+      }
+    },
+    [ensureLoaded, nodes],
+  );
+
   const renderNode = (
     folder: PSPathItem,
     depth: number,
@@ -513,7 +539,12 @@ export function ExplorerTree({
           aria-selected={selected}
           tabIndex={0}
           style={nodeRowStyle(selected, depth)}
-          onClick={() => onSelectFolder(path, folder)}
+          onClick={() => {
+            onSelectFolder(path, folder);
+            if (folderish && isExplorerSiteRootItem(folder) && !isOpen) {
+              expandIfCollapsed(path, folder);
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();

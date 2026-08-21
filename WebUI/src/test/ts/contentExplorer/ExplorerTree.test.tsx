@@ -308,6 +308,58 @@ describe("ExplorerTree", () => {
     ).toBe(false);
   });
 
+  it("selecting a site node expands Pages without a second toggle (#3696)", async () => {
+    const SITE_CHILD: PSPathItem = {
+      id: "Corporate_Investments",
+      path: "/Sites/Corporate_Investments/",
+      folderPath: "//Sites/CorporateInvestments",
+      name: "Corporate_Investments",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+    };
+    const PAGES: PSPathItem = {
+      id: "pages-1",
+      path: "/Sites/CorporateInvestments/Pages",
+      name: "Pages",
+      type: "folder",
+      hasFolderChildren: false,
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        return pathItemListResponse([SITE_CHILD]);
+      }
+      if (url.endsWith("/pathmanagement/path/folder/Sites/CorporateInvestments")) {
+        return pathItemListResponse([PAGES]);
+      }
+      return pathItemListResponse([]);
+    });
+    const { container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath={null}
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/Corporate_Investments/"),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.click(
+      screen
+        .getByTestId("tree-node-/Sites/Corporate_Investments/")
+        .querySelector('[role="treeitem"]')!,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/CorporateInvestments/Pages"),
+      ).toBeInTheDocument(),
+    );
+    await renderA11yGate(container);
+  });
+
   it("fires onSelectFolder when a row is activated", async () => {
     mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     let selected: string | null = null;

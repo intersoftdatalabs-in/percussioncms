@@ -452,4 +452,14 @@ describe("explorer-preview-view helpers (#2733)", () => {
       /if\s*\(\s*!listed\s*\)\s*\{\s*test\.skip/,
     );
   });
+
+  it("preview spec opens REST-listed site via tree-node then Pages (#3696)", () => {
+    const specPath = path.join(__dirname, "..", "explorer-preview-view.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /treeNodeMatchesFoldedSite/);
+    assert.match(src, /isExplorerSiteRootTestId/);
+    assert.match(src, /expandSitesTreeNode/);
+    assert.match(src, /data-item-name/);
+    assert.match(src, /errors\.TimeoutError/);
+  });
 });

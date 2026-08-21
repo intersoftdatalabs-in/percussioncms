@@ -16,9 +16,11 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  appendExplorerPagesSegment,
   explorerSiteDisplayName,
   isExplorerSiteRootItem,
   resolveExplorerListPath,
+  resolveExplorerSiteBrowsePath,
   resolveSiteNameFromExplorerPath,
   resolveSiteNameFromSelection,
 } from "../../../main/ts/contentExplorer/sitePath";
@@ -153,5 +155,54 @@ describe("resolveExplorerListPath (#3326)", () => {
       "/Sites/Fallback",
     );
     expect(resolveExplorerListPath(null, null)).toBeNull();
+  });
+});
+
+describe("resolveExplorerSiteBrowsePath (#3696)", () => {
+  it("appends Pages to a site-root folderPath", () => {
+    expect(
+      resolveExplorerSiteBrowsePath({
+        path: "/Sites/Corporate_Investments/",
+        folderPath: "//Sites/CorporateInvestments",
+        type: "site",
+      }),
+    ).toBe("/Sites/CorporateInvestments/Pages");
+  });
+
+  it("appends Pages to a GUID site path", () => {
+    expect(
+      resolveExplorerSiteBrowsePath({
+        path: "/Sites/16777215-101-703/",
+        type: "site",
+      }),
+    ).toBe("/Sites/16777215-101-703/Pages");
+  });
+
+  it("is idempotent when the path is already Pages", () => {
+    expect(
+      appendExplorerPagesSegment("/Sites/CorporateInvestments/Pages/"),
+    ).toBe("/Sites/CorporateInvestments/Pages");
+    expect(
+      resolveExplorerSiteBrowsePath({
+        path: "/Sites/Corporate_Investments/Pages/",
+        folderPath: "//Sites/CorporateInvestments/Pages",
+        type: "Folder",
+      }),
+    ).toBe("/Sites/CorporateInvestments/Pages");
+  });
+
+  it("does not rewrite nested folders or the Sites root", () => {
+    expect(
+      resolveExplorerSiteBrowsePath({
+        path: "/Sites/Corporate_Investments/AboutCorporateInvestments/",
+        type: "Folder",
+      }),
+    ).toBe("/Sites/Corporate_Investments/AboutCorporateInvestments/");
+    expect(
+      resolveExplorerSiteBrowsePath({ path: "/Sites/", type: "Folder" }),
+    ).toBe("/Sites/");
+    expect(
+      resolveExplorerSiteBrowsePath({ path: "/Assets/", type: "Folder" }),
+    ).toBe("/Assets/");
   });
 });
