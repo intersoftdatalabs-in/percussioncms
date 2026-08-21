@@ -15,7 +15,7 @@
  */
 
 /**
- * Unit tests for Explorer workflow-transition helpers (#3639) — no live CMS.
+ * Unit tests for Explorer workflow-transition helpers (#3668 / #3639) — no live CMS.
  *
  * Run from modules/perc-qa-automation/frontend:
  *   npm run test:unit
@@ -38,11 +38,12 @@ const {
   isWorkflowEligibleRow,
   isH2Qa,
   shouldSkipWorkflowTransitionProof,
+  isSuccessfulTransitionStatus,
   isHonestTransitionStatus,
   isWorkflowTransitionInvokeUrl,
 } = require("../helpers/explorer-workflow-transitions");
 
-describe("explorer-workflow-transitions helpers (#3639)", () => {
+describe("explorer-workflow-transitions helpers (#3668 / #3639)", () => {
   it("exports stable product test ids", () => {
     assert.equal(TEST_IDS.shell, "content-explorer-shell");
     assert.equal(TEST_IDS.workflowGroup, "action-toolbar-group-workflow");
@@ -171,14 +172,16 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
     assert.equal(isH2Qa("postgresql"), false);
   });
 
-  it("treats 200, 4xx, and workflow 500 as honest transition statuses", () => {
+  it("requires HTTP 200 for a listed workflow transition (#3668)", () => {
+    assert.equal(isSuccessfulTransitionStatus(200), true);
     assert.equal(isHonestTransitionStatus(200), true);
-    assert.equal(isHonestTransitionStatus(400), true);
-    assert.equal(isHonestTransitionStatus(403), true);
-    assert.equal(isHonestTransitionStatus(409), true);
-    assert.equal(isHonestTransitionStatus(500), true);
-    assert.equal(isHonestTransitionStatus(502), false);
-    assert.equal(isHonestTransitionStatus(0), false);
+    assert.equal(isSuccessfulTransitionStatus(400), false);
+    assert.equal(isSuccessfulTransitionStatus(403), false);
+    assert.equal(isSuccessfulTransitionStatus(409), false);
+    assert.equal(isSuccessfulTransitionStatus(500), false);
+    assert.equal(isHonestTransitionStatus(500), false);
+    assert.equal(isSuccessfulTransitionStatus(502), false);
+    assert.equal(isSuccessfulTransitionStatus(0), false);
     assert.equal(
       isWorkflowTransitionInvokeUrl(
         "http://127.0.0.1:9992/Rhythmyx/services/itemmanagement/workflow/transitionWithComments/1/Expire",

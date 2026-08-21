@@ -15,7 +15,7 @@
  */
 
 /**
- * Explorer Workflow transition no-skip helpers (#3639 / parent #3102 / #2732).
+ * Explorer Workflow transition helpers (#3668 / #3639 / parent #2732 / #2400).
  *
  * <p>Pure helpers for surface-filtered Playwright: Jackson unwrap of
  * {@code GET .../itemmanagement/workflow/getTransitions/{id}}, skip policy
@@ -39,8 +39,10 @@ const TEST_IDS = Object.freeze({
 
 const PRODUCT_ISSUES = Object.freeze({
   parent: 3102,
-  slice: 3639,
+  slice: 3668,
+  unwrap: 3639,
   workflowChrome: 2732,
+  qaFailed: 2743,
   repo: "https://github.com/intersoftdatalabs-in/percussioncms/issues",
 });
 
@@ -322,21 +324,24 @@ function h2MissingEligibleMessage() {
 }
 
 /**
- * Honest transition invoke: HTTP 200, 4xx, or workflow-engine 500 that the
- * Explorer surfaces as {@code explorer-server-actions-error} (invalid
- * transition / checkout). Other 5xx remain product failures.
+ * Listed Explorer workflow triggers must perform with HTTP 200 (#3668).
+ * A 500 {@code Failed to perform a transition} is a product defect (Hibernate
+ * cursor / invalid from-state), not an honest reject.
+ * @param {number} status
+ * @returns {boolean}
+ */
+function isSuccessfulTransitionStatus(status) {
+  return Number(status) === 200;
+}
+
+/**
+ * @deprecated Use {@link isSuccessfulTransitionStatus}. Kept as an alias so
+ * older callers fail closed on 500.
  * @param {number} status
  * @returns {boolean}
  */
 function isHonestTransitionStatus(status) {
-  const n = Number(status);
-  if (!Number.isFinite(n)) {
-    return false;
-  }
-  if (n === 200 || n === 500) {
-    return true;
-  }
-  return n >= 400 && n < 500;
+  return isSuccessfulTransitionStatus(status);
 }
 
 /**
@@ -369,6 +374,7 @@ module.exports = {
   shouldSkipWorkflowTransitionProof,
   noEligibleItemSkipMessage,
   h2MissingEligibleMessage,
+  isSuccessfulTransitionStatus,
   isHonestTransitionStatus,
   isWorkflowTransitionInvokeUrl,
 };

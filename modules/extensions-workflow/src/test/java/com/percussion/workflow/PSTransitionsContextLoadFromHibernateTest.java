@@ -16,6 +16,7 @@
 package com.percussion.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -124,13 +125,13 @@ public class PSTransitionsContextLoadFromHibernateTest {
 
     assertNotNull(ctx);
     assertEquals(1, ctx.getTransitionCount());
-    // First moveNext() reads the pre-loaded first row.
-    assertTrue(invokeMoveNext(ctx));
+    // JDBC constructor parity (#3668): first row is already positioned.
     assertEquals(101, ctx.getTransitionID());
     assertEquals("Approve", ctx.getTransitionLabel());
     assertEquals(11, ctx.getTransitionFromStateID());
     assertEquals(13, ctx.getTransitionToStateID());
     assertEquals("approve", ctx.getTransitionActionTrigger());
+    assertFalse(invokeMoveNext(ctx));
   }
 
   // --- loadFromHibernate(int, int) -----------------------------------------
