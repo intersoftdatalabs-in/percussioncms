@@ -25,6 +25,8 @@
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   TEST_IDS,
   JSON_ACCEPT_HEADERS,
@@ -191,5 +193,21 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
       ),
       false,
     );
+  });
+
+  it("workflow spec opens REST-listed site via tree-node name or testid (#3684)", () => {
+    const specPath = path.join(
+      __dirname,
+      "..",
+      "explorer-workflow-transitions.spec.js",
+    );
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /treeNodeMatchesFoldedSite/);
+    assert.match(src, /data-node-name/);
+    assert.match(
+      src,
+      /\[data-testid\^="tree-node-\/Sites\/"\]:not\(\[data-testid="tree-node-\/Sites\/"\]\)/,
+    );
+    assert.match(src, /aria-hidden="true"/);
   });
 });

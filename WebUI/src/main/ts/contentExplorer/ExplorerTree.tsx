@@ -496,8 +496,13 @@ export function ExplorerTree({
         selectedNorm === normalizeExplorerTreePathKey(listPath));
     const folderish = isFolder(folder);
 
+    // data-node-name is the finder SITENAME; path may be a GUID (#3684 / #3001).
     return (
-      <div key={pathKey} data-testid={`tree-node-${path}`}>
+      <div
+        key={pathKey}
+        data-testid={`tree-node-${path}`}
+        data-node-name={folder.name || ""}
+      >
         <div
           role="treeitem"
           aria-expanded={folderish ? isOpen : undefined}

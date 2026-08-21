@@ -377,6 +377,24 @@ function detailRowMatchesFoldedSite(rowText, wantedFolded) {
   return wanted.some((n) => folded.includes(n));
 }
 
+/**
+ * Match a Sites tree node to REST-listed site names. Finder path testids
+ * ({@code tree-node-/Sites/Corporate_Investments/}) and GUID path + visible
+ * name ({@code tree-node-/Sites/16777215-101-703/} + Corporate_Investments
+ * / {@code data-node-name}) both match (#3684 / #3001).
+ * @param {string} testid
+ * @param {string} innerText
+ * @param {string} [nodeName]
+ * @param {Iterable<string>} wantedFolded
+ * @returns {boolean}
+ */
+function treeNodeMatchesFoldedSite(testid, innerText, nodeName, wantedFolded) {
+  const wanted = [...(wantedFolded || [])].filter(Boolean);
+  if (wanted.length === 0) return true;
+  const haystacks = [testid, innerText, nodeName].map((s) => foldSiteName(s));
+  return wanted.some((n) => haystacks.some((h) => h.includes(n)));
+}
+
 module.exports = {
   TEST_IDS,
   explorerEntryUrl,
@@ -397,4 +415,5 @@ module.exports = {
   foldSiteName,
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
+  treeNodeMatchesFoldedSite,
 };

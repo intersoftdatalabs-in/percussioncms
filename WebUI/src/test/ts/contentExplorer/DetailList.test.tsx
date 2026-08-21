@@ -694,6 +694,10 @@ describe("DetailList folder row chrome (#3328)", () => {
       "data-row-kind",
       "folder",
     );
+    expect(screen.getByTestId("detail-row-sys-1")).toHaveAttribute(
+      "data-item-name",
+      "$System$",
+    );
 
     const userIcon = screen.getByTestId("detail-folder-icon-uf-1");
     expect(userIcon).toHaveAttribute("data-kind", "folder");
@@ -845,6 +849,35 @@ describe("T092b / FR-027: display-format column resolution", () => {
     const minimal: PSPathItem = { id: "x", name: "X", path: "/x" };
     expect(renderDisplayFormatCell("title", minimal)).toBe("X"); // falls back to name
     expect(renderDisplayFormatCell("modified", minimal)).toBe("");
+  });
+
+  it("site folder rows expose finder name, not GUID path (#3684)", async () => {
+    const site: PSPathItem = {
+      id: "16777215-101-703",
+      path: "/Sites/16777215-101-703/",
+      name: "Corporate_Investments",
+      type: "site",
+      leaf: false,
+      hasFolderChildren: true,
+      displayProperties: { sys_title: "16777215-101-703" },
+    };
+    expect(renderDisplayFormatCell("name", site)).toBe("Corporate_Investments");
+    mockFolderPage([site]);
+    render(
+      <DetailList
+        folderPath="/Sites"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        onActivateItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-row-16777215-101-703")).toBeInTheDocument(),
+    );
+    const row = screen.getByTestId("detail-row-16777215-101-703");
+    expect(row).toHaveAttribute("data-row-kind", "folder");
+    expect(row).toHaveAttribute("data-item-name", "Corporate_Investments");
+    expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
   });
 
   it("columnHeaderLabel returns translated headers", () => {

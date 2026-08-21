@@ -143,13 +143,16 @@ export function renderDisplayFormatCell(
   };
 
   switch (column) {
-    case "name":
-      return (
-        fromProps(["sys_title", "name", "Name"]) ||
-        item.name ||
-        item.path ||
-        ""
-      );
+    case "name": {
+      const fromSys = fromProps(["sys_title", "name", "Name"]);
+      const type = (item.type ?? "").trim().toLowerCase();
+      // Site rows must expose finder SITENAME (Corporate_Investments), not
+      // a GUID path from PSSitePathItemService.convert (#3684 / #3001).
+      if (type === "site") {
+        return item.name || fromSys || item.path || "";
+      }
+      return fromSys || item.name || item.path || "";
+    }
     case "type":
       return (
         fromProps(["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
@@ -535,6 +538,7 @@ export function DetailList({
                 key={idKey}
                 data-testid={`detail-row-${idKey}`}
                 data-row-kind={folderish ? "folder" : "item"}
+                data-item-name={item.name || ""}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
                 data-selected={selected ? "true" : undefined}

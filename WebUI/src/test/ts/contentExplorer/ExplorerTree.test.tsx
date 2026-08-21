@@ -161,6 +161,9 @@ describe("ExplorerTree", () => {
       ).toBeInTheDocument(),
     );
     expect(screen.getByText("Corporate_Investments")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("tree-node-/Sites/16777215-101-703/"),
+    ).toHaveAttribute("data-node-name", "Corporate_Investments");
   });
 
   it("loads children on first expand (lazy)", async () => {
