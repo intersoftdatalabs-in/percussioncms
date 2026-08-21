@@ -79,6 +79,10 @@ public interface IPSIdMapper {
   /**
    * Gets the content ID from the string representation of an item GUID.
    *
+   * <p>Accepts the same forms as {@link #getGuid(String)}, including a
+   * <strong>bare numeric content id</strong> (for example {@code 594}), because
+   * this method routes through {@link #getGuid(String)}.
+   *
    * @param guid the string representation of an item GUID, not blank
    * @return the content ID
    */
@@ -86,6 +90,10 @@ public interface IPSIdMapper {
 
   /**
    * Converts string to {@link IPSGuid} for an item ID.
+   *
+   * <p>Accepts the same forms as {@link #getGuid(String)}, including a
+   * <strong>bare numeric content id</strong> (for example {@code 594}), because
+   * this method routes through {@link #getGuid(String)}.
    *
    * @param id the item ID, never blank
    * @return the item GUID with "correct" version number, never {@code null}

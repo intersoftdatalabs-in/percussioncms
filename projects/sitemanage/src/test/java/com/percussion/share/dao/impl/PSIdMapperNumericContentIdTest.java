@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import java.util.List;
@@ -128,6 +129,14 @@ class PSIdMapperNumericContentIdTest {
     when(contentDesignWs.getItemGuid(contentGuid)).thenReturn(itemGuid);
 
     assertSame(itemGuid, mapper.getItemGuid("594"));
+  }
+
+  @Test
+  void getContentIdUsesLegacyContentForBareNumeric() {
+    var legacy = new PSLegacyGuid((int) FASTFORWARD_CONTENT_ID, -1);
+    when(guidMgr.makeGuid(FASTFORWARD_CONTENT_ID, PSTypeEnum.LEGACY_CONTENT)).thenReturn(legacy);
+
+    assertEquals((int) FASTFORWARD_CONTENT_ID, mapper.getContentId("594"));
   }
 
   @Test
