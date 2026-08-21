@@ -163,6 +163,11 @@ A flat `{ "sourceKind": "git-filesystem", … }` body is **400** (`unexpected el
 GET uses the same envelope. The Developer Sites **Save Virtual Site source** action sends this
 wrap and then GET-roundtrips so Build chrome appears without a full reload.
 
+`csv-filesystem` uses the same wrap (`"sourceKind": "csv-filesystem"`). PUT with a safe
+`rootPath` succeeds and GET returns that kind. Paths with remaining `..` after NIO
+normalize, unknown kinds, and `remoteUrl` on CSV are **400**. In-product
+`POST …/virtual/build` is still `git-filesystem` only.
+
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required local root path when virtual and
 remote is blank, safe remote URL/branch, portable path safety).

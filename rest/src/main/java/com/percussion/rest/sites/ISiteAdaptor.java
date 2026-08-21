@@ -84,8 +84,10 @@ public interface ISiteAdaptor {
 
   /**
    * Creates or updates Virtual Site properties for a site identified by name or GUID string.
-   * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list, required root path
-   * when virtual and remote is blank, optional remoteUrl/branch, safe path / config file name).
+   * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list {@code
+   * git-filesystem} / {@code csv-filesystem}, required root path when virtual and remote is blank,
+   * optional remoteUrl/branch for git-filesystem only, safe path / config file name). GET after PUT
+   * round-trips the stored {@code sourceKind}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null

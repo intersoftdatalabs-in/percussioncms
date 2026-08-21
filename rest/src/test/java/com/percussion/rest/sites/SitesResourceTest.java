@@ -151,6 +151,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsCsvFilesystem() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("csv-filesystem");
+    v.setRootPath("C:/csv-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("CsvHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("CsvHelp");
+    assertEquals("csv-filesystem", out.getSourceKind());
+    assertEquals("C:/csv-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("CsvHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsCsvFilesystem() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("csv-filesystem");
+    body.setRootPath("C:/csv-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("csv-filesystem");
+    saved.setRootPath("C:/csv-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("CsvHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("CsvHelp", body);
+    assertEquals("csv-filesystem", out.getSourceKind());
+    assertEquals("C:/csv-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("CsvHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesNullBody400() {
     WebApplicationException ex =
         assertThrows(

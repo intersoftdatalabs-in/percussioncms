@@ -36,9 +36,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * </ul>
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a traditional repository
- * Site. Phase 1 virtual adapter: {@code git-filesystem}. Optional {@code remoteUrl} + {@code branch}
- * fetch/clone into a contained work directory before discover; blank remote keeps local {@code
- * rootPath}.
+ * Site. Allow-listed virtual adapters: {@code git-filesystem}, {@code csv-filesystem}. Optional
+ * {@code remoteUrl} + {@code branch} apply to {@code git-filesystem} only (fetch/clone into a
+ * contained work directory before discover); blank remote keeps local {@code rootPath}.
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},
@@ -58,7 +58,8 @@ public class VirtualSiteProperties {
 
   @Schema(
       description =
-          "Adapter wire name. Phase 1: git-filesystem. Blank or repository = traditional Site.",
+          "Adapter wire name. Allow-list: git-filesystem, csv-filesystem. Blank or repository ="
+              + " traditional Site.",
       example = "git-filesystem")
   private String sourceKind;
 

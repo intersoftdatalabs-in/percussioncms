@@ -210,6 +210,11 @@ element `sourceKind`). GET returns the same envelope (or a plain object the SPA 
 After save, the Developer Sites panel GET-roundtrips so `virtual=true` and Build chrome appear
 without reloading the page.
 
+CSV trees use the same envelope with `"sourceKind": "csv-filesystem"` and a portable-safe
+`rootPath` (no remaining `..` after NIO normalize). `GET` after `PUT` returns `csv-filesystem`.
+`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` remains
+`git-filesystem` only.
+
 ### Git remote fetch before Build
 
 Operators can point a Virtual Site at a **remote Git URL + branch** instead of (or in addition to)
