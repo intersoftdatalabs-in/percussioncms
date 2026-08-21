@@ -55,6 +55,10 @@ public class PSIdMapper implements IPSIdMapper {
   public IPSGuid getGuid(String id) {
     notNull(id);
     notEmpty(id);
+    Long contentId = parseBareNumericContentId(id);
+    if (contentId != null) {
+      return getGuidFromContentId(contentId);
+    }
     return guidMgr.makeGuid(id);
   }
 
@@ -81,13 +85,13 @@ public class PSIdMapper implements IPSIdMapper {
   @Override
   public int getContentId(String guid) {
     notEmpty(guid);
-    return ((PSLegacyGuid) guidMgr.makeGuid(guid)).getContentId();
+    return getContentId(getGuid(guid));
   }
 
   @Override
   public IPSGuid getItemGuid(String id) {
     notEmpty(id);
-    var guid = guidMgr.makeGuid(id);
+    var guid = getGuid(id);
     return contentDesignWs.getItemGuid(guid);
   }
 
@@ -147,5 +151,36 @@ public class PSIdMapper implements IPSIdMapper {
   @Override
   public IPSGuid getGuidFromContentId(long id) {
     return guidMgr.makeGuid(id, PSTypeEnum.LEGACY_CONTENT);
+  }
+
+  /**
+   * Explorer Preview / editor view call {@code GET .../workflow/checkIn/{id}} with a
+   * bare numeric content id (FastForward sample {@code 594}). {@link
+   * com.percussion.services.guidmgr.data.PSGuid} treats a single numeric token with
+   * type bits 32–39 equal to zero as undetermined unless a {@link PSTypeEnum} is
+   * supplied. Those tokens are legacy content ids.
+   *
+   * @param id never {@code null}
+   * @return the content id, or {@code null} when {@code id} is a hyphenated GUID
+   *     string or a packed long that already carries a type
+   */
+  static Long parseBareNumericContentId(String id) {
+    var trimmed = id.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+    for (int i = 0; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (c < '0' || c > '9') {
+        return null;
+      }
+    }
+    try {
+      long raw = Long.parseLong(trimmed);
+      int type = (int) ((raw >>> 32) & 0xFFL);
+      return type == 0 ? raw : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 }

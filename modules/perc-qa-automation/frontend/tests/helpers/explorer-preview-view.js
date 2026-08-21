@@ -48,6 +48,54 @@ function explorerEntryUrl(baseUrl, opts = {}) {
 }
 
 /**
+ * Workflow checkIn path for a content id (mirrors WebUI ITEM_WORKFLOW_CHECKIN).
+ * Bare numeric ids such as FastForward {@code 594} are valid (#3688).
+ * @param {string} servicesRoot e.g. /Rhythmyx/services or /services
+ * @param {string} contentId
+ * @returns {string}
+ */
+function workflowCheckInPath(servicesRoot, contentId) {
+  const root = String(servicesRoot || "/services").replace(/\/+$/, "");
+  const id = String(contentId || "").trim();
+  if (!id) return "";
+  return `${root}/itemmanagement/workflow/checkIn/${encodeURIComponent(id)}`;
+}
+
+/**
+ * Bare numeric content id from a path item id or hyphenated GUID.
+ * @param {unknown} id
+ * @returns {string} empty when no numeric uuid is present
+ */
+function numericContentIdFromItemId(id) {
+  const s = String(id || "").trim();
+  if (/^\d+$/.test(s)) return s;
+  const parts = s.split("-");
+  const last = parts[parts.length - 1];
+  if (parts.length >= 3 && /^\d+$/.test(last)) {
+    return last;
+  }
+  return "";
+}
+
+/**
+ * Prefer FastForward Corporate Investments listed page (content id 594).
+ * @param {object[]} pages
+ * @returns {object|null}
+ */
+function pickPreferredListedPage(pages) {
+  const list = Array.isArray(pages) ? pages.filter(Boolean) : [];
+  if (list.length === 0) return null;
+  const by594 = list.find((p) => numericContentIdFromItemId(p.id) === "594");
+  if (by594) return by594;
+  const bySite = list.find((p) =>
+    listedPageSiteNames(p)
+      .map(foldSiteName)
+      .some((n) => n.includes("corporateinvestments")),
+  );
+  return bySite || list[0];
+}
+
+/**
  * Page render preview path for a content id (mirrors WebUI PAGE_PREVIEW).
  * @param {string} servicesRoot e.g. /Rhythmyx/services or /services
  * @param {string} contentId
@@ -381,6 +429,9 @@ module.exports = {
   TEST_IDS,
   explorerEntryUrl,
   pageRenderPreviewPath,
+  workflowCheckInPath,
+  numericContentIdFromItemId,
+  pickPreferredListedPage,
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
   noListedPageSkipMessage,
