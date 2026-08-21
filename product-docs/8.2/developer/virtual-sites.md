@@ -159,9 +159,10 @@ CLI (from a tree that already has `_config.yaml`):
 PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] csv-filesystem
 ```
 
-REST `PUT /sites/{nameOrId}/virtual` may store `sourceKind=csv-filesystem` (allow-listed), but
-**Build Virtual Site** (`POST …/virtual/build`) and the Developer Sites UI still run the
-git-filesystem adapter only. Use the offline CLI for CSV trees until the REST/UI slices land.
+REST `PUT /sites/{nameOrId}/virtual` may store `sourceKind=csv-filesystem` (allow-listed).
+Developer Sites can select **CSV filesystem** and save a root path. **Build Virtual Site**
+(`POST …/virtual/build`) still runs the git-filesystem adapter only — use the offline CLI
+for CSV trees.
 
 ## CMS-integrated build (REST and WebUI)
 
