@@ -279,7 +279,7 @@ describe("VirtualSiteSourcePanel", () => {
     ).toBe("https://git.example.com/org/docs.git");
   });
 
-  it("loads csv-filesystem values with root path only (no Git remotes or Build)", async () => {
+  it("loads csv-filesystem values with root path and Build chrome (no Git remotes or Publish)", async () => {
     getVirtual.mockResolvedValue({
       sourceKind: "csv-filesystem",
       rootPath: "C:/csv-docs",
@@ -299,8 +299,9 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
-    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
@@ -354,7 +355,9 @@ describe("VirtualSiteSourcePanel", () => {
     expect(
       (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
     ).toBe("C:/csv-docs");
-    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
     expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
       DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
     );
@@ -378,6 +381,7 @@ describe("VirtualSiteSourcePanel", () => {
     });
     expect(screen.queryByTestId("developer-site-virtual-csv-hint")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
   });
 
   it("saves repository mode to clear virtual configuration", async () => {
@@ -477,6 +481,40 @@ describe("VirtualSiteSourcePanel", () => {
     );
     expect(screen.queryByTestId("developer-site-virtual-build-link-problems")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-build-link-list")).toBeNull();
+  });
+
+  it("shows Build chrome for csv-filesystem and success result without Publish", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "csv-docs",
+      outputPath: "C:/tmp/virtual-sites/csv-docs",
+      pagesWritten: 2,
+      linkProblemCount: 0,
+      hasLinkProblems: false,
+      linkProblems: [],
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(buildVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-build-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_BUILD_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("2");
+    expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
+      "csv-docs",
+    );
   });
 
   it("lists link problem details on HTTP 200 with hasLinkProblems", async () => {

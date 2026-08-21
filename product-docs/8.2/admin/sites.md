@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. REST **Build Virtual Site** runs the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** (REST and Developer Sites) runs the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -155,8 +155,9 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    `sourceKind` object). For CSV it sends `{ "VirtualSiteProperties": {
    "sourceKind": "csv-filesystem", "rootPath": "…" } }` (no `remoteUrl`). After
    a successful save the panel reloads properties from GET so the kind and root
-   persist without a full page reload. **Build Virtual Site** appears only for
-   **Git filesystem**.
+   persist without a full page reload. **Build Virtual Site** appears for
+   **Git filesystem** and **CSV filesystem**. **Publish Virtual Site** remains
+   Git filesystem only.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties). Switching
    the select back to Repository hides virtual fields immediately; Save is still
@@ -177,27 +178,34 @@ action (below), or the CMS publish path to verify links.
 
 Integrators persist CSV trees the same way as Git: `PUT /services/sites/{name}/virtual`
 with `{ "VirtualSiteProperties": { "sourceKind": "csv-filesystem", "rootPath": "…" } }`.
-`GET` returns the same `sourceKind`. In-product **Build Virtual Site** remains
-`git-filesystem` only; CSV assemble is the offline / SPI path.
+`GET` returns the same `sourceKind`. In-product **Build Virtual Site** runs for both
+`git-filesystem` and `csv-filesystem` (`POST …/virtual/build`). CSV assemble does not
+require a Git remote; `_config.yaml` is optional.
 
 ### Build a Virtual Site from the product UI
 
-When **Source kind** is **Git filesystem** (Virtual), the Site detail panel shows a
+When **Source kind** is **Git filesystem** or **CSV filesystem**, the Site detail panel shows a
 **Build Virtual Site** control. Traditional **Repository** Sites do **not** show this control
-(no misleading virtual-build chrome).
+(no misleading virtual-build chrome). **Publish Virtual Site** still appears for Git
+filesystem only.
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.
-3. Confirm **Virtual Site source** is saved as **Git filesystem** with either a valid **Root path**
-   on the CMS host **or** a saved **Remote URL** and **Branch**. If you just edited
-   properties, choose **Save Virtual Site source** first — the build uses the **saved**
-   server properties, not unsaved form fields. When a remote is set, Build clones or
-   fetches first (`git` must be on the CMS `PATH`).
+3. Confirm **Virtual Site source** is saved:
+   - **Git filesystem** — a valid **Root path** on the CMS host **or** a saved
+     **Remote URL** and **Branch**. When a remote is set, Build clones or fetches
+     first (`git` must be on the CMS `PATH`).
+   - **CSV filesystem** — a valid **Root path** to a CSV tree on the CMS host
+     (required columns `id`, `title`, `body` under each version folder). Git remotes
+     are hidden; `_config.yaml` is optional.
+   If you just edited properties, choose **Save Virtual Site source** first — the
+   build uses the **saved** server properties, not unsaved form fields.
 4. Choose **Build Virtual Site**.
 5. After a `git pull` or a local Markdown/frontmatter edit on the host — or after the remote
-   branch moves — choose **Build Virtual Site** again. The build re-reads the current tree
-   (and re-fetches when a remote is configured) — **do not restart the CMS** just to pick up
-   those edits. There is no file watcher; the next explicit build is the refresh.
+   branch moves — or after a CSV file change — choose **Build Virtual Site** again. The
+   build re-reads the current tree (and re-fetches when a Git remote is configured) —
+   **do not restart the CMS** just to pick up those edits. There is no file watcher; the
+   next explicit build is the refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
@@ -227,7 +235,7 @@ home from the same Site detail panel (no CLI, no `file://` path).
 The preview stream reads the last recorded `outputPath` from the build (default
 `{install}/tmp/virtual-sites/{siteKey}`). It is **Admin-only**, path-traversal safe, and
 does not invent a second assembler. Traditional **Repository** Sites do not show Preview
-chrome.
+chrome. Git and CSV Virtual Sites both show Preview next to **Build Virtual Site**.
 
 Integrators can call the same operation over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
