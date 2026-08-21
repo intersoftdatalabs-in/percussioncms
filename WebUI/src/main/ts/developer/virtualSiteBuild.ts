@@ -22,18 +22,18 @@ import type {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Repository / blank source kinds must not display build chrome.
+ * In-product Build is git-filesystem only (csv-filesystem and repository do not
+ * show this chrome — CSV assemble is the offline / SPI path).
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  const v = (sourceKind ?? "").trim().toLowerCase();
-  return v.length > 0 && v !== "repository";
+  return (sourceKind ?? "").trim().toLowerCase() === "git-filesystem";
 }
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Repository / blank source kinds must not display publish chrome.
+ * Same gate as Build: git-filesystem only.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,

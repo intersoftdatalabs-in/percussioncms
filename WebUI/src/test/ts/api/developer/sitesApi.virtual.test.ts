@@ -145,6 +145,19 @@ describe("sitesApi virtual properties", () => {
         branch: "",
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "csv-filesystem",
+        rootPath: "C:/csv-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "csv-filesystem",
+        rootPath: "C:/csv-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {

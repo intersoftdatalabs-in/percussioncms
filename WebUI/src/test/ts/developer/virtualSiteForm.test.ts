@@ -4,10 +4,13 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_REPOSITORY,
   emptyVirtualSiteForm,
   formToVirtualProps,
+  isCsvFilesystemSourceKind,
+  isGitFilesystemSourceKind,
   isVirtualSourceKind,
   normalizeSourceKindOption,
   validateVirtualSiteForm,
@@ -15,7 +18,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
-  it("normalizeSourceKindOption maps blank/repository and git-filesystem", () => {
+  it("normalizeSourceKindOption maps blank/repository, git-filesystem, and csv-filesystem", () => {
     expect(normalizeSourceKindOption(undefined)).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("  ")).toBe(SOURCE_KIND_REPOSITORY);
@@ -23,6 +26,8 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("Repository")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("git-filesystem")).toBe(SOURCE_KIND_GIT_FILESYSTEM);
     expect(normalizeSourceKindOption("Git-Filesystem")).toBe(SOURCE_KIND_GIT_FILESYSTEM);
+    expect(normalizeSourceKindOption("csv-filesystem")).toBe(SOURCE_KIND_CSV_FILESYSTEM);
+    expect(normalizeSourceKindOption("CSV-Filesystem")).toBe(SOURCE_KIND_CSV_FILESYSTEM);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
   });
 
@@ -31,6 +36,11 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("")).toBe(false);
     expect(isVirtualSourceKind("repository")).toBe(false);
     expect(isVirtualSourceKind("git-filesystem")).toBe(true);
+    expect(isVirtualSourceKind("csv-filesystem")).toBe(true);
+    expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
+    expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
+    expect(isCsvFilesystemSourceKind("csv-filesystem")).toBe(true);
+    expect(isCsvFilesystemSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -93,6 +103,39 @@ describe("virtualSiteForm helpers", () => {
       branch: "release/8.2",
       configFile: "_config.yaml",
       siteKey: "docs",
+    });
+  });
+
+  it("virtualPropsToForm maps csv-filesystem and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_CSV_FILESYSTEM);
+    expect(form.rootPath).toBe("C:/csv-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+      rootPath: "C:/csv-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for csv-filesystem clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+      rootPath: "  C:/csv-docs  ",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+      rootPath: "C:/csv-docs",
+      remoteUrl: "",
+      branch: "",
     });
   });
 
@@ -168,6 +211,39 @@ describe("virtualSiteForm helpers", () => {
         branch: "main",
         configFile: "_config.yaml",
         siteKey: "k",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+        rootPath: "C:/csv-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
       }),
     ).toBeNull();
   });

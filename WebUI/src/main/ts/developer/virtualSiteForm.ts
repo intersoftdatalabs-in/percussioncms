@@ -20,13 +20,17 @@ import type { VirtualSiteProperties } from "../api/developer/types";
 /** Traditional repository site (not virtual). */
 export const SOURCE_KIND_REPOSITORY = "repository";
 
-/** Phase 1 Virtual Site adapter wire name. */
+/** Phase 1 Virtual Site adapter wire name (Git/Markdown tree). */
 export const SOURCE_KIND_GIT_FILESYSTEM = "git-filesystem";
+
+/** Virtual Site adapter wire name for a CSV tree on the filesystem. */
+export const SOURCE_KIND_CSV_FILESYSTEM = "csv-filesystem";
 
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
-  | typeof SOURCE_KIND_GIT_FILESYSTEM;
+  | typeof SOURCE_KIND_GIT_FILESYSTEM
+  | typeof SOURCE_KIND_CSV_FILESYSTEM;
 
 /** Editable form model for the Virtual Site source panel. */
 export interface VirtualSiteFormModel {
@@ -40,8 +44,8 @@ export interface VirtualSiteFormModel {
 
 /**
  * Normalize a wire/sourceKind string into a form select option.
- * Blank, missing, or {@code repository} → repository; otherwise git-filesystem
- * when the wire value matches Phase 1, else repository (safe default).
+ * Blank, missing, or {@code repository} → repository; git-filesystem and
+ * csv-filesystem map to themselves; unknown kinds → repository (safe default).
  */
 export function normalizeSourceKindOption(
   raw: string | null | undefined,
@@ -53,6 +57,9 @@ export function normalizeSourceKindOption(
   if (v === SOURCE_KIND_GIT_FILESYSTEM) {
     return SOURCE_KIND_GIT_FILESYSTEM;
   }
+  if (v === SOURCE_KIND_CSV_FILESYSTEM) {
+    return SOURCE_KIND_CSV_FILESYSTEM;
+  }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
   return SOURCE_KIND_REPOSITORY;
@@ -62,6 +69,16 @@ export function normalizeSourceKindOption(
 export function isVirtualSourceKind(kind: string | null | undefined): boolean {
   const v = (kind ?? "").trim().toLowerCase();
   return v.length > 0 && v !== SOURCE_KIND_REPOSITORY;
+}
+
+/** True when source kind is the Git filesystem adapter (Build/Publish chrome). */
+export function isGitFilesystemSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_GIT_FILESYSTEM;
+}
+
+/** True when source kind is the CSV filesystem adapter (root path only). */
+export function isCsvFilesystemSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_CSV_FILESYSTEM;
 }
 
 /**
@@ -93,6 +110,16 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
       rootPath: null,
       configFile: null,
       siteKey: null,
+    };
+  }
+  if (kind === SOURCE_KIND_CSV_FILESYSTEM) {
+    // CSV rejects a non-blank virtual.remoteUrl (REST 400). Send empty
+    // remoteUrl/branch so a prior Git remote is cleared (omit would keep it).
+    return {
+      sourceKind: SOURCE_KIND_CSV_FILESYSTEM,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
     };
   }
   return {

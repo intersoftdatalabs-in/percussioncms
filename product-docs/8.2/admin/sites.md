@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. CMS Build/UI still use git-filesystem; `csv-filesystem` is the offline CSV adapter (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. CMS **Build** remains git-filesystem only; `csv-filesystem` assemble is the offline CSV adapter (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -130,30 +130,37 @@ blank). Load failures show **Could not load sites** rather than the empty state.
 3. Select a Site row to open **Site detail**.
 4. In the **Virtual Site source** section:
    - **Source kind** — leave **Repository (traditional)** for ordinary CMS Sites
-     (blank/`repository` on the server). Choose **Git filesystem** for Phase 1 Virtual Sites.
-   - **Root path** — absolute or install-relative path to the documentation tree
-     (required when source kind is Virtual and no remote is set). Do not use `..`
-     path segments. When a **Remote URL** is set, this may be a relative folder
-     inside the checkout.
-   - **Remote URL** (optional) — Git remote (`https://`, `ssh://`, `file://`, or
-     `git@host:path`). Leave blank to keep the local **Root path**. When set,
-     **Build Virtual Site** clones or fetches on the CMS host (`git` must be on
-     the server `PATH`). The server validates the URL; the panel does not
-     re-implement checkout.
-   - **Branch** (optional) — branch to checkout when a remote is set. Defaults
-     to `main` on the server when blank.
-   - **Config file** (optional) — simple file name under the root (default `_config.yaml`
-     when unset). No path separators.
-   - **Site key** (optional) — participant registry key; defaults to the Site name when blank.
-5. Choose **Save Virtual Site source**. The SPA sends the Jackson/JAXB envelope
-   `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…",
-   "remoteUrl": "…", "branch": "…", … } }`
-   (not a bare `sourceKind` object). Blank remote URL still saves the local
-   `rootPath`. After a successful save the panel reloads properties from GET so
-   a stored remote is not dropped and **Build Virtual Site** appears without a
-   full page reload.
+     (blank/`repository` on the server). Choose **Git filesystem** for Git/Markdown
+     Virtual Sites, or **CSV filesystem** for a CSV tree on disk. Repository stays
+     the default.
+   - **Root path** — absolute or install-relative path to the documentation or CSV
+     tree (required when source kind is Virtual and no Git remote is set). Do not
+     use `..` path segments. Shared by Git and CSV. When a **Remote URL** is set
+     (Git only), this may be a relative folder inside the checkout.
+   - **Remote URL** (optional, **Git filesystem** only) — Git remote (`https://`,
+     `ssh://`, `file://`, or `git@host:path`). Hidden for **CSV filesystem** (the
+     server rejects `virtual.remoteUrl` on that kind). Leave blank to keep the
+     local **Root path**. When set, **Build Virtual Site** clones or fetches on the
+     CMS host (`git` must be on the server `PATH`). The panel does not re-implement
+     checkout.
+   - **Branch** (optional, **Git filesystem** only) — branch to checkout when a
+     remote is set. Defaults to `main` on the server when blank.
+   - **Config file** (optional, **Git filesystem** only) — simple file name under
+     the root (default `_config.yaml` when unset). No path separators.
+   - **Site key** (optional, **Git filesystem** only) — participant registry key;
+     defaults to the Site name when blank.
+5. Choose **Save Virtual Site source**. For Git the SPA sends the Jackson/JAXB
+   envelope `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem",
+   "rootPath": "…", "remoteUrl": "…", "branch": "…", … } }` (not a bare
+   `sourceKind` object). For CSV it sends `{ "VirtualSiteProperties": {
+   "sourceKind": "csv-filesystem", "rootPath": "…" } }` (no `remoteUrl`). After
+   a successful save the panel reloads properties from GET so the kind and root
+   persist without a full page reload. **Build Virtual Site** appears only for
+   **Git filesystem**.
 6. To return a Virtual Site to traditional repository mode, set source kind back to
-   **Repository (traditional)** and save (clears `virtual.*` properties).
+   **Repository (traditional)** and save (clears `virtual.*` properties). Switching
+   the select back to Repository hides virtual fields immediately; Save is still
+   required to persist the clear.
 
 To use a **Git remote** as the system of record (clone/fetch on Build), set **Remote URL**
 and **Branch** on this panel (or `virtual.remoteUrl` / `virtual.branch` via
