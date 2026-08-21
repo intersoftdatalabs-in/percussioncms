@@ -48,6 +48,54 @@ function explorerEntryUrl(baseUrl, opts = {}) {
 }
 
 /**
+ * Workflow checkIn path for a content id (mirrors WebUI ITEM_WORKFLOW_CHECKIN).
+ * Bare numeric ids such as FastForward {@code 594} are valid (#3688).
+ * @param {string} servicesRoot e.g. /Rhythmyx/services or /services
+ * @param {string} contentId
+ * @returns {string}
+ */
+function workflowCheckInPath(servicesRoot, contentId) {
+  const root = String(servicesRoot || "/services").replace(/\/+$/, "");
+  const id = String(contentId || "").trim();
+  if (!id) return "";
+  return `${root}/itemmanagement/workflow/checkIn/${encodeURIComponent(id)}`;
+}
+
+/**
+ * Bare numeric content id from a path item id or hyphenated GUID.
+ * @param {unknown} id
+ * @returns {string} empty when no numeric uuid is present
+ */
+function numericContentIdFromItemId(id) {
+  const s = String(id || "").trim();
+  if (/^\d+$/.test(s)) return s;
+  const parts = s.split("-");
+  const last = parts[parts.length - 1];
+  if (parts.length >= 3 && /^\d+$/.test(last)) {
+    return last;
+  }
+  return "";
+}
+
+/**
+ * Prefer FastForward Corporate Investments listed page (content id 594).
+ * @param {object[]} pages
+ * @returns {object|null}
+ */
+function pickPreferredListedPage(pages) {
+  const list = Array.isArray(pages) ? pages.filter(Boolean) : [];
+  if (list.length === 0) return null;
+  const by594 = list.find((p) => numericContentIdFromItemId(p.id) === "594");
+  if (by594) return by594;
+  const bySite = list.find((p) =>
+    listedPageSiteNames(p)
+      .map(foldSiteName)
+      .some((n) => n.includes("corporateinvestments")),
+  );
+  return bySite || list[0];
+}
+
+/**
  * Page render preview path for a content id (mirrors WebUI PAGE_PREVIEW).
  * @param {string} servicesRoot e.g. /Rhythmyx/services or /services
  * @param {string} contentId
@@ -325,23 +373,36 @@ function foldSiteName(name) {
 
 /**
  * Site folder names for a listed page (finder underscore + repository).
- * @param {{ path?: string, folderPath?: string }} listed
+ * Also derives a site hint from page titles such as
+ * {@code Corporate Investments Home} (#3684).
+ * @param {{ path?: string, folderPath?: string, name?: string }} listed
  * @returns {string[]}
  */
 function listedPageSiteNames(listed) {
   if (!listed) return [];
   const names = [];
   const seen = new Set();
+  const addName = (raw) => {
+    const name = String(raw || "").trim();
+    if (!name) return;
+    const key = foldSiteName(name);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    names.push(name);
+  };
   for (const raw of [listed.folderPath, listed.path]) {
     if (!raw) continue;
     const p = resolveExplorerListPath({ path: String(raw) });
     const parts = p.replace(/^\/+/, "").split("/").filter(Boolean);
     if (parts.length < 2 || parts[0].toLowerCase() !== "sites") continue;
-    const name = parts[1];
-    const key = foldSiteName(name);
-    if (!name || seen.has(key)) continue;
-    seen.add(key);
-    names.push(name);
+    addName(parts[1]);
+  }
+  const pageName = listed.name ? String(listed.name).trim() : "";
+  if (pageName) {
+    const stripped = pageName.replace(/\s+Home$/i, "").trim();
+    if (stripped && foldSiteName(stripped).length >= 8) {
+      addName(stripped);
+    }
   }
   return names;
 }
@@ -377,10 +438,59 @@ function detailRowMatchesFoldedSite(rowText, wantedFolded) {
   return wanted.some((n) => folded.includes(n));
 }
 
+/**
+ * True when a tree testid is a Sites <em>root</em> child
+ * ({@code tree-node-/Sites/Corporate_Investments/}), not a nested
+ * {@code /Sites/{site}/Pages} node.
+ * @param {string} testid
+ * @returns {boolean}
+ */
+function isExplorerSiteRootTestId(testid) {
+  const rest = String(testid || "")
+    .replace(/^tree-node-/i, "")
+    .replace(/\\/g, "/");
+  const segs = rest
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter(Boolean);
+  return segs.length === 2 && segs[0].toLowerCase() === "sites";
+}
+
+/**
+ * Match a Sites tree node to REST-listed site names. Finder path testids
+ * ({@code tree-node-/Sites/Corporate_Investments/}), GUID path + visible
+ * name, {@code data-node-name}, and {@code data-folder-path} (repository
+ * {@code CorporateInvestments}) all match (#3684 / #3001).
+ * @param {string} testid
+ * @param {string} innerText
+ * @param {string} [nodeName]
+ * @param {Iterable<string>} wantedFolded
+ * @param {string} [folderPath]
+ * @returns {boolean}
+ */
+function treeNodeMatchesFoldedSite(
+  testid,
+  innerText,
+  nodeName,
+  wantedFolded,
+  folderPath,
+) {
+  const wanted = [...(wantedFolded || [])].filter(Boolean);
+  if (wanted.length === 0) return true;
+  const haystacks = [testid, innerText, nodeName, folderPath].map((s) =>
+    foldSiteName(s),
+  );
+  return wanted.some((n) => haystacks.some((h) => h.includes(n)));
+}
+
 module.exports = {
   TEST_IDS,
   explorerEntryUrl,
   pageRenderPreviewPath,
+  workflowCheckInPath,
+  numericContentIdFromItemId,
+  pickPreferredListedPage,
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
   noListedPageSkipMessage,
@@ -397,4 +507,6 @@ module.exports = {
   foldSiteName,
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
+  treeNodeMatchesFoldedSite,
+  isExplorerSiteRootTestId,
 };

@@ -16,6 +16,8 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  explorerSiteDisplayName,
+  isExplorerSiteRootItem,
   resolveExplorerListPath,
   resolveSiteNameFromExplorerPath,
   resolveSiteNameFromSelection,
@@ -76,6 +78,60 @@ describe("resolveSiteNameFromSelection (#2767)", () => {
     expect(
       resolveSiteNameFromSelection("/Sites/FolderSite/sub", "/Assets/x"),
     ).toBe("FolderSite");
+  });
+});
+
+describe("explorerSiteDisplayName / isExplorerSiteRootItem (#3684)", () => {
+  it("prefers finder SITENAME over a GUID path and sys_title", () => {
+    expect(
+      explorerSiteDisplayName({
+        name: "Corporate_Investments",
+        path: "/Sites/16777215-101-703/",
+        type: "site",
+      }),
+    ).toBe("Corporate_Investments");
+  });
+
+  it("uses repository folder leaf when name is a content GUID", () => {
+    expect(
+      explorerSiteDisplayName({
+        name: "16777215-101-703",
+        path: "/Sites/16777215-101-703/",
+        folderPath: "//Sites/CorporateInvestments",
+        type: "site",
+      }),
+    ).toBe("CorporateInvestments");
+  });
+
+  it("keeps space titles that fold to the finder name", () => {
+    expect(
+      explorerSiteDisplayName({
+        name: "Corporate Investments",
+        path: "/Sites/Corporate Investments/",
+        type: "site",
+      }),
+    ).toBe("Corporate Investments");
+  });
+
+  it("detects site roots by type or /Sites/{name} path", () => {
+    expect(
+      isExplorerSiteRootItem({
+        type: "site",
+        path: "/Sites/16777215-101-703/",
+      }),
+    ).toBe(true);
+    expect(
+      isExplorerSiteRootItem({
+        type: "folder",
+        path: "/Sites/Corporate_Investments/",
+      }),
+    ).toBe(true);
+    expect(
+      isExplorerSiteRootItem({
+        type: "page",
+        path: "/Sites/Corporate_Investments/Home",
+      }),
+    ).toBe(false);
   });
 });
 

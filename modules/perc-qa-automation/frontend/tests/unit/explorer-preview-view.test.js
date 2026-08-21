@@ -15,6 +15,9 @@ const {
   TEST_IDS,
   explorerEntryUrl,
   pageRenderPreviewPath,
+  workflowCheckInPath,
+  numericContentIdFromItemId,
+  pickPreferredListedPage,
   sitePathPreviewUrl,
   noPreviewableItemSkipMessage,
   noListedPageSkipMessage,
@@ -29,8 +32,10 @@ const {
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
+  isExplorerSiteRootTestId,
   detailRowHasExactName,
   detailRowMatchesFoldedSite,
+  treeNodeMatchesFoldedSite,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -39,6 +44,28 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(TEST_IDS.preview, "action-preview");
     assert.equal(TEST_IDS.refresh, "explorer-refresh-list");
     assert.equal(TEST_IDS.viewTools, "explorer-view-tools");
+  });
+
+  it("workflowCheckInPath encodes bare numeric content ids (#3688)", () => {
+    assert.equal(
+      workflowCheckInPath("/Rhythmyx/services", "594"),
+      "/Rhythmyx/services/itemmanagement/workflow/checkIn/594",
+    );
+    assert.equal(workflowCheckInPath("/services/", ""), "");
+  });
+
+  it("numericContentIdFromItemId accepts bare and hyphenated GUIDs", () => {
+    assert.equal(numericContentIdFromItemId("594"), "594");
+    assert.equal(numericContentIdFromItemId("0-101-594"), "594");
+    assert.equal(numericContentIdFromItemId(""), "");
+  });
+
+  it("pickPreferredListedPage prefers FastForward content id 594", () => {
+    const pages = [
+      { id: "501", name: "Other", path: "/Sites/EnterpriseInvestments/Pages/x" },
+      { id: "594", name: "Dow futures", path: "/Sites/CorporateInvestments/Pages/y" },
+    ];
+    assert.equal(pickPreferredListedPage(pages).id, "594");
   });
 
   it("explorerEntryUrl builds spa.jsp explorer entry with cache-buster", () => {
@@ -291,6 +318,23 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(foldSiteName("Corporate_Investments"), "corporateinvestments");
   });
 
+  it("listedPageSiteNames adds a site hint from Corporate Investments Home (#3684)", () => {
+    assert.deepEqual(
+      listedPageSiteNames({
+        name: "Corporate Investments Home",
+        path: "/Sites/16777215-101-703/Home",
+      }),
+      ["16777215-101-703", "Corporate Investments"],
+    );
+    assert.deepEqual(
+      listedPageSiteNames({
+        name: "Home",
+        path: "/Assets/x",
+      }),
+      [],
+    );
+  });
+
   it("noPreviewableItemSkipMessage is stable and cites issue", () => {
     assert.match(noPreviewableItemSkipMessage(), /#2733/);
   });
@@ -316,6 +360,80 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
     assert.equal(
       detailRowMatchesFoldedSite(rowText, ["enterpriseinvestments"]),
+      false,
+    );
+  });
+
+  it("isExplorerSiteRootTestId rejects nested Pages nodes", () => {
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/"),
+      true,
+    );
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/16777215-101-703/"),
+      true,
+    );
+    assert.equal(isExplorerSiteRootTestId("tree-node-/Sites/"), false);
+    assert.equal(
+      isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/Pages/"),
+      false,
+    );
+  });
+
+  it("treeNodeMatchesFoldedSite matches finder path, GUID+name, and folderPath (#3684)", () => {
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/Corporate_Investments/",
+        "Corporate_Investments",
+        "Corporate_Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "Corporate_Investments",
+        "Corporate_Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "16777215-101-703",
+        "16777215-101-703",
+        ["corporateinvestments"],
+        "//Sites/CorporateInvestments",
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "Corporate Investments",
+        "Corporate Investments",
+        ["corporateinvestments"],
+      ),
+      true,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/16777215-101-703/",
+        "",
+        "",
+        ["corporateinvestments"],
+      ),
+      false,
+    );
+    assert.equal(
+      treeNodeMatchesFoldedSite(
+        "tree-node-/Sites/Enterprise_Investments/",
+        "Enterprise_Investments",
+        "Enterprise_Investments",
+        ["corporateinvestments"],
+      ),
       false,
     );
   });

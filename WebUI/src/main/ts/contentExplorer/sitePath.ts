@@ -89,3 +89,84 @@ export function resolveExplorerListPath(
   }
   return normalizeExplorerFolderPath(fallback);
 }
+
+/**
+ * Percussion content ids (revision-revision-content), not site names.
+ * Sample site paths may still use this shape under {@code /Sites/{guid}/}
+ * (#3001).
+ */
+const CONTENT_GUID_TOKEN = /^\d+-\d+-\d+$/;
+
+function lastCmsPathSegment(raw: string | null | undefined): string {
+  const normalized = normalizeExplorerFolderPath(raw);
+  if (normalized == null) return "";
+  const trimmed = normalized.replace(/\/+$/, "");
+  const slash = trimmed.lastIndexOf("/");
+  return (slash >= 0 ? trimmed.slice(slash + 1) : trimmed).trim();
+}
+
+function isContentGuidToken(value: string | null | undefined): boolean {
+  const token = String(value ?? "").trim();
+  return token.length > 0 && CONTENT_GUID_TOKEN.test(token);
+}
+
+/**
+ * True when the path item is a site root (type=site or {@code /Sites/{name}}).
+ */
+export function isExplorerSiteRootItem(
+  item: Pick<PSPathItem, "type" | "path" | "folderPath"> | null | undefined,
+): boolean {
+  if (!item) return false;
+  const type = String(item.type ?? "")
+    .trim()
+    .toLowerCase();
+  if (type === "site") return true;
+  for (const raw of [item.path, item.folderPath]) {
+    const normalized = normalizeExplorerFolderPath(raw);
+    if (normalized == null) continue;
+    const segs = normalized
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "")
+      .split("/")
+      .filter(Boolean);
+    if (segs.length === 2 && segs[0].toLowerCase() === "sites") {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Operator-visible site name for Explorer tree labels and list Name cells.
+ *
+ * <p>Prefers finder {@code SITENAME} ({@code Corporate_Investments}) and
+ * repository folder leaf ({@code CorporateInvestments}) over a GUID
+ * {@code sys_title} or {@code /Sites/{guid}/} path (#3684 / #3001). REST
+ * listings and Playwright fold spaces/underscores so {@code Corporate
+ * Investments} still matches.</p>
+ */
+export function explorerSiteDisplayName(
+  item:
+    | (Pick<PSPathItem, "name" | "path" | "folderPath" | "type"> & {
+        title?: string;
+      })
+    | null
+    | undefined,
+): string {
+  if (!item) return "";
+  const candidates = [
+    item.name,
+    lastCmsPathSegment(item.folderPath),
+    item.title,
+    resolveSiteNameFromExplorerPath(item.folderPath),
+    resolveSiteNameFromExplorerPath(item.path),
+    lastCmsPathSegment(item.path),
+  ];
+  for (const candidate of candidates) {
+    const token = String(candidate ?? "").trim();
+    if (token.length > 0 && !isContentGuidToken(token)) {
+      return token;
+    }
+  }
+  return String(item.name || lastCmsPathSegment(item.path) || "").trim();
+}

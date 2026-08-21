@@ -364,14 +364,14 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-content-editor` (template picker / leftover CE HTML). Parent #3102.
 
-### Explorer Workflow transition no-skip (#3639 / parent #3102)
+### Explorer Workflow transition perform (#3668 / #3639 / parent #2732)
 
 H2 operator proof that selecting a **content item** on `spa.jsp?entry=explorer`
 shows `action-toolbar-group-workflow` and an invokable `workflow-transition:*`
-control (HTTP 200 or documented 4xx reject). **Folders** must not show Workflow
-transitions. Does **not** fixture-skip when REST lists a page, or on
-`TEST_DB_TYPE=h2`. Does **not** claim gap-matrix Present. Does **not** steal
-human QA #2743.
+control that returns **HTTP 200** (including **Expire** when listed). **Folders**
+must not show Workflow transitions. Does **not** fixture-skip when REST lists a
+page, or on `TEST_DB_TYPE=h2`. Does **not** treat HTTP 500 as an honest reject.
+Does **not** steal human QA #2743.
 
 | Item | Value |
 |------|--------|
@@ -388,8 +388,9 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/explorer-workflow-transitions.spec.js
 ```
 
-Peer: `explorer-preview-view` (Sites → Pages walk). Product: `itemWorkflowApi`
-Jackson unwrap + `workflowMenuActions` merge. Parent operator issue #3102.
+Peer: `explorer-preview-view` (Sites → Pages walk). Product: Hibernate
+`PSTransitionsContext` first-row cursor (#3668) + `itemWorkflowApi` unwrap.
+Parent operator issues #2732 / #2400. QA fail: #2743.
 
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 

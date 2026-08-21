@@ -15,7 +15,7 @@
  */
 
 /**
- * Unit tests for Explorer workflow-transition helpers (#3639) — no live CMS.
+ * Unit tests for Explorer workflow-transition helpers (#3668 / #3639) — no live CMS.
  *
  * Run from modules/perc-qa-automation/frontend:
  *   npm run test:unit
@@ -25,6 +25,8 @@
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   TEST_IDS,
   JSON_ACCEPT_HEADERS,
@@ -38,11 +40,12 @@ const {
   isWorkflowEligibleRow,
   isH2Qa,
   shouldSkipWorkflowTransitionProof,
+  isSuccessfulTransitionStatus,
   isHonestTransitionStatus,
   isWorkflowTransitionInvokeUrl,
 } = require("../helpers/explorer-workflow-transitions");
 
-describe("explorer-workflow-transitions helpers (#3639)", () => {
+describe("explorer-workflow-transitions helpers (#3668 / #3639)", () => {
   it("exports stable product test ids", () => {
     assert.equal(TEST_IDS.shell, "content-explorer-shell");
     assert.equal(TEST_IDS.workflowGroup, "action-toolbar-group-workflow");
@@ -171,14 +174,16 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
     assert.equal(isH2Qa("postgresql"), false);
   });
 
-  it("treats 200, 4xx, and workflow 500 as honest transition statuses", () => {
+  it("requires HTTP 200 for a listed workflow transition (#3668)", () => {
+    assert.equal(isSuccessfulTransitionStatus(200), true);
     assert.equal(isHonestTransitionStatus(200), true);
-    assert.equal(isHonestTransitionStatus(400), true);
-    assert.equal(isHonestTransitionStatus(403), true);
-    assert.equal(isHonestTransitionStatus(409), true);
-    assert.equal(isHonestTransitionStatus(500), true);
-    assert.equal(isHonestTransitionStatus(502), false);
-    assert.equal(isHonestTransitionStatus(0), false);
+    assert.equal(isSuccessfulTransitionStatus(400), false);
+    assert.equal(isSuccessfulTransitionStatus(403), false);
+    assert.equal(isSuccessfulTransitionStatus(409), false);
+    assert.equal(isSuccessfulTransitionStatus(500), false);
+    assert.equal(isHonestTransitionStatus(500), false);
+    assert.equal(isSuccessfulTransitionStatus(502), false);
+    assert.equal(isSuccessfulTransitionStatus(0), false);
     assert.equal(
       isWorkflowTransitionInvokeUrl(
         "http://127.0.0.1:9992/Rhythmyx/services/itemmanagement/workflow/transitionWithComments/1/Expire",
@@ -191,5 +196,40 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
       ),
       false,
     );
+  });
+
+  it("workflow spec opens REST-listed site via tree-node name or testid (#3684)", () => {
+    const specPath = path.join(
+      __dirname,
+      "..",
+      "explorer-workflow-transitions.spec.js",
+    );
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /treeNodeMatchesFoldedSite/);
+    assert.match(src, /data-node-name/);
+    assert.match(
+      src,
+      /\[data-testid\^="tree-node-\/Sites\/"\]:not\(\[data-testid="tree-node-\/Sites\/"\]\)/,
+    );
+    assert.match(src, /tree-toggle-\/Sites/);
+    assert.match(src, /errors\.TimeoutError/);
+    assert.match(src, /getAttribute\("data-item-name"\)/);
+    assert.match(src, /tree=\$\{seen\.join/);
+  });
+});
+
+describe("explorer-workflow-transitions spec (#3684)", () => {
+  it("opens Sites via tree-node match including folderPath and GUID fallback", () => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const src = fs.readFileSync(
+      path.join(__dirname, "..", "explorer-workflow-transitions.spec.js"),
+      "utf8",
+    );
+    assert.match(src, /treeNodeMatchesFoldedSite/);
+    assert.match(src, /isExplorerSiteRootTestId/);
+    assert.match(src, /data-folder-path/);
+    assert.match(src, /expandSitesTreeNode/);
+    assert.match(src, /errors\.TimeoutError/);
   });
 });

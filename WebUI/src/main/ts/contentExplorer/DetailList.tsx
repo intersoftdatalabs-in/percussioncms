@@ -43,6 +43,10 @@ import {
 } from "../api/contentExplorer/pathApi";
 import type { PSPathItem, PSPagedResult } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
+import {
+  explorerSiteDisplayName,
+  isExplorerSiteRootItem,
+} from "./sitePath";
 
 /**
  * Public display-format column contract. Maps to the live
@@ -143,13 +147,15 @@ export function renderDisplayFormatCell(
   };
 
   switch (column) {
-    case "name":
-      return (
-        fromProps(["sys_title", "name", "Name"]) ||
-        item.name ||
-        item.path ||
-        ""
-      );
+    case "name": {
+      const fromSys = fromProps(["sys_title", "name", "Name"]);
+      // Site rows must expose finder SITENAME (Corporate_Investments) or
+      // the repository folder leaf, not a GUID sys_title / path (#3684).
+      if (isExplorerSiteRootItem(item)) {
+        return explorerSiteDisplayName(item) || fromSys || item.path || "";
+      }
+      return fromSys || item.name || item.path || "";
+    }
     case "type":
       return (
         fromProps(["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
@@ -530,11 +536,14 @@ export function DetailList({
             const visible = canRead(item);
             const folderish = isFolder(item);
             const folderOpen = folderish && selected;
+            const itemName =
+              explorerSiteDisplayName(item) || item.name || "";
             return (
               <tr
                 key={idKey}
                 data-testid={`detail-row-${idKey}`}
                 data-row-kind={folderish ? "folder" : "item"}
+                data-item-name={itemName}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
                 data-selected={selected ? "true" : undefined}

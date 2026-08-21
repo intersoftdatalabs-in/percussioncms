@@ -1317,35 +1317,11 @@ public class PSWorkflowService
          PSTransitionsContext.loadAllFromHibernate(workflowId, contentStateId);
 
       // 8. Walk the cursor; mirrors PSWorkFlowUtils.getAllowedTransitions(PSContentStatusContext,
-      //    Connection, String, boolean, String) lines 2047-2084.
-      List<PSTransitionInfo> results = new ArrayList<>();
+      //    Connection, String, boolean, String) lines 2047-2084 and PSExitAddPossibleTransitions
+      //    (process the already-positioned first row, then moveNext). loadAllFromHibernate sits on
+      //    row 0 (JDBC constructor parity, #3668); while (tc.moveNext()) would skip it (#3683).
       try {
-         while (tc.moveNext()) {
-            boolean isDisabled = false;
-            // Aging transitions are filtered out by loadAllFromHibernate; the isAgingTransition
-            // guard remains as defence-in-depth and a no-op signal.
-            if (!tc.isAgingTransition()) {
-               if (!isAdmin) {
-                  List<String> transitionRequiredRoles = tc.getTransitionRoles();
-                  if (transitionRequiredRoles != null && !transitionRequiredRoles.isEmpty()) {
-                     isDisabled = !PSWorkFlowUtils.compareRoleList(
-                        transitionRequiredRoles, roleNames);
-                     // Skip transition if the user has acted in every required role
-                     if (isDisabled || hasRolesActed(approvals, tc, roles, userName)) {
-                        continue;
-                     }
-                  }
-               }
-               results.add(
-                  new PSTransitionInfo(
-                     tc.getTransitionID(),
-                     tc.getTransitionLabel(),
-                     tc.getTransitionActionTrigger(),
-                     tc.getTransitionToStateID(),
-                     tc.getTransitionComment(),
-                     isDisabled));
-            }
-         }
+         return collectAllowedTransitions(tc, isAdmin, userName, roles, roleNames, approvals);
       } catch (java.sql.SQLException e) {
          // Hibernate-backed moveNext() does not throw on the no-ResultSet path; this catch is
          // required only for the legacy-JDBC branch which is unreachable from the factory call
@@ -1353,7 +1329,61 @@ public class PSWorkflowService
          throw new PSORMException("Failed to iterate transitions for workflow " + workflowId
             + " state " + contentStateId, e);
       }
+   }
 
+   /**
+    * Collects allowed {@link PSTransitionInfo} from a JDBC-parity {@link PSTransitionsContext}
+    * cursor. Hibernate {@code populateFromHibernate} / JDBC constructors leave the cursor on row 0
+    * when the result is non-empty, so callers must process the current row then {@code moveNext()}
+    * (do-while), not {@code while (tc.moveNext())}.
+    *
+    * @param tc transitions cursor; may be empty
+    * @param isAdmin whether the actor is the workflow administrator
+    * @param userName actor username; never null here
+    * @param roles actor role names; never null
+    * @param roleNames comma-joined role names (legacy compareRoleList form)
+    * @param approvals preloaded approval rows for the item
+    * @return never-null list (empty when {@code tc} is empty)
+    * @throws java.sql.SQLException if {@code moveNext()} throws (JDBC branch)
+    */
+   public static List<PSTransitionInfo> collectAllowedTransitions(
+         PSTransitionsContext tc,
+         boolean isAdmin,
+         String userName,
+         List<String> roles,
+         String roleNames,
+         List<PSContentApproval> approvals)
+         throws java.sql.SQLException {
+      List<PSTransitionInfo> results = new ArrayList<>();
+      if (tc == null || tc.isEmpty()) {
+         return results;
+      }
+      do {
+         boolean isDisabled = false;
+         // Aging transitions are filtered out by loadAllFromHibernate; the isAgingTransition
+         // guard remains as defence-in-depth and a no-op signal.
+         if (!tc.isAgingTransition()) {
+            if (!isAdmin) {
+               List<String> transitionRequiredRoles = tc.getTransitionRoles();
+               if (transitionRequiredRoles != null && !transitionRequiredRoles.isEmpty()) {
+                  isDisabled = !PSWorkFlowUtils.compareRoleList(
+                     transitionRequiredRoles, roleNames);
+                  // Skip transition if the user has acted in every required role
+                  if (isDisabled || hasRolesActed(approvals, tc, roles, userName)) {
+                     continue;
+                  }
+               }
+            }
+            results.add(
+               new PSTransitionInfo(
+                  tc.getTransitionID(),
+                  tc.getTransitionLabel(),
+                  tc.getTransitionActionTrigger(),
+                  tc.getTransitionToStateID(),
+                  tc.getTransitionComment(),
+                  isDisabled));
+         }
+      } while (tc.moveNext());
       return results;
    }
 
