@@ -752,14 +752,33 @@ public class PSManagedNavService implements IPSManagedNavService {
     try {
       nodeId = contentDsWs.getItemGuid(nodeId);
       removeLinksToLandingPages(nodeId);
-      contentWs.prepareForEdit(nodeId);
-      contentWs.prepareForEdit(pageId);
+      // Fresh percNavon under sample rffNavTree is already checked out from save
+      // (#3672 skipped check-in). prepareForEdit NPEs when CONTENTSTATEID is 0
+      // or sys_contentstateid is missing on the item def (#3676 / #3364).
+      prepareForEditIgnoringSampleWorkflow(nodeId);
+      prepareForEditIgnoringSampleWorkflow(pageId);
       contentWs.addContentRelations(
           nodeId, Collections.singletonList(pageId), lpSlotNames.get(0), templateName, 0);
     } catch (Exception e) {
       String msg = "Failed to add landing page (id=" + pageId + ") to navon (id=" + nodeId + ").";
       log.error("{} Error: {}", msg, PSExceptionUtils.getMessageForLog(e));
       throw new PSNavException(msg, e);
+    }
+  }
+
+  /**
+   * Checkout for AA landing attach. Sample-site workflows NPE in {@code
+   * PSContentWs.prepareForEdit}/{@code checkinItems}; the item is already checked
+   * out after percNavon save, so skip and still add the relationship (#3676).
+   */
+  void prepareForEditIgnoringSampleWorkflow(IPSGuid id) {
+    try {
+      contentWs.prepareForEdit(id);
+    } catch (RuntimeException e) {
+      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
+        throw e;
+      }
+      log.warn("Skipping prepareForEdit for landing attach (sample workflow); id={}", id, e);
     }
   }
 

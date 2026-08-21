@@ -111,8 +111,10 @@ the Create section dialog. Creating a regular section under that sample tree
 (`POST /Rhythmyx/services/sitemanage/section/create`) returns **HTTP 200** —
 the server treats FastForward types **313–315** as the same Managed Nav roles
 as `percNav*` **1015–1017**, so `addNavonToFolder` succeeds without seeding a
-second NavTree. The new section appears as a treeitem. Do not create a second
-NavTree for a sample site that already has an `rffNavTree`.
+second NavTree. After the navon is saved, the landing page is attached without
+a sample-workflow check-in (the same save-without-check-in pattern as creating
+a NavTree). The dialog closes and the new section appears as a treeitem. Do not
+create a second NavTree for a sample site that already has an `rffNavTree`.
 
 ## Keyboard and accessibility
 
@@ -154,7 +156,7 @@ With a site selected, use the structure action bar above the tree:
 
 | Action | Behavior |
 |--------|----------|
-| **Create section** | Opens a dialog to add a regular section with a landing page under the selected section, or under the site root when nothing is selected. Enter **title**, **URL name** (folder segment), **landing page name** (file name, for example `products.html`), and a **template** from the site catalog. **Create** posts `POST /section/create` (`CreateSiteSection`). Empty required fields stay in the dialog (no HTTP 500). **Cancel** or **Escape** does not post. |
+| **Create section** | Opens a dialog to add a regular section with a landing page under the selected section, or under the site root when nothing is selected. Enter **title**, **URL name** (folder segment), **landing page name** (file name, for example `products.html`), and a **template** from the site catalog. **Create** posts `POST /section/create` (`CreateSiteSection`) and returns **HTTP 200** on sample FastForward sites (`rffNavTree` type 315) — the dialog closes and the child appears in the tree. Empty required fields stay in the dialog (no HTTP 500). **Cancel** or **Escape** does not post. |
 | **Create section from folder** | Promotes an existing site folder to a section under the selected parent (or site root). Choose the folder and a landing page that already exists in that folder. The server creates a navon and attaches the folder. |
 | **Create section link** | Creates a link under the selected parent that points at another section in the same site tree (browse target in the section picker). |
 | **Create external link** | Creates a nav entry that points at an external or relative URL (link text, URL, target window). |
