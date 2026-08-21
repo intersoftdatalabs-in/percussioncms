@@ -29,7 +29,7 @@ import type { PSPathItem } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
 import { isSafeExplorerTreeChild } from "./folderPath";
-import { resolveExplorerListPath } from "./sitePath";
+import { explorerSiteDisplayName, resolveExplorerListPath } from "./sitePath";
 import { isFolder } from "./selection";
 import {
   emptyStateStyle,
@@ -495,9 +495,18 @@ export function ExplorerTree({
       (listPath != null &&
         selectedNorm === normalizeExplorerTreePathKey(listPath));
     const folderish = isFolder(folder);
+    const nodeName = explorerSiteDisplayName(folder) || folder.name || "";
 
+    // data-node-name is finder SITENAME / folder leaf; path may be a GUID
+    // (#3684 / #3001). Playwright matches folded names against testid,
+    // visible label, data-node-name, and data-folder-path.
     return (
-      <div key={pathKey} data-testid={`tree-node-${path}`}>
+      <div
+        key={pathKey}
+        data-testid={`tree-node-${path}`}
+        data-node-name={nodeName}
+        data-folder-path={folder.folderPath || ""}
+      >
         <div
           role="treeitem"
           aria-expanded={folderish ? isOpen : undefined}
@@ -533,6 +542,7 @@ export function ExplorerTree({
               if (folderish) toggle(path, folder);
             }}
             aria-hidden="true"
+            data-testid={folderish ? `tree-toggle-${path}` : undefined}
           >
             {folderish ? (isOpen ? "▾" : "▸") : " "}
           </span>
@@ -541,7 +551,7 @@ export function ExplorerTree({
             title={folder.path}
             {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
           >
-            {folder.name || folder.path}
+            {nodeName || folder.path}
           </span>
         </div>
         {folderish &&

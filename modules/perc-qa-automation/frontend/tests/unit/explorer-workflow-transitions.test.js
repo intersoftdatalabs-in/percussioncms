@@ -193,3 +193,19 @@ describe("explorer-workflow-transitions helpers (#3639)", () => {
     );
   });
 });
+
+describe("explorer-workflow-transitions spec (#3684)", () => {
+  it("opens Sites via tree-node match including folderPath and GUID fallback", () => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const src = fs.readFileSync(
+      path.join(__dirname, "..", "explorer-workflow-transitions.spec.js"),
+      "utf8",
+    );
+    assert.match(src, /treeNodeMatchesFoldedSite/);
+    assert.match(src, /isExplorerSiteRootTestId/);
+    assert.match(src, /data-folder-path/);
+    assert.match(src, /expandSitesTreeNode/);
+    assert.match(src, /errors\.TimeoutError/);
+  });
+});
