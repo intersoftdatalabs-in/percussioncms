@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. CMS **Build** remains git-filesystem only; `csv-filesystem` assemble is the offline CSV adapter (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. REST **Build Virtual Site** runs the matching adapter. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |

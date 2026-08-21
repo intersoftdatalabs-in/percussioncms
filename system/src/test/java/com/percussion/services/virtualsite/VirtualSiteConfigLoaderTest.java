@@ -65,6 +65,40 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void loadOrDefaultInfersVersionFoldersWhenYamlMissing() throws Exception {
+    Path root = tempDir.resolve("csv-default");
+    Files.createDirectories(root.resolve("8.2"));
+    Files.createDirectories(root.resolve("_theme"));
+    Files.createDirectories(root.resolve("assets"));
+    VirtualSiteConfig config = VirtualSiteConfigLoader.loadOrDefault(root, null, "csv-docs");
+    assertEquals("csv-docs", config.siteTitle());
+    assertEquals(1, config.versions().size());
+    assertEquals("8.2", config.versions().get(0).id());
+    assertTrue(config.versions().get(0).defaultVersion());
+    assertEquals(root.normalize(), config.root());
+  }
+
+  @Test
+  void loadOrDefaultFailsWhenNoVersionFolders() throws Exception {
+    Path root = tempDir.resolve("csv-empty");
+    Files.createDirectories(root.resolve("_theme"));
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.loadOrDefault(root, "_config.yaml", "k"));
+    assertTrue(ex.getMessage().toLowerCase().contains("version"), ex.getMessage());
+  }
+
+  @Test
+  void loadOrDefaultUsesYamlWhenPresent() throws Exception {
+    Path sampleRoot = resolveSampleDocs();
+    VirtualSiteConfig config =
+        VirtualSiteConfigLoader.loadOrDefault(sampleRoot, null, "sample");
+    assertEquals("Sample Docs", config.siteTitle());
+    assertEquals("8.2", config.versions().get(0).id());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,

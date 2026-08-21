@@ -97,15 +97,24 @@ public class PSVirtualSiteBuildService {
    * {@code _redirects.yaml} is a no-op. The same service instance does not reuse parsed pages from
    * a previous build — operators do not need a JVM restart after {@code git pull} or a local edit.
    *
-   * @param siteRoot source tree (contains {@code _config.yaml})
+   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem; optional for
+   *     csv-filesystem)
    * @param outputRoot destination for HTML + assets
    * @param siteKey participant key
    * @return build result
    */
   public PSVirtualSiteBuildResult build(Path siteRoot, Path outputRoot, String siteKey)
       throws IOException, VirtualSiteException {
-    VirtualSiteConfig config =
-        VirtualSiteConfigLoader.load(siteRoot, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, siteKey);
+    VirtualSiteConfig config;
+    if (VirtualSiteSourceType.CSV_FILESYSTEM.wireName().equals(source.sourceType())) {
+      config =
+          VirtualSiteConfigLoader.loadOrDefault(
+              siteRoot, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, siteKey);
+    } else {
+      config =
+          VirtualSiteConfigLoader.load(
+              siteRoot, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, siteKey);
+    }
     List<VirtualRedirect> redirects =
         VirtualRedirectsLoader.loadOptional(siteRoot, config.siteUrl());
     return build(config, outputRoot, redirects);
