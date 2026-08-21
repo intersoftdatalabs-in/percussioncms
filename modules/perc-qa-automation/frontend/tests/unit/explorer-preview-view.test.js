@@ -94,6 +94,10 @@ describe("explorer-preview-view helpers (#2733)", () => {
       "/Sites/Demo/Home?percmobilepreview=false",
     );
     assert.equal(sitePathPreviewUrl("/Assets/x"), "");
+    assert.equal(
+      sitePathPreviewUrl("/Sites/Corporate Investments/Q?A"),
+      "/Sites/Corporate%20Investments/Q%3FA?percmobilepreview=false",
+    );
   });
 
   it("isPreviewableRow accepts pages/assets with ids", () => {
@@ -312,6 +316,15 @@ describe("explorer-preview-view helpers (#2733)", () => {
       false,
     );
     assert.equal(isEditorHostPreviewUrl("/cm/app/editor?contentId=551&mode=view"), true);
+    assert.equal(
+      isEditorHostPreviewUrl(
+        "/Rhythmyx/cm/app/spa.jsp?entry=editor&contentId=551",
+      ),
+      true,
+    );
+    assert.equal(isEditorHostPreviewUrl(""), false);
+    assert.equal(isEditorHostPreviewUrl("/cm/app/editorial"), false);
+    assert.equal(isEditorHostPreviewUrl("/cm/app/spa.jsp?entry=editorial"), false);
     assert.equal(isProductPagePreviewUrl("/Rhythmyx/cm/app/spa.jsp"), false);
     assert.equal(
       isProductPagePreviewUrl("/Rhythmyx/psx_ce/admin/preview-settings"),

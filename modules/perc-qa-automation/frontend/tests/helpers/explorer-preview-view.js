@@ -129,7 +129,7 @@ function sitePathPreviewUrl(cmsPath, opts = {}) {
     "percmobilepreview",
     String(opts.mobilePreview === undefined ? false : Boolean(opts.mobilePreview)),
   );
-  return `${p}?${q.toString()}`;
+  return `/${encodeCmsRelPath(p)}?${q.toString()}`;
 }
 
 /**
@@ -349,8 +349,8 @@ function parentFolderCmsPath(itemPath) {
 function isEditorHostPreviewUrl(url) {
   const u = String(url || "").replace(/\\/g, "/").toLowerCase();
   if (!u) return false;
-  if (u.includes("/cm/app/editor")) return true;
-  if (u.includes("entry=editor")) return true;
+  if (/\/cm\/app\/editor(?:[/?#&]|$)/.test(u)) return true;
+  if (/[?&]entry=editor(?:[&#]|$)/.test(u)) return true;
   return false;
 }
 

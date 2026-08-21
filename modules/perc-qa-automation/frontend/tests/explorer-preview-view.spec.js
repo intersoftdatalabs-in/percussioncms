@@ -551,10 +551,20 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
           "Preview window must not be the Content Editor host",
         ).toHaveCount(0);
         const html = await popup.content().catch(() => "");
+        // Floor against about:blank / empty shell. Error pages also exceed
+        // 80 chars, so require an HTML document without Jetty/Tomcat error markers.
         expect(
           html.length,
           "Preview window should not be a blank document",
         ).toBeGreaterThan(80);
+        expect(
+          /<html[\s>]/i.test(html),
+          "Preview window should contain an HTML document",
+        ).toBe(true);
+        expect(
+          /HTTP ERROR|error\.jsp|<title>\s*Error/i.test(html),
+          "Preview window should not be a server error page",
+        ).toBe(false);
         await popup.close().catch(() => {});
       }
 
