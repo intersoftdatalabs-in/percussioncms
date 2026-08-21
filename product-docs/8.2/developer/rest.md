@@ -687,6 +687,23 @@ warning in the Server actions error region.
 
 See [Content Explorer](id:admin-content-explorer) server actions.
 
+## Content Explorer translations
+
+Explorer **Translations** (View → Translations, or Translate on Server actions) lists locale
+variants and creates new ones through the public REST façade:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/rest/content-explorer/translations/{itemId}` | Current locale plus translation-category dependents |
+| `POST` | `/rest/content-explorer/translations` | Create locale variants (`itemIds` numeric content ids, optional `locales`) |
+
+`{itemId}` on GET may be a hyphenated Percussion GUID (`16777215-101-551`) **or** a bare numeric
+content id (`551`). Explorer list rows are usually GUID-shaped; clients must send that full GUID
+on GET. Stripping to the last segment (`GET …/translations/551`) can return **404 Item not found**
+while the GUID form returns **200**. Create-variant POST still uses numeric `itemIds`.
+
+See [Content Explorer](id:admin-content-explorer) → Translations.
+
 ## Testing tips
 
 - Unit-test resources with Mockito and provide Spring test stubs for new adaptor interfaces on the
