@@ -17,6 +17,7 @@
 
 package com.percussion.packages;
 
+import com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory;
 import com.percussion.packages.pagexml.PSPageXmlDualShip;
 import com.percussion.packages.pagexml.PSPageXmlException;
 import com.percussion.packages.pagexml.PSPageXmlInstallMode;
@@ -229,9 +230,11 @@ public final class PSPackageBuilder {
         if (mode != PSPageXmlInstallMode.DUAL_SHIP) {
           return;
         }
+        // Fail closed: non-waived product packages must not re-introduce dual-ship (#3675).
+        PSDualShipPageTemplateDefInventory.assertDualShipMaterializationAllowed(packageName);
         int n = PSPageXmlDualShip.materializeInstallTemplateDefs(stagingPackageDir);
         System.out.println(
-            "  dual-ship page templateDefs for " + packageName + ": " + n + " written");
+            PSDualShipPageTemplateDefInventory.formatDualShipLogLine(packageName, n));
         return;
       }
       // post-reorganize: native archive staging
@@ -241,7 +244,7 @@ public final class PSPackageBuilder {
       int n = PSPageXmlNativeInstall.stageArchiveTemplateDefs(stagingPackageDir, archiveRoot);
       System.out.println(
           "  native-install page TemplateDefs for " + packageName + ": " + n + " written");
-    } catch (PSPageXmlException e) {
+    } catch (PSPageXmlException | IllegalStateException e) {
       throw new IOException(
           "Page install staging failed for package "
               + packageName
