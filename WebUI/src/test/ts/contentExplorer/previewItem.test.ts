@@ -123,9 +123,10 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(isPreviewableItem(listed)).toBe(true);
     const target = resolvePreviewTarget(listed, "/services");
     expect(target.kind).toBe("page");
-    expect(target.url).toContain("entry=editor");
-    expect(target.url).toContain("contentId=9");
-    expect(target.url).toContain("mode=view");
+    expect(target.url).toContain("/Sites/Corporate_Investments/Pages/About?");
+    expect(target.url).toContain("percmobilepreview=");
+    expect(target.url).not.toContain("entry=editor");
+    expect(target.url).not.toContain("/cm/app/editor");
     expect(
       isPreviewableItem({
         name: "Home",
@@ -188,13 +189,14 @@ describe("previewItem pure helpers (#2733)", () => {
     ).toBe("");
   });
 
-  it("resolvePreviewTarget prefers editor-or-preview host when id is present (#3627)", () => {
+  it("resolvePreviewTarget prefers site-path then page render, not editor host (#3716)", () => {
     const t = resolvePreviewTarget(PAGE, "/services");
     expect(t.kind).toBe("page");
     expect(t.needsFetch).toBe(false);
-    expect(t.url).toContain("entry=editor");
-    expect(t.url).toContain("contentId=1");
-    expect(t.url).toContain("mode=view");
+    expect(t.url).toContain("/Sites/Demo/Home?");
+    expect(t.url).toContain("percmobilepreview=");
+    expect(t.url).not.toContain("entry=editor");
+    expect(t.url).not.toContain("/cm/app/editor");
     expect(t.url).not.toContain("/pagemanagement/render/page/");
 
     const pathOnly = resolvePreviewTarget(
@@ -213,8 +215,11 @@ describe("previewItem pure helpers (#2733)", () => {
       },
       "/services",
     );
-    expect(guidPage.url).toContain("contentId=88");
-    expect(guidPage.url).toContain("mode=view");
+    expect(guidPage.url).toBe(
+      "/services/pagemanagement/render/page/16777215-101-88",
+    );
+    expect(guidPage.url).not.toContain("entry=editor");
+    expect(guidPage.url).not.toContain("/cm/app/editor");
 
     const assetT = resolvePreviewTarget(ASSET, "/services");
     expect(assetT.kind).toBe("asset");
@@ -222,7 +227,7 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(assetT.url).toContain("assetViewUrl");
   });
 
-  it("openPreviewItem opens editor view host without fetch (#3627)", async () => {
+  it("openPreviewItem opens site-path preview without fetch (#3716)", async () => {
     const openWindow = vi.fn(() => null);
     const fetchText = vi.fn();
     await openPreviewItem(PAGE, {
@@ -233,9 +238,32 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(fetchText).not.toHaveBeenCalled();
     expect(openWindow).toHaveBeenCalledTimes(1);
     const url = openWindow.mock.calls[0][0] as string;
-    expect(url).toContain("entry=editor");
-    expect(url).toContain("contentId=1");
-    expect(url).toContain("mode=view");
+    expect(url).toContain("/Sites/Demo/Home?");
+    expect(url).toContain("percmobilepreview=");
+    expect(url).not.toContain("entry=editor");
+    expect(url).not.toContain("/cm/app/editor");
+  });
+
+  it("openPreviewItem opens page render when the item is not under Sites (#3716)", async () => {
+    const openWindow = vi.fn(() => null);
+    const fetchText = vi.fn();
+    await openPreviewItem(
+      {
+        id: "16777215-101-88",
+        name: "Home",
+        path: "/Other/Home",
+        type: "percPage",
+      },
+      {
+        servicesRoot: "/services",
+        openWindow,
+        fetchText,
+      },
+    );
+    expect(fetchText).not.toHaveBeenCalled();
+    expect(openWindow.mock.calls[0][0]).toBe(
+      "/services/pagemanagement/render/page/16777215-101-88",
+    );
   });
 
   it("openPreviewItem fetches asset view URL then opens body", async () => {

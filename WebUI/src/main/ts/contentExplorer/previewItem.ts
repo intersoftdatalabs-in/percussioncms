@@ -15,18 +15,18 @@
  */
 
 /**
- * Product preview URL builders and open handler for Explorer selection (#2733).
+ * Product preview URL builders and open handler for Explorer selection (#2733 / #3716).
  *
  * <p>Replaces the US1 default no-op preview with the same product surfaces the
  * classic Finder uses:</p>
  * <ul>
- *   <li><strong>Pages</strong> — product editor-or-preview host
- *       ({@code spa.jsp?entry=editor&mode=view}) when a content id is
- *       present so H2 listed pages open HTTP 200 (FastForward site-path
- *       assembly 500s when nav types are unregistered). Finder site-path
+ *   <li><strong>Pages</strong> — Finder site-path
  *       ({@code folderPaths + name} / {@code path} +
- *       {@code percmobilepreview}) when there is no id. Render service
- *       is the last fallback (#3627).</li>
+ *       {@code percmobilepreview}) when the item is under {@code /Sites/}.
+ *       Page Management render ({@code GET …/pagemanagement/render/page/{id}})
+ *       when there is an id but no Sites path. Preview must open an assembled
+ *       page, not the React editor host ({@code spa.jsp?entry=editor} /
+ *       {@code /cm/app/editor}) (#3716).</li>
  *   <li><strong>Assets</strong> — {@code GET …/assetmanagement/asset/assetViewUrl/{id}}
  *       (plain text URL) then {@code window.open}.</li>
  * </ul>
@@ -36,10 +36,9 @@
  */
 
 import { get } from "../api/client";
-import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { PATHS, SERVICES_ROOT } from "../api/paths";
-import { buildEditorHostUrl } from "../editor/editorHostUrl";
+import { withCmsContextPrefix } from "../assembly/assemblyHostUrl";
 import { isFolder, isPageOrAssetContentType } from "./selection";
 
 /** Discriminator used by UI chrome and skip logic in Playwright. */
@@ -270,15 +269,7 @@ export function resolvePreviewTarget(
       needsFetch: true,
     };
   }
-  // page — editor-or-preview host when id is known (HTTP 200 on H2).
-  const contentId = parseExplorerContentId(item.id);
-  if (contentId != null) {
-    return {
-      kind: "page",
-      url: buildEditorHostUrl(contentId, "view"),
-      needsFetch: false,
-    };
-  }
+  // page — Finder site-path (assembled page) first; render service when no Sites path.
   const siteUrl = buildSitePathPreviewUrl(resolvePagePreviewPath(item));
   if (siteUrl) {
     return { kind: "page", url: siteUrl, needsFetch: false };
@@ -347,7 +338,7 @@ export async function openPreviewItem(
   }
 
   openWindow(
-    target.url,
+    withCmsContextPrefix(target.url),
     windowNameForId(String(item.id ?? item.path ?? "page"), "percPagePreview_"),
   );
 }

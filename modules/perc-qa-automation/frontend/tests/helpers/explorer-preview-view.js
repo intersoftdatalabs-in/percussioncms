@@ -342,18 +342,31 @@ function parentFolderCmsPath(itemPath) {
 }
 
 /**
+ * React Content Editor host — not a product page preview (#3716).
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isEditorHostPreviewUrl(url) {
+  const u = String(url || "").replace(/\\/g, "/").toLowerCase();
+  if (!u) return false;
+  if (u.includes("/cm/app/editor")) return true;
+  if (u.includes("entry=editor")) return true;
+  return false;
+}
+
+/**
  * Whether a popup URL is a product page preview (render or site-path).
+ * The React editor host is not a product preview (#3716).
  * @param {string} url
  * @returns {boolean}
  */
 function isProductPagePreviewUrl(url) {
   const u = String(url || "").replace(/\\/g, "/").toLowerCase();
   if (!u) return false;
+  if (isEditorHostPreviewUrl(u)) return false;
   if (u.includes("/pagemanagement/render/page/")) return true;
   if (u.includes("/assembler/render")) return true;
   if (u.includes("percmobilepreview=")) return true;
-  // Product editor-or-preview host (#3627) — spa.jsp?entry=editor&mode=view.
-  if (u.includes("entry=editor") && u.includes("mode=view")) return true;
   // Classic CE preview requires the command — not any URL with "preview"
   // near /psx_ce (e.g. /psx_ce/admin/preview-settings).
   if (u.includes("sys_command=preview")) return true;
@@ -502,6 +515,7 @@ module.exports = {
   unwrapPathItems,
   resolveExplorerListPath,
   parentFolderCmsPath,
+  isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,

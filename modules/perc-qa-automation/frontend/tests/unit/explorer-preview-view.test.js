@@ -29,6 +29,7 @@ const {
   unwrapPathItems,
   resolveExplorerListPath,
   parentFolderCmsPath,
+  isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
@@ -288,6 +289,12 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
     assert.equal(
       isProductPagePreviewUrl(
+        "/Rhythmyx/Sites/CorporateInvestments/Home?percmobilepreview=false",
+      ),
+      true,
+    );
+    assert.equal(
+      isProductPagePreviewUrl(
         "/Rhythmyx/psx_cerffHome/rffHome.html?sys_command=preview&sys_contentid=551",
       ),
       true,
@@ -296,8 +303,15 @@ describe("explorer-preview-view helpers (#2733)", () => {
       isProductPagePreviewUrl(
         "/Rhythmyx/cm/app/spa.jsp?entry=editor&contentId=551&mode=view",
       ),
-      true,
+      false,
     );
+    assert.equal(
+      isProductPagePreviewUrl(
+        "/Rhythmyx/cm/app/editor?contentId=551&mode=view",
+      ),
+      false,
+    );
+    assert.equal(isEditorHostPreviewUrl("/cm/app/editor?contentId=551&mode=view"), true);
     assert.equal(isProductPagePreviewUrl("/Rhythmyx/cm/app/spa.jsp"), false);
     assert.equal(
       isProductPagePreviewUrl("/Rhythmyx/psx_ce/admin/preview-settings"),
