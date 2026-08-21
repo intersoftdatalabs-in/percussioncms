@@ -46,7 +46,7 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(TEST_IDS.viewTools, "explorer-view-tools");
   });
 
-  it("workflowCheckInPath encodes bare numeric content ids (#3688)", () => {
+  it("workflowCheckInPath encodes bare numeric content ids (#3688 / #3722)", () => {
     assert.equal(
       workflowCheckInPath("/Rhythmyx/services", "594"),
       "/Rhythmyx/services/itemmanagement/workflow/checkIn/594",
