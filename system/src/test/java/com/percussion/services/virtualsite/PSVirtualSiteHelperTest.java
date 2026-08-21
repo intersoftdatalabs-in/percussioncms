@@ -129,9 +129,9 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitFilesystemOnlyInPhase1() {
+  void allowedSourceKindsIncludeGitAndCsvFilesystem() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
-    assertEquals(List.of("git-filesystem"), allowed);
+    assertEquals(List.of("git-filesystem", "csv-filesystem"), allowed);
   }
 
   @Test
@@ -154,6 +154,31 @@ class PSVirtualSiteHelperTest {
             prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "product-docs"),
             prop(PSVirtualSiteHelper.PROP_CONFIG_FILE, "_config.yaml"));
     assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+  }
+
+  @Test
+  void validatePassesForCsvFilesystemWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "csv-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.CSV_FILESYSTEM,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForCsvFilesystem() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "csv-filesystem"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "csv-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("csv-filesystem"));
   }
 
   @Test

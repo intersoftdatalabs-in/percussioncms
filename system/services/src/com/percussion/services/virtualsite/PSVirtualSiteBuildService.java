@@ -61,6 +61,35 @@ public class PSVirtualSiteBuildService {
   }
 
   /**
+   * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem}).
+   *
+   * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
+   * @param participants participant registry; null uses an in-memory registry
+   * @return service wired to {@link PSVirtualSiteSourceFactory}
+   */
+  public static PSVirtualSiteBuildService forSourceType(
+      VirtualSiteSourceType type, IPSVirtualParticipantService participants) {
+    VirtualSiteSourceType resolved =
+        type != null ? type : VirtualSiteSourceType.GIT_FILESYSTEM;
+    return new PSVirtualSiteBuildService(
+        PSVirtualSiteSourceFactory.create(resolved), participants);
+  }
+
+  /**
+   * Build service for a registered adapter kind with an in-memory participant registry.
+   *
+   * @param type source kind; null defaults to git-filesystem
+   * @return service
+   */
+  public static PSVirtualSiteBuildService forSourceType(VirtualSiteSourceType type) {
+    return forSourceType(type, new PSInMemoryVirtualParticipantService());
+  }
+
+  IPSVirtualSiteSource source() {
+    return source;
+  }
+
+  /**
    * Build a Virtual Site from a filesystem root into {@code outputRoot}.
    *
    * <p>Every invocation reloads {@code _config.yaml}, optional {@code _redirects.yaml}, and
