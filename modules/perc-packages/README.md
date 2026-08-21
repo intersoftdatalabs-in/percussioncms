@@ -38,6 +38,21 @@ Do not delete `PSLegacyDefinitionXmlShim` (#2852 blocked).
 See root `scripts/README.md` (definition XML inventory gates) and
 `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
 
+## Dual-ship page templateDef inventory gate (#3675)
+
+Product packages with modern `pages/` must not re-introduce dual-ship root `*.templateDef`
+materialization except the explicit waiver **`perc.Test`**. Native packages
+(`package-install.properties` `page.installMode=native`) are not dual-ship emitters.
+#3674 leftover widget binaries are **not** dual-ship-retained (empty retain list).
+
+| Piece | Class |
+|-------|--------|
+| Inventory + log parser + CLI | `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` |
+| Surefire | `PSDualShipPageTemplateDefInventoryTest` |
+| Package-build fail-closed | `PSPackageBuilder` |
+
+Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the source tree.
+
 ## Archive-manifest Widget XML paths (#3582)
 
 Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author

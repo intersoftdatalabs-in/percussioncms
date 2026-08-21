@@ -4,7 +4,7 @@
 |-------|--------|
 | **Status** | Active (#2806 native install path landed; dual-ship optional) |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) · Grandparent [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
-| **Related** | #2786 dual-ship modern authoring · #2806 native package install · Phase 5 shim #2632 |
+| **Related** | #2786 dual-ship modern authoring · #2806 native package install · #3673 Baseline native · #3674 leftover binary conversion · #3675 CI dual-ship gate · Phase 5 shim #2632 |
 | **Code** | `PSPageXmlInstallPolicy`, `PSPageXmlNativeInstall`, `PSPageXmlDualShip`, `PSPackageBuilder` |
 
 ## Purpose
@@ -37,8 +37,7 @@ Policy code: `com.percussion.packages.pagexml.PSPageXmlInstallPolicy` (aligns wi
 | `perc.baseTemplates` | `package-install.properties` → `native` | 20 page layouts |
 | `perc.responsiveTemplates` | `package-install.properties` → `native` | Banded / Basic / plain |
 | `perc.Baseline` | `package-install.properties` → `native` | 7 system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`, `perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) — #3673 |
-| `perc.FileAssetWidget` | `package-install.properties` → `native` | `perc.fileBinary` leftover binary TemplateDef (#3674) — assembly `pages/` peer, not Widget XML |
-| `perc.widgets.image` | `package-install.properties` → `native` | `perc.imageMainBinary` / `perc.imageThumbBinary` leftover binary TemplateDefs (#3674) |
+| `perc.FileAssetWidget` / `perc.widgets.image` | `package-install.properties` → `native` | Leftover binary TemplateDefs (`perc.fileBinary`, `perc.imageMainBinary`, `perc.imageThumbBinary`) converted to modern `pages/` — #3674 / #3680 |
 
 ## Retirement checklist (per package)
 
@@ -57,10 +56,20 @@ Dual-ship **code path** can be deleted when **all** hold:
 - [x] Native install API + policy exist (`PSPageXmlNativeInstall` / `PSPageXmlInstallPolicy`) — #2806
 - [x] `perc.baseTemplates` / `perc.responsiveTemplates` use native mode — #2806
 - [x] Remaining page layout packages on native (`perc.Baseline` system templates — #3673)
-- [x] Widget leftover binary TemplateDefs inventoried and converted (#3674): `perc.fileBinary`, `perc.imageMainBinary`, `perc.imageThumbBinary` are `output-format=Binary` / `binaryAssembler` (not page layouts). Converted to `pages/<id>/component-package.json` + native install (Widget XML emitter cannot emit TemplateDef). Product tree has zero authored root `*.templateDef`.
-- [ ] CI / product package build has zero `dual-ship page templateDefs` log lines (or only waived packages)
+- [x] Widget leftover binary TemplateDefs inventoried and converted (#3674 / #3680): `perc.fileBinary`, `perc.imageMainBinary`, `perc.imageThumbBinary` are `output-format=Binary` / `binaryAssembler` (not page layouts). Converted to `pages/<id>/component-package.json` + native install (Widget XML emitter cannot emit TemplateDef). Product tree has zero authored root `*.templateDef`.
+- [x] CI / product package build has zero `dual-ship page templateDefs` log lines (or only waived packages) — Surefire `PSDualShipPageTemplateDefInventory` / #3675. Waiver: **`perc.Test` only**. Leftover binaries are converted on `main` via #3680 (not dual-ship-retained). Package-build also fails closed via `assertDualShipMaterializationAllowed`.
 - [ ] Docs (this file + page inventory + ADR-004) mark dual-ship retired
 - [ ] Follow-up removes `PSPageXmlDualShip.materializeInstallTemplateDefs` call sites when unused
+
+### CI gate (#3675)
+
+| Piece | Class |
+|-------|--------|
+| Inventory + log parser + CLI | `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` |
+| Surefire | `PSDualShipPageTemplateDefInventoryTest` |
+| Package-build fail-closed | `PSPackageBuilder.stageModernPageInstallArtifacts` |
+
+Scan is **committed** `package-install.properties` only (JVM `perc.packages.page.installMode` must not hide a missing native opt-in). Packages with modern `pages/` + native mode are not dual-ship emitters. Authored root `*.templateDef` without modern `pages/` is out of this gate; leftover binaries were converted (#3674 / #3680).
 
 ## Deployer note
 
@@ -72,7 +81,7 @@ Runtime install still uses `PSTemplateDefDependencyHandler` and assembly-templat
 |---------|-------|--------|
 | Dual-run **definition XML shim** | Runtime selection modern vs Widget/Page/Gadget XML | Time-boxed; Phase 5 #2632 — criteria: [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) |
 | Dual-ship **page templateDef** | Package-build install bridge for page layouts | Optional; native preferred for converted packages |
-| Native **page install** | Package-build stages TemplateDef archive from modern pages | Landed #2806 for base/responsive; #3673 for Baseline |
+| Native **page install** | Package-build stages TemplateDef archive from modern pages | Landed #2806 for base/responsive; #3673 for Baseline; #3674 / #3680 leftover binaries |
 
 ## See also
 

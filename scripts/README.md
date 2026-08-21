@@ -79,6 +79,16 @@ Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlSh
 under a non-waived package. Explicit waiver: **`perc.Test` only**. Cross-platform: `Path` /
 `Files` only (no hardcoded separators).
 
+### Dual-ship page templateDef inventory gate (#3675)
+
+**Not a Python script.** Fail-closed Surefire gate so product package-build cannot silently
+re-introduce dual-ship page `*.templateDef` materialization (modern `pages/` + non-native
+committed `page.installMode`). Waiver: **`perc.Test` only**. Sibling #3674 leftover widget
+binaries are not dual-ship-retained. API:
+`com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` /
+`PSDualShipPageTemplateDefInventoryTest`. Retirement checklist:
+`docs/ai-generated/tasks/template-assembler-normalization/dual-ship-page-template-retirement.md`.
+
 Optional CLI (after compiling the module):
 
 ```bat
@@ -94,6 +104,10 @@ cd modules\perc-packages
 ..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
   -Dexec.mainClass=com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory ^
   -Dexec.args="src\main\resources\Packages"
+
+..\..\mvnw.cmd -q exec:java -Dexec.classpathScope=compile ^
+  -Dexec.mainClass=com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory ^
+  -Dexec.args="src\main\resources\Packages"
 ```
 
 ```bash
@@ -108,6 +122,10 @@ cd modules/perc-packages
 
 ../../mvnw -q exec:java -Dexec.classpathScope=compile \
   -Dexec.mainClass=com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory \
+  -Dexec.args="src/main/resources/Packages"
+
+../../mvnw -q exec:java -Dexec.classpathScope=compile \
+  -Dexec.mainClass=com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory \
   -Dexec.args="src/main/resources/Packages"
 ```
 

@@ -100,7 +100,7 @@ Native install (package build, #2806): archive `TemplateDef-N/<stem>.templateDef
 
 1. **Runtime deployer** reading `component-package.json` from archive (today native path is package-build staging into TemplateDef wire format).
 2. **Thumbnails / resources** wiring for template images into `resources[]`.
-3. **Baseline system templates** conversion matrix landed (#2805) with native opt-in (#3673). Remaining: widget leftover binary `*.templateDef` (#3674) and CI dual-ship log gate (#3675).
+3. **Baseline system templates** conversion matrix landed (#2805) with native opt-in (#3673). CI dual-ship log/path gate landed (#3675). Remaining: widget leftover binary `*.templateDef` (#3674).
 4. **Page item composition** (site storage region trees) → slot composition IR — depends on Phase 2 storage / REST (#2690 family).
 5. **Delete dual-ship code path** when all page packages use native (see retirement checklist).
 
