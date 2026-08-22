@@ -676,9 +676,62 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   // see base class
   @Override
   public void reserveNewId(PSDependency dep, PSIdMap idMap) throws PSDeployException {
+    if (dep == null) {
+      throw new IllegalArgumentException("dep may not be null");
+    }
+    if (idMap == null) {
+      throw new IllegalArgumentException("idMap may not be null");
+    }
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+      throw new IllegalArgumentException("dep wrong type");
+    }
+
+    PSIdMapping mapping = idMap.getMapping(dep.getDependencyId(), dep.getObjectType());
+    if (mapping == null) {
+      Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
+      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+    }
+
+    // First assign of an unused archive UUID (TemplateDef-602 → 602) keeps the
+    // product GUID. Existing customer rows are matched by name before this runs
+    // (isNewObject=false) and are not remapped (#3727).
+    if (mapping.isNewObject() && mapping.getTargetId() == null) {
+      boolean claimed =
+          PSTemplateDefInstallUtils.isUuidReservedAsTarget(
+                  idMap, dep.getDependencyId(), DEPENDENCY_TYPE)
+              || isTemplateUuidPresentOnTarget(dep.getDependencyId());
+      if (PSTemplateDefInstallUtils.tryKeepSourceUuid(mapping, claimed)) {
+        log.info(
+            "TemplateDef install keeping archive UUID {} ({}) on first assign",
+            mapping.getTargetId(),
+            dep.getDisplayName());
+        return;
+      }
+    }
     PSDependencyUtils.reserveNewId(dep, idMap, getType());
-    // guids dont need ids, they are unique ids
-    return;
+  }
+
+  /**
+   * Whether a TemplateDef with this archive id already exists on the target.
+   *
+   * <p>Uses {@code findTemplate} (null if missing) so a fresh install does not log
+   * TEMPLATE_MISSING warnings for each unused archive UUID.
+   *
+   * @param sourceId archive dependency id, may be blank
+   * @return {@code true} when a template row is found, or the check cannot be completed
+   */
+  private boolean isTemplateUuidPresentOnTarget(String sourceId) {
+    if (sourceId == null || sourceId.isBlank()) {
+      return false;
+    }
+    init();
+    try {
+      IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, sourceId.trim());
+      return m_assemblySvc.findTemplate(guid) != null;
+    } catch (RuntimeException e) {
+      log.debug("TemplateDef UUID presence check failed for {}: {}", sourceId, e.toString());
+      return true;
+    }
   }
 
   /**
