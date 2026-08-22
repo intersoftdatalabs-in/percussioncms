@@ -79,9 +79,7 @@ public final class PSTemplateDefInstallUtils {
       return null;
     }
     String trimmed = sourceId.trim();
-    try {
-      templateUuid(trimmed);
-    } catch (RuntimeException e) {
+    if (parseTemplateUuid(trimmed) == null) {
       return null;
     }
     if (sourceUuidInUse) {
@@ -162,11 +160,12 @@ public final class PSTemplateDefInstallUtils {
     if (left == null || right == null || left.isBlank() || right.isBlank()) {
       return false;
     }
-    try {
-      return templateUuid(left) == templateUuid(right);
-    } catch (RuntimeException e) {
-      return left.trim().equals(right.trim());
+    Integer leftUuid = parseTemplateUuid(left);
+    Integer rightUuid = parseTemplateUuid(right);
+    if (leftUuid == null || rightUuid == null) {
+      return false;
     }
+    return leftUuid.intValue() == rightUuid.intValue();
   }
 
   /**
@@ -180,6 +179,18 @@ public final class PSTemplateDefInstallUtils {
       throw new IllegalArgumentException("sourceId may not be null or empty");
     }
     return new PSGuid(PSTypeEnum.TEMPLATE, sourceId.trim()).toString();
+  }
+
+  /**
+   * Template UUID from a dependency id, or {@code null} when {@link PSGuid} rejects the string
+   * ({@link IllegalArgumentException}, including {@link NumberFormatException}).
+   */
+  static Integer parseTemplateUuid(String id) {
+    try {
+      return templateUuid(id);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   static int templateUuid(String id) {

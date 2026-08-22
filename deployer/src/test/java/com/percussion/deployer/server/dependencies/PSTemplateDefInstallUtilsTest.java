@@ -108,6 +108,29 @@ public class PSTemplateDefInstallUtilsTest {
   }
 
   @Test
+  public void sameTemplateUuidDoesNotTreatMalformedIdsAsCollisions() {
+    assertFalse(PSTemplateDefInstallUtils.sameTemplateUuid("not-a-guid", "not-a-guid"));
+    assertFalse(PSTemplateDefInstallUtils.sameTemplateUuid("602", "not-a-guid"));
+    assertFalse(PSTemplateDefInstallUtils.sameTemplateUuid("not-a-guid", "602"));
+    assertNull(PSTemplateDefInstallUtils.parseTemplateUuid("not-a-guid"));
+    assertEquals(Integer.valueOf(602), PSTemplateDefInstallUtils.parseTemplateUuid("602"));
+  }
+
+  @Test
+  public void malformedReservedTargetDoesNotBlockValidArchiveUuid() {
+    PSIdMap idMap = new PSIdMap("src:repo");
+    PSIdMapping other = newNewMapping("999", "other.template");
+    other.setTarget("not-a-guid", "other.template");
+    idMap.addMapping(other);
+
+    assertFalse(PSTemplateDefInstallUtils.isUuidReservedAsTarget(idMap, "602", TYPE));
+    PSIdMapping mapping = newNewMapping("602", "perc.page");
+    boolean reserved = PSTemplateDefInstallUtils.isUuidReservedAsTarget(idMap, "602", TYPE);
+    assertTrue(PSTemplateDefInstallUtils.tryKeepSourceUuid(mapping, reserved));
+    assertEquals("602", mapping.getTargetId());
+  }
+
+  @Test
   public void baselineSystemTemplateGuidsAreStableOnFreshInstall() {
     Map<String, String> expected =
         Map.of(

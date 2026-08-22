@@ -683,7 +683,8 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("idMap may not be null");
     }
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE)) {
-      throw new IllegalArgumentException("dep wrong type");
+      throw new IllegalArgumentException(
+          "dep wrong type: expected " + DEPENDENCY_TYPE + " but got " + dep.getObjectType());
     }
 
     PSIdMapping mapping = idMap.getMapping(dep.getDependencyId(), dep.getObjectType());
@@ -729,7 +730,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, sourceId.trim());
       return m_assemblySvc.findTemplate(guid) != null;
     } catch (RuntimeException e) {
-      log.debug("TemplateDef UUID presence check failed for {}: {}", sourceId, e.toString());
+      log.debug("TemplateDef UUID presence check failed for {}: {}", sourceId, e);
       return true;
     }
   }
