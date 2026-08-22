@@ -15,11 +15,12 @@
  */
 
 /**
- * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 — Explorer
- * preview for a listed page on {@code spa.jsp?entry=explorer}.
+ * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 / #3716 —
+ * Explorer preview for a listed page on {@code spa.jsp?entry=explorer}.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
- * product preview for a listed page row (HTTP 200 / preview host).
+ * product preview for a listed page row (HTTP 200 site-path or
+ * pagemanagement/render — not the blank React editor host).
  * Folders stay Preview-disabled. Do <strong>not</strong> soft-skip when
  * H2 demo-sites list a previewable row (or REST finds a page). Fail
  * instead of skip on H2 when no previewable row exists (#3627).</p>
@@ -43,6 +44,7 @@ const {
   isPreviewableRow,
   unwrapPathItems,
   resolveExplorerListPath,
+  isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   listedPageSiteNames,
   foldSiteName,
@@ -522,6 +524,10 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         popupUrl = popup.url();
       }
       expect(
+        isEditorHostPreviewUrl(popupUrl),
+        `Preview must not open the React editor host; got ${popupUrl}`,
+      ).toBe(false);
+      expect(
         isProductPagePreviewUrl(popupUrl),
         `Preview popup URL should be page render or site-path preview; got ${popupUrl}`,
       ).toBe(true);
@@ -539,6 +545,26 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         ).toBe(200);
       }
       if (popup && !popup.isClosed()) {
+        await popup.waitForLoadState("domcontentloaded").catch(() => {});
+        await expect(
+          popup.locator('[data-testid="editor-host"]'),
+          "Preview window must not be the Content Editor host",
+        ).toHaveCount(0);
+        const html = await popup.content().catch(() => "");
+        // Floor against about:blank / empty shell. Error pages also exceed
+        // 80 chars, so require an HTML document without Jetty/Tomcat error markers.
+        expect(
+          html.length,
+          "Preview window should not be a blank document",
+        ).toBeGreaterThan(80);
+        expect(
+          /<html[\s>]/i.test(html),
+          "Preview window should contain an HTML document",
+        ).toBe(true);
+        expect(
+          /HTTP ERROR|error\.jsp|<title>\s*Error/i.test(html),
+          "Preview window should not be a server error page",
+        ).toBe(false);
         await popup.close().catch(() => {});
       }
 
