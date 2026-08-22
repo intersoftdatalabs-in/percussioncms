@@ -22,6 +22,7 @@ import type { ContentTypeSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
+import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -79,11 +80,16 @@ export function ContentTypesPanel(): React.ReactElement {
 
   if (selected) {
     return (
-      <ContentTypeDetailPanel
-        idOrName={selected.idOrName}
-        catalogGuid={selected.catalogGuid}
-        onBack={() => setSelected(null)}
-      />
+      <DeveloperSectionErrorBoundary
+        label={DEV_MSG.TAB_CONTENT_TYPES}
+        testId="developer-ct-detail-error"
+      >
+        <ContentTypeDetailPanel
+          idOrName={selected.idOrName}
+          catalogGuid={selected.catalogGuid}
+          onBack={() => setSelected(null)}
+        />
+      </DeveloperSectionErrorBoundary>
     );
   }
 

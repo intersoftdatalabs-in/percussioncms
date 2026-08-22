@@ -4,6 +4,10 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
 } from "../../../../main/ts/api/developer/contentTypesApi";
@@ -30,6 +34,11 @@ describe("unwrapContentTypeList", () => {
   it("handles null and empty", () => {
     expect(unwrapContentTypeList(null)).toEqual([]);
     expect(unwrapContentTypeList({})).toEqual([]);
+  });
+
+  it("maps Jackson empty-collection beans to [] (#3706 leftover)", () => {
+    expect(unwrapContentTypeList({ empty: true })).toEqual([]);
+    expect(unwrapContentTypeList({ empty: false })).toEqual([]);
   });
 
   it("fills guid.stringValue from host/type/uuid on list rows (#3319)", () => {
@@ -85,5 +94,92 @@ describe("unwrapContentTypeDetail (#3319)", () => {
   it("returns empty object for unrelated envelopes", () => {
     expect(unwrapContentTypeDetail({ Error: { message: "x" } })).toEqual({});
     expect(unwrapContentTypeDetail(null)).toEqual({});
+  });
+
+  it("normalizes Jackson empty-collection beans to [] (#3712)", () => {
+    const flat = unwrapContentTypeDetail({
+      name: "percArchiveList",
+      fields: { empty: false },
+      childFieldSets: { empty: true },
+      allowedWorkflows: { empty: false },
+      allowedTemplates: { empty: true },
+      designGaps: { empty: true },
+    });
+    expect(flat.fields).toEqual([]);
+    expect(flat.childFieldSets).toEqual([]);
+    expect(flat.allowedWorkflows).toEqual([]);
+    expect(flat.allowedTemplates).toEqual([]);
+    expect(flat.designGaps).toEqual([]);
+  });
+
+  it("unwraps JAXB single-item envelopes (#3712)", () => {
+    const wf = { name: "Simple Workflow", label: "Simple Workflow", isDefault: true };
+    const tpl = { name: "perc.page", label: "Page" };
+    const field = { name: "sys_title", label: "Title" };
+    const flat = unwrapContentTypeDetail({
+      ContentTypeDetail: {
+        name: "percArchiveList",
+        fields: { ContentTypeField: field },
+        childFieldSets: { childFieldSet: "rx_shared" },
+        allowedWorkflows: { NamedObjectRef: wf },
+        allowedTemplates: { NamedObjectRef: tpl },
+        designGaps: {
+          DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+        },
+      },
+    });
+    expect(flat.fields).toEqual([field]);
+    expect(flat.childFieldSets).toEqual(["rx_shared"]);
+    expect(flat.allowedWorkflows).toEqual([wf]);
+    expect(flat.allowedTemplates).toEqual([tpl]);
+    expect(flat.designGaps).toEqual([
+      { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+    ]);
+  });
+
+  it("wraps a lone association object and a lone {code,message} gap (#3712)", () => {
+    const wf = { name: "Simple Workflow", isDefault: true };
+    const flat = unwrapContentTypeDetail({
+      name: "percArchiveList",
+      allowedWorkflows: wf,
+      allowedTemplates: { name: "perc.page" },
+      fields: { name: "sys_title" },
+      childFieldSets: "rx_shared",
+      designGaps: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+    });
+    expect(flat.allowedWorkflows).toEqual([wf]);
+    expect(flat.allowedTemplates).toEqual([{ name: "perc.page" }]);
+    expect(flat.fields).toEqual([{ name: "sys_title" }]);
+    expect(flat.childFieldSets).toEqual(["rx_shared"]);
+    expect(flat.designGaps).toEqual([
+      { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+    ]);
+  });
+});
+
+describe("content-type Jackson list helpers (#3712)", () => {
+  it("leaves real arrays unchanged", () => {
+    expect(normalizeNamedObjectRefs([{ name: "a" }])).toEqual([{ name: "a" }]);
+    expect(normalizeContentTypeDesignGaps([{ code: "X", message: "m" }])).toEqual([
+      { code: "X", message: "m" },
+    ]);
+    expect(normalizeContentTypeFields([{ name: "sys_title" }])).toEqual([{ name: "sys_title" }]);
+    expect(normalizeContentTypeStringList(["a", "b"])).toEqual(["a", "b"]);
+  });
+
+  it("maps nullish and primitives to []", () => {
+    expect(normalizeNamedObjectRefs(undefined)).toEqual([]);
+    expect(normalizeNamedObjectRefs("nope")).toEqual([]);
+    expect(normalizeContentTypeDesignGaps(null)).toEqual([]);
+    expect(normalizeContentTypeDesignGaps(12)).toEqual([]);
+    expect(normalizeContentTypeFields(undefined)).toEqual([]);
+    expect(normalizeContentTypeStringList(undefined)).toEqual([]);
+    expect(normalizeContentTypeStringList(9)).toEqual([]);
+  });
+
+  it("wraps a lone legacy designGaps string", () => {
+    expect(normalizeContentTypeDesignGaps("legacy free-text gap")).toEqual([
+      "legacy free-text gap",
+    ]);
   });
 });

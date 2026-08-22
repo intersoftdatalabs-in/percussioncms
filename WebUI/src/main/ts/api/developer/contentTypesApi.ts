@@ -18,13 +18,26 @@
 import { normalizeDesignObjectGuid } from "../displayFormatGuid";
 import { get, put } from "../client";
 import { PATHS } from "../paths";
+import { asJacksonArray } from "./slotLists";
+import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
-  ContentTypeListEnvelope,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
+
+export {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeDetail}. */
 export const CONTENT_TYPE_DETAIL_ROOT = "ContentTypeDetail";
@@ -41,7 +54,8 @@ function normalizeContentTypeSummary(item: ContentTypeSummary): ContentTypeSumma
 }
 
 /**
- * Normalize list responses that may be a bare array or a JAXB envelope.
+ * Normalize list responses that may be a bare array, JAXB envelope, singleton
+ * object, or empty-collection bean (#3706 leftover / #3712).
  */
 export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
   if (payload == null) {
@@ -51,17 +65,25 @@ export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
     return (payload as ContentTypeSummary[]).map(normalizeContentTypeSummary);
   }
   if (typeof payload === "object") {
-    const env = payload as ContentTypeListEnvelope & {
-      contentType?: ContentTypeSummary[] | ContentTypeSummary;
-    };
-    const raw = env.ContentType ?? env.contentType;
-    if (raw == null) {
-      return [];
-    }
-    const list = Array.isArray(raw) ? raw : [raw];
+    const list = asJacksonArray<ContentTypeSummary>(
+      payload,
+      ["ContentType", "contentType"],
+      (o) => "name" in o || "label" in o || "guid" in o || "guidString" in o,
+    );
     return list.map(normalizeContentTypeSummary);
   }
   return [];
+}
+
+function normalizeContentTypeDetail(detail: ContentTypeDetail): ContentTypeDetail {
+  return {
+    ...detail,
+    fields: normalizeContentTypeFields(detail.fields),
+    childFieldSets: normalizeContentTypeStringList(detail.childFieldSets),
+    allowedWorkflows: normalizeNamedObjectRefs(detail.allowedWorkflows),
+    allowedTemplates: normalizeNamedObjectRefs(detail.allowedTemplates),
+    designGaps: normalizeContentTypeDesignGaps(detail.designGaps),
+  };
 }
 
 /**
@@ -91,7 +113,7 @@ export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
   } else {
     return {};
   }
-  return normalizeDesignObjectGuid(body);
+  return normalizeDesignObjectGuid(normalizeContentTypeDetail(body));
 }
 
 /**
