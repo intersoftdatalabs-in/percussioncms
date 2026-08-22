@@ -374,6 +374,76 @@ function isProductPagePreviewUrl(url) {
 }
 
 /**
+ * True when assembled preview HTML is usable (not NPE text, not a JSP compile
+ * failure, not a blank body). Used for rffHome site-path assembly (#3719).
+ * @param {string} body
+ * @returns {boolean}
+ */
+function isAssembledPreviewHtml(body) {
+  const text = String(body || "");
+  if (!text.trim()) return false;
+  const lower = text.toLowerCase();
+  if (lower.includes("the validated object is null")) return false;
+  if (lower.includes("stringescapeutils.escapehtml")) return false;
+  if (lower.includes("org.apache.commons.lang3.stringescapeutils")) return false;
+  if (lower.includes("unable to compile class for jsp")) return false;
+  return (
+    lower.includes("<html") ||
+    lower.includes("<!doctype") ||
+    lower.includes("<body") ||
+    /corporate\s+investments/i.test(text)
+  );
+}
+
+/**
+ * Full Sites item path for a listed REST page (item path, not parent folder).
+ * @param {{ path?: string, folderPath?: string, name?: string }} listed
+ * @returns {string}
+ */
+function listedPagePreviewCmsPath(listed) {
+  if (!listed) return "";
+  const name = String(listed.name || "").trim();
+  const itemPath = normalizeListedCmsPath(listed.path);
+  if (
+    itemPath.toLowerCase().startsWith("/sites/") &&
+    (!name || itemPath.toLowerCase().endsWith(`/${name.toLowerCase()}`))
+  ) {
+    return itemPath;
+  }
+  const parent = normalizeListedCmsPath(listed.folderPath);
+  if (parent.toLowerCase().startsWith("/sites/") && name) {
+    return `${parent}/${name}`.replace(/\/{2,}/g, "/");
+  }
+  return itemPath.toLowerCase().startsWith("/sites/") ? itemPath : "";
+}
+
+function normalizeListedCmsPath(raw) {
+  let p = String(raw || "")
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) p = p.slice(1);
+  if (p && !p.startsWith("/")) p = `/${p}`;
+  if (p.length > 1 && p.endsWith("/")) p = p.replace(/\/+$/, "");
+  return p;
+}
+
+/**
+ * Absolute GET URL for Finder site-path preview under the CMS context.
+ * Encodes path segments (spaces in rffHome titles). CMS paths use {@code /}.
+ * @param {string} baseUrl TEST_CMS_URL host (no trailing /Rhythmyx)
+ * @param {string} cmsPath finder path such as /Sites/CorporateInvestments/Home
+ * @returns {string} empty when not a Sites path
+ */
+function cmsSitePathPreviewGetUrl(baseUrl, cmsPath) {
+  const site = sitePathPreviewUrl(cmsPath);
+  if (!site) return "";
+  const base = String(baseUrl || "").replace(/\/+$/, "");
+  // sitePathPreviewUrl already percent-encodes segments (#3716); do not
+  // encodeURIComponent again or spaces become %2520.
+  return `${base}/Rhythmyx${site}`;
+}
+
+/**
  * Fold finder / repository site names so spaces and underscores match.
  * @param {string} name
  * @returns {string}
@@ -517,6 +587,9 @@ module.exports = {
   parentFolderCmsPath,
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
+  isAssembledPreviewHtml,
+  listedPagePreviewCmsPath,
+  cmsSitePathPreviewGetUrl,
   listedPageSiteNames,
   foldSiteName,
   detailRowHasExactName,

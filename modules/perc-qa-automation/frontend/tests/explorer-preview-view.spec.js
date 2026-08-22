@@ -15,8 +15,9 @@
  */
 
 /**
- * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 / #3716 —
- * Explorer preview for a listed page on {@code spa.jsp?entry=explorer}.
+ * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 / #3716 /
+ * #3719 / #3722 — Explorer preview for a listed page on
+ * {@code spa.jsp?entry=explorer}.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
  * product preview for a listed page row (HTTP 200 site-path or
@@ -46,6 +47,9 @@ const {
   resolveExplorerListPath,
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
+  isAssembledPreviewHtml,
+  listedPagePreviewCmsPath,
+  cmsSitePathPreviewGetUrl,
   listedPageSiteNames,
   foldSiteName,
   detailRowHasExactName,
@@ -532,17 +536,45 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         `Preview popup URL should be page render or site-path preview; got ${popupUrl}`,
       ).toBe(true);
       const previewRes = await previewResponsePromise;
+      let previewBody = "";
       if (previewRes) {
         expect(
           previewRes.status(),
           `Preview host ${previewRes.url()} should be HTTP 200`,
         ).toBe(200);
+        previewBody = await previewRes.text();
       } else {
         const probe = await page.request.get(popupUrl);
         expect(
           probe.status(),
           `Preview host ${popupUrl} should be HTTP 200`,
         ).toBe(200);
+        previewBody = await probe.text();
+      }
+      if (
+        /percmobilepreview=|\/assembler\/render|\/pagemanagement\/render\/page\//i.test(
+          popupUrl,
+        )
+      ) {
+        expect(
+          isAssembledPreviewHtml(previewBody),
+          `Assembled preview must be HTML, not NPE/JSP error; body=${String(previewBody).slice(0, 240)}`,
+        ).toBe(true);
+      }
+
+      const listedPath = listedPagePreviewCmsPath(listed);
+      const siteGet = cmsSitePathPreviewGetUrl(BASE_URL, listedPath);
+      if (siteGet) {
+        const asm = await page.request.get(siteGet);
+        const asmBody = await asm.text();
+        expect(
+          asm.status(),
+          `Site-path assembly ${siteGet} should be HTTP 200; body=${asmBody.slice(0, 240)}`,
+        ).toBe(200);
+        expect(
+          isAssembledPreviewHtml(asmBody),
+          `rffHome site-path must assemble HTML not NPE (#3719); body=${asmBody.slice(0, 240)}`,
+        ).toBe(true);
       }
       if (popup && !popup.isClosed()) {
         await popup.waitForLoadState("domcontentloaded").catch(() => {});

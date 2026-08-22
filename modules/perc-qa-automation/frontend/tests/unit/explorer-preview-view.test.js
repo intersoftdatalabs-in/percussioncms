@@ -31,6 +31,9 @@ const {
   parentFolderCmsPath,
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
+  isAssembledPreviewHtml,
+  listedPagePreviewCmsPath,
+  cmsSitePathPreviewGetUrl,
   listedPageSiteNames,
   foldSiteName,
   isExplorerSiteRootTestId,
@@ -329,6 +332,59 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(
       isProductPagePreviewUrl("/Rhythmyx/psx_ce/admin/preview-settings"),
       false,
+    );
+  });
+
+  it("isAssembledPreviewHtml rejects NPE / JSP compile text (#3719)", () => {
+    assert.equal(isAssembledPreviewHtml(""), false);
+    assert.equal(
+      isAssembledPreviewHtml("java.lang.NullPointerException: The validated object is null"),
+      false,
+    );
+    assert.equal(
+      isAssembledPreviewHtml(
+        "Unable to compile class for JSP: StringEscapeUtils.escapeHtml",
+      ),
+      false,
+    );
+    assert.equal(
+      isAssembledPreviewHtml("<html><body>Corporate Investments Home</body></html>"),
+      true,
+    );
+  });
+
+  it("cmsSitePathPreviewGetUrl prefixes Rhythmyx and encodes spaces", () => {
+    assert.equal(
+      cmsSitePathPreviewGetUrl(
+        "http://127.0.0.1:9993",
+        "/Sites/CorporateInvestments/Corporate Investments Home",
+      ),
+      "http://127.0.0.1:9993/Rhythmyx/Sites/CorporateInvestments/Corporate%20Investments%20Home?percmobilepreview=false",
+    );
+    assert.equal(cmsSitePathPreviewGetUrl("http://x", "/Assets/a"), "");
+    assert.equal(
+      cmsSitePathPreviewGetUrl(
+        "http://127.0.0.1:9993",
+        "/Sites/Corporate Investments/Q?A",
+      ),
+      "http://127.0.0.1:9993/Rhythmyx/Sites/Corporate%20Investments/Q%3FA?percmobilepreview=false",
+    );
+  });
+
+  it("listedPagePreviewCmsPath joins parent folder + page name", () => {
+    assert.equal(
+      listedPagePreviewCmsPath({
+        path: "/Sites/CorporateInvestments/Corporate Investments Home",
+        name: "Corporate Investments Home",
+      }),
+      "/Sites/CorporateInvestments/Corporate Investments Home",
+    );
+    assert.equal(
+      listedPagePreviewCmsPath({
+        folderPath: "//Sites/CorporateInvestments",
+        name: "Corporate Investments Home",
+      }),
+      "/Sites/CorporateInvestments/Corporate Investments Home",
     );
   });
 
