@@ -598,7 +598,7 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
   );
 
   test(
-    "numeric checkIn for listed page content id does not 500 (#3688)",
+    "numeric checkIn for listed page content id does not 500 (#3688 / #3722)",
     { tag: ["@explorer-preview-view", "@preview"] },
     async ({ request }) => {
       test.setTimeout(30_000);
