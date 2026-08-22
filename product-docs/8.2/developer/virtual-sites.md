@@ -19,6 +19,11 @@ Preview REST (`GET …/virtual/preview`) is last-output based and works for both
 Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem** as
 well as Git filesystem.
 
+A **SQL / database** adapter (`sql-database`) discovers rows from a JDBC `SELECT` against
+**in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`). This
+is the SPI/CLI path; REST PUT/Build chrome and Developer Sites SQL source UI land in
+follow-on slices. Oracle, MySQL, and SQL Server URLs are rejected.
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with
@@ -31,7 +36,8 @@ After the site folder is created, an optional Git root is saved with
 - Keep Git as the system of record for documentation (PR review, lockstep with product changes).
 - Use Percussion assemblers as the site generator (Markdown → HTML).
 - Provide stable page identities (`frontmatter.id`) for lightweight link checks / participants.
-- Leave the door open for future adapters (SQL, API, object storage) without renaming Site → Channel.
+- Leave the door open for additional adapters (API, object storage) without renaming Site → Channel.
+  SQL / H2 (`sql-database`) is implemented as an SPI.
 
 ## Source tree contract
 
@@ -95,7 +101,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs the matching adapter. Preview REST streams last-build HTML for both kinds. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git/CSV adapters; `sql-database` is the H2 SPI (CLI / factory). Preview REST streams last-build HTML for git and CSV. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -107,9 +113,10 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
 ### Validation rules
 
 - **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
-  (`git-filesystem`, `csv-filesystem`). Values such as future `sql` / `api` kinds are rejected until
-  implemented. `csv-filesystem` does not accept `virtual.remoteUrl` (Git remotes apply to
-  `git-filesystem` only).
+  (`git-filesystem`, `csv-filesystem`, `sql-database`). Values such as future `api` kinds are
+  rejected until implemented. `csv-filesystem` and `sql-database` do not accept
+  `virtual.remoteUrl` (Git remotes apply to `git-filesystem` only). `sql-database` is
+  in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs are rejected.
 - **Required root** — when `virtual.sourceKind` is virtual and `virtual.remoteUrl` is blank,
   `virtual.rootPath` must be non-blank.
 - **Optional Git remote** — `virtual.remoteUrl` + `virtual.branch` fetch or clone before Build.
@@ -171,6 +178,51 @@ Developer Sites can select **CSV filesystem** and save a root path. **Build Virt
 (`pagesWritten` in the JSON result). Developer **Sites** shows the same **Build Virtual Site**
 control for **CSV filesystem** (and Git filesystem). **Publish Virtual Site**
 (`POST …/virtual/publish`) then copies assembled HTML to the Site filesystem root.
+Unknown kinds remain **400**.
+
+### Offline build from SQL (`sql-database`)
+
+The `sql-database` adapter discovers pages from a JDBC `SELECT` against **in-memory H2**
+(`jdbc:h2:mem:name;DB_CLOSE_DELAY=-1`). `_config.yaml` is **required** and must include a
+`sql:` mapping. Git remotes are not used (`virtual.remoteUrl` is rejected for this kind).
+Do not point this adapter at live Oracle, MySQL, or SQL Server — those URLs fail closed.
+
+Required query result columns (labels case-insensitive; optional `sql.columns` remaps them):
+
+| Column | Required | Meaning |
+|--------|----------|---------|
+| `id` | Yes | Stable page id within the version (same role as Markdown frontmatter `id`) |
+| `title` | Yes | Page title |
+| `body` | Yes | Markdown body |
+| `path` | No | Site-relative page path. Omitted ⇒ `{version}/{id}.md`. Must be relative (no `..`, no `C:\…` / `/…`). |
+| `order` | No | Integer nav order; default `0` |
+| `version` | No | Must match a `_config.yaml` version `id`. Omitted ⇒ the default version. |
+
+Either `sql.query` (inline SELECT) or `sql.queryFile` (portable NIO path under the site
+root) is required — not both. `queryFile` must be relative (no remaining `..`, no
+Windows/Unix absolute roots). The query must be a single `SELECT` (no extra statements,
+no `INIT`/`RUNSCRIPT` in the JDBC URL). Missing required columns, blank `id`/`title`,
+duplicate ids, or an unsafe `path` fail closed (`VirtualSiteException`). Each
+discover/load re-runs the current SELECT (no process-lifetime row cache). Credentials
+are not written to logs; put the H2 user in `sql.user` (not in the JDBC URL).
+
+Example `_config.yaml` fragment:
+
+```yaml
+sql:
+  jdbcUrl: jdbc:h2:mem:virtual_pages;DB_CLOSE_DELAY=-1
+  user: sa
+  query: SELECT id, title, body, path, sort_order AS "order" FROM pages
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] sql-database
+```
+
+Site property validation allow-lists `sql-database` (same helper as Git/CSV). REST PUT/GET
+round-trip tests, in-product Build, and Developer Sites SQL chrome are follow-on slices.
 Unknown kinds remain **400**.
 
 ## CMS-integrated build (REST and WebUI)

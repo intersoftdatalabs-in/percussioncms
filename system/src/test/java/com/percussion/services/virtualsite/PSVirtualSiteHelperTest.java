@@ -129,9 +129,9 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitAndCsvFilesystem() {
+  void allowedSourceKindsIncludeGitCsvAndSqlDatabase() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
-    assertEquals(List.of("git-filesystem", "csv-filesystem"), allowed);
+    assertEquals(List.of("git-filesystem", "csv-filesystem", "sql-database"), allowed);
   }
 
   @Test
@@ -166,6 +166,31 @@ class PSVirtualSiteHelperTest {
     assertEquals(
         VirtualSiteSourceType.CSV_FILESYSTEM,
         PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validatePassesForSqlDatabaseWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "sql-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.SQL_DATABASE,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForSqlDatabase() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "sql-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("sql-database"));
   }
 
   @Test
@@ -205,6 +230,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("sql-api"));
     assertTrue(ex.getMessage().contains("git-filesystem"));
     assertTrue(ex.getMessage().contains("csv-filesystem"));
+    assertTrue(ex.getMessage().contains("sql-database"));
   }
 
   @Test

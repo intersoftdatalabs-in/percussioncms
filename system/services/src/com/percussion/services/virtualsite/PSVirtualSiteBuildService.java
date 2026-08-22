@@ -61,7 +61,8 @@ public class PSVirtualSiteBuildService {
   }
 
   /**
-   * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem}).
+   * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem},
+   * {@code sql-database}).
    *
    * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
    * @param participants participant registry; null uses an in-memory registry
