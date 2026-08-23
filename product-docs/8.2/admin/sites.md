@@ -292,6 +292,10 @@ site to the Site's configured filesystem publish location:
 4. Choose **Publish Virtual Site**. The panel shows a busy state, then success with
    **files copied** and the **destination path**, or a clear error (not Admin, still a
    repository Site on the server, missing or unsafe Site root).
+   For **SQL database**, run **Build Virtual Site** first so the panel shows pages written,
+   then **Publish Virtual Site** to copy assembled HTML (typically `8.2/index.html` for the
+   default version) onto the Site filesystem root. Traditional **Repository** Sites never
+   show this control.
 5. Integrators can call the same operation over REST: `POST /sites/{nameOrId}/virtual/publish`.
    The server **builds then copies** HTML/assets to that Site root and returns `publishPath`
    and `filesCopied`. Missing or unsafe Site root, overlap with the source tree, or a

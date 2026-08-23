@@ -30,6 +30,12 @@ const path = require("node:path");
 /** Absolute POSIX path inside the Linux QA CMS container. */
 const SQL_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/sql-virtual-qa";
 
+/** Assembled home copied to the Site filesystem root after SQL Publish (Linux cell). */
+const SQL_VIRTUAL_PUBLISHED_HTML = "8.2/index.html";
+
+/** Marker from the in-memory H2 SELECT fixture body, present in published HTML. */
+const SQL_VIRTUAL_PUBLISH_MARKER = "Hello from SQL.";
+
 function qaCmsContainer() {
   const fromEnv = (
     process.env.QA_CMS_CONTAINER ||
@@ -94,9 +100,83 @@ function deploySqlVirtualFixtureToQaCell() {
   return SQL_VIRTUAL_QA_ROOT;
 }
 
+/**
+ * Normalize a Developer Sites Publish destination path for the Linux QA cell.
+ * Rejects empty, relative, drive-letter, and {@code ..} paths so docker exec
+ * never follows a traversal. In-container filesystem paths always use {@code /}.
+ *
+ * @param {unknown} raw dest text from {@code developer-site-virtual-publish-dest}
+ * @returns {string} POSIX absolute path
+ */
+function normalizeQaPublishDestPath(raw) {
+  if (typeof raw !== "string") {
+    throw new Error("SQL Virtual Site publish dest is missing");
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error("SQL Virtual Site publish dest is blank");
+  }
+  const posix = trimmed.replace(/\\/g, "/");
+  if (/^[a-zA-Z]:/.test(posix) || posix.startsWith("//")) {
+    throw new Error(
+      `SQL Virtual Site publish dest is not a Linux QA cell path: ${trimmed}`,
+    );
+  }
+  if (!posix.startsWith("/")) {
+    throw new Error(`SQL Virtual Site publish dest is not absolute: ${trimmed}`);
+  }
+  const parts = posix.split("/").filter((seg) => seg.length > 0);
+  if (parts.some((seg) => seg === ".." || seg === ".")) {
+    throw new Error(`SQL Virtual Site publish dest is unsafe: ${trimmed}`);
+  }
+  return `/${parts.join("/")}`;
+}
+
+function posixJoin(base, ...segments) {
+  const dest = normalizeQaPublishDestPath(base);
+  const extra = [];
+  for (const seg of segments) {
+    const piece = String(seg ?? "").trim().replace(/\\/g, "/");
+    for (const part of piece.split("/")) {
+      if (!part) {
+        continue;
+      }
+      if (part === ".." || part === ".") {
+        throw new Error(`SQL Virtual Site publish relpath is unsafe: ${seg}`);
+      }
+      extra.push(part);
+    }
+  }
+  return extra.length === 0 ? dest : `${dest}/${extra.join("/")}`;
+}
+
+/**
+ * Fail closed unless assembled SQL HTML exists under the Site filesystem root
+ * inside the QA cell (acceptance: files exist after Publish).
+ *
+ * @param {unknown} publishPath dest shown in Developer Sites Publish chrome
+ */
+function assertPublishedSqlFilesOnQaCell(publishPath) {
+  const html = posixJoin(publishPath, SQL_VIRTUAL_PUBLISHED_HTML);
+  const container = qaCmsContainer();
+  dockerExec(container, ["test", "-f", html]);
+  const body = dockerExec(container, ["cat", html]);
+  if (!body.includes(SQL_VIRTUAL_PUBLISH_MARKER) && !body.includes("SQL Home")) {
+    throw new Error(
+      `Published SQL HTML missing fixture marker at ${html}: ${body.slice(0, 400)}`,
+    );
+  }
+  return html;
+}
+
 module.exports = {
   SQL_VIRTUAL_QA_ROOT,
+  SQL_VIRTUAL_PUBLISHED_HTML,
+  SQL_VIRTUAL_PUBLISH_MARKER,
   sqlVirtualFixtureHostDir,
   deploySqlVirtualFixtureToQaCell,
+  normalizeQaPublishDestPath,
+  posixJoin,
+  assertPublishedSqlFilesOnQaCell,
   qaCmsContainer,
 };

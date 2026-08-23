@@ -16,7 +16,7 @@
 
 /**
  * Developer Sites → Virtual Site source panel
- * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / epic #2678).
+ * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / #3778 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
  * with source-kind control (repository default, git-filesystem, csv-filesystem,
@@ -26,8 +26,8 @@
  * dest path + files copied on HTTP 200 (including csv-filesystem). Live H2 QA
  * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
  * /virtual/preview home HTML, and POST /virtual/publish complete. SQL save
- * persists sourceKind=sql-database and live Build/Publish complete after save
- * (in-memory H2 SELECT fixture).
+ * persists sourceKind=sql-database and live Build then Publish complete after save
+ * (in-memory H2 SELECT fixture; published HTML exists under the Site filesystem root).
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -45,7 +45,10 @@ const {
   catalogRowsSelector,
 } = require("./helpers/developer-catalog-selectors");
 const { deployCsvVirtualFixtureToQaCell } = require("./helpers/csv-virtual-qa-fixture");
-const { deploySqlVirtualFixtureToQaCell } = require("./helpers/sql-virtual-qa-fixture");
+const {
+  deploySqlVirtualFixtureToQaCell,
+  assertPublishedSqlFilesOnQaCell,
+} = require("./helpers/sql-virtual-qa-fixture");
 
 function developerSectionUrl(section) {
   const q = new URLSearchParams({
@@ -1540,7 +1543,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
-  test("sql-database publish result shows files copied on HTTP 200 (#3759)", async ({
+  test("sql-database publish result shows files copied on HTTP 200 (#3778)", async ({
     page,
   }) => {
     const consoleErrors = [];
@@ -1664,10 +1667,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(consoleErrors).toEqual([]);
   });
 
-  test("sql-database live Publish Virtual Site completes on H2 QA (#3759)", async ({
+  test("sql-database live Publish Virtual Site after Build copies files on H2 QA (#3778)", async ({
     page,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     const pageErrors = [];
     page.on("pageerror", (err) => pageErrors.push(String(err)));
 
@@ -1707,12 +1710,30 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
     await kind.selectOption("sql-database");
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-sql-hint"]')).toBeVisible();
     await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sqlRoot);
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
     await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
       timeout: 20_000,
     });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
 
     const publishRespPromise = page.waitForResponse(
       (resp) =>
@@ -1733,6 +1754,10 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await page.locator('[data-testid="developer-site-virtual-publish-files"]').textContent()
     ).trim();
     expect(Number.parseInt(filesText, 10), `files copied: ${filesText}`).toBeGreaterThan(0);
+    const destText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-dest"]').textContent()
+    ).trim();
+    assertPublishedSqlFilesOnQaCell(destText);
 
     await kind.selectOption("repository");
     await page.locator('[data-testid="developer-site-virtual-save"]').click();
