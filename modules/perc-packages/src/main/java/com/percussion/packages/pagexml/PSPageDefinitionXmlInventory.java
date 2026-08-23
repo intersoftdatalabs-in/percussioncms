@@ -30,8 +30,8 @@ import java.util.Set;
  * {@code sys__UserDependency--rxconfig/Pages/*.xml} and {@code rxconfig/Pages/*.xml} (Phase 5 gate
  * G4 / issue #3581, parent #2630, ADR-004).
  *
- * <p>Peer of {@code PSWidgetDefinitionXmlInventory}. Pass condition: zero <em>non-waived</em>
- * product Page definition XML. The only explicit waiver is {@code perc.Test}.
+ * <p>Peer of {@code PSWidgetDefinitionXmlInventory}. Pass condition: zero product Page definition
+ * XML. Waiver set is empty after perc.Test page dual-ship exit (#3737).
  *
  * <p>Modern authoring under {@code pages/&lt;id&gt;/component-package.json} is not definition XML
  * and is ignored. Dual-ship / native {@code *.templateDef} install materialization is a separate
@@ -43,7 +43,7 @@ public final class PSPageDefinitionXmlInventory {
 
   /**
    * Package directory names under {@code Packages/} allowed to still commit Page definition XML.
-   * Explicit and minimal — do not expand without an ADR / residual issue.
+   * Empty after #3737. Do not expand without an ADR / residual issue.
    */
   public static final Set<String> WAIVED_PACKAGE_DIRS =
       PSDefinitionXmlShipPathInventory.WAIVED_PACKAGE_DIRS;
@@ -65,7 +65,7 @@ public final class PSPageDefinitionXmlInventory {
   }
 
   /**
-   * Whether the package directory name is on the explicit waiver list ({@code perc.Test} only).
+   * Whether the package directory name is on the explicit waiver list (empty after #3737).
    *
    * @param packageDirName package folder name under Packages
    * @return true if waived
