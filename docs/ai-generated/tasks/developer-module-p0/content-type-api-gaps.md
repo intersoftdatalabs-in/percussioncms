@@ -47,7 +47,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Full field rule **expressions** / control properties | CD-05–CD-07  | **Read-only expressions + control property names** shipped (#2920); write/save + full catalogs still open |
 | Control property + choice configuration              | CD-07        | Control **name** + **property names** (read-only); values/choices not exposed |
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
-| Edit workflow/template associations                  | CD-08, CD-12 | **Read-only lists available**                     |
+| Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763); templates still read-only (CD-12) |
 | Enable/disable as design action                      | CD-13        | Read `enabled` only                               |
 | Shared field file editing                            | CD-15        | Separate object                                   |
 | System def                                           | CD-16        | Separate object                                   |

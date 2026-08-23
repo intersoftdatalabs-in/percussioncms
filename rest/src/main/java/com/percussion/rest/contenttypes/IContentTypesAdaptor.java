@@ -69,4 +69,24 @@ public interface IContentTypesAdaptor {
    * @return updated detail, or {@code null} when not found
    */
   ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
+
+  /**
+   * Replace allowed-workflow associations (and optional default) for a content type (CD-08).
+   * Requires a design-session lock already held by the current user (peer lock REST). Does not
+   * acquire or release the lock.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param allowedWorkflows full-replace list (empty clears); never {@code null}
+   * @param defaultWorkflow optional default workflow; {@code null} leaves default unchanged unless
+   *     the new list orphans it
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow);
 }

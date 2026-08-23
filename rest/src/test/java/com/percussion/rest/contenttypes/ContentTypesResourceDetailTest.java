@@ -197,4 +197,129 @@ public class ContentTypesResourceDetailTest {
             () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void setAllowedWorkflowsSuccess() {
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    NamedObjectRef wf = namedWorkflow("Simple Workflow", 4);
+    updated.setAllowedWorkflows(List.of(wf));
+    updated.setDefaultWorkflow(wf);
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any())).thenReturn(updated);
+
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of(wf));
+    body.setDefaultWorkflow(wf);
+    ContentTypeDetail out = resource.setAllowedWorkflows("percPage", body);
+    assertEquals(1, out.getAllowedWorkflows().size());
+    assertEquals("Simple Workflow", out.getAllowedWorkflows().get(0).getName());
+  }
+
+  @Test
+  public void setAllowedWorkflowsRequiresList() {
+    WebApplicationException missingBody =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", null));
+    assertEquals(400, missingBody.getResponse().getStatus());
+    WebApplicationException missingList =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setAllowedWorkflows("percPage", new ContentTypeWorkflows()));
+    assertEquals(400, missingList.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsNotFound() {
+    when(adaptor.setAllowedWorkflows(any(), eq("missing"), any(), any())).thenReturn(null);
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("missing", body));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsForbidden() {
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsLockRequired() {
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type workflow associations; design lock required"));
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsLockedByOtherUser() {
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type workflow associations; locked by editor2"));
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsInvalidWorkflowIsBadRequest() {
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+        .thenThrow(new IllegalArgumentException("allowedWorkflows[0] workflow not found uuid=99"));
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of(namedWorkflow("missing", 99)));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setAllowedWorkflowsDoesNotTreatGenericStateAs409() {
+    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+        .thenThrow(new IllegalStateException("Failed to save percBlockquote content type"));
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void contentTypeWorkflowsJsonUsesRootWrap() throws Exception {
+    ContentTypeWorkflows body = new ContentTypeWorkflows();
+    body.setAllowedWorkflows(List.of(namedWorkflow("Simple Workflow", 4)));
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeWorkflows.class);
+    String json = mapper.writeValueAsString(body);
+    assertTrue(json.contains("\"ContentTypeWorkflows\""), json);
+    assertTrue(json.contains("\"allowedWorkflows\""), json);
+    ContentTypeWorkflows roundTrip = mapper.readValue(json, ContentTypeWorkflows.class);
+    assertEquals(1, roundTrip.getAllowedWorkflows().size());
+    assertEquals("Simple Workflow", roundTrip.getAllowedWorkflows().get(0).getName());
+  }
+
+  private static NamedObjectRef namedWorkflow(String name, int uuid) {
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName(name);
+    ref.setGuid(new Guid("0-23-" + uuid));
+    return ref;
+  }
 }

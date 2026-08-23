@@ -40,6 +40,7 @@ import com.percussion.design.objectstore.PSWorkflowInfo;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
@@ -50,20 +51,30 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,21 +83,52 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private static final Logger log = LogManager.getLogger(ContentTypeAdaptor.class);
 
+  private static final String WF_ASSOC_PREFIX =
+      "Could not update content type workflow associations";
+
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
+  private final IPSSystemDesignWs systemDesign;
+  private final BooleanSupplier adminChecker;
+  private final IPSWorkflowService workflowService;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public ContentTypeAdaptor() {
-    designSvc = PSContentWsLocator.getContentDesignWebservice();
-    itemDefManager = PSItemDefManager.getInstance();
+    this(
+        PSContentWsLocator.getContentDesignWebservice(),
+        PSItemDefManager.getInstance(),
+        PSSystemWsLocator.getSystemDesignWebservice(),
+        null,
+        PSWorkflowServiceLocator.getWorkflowService());
+  }
+
+  /** Package-visible for unit tests that inject design web services, Admin gate, and workflows. */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker,
+      IPSWorkflowService workflowService) {
+    this.designSvc = designSvc;
+    this.itemDefManager = itemDefManager;
+    this.systemDesign = systemDesign;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.workflowService =
+        workflowService != null ? workflowService : PSWorkflowServiceLocator.getWorkflowService();
   }
 
   /***
@@ -201,7 +243,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
     int defaultWfId = def.getContentEditor() != null ? def.getContentEditor().getWorkflowId() : -1;
     // Always set non-null lists on GET so wire shape stays [] not omitted (NON_NULL include).
-    detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId));
+    detail.setAllowedWorkflows(loadWorkflows(def, ctGuid, defaultWfId));
     if (defaultWfId > 0) {
       detail.setDefaultWorkflow(toWorkflowRef(defaultWfId, true));
     }
@@ -329,6 +371,78 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (allowedWorkflows == null) {
+      throw new IllegalArgumentException("allowedWorkflows is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, WF_ASSOC_PREFIX);
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (def.getContentEditor() == null) {
+        throw new IllegalStateException(WF_ASSOC_PREFIX + "; content editor missing");
+      }
+      ContentTypeDetail patch = new ContentTypeDetail();
+      patch.setAllowedWorkflows(allowedWorkflows);
+      patch.setDefaultWorkflow(defaultWorkflow);
+      applyWorkflowUpdates(def, patch);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, WF_ASSOC_PREFIX);
+        }
+        log.error(
+            "Failed to save content type workflow associations {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type workflow associations", e);
+      }
+      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for workflow associations: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to update content type workflow associations {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type workflow associations", e);
+    }
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
@@ -380,18 +494,25 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (ref.getGuid() != null) {
       int fromGuid = uuidFromRestGuid(ref.getGuid(), PSTypeEnum.WORKFLOW, field);
       if (fromGuid > 0) {
+        requireExistingWorkflow(fromGuid, field);
         return fromGuid;
       }
     }
     if (StringUtils.isNotBlank(ref.getName())) {
-      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
-      List<PSWorkflow> found = wfSvc.findWorkflowsByName(ref.getName().trim());
+      List<PSWorkflow> found = workflowService.findWorkflowsByName(ref.getName().trim());
       if (found == null || found.isEmpty()) {
         throw new IllegalArgumentException(field + " workflow not found: " + ref.getName());
       }
       return found.get(0).getGUID().getUUID();
     }
     throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  private void requireExistingWorkflow(int uuid, String field) {
+    IPSGuid g = new PSGuid(PSTypeEnum.WORKFLOW, uuid);
+    if (workflowService.findWorkflow(g).isEmpty()) {
+      throw new IllegalArgumentException(field + " workflow not found uuid=" + uuid);
+    }
   }
 
   private List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
@@ -562,7 +683,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     };
   }
 
-  private List<NamedObjectRef> loadWorkflows(IPSGuid ctGuid, int defaultWfId) {
+  private List<NamedObjectRef> loadWorkflows(
+      PSItemDefinition def, IPSGuid ctGuid, int defaultWfId) {
     List<NamedObjectRef> out = new ArrayList<>();
     try {
       IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
@@ -578,10 +700,35 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.debug("Could not load workflows for content type {}: {}", ctGuid, e.getMessage());
     }
+    if (out.isEmpty()) {
+      addWorkflowsFromEditor(def, defaultWfId, out);
+    }
     out.sort(
         Comparator.comparing(
             r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
     return out;
+  }
+
+  /**
+   * When content-mgr associations are empty (or unavailable), list inclusion ids from the content
+   * editor so GET/PUT immediately after save still shows the new set.
+   */
+  private void addWorkflowsFromEditor(
+      PSItemDefinition def, int defaultWfId, List<NamedObjectRef> out) {
+    if (def == null || def.getContentEditor() == null) {
+      return;
+    }
+    PSWorkflowInfo info = def.getContentEditor().getWorkflowInfo();
+    if (info == null || info.getValues() == null) {
+      return;
+    }
+    for (Iterator<Integer> it = info.getValues(); it.hasNext(); ) {
+      Integer id = it.next();
+      if (id == null || id <= 0) {
+        continue;
+      }
+      out.add(toWorkflowRef(id, id == defaultWfId));
+    }
   }
 
   private NamedObjectRef toWorkflowRef(int workflowUuid, boolean isDefault) {
@@ -590,8 +737,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     ref.setGuid(ApiUtils.convertGuid(g));
     ref.setIsDefault(isDefault);
     try {
-      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
-      PSWorkflow wf = wfSvc.findWorkflow(g).orElse(null);
+      PSWorkflow wf = workflowService.findWorkflow(g).orElse(null);
       if (wf != null) {
         ref.setName(wf.getName());
         ref.setLabel(StringUtils.defaultIfBlank(wf.getLabel(), wf.getName()));
@@ -898,5 +1044,132 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         walkDisplayMapper(entry.getDisplayMapper(), map, controlPropsByField);
       }
     }
+  }
+
+  /**
+   * Workflow association PUT requires a lock already held by this user. Does not acquire a lock.
+   *
+   * <p>Session equality is not compared against {@code KEY_JSESSIONID}: lock session ids may be the
+   * clientId. A foreign session is rejected by {@code loadContentTypes(..., lock=true,
+   * overrideLock=false)}.
+   *
+   * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
+   */
+  private void requireHeldLock(IPSGuid ctGuid) {
+    if (systemDesign == null) {
+      throw new IllegalStateException(WF_ASSOC_PREFIX + "; design service unavailable");
+    }
+    String user = currentUser();
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(ctGuid), user);
+    } catch (PSErrorResultsException e) {
+      throw lockConflict(e, WF_ASSOC_PREFIX);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new ContentTypeDesignLockException(WF_ASSOC_PREFIX + "; design lock required");
+    }
+    if (!summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new ContentTypeDesignLockException(
+          locker != null
+              ? WF_ASSOC_PREFIX + "; locked by " + locker
+              : WF_ASSOC_PREFIX + "; design lock required");
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(
+          "Admin role required to update content type workflow associations",
+          Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(
+          "Admin role required to update content type workflow associations",
+          Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new IllegalStateException(WF_ASSOC_PREFIX + "; request session/user required");
+    }
+  }
+
+  private String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private ContentTypeDesignLockException lockConflict(Exception cause, String prefix) {
+    String locker = firstLockLocker(cause);
+    if (locker != null) {
+      return new ContentTypeDesignLockException(prefix + "; locked by " + locker, cause);
+    }
+    return new ContentTypeDesignLockException(prefix + "; design lock required", cause);
+  }
+
+  private static boolean hasLockError(Map<IPSGuid, Object> errors) {
+    if (errors == null || errors.isEmpty()) {
+      return false;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String firstLockLocker(Throwable e) {
+    if (e instanceof PSLockErrorException lockErr) {
+      return StringUtils.trimToNull(lockErr.getLocker());
+    }
+    Map<IPSGuid, Object> errors = null;
+    if (e instanceof PSErrorResultsException results) {
+      errors = results.getErrors();
+    } else if (e instanceof PSErrorsException errs) {
+      errors = errs.getErrors();
+    }
+    if (errors == null) {
+      return null;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException lockErr) {
+        String locker = StringUtils.trimToNull(lockErr.getLocker());
+        if (locker != null) {
+          return locker;
+        }
+      }
+    }
+    return null;
   }
 }

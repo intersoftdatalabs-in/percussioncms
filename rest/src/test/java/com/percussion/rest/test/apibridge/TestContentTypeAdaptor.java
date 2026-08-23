@@ -24,6 +24,7 @@ import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -88,6 +89,15 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
 
   @Override
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
+    return null;
+  }
+
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
     return null;
   }
 }

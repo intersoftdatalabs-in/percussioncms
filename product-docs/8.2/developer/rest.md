@@ -191,12 +191,46 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | CD-08 design action. Admin only. Requires a held design-session lock (`POST .../lock` when that surface is available; same `IPSContentDesignWs` lock as Workbench). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `GET` detail lists the new set. |
 
 JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
 SPA unwrap that envelope and read `guid.stringValue` (or synthesize
 `hostId-type-uuid` when `stringValue` is omitted) before calling
 `GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
 fallback when detail omits Guid parts.
+
+### Allowed workflows (CD-08)
+
+`PUT /services/contenttypes/{idOrName}/allowedWorkflows` replaces the content
+type's allowed-workflow associations. Hold the design-session lock first; save
+keeps the lock so you can continue editing, then unlock. This dedicated action
+does **not** auto lock-save-unlock (the generic `PUT /contenttypes/{idOrName}`
+still does that for mixed meta/field updates).
+
+Typical flow: `POST .../lock` → `PUT .../allowedWorkflows` → (optional further
+design writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeWorkflows": {
+    "allowedWorkflows": [
+      { "name": "Simple Workflow", "guid": { "stringValue": "0-23-4" } }
+    ],
+    "defaultWorkflow": { "name": "Simple Workflow" }
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Updated; response is `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow`; lock still held |
+| `400` | Missing `allowedWorkflows`, unknown workflow id/name, invalid id, or wildcard name |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No design lock, or locked by another user |
+| `500` | Unexpected error (not inferred from names that happen to contain "lock") |
 
 ### Field rule expressions (read-only)
 

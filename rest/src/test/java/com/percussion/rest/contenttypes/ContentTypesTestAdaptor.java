@@ -78,4 +78,13 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
     return null;
   }
+
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    return null;
+  }
 }
