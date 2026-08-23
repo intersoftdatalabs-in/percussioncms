@@ -36,9 +36,10 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Runtime H2-shape M2 evidence: {@link PSWidgetDao} with blank {@code
  * widgetDao.modernPackageRoots} + product classpath materialize must select {@link
- * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} for every non-waived product widget (#3583 /
- * parent #2630). Unexpected {@code LEGACY_WIDGET_XML} fails the harness. Customer-only XML still
- * selects legacy — the shim stays (#2852). Not M2 PASS overall (M3 still FAIL).
+ * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} for every product widget including {@code
+ * perc.Test} / {@code PSWidget_TestProperties} (#3583 / #3736 / parent #2630). Unexpected {@code
+ * LEGACY_WIDGET_XML} fails the harness. Customer-only XML still selects legacy — the shim stays
+ * (#2852). Not M2 PASS overall (M3 still FAIL).
  */
 class PSWidgetDaoProductH2ZeroLegacySelectionTest {
 
@@ -82,7 +83,6 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
       writeWidgetXml(widgetsDir, id);
     }
     writeWidgetXml(widgetsDir, "customerOnlyXml");
-    writeWidgetXml(widgetsDir, "PSWidget_TestProperties");
 
     dao.resetSelectionMetrics();
 
@@ -95,7 +95,10 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
     }
     assertTrue(
         unexpectedLegacy.isEmpty(),
-        "unexpected LEGACY_* on non-waived product widgets: " + unexpectedLegacy);
+        "unexpected LEGACY_* on product widgets: " + unexpectedLegacy);
+    assertTrue(
+        productIds.contains("PSWidget_TestProperties"),
+        "perc.Test modern stem must be on H2 classpath after #3736");
 
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyDefinitions(
         roots, widgetsDir, productIds, Set.of());
@@ -104,17 +107,13 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
         PSDefinitionSourceKind.LEGACY_WIDGET_XML,
         dao.selectDefinitionSource("customerOnlyXml").getKind(),
         "customer-only XML must still select LEGACY_WIDGET_XML (shim kept)");
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-        dao.selectDefinitionSource("PSWidget_TestProperties").getKind(),
-        "waived perc.Test widget may remain LEGACY_WIDGET_XML");
 
     assertEquals(productIds.size(), dao.getModernSelectionCount());
-    assertEquals(2L, dao.getLegacySelectionCount(), dao.formatSelectionMetricsSummary());
+    assertEquals(1L, dao.getLegacySelectionCount(), dao.formatSelectionMetricsSummary());
     assertEquals(0L, unexpectedLegacy.size());
 
     String summary = dao.formatSelectionMetricsSummary();
-    assertTrue(summary.contains("legacyWidgetXml=2"), summary);
+    assertTrue(summary.contains("legacyWidgetXml=1"), summary);
     assertTrue(summary.contains("modern=" + productIds.size()), summary);
   }
 

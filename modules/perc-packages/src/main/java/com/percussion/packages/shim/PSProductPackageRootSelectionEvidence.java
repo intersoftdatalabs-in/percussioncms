@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
  * <p>Walks product package roots (or an H2-style {@code Packages/Modern} install tree) and records
  * {@link PSLegacyDefinitionXmlShim} selection. Non-waived widget packages must report {@code
  * wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}. Unexpected
- * {@code LEGACY_*} on a non-waived product widget fails the harness. Waived {@code perc.Test} may
- * still select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML}. The shim itself is
+ * {@code LEGACY_*} on a non-waived product widget fails the harness. After #3736, {@code perc.Test}
+ * is not waived and must select modern-first like other product packages. The shim itself is
  * <strong>kept</strong> (#2852).
  *
  * <p>This is <em>not</em> M2 PASS overall: customer-only XML and the open upgrade window (M3)
@@ -53,8 +53,8 @@ import java.util.stream.Collectors;
 public final class PSProductPackageRootSelectionEvidence {
 
   /**
-   * Known non-waived product widget stems (batches A+B+C). Used as a floor so a missing modern
-   * root cannot silently drop a product widget from the scan.
+   * Known non-waived product widget stems (batches A+B+C + perc.Test). Used as a floor so a missing
+   * modern root cannot silently drop a product widget from the scan.
    */
   public static final List<String> KNOWN_PRODUCT_WIDGET_STEMS;
 
@@ -63,6 +63,7 @@ public final class PSProductPackageRootSelectionEvidence {
     stems.addAll(PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS);
     stems.addAll(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS);
     stems.addAll(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS);
+    stems.addAll(PSWidgetXmlDualShip.TEST_WIDGET_STEMS);
     KNOWN_PRODUCT_WIDGET_STEMS = List.copyOf(stems);
   }
 
@@ -99,7 +100,7 @@ public final class PSProductPackageRootSelectionEvidence {
    *
    * @param definitionId widget definition id
    * @param kind selected kind, or {@code null} when neither source exists
-   * @param waived whether this id is from a waived package ({@code perc.Test})
+   * @param waived whether this id is from a waived package (none after #3736)
    */
   public record DefinitionFinding(
       String definitionId, PSDefinitionSourceKind kind, boolean waived) {
@@ -153,7 +154,7 @@ public final class PSProductPackageRootSelectionEvidence {
     }
 
     /**
-     * @return count of waived roots that still select legacy XML (expected: {@code perc.Test})
+     * @return count of waived roots that still select legacy XML (expected: {@code 0} after #3736)
      */
     public long waivedLegacyRootCount() {
       return roots.stream().filter(r -> r.waived() && r.wouldUseLegacyShim()).count();
@@ -356,7 +357,7 @@ public final class PSProductPackageRootSelectionEvidence {
   }
 
   /**
-   * Whether {@code packageDirName} is on the explicit M1/M2 waiver list ({@code perc.Test} only).
+   * Whether {@code packageDirName} is on the explicit M1/M2 Widget waiver list (empty after #3736).
    *
    * @param packageDirName package folder name
    * @return true if waived

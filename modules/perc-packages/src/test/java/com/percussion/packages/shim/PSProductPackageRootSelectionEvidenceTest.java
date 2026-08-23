@@ -39,9 +39,10 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>Asserts product package roots and H2-style {@code Packages/Modern} trees select modern-first
  * ({@code wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}).
- * Fails on unexpected {@code LEGACY_*} for non-waived widgets. Waived {@code perc.Test} and
- * customer-only ids may still select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} — the shim
- * stays (#2852). This is not M2 PASS overall (M3 still FAIL).
+ * Fails on unexpected {@code LEGACY_*} for non-waived widgets. After #3736 {@code perc.Test} is
+ * modern-first. Customer-only ids may still select {@link
+ * PSDefinitionSourceKind#LEGACY_WIDGET_XML} — the shim stays (#2852). This is not M2 PASS overall
+ * (M3 still FAIL).
  *
  * <p>Cross-platform: {@link Path} / {@link Files} only.
  */
@@ -50,16 +51,15 @@ class PSProductPackageRootSelectionEvidenceTest {
   @TempDir Path tempDir;
 
   @Test
-  void knownProductWidgetStems_coverBatchesABC_andExcludePercTest() {
+  void knownProductWidgetStems_coverBatchesABCAndPercTest() {
     List<String> stems = PSProductPackageRootSelectionEvidence.KNOWN_PRODUCT_WIDGET_STEMS;
-    assertEquals(47, stems.size(), "8 + 20 + 19 product widget stems");
+    assertEquals(48, stems.size(), "8 + 20 + 19 + 1 perc.Test widget stems");
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS));
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS));
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS));
-    assertFalse(stems.contains("PSWidget_TestProperties"));
-    assertEquals(
-        PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS,
-        Set.of("perc.Test"));
+    assertTrue(stems.containsAll(PSWidgetXmlDualShip.TEST_WIDGET_STEMS));
+    assertTrue(stems.contains("PSWidget_TestProperties"));
+    assertEquals(Set.of(), PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
   }
 
   @Test
@@ -78,14 +78,15 @@ class PSProductPackageRootSelectionEvidenceTest {
             "unexpected non-waived LEGACY_* on product widget roots: "
                 + report.unexpectedLegacyRoots());
     assertTrue(
-        report.modernRootCount() >= 38,
-        "expected at least batch A+B+C package dirs (5+14+19) to select MODERN; got "
+        report.modernRootCount() >= 39,
+        "expected at least batch A+B+C+perc.Test package dirs (5+14+19+1) to select MODERN; got "
             + report.modernRootCount()
             + " roots="
             + report.roots());
-    assertTrue(
-        report.waivedLegacyRootCount() >= 1,
-        "perc.Test waived residual must still select LEGACY_WIDGET_XML (shim kept)");
+    assertEquals(
+        0,
+        report.waivedLegacyRootCount(),
+        "perc.Test is no longer waived and must not select LEGACY_WIDGET_XML");
 
     Set<String> modernPackages = new HashSet<>();
     for (PSProductPackageRootSelectionEvidence.RootFinding f : report.roots()) {
@@ -93,11 +94,7 @@ class PSProductPackageRootSelectionEvidenceTest {
         assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(f.packageRoot()), f.packageDirName());
         modernPackages.add(f.packageDirName());
       }
-      if (f.waived()) {
-        assertEquals("perc.Test", f.packageDirName());
-        assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, f.kind());
-        assertTrue(f.wouldUseLegacyShim());
-      }
+      assertFalse(f.waived(), f.packageDirName());
     }
     for (String pkg : PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS) {
       assertTrue(modernPackages.contains(pkg), "batch A missing modern-first: " + pkg);
@@ -107,6 +104,9 @@ class PSProductPackageRootSelectionEvidenceTest {
     }
     for (String pkg : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
       assertTrue(modernPackages.contains(pkg), "batch C missing modern-first: " + pkg);
+    }
+    for (String pkg : PSWidgetXmlDualShip.TEST_PACKAGE_DIRS) {
+      assertTrue(modernPackages.contains(pkg), "perc.Test missing modern-first: " + pkg);
     }
 
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
@@ -151,7 +151,7 @@ class PSProductPackageRootSelectionEvidenceTest {
         report.isClean(),
         () -> "H2 modern roots unexpected LEGACY_*: " + report.unexpectedLegacyRoots());
     assertEquals(0, report.unexpectedLegacyRoots().size());
-    assertTrue(report.modernRootCount() >= 38, "H2 modern root count=" + report.modernRootCount());
+    assertTrue(report.modernRootCount() >= 39, "H2 modern root count=" + report.modernRootCount());
     for (PSProductPackageRootSelectionEvidence.RootFinding f : report.roots()) {
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, f.kind(), f.packageDirName());
       assertFalse(f.wouldUseLegacyShim(), f.packageDirName());
@@ -223,7 +223,7 @@ class PSProductPackageRootSelectionEvidenceTest {
   }
 
   @Test
-  void tempTree_waivedPercTestLegacy_isClean() throws Exception {
+  void tempTree_percTestLegacyOnly_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path widgets =
         packages
@@ -236,13 +236,17 @@ class PSProductPackageRootSelectionEvidenceTest {
 
     PSProductPackageRootSelectionEvidence.Report report =
         PSProductPackageRootSelectionEvidence.scanWidgetPackageRoots(packages);
-    assertTrue(report.isClean());
+    assertFalse(report.isClean());
     assertEquals(1, report.roots().size());
     assertEquals("perc.Test", report.roots().get(0).packageDirName());
-    assertTrue(report.roots().get(0).waived());
+    assertFalse(report.roots().get(0).waived());
     assertTrue(report.roots().get(0).wouldUseLegacyShim());
-    assertEquals(1, report.waivedLegacyRootCount());
-    PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
+    assertEquals(0, report.waivedLegacyRootCount());
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
+                packages));
   }
 
   @Test

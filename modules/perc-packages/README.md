@@ -20,7 +20,8 @@ From this module directory (standalone, preferred):
 
 Product packages must not reintroduce committed install definition XML under
 `sys__UserDependency--rxconfig/{Widgets,Pages,Gadgets}/` (or `rxconfig/{Pages,Gadgets}/`
-for Pages/Gadgets) except the explicit waiver **`perc.Test`**.
+for Pages/Gadgets). **Widget** waiver is empty after perc.Test ship-exit (#3736).
+**Pages/Gadgets** still waive **`perc.Test`** only (page dual-ship slice).
 
 | Piece | Class |
 |-------|--------|
@@ -55,11 +56,11 @@ Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the
 
 ## Archive-manifest Widget XML paths (#3582)
 
-Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
+Product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
 `rxconfig/Widgets/*.xml` (or encoded `rxconfig_Widgets_`) when modern `widgets/` roots exist.
-Waiver is **`perc.Test` only**. Package build re-injects those user-dependencies on the staging
-copy via `PSWidgetXmlInstallEmitter` / `PSWidgetArchiveManifestInventory` so the built `.ppkg`
-still installs Widget XML.
+Widget waiver is **empty** after perc.Test ship-exit (#3736). Package build re-injects those
+user-dependencies on the staging copy via `PSWidgetXmlInstallEmitter` /
+`PSWidgetArchiveManifestInventory` so the built `.ppkg` still installs Widget XML.
 
 | Piece | Class |
 |-------|--------|
@@ -68,11 +69,11 @@ still installs Widget XML.
 
 ## M2 product/H2 zero-legacy-selection evidence (#3583)
 
-Non-waived product / H2 widget package roots must select modern-first
-(`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
-`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **`perc.Test`**
-only. The runtime shim stays (#2852); this is **not** M2 PASS overall (M3 still
-FAIL).
+Product / H2 widget package roots must select modern-first
+(`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`), including
+**`perc.Test`**. Unexpected `LEGACY_*` on a product widget fails Surefire.
+Widget waiver is empty after #3736. The runtime shim stays (#2852); this is
+**not** M2 PASS overall (M3 still FAIL).
 
 | Piece | Class |
 |-------|--------|

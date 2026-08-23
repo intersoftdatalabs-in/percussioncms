@@ -76,7 +76,8 @@ ship paths is enforced in Maven Surefire for `modules/perc-packages`:
 
 Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory`
 (combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy non-waived fixture XML is introduced
-under a non-waived package. Explicit waiver: **`perc.Test` only**. Cross-platform: `Path` /
+under a non-waived package. **Widget** waiver is empty after perc.Test ship-exit (#3736).
+**Pages/Gadgets** still waive **`perc.Test` only**. Cross-platform: `Path` /
 `Files` only (no hardcoded separators).
 
 ### Dual-ship page templateDef inventory gate (#3675)
@@ -142,7 +143,7 @@ enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
   `LEGACY_*`)
 - DAO harness: `PSWidgetDaoProductH2ZeroLegacySelectionTest` (blank
   `widgetDao.modernPackageRoots` + `rxdeploydir` materialize)
-- Explicit waiver: **`perc.Test`** / `PSWidget_TestProperties` only
+- Widget waiver is empty after perc.Test ship-exit (#3736); `PSWidget_TestProperties` must select modern-first
 - **Keep** `PSLegacyDefinitionXmlShim` (#2852). Do **not** treat a green scan
   as M2 PASS / removal-ready (M3 still FAIL).
 
