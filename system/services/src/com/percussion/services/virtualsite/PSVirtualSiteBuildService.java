@@ -98,8 +98,8 @@ public class PSVirtualSiteBuildService {
    * {@code _redirects.yaml} is a no-op. The same service instance does not reuse parsed pages from
    * a previous build — operators do not need a JVM restart after {@code git pull} or a local edit.
    *
-   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem; optional for
-   *     csv-filesystem)
+   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
+   *     sql-database; optional for csv-filesystem)
    * @param outputRoot destination for HTML + assets
    * @param siteKey participant key
    * @return build result

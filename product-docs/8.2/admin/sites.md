@@ -194,7 +194,9 @@ required for SQL.
 When **Source kind** is **Git filesystem**, **CSV filesystem**, or **SQL database**, the Site
 detail panel shows **Build Virtual Site** and **Publish Virtual Site**. Traditional
 **Repository** Sites do **not** show these controls (no misleading virtual-build or
-virtual-publish chrome).
+virtual-publish chrome). After you save **SQL database**, **Build Virtual Site** runs
+`POST /services/sites/{name}/virtual/build` against in-memory H2 (`jdbc:h2:mem:` in
+`_config.yaml` — no Oracle/MySQL live matrix on this path).
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.
@@ -213,10 +215,10 @@ virtual-publish chrome).
    build uses the **saved** server properties, not unsaved form fields.
 4. Choose **Build Virtual Site**.
 5. After a `git pull` or a local Markdown/frontmatter edit on the host — or after the remote
-   branch moves — or after a CSV file change — choose **Build Virtual Site** again. The
-   build re-reads the current tree (and re-fetches when a Git remote is configured) —
-   **do not restart the CMS** just to pick up those edits. There is no file watcher; the
-   next explicit build is the refresh.
+   branch moves — or after a CSV file change — or after the SQL `SELECT` / H2 rows change —
+   choose **Build Virtual Site** again. The build re-reads the current tree (and re-fetches
+   when a Git remote is configured) — **do not restart the CMS** just to pick up those
+   edits. There is no file watcher; the next explicit build is the refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).
