@@ -35,15 +35,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * CI-assertable <strong>M2 product / H2 zero-legacy-selection evidence</strong> (issue #3583 /
- * parent #2630).
+ * CI-assertable <strong>M2 product / H2 zero-legacy-selection evidence</strong> (issues #3583 /
+ * #3738 / parent #2630).
  *
  * <p>Walks product package roots (or an H2-style {@code Packages/Modern} install tree) and records
  * {@link PSLegacyDefinitionXmlShim} selection. Non-waived widget packages must report {@code
  * wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}. Unexpected
- * {@code LEGACY_*} on a non-waived product widget fails the harness. Waived {@code perc.Test} may
- * still select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML}. The shim itself is
- * <strong>kept</strong> (#2852).
+ * {@code LEGACY_*} on a non-waived product widget fails the harness. {@code perc.Test} may still
+ * select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} while it remains on the Widget G4 waive
+ * list; after that waiver is dropped (#3736) it must be modern-first like other product packages.
+ * The shim itself is <strong>kept</strong> (#2852).
  *
  * <p>This is <em>not</em> M2 PASS overall: customer-only XML and the open upgrade window (M3)
  * still require the dual-run fallback. Do not treat a green scan as removal-ready.
@@ -65,6 +66,12 @@ public final class PSProductPackageRootSelectionEvidence {
     stems.addAll(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS);
     KNOWN_PRODUCT_WIDGET_STEMS = List.copyOf(stems);
   }
+
+  /** perc.Test package directory name under {@code Packages/}. */
+  public static final String PERC_TEST_PACKAGE_DIR = "perc.Test";
+
+  /** perc.Test widget definition id / modern stem. */
+  public static final String PERC_TEST_WIDGET_STEM = "PSWidget_TestProperties";
 
   private PSProductPackageRootSelectionEvidence() {
     // utility
@@ -99,7 +106,7 @@ public final class PSProductPackageRootSelectionEvidence {
    *
    * @param definitionId widget definition id
    * @param kind selected kind, or {@code null} when neither source exists
-   * @param waived whether this id is from a waived package ({@code perc.Test})
+   * @param waived whether this id is from a waived package ({@code perc.Test} until #3736)
    */
   public record DefinitionFinding(
       String definitionId, PSDefinitionSourceKind kind, boolean waived) {
@@ -153,7 +160,7 @@ public final class PSProductPackageRootSelectionEvidence {
     }
 
     /**
-     * @return count of waived roots that still select legacy XML (expected: {@code perc.Test})
+     * @return count of waived roots that still select legacy XML (expected: {@code perc.Test} until #3736; {@code 0} after)
      */
     public long waivedLegacyRootCount() {
       return roots.stream().filter(r -> r.waived() && r.wouldUseLegacyShim()).count();
@@ -356,13 +363,123 @@ public final class PSProductPackageRootSelectionEvidence {
   }
 
   /**
-   * Whether {@code packageDirName} is on the explicit M1/M2 waiver list ({@code perc.Test} only).
+   * Whether {@code packageDirName} is on the explicit M1/M2 Widget waiver list ({@code perc.Test}
+   * only until #3736; empty after).
    *
    * @param packageDirName package folder name
    * @return true if waived
    */
   public static boolean isWaivedPackage(String packageDirName) {
     return PSWidgetDefinitionXmlInventory.isWaivedPackage(packageDirName);
+  }
+
+  /**
+   * Widget G4/M2 waive list is allowed to be <em>empty</em> (after #3736 perc.Test modern) or
+   * exactly {@code perc.Test} (current {@code main} until that slice merges). Any other package on
+   * the list is a regression (#3738).
+   *
+   * @throws IllegalStateException when the waive list is neither empty nor {@code perc.Test} only
+   */
+  public static void assertWidgetWaiverPolicy() {
+    assertWidgetWaiverPolicy(PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+  }
+
+  /**
+   * Same as {@link #assertWidgetWaiverPolicy()} against an explicit set (tests / probes).
+   *
+   * @param waived candidate waive list (may be {@code null}, treated as empty)
+   * @throws IllegalStateException when the waive list is neither empty nor {@code perc.Test} only
+   */
+  public static void assertWidgetWaiverPolicy(Set<String> waived) {
+    Set<String> dirs = waived == null ? Set.of() : waived;
+    if (dirs.isEmpty()) {
+      return;
+    }
+    if (dirs.size() == 1 && dirs.contains(PERC_TEST_PACKAGE_DIR)) {
+      return;
+    }
+    throw new IllegalStateException(
+        "M2 Widget waive list (#3738): must be empty (perc.Test modern / #3736) or exactly {"
+            + PERC_TEST_PACKAGE_DIR
+            + "}; found: "
+            + dirs);
+  }
+
+  /**
+   * @return {@code true} when the Widget G4 waive list is empty (perc.Test no longer waived)
+   */
+  public static boolean isPercTestWidgetWaiverDropped() {
+    return PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS.isEmpty();
+  }
+
+  /**
+   * Definition ids allowed to select {@code LEGACY_*} as product residuals. Empty after #3736.
+   *
+   * @return unmodifiable set, never {@code null}
+   */
+  public static Set<String> currentWaivedDefinitionIds() {
+    if (isWaivedPackage(PERC_TEST_PACKAGE_DIR)) {
+      return Set.of(PERC_TEST_WIDGET_STEM);
+    }
+    return Set.of();
+  }
+
+  /**
+   * Product/H2 {@code perc.Test} selection must match the current Widget waive list (#3738).
+   *
+   * <ul>
+   *   <li>Waived: residual may select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML}
+   *   <li>Waiver dropped: {@code perc.Test} must be modern-first if present; no waived-legacy roots
+   * </ul>
+   *
+   * @param report package-root scan
+   * @param requirePercTestRoot when {@code true}, fail if {@code perc.Test} is missing from the
+   *     scan (product authored tree). When {@code false} (H2 modern-only materialize), require the
+   *     root only after the waiver is dropped.
+   * @throws IllegalStateException on mismatch
+   */
+  public static void assertPercTestSelectionMatchesWaiver(
+      Report report, boolean requirePercTestRoot) {
+    Objects.requireNonNull(report, "report");
+    assertWidgetWaiverPolicy();
+    boolean dropped = isPercTestWidgetWaiverDropped();
+    if (dropped && report.waivedLegacyRootCount() != 0) {
+      throw new IllegalStateException(
+          "M2 (#3738): perc.Test waiver dropped but waived LEGACY_* roots remain: "
+              + report.waivedLegacyRootCount());
+    }
+    boolean found = false;
+    for (RootFinding f : report.roots()) {
+      if (!PERC_TEST_PACKAGE_DIR.equals(f.packageDirName())) {
+        continue;
+      }
+      found = true;
+      if (dropped) {
+        if (f.waived()
+            || f.wouldUseLegacyShim()
+            || f.kind() != PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE) {
+          throw new IllegalStateException(
+              "M2 (#3738): perc.Test must select MODERN_COMPONENT_PACKAGE after waiver drop; kind="
+                  + f.kind()
+                  + " waived="
+                  + f.waived()
+                  + " wouldUseLegacyShim="
+                  + f.wouldUseLegacyShim());
+        }
+      } else if (!f.waived()) {
+        throw new IllegalStateException(
+            "M2 (#3738): perc.Test is still on the Widget waive list but the scan did not mark it waived");
+      }
+    }
+    boolean mustFind = requirePercTestRoot || dropped;
+    if (mustFind && !found) {
+      throw new IllegalStateException(
+          "M2 (#3738): perc.Test package root missing from scan (waiverDropped="
+              + dropped
+              + ", requirePercTestRoot="
+              + requirePercTestRoot
+              + ")");
+    }
   }
 
   /**
@@ -399,7 +516,9 @@ public final class PSProductPackageRootSelectionEvidence {
             + " modernWidgetIds="
             + modernIds.size()
             + " waivedPackages="
-            + PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+            + PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS
+            + " percTestWaiverDropped="
+            + isPercTestWidgetWaiverDropped());
     for (RootFinding f : report.roots()) {
       String tag = f.isUnexpectedLegacy() ? "FAIL" : (f.waived() ? "WAIVED" : "OK");
       System.out.println(
@@ -411,9 +530,17 @@ public final class PSProductPackageRootSelectionEvidence {
               + " wouldUseLegacyShim="
               + f.wouldUseLegacyShim());
     }
+    try {
+      // CLI may scan product Packages/ or H2 Modern; require perc.Test only when present
+      // or after the waiver is dropped (H2 modern materialize includes widgets/).
+      assertPercTestSelectionMatchesWaiver(report, false);
+    } catch (IllegalStateException e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
     if (!report.isClean()) {
       System.err.println(
-          "M2 FAIL: unexpected non-waived LEGACY_* on product/H2 widget roots (#3583)");
+          "M2 FAIL: unexpected non-waived LEGACY_* on product/H2 widget roots (#3583 / #3738)");
       System.exit(1);
     }
     System.out.println(
@@ -492,7 +619,7 @@ public final class PSProductPackageRootSelectionEvidence {
           .append(f.kind());
     }
     throw new IllegalStateException(
-        "M2 H2/product zero-legacy-selection gate (#3583): unexpected non-waived LEGACY_* on "
+        "M2 H2/product zero-legacy-selection gate (#3583 / #3738): unexpected non-waived LEGACY_* on "
             + where
             + " (only waived package dirs: "
             + PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS
