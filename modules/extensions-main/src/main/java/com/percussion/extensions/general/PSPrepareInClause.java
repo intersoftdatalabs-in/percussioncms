@@ -17,8 +17,8 @@
 
 package com.percussion.extensions.general;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -87,10 +87,10 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
           EXPECTED_NUMBER_OF_PARAMS, params == null ? 0 : params.length);
     } else if (null == params[0] || 0 == params[0].toString().trim().length()) {
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, "Base param name may not be null or empty");
+          ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, "Base param name may not be null or empty");
     } else if (request == null) {
       throw new PSRequestValidationException(
-          IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, "Request context may not be null");
+          ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, "Request context may not be null");
     }
 
     String baseName = params[0].toString();
