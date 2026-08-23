@@ -21,7 +21,6 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.deployer.server.dependencies.PSDependencyHandler;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -33,6 +32,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Map that defines all supported dependency types, and maintains parent and child relations between
@@ -231,7 +231,7 @@ public final class PSDependencyMap {
                         if (childDef == null) {
                           var args = new Object[] {childType, defType};
                           throw new PSDeployException(
-                              IPSDeploymentErrors.CHILD_DEPENDENCY_TYPE_NOT_FOUND, args);
+                              DeploymentErrorCodes.CHILD_DEPENDENCY_TYPE_NOT_FOUND, args);
                         }
                         childList.add(childDef);
 

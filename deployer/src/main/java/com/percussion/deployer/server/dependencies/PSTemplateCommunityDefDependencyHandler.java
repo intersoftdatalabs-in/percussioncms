@@ -23,7 +23,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -35,6 +34,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a **PART OF** template definition. Adds definitions to
@@ -80,7 +80,7 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
         }
         catch ( NumberFormatException ne)
         {
-           throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
+           throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR,
                  "ContentTypeTemplate Definition was expecting a long value: "
                        + tempID);
         }
@@ -184,7 +184,7 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
       tmpGuid = new PSGuid(PSTypeEnum.TEMPLATE, templateGuid);
     } catch (NumberFormatException ne) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "ContentTypeTemplate Definition was expecting a long value: " + dep.getDependencyId());
     }
 
@@ -197,7 +197,7 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
       contentMgr.saveNodeDefinitions(newList);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Repository Exception occurred while installing a dependency" + dep.getDisplayName());
     }
   }
@@ -228,7 +228,7 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }

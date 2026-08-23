@@ -1230,6 +1230,54 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void deploymentServerHandlerLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    DeploymentErrorCodes[] leftovers = {
+      DeploymentErrorCodes.SERVER_REQUEST_MALFORMED,
+      DeploymentErrorCodes.SERVER_OBJECT_NOT_FOUND,
+      DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT,
+      DeploymentErrorCodes.DEPENDENCY_MGR_INIT,
+      DeploymentErrorCodes.MISSING_DEPENDENCY_FILE,
+      DeploymentErrorCodes.INVALID_DEPENDENCY_FILE,
+      DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
+      DeploymentErrorCodes.NO_ROWS_TO_PROCESS,
+      DeploymentErrorCodes.INCOMPLATE_ORDER_DEF,
+      DeploymentErrorCodes.INVALID_NUM_CHILD_DEFS,
+      DeploymentErrorCodes.CANNOT_FIND_PARENT_DEP_DEF,
+      DeploymentErrorCodes.ARCHIVE_REF_FOUND,
+      DeploymentErrorCodes.MAX_DEP_COUNT_EXCEEDED,
+      DeploymentErrorCodes.MULTISERVER_MANAGER_DISABLED,
+      DeploymentErrorCodes.PACKAGE_CREATED_ON_SYSTEM
+    };
+    for (DeploymentErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void jobLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    JobErrorCodes[] leftovers = {
+      JobErrorCodes.INVALID_JOB_DESCRIPTOR,
+      JobErrorCodes.UNEXPECTED_ERROR,
+      JobErrorCodes.CONFIG_FILE_NOT_FOUND
+    };
+    for (JobErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
   void navigationCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(18001));
     assertSame(

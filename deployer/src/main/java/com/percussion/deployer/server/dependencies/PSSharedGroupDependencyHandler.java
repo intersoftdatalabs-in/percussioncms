@@ -35,7 +35,6 @@ import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -51,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a shared group */
 public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDependencyHandler
@@ -152,7 +152,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
     PSSharedFieldGroup group = getSharedGroup(dep.getDependencyId());
     if (group == null) {
       Object[] args = {dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     // use set to ensure we don't add dupes
@@ -200,7 +200,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
             .orElseThrow(
                 () ->
                     new PSDeployException(
-                        IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+                        DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
                         new Object[] {
                           dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()
                         }));
@@ -249,7 +249,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     PSSharedFieldGroup group = null;
@@ -263,7 +263,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         dep.getDisplayName(),
         e.getLocalizedMessage()
       };
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_DEPENDENCY_FILE, args);
     }
 
     // transform ids and dbms's in the group if necessary
@@ -349,7 +349,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       addTransactionLogEntry(
           dep, ctx, defFile.getName(), PSTransactionSummary.TYPE_FILE, transAction);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -382,7 +382,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       // this should never happen
       if (sharedGroup == null) {
         Object[] args = {dep.getKey(), "Group not found"};
-        throw new PSDeployException(IPSDeploymentErrors.ID_TYPE_MAP_LOAD, args);
+        throw new PSDeployException(DeploymentErrorCodes.ID_TYPE_MAP_LOAD, args);
       }
 
       mappings.clear();
@@ -413,7 +413,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
           groupName, IPSDeployConstants.ID_TYPE_ELEMENT_CE_VALIDATION_RULES, mappings.iterator());
 
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return idTypes;

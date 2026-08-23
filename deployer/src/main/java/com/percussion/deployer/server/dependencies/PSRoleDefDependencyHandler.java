@@ -27,7 +27,6 @@ import com.percussion.design.objectstore.PSRole;
 import com.percussion.design.objectstore.PSRoleConfiguration;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSException;
 import com.percussion.security.PSSecurityToken;
@@ -38,6 +37,7 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a role definition. */
 public class PSRoleDefDependencyHandler
@@ -155,7 +155,7 @@ public class PSRoleDefDependencyHandler
             PSTransactionSummary.ACTION_SKIPPED_NO_OVERWRITE);
       }
     } catch (PSException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } finally {
       if (lockId != null) {
         try {

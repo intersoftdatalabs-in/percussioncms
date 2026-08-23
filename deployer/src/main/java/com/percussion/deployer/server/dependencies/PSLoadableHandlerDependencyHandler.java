@@ -21,7 +21,6 @@ import com.percussion.conn.PSServerException;
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequestHandlerConfiguration;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle loadable handler dependencies */
 public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
@@ -125,7 +125,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
 
       return m_reqHandlerCfg;
     } catch (PSServerException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

@@ -7,6 +7,7 @@
 #   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
 #   #3585 webservices/transformation leftover call sites
 #   #3739 deployer catalog/client/objectstore/PSDeployService
+#   #3740 deployer server/handlers + server/dependencies
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -16,76 +17,6 @@
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
 
 deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
-deployer/src/main/java/com/percussion/deployer/server/PSAppTransformer.java
-deployer/src/main/java/com/percussion/deployer/server/PSArchiveHandler.java
-deployer/src/main/java/com/percussion/deployer/server/PSDbmsHelper.java
-deployer/src/main/java/com/percussion/deployer/server/PSDbmsMapManager.java
-deployer/src/main/java/com/percussion/deployer/server/PSDependencyManager.java
-deployer/src/main/java/com/percussion/deployer/server/PSDependencyMap.java
-deployer/src/main/java/com/percussion/deployer/server/PSDeploymentHandler.java
-deployer/src/main/java/com/percussion/deployer/server/PSExportJob.java
-deployer/src/main/java/com/percussion/deployer/server/PSIdMapManager.java
-deployer/src/main/java/com/percussion/deployer/server/PSIdTypeManager.java
-deployer/src/main/java/com/percussion/deployer/server/PSImportJob.java
-deployer/src/main/java/com/percussion/deployer/server/PSItemData.java
-deployer/src/main/java/com/percussion/deployer/server/PSLogHandler.java
-deployer/src/main/java/com/percussion/deployer/server/PSPackageConfiguration.java
-deployer/src/main/java/com/percussion/deployer/server/PSValidationJob.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/IPSDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSAclDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSAppObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSApplicationDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSAssemblyServiceHelper.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSAuthTypeDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSCmsObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSCommunityDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSComponentDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSComponentSlotDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentEditorObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentListDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentRelationDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentTypeDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContentTypeTemplateDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSContextDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSControlDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSDataDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSDataObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSDependencyUtils.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSDisplayFormatDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSEditionDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSEditionTaskDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSExitDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFileDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFilterDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFilterInstallUtils.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFolderContentsDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFolderObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSFolderTranslationsDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSKeywordDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSLoadableHandlerDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSLocSchemeDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSLocaleDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSMenuActionDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSMenuActionObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSPairDependencyId.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSPublisherServiceHelper.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSRelationshipDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSRoleDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSchemaDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSearchObjectDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSharedGroupDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSiteDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSlotDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSupportFileDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSystemDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSSystemDefElementDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTemplateCommunityDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTemplateDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTranslationSettingsDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSVariantDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/server/dependencies/PSWorkflowDefDependencyHandler.java
 modules/ContentUI/src/main/java/com/percussion/content/ui/search/PSSearchResult.java
 modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java
 modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java
