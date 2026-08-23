@@ -351,6 +351,56 @@ class PSSqlDatabaseVirtualSiteSourceTest {
   }
 
   @Test
+  void requireSelectOnlyPreservesCommentMarkersInsideStringLiterals() throws Exception {
+    String dashes = "SELECT 'hello -- world' AS title, body FROM pages";
+    assertEquals(dashes, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(dashes));
+    String block = "SELECT '/* not a comment */' AS title, body FROM pages";
+    assertEquals(block, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(block));
+    assertEquals(
+        "SELECT id FROM pages",
+        PSSqlDatabaseVirtualSiteSource.requireSelectOnly("SELECT id FROM pages -- trailing"));
+    assertTrue(
+        PSSqlDatabaseVirtualSiteSource.stripSqlComments("SELECT 'a -- b' FROM pages")
+            .contains("'a -- b'"));
+  }
+
+  @Test
+  void requireSelectOnlyAllowsReadOnlyWithCte() throws Exception {
+    String cte =
+        "WITH src AS (SELECT id, title, body FROM pages) SELECT id, title, body FROM src";
+    assertEquals(cte, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(cte));
+  }
+
+  @Test
+  void resolveQueryFileDoesNotTreatColonAsDriveInNestedSegment() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("colon-root"));
+    try {
+      Path resolved =
+          PSSqlDatabaseVirtualSiteSource.resolveQueryFile(root, "queries/my:pages.sql");
+      assertTrue(resolved.startsWith(root.normalize()));
+      assertTrue(resolved.getFileName().toString().contains("pages.sql"));
+    } catch (VirtualSiteException e) {
+      // Windows Path rejects ':' in a file name; Unix accepts it. Never the old
+      // per-segment "drive" guard.
+      assertFalse(e.getMessage().contains("drive"), e.getMessage());
+      assertTrue(e.getMessage().toLowerCase().contains("valid path"), e.getMessage());
+    }
+  }
+
+  @Test
+  void missingQueryFileFailsClosedWithResolvedPath() throws Exception {
+    Path root = writeSite(tempDir.resolve("missing-qfile"), newMemUrl(), null, "queries/nope.sql");
+    VirtualSiteConfig cfg = config(root, newMemUrl(), null, "queries/nope.sql");
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class, () -> new PSSqlDatabaseVirtualSiteSource().discover(cfg));
+    String msg = ex.getMessage();
+    assertTrue(msg.toLowerCase().contains("queryfile"), msg);
+    assertTrue(msg.contains("nope.sql"), msg);
+    assertTrue(msg.contains(root.toAbsolutePath().normalize().toString()) || msg.contains("queries"), msg);
+  }
+
+  @Test
   void rejectsNonSelectQuery() {
     VirtualSiteException insert =
         assertThrows(

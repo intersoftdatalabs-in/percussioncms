@@ -229,7 +229,7 @@ home from the same Site detail panel (no CLI, no `file://` path). This includes
 preview is not git-only. Developer Sites Preview chrome is Git/CSV today; SQL REST
 preview is available to integrators. After REST Build for `sql-database` (in-memory H2),
 `GET /services/sites/{name}/virtual/preview` returns `available=true` and `homePath`
-(typically `8.2/index.html`) and `GET …/virtual/preview/{path}` streams the assembled
+(typically `{version}/index.html` for the configured default version) and `GET …/virtual/preview/{path}` streams the assembled
 HTML. Missing build is `available=false` with HTTP **200** (not 500). In-product REST
 Build records the last output path (including a custom `outputRoot`).
 

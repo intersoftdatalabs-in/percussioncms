@@ -58,6 +58,31 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void sqlScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("sql-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "sql-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("sql"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
+  }
+
+  @Test
   void missingConfigFileFails() {
     assertThrows(
         VirtualSiteException.class,
