@@ -229,8 +229,9 @@ Site property validation allow-lists `sql-database` (same helper as Git/CSV). RE
 `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=sql-database` with a
 portable-safe `rootPath`. JDBC URL, user, and query stay in `_config.yaml` (never on the
 REST envelope; passwords are not logged). In-product `POST …/virtual/build` (and publish /
-preview of last-build output) runs the H2 adapter. Developer Sites SQL chrome is a later
-slice. Unknown kinds remain **400**.
+preview of last-build output) runs the H2 adapter. Developer Sites **Build Virtual Site**
+is shown after you save **SQL database** (same chrome as Git/CSV; repository stays hidden).
+Unknown kinds remain **400**.
 
 ## CMS-integrated build (REST and WebUI)
 

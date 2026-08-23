@@ -48,13 +48,13 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
 ### Publish a Virtual Site to the Site filesystem target
 
 1. Sign in as **Admin**.
-2. Configure the Site as a Git-filesystem, CSV-filesystem, or SQL-database Virtual Site (see [Sites](id:admin-sites)). SQL Virtual Sites are built and published through REST (Developer Sites SQL chrome is a later slice).
+2. Configure the Site as a Git-filesystem, CSV-filesystem, or SQL-database Virtual Site (see [Sites](id:admin-sites)). After you save **SQL database**, **Build Virtual Site** on Developer Sites runs the same in-memory H2 REST Build as Git/CSV.
 3. Set the Site **publishing filesystem root** (Site root) to a dedicated directory on the CMS
    host. Relative roots (legacy values such as `../CI_Home`) are resolved against the CMS
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
 5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
-   **Git filesystem** and **CSV filesystem**; hidden for repository). The panel reports files copied and the destination path,
+   **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for repository). The panel reports files copied and the destination path,
    or a clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
    instead. Run **Build Virtual Site** first if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
