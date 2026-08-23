@@ -48,10 +48,12 @@ import {
   SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
   SOURCE_KIND_REPOSITORY,
+  SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
   isCsvFilesystemSourceKind,
   isGitFilesystemSourceKind,
+  isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
   virtualPropsToForm,
@@ -143,7 +145,7 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
- * for git-filesystem and csv-filesystem.
+ * for git-filesystem, csv-filesystem, and sql-database.
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -330,9 +332,10 @@ export function VirtualSiteSourcePanel({
   const virtualMode = isVirtualSourceKind(form.sourceKind);
   const gitMode = isGitFilesystemSourceKind(form.sourceKind);
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
-  /** Build chrome: git-filesystem and csv-filesystem (never repository). */
+  const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Publish chrome: git-filesystem and csv-filesystem (never repository). */
+  /** Publish chrome: git/csv/sql (never repository). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
@@ -411,6 +414,9 @@ export function VirtualSiteSourcePanel({
               <option value={SOURCE_KIND_CSV_FILESYSTEM}>
                 {DEV_MSG.SITE_VIRT_KIND_CSV_FILESYSTEM}
               </option>
+              <option value={SOURCE_KIND_SQL_DATABASE}>
+                {DEV_MSG.SITE_VIRT_KIND_SQL_DATABASE}
+              </option>
             </select>
           </div>
 
@@ -436,6 +442,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-csv-hint"
                 >
                   {DEV_MSG.SITE_VIRT_CSV_HINT}
+                </p>
+              ) : null}
+              {sqlMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-sql-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_SQL_HINT}
                 </p>
               ) : null}
               {gitMode ? (
@@ -527,7 +541,7 @@ export function VirtualSiteSourcePanel({
             ) : null}
           </div>
 
-          {/* Build chrome: git-filesystem and csv-filesystem (never repository). */}
+          {/* Build chrome: git/csv/sql (never repository). */}
           {showBuildChrome ? (
             <div
               data-testid="developer-site-virtual-build-section"

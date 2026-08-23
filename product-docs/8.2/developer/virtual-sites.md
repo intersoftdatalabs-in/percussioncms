@@ -14,16 +14,18 @@ repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product doc
 **CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
 CSV files. Operators can run it offline (CLI) or from CMS REST
 `POST /sites/{nameOrId}/virtual/build` and `POST /sites/{nameOrId}/virtual/publish`.
-Preview REST (`GET …/virtual/preview`) is last-output based and works for both kinds
+Preview REST (`GET …/virtual/preview`) is last-output based and works for Git, CSV, and SQL
 (CLI preview requires the default output root). Developer **Sites** shows **Build Virtual
-Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem** as
-well as Git filesystem.
+Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem**,
+**SQL database**, and Git filesystem. Traditional **Repository** hides that chrome.
 
 A **SQL / database** adapter (`sql-database`) discovers rows from a JDBC `SELECT` against
 **in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`).
 Operators persist the kind with REST `PUT /sites/{nameOrId}/virtual` (`sourceKind=sql-database`
 plus a safe `rootPath`); JDBC URL/user/query stay in `_config.yaml`. REST Build, preview,
-and publish use the H2 adapter. Developer Sites SQL source UI is a later slice. Oracle,
+and publish use the H2 adapter. Developer **Sites** can select **SQL database**, save
+`sourceKind=sql-database`, and show **Build Virtual Site** / **Preview assembled site**
+(repository kind still hides that chrome). Oracle,
 MySQL, and SQL Server URLs are rejected.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
@@ -103,7 +105,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites SQL chrome is a later slice. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build all three kinds. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
