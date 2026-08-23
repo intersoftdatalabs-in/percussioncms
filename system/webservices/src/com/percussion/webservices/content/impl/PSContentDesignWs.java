@@ -953,7 +953,9 @@ public class PSContentDesignWs extends PSContentBaseWs implements
             {
                try
                {
-                  lockService.createLock(nodeDef.getGUID(), session, user, nodeDef
+                  // Packed NODEDEF+typeId — same objectId saveContentTypes looks up.
+                  lockService.createLock(contentTypeLockObjectId(nodeDef.getGUID()
+                     .getUUID()), session, user, nodeDef
                      .getVersion(), overrideLock);
                   results.addResult(nodeDef.getGUID(), itemDef);
                }
@@ -1632,7 +1634,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       {
          for (PSItemDefinition def : contentTypes)
          {
-            IPSGuid id = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
+            IPSGuid id = contentTypeLockObjectId(def.getTypeId());
             try
             {
                PSObjectLock lock;
@@ -1722,6 +1724,21 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
       if (results.hasErrors())
          throw results;
+   }
+
+   /**
+    * Design-lock object id for a content type.
+    *
+    * <p>Packed {@link PSTypeEnum#NODEDEF} + typeId ({@link PSDesignGuid#getValue()}),
+    * matching {@code IPSObjectLockService} persistence. Do not use
+    * {@link IPSGuid#longValue()} — that is uuid-only when host is 0, so save
+    * cannot find a lock created by {@code loadContentTypes(..., lock=true)}.
+    *
+    * @param typeId content type uuid (e.g. percPage {@code 1001})
+    * @return packed NODEDEF design guid, never {@code null}
+    */
+   static IPSGuid contentTypeLockObjectId(long typeId) {
+      return new PSDesignGuid(PSTypeEnum.NODEDEF, typeId);
    }
 
    // @see IPSContentDesignWs#saveKeywords(List, boolean, String, String)
