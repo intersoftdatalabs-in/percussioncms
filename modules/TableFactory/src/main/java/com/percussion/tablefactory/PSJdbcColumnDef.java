@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -182,7 +183,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // allow base class to set its memebers
@@ -196,14 +197,14 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
     // get the data type and set it
     String strJdbcType = walker.getElementData(JDBC_EL);
     if (strJdbcType == null)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, JDBC_EL);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, JDBC_EL);
     // this will validate for us
     setType(strJdbcType);
 
     // get the allows null value
     String strAllowsNull = walker.getElementData(ALLOWS_NULL_EL);
     if (strAllowsNull == null)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, ALLOWS_NULL_EL);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, ALLOWS_NULL_EL);
 
     if (strAllowsNull.equalsIgnoreCase("y")) m_allowsNull = true;
     else if (strAllowsNull.equalsIgnoreCase("yes")) m_allowsNull = true;
@@ -214,7 +215,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
     if (size != null && size.trim().length() == 0) size = null;
     else if (!validateParams(size)) {
       Object[] args = {NODE_NAME, SIZE_EL, size};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     setSize(size);
 
@@ -223,7 +224,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
     if (scale != null && scale.trim().length() == 0) scale = null;
     else if (!validateParams(scale)) {
       Object[] args = {NODE_NAME, SIZE_EL, size};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     setScale(scale);
 

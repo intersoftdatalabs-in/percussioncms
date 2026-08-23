@@ -16,12 +16,12 @@
  */
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -132,10 +132,10 @@ public final class PSSearchViewCatalog {
         throw new IllegalStateException("Default search for Active Assembly is not found");
     } catch (PSCmsException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
   }
 
@@ -278,10 +278,10 @@ public final class PSSearchViewCatalog {
       }
     } catch (PSCmsException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
     return emptySearchDoc;
   }
