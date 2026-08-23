@@ -18,7 +18,7 @@ const {
 
 describe("sql-virtual-qa-fixture", () => {
   it("uses a POSIX in-container root (not an OS path join)", () => {
-    assert.equal(SQL_VIRTUAL_QA_ROOT, "/opt/Percussion/tmp/sql-virtual-qa-3759");
+    assert.equal(SQL_VIRTUAL_QA_ROOT, "/opt/Percussion/tmp/sql-virtual-qa");
     assert.ok(!SQL_VIRTUAL_QA_ROOT.includes("\\"));
   });
 

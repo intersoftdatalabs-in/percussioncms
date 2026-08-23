@@ -26,7 +26,7 @@ None.
 
 ## Cross-platform path review
 
-- [x] In-container root is POSIX literal (`/opt/Percussion/tmp/sql-virtual-qa-3759`), not `path.join`
+- [x] In-container root is POSIX literal (`/opt/Percussion/tmp/sql-virtual-qa`), not `path.join`
 - [x] Host fixture paths use `path.join(__dirname, …)`
 - [x] `docker cp` uses `container:posixDest`
 - [x] No `INIT=` / `RUNSCRIPT` / file H2 (SPI rejects those JDBC tokens)

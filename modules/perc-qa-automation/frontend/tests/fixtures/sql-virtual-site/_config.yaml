@@ -3,7 +3,7 @@ site:
 versions:
   - id: "8.2"
     label: "8.2"
-    path: 8.2
+    path: "8.2"
     default: true
 theme:
   layout: page.html

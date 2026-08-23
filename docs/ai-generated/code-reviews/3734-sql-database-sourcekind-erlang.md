@@ -29,7 +29,7 @@ None blocking.
 ### Notes (non-blocking)
 
 - JDBC connection fields are not new REST envelope properties; they live in `_config.yaml` (same SPI contract). Tests exercise safe H2 URL + `user: sa` with empty password.
-- OpenAPI/ISiteAdaptor now document sql-database Build/preview/publish because factory already selects `PSSqlDatabaseVirtualSiteSource`. Developer Sites chrome is still Git/CSV-only (#3735).
+- OpenAPI/ISiteAdaptor now document sql-database Build/preview/publish because factory already selects `PSSqlDatabaseVirtualSiteSource`. Developer Sites SQL source/Build/Publish chrome ships in stacked #3735 / #3759 (PR #3764 / #3766); REST last-build Preview is #3761.
 - sitemanage test-scoped H2 is explicit (perc-system H2 is also test-scoped; not transitive).
 
 ## Tests

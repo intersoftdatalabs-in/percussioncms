@@ -10,6 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -27,7 +28,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 /** Absolute POSIX path inside the Linux QA CMS container. */
-const SQL_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/sql-virtual-qa-3759";
+const SQL_VIRTUAL_QA_ROOT = "/opt/Percussion/tmp/sql-virtual-qa";
 
 function qaCmsContainer() {
   const fromEnv = (
@@ -42,22 +43,37 @@ function sqlVirtualFixtureHostDir() {
   return path.join(__dirname, "..", "fixtures", "sql-virtual-site");
 }
 
+function dockerFailed(detail, err) {
+  const msg = err && err.message ? err.message : String(err);
+  return new Error(`SQL Virtual Site QA fixture Docker failed (${detail}): ${msg}`);
+}
+
 function dockerExec(container, args) {
-  return execFileSync("docker", ["exec", container, ...args], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  try {
+    return execFileSync("docker", ["exec", container, ...args], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (err) {
+    throw dockerFailed(`docker exec ${container} ${args.join(" ")}`, err);
+  }
 }
 
 function dockerCp(hostFile, containerDest) {
-  execFileSync("docker", ["cp", hostFile, containerDest], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  try {
+    execFileSync("docker", ["cp", hostFile, containerDest], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (err) {
+    throw dockerFailed(`docker cp ${hostFile} ${containerDest}`, err);
+  }
 }
 
 /**
  * Place `_config.yaml` (required sql: mapping) and theme on the QA CMS host.
+ * Replaces any previous tree at {@link SQL_VIRTUAL_QA_ROOT} so later runs do
+ * not inherit stale files.
  *
  * @returns {string} in-container root path to save as virtual.rootPath
  */
@@ -71,12 +87,8 @@ function deploySqlVirtualFixtureToQaCell() {
     }
   }
   const container = qaCmsContainer();
-  dockerExec(container, [
-    "mkdir",
-    "-p",
-    `${SQL_VIRTUAL_QA_ROOT}/8.2`,
-    `${SQL_VIRTUAL_QA_ROOT}/_theme`,
-  ]);
+  dockerExec(container, ["rm", "-rf", SQL_VIRTUAL_QA_ROOT]);
+  dockerExec(container, ["mkdir", "-p", `${SQL_VIRTUAL_QA_ROOT}/_theme`]);
   dockerCp(config, `${container}:${SQL_VIRTUAL_QA_ROOT}/_config.yaml`);
   dockerCp(theme, `${container}:${SQL_VIRTUAL_QA_ROOT}/_theme/page.html`);
   return SQL_VIRTUAL_QA_ROOT;
