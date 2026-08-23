@@ -292,6 +292,46 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteSqlDatabaseFixtureDelegates() throws Exception {
+    Path sqlRoot = tempDir.resolve("sql-site");
+    Files.createDirectories(sqlRoot);
+    Files.writeString(
+        sqlRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sql:
+          jdbcUrl: jdbc:h2:mem:vsql_rest_fixture;DB_CLOSE_DELAY=-1
+          user: sa
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("sql-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("SqlHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("SqlHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(sqlRoot.resolve("_config.yaml")));
+    verify(adaptor).buildVirtualSite("SqlHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -416,6 +456,10 @@ public class SitesResourceTest {
     assertTrue(
         text.contains("sql-database"),
         "buildVirtualSite OpenAPI description must mention sql-database");
+    String buildBlock = text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/build\")"));
+    assertTrue(
+        buildBlock.contains("jdbc:h2:mem:"),
+        "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
     String publishBlock =
         text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/publish\")"));
     assertTrue(

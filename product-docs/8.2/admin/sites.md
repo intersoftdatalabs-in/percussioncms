@@ -188,7 +188,9 @@ required for SQL.
 
 When **Source kind** is **Git filesystem** or **CSV filesystem**, the Site detail panel shows
 **Build Virtual Site** and **Publish Virtual Site**. Traditional **Repository** Sites do **not**
-show these controls (no misleading virtual-build or virtual-publish chrome).
+show these controls (no misleading virtual-build or virtual-publish chrome). SQL Virtual Sites
+(`sql-database`) use the same REST **Build** (`POST /services/sites/{name}/virtual/build`)
+against in-memory H2; Developer Sites SQL Build chrome is a later slice.
 
 1. Sign in as an **Admin** (the build REST operation requires Admin).
 2. Open **Developer** → **Sites** and open the Virtual Site detail.

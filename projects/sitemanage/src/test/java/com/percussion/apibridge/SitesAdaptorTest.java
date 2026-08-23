@@ -898,6 +898,143 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_sqlDatabaseQueryFileWritesHtml() throws Exception {
+    Path siteRoot =
+        createMinimalSqlTree(
+            tempDir.resolve("sql-qfile"),
+            "SELECT id, title, body, path, sort_order AS \"order\" FROM pages",
+            Path.of("queries").resolve("pages.sql"));
+    Path out = tempDir.resolve("sql-qfile-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseMissingColumn400() throws Exception {
+    Path siteRoot =
+        createMinimalSqlTree(tempDir.resolve("sql-missing-col"), "SELECT id, title FROM pages", null);
+    Path out = tempDir.resolve("sql-missing-col-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("body"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseOracleAndMysqlUrl400() throws Exception {
+    Path siteRoot = tempDir.resolve("sql-oracle");
+    Files.createDirectories(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sql:
+          jdbcUrl: jdbc:oracle:thin:@localhost:1521:orcl
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("sql-oracle-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException oracle =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, oracle.getResponse().getStatus());
+    String oracleMsg = String.valueOf(oracle.getMessage()).toLowerCase();
+    assertTrue(
+        oracleMsg.contains("h2") || oracleMsg.contains("jdbc"),
+        String.valueOf(oracle.getMessage()));
+
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sql:
+          jdbcUrl: jdbc:mysql://localhost:3306/cms
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    WebApplicationException mysql =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, mysql.getResponse().getStatus());
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("sql-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("sql-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -1507,9 +1644,18 @@ class SitesAdaptorTest {
 
   /**
    * In-memory H2 fixture for sql-database Build tests. JDBC user is {@code sa}; password is empty
-   * and is not asserted in logs or HTML.
+   * and is not asserted in logs or HTML. Inline SELECT by default; pass a relative {@code
+   * queryFile} (NIO {@link Path}) to prove {@code sql.queryFile} REST Build.
    */
   private static Path createMinimalSqlTree(Path siteRoot) throws Exception {
+    return createMinimalSqlTree(
+        siteRoot,
+        "SELECT id, title, body, path, sort_order AS \"order\" FROM pages",
+        null);
+  }
+
+  private static Path createMinimalSqlTree(Path siteRoot, String query, Path queryFile)
+      throws Exception {
     String jdbc = "jdbc:h2:mem:vsql_rest_" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
     org.h2.Driver.load();
     try (Connection c = DriverManager.getConnection(jdbc, "sa", "");
@@ -1524,6 +1670,34 @@ class SitesAdaptorTest {
     }
     Files.createDirectories(siteRoot.resolve("8.2"));
     Files.createDirectories(siteRoot.resolve("_theme"));
+    String sqlBlock;
+    if (queryFile != null) {
+      Path queryPath = siteRoot.resolve(queryFile);
+      Path parent = queryPath.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+      Files.writeString(queryPath, query + "\n", StandardCharsets.UTF_8);
+      String logical = queryFile.toString().replace('\\', '/');
+      sqlBlock =
+          """
+          sql:
+            jdbcUrl: "%s"
+            user: sa
+            queryFile: %s
+          """
+              .formatted(jdbc, logical);
+    } else {
+      sqlBlock =
+          """
+          sql:
+            jdbcUrl: "%s"
+            user: sa
+            query: |
+              %s
+          """
+              .formatted(jdbc, query);
+    }
     Files.writeString(
         siteRoot.resolve("_config.yaml"),
         """
@@ -1536,14 +1710,9 @@ class SitesAdaptorTest {
             default: true
         theme:
           layout: page.html
-        sql:
-          jdbcUrl: "%s"
-          user: sa
-          password: ""
-          query: |
-            SELECT id, title, body, path, sort_order AS "order" FROM pages
+        %s
         """
-            .formatted(jdbc),
+            .formatted(sqlBlock),
         StandardCharsets.UTF_8);
     Files.writeString(
         siteRoot.resolve("_theme").resolve("page.html"),
