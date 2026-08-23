@@ -34,7 +34,6 @@ import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
-import com.percussion.server.job.IPSJobErrors;
 import com.percussion.server.job.PSJobException;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
@@ -45,6 +44,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 
 /**
  * Job to create a deployment archive from an export descriptor. Archive created will be named using
@@ -80,7 +80,7 @@ public class PSExportJob extends PSDeployJob {
         initDepCount(m_descriptor.getPackages());
       }
     } catch (PSDeployException | PSUnknownNodeTypeException e) {
-      throw new PSJobException(IPSJobErrors.INVALID_JOB_DESCRIPTOR, e.getMessage());
+      throw new PSJobException(JobErrorCodes.INVALID_JOB_DESCRIPTOR, e.getMessage());
     }
 
     m_serverVersion = new PSFormatVersion("com.percussion.util");
@@ -221,7 +221,7 @@ public class PSExportJob extends PSDeployJob {
       config = dh.getConfigTempFile(configRef);
       if (!config.exists() || !config.isFile()) {
         throw new PSJobException(
-            IPSJobErrors.CONFIG_FILE_NOT_FOUND, m_descriptor.getConfigDefFile());
+            JobErrorCodes.CONFIG_FILE_NOT_FOUND, m_descriptor.getConfigDefFile());
       }
       archive.storeFile(
           config, PSDescriptor.getConfigArchiveEntryPath(IPSConfigService.ConfigTypes.CONFIG_DEF));
@@ -231,7 +231,7 @@ public class PSExportJob extends PSDeployJob {
       config = dh.getConfigTempFile(configRef);
       if (!config.exists() || !config.isFile()) {
         throw new PSJobException(
-            IPSJobErrors.CONFIG_FILE_NOT_FOUND, m_descriptor.getLocalConfigFile());
+            JobErrorCodes.CONFIG_FILE_NOT_FOUND, m_descriptor.getLocalConfigFile());
       }
       archive.storeFile(
           config,

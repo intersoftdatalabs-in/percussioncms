@@ -24,6 +24,7 @@ import com.percussion.conn.PSServerException;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
+import com.percussion.error.PSLockedException;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -139,5 +140,21 @@ public class PSDeployExceptionTest {
   @Test
   public void typedConstructorRejectsNullCode() {
     assertThrows(IllegalArgumentException.class, () -> new PSDeployException((IPSErrorCode) null));
+  }
+
+  @Test
+  public void typedLockedAndNonUniqueConstructorsRetainCodes() {
+    Object[] lockArgs = {"alice", "2"};
+    PSLockedException locked =
+        new PSLockedException(DeploymentErrorCodes.LOCK_ALREADY_HELD, lockArgs);
+    assertEquals(DeploymentErrorCodes.LOCK_ALREADY_HELD.numericCode(), locked.getErrorCode());
+    assertSame(DeploymentErrorCodes.LOCK_ALREADY_HELD, locked.getTypedErrorCode());
+    assertTrue(locked.isAuditable());
+
+    PSDeployNonUniqueException nonUnique =
+        new PSDeployNonUniqueException(DeploymentErrorCodes.ARCHIVE_REF_FOUND, "archive-1");
+    assertEquals(DeploymentErrorCodes.ARCHIVE_REF_FOUND.numericCode(), nonUnique.getErrorCode());
+    assertSame(DeploymentErrorCodes.ARCHIVE_REF_FOUND, nonUnique.getTypedErrorCode());
+    assertFalse(nonUnique.isAuditable());
   }
 }

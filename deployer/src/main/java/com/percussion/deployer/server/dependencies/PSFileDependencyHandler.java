@@ -24,7 +24,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
@@ -36,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Base class for handlers that package and install files directly to and from the file system. */
 public abstract class PSFileDependencyHandler extends PSDependencyHandler {
@@ -83,7 +83,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
             PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
     if (!depFile.exists()) {
       throw new PSDeployException(
-          IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+          DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
           new Object[] {dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()});
     }
 
@@ -106,7 +106,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
     Iterator<PSDependencyFile> files = archive.getFiles(dep);
     if (!files.hasNext()) {
       throw new PSDeployException(
-          IPSDeploymentErrors.MISSING_DEPENDENCY_FILE,
+          DeploymentErrorCodes.MISSING_DEPENDENCY_FILE,
           new Object[] {
             PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SUPPORT_FILE],
             dep.getObjectType(),
@@ -136,7 +136,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
         var in = archive.getFileData(depFile)) {
       IOTools.copyStream(in, out);
     } catch (IOException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     addTransactionLogEntry(

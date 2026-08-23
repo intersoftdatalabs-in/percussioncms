@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -52,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a workflow definition. */
 public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandler {
@@ -328,7 +328,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -389,7 +389,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -502,7 +502,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -584,7 +584,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -655,7 +655,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -726,7 +726,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     PSIdMapping wfMapping = getIdMapping(ctx, wfDep);
 
@@ -805,7 +805,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     // transfer ids in all rows
 
@@ -885,7 +885,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     Iterator<PSJdbcRowData> rows = depData.getData().getRows();
 
     if (!rows.hasNext()) // no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     // transfer ids in all rows
 
