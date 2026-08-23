@@ -254,9 +254,11 @@ any `..` remains. Requires **Admin**. Staging `_meta` is not copied.
 | `403` | Caller is not Admin |
 | `404` | Site not found |
 
-Configure a dedicated Site root (not the Markdown or CSV source path). Operators can run the
-same action from **Developer → Sites → Site detail → Publish Virtual Site** (Admin; **Git
-filesystem** and **CSV filesystem**; hidden for repository Sites). See
+Configure a dedicated Site root (not the Markdown, CSV, or SQL `_config.yaml` source path).
+Operators can run the same action from **Developer → Sites → Site detail → Publish Virtual
+Site** (Admin; **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for
+repository Sites). `sql-database` Publish is in-memory H2 only (`jdbc:h2:mem:`); Oracle /
+MySQL / SQL Server JDBC URLs return **400**. See
 [Publishing](id:admin-publishing).
 
 ## Related

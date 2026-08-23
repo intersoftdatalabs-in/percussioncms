@@ -284,9 +284,11 @@ site to the Site's configured filesystem publish location:
 1. Set the Site **publishing filesystem root** (Site root / `IPSSite.root`) to a dedicated
    directory on the CMS host (not the Markdown `virtual.rootPath`).
 2. As **Admin**, open **Developer → Sites → Site detail** for the Virtual Site.
-3. Confirm **Source kind** is **Git filesystem** or **CSV filesystem** and **Save Virtual
-   Site source** if you changed properties. Traditional **Repository** Sites never show
-   Publish chrome.
+3. Confirm **Source kind** is **Git filesystem**, **CSV filesystem**, or **SQL database**
+   and **Save Virtual Site source** if you changed properties. Traditional **Repository**
+   Sites never show Publish chrome. **SQL database** requires `_config.yaml` under
+   `virtual.rootPath` with an in-memory H2 `sql:` mapping (`jdbc:h2:mem:`); Oracle / MySQL
+   / SQL Server URLs return **400**.
 4. Choose **Publish Virtual Site**. The panel shows a busy state, then success with
    **files copied** and the **destination path**, or a clear error (not Admin, still a
    repository Site on the server, missing or unsafe Site root).

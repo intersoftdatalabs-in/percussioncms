@@ -236,7 +236,16 @@ REST envelope; passwords are not logged). In-product `POST …/virtual/build` (a
 preview of last-build output) runs the H2 adapter. After a successful Build,
 `GET …/virtual/preview` returns `available=true` plus `homePath` and
 `GET …/virtual/preview/{relPath}` streams the assembled HTML. Missing build is
-`available=false` (HTTP **200**), not 500. Developer Sites **Build Virtual Site** and
+`available=false` (HTTP **200**), not 500.
+
+**Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that same H2 Build (no
+`outputRoot` body), then copies assembled HTML/assets to the Site filesystem publish
+root (`IPSSite.root`) using portable NIO `Path` / `Files`. Staging `_meta` is not copied.
+JDBC passwords from `_config.yaml` are not written into published HTML. Oracle / MySQL /
+SQL Server JDBC URLs return **400**. Traditional repository Sites still cannot publish on
+this path. Integrators get `publishPath`, `filesCopied`, and `pagesWritten` on HTTP **200**.
+
+Developer Sites **Build Virtual Site** and
 **Preview assembled site** are shown after you save **SQL database** (same chrome as
 Git/CSV; repository stays hidden). Unknown kinds remain **400**.
 

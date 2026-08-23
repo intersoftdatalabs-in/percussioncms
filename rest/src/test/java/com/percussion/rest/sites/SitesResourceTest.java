@@ -466,6 +466,25 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void publishVirtualSiteDelegatesSqlDatabase() {
+    VirtualSitePublishResult published = new VirtualSitePublishResult();
+    published.setSiteName("SqlHelp");
+    published.setSiteKey("sql-docs");
+    published.setPagesWritten(1);
+    published.setFilesCopied(2);
+    published.setPublishPath(tempDir.resolve("sql-pub").toString());
+    when(adaptor.publishVirtualSite("SqlHelp")).thenReturn(published);
+
+    VirtualSitePublishResult out = resource.publishVirtualSite("SqlHelp");
+    assertEquals("SqlHelp", out.getSiteName());
+    assertEquals("sql-docs", out.getSiteKey());
+    assertEquals(1, out.getPagesWritten().intValue());
+    assertEquals(2, out.getFilesCopied().intValue());
+    assertEquals(published.getPublishPath(), out.getPublishPath());
+    verify(adaptor).publishVirtualSite("SqlHelp");
+  }
+
+  @Test
   public void publishVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.publishVirtualSite(" "));
@@ -509,6 +528,9 @@ public class SitesResourceTest {
     assertTrue(
         publishBlock.contains("sql-database"),
         "publishVirtualSite OpenAPI description must mention sql-database");
+    assertTrue(
+        publishBlock.contains("jdbc:h2:mem:"),
+        "publishVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
     assertTrue(
         text.contains(
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),
