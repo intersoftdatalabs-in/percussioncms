@@ -22,14 +22,15 @@ import type {
 
 /**
  * True when the Build Virtual Site control should be shown.
- * Git-filesystem and csv-filesystem Virtual Sites both run POST /virtual/build.
- * Repository / blank / unknown kinds must not display this chrome.
+ * Git-filesystem, csv-filesystem, and sql-database Virtual Sites all run
+ * POST /virtual/build. Repository / blank / unknown kinds must not display
+ * this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
 ): boolean {
   const v = (sourceKind ?? "").trim().toLowerCase();
-  return v === "git-filesystem" || v === "csv-filesystem";
+  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
 }
 
 /**
@@ -45,8 +46,8 @@ export function shouldShowVirtualPreviewChrome(
 
 /**
  * True when the Publish Virtual Site control should be shown.
- * Git-filesystem and csv-filesystem both run POST /virtual/publish (build then
- * copy to IPSSite.root). Repository / blank / unknown kinds stay hidden.
+ * Git-filesystem, csv-filesystem, and sql-database all run POST /virtual/publish
+ * (build then copy to IPSSite.root). Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
