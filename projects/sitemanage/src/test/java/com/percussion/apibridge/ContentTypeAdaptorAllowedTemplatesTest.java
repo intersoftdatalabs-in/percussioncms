@@ -47,6 +47,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import java.util.Collections;
@@ -251,6 +252,15 @@ class ContentTypeAdaptorAllowedTemplatesTest {
     PSErrorsException unrelated = new PSErrorsException();
     unrelated.addError(new PSGuid(PSTypeEnum.NODEDEF, 1L), "unrelated not locked phrase");
     assertFalse(ContentTypeAdaptor.isNotLockedError(unrelated));
+  }
+
+  @Test
+  void isNotLockedError_detectsTypedLockErrorException() {
+    PSErrorsException errors = new PSErrorsException();
+    errors.addError(
+        new PSGuid(PSTypeEnum.NODEDEF, 1L),
+        new PSLockErrorException(0, "lock failed", "stack"));
+    assertTrue(ContentTypeAdaptor.isNotLockedError(errors));
   }
 
   private void stubHeldLock() throws Exception {
