@@ -370,15 +370,41 @@ class PSSqlDatabaseVirtualSiteSourceTest {
   }
 
   @Test
-  void missingQueryFileFailsClosed() throws Exception {
+  void requireSelectOnlyAllowsReadOnlyWithCte() throws Exception {
+    String cte =
+        "WITH src AS (SELECT id, title, body FROM pages) SELECT id, title, body FROM src";
+    assertEquals(cte, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(cte));
+  }
+
+  @Test
+  void resolveQueryFileDoesNotTreatColonAsDriveInNestedSegment() throws Exception {
+    Path root = Files.createDirectories(tempDir.resolve("colon-root"));
+    try {
+      Path resolved =
+          PSSqlDatabaseVirtualSiteSource.resolveQueryFile(root, "queries/my:pages.sql");
+      assertTrue(resolved.startsWith(root.normalize()));
+      assertTrue(resolved.getFileName().toString().contains("pages.sql"));
+    } catch (VirtualSiteException e) {
+      // Windows Path rejects ':' in a file name; Unix accepts it. Never the old
+      // per-segment "drive" guard.
+      assertFalse(e.getMessage().contains("drive"), e.getMessage());
+      assertTrue(e.getMessage().toLowerCase().contains("valid path"), e.getMessage());
+    }
+  }
+
+  @Test
+  void missingQueryFileFailsClosedWithResolvedPath() throws Exception {
     Path root = writeSite(tempDir.resolve("missing-qfile"), newMemUrl(), null, "queries/nope.sql");
     VirtualSiteConfig cfg = config(root, newMemUrl(), null, "queries/nope.sql");
     VirtualSiteException ex =
         assertThrows(
             VirtualSiteException.class, () -> new PSSqlDatabaseVirtualSiteSource().discover(cfg));
-    String msg = ex.getMessage().toLowerCase();
-    assertTrue(msg.contains("queryfile"), ex.getMessage());
-    assertTrue(ex.getMessage().contains("nope.sql"), ex.getMessage());
+    String msg = ex.getMessage();
+    assertTrue(msg.toLowerCase().contains("queryfile"), msg);
+    assertTrue(msg.contains("nope.sql"), msg);
+    assertTrue(
+        msg.contains(root.toAbsolutePath().normalize().toString()) || msg.contains("queries"),
+        msg);
   }
 
   @Test

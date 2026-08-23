@@ -14,7 +14,8 @@ repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product doc
 **CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
 CSV files. Operators can run it offline (CLI) or from CMS REST
 `POST /sites/{nameOrId}/virtual/build` and `POST /sites/{nameOrId}/virtual/publish`.
-Preview REST (`GET …/virtual/preview`) is last-output based and works for Git, CSV, and SQL
+Preview REST (`GET …/virtual/preview`) is last-output based and works for
+`git-filesystem`, `csv-filesystem`, and `sql-database` after a successful Build
 (CLI preview requires the default output root). Developer **Sites** shows **Build Virtual
 Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem**,
 **SQL database**, and Git filesystem. Traditional **Repository** hides that chrome.
@@ -41,7 +42,8 @@ After the site folder is created, an optional Git root is saved with
 - Use Percussion assemblers as the site generator (Markdown → HTML).
 - Provide stable page identities (`frontmatter.id`) for lightweight link checks / participants.
 - Leave the door open for additional adapters (API, object storage) without renaming Site → Channel.
-  SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build.
+  SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build
+  and last-build Preview (`GET …/virtual/preview`).
 
 ## Source tree contract
 
@@ -231,9 +233,12 @@ Site property validation allow-lists `sql-database` (same helper as Git/CSV). RE
 `PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=sql-database` with a
 portable-safe `rootPath`. JDBC URL, user, and query stay in `_config.yaml` (never on the
 REST envelope; passwords are not logged). In-product `POST …/virtual/build` (and publish /
-preview of last-build output) runs the H2 adapter. Developer Sites **Build Virtual Site**
-is shown after you save **SQL database** (same chrome as Git/CSV; repository stays hidden).
-Unknown kinds remain **400**.
+preview of last-build output) runs the H2 adapter. After a successful Build,
+`GET …/virtual/preview` returns `available=true` plus `homePath` and
+`GET …/virtual/preview/{relPath}` streams the assembled HTML. Missing build is
+`available=false` (HTTP **200**), not 500. Developer Sites **Build Virtual Site** and
+**Preview assembled site** are shown after you save **SQL database** (same chrome as
+Git/CSV; repository stays hidden). Unknown kinds remain **400**.
 
 ## CMS-integrated build (REST and WebUI)
 

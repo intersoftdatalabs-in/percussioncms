@@ -1584,6 +1584,99 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewSqlDatabase_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-preview-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default");
+    Path built = tempDir.resolve("sql-preview-built");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+    assertTrue(html.contains("Hello from SQL"), html);
+  }
+
+  @Test
+  void previewSqlDatabase_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default-empty");
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSqlDatabase_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sql-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-trav-default");
+    Path built = tempDir.resolve("sql-preview-trav-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSqlDatabase_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sql-cli-src"));
+    Path built = tempDir.resolve("sql-cli-default");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -1658,6 +1751,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         csvRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    return site;
+  }
+
+  private PSSite virtualSqlSite(Path sqlRoot) {
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        sqlRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
     return site;
   }
 

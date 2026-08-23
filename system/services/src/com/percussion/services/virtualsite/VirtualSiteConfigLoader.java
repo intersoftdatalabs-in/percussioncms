@@ -208,7 +208,11 @@ public final class VirtualSiteConfigLoader {
         }
       }
 
-      SqlSpec sql = parseSqlSpec(asMap(map.get("sql")));
+      Object sqlObj = map.get("sql");
+      if (sqlObj != null && !(sqlObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("sql: must be a mapping in " + sourceLabel);
+      }
+      SqlSpec sql = parseSqlSpec(asMap(sqlObj));
       return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql);
     } catch (VirtualSiteException e) {
       throw e;

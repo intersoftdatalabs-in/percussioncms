@@ -65,7 +65,7 @@ public class PSSqlDatabaseVirtualSiteSource implements IPSVirtualSiteSource {
               + "jdbc:h2:file:|jdbc:h2:zip:|jdbc:oracle:|jdbc:mysql:|jdbc:mariadb:|"
               + "jdbc:sqlserver:|jdbc:postgresql:|jdbc:derby:)");
   private static final Pattern SELECT_ONLY =
-      Pattern.compile("(?is)^select\\b.+");
+      Pattern.compile("(?is)^(?:with\\b.+\\bselect\\b.+|select\\b.+)");
   private static final Pattern FORBIDDEN_SQL_TOKEN =
       Pattern.compile(
           "(?i)\\b(csvread|csvwrite|file_read|file_write|call|script|into|merge|update|delete|"
@@ -304,9 +304,9 @@ public class PSSqlDatabaseVirtualSiteSource implements IPSVirtualSiteSource {
         if (seg.isEmpty() || ".".equals(seg)) {
           continue;
         }
-        if ("..".equals(seg) || seg.indexOf('\0') >= 0 || seg.indexOf(':') >= 0) {
+        if ("..".equals(seg) || seg.indexOf('\0') >= 0) {
           throw new VirtualSiteException(
-              "sql-database queryFile must not contain '..', drive, or NUL segments");
+              "sql-database queryFile must not contain '..' or NUL segments");
         }
         relative = relative.resolve(seg);
       }
@@ -336,7 +336,8 @@ public class PSSqlDatabaseVirtualSiteSource implements IPSVirtualSiteSource {
     if (hasFile) {
       Path file = resolveQueryFile(root, spec.queryFile());
       if (!Files.isRegularFile(file)) {
-        throw new VirtualSiteException("sql-database queryFile not found: " + file.getFileName());
+        throw new VirtualSiteException(
+            "sql-database queryFile not found: " + file.toAbsolutePath().normalize());
       }
       return requireSelectOnly(Files.readString(file, StandardCharsets.UTF_8));
     }
