@@ -1200,6 +1200,36 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void deploymentCatalogClientLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    DeploymentErrorCodes[] leftovers = {
+      DeploymentErrorCodes.NULL_INPUT_DOC,
+      DeploymentErrorCodes.UNEXPECTED_ERROR,
+      DeploymentErrorCodes.INVALID_REQUEST_TYPE,
+      DeploymentErrorCodes.CATALOG_REQD_PROP_NOT_SPECIFIED,
+      DeploymentErrorCodes.CATALOG_INVALID_DIRECTORY_SPECIFIED,
+      DeploymentErrorCodes.ARCHIVE_READ_ERROR,
+      DeploymentErrorCodes.ARCHIVE_WRITE_ERROR,
+      DeploymentErrorCodes.MISSING_ID_MAPPING,
+      DeploymentErrorCodes.INCOMPLETE_ID_MAPPING,
+      DeploymentErrorCodes.INVALID_ID_MAPPING_TARGET,
+      DeploymentErrorCodes.INCOMPLETE_ID_TYPE_MAPPING,
+      DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING,
+      DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID,
+      DeploymentErrorCodes.NOT_CONNECTED_ERROR,
+      DeploymentErrorCodes.LOCK_NOT_RELEASED
+    };
+    for (DeploymentErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
   void navigationCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(18001));
     assertSame(

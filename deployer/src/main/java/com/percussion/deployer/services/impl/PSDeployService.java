@@ -32,7 +32,7 @@ import com.percussion.deployer.server.dependencies.PSTemplateDefDependencyHandle
 import com.percussion.deployer.server.dependencies.PSVariantDefDependencyHandler;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.data.PSAssemblyTemplate;
@@ -199,14 +199,14 @@ public class PSDeployService implements IPSDeployService {
         existingByName = filterSvc.findFilterByName(filterName);
       } catch (IllegalArgumentException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             e,
             "Filter package has blank or invalid name while installing dependency "
                 + dep.getDependencyId());
       } catch (com.percussion.services.filter.PSFilterException e) {
         if (!PSFilterInstallUtils.isFilterMissingErrorCode(e.getErrorCode())) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              DeploymentErrorCodes.UNEXPECTED_ERROR,
               e,
               "Failed to resolve existing filter by name: " + filterName);
         }
@@ -222,7 +222,7 @@ public class PSDeployService implements IPSDeployService {
           existingByName = filterSvc.loadFilter(ids).get(0);
         } catch (PSNotFoundException e) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              DeploymentErrorCodes.UNEXPECTED_ERROR,
               "Could not load the existing filter: " + packageFilter.getName());
         }
         PSItemFilter managed = (PSItemFilter) existingByName;
@@ -232,7 +232,7 @@ public class PSDeployService implements IPSDeployService {
           managed.merge(packageFilter);
         } catch (com.percussion.services.filter.PSFilterException e) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              DeploymentErrorCodes.UNEXPECTED_ERROR,
               e,
               "Could not merge package filter onto existing filter: " + packageFilter.getName());
         }
