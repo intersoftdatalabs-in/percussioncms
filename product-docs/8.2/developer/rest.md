@@ -191,12 +191,32 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
+| Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 
 JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
 SPA unwrap that envelope and read `guid.stringValue` (or synthesize
 `hostId-type-uuid` when `stringValue` is omitted) before calling
 `GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
 fallback when detail omits Guid parts.
+
+### Allowed templates (CD-12)
+
+`PUT /services/contenttypes/{idOrName}/allowedTemplates` replaces the content type’s
+allowed template associations. Body is a JSON array of named refs (`name` and/or
+`guid`). Full-replace semantics: the supplied list becomes the new set; an empty
+array clears associations.
+
+Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
+
+1. Hold a design lock on the content type.
+2. `PUT /services/contenttypes/{idOrName}/allowedTemplates` with the new set.
+3. `GET` the same path (or `GET /services/contenttypes/{idOrName}`) to confirm.
+4. Release the design lock when editing is finished.
+
+`409` means the current session user does not hold the design lock. `400` means
+a template id or name in the body does not exist. The lock stays held after a
+successful PUT so further association or design edits can continue.
 
 ### Field rule expressions (read-only)
 

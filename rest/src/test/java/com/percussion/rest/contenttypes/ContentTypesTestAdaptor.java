@@ -78,4 +78,15 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
     return null;
   }
+
+  @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    return List.of();
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    return templates != null ? templates : List.of();
+  }
 }

@@ -24,6 +24,7 @@ import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -89,5 +90,16 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
     return null;
+  }
+
+  @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    return List.of();
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    return templates != null ? templates : List.of();
   }
 }

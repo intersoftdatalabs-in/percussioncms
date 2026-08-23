@@ -43,6 +43,7 @@ import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -50,6 +51,8 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
@@ -62,8 +65,11 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,10 +89,27 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
+  private final IPSSystemDesignWs systemDesign;
+  private final IPSAssemblyService assemblyService;
 
   public ContentTypeAdaptor() {
-    designSvc = PSContentWsLocator.getContentDesignWebservice();
-    itemDefManager = PSItemDefManager.getInstance();
+    this(
+        PSContentWsLocator.getContentDesignWebservice(),
+        PSItemDefManager.getInstance(),
+        PSSystemWsLocator.getSystemDesignWebservice(),
+        PSAssemblyServiceLocator.getAssemblyService());
+  }
+
+  /** Package-visible for unit tests that inject design web services and assembly. */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      IPSAssemblyService assemblyService) {
+    this.designSvc = designSvc;
+    this.itemDefManager = itemDefManager;
+    this.systemDesign = systemDesign;
+    this.assemblyService = assemblyService;
   }
 
   /***
@@ -318,7 +341,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       // Prefer re-read via item def cache after save
       PSItemDefinition reloaded = resolveItemDef(idOrName.trim());
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (IllegalArgumentException | IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException | ContentTypeDesignLockException e) {
       throw e;
     } catch (PSInvalidContentTypeException e) {
       log.debug("Content type not found for update: {}", idOrName);
@@ -326,6 +349,66 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to update content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update content type", e);
+    }
+  }
+
+  @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      if (def == null) {
+        return null;
+      }
+      return loadTemplates(new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId()));
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for allowed templates: {}", idOrName);
+      return null;
+    }
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (templates == null) {
+      throw new IllegalArgumentException("allowedTemplates body is required");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(idOrName.trim());
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<IPSGuid> templateGuids = resolveTemplateGuids(templates);
+      try {
+        designSvc.saveAssociatedTemplates(ctGuid, templateGuids, false, session, user);
+      } catch (PSErrorsException e) {
+        if (isNotLockedError(e)) {
+          throw new ContentTypeDesignLockException(
+              "Could not save template associations; design lock required", e);
+        }
+        log.error("Failed to save template associations for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save template associations", e);
+      }
+      return loadTemplates(ctGuid);
+    } catch (IllegalArgumentException | IllegalStateException | ContentTypeDesignLockException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for template association replace: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to replace template associations for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to replace template associations", e);
     }
   }
 
@@ -394,7 +477,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     throw new IllegalArgumentException(field + " requires name or guid");
   }
 
-  private List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
+  List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
     List<IPSGuid> out = new ArrayList<>();
     if (refs == null) {
       return out;
@@ -411,7 +494,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private IPSGuid resolveTemplateGuid(NamedObjectRef ref, String field) {
-    IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+    IPSAssemblyService asm = requireAssemblyService();
     if (ref.getGuid() != null) {
       String sv = ref.getGuid().getStringValue();
       if (StringUtils.isNotBlank(sv)) {
@@ -609,7 +692,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private List<NamedObjectRef> loadTemplates(IPSGuid ctGuid) {
     List<NamedObjectRef> out = new ArrayList<>();
     try {
-      IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+      IPSAssemblyService asm = requireAssemblyService();
       List<IPSAssemblyTemplate> templates = asm.findTemplatesByContentType(ctGuid);
       if (templates != null) {
         for (IPSAssemblyTemplate t : templates) {
@@ -898,5 +981,79 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         walkDisplayMapper(entry.getDisplayMapper(), map, controlPropsByField);
       }
     }
+  }
+
+  /**
+   * PUT allowedTemplates requires a lock already held by this user. Does not acquire a lock.
+   *
+   * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
+   */
+  void requireHeldLock(IPSGuid ctGuid) {
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Could not save template associations; design service unavailable");
+    }
+    String user = currentUser();
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(ctGuid), user);
+    } catch (PSErrorResultsException e) {
+      throw new ContentTypeDesignLockException(
+          "Could not save template associations; design lock required", e);
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new ContentTypeDesignLockException(
+          "Could not save template associations; design lock required");
+    }
+    if (!summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new ContentTypeDesignLockException(
+          locker != null
+              ? "Could not save template associations; locked by " + locker
+              : "Could not save template associations; design lock required");
+    }
+  }
+
+  private IPSAssemblyService requireAssemblyService() {
+    if (assemblyService == null) {
+      throw new IllegalStateException("Assembly service is not available");
+    }
+    return assemblyService;
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private static void requireSessionUserForLock() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new IllegalStateException(
+          "Request session/user required to replace content type template associations");
+    }
+  }
+
+  /** Package-visible for unit tests. True when saveAssociatedTemplates reports a missing lock. */
+  static boolean isNotLockedError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (err instanceof PSErrorException pe) {
+        String msg = pe.getErrorMessage() != null ? pe.getErrorMessage() : pe.getMessage();
+        if (StringUtils.containsIgnoreCase(msg, "not locked")) {
+          return true;
+        }
+      }
+      if (err != null && StringUtils.containsIgnoreCase(String.valueOf(err), "not locked")) {
+        return true;
+      }
+    }
+    return false;
   }
 }
