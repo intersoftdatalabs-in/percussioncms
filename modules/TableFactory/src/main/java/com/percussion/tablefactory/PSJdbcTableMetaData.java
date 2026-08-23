@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.collections.PSIteratorUtils;
@@ -120,7 +121,7 @@ public class PSJdbcTableMetaData {
       }
     } catch (SQLException e) {
       Object[] args = {tableName, PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_TABLE_META_DATA, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_TABLE_META_DATA, args, e);
     }
   }
 

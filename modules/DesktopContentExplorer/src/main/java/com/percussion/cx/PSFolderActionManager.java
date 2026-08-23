@@ -16,6 +16,7 @@
  */
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSCloningOptions;
@@ -37,7 +38,6 @@ import com.percussion.cx.catalogers.PSLocaleCataloger;
 import com.percussion.cx.catalogers.PSRoleCataloger;
 import com.percussion.cx.catalogers.PSSiteCataloger;
 import com.percussion.cx.catalogers.PSSubjectCataloger;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.cx.objectstore.PSProperties;
@@ -254,7 +254,7 @@ public class PSFolderActionManager {
       f.fromXml(els[0]);
       return f;
     } catch (PSException unte) {
-      throw new PSContentExplorerException(IPSContentExplorerErrors.GENERAL_ERROR, unte.toString());
+      throw new PSContentExplorerException(ContentExplorerErrorCodes.GENERAL_ERROR, unte.toString());
     }
   }
 
@@ -365,7 +365,7 @@ public class PSFolderActionManager {
 
       return resList.iterator();
     } catch (PSException ex) {
-      throw new PSContentExplorerException(IPSContentExplorerErrors.GENERAL_ERROR, ex.toString());
+      throw new PSContentExplorerException(ContentExplorerErrorCodes.GENERAL_ERROR, ex.toString());
     } catch (PSContentExplorerException ex) {
       throw ex;
     } finally {
@@ -592,7 +592,7 @@ public class PSFolderActionManager {
         options.addSiteMapping(Integer.valueOf(sourceId), Integer.valueOf(copyId));
       }
     } catch (Exception e) {
-      throw new PSCmsException(IPSContentExplorerErrors.GENERAL_ERROR, e.getMessage());
+      throw new PSCmsException(ContentExplorerErrorCodes.GENERAL_ERROR, e.getMessage());
     }
 
     // copy the specified folder
@@ -670,7 +670,7 @@ public class PSFolderActionManager {
         if (pos != -1) tmpCwd = tmpCwd.substring(0, pos);
         else {
           String[] args = {cwd, path};
-          throw new PSCmsException(IPSContentExplorerErrors.INCOMPATIBLE_PATHS, args);
+          throw new PSCmsException(ContentExplorerErrorCodes.INCOMPATIBLE_PATHS, args);
         }
       } else done = true;
     }
@@ -915,7 +915,7 @@ public class PSFolderActionManager {
         errorText += err;
         errorText += "\r\n";
       }
-      throw new PSCmsException(IPSContentExplorerErrors.SITEDEF_UPDATE_FAILURES, errorText);
+      throw new PSCmsException(ContentExplorerErrorCodes.SITEDEF_UPDATE_FAILURES, errorText);
     }
   }
 
@@ -956,7 +956,7 @@ public class PSFolderActionManager {
         error = handleErrorResult(root);
       }
     } catch (Exception e) {
-      throw new PSCmsException(IPSContentExplorerErrors.GENERAL_ERROR, e.getMessage());
+      throw new PSCmsException(ContentExplorerErrorCodes.GENERAL_ERROR, e.getMessage());
     }
     return error;
   }

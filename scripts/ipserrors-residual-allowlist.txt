@@ -6,6 +6,7 @@
 # Shrink this list as retype PRs merge:
 #   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
 #   #3585 webservices/transformation leftover call sites
+#   #3741 DCE/ContentUI/TableFactory leftover call sites
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -94,51 +95,6 @@ deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTranslation
 deployer/src/main/java/com/percussion/deployer/server/dependencies/PSVariantDefDependencyHandler.java
 deployer/src/main/java/com/percussion/deployer/server/dependencies/PSWorkflowDefDependencyHandler.java
 deployer/src/main/java/com/percussion/deployer/services/impl/PSDeployService.java
-modules/ContentUI/src/main/java/com/percussion/content/ui/search/PSSearchResult.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatCatalog.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatOption.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExecutableSearch.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExpandedOption.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSFolderActionManager.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSItemRelationshipsManager.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewCatalog.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityContentTypeMapperCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSGlobalTemplateCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSLocaleCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSRoleCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSSiteCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSSubjectCataloger.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/wizards/PSCopySiteNamePage.java
-modules/DesktopContentExplorer/src/main/java/com/percussion/cx/wizards/PSCopySiteSubfolderNamePage.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcColumnData.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcColumnDef.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcDataTypeMap.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcDataTypeMapping.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcDbmsDef.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcExecutionPlanLogsContainer.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcForeignKey.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcKey.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcPlanBuilder.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcPreparedSqlStatement.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcResultSetIteratorStep.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcRowData.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcRowMapping.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableComponent.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableData.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableDataCollection.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableFactory.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableMapping.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableMetaData.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchema.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchemaCollection.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchemaHandler.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchemaHandlerCollection.java
-modules/TableFactory/src/main/java/com/percussion/tablefactory/tools/PSCatalogTableData.java
 modules/extensions-main/src/main/java/com/percussion/cas/PSAuthtypeDispatcher.java
 modules/extensions-main/src/main/java/com/percussion/cas/PSConcatAssemblyLocation.java
 modules/extensions-main/src/main/java/com/percussion/cas/PSConcatWithIdAssemblyLocation.java

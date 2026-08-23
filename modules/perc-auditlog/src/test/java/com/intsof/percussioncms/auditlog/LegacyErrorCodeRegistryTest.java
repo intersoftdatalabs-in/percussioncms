@@ -773,6 +773,32 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void htmlSearchMissingParameterIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(16053));
+    assertSame(
+        SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER,
+        LegacyErrorCodeRegistry.find(16053).orElseThrow());
+    assertFalse(SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER.isAuditable());
+  }
+
+  @Test
+  void htmlSearchMissingParameterNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "HTML",
+            "sys_searchid");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
   void luceneIndexCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(16311));
     assertSame(
@@ -1316,6 +1342,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(TableFactoryErrorCodes.XML_ELEMENT_NULL.isAuditable());
     assertEquals(1001, TableFactoryErrorCodes.XML_ELEMENT_NULL.numericCode());
     assertEquals(1310, TableFactoryErrorCodes.DATA_HANDLER_CLASS_NOT_FOUND.numericCode());
+    assertFalse(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE.isAuditable());
   }
 
   @Test

@@ -16,6 +16,7 @@
  */
 package com.percussion.wizard;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -42,6 +43,26 @@ public final class PSWizardValidationError extends PSException {
    * @param args the arguments, may be <code>null</code>.
    */
   public PSWizardValidationError(int code, Object[] args) {
+    super(code, args);
+  }
+
+  /**
+   * Typed construction with a single argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arg the single argument, may be {@code null}
+   */
+  public PSWizardValidationError(IPSErrorCode code, Object arg) {
+    super(code, arg);
+  }
+
+  /**
+   * Typed construction with argument array.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param args the arguments, may be {@code null}
+   */
+  public PSWizardValidationError(IPSErrorCode code, Object[] args) {
     super(code, args);
   }
 

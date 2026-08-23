@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -144,7 +145,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
         if (sTemp == null || sTemp.trim().length() == 0) {
           Object[] args = {NODE_NAME, SRC_COLUMN_ATTR, sTemp == null ? "null" : sTemp};
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         String key = sTemp;
 
@@ -153,7 +154,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
         if (sTemp == null || sTemp.trim().length() == 0) {
           Object[] args = {NODE_NAME, DEST_COLUMN_ATTR, sTemp == null ? "null" : sTemp};
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         String value = sTemp;
         m_colMapping.put(key, value);
@@ -173,7 +174,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
         if (sTemp == null || sTemp.trim().length() == 0) {
           Object[] args = {NODE_NAME, DEST_COLUMN_ATTR, sTemp == null ? "null" : sTemp};
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         String colName = sTemp;
 
@@ -182,7 +183,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
         if (sTemp == null || sTemp.trim().length() == 0) {
           Object[] args = {NODE_NAME, VALUE_ATTR, sTemp == null ? "null" : sTemp};
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         String colValue = sTemp;
         PSJdbcColumnData colData = new PSJdbcColumnData(colName, colValue);
@@ -196,7 +197,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
    * Verifies that all the columns added to the column mapping Map though the <code>
    * addColumnMapping()</code> method are present in the input row parameter. If any column
    * specified in the mapping is not present then it throws <code>PSJdbcTableFactoryException</code>
-   * exception with error code <code>IPSTableFactoryErrors.COLUMN_NOT_FOUND</code>
+   * exception with error code <code>TableFactoryErrorCodes.COLUMN_NOT_FOUND</code>
    *
    * @param row the row data against which the column mapping is to be checked, may not be <code>
    *     null</code>
@@ -214,7 +215,7 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
         String tableName = "";
         if (m_tblData != null) tableName = m_tblData.getName();
         Object[] args = {tableName, srcColName};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.COLUMN_NOT_FOUND, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.COLUMN_NOT_FOUND, args);
       }
     }
   }

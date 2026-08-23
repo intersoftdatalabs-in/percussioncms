@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -230,7 +231,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     m_columns.clear();
@@ -245,7 +246,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
     // make sure we get at least one
     do {
       if (fkcolumn == null)
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, FK_COLUMN_EL);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, FK_COLUMN_EL);
 
       // load it's child elements
       String colName = getRequiredElement(walker, NAME_EL);
@@ -434,7 +435,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
     if (null == data || data.trim().length() == 0) {
       String parentName = tree.getCurrent().getNodeName();
       Object[] args = {parentName, elemName, "null"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     return data;
   }
