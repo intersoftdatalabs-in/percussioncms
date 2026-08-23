@@ -218,10 +218,11 @@ show these controls (no misleading virtual-build or virtual-publish chrome).
 
 ### Preview the assembled Virtual Site
 
-After a successful **Build Virtual Site**, operators can open the assembled documentation
-home from the same Site detail panel (no CLI, no `file://` path). This includes
-**`csv-filesystem`** last-build output as well as **`git-filesystem`** — preview is not
-git-only. In-product REST Build records the last output path (including a custom
+After a successful **Build Virtual Site**, operators can open the assembled home from the
+same Site detail panel (no CLI, no `file://` path). Preview is last-output based: it works
+for **Git filesystem** and **CSV filesystem** (not git-only). Traditional **Repository**
+Sites hide **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**.
+In-product REST Build records the last output path (including a custom
 `outputRoot`), so `GET /services/sites/{name}/virtual/preview` reports `available` +
 `homePath` and `GET …/virtual/preview/{path}` streams the HTML.
 
@@ -232,7 +233,9 @@ when the install root is unavailable). A custom CLI output directory is not prev
 until REST Build records it.
 
 1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
-2. Choose **Preview assembled site**.
+2. For **CSV filesystem**, confirm **Source kind** is **CSV filesystem**, the **Root path**
+   is saved, and **Build Virtual Site** completed. Then choose **Preview assembled site**.
+   Git filesystem uses the same Preview control after its Build.
 3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
    when present) in a new tab. Navigation stays on the same-origin preview URL
    (`GET /services/sites/{name}/virtual/preview/{path}`).
@@ -241,9 +244,9 @@ until REST Build records it.
    does not return HTTP 500.
 
 The preview stream reads the last recorded `outputPath` from the build (default
-`{install}/tmp/virtual-sites/{siteKey}`). It is **Admin-only**, path-traversal safe, and
-does not invent a second assembler. Traditional **Repository** Sites do not show Preview
-chrome. Git and CSV Virtual Sites both show Preview next to **Build Virtual Site**.
+`{install}/tmp/virtual-sites/{siteKey}`). After a CSV assemble, `GET /services/sites/{name}/virtual/preview`
+reports `available` + `homePath`, and `GET …/virtual/preview/{path}` streams the HTML.
+It is **Admin-only**, path-traversal safe, and does not invent a second assembler.
 
 Integrators can call the same operation over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See

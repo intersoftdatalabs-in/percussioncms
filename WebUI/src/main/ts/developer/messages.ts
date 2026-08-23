@@ -770,7 +770,7 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_GIT_FILESYSTEM: "perc.ui.developer@Git filesystem",
   SITE_VIRT_KIND_CSV_FILESYSTEM: "perc.ui.developer@CSV filesystem",
   SITE_VIRT_CSV_HINT:
-    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build or Publish Virtual Site.",
+    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -797,7 +797,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled documentation home in a new tab (same-origin preview of the build output). Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem or CSV filesystem). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",

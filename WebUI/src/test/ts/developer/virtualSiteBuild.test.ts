@@ -9,6 +9,7 @@ import {
   normalizeVirtualSiteLinkProblems,
   sanitizeVirtualPreviewHomePath,
   shouldShowVirtualBuildChrome,
+  shouldShowVirtualPreviewChrome,
   shouldShowVirtualPublishChrome,
 } from "../../../main/ts/developer/virtualSiteBuild";
 
@@ -23,6 +24,16 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("  git-filesystem  ")).toBe(true);
     expect(shouldShowVirtualBuildChrome("csv-filesystem")).toBe(true);
     expect(shouldShowVirtualBuildChrome("CSV-Filesystem")).toBe(true);
+  });
+
+  it("shouldShowVirtualPreviewChrome matches Build (git and csv, never repository)", () => {
+    expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("sql-api")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("git-filesystem")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("csv-filesystem")).toBe(true);
+    expect(shouldShowVirtualPreviewChrome("  CSV-Filesystem  ")).toBe(true);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem and csv-filesystem", () => {
