@@ -99,8 +99,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private static final Logger log = LogManager.getLogger(ContentTypeAdaptor.class);
 
-  /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
-  static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
+  /**
+   * Typical design-session lock duration in minutes. {@link PSObjectLock#LOCK_INTERVAL} is
+   * milliseconds (30 minutes = {@code 30 * 60 * 1000}); divide by 60_000, never treat it as already
+   * in minutes.
+   */
+  static final long DESIGN_LOCK_MINUTES = Math.max(1L, PSObjectLock.LOCK_INTERVAL / 60_000L);
 
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
