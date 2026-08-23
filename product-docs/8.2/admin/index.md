@@ -44,6 +44,13 @@ falls back to templates allowed for the page content type. You cannot create
 the page until a template is selected. Then pick the destination folder,
 title, and file name.
 
+FastForward sample sites (for example **Corporate_Investments**) may list
+assembly templates such as **Page - Database Template** (`perc.pageDatabase`).
+Create still saves the page under the site's repository folder
+(`/Sites/CorporateInvestments`) and opens the React Content Editor
+(`spa.jsp?entry=editor`). The finder SITENAME (`Corporate_Investments`) is
+not a separate create ACL; the server maps it to the repository folder.
+
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
 form.

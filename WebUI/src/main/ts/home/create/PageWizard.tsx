@@ -231,6 +231,7 @@ export function PageWizard({
         <label htmlFor="pw-folder">{message(MSG.CREATE_FOLDER)}</label>
         <select
           id="pw-folder"
+          data-testid="page-wizard-folder"
           value={folderPath}
           onChange={(e) => setFolderPath(e.target.value)}
           required

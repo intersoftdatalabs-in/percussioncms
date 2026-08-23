@@ -771,6 +771,11 @@ export function formatApiError(err: unknown, notAuthorizedMsg: string): string {
           : o.message;
       }
     }
+    // Empty-body 5xx (CXF WebApplicationException 500) is not an ACL deny.
+    if (typeof apiErr.status === "number" && apiErr.status >= 500) {
+      const st = String(apiErr.statusText ?? "").trim();
+      return st && !/^ok$/i.test(st) ? st : "Create failed";
+    }
   }
   if (typeof err === "string" && err.includes("NotAuthorized")) {
     return notAuthorizedMsg;
