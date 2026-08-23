@@ -21,7 +21,6 @@ import { PATHS } from "../paths";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
-  ContentTypeListEnvelope,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
@@ -40,28 +39,95 @@ function normalizeContentTypeSummary(item: ContentTypeSummary): ContentTypeSumma
   return normalizeDesignObjectGuid(item);
 }
 
+/** Jackson WRAP_ROOT / JAXB / ArrayList envelopes for GET /services/contenttypes. */
+const CONTENT_TYPE_LIST_WRAP_KEYS = [
+  "ContentTypeList",
+  "contentTypeList",
+  "ContentType",
+  "contentType",
+  "contentTypes",
+  "ArrayList",
+  "arrayList",
+  "items",
+] as const;
+
+const MAX_CONTENT_TYPE_LIST_DEPTH = 6;
+
+function looksLikeContentTypeSummary(obj: Record<string, unknown>): boolean {
+  return (
+    obj.name != null ||
+    obj.label != null ||
+    obj.guid != null ||
+    obj.guidString != null ||
+    typeof obj.hideFromMenu === "boolean"
+  );
+}
+
+function isEmptyCollectionBean(obj: Record<string, unknown>): boolean {
+  if (!("empty" in obj) || typeof obj.empty !== "boolean") {
+    return false;
+  }
+  return Object.keys(obj).every((k) => k === "empty");
+}
+
 /**
- * Normalize list responses that may be a bare array or a JAXB envelope.
+ * Flatten Jackson list envelopes so the catalog never receives a non-array.
+ *
+ * <p>Live WRAP_ROOT_VALUE serializes {@code ContentTypeList} as
+ * {@code {"ContentTypeList":[…]}} (class name) or {@code {"ContentType":[…]}}
+ * ({@code @XmlRootElement}). A one-level {@code env.ContentType} read misses
+ * the class-name root and can leave a truthy object for {@code [...items]} /
+ * {@code .map} — DeveloperSectionErrorBoundary (#3706 / peer searches #3576).
  */
-export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
-  if (payload == null) {
+function flattenContentTypeList(payload: unknown, depth = 0): unknown[] {
+  if (payload == null || depth > MAX_CONTENT_TYPE_LIST_DEPTH) {
     return [];
   }
   if (Array.isArray(payload)) {
-    return (payload as ContentTypeSummary[]).map(normalizeContentTypeSummary);
-  }
-  if (typeof payload === "object") {
-    const env = payload as ContentTypeListEnvelope & {
-      contentType?: ContentTypeSummary[] | ContentTypeSummary;
-    };
-    const raw = env.ContentType ?? env.contentType;
-    if (raw == null) {
-      return [];
+    const out: unknown[] = [];
+    for (const item of payload) {
+      if (item == null || typeof item !== "object") {
+        continue;
+      }
+      const rec = item as Record<string, unknown>;
+      const wrapped =
+        !looksLikeContentTypeSummary(rec) &&
+        CONTENT_TYPE_LIST_WRAP_KEYS.some((k) => rec[k] != null);
+      if (wrapped || !looksLikeContentTypeSummary(rec)) {
+        out.push(...flattenContentTypeList(item, depth + 1));
+      } else {
+        out.push(item);
+      }
     }
-    const list = Array.isArray(raw) ? raw : [raw];
-    return list.map(normalizeContentTypeSummary);
+    return out;
+  }
+  const obj = asRecord(payload);
+  if (!obj) {
+    return [];
+  }
+  if (isEmptyCollectionBean(obj)) {
+    return [];
+  }
+  for (const key of CONTENT_TYPE_LIST_WRAP_KEYS) {
+    if (obj[key] != null) {
+      return flattenContentTypeList(obj[key], depth + 1);
+    }
+  }
+  if (looksLikeContentTypeSummary(obj)) {
+    return [obj];
   }
   return [];
+}
+
+/**
+ * Normalize list responses: bare array, {@code ContentTypeList}/{@code ContentType}
+ * envelopes, nested wraps, singleton object, or empty-collection bean (#3706).
+ * Always returns an array.
+ */
+export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
+  return flattenContentTypeList(payload).map((item) =>
+    normalizeContentTypeSummary(item as ContentTypeSummary),
+  );
 }
 
 /**

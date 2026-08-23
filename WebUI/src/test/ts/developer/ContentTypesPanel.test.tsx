@@ -10,9 +10,14 @@ import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi
 import { ContentTypesPanel } from "../../../main/ts/developer/ContentTypesPanel";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  listContentTypes: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    listContentTypes: vi.fn(),
+  };
+});
 
 const listContentTypes = contentTypesApi.listContentTypes as ReturnType<typeof vi.fn>;
 
@@ -95,5 +100,53 @@ describe("ContentTypesPanel", () => {
       expect(screen.getByTestId("developer-ct-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ct-error").textContent).toBe(DEV_MSG.CT_ERROR);
+  });
+
+  it("unwraps ContentTypeList envelope instead of throwing into the section boundary (#3706)", async () => {
+    listContentTypes.mockResolvedValue({
+      ContentTypeList: {
+        ContentType: [
+          {
+            name: "percPage",
+            label: "Page",
+            description: "Page type",
+            guid: { stringValue: "0-2-301", type: 2, uuid: 301 },
+          },
+        ],
+      },
+    });
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("Page");
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+    expect(screen.queryByTestId("developer-section-error")).toBeNull();
+    expect(screen.queryByText(/Unable to load/i)).toBeNull();
+  });
+
+  it("does not crash when a row label is a non-string object (#3706)", async () => {
+    listContentTypes.mockResolvedValue([
+      {
+        name: "percPage",
+        label: { value: "Page" },
+        description: { $: "nested" },
+      },
+    ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+    expect(screen.queryByTestId("developer-section-error")).toBeNull();
+  });
+
+  it("shows empty state for empty-collection beans instead of throwing (#3706)", async () => {
+    listContentTypes.mockResolvedValue({ empty: true });
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-section-error")).toBeNull();
   });
 });
