@@ -401,6 +401,47 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesSqlDatabase() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("SqlHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("SqlHelp");
+  }
+
+  @Test
+  public void previewStatusSqlDatabaseMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("SqlHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("SqlHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesSqlDatabaseHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">SQL Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("SqlHelp"), eq("8.2/index.html")))
+        .thenReturn(new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(text.contains("/services/sites/SqlHelp/virtual/preview/8.2/index.html"), text);
+    assertTrue(text.contains("SQL Home"), text);
+    verify(adaptor).previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));

@@ -227,10 +227,11 @@ After a successful **Build Virtual Site**, operators can open the assembled docu
 home from the same Site detail panel (no CLI, no `file://` path). This includes
 **`csv-filesystem`**, **`sql-database`**, and **`git-filesystem`** last-build output —
 preview is not git-only. Developer Sites Preview chrome is Git/CSV today; SQL REST
-preview is available to integrators. In-product REST Build records the last output path
-(including a custom
-`outputRoot`), so `GET /services/sites/{name}/virtual/preview` reports `available` +
-`homePath` and `GET …/virtual/preview/{path}` streams the HTML.
+preview is available to integrators. After REST Build for `sql-database` (in-memory H2),
+`GET /services/sites/{name}/virtual/preview` returns `available=true` and `homePath`
+(typically `8.2/index.html`) and `GET …/virtual/preview/{path}` streams the assembled
+HTML. Missing build is `available=false` with HTTP **200** (not 500). In-product REST
+Build records the last output path (including a custom `outputRoot`).
 
 Offline CLI assemble (`PSVirtualSiteBuildMain`) does **not** write that last-output
 pointer. CLI output is previewable only when `outputRoot` is the default
@@ -252,8 +253,10 @@ The preview stream reads the last recorded `outputPath` from the build (default
 does not invent a second assembler. Traditional **Repository** Sites do not show Preview
 chrome. Git and CSV Virtual Sites both show Preview next to **Build Virtual Site**.
 
-Integrators can call the same operation over REST:
-`POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`). See
+Integrators can call the same operations over REST:
+`POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`), then
+`GET /sites/{nameOrId}/virtual/preview` (status) and
+`GET /sites/{nameOrId}/virtual/preview/{relPath}` (HTML). See
 [Site configuration reference](id:reference-site-config) and
 [Virtual Sites (developer)](id:developer-virtual-sites).
 

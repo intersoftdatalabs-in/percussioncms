@@ -229,7 +229,9 @@ return **400**. The Developer UI **Preview assembled site** control uses these e
 
 After REST Build (`POST …/virtual/build`) for `git-filesystem`, `csv-filesystem`, or
 `sql-database`, the server records the last output path (including a custom `outputRoot`)
-so preview streams that tree. Offline CLI assemble (`PSVirtualSiteBuildMain`) does **not** record that pointer:
+so preview streams that tree. For `sql-database` (in-memory H2), a successful Build is
+followed by `available=true` + assembled HTML; no last build is `available=false` HTTP
+**200**. Offline CLI assemble (`PSVirtualSiteBuildMain`) does **not** record that pointer:
 CLI output is previewable only when `outputRoot` is exactly the default
 `{install}/tmp/virtual-sites/{siteKey}` (or `{java.io.tmpdir}/percussion-virtual-sites/{siteKey}`
 when the install root is unavailable). A custom CLI output path is not previewable until REST
