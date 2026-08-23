@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**. Blank or `repository` = traditional Site. Developer Sites can save Git or CSV. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching Git/CSV adapter. **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for Git and CSV. `sql-database` is the in-memory H2 SPI (see [Virtual Sites](id:developer-virtual-sites)); SQL REST/UI chrome is a later slice. CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**. Blank or `repository` = traditional Site. Developer Sites can save Git or CSV. **Build Virtual Site** and **Publish Virtual Site** (REST) run the matching Git/CSV/SQL adapter; Developer Sites chrome is Git/CSV today (SQL UI is a later slice). **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for Git, CSV, and SQL. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). See [Virtual Sites](id:developer-virtual-sites). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -177,9 +177,12 @@ action (below), or the CMS publish path to verify links.
 
 Integrators persist CSV trees the same way as Git: `PUT /services/sites/{name}/virtual`
 with `{ "VirtualSiteProperties": { "sourceKind": "csv-filesystem", "rootPath": "…" } }`.
-`GET` returns the same `sourceKind`. In-product **Build Virtual Site** runs for both
-`git-filesystem` and `csv-filesystem` (`POST …/virtual/build`). CSV assemble does not
-require a Git remote; `_config.yaml` is optional.
+`GET` returns the same `sourceKind`. SQL trees use `"sourceKind": "sql-database"` and a
+safe `rootPath` that holds `_config.yaml` with the `sql:` mapping (H2 mem JDBC URL and
+user; do not put passwords on the REST envelope). In-product REST **Build Virtual Site**
+runs for `git-filesystem`, `csv-filesystem`, and `sql-database` (`POST …/virtual/build`).
+CSV assemble does not require a Git remote; `_config.yaml` is optional for CSV and
+required for SQL.
 
 ### Build a Virtual Site from the product UI
 
@@ -220,9 +223,11 @@ show these controls (no misleading virtual-build or virtual-publish chrome).
 
 After a successful **Build Virtual Site**, operators can open the assembled home from the
 same Site detail panel (no CLI, no `file://` path). Preview is last-output based: it works
-for **Git filesystem** and **CSV filesystem** (not git-only). Traditional **Repository**
-Sites hide **Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**.
-In-product REST Build records the last output path (including a custom
+for **Git filesystem**, **CSV filesystem**, and **SQL database** (`sql-database` REST
+last-build) — preview is not git-only. Traditional **Repository** Sites hide
+**Build Virtual Site**, **Preview assembled site**, and **Publish Virtual Site**.
+Developer Sites Preview chrome is Git/CSV today; SQL REST preview is available to
+integrators. In-product REST Build records the last output path (including a custom
 `outputRoot`), so `GET /services/sites/{name}/virtual/preview` reports `available` +
 `homePath` and `GET …/virtual/preview/{path}` streams the HTML.
 

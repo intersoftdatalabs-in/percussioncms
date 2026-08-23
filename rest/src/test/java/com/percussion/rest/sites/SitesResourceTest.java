@@ -187,6 +187,56 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsSqlDatabase() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("sql-database");
+    v.setRootPath("C:/sql-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("SqlHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("SqlHelp");
+    assertEquals("sql-database", out.getSourceKind());
+    assertEquals("C:/sql-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("SqlHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsSqlDatabase() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sql-database");
+    body.setRootPath("C:/sql-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("sql-database");
+    saved.setRootPath("C:/sql-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("SqlHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("SqlHelp", body);
+    assertEquals("sql-database", out.getSourceKind());
+    assertEquals("C:/sql-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("SqlHelp", body);
+  }
+
+  @Test
+  public void updateVirtualPropertiesUnknownKindPropagates400() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sql-adapter");
+    body.setRootPath("C:/docs");
+    when(adaptor.updateVirtualSiteProperties(eq("Help"), same(body)))
+        .thenThrow(
+            new WebApplicationException(
+                "Unsupported virtual.sourceKind", Response.Status.BAD_REQUEST));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateVirtualProperties("Help", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor).updateVirtualSiteProperties("Help", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesNullBody400() {
     WebApplicationException ex =
         assertThrows(
@@ -363,11 +413,17 @@ public class SitesResourceTest {
     assertTrue(
         text.contains("csv-filesystem"),
         "buildVirtualSite OpenAPI description must mention csv-filesystem");
+    assertTrue(
+        text.contains("sql-database"),
+        "buildVirtualSite OpenAPI description must mention sql-database");
     String publishBlock =
         text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/publish\")"));
     assertTrue(
         publishBlock.contains("csv-filesystem"),
         "publishVirtualSite OpenAPI description must mention csv-filesystem");
+    assertTrue(
+        publishBlock.contains("sql-database"),
+        "publishVirtualSite OpenAPI description must mention sql-database");
     assertTrue(
         text.contains(
             "return requireAdaptor().getVirtualSitePreviewStatus(nameOrId); // codeql[java/xss]"),
@@ -380,8 +436,14 @@ public class SitesResourceTest {
         previewStatusBlock.contains("csv-filesystem"),
         "getVirtualSitePreviewStatus OpenAPI description must mention csv-filesystem");
     assertTrue(
+        previewStatusBlock.contains("sql-database"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention sql-database");
+    assertTrue(
         previewFileBlock.contains("csv-filesystem"),
         "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
+    assertTrue(
+        previewFileBlock.contains("sql-database"),
+        "previewVirtualSiteFile OpenAPI description must mention sql-database");
     assertTrue(
         previewFileBlock.contains("20 MB"),
         "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");
