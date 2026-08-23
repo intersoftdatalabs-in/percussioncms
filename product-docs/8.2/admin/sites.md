@@ -216,10 +216,10 @@ virtual-publish chrome). After you save **SQL database**, **Build Virtual Site**
 4. Choose **Build Virtual Site**.
 5. After a `git pull` or a local Markdown/frontmatter edit on the host — or after the remote
    branch moves — or after a CSV file or `_config.yaml` change — or after the SQL
-   `SELECT` / H2 rows change — choose **Build Virtual Site** again. The build re-reads
-   the current tree (and re-fetches when a Git remote is configured) — **do not restart
-   the CMS** just to pick up those edits. There is no file watcher; the next explicit
-   build is the refresh.
+   `_config.yaml`, `sql.queryFile`, `SELECT`, or H2 rows change — choose **Build Virtual
+   Site** again. The build re-reads the current tree (and re-fetches when a Git remote is
+   configured) — **do not restart the CMS** just to pick up those edits. There is no file
+   watcher; the next explicit build is the refresh.
 6. Wait for the busy indicator, then review:
    - **Success** — pages written, absolute output path (default under
      `{install}/tmp/virtual-sites/{siteKey}` when no custom output is set).

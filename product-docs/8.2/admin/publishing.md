@@ -37,8 +37,9 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
   current Git/filesystem, CSV tree (`csv-filesystem`), or H2 `SELECT` (`sql-database`). After
-  `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, or a SQL row
-  change, run Build (or Publish) again — no CMS restart. `sql-database` requires
+  `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
+  `queryFile` / `sql.query` change, or an H2 row change, run Build (or Publish) again — no
+  CMS restart. `sql-database` requires
   `_config.yaml` with a `sql:` mapping (`jdbc:h2:mem:`; Oracle / MySQL / SQL Server URLs
   return **400**).
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the

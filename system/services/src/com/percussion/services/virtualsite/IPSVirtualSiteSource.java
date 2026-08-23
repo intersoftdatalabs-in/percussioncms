@@ -25,10 +25,11 @@ import java.util.List;
  * SQL / H2 adapter: {@link PSSqlDatabaseVirtualSiteSource} ({@code sql-database}). Future adapters
  * (API, object storage, …) implement this interface.
  *
- * <p>Filesystem implementations must read <em>current</em> file contents on every {@link
- * #discover} and {@link #load}. Process-lifetime parse caches that skip a file because its path
- * or mtime looks unchanged are not allowed — a second build in the same JVM (after {@code git
- * pull}, a CSV row edit, or a local Markdown/frontmatter edit) must see the new bytes. File
+ * <p>Filesystem and SQL implementations must read <em>current</em> source contents on every
+ * {@link #discover} and {@link #load}. Process-lifetime parse caches that skip a file because
+ * its path or mtime looks unchanged are not allowed — a second build in the same JVM (after
+ * {@code git pull}, a CSV row edit, a local Markdown/frontmatter edit, a {@code _config.yaml}
+ * or {@code sql.queryFile} edit, or an in-memory H2 row change) must see the new bytes. File
  * watchers are not required; the next explicit build is the refresh.
  */
 public interface IPSVirtualSiteSource {

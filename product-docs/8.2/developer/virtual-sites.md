@@ -94,7 +94,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file **and CSV row** from disk. The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, and sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -212,8 +212,11 @@ root) is required — not both. `queryFile` must be relative (no remaining `..`,
 Windows/Unix absolute roots). The query must be a single `SELECT` (no extra statements,
 no `INIT`/`RUNSCRIPT` in the JDBC URL). Missing required columns, blank `id`/`title`,
 duplicate ids, or an unsafe `path` fail closed (`VirtualSiteException`). Each
-discover/load re-runs the current SELECT (no process-lifetime row cache). Credentials
-are not written to logs; put the H2 user in `sql.user` (not in the JDBC URL).
+discover/load re-reads the current `_config.yaml` query (or `sql.queryFile` bytes) and
+re-runs the SELECT (no process-lifetime row cache). After you edit `_config.yaml`,
+`sql.queryFile`, or H2 rows on the CMS host, run **Build Virtual Site** again — **no JVM
+restart**. File watchers are not used. Credentials are not written to logs; put the H2
+user in `sql.user` (not in the JDBC URL).
 
 Example `_config.yaml` fragment:
 
@@ -341,19 +344,21 @@ local root from the panel until the remote is cleared.
 The CMS host must have `git` on `PATH`. Checkouts are server-managed; do not point `remoteUrl` at
 untrusted remotes.
 
-### Rebuild after git pull, a CSV edit, or a local edit (no CMS restart)
+### Rebuild after git pull, a CSV/SQL edit, or a local edit (no CMS restart)
 
-The Git/filesystem and CSV/filesystem adapters always see the **current** tree on the CMS host:
+The Git/filesystem, CSV/filesystem, and SQL/database adapters always see the **current**
+source on the CMS host:
 
-1. Update Markdown or frontmatter, a CSV file, or `_config.yaml` under `virtual.rootPath`
-   (`git pull`, copy, or an editor), **or** change the remote branch and Build again so the
-   server fetches (Git only).
+1. Update Markdown or frontmatter, a CSV file, `_config.yaml`, a SQL `queryFile` / inline
+   `sql.query`, or in-memory H2 rows under `virtual.rootPath` (`git pull`, copy, or an
+   editor), **or** change the remote branch and Build again so the server fetches (Git only).
 2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, `scripts/build-cms-docs.*`,
-   or `PSVirtualSiteBuildMain … csv-filesystem`).
+   `PSVirtualSiteBuildMain … csv-filesystem`, or `PSVirtualSiteBuildMain … sql-database`).
 3. Preview or publish the new output.
 
-You do **not** restart the CMS JVM for those file changes to appear. A restart is only needed
-when you change server code, Site properties that were never saved, or the process itself.
+You do **not** restart the CMS JVM for those file or H2 row changes to appear. A restart is
+only needed when you change server code, Site properties that were never saved, or the
+process itself.
 
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
