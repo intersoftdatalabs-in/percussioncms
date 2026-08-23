@@ -69,6 +69,27 @@ public class ContentTypesResource {
     return adaptor;
   }
 
+  /**
+   * Map adaptor failures to HTTP status without sniffing message substrings (names such as {@code
+   * percBlockquote} must not become 409).
+   */
+  private static WebApplicationException mapMutationFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof ContentTypeDesignLockException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      return new WebApplicationException(msg, 409);
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
+  }
+
   @GET
   @Path("/")
   @Produces({MediaType.APPLICATION_JSON})
@@ -854,7 +875,9 @@ public class ContentTypesResource {
       summary = "Update content type design fields",
       description =
           "Admin. Requires a design-session lock already held by the current user/session"
-              + " (POST .../lock). Applies mutable fields (label, description, enabled, per-field"
+              + " (POST .../lock). Locks expire after 30 minutes; a PUT after expiry returns 409"
+              + " and the client must re-lock. The save load extends a still-valid lock (it does"
+              + " not release). Applies mutable fields (label, description, enabled, per-field"
               + " searchable/occurrence, allowedWorkflows + defaultWorkflow, allowedTemplates)"
               + " and saves without releasing the lock (POST .../unlock). Association lists:"
               + " omit/null = leave unchanged; non-null list = full replace (empty clears"
@@ -890,17 +913,8 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return detail;
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(e.getMessage(), 400);
-    } catch (IllegalStateException e) {
-      // lock / session problems surface as 409 when message indicates lock
-      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      if (msg.toLowerCase().contains("lock")) {
-        throw new WebApplicationException(msg, 409);
-      }
-      throw new WebApplicationException(e, 500);
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
@@ -914,13 +928,15 @@ public class ContentTypesResource {
       description =
           "Acquires a self-only design-session lock for the current Admin user via the content"
               + " design web service (IPSContentDesignWs.loadContentTypes with lock=true,"
-              + " overrideLock=false). Does not save. Re-lock by the same session user extends the"
-              + " lock.",
+              + " overrideLock=false). Does not save. Locks expire after 30 minutes"
+              + " (PSObjectLock.LOCK_INTERVAL). Re-lock by the same session user extends the lock."
+              + " remainingTime is the actual remaining minutes from the lock service.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "Locked",
             content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id or wildcard name"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(responseCode = "409", description = "Locked by another user"),
@@ -934,14 +950,8 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return summary;
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (IllegalStateException e) {
-      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      if (msg.toLowerCase().contains("lock")) {
-        throw new WebApplicationException(msg, 409);
-      }
-      throw new WebApplicationException(e, 500);
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
@@ -968,14 +978,8 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return Response.noContent().build();
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (IllegalStateException e) {
-      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      if (msg.toLowerCase().contains("lock")) {
-        throw new WebApplicationException(msg, 409);
-      }
-      throw new WebApplicationException(e, 500);
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }

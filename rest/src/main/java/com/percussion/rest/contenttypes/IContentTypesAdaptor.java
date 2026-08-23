@@ -69,7 +69,8 @@ public interface IContentTypesAdaptor {
    * Field rule expressions and control property values are read-only.
    *
    * @return updated detail, or {@code null} when not found
-   * @throws IllegalStateException when no lock is held or the lock is owned by another user
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
    */
   ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
 
@@ -87,8 +88,8 @@ public interface IContentTypesAdaptor {
    *
    * @param baseUri requesting URI
    * @param idOrName content type uuid (numeric) or internal name
-   * @return {@code Boolean.TRUE} when released; {@code null} when not found. Throws {@code
-   *     IllegalStateException} when locked by another user.
+   * @return {@code Boolean.TRUE} when released; {@code null} when not found. Throws {@link
+   *     ContentTypeDesignLockException} when locked by another user.
    */
   Boolean unlockContentType(URI baseUri, String idOrName);
 }

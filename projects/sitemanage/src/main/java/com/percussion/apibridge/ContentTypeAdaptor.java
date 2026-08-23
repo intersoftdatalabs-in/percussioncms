@@ -42,6 +42,7 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
@@ -53,6 +54,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
@@ -95,8 +97,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private static final Logger log = LogManager.getLogger(ContentTypeAdaptor.class);
 
-  /** Typical design-session lock duration reported by SOAP (minutes). */
-  static final long DESIGN_LOCK_MINUTES = 30L;
+  /** Typical design-session lock duration in minutes ({@link PSObjectLock#LOCK_INTERVAL}). */
+  static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
 
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
@@ -306,7 +308,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String user = currentUser();
 
     try {
-      IPSGuid ctGuid = resolveContentTypeGuid(idOrName.trim());
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(idOrName.trim());
       if (ctGuid == null) {
         return null;
       }
@@ -372,7 +374,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     requireSessionUserForLock();
-    IPSGuid ctGuid = resolveContentTypeGuid(idOrName.trim());
+    IPSGuid ctGuid = resolveExistingContentTypeGuid(idOrName.trim());
     if (ctGuid == null) {
       return null;
     }
@@ -382,7 +384,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (locked == null || locked.isEmpty() || locked.get(0) == null) {
         return null;
       }
-      return toLockSummary(session, user, DESIGN_LOCK_MINUTES);
+      return toLockSummary(session, user, remainingLockMinutes(ctGuid));
     } catch (PSErrorResultsException e) {
       throwLockOrNotFound(e, idOrName, true);
       return null;
@@ -398,20 +400,31 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     requireSessionUserForLock();
-    IPSGuid ctGuid = resolveContentTypeGuid(idOrName.trim());
+    IPSGuid ctGuid = resolveExistingContentTypeGuid(idOrName.trim());
     if (ctGuid == null) {
       return null;
     }
-    // Detect another user's lock without stealing it (self-only, overrideLock=false).
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Could not release content type design session; design service unavailable");
+    }
+    List<PSObjectSummary> locked;
     try {
-      designSvc.loadContentTypes(Collections.singletonList(ctGuid), true, false, session, user);
+      locked = systemDesign.isLocked(Collections.singletonList(ctGuid), user);
     } catch (PSErrorResultsException e) {
       throwLockOrNotFound(e, idOrName, false);
       return null;
     }
-    if (systemDesign != null) {
-      systemDesign.releaseLocks(Collections.singletonList(ctGuid), session, user);
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary != null && summary.isLocked() && !summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new ContentTypeDesignLockException(
+          locker != null
+              ? "Could not release design lock for content type; locked by " + locker
+              : "Could not release design lock for content type");
     }
+    systemDesign.releaseLocks(Collections.singletonList(ctGuid), session, user);
     return Boolean.TRUE;
   }
 
@@ -480,7 +493,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     throw new IllegalArgumentException(field + " requires name or guid");
   }
 
-  private List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
+  List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
     List<IPSGuid> out = new ArrayList<>();
     if (refs == null) {
       return out;
@@ -997,51 +1010,50 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
-   * PUT save requires a lock already held by this user/session. Does not acquire a lock.
+   * PUT save requires a lock already held by this user. Does not acquire a lock.
    *
-   * @throws IllegalStateException when unlocked or locked by another user/session (HTTP 409)
+   * <p>Session equality is not compared against {@code KEY_JSESSIONID}: lock session ids may be the
+   * clientId. A foreign session is rejected by {@code loadContentTypes(..., lock=true,
+   * overrideLock=false)}.
+   *
+   * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
    */
   private void requireHeldLock(IPSGuid ctGuid) {
     if (systemDesign == null) {
-      throw new IllegalStateException("Could not save content type; design lock required");
+      throw new IllegalStateException(
+          "Could not save content type; design service unavailable");
     }
     List<PSObjectSummary> locked;
     try {
       locked = systemDesign.isLocked(Collections.singletonList(ctGuid), currentUser());
     } catch (PSErrorResultsException e) {
       if (isNotFoundError(e)) {
-        throw new IllegalStateException("Could not save content type; design lock required", e);
+        throw new ContentTypeDesignLockException(
+            "Could not save content type; design lock required", e);
       }
       if (hasLockError(e)) {
         String locker = firstLockLocker(e);
-        throw new IllegalStateException(
+        throw new ContentTypeDesignLockException(
             locker != null
                 ? "Could not save content type; locked by " + locker
                 : "Could not save content type; design lock required",
             e);
       }
-      throw new IllegalStateException("Could not save content type; design lock required", e);
+      throw new IllegalStateException("Could not save content type; design service error", e);
     }
     PSObjectSummary summary =
         locked == null || locked.isEmpty() ? null : locked.get(0);
     if (summary == null || !summary.isLocked()) {
-      throw new IllegalStateException("Could not save content type; design lock required");
+      throw new ContentTypeDesignLockException("Could not save content type; design lock required");
     }
     String user = currentUser();
-    String session = currentSession();
     PSObjectLockSummary info = summary.getLocked();
     if (!summary.isLockedBy(user)) {
       String locker = info != null ? info.getLocker() : null;
-      throw new IllegalStateException(
+      throw new ContentTypeDesignLockException(
           locker != null
               ? "Could not save content type; locked by " + locker
               : "Could not save content type; design lock required");
-    }
-    if (info != null
-        && StringUtils.isNotBlank(info.getSession())
-        && !session.equals(info.getSession())) {
-      throw new IllegalStateException(
-          "Could not save content type; locked by " + user + " in another session");
     }
   }
 
@@ -1115,7 +1127,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     }
     if (StringUtils.isNumeric(idOrName)) {
-      return new PSGuid(PSTypeEnum.NODEDEF, Long.parseLong(idOrName));
+      try {
+        return new PSGuid(PSTypeEnum.NODEDEF, Long.parseLong(idOrName));
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid content type id: " + idOrName, e);
+      }
     }
     if (idOrName.contains("-")) {
       try {
@@ -1127,6 +1143,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       } catch (RuntimeException ignore) {
         // fall through to name lookup
       }
+    }
+    if (idOrName.indexOf('*') >= 0 || idOrName.indexOf('%') >= 0) {
+      throw new IllegalArgumentException("Content type name must not contain wildcards");
     }
     List<IPSCatalogSummary> found = designSvc.findContentTypes(idOrName);
     if (found == null || found.isEmpty()) {
@@ -1140,10 +1159,57 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         return sum.getGUID();
       }
     }
-    if (found.size() == 1 && found.get(0) != null && found.get(0).getGUID() != null) {
-      return found.get(0).getGUID();
-    }
     return null;
+  }
+
+  /**
+   * Resolve a guid and, for numeric/guid-string ids, confirm the content type exists (read-only
+   * load) so unknown ids 404 instead of 409.
+   */
+  private IPSGuid resolveExistingContentTypeGuid(String idOrName) {
+    IPSGuid guid = resolveContentTypeGuid(idOrName);
+    if (guid == null) {
+      return null;
+    }
+    if (StringUtils.isNumeric(idOrName) || idOrName.contains("-")) {
+      if (!contentTypeGuidExists(guid)) {
+        return null;
+      }
+    }
+    return guid;
+  }
+
+  private boolean contentTypeGuidExists(IPSGuid guid) {
+    try {
+      List<PSItemDefinition> defs =
+          designSvc.loadContentTypes(
+              Collections.singletonList(guid), false, false, currentSession(), currentUser());
+      return defs != null && !defs.isEmpty() && defs.get(0) != null;
+    } catch (PSErrorResultsException e) {
+      if (isNotFoundError(e)) {
+        return false;
+      }
+      throw new IllegalStateException("Failed to resolve content type", e);
+    }
+  }
+
+  private long remainingLockMinutes(IPSGuid ctGuid) {
+    if (systemDesign == null || ctGuid == null) {
+      return DESIGN_LOCK_MINUTES;
+    }
+    try {
+      List<PSObjectSummary> locked =
+          systemDesign.isLocked(Collections.singletonList(ctGuid), currentUser());
+      if (locked != null && !locked.isEmpty() && locked.get(0) != null) {
+        PSObjectLockSummary info = locked.get(0).getLocked();
+        if (info != null && info.getRemainingTime() > 0) {
+          return info.getRemainingTime();
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not read remaining lock time: {}", e.getMessage());
+    }
+    return DESIGN_LOCK_MINUTES;
   }
 
   private void throwLockOrNotFound(PSErrorResultsException e, String idOrName, boolean acquiring) {
@@ -1154,7 +1220,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           locker != null
               ? "Could not " + verb + " design lock for content type; locked by " + locker
               : "Could not " + verb + " design lock for content type";
-      throw new IllegalStateException(msg, e);
+      throw new ContentTypeDesignLockException(msg, e);
     }
     if (isNotFoundError(e)) {
       return;
@@ -1174,9 +1240,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     for (Object err : e.getErrors().values()) {
       if (err instanceof PSLockErrorException) {
-        return true;
-      }
-      if (err != null && StringUtils.containsIgnoreCase(String.valueOf(err), "lock")) {
         return true;
       }
     }

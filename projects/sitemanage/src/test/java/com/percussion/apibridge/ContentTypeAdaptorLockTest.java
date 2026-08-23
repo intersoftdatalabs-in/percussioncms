@@ -34,8 +34,10 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.rest.ObjectLockSummary;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
@@ -64,13 +66,15 @@ class ContentTypeAdaptorLockTest {
   private ContentTypeAdaptor adaptor;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     PSRequestInfoBase.initRequestInfo(new HashMap<>());
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_JSESSIONID, "test-session");
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_USER, "Admin");
     designWs = mock(IPSContentDesignWs.class);
     systemDesign = mock(IPSSystemDesignWs.class);
     adaptor = new ContentTypeAdaptor(designWs, null, systemDesign, () -> true);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(mock(PSItemDefinition.class)));
   }
 
   @AfterEach
@@ -129,8 +133,9 @@ class ContentTypeAdaptorLockTest {
         guid, new PSLockErrorException(1, "CREATE_LOCK_FAILED", "stack", "editor2", 12));
     when(designWs.loadContentTypes(anyList(), eq(true), eq(false), any(), any())).thenThrow(errors);
 
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.lockContentType(null, "311"));
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class, () -> adaptor.lockContentType(null, "311"));
     assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
     assertTrue(ex.getMessage().contains("editor2"), ex.getMessage());
   }
@@ -154,30 +159,72 @@ class ContentTypeAdaptorLockTest {
 
   @Test
   void unlockContentType_releasesWithoutSave() throws Exception {
-    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), any(), any()))
-        .thenReturn(List.of(mock(PSItemDefinition.class)));
+    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
+    PSObjectSummary held = new PSObjectSummary(guid, "percPage");
+    held.setLockedInfo("test-session", "Admin", 30);
+    when(systemDesign.isLocked(anyList(), eq("Admin"))).thenReturn(List.of(held));
 
     assertEquals(Boolean.TRUE, adaptor.unlockContentType(null, "311"));
-    verify(designWs).loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
+    verify(designWs, never()).loadContentTypes(anyList(), eq(true), anyBoolean(), any(), any());
+    verify(systemDesign).isLocked(anyList(), eq("Admin"));
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<IPSGuid>> ids = ArgumentCaptor.forClass(List.class);
     verify(systemDesign).releaseLocks(ids.capture(), eq("test-session"), eq("Admin"));
-    assertEquals(new PSGuid(PSTypeEnum.NODEDEF, 311L), ids.getValue().get(0));
+    assertEquals(guid, ids.getValue().get(0));
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
   @Test
   void unlockContentType_conflictWhenLockedByOtherUser() throws Exception {
     IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
-    PSErrorResultsException errors = new PSErrorResultsException();
-    errors.addError(
-        guid, new PSLockErrorException(1, "CREATE_LOCK_FAILED", "stack", "editor2", 12));
-    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), any(), any())).thenThrow(errors);
+    PSObjectSummary other = new PSObjectSummary(guid, "percPage");
+    other.setLockedInfo("other-session", "editor2", 12);
+    when(systemDesign.isLocked(anyList(), eq("Admin"))).thenReturn(List.of(other));
 
-    IllegalStateException ex =
-        assertThrows(IllegalStateException.class, () -> adaptor.unlockContentType(null, "311"));
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class, () -> adaptor.unlockContentType(null, "311"));
     assertTrue(ex.getMessage().contains("editor2"), ex.getMessage());
     verify(systemDesign, never()).releaseLocks(anyList(), any(), any());
+  }
+
+  @Test
+  void unlockContentType_failsWhenDesignServiceMissing() throws Exception {
+    ContentTypeAdaptor noSys = new ContentTypeAdaptor(designWs, null, null, () -> true);
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> noSys.unlockContentType(null, "311"));
+    assertFalse(ex instanceof ContentTypeDesignLockException, ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("unavailable"), ex.getMessage());
+  }
+
+  @Test
+  void lockContentType_reportsActualRemainingTime() throws Exception {
+    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
+    PSItemDefinition def = mock(PSItemDefinition.class);
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
+    PSObjectSummary held = new PSObjectSummary(guid, "percPage");
+    held.setLockedInfo("test-session", "Admin", 12);
+    when(systemDesign.isLocked(anyList(), eq("Admin"))).thenReturn(List.of(held));
+
+    ObjectLockSummary summary = adaptor.lockContentType(null, "311");
+    assertEquals(12, summary.getRemainingTime());
+  }
+
+  @Test
+  void resolveContentTypeGuid_rejectsWildcardAndOversizedId() {
+    assertThrows(IllegalArgumentException.class, () -> adaptor.resolveContentTypeGuid("perc*"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.resolveContentTypeGuid("99999999999999999999"));
+  }
+
+  @Test
+  void hasLockError_doesNotMatchBlockquoteText() {
+    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, 1L);
+    PSErrorResultsException errors = new PSErrorResultsException();
+    errors.addError(guid, "Failed to open content type design session: percBlockquote");
+    assertFalse(ContentTypeAdaptor.hasLockError(errors));
   }
 
   @Test

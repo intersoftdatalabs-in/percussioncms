@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,8 +28,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,12 +40,17 @@ import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -52,6 +61,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * PUT content-type save requires a held design-session lock (does not auto lock-save-unlock).
@@ -66,7 +76,7 @@ class ContentTypeAdaptorUpdateTest {
   private IPSGuid guid;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     PSRequestInfoBase.initRequestInfo(new HashMap<>());
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_JSESSIONID, "test-session");
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_USER, "Admin");
@@ -74,6 +84,8 @@ class ContentTypeAdaptorUpdateTest {
     systemDesign = mock(IPSSystemDesignWs.class);
     adaptor = new ContentTypeAdaptor(designWs, null, systemDesign, () -> true);
     guid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(mock(PSItemDefinition.class)));
   }
 
   @AfterEach
@@ -90,10 +102,13 @@ class ContentTypeAdaptorUpdateTest {
 
     ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
 
-    assertEquals("updated description", out.getDescription());
     assertEquals("Page", out.getLabel());
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSItemDefinition>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveContentTypes(saved.capture(), eq(false), eq("test-session"), eq("Admin"));
+    assertEquals(1, saved.getValue().size());
+    assertSame(def, saved.getValue().get(0));
     verify(def).setDescription("updated description");
-    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
     verify(systemDesign).isLocked(anyList(), eq("Admin"));
     verify(designWs, never()).saveAssociatedTemplates(any(), anyList(), anyBoolean(), any(), any());
   }
@@ -105,11 +120,13 @@ class ContentTypeAdaptorUpdateTest {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setLabel("Pages");
 
-    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+    adaptor.updateContentType(null, "311", body);
 
-    assertEquals("Pages", out.getLabel());
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSItemDefinition>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveContentTypes(saved.capture(), eq(false), eq("test-session"), eq("Admin"));
+    assertSame(def, saved.getValue().get(0));
     verify(def).setLabel("Pages");
-    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
   }
 
   @Test
@@ -119,11 +136,12 @@ class ContentTypeAdaptorUpdateTest {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setDescription("nope");
 
-    IllegalStateException ex =
+    ContentTypeDesignLockException ex =
         assertThrows(
-            IllegalStateException.class, () -> adaptor.updateContentType(null, "311", body));
+            ContentTypeDesignLockException.class,
+            () -> adaptor.updateContentType(null, "311", body));
     assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
-    verify(designWs, never()).loadContentTypes(anyList(), anyBoolean(), anyBoolean(), any(), any());
+    verify(designWs, never()).loadContentTypes(anyList(), eq(true), anyBoolean(), any(), any());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -135,25 +153,30 @@ class ContentTypeAdaptorUpdateTest {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setDescription("nope");
 
-    IllegalStateException ex =
+    ContentTypeDesignLockException ex =
         assertThrows(
-            IllegalStateException.class, () -> adaptor.updateContentType(null, "311", body));
+            ContentTypeDesignLockException.class,
+            () -> adaptor.updateContentType(null, "311", body));
     assertTrue(ex.getMessage().contains("editor2"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
   @Test
   void update_conflictWhenLockedInAnotherSession() throws Exception {
-    PSObjectSummary otherSession = new PSObjectSummary(guid, "percPage");
-    otherSession.setLockedInfo("other-session", "Admin", 12);
-    when(systemDesign.isLocked(anyList(), eq("Admin"))).thenReturn(List.of(otherSession));
+    stubHeldLock();
+    PSErrorResultsException errors = new PSErrorResultsException();
+    errors.addError(
+        guid, new PSLockErrorException(1, "LOCK_EXTENSION_INVALID_SESSION", "stack", "Admin", 12));
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenThrow(errors);
     ContentTypeDetail body = new ContentTypeDetail();
     body.setDescription("nope");
 
-    IllegalStateException ex =
+    ContentTypeDesignLockException ex =
         assertThrows(
-            IllegalStateException.class, () -> adaptor.updateContentType(null, "311", body));
-    assertTrue(ex.getMessage().toLowerCase().contains("session"), ex.getMessage());
+            ContentTypeDesignLockException.class,
+            () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
     verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
@@ -201,6 +224,71 @@ class ContentTypeAdaptorUpdateTest {
     verify(field, never()).setUserSearchable(anyBoolean());
     verify(field, never()).setOccurrenceDimension(anyInt(), any());
     verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_savesTemplateAssociationsWithoutReleasingLock() throws Exception {
+    adaptor = spy(adaptor);
+    stubHeldLock();
+    stubLockedDefinition("percPage", "Page", "desc");
+    IPSGuid tpl = new PSGuid(PSTypeEnum.TEMPLATE, 501L);
+    doReturn(List.of(tpl)).when(adaptor).resolveTemplateGuids(any());
+    ContentTypeDetail body = new ContentTypeDetail();
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("rffSnTitle");
+    body.setAllowedTemplates(List.of(ref));
+
+    adaptor.updateContentType(null, "311", body);
+
+    verify(designWs)
+        .saveAssociatedTemplates(
+            eq(guid), eq(List.of(tpl)), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_templateAssociationFailureAfterSaveIsPartialSuccess() throws Exception {
+    adaptor = spy(adaptor);
+    stubHeldLock();
+    stubLockedDefinition("percPage", "Page", "desc");
+    IPSGuid tpl = new PSGuid(PSTypeEnum.TEMPLATE, 501L);
+    doReturn(List.of(tpl)).when(adaptor).resolveTemplateGuids(any());
+    doThrow(new PSErrorsException())
+        .when(designWs)
+        .saveAssociatedTemplates(any(), anyList(), eq(false), any(), any());
+    ContentTypeDetail body = new ContentTypeDetail();
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("rffSnTitle");
+    body.setAllowedTemplates(List.of(ref));
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("template"), ex.getMessage());
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_unknownNumericId_returnsNull() throws Exception {
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of());
+    assertNull(adaptor.updateContentType(null, "999", new ContentTypeDetail()));
+    verify(systemDesign, never()).isLocked(anyList(), any());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_oversizedNumericId_isBadRequest() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.updateContentType(null, "99999999999999999999", new ContentTypeDetail()));
+  }
+
+  @Test
+  void update_wildcardName_isBadRequest() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.updateContentType(null, "perc*", new ContentTypeDetail()));
+    verify(designWs, never()).findContentTypes(any());
   }
 
   private void stubHeldLock() throws Exception {

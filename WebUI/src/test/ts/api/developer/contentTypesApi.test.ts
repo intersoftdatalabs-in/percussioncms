@@ -2,11 +2,13 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  updateContentTypeDetail,
 } from "../../../../main/ts/api/developer/contentTypesApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 describe("unwrapContentTypeList", () => {
   it("returns bare arrays", () => {
@@ -85,5 +87,46 @@ describe("unwrapContentTypeDetail (#3319)", () => {
   it("returns empty object for unrelated envelopes", () => {
     expect(unwrapContentTypeDetail({ Error: { message: "x" } })).toEqual({});
     expect(unwrapContentTypeDetail(null)).toEqual({});
+  });
+});
+
+describe("updateContentTypeDetail lock-save-unlock wrap", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs lock, PUTs save, then POSTs unlock", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ session: "s", locker: "Admin", remainingTime: 30 }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    const saved = await updateContentTypeDetail("percPage", { description: "updated" });
+    expect(saved.description).toBe("updated");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const methods = fetchMock.mock.calls.map((c) => (c[1] as RequestInit).method);
+    expect(methods).toEqual(["POST", "PUT", "POST"]);
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls[0]).toContain(`${PATHS.CONTENT_TYPES}/percPage/lock`);
+    expect(urls[1]).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
+    expect(urls[2]).toContain(`${PATHS.CONTENT_TYPES}/percPage/unlock`);
   });
 });
