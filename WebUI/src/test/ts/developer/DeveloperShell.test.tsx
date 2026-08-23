@@ -92,6 +92,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
+  lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
+  unlockContentType: vi.fn().mockResolvedValue(undefined),
 }));
 
 const { defaultAclPayload } = vi.hoisted(() => ({
@@ -677,7 +679,10 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-label")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-unlock")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -723,6 +728,12 @@ it("loads views catalog section", async () => {
     });
     const saveBtn = screen.getByTestId("developer-ct-save");
     expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-search-page_title") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
     fireEvent.click(screen.getByTestId("developer-ct-field-search-page_title"));
     expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(saveBtn);
@@ -839,6 +850,12 @@ it("loads views catalog section", async () => {
     fireEvent.click(screen.getByTestId("developer-ct-row-0"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
     });
     fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
       target: { value: "Standard Workflow" },

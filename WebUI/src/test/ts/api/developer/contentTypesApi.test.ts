@@ -4,9 +4,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  lockContentType,
+  unlockContentType,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapObjectLockSummary,
   updateContentTypeDetail,
+  wrapContentTypeDetailForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -90,7 +94,35 @@ describe("unwrapContentTypeDetail (#3319)", () => {
   });
 });
 
-describe("updateContentTypeDetail lock-save-unlock wrap", () => {
+describe("wrapContentTypeDetailForWire", () => {
+  it("wraps a flat update under ContentTypeDetail", () => {
+    expect(wrapContentTypeDetailForWire({ description: "d", enabled: true })).toEqual({
+      ContentTypeDetail: { description: "d", enabled: true },
+    });
+  });
+});
+
+describe("unwrapObjectLockSummary", () => {
+  it("unwraps Jackson ObjectLockSummary root", () => {
+    expect(
+      unwrapObjectLockSummary({
+        ObjectLockSummary: { session: "s1", locker: "Admin", remainingTime: 30 },
+      }),
+    ).toEqual({ session: "s1", locker: "Admin", remainingTime: 30 });
+  });
+
+  it("accepts a flat lock body", () => {
+    expect(
+      unwrapObjectLockSummary({ locker: "Admin", remainingTime: 15 }),
+    ).toEqual({ locker: "Admin", remainingTime: 15 });
+  });
+
+  it("returns empty object for null", () => {
+    expect(unwrapObjectLockSummary(null)).toEqual({});
+  });
+});
+
+describe("content type design-session lock/save/unlock client (#3744)", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
@@ -109,24 +141,48 @@ describe("updateContentTypeDetail lock-save-unlock wrap", () => {
     });
   }
 
-  it("POSTs lock, PUTs save, then POSTs unlock", async () => {
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse({ session: "s", locker: "Admin", remainingTime: 30 }))
-      .mockResolvedValueOnce(
-        jsonResponse({
-          ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  it("POSTs lock and unwraps ObjectLockSummary", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ObjectLockSummary: { session: "s", locker: "Admin", remainingTime: 30 },
+      }),
+    );
+    const summary = await lockContentType("percPage");
+    expect(summary.locker).toBe("Admin");
+    expect(summary.remainingTime).toBe(30);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/lock`,
+    );
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("POST");
+  });
+
+  it("POSTs unlock", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await unlockContentType("percPage");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/unlock`,
+    );
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("POST");
+  });
+
+  it("PUTs save without lock or unlock, wrapping ContentTypeDetail root", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
+      }),
+    );
 
     const saved = await updateContentTypeDetail("percPage", { description: "updated" });
     expect(saved.description).toBe("updated");
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-    const methods = fetchMock.mock.calls.map((c) => (c[1] as RequestInit).method);
-    expect(methods).toEqual(["POST", "PUT", "POST"]);
-    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
-    expect(urls[0]).toContain(`${PATHS.CONTENT_TYPES}/percPage/lock`);
-    expect(urls[1]).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
-    expect(urls[2]).toContain(`${PATHS.CONTENT_TYPES}/percPage/unlock`);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/lock");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/unlock");
+    const sent = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(sent).toEqual(
+      wrapContentTypeDetailForWire({ description: "updated" }),
+    );
+    expect(sent.ContentTypeDetail.description).toBe("updated");
   });
 });

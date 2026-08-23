@@ -84,6 +84,9 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     fields: [],
     designGaps: [],
   }),
+  updateContentTypeDetail: vi.fn(),
+  lockContentType: vi.fn(),
+  unlockContentType: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({

@@ -130,19 +130,19 @@ class ContentTypeAdaptorUpdateTest {
   }
 
   @Test
-  void update_conflictWhenLockNotHeld() throws Exception {
+  void update_proceedsWhenIsLockedSummaryMissing() throws Exception {
     when(systemDesign.isLocked(anyList(), eq("Admin")))
         .thenReturn(Collections.singletonList(null));
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "old");
     ContentTypeDetail body = new ContentTypeDetail();
-    body.setDescription("nope");
+    body.setDescription("updated");
 
-    ContentTypeDesignLockException ex =
-        assertThrows(
-            ContentTypeDesignLockException.class,
-            () -> adaptor.updateContentType(null, "311", body));
-    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
-    verify(designWs, never()).loadContentTypes(anyList(), eq(true), anyBoolean(), any(), any());
-    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+
+    assertEquals("Page", out.getLabel());
+    verify(designWs).loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin"));
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    verify(def).setDescription("updated");
   }
 
   @Test

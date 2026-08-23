@@ -54,6 +54,8 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.locking.IPSObjectLockService;
+import com.percussion.services.locking.PSObjectLockServiceLocator;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -334,10 +336,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         // Keep the held design lock after save; clients release via POST .../unlock.
         // Content-type save and template association save are sequential design writes
         // without a shared rollback — template failure after CT save is partial success.
+        ensureSaveCompatibleLock(def, session, user);
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
       } catch (PSErrorsException e) {
-        log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save content type", e);
+        String detail = firstWsErrorMessage(e);
+        log.error("Failed to save content type {}: {}", idOrName, detail, e);
+        throw new IllegalStateException(
+            detail != null ? "Failed to save content type: " + detail : "Failed to save content type",
+            e);
       }
       if (needTemplates) {
         try {
@@ -1010,6 +1016,39 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
+   * {@code saveContentTypes} looks up the lock as {@code new PSGuid(NODEDEF, typeId)}
+   * (packed long). {@code loadContentTypes(..., lock=true)} may store a different
+   * objectId (uuid-only when host is 0). Align so the save requestor lock is found.
+   */
+  void ensureSaveCompatibleLock(PSItemDefinition def, String session, String user) {
+    if (def == null || StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+      return;
+    }
+    try {
+      IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
+      IPSGuid saveId = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
+      if (lockService.findLockByObjectId(saveId, session, user) != null) {
+        return;
+      }
+      Integer version = null;
+      try {
+        version = lockService.getLockedVersion(saveId);
+      } catch (Exception ignore) {
+        try {
+          if (def.getGUID() != null) {
+            version = lockService.getLockedVersion(def.getGUID());
+          }
+        } catch (Exception ignoreGuid) {
+          // version is optional for objects that do not version-lock
+        }
+      }
+      lockService.createLock(saveId, session, user, version, true);
+    } catch (Exception e) {
+      log.debug("Could not align save-compatible design lock: {}", e.getMessage());
+    }
+  }
+
+  /**
    * PUT save requires a lock already held by this user. Does not acquire a lock.
    *
    * <p>Session equality is not compared against {@code KEY_JSESSIONID}: lock session ids may be the
@@ -1043,12 +1082,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     PSObjectSummary summary =
         locked == null || locked.isEmpty() ? null : locked.get(0);
-    if (summary == null || !summary.isLocked()) {
-      throw new ContentTypeDesignLockException("Could not save content type; design lock required");
-    }
     String user = currentUser();
-    PSObjectLockSummary info = summary.getLocked();
-    if (!summary.isLockedBy(user)) {
+    // isLocked reconstructs GUIDs from objectId longs; a successful POST /lock can
+    // still yield a null summary when host/type packing differs from the lookup id.
+    // Only fail closed when another user clearly holds the lock. An unreadable /
+    // missing summary is enforced by loadContentTypes(..., lock=true, override=false).
+    if (summary != null && summary.isLocked() && !summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
       String locker = info != null ? info.getLocker() : null;
       throw new ContentTypeDesignLockException(
           locker != null
@@ -1231,6 +1271,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             + " content type design session: "
             + idOrName,
         e);
+  }
+
+  static String firstWsErrorMessage(PSErrorsException e) {
+    if (e == null) {
+      return null;
+    }
+    if (e.getErrors() != null) {
+      for (Object err : e.getErrors().values()) {
+        if (err instanceof Exception ex && StringUtils.isNotBlank(ex.getMessage())) {
+          return ex.getMessage();
+        }
+        if (err != null && StringUtils.isNotBlank(String.valueOf(err))) {
+          return String.valueOf(err);
+        }
+      }
+    }
+    return StringUtils.trimToNull(e.getMessage());
   }
 
   /** Package-visible for unit tests. True when any collected error is a lock failure. */

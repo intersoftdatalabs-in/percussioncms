@@ -95,6 +95,17 @@ export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
 }
 
 /**
+ * Build the wire JSON body for ContentTypesResource PUT under
+ * {@link CONTENT_TYPE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE
+ * (same class as TemplateDetail / UserPreference).
+ */
+export function wrapContentTypeDetailForWire(
+  body: ContentTypeUpdateBody,
+): Record<string, ContentTypeUpdateBody> {
+  return { [CONTENT_TYPE_DETAIL_ROOT]: body };
+}
+
+/**
  * List content types available on the server.
  *
  * <p>Server: {@code GET /services/contenttypes} (ContentTypesResource).
@@ -131,12 +142,50 @@ export type ContentTypeUpdateBody = {
   allowedTemplates?: NamedObjectRef[];
 };
 
+/** Wire shape for {@code POST .../lock} ({@code ObjectLockSummary}). */
+export type ContentTypeLockSummary = {
+  session?: string;
+  locker?: string;
+  remainingTime?: number;
+  callerAccessTime?: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ObjectLockSummary}. */
+export const OBJECT_LOCK_SUMMARY_ROOT = "ObjectLockSummary";
+
+/**
+ * Normalize a lock POST response to a flat {@link ContentTypeLockSummary}.
+ */
+export function unwrapObjectLockSummary(payload: unknown): ContentTypeLockSummary {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[OBJECT_LOCK_SUMMARY_ROOT] ?? root.objectLockSummary);
+  const body = nested ?? root;
+  const out: ContentTypeLockSummary = {};
+  if (typeof body.session === "string") {
+    out.session = body.session;
+  }
+  if (typeof body.locker === "string") {
+    out.locker = body.locker;
+  }
+  if (typeof body.remainingTime === "number") {
+    out.remainingTime = body.remainingTime;
+  }
+  if (typeof body.callerAccessTime === "string") {
+    out.callerAccessTime = body.callerAccessTime;
+  }
+  return out;
+}
+
 /**
  * POST /services/contenttypes/{idOrName}/lock — self-only design-session lock.
  */
-export async function lockContentType(idOrName: string): Promise<unknown> {
+export async function lockContentType(idOrName: string): Promise<ContentTypeLockSummary> {
   const key = encodeURIComponent(idOrName);
-  return post(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+  const payload = await post<unknown>(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+  return unwrapObjectLockSummary(payload);
 }
 
 /**
@@ -148,22 +197,18 @@ export async function unlockContentType(idOrName: string): Promise<void> {
 }
 
 /**
- * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not release it.
- *
- * <p>This client wraps lock → PUT → unlock so the Developer SPA save path keeps working until
- * lock-button chrome (#3744) lands. The server PUT is 409 unless the current user already holds
- * the lock.
+ * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not acquire or
+ * release it. Developer chrome must {@link lockContentType} first and {@link unlockContentType}
+ * after the last save.
  */
 export async function updateContentTypeDetail(
   idOrName: string,
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
-  await lockContentType(idOrName);
-  try {
-    const key = encodeURIComponent(idOrName);
-    const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
-    return unwrapContentTypeDetail(payload);
-  } finally {
-    await unlockContentType(idOrName).catch(() => undefined);
-  }
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}`,
+    wrapContentTypeDetailForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
 }
