@@ -99,8 +99,8 @@ public class PSVirtualSiteBuildService {
    * parsed pages from a previous build — operators do not need a JVM restart after {@code git
    * pull}, a CSV/{@code _config.yaml} edit, or a local Markdown edit.
    *
-   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem; optional for
-   *     csv-filesystem)
+   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
+   *     sql-database; optional for csv-filesystem)
    * @param outputRoot destination for HTML + assets
    * @param siteKey participant key
    * @return build result

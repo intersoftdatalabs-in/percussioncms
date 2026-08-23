@@ -237,7 +237,10 @@ slice. Unknown kinds remain **400**.
 ## CMS-integrated build (REST and WebUI)
 
 When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`, or
-`sql-database`), an **Admin** can trigger the matching build path from the running server:
+`sql-database`), an **Admin** can trigger the matching build path from the running server.
+`sql-database` discovers rows from the in-memory H2 `SELECT` in `_config.yaml` (required
+`sql:` mapping; `pagesWritten > 0` when the query returns rows) and writes HTML under
+the output root. Unknown `sourceKind` values stay **400**. Git and CSV builds are unchanged:
 
 ```http
 POST /sites/{nameOrId}/virtual/build
