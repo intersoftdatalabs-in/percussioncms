@@ -69,4 +69,17 @@ public interface IContentTypesAdaptor {
    * @return updated detail, or {@code null} when not found
    */
   ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
+
+  /**
+   * Enable or disable a content type for runtime use (CD-13). Requires a design-session lock
+   * already held by the current user (peer lock REST). Does not acquire or release the lock.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param enabled {@code true} to enable, {@code false} to disable
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
 }

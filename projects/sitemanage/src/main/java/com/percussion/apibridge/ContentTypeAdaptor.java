@@ -40,6 +40,7 @@ import com.percussion.design.objectstore.PSWorkflowInfo;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
@@ -50,20 +51,30 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,9 +83,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
@@ -83,10 +96,31 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   private final IPSContentDesignWs designSvc;
   private final PSItemDefManager itemDefManager;
+  private final IPSSystemDesignWs systemDesign;
+  private final BooleanSupplier adminChecker;
+
+  /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
+  @Autowired(required = false)
+  private IPSUserService userService;
 
   public ContentTypeAdaptor() {
-    designSvc = PSContentWsLocator.getContentDesignWebservice();
-    itemDefManager = PSItemDefManager.getInstance();
+    this(
+        PSContentWsLocator.getContentDesignWebservice(),
+        PSItemDefManager.getInstance(),
+        PSSystemWsLocator.getSystemDesignWebservice(),
+        null);
+  }
+
+  /** Package-visible for unit tests that inject design web services and Admin gate. */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker) {
+    this.designSvc = designSvc;
+    this.itemDefManager = itemDefManager;
+    this.systemDesign = systemDesign;
+    this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
   /***
@@ -326,6 +360,63 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to update content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not enable/disable content type");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      def.setEnabled(enabled);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not enable/disable content type");
+        }
+        log.error("Failed to save content type enabled flag {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type enabled flag", e);
+      }
+      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for enable/disable: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to enable/disable content type", e);
     }
   }
 
@@ -898,5 +989,133 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         walkDisplayMapper(entry.getDisplayMapper(), map, controlPropsByField);
       }
     }
+  }
+
+  /**
+   * Enable/disable requires a lock already held by this user. Does not acquire a lock.
+   *
+   * <p>Session equality is not compared against {@code KEY_JSESSIONID}: lock session ids may be the
+   * clientId. A foreign session is rejected by {@code loadContentTypes(..., lock=true,
+   * overrideLock=false)}.
+   *
+   * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
+   */
+  private void requireHeldLock(IPSGuid ctGuid) {
+    if (systemDesign == null) {
+      throw new IllegalStateException(
+          "Could not enable/disable content type; design service unavailable");
+    }
+    String user = currentUser();
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(ctGuid), user);
+    } catch (PSErrorResultsException e) {
+      throw lockConflict(e, "Could not enable/disable content type");
+    }
+    PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new ContentTypeDesignLockException(
+          "Could not enable/disable content type; design lock required");
+    }
+    if (!summary.isLockedBy(user)) {
+      PSObjectLockSummary info = summary.getLocked();
+      String locker = info != null ? info.getLocker() : null;
+      throw new ContentTypeDesignLockException(
+          locker != null
+              ? "Could not enable/disable content type; locked by " + locker
+              : "Could not enable/disable content type; design lock required");
+    }
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker.getAsBoolean();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(
+          "Admin role required to enable or disable content types", Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(
+          "Admin role required to enable or disable content types", Response.Status.FORBIDDEN);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new IllegalStateException(
+          "Request session/user required to enable or disable content type");
+    }
+  }
+
+  private String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private ContentTypeDesignLockException lockConflict(Exception cause, String prefix) {
+    String locker = firstLockLocker(cause);
+    if (locker != null) {
+      return new ContentTypeDesignLockException(prefix + "; locked by " + locker, cause);
+    }
+    return new ContentTypeDesignLockException(prefix + "; design lock required", cause);
+  }
+
+  private static boolean hasLockError(Map<IPSGuid, Object> errors) {
+    if (errors == null || errors.isEmpty()) {
+      return false;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String firstLockLocker(Throwable e) {
+    if (e instanceof PSLockErrorException lockErr) {
+      return StringUtils.trimToNull(lockErr.getLocker());
+    }
+    Map<IPSGuid, Object> errors = null;
+    if (e instanceof PSErrorResultsException results) {
+      errors = results.getErrors();
+    } else if (e instanceof PSErrorsException errs) {
+      errors = errs.getErrors();
+    }
+    if (errors == null) {
+      return null;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException lockErr) {
+        String locker = StringUtils.trimToNull(lockErr.getLocker());
+        if (locker != null) {
+          return locker;
+        }
+      }
+    }
+    return null;
   }
 }

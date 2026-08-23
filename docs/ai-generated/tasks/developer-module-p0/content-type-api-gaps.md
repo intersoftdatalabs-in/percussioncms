@@ -48,7 +48,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Control property + choice configuration              | CD-07        | Control **name** + **property names** (read-only); values/choices not exposed |
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **Read-only lists available**                     |
-| Enable/disable as design action                      | CD-13        | Read `enabled` only                               |
+| Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (held design lock; 409 without) |
 | Shared field file editing                            | CD-15        | Separate object                                   |
 | System def                                           | CD-16        | Separate object                                   |
 | Create / rename / delete / lock                      | CD-01, §5.2  | SOAP design only                                  |

@@ -899,4 +899,66 @@ public class ContentTypesResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @PUT
+  @Path("/{idOrName}/enabled")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Enable or disable a content type",
+      description =
+          "CD-13 design action: sets the content type enabled flag for runtime use. Admin only."
+              + " Requires a design-session lock already held by the current user (POST"
+              + " .../lock). Does not acquire or release the lock. GET .../{idOrName} reflects"
+              + " enabled after a successful PUT. Jackson root wrap is ContentTypeEnabled.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "enabled is required"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail setContentTypeEnabled(
+      @PathParam("idOrName") String idOrName, ContentTypeEnabled body) {
+    if (body == null || body.getEnabled() == null) {
+      throw new WebApplicationException("enabled is required", 400);
+    }
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor()
+              .setContentTypeEnabled(uriInfo.getBaseUri(), idOrName, body.getEnabled());
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Maps enable/disable failures. Typed lock conflicts are 409; do not infer 409 from generic
+   * IllegalStateException message substrings.
+   */
+  private static WebApplicationException mapEnabledFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof ContentTypeDesignLockException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      return new WebApplicationException(msg, 409);
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    return new WebApplicationException(e, 500);
+  }
 }

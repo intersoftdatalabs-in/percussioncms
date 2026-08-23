@@ -93,8 +93,11 @@ public class ContentTypesResourceDetailTest {
   public void getContentTypeReturnsDetail() {
     ContentTypeDetail d = new ContentTypeDetail();
     d.setName("percPage");
+    d.setEnabled(true);
     when(adaptor.getContentType(any(), eq("percPage"))).thenReturn(d);
-    assertEquals("percPage", resource.getContentType("percPage").getName());
+    ContentTypeDetail out = resource.getContentType("percPage");
+    assertEquals("percPage", out.getName());
+    assertEquals(Boolean.TRUE, out.getEnabled());
   }
 
   @Test
@@ -196,5 +199,97 @@ public class ContentTypesResourceDetailTest {
             WebApplicationException.class,
             () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledSuccess() {
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    updated.setEnabled(false);
+    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false))).thenReturn(updated);
+    ContentTypeDetail out =
+        resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false));
+    assertEquals(Boolean.FALSE, out.getEnabled());
+  }
+
+  @Test
+  public void setContentTypeEnabledRequiresFlag() {
+    WebApplicationException missingBody =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setContentTypeEnabled("percPage", null));
+    assertEquals(400, missingBody.getResponse().getStatus());
+    WebApplicationException missingFlag =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled()));
+    assertEquals(400, missingFlag.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledNotFound() {
+    when(adaptor.setContentTypeEnabled(any(), eq("missing"), eq(true))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("missing", new ContentTypeEnabled(true)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledForbidden() {
+    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledLockRequired() {
+    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not enable/disable content type; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledLockedByOtherUser() {
+    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not enable/disable content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setContentTypeEnabledDoesNotTreatGenericStateAs409() {
+    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
+        .thenThrow(new IllegalStateException("Failed to save percBlockquote content type"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void contentTypeEnabledJsonUsesRootWrap() throws Exception {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeEnabled.class);
+    String json = mapper.writeValueAsString(new ContentTypeEnabled(true));
+    assertTrue(json.contains("\"ContentTypeEnabled\""), json);
+    assertTrue(json.contains("\"enabled\""), json);
+    ContentTypeEnabled roundTrip = mapper.readValue(json, ContentTypeEnabled.class);
+    assertEquals(Boolean.TRUE, roundTrip.getEnabled());
   }
 }
