@@ -147,8 +147,8 @@ public final class VirtualSiteConfig {
   }
 
   /**
-   * JDBC query settings for {@code sql-database}. Password is never included in {@link #toString()}
-   * (this type does not override it).
+   * JDBC query settings for {@code sql-database}. {@link #toString()} omits the password field so
+   * logs cannot leak credentials.
    */
   public static final class SqlSpec {
     private final String jdbcUrl;
@@ -237,6 +237,31 @@ public final class VirtualSiteConfig {
 
     public String versionColumn() {
       return versionColumn;
+    }
+
+    @Override
+    public String toString() {
+      return "SqlSpec{jdbcUrl='"
+          + jdbcUrl
+          + "', user='"
+          + user
+          + "', query='"
+          + query
+          + "', queryFile='"
+          + queryFile
+          + "', idColumn='"
+          + idColumn
+          + "', titleColumn='"
+          + titleColumn
+          + "', bodyColumn='"
+          + bodyColumn
+          + "', pathColumn='"
+          + pathColumn
+          + "', orderColumn='"
+          + orderColumn
+          + "', versionColumn='"
+          + versionColumn
+          + "'}";
     }
   }
 

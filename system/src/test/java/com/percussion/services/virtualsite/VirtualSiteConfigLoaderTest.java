@@ -17,6 +17,7 @@
 package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -179,6 +180,28 @@ class VirtualSiteConfigLoaderTest {
             VirtualSiteException.class,
             () -> VirtualSiteConfigLoader.load(root, "_config.yaml", "k"));
     assertTrue(ex.getMessage().toLowerCase().contains("version"), ex.getMessage());
+  }
+
+  @Test
+  void sqlSpecToStringOmitsPassword() {
+    VirtualSiteConfig.SqlSpec spec =
+        new VirtualSiteConfig.SqlSpec(
+            "jdbc:h2:mem:t",
+            "sa",
+            "super-secret",
+            "select 1",
+            "",
+            "id",
+            "title",
+            "body",
+            "path",
+            "order",
+            "version");
+    String text = spec.toString();
+    assertFalse(text.contains("super-secret"), text);
+    assertFalse(text.toLowerCase().contains("password"), text);
+    assertTrue(text.contains("jdbc:h2:mem:t"), text);
+    assertTrue(text.contains("sa"), text);
   }
 
   @Test

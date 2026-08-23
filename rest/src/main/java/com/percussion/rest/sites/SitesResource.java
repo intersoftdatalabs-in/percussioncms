@@ -205,10 +205,12 @@ public class SitesResource {
       description =
           "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper:"
               + " sourceKind allow-list (git-filesystem, csv-filesystem, sql-database), required"
-              + " non-blank rootPath when virtual and remoteUrl is blank, optional remoteUrl+branch"
+              + " non-blank rootPath for sql-database; for other kinds when virtual and remoteUrl is"
+              + " blank, optional remoteUrl+branch"
               + " for git-filesystem only (https/ssh/file/git@host:path; fail-closed on unsafe URLs"
               + " / '..'; csv-filesystem and sql-database reject remoteUrl), safe NIO path, simple"
-              + " configFile name. sql-database JDBC URL/user/query live in _config.yaml (H2 mem"
+              + " configFile name. sql-database JDBC URL/user/query live in _config.yaml under"
+              + " rootPath (H2 mem"
               + " only; never send passwords on this envelope). GET after PUT round-trips the"
               + " stored sourceKind. Unknown kinds return 400. Blank/repository sourceKind clears"
               + " virtual configuration.",
@@ -417,10 +419,11 @@ public class SitesResource {
   @Operation(
       summary = "Publish Virtual Site to Site filesystem target",
       description =
-          "Runs the Virtual Site static build (same as POST …/virtual/build) for git-filesystem,"
-              + " csv-filesystem, or sql-database, then copies assembled HTML/assets to the Site"
-              + " publishing filesystem location (IPSSite.root) using portable NIO Path I/O."
-              + " Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
+          "Runs the Virtual Site static build (always using the default output root; unlike POST"
+              + " …/virtual/build, this endpoint does not accept an outputRoot override) for"
+              + " git-filesystem, csv-filesystem, or sql-database, then copies assembled HTML/assets"
+              + " to the Site publishing filesystem location (IPSSite.root) using portable NIO Path"
+              + " I/O. Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
               + " overlap with virtual.rootPath return 4xx with an operator-readable message"
               + " (never a silent no-op).",
       responses = {

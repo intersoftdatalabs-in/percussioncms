@@ -35,8 +35,9 @@ export function shouldShowVirtualBuildChrome(
 
 /**
  * True when Preview assembled site should be shown.
- * Same allow-list as Build: last-output preview for git-filesystem and
- * csv-filesystem. Repository / blank / unknown kinds stay hidden.
+ * Same allow-list as Build: last-output preview for git-filesystem,
+ * csv-filesystem, and sql-database. Repository / blank / unknown kinds
+ * stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,

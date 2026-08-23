@@ -240,8 +240,9 @@ Build records it.
 
 #### Publish Virtual Site (`POST …/virtual/publish`)
 
-Runs the same build for `git-filesystem`, `csv-filesystem`, or `sql-database`, then copies
-the assembled tree
+Runs the same build for `git-filesystem`, `csv-filesystem`, or `sql-database` (always the
+default output root; unlike Build, this endpoint does **not** accept an `outputRoot` body),
+then copies the assembled tree
 to the Site **filesystem publish location** (`IPSSite.root`) using portable NIO `Path` /
 `Files`. Relative Site roots are resolved against the CMS install directory, then rejected if
 any `..` remains. Requires **Admin**. Staging `_meta` is not copied.
