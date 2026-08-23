@@ -1754,19 +1754,6 @@ class SitesAdaptorTest {
     return site;
   }
 
-  private PSSite virtualSqlSite(Path sqlRoot) {
-    PSSite site = new PSSite();
-    site.setName("SqlHelp");
-    site.setGUID(siteGuid);
-    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
-    put(
-        site,
-        PSVirtualSiteHelper.PROP_ROOT_PATH,
-        sqlRoot.toAbsolutePath().normalize().toString());
-    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
-    return site;
-  }
-
   private static Path createMinimalVirtualTree(Path siteRoot) throws Exception {
     Path versionDir = siteRoot.resolve("8.2");
     Files.createDirectories(versionDir);
