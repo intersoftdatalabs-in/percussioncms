@@ -853,24 +853,28 @@ public class ContentTypesResource {
   @Operation(
       summary = "Update content type design fields",
       description =
-          "Locks the content type for the current session user, applies mutable fields (label,"
-              + " description, enabled, per-field searchable/occurrence, allowedWorkflows +"
-              + " defaultWorkflow, allowedTemplates), saves, and releases the lock. Association"
-              + " lists: omit/null = leave unchanged; non-null list = full replace (empty clears"
+          "Admin. Requires a design-session lock already held by the current user/session"
+              + " (POST .../lock). Applies mutable fields (label, description, enabled, per-field"
+              + " searchable/occurrence, allowedWorkflows + defaultWorkflow, allowedTemplates)"
+              + " and saves without releasing the lock (POST .../unlock). Association lists:"
+              + " omit/null = leave unchanged; non-null list = full replace (empty clears"
               + " workflows/templates). GET responses always include association arrays (may be"
               + " empty). Template associations are written after content-type save in a separate"
               + " design call — if that fails, meta/field/workflow changes may already be"
               + " committed (error message indicates partial success). Name/id and system field"
-              + " structure are not changed. Full rule expressions and create/delete remain"
-              + " unsupported (see designGaps).",
+              + " structure are not changed. Field rule expressions remain read-only; create/delete"
+              + " remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Updated",
+            description = "Updated (lock is still held)",
             content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
-        @ApiResponse(responseCode = "409", description = "Could not acquire design lock"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
         @ApiResponse(
             responseCode = "500",
             description =

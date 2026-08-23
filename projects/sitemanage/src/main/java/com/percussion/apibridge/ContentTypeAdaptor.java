@@ -52,6 +52,8 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
@@ -261,8 +263,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
-            "Create / delete not supported; update uses design lock for label/description/enabled,"
-                + " field searchable/occurrence, workflows (+ default), and templates"));
+            "Create / delete not supported; PUT save requires a held design lock for"
+                + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
+                + " and templates"));
     gaps.add(
         DesignGap.of(
             "CT_SHARED_FIELD_INCLUSION", "Shared/system field inclusion editing not supported"));
@@ -291,32 +294,31 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   @Override
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
+    requireAdmin();
     if (StringUtils.isBlank(idOrName)) {
       throw new IllegalArgumentException("idOrName is required");
     }
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
-    String session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-    String user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-    if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
-      throw new IllegalStateException("Request session/user required to lock content type");
-    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
 
     try {
-      PSItemDefinition current = resolveItemDef(idOrName.trim());
-      if (current == null) {
+      IPSGuid ctGuid = resolveContentTypeGuid(idOrName.trim());
+      if (ctGuid == null) {
         return null;
       }
-      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
       List<PSItemDefinition> locked;
       try {
         locked =
             designSvc.loadContentTypes(
                 Collections.singletonList(ctGuid), true, false, session, user);
       } catch (PSErrorResultsException e) {
-        log.error("Failed to lock content type {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Could not acquire design lock for content type", e);
+        throwLockOrNotFound(e, idOrName, true);
+        return null;
       }
       if (locked == null || locked.isEmpty() || locked.get(0) == null) {
         return null;
@@ -327,10 +329,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       applyWorkflowUpdates(def, body);
       boolean needTemplates = body.getAllowedTemplates() != null;
       try {
-        // Keep design lock when template associations still need a separate save.
-        // Note: content-type save and template association save are sequential design writes
+        // Keep the held design lock after save; clients release via POST .../unlock.
+        // Content-type save and template association save are sequential design writes
         // without a shared rollback — template failure after CT save is partial success.
-        designSvc.saveContentTypes(Collections.singletonList(def), !needTemplates, session, user);
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
       } catch (PSErrorsException e) {
         log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type", e);
@@ -338,7 +340,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (needTemplates) {
         try {
           List<IPSGuid> templateGuids = resolveTemplateGuids(body.getAllowedTemplates());
-          designSvc.saveAssociatedTemplates(ctGuid, templateGuids, true, session, user);
+          designSvc.saveAssociatedTemplates(ctGuid, templateGuids, false, session, user);
         } catch (PSErrorsException e) {
           log.error(
               "Failed to save template associations for {} (content type already saved): {}",
@@ -351,14 +353,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
               e);
         }
       }
-      // Prefer re-read via item def cache after save
-      PSItemDefinition reloaded = resolveItemDef(idOrName.trim());
+      PSItemDefinition reloaded = reloadItemDef(idOrName.trim());
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (IllegalArgumentException | IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
       throw e;
-    } catch (PSInvalidContentTypeException e) {
-      log.debug("Content type not found for update: {}", idOrName);
-      return null;
     } catch (Exception e) {
       log.error("Failed to update content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to update content type", e);
@@ -582,6 +580,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  /**
+   * Apply writable field patches only ({@code searchable}, occurrence / required). Rule
+   * expressions, control property names/values, and field labels on the wire DTO are ignored.
+   */
   private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
       return;
@@ -943,7 +945,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       Map<String, String> map,
       Map<String, List<String>> controlPropsByField) {
     try {
+      if (def == null || def.getContentEditor() == null) {
+        return false;
+      }
       PSContentEditorPipe pipe = (PSContentEditorPipe) def.getContentEditor().getPipe();
+      if (pipe == null || pipe.getMapper() == null || pipe.getMapper().getUIDefinition() == null) {
+        return false;
+      }
       PSDisplayMapper dmapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
       walkDisplayMapper(dmapper, map, controlPropsByField);
       return true;
@@ -988,6 +996,67 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  /**
+   * PUT save requires a lock already held by this user/session. Does not acquire a lock.
+   *
+   * @throws IllegalStateException when unlocked or locked by another user/session (HTTP 409)
+   */
+  private void requireHeldLock(IPSGuid ctGuid) {
+    if (systemDesign == null) {
+      throw new IllegalStateException("Could not save content type; design lock required");
+    }
+    List<PSObjectSummary> locked;
+    try {
+      locked = systemDesign.isLocked(Collections.singletonList(ctGuid), currentUser());
+    } catch (PSErrorResultsException e) {
+      if (isNotFoundError(e)) {
+        throw new IllegalStateException("Could not save content type; design lock required", e);
+      }
+      if (hasLockError(e)) {
+        String locker = firstLockLocker(e);
+        throw new IllegalStateException(
+            locker != null
+                ? "Could not save content type; locked by " + locker
+                : "Could not save content type; design lock required",
+            e);
+      }
+      throw new IllegalStateException("Could not save content type; design lock required", e);
+    }
+    PSObjectSummary summary =
+        locked == null || locked.isEmpty() ? null : locked.get(0);
+    if (summary == null || !summary.isLocked()) {
+      throw new IllegalStateException("Could not save content type; design lock required");
+    }
+    String user = currentUser();
+    String session = currentSession();
+    PSObjectLockSummary info = summary.getLocked();
+    if (!summary.isLockedBy(user)) {
+      String locker = info != null ? info.getLocker() : null;
+      throw new IllegalStateException(
+          locker != null
+              ? "Could not save content type; locked by " + locker
+              : "Could not save content type; design lock required");
+    }
+    if (info != null
+        && StringUtils.isNotBlank(info.getSession())
+        && !session.equals(info.getSession())) {
+      throw new IllegalStateException(
+          "Could not save content type; locked by " + user + " in another session");
+    }
+  }
+
+  private PSItemDefinition reloadItemDef(String idOrName) {
+    if (itemDefManager == null) {
+      return null;
+    }
+    try {
+      return resolveItemDef(idOrName);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not in item-def cache after save: {}", idOrName);
+      return null;
+    }
+  }
+
   private void requireAdmin() {
     boolean allowed;
     try {
@@ -997,11 +1066,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to lock or unlock content types", Response.Status.FORBIDDEN);
+          "Admin role required to lock, unlock, or save content types", Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to lock or unlock content types", Response.Status.FORBIDDEN);
+          "Admin role required to lock, unlock, or save content types", Response.Status.FORBIDDEN);
     }
   }
 

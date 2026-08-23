@@ -190,14 +190,36 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void updateContentTypeLockConflict() {
+  public void updateContentTypeLockConflictWhenLockNotHeld() {
     when(adaptor.updateContentType(any(), eq("percPage"), any()))
-        .thenThrow(new IllegalStateException("Could not acquire design lock for content type"));
+        .thenThrow(new IllegalStateException("Could not save content type; design lock required"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateContentTypeLockConflictWhenLockedByOtherUser() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalStateException("Could not save content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
   }
 
   @Test
