@@ -66,6 +66,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemDesignWs;
@@ -341,7 +342,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       // Prefer re-read via item def cache after save
       PSItemDefinition reloaded = resolveItemDef(idOrName.trim());
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (IllegalArgumentException | IllegalStateException | ContentTypeDesignLockException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw e;
     } catch (PSInvalidContentTypeException e) {
       log.debug("Content type not found for update: {}", idOrName);
@@ -477,7 +478,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     throw new IllegalArgumentException(field + " requires name or guid");
   }
 
-  List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
+  private List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
     List<IPSGuid> out = new ArrayList<>();
     if (refs == null) {
       return out;
@@ -1002,7 +1003,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           "Could not save template associations; design lock required", e);
     }
     PSObjectSummary summary = locked == null || locked.isEmpty() ? null : locked.get(0);
-    if (summary == null || !summary.isLocked()) {
+    if (summary == null || !summary.isLocked() || summary.getLocked() == null) {
       throw new ContentTypeDesignLockException(
           "Could not save template associations; design lock required");
     }
@@ -1044,14 +1045,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return false;
     }
     for (Object err : e.getErrors().values()) {
+      if (err instanceof PSLockErrorException) {
+        return true;
+      }
       if (err instanceof PSErrorException pe) {
         String msg = pe.getErrorMessage() != null ? pe.getErrorMessage() : pe.getMessage();
-        if (StringUtils.containsIgnoreCase(msg, "not locked")) {
+        if (StringUtils.containsIgnoreCase(msg, "is not locked")) {
           return true;
         }
-      }
-      if (err != null && StringUtils.containsIgnoreCase(String.valueOf(err), "not locked")) {
-        return true;
       }
     }
     return false;

@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -247,6 +248,9 @@ class ContentTypeAdaptorAllowedTemplatesTest {
     errors.addError(
         new PSGuid(PSTypeEnum.NODEDEF, 1L), new PSErrorException("object is not locked"));
     assertTrue(ContentTypeAdaptor.isNotLockedError(errors));
+    PSErrorsException unrelated = new PSErrorsException();
+    unrelated.addError(new PSGuid(PSTypeEnum.NODEDEF, 1L), "unrelated not locked phrase");
+    assertFalse(ContentTypeAdaptor.isNotLockedError(unrelated));
   }
 
   private void stubHeldLock() throws Exception {
