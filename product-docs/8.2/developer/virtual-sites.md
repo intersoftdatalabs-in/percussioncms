@@ -20,9 +20,11 @@ Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV files
 well as Git filesystem.
 
 A **SQL / database** adapter (`sql-database`) discovers rows from a JDBC `SELECT` against
-**in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`). This
-is the SPI/CLI path; REST PUT/Build chrome and Developer Sites SQL source UI land in
-follow-on slices. Oracle, MySQL, and SQL Server URLs are rejected.
+**in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`).
+Operators persist the kind with REST `PUT /sites/{nameOrId}/virtual` (`sourceKind=sql-database`
+plus a safe `rootPath`); JDBC URL/user/query stay in `_config.yaml`. REST Build, preview,
+and publish use the H2 adapter. Developer Sites SQL source UI is a later slice. Oracle,
+MySQL, and SQL Server URLs are rejected.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -37,7 +39,7 @@ After the site folder is created, an optional Git root is saved with
 - Use Percussion assemblers as the site generator (Markdown → HTML).
 - Provide stable page identities (`frontmatter.id`) for lightweight link checks / participants.
 - Leave the door open for additional adapters (API, object storage) without renaming Site → Channel.
-  SQL / H2 (`sql-database`) is implemented as an SPI.
+  SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build.
 
 ## Source tree contract
 
@@ -101,7 +103,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git/CSV adapters; `sql-database` is the H2 SPI (CLI / factory). Preview REST streams last-build HTML for git and CSV. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites SQL chrome is a later slice. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -221,14 +223,17 @@ CLI:
 PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] sql-database
 ```
 
-Site property validation allow-lists `sql-database` (same helper as Git/CSV). REST PUT/GET
-round-trip tests, in-product Build, and Developer Sites SQL chrome are follow-on slices.
-Unknown kinds remain **400**.
+Site property validation allow-lists `sql-database` (same helper as Git/CSV). REST
+`PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=sql-database` with a
+portable-safe `rootPath`. JDBC URL, user, and query stay in `_config.yaml` (never on the
+REST envelope; passwords are not logged). In-product `POST …/virtual/build` (and publish /
+preview of last-build output) runs the H2 adapter. Developer Sites SQL chrome is a later
+slice. Unknown kinds remain **400**.
 
 ## CMS-integrated build (REST and WebUI)
 
-When a CMS Site has Virtual properties configured (`git-filesystem` or `csv-filesystem`), an
-**Admin** can trigger the matching build path from the running server:
+When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`, or
+`sql-database`), an **Admin** can trigger the matching build path from the running server:
 
 ```http
 POST /sites/{nameOrId}/virtual/build
@@ -274,8 +279,10 @@ without reloading the page.
 
 CSV trees use the same envelope with `"sourceKind": "csv-filesystem"` and a portable-safe
 `rootPath` (no remaining `..` after NIO normalize). `GET` after `PUT` returns `csv-filesystem`.
-`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` and
-`POST …/virtual/publish` run for both `git-filesystem` and `csv-filesystem`.
+`virtual.remoteUrl` is not valid for CSV (HTTP 400). SQL trees use `"sourceKind": "sql-database"`
+the same way; JDBC settings stay in `_config.yaml` (H2 mem only). In-product
+`POST …/virtual/build` and `POST …/virtual/publish` run for `git-filesystem`,
+`csv-filesystem`, and `sql-database`.
 
 ### Git remote fetch before Build
 
@@ -325,8 +332,9 @@ when you change server code, Site properties that were never saved, or the proce
 
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
-assembled file stream). Preview is last-output based and works for **`git-filesystem` and
-`csv-filesystem`** (not git-only). Missing output returns status `available=false` (HTTP 200)
+assembled file stream). Preview is last-output based and works for **`git-filesystem`**,
+**`csv-filesystem`**, and **`sql-database`** (not git-only). Missing output returns status
+`available=false` (HTTP 200)
 or file HTTP 404 — not 500. Path traversal (`../`) is **400**. Repository and unknown
 `sourceKind` values are **400**. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).

@@ -85,9 +85,10 @@ public interface ISiteAdaptor {
   /**
    * Creates or updates Virtual Site properties for a site identified by name or GUID string.
    * Validation aligns with {@code PSVirtualSiteHelper} (source-kind allow-list {@code
-   * git-filesystem} / {@code csv-filesystem}, required root path when virtual and remote is blank,
-   * optional remoteUrl/branch for git-filesystem only, safe path / config file name). GET after PUT
-   * round-trips the stored {@code sourceKind}.
+   * git-filesystem} / {@code csv-filesystem} / {@code sql-database}, required root path when virtual
+   * and remote is blank, optional remoteUrl/branch for git-filesystem only, safe path / config file
+   * name). {@code sql-database} JDBC settings stay in {@code _config.yaml} (never on this envelope).
+   * GET after PUT round-trips the stored {@code sourceKind}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param props properties to apply; not null
@@ -97,8 +98,8 @@ public interface ISiteAdaptor {
   VirtualSiteProperties updateVirtualSiteProperties(String nameOrId, VirtualSiteProperties props);
 
   /**
-   * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem} or
-   * {@code csv-filesystem}).
+   * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
+   * {@code csv-filesystem}, or {@code sql-database}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
@@ -117,9 +118,9 @@ public interface ISiteAdaptor {
   /**
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
-   * <p>Last-output based: {@code git-filesystem} and {@code csv-filesystem} sites are both
-   * previewable after a successful assemble. Missing output is {@code available=false} with a
-   * message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
+   * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, and {@code sql-database}
+   * sites are previewable after a successful assemble. Missing output is {@code available=false}
+   * with a message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return status (never null)
@@ -131,8 +132,8 @@ public interface ISiteAdaptor {
   /**
    * Streams one file from the last Virtual Site build output (path-traversal safe).
    *
-   * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem}
-   * and {@code csv-filesystem}.
+   * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
+   * {@code csv-filesystem}, and {@code sql-database}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled
@@ -144,8 +145,8 @@ public interface ISiteAdaptor {
   VirtualSitePreviewFile previewVirtualSiteFile(String nameOrId, String relativePath);
 
   /**
-   * Builds a Virtual Site ({@code git-filesystem} or {@code csv-filesystem}) and copies the static
-   * output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
+   * Builds a Virtual Site ({@code git-filesystem}, {@code csv-filesystem}, or {@code sql-database})
+   * and copies the static output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
    * publishing location, not only {@code tmp/virtual-sites}. Failures are operator-facing 4xx (not
