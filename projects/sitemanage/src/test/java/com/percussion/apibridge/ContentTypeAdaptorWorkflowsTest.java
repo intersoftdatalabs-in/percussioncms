@@ -169,6 +169,34 @@ class ContentTypeAdaptorWorkflowsTest {
   }
 
   @Test
+  void put_rejectsUnknownWorkflowName() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    when(workflowService.findWorkflowsByName("No Such Workflow")).thenReturn(List.of());
+
+    NamedObjectRef missing = new NamedObjectRef();
+    missing.setName("No Such Workflow");
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.setAllowedWorkflows(null, "311", List.of(missing), null));
+    assertTrue(ex.getMessage().contains("No Such Workflow"), ex.getMessage());
+    verify(workflowService).findWorkflowsByName("No Such Workflow");
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void put_missingSessionIsIllegalStateNot403() {
+    PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_JSESSIONID, null);
+    PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_USER, null);
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> adaptor.setAllowedWorkflows(null, "311", List.of(), null));
+    assertTrue(ex.getMessage().toLowerCase().contains("session"), ex.getMessage());
+  }
+
+  @Test
   void put_rejectsUnknownWorkflowId() throws Exception {
     stubHeldLock();
     stubDefinition();

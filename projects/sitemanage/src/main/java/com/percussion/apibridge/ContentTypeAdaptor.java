@@ -377,8 +377,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       String idOrName,
       List<NamedObjectRef> allowedWorkflows,
       NamedObjectRef defaultWorkflow) {
-    requireAdmin();
     requireSessionUserForWrite();
+    requireAdmin();
     if (StringUtils.isBlank(idOrName)) {
       throw new IllegalArgumentException("idOrName is required");
     }
@@ -1081,17 +1081,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private void requireAdmin() {
-    boolean allowed;
-    try {
-      allowed = adminChecker.getAsBoolean();
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      log.debug("Admin check failed: {}", e.getMessage());
-      throw new WebApplicationException(
-          "Admin role required to update content type workflow associations",
-          Response.Status.FORBIDDEN);
-    }
+    boolean allowed = adminChecker.getAsBoolean();
     if (!allowed) {
       throw new WebApplicationException(
           "Admin role required to update content type workflow associations",
