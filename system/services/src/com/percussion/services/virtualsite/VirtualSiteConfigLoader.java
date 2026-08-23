@@ -17,6 +17,7 @@
 package com.percussion.services.virtualsite;
 
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
 import java.io.InputStream;
@@ -207,12 +208,32 @@ public final class VirtualSiteConfigLoader {
         }
       }
 
-      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey);
+      SqlSpec sql = parseSqlSpec(asMap(map.get("sql")));
+      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
       throw new VirtualSiteException("Failed to parse config: " + sourceLabel, e);
     }
+  }
+
+  private static SqlSpec parseSqlSpec(Map<String, Object> sql) {
+    if (sql == null || sql.isEmpty()) {
+      return null;
+    }
+    Map<String, Object> columns = asMap(sql.get("columns"));
+    return new SqlSpec(
+        stringVal(sql.get("jdbcUrl")),
+        stringVal(sql.get("user")),
+        stringVal(sql.get("password")),
+        stringVal(sql.get("query")),
+        stringVal(sql.get("queryFile")),
+        stringVal(columns.get("id")),
+        stringVal(columns.get("title")),
+        stringVal(columns.get("body")),
+        stringVal(columns.get("path")),
+        stringVal(columns.get("order")),
+        stringVal(columns.get("version")));
   }
 
   @SuppressWarnings("unchecked")

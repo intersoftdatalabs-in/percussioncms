@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**. Blank or `repository` = traditional Site. Developer Sites can save either kind. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching adapter. **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for both kinds. CSV trees may omit `_config.yaml` (see [Virtual Sites](id:developer-virtual-sites)). Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**. Blank or `repository` = traditional Site. Developer Sites can save Git or CSV. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching Git/CSV adapter. **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for Git and CSV. `sql-database` is the in-memory H2 SPI (see [Virtual Sites](id:developer-virtual-sites)); SQL REST/UI chrome is a later slice. CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -169,8 +169,8 @@ and **Branch** on this panel (or `virtual.remoteUrl` / `virtual.branch` via
 a local Git checkout path.
 
 Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds
-(`git-filesystem`, `csv-filesystem`), required local root path when virtual and no remote,
-safe remote URLs/branches for Git only (`csv-filesystem` rejects `virtual.remoteUrl`), and
+(`git-filesystem`, `csv-filesystem`, `sql-database`), required local root path when virtual and no remote,
+safe remote URLs/branches for Git only (`csv-filesystem` and `sql-database` reject `virtual.remoteUrl`), and
 safe path/config names (no remaining `..` after NIO normalize). After root, remote, or
 config changes, re-run the offline docs build, the in-product **Build Virtual Site**
 action (below), or the CMS publish path to verify links.
