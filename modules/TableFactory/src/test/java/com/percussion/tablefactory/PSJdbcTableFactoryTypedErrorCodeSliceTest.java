@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,6 +45,21 @@ class PSJdbcTableFactoryTypedErrorCodeSliceTest {
     assertSame(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, ex.getTypedErrorCode());
     assertFalse(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE.isAuditable());
     assertFalse(ex.isAuditable());
+  }
+
+  @Test
+  void typedConstructionWithCauseRetainsCatalogAndSkipsDualWrite() {
+    SQLException cause = new SQLException("meta lookup failed");
+    Object[] args = {"RXSYS", "CONTENTSTATUS"};
+    PSJdbcTableFactoryException ex =
+        new PSJdbcTableFactoryException(
+            TableFactoryErrorCodes.SQL_TABLE_META_DATA, args, cause);
+
+    assertEquals(TableFactoryErrorCodes.SQL_TABLE_META_DATA.numericCode(), ex.getErrorCode());
+    assertSame(TableFactoryErrorCodes.SQL_TABLE_META_DATA, ex.getTypedErrorCode());
+    assertFalse(TableFactoryErrorCodes.SQL_TABLE_META_DATA.isAuditable());
+    assertFalse(ex.isAuditable());
+    assertSame(cause, ex.m_th);
   }
 
   @Test

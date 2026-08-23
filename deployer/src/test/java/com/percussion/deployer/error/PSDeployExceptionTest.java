@@ -121,6 +121,7 @@ public class PSDeployExceptionTest {
     assertEquals(DeploymentErrorCodes.UNEXPECTED_ERROR.numericCode(), withCause.getErrorCode());
     assertSame(DeploymentErrorCodes.UNEXPECTED_ERROR, withCause.getTypedErrorCode());
     assertSame(cause, withCause.getCause());
+    assertArrayEquals(new Object[] {"detail"}, withCause.getErrorArguments());
     assertFalse(withCause.isAuditable());
   }
 

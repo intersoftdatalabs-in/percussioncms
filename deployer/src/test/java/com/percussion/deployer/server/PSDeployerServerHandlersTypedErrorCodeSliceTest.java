@@ -16,6 +16,7 @@
  */
 package com.percussion.deployer.server;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -104,6 +105,11 @@ public class PSDeployerServerHandlersTypedErrorCodeSliceTest {
 
   @Test
   public void jobExceptionTypedCodesSkipAudit() {
+    PSJobException noArg = new PSJobException(JobErrorCodes.NULL_INPUT_DOC);
+    assertEquals(JobErrorCodes.NULL_INPUT_DOC.numericCode(), noArg.getErrorCode());
+    assertSame(JobErrorCodes.NULL_INPUT_DOC, noArg.getTypedErrorCode());
+    assertFalse(noArg.isAuditable());
+
     PSJobException invalid =
         new PSJobException(JobErrorCodes.INVALID_JOB_DESCRIPTOR, "bad-desc");
     assertEquals(JobErrorCodes.INVALID_JOB_DESCRIPTOR.numericCode(), invalid.getErrorCode());
@@ -118,6 +124,22 @@ public class PSDeployerServerHandlersTypedErrorCodeSliceTest {
         new PSJobException(JobErrorCodes.CONFIG_FILE_NOT_FOUND, "rxconfig.xml");
     assertSame(JobErrorCodes.CONFIG_FILE_NOT_FOUND, missingCfg.getTypedErrorCode());
     assertFalse(missingCfg.isAuditable());
+
+    IllegalStateException cause = new IllegalStateException("runner failed");
+    PSJobException withCause =
+        new PSJobException(JobErrorCodes.UNEXPECTED_ERROR, cause, "detail");
+    assertSame(JobErrorCodes.UNEXPECTED_ERROR, withCause.getTypedErrorCode());
+    assertSame(cause, withCause.getCause());
+    assertArrayEquals(new Object[] {"detail"}, withCause.getErrorArguments());
+    assertFalse(withCause.isAuditable());
+
+    PSJobException arrayCause =
+        new PSJobException(
+            JobErrorCodes.CONFIG_FILE_NOT_FOUND, new Object[] {"rxconfig.xml"}, cause);
+    assertSame(JobErrorCodes.CONFIG_FILE_NOT_FOUND, arrayCause.getTypedErrorCode());
+    assertSame(cause, arrayCause.getCause());
+    assertArrayEquals(new Object[] {"rxconfig.xml"}, arrayCause.getErrorArguments());
+    assertFalse(arrayCause.isAuditable());
 
     assertThrows(IllegalArgumentException.class, () -> new PSJobException((IPSErrorCode) null));
   }
@@ -150,6 +172,16 @@ public class PSDeployerServerHandlersTypedErrorCodeSliceTest {
         SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED.numericCode(), auth.getErrorCode());
     assertSame(SecurityErrorCodes.GENERIC_AUTHENTICATION_FAILED, auth.getTypedErrorCode());
     assertTrue(auth.isAuditable());
+
+    IllegalStateException cause = new IllegalStateException("handler init");
+    PSServerException withCause =
+        new PSServerException(
+            ServerErrorCodes.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, cause, "DeploymentHandler");
+    assertSame(
+        ServerErrorCodes.LOADABLE_HANDLER_UNEXPECTED_EXCEPTION, withCause.getTypedErrorCode());
+    assertSame(cause, withCause.getCause());
+    assertArrayEquals(new Object[] {"DeploymentHandler"}, withCause.getErrorArguments());
+    assertFalse(withCause.isAuditable());
   }
 
   @Test

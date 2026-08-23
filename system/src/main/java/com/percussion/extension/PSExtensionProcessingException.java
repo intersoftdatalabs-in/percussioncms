@@ -101,6 +101,17 @@ public class PSExtensionProcessingException extends PSException {
   }
 
   /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSExtensionProcessingException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    super(code, arrayArgs, cause);
+  }
+
+  /**
    * Construct an exception when an unknown exception occurs during processing.
    *
    * @param extName the name of the extension being processed

@@ -93,6 +93,17 @@ public class PSServerException extends PSException {
   }
 
   /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSServerException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    super(code, arrayArgs, cause);
+  }
+
+  /**
    * Construct a server exception when an unknown exception occurs while communicating with the
    * server.
    *

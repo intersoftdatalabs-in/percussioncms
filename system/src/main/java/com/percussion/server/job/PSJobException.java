@@ -114,6 +114,30 @@ public class PSJobException extends Exception {
   }
 
   /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSJobException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    this(code, arrayArgs);
+    initCause(cause);
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param cause causal throwable; may be {@code null}
+   */
+  public PSJobException(IPSErrorCode code, Object[] arrayArgs, Throwable cause) {
+    this(code, arrayArgs);
+    initCause(cause);
+  }
+
+  /**
    * Construct an exception from a class derived from PSException. The name of the original
    * exception class is saved.
    *
