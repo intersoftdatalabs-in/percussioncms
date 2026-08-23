@@ -6,6 +6,7 @@
 # Shrink this list as retype PRs merge:
 #   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
 #   #3585 webservices/transformation leftover call sites
+#   #3739 deployer catalog/client/objectstore/PSDeployService
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -14,15 +15,7 @@
 #
 # Tests, comment-only mentions, and the gate scripts themselves are ignored.
 
-deployer/src/main/java/com/percussion/deployer/catalog/PSCataloger.java
-deployer/src/main/java/com/percussion/deployer/catalog/server/PSCatalogHandler.java
-deployer/src/main/java/com/percussion/deployer/client/PSDeployFileJobControl.java
-deployer/src/main/java/com/percussion/deployer/client/PSDeploymentManager.java
-deployer/src/main/java/com/percussion/deployer/client/PSDeploymentServerConnection.java
-deployer/src/main/java/com/percussion/deployer/client/PSFolderContentsDescriptorBuilder.java
 deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java
-deployer/src/main/java/com/percussion/deployer/objectstore/PSArchive.java
-deployer/src/main/java/com/percussion/deployer/objectstore/PSIdMap.java
 deployer/src/main/java/com/percussion/deployer/server/PSAppTransformer.java
 deployer/src/main/java/com/percussion/deployer/server/PSArchiveHandler.java
 deployer/src/main/java/com/percussion/deployer/server/PSDbmsHelper.java
@@ -93,7 +86,6 @@ deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTemplateDef
 deployer/src/main/java/com/percussion/deployer/server/dependencies/PSTranslationSettingsDefDependencyHandler.java
 deployer/src/main/java/com/percussion/deployer/server/dependencies/PSVariantDefDependencyHandler.java
 deployer/src/main/java/com/percussion/deployer/server/dependencies/PSWorkflowDefDependencyHandler.java
-deployer/src/main/java/com/percussion/deployer/services/impl/PSDeployService.java
 modules/ContentUI/src/main/java/com/percussion/content/ui/search/PSSearchResult.java
 modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java
 modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java

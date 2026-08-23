@@ -19,9 +19,12 @@ package com.percussion.deployer.error;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.conn.PSServerException;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
+import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -89,5 +92,52 @@ public class PSDeployExceptionTest {
           PSServerException sEx1 = new PSServerException(123, args3);
           new PSDeployNonUniqueException(sEx1);
         });
+  }
+
+  @Test
+  public void typedCatalogCodesRetainCodeAndSkipAudit() {
+    PSDeployException noArg = new PSDeployException(DeploymentErrorCodes.NULL_INPUT_DOC);
+    assertEquals(DeploymentErrorCodes.NULL_INPUT_DOC.numericCode(), noArg.getErrorCode());
+    assertSame(DeploymentErrorCodes.NULL_INPUT_DOC, noArg.getTypedErrorCode());
+    assertFalse(noArg.isAuditable());
+
+    PSDeployException single =
+        new PSDeployException(DeploymentErrorCodes.INVALID_REQUEST_TYPE, "PSXBad");
+    assertEquals(DeploymentErrorCodes.INVALID_REQUEST_TYPE.numericCode(), single.getErrorCode());
+    assertSame(DeploymentErrorCodes.INVALID_REQUEST_TYPE, single.getTypedErrorCode());
+    assertFalse(single.isAuditable());
+
+    Object[] args = {"widget", "99", "src"};
+    PSDeployException array = new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
+    assertEquals(DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode(), array.getErrorCode());
+    assertSame(DeploymentErrorCodes.MISSING_ID_MAPPING, array.getTypedErrorCode());
+    assertArrayEquals(args, array.getErrorArguments());
+    assertFalse(array.isAuditable());
+
+    IllegalStateException cause = new IllegalStateException("boom");
+    PSDeployException withCause =
+        new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, cause, "detail");
+    assertEquals(DeploymentErrorCodes.UNEXPECTED_ERROR.numericCode(), withCause.getErrorCode());
+    assertSame(DeploymentErrorCodes.UNEXPECTED_ERROR, withCause.getTypedErrorCode());
+    assertSame(cause, withCause.getCause());
+    assertFalse(withCause.isAuditable());
+  }
+
+  @Test
+  public void typedLockCodeIsAuditableAndCopiedFromPsException() {
+    PSDeployException lock = new PSDeployException(DeploymentErrorCodes.LOCK_ALREADY_HELD);
+    assertTrue(lock.isAuditable());
+    assertSame(DeploymentErrorCodes.LOCK_ALREADY_HELD, lock.getTypedErrorCode());
+
+    PSException pe = new PSException(DeploymentErrorCodes.LOCK_ALREADY_HELD);
+    PSDeployException wrapped = new PSDeployException(pe);
+    assertSame(DeploymentErrorCodes.LOCK_ALREADY_HELD, wrapped.getTypedErrorCode());
+    assertTrue(wrapped.isAuditable());
+    assertEquals(pe.getClass().getName(), wrapped.getOriginalExceptionClass());
+  }
+
+  @Test
+  public void typedConstructorRejectsNullCode() {
+    assertThrows(IllegalArgumentException.class, () -> new PSDeployException((IPSErrorCode) null));
   }
 }
