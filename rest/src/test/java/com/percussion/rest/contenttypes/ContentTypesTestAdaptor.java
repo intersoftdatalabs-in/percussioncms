@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.percussion.rest.Guid;
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 
@@ -77,5 +78,15 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   @Override
   public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
     return null;
+  }
+
+  @Override
+  public ObjectLockSummary lockContentType(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockContentType(URI baseUri, String idOrName) {
+    return Boolean.TRUE;
   }
 }

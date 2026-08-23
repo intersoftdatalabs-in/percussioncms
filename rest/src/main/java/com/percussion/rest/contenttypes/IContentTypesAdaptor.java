@@ -17,6 +17,7 @@
 
 package com.percussion.rest.contenttypes;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 
@@ -69,4 +70,23 @@ public interface IContentTypesAdaptor {
    * @return updated detail, or {@code null} when not found
    */
   ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
+
+  /**
+   * Acquire a self-only design-session lock on the content type. Does not save.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return lock summary, or {@code null} when not found
+   */
+  ObjectLockSummary lockContentType(URI baseUri, String idOrName);
+
+  /**
+   * Release a design-session lock owned by the current user/session. Does not save.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return {@code Boolean.TRUE} when released; {@code null} when not found. Throws {@code
+   *     IllegalStateException} when locked by another user.
+   */
+  Boolean unlockContentType(URI baseUri, String idOrName);
 }

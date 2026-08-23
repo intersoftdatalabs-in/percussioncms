@@ -17,6 +17,7 @@
 
 package com.percussion.rest.contenttypes;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -30,6 +31,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -890,6 +892,81 @@ public class ContentTypesResource {
       throw new WebApplicationException(e.getMessage(), 400);
     } catch (IllegalStateException e) {
       // lock / session problems surface as 409 when message indicates lock
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      if (msg.toLowerCase().contains("lock")) {
+        throw new WebApplicationException(msg, 409);
+      }
+      throw new WebApplicationException(e, 500);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock content type design session",
+      description =
+          "Acquires a self-only design-session lock for the current Admin user via the content"
+              + " design web service (IPSContentDesignWs.loadContentTypes with lock=true,"
+              + " overrideLock=false). Does not save. Re-lock by the same session user extends the"
+              + " lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      ObjectLockSummary summary =
+          requireAdaptor().lockContentType(uriInfo.getBaseUri(), idOrName);
+      if (summary == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return summary;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      if (msg.toLowerCase().contains("lock")) {
+        throw new WebApplicationException(msg, 409);
+      }
+      throw new WebApplicationException(e, 500);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/unlock")
+  @Operation(
+      summary = "Unlock content type design session",
+      description =
+          "Releases a design-session lock owned by the current Admin user/session. Does not save."
+              + " Locks held by another user are not stolen (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      Boolean released = requireAdaptor().unlockContentType(uriInfo.getBaseUri(), idOrName);
+      if (released == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
       String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
       if (msg.toLowerCase().contains("lock")) {
         throw new WebApplicationException(msg, 409);

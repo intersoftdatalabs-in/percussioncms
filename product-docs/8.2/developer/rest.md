@@ -191,6 +191,21 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes). Re-lock by the same session user extends the lock. |
+| Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
+
+Lock/unlock status codes:
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Lock acquired (body is `ObjectLockSummary`) |
+| `204` | Unlock success |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | Locked by another user (self-only; the lock is not stolen) |
+| `500` | Design service or server failure |
+
+`PUT /services/contenttypes/{idOrName}` still lock-saves-unlocks in one request. Use these lock/unlock endpoints when a client needs an explicit design session before a later save.
 
 JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
 SPA unwrap that envelope and read `guid.stringValue` (or synthesize
