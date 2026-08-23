@@ -351,6 +351,37 @@ class PSSqlDatabaseVirtualSiteSourceTest {
   }
 
   @Test
+  void requireSelectOnlyPreservesCommentMarkersInsideStringLiterals() throws Exception {
+    String dashes = "SELECT 'hello -- world' AS title, body FROM pages";
+    assertEquals(dashes, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(dashes));
+    String block = "SELECT '/* not a comment */' AS title, body FROM pages";
+    assertEquals(block, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(block));
+    String doubled = "SELECT 'it''s -- fine' AS title FROM pages";
+    assertEquals(doubled, PSSqlDatabaseVirtualSiteSource.requireSelectOnly(doubled));
+    assertEquals(
+        "SELECT id FROM pages",
+        PSSqlDatabaseVirtualSiteSource.requireSelectOnly("SELECT id FROM pages -- trailing"));
+    String strippedBlock =
+        PSSqlDatabaseVirtualSiteSource.requireSelectOnly("SELECT id /* skip */ FROM pages");
+    assertTrue(strippedBlock.matches("(?is)SELECT id\\s+FROM pages"), strippedBlock);
+    assertTrue(
+        PSSqlDatabaseVirtualSiteSource.stripSqlComments("SELECT 'a -- b' FROM pages")
+            .contains("'a -- b'"));
+  }
+
+  @Test
+  void missingQueryFileFailsClosed() throws Exception {
+    Path root = writeSite(tempDir.resolve("missing-qfile"), newMemUrl(), null, "queries/nope.sql");
+    VirtualSiteConfig cfg = config(root, newMemUrl(), null, "queries/nope.sql");
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class, () -> new PSSqlDatabaseVirtualSiteSource().discover(cfg));
+    String msg = ex.getMessage().toLowerCase();
+    assertTrue(msg.contains("queryfile"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("nope.sql"), ex.getMessage());
+  }
+
+  @Test
   void rejectsNonSelectQuery() {
     VirtualSiteException insert =
         assertThrows(
@@ -504,7 +535,7 @@ class PSSqlDatabaseVirtualSiteSourceTest {
         versions:
           - id: "8.2"
             label: "8.2"
-            path: 8.2
+            path: "8.2"
             default: true
         theme:
           layout: page.html

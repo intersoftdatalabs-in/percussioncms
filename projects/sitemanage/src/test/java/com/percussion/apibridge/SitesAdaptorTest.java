@@ -894,6 +894,7 @@ class SitesAdaptorTest {
     String body = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(body.contains("SQL Home"), body);
     assertTrue(body.contains("Hello from SQL"), body);
+    assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
     assertFalse(body.toLowerCase().contains("password"), body);
   }
 
@@ -961,7 +962,7 @@ class SitesAdaptorTest {
         versions:
           - id: "8.2"
             label: "8.2"
-            path: 8.2
+            path: "8.2"
             default: true
         sql:
           jdbcUrl: jdbc:oracle:thin:@localhost:1521:orcl
@@ -987,7 +988,7 @@ class SitesAdaptorTest {
     assertEquals(400, oracle.getResponse().getStatus());
     String oracleMsg = String.valueOf(oracle.getMessage()).toLowerCase();
     assertTrue(
-        oracleMsg.contains("h2") || oracleMsg.contains("jdbc"),
+        oracleMsg.contains("unsupported") || oracleMsg.contains("not allowed"),
         String.valueOf(oracle.getMessage()));
 
     Files.writeString(
@@ -998,7 +999,7 @@ class SitesAdaptorTest {
         versions:
           - id: "8.2"
             label: "8.2"
-            path: 8.2
+            path: "8.2"
             default: true
         sql:
           jdbcUrl: jdbc:mysql://localhost:3306/cms
@@ -1032,6 +1033,10 @@ class SitesAdaptorTest {
         assertThrows(
             WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
     assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
   }
 
   @Test
@@ -1217,6 +1222,38 @@ class SitesAdaptorTest {
     assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
     assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-real-pub-src"));
+    Path staging = tempDir.resolve("sql-real-pub-staging");
+    Path publishTo = tempDir.resolve("sql-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SqlHelp");
+    assertEquals("SqlHelp", result.getSiteName());
+    assertEquals("sql-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+    assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
   }
 
   @Test
@@ -1425,6 +1462,45 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewSqlDatabase_statusAvailableWithHomePath() throws Exception {
+    Path sqlRoot = Files.createDirectories(tempDir.resolve("sql-status-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default");
+    Path built = tempDir.resolve("sql-preview-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(sqlRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+  }
+
+  @Test
+  void previewSqlDatabase_streamsLastBuildHtml() throws Exception {
+    Path sqlRoot = Files.createDirectories(tempDir.resolve("sql-stream-src"));
+    Path defaultOut = tempDir.resolve("sql-stream-default");
+    Path built = tempDir.resolve("sql-stream-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(sqlRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+    assertTrue(html.contains("Hello from SQL"), html);
+  }
+
+  @Test
   void previewCsvFilesystem_rejectsTraversal() throws Exception {
     Path csvRoot = Files.createDirectories(tempDir.resolve("csv-trav-src"));
     Path defaultOut = tempDir.resolve("csv-trav-default");
@@ -1559,6 +1635,19 @@ class SitesAdaptorTest {
     return site;
   }
 
+  private PSSite virtualSqlSite(Path sqlRoot) {
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        sqlRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    return site;
+  }
+
   private PSSite virtualCsvSite(Path csvRoot) {
     PSSite site = new PSSite();
     site.setName("CsvHelp");
@@ -1643,9 +1732,10 @@ class SitesAdaptorTest {
   }
 
   /**
-   * In-memory H2 fixture for sql-database Build tests. JDBC user is {@code sa}; password is empty
-   * and is not asserted in logs or HTML. Inline SELECT by default; pass a relative {@code
-   * queryFile} (NIO {@link Path}) to prove {@code sql.queryFile} REST Build.
+   * In-memory H2 fixture for sql-database Build tests. JDBC user is {@code sa}. A dummy {@code
+   * password} is present in {@code _config.yaml} so tests can prove it is not copied into HTML.
+   * Inline SELECT by default; pass a relative {@code queryFile} (NIO {@link Path}) to prove {@code
+   * sql.queryFile} REST Build.
    */
   private static Path createMinimalSqlTree(Path siteRoot) throws Exception {
     return createMinimalSqlTree(
@@ -1658,7 +1748,8 @@ class SitesAdaptorTest {
       throws Exception {
     String jdbc = "jdbc:h2:mem:vsql_rest_" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
     org.h2.Driver.load();
-    try (Connection c = DriverManager.getConnection(jdbc, "sa", "");
+    try (Connection c =
+        DriverManager.getConnection(jdbc, "sa", "secret-sql-password-should-not-leak");
         Statement st = c.createStatement()) {
       st.execute(
           "CREATE TABLE pages ("
@@ -1684,6 +1775,7 @@ class SitesAdaptorTest {
           sql:
             jdbcUrl: "%s"
             user: sa
+            password: "secret-sql-password-should-not-leak"
             queryFile: %s
           """
               .formatted(jdbc, logical);
@@ -1693,6 +1785,7 @@ class SitesAdaptorTest {
           sql:
             jdbcUrl: "%s"
             user: sa
+            password: "secret-sql-password-should-not-leak"
             query: |
               %s
           """
@@ -1706,7 +1799,7 @@ class SitesAdaptorTest {
         versions:
           - id: "8.2"
             label: "8.2"
-            path: 8.2
+            path: "8.2"
             default: true
         theme:
           layout: page.html

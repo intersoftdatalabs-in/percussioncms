@@ -303,7 +303,7 @@ public class SitesResourceTest {
         versions:
           - id: "8.2"
             label: "8.2"
-            path: 8.2
+            path: "8.2"
             default: true
         sql:
           jdbcUrl: jdbc:h2:mem:vsql_rest_fixture;DB_CLOSE_DELAY=-1

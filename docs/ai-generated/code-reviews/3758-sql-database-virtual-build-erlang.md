@@ -29,8 +29,8 @@ None blocking.
 ### Notes (non-blocking)
 
 - Resource tests mock the adaptor (peer CSV); real H2 HTML emit is in `SitesAdaptorTest` and system `PSSqlDatabaseVirtualSiteSourceTest.buildServiceFactoryWiresSqlAndEmitsHtml`.
-- Developer Sites SQL Build chrome remains a later slice; publishing.md and admin Sites say REST/CLI until then.
-- Publish inherits SQL build because `publishVirtualSite` calls `buildVirtualSite` (documented; full SQL publish chrome is a later slice).
+- Developer Sites SQL Build and Publish chrome ships in stacked #3759 (PR #3766); product-docs 8.2 REST/admin describe both REST/CLI and the Developer Sites buttons.
+- Publish inherits SQL build because `publishVirtualSite` calls `buildVirtualSite` (documented; Developer Sites SQL Publish chrome is in this stack).
 
 ## Tests
 

@@ -424,18 +424,73 @@ public class PSSqlDatabaseVirtualSiteSource implements IPSVirtualSiteSource {
     return semi < 0 ? url : url.substring(0, semi);
   }
 
-  private static String stripSqlComments(String sql) {
-    String noBlock = sql.replaceAll("(?s)/\\*.*?\\*/", " ");
-    StringBuilder out = new StringBuilder();
-    for (String line : noBlock.replace("\r\n", "\n").replace('\r', '\n').split("\n", -1)) {
-      String trimmed = line.trim();
-      if (trimmed.startsWith("--")) {
+  /**
+   * Remove SQL line comments ({@code --}) and block comments without truncating those
+   * markers when they appear inside string literals or quoted identifiers.
+   */
+  static String stripSqlComments(String sql) {
+    if (sql == null || sql.isEmpty()) {
+      return sql;
+    }
+    StringBuilder out = new StringBuilder(sql.length());
+    int i = 0;
+    int n = sql.length();
+    while (i < n) {
+      char c = sql.charAt(i);
+      char next = i + 1 < n ? sql.charAt(i + 1) : 0;
+      if (c == '\'') {
+        i = copyQuotedSql(sql, i, '\'', out);
         continue;
       }
-      int dash = line.indexOf("--");
-      out.append(dash >= 0 ? line.substring(0, dash) : line).append('\n');
+      if (c == '"') {
+        i = copyQuotedSql(sql, i, '"', out);
+        continue;
+      }
+      if (c == '-' && next == '-') {
+        i += 2;
+        while (i < n) {
+          char d = sql.charAt(i);
+          if (d == '\n' || d == '\r') {
+            break;
+          }
+          i++;
+        }
+        continue;
+      }
+      if (c == '/' && next == '*') {
+        i += 2;
+        while (i + 1 < n && !(sql.charAt(i) == '*' && sql.charAt(i + 1) == '/')) {
+          i++;
+        }
+        i = i + 1 < n ? i + 2 : n;
+        out.append(' ');
+        continue;
+      }
+      out.append(c);
+      i++;
     }
     return out.toString();
+  }
+
+  private static int copyQuotedSql(String sql, int start, char quote, StringBuilder out) {
+    int i = start;
+    int n = sql.length();
+    out.append(sql.charAt(i));
+    i++;
+    while (i < n) {
+      char d = sql.charAt(i);
+      out.append(d);
+      i++;
+      if (d == quote) {
+        if (i < n && sql.charAt(i) == quote) {
+          out.append(quote);
+          i++;
+        } else {
+          break;
+        }
+      }
+    }
+    return i;
   }
 
   private static boolean looksAbsoluteWindows(String logical) {
