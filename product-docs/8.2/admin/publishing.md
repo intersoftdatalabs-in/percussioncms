@@ -37,7 +37,8 @@ For Git/filesystem or CSV/filesystem Virtual Sites such as product documentation
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
   current Git/filesystem or CSV tree (`csv-filesystem`). After `git pull`, a local Markdown
-  edit, or a CSV change, run Build (or Publish) again — no CMS restart.
+  edit, a CSV change, or a `_config.yaml` change, run Build (or Publish) again — no CMS
+  restart.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`

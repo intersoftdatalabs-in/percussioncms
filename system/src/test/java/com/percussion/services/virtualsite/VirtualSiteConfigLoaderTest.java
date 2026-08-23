@@ -99,6 +99,42 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterConfigEditSeesCurrentTitleWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: First Config Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("First Config Title", first.siteTitle());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Second Config Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Second Config Title", second.siteTitle());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,

@@ -200,8 +200,9 @@ Optional body field `outputRoot` overrides the default output directory
 unavailable). Link problems are reported in the JSON result (and in `link-report.txt` under
 the output root) without failing the HTTP status when the build itself succeeds.
 
-Each build re-reads current Markdown/frontmatter from `virtual.rootPath` (no CMS restart after
-`git pull` or a local edit). The Developer Sites UI exposes this operation as **Build Virtual
+Each build re-reads current Markdown/frontmatter, CSV rows, and `_config.yaml` from
+`virtual.rootPath` (no CMS restart after `git pull`, a CSV/`_config.yaml` edit, or a local
+Markdown edit). The Developer Sites UI exposes this operation as **Build Virtual
 Site** when source kind is Virtual (never for traditional repository Sites). When
 `hasLinkProblems` is true, the result panel shows the problem **count** and an expandable list
 of `linkProblems` (same text as `link-report.txt`). A clean build does not show that banner.
