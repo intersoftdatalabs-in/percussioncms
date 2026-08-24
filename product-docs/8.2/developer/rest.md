@@ -198,6 +198,12 @@ SPA unwrap that envelope and read `guid.stringValue` (or synthesize
 `GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
 fallback when detail omits Guid parts.
 
+`GET /services/contenttypes` (the catalog list) may be a JSON array or a Jackson
+root envelope (`ContentTypeList` and/or `ContentType`). The Developer **Content
+Types** catalog unwraps those shapes so the table loads (and the first row can
+open Object ACL). Clients must not assume a bare array or call `.map` on the
+raw object.
+
 ### Field rule expressions (read-only)
 
 Content type **detail** field rows include boolean rule **flags** and, when rules exist,

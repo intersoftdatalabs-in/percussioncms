@@ -21,6 +21,54 @@ describe("unwrapContentTypeList", () => {
     ).toEqual([{ name: "page", label: "Page" }]);
   });
 
+  it("unwraps Jackson ContentTypeList root array (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: [{ name: "percPage", label: "Page" }],
+      }),
+    ).toEqual([{ name: "percPage", label: "Page" }]);
+  });
+
+  it("unwraps nested ContentTypeList.ContentType (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: {
+          ContentType: [
+            { name: "percPage", label: "Page" },
+            { name: "percFileAsset", label: "File" },
+          ],
+        },
+      }),
+    ).toEqual([
+      { name: "percPage", label: "Page" },
+      { name: "percFileAsset", label: "File" },
+    ]);
+  });
+
+  it("unwraps ArrayList envelope and empty-collection beans (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ArrayList: [{ name: "percPage", label: "Page" }],
+      }),
+    ).toEqual([{ name: "percPage", label: "Page" }]);
+    expect(unwrapContentTypeList({ empty: true })).toEqual([]);
+    expect(unwrapContentTypeList({ empty: false })).toEqual([]);
+  });
+
+  it("unwraps per-item ContentType wraps inside an array (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: [
+          { ContentType: { name: "percPage", label: "Page" } },
+          { ContentType: { name: "percFileAsset", label: "File" } },
+        ],
+      }),
+    ).toEqual([
+      { name: "percPage", label: "Page" },
+      { name: "percFileAsset", label: "File" },
+    ]);
+  });
+
   it("unwraps single ContentType object", () => {
     expect(unwrapContentTypeList({ ContentType: { name: "only" } })).toEqual([
       { name: "only" },
@@ -30,6 +78,13 @@ describe("unwrapContentTypeList", () => {
   it("handles null and empty", () => {
     expect(unwrapContentTypeList(null)).toEqual([]);
     expect(unwrapContentTypeList({})).toEqual([]);
+  });
+
+  it("never returns a non-array (catalog .map safety)", () => {
+    expect(Array.isArray(unwrapContentTypeList({ ContentTypeList: { empty: true } }))).toBe(
+      true,
+    );
+    expect(unwrapContentTypeList("nope")).toEqual([]);
   });
 
   it("fills guid.stringValue from host/type/uuid on list rows (#3319)", () => {
