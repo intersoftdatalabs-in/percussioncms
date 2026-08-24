@@ -128,7 +128,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Workflow** | Allowed transitions run through itemmanagement (`GET …/workflow/transitionWithComments/{id}/{trigger}`, not `wfactionset.html`). Clicking a listed trigger — including **Expire** when it is listed — returns HTTP 200 and does not show an error toast. |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Select a **page** or **asset** row first. Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Explorer **Open** on that same selected row lands the same React editor host (HTTP 200). **Folders** stay non-editable: Edit / Quick Edit / View content stay hidden, and Open on a folder browses into it instead of opening the editor. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open leftover Content Editor HTML (`?view=editor`, `editAsset.jsp`, `rx_ce`, `checkoutedit.xml`). |
-| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`1-101-708`); the panel uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
+| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`16777215-101-551`); the panel requests variants with that full GUID (`GET /rest/content-explorer/translations/{itemId}`) and uses the content-id segment only for create-variant. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the **selected page or asset**. List row ids may be GUID-shaped (`1-101-708`); the viewer uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
 | **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
@@ -404,9 +404,12 @@ Open **View → Translations** after selecting a **page or asset** in the list (
 The panel shows **this item’s current locale** and **related locale variants**, and lets
 an authorized user **Create variants** for catalog locales the item does not already
 have. Explorer list rows identify items with a Percussion content id. The id is often
-GUID-shaped (for example `1-101-708`); the panel uses the last segment (`708`) for
-both the variants request and create-variant. That GUID form must not fail with
-“Selected item does not have a numeric content id.”
+GUID-shaped (for example `16777215-101-551`). The panel sends that **full GUID** on
+`GET /rest/content-explorer/translations/{itemId}` (the REST façade also accepts a
+bare numeric content id such as `551`). Create-variant still posts the numeric
+content id. Stripping a GUID to its last segment for the GET (`…/translations/551`)
+fails with **Item not found**. That GUID form must not fail with “Selected item does
+not have a numeric content id.”
 
 **Folders and sites** have no content id. With Translations open and only a folder or
 site selected, Explorer shows a select-item hint instead of the live panel.

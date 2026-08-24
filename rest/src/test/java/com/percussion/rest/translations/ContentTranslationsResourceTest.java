@@ -124,6 +124,20 @@ class ContentTranslationsResourceTest {
   }
 
   @Test
+  void listPassesHyphenatedGuidToAdaptor() {
+    ItemTranslationVariants expected = new ItemTranslationVariants();
+    expected.setItemId(551L);
+    expected.setLocale("en-us");
+    when(adaptor.listItemVariants(any(), eq("16777215-101-551"))).thenReturn(expected);
+
+    ItemTranslationVariants out = resource.listItemVariants("16777215-101-551");
+
+    assertEquals(551L, out.getItemId());
+    assertEquals("en-us", out.getLocale());
+    verify(adaptor).listItemVariants(any(), eq("16777215-101-551"));
+  }
+
+  @Test
   void listNullFromAdaptorIs404() {
     when(adaptor.listItemVariants(any(), eq("missing"))).thenReturn(null);
 

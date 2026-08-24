@@ -46,7 +46,7 @@ public interface IContentTranslationsAdaptor {
    * List the requested item's locale plus translation-category dependents.
    *
    * @param baseUri request base URI (may be null)
-   * @param itemId legacy content id or guid string
+   * @param itemId hyphenated host-type-uuid GUID or bare numeric content id
    * @return variants envelope; never null when the item is readable
    * @throws SecurityException / not-found mapped by the resource as 403/404
    */

@@ -20,11 +20,13 @@
  * <p>Verifies the modern React Content Explorer shell exposes the Translations
  * panel chrome and loads item locale / variants from the public REST façade
  * ({@code GET /rest/content-explorer/translations/{itemId}}). Create-variant
- * is exercised when a content row is selectable (GUID last-segment ids such as
- * {@code 1-101-708} → {@code 708}, #3545 / parent #2649). The client must not
- * emit {@code Selected item does not have a numeric content id} for a
- * GUID-shaped row. Folders/sites keep the select-item hint. Chrome visibility
- * is the hard gate when no content row is listed.</p>
+ * is exercised when a content row is selectable. GUID-shaped list ids such as
+ * {@code 16777215-101-551} must be sent on GET as the full GUID (#3703 / parent
+ * #2649) — not stripped to {@code 551} (HTTP 404). Create-variant POST still
+ * uses the numeric content id. The client must not emit {@code Selected item
+ * does not have a numeric content id} for a GUID-shaped row. Folders/sites
+ * keep the select-item hint. A GUID content row that opens the panel must
+ * reach {@code ok} with locale + create-variant (fail closed).</p>
  *
  * <p>Tags: {@code @explorer-translations} {@code @p-trans} {@code @smoke}</p>
  *
@@ -49,6 +51,54 @@ async function clickFirstRowWithDetachRetry(rows) {
   await rows.first().click({ force: true, timeout: 10_000 }).catch(async () => {
     await rows.first().click({ force: true, timeout: 10_000 }).catch(() => {});
   });
+}
+
+/**
+ * Double-click a folder row by {@code data-item-name} or visible name.
+ * @returns {Promise<boolean>}
+ */
+async function openFolderByName(page, name) {
+  const list = page.locator('[data-testid="detail-list"]');
+  const named = list.locator(
+    `tbody tr[data-row-kind="folder"][data-item-name="${name}"]`,
+  );
+  const row =
+    (await named.count()) > 0
+      ? named.first()
+      : list
+          .locator("tbody tr[data-row-kind=\"folder\"]")
+          .filter({ hasText: name })
+          .first();
+  if ((await row.count()) === 0) {
+    return false;
+  }
+  await row.dblclick({ force: true, timeout: 10_000 }).catch(async () => {
+    await row.click({ force: true, timeout: 10_000 }).catch(() => {});
+  });
+  await listWaitReady(page);
+  await page.waitForLoadState("networkidle").catch(() => {});
+  return true;
+}
+
+/**
+ * Find a GUID-shaped content row ({@code detail-row-host-type-uuid}).
+ * @returns {Promise<string>}
+ */
+async function guidIdFromItemRows(page) {
+  const list = page.locator('[data-testid="detail-list"]');
+  const rows = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+  );
+  const n = await rows.count();
+  for (let i = 0; i < n; i += 1) {
+    const testid = (await rows.nth(i).getAttribute("data-testid")) || "";
+    const m = testid.match(/^detail-row-(\d+-\d+-\d+)$/);
+    if (m) {
+      await rows.nth(i).click({ force: true, timeout: 10_000 }).catch(() => {});
+      return m[1];
+    }
+  }
+  return "";
 }
 
 /**
@@ -207,6 +257,128 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       } else {
         await expect(hint).toBeVisible();
       }
+    },
+  );
+
+  test(
+    "GUID content row GET uses full GUID and loads locale variants (#3703)",
+    { tag: ["@explorer-translations", "@p-trans"] },
+    async ({ page }) => {
+      test.setTimeout(75_000);
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() !== "error") {
+          return;
+        }
+        const text = msg.text();
+        // Explorer chrome often logs Failed to load resource 400/500 for
+        // unrelated catalog calls. Fail only on JS exceptions or translations.
+        if (
+          /Failed to load resource: the server responded with a status of \d+/i.test(
+            text,
+          ) &&
+          !/translations/i.test(text)
+        ) {
+          return;
+        }
+        consoleErrors.push(text);
+      });
+
+      /** @type {string[]} */
+      const translationGets = [];
+      await page.route(
+        "**/rest/content-explorer/translations/**",
+        async (route) => {
+          if (route.request().method() === "GET") {
+            translationGets.push(route.request().url());
+          }
+          await route.continue();
+        },
+      );
+
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      const tree = page.locator('[data-testid="explorer-tree"]');
+      await expect(tree).toBeVisible({ timeout: 15_000 });
+      const sitesNode = page
+        .locator(
+          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+        )
+        .first();
+      if ((await sitesNode.count()) > 0) {
+        await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+        await listWaitReady(page);
+        await page.waitForLoadState("networkidle").catch(() => {});
+      }
+
+      const list = page.locator('[data-testid="detail-list"]');
+      await expect(list).toBeVisible({ timeout: 15_000 });
+
+      let guidRowId = await guidIdFromItemRows(page);
+      if (!guidRowId) {
+        // Sites list is site folders. Open Corporate Investments (or first
+        // site), then Pages — FastForward pages use host-type-uuid ids.
+        await openFolderByName(page, "Corporate Investments");
+        await openFolderByName(page, "CorporateInvestments");
+        await openFolderByName(page, "Corporate_Investments");
+        guidRowId = await guidIdFromItemRows(page);
+      }
+      if (!guidRowId) {
+        await openFolderByName(page, "Pages");
+        guidRowId = await guidIdFromItemRows(page);
+      }
+      if (!guidRowId) {
+        await selectFirstContentRow(page);
+        guidRowId = await guidIdFromItemRows(page);
+      }
+
+      expect(
+        guidRowId,
+        "H2 QA must list a GUID-shaped content row (host-type-uuid)",
+      ).toMatch(/^\d+-\d+-\d+$/);
+
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-translations"]').click();
+
+      const panel = page.locator('[data-testid="translations-panel"]');
+      await expect(panel).toBeVisible({ timeout: 15_000 });
+      await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
+        timeout: 20_000,
+      });
+      await expect(panel).toHaveAttribute("data-testid-state", "ok");
+      await expect(
+        page.locator('[data-testid="translations-current-locale-value"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="translations-create"]'),
+      ).toBeVisible();
+
+      const lastSeg = guidRowId.split("-").pop();
+      const fullGuidGets = translationGets.filter((u) =>
+        u.includes(`/translations/${guidRowId}`),
+      );
+      const strippedGets = translationGets.filter((u) =>
+        new RegExp(`/translations/${lastSeg}(?:\\?|$)`).test(u),
+      );
+      expect(
+        fullGuidGets.length,
+        `GET must use full GUID ${guidRowId}; captured=${translationGets.join(" | ")}`,
+      ).toBeGreaterThan(0);
+      expect(
+        strippedGets.length,
+        `GET must not strip GUID to ${lastSeg}; captured=${translationGets.join(" | ")}`,
+      ).toBe(0);
+
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(
+        consoleErrors,
+        `console error: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
     },
   );
 

@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -186,9 +187,7 @@ class ContentTranslationsAdaptorTest {
 
   @Test
   void listItemVariantsIncludesSourceAndDependents() {
-    PSLegacyGuid sourceGuid = new PSLegacyGuid(100L);
-    when(idMapper.getGuid("100")).thenReturn(sourceGuid);
-    when(idMapper.getLocator(sourceGuid)).thenReturn(new PSLocator(100, 1));
+    when(idMapper.getLocator(any(IPSGuid.class))).thenReturn(new PSLocator(100, 1));
 
     PSComponentSummary source = mock(PSComponentSummary.class);
     when(source.getContentId()).thenReturn(100);
@@ -197,7 +196,7 @@ class ContentTranslationsAdaptorTest {
     when(objectMgr.loadComponentSummary(100)).thenReturn(source);
 
     PSLegacyGuid depGuid = new PSLegacyGuid(200L);
-    when(systemWs.findDependents(eq(sourceGuid), any(PSRelationshipFilter.class)))
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
         .thenReturn(List.of(depGuid));
 
     PSComponentSummary dep = mock(PSComponentSummary.class);
@@ -219,6 +218,65 @@ class ContentTranslationsAdaptorTest {
     assertEquals(ContentTranslationsAdaptor.ROLE_TRANSLATION, tr.getRole());
     assertEquals("fr-fr", tr.getLocale());
     assertEquals(Long.valueOf(100L), tr.getSourceContentId());
+    // Bare numeric must not go through untyped getGuid (Explorer last-segment 404).
+    verify(idMapper, never()).getGuid("100");
+  }
+
+  @Test
+  void listItemVariantsAcceptsHyphenatedGuid() {
+    PSLegacyGuid sourceGuid = new PSLegacyGuid(551, -1);
+    when(idMapper.getGuid("16777215-101-551")).thenReturn(sourceGuid);
+    when(idMapper.getLocator(any(IPSGuid.class))).thenReturn(new PSLocator(551, 1));
+
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getContentId()).thenReturn(551);
+    when(source.getLocale()).thenReturn("en-us");
+    when(source.getCurrentLocator()).thenReturn(new PSLocator(551, 1));
+    when(objectMgr.loadComponentSummary(551)).thenReturn(source);
+
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of());
+
+    ItemTranslationVariants out =
+        adaptor.listItemVariants(
+            URI.create("http://localhost/rest"), "16777215-101-551");
+
+    assertEquals(551L, out.getItemId());
+    assertEquals("en-us", out.getLocale());
+    assertEquals(1, out.getVariants().size());
+    verify(idMapper).getGuid("16777215-101-551");
+  }
+
+  @Test
+  void listItemVariantsBareNumericSkipsGuidResolver() {
+    when(idMapper.getLocator(any(IPSGuid.class))).thenReturn(new PSLocator(551, 1));
+
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getContentId()).thenReturn(551);
+    when(source.getLocale()).thenReturn("en-us");
+    when(source.getCurrentLocator()).thenReturn(new PSLocator(551, 1));
+    when(objectMgr.loadComponentSummary(551)).thenReturn(source);
+
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of());
+
+    ItemTranslationVariants out =
+        adaptor.listItemVariants(URI.create("http://localhost/rest"), "551");
+
+    assertEquals(551L, out.getItemId());
+    assertEquals("en-us", out.getLocale());
+    verify(idMapper, never()).getGuid("551");
+  }
+
+  @Test
+  void parseBareNumericContentIdRejectsGuidAndZero() {
+    assertEquals(Long.valueOf(551L), ContentTranslationsAdaptor.parseBareNumericContentId("551"));
+    assertNull(ContentTranslationsAdaptor.parseBareNumericContentId("16777215-101-551"));
+    assertNull(ContentTranslationsAdaptor.parseBareNumericContentId("1-101-708"));
+    assertNull(ContentTranslationsAdaptor.parseBareNumericContentId("0"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ContentTranslationsAdaptor.parseBareNumericContentId(String.valueOf(1L + Integer.MAX_VALUE)));
   }
 
   @Test
@@ -264,8 +322,6 @@ class ContentTranslationsAdaptorTest {
   void listPropagatesLoadSummaryInfrastructureErrors() {
     // loadSummary used to swallow RuntimeException as null (404). Infrastructure failures must
     // now surface so the REST layer can map them to 500 instead of a false 404.
-    PSLegacyGuid sourceGuid = new PSLegacyGuid(100L);
-    when(idMapper.getGuid("100")).thenReturn(sourceGuid);
     when(objectMgr.loadComponentSummary(100))
         .thenThrow(new IllegalStateException("cms object manager unavailable"));
 
