@@ -75,16 +75,17 @@ ship paths is enforced in Maven Surefire for `modules/perc-packages`:
 | Gadget | `sys__UserDependency--rxconfig/Gadgets/` and `rxconfig/Gadgets/` | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` | `PSGadgetDefinitionXmlInventoryTest` |
 
 Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory`
-(combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy non-waived fixture XML is introduced
-under a non-waived package. Explicit waiver: **`perc.Test` only**. Cross-platform: `Path` /
-`Files` only (no hardcoded separators).
+(combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy fixture XML is introduced under a
+package. **Pages/Gadgets** waiver is **empty** after perc.Test page dual-ship exit (#3737).
+**Widget** waiver remains **`perc.Test` only** (#3736). Cross-platform: `Path` / `Files`
+only (no hardcoded separators).
 
 ### Dual-ship page templateDef inventory gate (#3675)
 
 **Not a Python script.** Fail-closed Surefire gate so product package-build cannot silently
 re-introduce dual-ship page `*.templateDef` materialization (modern `pages/` + non-native
-committed `page.installMode`). Waiver: **`perc.Test` only**. Sibling #3674 leftover widget
-binaries are not dual-ship-retained. API:
+committed `page.installMode`). Waiver is **empty** after perc.Test page dual-ship exit
+(#3737). Sibling #3674 leftover widget binaries are not dual-ship-retained. API:
 `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` /
 `PSDualShipPageTemplateDefInventoryTest`. Retirement checklist:
 `docs/ai-generated/tasks/template-assembler-normalization/dual-ship-page-template-retirement.md`.

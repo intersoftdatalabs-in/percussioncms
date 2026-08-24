@@ -49,7 +49,9 @@ import java.util.regex.Pattern;
  *
  * <p>Deployer runtime still consumes legacy assembly-template XML inside the {@code .ppkg}
  * (PSTemplateDefDependencyHandler). This class is the package-build / staging bridge that makes that
- * install path work from modern authoring alone.
+ * install path work from modern authoring alone. First-assign install keeps unused archive UUIDs
+ * ({@code TemplateDef-602} → {@code 0-4-602}); existing customer rows are not remapped (issue
+ * #3727).
  */
 public final class PSPageXmlNativeInstall {
 

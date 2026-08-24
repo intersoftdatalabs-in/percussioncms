@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
@@ -10,7 +10,9 @@ import {
   normalizeNamedObjectRefs,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  updateContentTypeDetail,
 } from "../../../../main/ts/api/developer/contentTypesApi";
+import { PATHS } from "../../../../main/ts/api/paths";
 
 describe("unwrapContentTypeList", () => {
   it("returns bare arrays", () => {
@@ -25,6 +27,54 @@ describe("unwrapContentTypeList", () => {
     ).toEqual([{ name: "page", label: "Page" }]);
   });
 
+  it("unwraps Jackson ContentTypeList root array (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: [{ name: "percPage", label: "Page" }],
+      }),
+    ).toEqual([{ name: "percPage", label: "Page" }]);
+  });
+
+  it("unwraps nested ContentTypeList.ContentType (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: {
+          ContentType: [
+            { name: "percPage", label: "Page" },
+            { name: "percFileAsset", label: "File" },
+          ],
+        },
+      }),
+    ).toEqual([
+      { name: "percPage", label: "Page" },
+      { name: "percFileAsset", label: "File" },
+    ]);
+  });
+
+  it("unwraps ArrayList envelope and empty-collection beans (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ArrayList: [{ name: "percPage", label: "Page" }],
+      }),
+    ).toEqual([{ name: "percPage", label: "Page" }]);
+    expect(unwrapContentTypeList({ empty: true })).toEqual([]);
+    expect(unwrapContentTypeList({ empty: false })).toEqual([]);
+  });
+
+  it("unwraps per-item ContentType wraps inside an array (#3706)", () => {
+    expect(
+      unwrapContentTypeList({
+        ContentTypeList: [
+          { ContentType: { name: "percPage", label: "Page" } },
+          { ContentType: { name: "percFileAsset", label: "File" } },
+        ],
+      }),
+    ).toEqual([
+      { name: "percPage", label: "Page" },
+      { name: "percFileAsset", label: "File" },
+    ]);
+  });
+
   it("unwraps single ContentType object", () => {
     expect(unwrapContentTypeList({ ContentType: { name: "only" } })).toEqual([
       { name: "only" },
@@ -36,9 +86,13 @@ describe("unwrapContentTypeList", () => {
     expect(unwrapContentTypeList({})).toEqual([]);
   });
 
-  it("maps Jackson empty-collection beans to [] (#3706 leftover)", () => {
+  it("never returns a non-array (catalog .map safety, #3706/#3712)", () => {
     expect(unwrapContentTypeList({ empty: true })).toEqual([]);
     expect(unwrapContentTypeList({ empty: false })).toEqual([]);
+    expect(unwrapContentTypeList("nope")).toEqual([]);
+    expect(
+      Array.isArray(unwrapContentTypeList({ ContentTypeList: { empty: true } })),
+    ).toBe(true);
   });
 
   it("fills guid.stringValue from host/type/uuid on list rows (#3319)", () => {
@@ -181,5 +235,46 @@ describe("content-type Jackson list helpers (#3712)", () => {
     expect(normalizeContentTypeDesignGaps("legacy free-text gap")).toEqual([
       "legacy free-text gap",
     ]);
+  });
+});
+
+describe("updateContentTypeDetail lock-save-unlock wrap", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs lock, PUTs save, then POSTs unlock", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ session: "s", locker: "Admin", remainingTime: 30 }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          ContentTypeDetail: { name: "percPage", label: "Page", description: "updated" },
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    const saved = await updateContentTypeDetail("percPage", { description: "updated" });
+    expect(saved.description).toBe("updated");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const methods = fetchMock.mock.calls.map((c) => (c[1] as RequestInit).method);
+    expect(methods).toEqual(["POST", "PUT", "POST"]);
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls[0]).toContain(`${PATHS.CONTENT_TYPES}/percPage/lock`);
+    expect(urls[1]).toContain(`${PATHS.CONTENT_TYPES}/percPage`);
+    expect(urls[2]).toContain(`${PATHS.CONTENT_TYPES}/percPage/unlock`);
   });
 });

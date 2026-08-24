@@ -634,8 +634,10 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
       recentService.addRecentItem(page.getId());
       recentService.addRecentSiteFolder(page.getFolderPath());
       String siteName = PSPathUtils.getSiteFromPath(page.getFolderPath());
-      if (StringUtils.isNotBlank(siteName))
+      if (StringUtils.isNotBlank(siteName)
+          && isRecentTemplateItemGuid(page.getTemplateId(), idMapper)) {
         recentService.addRecentTemplate(siteName, page.getTemplateId());
+      }
     }
 
     // Set the page-Id and the Event type
@@ -1233,6 +1235,22 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     if (isImported) return ItemStatus.IMPORTED;
 
     return currentStatus;
+  }
+
+  /**
+   * Recent-template list stores percTemplate <em>content item</em> guids. Assembly
+   * system templates ({@code perc.pageDatabase}, type TEMPLATE) are valid page
+   * templates on FastForward sites but must not be written to recent (#3726).
+   */
+  static boolean isRecentTemplateItemGuid(String templateId, IPSIdMapper mapper) {
+    if (templateId == null || templateId.isBlank() || mapper == null) {
+      return false;
+    }
+    try {
+      return PSTypeEnum.LEGACY_CONTENT.getOrdinal() == mapper.getGuid(templateId).getType();
+    } catch (RuntimeException e) {
+      return false;
+    }
   }
 
   /**

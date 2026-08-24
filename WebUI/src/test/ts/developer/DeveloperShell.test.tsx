@@ -7,8 +7,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeveloperShell } from "../../../main/ts/developer/DeveloperShell";
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  listContentTypes: vi.fn().mockResolvedValue([
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    listContentTypes: vi.fn().mockResolvedValue([
     {
       name: "percPage",
       label: "Page",
@@ -92,7 +96,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
-}));
+  };
+});
 
 const { defaultAclPayload } = vi.hoisted(() => ({
   defaultAclPayload: {

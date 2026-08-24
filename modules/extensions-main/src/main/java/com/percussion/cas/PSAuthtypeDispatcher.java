@@ -16,9 +16,9 @@
  */
 package com.percussion.cas;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.server.PSAuthTypes;
 import com.percussion.data.PSInternalRequestCallException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -72,7 +72,7 @@ public class PSAuthtypeDispatcher extends PSDefaultExtension implements IPSResul
     if (resource == null) {
       String[] args = {authtype, PSAuthTypes.getInstance().getConfigFile().getPath()};
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.AUTHTYPE_REGISTRATION_MISSING, args);
+          ExtensionErrorCodes.AUTHTYPE_REGISTRATION_MISSING, args);
     }
     // Make the current siteid as the originating siteid if originating siteid
     // is missing in the request.
@@ -94,7 +94,7 @@ public class PSAuthtypeDispatcher extends PSDefaultExtension implements IPSResul
       String[] args = {
         authtype, resource.toString(), PSAuthTypes.getInstance().getConfigFile().getPath()
       };
-      throw new PSExtensionProcessingException(IPSExtensionErrors.AUTHTYPE_RESOURCE_MISSING, args);
+      throw new PSExtensionProcessingException(ExtensionErrorCodes.AUTHTYPE_RESOURCE_MISSING, args);
     }
     try {
       Document doc = iReq.getResultDoc();

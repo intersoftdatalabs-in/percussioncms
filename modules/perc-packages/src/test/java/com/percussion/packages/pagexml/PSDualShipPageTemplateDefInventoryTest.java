@@ -35,9 +35,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Dual-ship page templateDef CI/inventory gate: zero non-waived emitters under Packages (issue
- * #3675 / parent #2630). Explicit waiver: {@code perc.Test} only (#3674 leftover binaries were
- * converted, not dual-ship-retained).
+ * Dual-ship page templateDef CI/inventory gate: zero dual-ship emitters under Packages (issue
+ * #3675 / #3737 / parent #2630). Waiver set is empty after perc.Test page dual-ship exit ({@code
+ * perc.Test} never authored {@code pages/}). #3674 leftover binaries were converted, not
+ * dual-ship-retained.
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -52,10 +53,10 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void waivedPackageSet_isExplicitlyPercTestOnly_retainListEmpty() {
+  void waivedPackageSet_isEmptyAfterPercTestPageShipExit() {
     assertEquals(Set.of(), PSDualShipPageTemplateDefInventory.RETAINED_WIDGET_BINARY_PACKAGE_DIRS);
-    assertEquals(Set.of("perc.Test"), PSDualShipPageTemplateDefInventory.WAIVED_PACKAGE_DIRS);
-    assertTrue(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.Test"));
+    assertEquals(Set.of(), PSDualShipPageTemplateDefInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.baseTemplates"));
     assertFalse(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.FileAssetWidget"));
     assertFalse(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.widgets.image"));
@@ -76,11 +77,24 @@ class PSDualShipPageTemplateDefInventoryTest {
     assertTrue(
         report.isClean(),
         () ->
-            "non-waived dual-ship page templateDefs must not reappear; found: "
-                + report.nonWaived());
+            "dual-ship page templateDefs must not reappear; found: " + report.nonWaived());
+    assertEquals(0, report.all().size(), "expected zero dual-ship emitters including perc.Test");
+    assertEquals(0, report.waived().size());
     assertEquals(0, report.nonWaived().size());
 
     PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipPageTemplateDefs(packagesRoot);
+  }
+
+  @Test
+  void productPercTest_hasNoModernPagesAndIsNotWaived() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    assertNotNull(packagesRoot);
+    Path percTest = packagesRoot.resolve("perc.Test");
+    assertTrue(Files.isDirectory(percTest), "missing product package perc.Test");
+    assertFalse(
+        PSPageXmlDualShip.hasModernPageSources(percTest),
+        "perc.Test must not author pages/; do not reintroduce dual-ship page templateDefs");
+    assertFalse(PSDualShipPageTemplateDefInventory.isWaivedPackage("perc.Test"));
   }
 
   @Test
@@ -139,24 +153,28 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void tempTree_onlyWaivedDualShip_isClean() throws Exception {
+  void tempTree_percTestDualShip_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path pkg = packages.resolve("perc.Test");
     writeModernPage(pkg, "PSPage_TestProperties");
 
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
+    assertFalse(report.isClean());
     assertEquals(1, report.all().size());
-    assertEquals(0, report.nonWaived().size());
-    assertEquals(1, report.waived().size());
-    assertTrue(report.isClean());
-    assertEquals("perc.Test", report.waived().get(0).packageDirName());
-    assertEquals(PSPageXmlInstallMode.DUAL_SHIP, report.waived().get(0).committedMode());
-    assertEquals(1, report.waived().get(0).modernPageCount());
+    assertEquals(1, report.nonWaived().size());
+    assertEquals(0, report.waived().size());
+    assertEquals("perc.Test", report.nonWaived().get(0).packageDirName());
+    assertEquals(PSPageXmlInstallMode.DUAL_SHIP, report.nonWaived().get(0).committedMode());
+    assertEquals(1, report.nonWaived().get(0).modernPageCount());
     Path expectedAbs = pkg.toAbsolutePath().normalize();
-    assertEquals(expectedAbs, report.waived().get(0).packageDir());
-    assertTrue(report.waived().get(0).packageDir().isAbsolute());
-    PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipPageTemplateDefs(packages);
+    assertEquals(expectedAbs, report.nonWaived().get(0).packageDir());
+    assertTrue(report.nonWaived().get(0).packageDir().isAbsolute());
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipPageTemplateDefs(
+                packages));
   }
 
   @Test
@@ -240,7 +258,7 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void tempTree_mixedWaivedAndNonWaived_reportsOnlyNonWaivedAsFailures() throws Exception {
+  void tempTree_percTestAndBaseTemplates_bothFailAsNonWaived() throws Exception {
     Path packages = tempDir.resolve("Packages");
     writeModernPage(packages.resolve("perc.Test"), "PSPage_TestProperties");
     writeModernPage(packages.resolve("perc.baseTemplates"), "perc.base.plain");
@@ -248,9 +266,8 @@ class PSDualShipPageTemplateDefInventoryTest {
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
     assertEquals(2, report.all().size());
-    assertEquals(1, report.waived().size());
-    assertEquals(1, report.nonWaived().size());
-    assertEquals("perc.baseTemplates", report.nonWaived().get(0).packageDirName());
+    assertEquals(0, report.waived().size());
+    assertEquals(2, report.nonWaived().size());
     assertFalse(report.isClean());
   }
 
@@ -272,24 +289,27 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void scanLogLines_nonWaivedFails_waivedIsClean() {
-    String waived =
+  void scanLogLines_percTestFailsAfterWaiverDrop() {
+    String percTest =
         PSDualShipPageTemplateDefInventory.formatDualShipLogLine("perc.Test", 1);
     String nativeLine = "  native-install page TemplateDefs for perc.baseTemplates: 20 written";
-    PSDualShipPageTemplateDefInventory.Report waivedOnly =
-        PSDualShipPageTemplateDefInventory.scanLogLines(List.of(waived, nativeLine));
-    assertTrue(waivedOnly.isClean());
-    assertEquals(1, waivedOnly.waived().size());
-    assertEquals("perc.Test", waivedOnly.waived().get(0).packageDirName());
-    assertNull(waivedOnly.waived().get(0).packageDir());
-    PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipLogLines(List.of(waived));
+    PSDualShipPageTemplateDefInventory.Report percTestOnly =
+        PSDualShipPageTemplateDefInventory.scanLogLines(List.of(percTest, nativeLine));
+    assertFalse(percTestOnly.isClean());
+    assertEquals(1, percTestOnly.nonWaived().size());
+    assertEquals("perc.Test", percTestOnly.nonWaived().get(0).packageDirName());
+    assertNull(percTestOnly.nonWaived().get(0).packageDir());
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipLogLines(
+                List.of(percTest)));
 
     String bad = PSDualShipPageTemplateDefInventory.formatDualShipLogLine("perc.baseTemplates", 20);
     PSDualShipPageTemplateDefInventory.Report fail =
-        PSDualShipPageTemplateDefInventory.scanLogLines(List.of(nativeLine, bad, waived));
+        PSDualShipPageTemplateDefInventory.scanLogLines(List.of(nativeLine, bad, percTest));
     assertFalse(fail.isClean());
-    assertEquals(1, fail.nonWaived().size());
-    assertEquals("perc.baseTemplates", fail.nonWaived().get(0).packageDirName());
+    assertEquals(2, fail.nonWaived().size());
     IllegalStateException err =
         assertThrows(
             IllegalStateException.class,
@@ -315,8 +335,15 @@ class PSDualShipPageTemplateDefInventoryTest {
   }
 
   @Test
-  void assertDualShipMaterializationAllowed_waivesPercTestOnly() {
-    PSDualShipPageTemplateDefInventory.assertDualShipMaterializationAllowed("perc.Test");
+  void assertDualShipMaterializationAllowed_rejectsAllPackagesIncludingPercTest() {
+    IllegalStateException percTest =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                PSDualShipPageTemplateDefInventory.assertDualShipMaterializationAllowed(
+                    "perc.Test"));
+    assertTrue(percTest.getMessage().contains("#3675"));
+    assertTrue(percTest.getMessage().contains("perc.Test"));
     IllegalStateException err =
         assertThrows(
             IllegalStateException.class,

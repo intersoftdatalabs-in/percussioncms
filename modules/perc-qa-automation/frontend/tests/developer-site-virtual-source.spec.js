@@ -15,15 +15,19 @@
  */
 
 /**
- * Developer Sites → Virtual Site source panel (#2956 / #3020 / #3300 / #3687 / #3697 / epic #2678).
+ * Developer Sites → Virtual Site source panel
+ * (#2956 / #3020 / #3300 / #3687 / #3697 / #3699 / #3707 / #3735 / #3759 / epic #2678).
  *
  * Opens Sites catalog detail and asserts the Virtual Site source section mounts
- * with source-kind control (repository default, git-filesystem, csv-filesystem),
- * save chrome, Build and Publish chrome for git-filesystem and csv-filesystem
- * (never repository). Also intercepts build REST to prove link-problem detail
- * lines render on HTTP 200 and publish REST to prove dest path + files copied
- * on HTTP 200 (including csv-filesystem). Live H2 QA deploys a CSV tree into the
- * cell and asserts POST /virtual/build and POST /virtual/publish complete.
+ * with source-kind control (repository default, git-filesystem, csv-filesystem,
+ * sql-database), save chrome, Build + Preview + Publish chrome for git-filesystem,
+ * csv-filesystem, and sql-database (never repository). Also intercepts build REST
+ * to prove link-problem detail lines render on HTTP 200 and publish REST to prove
+ * dest path + files copied on HTTP 200 (including csv-filesystem). Live H2 QA
+ * deploys a CSV tree into the cell and asserts POST /virtual/build, GET
+ * /virtual/preview home HTML, and POST /virtual/publish complete. SQL save
+ * persists sourceKind=sql-database and live Build/Publish complete after save
+ * (in-memory H2 SELECT fixture).
  *
  * Surface-filtered QA mode:
  * <pre>
@@ -41,6 +45,7 @@ const {
   catalogRowsSelector,
 } = require("./helpers/developer-catalog-selectors");
 const { deployCsvVirtualFixtureToQaCell } = require("./helpers/csv-virtual-qa-fixture");
+const { deploySqlVirtualFixtureToQaCell } = require("./helpers/sql-virtual-qa-fixture");
 
 function developerSectionUrl(section) {
   const q = new URLSearchParams({
@@ -120,8 +125,9 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await expect(kind.locator('option[value="repository"]')).toHaveCount(1);
       await expect(kind.locator('option[value="git-filesystem"]')).toHaveCount(1);
       await expect(kind.locator('option[value="csv-filesystem"]')).toHaveCount(1);
+      await expect(kind.locator('option[value="sql-database"]')).toHaveCount(1);
       // Default traditional sites use repository option
-      await expect(kind).toHaveValue(/repository|git-filesystem|csv-filesystem/);
+      await expect(kind).toHaveValue(/repository|git-filesystem|csv-filesystem|sql-database/);
       await expect(page.locator('[data-testid="developer-site-virtual-save"]')).toBeVisible();
 
       // Repository mode: Build chrome must not appear (no misleading virtual-build UI)
@@ -131,6 +137,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
         await expect(
           page.locator('[data-testid="developer-site-virtual-build-section"]'),
         ).toHaveCount(0);
+        await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
         await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
       }
 
@@ -138,6 +145,20 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       await kind.selectOption("csv-filesystem");
       await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-csv-hint"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-csv-hint"]')).toContainText(
+        "Preview assembled site",
+      );
+      await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+      // Switch to sql-database reveals root path + Build / Publish (no Git remotes)
+      await kind.selectOption("sql-database");
+      await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+      await expect(page.locator('[data-testid="developer-site-virtual-sql-hint"]')).toBeVisible();
       await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-branch"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
@@ -203,6 +224,7 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       // Restore repository to avoid leaving QA site dirty when save is not exercised
       await kind.selectOption("repository");
       await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
     }
 
@@ -284,6 +306,90 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       timeout: 15_000,
     });
     await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("sql-database live save+reload persists then restore repository (#3735)", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — live SQL persist requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    async function openFirstSite() {
+      const rows = page.locator(catalogRowsSelector("developer-site-row"));
+      await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+      await rows.first().locator('[data-testid="developer-site-open"]').click();
+      await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+        timeout: 20_000,
+      });
+    }
+
+    await openFirstSite();
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-sql-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/sql-docs");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(kind).toHaveValue("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+
+    await page.locator('[data-testid="developer-site-back"]').click();
+    await expect(page.locator(catalogRowsSelector("developer-site-row")).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await openFirstSite();
+    await expect(kind).toHaveValue("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
+      "C:/sql-docs",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
@@ -880,6 +986,174 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
+  test("sql-database save PUTs envelope and GET-roundtrip persists with Build chrome (#3735)", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    let virtualState = {
+      sourceKind: "repository",
+      rootPath: null,
+      remoteUrl: null,
+      branch: null,
+      configFile: null,
+      siteKey: null,
+      virtual: false,
+    };
+    /** @type {unknown} */
+    let lastPutBody = null;
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (/\/virtual\//.test(url)) {
+        await route.fallback();
+        return;
+      }
+      const method = route.request().method();
+      if (method === "PUT") {
+        lastPutBody = route.request().postDataJSON();
+        const envelope =
+          lastPutBody &&
+          typeof lastPutBody === "object" &&
+          lastPutBody.VirtualSiteProperties
+            ? lastPutBody.VirtualSiteProperties
+            : lastPutBody;
+        virtualState = {
+          sourceKind: envelope.sourceKind || "repository",
+          rootPath: envelope.rootPath || null,
+          remoteUrl:
+            envelope.remoteUrl === undefined || envelope.remoteUrl === null
+              ? virtualState.remoteUrl
+              : envelope.remoteUrl || null,
+          branch:
+            envelope.branch === undefined || envelope.branch === null
+              ? virtualState.branch
+              : envelope.branch || null,
+          configFile: envelope.configFile || null,
+          siteKey: envelope.siteKey || null,
+          virtual:
+            envelope.sourceKind === "git-filesystem" ||
+            envelope.sourceKind === "csv-filesystem" ||
+            envelope.sourceKind === "sql-database",
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+        });
+        return;
+      }
+      if (method !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ VirtualSiteProperties: virtualState }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      test.info().annotations.push({
+        type: "note",
+        description: "No sites in catalog — SQL Virtual Site save test requires a site row",
+      });
+      return;
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-sql-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill("C:/sql-docs");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(lastPutBody).toBeTruthy();
+    expect(lastPutBody).toHaveProperty("VirtualSiteProperties");
+    expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("sql-database");
+    expect(lastPutBody.VirtualSiteProperties.rootPath).toBe("C:/sql-docs");
+    expect(lastPutBody.VirtualSiteProperties.remoteUrl ?? "").toBe("");
+    expect(lastPutBody).not.toHaveProperty("sourceKind");
+    expect(lastPutBody.VirtualSiteProperties).not.toHaveProperty("password");
+    expect(JSON.stringify(lastPutBody)).not.toMatch(/password/i);
+
+    await expect(kind).toHaveValue("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveValue(
+      "C:/sql-docs",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-build-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    await kind.selectOption("repository");
+    lastPutBody = null;
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(lastPutBody.VirtualSiteProperties.sourceKind).toBe("repository");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
   test("csv-filesystem build result shows pages written on HTTP 200 (#3697)", async ({ page }) => {
     const consoleErrors = [];
     page.on("pageerror", (err) => {
@@ -1069,6 +1343,403 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
     await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
       timeout: 15_000,
     });
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("sql-database build result shows pages written on HTTP 200 (#3759)", async ({ page }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/build", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          siteKey: "sql-docs",
+          outputPath: "C:/tmp/virtual-sites/sql-docs",
+          pagesWritten: 1,
+          linkProblemCount: 0,
+          hasLinkProblems: false,
+          linkProblems: [],
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "sql-database",
+          rootPath: "C:/sql-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — SQL Virtual Site build intercept requires a site row");
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-pages"]')).toHaveText("1");
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("sql-database live Build Virtual Site completes on H2 QA (#3759)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const sqlRoot = deploySqlVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live SQL Build requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-sql-hint"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-remote-url"]')).toHaveCount(0);
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sqlRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+    const pagesText = (
+      await page.locator('[data-testid="developer-site-virtual-build-pages"]').textContent()
+    ).trim();
+    expect(Number.parseInt(pagesText, 10), `pages written: ${pagesText}`).toBeGreaterThan(0);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("sql-database publish result shows files copied on HTTP 200 (#3759)", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err && err.message ? err.message : err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/Failed to load resource:.*404/.test(text)) {
+        return;
+      }
+      consoleErrors.push(text);
+    });
+
+    await page.route(
+      (url) => /\/services\/sites\/?(\?|$)/.test(url.toString()),
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SiteList: [{ name: "Help", label: "Help" }],
+          }),
+        });
+      },
+    );
+
+    await page.route("**/services/sites/**/virtual/publish", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          siteName: "Help",
+          siteKey: "sql-docs",
+          publishPath: "C:/inetpub/wwwroot/sql-help",
+          buildOutputPath: "C:/tmp/virtual-sites/sql-docs",
+          pagesWritten: 1,
+          filesCopied: 3,
+          linkProblemCount: 0,
+          hasLinkProblems: false,
+        }),
+      });
+    });
+    await page.route("**/services/sites/**/virtual", async (route) => {
+      const url = route.request().url();
+      if (url.includes("/virtual/publish") || url.includes("/virtual/build")) {
+        await route.fallback();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sourceKind: "sql-database",
+          rootPath: "C:/sql-docs",
+          virtual: true,
+        }),
+      });
+    });
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+
+    const empty = page.locator('[data-testid="developer-site-empty"]');
+    if (await empty.isVisible().catch(() => false)) {
+      throw new Error(
+        "No sites in catalog — SQL Virtual Site publish intercept requires a site row",
+      );
+    }
+    const err = page.locator('[data-testid="developer-site-error"]');
+    if (await err.isVisible().catch(() => false)) {
+      throw new Error(`Sites catalog error: ${await err.textContent()}`);
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-files"]')).toHaveText(
+      "3",
+    );
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-dest"]')).toContainText(
+      "sql-help",
+    );
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("sql-database live Publish Virtual Site completes on H2 QA (#3759)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const sqlRoot = deploySqlVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live SQL Publish requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("sql-database");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(sqlRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toBeVisible();
+
+    const publishRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/publish(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-publish"]').click();
+    const publishResp = await publishRespPromise;
+    const publishBody = await publishResp.text();
+    expect(
+      publishResp.ok(),
+      `POST /virtual/publish HTTP ${publishResp.status()}: ${publishBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish-success"]')).toBeVisible();
+    const filesText = (
+      await page.locator('[data-testid="developer-site-virtual-publish-files"]').textContent()
+    ).trim();
+    expect(Number.parseInt(filesText, 10), `files copied: ${filesText}`).toBeGreaterThan(0);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 
@@ -1272,6 +1943,153 @@ test.describe("Developer Site Virtual Site source panel (#2956 / #3020)", () => 
       timeout: 15_000,
     });
     await expect(page.locator('[data-testid="developer-site-virtual-publish"]')).toHaveCount(0);
+    expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+  });
+
+  test("csv-filesystem live Preview assembled site after Build (#3707)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+    const csvRoot = deployCsvVirtualFixtureToQaCell();
+
+    await page.goto(developerSectionUrl("sites"), {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const settled = page.locator(
+      [
+        '[data-testid="developer-site-panel"]',
+        '[data-testid="developer-site-empty"]',
+        '[data-testid="developer-site-error"]',
+      ].join(", "),
+    );
+    await expect(settled.first()).toBeVisible({ timeout: 30_000 });
+    if (await page.locator('[data-testid="developer-site-empty"]').isVisible().catch(() => false)) {
+      throw new Error("No sites in catalog — live CSV Preview requires a site row");
+    }
+    if (await page.locator('[data-testid="developer-site-error"]').isVisible().catch(() => false)) {
+      throw new Error(
+        `Sites catalog error: ${await page.locator('[data-testid="developer-site-error"]').textContent()}`,
+      );
+    }
+
+    const rows = page.locator(catalogRowsSelector("developer-site-row"));
+    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+    await rows.first().locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-form"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const siteName = (
+      await page.locator('[data-testid="developer-site-detail-title"]').textContent()
+    ).trim();
+    expect(siteName, "Site detail title required for preview URL").toBeTruthy();
+
+    const kind = page.locator('[data-testid="developer-site-virtual-source-kind"]');
+    await kind.selectOption("csv-filesystem");
+    await expect(page.locator('[data-testid="developer-site-virtual-root-path"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview-hint"]')).toBeVisible();
+    await page.locator('[data-testid="developer-site-virtual-root-path"]').fill(csvRoot);
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toBeVisible();
+
+    const buildRespPromise = page.waitForResponse(
+      (resp) =>
+        resp.request().method() === "POST" && /\/virtual\/build(\?|$)/.test(resp.url()),
+    );
+    await page.locator('[data-testid="developer-site-virtual-build"]').click();
+    const buildResp = await buildRespPromise;
+    const buildBody = await buildResp.text();
+    expect(
+      buildResp.ok(),
+      `POST /virtual/build HTTP ${buildResp.status()}: ${buildBody}`,
+    ).toBeTruthy();
+    await expect(page.locator('[data-testid="developer-site-virtual-build-result"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-build-success"]')).toBeVisible();
+
+    const previewStatusPromise = page.waitForResponse((resp) => {
+      if (resp.request().method() !== "GET") {
+        return false;
+      }
+      const url = resp.url();
+      return /\/virtual\/preview(\?|$)/.test(url) && !/\/virtual\/preview\/.+/.test(url);
+    });
+    const popupPromise = page.waitForEvent("popup", { timeout: 20_000 }).catch(() => null);
+    await page.locator('[data-testid="developer-site-virtual-preview"]').click();
+    const statusResp = await previewStatusPromise;
+    const statusBody = await statusResp.text();
+    expect(
+      statusResp.ok(),
+      `GET /virtual/preview HTTP ${statusResp.status()}: ${statusBody}`,
+    ).toBeTruthy();
+    let statusJson = {};
+    try {
+      statusJson = JSON.parse(statusBody);
+    } catch {
+      throw new Error(`Preview status was not JSON: ${statusBody}`);
+    }
+    const statusRoot =
+      statusJson.VirtualSitePreviewStatus ||
+      statusJson.virtualSitePreviewStatus ||
+      statusJson;
+    expect(
+      statusRoot.available === true || statusRoot.available === "true",
+      `preview available: ${statusBody}`,
+    ).toBeTruthy();
+    const homePath = String(statusRoot.homePath || "").replace(/\\/g, "/").replace(/^\/+/, "");
+    expect(homePath, `homePath in ${statusBody}`).toMatch(/index\.html$/);
+
+    const popup = await popupPromise;
+    let html = "";
+    if (popup) {
+      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      html = await popup.content().catch(() => "");
+      if (!html || /about:blank/i.test(popup.url())) {
+        const probeUrl = popup.url();
+        if (probeUrl && !/about:blank/i.test(probeUrl)) {
+          const probe = await page.request.get(probeUrl);
+          html = await probe.text();
+        }
+      }
+      if (!popup.isClosed()) {
+        await popup.close().catch(() => {});
+      }
+    }
+    if (!/CSV QA Home|Hello from CSV Virtual Site/.test(html)) {
+      const fileUrl = `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(siteName)}/virtual/preview/${homePath
+        .split("/")
+        .filter((seg) => seg.length > 0 && seg !== "." && seg !== "..")
+        .map((seg) => encodeURIComponent(seg))
+        .join("/")}`;
+      const fileResp = await page.request.get(fileUrl);
+      expect(
+        fileResp.ok(),
+        `GET preview home HTTP ${fileResp.status()} ${fileUrl}`,
+      ).toBeTruthy();
+      html = await fileResp.text();
+    }
+    expect(
+      html,
+      "assembled CSV home HTML should contain fixture title or body",
+    ).toMatch(/CSV QA Home|Hello from CSV Virtual Site/);
+
+    await kind.selectOption("repository");
+    await page.locator('[data-testid="developer-site-virtual-save"]').click();
+    await expect(page.locator('[data-testid="developer-site-virtual-saved"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-testid="developer-site-virtual-preview"]')).toHaveCount(0);
     expect(pageErrors, `uncaught page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   });
 });

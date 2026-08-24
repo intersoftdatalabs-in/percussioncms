@@ -22,6 +22,8 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.cms.objectstore.PSInvalidContentTypeException;
+import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.EditType;
 import com.percussion.pagemanagement.assembler.PSPageAssemblyContextFactory;
@@ -31,11 +33,15 @@ import com.percussion.pagemanagement.service.IPSPageService.PSPageException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSTemplateNotImplementedException;
+import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.filter.PSFilterException;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.IPSIdMapper;
@@ -45,7 +51,9 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -216,8 +224,6 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
     work.setParameterValue(IPSHtmlParameters.SYS_CONTENTID, String.valueOf(guid.getContentId()));
     work.setParameterValue(IPSHtmlParameters.SYS_REVISION, String.valueOf(guid.getRevision()));
     work.setParameterValue(IPSHtmlParameters.SYS_ITEMFILTER, "preview");
-    work.setParameterValue(
-        IPSHtmlParameters.SYS_TEMPLATE, String.valueOf(getDispatchTemplateId().getUUID()));
     work.setParameterValue(IPSHtmlParameters.SYS_CONTEXT, "0");
     if (editMode) {
       work.setParameterValue(PSPageAssemblyContextFactory.ASSEMBLY_PARAM_EDITMODE, "true");
@@ -235,22 +241,65 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
     }
 
     // get site ID
+    IPSSite site = null;
     try {
       var sites = siteManager.getItemSites(guid);
       if (!sites.isEmpty()) {
         if (sites.size() > 1) {
           log.warn("Page or Template is associated with multiple sites: {}", sites);
         }
-        var siteId = sites.get(0).getGUID().getUUID();
+        site = sites.get(0);
+        var siteId = site.getGUID().getUUID();
         work.setParameterValue(IPSHtmlParameters.SYS_SITEID, String.valueOf(siteId));
       } else {
         throw new PSRenderAssemblyBridgeException(
             "Page or Template with id: " + guid + "  is not in any site folder paths.");
       }
+    } catch (PSRenderAssemblyBridgeException e) {
+      throw e;
     } catch (Exception e) {
       throw new PSRenderAssemblyBridgeException("Failed to get site for page: " + id, e);
     }
+    work.setParameterValue(
+        IPSHtmlParameters.SYS_TEMPLATE,
+        String.valueOf(resolvePreviewTemplateId(guid, site).getUUID()));
     return work;
+  }
+
+  /**
+   * percPage uses {@code perc.base.plain}. FastForward types use the site default page template so
+   * Preview does not NPE on a missing percPage template id (#3719).
+   */
+  private IPSGuid resolvePreviewTemplateId(PSLegacyGuid guid, IPSSite site) throws PSPageException {
+    var summary = cmsMgr.loadComponentSummary(guid.getContentId());
+    String typeName = null;
+    if (summary != null) {
+      try {
+        typeName = PSItemDefManager.getInstance().contentTypeIdToName(summary.getContentTypeId());
+      } catch (PSInvalidContentTypeException e) {
+        log.debug("Content type name lookup failed for {}: {}", guid, e.toString());
+      }
+    }
+    if (summary == null
+        || typeName == null
+        || PSFastForwardPreviewAssembly.usesPercPageDispatcher(typeName)) {
+      return getDispatchTemplateId();
+    }
+    try {
+      var ctype = new PSGuid(PSTypeEnum.NODEDEF, summary.getContentTypeId());
+      List<IPSAssemblyTemplate> byType = assemblyService.findTemplatesByContentType(ctype);
+      Collection<?> siteTemplates = site == null ? List.of() : site.getAssociatedTemplates();
+      IPSAssemblyTemplate def =
+          PSFastForwardPreviewAssembly.pickDefaultPageTemplate(byType, siteTemplates);
+      if (def != null && def.getGUID() != null) {
+        return def.getGUID();
+      }
+    } catch (PSAssemblyException e) {
+      throw new PSPageException(
+          "Failed to find default FastForward template for preview of " + guid, e);
+    }
+    throw new PSPageException(
+        "No default page template for FastForward item " + guid.getContentId());
   }
 
   /**

@@ -17,7 +17,10 @@
 
 import React, { useEffect, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
-import { listContentTypes } from "../api/developer/contentTypesApi";
+import {
+  listContentTypes,
+  unwrapContentTypeList,
+} from "../api/developer/contentTypesApi";
 import type { ContentTypeSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
@@ -26,12 +29,36 @@ import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
+/** Coerce catalog cell / sort keys so object JAXB wraps cannot throw. */
+function asCatalogText(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return "";
+}
+
+/**
+ * Catalog rows must always be a real array. listContentTypes already unwraps;
+ * re-apply here so a missed envelope cannot {@code [...obj].sort} into
+ * DeveloperSectionErrorBoundary (#3706).
+ */
+function asContentTypeCatalog(raw: unknown): ContentTypeSummary[] {
+  return unwrapContentTypeList(raw);
+}
+
 function displayId(ct: ContentTypeSummary): string {
   return resolveContentTypeObjectGuid(ct) || "—";
 }
 
 function selectionKey(ct: ContentTypeSummary): string {
-  return ct.name || resolveContentTypeObjectGuid(ct) || displayId(ct);
+  return asCatalogText(ct.name) || resolveContentTypeObjectGuid(ct) || displayId(ct);
+}
+
+function catalogSortKey(ct: ContentTypeSummary): string {
+  return asCatalogText(ct.label) || asCatalogText(ct.name);
 }
 
 type SelectedContentType = {
@@ -54,7 +81,7 @@ export function ContentTypesPanel(): React.ReactElement {
     listContentTypes()
       .then((list) => {
         if (!cancelled) {
-          setItems(list);
+          setItems(asContentTypeCatalog(list));
         }
       })
       .catch((err: unknown) => {
@@ -110,7 +137,7 @@ export function ContentTypesPanel(): React.ReactElement {
   }
 
   const sorted = [...items].sort((a, b) =>
-    (a.label || a.name || "").localeCompare(b.label || b.name || "", undefined, {
+    catalogSortKey(a).localeCompare(catalogSortKey(b), undefined, {
       sensitivity: "base",
     }),
   );
@@ -129,10 +156,12 @@ export function ContentTypesPanel(): React.ReactElement {
         ]}
         rows={sorted.map((ct) => {
           const resolved = resolveContentTypeObjectGuid(ct);
+          const label = asCatalogText(ct.label);
+          const name = asCatalogText(ct.name);
           const key =
             resolved ||
-            ct.name ||
-            `${ct.label ?? "ct"}-${displayId(ct)}`;
+            name ||
+            `${label || "ct"}-${displayId(ct)}`;
           const openKey = selectionKey(ct);
           const interactive = openKey !== "—";
           return {
@@ -144,27 +173,27 @@ export function ContentTypesPanel(): React.ReactElement {
                   key="open"
                   type="button"
                   style={openButtonStyle}
-                  aria-label={`Open ${ct.label || ct.name || openKey}`}
+                  aria-label={`Open ${label || name || openKey}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     openContentType(ct);
                   }}
                 >
-                  {ct.label || "—"}
+                  {label || "—"}
                 </button>
               ) : (
                 <span key="lbl" style={mutedCell}>
-                  {ct.label || "—"}
+                  {label || "—"}
                 </span>
               ),
               <span key="n" style={monoCell}>
-                {ct.name || "—"}
+                {name || "—"}
               </span>,
               <span key="i" style={monoCell}>
                 {displayId(ct)}
               </span>,
               <span key="d" style={mutedCell}>
-                {ct.description || ""}
+                {asCatalogText(ct.description)}
               </span>,
             ],
           };

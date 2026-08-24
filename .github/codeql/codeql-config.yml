@@ -322,6 +322,27 @@ query-filters:
         VirtualRedirectsEmitterTest path-injection barriers, etc.).
         VirtualRedirectsEmitter (#1983) writes redirects.json via resolveHref
         after requireSafeBuildRoot. Do not re-edit sinks only to chase IDs.
+        SitesAdaptor #1984 (2026-08-21) is a line-shift re-fingerprint of
+        #1967/#1968 after PR #3710; dedicated one-file exclude below.
+  # --- CodeQL #1984 SitesAdaptor resolve("_meta") residual (do not re-edit sinks) ---
+  # Runtime + model + same-line // codeql[java/path-injection] already on main.
+  # Bulk T043 exclude above already lists this file; one-file entry + glob so
+  # query-filters still match after line-shift re-fingerprint (PR #3710).
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/apibridge/SitesAdaptor.java"
+        - "**/apibridge/SitesAdaptor.java"
+      reason: >-
+        Alert #1984 re-fingerprint of #1951/#1952/#1961 thrash #1967/#1968 on
+        outputRoot.resolve("_meta") after csv-filesystem publish landed on main
+        (PR #3710, commit fb0e95fec3). Runtime requireSafeOutputRoot ->
+        isSafeRootPath (no empty / remaining '..'); Admin-only; model pack
+        barrier for SitesAdaptor.requireSafeOutputRoot; same-line
+        // codeql[java/path-injection] on createDirectories / resolve("_meta").
+        Do not re-edit annotated sinks — each edit opens a new alert ID.
+        Tests: SitesAdaptorTest requireSafeOutputRoot / resolveOutputRoot /
+        buildVirtualSite. See suppressions.md #1984.
   # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
   # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
   # without user data in factory map; src set via .attr after sanitize.

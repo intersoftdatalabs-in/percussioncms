@@ -21,7 +21,7 @@ For roles that can see the full chrome, the application top navigation is:
 3. **Navigation**, **Developer**, **Publish** (Admin or Designer)
 4. **Admin** (administrators only — one item)
 
-**Editor**, **Design**, and **Widget Builder** are not top-nav items. Open the React Content Editor from Explorer **Edit**, Preview, or **Home → Create** (`spa.jsp?entry=editor` / `/editor` — not leftover `?view=editor` or `editAsset.jsp`). Open the template library from **Developer → Design** (or the existing `/design` deep link). Open Widget Builder from **Developer** when that feature is active.
+**Editor**, **Design**, and **Widget Builder** are not top-nav items. Open the React Content Editor from Explorer **Edit** or **Home → Create** (`spa.jsp?entry=editor` / `/editor` — not leftover `?view=editor` or `editAsset.jsp`). Explorer **Preview** opens the assembled site-path or Page Management render URL, not the editor. Open the template library from **Developer → Design** (or the existing `/design` deep link). Open Widget Builder from **Developer** when that feature is active.
 
 **Dashboard** is not a top-nav item. Dashboard gadgets remain on Home
 (`/home/gadgets`) and via homepage preference; they are not a separate
@@ -43,6 +43,16 @@ loads that site's page templates. If the site catalog is empty, the wizard
 falls back to templates allowed for the page content type. You cannot create
 the page until a template is selected. Then pick the destination folder,
 title, and file name.
+
+The destination folder is the site's **repository folder**, not only the
+site display name. Sample FastForward sites such as **Corporate_Investments**
+and **Enterprise_Investments** live under `/Sites/CorporateInvestments` and
+`/Sites/EnterpriseInvestments` (no underscore). An administrator can create
+a page at that site root, including with site-listed page templates such as
+**Page - Database Template**. After create, the React Content Editor opens
+(`spa.jsp?entry=editor`) — leftover `?view=editor` is not used. If you are
+not allowed to create in a folder, the wizard shows that error; a missing
+or mismatched folder is not treated as a successful create.
 
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
