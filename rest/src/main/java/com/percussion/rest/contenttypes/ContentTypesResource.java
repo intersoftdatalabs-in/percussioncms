@@ -17,6 +17,7 @@
 
 package com.percussion.rest.contenttypes;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -30,6 +31,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -65,6 +67,27 @@ public class ContentTypesResource {
           "ContentTypes adaptor not configured (resource constructed without injection)");
     }
     return adaptor;
+  }
+
+  /**
+   * Map adaptor failures to HTTP status without sniffing message substrings (names such as {@code
+   * percBlockquote} must not become 409).
+   */
+  private static WebApplicationException mapMutationFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof ContentTypeDesignLockException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      return new WebApplicationException(msg, 409);
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
   }
 
   @GET
@@ -851,24 +874,30 @@ public class ContentTypesResource {
   @Operation(
       summary = "Update content type design fields",
       description =
-          "Locks the content type for the current session user, applies mutable fields (label,"
-              + " description, enabled, per-field searchable/occurrence, allowedWorkflows +"
-              + " defaultWorkflow, allowedTemplates), saves, and releases the lock. Association"
-              + " lists: omit/null = leave unchanged; non-null list = full replace (empty clears"
+          "Admin. Requires a design-session lock already held by the current user/session"
+              + " (POST .../lock). Locks expire after 30 minutes; a PUT after expiry returns 409"
+              + " and the client must re-lock. The save load extends a still-valid lock (it does"
+              + " not release). Applies mutable fields (label, description, enabled, per-field"
+              + " searchable/occurrence, allowedWorkflows + defaultWorkflow, allowedTemplates)"
+              + " and saves without releasing the lock (POST .../unlock). Association lists:"
+              + " omit/null = leave unchanged; non-null list = full replace (empty clears"
               + " workflows/templates). GET responses always include association arrays (may be"
               + " empty). Template associations are written after content-type save in a separate"
               + " design call — if that fails, meta/field/workflow changes may already be"
               + " committed (error message indicates partial success). Name/id and system field"
-              + " structure are not changed. Full rule expressions and create/delete remain"
-              + " unsupported (see designGaps).",
+              + " structure are not changed. Field rule expressions remain read-only; create/delete"
+              + " remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Updated",
+            description = "Updated (lock is still held)",
             content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
-        @ApiResponse(responseCode = "409", description = "Could not acquire design lock"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
         @ApiResponse(
             responseCode = "500",
             description =
@@ -884,17 +913,73 @@ public class ContentTypesResource {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
       return detail;
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(e.getMessage(), 400);
-    } catch (IllegalStateException e) {
-      // lock / session problems surface as 409 when message indicates lock
-      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
-      if (msg.toLowerCase().contains("lock")) {
-        throw new WebApplicationException(msg, 409);
-      }
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock content type design session",
+      description =
+          "Acquires a self-only design-session lock for the current Admin user via the content"
+              + " design web service (IPSContentDesignWs.loadContentTypes with lock=true,"
+              + " overrideLock=false). Does not save. Locks expire after 30 minutes"
+              + " (PSObjectLock.LOCK_INTERVAL). Re-lock by the same session user extends the lock."
+              + " remainingTime is the actual remaining minutes from the lock service.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id or wildcard name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      ObjectLockSummary summary =
+          requireAdaptor().lockContentType(uriInfo.getBaseUri(), idOrName);
+      if (summary == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return summary;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/{idOrName}/unlock")
+  @Operation(
+      summary = "Unlock content type design session",
+      description =
+          "Releases a design-session lock owned by the current Admin user/session. Does not save."
+              + " Locks held by another user are not stolen (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      Boolean released = requireAdaptor().unlockContentType(uriInfo.getBaseUri(), idOrName);
+      if (released == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
     } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }

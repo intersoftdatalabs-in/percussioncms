@@ -191,6 +191,23 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
+
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after (the Developer SPA client does this wrap; lock-button chrome is a later slice).
+
+Lock / save / unlock status codes:
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save succeeded (lock still held) |
+| `204` | Unlock success |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref) |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen) |
+| `500` | Design service or server failure |
 
 JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
 SPA unwrap that envelope and read `guid.stringValue` (or synthesize

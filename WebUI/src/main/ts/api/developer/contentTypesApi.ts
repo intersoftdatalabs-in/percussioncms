@@ -16,7 +16,7 @@
  */
 
 import { normalizeDesignObjectGuid } from "../displayFormatGuid";
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   ContentTypeDetail,
@@ -198,16 +198,38 @@ export type ContentTypeUpdateBody = {
 };
 
 /**
- * PUT /services/contenttypes/{idOrName} — design lock + save + release.
+ * POST /services/contenttypes/{idOrName}/lock — self-only design-session lock.
+ */
+export async function lockContentType(idOrName: string): Promise<unknown> {
+  const key = encodeURIComponent(idOrName);
+  return post(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+}
+
+/**
+ * POST /services/contenttypes/{idOrName}/unlock — release a held design-session lock.
+ */
+export async function unlockContentType(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await post(`${PATHS.CONTENT_TYPES}/${key}/unlock`);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not release it.
  *
- * <p>Server locks for the current session user, applies mutable fields (meta, field flags,
- * optional workflow/template association full-replace), saves, and releases.
+ * <p>This client wraps lock → PUT → unlock so the Developer SPA save path keeps working until
+ * lock-button chrome (#3744) lands. The server PUT is 409 unless the current user already holds
+ * the lock.
  */
 export async function updateContentTypeDetail(
   idOrName: string,
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
-  const key = encodeURIComponent(idOrName);
-  const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
-  return unwrapContentTypeDetail(payload);
+  await lockContentType(idOrName);
+  try {
+    const key = encodeURIComponent(idOrName);
+    const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
+    return unwrapContentTypeDetail(payload);
+  } finally {
+    await unlockContentType(idOrName).catch(() => undefined);
+  }
 }

@@ -30,7 +30,9 @@ import java.util.List;
  *
  * <p>Full field rule expressions and control properties remain Workbench / SOAP parity work.
  * Partial update supports label, description, enabled, field searchable / occurrence, allowed
- * workflows (+ default), and allowed templates under a design-session lock.
+ * workflows (+ default), and allowed templates. PUT requires a design-session lock already held
+ * by the current user ({@code POST /services/contenttypes/{idOrName}/lock}) and does not release
+ * it. Field rule expressions are read-only.
  *
  * <p><strong>GET:</strong> adaptors always populate {@code allowedWorkflows} and {@code
  * allowedTemplates} (empty arrays when none) so clients see stable wire shape.
