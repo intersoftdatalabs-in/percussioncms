@@ -37,6 +37,27 @@ export function detectServicesRoot(): string {
   return "/services";
 }
 
+/**
+ * Prefix a root-relative URL with the CMS webapp context when the SPA is
+ * served under {@code /Rhythmyx} (same contract as {@link detectServicesRoot}).
+ * Other context paths are not rewritten. Do not wrap server-supplied asset
+ * view URLs — those are already context-rooted or absolute.
+ */
+export function withCmsContextPrefix(path: string): string {
+  const trimmed = path.startsWith("/") ? path : `/${path}`;
+  if (typeof window === "undefined") {
+    return trimmed;
+  }
+  const locPath = window.location?.pathname ?? "";
+  if (
+    (locPath === "/Rhythmyx" || locPath.startsWith("/Rhythmyx/")) &&
+    !trimmed.startsWith("/Rhythmyx/")
+  ) {
+    return `/Rhythmyx${trimmed}`;
+  }
+  return trimmed;
+}
+
 /** Mutable so tests can override; initialized for the current page context. */
 export let SERVICES_ROOT = detectServicesRoot();
 

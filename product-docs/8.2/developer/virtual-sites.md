@@ -14,10 +14,20 @@ repository. Phase 1 delivers a **Git / filesystem** adapter aimed at product doc
 **CSV / filesystem** adapter (`csv-filesystem`) discovers the same assemble pipeline from
 CSV files. Operators can run it offline (CLI) or from CMS REST
 `POST /sites/{nameOrId}/virtual/build` and `POST /sites/{nameOrId}/virtual/publish`.
-Preview REST (`GET …/virtual/preview`) is last-output based and works for both kinds
+Preview REST (`GET …/virtual/preview`) is last-output based and works for
+`git-filesystem`, `csv-filesystem`, and `sql-database` after a successful Build
 (CLI preview requires the default output root). Developer **Sites** shows **Build Virtual
-Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem** as
-well as Git filesystem.
+Site**, **Publish Virtual Site**, and **Preview assembled site** for **CSV filesystem**,
+**SQL database**, and Git filesystem. Traditional **Repository** hides that chrome.
+
+A **SQL / database** adapter (`sql-database`) discovers rows from a JDBC `SELECT` against
+**in-memory H2** (`jdbc:h2:mem:`). Required columns match CSV (`id`, `title`, `body`).
+Operators persist the kind with REST `PUT /sites/{nameOrId}/virtual` (`sourceKind=sql-database`
+plus a safe `rootPath`); JDBC URL/user/query stay in `_config.yaml`. REST Build, preview,
+and publish use the H2 adapter. Developer **Sites** can select **SQL database**, save
+`sourceKind=sql-database`, and show **Build Virtual Site** / **Preview assembled site**
+(repository kind still hides that chrome). Oracle,
+MySQL, and SQL Server URLs are rejected.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -31,7 +41,9 @@ After the site folder is created, an optional Git root is saved with
 - Keep Git as the system of record for documentation (PR review, lockstep with product changes).
 - Use Percussion assemblers as the site generator (Markdown → HTML).
 - Provide stable page identities (`frontmatter.id`) for lightweight link checks / participants.
-- Leave the door open for future adapters (SQL, API, object storage) without renaming Site → Channel.
+- Leave the door open for additional adapters (API, object storage) without renaming Site → Channel.
+  SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build
+  and last-build Preview (`GET …/virtual/preview`).
 
 ## Source tree contract
 
@@ -81,7 +93,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file from disk. The CMS process does **not** keep a parsed-page cache across builds. After `git pull` or a local edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file **and CSV row** from disk. The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -95,7 +107,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem` or `csv-filesystem` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs the matching adapter. Preview REST streams last-build HTML for both kinds. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build all three kinds. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -107,9 +119,10 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
 ### Validation rules
 
 - **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
-  (`git-filesystem`, `csv-filesystem`). Values such as future `sql` / `api` kinds are rejected until
-  implemented. `csv-filesystem` does not accept `virtual.remoteUrl` (Git remotes apply to
-  `git-filesystem` only).
+  (`git-filesystem`, `csv-filesystem`, `sql-database`). Values such as future `api` kinds are
+  rejected until implemented. `csv-filesystem` and `sql-database` do not accept
+  `virtual.remoteUrl` (Git remotes apply to `git-filesystem` only). `sql-database` is
+  in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs are rejected.
 - **Required root** — when `virtual.sourceKind` is virtual and `virtual.remoteUrl` is blank,
   `virtual.rootPath` must be non-blank.
 - **Optional Git remote** — `virtual.remoteUrl` + `virtual.branch` fetch or clone before Build.
@@ -157,7 +170,9 @@ Required CSV columns (header row, case-insensitive):
 
 Missing required columns, blank `id`/`title`, duplicate ids, or an unsafe `path` fail the build
 (`VirtualSiteException`). Each discover/load re-reads the current CSV bytes (no process-lifetime
-parse cache).
+parse cache). After you edit a CSV file or `_config.yaml` on the CMS host, run **Build Virtual
+Site** again (UI, `POST …/virtual/build`, or `PSVirtualSiteBuildMain … csv-filesystem`). The next
+build always sees the current files — **no CMS process restart**. File watchers are not used.
 
 CLI (optional `_config.yaml`):
 
@@ -173,10 +188,65 @@ control for **CSV filesystem** (and Git filesystem). **Publish Virtual Site**
 (`POST …/virtual/publish`) then copies assembled HTML to the Site filesystem root.
 Unknown kinds remain **400**.
 
+### Offline build from SQL (`sql-database`)
+
+The `sql-database` adapter discovers pages from a JDBC `SELECT` against **in-memory H2**
+(`jdbc:h2:mem:name;DB_CLOSE_DELAY=-1`). `_config.yaml` is **required** and must include a
+`sql:` mapping. Git remotes are not used (`virtual.remoteUrl` is rejected for this kind).
+Do not point this adapter at live Oracle, MySQL, or SQL Server — those URLs fail closed.
+
+Required query result columns (labels case-insensitive; optional `sql.columns` remaps them):
+
+| Column | Required | Meaning |
+|--------|----------|---------|
+| `id` | Yes | Stable page id within the version (same role as Markdown frontmatter `id`) |
+| `title` | Yes | Page title |
+| `body` | Yes | Markdown body |
+| `path` | No | Site-relative page path. Omitted ⇒ `{version}/{id}.md`. Must be relative (no `..`, no `C:\…` / `/…`). |
+| `order` | No | Integer nav order; default `0` |
+| `version` | No | Must match a `_config.yaml` version `id`. Omitted ⇒ the default version. |
+
+Either `sql.query` (inline SELECT) or `sql.queryFile` (portable NIO path under the site
+root) is required — not both. `queryFile` must be relative (no remaining `..`, no
+Windows/Unix absolute roots). The query must be a single `SELECT` (no extra statements,
+no `INIT`/`RUNSCRIPT` in the JDBC URL). Missing required columns, blank `id`/`title`,
+duplicate ids, or an unsafe `path` fail closed (`VirtualSiteException`). Each
+discover/load re-runs the current SELECT (no process-lifetime row cache). Credentials
+are not written to logs; put the H2 user in `sql.user` (not in the JDBC URL).
+
+Example `_config.yaml` fragment:
+
+```yaml
+sql:
+  jdbcUrl: jdbc:h2:mem:virtual_pages;DB_CLOSE_DELAY=-1
+  user: sa
+  query: SELECT id, title, body, path, sort_order AS "order" FROM pages
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] sql-database
+```
+
+Site property validation allow-lists `sql-database` (same helper as Git/CSV). REST
+`PUT` / `GET /sites/{nameOrId}/virtual` round-trips `sourceKind=sql-database` with a
+portable-safe `rootPath`. JDBC URL, user, and query stay in `_config.yaml` (never on the
+REST envelope; passwords are not logged). In-product `POST …/virtual/build` (and publish /
+preview of last-build output) runs the H2 adapter. After a successful Build,
+`GET …/virtual/preview` returns `available=true` plus `homePath` and
+`GET …/virtual/preview/{relPath}` streams the assembled HTML. Missing build is
+`available=false` (HTTP **200**), not 500. Developer Sites **Build Virtual Site** and
+**Preview assembled site** are shown after you save **SQL database** (same chrome as
+Git/CSV; repository stays hidden). Unknown kinds remain **400**.
+
 ## CMS-integrated build (REST and WebUI)
 
-When a CMS Site has Virtual properties configured (`git-filesystem` or `csv-filesystem`), an
-**Admin** can trigger the matching build path from the running server:
+When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`, or
+`sql-database`), an **Admin** can trigger the matching build path from the running server.
+`sql-database` discovers rows from the in-memory H2 `SELECT` in `_config.yaml` (required
+`sql:` mapping; `pagesWritten > 0` when the query returns rows) and writes HTML under
+the output root. Unknown `sourceKind` values stay **400**. Git and CSV builds are unchanged:
 
 ```http
 POST /sites/{nameOrId}/virtual/build
@@ -222,8 +292,10 @@ without reloading the page.
 
 CSV trees use the same envelope with `"sourceKind": "csv-filesystem"` and a portable-safe
 `rootPath` (no remaining `..` after NIO normalize). `GET` after `PUT` returns `csv-filesystem`.
-`virtual.remoteUrl` is not valid for CSV (HTTP 400). In-product `POST …/virtual/build` and
-`POST …/virtual/publish` run for both `git-filesystem` and `csv-filesystem`.
+`virtual.remoteUrl` is not valid for CSV (HTTP 400). SQL trees use `"sourceKind": "sql-database"`
+the same way; JDBC settings stay in `_config.yaml` (H2 mem only). In-product
+`POST …/virtual/build` and `POST …/virtual/publish` run for `git-filesystem`,
+`csv-filesystem`, and `sql-database`.
 
 ### Git remote fetch before Build
 
@@ -259,13 +331,15 @@ local root from the panel until the remote is cleared.
 The CMS host must have `git` on `PATH`. Checkouts are server-managed; do not point `remoteUrl` at
 untrusted remotes.
 
-### Rebuild after git pull or a local edit (no CMS restart)
+### Rebuild after git pull, a CSV edit, or a local edit (no CMS restart)
 
-The Git/filesystem adapter always sees the **current** tree on the CMS host:
+The Git/filesystem and CSV/filesystem adapters always see the **current** tree on the CMS host:
 
-1. Update Markdown or frontmatter under `virtual.rootPath` (`git pull`, copy, or an editor),
-   **or** change the remote branch and Build again so the server fetches.
-2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, or `scripts/build-cms-docs.*`).
+1. Update Markdown or frontmatter, a CSV file, or `_config.yaml` under `virtual.rootPath`
+   (`git pull`, copy, or an editor), **or** change the remote branch and Build again so the
+   server fetches (Git only).
+2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, `scripts/build-cms-docs.*`,
+   or `PSVirtualSiteBuildMain … csv-filesystem`).
 3. Preview or publish the new output.
 
 You do **not** restart the CMS JVM for those file changes to appear. A restart is only needed
@@ -273,8 +347,9 @@ when you change server code, Site properties that were never saved, or the proce
 
 After a successful build, **Preview assembled site** opens the last output home in a new tab
 (`GET /sites/{nameOrId}/virtual/preview` for status; `GET …/virtual/preview/{relPath}` for the
-assembled file stream). Preview is last-output based and works for **`git-filesystem` and
-`csv-filesystem`** (not git-only). Missing output returns status `available=false` (HTTP 200)
+assembled file stream). Preview is last-output based and works for **`git-filesystem`**,
+**`csv-filesystem`**, and **`sql-database`** (not git-only). Missing output returns status
+`available=false` (HTTP 200)
 or file HTTP 404 — not 500. Path traversal (`../`) is **400**. Repository and unknown
 `sourceKind` values are **400**. See [Sites & content structure](id:admin-sites) and
 [Site configuration](id:reference-site-config).

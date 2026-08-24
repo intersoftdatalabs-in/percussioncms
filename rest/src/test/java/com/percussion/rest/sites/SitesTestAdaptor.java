@@ -24,7 +24,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Spring test stub for {@link ISiteAdaptor} so rest {@code MainTest} / shared contexts can inject a
- * bean. Production wiring is {@code SitesAdaptor} in sitemanage.
+ * bean. Production wiring is {@code SitesAdaptor} in sitemanage. PUT echoes the envelope
+ * (including {@code sql-database} {@code sourceKind}); JDBC credentials are never logged.
+ * Preview status is last-output based ({@code available=false} when no build).
  */
 @Component
 @Lazy

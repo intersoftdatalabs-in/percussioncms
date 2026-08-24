@@ -61,7 +61,8 @@ public class PSVirtualSiteBuildService {
   }
 
   /**
-   * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem}).
+   * Build service for a registered adapter kind ({@code git-filesystem}, {@code csv-filesystem},
+   * {@code sql-database}).
    *
    * @param type source kind; null defaults to {@link VirtualSiteSourceType#GIT_FILESYSTEM}
    * @param participants participant registry; null uses an in-memory registry
@@ -93,12 +94,13 @@ public class PSVirtualSiteBuildService {
    * Build a Virtual Site from a filesystem root into {@code outputRoot}.
    *
    * <p>Every invocation reloads {@code _config.yaml}, optional {@code _redirects.yaml}, and
-   * re-discovers and re-loads Markdown from the current tree, then overwrites emitted HTML. Missing
-   * {@code _redirects.yaml} is a no-op. The same service instance does not reuse parsed pages from
-   * a previous build — operators do not need a JVM restart after {@code git pull} or a local edit.
+   * re-discovers and re-loads Markdown or CSV rows from the current tree, then overwrites emitted
+   * HTML. Missing {@code _redirects.yaml} is a no-op. The same service instance does not reuse
+   * parsed pages from a previous build — operators do not need a JVM restart after {@code git
+   * pull}, a CSV/{@code _config.yaml} edit, or a local Markdown edit.
    *
-   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem; optional for
-   *     csv-filesystem)
+   * @param siteRoot source tree ({@code _config.yaml} required for git-filesystem and
+   *     sql-database; optional for csv-filesystem)
    * @param outputRoot destination for HTML + assets
    * @param siteKey participant key
    * @return build result

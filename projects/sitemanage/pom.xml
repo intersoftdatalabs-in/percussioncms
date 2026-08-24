@@ -102,6 +102,12 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <!-- In-memory H2 for sql-database Virtual Site adaptor tests (#3734 / #3758). -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>

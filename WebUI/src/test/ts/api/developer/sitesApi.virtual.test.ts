@@ -158,6 +158,19 @@ describe("sitesApi virtual properties", () => {
         siteKey: null,
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "sql-database",
+        rootPath: "C:/sql-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "sql-database",
+        rootPath: "C:/sql-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {

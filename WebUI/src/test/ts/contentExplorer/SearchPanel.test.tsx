@@ -116,6 +116,10 @@ describe("SearchPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("search-panel-results")).toBeTruthy();
     });
+    expect(screen.getByTestId("search-panel-result-row")).toHaveAttribute(
+      "data-item-type",
+      "page",
+    );
     fireEvent.click(screen.getByTestId("search-panel-open-1"));
     fireEvent.click(screen.getByTestId("search-panel-reveal-1"));
     expect(onOpen).toHaveBeenCalledTimes(1);

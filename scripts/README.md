@@ -76,16 +76,16 @@ ship paths is enforced in Maven Surefire for `modules/perc-packages`:
 
 Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory`
 (combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy non-waived fixture XML is introduced
-under a non-waived package. **Widget** waiver is empty after perc.Test ship-exit (#3736).
-**Pages/Gadgets** still waive **`perc.Test` only**. Cross-platform: `Path` /
-`Files` only (no hardcoded separators).
+under a non-waived package. **Widget** waiver is empty after perc.Test ship-exit (#3736);
+**Pages/Gadgets** waiver is empty after perc.Test page dual-ship exit (#3737).
+Cross-platform: `Path` / `Files` only (no hardcoded separators).
 
 ### Dual-ship page templateDef inventory gate (#3675)
 
 **Not a Python script.** Fail-closed Surefire gate so product package-build cannot silently
 re-introduce dual-ship page `*.templateDef` materialization (modern `pages/` + non-native
-committed `page.installMode`). Waiver: **`perc.Test` only**. Sibling #3674 leftover widget
-binaries are not dual-ship-retained. API:
+committed `page.installMode`). Waiver is **empty** after perc.Test page dual-ship exit
+(#3737). Sibling #3674 leftover widget binaries are not dual-ship-retained. API:
 `com.percussion.packages.pagexml.PSDualShipPageTemplateDefInventory` /
 `PSDualShipPageTemplateDefInventoryTest`. Retirement checklist:
 `docs/ai-generated/tasks/template-assembler-normalization/dual-ship-page-template-retirement.md`.
@@ -132,7 +132,7 @@ cd modules/perc-packages
 
 Criteria doc: `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
 
-### M2 product/H2 zero-legacy-selection evidence (#3583)
+### M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
 
 **Not a Python script.** Phase 5 **M2** product/H2 *selection* evidence is
 enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
@@ -140,10 +140,12 @@ enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
 - Class: `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence`
 - Tests: `PSProductPackageRootSelectionEvidenceTest` (product tree + H2
   classpath materialize; fails if a dummy non-waived package selects
-  `LEGACY_*`)
+  `LEGACY_*`; waive list empty **or** `perc.Test` only)
 - DAO harness: `PSWidgetDaoProductH2ZeroLegacySelectionTest` (blank
   `widgetDao.modernPackageRoots` + `rxdeploydir` materialize)
-- Widget waiver is empty after perc.Test ship-exit (#3736); `PSWidget_TestProperties` must select modern-first
+- Widget waiver: **empty after perc.Test ship-exit (#3736)** — until then, `perc.Test` /
+  `PSWidget_TestProperties` only (#3738 dual-mode); after #3736, the residual is dropped
+  and `PSWidget_TestProperties` must select modern-first.
 - **Keep** `PSLegacyDefinitionXmlShim` (#2852). Do **not** treat a green scan
   as M2 PASS / removal-ready (M3 still FAIL).
 

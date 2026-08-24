@@ -34,6 +34,7 @@ public final class VirtualSiteConfig {
   private final List<VersionSpec> versions;
   private final List<NavSpec> nav;
   private final String siteKey;
+  private final SqlSpec sql;
 
   public VirtualSiteConfig(
       Path root,
@@ -43,6 +44,18 @@ public final class VirtualSiteConfig {
       List<VersionSpec> versions,
       List<NavSpec> nav,
       String siteKey) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -54,6 +67,7 @@ public final class VirtualSiteConfig {
     this.nav =
         nav == null ? List.of() : Collections.unmodifiableList(new ArrayList<>(nav));
     this.siteKey = siteKey != null && !siteKey.isBlank() ? siteKey : "default";
+    this.sql = sql;
   }
 
   public Path root() {
@@ -82,6 +96,15 @@ public final class VirtualSiteConfig {
 
   public String siteKey() {
     return siteKey;
+  }
+
+  /**
+   * Optional JDBC settings for {@code sql-database} sources ({@code sql:} in {@code _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted
+   */
+  public SqlSpec sql() {
+    return sql;
   }
 
   public Path themeDir() {
@@ -120,6 +143,125 @@ public final class VirtualSiteConfig {
 
     public boolean defaultVersion() {
       return defaultVersion;
+    }
+  }
+
+  /**
+   * JDBC query settings for {@code sql-database}. {@link #toString()} omits the password field so
+   * logs cannot leak credentials.
+   */
+  public static final class SqlSpec {
+    private final String jdbcUrl;
+    private final String user;
+    private final String password;
+    private final String query;
+    private final String queryFile;
+    private final String idColumn;
+    private final String titleColumn;
+    private final String bodyColumn;
+    private final String pathColumn;
+    private final String orderColumn;
+    private final String versionColumn;
+
+    public SqlSpec(
+        String jdbcUrl,
+        String user,
+        String password,
+        String query,
+        String queryFile,
+        String idColumn,
+        String titleColumn,
+        String bodyColumn,
+        String pathColumn,
+        String orderColumn,
+        String versionColumn) {
+      this.jdbcUrl = jdbcUrl != null ? jdbcUrl.trim() : "";
+      this.user = user != null ? user.trim() : "";
+      this.password = password != null ? password : "";
+      this.query = query != null ? query.trim() : "";
+      this.queryFile = queryFile != null ? queryFile.trim() : "";
+      this.idColumn = columnOrDefault(idColumn, "id");
+      this.titleColumn = columnOrDefault(titleColumn, "title");
+      this.bodyColumn = columnOrDefault(bodyColumn, "body");
+      this.pathColumn = columnOrDefault(pathColumn, "path");
+      this.orderColumn = columnOrDefault(orderColumn, "order");
+      this.versionColumn = columnOrDefault(versionColumn, "version");
+    }
+
+    private static String columnOrDefault(String raw, String fallback) {
+      if (raw == null || raw.isBlank()) {
+        return fallback;
+      }
+      return raw.trim();
+    }
+
+    public String jdbcUrl() {
+      return jdbcUrl;
+    }
+
+    public String user() {
+      return user;
+    }
+
+    public String password() {
+      return password;
+    }
+
+    public String query() {
+      return query;
+    }
+
+    public String queryFile() {
+      return queryFile;
+    }
+
+    public String idColumn() {
+      return idColumn;
+    }
+
+    public String titleColumn() {
+      return titleColumn;
+    }
+
+    public String bodyColumn() {
+      return bodyColumn;
+    }
+
+    public String pathColumn() {
+      return pathColumn;
+    }
+
+    public String orderColumn() {
+      return orderColumn;
+    }
+
+    public String versionColumn() {
+      return versionColumn;
+    }
+
+    @Override
+    public String toString() {
+      return "SqlSpec{jdbcUrl='"
+          + jdbcUrl
+          + "', user='"
+          + user
+          + "', query='"
+          + query
+          + "', queryFile='"
+          + queryFile
+          + "', idColumn='"
+          + idColumn
+          + "', titleColumn='"
+          + titleColumn
+          + "', bodyColumn='"
+          + bodyColumn
+          + "', pathColumn='"
+          + pathColumn
+          + "', orderColumn='"
+          + orderColumn
+          + "', versionColumn='"
+          + versionColumn
+          + "'}";
     }
   }
 

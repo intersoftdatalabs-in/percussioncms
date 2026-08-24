@@ -540,6 +540,7 @@ function SearchStatusView(props: {
           <li
             key={`${r.id ?? r.title ?? "row"}-${idx}`}
             data-testid="search-panel-result-row"
+            data-item-type={r.type ?? ""}
             style={{
               display: "flex",
               gap: 8,
