@@ -289,6 +289,19 @@ page (including a quiet or missing search index). A 500 error panel after Submit
 is a product defect — the input, Submit button, and optional saved-search picker
 stay available either way.
 
+## Content Browser pickers
+
+Slot **Add**, the modern **asset picker**, and the **page picker** open **Content Browser**
+(tree, list, and the same Search panel). Browse to a page or asset, or search, then
+**Open** a result and **Confirm**.
+
+Search hits use CMS content-type names (for example **Image**, **File**, **percPage**,
+or FastForward types such as **rffImage**). Those names match the picker's page/asset
+filter — **Open** selects the hit, the selection summary updates, and **Confirm**
+enables. Folders and navigation nodes are not selectable in the asset or page picker.
+A type that the picker does not allow still shows *Selected item type is not allowed*
+and leaves Confirm disabled.
+
 ## Display format
 
 Use the **display format** selector next to the menu bar to choose list columns for the

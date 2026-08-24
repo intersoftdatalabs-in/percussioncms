@@ -251,6 +251,57 @@ describe("ContentBrowser", () => {
     });
   });
 
+  it("search Open of an Image with allowedTypes [page, asset] selects the item (#3714)", async () => {
+    const onConfirm = vi.fn();
+    const listSavedSearches = vi.fn().mockResolvedValue([]);
+    const search = vi.fn().mockResolvedValue({
+      children: [
+        {
+          id: "hit-img",
+          title: "hero.jpg",
+          name: "hero.jpg",
+          folderPath: "/Assets/uploads",
+          type: "Image",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+    });
+    render(
+      <ContentBrowser
+        mode="select"
+        enableSearch
+        listSavedSearches={listSavedSearches}
+        search={search}
+        allowedTypes={["page", "asset"]}
+        onConfirm={onConfirm}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "jpg" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("search-panel-open-hit-img"));
+    const confirm = screen.getByTestId("content-browser-confirm");
+    await waitFor(() => {
+      expect(confirm).not.toBeDisabled();
+    });
+    expect(screen.queryByTestId("content-browser-error")).not.toBeInTheDocument();
+    expect(screen.getByTestId("content-browser-selection-summary")).toHaveTextContent(
+      "1 selected",
+    );
+    fireEvent.click(confirm);
+    await waitFor(() => {
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+    const payload = onConfirm.mock.calls[0]?.[0];
+    expect(payload?.items?.[0]?.id).toBe("hit-img");
+    expect(payload?.items?.[0]?.type).toBe("Image");
+  });
+
   it("search Open selects the hit so Confirm can fire (#2793 host wiring)", async () => {
     const onConfirm = vi.fn();
     const listSavedSearches = vi.fn().mockResolvedValue([]);
