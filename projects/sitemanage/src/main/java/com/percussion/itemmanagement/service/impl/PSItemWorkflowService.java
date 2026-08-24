@@ -191,10 +191,34 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
 
       return checkIn(id, false);
     } catch (PSItemWorkflowServiceException | PSDataServiceException e) {
+      if (isUndeterminedGuidType(e)) {
+        log.warn("checkIn skipping id {} with undetermined GUID type: {}", id, e.getMessage());
+        return new PSNoContent("checkIn");
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    } catch (RuntimeException e) {
+      if (isUndeterminedGuidType(e)) {
+        log.warn("checkIn skipping id {} with undetermined GUID type: {}", id, e.getMessage());
+        return new PSNoContent("checkIn");
+      }
+      throw e;
     }
+  }
+
+  /**
+   * Explorer Preview {@code GET .../checkIn/{id}} must not HTTP 500 when a bare
+   * numeric content id hits untyped {@code PSGuid.assemble} (#3722 / #3688).
+   */
+  static boolean isUndeterminedGuidType(Throwable error) {
+    for (Throwable t = error; t != null; t = t.getCause()) {
+      String msg = t.getMessage();
+      if (msg != null && msg.contains("Type is undetermined")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -211,7 +235,16 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
     var ids = new ArrayList<String>();
     ids.add(id);
 
-    var sum = dataItemSummaryService.find(id);
+    PSDataItemSummary sum;
+    try {
+      sum = dataItemSummaryService.find(id);
+    } catch (PSDataServiceException e) {
+      if (isUndeterminedGuidType(e)) {
+        log.warn("checkIn treating unloadable numeric id {} as missing: {}", id, e.getMessage());
+        return new PSNoContent("checkIn");
+      }
+      throw e;
+    }
     if (sum == null) {
       return new PSNoContent("checkIn");
     }

@@ -132,3 +132,63 @@ export function joinFolderAndName(folderPath: string, name: string): string {
   }
   return `${folder}/${name}`;
 }
+
+/**
+ * Site-root folder for Home Create Page.
+ *
+ * <p>Prefers {@code SiteSummary.folderPath} (repository folder) over
+ * {@code /Sites/{name}}. FastForward sample sites list as
+ * {@code Corporate_Investments} but live at {@code //Sites/CorporateInvestments}
+ * (#3726 / #3326). Constructing {@code /Sites/${name}} makes page create
+ * {@code getIdByPath} miss, then {@code addItem} tries to create a sibling
+ * folder under {@code //Sites} and Admin sees CREATE_NOT_AUTHORIZED.</p>
+ */
+export function siteRootFolderFromSummary(
+  site:
+    | {
+        name?: string;
+        folderPath?: string;
+        folderPaths?: string[];
+      }
+    | string
+    | null
+    | undefined,
+): string {
+  if (site == null) {
+    return "";
+  }
+  if (typeof site === "string") {
+    const n = site.trim();
+    return n ? `/Sites/${n}` : "";
+  }
+  const fromPaths = Array.isArray(site.folderPaths)
+    ? site.folderPaths.find((p) => p != null && String(p).trim())
+    : undefined;
+  const fromFolder = String(site.folderPath ?? fromPaths ?? "").trim();
+  if (fromFolder) {
+    return normalizeCmsPath(fromFolder);
+  }
+  const n = String(site.name ?? "").trim();
+  return n ? `/Sites/${n}` : "";
+}
+
+/**
+ * Classic CUI {@code get_folder_path}: PathItem.folderPath is the repository
+ * folder; PathItem.path is the finder id (often the site name).
+ */
+export function repositoryFolderFromPathItem(
+  item:
+    | { folderPath?: string; folderPaths?: string[] }
+    | null
+    | undefined,
+  fallback: string,
+): string {
+  const fromPaths = Array.isArray(item?.folderPaths)
+    ? item.folderPaths.find((p) => p != null && String(p).trim())
+    : undefined;
+  const fromFolder = String(item?.folderPath ?? fromPaths ?? "").trim();
+  if (fromFolder) {
+    return normalizeCmsPath(fromFolder);
+  }
+  return normalizeCmsPath(fallback);
+}

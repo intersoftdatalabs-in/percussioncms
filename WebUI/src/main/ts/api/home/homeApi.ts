@@ -18,6 +18,7 @@
 import { del, get, post, put } from "../client";
 import type { ApiError } from "../client";
 import { PATHS } from "../paths";
+import { findItemByPath } from "../contentExplorer/pathApi";
 import { searchExtended } from "../contentExplorer/searchApi";
 import type { PSSearchCriteria } from "../contentExplorer/types";
 import type {
@@ -32,6 +33,8 @@ import type {
 import {
   joinFolderAndName,
   normalizeCmsPath,
+  repositoryFolderFromPathItem,
+  siteRootFolderFromSummary,
   toRepositoryCmsPath,
 } from "../../home/create/filenameUtils";
 
@@ -136,22 +139,94 @@ export function isBookmarkableItem(item: ContentListItem): boolean {
   return true;
 }
 
+/**
+ * Map a sitemanage {@code SiteSummary} row, including repository
+ * {@code folderPath} when Jackson sends {@code folderPath} or
+ * {@code folderPaths[0]}.
+ */
+export function mapSiteSummary(raw: unknown): SiteSummary | null {
+  const o = asRecord(raw);
+  if (!o) {
+    return null;
+  }
+  const name = firstNonBlank(o, "name", "Name");
+  if (!name) {
+    return null;
+  }
+  let folderPath = firstNonBlank(o, "folderPath", "FolderPath");
+  if (!folderPath) {
+    const paths = o.folderPaths ?? o.FolderPaths;
+    if (Array.isArray(paths)) {
+      const first = paths.find((p) => p != null && String(p).trim());
+      if (first != null) {
+        folderPath = String(first).trim();
+      }
+    }
+  }
+  const id = o.id ?? o.Id;
+  const siteId = o.siteId ?? o.SiteId ?? id;
+  const summary: SiteSummary = { name };
+  if (id != null && String(id).trim()) {
+    summary.id = id as string | number;
+  }
+  if (siteId != null && String(siteId).trim()) {
+    summary.siteId = siteId as string | number;
+  }
+  if (folderPath) {
+    summary.folderPath = normalizeCmsPath(folderPath);
+  }
+  return summary;
+}
+
+function mapSiteSummaryList(list: unknown[]): SiteSummary[] {
+  return list
+    .map(mapSiteSummary)
+    .filter((s): s is SiteSummary => s != null);
+}
+
 /** All sites for Library root. */
 export async function fetchSites(): Promise<SiteSummary[]> {
   const data = await get<unknown>(`${PATHS.SITES_ALL}/`);
   if (data && typeof data === "object" && "SiteSummary" in data) {
     const list = (data as { SiteSummary: unknown }).SiteSummary;
     if (Array.isArray(list)) {
-      return list as SiteSummary[];
+      return mapSiteSummaryList(list);
     }
     if (list && typeof list === "object") {
-      return [list as SiteSummary];
+      return mapSiteSummaryList([list]);
     }
   }
   if (Array.isArray(data)) {
-    return data as SiteSummary[];
+    return mapSiteSummaryList(data);
   }
   return [];
+}
+
+/**
+ * Repository site-root folder for Home Create Page.
+ *
+ * <p>Classic CUI calls {@code perc_pathmanager.get_folder_path} so create
+ * posts {@code PathItem.folderPath} ({@code //Sites/CorporateInvestments}),
+ * not the finder SITENAME ({@code /Sites/Corporate_Investments}). Prefer the
+ * site summary folder, then pathmanagement item lookup, then
+ * {@code /Sites/{name}}.</p>
+ */
+export async function resolveSiteRootFolderPath(
+  site: SiteSummary | string,
+): Promise<string> {
+  const name =
+    typeof site === "string" ? site.trim() : String(site?.name ?? "").trim();
+  const fallback = siteRootFolderFromSummary(site);
+  const finder = name ? `/Sites/${name}` : fallback;
+  if (!finder) {
+    return fallback;
+  }
+  try {
+    const item = await findItemByPath(finder);
+    return repositoryFolderFromPathItem(item, fallback || finder);
+  } catch {
+    return normalizeCmsPath(fallback || finder);
+  }
 }
 
 /** Folder children under a CMS path. */

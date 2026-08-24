@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * G4 CI/inventory gate: zero non-waived product Page definition XML under Packages (issue #3581 /
- * parent #2630). Explicit waiver: {@code perc.Test} only.
+ * G4 CI/inventory gate: zero product Page definition XML under Packages (issue #3581 / #3737 /
+ * parent #2630). Waiver set is empty after perc.Test page dual-ship exit.
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -42,9 +42,9 @@ class PSPageDefinitionXmlInventoryTest {
   @TempDir Path tempDir;
 
   @Test
-  void waivedPackageSet_isExplicitlyPercTestOnly() {
-    assertEquals(Set.of("perc.Test"), PSPageDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
-    assertTrue(PSPageDefinitionXmlInventory.isWaivedPackage("perc.Test"));
+  void waivedPackageSet_isEmptyAfterPercTestPageShipExit() {
+    assertEquals(Set.of(), PSPageDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.baseTemplates"));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.responsiveTemplates"));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage(null));
@@ -65,13 +65,15 @@ class PSPageDefinitionXmlInventoryTest {
         () ->
             "G4: non-waived Page def XML must not reappear under product Packages; found: "
                 + report.nonWaived());
+    assertEquals(0, report.all().size(), "expected zero Page def XML including perc.Test");
+    assertEquals(0, report.waived().size());
     assertEquals(0, report.nonWaived().size());
 
     PSPageDefinitionXmlInventory.assertNoNonWaivedPageDefinitionXml(packagesRoot);
   }
 
   @Test
-  void tempTree_onlyWaivedXml_isClean() throws Exception {
+  void tempTree_percTestXml_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path pages =
         packages
@@ -85,15 +87,17 @@ class PSPageDefinitionXmlInventoryTest {
     Files.createDirectories(packages.resolve("perc.baseTemplates").resolve("pages"));
 
     PSDefinitionXmlShipPathInventory.Report report = PSPageDefinitionXmlInventory.scan(packages);
+    assertFalse(report.isClean());
     assertEquals(1, report.all().size());
-    assertEquals(0, report.nonWaived().size());
-    assertEquals(1, report.waived().size());
-    assertTrue(report.isClean());
+    assertEquals(1, report.nonWaived().size());
+    assertEquals(0, report.waived().size());
     Path expectedAbs = xmlFile.toAbsolutePath().normalize();
-    assertEquals(expectedAbs, report.waived().get(0).xmlPath());
-    assertTrue(report.waived().get(0).xmlPath().isAbsolute());
-    assertTrue(report.waived().get(0).xmlPath().startsWith(pages.toAbsolutePath().normalize()));
-    PSPageDefinitionXmlInventory.assertNoNonWaivedPageDefinitionXml(packages);
+    assertEquals(expectedAbs, report.nonWaived().get(0).xmlPath());
+    assertTrue(report.nonWaived().get(0).xmlPath().isAbsolute());
+    assertTrue(report.nonWaived().get(0).xmlPath().startsWith(pages.toAbsolutePath().normalize()));
+    assertThrows(
+        IllegalStateException.class,
+        () -> PSPageDefinitionXmlInventory.assertNoNonWaivedPageDefinitionXml(packages));
   }
 
   @Test
@@ -184,16 +188,16 @@ class PSPageDefinitionXmlInventoryTest {
   }
 
   @Test
-  void tempTree_mixedWaivedAndNonWaived_reportsOnlyNonWaivedAsFailures() throws Exception {
+  void tempTree_percTestAndBaseTemplatesXml_bothFailAsNonWaived() throws Exception {
     Path packages = tempDir.resolve("Packages");
 
-    Path waivedPages =
+    Path testPages =
         packages
             .resolve("perc.Test")
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Pages");
-    Files.createDirectories(waivedPages);
-    Files.writeString(waivedPages.resolve("PSPage_TestProperties.xml"), "<Page/>", StandardCharsets.UTF_8);
+    Files.createDirectories(testPages);
+    Files.writeString(testPages.resolve("PSPage_TestProperties.xml"), "<Page/>", StandardCharsets.UTF_8);
 
     Path badPages =
         packages
@@ -205,9 +209,8 @@ class PSPageDefinitionXmlInventoryTest {
 
     PSDefinitionXmlShipPathInventory.Report report = PSPageDefinitionXmlInventory.scan(packages);
     assertEquals(2, report.all().size());
-    assertEquals(1, report.waived().size());
-    assertEquals(1, report.nonWaived().size());
-    assertEquals("perc.baseTemplates", report.nonWaived().get(0).packageDirName());
+    assertEquals(0, report.waived().size());
+    assertEquals(2, report.nonWaived().size());
     assertFalse(report.isClean());
   }
 

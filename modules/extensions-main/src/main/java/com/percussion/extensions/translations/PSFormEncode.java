@@ -16,9 +16,9 @@
  */
 package com.percussion.extensions.translations;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
@@ -52,7 +52,7 @@ public class PSFormEncode implements IPSFieldInputTransformer {
     String name = ep.getStringParam(0, null, false);
     if (StringUtils.isBlank(name)) {
       Object[] args = new Object[] {"name"};
-      throw new PSConversionException(IPSExtensionErrors.MISSING_REQUIRED_PARAM_NO, args);
+      throw new PSConversionException(ExtensionErrorCodes.MISSING_REQUIRED_PARAM_NO, args);
     }
     String value = request.getParameter(name);
     return PSFormEncodeDecodeHelper.encode(value);

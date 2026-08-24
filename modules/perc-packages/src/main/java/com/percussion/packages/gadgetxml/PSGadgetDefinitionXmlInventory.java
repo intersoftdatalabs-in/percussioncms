@@ -30,8 +30,8 @@ import java.util.Set;
  * {@code sys__UserDependency--rxconfig/Gadgets/*.xml} and {@code rxconfig/Gadgets/*.xml} (Phase 5
  * gate G4 / issue #3581, parent #2630, ADR-004).
  *
- * <p>Peer of {@code PSWidgetDefinitionXmlInventory}. Pass condition: zero <em>non-waived</em>
- * product Gadget definition XML. The only explicit waiver is {@code perc.Test}.
+ * <p>Peer of {@code PSWidgetDefinitionXmlInventory}. Pass condition: zero product Gadget definition
+ * XML. Waiver set is empty after perc.Test page dual-ship exit (#3737) (shared Page/Gadget list).
  *
  * <p>Modern {@code gadget-catalog.json} and per-gadget {@code component-package.json} are not
  * definition XML and are ignored. {@code GadgetRegistry.xml} lives outside Packages ship paths
@@ -43,7 +43,7 @@ public final class PSGadgetDefinitionXmlInventory {
 
   /**
    * Package directory names under {@code Packages/} allowed to still commit Gadget definition XML.
-   * Explicit and minimal — do not expand without an ADR / residual issue.
+   * Empty after #3737. Do not expand without an ADR / residual issue.
    */
   public static final Set<String> WAIVED_PACKAGE_DIRS =
       PSDefinitionXmlShipPathInventory.WAIVED_PACKAGE_DIRS;
@@ -65,7 +65,7 @@ public final class PSGadgetDefinitionXmlInventory {
   }
 
   /**
-   * Whether the package directory name is on the explicit waiver list ({@code perc.Test} only).
+   * Whether the package directory name is on the explicit waiver list (empty after #3737).
    *
    * @param packageDirName package folder name under Packages
    * @return true if waived

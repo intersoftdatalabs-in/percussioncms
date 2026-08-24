@@ -18,6 +18,7 @@ package com.percussion.services.assembly.impl.nav;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -26,7 +27,9 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.HashMap;
 import java.util.Map;
+import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.RepositoryException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -88,5 +91,16 @@ class PSNavHelperTypedTest {
     assertEquals(prop, typed.get("rx:title"));
 
     assertTrue(PSNavonNodeInvocationHandler.copyPropertyMap(null).isEmpty());
+  }
+
+  @Test
+  @DisplayName("requireNavonSelf rejects null without Validate NPE message (#3719)")
+  void requireNavonSelf() throws Exception {
+    Node node = mock(Node.class);
+    PSNavHelper.requireNavonSelf(node);
+    RepositoryException ex =
+        assertThrows(RepositoryException.class, () -> PSNavHelper.requireNavonSelf(null));
+    assertTrue(ex.getMessage().contains("navon self is null"));
+    assertFalse(ex.getMessage().contains("The validated object is null"));
   }
 }

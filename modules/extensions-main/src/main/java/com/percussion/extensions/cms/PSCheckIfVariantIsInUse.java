@@ -20,10 +20,10 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSRelationshipProcessor;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -77,7 +77,7 @@ public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor {
         }
         Object errorargs[] = new Object[] {variantid, ownerids};
         throw new PSExtensionProcessingException(
-            IPSExtensionErrors.VARIANT_HAS_RELATIONSHIPS_ERROR, errorargs);
+            ExtensionErrorCodes.VARIANT_HAS_RELATIONSHIPS_ERROR, errorargs);
       }
     } catch (PSCmsException e) {
       throw new PSExtensionProcessingException("Fatal error", e);

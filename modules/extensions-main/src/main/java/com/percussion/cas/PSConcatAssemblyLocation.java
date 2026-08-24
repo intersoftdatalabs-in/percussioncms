@@ -16,9 +16,9 @@
  */
 package com.percussion.cas;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
@@ -56,7 +56,7 @@ public class PSConcatAssemblyLocation implements IPSAssemblyLocation {
       request.printTraceMessage("Error: " + PSExceptionUtils.getMessageForLog(e));
 
       Object[] args = {m_def.getRef().getExtensionName(), PSExceptionUtils.getMessageForLog(e)};
-      throw new PSExtensionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+      throw new PSExtensionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     } finally {
       request.printTraceMessage("Leaving " + exitName + ".createLocation");
     }

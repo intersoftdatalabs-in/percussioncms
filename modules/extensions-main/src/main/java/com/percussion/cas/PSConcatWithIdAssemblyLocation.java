@@ -16,10 +16,10 @@
  */
 package com.percussion.cas;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
@@ -66,20 +66,20 @@ public class PSConcatWithIdAssemblyLocation implements IPSAssemblyLocation {
       // check the number of parameters provided is correct
       if (params.length < EXPECTED_NUMBER_OF_PARAMS) {
         Object[] args = {"" + EXPECTED_NUMBER_OF_PARAMS, "" + params.length};
-        throw new PSExtensionException(IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH, args);
+        throw new PSExtensionException(ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, args);
       }
 
       // parameter 0 must be the index
       int index = Integer.parseInt(params[0].toString());
       if (index < 0 || index >= params.length) {
         Object[] args = {m_def.getRef().getExtensionName(), "Index out of bounds: " + index};
-        throw new PSExtensionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+        throw new PSExtensionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
       }
 
       String contentid = PSHtmlParameters.get(IPSHtmlParameters.SYS_CONTENTID, request);
       if (contentid == null) {
         Object[] args = {exitName, IPSHtmlParameters.SYS_CONTENTID};
-        throw new PSExtensionException(IPSExtensionErrors.MISSING_HTML_PARAMETER, args);
+        throw new PSExtensionException(ExtensionErrorCodes.MISSING_HTML_PARAMETER, args);
       }
 
       for (int i = 1; i < params.length; i++) {

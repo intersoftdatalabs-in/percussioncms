@@ -23,23 +23,13 @@
  * rewrites that to {@code /cm/app/assembly?…}.</p>
  */
 
+import { withCmsContextPrefix } from "../api/paths";
+
 export const ASSEMBLY_WINDOW_FEATURES =
   "popup=yes,width=1280,height=900,scrollbars=yes,resizable=yes";
 
-export function withCmsContextPrefix(path: string): string {
-  const trimmed = path.startsWith("/") ? path : `/${path}`;
-  if (typeof window === "undefined") {
-    return trimmed;
-  }
-  const locPath = window.location?.pathname ?? "";
-  if (
-    (locPath === "/Rhythmyx" || locPath.startsWith("/Rhythmyx/")) &&
-    !trimmed.startsWith("/Rhythmyx/")
-  ) {
-    return `/Rhythmyx${trimmed}`;
-  }
-  return trimmed;
-}
+/** Re-export so existing assembly/editor callers stay unchanged. */
+export { withCmsContextPrefix };
 
 export function parsePositiveInt(raw: string | null | undefined): number | null {
   if (raw == null || !String(raw).trim()) {

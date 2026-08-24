@@ -60,7 +60,12 @@ describe("VirtualSiteSourcePanel", () => {
       "developer-site-virtual-source-kind",
     ) as HTMLSelectElement;
     const kindValues = Array.from(kindSelect.options).map((o) => o.value);
-    expect(kindValues).toEqual(["repository", "git-filesystem", "csv-filesystem"]);
+    expect(kindValues).toEqual([
+      "repository",
+      "git-filesystem",
+      "csv-filesystem",
+      "sql-database",
+    ]);
     expect(kindSelect.value).toBe("repository");
     // Root path / remote hidden until virtual selected
     expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
@@ -385,6 +390,118 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
   });
 
+  it("loads sql-database values with root path and Build/Publish chrome (no Git remotes)", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-site-virtual-source-kind") as HTMLSelectElement).value,
+    ).toBe("sql-database");
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/sql-docs");
+    expect(screen.getByTestId("developer-site-virtual-sql-hint")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-sql-hint").textContent).toBe(
+      DEV_MSG.SITE_VIRT_SQL_HINT,
+    );
+    expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("saves sql-database configuration without Git remote fields or password", async () => {
+    getVirtual
+      .mockResolvedValueOnce({ sourceKind: null, virtual: false })
+      .mockResolvedValueOnce({
+        sourceKind: "sql-database",
+        rootPath: "C:/sql-docs",
+        virtual: true,
+      });
+    updateVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Corporate" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "sql-database" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-error").textContent).toContain(
+        DEV_MSG.SITE_VIRT_ERR_ROOT_REQUIRED,
+      );
+    });
+    expect(updateVirtual).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("developer-site-virtual-root-path"), {
+      target: { value: "C:/sql-docs" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-saved")).toBeTruthy();
+    });
+    expect(updateVirtual).toHaveBeenCalledWith("Corporate", {
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    const savedBody = updateVirtual.mock.calls[0][1] as Record<string, unknown>;
+    expect(savedBody).not.toHaveProperty("password");
+    expect(getVirtual).toHaveBeenCalledTimes(2);
+    expect(
+      (screen.getByTestId("developer-site-virtual-root-path") as HTMLInputElement).value,
+    ).toBe("C:/sql-docs");
+    expect(screen.getByTestId("developer-site-virtual-build-section")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-status").textContent).toContain(
+      DEV_MSG.SITE_VIRT_STATUS_VIRTUAL,
+    );
+  });
+
+  it("switching sql-database back to repository hides virtual Preview/Build", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-root-path")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-virtual-source-kind"), {
+      target: { value: "repository" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-site-virtual-root-path")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-site-virtual-sql-hint")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build-section")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-build")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-preview")).toBeNull();
+    expect(screen.queryByTestId("developer-site-virtual-publish")).toBeNull();
+  });
+
   it("saves repository mode to clear virtual configuration", async () => {
     getVirtual
       .mockResolvedValueOnce({
@@ -549,6 +666,72 @@ describe("VirtualSiteSourcePanel", () => {
     );
   });
 
+  it("shows Build chrome for sql-database and success result", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "sql-docs",
+      outputPath: "C:/tmp/virtual-sites/sql-docs",
+      pagesWritten: 2,
+      linkProblemCount: 0,
+      hasLinkProblems: false,
+      linkProblems: [],
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(buildVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-build-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_BUILD_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-build-pages").textContent).toBe("2");
+    expect(screen.getByTestId("developer-site-virtual-build-output").textContent).toContain(
+      "sql-docs",
+    );
+  });
+
+  it("shows Publish chrome for sql-database and success dest path", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "C:/inetpub/wwwroot/sql-help",
+      filesCopied: 4,
+      pagesWritten: 2,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-success").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PUBLISH_SUCCESS,
+    );
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("4");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "sql-help",
+    );
+  });
+
   it("lists link problem details on HTTP 200 with hasLinkProblems", async () => {
     const copySpy = vi.spyOn(sourceViewer, "copyTextToClipboard").mockResolvedValue(true);
     getVirtual.mockResolvedValue({
@@ -690,6 +873,37 @@ describe("VirtualSiteSourcePanel", () => {
       expect(open).toHaveBeenCalled();
     });
     expect(previewStatus).toHaveBeenCalledWith("Help");
+    expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
+    expect(open.mock.calls[0][1]).toBe("_blank");
+  });
+
+  it("shows Preview chrome for csv-filesystem and opens last-build home", async () => {
+    const open = vi.fn();
+    window.open = open;
+    getVirtual.mockResolvedValue({
+      sourceKind: "csv-filesystem",
+      rootPath: "C:/csv-docs",
+      virtual: true,
+    });
+    previewStatus.mockResolvedValue({
+      available: true,
+      homePath: "8.2/index.html",
+    });
+    render(<VirtualSiteSourcePanel siteName="CsvHelp" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-preview")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-csv-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_CSV_HINT,
+    );
+    expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
+      DEV_MSG.SITE_VIRT_PREVIEW_HINT,
+    );
+    fireEvent.click(screen.getByTestId("developer-site-virtual-preview"));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(previewStatus).toHaveBeenCalledWith("CsvHelp");
     expect(String(open.mock.calls[0][0])).toContain("8.2/index.html");
     expect(open.mock.calls[0][1]).toBe("_blank");
   });
