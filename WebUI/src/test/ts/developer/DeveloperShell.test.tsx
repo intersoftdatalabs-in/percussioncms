@@ -693,6 +693,39 @@ describe("DeveloperShell", () => {
     });
   });
 
+  it("keeps Developer mounted when content type lists are Jackson non-arrays (#3712)", async () => {
+    const { getContentTypeDetail } = await import("../../../main/ts/api/developer/contentTypesApi");
+    (getContentTypeDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      name: "percArchiveList",
+      label: "Archive",
+      guid: { stringValue: "0-2-316" },
+      fields: { empty: false },
+      childFieldSets: { empty: true },
+      allowedWorkflows: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: { NamedObjectRef: { name: "perc.page", label: "Page" } },
+      designGaps: {
+        DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      },
+    });
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    expect(screen.getByTestId("tab-developer-content-types")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-ct-gaps").textContent).toContain(
+      "Item-level pre/post exits not exposed",
+    );
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+    expect(screen.queryByText("Unable to load Content Types")).toBeNull();
+  });
+
   it("loads searches catalog section", async () => {
     render(<DeveloperShell initialSection="searches" embedded />);
     expect(screen.getByTestId("tab-developer-searches").getAttribute("aria-selected")).toBe(

@@ -221,6 +221,16 @@ Types** catalog unwraps those shapes so the table loads (and the first row can
 open Object ACL). Clients must not assume a bare array or call `.map` on the
 raw object.
 
+List and detail JSON list fields (`fields`, `childFieldSets`, `allowedWorkflows`,
+`allowedTemplates`, `designGaps`) are arrays. Some Jackson/JAXB envelopes
+historically serialize a one-item list as a single object, a
+`{ NamedObjectRef: … }` / `{ ContentTypeField: … }` / `{ DesignGap: … }` wrapper,
+or an empty-collection bean (`{ "empty": false }`). **Developer → Content Types**
+detail treats those non-array shapes as an empty list or unwraps the single item.
+The content type form stays on screen (or shows an in-panel error). It does
+**not** replace the Content Types section with **Unable to load Content Types**.
+Capability gaps still render as the human-readable **message** (fallback **code**).
+
 ### Field rule expressions (read-only)
 
 Content type **detail** field rows include boolean rule **flags** and, when rules exist,

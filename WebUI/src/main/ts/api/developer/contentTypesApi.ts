@@ -18,12 +18,25 @@
 import { normalizeDesignObjectGuid } from "../displayFormatGuid";
 import { get, post, put } from "../client";
 import { PATHS } from "../paths";
+import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
+
+export {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeDetail}. */
 export const CONTENT_TYPE_DETAIL_ROOT = "ContentTypeDetail";
@@ -78,6 +91,8 @@ function isEmptyCollectionBean(obj: Record<string, unknown>): boolean {
  * ({@code @XmlRootElement}). A one-level {@code env.ContentType} read misses
  * the class-name root and can leave a truthy object for {@code [...items]} /
  * {@code .map} — DeveloperSectionErrorBoundary (#3706 / peer searches #3576).
+ * Also flattens nested wraps, empty-collection beans (`{ "empty": false }`),
+ * and singleton objects (#3712 catalog safety).
  */
 function flattenContentTypeList(payload: unknown, depth = 0): unknown[] {
   if (payload == null || depth > MAX_CONTENT_TYPE_LIST_DEPTH) {
@@ -119,6 +134,17 @@ function flattenContentTypeList(payload: unknown, depth = 0): unknown[] {
   return [];
 }
 
+function normalizeContentTypeDetail(detail: ContentTypeDetail): ContentTypeDetail {
+  return {
+    ...detail,
+    fields: normalizeContentTypeFields(detail.fields),
+    childFieldSets: normalizeContentTypeStringList(detail.childFieldSets),
+    allowedWorkflows: normalizeNamedObjectRefs(detail.allowedWorkflows),
+    allowedTemplates: normalizeNamedObjectRefs(detail.allowedTemplates),
+    designGaps: normalizeContentTypeDesignGaps(detail.designGaps),
+  };
+}
+
 /**
  * Normalize list responses: bare array, {@code ContentTypeList}/{@code ContentType}
  * envelopes, nested wraps, singleton object, or empty-collection bean (#3706).
@@ -157,7 +183,7 @@ export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
   } else {
     return {};
   }
-  return normalizeDesignObjectGuid(body);
+  return normalizeDesignObjectGuid(normalizeContentTypeDetail(body));
 }
 
 /**
