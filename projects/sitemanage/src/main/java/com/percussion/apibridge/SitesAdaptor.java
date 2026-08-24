@@ -425,8 +425,9 @@ public class SitesAdaptor implements ISiteAdaptor {
   }
 
   /**
-   * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem and
-   * csv-filesystem Virtual Sites. Fail-closed on blank/unsafe/overlapping publish roots.
+   * Build then NIO-copy assembled files to {@link IPSSite#getRoot()} for git-filesystem,
+   * csv-filesystem, and sql-database Virtual Sites. Fail-closed on blank/unsafe/overlapping
+   * publish roots.
    */
   @Override
   public VirtualSitePublishResult publishVirtualSite(String nameOrId) {
@@ -498,8 +499,8 @@ public class SitesAdaptor implements ISiteAdaptor {
   }
 
   /**
-   * Load {@code _config.yaml} (required for git-filesystem). CSV trees may omit the file and
-   * infer versions from child directories.
+   * Load {@code _config.yaml} (required for git-filesystem and sql-database). CSV trees may omit
+   * the file and infer versions from child directories.
    */
   static VirtualSiteConfig loadBuildConfig(
       VirtualSiteSourceType type, Path siteRoot, String configFile, String siteKey)
@@ -639,8 +640,8 @@ public class SitesAdaptor implements ISiteAdaptor {
    * Admin + Virtual Site gate shared by preview status/file (missing output is handled by callers).
    *
    * <p>Preview is last-output based and applies to allow-listed Virtual kinds ({@code
-   * git-filesystem} and {@code csv-filesystem}), not git-only. Traditional {@code repository}
-   * Sites and unknown {@code virtual.sourceKind} values return 400 via {@link
+   * git-filesystem}, {@code csv-filesystem}, and {@code sql-database}), not git-only. Traditional
+   * {@code repository} Sites and unknown {@code virtual.sourceKind} values return 400 via {@link
    * PSVirtualSiteHelper#validate}.
    */
   IPSSite requireVirtualAdminSite(String nameOrId) {

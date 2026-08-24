@@ -730,7 +730,7 @@ export interface SiteDef {
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
  * traditional repository Site. Allow-listed virtual adapters:
- * {@code git-filesystem}, {@code csv-filesystem}.
+ * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database}.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

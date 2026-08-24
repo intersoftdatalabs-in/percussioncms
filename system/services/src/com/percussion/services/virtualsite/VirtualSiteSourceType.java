@@ -17,13 +17,18 @@
 package com.percussion.services.virtualsite;
 
 /**
- * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM} and {@link #CSV_FILESYSTEM} are
- * both wired through {@link PSVirtualSiteSourceFactory} for CMS REST Build.
+ * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, and
+ * {@link #SQL_DATABASE} are wired through {@link PSVirtualSiteSourceFactory}.
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
   /** Local CSV / directory of CSVs (stable {@code id} column; Markdown in {@code body}). */
-  CSV_FILESYSTEM("csv-filesystem");
+  CSV_FILESYSTEM("csv-filesystem"),
+  /**
+   * JDBC query adapter. This slice is in-memory H2 only ({@code jdbc:h2:mem:}); Oracle / MySQL /
+   * SQL Server URLs are rejected.
+   */
+  SQL_DATABASE("sql-database");
 
   private final String wireName;
 

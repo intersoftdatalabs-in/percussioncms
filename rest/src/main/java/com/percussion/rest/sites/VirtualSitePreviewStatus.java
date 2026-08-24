@@ -24,8 +24,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * Whether a last Virtual Site static build can be previewed from the product UI ({@code GET
  * /sites/{nameOrId}/virtual/preview}).
  *
- * <p>Last-output based for {@code git-filesystem} and {@code csv-filesystem} (not git-only).
- * Missing or failed builds return HTTP 200 with {@code available=false} and a message — not 500.
+ * <p>Last-output based for {@code git-filesystem}, {@code csv-filesystem}, and {@code
+ * sql-database} (not git-only). Missing or failed builds return HTTP 200 with {@code
+ * available=false} and a message — not 500.
  *
  * <p>Wire getters return plain types (not {@code Optional}) so Jackson emits scalars, not
  * Optional-bean {@code empty}/{@code present} keys (#3411 / #3388).
