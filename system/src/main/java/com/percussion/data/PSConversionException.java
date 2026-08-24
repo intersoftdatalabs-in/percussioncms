@@ -16,6 +16,7 @@
  */
 package com.percussion.data;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -66,6 +67,36 @@ public class PSConversionException extends PSException {
    */
   public PSConversionException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSConversionException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with message arguments (varargs, matching the int ctor).
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the arguments to use as the arguments in the error message
+   */
+  public PSConversionException(IPSErrorCode code, Object... arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause causal throwable; may be {@code null}
+   * @param arrayArgs the arguments to use as the arguments in the error message
+   */
+  public PSConversionException(IPSErrorCode code, Throwable cause, Object... arrayArgs) {
+    super(code, arrayArgs, cause);
   }
 
   /**

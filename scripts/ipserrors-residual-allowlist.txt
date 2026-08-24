@@ -6,6 +6,7 @@
 # Shrink this list as retype PRs merge:
 #   #3584 SiteManage IPSSiteManageErrors -> SiteManageErrorCodes
 #   #3585 webservices/transformation leftover call sites
+#   #3756 leftover extensions-main production IPS*Errors -> *ErrorCodes
 #
 # Always-allow (not listed here): files named IPS*Errors.java (interfaces)
 # and *ErrorCodes.java / *ErrorCode.java (typed bridges).
@@ -139,26 +140,6 @@ modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchema
 modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchemaHandler.java
 modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableSchemaHandlerCollection.java
 modules/TableFactory/src/main/java/com/percussion/tablefactory/tools/PSCatalogTableData.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSAuthtypeDispatcher.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSConcatAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSConcatWithIdAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSDefaultAssemblyLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGenerateAssemblerLink.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGeneratePubLocation.java
-modules/extensions-main/src/main/java/com/percussion/cas/PSGenericAssembly.java
-modules/extensions-main/src/main/java/com/percussion/extensions/cms/PSCheckIfVariantIsInUse.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSFileInfo.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSPrepareInClause.java
-modules/extensions-main/src/main/java/com/percussion/extensions/general/PSSetArrayHtmlParameter.java
-modules/extensions-main/src/main/java/com/percussion/extensions/publishing/PSPublishContent.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSFormEncode.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSMapInputValue.java
-modules/extensions-main/src/main/java/com/percussion/extensions/translations/PSMapOutputValue.java
-modules/extensions-main/src/main/java/com/percussion/extensions/usersearch/PSServerUserSearch.java
-modules/extensions-main/src/main/java/com/percussion/relationship/PSTranslationConstraint.java
-modules/extensions-main/src/main/java/com/percussion/uicontext/PSGetAndSetCxOptions.java
-modules/extensions-main/src/main/java/com/percussion/uicontext/PSTranslationKeyValueAccessor.java
-modules/extensions-main/src/main/java/com/percussion/validate/PSValidateSlotName.java
 modules/extensions-nav/src/main/java/com/percussion/fastforward/managednav/PSNavTreeSlotMarker.java
 modules/extensions-sfp/src/main/java/com/percussion/fastforward/calendar/PSExpandRecurringEvents.java
 modules/extensions-sfp/src/main/java/com/percussion/fastforward/calendar/PSMakeCalendar.java

@@ -16,13 +16,13 @@
  */
 package com.percussion.extensions.translations;
 
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -74,7 +74,7 @@ public class PSMapInputValue implements IPSFieldInputTransformer {
       }
     } catch (UnsupportedEncodingException e) {
       throw new PSConversionException(
-          IPSServerErrors.UNEXPECTED_EXCEPTION_LOG, "Unsupported encoding", null);
+          ServerErrorCodes.UNEXPECTED_EXCEPTION_LOG, "Unsupported encoding", null);
     }
 
     return null;
