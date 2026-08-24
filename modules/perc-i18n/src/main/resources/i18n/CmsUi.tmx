@@ -13346,10 +13346,10 @@ Devam etmek?</seg></tuv></tu>
     <tuv xml:lang="ru"><seg>Возникла проблема при снятии блокировки вкладки категории!</seg></tuv><tuv xml:lang="he"><seg>התרחשה בעיה בעת הסרת נעילת לשונית הקטגוריה!</seg></tuv><tuv xml:lang="uk"><seg>Виникла проблема під час видалення блокування вкладки категорії!</seg></tuv><tuv xml:lang="lou"><seg>Some problem occurred pandan removing la category tab lock!</seg></tuv><tuv xml:lang="pl"><seg>Wystąpił problem podczas usuwania blokady karty kategorii!</seg></tuv><tuv xml:lang="tr"><seg>Kategori sekmesi kilidi kaldırılırken bazı sorunlar oluştu!</seg></tuv></tu>
     <tu tuid="perc.ui.category.controller@Publish Success">
       <tuv xml:lang="en-us"><seg>Publish Success</seg></tuv>
-    <tuv xml:lang="lou"><seg>Pibliyé Siksé</seg></tuv><tuv xml:lang="pl"><seg>Opublikuj sukces</seg></tuv><tuv xml:lang="tr"><seg>Başarıyı Yayınla</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Pibliyé Siksé</seg></tuv><tuv xml:lang="pl"><seg>Opublikuj sukces</seg></tuv><tuv xml:lang="tr"><seg>Başarıyı Yayınla</seg></tuv><tuv xml:lang="hi"><seg>सफलता प्रकाशित करें</seg></tuv><tuv xml:lang="bn"><seg>সাফল্য প্রকাশ করুন</seg></tuv><tuv xml:lang="te"><seg>పబ్లిష్ సక్సెస్</seg></tuv><tuv xml:lang="es"><seg>Publicar con éxito</seg></tuv><tuv xml:lang="fr"><seg>Succès de la publication</seg></tuv></tu>
     <tu tuid="perc.ui.category.controller@Categories Published to DTS">
       <tuv xml:lang="en-us"><seg>Categories were published to the selected DTS server(s).</seg></tuv>
-    <tuv xml:lang="lou"><seg>Categories té pibliyé a la chwazi DTS sèrvé(s).</seg></tuv><tuv xml:lang="pl"><seg>Kategorie zostały opublikowane na wybranych serwerach DTS.</seg></tuv><tuv xml:lang="tr"><seg>Kategoriler seçilen DTS sunucularına yayınlandı.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Categories té pibliyé a la chwazi DTS sèrvé(s).</seg></tuv><tuv xml:lang="pl"><seg>Kategorie zostały opublikowane na wybranych serwerach DTS.</seg></tuv><tuv xml:lang="tr"><seg>Kategoriler seçilen DTS sunucularına yayınlandı.</seg></tuv><tuv xml:lang="hi"><seg>श्रेणियाँ चयनित DTS सर्वर पर प्रकाशित की गईं।</seg></tuv><tuv xml:lang="bn"><seg>বিভাগগুলি নির্বাচিত ডিটিএস সার্ভারে প্রকাশিত হয়েছিল৷</seg></tuv><tuv xml:lang="te"><seg>ఎంచుకున్న DTS సర్వర్(లు)కి వర్గాలు ప్రచురించబడ్డాయి.</seg></tuv><tuv xml:lang="es"><seg>Las categorías se publicaron en los servidores DTS seleccionados.</seg></tuv><tuv xml:lang="fr"><seg>Les catégories ont été publiées sur le(s) serveur(s) DTS sélectionné(s).</seg></tuv></tu>
     <tu tuid="perc.ui.category.controller@Publish Error">
       <tuv xml:lang="en-us"><seg>Publish Error</seg></tuv>
       <tuv xml:lang="ar"><seg>خطأ في النشر</seg></tuv>
@@ -18839,31 +18839,31 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tuv xml:lang="ru"><seg>Предупреждение:</seg></tuv><tuv xml:lang="he"><seg>אַזהָרָה:</seg></tuv><tuv xml:lang="uk"><seg>УВАГА:</seg></tuv><tuv xml:lang="lou"><seg>Avètisman:</seg></tuv><tuv xml:lang="pl"><seg>Ostrzeżenie:</seg></tuv><tuv xml:lang="tr"><seg>Uyarı:</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Label">
       <tuv xml:lang="en-us"><seg>Empty Recycling</seg></tuv>
-    <tuv xml:lang="lou"><seg>Vid Recycling</seg></tuv><tuv xml:lang="pl"><seg>Pusty recykling</seg></tuv><tuv xml:lang="tr"><seg>Boş Geri Dönüşüm</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Vid Recycling</seg></tuv><tuv xml:lang="pl"><seg>Pusty recykling</seg></tuv><tuv xml:lang="tr"><seg>Boş Geri Dönüşüm</seg></tuv><tuv xml:lang="hi"><seg>खाली पुनर्चक्रण</seg></tuv><tuv xml:lang="bn"><seg>খালি রিসাইক্লিং</seg></tuv><tuv xml:lang="te"><seg>ఖాళీ రీసైక్లింగ్</seg></tuv><tuv xml:lang="es"><seg>Reciclaje vacío</seg></tuv><tuv xml:lang="fr"><seg>Recyclage vide</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Click">
       <tuv xml:lang="en-us"><seg>Permanently empty the Recycling bin</seg></tuv>
-    <tuv xml:lang="lou"><seg>Permanently vid la Recycling bin</seg></tuv><tuv xml:lang="pl"><seg>Opróżnij na stałe pojemnik na śmieci</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusunu kalıcı olarak boşaltın</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Permanently vid la Recycling bin</seg></tuv><tuv xml:lang="pl"><seg>Opróżnij na stałe pojemnik na śmieci</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusunu kalıcı olarak boşaltın</seg></tuv><tuv xml:lang="hi"><seg>रीसाइक्लिंग बिन को स्थायी रूप से खाली करें</seg></tuv><tuv xml:lang="bn"><seg>রিসাইক্লিং বিন স্থায়ীভাবে খালি করুন</seg></tuv><tuv xml:lang="te"><seg>రీసైక్లింగ్ బిన్u200cను శాశ్వతంగా ఖాళీ చేయండి</seg></tuv><tuv xml:lang="es"><seg>Vaciar permanentemente la papelera de reciclaje</seg></tuv><tuv xml:lang="fr"><seg>Vider définitivement le bac de recyclage</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Title">
       <tuv xml:lang="en-us"><seg>Empty Recycling</seg></tuv>
-    <tuv xml:lang="lou"><seg>Vid Recycling</seg></tuv><tuv xml:lang="pl"><seg>Pusty recykling</seg></tuv><tuv xml:lang="tr"><seg>Boş Geri Dönüşüm</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Vid Recycling</seg></tuv><tuv xml:lang="pl"><seg>Pusty recykling</seg></tuv><tuv xml:lang="tr"><seg>Boş Geri Dönüşüm</seg></tuv><tuv xml:lang="hi"><seg>खाली पुनर्चक्रण</seg></tuv><tuv xml:lang="bn"><seg>খালি রিসাইক্লিং</seg></tuv><tuv xml:lang="te"><seg>ఖాళీ రీసైక్లింగ్</seg></tuv><tuv xml:lang="es"><seg>Reciclaje vacío</seg></tuv><tuv xml:lang="fr"><seg>Recyclage vide</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Confirm">
       <tuv xml:lang="en-us"><seg>This will permanently delete all items in the Recycling bin. This action cannot be undone. Are you sure you want to empty the Recycling bin?</seg></tuv>
-    <tuv xml:lang="lou"><seg>Sa-a will permanently efase tout items nan la Recycling bin. Sa-a action cannot été undone. A sir to want a vid la Recycling bin?</seg></tuv><tuv xml:lang="pl"><seg>Spowoduje to trwałe usunięcie wszystkich elementów znajdujących się w Koszu. Tej akcji nie można cofnąć. Czy na pewno chcesz opróżnić Kosz?</seg></tuv><tuv xml:lang="tr"><seg>Bu, Geri Dönüşüm Kutusu'ndaki tüm öğeleri kalıcı olarak silecektir. Bu eylem geri alınamaz. Geri Dönüşüm Kutusunu boşaltmak istediğinizden emin misiniz?</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Sa-a will permanently efase tout items nan la Recycling bin. Sa-a action cannot été undone. A sir to want a vid la Recycling bin?</seg></tuv><tuv xml:lang="pl"><seg>Spowoduje to trwałe usunięcie wszystkich elementów znajdujących się w Koszu. Tej akcji nie można cofnąć. Czy na pewno chcesz opróżnić Kosz?</seg></tuv><tuv xml:lang="tr"><seg>Bu, Geri Dönüşüm Kutusu'ndaki tüm öğeleri kalıcı olarak silecektir. Bu eylem geri alınamaz. Geri Dönüşüm Kutusunu boşaltmak istediğinizden emin misiniz?</seg></tuv><tuv xml:lang="hi"><seg>यह रीसाइक्लिंग बिन में सभी वस्तुओं को स्थायी रूप से हटा देगा। इस एक्शन को वापस नहीं किया जा सकता। क्या आप वाकई रीसाइक्लिंग बिन खाली करना चाहते हैं?</seg></tuv><tuv xml:lang="bn"><seg>এটি রিসাইক্লিং বিনের সমস্ত আইটেম স্থায়ীভাবে মুছে ফেলবে। এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না৷ আপনি কি পুনর্ব্যবহারযোগ্য বিন খালি করার বিষয়ে নিশ্চিত?</seg></tuv><tuv xml:lang="te"><seg>ఇది రీసైక్లింగ్ బిన్u200cలోని అన్ని అంశాలను శాశ్వతంగా తొలగిస్తుంది. ఈ చర్య రద్దు చేయబడదు. మీరు రీసైక్లింగ్ బిన్u200cను ఖచ్చితంగా ఖాళీ చేయాలనుకుంటున్నారా?</seg></tuv><tuv xml:lang="es"><seg>Esto eliminará permanentemente todos los elementos de la Papelera de reciclaje. Esta acción no se puede deshacer. ¿Estás seguro de que quieres vaciar la papelera de reciclaje?</seg></tuv><tuv xml:lang="fr"><seg>Cela supprimera définitivement tous les éléments de la corbeille de recyclage. Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir vider la corbeille de recyclage ?</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Empty">
       <tuv xml:lang="en-us"><seg>Empty</seg></tuv>
-    <tuv xml:lang="lou"><seg>Vid</seg></tuv><tuv xml:lang="pl"><seg>Pusty</seg></tuv><tuv xml:lang="tr"><seg>Boş</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Vid</seg></tuv><tuv xml:lang="pl"><seg>Pusty</seg></tuv><tuv xml:lang="tr"><seg>Boş</seg></tuv><tuv xml:lang="hi"><seg>खाली</seg></tuv><tuv xml:lang="bn"><seg>খালি</seg></tuv><tuv xml:lang="te"><seg>ఖాళీ</seg></tuv><tuv xml:lang="es"><seg>Vacío</seg></tuv><tuv xml:lang="fr"><seg>Vide</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Not Authorized">
       <tuv xml:lang="en-us"><seg>Only Admin users may empty the Recycling bin.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Only Admin itilizatè-yé may vid la Recycling bin.</seg></tuv><tuv xml:lang="pl"><seg>Tylko użytkownicy administracyjni mogą opróżniać kosz.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu'nu yalnızca Yönetici kullanıcılar boşaltabilir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Only Admin itilizatè-yé may vid la Recycling bin.</seg></tuv><tuv xml:lang="pl"><seg>Tylko użytkownicy administracyjni mogą opróżniać kosz.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu'nu yalnızca Yönetici kullanıcılar boşaltabilir.</seg></tuv><tuv xml:lang="hi"><seg>केवल व्यवस्थापक उपयोगकर्ता ही रीसाइक्लिंग बिन को खाली कर सकते हैं।</seg></tuv><tuv xml:lang="bn"><seg>শুধুমাত্র অ্যাডমিন ব্যবহারকারীরা রিসাইক্লিং বিন খালি করতে পারেন।</seg></tuv><tuv xml:lang="te"><seg>అడ్మిన్ వినియోగదారులు మాత్రమే రీసైక్లింగ్ బిన్u200cను ఖాళీ చేయవచ్చు.</seg></tuv><tuv xml:lang="es"><seg>Sólo los usuarios administradores pueden vaciar la papelera de reciclaje.</seg></tuv><tuv xml:lang="fr"><seg>Seuls les utilisateurs administrateurs peuvent vider la corbeille de recyclage.</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Error">
       <tuv xml:lang="en-us"><seg>Failed to empty the Recycling bin.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Échouvé a vid la Recycling bin.</seg></tuv><tuv xml:lang="pl"><seg>Nie udało się opróżnić kosza.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu boşaltılamadı.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Échouvé a vid la Recycling bin.</seg></tuv><tuv xml:lang="pl"><seg>Nie udało się opróżnić kosza.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu boşaltılamadı.</seg></tuv><tuv xml:lang="hi"><seg>पुनर्चक्रण बिन खाली करने में विफल.</seg></tuv><tuv xml:lang="bn"><seg>রিসাইক্লিং বিন খালি করতে ব্যর্থ হয়েছে৷</seg></tuv><tuv xml:lang="te"><seg>రీసైక్లింగ్ బిన్u200cను ఖాళీ చేయడంలో విఫలమైంది.</seg></tuv><tuv xml:lang="es"><seg>No se pudo vaciar la papelera de reciclaje.</seg></tuv><tuv xml:lang="fr"><seg>Échec de la vidange de la corbeille de recyclage.</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Already Empty">
       <tuv xml:lang="en-us"><seg>The Recycling bin is already empty.</seg></tuv>
-    <tuv xml:lang="lou"><seg>La Recycling bin sé already empty.</seg></tuv><tuv xml:lang="pl"><seg>Kosz na śmieci jest już pusty.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu zaten boş.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>La Recycling bin sé already empty.</seg></tuv><tuv xml:lang="pl"><seg>Kosz na śmieci jest już pusty.</seg></tuv><tuv xml:lang="tr"><seg>Geri Dönüşüm Kutusu zaten boş.</seg></tuv><tuv xml:lang="hi"><seg>रीसाइक्लिंग बिन पहले से ही खाली है.</seg></tuv><tuv xml:lang="bn"><seg>রিসাইক্লিং বিন ইতিমধ্যেই খালি।</seg></tuv><tuv xml:lang="te"><seg>రీసైక్లింగ్ బిన్ ఇప్పటికే ఖాళీగా ఉంది.</seg></tuv><tuv xml:lang="es"><seg>La papelera de reciclaje ya está vacía.</seg></tuv><tuv xml:lang="fr"><seg>La corbeille de recyclage est déjà vide.</seg></tuv></tu>
     <tu tuid="perc.ui.empty.recycling@Partial">
       <tuv xml:lang="en-us"><seg>Some items could not be permanently deleted ({0}). The Recycling bin has been refreshed.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Some items could pa été permanently efasé ({0}). La Recycling bin has été refreshed.</seg></tuv><tuv xml:lang="pl"><seg>Niektórych elementów nie można trwale usunąć ({0}). Kosz na śmieci został odświeżony.</seg></tuv><tuv xml:lang="tr"><seg>Bazı öğeler kalıcı olarak silinemedi ({0}). Geri dönüşüm kutusu yenilendi.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Some items could pa été permanently efasé ({0}). La Recycling bin has été refreshed.</seg></tuv><tuv xml:lang="pl"><seg>Niektórych elementów nie można trwale usunąć ({0}). Kosz na śmieci został odświeżony.</seg></tuv><tuv xml:lang="tr"><seg>Bazı öğeler kalıcı olarak silinemedi ({0}). Geri dönüşüm kutusu yenilendi.</seg></tuv><tuv xml:lang="hi"><seg>कुछ आइटम स्थायी रूप से नहीं हटाए जा सके ({0}). रीसाइक्लिंग बिन को ताज़ा कर दिया गया है।</seg></tuv><tuv xml:lang="bn"><seg>কিছু আইটেম স্থায়ীভাবে মুছে ফেলা যায়নি ({0})। রিসাইক্লিং বিন রিফ্রেশ করা হয়েছে.</seg></tuv><tuv xml:lang="te"><seg>కొన్ని అంశాలు శాశ్వతంగా తొలగించబడవు ({0}). రీసైక్లింగ్ బిన్ రిఫ్రెష్ చేయబడింది.</seg></tuv><tuv xml:lang="es"><seg>Algunos elementos no se pudieron eliminar permanentemente ({0}). La papelera de reciclaje se ha actualizado.</seg></tuv><tuv xml:lang="fr"><seg>Certains éléments n'ont pas pu être supprimés définitivement ({0}). La corbeille de recyclage a été actualisée.</seg></tuv></tu>
     <tu tuid="perc.ui.restore.messsage@Restore Not Allowed">
       <tuv xml:lang="en-us"><seg>Please select parent folder to restore. </seg></tuv>
       <tuv xml:lang="ar"><seg>الرجاء تحديد المجلد الأصلي لاستعادته.</seg></tuv>
@@ -26755,19 +26755,19 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <!-- Issue #2284 / PR #2292: S3 optional credentials footer warning + a11y hint (en-us; other locales fall back) -->
     <tu tuid="perc.ui.publish.servers.s3@Access Key">
       <tuv xml:lang="en-us"><seg>Access Key</seg></tuv>
-    <tuv xml:lang="lou"><seg>Access Key</seg></tuv><tuv xml:lang="pl"><seg>Klucz dostępu</seg></tuv><tuv xml:lang="tr"><seg>Erişim Anahtarı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Access Key</seg></tuv><tuv xml:lang="pl"><seg>Klucz dostępu</seg></tuv><tuv xml:lang="tr"><seg>Erişim Anahtarı</seg></tuv><tuv xml:lang="hi"><seg>प्रवेश की चाबी</seg></tuv><tuv xml:lang="bn"><seg>অ্যাক্সেস কী</seg></tuv><tuv xml:lang="te"><seg>యాక్సెస్ కీ</seg></tuv><tuv xml:lang="es"><seg>Clave de acceso</seg></tuv><tuv xml:lang="fr"><seg>Clé d'accès</seg></tuv></tu>
     <tu tuid="perc.ui.publish.servers.s3@Security Key">
       <tuv xml:lang="en-us"><seg>Security Key</seg></tuv>
-    <tuv xml:lang="lou"><seg>Sékirité Key</seg></tuv><tuv xml:lang="pl"><seg>Klucz bezpieczeństwa</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Anahtarı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Sékirité Key</seg></tuv><tuv xml:lang="pl"><seg>Klucz bezpieczeństwa</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Anahtarı</seg></tuv><tuv xml:lang="hi"><seg>सुरक्षा कुंजी</seg></tuv><tuv xml:lang="bn"><seg>নিরাপত্তা কী</seg></tuv><tuv xml:lang="te"><seg>భద్రతా కీ</seg></tuv><tuv xml:lang="es"><seg>Clave de seguridad</seg></tuv><tuv xml:lang="fr"><seg>Clé de sécurité</seg></tuv></tu>
     <tu tuid="perc.ui.publish.servers.s3@Role ARN">
       <tuv xml:lang="en-us"><seg>Role ARN</seg></tuv>
-    <tuv xml:lang="lou"><seg>Ròl ARN</seg></tuv><tuv xml:lang="pl"><seg>Rola ARN</seg></tuv><tuv xml:lang="tr"><seg>Rol ARN'si</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Ròl ARN</seg></tuv><tuv xml:lang="pl"><seg>Rola ARN</seg></tuv><tuv xml:lang="tr"><seg>Rol ARN'si</seg></tuv><tuv xml:lang="hi"><seg>भूमिका एआरएन</seg></tuv><tuv xml:lang="bn"><seg>ভূমিকা ARN</seg></tuv><tuv xml:lang="te"><seg>పాత్ర ARN</seg></tuv><tuv xml:lang="es"><seg>ARN de rol</seg></tuv><tuv xml:lang="fr"><seg>ARN de rôle</seg></tuv></tu>
     <tu tuid="perc.ui.publish.servers.s3@Empty credentials warning">
       <tuv xml:lang="en-us"><seg>Amazon S3 fields are empty ({0}). Save will proceed; ensure EC2 instance profile, Assume Role, or other AWS credentials are available. On Amazon Linux 2023+ IMDS uses tokens (HttpTokens=required); containers need HttpPutResponseHopLimit &gt;= 2.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Amazon S3 fields sé vid ({0}). Sové will proceed; ensure EC2 instance profile, Assume Ròl, oswa other AWS credentials sé available. Asou Amazon Linux 2023+ IMDS uses tokens (HttpTokens=obligatwa); containers need HttpPutResponseHopLimit &gt;= 2.</seg></tuv><tuv xml:lang="pl"><seg>Pola Amazon S3 są puste ({0}). Zapis będzie kontynuowany; upewnij się, że profil instancji EC2, Przyjmij rolę lub inne poświadczenia AWS są dostępne. W systemie Amazon Linux 2023+ IMDS używa tokenów (HttpTokens=wymagane); kontenery wymagają HttpPutResponseHopLimit &gt;= 2.</seg></tuv><tuv xml:lang="tr"><seg>Amazon S3 alanları boş ({0}). Kaydetme devam edecek; EC2 bulut sunucusu profilinin, Rol Üstlenmenin veya diğer AWS kimlik bilgilerinin mevcut olduğundan emin olun. Amazon Linux 2023+ üzerinde IMDS belirteçleri kullanır (HttpTokens=gerekli); kapsayıcıların HttpPutResponseHopLimit &gt;= 2 olması gerekir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Amazon S3 fields sé vid ({0}). Sové will proceed; ensure EC2 instance profile, Assume Ròl, oswa other AWS credentials sé available. Asou Amazon Linux 2023+ IMDS uses tokens (HttpTokens=obligatwa); containers need HttpPutResponseHopLimit &gt;= 2.</seg></tuv><tuv xml:lang="pl"><seg>Pola Amazon S3 są puste ({0}). Zapis będzie kontynuowany; upewnij się, że profil instancji EC2, Przyjmij rolę lub inne poświadczenia AWS są dostępne. W systemie Amazon Linux 2023+ IMDS używa tokenów (HttpTokens=wymagane); kontenery wymagają HttpPutResponseHopLimit &gt;= 2.</seg></tuv><tuv xml:lang="tr"><seg>Amazon S3 alanları boş ({0}). Kaydetme devam edecek; EC2 bulut sunucusu profilinin, Rol Üstlenmenin veya diğer AWS kimlik bilgilerinin mevcut olduğundan emin olun. Amazon Linux 2023+ üzerinde IMDS belirteçleri kullanır (HttpTokens=gerekli); kapsayıcıların HttpPutResponseHopLimit &gt;= 2 olması gerekir.</seg></tuv><tuv xml:lang="hi"><seg>अमेज़ॅन S3 फ़ील्ड खाली हैं ({0})। सहेजें आगे बढ़ेंगे; सुनिश्चित करें कि EC2 इंस्टेंस प्रोफ़ाइल, मान लें भूमिका, या अन्य AWS क्रेडेंशियल उपलब्ध हैं। Amazon Linux 2023+ पर IMDS टोकन (HttpTokens=आवश्यक) का उपयोग करता है; कंटेनरों को HttpPutResponseHopLimit &gt;= 2 की आवश्यकता है।</seg></tuv><tuv xml:lang="bn"><seg>Amazon S3 ক্ষেত্রগুলি খালি ({0})। সংরক্ষণ এগিয়ে যাবে; নিশ্চিত করুন EC2 ইনস্ট্যান্স প্রোফাইল, অনুমান ভূমিকা, বা অন্যান্য AWS শংসাপত্র উপলব্ধ। Amazon Linux 2023+ IMDS-এ টোকেন ব্যবহার করে (HttpTokens=প্রয়োজনীয়); পাত্রে প্রয়োজন HttpPutResponseHopLimit &gt;= 2।</seg></tuv><tuv xml:lang="te"><seg>Amazon S3 ఫీల్డ్u200cలు ఖాళీగా ఉన్నాయి ({0}). సేవ్ కొనసాగుతుంది; EC2 ఉదాహరణ ప్రొఫైల్, ఊహించు పాత్ర లేదా ఇతర AWS ఆధారాలు అందుబాటులో ఉన్నాయని నిర్ధారించుకోండి. Amazon Linux 2023+లో IMDS టోకెన్u200cలను ఉపయోగిస్తుంది (HttpTokens=అవసరం); కంటైనర్u200cలకు HttpPutResponseHopLimit &gt;= 2 అవసరం.</seg></tuv><tuv xml:lang="es"><seg>Los campos de Amazon S3 están vacíos ({0}). Se guardará; asegúrese de que el perfil de instancia EC2, Asumir rol u otras credenciales de AWS estén disponibles. En Amazon Linux 2023+, IMDS utiliza tokens (HttpTokens=obligatorio); los contenedores necesitan HttpPutResponseHopLimit &gt;= 2.</seg></tuv><tuv xml:lang="fr"><seg>Les champs Amazon S3 sont vides ({0}). La sauvegarde se poursuivra ; assurez-vous que le profil d'instance EC2, Assume Role ou d'autres informations d'identification AWS sont disponibles. Sur Amazon Linux 2023+, IMDS utilise des jetons (HttpTokens=required) ; les conteneurs ont besoin de HttpPutResponseHopLimit &gt;= 2.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.servers.s3@Optional credentials hint">
       <tuv xml:lang="en-us"><seg>Optional when using an EC2 instance profile or Assume Role. Leave empty only if alternate AWS credentials will be available at publish time. Saving with empty fields shows a footer warning.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Optional when using yon EC2 instance profile oswa Assume Role. Leave vid only if alternate AWS credentials will été disponib at pibliyé time. Saving épi vid fields shows yon footer warning.</seg></tuv><tuv xml:lang="pl"><seg>Opcjonalne w przypadku korzystania z profilu instancji EC2 lub Przyjmij rolę. Pozostaw puste tylko wtedy, gdy w momencie publikacji będą dostępne alternatywne poświadczenia AWS. Zapisywanie z pustymi polami powoduje wyświetlenie ostrzeżenia w stopce.</seg></tuv><tuv xml:lang="tr"><seg>EC2 bulut sunucusu profili veya Rol Üstlenme kullanıldığında isteğe bağlıdır. Yalnızca yayınlama zamanında alternatif AWS kimlik bilgileri mevcut olacaksa boş bırakın. Boş alanlarla kaydedildiğinde altbilgi uyarısı görüntülenir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Optional when using yon EC2 instance profile oswa Assume Role. Leave vid only if alternate AWS credentials will été disponib at pibliyé time. Saving épi vid fields shows yon footer warning.</seg></tuv><tuv xml:lang="pl"><seg>Opcjonalne w przypadku korzystania z profilu instancji EC2 lub Przyjmij rolę. Pozostaw puste tylko wtedy, gdy w momencie publikacji będą dostępne alternatywne poświadczenia AWS. Zapisywanie z pustymi polami powoduje wyświetlenie ostrzeżenia w stopce.</seg></tuv><tuv xml:lang="tr"><seg>EC2 bulut sunucusu profili veya Rol Üstlenme kullanıldığında isteğe bağlıdır. Yalnızca yayınlama zamanında alternatif AWS kimlik bilgileri mevcut olacaksa boş bırakın. Boş alanlarla kaydedildiğinde altbilgi uyarısı görüntülenir.</seg></tuv><tuv xml:lang="hi"><seg>EC2 इंस्टेंस प्रोफ़ाइल या मान लें भूमिका का उपयोग करते समय वैकल्पिक। केवल तभी खाली छोड़ें जब प्रकाशन के समय वैकल्पिक AWS क्रेडेंशियल उपलब्ध होंगे। खाली फ़ील्ड के साथ सहेजना एक पाद लेख चेतावनी दिखाता है।</seg></tuv><tuv xml:lang="bn"><seg>একটি EC2 ইনস্ট্যান্স প্রোফাইল বা অনুমান ভূমিকা ব্যবহার করার সময় ঐচ্ছিক। প্রকাশের সময় বিকল্প AWS শংসাপত্র পাওয়া গেলেই খালি ছেড়ে দিন। খালি ক্ষেত্রগুলির সাথে সংরক্ষণ করা একটি ফুটার সতর্কতা দেখায়।</seg></tuv><tuv xml:lang="te"><seg>EC2 ఇన్u200cస్టాన్స్ ప్రొఫైల్u200cను ఉపయోగిస్తున్నప్పుడు లేదా పాత్రను ఊహించినప్పుడు ఐచ్ఛికం. ప్రత్యామ్నాయ AWS ఆధారాలు ప్రచురణ సమయంలో అందుబాటులో ఉంటే మాత్రమే ఖాళీగా వదిలివేయండి. ఖాళీ ఫీల్డ్u200cలతో సేవ్ చేయడం ఫుటర్ హెచ్చరికను చూపుతుంది.</seg></tuv><tuv xml:lang="es"><seg>Opcional cuando se utiliza un perfil de instancia EC2 o Asumir rol. Déjelo en blanco solo si habrá credenciales de AWS alternativas disponibles en el momento de la publicación. Al guardar con campos vacíos se muestra una advertencia en el pie de página.</seg></tuv><tuv xml:lang="fr"><seg>Facultatif lors de l’utilisation d’un profil d’instance EC2 ou Assume Role. Laissez vide uniquement si d'autres informations d'identification AWS seront disponibles au moment de la publication. L'enregistrement avec des champs vides affiche un avertissement de pied de page.</seg></tuv></tu>
       <!-- Issue #2393 / parent #2374 slice 1: Profile hub shell + My profile entry (en-us source; other locales fall back / translate later) -->
     <tu tuid="perc.ui.profile.modern@My profile">
       <tuv xml:lang="en-us"><seg>My profile</seg></tuv>
@@ -26783,7 +26783,7 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tuv xml:lang="ar"><seg>حساب</seg></tuv><tuv xml:lang="bn"><seg>অ্যাকাউন্ট</seg></tuv><tuv xml:lang="de"><seg>Konto</seg></tuv><tuv xml:lang="es"><seg>Cuenta</seg></tuv><tuv xml:lang="fr"><seg>Compte</seg></tuv><tuv xml:lang="he"><seg>חֶשְׁבּוֹן</seg></tuv><tuv xml:lang="hi"><seg>खाता</seg></tuv><tuv xml:lang="it"><seg>Account</seg></tuv><tuv xml:lang="nl"><seg>Account</seg></tuv><tuv xml:lang="pl"><seg>Konto</seg></tuv><tuv xml:lang="pt"><seg>Conta</seg></tuv><tuv xml:lang="ru"><seg>Аккаунт</seg></tuv><tuv xml:lang="sv"><seg>Konto</seg></tuv><tuv xml:lang="te"><seg>ఖాతా</seg></tuv><tuv xml:lang="tr"><seg>Hesap</seg></tuv><tuv xml:lang="uk"><seg>Обліковий запис</seg></tuv><tuv xml:lang="zh-cn"><seg>帐户</seg></tuv><tuv xml:lang="zh-tw"><seg>帳戶</seg></tuv><tuv xml:lang="lou"><seg>Kont</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Your login id, email, provider, and role summary for this account.">
       <tuv xml:lang="en-us"><seg>Your login id, email, provider, and role summary for this account.</seg></tuv>
-    <tuv xml:lang="lou"><seg>To koneksyon id, imèl, provider, épi ròl summary pou this account.</seg></tuv><tuv xml:lang="pl"><seg>Twój identyfikator logowania, adres e-mail, dostawca i podsumowanie roli dla tego konta.</seg></tuv><tuv xml:lang="tr"><seg>Bu hesap için giriş kimliğiniz, e-posta adresiniz, sağlayıcınız ve rol özetiniz.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>To koneksyon id, imèl, provider, épi ròl summary pou this account.</seg></tuv><tuv xml:lang="pl"><seg>Twój identyfikator logowania, adres e-mail, dostawca i podsumowanie roli dla tego konta.</seg></tuv><tuv xml:lang="tr"><seg>Bu hesap için giriş kimliğiniz, e-posta adresiniz, sağlayıcınız ve rol özetiniz.</seg></tuv><tuv xml:lang="hi"><seg>इस खाते के लिए आपकी लॉगिन आईडी, ईमेल, प्रदाता और भूमिका सारांश।</seg></tuv><tuv xml:lang="bn"><seg>এই অ্যাকাউন্টের জন্য আপনার লগইন আইডি, ইমেল, প্রদানকারী এবং ভূমিকা সারাংশ।</seg></tuv><tuv xml:lang="te"><seg>ఈ ఖాతా కోసం మీ లాగిన్ ఐడి, ఇమెయిల్, ప్రొవైడర్ మరియు పాత్ర సారాంశం.</seg></tuv><tuv xml:lang="es"><seg>Su identificación de inicio de sesión, correo electrónico, proveedor y resumen de funciones para esta cuenta.</seg></tuv><tuv xml:lang="fr"><seg>Votre identifiant de connexion, votre adresse e-mail, votre fournisseur et le résumé de votre rôle pour ce compte.</seg></tuv></tu>
     <!-- Replaced #2393 body key; keep old tuid for any residual catalogs until next TMX prune -->
     <tu tuid="perc.ui.profile.modern@Your name, login id, email, and role summary will appear here.">
       <tuv xml:lang="en-us"><seg>Your name, login id, email, and role summary will appear here.</seg></tuv>
@@ -26848,637 +26848,637 @@ Bu {0}'ı yine de düzenlemek için 'Geçersiz kıl'ı seçin.
     <tuv xml:lang="ar"><seg>ستظهر هنا إعدادات البريد الإلكتروني للصورة الرمزية وGravatar.</seg></tuv><tuv xml:lang="bn"><seg>Avatar এবং Gravatar ইমেল সেটিংস এখানে প্রদর্শিত হবে।</seg></tuv><tuv xml:lang="de"><seg>Hier werden die E-Mail-Einstellungen für Avatar und Gravatar angezeigt.</seg></tuv><tuv xml:lang="es"><seg>La configuración de correo electrónico de Avatar y Gravatar aparecerá aquí.</seg></tuv><tuv xml:lang="fr"><seg>Les paramètres de messagerie Avatar et Gravatar apparaîtront ici.</seg></tuv><tuv xml:lang="he"><seg>הגדרות הדוא"ל של Avatar ו- Gravatar יופיעו כאן.</seg></tuv><tuv xml:lang="hi"><seg>अवतार और ग्रेवाटर ईमेल सेटिंग्स यहां दिखाई देंगी।</seg></tuv><tuv xml:lang="it"><seg>Le impostazioni email di Avatar e Gravatar appariranno qui.</seg></tuv><tuv xml:lang="nl"><seg>De e-mailinstellingen van Avatar en Gravatar verschijnen hier.</seg></tuv><tuv xml:lang="pl"><seg>Tutaj pojawią się ustawienia poczty e-mail Avatara i Gravatara.</seg></tuv><tuv xml:lang="pt"><seg>As configurações de e-mail do Avatar e do Gravatar aparecerão aqui.</seg></tuv><tuv xml:lang="ru"><seg>Здесь появятся настройки электронной почты Avatar и Gravatar.</seg></tuv><tuv xml:lang="sv"><seg>Avatar och Gravatar e-postinställningar kommer att visas här.</seg></tuv><tuv xml:lang="te"><seg>Avatar మరియు Gravatar ఇమెయిల్ సెట్టింగ్u200cలు ఇక్కడ కనిపిస్తాయి.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ve Gravatar e-posta ayarları burada görünecektir.</seg></tuv><tuv xml:lang="uk"><seg>Тут з’являться налаштування електронної пошти Avatar і Gravatar.</seg></tuv><tuv xml:lang="zh-cn"><seg>此处将显示头像和头像电子邮件设置。</seg></tuv><tuv xml:lang="zh-tw"><seg>頭像與 Gravatar 電子郵件設定將顯示在此處。</seg></tuv><tuv xml:lang="lou"><seg>Avatar épi Gravatar imèl réglaj will appear here.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Choose the email used for your Gravatar avatar and preview how it appears in the header.">
       <tuv xml:lang="en-us"><seg>Choose the email used for your Gravatar avatar and preview how it appears in the header.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Choose the email used for your Gravatar avatar and preview how it appears in the header.</seg></tuv><tuv xml:lang="pl"><seg>Wybierz adres e-mail używany dla Twojego awatara Gravatar i wyświetl podgląd jego wyglądu w nagłówku.</seg></tuv><tuv xml:lang="tr"><seg>Gravatar avatarınız için kullanılan e-postayı seçin ve başlıkta nasıl göründüğünü önizleyin.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Choose the email used for your Gravatar avatar and preview how it appears in the header.</seg></tuv><tuv xml:lang="pl"><seg>Wybierz adres e-mail używany dla Twojego awatara Gravatar i wyświetl podgląd jego wyglądu w nagłówku.</seg></tuv><tuv xml:lang="tr"><seg>Gravatar avatarınız için kullanılan e-postayı seçin ve başlıkta nasıl göründüğünü önizleyin.</seg></tuv><tuv xml:lang="hi"><seg>अपने Gravatar अवतार के लिए उपयोग किया गया ईमेल चुनें और पूर्वावलोकन करें कि यह हेडर में कैसे दिखाई देता है।</seg></tuv><tuv xml:lang="bn"><seg>আপনার Gravatar অবতারের জন্য ব্যবহৃত ইমেলটি চয়ন করুন এবং শিরোনামে এটি কীভাবে প্রদর্শিত হবে তা পূর্বরূপ দেখুন।</seg></tuv><tuv xml:lang="te"><seg>మీ Gravatar అవతార్ కోసం ఉపయోగించిన ఇమెయిల్u200cను ఎంచుకోండి మరియు అది హెడర్u200cలో ఎలా కనిపిస్తుందో ప్రివ్యూ చేయండి.</seg></tuv><tuv xml:lang="es"><seg>Elija el correo electrónico utilizado para su avatar de Gravatar y obtenga una vista previa de cómo aparece en el encabezado.</seg></tuv><tuv xml:lang="fr"><seg>Choisissez l'e-mail utilisé pour votre avatar Gravatar et prévisualisez comment il apparaît dans l'en-tête.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Loading avatar settings…">
       <tuv xml:lang="en-us"><seg>Loading avatar settings…</seg></tuv>
-    <tuv xml:lang="lou"><seg>Loading avatar settings…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie ustawień awatara…</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları yükleniyor…</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Loading avatar settings…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie ustawień awatara…</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları yükleniyor…</seg></tuv><tuv xml:lang="hi"><seg>अवतार सेटिंग लोड हो रही है...</seg></tuv><tuv xml:lang="bn"><seg>অবতার সেটিংস লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>అవతార్ సెట్టింగ్u200cలను లోడ్ చేస్తోంది...</seg></tuv><tuv xml:lang="es"><seg>Cargando configuración de avatar…</seg></tuv><tuv xml:lang="fr"><seg>Chargement des paramètres de l'avatar…</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Could not load avatar settings.">
       <tuv xml:lang="en-us"><seg>Could not load avatar settings.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Could not load avatar settings.</seg></tuv><tuv xml:lang="pl"><seg>Nie można załadować ustawień awatara.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları yüklenemedi.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Could not load avatar settings.</seg></tuv><tuv xml:lang="pl"><seg>Nie można załadować ustawień awatara.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları yüklenemedi.</seg></tuv><tuv xml:lang="hi"><seg>अवतार सेटिंग्स लोड नहीं हो सकीं.</seg></tuv><tuv xml:lang="bn"><seg>অবতার সেটিংস লোড করা যায়নি।</seg></tuv><tuv xml:lang="te"><seg>అవతార్ సెట్టింగ్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="es"><seg>No se pudo cargar la configuración del avatar.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger les paramètres de l'avatar.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Avatar preview">
       <tuv xml:lang="en-us"><seg>Avatar preview</seg></tuv>
-    <tuv xml:lang="lou"><seg>Avatar preview</seg></tuv><tuv xml:lang="pl"><seg>Podgląd awatara</seg></tuv><tuv xml:lang="tr"><seg>Avatar önizlemesi</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Avatar preview</seg></tuv><tuv xml:lang="pl"><seg>Podgląd awatara</seg></tuv><tuv xml:lang="tr"><seg>Avatar önizlemesi</seg></tuv><tuv xml:lang="hi"><seg>अवतार पूर्वावलोकन</seg></tuv><tuv xml:lang="bn"><seg>অবতার পূর্বরূপ</seg></tuv><tuv xml:lang="te"><seg>అవతార్ ప్రివ్యూ</seg></tuv><tuv xml:lang="es"><seg>Vista previa de avatar</seg></tuv><tuv xml:lang="fr"><seg>Aperçu de l'avatar</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Gravatar email">
       <tuv xml:lang="en-us"><seg>Gravatar email</seg></tuv>
-    <tuv xml:lang="lou"><seg>Gravatar email</seg></tuv><tuv xml:lang="pl"><seg>E-mail Garavtara</seg></tuv><tuv xml:lang="tr"><seg>Garavtar E-postası</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Gravatar email</seg></tuv><tuv xml:lang="pl"><seg>E-mail Garavtara</seg></tuv><tuv xml:lang="tr"><seg>Garavtar E-postası</seg></tuv><tuv xml:lang="hi"><seg>Gravatar email</seg></tuv><tuv xml:lang="bn"><seg>গারাবতার ইমেইল</seg></tuv><tuv xml:lang="te"><seg>గరావ్తర్ ఇమెయిల్</seg></tuv><tuv xml:lang="es"><seg>Correo electrónico de Garavtar</seg></tuv><tuv xml:lang="fr"><seg>E-mail de Garavtar</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Used only to look up your public Gravatar image. Leave the box checked to use your primary account email.">
       <tuv xml:lang="en-us"><seg>Used only to look up your public Gravatar image. Leave the box checked to use your primary account email.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Used only to look up your public Gravatar image. Leave the box checked to use your primary account email.</seg></tuv><tuv xml:lang="pl"><seg>Używane tylko do sprawdzania publicznego obrazu Gravatar. Pozostaw pole zaznaczone, aby używać głównego adresu e-mail konta.</seg></tuv><tuv xml:lang="tr"><seg>Yalnızca herkese açık Gravatar resminize bakmak için kullanılır. Birincil hesap e-postanızı kullanmak için kutuyu işaretli bırakın.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Used only to look up your public Gravatar image. Leave the box checked to use your primary account email.</seg></tuv><tuv xml:lang="pl"><seg>Używane tylko do sprawdzania publicznego obrazu Gravatar. Pozostaw pole zaznaczone, aby używać głównego adresu e-mail konta.</seg></tuv><tuv xml:lang="tr"><seg>Yalnızca herkese açık Gravatar resminize bakmak için kullanılır. Birincil hesap e-postanızı kullanmak için kutuyu işaretli bırakın.</seg></tuv><tuv xml:lang="hi"><seg>इसका उपयोग केवल आपकी सार्वजनिक Gravatar छवि को देखने के लिए किया जाता है। अपने प्राथमिक खाते के ईमेल का उपयोग करने के लिए बॉक्स को चेक किया हुआ छोड़ दें।</seg></tuv><tuv xml:lang="bn"><seg>শুধুমাত্র আপনার পাবলিক Gravatar ইমেজ দেখতে ব্যবহৃত. আপনার প্রাথমিক অ্যাকাউন্ট ইমেল ব্যবহার করতে বক্সটি চেক করে রাখুন।</seg></tuv><tuv xml:lang="te"><seg>మీ పబ్లిక్ గ్రావటార్ చిత్రాన్ని చూసేందుకు మాత్రమే ఉపయోగించబడుతుంది. మీ ప్రాథమిక ఖాతా ఇమెయిల్u200cను ఉపయోగించడానికి పెట్టెను ఎంపిక చేసి ఉంచండి.</seg></tuv><tuv xml:lang="es"><seg>Se utiliza únicamente para buscar su imagen pública de Gravatar. Deje la casilla marcada para utilizar el correo electrónico de su cuenta principal.</seg></tuv><tuv xml:lang="fr"><seg>Utilisé uniquement pour rechercher votre image publique Gravatar. Laissez la case cochée pour utiliser l'e-mail de votre compte principal.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Use primary account email for Gravatar">
       <tuv xml:lang="en-us"><seg>Use primary account email for Gravatar</seg></tuv>
-    <tuv xml:lang="lou"><seg>Use primary account email for Gravatar</seg></tuv><tuv xml:lang="pl"><seg>Użyj głównego adresu e-mail konta Gravatar</seg></tuv><tuv xml:lang="tr"><seg>Gravatar için birincil hesap e-postasını kullanın</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Use primary account email for Gravatar</seg></tuv><tuv xml:lang="pl"><seg>Użyj głównego adresu e-mail konta Gravatar</seg></tuv><tuv xml:lang="tr"><seg>Gravatar için birincil hesap e-postasını kullanın</seg></tuv><tuv xml:lang="hi"><seg>Gravatar के लिए प्राथमिक खाता ईमेल का उपयोग करें</seg></tuv><tuv xml:lang="bn"><seg>Gravatar জন্য প্রাথমিক অ্যাকাউন্ট ইমেল ব্যবহার করুন</seg></tuv><tuv xml:lang="te"><seg>Gravatar కోసం ప్రాథమిక ఖాతా ఇమెయిల్u200cని ఉపయోగించండి</seg></tuv><tuv xml:lang="es"><seg>Utilice el correo electrónico de la cuenta principal para Gravatar</seg></tuv><tuv xml:lang="fr"><seg>Utiliser l'e-mail du compte principal pour Gravatar</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Primary email: {0}">
       <tuv xml:lang="en-us"><seg>Primary email: {0}</seg></tuv>
-    <tuv xml:lang="lou"><seg>Primary email: {0}</seg></tuv><tuv xml:lang="pl"><seg>Główny adres e-mail: {0}</seg></tuv><tuv xml:lang="tr"><seg>Birincil e-posta: {0}</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Primary email: {0}</seg></tuv><tuv xml:lang="pl"><seg>Główny adres e-mail: {0}</seg></tuv><tuv xml:lang="tr"><seg>Birincil e-posta: {0}</seg></tuv><tuv xml:lang="hi"><seg>प्राथमिक ईमेल: {0}</seg></tuv><tuv xml:lang="bn"><seg>প্রাথমিক ইমেল: {0}</seg></tuv><tuv xml:lang="te"><seg>ప్రాథమిక ఇమెయిల్: {0}</seg></tuv><tuv xml:lang="es"><seg>Correo electrónico principal: {0}</seg></tuv><tuv xml:lang="fr"><seg>Adresse e-mail principale : {0}</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@No primary account email is stored yet. Enter a Gravatar email below or set your account email when available.">
       <tuv xml:lang="en-us"><seg>No primary account email is stored yet. Enter a Gravatar email below or set your account email when available.</seg></tuv>
-    <tuv xml:lang="lou"><seg>No primary account email is stored yet. Enter a Gravatar email below or set your account email when available.</seg></tuv><tuv xml:lang="pl"><seg>Nie zapisano jeszcze żadnego adresu e-mail konta głównego. Wpisz poniżej adres e-mail Gravatar lub ustaw adres e-mail swojego konta, jeśli jest dostępny.</seg></tuv><tuv xml:lang="tr"><seg>Henüz hiçbir birincil hesap e-postası depolanmadı. Aşağıya bir Gravatar e-postası girin veya mevcut olduğunda hesap e-postanızı ayarlayın.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>No primary account email is stored yet. Enter a Gravatar email below or set your account email when available.</seg></tuv><tuv xml:lang="pl"><seg>Nie zapisano jeszcze żadnego adresu e-mail konta głównego. Wpisz poniżej adres e-mail Gravatar lub ustaw adres e-mail swojego konta, jeśli jest dostępny.</seg></tuv><tuv xml:lang="tr"><seg>Henüz hiçbir birincil hesap e-postası depolanmadı. Aşağıya bir Gravatar e-postası girin veya mevcut olduğunda hesap e-postanızı ayarlayın.</seg></tuv><tuv xml:lang="hi"><seg>अभी तक कोई प्राथमिक खाता ईमेल संग्रहीत नहीं है. नीचे Gravatar ईमेल दर्ज करें या उपलब्ध होने पर अपना खाता ईमेल सेट करें।</seg></tuv><tuv xml:lang="bn"><seg>কোনো প্রাথমিক অ্যাকাউন্ট ইমেল এখনও সংরক্ষণ করা হয় না. নীচে একটি Gravatar ইমেল লিখুন বা উপলব্ধ হলে আপনার অ্যাকাউন্ট ইমেল সেট করুন।</seg></tuv><tuv xml:lang="te"><seg>ప్రాథమిక ఖాతా ఇమెయిల్ ఏదీ ఇంకా నిల్వ చేయబడలేదు. దిగువన Gravatar ఇమెయిల్u200cను నమోదు చేయండి లేదా అందుబాటులో ఉన్నప్పుడు మీ ఖాతా ఇమెయిల్u200cను సెట్ చేయండి.</seg></tuv><tuv xml:lang="es"><seg>Aún no se almacena ningún correo electrónico de la cuenta principal. Ingrese un correo electrónico de Gravatar a continuación o configure el correo electrónico de su cuenta cuando esté disponible.</seg></tuv><tuv xml:lang="fr"><seg>Aucune adresse e-mail du compte principal n'est encore stockée. Entrez une adresse e-mail Gravatar ci-dessous ou définissez l'adresse e-mail de votre compte lorsqu'elle est disponible.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@No email selected — initials will be shown.">
       <tuv xml:lang="en-us"><seg>No email selected — initials will be shown.</seg></tuv>
-    <tuv xml:lang="lou"><seg>No email selected — initials will be shown.</seg></tuv><tuv xml:lang="pl"><seg>Nie wybrano adresu e-mail — zostaną wyświetlone inicjały.</seg></tuv><tuv xml:lang="tr"><seg>E-posta seçilmedi — baş harfler gösterilecek.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>No email selected — initials will be shown.</seg></tuv><tuv xml:lang="pl"><seg>Nie wybrano adresu e-mail — zostaną wyświetlone inicjały.</seg></tuv><tuv xml:lang="tr"><seg>E-posta seçilmedi — baş harfler gösterilecek.</seg></tuv><tuv xml:lang="hi"><seg>कोई ईमेल चयनित नहीं - आरंभिक अक्षर दिखाए जाएंगे।</seg></tuv><tuv xml:lang="bn"><seg>কোনো ইমেল নির্বাচন করা হয়নি — আদ্যক্ষর দেখানো হবে।</seg></tuv><tuv xml:lang="te"><seg>ఇమెయిల్ ఏదీ ఎంచుకోబడలేదు - మొదటి అక్షరాలు చూపబడతాయి.</seg></tuv><tuv xml:lang="es"><seg>No se seleccionó ningún correo electrónico: se mostrarán las iniciales.</seg></tuv><tuv xml:lang="fr"><seg>Aucun e-mail sélectionné : les initiales seront affichées.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Privacy: the browser loads the avatar image from Gravatar using a one-way hash of the email. Your email is not shown to other users in the header.">
       <tuv xml:lang="en-us"><seg>Privacy: the browser loads the avatar image from Gravatar using a one-way hash of the email. Your email is not shown to other users in the header.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Privacy: the browser loads the avatar image from Gravatar using a one-way hash of the email. Your email is not shown to other users in the header.</seg></tuv><tuv xml:lang="pl"><seg>Prywatność: przeglądarka ładuje obraz awatara z Gravatar przy użyciu jednokierunkowego skrótu wiadomości e-mail. Twój adres e-mail nie jest pokazywany innym użytkownikom w nagłówku.</seg></tuv><tuv xml:lang="tr"><seg>Gizlilik: Tarayıcı, e-postanın tek yönlü karmasını kullanarak avatar resmini Gravatar'dan yükler. E-postanız başlıkta diğer kullanıcılara gösterilmez.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Privacy: the browser loads the avatar image from Gravatar using a one-way hash of the email. Your email is not shown to other users in the header.</seg></tuv><tuv xml:lang="pl"><seg>Prywatność: przeglądarka ładuje obraz awatara z Gravatar przy użyciu jednokierunkowego skrótu wiadomości e-mail. Twój adres e-mail nie jest pokazywany innym użytkownikom w nagłówku.</seg></tuv><tuv xml:lang="tr"><seg>Gizlilik: Tarayıcı, e-postanın tek yönlü karmasını kullanarak avatar resmini Gravatar'dan yükler. E-postanız başlıkta diğer kullanıcılara gösterilmez.</seg></tuv><tuv xml:lang="hi"><seg>गोपनीयता: ब्राउज़र ईमेल के एक-तरफ़ा हैश का उपयोग करके Gravatar से अवतार छवि लोड करता है। आपका ईमेल हेडर में अन्य उपयोगकर्ताओं को नहीं दिखाया जाता है.</seg></tuv><tuv xml:lang="bn"><seg>গোপনীয়তা: ব্রাউজার ইমেলের একমুখী হ্যাশ ব্যবহার করে Gravatar থেকে অবতার চিত্র লোড করে। আপনার ইমেল হেডারে অন্য ব্যবহারকারীদের দেখানো হয় না।</seg></tuv><tuv xml:lang="te"><seg>గోప్యత: బ్రౌజర్ ఇమెయిల్ యొక్క వన్-వే హాష్u200cని ఉపయోగించి Gravatar నుండి అవతార్ చిత్రాన్ని లోడ్ చేస్తుంది. మీ ఇమెయిల్ హెడర్u200cలో ఇతర వినియోగదారులకు చూపబడదు.</seg></tuv><tuv xml:lang="es"><seg>Privacidad: el navegador carga la imagen del avatar de Gravatar utilizando un hash unidireccional del correo electrónico. Su correo electrónico no se muestra a otros usuarios en el encabezado.</seg></tuv><tuv xml:lang="fr"><seg>Confidentialité : le navigateur charge l'image de l'avatar depuis Gravatar en utilisant un hachage unidirectionnel de l'e-mail. Votre e-mail n'est pas affiché aux autres utilisateurs dans l'en-tête.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@External avatar images are disabled on this server. Your initials are shown instead.">
       <tuv xml:lang="en-us"><seg>External avatar images are disabled on this server. Your initials are shown instead.</seg></tuv>
-    <tuv xml:lang="lou"><seg>External avatar images are disabled on this server. Your initials are shown instead.</seg></tuv><tuv xml:lang="pl"><seg>Zewnętrzne obrazy awatarów są wyłączone na tym serwerze. Zamiast tego wyświetlane są Twoje inicjały.</seg></tuv><tuv xml:lang="tr"><seg>Bu sunucuda harici avatar resimleri devre dışı bırakıldı. Bunun yerine baş harfleriniz gösterilir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>External avatar images are disabled on this server. Your initials are shown instead.</seg></tuv><tuv xml:lang="pl"><seg>Zewnętrzne obrazy awatarów są wyłączone na tym serwerze. Zamiast tego wyświetlane są Twoje inicjały.</seg></tuv><tuv xml:lang="tr"><seg>Bu sunucuda harici avatar resimleri devre dışı bırakıldı. Bunun yerine baş harfleriniz gösterilir.</seg></tuv><tuv xml:lang="hi"><seg>इस सर्वर पर बाहरी अवतार छवियाँ अक्षम हैं। इसके बजाय आपके प्रारंभिक अक्षर दिखाए गए हैं.</seg></tuv><tuv xml:lang="bn"><seg>এই সার্ভারে বহিরাগত অবতার ছবি নিষ্ক্রিয় করা হয়েছে। পরিবর্তে আপনার আদ্যক্ষর দেখানো হয়.</seg></tuv><tuv xml:lang="te"><seg>ఈ సర్వర్u200cలో బాహ్య అవతార్ చిత్రాలు నిలిపివేయబడ్డాయి. బదులుగా మీ మొదటి అక్షరాలు చూపబడతాయి.</seg></tuv><tuv xml:lang="es"><seg>Las imágenes de avatar externas están deshabilitadas en este servidor. En su lugar se muestran sus iniciales.</seg></tuv><tuv xml:lang="fr"><seg>Les images d'avatar externes sont désactivées sur ce serveur. Vos initiales sont affichées à la place.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@If you sign in with directory/SSO, your primary email may be managed by your identity provider. You can still set a separate Gravatar email here.">
       <tuv xml:lang="en-us"><seg>If you sign in with directory/SSO, your primary email may be managed by your identity provider. You can still set a separate Gravatar email here.</seg></tuv>
-    <tuv xml:lang="lou"><seg>If you sign in with directory/SSO, your primary email may be managed by your identity provider. You can still set a separate Gravatar email here.</seg></tuv><tuv xml:lang="pl"><seg>Jeśli zalogujesz się przy użyciu katalogu/SSO, Twoim głównym adresem e-mail może zarządzać Twój dostawca tożsamości. Nadal możesz ustawić tutaj oddzielny adres e-mail Gravatar.</seg></tuv><tuv xml:lang="tr"><seg>Dizin/SSO ile oturum açarsanız birincil e-postanız kimlik sağlayıcınız tarafından yönetilebilir. Burada yine de ayrı bir Gravatar e-postası ayarlayabilirsiniz.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>If you sign in with directory/SSO, your primary email may be managed by your identity provider. You can still set a separate Gravatar email here.</seg></tuv><tuv xml:lang="pl"><seg>Jeśli zalogujesz się przy użyciu katalogu/SSO, Twoim głównym adresem e-mail może zarządzać Twój dostawca tożsamości. Nadal możesz ustawić tutaj oddzielny adres e-mail Gravatar.</seg></tuv><tuv xml:lang="tr"><seg>Dizin/SSO ile oturum açarsanız birincil e-postanız kimlik sağlayıcınız tarafından yönetilebilir. Burada yine de ayrı bir Gravatar e-postası ayarlayabilirsiniz.</seg></tuv><tuv xml:lang="hi"><seg>यदि आप निर्देशिका/एसएसओ के साथ साइन इन करते हैं, तो आपका प्राथमिक ईमेल आपके पहचान प्रदाता द्वारा प्रबंधित किया जा सकता है। आप अभी भी यहां एक अलग Gravatar ईमेल सेट कर सकते हैं।</seg></tuv><tuv xml:lang="bn"><seg>আপনি ডিরেক্টরি/SSO দিয়ে সাইন ইন করলে, আপনার প্রাথমিক ইমেল আপনার পরিচয় প্রদানকারী দ্বারা পরিচালিত হতে পারে। আপনি এখনও এখানে একটি পৃথক Gravatar ইমেল সেট করতে পারেন।</seg></tuv><tuv xml:lang="te"><seg>మీరు డైరెక్టరీ/SSOతో సైన్ ఇన్ చేస్తే, మీ ప్రాథమిక ఇమెయిల్ మీ గుర్తింపు ప్రదాత ద్వారా నిర్వహించబడవచ్చు. మీరు ఇప్పటికీ ఇక్కడ ప్రత్యేక Gravatar ఇమెయిల్u200cను సెట్ చేయవచ్చు.</seg></tuv><tuv xml:lang="es"><seg>Si inicia sesión con directorio/SSO, su proveedor de identidad puede administrar su correo electrónico principal. Aún puedes configurar un correo electrónico Gravatar separado aquí.</seg></tuv><tuv xml:lang="fr"><seg>Si vous vous connectez avec annuaire/SSO, votre adresse e-mail principale peut être gérée par votre fournisseur d'identité. Vous pouvez toujours définir une adresse e-mail Gravatar distincte ici.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Save avatar settings">
       <tuv xml:lang="en-us"><seg>Save avatar settings</seg></tuv>
-    <tuv xml:lang="lou"><seg>Save avatar settings</seg></tuv><tuv xml:lang="pl"><seg>Zapisz ustawienia awatara</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarlarını kaydet</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Save avatar settings</seg></tuv><tuv xml:lang="pl"><seg>Zapisz ustawienia awatara</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarlarını kaydet</seg></tuv><tuv xml:lang="hi"><seg>अवतार सेटिंग सहेजें</seg></tuv><tuv xml:lang="bn"><seg>অবতার সেটিংস সংরক্ষণ করুন</seg></tuv><tuv xml:lang="te"><seg>అవతార్ సెట్టింగ్u200cలను సేవ్ చేయండి</seg></tuv><tuv xml:lang="es"><seg>Guardar configuración de avatar</seg></tuv><tuv xml:lang="fr"><seg>Enregistrer les paramètres de l'avatar</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Avatar settings saved.">
       <tuv xml:lang="en-us"><seg>Avatar settings saved.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Avatar settings saved.</seg></tuv><tuv xml:lang="pl"><seg>Ustawienia awatara zostały zapisane.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları kaydedildi.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Avatar settings saved.</seg></tuv><tuv xml:lang="pl"><seg>Ustawienia awatara zostały zapisane.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları kaydedildi.</seg></tuv><tuv xml:lang="hi"><seg>अवतार सेटिंग्स सहेजी गईं।</seg></tuv><tuv xml:lang="bn"><seg>অবতার সেটিংস সংরক্ষিত।</seg></tuv><tuv xml:lang="te"><seg>అవతార్ సెట్టింగ్u200cలు సేవ్ చేయబడ్డాయి.</seg></tuv><tuv xml:lang="es"><seg>Configuración de avatar guardada.</seg></tuv><tuv xml:lang="fr"><seg>Paramètres de l'avatar enregistrés.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Could not save avatar settings.">
       <tuv xml:lang="en-us"><seg>Could not save avatar settings.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Could not save avatar settings.</seg></tuv><tuv xml:lang="pl"><seg>Nie można zapisać ustawień awatara.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları kaydedilemedi.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Could not save avatar settings.</seg></tuv><tuv xml:lang="pl"><seg>Nie można zapisać ustawień awatara.</seg></tuv><tuv xml:lang="tr"><seg>Avatar ayarları kaydedilemedi.</seg></tuv><tuv xml:lang="hi"><seg>अवतार सेटिंग्स सहेजी नहीं जा सकीं.</seg></tuv><tuv xml:lang="bn"><seg>অবতার সেটিংস সংরক্ষণ করা যায়নি।</seg></tuv><tuv xml:lang="te"><seg>అవతార్ సెట్టింగ్u200cలను సేవ్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="es"><seg>No se pudo guardar la configuración del avatar.</seg></tuv><tuv xml:lang="fr"><seg>Impossible d'enregistrer les paramètres de l'avatar.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Enter a valid email address, or use your primary account email.">
       <tuv xml:lang="en-us"><seg>Enter a valid email address, or use your primary account email.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Enter a valid email address, or use your primary account email.</seg></tuv><tuv xml:lang="pl"><seg>Wprowadź prawidłowy adres e-mail lub użyj adresu e-mail swojego głównego konta.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli bir e-posta adresi girin veya birincil hesap e-postanızı kullanın.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Enter a valid email address, or use your primary account email.</seg></tuv><tuv xml:lang="pl"><seg>Wprowadź prawidłowy adres e-mail lub użyj adresu e-mail swojego głównego konta.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli bir e-posta adresi girin veya birincil hesap e-postanızı kullanın.</seg></tuv><tuv xml:lang="hi"><seg>एक वैध ईमेल पता दर्ज करें, या अपने प्राथमिक खाता ईमेल का उपयोग करें।</seg></tuv><tuv xml:lang="bn"><seg>একটি বৈধ ইমেল ঠিকানা লিখুন, অথবা আপনার প্রাথমিক অ্যাকাউন্ট ইমেল ব্যবহার করুন.</seg></tuv><tuv xml:lang="te"><seg>చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి లేదా మీ ప్రాథమిక ఖాతా ఇమెయిల్u200cను ఉపయోగించండి.</seg></tuv><tuv xml:lang="es"><seg>Ingrese una dirección de correo electrónico válida o utilice el correo electrónico de su cuenta principal.</seg></tuv><tuv xml:lang="fr"><seg>Entrez une adresse e-mail valide ou utilisez l'adresse e-mail de votre compte principal.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Avatar for {0}">
       <tuv xml:lang="en-us"><seg>Avatar for {0}</seg></tuv>
-    <tuv xml:lang="lou"><seg>Avatar for {0}</seg></tuv><tuv xml:lang="pl"><seg>Awatar dla {0}</seg></tuv><tuv xml:lang="tr"><seg>{0} için avatar</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Avatar for {0}</seg></tuv><tuv xml:lang="pl"><seg>Awatar dla {0}</seg></tuv><tuv xml:lang="tr"><seg>{0} için avatar</seg></tuv><tuv xml:lang="hi"><seg>{0} के लिए अवतार</seg></tuv><tuv xml:lang="bn"><seg>{0} এর অবতার</seg></tuv><tuv xml:lang="te"><seg>{0} కోసం అవతార్</seg></tuv><tuv xml:lang="es"><seg>Avatar de {0}</seg></tuv><tuv xml:lang="fr"><seg>Avatar pour {0}</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@user">
       <tuv xml:lang="en-us"><seg>user</seg></tuv>
-    <tuv xml:lang="lou"><seg>user</seg></tuv><tuv xml:lang="pl"><seg>użytkownik</seg></tuv><tuv xml:lang="tr"><seg>kullanıcı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>user</seg></tuv><tuv xml:lang="pl"><seg>użytkownik</seg></tuv><tuv xml:lang="tr"><seg>kullanıcı</seg></tuv><tuv xml:lang="hi"><seg>उपयोगकर्ता</seg></tuv><tuv xml:lang="bn"><seg>ব্যবহারকারী</seg></tuv><tuv xml:lang="te"><seg>వినియోగదారు</seg></tuv><tuv xml:lang="es"><seg>usuario</seg></tuv><tuv xml:lang="fr"><seg>utilisateur</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Coming soon">
       <tuv xml:lang="en-us"><seg>Coming soon</seg></tuv>
     <tuv xml:lang="ar"><seg>قريباً</seg></tuv><tuv xml:lang="bn"><seg>শীঘ্রই আসছে</seg></tuv><tuv xml:lang="de"><seg>Kommt bald</seg></tuv><tuv xml:lang="es"><seg>Muy pronto</seg></tuv><tuv xml:lang="fr"><seg>À venir</seg></tuv><tuv xml:lang="he"><seg>בקרוב</seg></tuv><tuv xml:lang="hi"><seg>जल्द आ रहा है</seg></tuv><tuv xml:lang="it"><seg>Prossimamente</seg></tuv><tuv xml:lang="nl"><seg>Binnenkort beschikbaar</seg></tuv><tuv xml:lang="pl"><seg>Już wkrótce</seg></tuv><tuv xml:lang="pt"><seg>Em breve</seg></tuv><tuv xml:lang="ru"><seg>Вскоре</seg></tuv><tuv xml:lang="sv"><seg>Kommer snart</seg></tuv><tuv xml:lang="te"><seg>త్వరలో వస్తుంది</seg></tuv><tuv xml:lang="tr"><seg>Yakında gelecek</seg></tuv><tuv xml:lang="uk"><seg>Скоро буде</seg></tuv><tuv xml:lang="zh-cn"><seg>即将推出</seg></tuv><tuv xml:lang="zh-tw"><seg>即將推出</seg></tuv><tuv xml:lang="lou"><seg>Coming soon</seg></tuv></tu>
     <!-- Issue #2395 / parent #2374 slice 2: Account information view/edit (en-us source; other locales fall back / translate later) -->
     <tu tuid="perc.ui.profile.modern@Loading account information…">
       <tuv xml:lang="en-us"><seg>Loading account information…</seg></tuv>
-    <tuv xml:lang="lou"><seg>Loading account information…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie informacji o koncie…</seg></tuv><tuv xml:lang="tr"><seg>Hesap bilgileri yükleniyor…</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Loading account information…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie informacji o koncie…</seg></tuv><tuv xml:lang="tr"><seg>Hesap bilgileri yükleniyor…</seg></tuv><tuv xml:lang="hi"><seg>खाता जानकारी लोड हो रही है...</seg></tuv><tuv xml:lang="bn"><seg>অ্যাকাউন্টের তথ্য লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>ఖాతా సమాచారాన్ని లోడ్ చేస్తోంది...</seg></tuv><tuv xml:lang="es"><seg>Cargando información de la cuenta…</seg></tuv><tuv xml:lang="fr"><seg>Chargement des informations du compte…</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Unable to load your account information. Try again later.">
       <tuv xml:lang="en-us"><seg>Unable to load your account information. Try again later.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Unable to load to account information. Try again later.</seg></tuv><tuv xml:lang="pl"><seg>Nie można załadować informacji o Twoim koncie. Spróbuj ponownie później.</seg></tuv><tuv xml:lang="tr"><seg>Hesap bilgileriniz yüklenemiyor. Daha sonra tekrar deneyin.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Unable to load to account information. Try again later.</seg></tuv><tuv xml:lang="pl"><seg>Nie można załadować informacji o Twoim koncie. Spróbuj ponownie później.</seg></tuv><tuv xml:lang="tr"><seg>Hesap bilgileriniz yüklenemiyor. Daha sonra tekrar deneyin.</seg></tuv><tuv xml:lang="hi"><seg>आपके खाते की जानकारी लोड करने में असमर्थ. बाद में पुन: प्रयास।</seg></tuv><tuv xml:lang="bn"><seg>আপনার অ্যাকাউন্ট তথ্য লোড করতে অক্ষম. পরে আবার চেষ্টা করুন.</seg></tuv><tuv xml:lang="te"><seg>మీ ఖాతా సమాచారాన్ని లోడ్ చేయడం సాధ్యపడలేదు. తర్వాత మళ్లీ ప్రయత్నించండి.</seg></tuv><tuv xml:lang="es"><seg>No se puede cargar la información de su cuenta. Vuelve a intentarlo más tarde.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger les informations de votre compte. Réessayez plus tard.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Retry">
       <tuv xml:lang="en-us"><seg>Retry</seg></tuv>
-    <tuv xml:lang="lou"><seg>Retry</seg></tuv><tuv xml:lang="pl"><seg>Spróbować ponownie</seg></tuv><tuv xml:lang="tr"><seg>Yeniden dene</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Retry</seg></tuv><tuv xml:lang="pl"><seg>Spróbować ponownie</seg></tuv><tuv xml:lang="tr"><seg>Yeniden dene</seg></tuv><tuv xml:lang="hi"><seg>पुन: प्रयास करें</seg></tuv><tuv xml:lang="bn"><seg>আবার চেষ্টা করুন</seg></tuv><tuv xml:lang="te"><seg>మళ్లీ ప్రయత్నించండి</seg></tuv><tuv xml:lang="es"><seg>Rever</seg></tuv><tuv xml:lang="fr"><seg>Réessayer</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Login ID">
       <tuv xml:lang="en-us"><seg>Login ID</seg></tuv>
-    <tuv xml:lang="lou"><seg>Koneksyon ID</seg></tuv><tuv xml:lang="pl"><seg>Identyfikator logowania</seg></tuv><tuv xml:lang="tr"><seg>Giriş Kimliği</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Koneksyon ID</seg></tuv><tuv xml:lang="pl"><seg>Identyfikator logowania</seg></tuv><tuv xml:lang="tr"><seg>Giriş Kimliği</seg></tuv><tuv xml:lang="hi"><seg>लॉगिन आईडी</seg></tuv><tuv xml:lang="bn"><seg>লগইন আইডি</seg></tuv><tuv xml:lang="te"><seg>లాగిన్ ID</seg></tuv><tuv xml:lang="es"><seg>ID de inicio de sesión</seg></tuv><tuv xml:lang="fr"><seg>Identifiant de connexion</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Email">
       <tuv xml:lang="en-us"><seg>Email</seg></tuv>
-    <tuv xml:lang="lou"><seg>Imèl</seg></tuv><tuv xml:lang="pl"><seg>E-mail</seg></tuv><tuv xml:lang="tr"><seg>E-posta</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Imèl</seg></tuv><tuv xml:lang="pl"><seg>E-mail</seg></tuv><tuv xml:lang="tr"><seg>E-posta</seg></tuv><tuv xml:lang="hi"><seg>ईमेल</seg></tuv><tuv xml:lang="bn"><seg>ইমেইল</seg></tuv><tuv xml:lang="te"><seg>ఇమెయిల్</seg></tuv><tuv xml:lang="es"><seg>Correo electrónico</seg></tuv><tuv xml:lang="fr"><seg>E-mail</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Account type">
       <tuv xml:lang="en-us"><seg>Account type</seg></tuv>
-    <tuv xml:lang="lou"><seg>Account type</seg></tuv><tuv xml:lang="pl"><seg>Typ konta</seg></tuv><tuv xml:lang="tr"><seg>Hesap türü</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Account type</seg></tuv><tuv xml:lang="pl"><seg>Typ konta</seg></tuv><tuv xml:lang="tr"><seg>Hesap türü</seg></tuv><tuv xml:lang="hi"><seg>खाता प्रकार</seg></tuv><tuv xml:lang="bn"><seg>অ্যাকাউন্টের ধরন</seg></tuv><tuv xml:lang="te"><seg>ఖాతా రకం</seg></tuv><tuv xml:lang="es"><seg>Tipo de cuenta</seg></tuv><tuv xml:lang="fr"><seg>Type de compte</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Roles">
       <tuv xml:lang="en-us"><seg>Roles</seg></tuv>
-    <tuv xml:lang="lou"><seg>Ròl-yé</seg></tuv><tuv xml:lang="pl"><seg>Role</seg></tuv><tuv xml:lang="tr"><seg>Roller</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Ròl-yé</seg></tuv><tuv xml:lang="pl"><seg>Role</seg></tuv><tuv xml:lang="tr"><seg>Roller</seg></tuv><tuv xml:lang="hi"><seg>भूमिकाएँ</seg></tuv><tuv xml:lang="bn"><seg>ভূমিকা</seg></tuv><tuv xml:lang="te"><seg>పాత్రలు</seg></tuv><tuv xml:lang="es"><seg>Roles</seg></tuv><tuv xml:lang="fr"><seg>Rôles</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Communities">
       <tuv xml:lang="en-us"><seg>Communities</seg></tuv>
-    <tuv xml:lang="lou"><seg>Communities</seg></tuv><tuv xml:lang="pl"><seg>Społeczności</seg></tuv><tuv xml:lang="tr"><seg>Topluluklar</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Communities</seg></tuv><tuv xml:lang="pl"><seg>Społeczności</seg></tuv><tuv xml:lang="tr"><seg>Topluluklar</seg></tuv><tuv xml:lang="hi"><seg>समुदाय</seg></tuv><tuv xml:lang="bn"><seg>সম্প্রদায়গুলি</seg></tuv><tuv xml:lang="te"><seg>సంఘాలు</seg></tuv><tuv xml:lang="es"><seg>Comunidades</seg></tuv><tuv xml:lang="fr"><seg>Communautés</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Current community">
       <tuv xml:lang="en-us"><seg>Current community</seg></tuv>
-    <tuv xml:lang="lou"><seg>Current community</seg></tuv><tuv xml:lang="pl"><seg>Obecna społeczność</seg></tuv><tuv xml:lang="tr"><seg>Mevcut topluluk</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Current community</seg></tuv><tuv xml:lang="pl"><seg>Obecna społeczność</seg></tuv><tuv xml:lang="tr"><seg>Mevcut topluluk</seg></tuv><tuv xml:lang="hi"><seg>वर्तमान समुदाय</seg></tuv><tuv xml:lang="bn"><seg>বর্তমান সম্প্রদায়</seg></tuv><tuv xml:lang="te"><seg>ప్రస్తుత సంఘం</seg></tuv><tuv xml:lang="es"><seg>Comunidad actual</seg></tuv><tuv xml:lang="fr"><seg>Communauté actuelle</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Internal">
       <tuv xml:lang="en-us"><seg>Internal</seg></tuv>
-    <tuv xml:lang="lou"><seg>Internal</seg></tuv><tuv xml:lang="pl"><seg>Wewnętrzny</seg></tuv><tuv xml:lang="tr"><seg>Dahili</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Internal</seg></tuv><tuv xml:lang="pl"><seg>Wewnętrzny</seg></tuv><tuv xml:lang="tr"><seg>Dahili</seg></tuv><tuv xml:lang="hi"><seg>आंतरिक</seg></tuv><tuv xml:lang="bn"><seg>অভ্যন্তরীণ</seg></tuv><tuv xml:lang="te"><seg>అంతర్గత</seg></tuv><tuv xml:lang="es"><seg>Interno</seg></tuv><tuv xml:lang="fr"><seg>Interne</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Directory">
       <tuv xml:lang="en-us"><seg>Directory</seg></tuv>
-    <tuv xml:lang="lou"><seg>Directory</seg></tuv><tuv xml:lang="pl"><seg>Informator</seg></tuv><tuv xml:lang="tr"><seg>Rehber</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Directory</seg></tuv><tuv xml:lang="pl"><seg>Informator</seg></tuv><tuv xml:lang="tr"><seg>Rehber</seg></tuv><tuv xml:lang="hi"><seg>निर्देशिका</seg></tuv><tuv xml:lang="bn"><seg>ডিরেক্টরি</seg></tuv><tuv xml:lang="te"><seg>డైరెక్టరీ</seg></tuv><tuv xml:lang="es"><seg>Directorio</seg></tuv><tuv xml:lang="fr"><seg>Annuaire</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@This field is managed by your directory and cannot be changed here.">
       <tuv xml:lang="en-us"><seg>This field is managed by your directory and cannot be changed here.</seg></tuv>
-    <tuv xml:lang="lou"><seg>This field is managed by to directory and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>To pole jest zarządzane przez Twój katalog i nie można go tutaj zmienić.</seg></tuv><tuv xml:lang="tr"><seg>Bu alan rehberiniz tarafından yönetilmektedir ve buradan değiştirilemez.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>This field is managed by to directory and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>To pole jest zarządzane przez Twój katalog i nie można go tutaj zmienić.</seg></tuv><tuv xml:lang="tr"><seg>Bu alan rehberiniz tarafından yönetilmektedir ve buradan değiştirilemez.</seg></tuv><tuv xml:lang="hi"><seg>यह फ़ील्ड आपकी निर्देशिका द्वारा प्रबंधित की जाती है और इसे यहां बदला नहीं जा सकता है।</seg></tuv><tuv xml:lang="bn"><seg>এই ক্ষেত্রটি আপনার ডিরেক্টরি দ্বারা পরিচালিত হয় এবং এখানে পরিবর্তন করা যাবে না।</seg></tuv><tuv xml:lang="te"><seg>ఈ ఫీల్డ్ మీ డైరెక్టరీ ద్వారా నిర్వహించబడుతుంది మరియు ఇక్కడ మార్చబడదు.</seg></tuv><tuv xml:lang="es"><seg>Este campo lo administra su directorio y no se puede cambiar aquí.</seg></tuv><tuv xml:lang="fr"><seg>Ce champ est géré par votre annuaire et ne peut pas être modifié ici.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Your login ID cannot be changed from this page.">
       <tuv xml:lang="en-us"><seg>Your login ID cannot be changed from this page.</seg></tuv>
-    <tuv xml:lang="lou"><seg>To koneksyon ID cannot be changed from this page.</seg></tuv><tuv xml:lang="pl"><seg>Na tej stronie nie można zmienić Twojego identyfikatora logowania.</seg></tuv><tuv xml:lang="tr"><seg>Giriş kimliğiniz bu sayfadan değiştirilemez.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>To koneksyon ID cannot be changed from this page.</seg></tuv><tuv xml:lang="pl"><seg>Na tej stronie nie można zmienić Twojego identyfikatora logowania.</seg></tuv><tuv xml:lang="tr"><seg>Giriş kimliğiniz bu sayfadan değiştirilemez.</seg></tuv><tuv xml:lang="hi"><seg>इस पेज से आपकी लॉगिन आईडी नहीं बदली जा सकती।</seg></tuv><tuv xml:lang="bn"><seg>আপনার লগইন আইডি এই পৃষ্ঠা থেকে পরিবর্তন করা যাবে না.</seg></tuv><tuv xml:lang="te"><seg>ఈ పేజీ నుండి మీ లాగిన్ ID మార్చబడదు.</seg></tuv><tuv xml:lang="es"><seg>Su ID de inicio de sesión no se puede cambiar desde esta página.</seg></tuv><tuv xml:lang="fr"><seg>Votre identifiant de connexion ne peut pas être modifié à partir de cette page.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Roles are assigned by an administrator and cannot be changed here.">
       <tuv xml:lang="en-us"><seg>Roles are assigned by an administrator and cannot be changed here.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Ròl-yé are assigned by an administrator and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>Role przydzielane są przez administratora i nie można ich tutaj zmieniać.</seg></tuv><tuv xml:lang="tr"><seg>Roller bir yönetici tarafından atanır ve burada değiştirilemez.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Ròl-yé are assigned by an administrator and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>Role przydzielane są przez administratora i nie można ich tutaj zmieniać.</seg></tuv><tuv xml:lang="tr"><seg>Roller bir yönetici tarafından atanır ve burada değiştirilemez.</seg></tuv><tuv xml:lang="hi"><seg>भूमिकाएँ एक प्रशासक द्वारा सौंपी जाती हैं और इन्हें यहाँ बदला नहीं जा सकता।</seg></tuv><tuv xml:lang="bn"><seg>ভূমিকা একজন প্রশাসকের দ্বারা নির্ধারিত হয় এবং এখানে পরিবর্তন করা যাবে না৷</seg></tuv><tuv xml:lang="te"><seg>పాత్రలు నిర్వాహకునిచే కేటాయించబడ్డాయి మరియు ఇక్కడ మార్చబడవు.</seg></tuv><tuv xml:lang="es"><seg>Los roles los asigna un administrador y no se pueden cambiar aquí.</seg></tuv><tuv xml:lang="fr"><seg>Les rôles sont attribués par un administrateur et ne peuvent pas être modifiés ici.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Communities are determined by your roles and cannot be changed here.">
       <tuv xml:lang="en-us"><seg>Communities are determined by your roles and cannot be changed here.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Communities are determined by to ròl-yé and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>Społeczności są określane na podstawie Twoich ról i nie można ich tutaj zmieniać.</seg></tuv><tuv xml:lang="tr"><seg>Topluluklar, rollerinize göre belirlenir ve burada değiştirilemez.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Communities are determined by to ròl-yé and cannot be changed here.</seg></tuv><tuv xml:lang="pl"><seg>Społeczności są określane na podstawie Twoich ról i nie można ich tutaj zmieniać.</seg></tuv><tuv xml:lang="tr"><seg>Topluluklar, rollerinize göre belirlenir ve burada değiştirilemez.</seg></tuv><tuv xml:lang="hi"><seg>समुदाय आपकी भूमिकाओं से निर्धारित होते हैं और इन्हें यहां बदला नहीं जा सकता।</seg></tuv><tuv xml:lang="bn"><seg>সম্প্রদায়গুলি আপনার ভূমিকা দ্বারা নির্ধারিত হয় এবং এখানে পরিবর্তন করা যাবে না৷</seg></tuv><tuv xml:lang="te"><seg>కమ్యూనిటీలు మీ పాత్రల ద్వారా నిర్ణయించబడతాయి మరియు ఇక్కడ మార్చబడవు.</seg></tuv><tuv xml:lang="es"><seg>Las comunidades están determinadas por sus roles y no se pueden cambiar aquí.</seg></tuv><tuv xml:lang="fr"><seg>Les communautés sont déterminées par vos rôles et ne peuvent pas être modifiées ici.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@This email is stored with your CMS account and used for notifications.">
       <tuv xml:lang="en-us"><seg>This email is stored with your CMS account and used for notifications.</seg></tuv>
-    <tuv xml:lang="lou"><seg>This imèl is stored with to CMS account and used for notifications.</seg></tuv><tuv xml:lang="pl"><seg>Ten e-mail jest przechowywany na Twoim koncie CMS i używany do powiadomień.</seg></tuv><tuv xml:lang="tr"><seg>Bu e-posta CMS hesabınızda saklanır ve bildirimler için kullanılır.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>This imèl is stored with to CMS account and used for notifications.</seg></tuv><tuv xml:lang="pl"><seg>Ten e-mail jest przechowywany na Twoim koncie CMS i używany do powiadomień.</seg></tuv><tuv xml:lang="tr"><seg>Bu e-posta CMS hesabınızda saklanır ve bildirimler için kullanılır.</seg></tuv><tuv xml:lang="hi"><seg>यह ईमेल आपके सीएमएस खाते में संग्रहीत है और सूचनाओं के लिए उपयोग किया जाता है।</seg></tuv><tuv xml:lang="bn"><seg>এই ইমেলটি আপনার CMS অ্যাকাউন্টের সাথে সংরক্ষণ করা হয় এবং বিজ্ঞপ্তির জন্য ব্যবহার করা হয়।</seg></tuv><tuv xml:lang="te"><seg>ఈ ఇమెయిల్ మీ CMS ఖాతాతో నిల్వ చేయబడుతుంది మరియు నోటిఫికేషన్u200cల కోసం ఉపయోగించబడుతుంది.</seg></tuv><tuv xml:lang="es"><seg>Este correo electrónico se almacena en su cuenta CMS y se utiliza para notificaciones.</seg></tuv><tuv xml:lang="fr"><seg>Cet e-mail est stocké avec votre compte CMS et utilisé pour les notifications.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Email for directory accounts is managed by your organization.">
       <tuv xml:lang="en-us"><seg>Email for directory accounts is managed by your organization.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Imèl for directory accounts is managed by to organization.</seg></tuv><tuv xml:lang="pl"><seg>Pocztą e-mail dla kont katalogowych zarządza Twoja organizacja.</seg></tuv><tuv xml:lang="tr"><seg>Dizin hesaplarına ilişkin e-posta, kuruluşunuz tarafından yönetilir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Imèl for directory accounts is managed by to organization.</seg></tuv><tuv xml:lang="pl"><seg>Pocztą e-mail dla kont katalogowych zarządza Twoja organizacja.</seg></tuv><tuv xml:lang="tr"><seg>Dizin hesaplarına ilişkin e-posta, kuruluşunuz tarafından yönetilir.</seg></tuv><tuv xml:lang="hi"><seg>निर्देशिका खातों के लिए ईमेल का प्रबंधन आपके संगठन द्वारा किया जाता है।</seg></tuv><tuv xml:lang="bn"><seg>ডিরেক্টরি অ্যাকাউন্টগুলির জন্য ইমেল আপনার সংস্থা দ্বারা পরিচালিত হয়৷</seg></tuv><tuv xml:lang="te"><seg>డైరెక్టరీ ఖాతాల కోసం ఇమెయిల్ మీ సంస్థ ద్వారా నిర్వహించబడుతుంది.</seg></tuv><tuv xml:lang="es"><seg>Su organización administra el correo electrónico para las cuentas del directorio.</seg></tuv><tuv xml:lang="fr"><seg>La messagerie électronique des comptes d'annuaire est gérée par votre organisation.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Save email">
       <tuv xml:lang="en-us"><seg>Save email</seg></tuv>
-    <tuv xml:lang="lou"><seg>Save imèl</seg></tuv><tuv xml:lang="pl"><seg>Zapisz e-mail</seg></tuv><tuv xml:lang="tr"><seg>E-postayı kaydet</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Save imèl</seg></tuv><tuv xml:lang="pl"><seg>Zapisz e-mail</seg></tuv><tuv xml:lang="tr"><seg>E-postayı kaydet</seg></tuv><tuv xml:lang="hi"><seg>ईमेल सहेजें</seg></tuv><tuv xml:lang="bn"><seg>ইমেল সংরক্ষণ করুন</seg></tuv><tuv xml:lang="te"><seg>ఇమెయిల్u200cను సేవ్ చేయండి</seg></tuv><tuv xml:lang="es"><seg>Guardar correo electrónico</seg></tuv><tuv xml:lang="fr"><seg>Enregistrer l'e-mail</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Saving…">
       <tuv xml:lang="en-us"><seg>Saving…</seg></tuv>
     <tuv xml:lang="lou"><seg>Ka sové…</seg></tuv><tuv xml:lang="pl"><seg>Zapisywanie…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ الحفظ…</seg></tuv><tuv xml:lang="bn"><seg>সংরক্ষণ করা হচ্ছে...</seg></tuv><tuv xml:lang="de"><seg>Speichern…</seg></tuv><tuv xml:lang="es"><seg>Guardando…</seg></tuv><tuv xml:lang="fr"><seg>Enregistrement…</seg></tuv><tuv xml:lang="he"><seg>שומר…</seg></tuv><tuv xml:lang="hi"><seg>सहेजा जा रहा है...</seg></tuv><tuv xml:lang="it"><seg>Salvataggio…</seg></tuv><tuv xml:lang="nl"><seg>Opslaan…</seg></tuv><tuv xml:lang="pt"><seg>Salvando…</seg></tuv><tuv xml:lang="ru"><seg>Сохранение…</seg></tuv><tuv xml:lang="sv"><seg>Sparar…</seg></tuv><tuv xml:lang="te"><seg>సేవ్ చేస్తోంది...</seg></tuv><tuv xml:lang="tr"><seg>Kaydediliyor…</seg></tuv><tuv xml:lang="uk"><seg>Збереження…</seg></tuv><tuv xml:lang="zh-cn"><seg>正在保存…</seg></tuv><tuv xml:lang="zh-tw"><seg>儲存中…</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Your email was saved.">
       <tuv xml:lang="en-us"><seg>Your email was saved.</seg></tuv>
-    <tuv xml:lang="lou"><seg>To imèl was saved.</seg></tuv><tuv xml:lang="pl"><seg>Twój e-mail został zapisany.</seg></tuv><tuv xml:lang="tr"><seg>E-postanız kaydedildi.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>To imèl was saved.</seg></tuv><tuv xml:lang="pl"><seg>Twój e-mail został zapisany.</seg></tuv><tuv xml:lang="tr"><seg>E-postanız kaydedildi.</seg></tuv><tuv xml:lang="hi"><seg>आपका ईमेल सहेजा गया.</seg></tuv><tuv xml:lang="bn"><seg>আপনার ইমেল সংরক্ষিত হয়েছে.</seg></tuv><tuv xml:lang="te"><seg>మీ ఇమెయిల్ సేవ్ చేయబడింది.</seg></tuv><tuv xml:lang="es"><seg>Tu correo electrónico fue guardado.</seg></tuv><tuv xml:lang="fr"><seg>Votre email a été enregistré.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Unable to save your email. Check the address and try again.">
       <tuv xml:lang="en-us"><seg>Unable to save your email. Check the address and try again.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Unable to save to imèl. Check the address and try again.</seg></tuv><tuv xml:lang="pl"><seg>Nie można zapisać Twojego adresu e-mail. Sprawdź adres i spróbuj ponownie.</seg></tuv><tuv xml:lang="tr"><seg>E-postanız kaydedilemiyor. Adresi kontrol edip tekrar deneyin.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Unable to save to imèl. Check the address and try again.</seg></tuv><tuv xml:lang="pl"><seg>Nie można zapisać Twojego adresu e-mail. Sprawdź adres i spróbuj ponownie.</seg></tuv><tuv xml:lang="tr"><seg>E-postanız kaydedilemiyor. Adresi kontrol edip tekrar deneyin.</seg></tuv><tuv xml:lang="hi"><seg>आपका ईमेल सहेजने में असमर्थ. पता जांचें और पुनः प्रयास करें.</seg></tuv><tuv xml:lang="bn"><seg>আপনার ইমেল সংরক্ষণ করতে অক্ষম. ঠিকানা চেক করুন এবং আবার চেষ্টা করুন.</seg></tuv><tuv xml:lang="te"><seg>మీ ఇమెయిల్u200cను సేవ్ చేయడం సాధ్యపడలేదు. చిరునామాను తనిఖీ చేసి, మళ్లీ ప్రయత్నించండి.</seg></tuv><tuv xml:lang="es"><seg>No se puede guardar su correo electrónico. Verifique la dirección e inténtelo nuevamente.</seg></tuv><tuv xml:lang="fr"><seg>Impossible d'enregistrer votre email. Vérifiez l'adresse et réessayez.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Enter a valid email address.">
       <tuv xml:lang="en-us"><seg>Enter a valid email address.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Enter a valid imèl address.</seg></tuv><tuv xml:lang="pl"><seg>Wpisz prawidłowy adres e-mail.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli bir e-posta adresi girin.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Enter a valid imèl address.</seg></tuv><tuv xml:lang="pl"><seg>Wpisz prawidłowy adres e-mail.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli bir e-posta adresi girin.</seg></tuv><tuv xml:lang="hi"><seg>एक मान्य ईमेल पता दर्ज करें।</seg></tuv><tuv xml:lang="bn"><seg>একটি বৈধ ইমেল ঠিকানা লিখুন.</seg></tuv><tuv xml:lang="te"><seg>చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి.</seg></tuv><tuv xml:lang="es"><seg>Ingrese una dirección de correo electrónico válida.</seg></tuv><tuv xml:lang="fr"><seg>Entrez une adresse e-mail valide.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Not set">
       <tuv xml:lang="en-us"><seg>Not set</seg></tuv>
-    <tuv xml:lang="lou"><seg>Not set</seg></tuv><tuv xml:lang="pl"><seg>Nie ustawiono</seg></tuv><tuv xml:lang="tr"><seg>Ayarlanmadı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Not set</seg></tuv><tuv xml:lang="pl"><seg>Nie ustawiono</seg></tuv><tuv xml:lang="tr"><seg>Ayarlanmadı</seg></tuv><tuv xml:lang="hi"><seg>सेट नहीं</seg></tuv><tuv xml:lang="bn"><seg>সেট করা হয়নি</seg></tuv><tuv xml:lang="te"><seg>సెట్ కాలేదు</seg></tuv><tuv xml:lang="es"><seg>No establecido</seg></tuv><tuv xml:lang="fr"><seg>Non défini</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@None">
       <tuv xml:lang="en-us"><seg>None</seg></tuv>
-    <tuv xml:lang="lou"><seg>None</seg></tuv><tuv xml:lang="pl"><seg>Nic</seg></tuv><tuv xml:lang="tr"><seg>Hiçbiri</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>None</seg></tuv><tuv xml:lang="pl"><seg>Nic</seg></tuv><tuv xml:lang="tr"><seg>Hiçbiri</seg></tuv><tuv xml:lang="hi"><seg>कोई नहीं</seg></tuv><tuv xml:lang="bn"><seg>কোনোটিই নয়</seg></tuv><tuv xml:lang="te"><seg>ఏదీ లేదు</seg></tuv><tuv xml:lang="es"><seg>Ninguno</seg></tuv><tuv xml:lang="fr"><seg>Aucun</seg></tuv></tu>
     <!-- Issue #2394 / parent #2374 slice 3: Profile Security password section (en-us source; other locales fall back) -->
     <tu tuid="perc.ui.profile.modern@Change your password when your account uses local authentication, or learn how directory and SSO accounts manage credentials.">
       <tuv xml:lang="en-us"><seg>Change your password when your account uses local authentication, or learn how directory and SSO accounts manage credentials.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>जब आपका खाता स्थानीय प्रमाणीकरण का उपयोग करता है तो अपना पासवर्ड बदलें, या जानें कि निर्देशिका और एसएसओ खाते क्रेडेंशियल कैसे प्रबंधित करते हैं।</seg></tuv><tuv xml:lang="bn"><seg>যখন আপনার অ্যাকাউন্ট স্থানীয় প্রমাণীকরণ ব্যবহার করে তখন আপনার পাসওয়ার্ড পরিবর্তন করুন, অথবা কীভাবে ডিরেক্টরি এবং SSO অ্যাকাউন্টগুলি শংসাপত্রগুলি পরিচালনা করে তা জানুন।</seg></tuv><tuv xml:lang="te"><seg>మీ ఖాతా స్థానిక ప్రమాణీకరణను ఉపయోగించినప్పుడు మీ పాస్u200cవర్డ్u200cను మార్చండి లేదా డైరెక్టరీ మరియు SSO ఖాతాలు ఆధారాలను ఎలా నిర్వహిస్తాయో తెలుసుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Hesabınız yerel kimlik doğrulamayı kullandığında şifrenizi değiştirin veya dizin ve SSO hesaplarının kimlik bilgilerini nasıl yönettiğini öğrenin.</seg></tuv><tuv xml:lang="es"><seg>Cambie su contraseña cuando su cuenta utilice autenticación local o aprenda cómo las cuentas de directorio y SSO administran las credenciales.</seg></tuv><tuv xml:lang="fr"><seg>Modifiez votre mot de passe lorsque votre compte utilise l'authentification locale ou découvrez comment les comptes d'annuaire et SSO gèrent les informations d'identification.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Loading security settings…">
       <tuv xml:lang="en-us"><seg>Loading security settings…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>सुरक्षा सेटिंग्स लोड हो रही हैं...</seg></tuv><tuv xml:lang="bn"><seg>নিরাপত্তা সেটিংস লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>భద్రతా సెట్టింగ్u200cలను లోడ్ చేస్తోంది...</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik ayarları yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando configuración de seguridad…</seg></tuv><tuv xml:lang="fr"><seg>Chargement des paramètres de sécurité…</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Could not load security settings.">
       <tuv xml:lang="en-us"><seg>Could not load security settings.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>सुरक्षा सेटिंग्स लोड नहीं हो सकीं.</seg></tuv><tuv xml:lang="bn"><seg>নিরাপত্তা সেটিংস লোড করা যায়নি.</seg></tuv><tuv xml:lang="te"><seg>భద్రతా సెట్టింగ్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik ayarları yüklenemedi.</seg></tuv><tuv xml:lang="es"><seg>No se pudo cargar la configuración de seguridad.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger les paramètres de sécurité.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@New password">
       <tuv xml:lang="en-us"><seg>New password</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नया पासवर्ड</seg></tuv><tuv xml:lang="bn"><seg>নতুন পাসওয়ার্ড</seg></tuv><tuv xml:lang="te"><seg>కొత్త పాస్u200cవర్డ్</seg></tuv><tuv xml:lang="tr"><seg>Yeni Şifre</seg></tuv><tuv xml:lang="es"><seg>Nueva contraseña</seg></tuv><tuv xml:lang="fr"><seg>Nouveau mot de passe</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Confirm new password">
       <tuv xml:lang="en-us"><seg>Confirm new password</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नए पासवर्ड की पुष्टि करें</seg></tuv><tuv xml:lang="bn"><seg>নতুন পাসওয়ার্ড নিশ্চিত করুন</seg></tuv><tuv xml:lang="te"><seg>కొత్త పాస్u200cవర్డ్u200cను నిర్ధారించండి</seg></tuv><tuv xml:lang="tr"><seg>Yeni şifreyi onayla</seg></tuv><tuv xml:lang="es"><seg>Confirmar nueva contraseña</seg></tuv><tuv xml:lang="fr"><seg>Confirmer le nouveau mot de passe</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Use at least {0} characters. Server password rules still apply.">
       <tuv xml:lang="en-us"><seg>Use at least {0} characters. Server password rules still apply.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कम से कम {0} वर्णों का उपयोग करें. सर्वर पासवर्ड नियम अभी भी लागू हैं.</seg></tuv><tuv xml:lang="bn"><seg>অন্তত {0}টি অক্ষর ব্যবহার করুন। সার্ভার পাসওয়ার্ড নিয়ম এখনও প্রযোজ্য.</seg></tuv><tuv xml:lang="te"><seg>కనీసం {0} అక్షరాలను ఉపయోగించండి. సర్వర్ పాస్u200cవర్డ్ నియమాలు ఇప్పటికీ వర్తిస్తాయి.</seg></tuv><tuv xml:lang="tr"><seg>En az {0} karakter kullanın. Sunucu parolası kuralları hala geçerlidir.</seg></tuv><tuv xml:lang="es"><seg>Utilice al menos {0} caracteres. Las reglas de contraseña del servidor aún se aplican.</seg></tuv><tuv xml:lang="fr"><seg>Utilisez au moins {0} caractères. Les règles relatives aux mots de passe du serveur s'appliquent toujours.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Enter a password.">
       <tuv xml:lang="en-us"><seg>Enter a password.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक पासवर्ड दर्ज करें।</seg></tuv><tuv xml:lang="bn"><seg>একটি পাসওয়ার্ড লিখুন.</seg></tuv><tuv xml:lang="te"><seg>పాస్u200cవర్డ్u200cను నమోదు చేయండి.</seg></tuv><tuv xml:lang="tr"><seg>Bir şifre girin.</seg></tuv><tuv xml:lang="es"><seg>Introduzca una contraseña.</seg></tuv><tuv xml:lang="fr"><seg>Entrez un mot de passe.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Password must be at least {0} characters.">
       <tuv xml:lang="en-us"><seg>Password must be at least {0} characters.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पासवर्ड कम से कम {0} अक्षर का होना चाहिए.</seg></tuv><tuv xml:lang="bn"><seg>পাসওয়ার্ড কমপক্ষে {0} অক্ষরের হতে হবে।</seg></tuv><tuv xml:lang="te"><seg>పాస్u200cవర్డ్ తప్పనిసరిగా కనీసం {0} అక్షరాలు ఉండాలి.</seg></tuv><tuv xml:lang="tr"><seg>Şifre en az {0} karakterden oluşmalıdır.</seg></tuv><tuv xml:lang="es"><seg>La contraseña debe tener al menos {0} caracteres.</seg></tuv><tuv xml:lang="fr"><seg>Le mot de passe doit comporter au moins {0} caractères.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Passwords do not match.">
       <tuv xml:lang="en-us"><seg>Passwords do not match.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>सांकेतिक शब्द मेल नहीं खाते।</seg></tuv><tuv xml:lang="bn"><seg>পাসওয়ার্ড মেলে না।</seg></tuv><tuv xml:lang="te"><seg>పాస్u200cవర్డ్u200cలు సరిపోలడం లేదు.</seg></tuv><tuv xml:lang="tr"><seg>Şifreler eşleşmiyor.</seg></tuv><tuv xml:lang="es"><seg>Las contraseñas no coinciden.</seg></tuv><tuv xml:lang="fr"><seg>Les mots de passe ne correspondent pas.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Change password">
       <tuv xml:lang="en-us"><seg>Change password</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पासवर्ड बदलें</seg></tuv><tuv xml:lang="bn"><seg>পাসওয়ার্ড পরিবর্তন করুন</seg></tuv><tuv xml:lang="te"><seg>పాస్వర్డ్ మార్చండి</seg></tuv><tuv xml:lang="tr"><seg>Şifre değiştir</seg></tuv><tuv xml:lang="es"><seg>Cambiar la contraseña</seg></tuv><tuv xml:lang="fr"><seg>Changer le mot de passe</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Updating password…">
       <tuv xml:lang="en-us"><seg>Updating password…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पासवर्ड अपडेट हो रहा है...</seg></tuv><tuv xml:lang="bn"><seg>পাসওয়ার্ড আপডেট করা হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>పాస్u200cవర్డ్u200cను నవీకరిస్తోంది…</seg></tuv><tuv xml:lang="tr"><seg>Şifre güncelleniyor…</seg></tuv><tuv xml:lang="es"><seg>Actualizando contraseña…</seg></tuv><tuv xml:lang="fr"><seg>Mise à jour du mot de passe…</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Your password was changed.">
       <tuv xml:lang="en-us"><seg>Your password was changed.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>आपका पासवर्ड बदल दिया गया था.</seg></tuv><tuv xml:lang="bn"><seg>আপনার পাসওয়ার্ড পরিবর্তন করা হয়েছে.</seg></tuv><tuv xml:lang="te"><seg>మీ పాస్u200cవర్డ్ మార్చబడింది.</seg></tuv><tuv xml:lang="tr"><seg>Şifreniz değiştirildi.</seg></tuv><tuv xml:lang="es"><seg>Su contraseña fue cambiada.</seg></tuv><tuv xml:lang="fr"><seg>Votre mot de passe a été modifié.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Unable to change your password. Check the requirements and try again.">
       <tuv xml:lang="en-us"><seg>Unable to change your password. Check the requirements and try again.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>आपका पासवर्ड बदलने में असमर्थ. आवश्यकताओं की जाँच करें और पुनः प्रयास करें।</seg></tuv><tuv xml:lang="bn"><seg>আপনার পাসওয়ার্ড পরিবর্তন করতে অক্ষম. প্রয়োজনীয়তা পরীক্ষা করুন এবং আবার চেষ্টা করুন.</seg></tuv><tuv xml:lang="te"><seg>మీ పాస్u200cవర్డ్u200cని మార్చడం సాధ్యం కాలేదు. అవసరాలను తనిఖీ చేసి, మళ్లీ ప్రయత్నించండి.</seg></tuv><tuv xml:lang="tr"><seg>Şifreniz değiştirilemiyor. Gereksinimleri kontrol edip tekrar deneyin.</seg></tuv><tuv xml:lang="es"><seg>No se puede cambiar su contraseña. Verifica los requisitos y vuelve a intentarlo.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de changer votre mot de passe. Vérifiez les exigences et réessayez.</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Password managed outside Percussion">
       <tuv xml:lang="en-us"><seg>Password managed outside Percussion</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पासवर्ड पर्कशन के बाहर प्रबंधित किया गया</seg></tuv><tuv xml:lang="bn"><seg>পাসওয়ার্ড পারকাশনের বাইরে পরিচালিত</seg></tuv><tuv xml:lang="te"><seg>పాస్u200cవర్డ్ పెర్కషన్ వెలుపల నిర్వహించబడుతుంది</seg></tuv><tuv xml:lang="tr"><seg>Parola Perküsyon dışında yönetilir</seg></tuv><tuv xml:lang="es"><seg>Contraseña administrada fuera de Percussion</seg></tuv><tuv xml:lang="fr"><seg>Mot de passe géré en dehors de Percussion</seg></tuv></tu>
     <tu tuid="perc.ui.profile.modern@Your account uses directory or single sign-on authentication. Change your password with your identity provider or IT administrator — it cannot be updated from this profile.">
       <tuv xml:lang="en-us"><seg>Your account uses directory or single sign-on authentication. Change your password with your identity provider or IT administrator — it cannot be updated from this profile.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>आपका खाता निर्देशिका या एकल साइन-ऑन प्रमाणीकरण का उपयोग करता है। अपने पहचान प्रदाता या आईटी व्यवस्थापक के साथ अपना पासवर्ड बदलें - इसे इस प्रोफ़ाइल से अपडेट नहीं किया जा सकता है।</seg></tuv><tuv xml:lang="bn"><seg>আপনার অ্যাকাউন্ট ডিরেক্টরি বা একক সাইন-অন প্রমাণীকরণ ব্যবহার করে। আপনার পরিচয় প্রদানকারী বা আইটি অ্যাডমিনিস্ট্রেটরের সাথে আপনার পাসওয়ার্ড পরিবর্তন করুন — এটি এই প্রোফাইল থেকে আপডেট করা যাবে না।</seg></tuv><tuv xml:lang="te"><seg>మీ ఖాతా డైరెక్టరీ లేదా సింగిల్ సైన్-ఆన్ ప్రమాణీకరణను ఉపయోగిస్తుంది. మీ గుర్తింపు ప్రదాత లేదా IT అడ్మినిస్ట్రేటర్u200cతో మీ పాస్u200cవర్డ్u200cను మార్చండి - ఈ ప్రొఫైల్ నుండి ఇది నవీకరించబడదు.</seg></tuv><tuv xml:lang="tr"><seg>Hesabınız dizin veya tek oturum açma kimlik doğrulamasını kullanıyor. Şifrenizi kimlik sağlayıcınız veya BT yöneticinizle değiştirin; şifreniz bu profilden güncellenemez.</seg></tuv><tuv xml:lang="es"><seg>Su cuenta utiliza directorio o autenticación de inicio de sesión único. Cambie su contraseña con su proveedor de identidad o administrador de TI; no se puede actualizar desde este perfil.</seg></tuv><tuv xml:lang="fr"><seg>Votre compte utilise l'authentification par annuaire ou par authentification unique. Modifiez votre mot de passe avec votre fournisseur d'identité ou votre administrateur informatique : il ne peut pas être mis à jour à partir de ce profil.</seg></tuv></tu>
     <!-- Security Audit Log Admin UI (Phase 4 / #2619) — en-us source + lou -->
     <tu tuid="perc.ui.admin@System Tools">
       <tuv xml:lang="en-us"><seg>System Tools</seg></tuv>
-    <tuv xml:lang="lou"><seg>System Tools</seg></tuv><tuv xml:lang="tr"><seg>Sistem Araçları</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>System Tools</seg></tuv><tuv xml:lang="tr"><seg>Sistem Araçları</seg></tuv><tuv xml:lang="hi"><seg>सिस्टम टूल्स</seg></tuv><tuv xml:lang="bn"><seg>সিস্টেম টুলস</seg></tuv><tuv xml:lang="te"><seg>సిస్టమ్ సాధనాలు</seg></tuv><tuv xml:lang="es"><seg>Herramientas del sistema</seg></tuv><tuv xml:lang="fr"><seg>Outils système</seg></tuv></tu>
     <tu tuid="perc.ui.admin.tools@Consistency Checker">
       <tuv xml:lang="en-us"><seg>Consistency Checker</seg></tuv>
-    <tuv xml:lang="lou"><seg>Consistency Checker</seg></tuv><tuv xml:lang="tr"><seg>Tutarlılık Denetleyicisi</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Consistency Checker</seg></tuv><tuv xml:lang="tr"><seg>Tutarlılık Denetleyicisi</seg></tuv><tuv xml:lang="hi"><seg>संगति जांचकर्ता</seg></tuv><tuv xml:lang="bn"><seg>ধারাবাহিকতা পরীক্ষক</seg></tuv><tuv xml:lang="te"><seg>స్థిరత్వం చెకర్</seg></tuv><tuv xml:lang="es"><seg>Comprobador de coherencia</seg></tuv><tuv xml:lang="fr"><seg>Vérificateur de cohérence</seg></tuv></tu>
     <tu tuid="perc.ui.admin.tools@Security Audit Log">
       <tuv xml:lang="en-us"><seg>Security Audit Log</seg></tuv>
-    <tuv xml:lang="lou"><seg>Security Audit Log</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Denetim Günlüğü</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Security Audit Log</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Denetim Günlüğü</seg></tuv><tuv xml:lang="hi"><seg>सुरक्षा ऑडिट लॉग</seg></tuv><tuv xml:lang="bn"><seg>নিরাপত্তা অডিট লগ</seg></tuv><tuv xml:lang="te"><seg>భద్రతా ఆడిట్ లాగ్</seg></tuv><tuv xml:lang="es"><seg>Registro de auditoría de seguridad</seg></tuv><tuv xml:lang="fr"><seg>Journal d'audit de sécurité</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Security Audit Log">
       <tuv xml:lang="en-us"><seg>Security Audit Log</seg></tuv>
-    <tuv xml:lang="lou"><seg>Security Audit Log</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Denetim Günlüğü</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Security Audit Log</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik Denetim Günlüğü</seg></tuv><tuv xml:lang="hi"><seg>सुरक्षा ऑडिट लॉग</seg></tuv><tuv xml:lang="bn"><seg>নিরাপত্তা অডিট লগ</seg></tuv><tuv xml:lang="te"><seg>భద్రతా ఆడిట్ లాగ్</seg></tuv><tuv xml:lang="es"><seg>Registro de auditoría de seguridad</seg></tuv><tuv xml:lang="fr"><seg>Journal d'audit de sécurité</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Review durable system security audit events. Requires Admin or the sys_securityAuditLogViewer role property.">
       <tuv xml:lang="en-us"><seg>Review durable system security audit events. Requires Admin or the sys_securityAuditLogViewer role property.</seg></tuv>
-    <tuv xml:lang="lou"><seg>Review durable system security audit events. Requires Admin or the sys_securityAuditLogViewer role property.</seg></tuv><tuv xml:lang="tr"><seg>Dayanıklı sistem güvenliği denetim olaylarını inceleyin. Admin veya sys_securityAuditLogViewer rol özelliğini gerektirir.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Review durable system security audit events. Requires Admin or the sys_securityAuditLogViewer role property.</seg></tuv><tuv xml:lang="tr"><seg>Dayanıklı sistem güvenliği denetim olaylarını inceleyin. Admin veya sys_securityAuditLogViewer rol özelliğini gerektirir.</seg></tuv><tuv xml:lang="hi"><seg>टिकाऊ सिस्टम सुरक्षा ऑडिट घटनाओं की समीक्षा करें। एडमिन या sys_securityAuditLogViewer रोल प्रॉपर्टी की आवश्यकता है।</seg></tuv><tuv xml:lang="bn"><seg>টেকসই সিস্টেম নিরাপত্তা অডিট ঘটনা পর্যালোচনা. অ্যাডমিন বা sys_securityAuditLogViewer ভূমিকা বৈশিষ্ট্য প্রয়োজন।</seg></tuv><tuv xml:lang="te"><seg>మన్నికైన సిస్టమ్ సెక్యూరిటీ ఆడిట్ ఈవెంట్u200cలను సమీక్షించండి. అడ్మిన్ లేదా sys_securityAuditLogViewer పాత్ర ప్రాపర్టీ అవసరం.</seg></tuv><tuv xml:lang="es"><seg>Revise los eventos duraderos de auditoría de seguridad del sistema. Requiere administrador o la propiedad de función sys_securityAuditLogViewer.</seg></tuv><tuv xml:lang="fr"><seg>Examinez les événements d’audit de sécurité du système durables. Nécessite Admin ou la propriété de rôle sys_securityAuditLogViewer.</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@From">
       <tuv xml:lang="en-us"><seg>From</seg></tuv>
-    <tuv xml:lang="lou"><seg>From</seg></tuv><tuv xml:lang="tr"><seg>İtibaren</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>From</seg></tuv><tuv xml:lang="tr"><seg>İtibaren</seg></tuv><tuv xml:lang="hi"><seg>से</seg></tuv><tuv xml:lang="bn"><seg>থেকে</seg></tuv><tuv xml:lang="te"><seg>నుండి</seg></tuv><tuv xml:lang="es"><seg>De</seg></tuv><tuv xml:lang="fr"><seg>Depuis</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@To">
       <tuv xml:lang="en-us"><seg>To</seg></tuv>
-    <tuv xml:lang="lou"><seg>To</seg></tuv><tuv xml:lang="tr"><seg>İle</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>To</seg></tuv><tuv xml:lang="tr"><seg>İle</seg></tuv><tuv xml:lang="hi"><seg>को</seg></tuv><tuv xml:lang="bn"><seg>প্রতি</seg></tuv><tuv xml:lang="te"><seg>కు</seg></tuv><tuv xml:lang="es"><seg>A</seg></tuv><tuv xml:lang="fr"><seg>À</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Module">
       <tuv xml:lang="en-us"><seg>Module</seg></tuv>
-    <tuv xml:lang="lou"><seg>Module</seg></tuv><tuv xml:lang="tr"><seg>Modül</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Module</seg></tuv><tuv xml:lang="tr"><seg>Modül</seg></tuv><tuv xml:lang="hi"><seg>मॉड्यूल</seg></tuv><tuv xml:lang="bn"><seg>মডিউল</seg></tuv><tuv xml:lang="te"><seg>మాడ్యూల్</seg></tuv><tuv xml:lang="es"><seg>Módulo</seg></tuv><tuv xml:lang="fr"><seg>Module</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Event type">
       <tuv xml:lang="en-us"><seg>Event type</seg></tuv>
-    <tuv xml:lang="lou"><seg>Event type</seg></tuv><tuv xml:lang="tr"><seg>Etkinlik türü</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Event type</seg></tuv><tuv xml:lang="tr"><seg>Etkinlik türü</seg></tuv><tuv xml:lang="hi"><seg>घटना प्रकार</seg></tuv><tuv xml:lang="bn"><seg>ইভেন্টের ধরন</seg></tuv><tuv xml:lang="te"><seg>ఈవెంట్ రకం</seg></tuv><tuv xml:lang="es"><seg>Tipo de evento</seg></tuv><tuv xml:lang="fr"><seg>Type d'événement</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Outcome">
       <tuv xml:lang="en-us"><seg>Outcome</seg></tuv>
-    <tuv xml:lang="lou"><seg>Outcome</seg></tuv><tuv xml:lang="tr"><seg>Sonuç</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Outcome</seg></tuv><tuv xml:lang="tr"><seg>Sonuç</seg></tuv><tuv xml:lang="hi"><seg>नतीजा</seg></tuv><tuv xml:lang="bn"><seg>ফলাফল</seg></tuv><tuv xml:lang="te"><seg>ఫలితం</seg></tuv><tuv xml:lang="es"><seg>Resultado</seg></tuv><tuv xml:lang="fr"><seg>Résultat</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Actor">
       <tuv xml:lang="en-us"><seg>Actor</seg></tuv>
-    <tuv xml:lang="lou"><seg>Actor</seg></tuv><tuv xml:lang="tr"><seg>Aktör</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Actor</seg></tuv><tuv xml:lang="tr"><seg>Aktör</seg></tuv><tuv xml:lang="hi"><seg>अभिनेता</seg></tuv><tuv xml:lang="bn"><seg>অভিনেতা</seg></tuv><tuv xml:lang="te"><seg>నటుడు</seg></tuv><tuv xml:lang="es"><seg>Actor</seg></tuv><tuv xml:lang="fr"><seg>Acteur</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@All">
       <tuv xml:lang="en-us"><seg>All</seg></tuv>
-    <tuv xml:lang="lou"><seg>All</seg></tuv><tuv xml:lang="tr"><seg>Tüm</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>All</seg></tuv><tuv xml:lang="tr"><seg>Tüm</seg></tuv><tuv xml:lang="hi"><seg>सभी</seg></tuv><tuv xml:lang="bn"><seg>সব</seg></tuv><tuv xml:lang="te"><seg>అన్నీ</seg></tuv><tuv xml:lang="es"><seg>Todo</seg></tuv><tuv xml:lang="fr"><seg>Tous</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Apply filters">
       <tuv xml:lang="en-us"><seg>Apply filters</seg></tuv>
-    <tuv xml:lang="lou"><seg>Apply filters</seg></tuv><tuv xml:lang="tr"><seg>Filtreleri uygula</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Apply filters</seg></tuv><tuv xml:lang="tr"><seg>Filtreleri uygula</seg></tuv><tuv xml:lang="hi"><seg>फ़िल्टर लागू करें</seg></tuv><tuv xml:lang="bn"><seg>ফিল্টার প্রয়োগ করুন</seg></tuv><tuv xml:lang="te"><seg>ఫిల్టర్u200cలను వర్తింపజేయండి</seg></tuv><tuv xml:lang="es"><seg>Aplicar filtros</seg></tuv><tuv xml:lang="fr"><seg>Appliquer des filtres</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Reset">
       <tuv xml:lang="en-us"><seg>Reset</seg></tuv>
-    <tuv xml:lang="lou"><seg>Reset</seg></tuv><tuv xml:lang="tr"><seg>Sıfırla</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Reset</seg></tuv><tuv xml:lang="tr"><seg>Sıfırla</seg></tuv><tuv xml:lang="hi"><seg>रीसेट करें</seg></tuv><tuv xml:lang="bn"><seg>রিসেট করুন</seg></tuv><tuv xml:lang="te"><seg>రీసెట్ చేయండి</seg></tuv><tuv xml:lang="es"><seg>Reiniciar</seg></tuv><tuv xml:lang="fr"><seg>Réinitialiser</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Page size">
       <tuv xml:lang="en-us"><seg>Page size</seg></tuv>
-    <tuv xml:lang="lou"><seg>Page size</seg></tuv><tuv xml:lang="tr"><seg>Sayfa boyutu</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Page size</seg></tuv><tuv xml:lang="tr"><seg>Sayfa boyutu</seg></tuv><tuv xml:lang="hi"><seg>पृष्ठ का आकार</seg></tuv><tuv xml:lang="bn"><seg>পৃষ্ঠার আকার</seg></tuv><tuv xml:lang="te"><seg>పేజీ పరిమాణం</seg></tuv><tuv xml:lang="es"><seg>Tamaño de página</seg></tuv><tuv xml:lang="fr"><seg>Taille des pages</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Previous">
       <tuv xml:lang="en-us"><seg>Previous</seg></tuv>
-    <tuv xml:lang="lou"><seg>Previous</seg></tuv><tuv xml:lang="tr"><seg>Öncesi</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Previous</seg></tuv><tuv xml:lang="tr"><seg>Öncesi</seg></tuv><tuv xml:lang="hi"><seg>पहले का</seg></tuv><tuv xml:lang="bn"><seg>আগের</seg></tuv><tuv xml:lang="te"><seg>మునుపటి</seg></tuv><tuv xml:lang="es"><seg>Anterior</seg></tuv><tuv xml:lang="fr"><seg>Précédent</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Next">
       <tuv xml:lang="en-us"><seg>Next</seg></tuv>
-    <tuv xml:lang="lou"><seg>Next</seg></tuv><tuv xml:lang="tr"><seg>Sonraki</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Next</seg></tuv><tuv xml:lang="tr"><seg>Sonraki</seg></tuv><tuv xml:lang="hi"><seg>अगला</seg></tuv><tuv xml:lang="bn"><seg>পরবর্তী</seg></tuv><tuv xml:lang="te"><seg>తదుపరి</seg></tuv><tuv xml:lang="es"><seg>Próximo</seg></tuv><tuv xml:lang="fr"><seg>Suivant</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Showing {0}–{1} of {2}">
       <tuv xml:lang="en-us"><seg>Showing {0}–{1} of {2}</seg></tuv>
-    <tuv xml:lang="lou"><seg>Showing {0}–{1} of {2}</seg></tuv><tuv xml:lang="tr"><seg>{0}–{1} / {2} gösteriliyor</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Showing {0}–{1} of {2}</seg></tuv><tuv xml:lang="tr"><seg>{0}–{1} / {2} gösteriliyor</seg></tuv><tuv xml:lang="hi"><seg>{2} में से {0}-{1} दिखाया जा रहा है</seg></tuv><tuv xml:lang="bn"><seg>{2}-এর মধ্যে {0}–{1} দেখানো হচ্ছে</seg></tuv><tuv xml:lang="te"><seg>{2}లో {0}–{1} చూపుతోంది</seg></tuv><tuv xml:lang="es"><seg>Mostrando {0}–{1} de {2}</seg></tuv><tuv xml:lang="fr"><seg>Affichage de {0} à {1} sur {2}</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@No audit log entries match the current filters.">
       <tuv xml:lang="en-us"><seg>No audit log entries match the current filters.</seg></tuv>
-    <tuv xml:lang="lou"><seg>No audit log entries match the current filters.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli filtrelerle eşleşen denetim günlüğü girişi yok.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>No audit log entries match the current filters.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli filtrelerle eşleşen denetim günlüğü girişi yok.</seg></tuv><tuv xml:lang="hi"><seg>कोई भी ऑडिट लॉग प्रविष्टियाँ वर्तमान फ़िल्टर से मेल नहीं खातीं।</seg></tuv><tuv xml:lang="bn"><seg>কোনো অডিট লগ এন্ট্রি বর্তমান ফিল্টারগুলির সাথে মেলে না৷</seg></tuv><tuv xml:lang="te"><seg>ప్రస్తుత ఫిల్టర్u200cలకు ఏ ఆడిట్ లాగ్ ఎంట్రీలు సరిపోలలేదు.</seg></tuv><tuv xml:lang="es"><seg>Ninguna entrada del registro de auditoría coincide con los filtros actuales.</seg></tuv><tuv xml:lang="fr"><seg>Aucune entrée du journal d'audit ne correspond aux filtres actuels.</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@You do not have permission to view the security audit log.">
       <tuv xml:lang="en-us"><seg>You do not have permission to view the security audit log.</seg></tuv>
-    <tuv xml:lang="lou"><seg>You do not have permission to view the security audit log.</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik denetim günlüğünü görüntüleme izniniz yok.</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>You do not have permission to view the security audit log.</seg></tuv><tuv xml:lang="tr"><seg>Güvenlik denetim günlüğünü görüntüleme izniniz yok.</seg></tuv><tuv xml:lang="hi"><seg>आपको सुरक्षा ऑडिट लॉग देखने की अनुमति नहीं है.</seg></tuv><tuv xml:lang="bn"><seg>আপনার কাছে নিরাপত্তা অডিট লগ দেখার অনুমতি নেই।</seg></tuv><tuv xml:lang="te"><seg>భద్రతా ఆడిట్ లాగ్u200cను వీక్షించడానికి మీకు అనుమతి లేదు.</seg></tuv><tuv xml:lang="es"><seg>No tiene permiso para ver el registro de auditoría de seguridad.</seg></tuv><tuv xml:lang="fr"><seg>Vous n'êtes pas autorisé à afficher le journal d'audit de sécurité.</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Entry detail">
       <tuv xml:lang="en-us"><seg>Entry detail</seg></tuv>
-    <tuv xml:lang="lou"><seg>Entry detail</seg></tuv><tuv xml:lang="tr"><seg>Giriş detayı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Entry detail</seg></tuv><tuv xml:lang="tr"><seg>Giriş detayı</seg></tuv><tuv xml:lang="hi"><seg>प्रवेश विवरण</seg></tuv><tuv xml:lang="bn"><seg>প্রবেশের বিস্তারিত</seg></tuv><tuv xml:lang="te"><seg>ఎంట్రీ వివరాలు</seg></tuv><tuv xml:lang="es"><seg>Detalle de entrada</seg></tuv><tuv xml:lang="fr"><seg>Détail de l'entrée</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Time">
       <tuv xml:lang="en-us"><seg>Time</seg></tuv>
-    <tuv xml:lang="lou"><seg>Time</seg></tuv><tuv xml:lang="tr"><seg>Zaman</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Time</seg></tuv><tuv xml:lang="tr"><seg>Zaman</seg></tuv><tuv xml:lang="hi"><seg>समय</seg></tuv><tuv xml:lang="bn"><seg>সময়</seg></tuv><tuv xml:lang="te"><seg>సమయం</seg></tuv><tuv xml:lang="es"><seg>Tiempo</seg></tuv><tuv xml:lang="fr"><seg>Temps</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Target">
       <tuv xml:lang="en-us"><seg>Target</seg></tuv>
-    <tuv xml:lang="lou"><seg>Target</seg></tuv><tuv xml:lang="tr"><seg>Hedef</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Target</seg></tuv><tuv xml:lang="tr"><seg>Hedef</seg></tuv><tuv xml:lang="hi"><seg>लक्ष्य</seg></tuv><tuv xml:lang="bn"><seg>টার্গেট</seg></tuv><tuv xml:lang="te"><seg>లక్ష్యం</seg></tuv><tuv xml:lang="es"><seg>Objetivo</seg></tuv><tuv xml:lang="fr"><seg>Cible</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@User message">
       <tuv xml:lang="en-us"><seg>User message</seg></tuv>
-    <tuv xml:lang="lou"><seg>User message</seg></tuv><tuv xml:lang="tr"><seg>Kullanıcı mesajı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>User message</seg></tuv><tuv xml:lang="tr"><seg>Kullanıcı mesajı</seg></tuv><tuv xml:lang="hi"><seg>उपयोगकर्ता संदेश</seg></tuv><tuv xml:lang="bn"><seg>ব্যবহারকারীর বার্তা</seg></tuv><tuv xml:lang="te"><seg>వినియోగదారు సందేశం</seg></tuv><tuv xml:lang="es"><seg>Mensaje de usuario</seg></tuv><tuv xml:lang="fr"><seg>Message utilisateur</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Log message">
       <tuv xml:lang="en-us"><seg>Log message</seg></tuv>
-    <tuv xml:lang="lou"><seg>Log message</seg></tuv><tuv xml:lang="tr"><seg>Günlük mesajı</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Log message</seg></tuv><tuv xml:lang="tr"><seg>Günlük mesajı</seg></tuv><tuv xml:lang="hi"><seg>लॉग संदेश</seg></tuv><tuv xml:lang="bn"><seg>লগ বার্তা</seg></tuv><tuv xml:lang="te"><seg>లాగ్ సందేశం</seg></tuv><tuv xml:lang="es"><seg>Mensaje de registro</seg></tuv><tuv xml:lang="fr"><seg>Message du journal</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Audit ID">
       <tuv xml:lang="en-us"><seg>Audit ID</seg></tuv>
-    <tuv xml:lang="lou"><seg>Audit ID</seg></tuv><tuv xml:lang="tr"><seg>Denetim Kimliği</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Audit ID</seg></tuv><tuv xml:lang="tr"><seg>Denetim Kimliği</seg></tuv><tuv xml:lang="hi"><seg>ऑडिट आईडी</seg></tuv><tuv xml:lang="bn"><seg>অডিট আইডি</seg></tuv><tuv xml:lang="te"><seg>ఆడిట్ ID</seg></tuv><tuv xml:lang="es"><seg>ID de auditoría</seg></tuv><tuv xml:lang="fr"><seg>ID d'audit</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Source IP">
       <tuv xml:lang="en-us"><seg>Source IP</seg></tuv>
-    <tuv xml:lang="lou"><seg>Source IP</seg></tuv><tuv xml:lang="tr"><seg>Kaynak IP'si</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Source IP</seg></tuv><tuv xml:lang="tr"><seg>Kaynak IP'si</seg></tuv><tuv xml:lang="hi"><seg>स्रोत आईपी</seg></tuv><tuv xml:lang="bn"><seg>উৎস আইপি</seg></tuv><tuv xml:lang="te"><seg>మూల IP</seg></tuv><tuv xml:lang="es"><seg>IP de origen</seg></tuv><tuv xml:lang="fr"><seg>Adresse IP source</seg></tuv></tu>
     <tu tuid="perc.ui.admin.auditlog@Server">
       <tuv xml:lang="en-us"><seg>Server</seg></tuv>
-    <tuv xml:lang="lou"><seg>Server</seg></tuv><tuv xml:lang="tr"><seg>Sunucu</seg></tuv></tu>
+    <tuv xml:lang="lou"><seg>Server</seg></tuv><tuv xml:lang="tr"><seg>Sunucu</seg></tuv><tuv xml:lang="hi"><seg>सर्वर</seg></tuv><tuv xml:lang="bn"><seg>সার্ভার</seg></tuv><tuv xml:lang="te"><seg>సర్వర్</seg></tuv><tuv xml:lang="es"><seg>Servidor</seg></tuv><tuv xml:lang="fr"><seg>Serveur</seg></tuv></tu>
 
     <!-- Architecture SPA chrome (#3098 Slice F, #3217). Canonical title tuid is @Navigation (ARCH_MSG_KEYS.TITLE). -->
     <tu tuid="perc.ui.architecture.modern@Navigation">
       <tuv xml:lang="en-us"><seg>Navigation</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>मार्गदर्शन</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్</seg></tuv><tuv xml:lang="tr"><seg>Navigasyon</seg></tuv><tuv xml:lang="es"><seg>Navegación</seg></tuv><tuv xml:lang="fr"><seg>Navigation</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.">
       <tuv xml:lang="en-us"><seg>Browse and edit site navigation trees (navons / sections), including landing pages, section links, and external links.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पेज, अनुभाग लिंक और बाहरी लिंक सहित साइट नेविगेशन ट्री (नेवोन्स / अनुभाग) ब्राउज़ करें और संपादित करें।</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পেজ, সেকশন লিঙ্ক এবং এক্সটার্নাল লিঙ্ক সহ সাইট নেভিগেশন ট্রি (ন্যাভোন/সেকশন) ব্রাউজ এবং এডিট করুন।</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీలు, విభాగం లింక్u200cలు మరియు బాహ్య లింక్u200cలతో సహా సైట్ నావిగేషన్ ట్రీలను (నవోన్u200cలు / విభాగాలు) బ్రౌజ్ చేయండి మరియు సవరించండి.</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfaları, bölüm bağlantıları ve harici bağlantılar dahil olmak üzere site gezinme ağaçlarına (navonlar/bölümler) göz atın ve bunları düzenleyin.</seg></tuv><tuv xml:lang="es"><seg>Explore y edite árboles de navegación del sitio (navons/secciones), incluidas páginas de destino, enlaces de secciones y enlaces externos.</seg></tuv><tuv xml:lang="fr"><seg>Parcourez et modifiez les arborescences de navigation du site (navons/sections), y compris les pages de destination, les liens de section et les liens externes.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Loading Architecture…">
       <tuv xml:lang="en-us"><seg>Loading Navigation…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन लोड हो रहा है...</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ లోడ్ అవుతోంది…</seg></tuv><tuv xml:lang="tr"><seg>Navigasyon yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando navegación…</seg></tuv><tuv xml:lang="fr"><seg>Chargement de la navigation…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Loading Navigation…">
       <tuv xml:lang="en-us"><seg>Loading Navigation…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन लोड हो रहा है...</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ లోడ్ అవుతోంది…</seg></tuv><tuv xml:lang="tr"><seg>Navigasyon yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando navegación…</seg></tuv><tuv xml:lang="fr"><seg>Chargement de la navigation…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Site">
       <tuv xml:lang="en-us"><seg>Site</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट</seg></tuv><tuv xml:lang="bn"><seg>সাইট</seg></tuv><tuv xml:lang="te"><seg>సైట్</seg></tuv><tuv xml:lang="tr"><seg>Alan</seg></tuv><tuv xml:lang="es"><seg>Sitio</seg></tuv><tuv xml:lang="fr"><seg>Site</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a site…">
       <tuv xml:lang="en-us"><seg>Select a site…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक साइट चुनें...</seg></tuv><tuv xml:lang="bn"><seg>একটি সাইট নির্বাচন করুন...</seg></tuv><tuv xml:lang="te"><seg>సైట్u200cని ఎంచుకోండి...</seg></tuv><tuv xml:lang="tr"><seg>Bir site seçin…</seg></tuv><tuv xml:lang="es"><seg>Seleccione un sitio…</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez un site…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Site context: {0}">
       <tuv xml:lang="en-us"><seg>Site context: {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट संदर्भ: {0}</seg></tuv><tuv xml:lang="bn"><seg>সাইট প্রসঙ্গ: {0}</seg></tuv><tuv xml:lang="te"><seg>సైట్ సందర్భం: {0}</seg></tuv><tuv xml:lang="tr"><seg>Site bağlamı: {0}</seg></tuv><tuv xml:lang="es"><seg>Contexto del sitio: {0}</seg></tuv><tuv xml:lang="fr"><seg>Contexte du site : {0}</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a site to load its navigation tree.">
       <tuv xml:lang="en-us"><seg>Select a site to load its navigation tree.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>इसके नेविगेशन ट्री को लोड करने के लिए एक साइट का चयन करें।</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন ট্রি লোড করতে একটি সাইট নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>దాని నావిగేషన్ ట్రీని లోడ్ చేయడానికి సైట్u200cను ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacını yüklemek için bir site seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione un sitio para cargar su árbol de navegación.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez un site pour charger son arborescence de navigation.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Loading sites…">
       <tuv xml:lang="en-us"><seg>Loading sites…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइटें लोड हो रही हैं...</seg></tuv><tuv xml:lang="bn"><seg>সাইট লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>సైట్u200cలను లోడ్ చేస్తోంది...</seg></tuv><tuv xml:lang="tr"><seg>Siteler yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando sitios…</seg></tuv><tuv xml:lang="fr"><seg>Chargement des sites…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Could not load the site list.">
       <tuv xml:lang="en-us"><seg>Could not load the site list.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट सूची लोड नहीं हो सकी.</seg></tuv><tuv xml:lang="bn"><seg>সাইটের তালিকা লোড করা যায়নি।</seg></tuv><tuv xml:lang="te"><seg>సైట్ జాబితాను లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>Site listesi yüklenemedi.</seg></tuv><tuv xml:lang="es"><seg>No se pudo cargar la lista de sitios.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger la liste des sites.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Site {0} was created, but the site list could not be refreshed.">
       <tuv xml:lang="en-us"><seg>Site {0} was created, but the site list could not be refreshed.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट {0} बनाई गई, लेकिन साइट सूची ताज़ा नहीं की जा सकी.</seg></tuv><tuv xml:lang="bn"><seg>সাইট {0} তৈরি করা হয়েছিল, কিন্তু সাইটের তালিকা রিফ্রেশ করা যায়নি৷</seg></tuv><tuv xml:lang="te"><seg>సైట్ {0} సృష్టించబడింది, కానీ సైట్ జాబితాను రిఫ్రెష్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>{0} sitesi oluşturuldu ancak site listesi yenilenemedi.</seg></tuv><tuv xml:lang="es"><seg>Se creó el sitio {0}, pero no se pudo actualizar la lista de sitios.</seg></tuv><tuv xml:lang="fr"><seg>Le site {0} a été créé, mais la liste des sites n'a pas pu être actualisée.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@No sites are available. Create a site to browse its navigation tree.">
       <tuv xml:lang="en-us"><seg>No sites are available. Create a site to browse its navigation tree.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कोई साइट उपलब्ध नहीं है. इसके नेविगेशन ट्री को ब्राउज़ करने के लिए एक साइट बनाएं।</seg></tuv><tuv xml:lang="bn"><seg>কোন সাইট পাওয়া যায় না. এর নেভিগেশন ট্রি ব্রাউজ করার জন্য একটি সাইট তৈরি করুন৷</seg></tuv><tuv xml:lang="te"><seg>సైట్u200cలు ఏవీ అందుబాటులో లేవు. దాని నావిగేషన్ ట్రీని బ్రౌజ్ చేయడానికి సైట్u200cను సృష్టించండి.</seg></tuv><tuv xml:lang="tr"><seg>Hiçbir site mevcut değil. Gezinme ağacına göz atmak için bir site oluşturun.</seg></tuv><tuv xml:lang="es"><seg>No hay sitios disponibles. Cree un sitio para explorar su árbol de navegación.</seg></tuv><tuv xml:lang="fr"><seg>Aucun site n'est disponible. Créez un site pour parcourir son arborescence de navigation.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Loading navigation tree…">
       <tuv xml:lang="en-us"><seg>Loading navigation tree…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन ट्री लोड हो रहा है...</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন ট্রি লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ ట్రీ లోడ్ అవుతోంది…</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacı yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando árbol de navegación…</seg></tuv><tuv xml:lang="fr"><seg>Chargement de l'arborescence de navigation…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Could not load the navigation tree.">
       <tuv xml:lang="en-us"><seg>Could not load the navigation tree.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन ट्री लोड नहीं हो सका.</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন ট্রি লোড করা যায়নি।</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ ట్రీని లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacı yüklenemedi.</seg></tuv><tuv xml:lang="es"><seg>No se pudo cargar el árbol de navegación.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger l'arborescence de navigation.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@This site has no navigation sections yet.">
       <tuv xml:lang="en-us"><seg>This site has no navigation sections yet.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>इस साइट पर अभी तक कोई नेविगेशन अनुभाग नहीं है.</seg></tuv><tuv xml:lang="bn"><seg>এই সাইটে এখনো কোন নেভিগেশন বিভাগ আছে.</seg></tuv><tuv xml:lang="te"><seg>ఈ సైట్u200cకి ఇంకా నావిగేషన్ విభాగాలు లేవు.</seg></tuv><tuv xml:lang="tr"><seg>Bu sitede henüz gezinme bölümü yok.</seg></tuv><tuv xml:lang="es"><seg>Este sitio aún no tiene secciones de navegación.</seg></tuv><tuv xml:lang="fr"><seg>Ce site ne comporte pas encore de sections de navigation.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Navigation tree">
       <tuv xml:lang="en-us"><seg>Navigation tree</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन वृक्ष</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন গাছ</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ చెట్టు</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacı</seg></tuv><tuv xml:lang="es"><seg>Árbol de navegación</seg></tuv><tuv xml:lang="fr"><seg>Arbre de navigation</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.">
       <tuv xml:lang="en-us"><seg>Select a section, then use structure actions: create, rename, move, delete, landing page, or link editors.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक अनुभाग चुनें, फिर संरचना क्रियाओं का उपयोग करें: बनाएं, नाम बदलें, स्थानांतरित करें, हटाएं, लैंडिंग पृष्ठ, या लिंक संपादक।</seg></tuv><tuv xml:lang="bn"><seg>একটি বিভাগ নির্বাচন করুন, তারপর গঠন ক্রিয়াগুলি ব্যবহার করুন: তৈরি করুন, পুনঃনামকরণ করুন, সরান, মুছুন, ল্যান্ডিং পৃষ্ঠা বা লিঙ্ক সম্পাদক৷</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని ఎంచుకుని, ఆపై నిర్మాణ చర్యలను ఉపయోగించండి: సృష్టించండి, పేరు మార్చండి, తరలించండి, తొలగించండి, ల్యాండింగ్ పేజీ లేదా లింక్ ఎడిటర్u200cలు.</seg></tuv><tuv xml:lang="tr"><seg>Bir bölüm seçin ve ardından yapı eylemlerini kullanın: oluşturma, yeniden adlandırma, taşıma, silme, açılış sayfası veya bağlantı düzenleyicileri.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección y luego use acciones de estructura: crear, cambiar el nombre, mover, eliminar, página de destino o editores de enlaces.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section, puis utilisez les actions de structure : créer, renommer, déplacer, supprimer, page de destination ou éditeurs de liens.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.">
       <tuv xml:lang="en-us"><seg>Select a section, then use structure actions: create, convert to folder, create from folder, rename, move, delete, landing page, or link editors.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक अनुभाग चुनें, फिर संरचना क्रियाओं का उपयोग करें: बनाएं, फ़ोल्डर में कनवर्ट करें, फ़ोल्डर से बनाएं, नाम बदलें, स्थानांतरित करें, हटाएं, लैंडिंग पृष्ठ, या लिंक संपादक।</seg></tuv><tuv xml:lang="bn"><seg>একটি বিভাগ নির্বাচন করুন, তারপর গঠন ক্রিয়াগুলি ব্যবহার করুন: তৈরি করুন, ফোল্ডারে রূপান্তর করুন, ফোল্ডার থেকে তৈরি করুন, নাম পরিবর্তন করুন, সরান, মুছুন, ল্যান্ডিং পৃষ্ঠা বা লিঙ্ক সম্পাদক।</seg></tuv><tuv xml:lang="te"><seg>ఒక విభాగాన్ని ఎంచుకోండి, ఆపై నిర్మాణ చర్యలను ఉపయోగించండి: సృష్టించండి, ఫోల్డర్u200cగా మార్చండి, ఫోల్డర్ నుండి సృష్టించండి, పేరు మార్చండి, తరలించండి, తొలగించండి, ల్యాండింగ్ పేజీ లేదా లింక్ ఎడిటర్u200cలు.</seg></tuv><tuv xml:lang="tr"><seg>Bir bölüm seçin ve ardından yapı eylemlerini kullanın: oluşturma, klasöre dönüştürme, klasörden oluşturma, yeniden adlandırma, taşıma, silme, açılış sayfası veya bağlantı düzenleyicileri.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección y luego use acciones de estructura: crear, convertir a carpeta, crear desde carpeta, cambiar nombre, mover, eliminar, página de inicio o editores de enlaces.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section, puis utilisez les actions de structure : créer, convertir en dossier, créer à partir d'un dossier, renommer, déplacer, supprimer, page de destination ou éditeurs de liens.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Refresh">
       <tuv xml:lang="en-us"><seg>Refresh</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>ताज़ा करना</seg></tuv><tuv xml:lang="bn"><seg>রিফ্রেশ</seg></tuv><tuv xml:lang="te"><seg>రిఫ్రెష్ చేయండి</seg></tuv><tuv xml:lang="tr"><seg>Yenile</seg></tuv><tuv xml:lang="es"><seg>Refrescar</seg></tuv><tuv xml:lang="fr"><seg>Rafraîchir</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@No site selected">
       <tuv xml:lang="en-us"><seg>No site selected</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कोई साइट चयनित नहीं</seg></tuv><tuv xml:lang="bn"><seg>কোন সাইট নির্বাচন করা হয়নি</seg></tuv><tuv xml:lang="te"><seg>సైట్ ఏదీ ఎంచుకోబడలేదు</seg></tuv><tuv xml:lang="tr"><seg>Hiçbir site seçilmedi</seg></tuv><tuv xml:lang="es"><seg>Ningún sitio seleccionado</seg></tuv><tuv xml:lang="fr"><seg>Aucun site sélectionné</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Choose a site from the list above to browse its navigation tree (navons / sections).">
       <tuv xml:lang="en-us"><seg>Choose a site from the list above to browse its navigation tree (navons / sections).</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>इसके नेविगेशन ट्री (नेवोन्स/अनुभाग) को ब्राउज़ करने के लिए उपरोक्त सूची से एक साइट चुनें।</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন ট্রি (ন্যাভোন/বিভাগ) ব্রাউজ করতে উপরের তালিকা থেকে একটি সাইট বেছে নিন।</seg></tuv><tuv xml:lang="te"><seg>దాని నావిగేషన్ ట్రీ (నవోన్u200cలు / విభాగాలు) బ్రౌజ్ చేయడానికి పై జాబితా నుండి సైట్u200cను ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacına (navonlar / bölümler) göz atmak için yukarıdaki listeden bir site seçin.</seg></tuv><tuv xml:lang="es"><seg>Elija un sitio de la lista anterior para explorar su árbol de navegación (navons/secciones).</seg></tuv><tuv xml:lang="fr"><seg>Choisissez un site dans la liste ci-dessus pour parcourir son arborescence de navigation (navons / sections).</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Structure actions">
       <tuv xml:lang="en-us"><seg>Structure actions</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>संरचना क्रियाएँ</seg></tuv><tuv xml:lang="bn"><seg>গঠন কর্ম</seg></tuv><tuv xml:lang="te"><seg>నిర్మాణ చర్యలు</seg></tuv><tuv xml:lang="tr"><seg>Yapı eylemleri</seg></tuv><tuv xml:lang="es"><seg>Acciones de estructura</seg></tuv><tuv xml:lang="fr"><seg>Actions de structuration</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create section">
       <tuv xml:lang="en-us"><seg>Create section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग बनाएँ</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని సృష్టించండి</seg></tuv><tuv xml:lang="tr"><seg>Bölüm oluştur</seg></tuv><tuv xml:lang="es"><seg>Crear sección</seg></tuv><tuv xml:lang="fr"><seg>Créer une rubrique</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create section from folder">
       <tuv xml:lang="en-us"><seg>Create section from folder</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर से अनुभाग बनाएं</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডার থেকে বিভাগ তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్ నుండి విభాగాన్ని సృష్టించండి</seg></tuv><tuv xml:lang="tr"><seg>Klasörden bölüm oluştur</seg></tuv><tuv xml:lang="es"><seg>Crear sección desde la carpeta</seg></tuv><tuv xml:lang="fr"><seg>Créer une section à partir d'un dossier</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Convert to folder">
       <tuv xml:lang="en-us"><seg>Convert to folder</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर में कनवर्ट करें</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডারে রূপান্তর করুন</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్u200cకి మార్చండి</seg></tuv><tuv xml:lang="tr"><seg>Klasöre dönüştür</seg></tuv><tuv xml:lang="es"><seg>Convertir a carpeta</seg></tuv><tuv xml:lang="fr"><seg>Convertir en dossier</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create section link">
       <tuv xml:lang="en-us"><seg>Create section link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग लिंक बनाएं</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ লিঙ্ক তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>విభాగం లింక్u200cని సృష్టించండి</seg></tuv><tuv xml:lang="tr"><seg>Bölüm bağlantısı oluştur</seg></tuv><tuv xml:lang="es"><seg>Crear enlace de sección</seg></tuv><tuv xml:lang="fr"><seg>Créer un lien de section</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create external link">
       <tuv xml:lang="en-us"><seg>Create external link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बाहरी लिंक बनाएं</seg></tuv><tuv xml:lang="bn"><seg>বাহ্যিক লিঙ্ক তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>బాహ్య లింక్u200cని సృష్టించండి</seg></tuv><tuv xml:lang="tr"><seg>Harici bağlantı oluştur</seg></tuv><tuv xml:lang="es"><seg>Crear enlace externo</seg></tuv><tuv xml:lang="fr"><seg>Créer un lien externe</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page">
       <tuv xml:lang="en-us"><seg>Landing page</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası</seg></tuv><tuv xml:lang="es"><seg>Página de destino</seg></tuv><tuv xml:lang="fr"><seg>Page de destination</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Edit link">
       <tuv xml:lang="en-us"><seg>Edit link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लिंक संपादित करें</seg></tuv><tuv xml:lang="bn"><seg>লিঙ্ক সম্পাদনা করুন</seg></tuv><tuv xml:lang="te"><seg>లింక్u200cని సవరించండి</seg></tuv><tuv xml:lang="tr"><seg>Bağlantıyı düzenle</seg></tuv><tuv xml:lang="es"><seg>Editar enlace</seg></tuv><tuv xml:lang="fr"><seg>Modifier le lien</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Rename">
       <tuv xml:lang="en-us"><seg>Rename</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नाम बदलें</seg></tuv><tuv xml:lang="bn"><seg>নাম পরিবর্তন করুন</seg></tuv><tuv xml:lang="te"><seg>పేరు మార్చండి</seg></tuv><tuv xml:lang="tr"><seg>Yeniden isimlendirmek</seg></tuv><tuv xml:lang="es"><seg>Rebautizar</seg></tuv><tuv xml:lang="fr"><seg>Rebaptiser</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Move section">
       <tuv xml:lang="en-us"><seg>Move section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग ले जाएँ</seg></tuv><tuv xml:lang="bn"><seg>সেকশন সরান</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని తరలించండి</seg></tuv><tuv xml:lang="tr"><seg>Bölümü taşı</seg></tuv><tuv xml:lang="es"><seg>Mover sección</seg></tuv><tuv xml:lang="fr"><seg>Déplacer la section</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Move up">
       <tuv xml:lang="en-us"><seg>Move up</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बढ़ाना</seg></tuv><tuv xml:lang="bn"><seg>উপরে সরান</seg></tuv><tuv xml:lang="te"><seg>పైకి కదలండి</seg></tuv><tuv xml:lang="tr"><seg>Yukarı taşı</seg></tuv><tuv xml:lang="es"><seg>Subir</seg></tuv><tuv xml:lang="fr"><seg>Monter</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Move down">
       <tuv xml:lang="en-us"><seg>Move down</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नीचे की ओर</seg></tuv><tuv xml:lang="bn"><seg>নিচে সরান</seg></tuv><tuv xml:lang="te"><seg>క్రిందికి తరలించు</seg></tuv><tuv xml:lang="tr"><seg>Aşağı taşı</seg></tuv><tuv xml:lang="es"><seg>Bajar</seg></tuv><tuv xml:lang="fr"><seg>Descendre</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Choose a new parent section. Optionally set a position among that parent's children. Cancel does not change the tree.">
       <tuv xml:lang="en-us"><seg>Choose a new parent section. Optionally set a position among that parent's children. Cancel does not change the tree.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक नया मूल अनुभाग चुनें. वैकल्पिक रूप से उस माता-पिता के बच्चों के बीच एक स्थान निर्धारित करें। रद्द करने से पेड़ नहीं बदलता.</seg></tuv><tuv xml:lang="bn"><seg>একটি নতুন অভিভাবক বিভাগ চয়ন করুন৷ ঐচ্ছিকভাবে সেই পিতামাতার সন্তানদের মধ্যে একটি অবস্থান সেট করুন৷ বাতিল গাছ পরিবর্তন করে না.</seg></tuv><tuv xml:lang="te"><seg>కొత్త పేరెంట్ విభాగాన్ని ఎంచుకోండి. ఐచ్ఛికంగా ఆ తల్లిదండ్రుల పిల్లలలో ఒక స్థానాన్ని సెట్ చేయండి. రద్దు చెట్టును మార్చదు.</seg></tuv><tuv xml:lang="tr"><seg>Yeni bir ebeveyn bölümü seçin. İsteğe bağlı olarak o ebeveynin çocukları arasında bir konum belirleyin. İptal ağacı değiştirmez.</seg></tuv><tuv xml:lang="es"><seg>Elija una nueva sección principal. Opcionalmente, establezca una posición entre los hijos de ese padre. Cancelar no cambia el árbol.</seg></tuv><tuv xml:lang="fr"><seg>Choisissez une nouvelle section parent. Définissez éventuellement une position parmi les enfants de ce parent. Annuler ne modifie pas l'arborescence.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Section to move">
       <tuv xml:lang="en-us"><seg>Section to move</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>स्थानांतरित करने के लिए अनुभाग</seg></tuv><tuv xml:lang="bn"><seg>সরানোর জন্য বিভাগ</seg></tuv><tuv xml:lang="te"><seg>తరలించడానికి విభాగం</seg></tuv><tuv xml:lang="tr"><seg>Taşınacak bölüm</seg></tuv><tuv xml:lang="es"><seg>Sección para mover</seg></tuv><tuv xml:lang="fr"><seg>Section à déplacer</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@New parent section">
       <tuv xml:lang="en-us"><seg>New parent section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नया मूल अनुभाग</seg></tuv><tuv xml:lang="bn"><seg>নতুন অভিভাবক বিভাগ</seg></tuv><tuv xml:lang="te"><seg>కొత్త పేరెంట్ విభాగం</seg></tuv><tuv xml:lang="tr"><seg>Yeni ebeveyn bölümü</seg></tuv><tuv xml:lang="es"><seg>Nueva sección para padres</seg></tuv><tuv xml:lang="fr"><seg>Nouvelle section parents</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Position">
       <tuv xml:lang="en-us"><seg>Position</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पद</seg></tuv><tuv xml:lang="bn"><seg>অবস্থান</seg></tuv><tuv xml:lang="te"><seg>స్థానం</seg></tuv><tuv xml:lang="tr"><seg>Konum</seg></tuv><tuv xml:lang="es"><seg>Posición</seg></tuv><tuv xml:lang="fr"><seg>Position</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@At the end">
       <tuv xml:lang="en-us"><seg>At the end</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अंत में</seg></tuv><tuv xml:lang="bn"><seg>শেষে</seg></tuv><tuv xml:lang="te"><seg>ముగింపులో</seg></tuv><tuv xml:lang="tr"><seg>Sonunda</seg></tuv><tuv xml:lang="es"><seg>al final</seg></tuv><tuv xml:lang="fr"><seg>À la fin</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Before {0}">
       <tuv xml:lang="en-us"><seg>Before {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>{0} से पहले</seg></tuv><tuv xml:lang="bn"><seg>{0} এর আগে</seg></tuv><tuv xml:lang="te"><seg>{0}కి ముందు</seg></tuv><tuv xml:lang="tr"><seg>{0}'dan önce</seg></tuv><tuv xml:lang="es"><seg>Antes de {0}</seg></tuv><tuv xml:lang="fr"><seg>Avant {0}</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Move">
       <tuv xml:lang="en-us"><seg>Move</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कदम</seg></tuv><tuv xml:lang="bn"><seg>সরান</seg></tuv><tuv xml:lang="te"><seg>తరలించు</seg></tuv><tuv xml:lang="tr"><seg>Taşınmak</seg></tuv><tuv xml:lang="es"><seg>Mover</seg></tuv><tuv xml:lang="fr"><seg>Se déplacer</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a parent section before moving.">
       <tuv xml:lang="en-us"><seg>Select a parent section before moving.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>आगे बढ़ने से पहले मूल अनुभाग चुनें.</seg></tuv><tuv xml:lang="bn"><seg>সরানোর আগে একটি অভিভাবক বিভাগ নির্বাচন করুন৷</seg></tuv><tuv xml:lang="te"><seg>తరలించడానికి ముందు పేరెంట్ విభాగాన్ని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Taşımadan önce bir üst bölüm seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección principal antes de mudarse.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section parent avant de vous déplacer.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@That section cannot be the new parent. Choose a regular section that is not the section you are moving or one of its children.">
       <tuv xml:lang="en-us"><seg>That section cannot be the new parent. Choose a regular section that is not the section you are moving or one of its children.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>वह अनुभाग नया अभिभावक नहीं हो सकता. एक नियमित अनुभाग चुनें जो वह अनुभाग नहीं है जिसे आप स्थानांतरित कर रहे हैं या उसके बच्चों में से एक है।</seg></tuv><tuv xml:lang="bn"><seg>এই বিভাগটি নতুন অভিভাবক হতে পারে না৷ একটি নিয়মিত বিভাগ চয়ন করুন যা আপনি যে বিভাগটি সরান বা তার সন্তানদের মধ্যে একটি নয়।</seg></tuv><tuv xml:lang="te"><seg>ఆ విభాగం కొత్త పేరెంట్ కాకూడదు. మీరు తరలించే విభాగం లేదా దాని పిల్లలలో ఒకరిని కాకుండా సాధారణ విభాగాన్ని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Bu bölüm yeni ebeveyn olamaz. Taşıdığınız bölüm veya onun alt öğelerinden biri olmayan normal bir bölüm seçin.</seg></tuv><tuv xml:lang="es"><seg>Esa sección no puede ser la nueva matriz. Elija una sección normal que no sea la sección que está moviendo ni una de sus hijas.</seg></tuv><tuv xml:lang="fr"><seg>Cette section ne peut pas être le nouveau parent. Choisissez une section normale qui n'est pas la section que vous déplacez ou l'un de ses enfants.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@The site root section cannot be moved.">
       <tuv xml:lang="en-us"><seg>The site root section cannot be moved.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट रूट अनुभाग को स्थानांतरित नहीं किया जा सकता.</seg></tuv><tuv xml:lang="bn"><seg>সাইট রুট বিভাগ সরানো যাবে না.</seg></tuv><tuv xml:lang="te"><seg>సైట్ రూట్ విభాగాన్ని తరలించడం సాధ్యం కాదు.</seg></tuv><tuv xml:lang="tr"><seg>Sitenin kök bölümü taşınamaz.</seg></tuv><tuv xml:lang="es"><seg>La sección raíz del sitio no se puede mover.</seg></tuv><tuv xml:lang="fr"><seg>La section racine du site ne peut pas être déplacée.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Delete">
       <tuv xml:lang="en-us"><seg>Delete</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>मिटाना</seg></tuv><tuv xml:lang="bn"><seg>মুছে দিন</seg></tuv><tuv xml:lang="te"><seg>తొలగించు</seg></tuv><tuv xml:lang="tr"><seg>Silmek</seg></tuv><tuv xml:lang="es"><seg>Borrar</seg></tuv><tuv xml:lang="fr"><seg>Supprimer</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Working…">
       <tuv xml:lang="en-us"><seg>Working…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कार्यरत…</seg></tuv><tuv xml:lang="bn"><seg>কাজ করছে...</seg></tuv><tuv xml:lang="te"><seg>పని చేస్తోంది…</seg></tuv><tuv xml:lang="tr"><seg>Çalışma…</seg></tuv><tuv xml:lang="es"><seg>Laboral…</seg></tuv><tuv xml:lang="fr"><seg>Fonctionnement…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a section in the tree to enable structure actions.">
       <tuv xml:lang="en-us"><seg>Select a section in the tree to enable structure actions.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>संरचना क्रियाओं को सक्षम करने के लिए ट्री में एक अनुभाग का चयन करें।</seg></tuv><tuv xml:lang="bn"><seg>স্ট্রাকচার অ্যাকশন সক্রিয় করতে গাছের একটি বিভাগ নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>నిర్మాణ చర్యలను ప్రారంభించడానికి చెట్టులోని ఒక విభాగాన్ని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Yapı eylemlerini etkinleştirmek için ağaçta bir bölüm seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección en el árbol para habilitar acciones de estructura.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section dans l'arborescence pour activer les actions de structure.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Could not update navigation structure.">
       <tuv xml:lang="en-us"><seg>Could not update navigation structure.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन संरचना अद्यतन नहीं किया जा सका.</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন গঠন আপডেট করা যায়নি.</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ నిర్మాణాన్ని నవీకరించడం సాధ్యపడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>Gezinme yapısı güncellenemedi.</seg></tuv><tuv xml:lang="es"><seg>No se pudo actualizar la estructura de navegación.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de mettre à jour la structure de navigation.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Parent section">
       <tuv xml:lang="en-us"><seg>Parent section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>जनक अनुभाग</seg></tuv><tuv xml:lang="bn"><seg>অভিভাবক বিভাগ</seg></tuv><tuv xml:lang="te"><seg>మాతృ విభాగం</seg></tuv><tuv xml:lang="tr"><seg>Ebeveyn bölümü</seg></tuv><tuv xml:lang="es"><seg>Sección de padres</seg></tuv><tuv xml:lang="fr"><seg>Section parents</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Title">
       <tuv xml:lang="en-us"><seg>Title</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>शीर्षक</seg></tuv><tuv xml:lang="bn"><seg>শিরোনাম</seg></tuv><tuv xml:lang="te"><seg>శీర్షిక</seg></tuv><tuv xml:lang="tr"><seg>Başlık</seg></tuv><tuv xml:lang="es"><seg>Título</seg></tuv><tuv xml:lang="fr"><seg>Titre</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL name">
       <tuv xml:lang="en-us"><seg>URL name</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल नाम</seg></tuv><tuv xml:lang="bn"><seg>URL নাম</seg></tuv><tuv xml:lang="te"><seg>URL పేరు</seg></tuv><tuv xml:lang="tr"><seg>URL adı</seg></tuv><tuv xml:lang="es"><seg>nombre de URL</seg></tuv><tuv xml:lang="fr"><seg>Nom de l'URL</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Template">
       <tuv xml:lang="en-us"><seg>Template</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>खाका</seg></tuv><tuv xml:lang="bn"><seg>টেমপ্লেট</seg></tuv><tuv xml:lang="te"><seg>మూస</seg></tuv><tuv xml:lang="tr"><seg>Şablon</seg></tuv><tuv xml:lang="es"><seg>Plantilla</seg></tuv><tuv xml:lang="fr"><seg>Modèle</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Loading templates…">
       <tuv xml:lang="en-us"><seg>Loading templates…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>टेम्प्लेट लोड हो रहे हैं...</seg></tuv><tuv xml:lang="bn"><seg>টেমপ্লেট লোড হচ্ছে...</seg></tuv><tuv xml:lang="te"><seg>టెంప్లేట్u200cలను లోడ్ చేస్తోంది...</seg></tuv><tuv xml:lang="tr"><seg>Şablonlar yükleniyor…</seg></tuv><tuv xml:lang="es"><seg>Cargando plantillas…</seg></tuv><tuv xml:lang="fr"><seg>Chargement des modèles…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@No templates are available for this site.">
       <tuv xml:lang="en-us"><seg>No templates are available for this site.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>इस साइट के लिए कोई टेम्पलेट उपलब्ध नहीं है.</seg></tuv><tuv xml:lang="bn"><seg>এই সাইটের জন্য কোন টেমপ্লেট উপলব্ধ নেই.</seg></tuv><tuv xml:lang="te"><seg>ఈ సైట్ కోసం టెంప్లేట్u200cలు ఏవీ అందుబాటులో లేవు.</seg></tuv><tuv xml:lang="tr"><seg>Bu site için şablon mevcut değil.</seg></tuv><tuv xml:lang="es"><seg>No hay plantillas disponibles para este sitio.</seg></tuv><tuv xml:lang="fr"><seg>Aucun modèle n'est disponible pour ce site.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create">
       <tuv xml:lang="en-us"><seg>Create</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बनाएं</seg></tuv><tuv xml:lang="bn"><seg>তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>సృష్టించు</seg></tuv><tuv xml:lang="tr"><seg>Yaratmak</seg></tuv><tuv xml:lang="es"><seg>Crear</seg></tuv><tuv xml:lang="fr"><seg>Créer</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Cancel">
       <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>रद्द करना</seg></tuv><tuv xml:lang="bn"><seg>বাতিল করুন</seg></tuv><tuv xml:lang="te"><seg>రద్దు చేయి</seg></tuv><tuv xml:lang="tr"><seg>İptal etmek</seg></tuv><tuv xml:lang="es"><seg>Cancelar</seg></tuv><tuv xml:lang="fr"><seg>Annuler</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Rename section">
       <tuv xml:lang="en-us"><seg>Rename section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग का नाम बदलें</seg></tuv><tuv xml:lang="bn"><seg>বিভাগের নাম পরিবর্তন করুন</seg></tuv><tuv xml:lang="te"><seg>విభాగం పేరు మార్చండి</seg></tuv><tuv xml:lang="tr"><seg>Bölümü yeniden adlandır</seg></tuv><tuv xml:lang="es"><seg>Cambiar nombre de sección</seg></tuv><tuv xml:lang="fr"><seg>Renommer la section</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Save">
       <tuv xml:lang="en-us"><seg>Save</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बचाना</seg></tuv><tuv xml:lang="bn"><seg>সংরক্ষণ করুন</seg></tuv><tuv xml:lang="te"><seg>సేవ్ చేయండి</seg></tuv><tuv xml:lang="tr"><seg>Kaydetmek</seg></tuv><tuv xml:lang="es"><seg>Ahorrar</seg></tuv><tuv xml:lang="fr"><seg>Sauvegarder</seg></tuv></tu>
     <tu tuid='perc.ui.architecture.modern@Delete section "{0}"? This cannot be undone.'>
       <tuv xml:lang="en-us"><seg>Delete section "{0}"? This cannot be undone.</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@The site root section cannot be deleted.">
       <tuv xml:lang="en-us"><seg>The site root section cannot be deleted.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट रूट अनुभाग को हटाया नहीं जा सकता.</seg></tuv><tuv xml:lang="bn"><seg>সাইট রুট বিভাগ মুছে ফেলা যাবে না.</seg></tuv><tuv xml:lang="te"><seg>సైట్ రూట్ విభాగం తొలగించబడదు.</seg></tuv><tuv xml:lang="tr"><seg>Sitenin kök bölümü silinemez.</seg></tuv><tuv xml:lang="es"><seg>La sección raíz del sitio no se puede eliminar.</seg></tuv><tuv xml:lang="fr"><seg>La section racine du site ne peut pas être supprimée.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a regular section (not a section or external link) as the parent.">
       <tuv xml:lang="en-us"><seg>Select a regular section (not a section or external link) as the parent.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पैरेंट के रूप में एक नियमित अनुभाग (अनुभाग या बाहरी लिंक नहीं) चुनें।</seg></tuv><tuv xml:lang="bn"><seg>অভিভাবক হিসাবে একটি নিয়মিত বিভাগ (কোন বিভাগ বা বাহ্যিক লিঙ্ক নয়) নির্বাচন করুন৷</seg></tuv><tuv xml:lang="te"><seg>తల్లిదండ్రులుగా సాధారణ విభాగాన్ని (విభాగం లేదా బాహ్య లింక్ కాదు) ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Ana öğe olarak normal bir bölümü (bölüm veya harici bağlantı değil) seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección normal (no una sección ni un enlace externo) como principal.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section standard (pas une section ou un lien externe) comme parent.</seg></tuv></tu>
     <tu tuid='perc.ui.architecture.modern@Convert section "{0}" to a folder? The section and all sub-sections will be removed from Navigation. Folder content stays in the site.'>
       <tuv xml:lang="en-us"><seg>Convert section "{0}" to a folder? The section and all sub-sections will be removed from Navigation. Folder content stays in the site.</seg></tuv>
     </tu>
     <tu tuid="perc.ui.architecture.modern@Convert to folder is only available for a regular non-root section.">
       <tuv xml:lang="en-us"><seg>Convert to folder is only available for a regular non-root section.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर में कनवर्ट करना केवल नियमित गैर-रूट अनुभाग के लिए उपलब्ध है।</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডারে রূপান্তর শুধুমাত্র একটি নিয়মিত নন-রুট বিভাগের জন্য উপলব্ধ।</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్u200cకి మార్చు అనేది సాధారణ నాన్-రూట్ విభాగానికి మాత్రమే అందుబాటులో ఉంటుంది.</seg></tuv><tuv xml:lang="tr"><seg>Klasöre dönüştürme yalnızca kök olmayan normal bir bölüm için kullanılabilir.</seg></tuv><tuv xml:lang="es"><seg>Convertir a carpeta solo está disponible para una sección normal que no sea raíz.</seg></tuv><tuv xml:lang="fr"><seg>Convertir en dossier n'est disponible que pour une section non racine standard.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@The site root section cannot be converted to a folder.">
       <tuv xml:lang="en-us"><seg>The site root section cannot be converted to a folder.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट रूट अनुभाग को फ़ोल्डर में परिवर्तित नहीं किया जा सकता.</seg></tuv><tuv xml:lang="bn"><seg>সাইট রুট বিভাগটি একটি ফোল্ডারে রূপান্তর করা যাবে না।</seg></tuv><tuv xml:lang="te"><seg>సైట్ రూట్ విభాగం ఫోల్డర్u200cగా మార్చబడదు.</seg></tuv><tuv xml:lang="tr"><seg>Sitenin kök bölümü bir klasöre dönüştürülemez.</seg></tuv><tuv xml:lang="es"><seg>La sección raíz del sitio no se puede convertir en una carpeta.</seg></tuv><tuv xml:lang="fr"><seg>La section racine du site ne peut pas être convertie en dossier.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Choose an existing site folder and a landing page in that folder. A navon is created and the folder is attached under the selected parent section.">
       <tuv xml:lang="en-us"><seg>Choose an existing site folder and a landing page in that folder. A navon is created and the folder is attached under the selected parent section.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>उस फ़ोल्डर में एक मौजूदा साइट फ़ोल्डर और एक लैंडिंग पृष्ठ चुनें। एक नेवॉन बनाया जाता है और फ़ोल्डर को चयनित मूल अनुभाग के अंतर्गत संलग्न किया जाता है।</seg></tuv><tuv xml:lang="bn"><seg>একটি বিদ্যমান সাইট ফোল্ডার এবং সেই ফোল্ডারে একটি ল্যান্ডিং পৃষ্ঠা চয়ন করুন৷ একটি ন্যাভন তৈরি করা হয় এবং ফোল্ডারটি নির্বাচিত অভিভাবক বিভাগের অধীনে সংযুক্ত করা হয়।</seg></tuv><tuv xml:lang="te"><seg>ఇప్పటికే ఉన్న సైట్ ఫోల్డర్ మరియు ఆ ఫోల్డర్u200cలో ల్యాండింగ్ పేజీని ఎంచుకోండి. ఒక navon సృష్టించబడింది మరియు ఎంచుకున్న పేరెంట్ విభాగం క్రింద ఫోల్డర్ జోడించబడింది.</seg></tuv><tuv xml:lang="tr"><seg>Mevcut bir site klasörünü ve bu klasördeki açılış sayfasını seçin. Bir navon oluşturulur ve klasör seçilen ana bölümün altına eklenir.</seg></tuv><tuv xml:lang="es"><seg>Elija una carpeta de sitio existente y una página de destino en esa carpeta. Se crea un Navon y la carpeta se adjunta en la sección principal seleccionada.</seg></tuv><tuv xml:lang="fr"><seg>Choisissez un dossier de site existant et une page de destination dans ce dossier. Un navon est créé et le dossier est joint sous la section parent sélectionnée.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Source folder path">
       <tuv xml:lang="en-us"><seg>Source folder path</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>स्रोत फ़ोल्डर पथ</seg></tuv><tuv xml:lang="bn"><seg>উৎস ফোল্ডার পথ</seg></tuv><tuv xml:lang="te"><seg>మూల ఫోల్డర్ మార్గం</seg></tuv><tuv xml:lang="tr"><seg>Kaynak klasör yolu</seg></tuv><tuv xml:lang="es"><seg>Ruta de la carpeta de origen</seg></tuv><tuv xml:lang="fr"><seg>Chemin du dossier source</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page name">
       <tuv xml:lang="en-us"><seg>Landing page name</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ का नाम</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠার নাম</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ పేరు</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası adı</seg></tuv><tuv xml:lang="es"><seg>Nombre de la página de destino</seg></tuv><tuv xml:lang="fr"><seg>Nom de la page de destination</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Browse folder…">
       <tuv xml:lang="en-us"><seg>Browse folder…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर ब्राउज़ करें…</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডার ব্রাউজ করুন...</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్u200cని బ్రౌజ్ చేయండి...</seg></tuv><tuv xml:lang="tr"><seg>Klasöre göz at…</seg></tuv><tuv xml:lang="es"><seg>Explorar carpeta…</seg></tuv><tuv xml:lang="fr"><seg>Parcourir le dossier…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Browse landing page…">
       <tuv xml:lang="en-us"><seg>Browse landing page…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ ब्राउज़ करें…</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা ব্রাউজ করুন...</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీని బ్రౌజ్ చేయండి...</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfasına göz atın…</seg></tuv><tuv xml:lang="es"><seg>Explorar la página de destino…</seg></tuv><tuv xml:lang="fr"><seg>Parcourir la page de destination…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select folder">
       <tuv xml:lang="en-us"><seg>Select folder</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर चुनें</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডার নির্বাচন করুন</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్u200cని ఎంచుకోండి</seg></tuv><tuv xml:lang="tr"><seg>Klasör seç</seg></tuv><tuv xml:lang="es"><seg>Seleccionar carpeta</seg></tuv><tuv xml:lang="fr"><seg>Sélectionner un dossier</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select landing page in folder">
       <tuv xml:lang="en-us"><seg>Select landing page in folder</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर में लैंडिंग पृष्ठ चुनें</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডারে ল্যান্ডিং পৃষ্ঠা নির্বাচন করুন</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్u200cలో ల్యాండింగ్ పేజీని ఎంచుకోండి</seg></tuv><tuv xml:lang="tr"><seg>Klasördeki açılış sayfasını seçin</seg></tuv><tuv xml:lang="es"><seg>Seleccione la página de destino en la carpeta</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez la page de destination dans le dossier</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a folder before creating the section.">
       <tuv xml:lang="en-us"><seg>Select a folder before creating the section.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग बनाने से पहले एक फ़ोल्डर चुनें.</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ তৈরি করার আগে একটি ফোল্ডার নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని సృష్టించే ముందు ఫోల్డర్u200cను ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Bölümü oluşturmadan önce bir klasör seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una carpeta antes de crear la sección.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez un dossier avant de créer la section.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a landing page before creating the section.">
       <tuv xml:lang="en-us"><seg>Select a landing page before creating the section.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग बनाने से पहले एक लैंडिंग पृष्ठ चुनें.</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ তৈরি করার আগে একটি ল্যান্ডিং পৃষ্ঠা নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని సృష్టించే ముందు ల్యాండింగ్ పేజీని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Bölümü oluşturmadan önce bir açılış sayfası seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una página de destino antes de crear la sección.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une page de destination avant de créer la section.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Folder path is required">
       <tuv xml:lang="en-us"><seg>Folder path is required</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर पथ आवश्यक है</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডার পাথ প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్ మార్గం అవసరం</seg></tuv><tuv xml:lang="tr"><seg>Klasör yolu gerekli</seg></tuv><tuv xml:lang="es"><seg>Se requiere la ruta de la carpeta</seg></tuv><tuv xml:lang="fr"><seg>Le chemin du dossier est requis</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Folder path must be a site folder under /Sites/">
       <tuv xml:lang="en-us"><seg>Folder path must be a site folder under /Sites/</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>फ़ोल्डर पथ /Sites/ के अंतर्गत एक साइट फ़ोल्डर होना चाहिए</seg></tuv><tuv xml:lang="bn"><seg>ফোল্ডার পাথ /Sites/ এর অধীনে একটি সাইট ফোল্ডার হতে হবে</seg></tuv><tuv xml:lang="te"><seg>ఫోల్డర్ పాత్ తప్పనిసరిగా /Sites/ కింద సైట్ ఫోల్డర్ అయి ఉండాలి</seg></tuv><tuv xml:lang="tr"><seg>Klasör yolu /Sites/ altında bir site klasörü olmalıdır</seg></tuv><tuv xml:lang="es"><seg>La ruta de la carpeta debe ser una carpeta del sitio en /Sitios/</seg></tuv><tuv xml:lang="fr"><seg>Le chemin du dossier doit être un dossier de site sous /Sites/</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page name is required">
       <tuv xml:lang="en-us"><seg>Landing page name is required</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ का नाम आवश्यक है</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠার নাম প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ పేరు అవసరం</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası adı gerekli</seg></tuv><tuv xml:lang="es"><seg>El nombre de la página de destino es obligatorio</seg></tuv><tuv xml:lang="fr"><seg>Le nom de la page de destination est obligatoire</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page name is too long (max 255 characters)">
       <tuv xml:lang="en-us"><seg>Landing page name is too long (max 255 characters)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ का नाम बहुत लंबा है (अधिकतम 255 अक्षर)</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠার নাম অত্যন্ত দীর্ঘ (সর্বোচ্চ 255 অক্ষর)</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ పేరు చాలా పొడవుగా ఉంది (గరిష్టంగా 255 అక్షరాలు)</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası adı çok uzun (en fazla 255 karakter)</seg></tuv><tuv xml:lang="es"><seg>El nombre de la página de destino es demasiado largo (máximo 255 caracteres)</seg></tuv><tuv xml:lang="fr"><seg>Le nom de la page de destination est trop long (255 caractères maximum)</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page name must be a file name, not a path">
       <tuv xml:lang="en-us"><seg>Landing page name must be a file name, not a path</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ का नाम फ़ाइल नाम होना चाहिए, पथ नहीं</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠার নাম অবশ্যই একটি ফাইলের নাম হতে হবে, পাথ নয়৷</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ పేరు తప్పనిసరిగా ఫైల్ పేరు అయి ఉండాలి, మార్గం కాదు</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası adı yol değil, dosya adı olmalıdır</seg></tuv><tuv xml:lang="es"><seg>El nombre de la página de destino debe ser un nombre de archivo, no una ruta.</seg></tuv><tuv xml:lang="fr"><seg>Le nom de la page de destination doit être un nom de fichier et non un chemin</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Replace landing page">
       <tuv xml:lang="en-us"><seg>Replace landing page</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ बदलें</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা প্রতিস্থাপন করুন</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీని భర్తీ చేయండి</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfasını değiştir</seg></tuv><tuv xml:lang="es"><seg>Reemplazar página de destino</seg></tuv><tuv xml:lang="fr"><seg>Remplacer la page de destination</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Section">
       <tuv xml:lang="en-us"><seg>Section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग</seg></tuv><tuv xml:lang="bn"><seg>ধারা</seg></tuv><tuv xml:lang="te"><seg>విభాగం</seg></tuv><tuv xml:lang="tr"><seg>Bölüm</seg></tuv><tuv xml:lang="es"><seg>Sección</seg></tuv><tuv xml:lang="fr"><seg>Section</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Choose a page under this site to use as the section landing page.">
       <tuv xml:lang="en-us"><seg>Choose a page under this site to use as the section landing page.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग लैंडिंग पृष्ठ के रूप में उपयोग करने के लिए इस साइट के अंतर्गत एक पृष्ठ चुनें।</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ ল্যান্ডিং পৃষ্ঠা হিসাবে ব্যবহার করতে এই সাইটের অধীনে একটি পৃষ্ঠা চয়ন করুন৷</seg></tuv><tuv xml:lang="te"><seg>విభాగం ల్యాండింగ్ పేజీగా ఉపయోగించడానికి ఈ సైట్ కింద ఒక పేజీని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Bu sitenin altında bölüm açılış sayfası olarak kullanılacak bir sayfa seçin.</seg></tuv><tuv xml:lang="es"><seg>Elija una página en este sitio para usarla como página de inicio de la sección.</seg></tuv><tuv xml:lang="fr"><seg>Choisissez une page sous ce site à utiliser comme page de destination de la section.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select landing page">
       <tuv xml:lang="en-us"><seg>Select landing page</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ चुनें</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা নির্বাচন করুন</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీని ఎంచుకోండి</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfasını seçin</seg></tuv><tuv xml:lang="es"><seg>Seleccionar página de destino</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez la page de destination</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a page before replacing the landing page.">
       <tuv xml:lang="en-us"><seg>Select a page before replacing the landing page.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ को बदलने से पहले एक पृष्ठ चुनें.</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা প্রতিস্থাপন করার আগে একটি পৃষ্ঠা নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీని భర్తీ చేయడానికి ముందు ఒక పేజీని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfasını değiştirmeden önce bir sayfa seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una página antes de reemplazar la página de destino.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une page avant de remplacer la page de destination.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a site page (not a folder or asset).">
       <tuv xml:lang="en-us"><seg>Select a site page (not a folder or asset).</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक साइट पेज चुनें (फ़ोल्डर या संपत्ति नहीं)।</seg></tuv><tuv xml:lang="bn"><seg>একটি সাইট পৃষ্ঠা নির্বাচন করুন (কোন ফোল্ডার বা সম্পদ নয়)।</seg></tuv><tuv xml:lang="te"><seg>సైట్ పేజీని ఎంచుకోండి (ఫోల్డర్ లేదా ఆస్తి కాదు).</seg></tuv><tuv xml:lang="tr"><seg>Bir site sayfası seçin (klasör veya varlık değil).</seg></tuv><tuv xml:lang="es"><seg>Seleccione una página del sitio (no una carpeta o recurso).</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une page de site (pas un dossier ou un actif).</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@No page selected.">
       <tuv xml:lang="en-us"><seg>No page selected.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>कोई पृष्ठ चयनित नहीं.</seg></tuv><tuv xml:lang="bn"><seg>কোনো পৃষ্ঠা নির্বাচন করা হয়নি।</seg></tuv><tuv xml:lang="te"><seg>పేజీ ఏదీ ఎంచుకోబడలేదు.</seg></tuv><tuv xml:lang="tr"><seg>Hiçbir sayfa seçilmedi.</seg></tuv><tuv xml:lang="es"><seg>Ninguna página seleccionada.</seg></tuv><tuv xml:lang="fr"><seg>Aucune page sélectionnée.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page is now {0}.">
       <tuv xml:lang="en-us"><seg>Landing page is now {0}.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ अब {0} है.</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা এখন {0}।</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీ ఇప్పుడు {0}.</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası artık {0}.</seg></tuv><tuv xml:lang="es"><seg>La página de destino ahora es {0}.</seg></tuv><tuv xml:lang="fr"><seg>La page de destination est désormais {0}.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Landing page can only be set on a regular section.">
       <tuv xml:lang="en-us"><seg>Landing page can only be set on a regular section.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लैंडिंग पृष्ठ केवल नियमित अनुभाग पर ही सेट किया जा सकता है।</seg></tuv><tuv xml:lang="bn"><seg>ল্যান্ডিং পৃষ্ঠা শুধুমাত্র একটি নিয়মিত বিভাগে সেট করা যেতে পারে।</seg></tuv><tuv xml:lang="te"><seg>ల్యాండింగ్ పేజీని సాధారణ విభాగంలో మాత్రమే సెట్ చేయవచ్చు.</seg></tuv><tuv xml:lang="tr"><seg>Açılış sayfası yalnızca normal bir bölümde ayarlanabilir.</seg></tuv><tuv xml:lang="es"><seg>La página de destino solo se puede configurar en una sección normal.</seg></tuv><tuv xml:lang="fr"><seg>La page de destination ne peut être définie que sur une section standard.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Edit section link">
       <tuv xml:lang="en-us"><seg>Edit section link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग लिंक संपादित करें</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ লিঙ্ক সম্পাদনা করুন</seg></tuv><tuv xml:lang="te"><seg>విభాగం లింక్u200cని సవరించండి</seg></tuv><tuv xml:lang="tr"><seg>Bölüm bağlantısını düzenle</seg></tuv><tuv xml:lang="es"><seg>Editar enlace de sección</seg></tuv><tuv xml:lang="fr"><seg>Modifier le lien de la section</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Target section">
       <tuv xml:lang="en-us"><seg>Target section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लक्ष्य अनुभाग</seg></tuv><tuv xml:lang="bn"><seg>লক্ষ্য বিভাগ</seg></tuv><tuv xml:lang="te"><seg>లక్ష్య విభాగం</seg></tuv><tuv xml:lang="tr"><seg>Hedef bölümü</seg></tuv><tuv xml:lang="es"><seg>Sección de destino</seg></tuv><tuv xml:lang="fr"><seg>Section cible</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Browse the navigation tree and select the section this link should point to.">
       <tuv xml:lang="en-us"><seg>Browse the navigation tree and select the section this link should point to.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नेविगेशन ट्री ब्राउज़ करें और उस अनुभाग का चयन करें जिस पर यह लिंक इंगित करना चाहिए।</seg></tuv><tuv xml:lang="bn"><seg>নেভিগেশন ট্রি ব্রাউজ করুন এবং এই লিঙ্কটি নির্দেশ করা উচিত এমন বিভাগটি নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ ట్రీని బ్రౌజ్ చేసి, ఈ లింక్ సూచించాల్సిన విభాగాన్ని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Gezinme ağacına göz atın ve bu bağlantının işaret etmesi gereken bölümü seçin.</seg></tuv><tuv xml:lang="es"><seg>Explore el árbol de navegación y seleccione la sección a la que debe apuntar este enlace.</seg></tuv><tuv xml:lang="fr"><seg>Parcourez l'arborescence de navigation et sélectionnez la section vers laquelle ce lien doit pointer.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Browse sections…">
       <tuv xml:lang="en-us"><seg>Browse sections…</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग ब्राउज़ करें...</seg></tuv><tuv xml:lang="bn"><seg>বিভাগগুলি ব্রাউজ করুন...</seg></tuv><tuv xml:lang="te"><seg>విభాగాలను బ్రౌజ్ చేయండి...</seg></tuv><tuv xml:lang="tr"><seg>Bölümlere göz atın…</seg></tuv><tuv xml:lang="es"><seg>Explorar secciones…</seg></tuv><tuv xml:lang="fr"><seg>Parcourir les rubriques…</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a target section for the link.">
       <tuv xml:lang="en-us"><seg>Select a target section for the link.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लिंक के लिए एक लक्ष्य अनुभाग चुनें.</seg></tuv><tuv xml:lang="bn"><seg>লিঙ্কের জন্য একটি লক্ষ্য বিভাগ নির্বাচন করুন।</seg></tuv><tuv xml:lang="te"><seg>లింక్ కోసం లక్ష్య విభాగాన్ని ఎంచుకోండి.</seg></tuv><tuv xml:lang="tr"><seg>Bağlantı için bir hedef bölüm seçin.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección de destino para el enlace.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section cible pour le lien.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@That target is not valid for a section link under the selected parent.">
       <tuv xml:lang="en-us"><seg>That target is not valid for a section link under the selected parent.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>वह लक्ष्य चयनित पैरेंट के अंतर्गत अनुभाग लिंक के लिए मान्य नहीं है।</seg></tuv><tuv xml:lang="bn"><seg>নির্বাচিত অভিভাবকের অধীনে একটি বিভাগ লিঙ্কের জন্য সেই লক্ষ্যটি বৈধ নয়৷</seg></tuv><tuv xml:lang="te"><seg>ఎంచుకున్న పేరెంట్ కింద ఉన్న విభాగం లింక్ కోసం ఆ లక్ష్యం చెల్లదు.</seg></tuv><tuv xml:lang="tr"><seg>Bu hedef, seçilen üst öğenin altındaki bölüm bağlantısı için geçerli değil.</seg></tuv><tuv xml:lang="es"><seg>Ese objetivo no es válido para un enlace de sección bajo el padre seleccionado.</seg></tuv><tuv xml:lang="fr"><seg>Cette cible n'est pas valide pour un lien de section sous le parent sélectionné.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Create link">
       <tuv xml:lang="en-us"><seg>Create link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लिंक बनाएं</seg></tuv><tuv xml:lang="bn"><seg>লিঙ্ক তৈরি করুন</seg></tuv><tuv xml:lang="te"><seg>లింక్ సృష్టించండి</seg></tuv><tuv xml:lang="tr"><seg>Bağlantı oluştur</seg></tuv><tuv xml:lang="es"><seg>Crear enlace</seg></tuv><tuv xml:lang="fr"><seg>Créer un lien</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Save link">
       <tuv xml:lang="en-us"><seg>Save link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लिंक सुरक्षित करें</seg></tuv><tuv xml:lang="bn"><seg>লিঙ্ক সংরক্ষণ করুন</seg></tuv><tuv xml:lang="te"><seg>లింక్u200cను సేవ్ చేయండి</seg></tuv><tuv xml:lang="tr"><seg>Bağlantıyı kaydet</seg></tuv><tuv xml:lang="es"><seg>Guardar enlace</seg></tuv><tuv xml:lang="fr"><seg>Enregistrer le lien</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Edit external link">
       <tuv xml:lang="en-us"><seg>Edit external link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बाहरी लिंक संपादित करें</seg></tuv><tuv xml:lang="bn"><seg>বাহ্যিক লিঙ্ক সম্পাদনা করুন</seg></tuv><tuv xml:lang="te"><seg>బాహ్య లింక్u200cని సవరించండి</seg></tuv><tuv xml:lang="tr"><seg>Harici bağlantıyı düzenle</seg></tuv><tuv xml:lang="es"><seg>Editar enlace externo</seg></tuv><tuv xml:lang="fr"><seg>Modifier le lien externe</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Link text">
       <tuv xml:lang="en-us"><seg>Link text</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लिंक पाठ</seg></tuv><tuv xml:lang="bn"><seg>লিঙ্ক টেক্সট</seg></tuv><tuv xml:lang="te"><seg>లింక్ టెక్స్ట్</seg></tuv><tuv xml:lang="tr"><seg>Bağlantı metni</seg></tuv><tuv xml:lang="es"><seg>Texto del enlace</seg></tuv><tuv xml:lang="fr"><seg>Texte du lien</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL">
       <tuv xml:lang="en-us"><seg>URL</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल</seg></tuv><tuv xml:lang="bn"><seg>URL</seg></tuv><tuv xml:lang="te"><seg>URL</seg></tuv><tuv xml:lang="tr"><seg>URL'si</seg></tuv><tuv xml:lang="es"><seg>URL</seg></tuv><tuv xml:lang="fr"><seg>URL</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Target window">
       <tuv xml:lang="en-us"><seg>Target window</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लक्ष्य विंडो</seg></tuv><tuv xml:lang="bn"><seg>টার্গেট উইন্ডো</seg></tuv><tuv xml:lang="te"><seg>లక్ష్య విండో</seg></tuv><tuv xml:lang="tr"><seg>Hedef pencere</seg></tuv><tuv xml:lang="es"><seg>ventana de destino</seg></tuv><tuv xml:lang="fr"><seg>Fenêtre cible</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Same window">
       <tuv xml:lang="en-us"><seg>Same window</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>वही खिड़की</seg></tuv><tuv xml:lang="bn"><seg>একই জানালা</seg></tuv><tuv xml:lang="te"><seg>అదే విండో</seg></tuv><tuv xml:lang="tr"><seg>Aynı pencere</seg></tuv><tuv xml:lang="es"><seg>Misma ventana</seg></tuv><tuv xml:lang="fr"><seg>Même fenêtre</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@New window">
       <tuv xml:lang="en-us"><seg>New window</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>नई विंडो</seg></tuv><tuv xml:lang="bn"><seg>নতুন উইন্ডো</seg></tuv><tuv xml:lang="te"><seg>కొత్త విండో</seg></tuv><tuv xml:lang="tr"><seg>Yeni pencere</seg></tuv><tuv xml:lang="es"><seg>Nueva ventana</seg></tuv><tuv xml:lang="fr"><seg>Nouvelle fenêtre</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Top window">
       <tuv xml:lang="en-us"><seg>Top window</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>शीर्ष खिड़की</seg></tuv><tuv xml:lang="bn"><seg>উপরের জানালা</seg></tuv><tuv xml:lang="te"><seg>ఎగువ విండో</seg></tuv><tuv xml:lang="tr"><seg>Üst pencere</seg></tuv><tuv xml:lang="es"><seg>ventana superior</seg></tuv><tuv xml:lang="fr"><seg>Fenêtre supérieure</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Parent window">
       <tuv xml:lang="en-us"><seg>Parent window</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>मूल खिड़की</seg></tuv><tuv xml:lang="bn"><seg>অভিভাবক জানালা</seg></tuv><tuv xml:lang="te"><seg>పేరెంట్ విండో</seg></tuv><tuv xml:lang="tr"><seg>Ana pencere</seg></tuv><tuv xml:lang="es"><seg>ventana principal</seg></tuv><tuv xml:lang="fr"><seg>Fenêtre parente</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select section">
       <tuv xml:lang="en-us"><seg>Select section</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग चुनें</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ নির্বাচন করুন</seg></tuv><tuv xml:lang="te"><seg>విభాగాన్ని ఎంచుకోండి</seg></tuv><tuv xml:lang="tr"><seg>Bölüm seç</seg></tuv><tuv xml:lang="es"><seg>Seleccionar sección</seg></tuv><tuv xml:lang="fr"><seg>Sélectionner une rubrique</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select">
       <tuv xml:lang="en-us"><seg>Select</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>चुनना</seg></tuv><tuv xml:lang="bn"><seg>নির্বাচন করুন</seg></tuv><tuv xml:lang="te"><seg>ఎంచుకోండి</seg></tuv><tuv xml:lang="tr"><seg>Seçme</seg></tuv><tuv xml:lang="es"><seg>Seleccionar</seg></tuv><tuv xml:lang="fr"><seg>Sélectionner</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Select a section in the tree, then confirm.">
       <tuv xml:lang="en-us"><seg>Select a section in the tree, then confirm.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>ट्री में एक अनुभाग चुनें, फिर पुष्टि करें।</seg></tuv><tuv xml:lang="bn"><seg>গাছের একটি বিভাগ নির্বাচন করুন, তারপর নিশ্চিত করুন।</seg></tuv><tuv xml:lang="te"><seg>చెట్టులో ఒక విభాగాన్ని ఎంచుకుని, ఆపై నిర్ధారించండి.</seg></tuv><tuv xml:lang="tr"><seg>Ağaçta bir bölüm seçin ve onaylayın.</seg></tuv><tuv xml:lang="es"><seg>Seleccione una sección en el árbol y luego confirme.</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une section dans l'arborescence, puis validez.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Blog sections appear in the tree; full blog authoring remains outside this editor.">
       <tuv xml:lang="en-us"><seg>Blog sections appear in the tree; full blog authoring remains outside this editor.</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>ब्लॉग अनुभाग ट्री में दिखाई देते हैं; संपूर्ण ब्लॉग लेखन इस संपादक के बाहर रहता है।</seg></tuv><tuv xml:lang="bn"><seg>ব্লগ বিভাগ গাছ প্রদর্শিত; সম্পূর্ণ ব্লগ রচনা এই সম্পাদকের বাইরে থাকে।</seg></tuv><tuv xml:lang="te"><seg>చెట్టులో బ్లాగ్ విభాగాలు కనిపిస్తాయి; పూర్తి బ్లాగ్ రచన ఈ ఎడిటర్ వెలుపల ఉంది.</seg></tuv><tuv xml:lang="tr"><seg>Ağaçta blog bölümleri görünür; tam blog yazma bu düzenleyicinin dışında kalır.</seg></tuv><tuv xml:lang="es"><seg>Las secciones del blog aparecen en el árbol; La autoría completa del blog permanece fuera de este editor.</seg></tuv><tuv xml:lang="fr"><seg>Les sections du blog apparaissent dans l'arborescence ; la rédaction complète du blog reste en dehors de cet éditeur.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Secure">
       <tuv xml:lang="en-us"><seg>Secure</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>सुरक्षित</seg></tuv><tuv xml:lang="bn"><seg>নিরাপদ</seg></tuv><tuv xml:lang="te"><seg>సురక్షితం</seg></tuv><tuv xml:lang="tr"><seg>Güvenli</seg></tuv><tuv xml:lang="es"><seg>Seguro</seg></tuv><tuv xml:lang="fr"><seg>Sécurisé</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Requires login">
       <tuv xml:lang="en-us"><seg>Requires login</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>लॉगिन की आवश्यकता है</seg></tuv><tuv xml:lang="bn"><seg>লগইন প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>లాగిన్ అవసరం</seg></tuv><tuv xml:lang="tr"><seg>Oturum açmayı gerektirir</seg></tuv><tuv xml:lang="es"><seg>Requiere iniciar sesión</seg></tuv><tuv xml:lang="fr"><seg>Nécessite une connexion</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Section link">
       <tuv xml:lang="en-us"><seg>Section link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>अनुभाग लिंक</seg></tuv><tuv xml:lang="bn"><seg>বিভাগের লিঙ্ক</seg></tuv><tuv xml:lang="te"><seg>విభాగం లింక్</seg></tuv><tuv xml:lang="tr"><seg>Bölüm bağlantısı</seg></tuv><tuv xml:lang="es"><seg>Enlace de sección</seg></tuv><tuv xml:lang="fr"><seg>Lien vers la rubrique</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@External link">
       <tuv xml:lang="en-us"><seg>External link</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>बाहरी लिंक</seg></tuv><tuv xml:lang="bn"><seg>বাহ্যিক লিঙ্ক</seg></tuv><tuv xml:lang="te"><seg>బాహ్య లింక్</seg></tuv><tuv xml:lang="tr"><seg>Dış bağlantı</seg></tuv><tuv xml:lang="es"><seg>Enlace externo</seg></tuv><tuv xml:lang="fr"><seg>Lien externe</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Blog">
       <tuv xml:lang="en-us"><seg>Blog</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>ब्लॉग</seg></tuv><tuv xml:lang="bn"><seg>ব্লগ</seg></tuv><tuv xml:lang="te"><seg>బ్లాగు</seg></tuv><tuv xml:lang="tr"><seg>Blog</seg></tuv><tuv xml:lang="es"><seg>Blog</seg></tuv><tuv xml:lang="fr"><seg>Blogue</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Page id">
       <tuv xml:lang="en-us"><seg>Page id</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>पेज आईडी</seg></tuv><tuv xml:lang="bn"><seg>পৃষ্ঠা আইডি</seg></tuv><tuv xml:lang="te"><seg>పేజీ id</seg></tuv><tuv xml:lang="tr"><seg>Sayfa kimliği</seg></tuv><tuv xml:lang="es"><seg>ID de página</seg></tuv><tuv xml:lang="fr"><seg>Identifiant de la page</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL name is required">
       <tuv xml:lang="en-us"><seg>URL name is required</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल नाम आवश्यक है</seg></tuv><tuv xml:lang="bn"><seg>URL নাম প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>URL పేరు అవసరం</seg></tuv><tuv xml:lang="tr"><seg>URL adı gerekli</seg></tuv><tuv xml:lang="es"><seg>El nombre de la URL es obligatorio.</seg></tuv><tuv xml:lang="fr"><seg>Le nom de l'URL est requis</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL name is too long (max 100 characters)">
       <tuv xml:lang="en-us"><seg>URL name is too long (max 100 characters)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल नाम बहुत लंबा है (अधिकतम 100 अक्षर)</seg></tuv><tuv xml:lang="bn"><seg>URL নামটি খুব বড় (সর্বোচ্চ 100 অক্ষর)</seg></tuv><tuv xml:lang="te"><seg>URL పేరు చాలా పొడవుగా ఉంది (గరిష్టంగా 100 అక్షరాలు)</seg></tuv><tuv xml:lang="tr"><seg>URL adı çok uzun (en fazla 100 karakter)</seg></tuv><tuv xml:lang="es"><seg>El nombre de la URL es demasiado largo (máximo 100 caracteres)</seg></tuv><tuv xml:lang="fr"><seg>Le nom de l'URL est trop long (maximum 100 caractères)</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL name may only contain letters, numbers, dash, underscore, and period">
       <tuv xml:lang="en-us"><seg>URL name may only contain letters, numbers, dash, underscore, and period</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>URL नाम में केवल अक्षर, संख्याएँ, डैश, अंडरस्कोर और अवधि शामिल हो सकती है</seg></tuv><tuv xml:lang="bn"><seg>URL নামের শুধুমাত্র অক্ষর, সংখ্যা, ড্যাশ, আন্ডারস্কোর এবং পিরিয়ড থাকতে পারে</seg></tuv><tuv xml:lang="te"><seg>URL పేరు అక్షరాలు, సంఖ్యలు, డాష్, అండర్u200cస్కోర్ మరియు వ్యవధిని మాత్రమే కలిగి ఉండవచ్చు</seg></tuv><tuv xml:lang="tr"><seg>URL adı yalnızca harf, rakam, kısa çizgi, alt çizgi ve nokta içerebilir</seg></tuv><tuv xml:lang="es"><seg>El nombre de la URL solo puede contener letras, números, guiones, guiones bajos y puntos.</seg></tuv><tuv xml:lang="fr"><seg>Le nom de l'URL ne peut contenir que des lettres, des chiffres, un tiret, un trait de soulignement et un point.</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Title is required">
       <tuv xml:lang="en-us"><seg>Title is required</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>शीर्षक आवश्यक है</seg></tuv><tuv xml:lang="bn"><seg>শিরোনাম প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>శీర్షిక అవసరం</seg></tuv><tuv xml:lang="tr"><seg>Başlık gerekli</seg></tuv><tuv xml:lang="es"><seg>Se requiere título</seg></tuv><tuv xml:lang="fr"><seg>Le titre est requis</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Title is too long (max 512 characters)">
       <tuv xml:lang="en-us"><seg>Title is too long (max 512 characters)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>शीर्षक बहुत लंबा है (अधिकतम 512 अक्षर)</seg></tuv><tuv xml:lang="bn"><seg>শিরোনাম অনেক বড় (সর্বোচ্চ 512 অক্ষর)</seg></tuv><tuv xml:lang="te"><seg>శీర్షిక చాలా పొడవుగా ఉంది (గరిష్టంగా 512 అక్షరాలు)</seg></tuv><tuv xml:lang="tr"><seg>Başlık çok uzun (en fazla 512 karakter)</seg></tuv><tuv xml:lang="es"><seg>El título es demasiado largo (máximo 512 caracteres)</seg></tuv><tuv xml:lang="fr"><seg>Le titre est trop long (maximum 512 caractères)</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL is required">
       <tuv xml:lang="en-us"><seg>URL is required</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल आवश्यक है</seg></tuv><tuv xml:lang="bn"><seg>URL প্রয়োজন</seg></tuv><tuv xml:lang="te"><seg>URL అవసరం</seg></tuv><tuv xml:lang="tr"><seg>URL gerekli</seg></tuv><tuv xml:lang="es"><seg>La URL es obligatoria</seg></tuv><tuv xml:lang="fr"><seg>L'URL est obligatoire</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL is too long (max 2048 characters)">
       <tuv xml:lang="en-us"><seg>URL is too long (max 2048 characters)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल बहुत लंबा है (अधिकतम 2048 अक्षर)</seg></tuv><tuv xml:lang="bn"><seg>ইউআরএল অনেক বড় (সর্বোচ্চ 2048 অক্ষর)</seg></tuv><tuv xml:lang="te"><seg>URL చాలా పొడవుగా ఉంది (గరిష్టంగా 2048 అక్షరాలు)</seg></tuv><tuv xml:lang="tr"><seg>URL çok uzun (en fazla 2048 karakter)</seg></tuv><tuv xml:lang="es"><seg>La URL es demasiado larga (máximo 2048 caracteres)</seg></tuv><tuv xml:lang="fr"><seg>L'URL est trop longue (maximum 2 048 caractères)</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@URL scheme is not allowed (use http(s) or a site path)">
       <tuv xml:lang="en-us"><seg>URL scheme is not allowed (use http(s) or a site path)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>यूआरएल योजना की अनुमति नहीं है (http(s) या साइट पथ का उपयोग करें)</seg></tuv><tuv xml:lang="bn"><seg>URL স্কিম অনুমোদিত নয় (http(গুলি) বা একটি সাইট পাথ ব্যবহার করুন)</seg></tuv><tuv xml:lang="te"><seg>URL స్కీమ్ అనుమతించబడదు (http(లు) లేదా సైట్ పాత్u200cని ఉపయోగించండి)</seg></tuv><tuv xml:lang="tr"><seg>URL şemasına izin verilmiyor (http(ler) veya site yolu kullanın)</seg></tuv><tuv xml:lang="es"><seg>El esquema de URL no está permitido (use http(s) o la ruta de un sitio)</seg></tuv><tuv xml:lang="fr"><seg>Le schéma d'URL n'est pas autorisé (utilisez http(s) ou un chemin de site)</seg></tuv></tu>
     <tu tuid="perc.ui.architecture.modern@Enter a valid URL (for example https://example.com or /path)">
       <tuv xml:lang="en-us"><seg>Enter a valid URL (for example https://example.com or /path)</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>एक मान्य URL दर्ज करें (उदाहरण के लिए https://example.com या /path)</seg></tuv><tuv xml:lang="bn"><seg>একটি বৈধ URL লিখুন (উদাহরণস্বরূপ https://example.com বা /path)</seg></tuv><tuv xml:lang="te"><seg>చెల్లుబాటు అయ్యే URLని నమోదు చేయండి (ఉదాహరణకు https://example.com లేదా /path)</seg></tuv><tuv xml:lang="tr"><seg>Geçerli bir URL girin (örneğin https://example.com veya /path)</seg></tuv><tuv xml:lang="es"><seg>Ingrese una URL válida (por ejemplo https://example.com o /ruta)</seg></tuv><tuv xml:lang="fr"><seg>Saisissez une URL valide (par exemple https://example.com ou /path)</seg></tuv></tu>
     <!-- #3217: tooltip tuid is @Site navigation (MSG.NAV_ARCHITECTURE_TITLE). -->
     <tu tuid="perc.ui.architecture.modern@Site navigation">
       <tuv xml:lang="en-us"><seg>Site navigation</seg></tuv>
-    </tu>
+    <tuv xml:lang="hi"><seg>साइट नेविगेशन</seg></tuv><tuv xml:lang="bn"><seg>সাইট নেভিগেশন</seg></tuv><tuv xml:lang="te"><seg>సైట్ నావిగేషన్</seg></tuv><tuv xml:lang="tr"><seg>Sitede gezinme</seg></tuv><tuv xml:lang="es"><seg>Navegación del sitio</seg></tuv><tuv xml:lang="fr"><seg>Navigation sur les sites</seg></tuv></tu>
 
   </body>
 </tmx>
