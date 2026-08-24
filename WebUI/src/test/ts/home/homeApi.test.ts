@@ -25,8 +25,6 @@ import {
   createPageAndItem,
   ensurePageFileName,
   unwrapCreatedPageId,
-  mapSiteSummary,
-  resolveSiteRootFolderPath,
   extractTemplateWidgetDefinitionIds,
   fetchAssetTypes,
   fetchMyContent,
@@ -168,49 +166,6 @@ describe("homeApi", () => {
     expect(body.SearchCriteria.query).toBe("legacy");
   });
 
-  it("mapSiteSummary normalizes FastForward folderPath vs SITENAME (#3726)", () => {
-    expect(
-      mapSiteSummary({
-        name: "Corporate_Investments",
-        folderPath: "//Sites/CorporateInvestments",
-        id: "350",
-      }),
-    ).toMatchObject({
-      name: "Corporate_Investments",
-      folderPath: "/Sites/CorporateInvestments",
-      id: "350",
-    });
-    expect(
-      mapSiteSummary({
-        Name: "Enterprise_Investments",
-        folderPaths: ["//Sites/EnterpriseInvestments"],
-      }),
-    ).toMatchObject({
-      name: "Enterprise_Investments",
-      folderPath: "/Sites/EnterpriseInvestments",
-    });
-  });
-
-  it("resolveSiteRootFolderPath uses PathItem.folderPath not finder SITENAME (#3726)", async () => {
-    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue(
-      mockJsonResponse({
-        PathItem: {
-          path: "/Sites/Corporate_Investments/",
-          folderPath: "//Sites/CorporateInvestments",
-          name: "Corporate_Investments",
-        },
-      }),
-    );
-    const root = await resolveSiteRootFolderPath({
-      name: "Corporate_Investments",
-      folderPath: "/Sites/Corporate_Investments",
-    });
-    expect(root).toBe("/Sites/CorporateInvestments");
-    const url = String(fetchMock.mock.calls[0]?.[0]);
-    expect(url).toContain("/pathmanagement/path/item");
-  });
-
   it("createPage posts repository // folderPath (getIdByPath requires it)", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
     fetchMock.mockResolvedValue(
@@ -228,25 +183,6 @@ describe("homeApi", () => {
     const body = JSON.parse(String(init.body));
     expect(body.Page.folderPath).toBe("//Sites/Demo");
     expect(body.Page.addToRecent).toBe(true);
-  });
-
-  it("createPage posts FastForward repository folder not SITENAME (#3726)", async () => {
-    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue(
-      mockJsonResponse({ Page: { id: "1", name: "p" } }),
-    );
-    await createPage({
-      name: "about.html",
-      title: "About",
-      linkTitle: "About",
-      templateId: "t1",
-      folderPath: "/Sites/CorporateInvestments",
-    });
-    const body = JSON.parse(
-      String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
-    );
-    expect(body.Page.folderPath).toBe("//Sites/CorporateInvestments");
-    expect(body.Page.folderPath).not.toContain("Corporate_Investments");
   });
 
   it("createPage appends .html when name has no extension", async () => {
@@ -556,13 +492,9 @@ describe("homeApi", () => {
       expect(formatApiError(err, notAuth)).toBe("Name is invalid");
     });
 
-    it("does not map empty-body 500 to notAuthorizedMsg (#3726)", () => {
-      const err: ApiError = {
-        status: 500,
-        statusText: "Internal Server Error",
-        body: "",
-      };
-      expect(formatApiError(err, notAuth)).toBe("Internal Server Error");
+    it("does not map empty-body 500 to CREATE_NOT_AUTHORIZED", () => {
+      const err: ApiError = { status: 500, statusText: "Server Error", body: "" };
+      expect(formatApiError(err, notAuth)).toBe("Server Error");
       expect(
         formatApiError({ status: 500, statusText: "OK", body: null }, notAuth),
       ).toBe("Create failed");

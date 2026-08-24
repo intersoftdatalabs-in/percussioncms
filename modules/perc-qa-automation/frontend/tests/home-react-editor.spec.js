@@ -161,7 +161,7 @@ test.describe("Home React Content Editor", () => {
   );
 
   test(
-    "Home Create Page as Admin opens React editor (no CREATE_NOT_AUTHORIZED)",
+    "Home Create Page as Admin opens React editor (assembly template save)",
     { tag: ["@home", "@editor", "@page-wizard"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -226,26 +226,23 @@ test.describe("Home React Content Editor", () => {
           { timeout: 25_000 },
         )
         .toBeGreaterThan(0);
-      const firstTemplate = templateSelect
-        .locator("option[value]:not([value=''])")
-        .first();
-      const templateValue = await firstTemplate.getAttribute("value");
-      await templateSelect.selectOption(templateValue);
-
-      const title = `QaCreate3726 ${Date.now()}`;
-      await page.locator("#pw-title").fill(title);
-
-      const folderSelect = page.getByTestId("page-wizard-folder");
-      if (await folderSelect.isVisible()) {
-        const folderValue = await folderSelect.inputValue();
-        expect(folderValue, "create folder should be a Sites path").toMatch(
-          /\/Sites\//i,
-        );
-        expect(
-          folderValue,
-          "FastForward create must use repository folder, not SITENAME",
-        ).not.toMatch(/Corporate_Investments$/i);
+      const dbTemplate = templateSelect.locator(
+        "option[value]:not([value=''])",
+        { hasText: /Database Template/i },
+      );
+      if ((await dbTemplate.count()) > 0) {
+        const dbValue = await dbTemplate.first().getAttribute("value");
+        await templateSelect.selectOption(dbValue);
+      } else {
+        const firstTemplate = templateSelect
+          .locator("option[value]:not([value=''])")
+          .first();
+        const templateValue = await firstTemplate.getAttribute("value");
+        await templateSelect.selectOption(templateValue);
       }
+
+      const title = `QaCreate3728 ${Date.now()}`;
+      await page.locator("#pw-title").fill(title);
 
       const popupPromise = page
         .waitForEvent("popup", { timeout: 30_000 })

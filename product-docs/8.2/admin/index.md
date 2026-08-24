@@ -21,7 +21,7 @@ For roles that can see the full chrome, the application top navigation is:
 3. **Navigation**, **Developer**, **Publish** (Admin or Designer)
 4. **Admin** (administrators only — one item)
 
-**Editor**, **Design**, and **Widget Builder** are not top-nav items. Open the React Content Editor from Explorer **Edit** or **Home → Create** (`spa.jsp?entry=editor` / `/editor` — not leftover `?view=editor` or `editAsset.jsp`). Explorer **Preview** opens the assembled site-path or Page Management render URL, not the editor. Open the template library from **Developer → Design** (or the existing `/design` deep link). Open Widget Builder from **Developer** when that feature is active.
+**Editor**, **Design**, and **Widget Builder** are not top-nav items. Open the React Content Editor from Explorer **Edit**, Preview, or **Home → Create** (`spa.jsp?entry=editor` / `/editor` — not leftover `?view=editor` or `editAsset.jsp`). Open the template library from **Developer → Design** (or the existing `/design` deep link). Open Widget Builder from **Developer** when that feature is active.
 
 **Dashboard** is not a top-nav item. Dashboard gadgets remain on Home
 (`/home/gadgets`) and via homepage preference; they are not a separate
@@ -53,6 +53,13 @@ a page at that site root, including with site-listed page templates such as
 (`spa.jsp?entry=editor`) — leftover `?view=editor` is not used. If you are
 not allowed to create in a folder, the wizard shows that error; a missing
 or mismatched folder is not treated as a successful create.
+
+FastForward sample sites (for example **Corporate_Investments**) may list
+assembly templates such as **Page - Database Template** (`perc.pageDatabase`).
+Create still saves the page under the site's repository folder
+(`/Sites/CorporateInvestments`) and opens the React Content Editor
+(`spa.jsp?entry=editor`). The finder SITENAME (`Corporate_Investments`) is
+not a separate create ACL; the server maps it to the repository folder.
 
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field

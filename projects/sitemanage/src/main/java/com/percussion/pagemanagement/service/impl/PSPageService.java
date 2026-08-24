@@ -601,12 +601,13 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
 
   @Override
   public PSPage save(PSPage page) throws PSDataServiceException {
+    resolvePostedSiteFolder(page);
     validate(page);
 
     boolean isExistingPage = page.getId() != null;
     PSPage previousPage;
 
-    PSTemplate template = templateDao.find(page.getTemplateId());
+    PSTemplate template = loadTemplateForSave(page.getTemplateId());
     if (template == null)
       throw new RuntimeException(
           "The template you have selected doesn't exist in the system. Please refresh and try"
@@ -624,27 +625,28 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
 
     // Set the parent folder workflow only if it's a new page.
     if (!isExistingPage) {
-      page.setTemplateContentMigrationVersion(template.getContentMigrationVersion());
+      String ver = template.getContentMigrationVersion();
+      page.setTemplateContentMigrationVersion(StringUtils.isNumeric(ver) ? ver : "0");
       pageDaoHelper.setWorkflowAccordingToParentFolder(page);
     }
 
     // Save the page
     PSPage savedPage = super.save(page);
-    if (page.isAddToRecent()) {
-      recentService.addRecentItem(page.getId());
-      recentService.addRecentSiteFolder(page.getFolderPath());
-      String siteName = PSPathUtils.getSiteFromPath(page.getFolderPath());
-      if (StringUtils.isNotBlank(siteName)
-          && isRecentTemplateItemGuid(page.getTemplateId(), idMapper)) {
-        recentService.addRecentTemplate(siteName, page.getTemplateId());
-      }
-    }
+    recordRecentAfterPageSave(
+        recentService, idMapper, savedPage, page.getTemplateId(), page.isAddToRecent());
 
     // Set the page-Id and the Event type
-    PSPageChangeEvent pageChangeEvent = new PSPageChangeEvent();
-    pageChangeEvent.setPageId(page.getId());
-    pageChangeEvent.setType(PSPageChangeEventType.PAGE_SAVED);
-    notifyPageChange(pageChangeEvent);
+    try {
+      PSPageChangeEvent pageChangeEvent = new PSPageChangeEvent();
+      pageChangeEvent.setPageId(page.getId());
+      pageChangeEvent.setType(PSPageChangeEventType.PAGE_SAVED);
+      notifyPageChange(pageChangeEvent);
+    } catch (RuntimeException e) {
+      log.warn(
+          "pageChanged after save failed; page was saved. Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
     try {
       var current = PSSecurityFilter.getCurrentRequest();
       var servletRequest = current != null ? current.getServletRequest() : null;
@@ -1238,9 +1240,9 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
   }
 
   /**
-   * Recent-template list stores percTemplate <em>content item</em> guids. Assembly
-   * system templates ({@code perc.pageDatabase}, type TEMPLATE) are valid page
-   * templates on FastForward sites but must not be written to recent (#3726).
+   * Recent-template list stores percTemplate <em>content item</em> guids. Assembly system templates
+   * ({@code perc.pageDatabase}, type TEMPLATE) are valid page templates on FastForward sites but
+   * must not be written to recent (#3728).
    */
   static boolean isRecentTemplateItemGuid(String templateId, IPSIdMapper mapper) {
     if (templateId == null || templateId.isBlank() || mapper == null) {
@@ -1251,6 +1253,139 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     } catch (RuntimeException e) {
       return false;
     }
+  }
+
+  /**
+   * FastForward {@code perc.pageDatabase} and other system templates are {@link PSTypeEnum#TEMPLATE}
+   * assembly guids, not percTemplate content items.
+   */
+  static boolean isAssemblyTemplateGuid(String templateId, IPSIdMapper mapper) {
+    if (templateId == null || templateId.isBlank() || mapper == null) {
+      return false;
+    }
+    try {
+      return PSTypeEnum.TEMPLATE.getOrdinal() == mapper.getGuid(templateId).getType();
+    } catch (RuntimeException e) {
+      return false;
+    }
+  }
+
+  /**
+   * FastForward sample sites list as SITENAME ({@code Corporate_Investments}) but live at a
+   * repository folder ({@code //Sites/CorporateInvestments}). Page create may post either; save
+   * must use the repository folder so {@code getIdByPath} hits the real site root (#3728).
+   */
+  static String resolveRepositoryFolderPath(String folderPath, PSSiteSummary site) {
+    if (folderPath == null || folderPath.isBlank()) {
+      return folderPath;
+    }
+    String postedLeaf = PSPathUtils.getSiteFromPath(folderPath);
+    if (postedLeaf == null) {
+      return folderPath;
+    }
+    String repoLeaf =
+        site != null && StringUtils.isNotBlank(site.getFolderPath())
+            ? PSPathUtils.getSiteFromPath(site.getFolderPath())
+            : null;
+    // FastForward SITENAME (Corporate_Investments) vs folder leaf (CorporateInvestments).
+    if (repoLeaf == null || repoLeaf.equals(postedLeaf)) {
+      String stripped = postedLeaf.replace("_", "");
+      if (!stripped.equals(postedLeaf)) {
+        repoLeaf = stripped;
+      }
+    }
+    if (repoLeaf == null || repoLeaf.equals(postedLeaf)) {
+      return folderPath;
+    }
+    return folderPath.replaceFirst(
+        "(?i)(/Sites/)" + java.util.regex.Pattern.quote(postedLeaf),
+        "$1" + java.util.regex.Matcher.quoteReplacement(repoLeaf));
+  }
+
+  /**
+   * Side-effect recent writes must never mark the page-save transaction rollback-only. {@link
+   * IPSRecentService#addRecentTemplate} throws {@code IllegalArgumentException} for assembly
+   * TEMPLATE guids.
+   */
+  static void recordRecentAfterPageSave(
+      IPSRecentService recentService,
+      IPSIdMapper mapper,
+      PSPage savedPage,
+      String templateId,
+      boolean addToRecent) {
+    if (!addToRecent || savedPage == null || recentService == null) {
+      return;
+    }
+    try {
+      if (StringUtils.isNotBlank(savedPage.getId())) {
+        recentService.addRecentItem(savedPage.getId());
+      }
+      recentService.addRecentSiteFolder(savedPage.getFolderPath());
+      String siteName = PSPathUtils.getSiteFromPath(savedPage.getFolderPath());
+      if (StringUtils.isNotBlank(siteName) && isRecentTemplateItemGuid(templateId, mapper)) {
+        recentService.addRecentTemplate(siteName, templateId);
+      }
+    } catch (RuntimeException e) {
+      log.warn(
+          "addToRecent after page save failed; page was saved. Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  private void resolvePostedSiteFolder(PSPage page) {
+    if (page == null || siteDao == null) {
+      return;
+    }
+    String folderPath = page.getFolderPath();
+    String siteName = PSPathUtils.getSiteFromPath(folderPath);
+    if (StringUtils.isBlank(siteName)) {
+      return;
+    }
+    try {
+      PSSiteSummary site = siteDao.findByName(siteName);
+      String resolved = resolveRepositoryFolderPath(folderPath, site);
+      if (resolved != null && !resolved.equals(folderPath)) {
+        page.setFolderPath(resolved);
+      }
+    } catch (RuntimeException e) {
+      log.debug(
+          "Could not resolve site folder for page save. Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  /**
+   * Load the page template without failing create when assembly metadata is incomplete. A stub with
+   * the posted id is enough to persist {@code templateid} (#3728).
+   *
+   * <p>Do not call {@code templateDao.find} for assembly TEMPLATE guids: loading
+   * {@code perc.pageDatabase} (snippet assembler, empty PAGE_ASSEMBLER catalog) throws inside a
+   * nested TX that marks the request session rollback-only; catching later still yields
+   * UnexpectedRollbackException on commit.
+   */
+  private PSTemplate loadTemplateForSave(String templateId) throws PSDataServiceException {
+    if (isAssemblyTemplateGuid(templateId, idMapper)) {
+      return assemblyTemplateStub(templateId);
+    }
+    try {
+      return templateDao.find(templateId);
+    } catch (RuntimeException e) {
+      log.warn(
+          "templateDao.find failed for {}; using stub so page save can proceed. Error: {}",
+          templateId,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return assemblyTemplateStub(templateId);
+    }
+  }
+
+  static PSTemplate assemblyTemplateStub(String templateId) {
+    var stub = new PSTemplate();
+    stub.setId(templateId);
+    stub.setContentMigrationVersion("0");
+    stub.setReadOnly(true);
+    return stub;
   }
 
   /**

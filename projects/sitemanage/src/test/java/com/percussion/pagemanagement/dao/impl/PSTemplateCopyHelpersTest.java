@@ -28,8 +28,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Assembly/snippet templates (perc.pageDatabase) have no CM1 thumbs. Page
- * create must not fail with an empty-list {@code get(0)} (#3726).
+ * Assembly/snippet templates (perc.pageDatabase) have no CM1 thumbs. Page create must not fail with
+ * an empty-list {@code get(0)} (#3728).
  */
 class PSTemplateCopyHelpersTest {
 
