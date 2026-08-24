@@ -44,6 +44,16 @@ falls back to templates allowed for the page content type. You cannot create
 the page until a template is selected. Then pick the destination folder,
 title, and file name.
 
+The destination folder is the site's **repository folder**, not only the
+site display name. Sample FastForward sites such as **Corporate_Investments**
+and **Enterprise_Investments** live under `/Sites/CorporateInvestments` and
+`/Sites/EnterpriseInvestments` (no underscore). An administrator can create
+a page at that site root, including with site-listed page templates such as
+**Page - Database Template**. After create, the React Content Editor opens
+(`spa.jsp?entry=editor`) — leftover `?view=editor` is not used. If you are
+not allowed to create in a folder, the wizard shows that error; a missing
+or mismatched folder is not treated as a successful create.
+
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
 form.

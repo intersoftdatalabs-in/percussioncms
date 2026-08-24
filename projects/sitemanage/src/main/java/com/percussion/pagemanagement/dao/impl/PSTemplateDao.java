@@ -189,6 +189,9 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
       } catch (PSTemplateException e) {
         throw new LoadException(e.getMessage(), e);
       }
+      if (StringUtils.isBlank(t.getId())) {
+        t.setId(id);
+      }
       return t;
     }
 
@@ -445,7 +448,7 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
     if (templateGuid != null) {
       template = new PSTemplate();
       loadTemplateFromBaseTemplate(templateGuid, template);
-      var imagePath = getThumbImgPath(asList(template.getName())).get(0);
+      var imagePath = firstThumbPath(getThumbImgPath(asList(template.getName())));
       template.setName(name);
       template.setImageThumbPath(imagePath);
       template.setReadOnly(false);
@@ -480,9 +483,18 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
 
     try {
       IPSAssemblyTemplate srcTpl = loadBaseTemplateById(srcId);
-      var imagePath = getThumbImgPath(asList(srcTpl.getName())).get(0);
-      IPSCatalogSummary sum = findAssemblyTemplate(srcTpl.getName()).get(0);
-      createReadOnlyTemplateSummary(templateName, sum, imagePath);
+      var imagePath = firstThumbPath(getThumbImgPath(asList(srcTpl.getName())));
+      var sum = firstCatalogSummary(findAssemblyTemplate(srcTpl.getName()));
+      if (sum != null) {
+        createReadOnlyTemplateSummary(templateName, sum, imagePath);
+      } else {
+        templateName.setId(idMapper.getString(srcId));
+        templateName.setName(srcTpl.getName());
+        templateName.setLabel(srcTpl.getLabel());
+        templateName.setDescription(srcTpl.getDescription());
+        templateName.setImageThumbPath(imagePath);
+        templateName.setReadOnly(true);
+      }
       templateName.setSourceTemplateName(srcTpl.getName());
       var srcContent = srcTpl.getTemplate();
       if (StringUtils.isNotBlank(srcContent)) {
@@ -494,12 +506,40 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
       }
       // set theme
       List<PSThemeSummary> themes = themeService.findAll();
-      if (!themes.isEmpty()) {
+      if (themes != null && !themes.isEmpty() && themes.get(0) != null) {
         templateName.setTheme(themes.get(0).getName());
       }
     } catch (Exception e) {
       throw new PSTemplateException("Failed to copy system template to PSCoreItem.", e);
     }
+  }
+
+  /**
+   * First non-blank thumbnail path. Assembly/snippet templates such as
+   * {@code perc.pageDatabase} may have no CM1 thumb — empty list must not
+   * fail page create (#3726).
+   */
+  static String firstThumbPath(List<String> thumbs) {
+    if (thumbs == null) {
+      return "";
+    }
+    for (String t : thumbs) {
+      if (t != null && !t.isBlank()) {
+        return t;
+      }
+    }
+    return "";
+  }
+
+  /**
+   * First catalog row, or {@code null} when the assembly catalog has no
+   * thumb/name match (FastForward snippet templates).
+   */
+  static IPSCatalogSummary firstCatalogSummary(List<IPSCatalogSummary> sums) {
+    if (sums == null || sums.isEmpty()) {
+      return null;
+    }
+    return sums.get(0);
   }
 
   /**
