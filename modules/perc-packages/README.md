@@ -68,13 +68,15 @@ still installs Widget XML.
 | Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
 | Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
 
-## M2 product/H2 zero-legacy-selection evidence (#3583)
+## M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
 
 Non-waived product / H2 widget package roots must select modern-first
 (`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
-`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **`perc.Test`**
-only. The runtime shim stays (#2852); this is **not** M2 PASS overall (M3 still
-FAIL).
+`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **empty or
+`perc.Test` only** (`assertWidgetWaiverPolicy`). While `perc.Test` remains on
+the list it may still select `LEGACY_WIDGET_XML`; after #3736 it must be
+modern-first. The runtime shim stays (#2852); this is **not** M2 PASS overall
+(M3 still FAIL).
 
 | Piece | Class |
 |-------|--------|

@@ -132,7 +132,7 @@ cd modules/perc-packages
 
 Criteria doc: `docs/ai-generated/tasks/template-assembler-normalization/definition-xml-shim-removal-criteria.md`.
 
-### M2 product/H2 zero-legacy-selection evidence (#3583)
+### M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
 
 **Not a Python script.** Phase 5 **M2** product/H2 *selection* evidence is
 enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
@@ -140,10 +140,11 @@ enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
 - Class: `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence`
 - Tests: `PSProductPackageRootSelectionEvidenceTest` (product tree + H2
   classpath materialize; fails if a dummy non-waived package selects
-  `LEGACY_*`)
+  `LEGACY_*`; waive list empty **or** `perc.Test` only)
 - DAO harness: `PSWidgetDaoProductH2ZeroLegacySelectionTest` (blank
   `widgetDao.modernPackageRoots` + `rxdeploydir` materialize)
-- Explicit waiver: **`perc.Test`** / `PSWidget_TestProperties` only
+- Explicit waiver: **empty or `perc.Test` / `PSWidget_TestProperties` only**
+  (#3738 dual-mode; #3736 drops the residual)
 - **Keep** `PSLegacyDefinitionXmlShim` (#2852). Do **not** treat a green scan
   as M2 PASS / removal-ready (M3 still FAIL).
 
