@@ -20,7 +20,8 @@ From this module directory (standalone, preferred):
 
 Product packages must not reintroduce committed install definition XML under
 `sys__UserDependency--rxconfig/{Widgets,Pages,Gadgets}/` (or `rxconfig/{Pages,Gadgets}/`
-for Pages/Gadgets) except the explicit waiver **`perc.Test`**.
+for Pages/Gadgets). **Widget** waiver remains **`perc.Test` only** (widget ship-exit is
+#3736). **Pages/Gadgets** waiver is **empty** after perc.Test page dual-ship exit (#3737).
 
 | Piece | Class |
 |-------|--------|
@@ -41,7 +42,8 @@ See root `scripts/README.md` (definition XML inventory gates) and
 ## Dual-ship page templateDef inventory gate (#3675)
 
 Product packages with modern `pages/` must not re-introduce dual-ship root `*.templateDef`
-materialization except the explicit waiver **`perc.Test`**. Native packages
+materialization. Waiver is **empty** after perc.Test page dual-ship exit (#3737)
+(`perc.Test` never authored `pages/` / page `*.templateDef`). Native packages
 (`package-install.properties` `page.installMode=native`) are not dual-ship emitters.
 #3674 leftover widget binaries are **not** dual-ship-retained (empty retain list).
 

@@ -35,7 +35,7 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 | **G1** | `modules/perc-packages` clean install green after removal | **N/A (pre-removal)** | Module green on current dual-run code; deletion not started | Required only on the future removal PR |
 | **G2** | Behavioral modern-only selection tests | **PARTIAL** | `PSLegacyDefinitionXmlShimTest` + `PSWidgetDaoTest` modern/legacy/neither on main | Modern-only (no legacy fallback) tests belong on removal PR |
 | **G3** | No production refs to deleted dual-run APIs after removal | **N/A (pre-removal)** | Callers still **required**: `PSWidgetDao`, `GadgetRegistry` fallback | Pass only after deletion rewires consumers |
-| **G4** | CI fails if product definition XML reappears under Packages ship paths | **PASS** (Widget + Pages + Gadgets) | Widget: `PSWidgetDefinitionXmlInventory` + Surefire [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) #3026; Pages/Gadgets: `PSPageDefinitionXmlInventory` / `PSGadgetDefinitionXmlInventory` / `PSDefinitionXmlShipPathInventory` #3581; waive `perc.Test` only | None for ship-path inventory; keep shim (#2852) |
+| **G4** | CI fails if product definition XML reappears under Packages ship paths | **PASS** (Widget + Pages + Gadgets) | Widget: `PSWidgetDefinitionXmlInventory` + Surefire [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051) #3026 (waive `perc.Test` until #3736); Pages/Gadgets: `PSPageDefinitionXmlInventory` / `PSGadgetDefinitionXmlInventory` / `PSDefinitionXmlShipPathInventory` #3581; Page/Gadget waive **empty** after #3737 | None for ship-path inventory; keep shim (#2852) |
 | **G5** | Reverse-dep consumers green after removal | **N/A (pre-removal)** | sitemanage / WebUI dual-run tests green with shim present | Re-run sitemanage + WebUI on removal PR |
 | **G6** | Cross-platform Path/Files only in load paths | **PASS (current surfaces)** | Widget inventory + shim use `Path`/`Files`; DAO roots use `Path.of` | Re-check any replacement load path on removal PR |
 
@@ -218,7 +218,7 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 | Page inventory API + CLI | `com.percussion.packages.pagexml.PSPageDefinitionXmlInventory` |
 | Gadget inventory API + CLI | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` |
 | Surefire gates | `PSPageDefinitionXmlInventoryTest`, `PSGadgetDefinitionXmlInventoryTest`, `PSDefinitionXmlShipPathInventoryTest` (product tree zero non-waived; TempDir proves failure when dummy non-waived XML is introduced) |
-| Explicit waive | `perc.Test` only (`WAIVED_PACKAGE_DIRS`) |
+| Explicit waive | Empty after perc.Test page dual-ship exit (#3737) (`WAIVED_PACKAGE_DIRS`) |
 | Path I/O | `Path.resolve` / `Files` only (G6-aligned) |
 | Ship paths | `sys__UserDependency--rxconfig/Pages\|Gadgets` and `rxconfig/Pages\|Gadgets` (shim-recognized layouts). Modern `pages/` / catalog JSON is not definition XML. |
 
