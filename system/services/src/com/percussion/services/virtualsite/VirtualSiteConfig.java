@@ -35,6 +35,7 @@ public final class VirtualSiteConfig {
   private final List<NavSpec> nav;
   private final String siteKey;
   private final SqlSpec sql;
+  private final HttpSpec http;
 
   public VirtualSiteConfig(
       Path root,
@@ -44,7 +45,7 @@ public final class VirtualSiteConfig {
       List<VersionSpec> versions,
       List<NavSpec> nav,
       String siteKey) {
-    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, null);
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, null, null);
   }
 
   public VirtualSiteConfig(
@@ -56,6 +57,19 @@ public final class VirtualSiteConfig {
       List<NavSpec> nav,
       String siteKey,
       SqlSpec sql) {
+    this(root, siteTitle, siteUrl, layoutFile, versions, nav, siteKey, sql, null);
+  }
+
+  public VirtualSiteConfig(
+      Path root,
+      String siteTitle,
+      String siteUrl,
+      String layoutFile,
+      List<VersionSpec> versions,
+      List<NavSpec> nav,
+      String siteKey,
+      SqlSpec sql,
+      HttpSpec http) {
     this.root = Objects.requireNonNull(root, "root");
     this.siteTitle = siteTitle != null ? siteTitle : "Documentation";
     this.siteUrl = siteUrl != null ? siteUrl : "";
@@ -68,6 +82,7 @@ public final class VirtualSiteConfig {
         nav == null ? List.of() : Collections.unmodifiableList(new ArrayList<>(nav));
     this.siteKey = siteKey != null && !siteKey.isBlank() ? siteKey : "default";
     this.sql = sql;
+    this.http = http;
   }
 
   public Path root() {
@@ -105,6 +120,17 @@ public final class VirtualSiteConfig {
    */
   public SqlSpec sql() {
     return sql;
+  }
+
+  /**
+   * Optional HTTP JSON catalog settings for {@code http-json} sources ({@code http:} in {@code
+   * _config.yaml}).
+   *
+   * @return spec, or null when the mapping is omitted (adapter then uses {@code pages.json} under
+   *     the site root)
+   */
+  public HttpSpec http() {
+    return http;
   }
 
   public Path themeDir() {
@@ -262,6 +288,42 @@ public final class VirtualSiteConfig {
           + "', versionColumn='"
           + versionColumn
           + "'}";
+    }
+  }
+
+  /**
+   * HTTP JSON catalog settings for {@code http-json}. Either {@link #url()} (http/https GET) or
+   * {@link #file()} (portable path under the site root). Both blank means default {@code
+   * pages.json}.
+   */
+  public static final class HttpSpec {
+    private final String url;
+    private final String file;
+
+    public HttpSpec(String url, String file) {
+      this.url = url != null ? url.trim() : "";
+      this.file = file != null ? file.trim() : "";
+    }
+
+    public String url() {
+      return url;
+    }
+
+    public String file() {
+      return file;
+    }
+
+    public boolean hasUrl() {
+      return !url.isBlank();
+    }
+
+    public boolean hasFile() {
+      return !file.isBlank();
+    }
+
+    @Override
+    public String toString() {
+      return "HttpSpec{url='" + url + "', file='" + file + "'}";
     }
   }
 

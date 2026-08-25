@@ -30,6 +30,13 @@ and **Publish Virtual Site** (like the Git / CSV filesystem chrome; the **Publis
 control becomes useful after a successful Build). Repository kind still hides that
 chrome. Oracle, MySQL, and SQL Server URLs are rejected.
 
+An **HTTP JSON / Headless** adapter (`http-json`) discovers pages from an HTTP GET of a JSON
+catalog or from a local JSON fixture under `virtual.rootPath`. Required page field `id`;
+`title` + `body` assemble like CSV/SQL. This slice is **SPI and CLI** (`PSVirtualSiteBuildMain
+… http-json`). REST PUT/Build/preview/publish tests and Developer Sites chrome for
+`http-json` are follow-on slices. Open JSON only (no API keys). Remote URLs are SSRF
+fail-closed (`http`/`https`, no userinfo, no off-loopback redirects).
+
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
 After the site folder is created, an optional Git root is saved with
@@ -42,9 +49,10 @@ After the site folder is created, an optional Git root is saved with
 - Keep Git as the system of record for documentation (PR review, lockstep with product changes).
 - Use Percussion assemblers as the site generator (Markdown → HTML).
 - Provide stable page identities (`frontmatter.id`) for lightweight link checks / participants.
-- Leave the door open for additional adapters (API, object storage) without renaming Site → Channel.
+- Leave the door open for additional adapters (object storage) without renaming Site → Channel.
   SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build
-  and last-build Preview (`GET …/virtual/preview`).
+  and last-build Preview (`GET …/virtual/preview`). HTTP JSON (`http-json`) is implemented as
+  an SPI (CLI assemble); REST and Developer Sites chrome for that kind are follow-on slices.
 
 ## Source tree contract
 
@@ -108,7 +116,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, or `sql-database` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build all three kinds. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build Git, CSV, and SQL. `http-json` is SPI/CLI in this slice (REST round-trip and Sites chrome are follow-on). |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -120,10 +128,12 @@ Empty / missing `virtual.sourceKind` (or value `repository`) means a traditional
 ### Validation rules
 
 - **Source kind allow-list** — only registered adapter wire names are accepted for Virtual Sites
-  (`git-filesystem`, `csv-filesystem`, `sql-database`). Values such as future `api` kinds are
-  rejected until implemented. `csv-filesystem` and `sql-database` do not accept
+  (`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`). Unknown values are
+  rejected. `csv-filesystem`, `sql-database`, and `http-json` do not accept
   `virtual.remoteUrl` (Git remotes apply to `git-filesystem` only). `sql-database` is
   in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs are rejected.
+  `http-json` fetches open JSON only (no secrets); remote catalogs must be `http`/`https`
+  without userinfo.
 - **Required root** — when `virtual.sourceKind` is virtual and `virtual.remoteUrl` is blank,
   `virtual.rootPath` must be non-blank.
 - **Optional Git remote** — `virtual.remoteUrl` + `virtual.branch` fetch or clone before Build.
@@ -252,6 +262,64 @@ this path. Integrators get `publishPath`, `filesCopied`, and `pagesWritten` on H
 Developer Sites **Build Virtual Site** and
 **Preview assembled site** are shown after you save **SQL database** (same chrome as
 Git/CSV; repository stays hidden). Unknown kinds remain **400**.
+
+### Offline build from HTTP JSON (`http-json`)
+
+The `http-json` adapter discovers pages from a JSON catalog. `_config.yaml` is **required**
+(versions / site title). Git remotes are not used (`virtual.remoteUrl` is rejected for this
+kind). REST PUT/Build/preview/publish and Developer Sites chrome for `http-json` are
+follow-on slices — use the CLI (or the SPI) in this slice.
+
+Supply **one** of:
+
+| `_config.yaml` key | Meaning |
+|--------------------|---------|
+| `http.url` | HTTP GET of the catalog (`http` or `https` only). |
+| `http.file` | Portable NIO path under the site root (for example `catalog.json`). Must be relative (no remaining `..`, no Windows/Unix absolute roots). |
+| *(omitted)* | Default local file `pages.json` under `virtual.rootPath`. |
+
+Do not set both `http.url` and `http.file`. Catalogs larger than 2 MB fail closed. Each
+discover/load re-reads the current HTTP body or file bytes (no process-lifetime cache).
+
+JSON contract:
+
+```json
+{
+  "pages": [
+    { "id": "home", "path": "index.html", "title": "Home", "body": "<p>Hello</p>" }
+  ]
+}
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `id` | Yes | Stable page id within the version (same role as Markdown frontmatter `id`) |
+| `title` | Yes | Page title |
+| `body` | No | Markdown/HTML body assembled like CSV/SQL |
+| `path` | No | Site-relative page path. Omitted ⇒ `{version}/{id}.html`. Must be relative (no `..`, no `C:\…` / `/…`). |
+| `order` | No | Integer nav order; default `0` |
+| `version` | No | Must match a `_config.yaml` version `id`. Omitted ⇒ the default version. |
+
+Missing `pages`, blank `id`/`title`, duplicate ids, or an unsafe `path` fail closed
+(`VirtualSiteException`). Remote catalogs are **SSRF fail-closed**: no `file`/`ftp`/other
+schemes, no userinfo (secrets in the URL), cloud metadata hosts rejected, and redirects
+that leave loopback refused. This slice does not send Authorization headers or API keys.
+
+Example `_config.yaml` fragment (local fixture):
+
+```yaml
+http:
+  file: pages.json
+```
+
+CLI:
+
+```text
+PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] http-json
+```
+
+Site property validation allow-lists `http-json` (same helper as Git/CSV/SQL). Unknown
+kinds remain rejected.
 
 ## CMS-integrated build (REST and WebUI)
 

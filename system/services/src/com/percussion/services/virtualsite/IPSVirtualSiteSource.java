@@ -22,8 +22,9 @@ import java.util.List;
 /**
  * SPI for Virtual Site content sources. Phase 1: {@link PSGitFilesystemVirtualSiteSource}.
  * CSV / flat-file adapter: {@link PSCsvFilesystemVirtualSiteSource} ({@code csv-filesystem}).
- * SQL / H2 adapter: {@link PSSqlDatabaseVirtualSiteSource} ({@code sql-database}). Future adapters
- * (API, object storage, …) implement this interface.
+ * SQL / H2 adapter: {@link PSSqlDatabaseVirtualSiteSource} ({@code sql-database}). HTTP JSON /
+ * Headless catalog: {@link PSHttpJsonVirtualSiteSource} ({@code http-json}). Future adapters
+ * (object storage, …) implement this interface.
  *
  * <p>Filesystem and SQL implementations must read <em>current</em> source contents on every
  * {@link #discover} and {@link #load}. Process-lifetime parse caches that skip a file because

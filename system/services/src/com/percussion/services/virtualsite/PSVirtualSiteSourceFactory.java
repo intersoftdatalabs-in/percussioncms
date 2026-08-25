@@ -24,8 +24,8 @@ import java.util.stream.Stream;
  * Selects an {@link IPSVirtualSiteSource} for a registered {@link VirtualSiteSourceType}.
  *
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
- * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, and sql-database share one
- * assemble pipeline.
+ * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, and http-json
+ * share one assemble pipeline. REST round-trip tests for {@code http-json} are a sibling slice.
  */
 public final class PSVirtualSiteSourceFactory {
 
@@ -43,13 +43,15 @@ public final class PSVirtualSiteSourceFactory {
       case GIT_FILESYSTEM -> new PSGitFilesystemVirtualSiteSource();
       case CSV_FILESYSTEM -> new PSCsvFilesystemVirtualSiteSource();
       case SQL_DATABASE -> new PSSqlDatabaseVirtualSiteSource();
+      case HTTP_JSON -> new PSHttpJsonVirtualSiteSource();
     };
   }
 
   /**
    * Create the adapter for a property / CLI wire name.
    *
-   * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, or {@code sql-database}
+   * @param wireName e.g. {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database}, or
+   *     {@code http-json}
    * @return new source
    * @throws VirtualSiteException when the name is blank or unknown
    */

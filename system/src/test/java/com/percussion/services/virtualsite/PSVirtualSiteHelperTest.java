@@ -129,9 +129,10 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
-  void allowedSourceKindsIncludeGitCsvAndSqlDatabase() {
+  void allowedSourceKindsIncludeGitCsvSqlAndHttpJson() {
     List<String> allowed = PSVirtualSiteHelper.allowedSourceKindWireNames();
-    assertEquals(List.of("git-filesystem", "csv-filesystem", "sql-database"), allowed);
+    assertEquals(
+        List.of("git-filesystem", "csv-filesystem", "sql-database", "http-json"), allowed);
   }
 
   @Test
@@ -178,6 +179,31 @@ class PSVirtualSiteHelperTest {
     assertEquals(
         VirtualSiteSourceType.SQL_DATABASE,
         PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validatePassesForHttpJsonWithSafeRoot() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "http-docs"));
+    assertDoesNotThrow(() -> PSVirtualSiteHelper.validate(site));
+    assertEquals(
+        VirtualSiteSourceType.HTTP_JSON,
+        PSVirtualSiteHelper.virtualSourceType(site).orElseThrow());
+  }
+
+  @Test
+  void validateRejectsRemoteUrlForHttpJson() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "http-docs"),
+            prop(PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_REMOTE_URL));
+    assertTrue(ex.getMessage().contains("http-json"));
   }
 
   @Test
@@ -231,6 +257,7 @@ class PSVirtualSiteHelperTest {
     assertTrue(ex.getMessage().contains("git-filesystem"));
     assertTrue(ex.getMessage().contains("csv-filesystem"));
     assertTrue(ex.getMessage().contains("sql-database"));
+    assertTrue(ex.getMessage().contains("http-json"));
   }
 
   @Test
