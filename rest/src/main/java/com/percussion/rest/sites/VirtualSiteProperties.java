@@ -44,7 +44,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * connection fields (JDBC URL, user, query) live in {@code _config.yaml} under {@code rootPath} —
  * never put passwords on this envelope or in logs. {@code http-json} catalog URL/file live in
  * {@code _config.yaml} ({@code http.url} / {@code http.file}); REST persists a safe {@code
- * rootPath} JSON fixture directory.
+ * rootPath} JSON fixture directory. REST {@code POST …/virtual/build} runs {@code http-json}
+ * through the existing {@code IPSVirtualSiteSource} factory (local fixture / loopback).
  *
  * <p>Wire getters return plain {@code String} (not {@code Optional}) so JAXB/Jettison and Jackson
  * {@code WRAP_ROOT_VALUE} emit/accept child elements {@code sourceKind}, {@code rootPath},

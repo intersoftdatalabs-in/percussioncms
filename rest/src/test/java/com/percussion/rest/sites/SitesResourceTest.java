@@ -365,6 +365,51 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteHttpJsonFixtureDelegates() throws Exception {
+    Path httpRoot = tempDir.resolve("http-site");
+    Files.createDirectories(httpRoot);
+    Files.writeString(
+        httpRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: HTTP Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        http:
+          file: pages.json
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        httpRoot.resolve("pages.json"),
+        """
+        {"pages":[{"id":"http-home","path":"index.html","title":"HTTP Home","body":"Hello from JSON."}]}
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("http-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("HttpHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("HttpHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("HttpHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(httpRoot.resolve("pages.json")));
+    assertTrue(Files.isRegularFile(httpRoot.resolve("_config.yaml")));
+    verify(adaptor).buildVirtualSite("HttpHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -554,6 +599,9 @@ public class SitesResourceTest {
         text.contains("sql-database"),
         "buildVirtualSite OpenAPI description must mention sql-database");
     String buildBlock = text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/build\")"));
+    assertTrue(
+        buildBlock.contains("http-json"),
+        "buildVirtualSite OpenAPI description must mention http-json");
     assertTrue(
         buildBlock.contains("jdbc:h2:mem:"),
         "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
