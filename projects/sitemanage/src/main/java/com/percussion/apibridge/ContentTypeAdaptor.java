@@ -637,14 +637,16 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (trimmed.contains("*")) {
       throw new IllegalArgumentException("idOrName must not contain wildcards");
     }
+    requireSessionUserForLock();
     String session = currentSession();
     String user = currentUser();
-    requireSessionUserForLock();
     try {
-      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
-      if (ctGuid == null) {
+      // Peer setContentTypeEnabled: item-def existence so unknown ids 404 before lock.
+      PSItemDefinition current = resolveItemDef(trimmed);
+      if (current == null) {
         return null;
       }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
       requireHeldLock(ctGuid);
       List<PSItemDefinition> locked;
       try {
@@ -676,7 +678,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "Failed to save content type workflow associations {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type workflow associations", e);
       }
-      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      // Cache miss after save must not 404 a successful persist (CD-07 peer).
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
