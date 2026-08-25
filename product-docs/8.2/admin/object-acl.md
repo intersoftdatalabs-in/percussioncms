@@ -50,6 +50,9 @@ those system principals.
    ACL. If the object has no ACL yet, create one first (owner principal) and then
    save the additional entries.
 
+Content type **Lock / Save / Unlock** chrome is documented under
+[Developer Content Types](id:admin-developer-content-types).
+
 Deep links:
 
 - Content types: `spa.jsp?entry=developer&section=content-types`

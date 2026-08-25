@@ -223,12 +223,52 @@ export type ContentTypeUpdateBody = {
   allowedTemplates?: NamedObjectRef[];
 };
 
+/** Wire shape for {@code POST .../lock} ({@code ObjectLockSummary}). */
+export type ContentTypeLockSummary = {
+  session?: string;
+  locker?: string;
+  remainingTime?: number;
+  callerAccessTime?: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ObjectLockSummary}. */
+export const OBJECT_LOCK_SUMMARY_ROOT = "ObjectLockSummary";
+
+/**
+ * Normalize a lock POST response to a flat {@link ContentTypeLockSummary}.
+ */
+export function unwrapObjectLockSummary(payload: unknown): ContentTypeLockSummary {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[OBJECT_LOCK_SUMMARY_ROOT] ?? root.objectLockSummary);
+  const body = nested ?? root;
+  const out: ContentTypeLockSummary = {};
+  if (typeof body.session === "string") {
+    out.session = body.session;
+  }
+  if (typeof body.locker === "string") {
+    out.locker = body.locker;
+  }
+  if (typeof body.remainingTime === "number") {
+    out.remainingTime = body.remainingTime;
+  }
+  if (typeof body.callerAccessTime === "string") {
+    out.callerAccessTime = body.callerAccessTime;
+  }
+  return out;
+}
+
 /**
  * POST /services/contenttypes/{idOrName}/lock — self-only design-session lock.
  */
-export async function lockContentType(idOrName: string): Promise<unknown> {
+export async function lockContentType(
+  idOrName: string,
+): Promise<ContentTypeLockSummary> {
   const key = encodeURIComponent(idOrName);
-  return post(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+  const payload = await post<unknown>(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+  return unwrapObjectLockSummary(payload);
 }
 
 /**
@@ -237,6 +277,17 @@ export async function lockContentType(idOrName: string): Promise<unknown> {
 export async function unlockContentType(idOrName: string): Promise<void> {
   const key = encodeURIComponent(idOrName);
   await post(`${PATHS.CONTENT_TYPES}/${key}/unlock`);
+}
+
+/**
+ * Build the wire JSON body for ContentTypesResource PUT under
+ * {@link CONTENT_TYPE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE
+ * (same class as TemplateDetail / UserPreference).
+ */
+export function wrapContentTypeDetailForWire(
+  body: ContentTypeUpdateBody,
+): Record<string, ContentTypeUpdateBody> {
+  return { [CONTENT_TYPE_DETAIL_ROOT]: body };
 }
 
 /**
@@ -253,7 +304,10 @@ export async function updateContentTypeDetail(
   await lockContentType(idOrName);
   try {
     const key = encodeURIComponent(idOrName);
-    const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
+    const payload = await put<unknown>(
+      `${PATHS.CONTENT_TYPES}/${key}`,
+      wrapContentTypeDetailForWire(body),
+    );
     return unwrapContentTypeDetail(payload);
   } finally {
     await unlockContentType(idOrName).catch(() => undefined);

@@ -88,6 +88,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
       fields: [],
       designGaps: [],
     }),
+    lockContentType: vi.fn(),
+    unlockContentType: vi.fn(),
   };
 });
 

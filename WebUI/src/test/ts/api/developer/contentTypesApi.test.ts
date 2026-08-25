@@ -4,13 +4,17 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  lockContentType,
   normalizeContentTypeDesignGaps,
   normalizeContentTypeFields,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
+  unlockContentType,
   unwrapContentTypeDetail,
   unwrapContentTypeList,
+  unwrapObjectLockSummary,
   updateContentTypeDetail,
+  wrapContentTypeDetailForWire,
 } from "../../../../main/ts/api/developer/contentTypesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -235,6 +239,34 @@ describe("content-type Jackson list helpers (#3712)", () => {
     expect(normalizeContentTypeDesignGaps("legacy free-text gap")).toEqual([
       "legacy free-text gap",
     ]);
+  });
+});
+
+describe("wrapContentTypeDetailForWire", () => {
+  it("wraps a flat update under ContentTypeDetail", () => {
+    expect(wrapContentTypeDetailForWire({ description: "d", enabled: true })).toEqual({
+      ContentTypeDetail: { description: "d", enabled: true },
+    });
+  });
+});
+
+describe("unwrapObjectLockSummary", () => {
+  it("unwraps Jackson ObjectLockSummary root", () => {
+    expect(
+      unwrapObjectLockSummary({
+        ObjectLockSummary: { session: "s1", locker: "Admin", remainingTime: 30 },
+      }),
+    ).toEqual({ session: "s1", locker: "Admin", remainingTime: 30 });
+  });
+
+  it("accepts a flat lock body", () => {
+    expect(
+      unwrapObjectLockSummary({ locker: "Admin", remainingTime: 15 }),
+    ).toEqual({ locker: "Admin", remainingTime: 15 });
+  });
+
+  it("returns empty object for null", () => {
+    expect(unwrapObjectLockSummary(null)).toEqual({});
   });
 });
 
