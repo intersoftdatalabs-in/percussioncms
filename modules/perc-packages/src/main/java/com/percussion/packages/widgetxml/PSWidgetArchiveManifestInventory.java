@@ -41,7 +41,8 @@ import java.util.stream.Collectors;
  * <p>Phase 3 leftover of parent #2630 / issue #3582: product packages with modern {@code
  * widgets/} roots must not <em>author</em> {@code rxconfig/Widgets/*.xml} user-dependencies. Package
  * build still materializes install Widget XML and re-injects those archive entries so deployer /
- * {@code PSWidgetDao} keep the legacy wire format. Waiver: {@code perc.Test} only.
+ * {@code PSWidgetDao} keep the legacy wire format. Waiver set is empty after {@code perc.Test}
+ * ship-exit (#3736).
  *
  * <p>Archive/ZIP logical paths use {@code /}. On-disk I/O uses {@link Path#resolve(String)}.
  *
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public final class PSWidgetArchiveManifestInventory {
 
-  /** Same explicit waiver as committed Widget XML files ({@code perc.Test} only). */
+  /** Same explicit waiver as committed Widget XML files (empty after #3736). */
   public static final Set<String> WAIVED_PACKAGE_DIRS =
       PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS;
 
@@ -242,8 +243,8 @@ public final class PSWidgetArchiveManifestInventory {
 
   /**
    * Strip Widget def XML archive paths from a package's source descriptors when the package is
-   * non-waived and has modern {@code widgets/} roots. No-op for {@code perc.Test} and packages
-   * without modern roots.
+   * non-waived and has modern {@code widgets/} roots. No-op for waived packages (none after #3736)
+   * and packages without modern roots.
    *
    * @return number of descriptor files rewritten
    */

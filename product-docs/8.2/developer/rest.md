@@ -190,13 +190,115 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
-| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
+| Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
+| Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
+| Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
+| Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
+| Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
-SPA unwrap that envelope and read `guid.stringValue` (or synthesize
-`hostId-type-uuid` when `stringValue` is omitted) before calling
-`GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
-fallback when detail omits Guid parts.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
+
+Lock / save / unlock status codes:
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save / enable / disable succeeded (lock still held) |
+| `204` | Unlock success |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag) |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen) |
+| `500` | Design service or server failure |
+
+### Enable or disable (CD-13)
+
+`PUT /services/contenttypes/{idOrName}/enabled` sets whether the content type is
+enabled for runtime use. This is a dedicated design action, not a read-only
+catalog field. Hold the design-session lock first; save keeps the lock so you
+can continue editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../enabled` → (optional further design
+writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeEnabled": {
+    "enabled": false
+  }
+}
+```
+
+`GET /services/contenttypes` (the catalog list) may be a JSON array or a Jackson
+root envelope (`ContentTypeList` and/or `ContentType`). The Developer **Content
+Types** catalog unwraps those shapes so the table loads (and the first row can
+open Object ACL). Clients must not assume a bare array or call `.map` on the
+raw object.
+
+List and detail JSON list fields (`fields`, `childFieldSets`, `allowedWorkflows`,
+`allowedTemplates`, `designGaps`) are arrays. Some Jackson/JAXB envelopes
+historically serialize a one-item list as a single object, a
+`{ NamedObjectRef: … }` / `{ ContentTypeField: … }` / `{ DesignGap: … }` wrapper,
+or an empty-collection bean (`{ "empty": false }`). **Developer → Content Types**
+detail treats those non-array shapes as an empty list or unwraps the single item.
+The content type form stays on screen (or shows an in-panel error). It does
+**not** replace the Content Types section with **Unable to load Content Types**.
+Capability gaps still render as the human-readable **message** (fallback **code**).
+
+### Allowed workflows (CD-08)
+
+`PUT /services/contenttypes/{idOrName}/allowedWorkflows` replaces the content
+type's allowed-workflow associations. Hold the design-session lock first; save
+keeps the lock so you can continue editing, then unlock. This dedicated action
+does **not** auto lock-save-unlock (the generic `PUT /contenttypes/{idOrName}`
+still does that for mixed meta/field updates).
+
+Typical flow: `POST .../lock` → `PUT .../allowedWorkflows` → (optional further
+design writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeWorkflows": {
+    "allowedWorkflows": [
+      { "name": "Simple Workflow", "guid": { "stringValue": "0-23-4" } }
+    ],
+    "defaultWorkflow": { "name": "Simple Workflow" }
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Updated; response is `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow`; lock still held |
+| `400` | Missing `allowedWorkflows`, unknown workflow id/name, invalid id, or wildcard name |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No design lock, or locked by another user |
+| `500` | Unexpected error (not inferred from names that happen to contain "lock") |
+
+### Allowed templates (CD-12)
+
+`PUT /services/contenttypes/{idOrName}/allowedTemplates` replaces the content type's
+allowed template associations. Body is a JSON array of named refs (`name` and/or
+`guid`). Full-replace semantics: the supplied list becomes the new set; an empty
+array clears associations.
+
+Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
+
+1. Hold a design lock on the content type.
+2. `PUT /services/contenttypes/{idOrName}/allowedTemplates` with the new set.
+3. `GET` the same path (or `GET /services/contenttypes/{idOrName}`) to confirm.
+4. Release the design lock when editing is finished.
+
+`409` means the current session user does not hold the design lock. `400` means
+a template id or name in the body does not exist. The lock stays held after a
+successful PUT so further association or design edits can continue.
 
 ### Field rule expressions (read-only)
 
@@ -686,6 +788,23 @@ warning in the Server actions error region.
 | `GET` | `/services/sitemanage/publish/resource/{id}` | Publish Now for an asset |
 
 See [Content Explorer](id:admin-content-explorer) server actions.
+
+## Content Explorer translations
+
+Explorer **Translations** (View → Translations, or Translate on Server actions) lists locale
+variants and creates new ones through the public REST façade:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/rest/content-explorer/translations/{itemId}` | Current locale plus translation-category dependents |
+| `POST` | `/rest/content-explorer/translations` | Create locale variants (`itemIds` numeric content ids, optional `locales`) |
+
+`{itemId}` on GET may be a hyphenated Percussion GUID (`16777215-101-551`) **or** a bare numeric
+content id (`551`). Explorer list rows are usually GUID-shaped; clients must send that full GUID
+on GET. Stripping to the last segment (`GET …/translations/551`) can return **404 Item not found**
+while the GUID form returns **200**. Create-variant POST still uses numeric `itemIds`.
+
+See [Content Explorer](id:admin-content-explorer) → Translations.
 
 ## Testing tips
 

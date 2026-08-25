@@ -17,6 +17,7 @@
 
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
@@ -25,7 +26,6 @@ import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
 import com.percussion.cms.objectstore.ws.PSWSExecutableSearch;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.design.objectstore.PSLocator;
@@ -324,7 +324,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
       expandSynonyms = m_applet.getApplet().getSearchConfig().isSynonymExpansionRequired();
     } catch (PSCmsException cmsex) {
 
-      throw new PSContentExplorerException(IPSContentExplorerErrors.SEARCH_ERROR, cmsex.toString());
+      throw new PSContentExplorerException(ContentExplorerErrorCodes.SEARCH_ERROR, cmsex.toString());
     }
 
     String[][] advancedProps =
@@ -522,7 +522,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
           }
         }
 
-        throw new PSContentExplorerException(IPSContentExplorerErrors.SEARCH_ERROR, message);
+        throw new PSContentExplorerException(ContentExplorerErrorCodes.SEARCH_ERROR, message);
       } else {
         throw new RuntimeException(ex.getLocalizedMessage());
       }

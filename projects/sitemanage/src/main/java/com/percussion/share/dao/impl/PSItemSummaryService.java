@@ -151,7 +151,7 @@ public class PSItemSummaryService
   public List<PSDataItemSummary> findChildFolders(String id) throws DataServiceLoadException {
     notEmpty(id, "id");
     try {
-      var guid = idMapper.getGuid(id);
+      var guid = guidForItemId(id);
       var sums = contentWs.findChildFolders(guid);
       return convert(defaultItemSummaryFactory, sums, -1, PSRelationshipConfig.TYPE_FOLDER_CONTENT);
     } catch (Exception e) {
@@ -387,7 +387,7 @@ public class PSItemSummaryService
       isTrue(
           !StringUtils.startsWith(id, "//"),
           "findFolderChildren takes an id not a path. Use pathToId(path).");
-      var guid = idMapper.getGuid(id);
+      var guid = guidForItemId(id);
       var sums = contentWs.findFolderChildren(guid, false);
       var landingPageId = getLandingPageId(sums);
       return convert(factory, sums, landingPageId, PSRelationshipConfig.TYPE_FOLDER_CONTENT);
@@ -412,7 +412,7 @@ public class PSItemSummaryService
       IPSCatalogItemFactory<F, String> factory, String id, String relationshipTypeName)
       throws DataServiceLoadException {
     try {
-      var guid = idMapper.getGuid(id);
+      var guid = guidForItemId(id);
       var sums = contentWs.findItems(Collections.singletonList(guid), false);
       if (sums.isEmpty()) return null;
       var item = sums.get(0);
@@ -432,6 +432,36 @@ public class PSItemSummaryService
     var path = getIconFromSystem(id);
     if (path != null) path = path.replaceFirst("^\\.\\./", ICON_BASE_PATH);
     return path;
+  }
+
+  /**
+   * Map an Explorer / REST item id to a GUID. Bare numeric content ids such as
+   * FastForward {@code 594} must not fail with untyped {@code PSGuid.assemble}
+   * ({@code Type is undetermined}) — retry as {@code LEGACY_CONTENT} (#3722).
+   */
+  IPSGuid guidForItemId(String id) {
+    try {
+      return idMapper.getGuid(id);
+    } catch (IllegalArgumentException e) {
+      if (!isUndeterminedGuidType(e)) {
+        throw e;
+      }
+      try {
+        return idMapper.getGuidFromContentId(Long.parseLong(id.trim()));
+      } catch (NumberFormatException nfe) {
+        throw e;
+      }
+    }
+  }
+
+  static boolean isUndeterminedGuidType(Throwable error) {
+    for (Throwable t = error; t != null; t = t.getCause()) {
+      String msg = t.getMessage();
+      if (msg != null && msg.contains("Type is undetermined")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   protected String getIconFromSystem(String id) {

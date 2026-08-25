@@ -39,9 +39,10 @@ import java.util.stream.Collectors;
  * parent #2630, ADR-004).
  *
  * <p>Peer of {@link PSPageDefinitionXmlInventory} / {@code PSWidgetDefinitionXmlInventory}. Pass
- * condition: zero <em>non-waived</em> product packages that would emit dual-ship root templateDefs
- * (modern {@code pages/} + committed {@code page.installMode} defaulting to dual-ship). Packages
- * that opted into {@link PSPageXmlInstallMode#NATIVE} are not dual-ship emitters.
+ * condition: zero product packages that would emit dual-ship root templateDefs (modern {@code
+ * pages/} + committed {@code page.installMode} defaulting to dual-ship). Waiver set is empty after
+ * perc.Test page dual-ship exit (#3737). Packages that opted into {@link
+ * PSPageXmlInstallMode#NATIVE} are not dual-ship emitters.
  *
  * <p>Committed policy is package-local {@code package-install.properties} only. JVM system
  * properties ({@link PSPageXmlInstallPolicy#SYS_PROP_INSTALL_MODE} / {@link
@@ -75,16 +76,12 @@ public final class PSDualShipPageTemplateDefInventory {
 
   /**
    * Package directory names under {@code Packages/} allowed to still dual-ship page templateDefs.
-   * Explicit and minimal: {@code perc.Test} plus {@link #RETAINED_WIDGET_BINARY_PACKAGE_DIRS}.
+   * Empty after perc.Test page dual-ship exit (#3737): {@code perc.Test} never authored page {@code
+   * pages/} / {@code *.templateDef}. Plus {@link #RETAINED_WIDGET_BINARY_PACKAGE_DIRS} (also empty).
+   * Do not expand without an ADR / residual issue.
    */
-  public static final Set<String> WAIVED_PACKAGE_DIRS;
-
-  static {
-    LinkedHashSet<String> waived = new LinkedHashSet<>();
-    waived.add("perc.Test");
-    waived.addAll(RETAINED_WIDGET_BINARY_PACKAGE_DIRS);
-    WAIVED_PACKAGE_DIRS = Collections.unmodifiableSet(waived);
-  }
+  public static final Set<String> WAIVED_PACKAGE_DIRS =
+      Collections.unmodifiableSet(new LinkedHashSet<>(RETAINED_WIDGET_BINARY_PACKAGE_DIRS));
 
   /**
    * One package that would (or did) emit dual-ship page templateDefs.

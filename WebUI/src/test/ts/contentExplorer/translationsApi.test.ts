@@ -67,6 +67,28 @@ describe("translationsApi", () => {
     );
   });
 
+  it("listItemTranslationVariants keeps hyphenated GUID in the path (#3703)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify(SAMPLE), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+      ),
+    );
+    await listItemTranslationVariants("16777215-101-551");
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "/Rhythmyx/rest/content-explorer/translations/16777215-101-551",
+      ),
+      expect.objectContaining({ method: "GET" }),
+    );
+    const url = String((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
+    expect(url).not.toMatch(/\/translations\/551(?:\?|$)/);
+  });
+
   it("listItemTranslationVariants maps 403 to TranslationAuthError", async () => {
     vi.stubGlobal(
       "fetch",

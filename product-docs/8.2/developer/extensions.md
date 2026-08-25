@@ -35,6 +35,12 @@ and more). New extension code should:
 A **package** is a deployable unit of CMS components (content types, templates, apps, configs)
 distributed as a `.ppkg` (zip). Installers and startup packaging deploy packages into the CMS.
 
+`perc.Baseline` system templates (`perc.page`, `perc.pageDatabase`, `perc.pageDispatcher`,
+`perc.pageXml`, `perc.sys.resource`, `perc.widget`, `perc.widgetDispatcher`) install with stable
+GUIDs `0-4-602`..`0-4-614` on a **fresh** 8.2 instance. Existing databases keep the UUID assigned on
+first install; package apply does not rewrite customer template GUIDs. See
+[Design templates](id:admin-design-templates).
+
 When changing packaging:
 
 - Keep platform entry points (`.bat` / `.cmd` / `.sh`) in lockstep where operators need them.

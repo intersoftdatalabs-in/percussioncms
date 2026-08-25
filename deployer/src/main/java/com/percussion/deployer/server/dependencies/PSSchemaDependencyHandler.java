@@ -26,7 +26,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -47,6 +46,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a schema definition. */
 public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
@@ -116,7 +116,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
       return results.iterator();
     } catch (SQLException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));
+          DeploymentErrorCodes.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));
     }
   }
 
@@ -238,7 +238,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
         PSDependencyFile.TYPE_ENUM[file.getType()],
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_DBMS_SCHEMA]
       };
-      throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+      throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
     }
 
     // convert doc to schema object
@@ -249,7 +249,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
     try {
       schema = new PSJdbcTableSchema(doc.getDocumentElement(), typeMap);
     } catch (PSJdbcTableFactoryException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // handle flushing the dbmd cache on schema change

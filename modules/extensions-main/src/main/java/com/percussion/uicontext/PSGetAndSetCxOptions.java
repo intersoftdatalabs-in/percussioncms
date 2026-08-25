@@ -16,9 +16,10 @@
  */
 package com.percussion.uicontext;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.XmlErrorCodes;
 import com.percussion.cx.PSOptionManagerConstants;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
@@ -29,7 +30,6 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.general.IPSRhythmyxInfo;
 import com.percussion.services.general.PSRhythmyxInfoLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.xml.IPSXmlErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -99,9 +99,9 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
 
       doc = PSXmlDocumentBuilder.createXmlDocument(inSource, false);
     } catch (IOException e) {
-      throw new PSExtensionProcessingException(IPSXmlErrors.XML_PROCESSING_ERROR);
+      throw new PSExtensionProcessingException(XmlErrorCodes.XML_PROCESSING_ERROR);
     } catch (SAXException e) {
-      throw new PSExtensionProcessingException(IPSXmlErrors.XML_PROCESSING_ERROR);
+      throw new PSExtensionProcessingException(XmlErrorCodes.XML_PROCESSING_ERROR);
     }
     return doc;
   }
@@ -238,12 +238,12 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
       // this message constant doesn't look right, however,
       // it does display the right message:
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.CATALOG_EXT_RESOURCE_ERROR, e.getLocalizedMessage());
+          ExtensionErrorCodes.CATALOG_EXT_RESOURCE_ERROR, e.getLocalizedMessage());
     } catch (SAXException e) {
-      throw new PSExtensionProcessingException(IPSXmlErrors.RAW_XML_DUMP, e.getLocalizedMessage());
+      throw new PSExtensionProcessingException(XmlErrorCodes.RAW_XML_DUMP, e.getLocalizedMessage());
     } catch (IOException e) {
       throw new PSExtensionProcessingException(
-          IPSExtensionErrors.CATALOG_EXT_RESOURCE_ERROR, e.getLocalizedMessage());
+          ExtensionErrorCodes.CATALOG_EXT_RESOURCE_ERROR, e.getLocalizedMessage());
     }
 
     return doc;

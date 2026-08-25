@@ -34,7 +34,6 @@ import com.percussion.deployer.objectstore.PSLogSummary;
 import com.percussion.deployer.objectstore.PSTransactionLogSummary;
 import com.percussion.deployer.objectstore.PSTransactionSummary;
 import com.percussion.deployer.objectstore.PSValidationResults;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.server.PSServer;
 import com.percussion.tablefactory.PSJdbcColumnData;
@@ -55,6 +54,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Handles processing of all log table related operations for deployment. */
 public class PSLogHandler {
@@ -511,7 +511,7 @@ public class PSLogHandler {
       var compCtor = compClass.getConstructor(Element.class);
       return (IPSDeployComponent) compCtor.newInstance(root);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -529,7 +529,7 @@ public class PSLogHandler {
     var cdata = row.getColumn(column);
     if (cdata == null) {
       Object[] args = {table, column, "null"};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
     if (cdata.getValue() != null && !cdata.getValue().trim().isEmpty())
       return getColumnClob(table, column, row, compClass);
@@ -979,7 +979,7 @@ public class PSLogHandler {
 
     if (pkg.getValidationResults() == null) {
       Object[] args = {pkg.getPackage().getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_VALIDATION_RESULTS, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_VALIDATION_RESULTS, args);
     }
 
     PSIdMap idMap = importCtx.getCurrentIdMap();
@@ -1210,7 +1210,7 @@ public class PSLogHandler {
      boolean bEqualMan = srcManifest.equals(tgtManifest);
      if ((!bEqualMan) || (!bEqualPkgList) || asList.size()<=0)
      {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR,
            "Error retrieved archive info or manifest");
      }
 
@@ -1273,7 +1273,7 @@ public class PSLogHandler {
      List logList = PSDeployComponentUtils.cloneList(logIter);
      if (logList.size()<=0)
      {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR,
            "Error retrieved log summary (getLogSummarys()) <= 0");
      }
 
@@ -1283,7 +1283,7 @@ public class PSLogHandler {
      String archiveRef = srcInfo.getArchiveRef();
      lh.deleteAllLogs(archiveRef);
      if ( lh.doesArchiveRefExist(archiveRef) )
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR,
            "archiveRef should not exit in archive summary table");
   }
   */

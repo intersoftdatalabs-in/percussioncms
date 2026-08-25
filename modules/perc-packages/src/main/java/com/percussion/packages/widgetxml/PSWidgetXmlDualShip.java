@@ -35,7 +35,7 @@ import java.util.Objects;
 
 /**
  * Dual-ship bridge for product Widget packages (ADR-004 / issues #2831 batch A, #2832 batch B,
- * #2844 batch C, #2883/#2884/#2885 batch A+B+C ship-exit, parent #2630).
+ * #2844 batch C, #2883/#2884/#2885 batch A+B+C ship-exit, #3736 perc.Test, parent #2630).
  *
  * <p><strong>Authoring truth (modern):</strong> {@code widgets/&lt;widgetStem&gt;/component-package.json}
  * plus template sources under the product package tree (e.g. {@code perc.baseWidgets}).
@@ -50,7 +50,9 @@ import java.util.Objects;
  *   <li><strong>Batch B ship-exit (#2884):</strong> high-traffic + residual long-tail packages use
  *       the same modern-only + package-build materialize path.
  *   <li><strong>Batch C ship-exit (#2885):</strong> remaining product residual packages use the same
- *       path. {@code perc.Test} may still dual-ship committed Widget XML (explicit waiver).
+ *       path.
+ *   <li><strong>perc.Test ship-exit (#3736):</strong> the last waived test-harness package uses the
+ *       same modern-only + package-build materialize path (zero committed Widget XML).
  * </ul>
  *
  * <p>Modern roots are committed so selection prefers Component Package Manifest when both exist
@@ -67,8 +69,10 @@ import java.util.Objects;
  *
  * <p>Batch C (#2844 modern roots / #2885 stop shipping XML): remaining product residual (#2802)
  * after A/B — auto-lists, blog companions, comments/liked/commentForm, imageSlider, cookieConsent,
- * jquery/jqueryUI, registration/secureLogin, Result/Redirect (19 widgets / 19 packages). Excludes
- * {@code perc.Test} (#2830).
+ * jquery/jqueryUI, registration/secureLogin, Result/Redirect (19 widgets / 19 packages).
+ *
+ * <p>perc.Test (#2830 compile / #3736 stop shipping XML): {@code PSWidget_TestProperties} (1 widget
+ * / 1 package).
  *
  * @see PSWidgetXmlCompiler
  * @see PSWidgetXmlPackageCompiler
@@ -213,6 +217,15 @@ public final class PSWidgetXmlDualShip {
           "percResult",
           "percRedirect");
 
+  /**
+   * Test-harness dual-ship exit package directory names under {@code Packages/} (issue #3736).
+   * Completes M1 Widget ship-path: zero committed Widget definition XML including {@code perc.Test}.
+   */
+  public static final List<String> TEST_PACKAGE_DIRS = List.of("perc.Test");
+
+  /** Expected modern widget stems for perc.Test ship-exit (stable for tests / residual counting). */
+  public static final List<String> TEST_WIDGET_STEMS = List.of("PSWidget_TestProperties");
+
   private PSWidgetXmlDualShip() {
     // utility
   }
@@ -227,13 +240,14 @@ public final class PSWidgetXmlDualShip {
    *   <li>{@code materialize-modern-batch-a &lt;packagesRoot&gt;} — batch A packages only
    *   <li>{@code materialize-modern-batch-b &lt;packagesRoot&gt;} — batch B packages only
    *   <li>{@code materialize-modern-batch-c &lt;packagesRoot&gt;} — batch C packages only
+   *   <li>{@code materialize-modern-test &lt;packagesRoot&gt;} — perc.Test package only (#3736)
    *   <li>{@code materialize-install &lt;packageDir&gt;} — modern {@code widgets/} → install Widget
    *       XML when package is modern-only (no committed XML)
    * </ul>
    */
   public static void main(String[] args) throws Exception {
     final String usage =
-        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b|materialize-modern-batch-c|materialize-install <path>";
+        "Usage: PSWidgetXmlDualShip materialize-modern|materialize-modern-batch-a|materialize-modern-batch-b|materialize-modern-batch-c|materialize-modern-test|materialize-install <path>";
     if (args.length < 2) {
       System.err.println(usage);
       System.exit(1);
@@ -246,6 +260,7 @@ public final class PSWidgetXmlDualShip {
       case "materialize-modern-batch-a" -> n = materializeModernBatchA(path);
       case "materialize-modern-batch-b" -> n = materializeModernBatchB(path);
       case "materialize-modern-batch-c" -> n = materializeModernBatchC(path);
+      case "materialize-modern-test" -> n = materializeModernTest(path);
       case "materialize-install" -> n = materializeInstallWidgetXml(path);
       default -> {
         System.err.println("Unknown command: " + args[0]);
@@ -347,6 +362,18 @@ public final class PSWidgetXmlDualShip {
   public static int materializeModernBatchC(Path packagesRoot)
       throws PSWidgetXmlException, IOException {
     return materializeModernNamedPackages(packagesRoot, BATCH_C_PACKAGE_DIRS);
+  }
+
+  /**
+   * Materialize modern widget sources for the perc.Test package under {@code packagesRoot} (issue
+   * #3736). Missing package directories are soft-skipped.
+   *
+   * @param packagesRoot {@code Packages/} directory
+   * @return total modern widget packages written
+   */
+  public static int materializeModernTest(Path packagesRoot)
+      throws PSWidgetXmlException, IOException {
+    return materializeModernNamedPackages(packagesRoot, TEST_PACKAGE_DIRS);
   }
 
   /**

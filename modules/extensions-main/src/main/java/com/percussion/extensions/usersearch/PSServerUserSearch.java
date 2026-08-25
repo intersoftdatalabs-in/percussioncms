@@ -17,7 +17,7 @@
 
 package com.percussion.extensions.usersearch;
 
-import com.percussion.data.IPSDataErrors;
+import com.intsof.percussioncms.auditlog.codes.DataErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.extension.IPSExtensionDef;
@@ -225,7 +225,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
 
     if (ret == null || ret.trim().length() == 0)
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, CMS_LOOKUP_CONTENTSTATUS);
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, CMS_LOOKUP_CONTENTSTATUS);
 
     return Integer.parseInt(ret);
   }
@@ -283,7 +283,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
 
     if (iReq == null)
       throw new PSInternalRequestCallException(
-          IPSDataErrors.INTERNAL_REQUEST_CALL_EXCEPTION, COMMUNITY_ROLE_LOOKUP_URL);
+          DataErrorCodes.INTERNAL_REQUEST_CALL_EXCEPTION, COMMUNITY_ROLE_LOOKUP_URL);
 
     Document doc = null;
 

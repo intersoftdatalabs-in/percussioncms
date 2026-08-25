@@ -16,8 +16,8 @@
  */
 package com.percussion.uicontext;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -79,7 +79,7 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
     if (keyValueMap == null) {
       Object[] errs = {getClass().getName(), theLang};
 
-      throw new PSExtensionProcessingException(IPSExtensionErrors.CATALOG_EXT_RESOURCE_ERROR, errs);
+      throw new PSExtensionProcessingException(ExtensionErrorCodes.CATALOG_EXT_RESOURCE_ERROR, errs);
     }
 
     PSI18NTranslationKeyValues keyVals = PSI18NTranslationKeyValues.getInstance();

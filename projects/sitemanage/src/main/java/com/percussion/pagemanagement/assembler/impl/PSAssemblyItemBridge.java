@@ -543,8 +543,7 @@ public class PSAssemblyItemBridge {
         }
       }
       if (tp.template == null) {
-        String templateId = tp.page.getTemplateId();
-        notNull(templateId);
+        String templateId = requirePercPageTemplateId(tp.page);
         tp.template = templateService.load(templateId);
       }
     }
@@ -561,6 +560,25 @@ public class PSAssemblyItemBridge {
     setPage(item, tp.page);
     setTemplate(item, tp.template);
     return tp;
+  }
+
+  /**
+   * percPage assembly requires a template id. FastForward types must not use this dispatcher
+   * ({@code perc.base.plain} + missing template id NPEs as "The validated object is null", #3719).
+   *
+   * @param page loaded page, may be {@code null}
+   * @return template id, never blank
+   */
+  static String requirePercPageTemplateId(PSPage page) {
+    if (page == null) {
+      throw new IllegalStateException("Cannot assemble percPage: page is null");
+    }
+    String templateId = page.getTemplateId();
+    if (isBlank(templateId)) {
+      throw new IllegalStateException(
+          "Cannot assemble item as percPage; template id is missing (FastForward types need the default site template).");
+    }
+    return templateId;
   }
 
   /**

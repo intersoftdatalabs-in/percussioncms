@@ -7,8 +7,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeveloperShell } from "../../../main/ts/developer/DeveloperShell";
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  listContentTypes: vi.fn().mockResolvedValue([
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    listContentTypes: vi.fn().mockResolvedValue([
     {
       name: "percPage",
       label: "Page",
@@ -92,7 +96,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
-}));
+    lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
+    unlockContentType: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 const { defaultAclPayload } = vi.hoisted(() => ({
   defaultAclPayload: {
@@ -688,6 +695,39 @@ describe("DeveloperShell", () => {
     });
   });
 
+  it("keeps Developer mounted when content type lists are Jackson non-arrays (#3712)", async () => {
+    const { getContentTypeDetail } = await import("../../../main/ts/api/developer/contentTypesApi");
+    (getContentTypeDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      name: "percArchiveList",
+      label: "Archive",
+      guid: { stringValue: "0-2-316" },
+      fields: { empty: false },
+      childFieldSets: { empty: true },
+      allowedWorkflows: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: { NamedObjectRef: { name: "perc.page", label: "Page" } },
+      designGaps: {
+        DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      },
+    });
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    expect(screen.getByTestId("tab-developer-content-types")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-ct-gaps").textContent).toContain(
+      "Item-level pre/post exits not exposed",
+    );
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+    expect(screen.queryByText("Unable to load Content Types")).toBeNull();
+  });
+
   it("loads searches catalog section", async () => {
     render(<DeveloperShell initialSection="searches" embedded />);
     expect(screen.getByTestId("tab-developer-searches").getAttribute("aria-selected")).toBe(
@@ -723,6 +763,12 @@ it("loads views catalog section", async () => {
     });
     const saveBtn = screen.getByTestId("developer-ct-save");
     expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-search-page_title") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
     fireEvent.click(screen.getByTestId("developer-ct-field-search-page_title"));
     expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(saveBtn);
@@ -839,6 +885,12 @@ it("loads views catalog section", async () => {
     fireEvent.click(screen.getByTestId("developer-ct-row-0"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+        false,
+      );
     });
     fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
       target: { value: "Standard Workflow" },

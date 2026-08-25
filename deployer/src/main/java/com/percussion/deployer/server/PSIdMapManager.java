@@ -20,10 +20,10 @@ package com.percussion.deployer.server;
 
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.objectstore.PSIdMapping;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import java.util.HashMap;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Manages saving and retrieving <code>PSIdMap</code> objects to and from memory. */
 public class PSIdMapManager {
@@ -77,7 +77,7 @@ public class PSIdMapManager {
       if (mapping.getTargetId() == null && !mapping.isNewObject()) {
         var args =
             new Object[] {map.getSourceServer(), mapping.getSourceId(), mapping.getSourceName()};
-        throw new PSDeployException(IPSDeploymentErrors.INVALID_SAVED_ID_MAP, args);
+        throw new PSDeployException(DeploymentErrorCodes.INVALID_SAVED_ID_MAP, args);
       }
     }
   }

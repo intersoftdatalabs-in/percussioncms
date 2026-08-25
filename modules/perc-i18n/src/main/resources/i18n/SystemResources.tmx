@@ -934,7 +934,7 @@
       <tuv xml:lang="nl"><seg>Ongeldig ad-hoctype in database.</seg></tuv>
       <tuv xml:lang="pt"><seg>Tipo ad hoc inválido no banco de dados.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>数据库中的临时类型无效。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Недопустимый специальный тип в базе данных.</seg></tuv><tuv xml:lang="he"><seg>סוג אד-הוק לא חוקי במסד הנתונים.</seg></tuv><tuv xml:lang="uk"><seg>Недійсний спеціальний тип у базі даних.</seg></tuv><tuv xml:lang="lou"><seg>Envalid adhoc tip nan data base.</seg></tuv><tuv xml:lang="pl"><seg>Nieprawidłowy typ ad hoc w bazie danych.</seg></tuv><tuv xml:lang="tr"><seg>Veritabanında geçersiz özel tür.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Недопустимый специальный тип в базе данных.</seg></tuv><tuv xml:lang="he"><seg>סוג אד-הוק לא חוקי במסד הנתונים.</seg></tuv><tuv xml:lang="uk"><seg>Недійсний спеціальний тип у базі даних.</seg></tuv><tuv xml:lang="lou"><seg>Envalid adhoc tip nan data base.</seg></tuv><tuv xml:lang="pl"><seg>Nieprawidłowy typ ad hoc w bazie danych.</seg></tuv><tuv xml:lang="tr"><seg>Veritabanında geçersiz özel tür.</seg></tuv><tuv xml:lang="te"><seg>డేటాబేస్u200cలో చెల్లని తాత్కాలిక రకం.</seg></tuv></tu>
     <tu tuid="7452">
       <tuv xml:lang="en-us"><seg>State role name may not be null or empty after trimming.</seg></tuv>
       <tuv xml:lang="ar"><seg>لا يجوز أن يكون اسم دور الحالة خاليًا أو فارغًا بعد الاقتطاع.</seg></tuv>
@@ -1255,7 +1255,7 @@
       <tuv xml:lang="nl"><seg>Keuze-items met dubbele waarden gevonden voor een besturingselement.</seg></tuv>
       <tuv xml:lang="pt"><seg>Entradas de escolha com valores duplicados encontrados para um controle.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>为控件找到具有重复值的选项条目。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Выберите записи с повторяющимися значениями, найденными для элемента управления.</seg></tuv><tuv xml:lang="he"><seg>נמצאו ערכי בחירה עם ערכים כפולים עבור פקד.</seg></tuv><tuv xml:lang="uk"><seg>Для елемента керування знайдено записи вибору з повторюваними значеннями.</seg></tuv><tuv xml:lang="lou"><seg>Choice entries épi duplicate values found pou yon control.</seg></tuv><tuv xml:lang="pl"><seg>Znaleziono wpisy wyboru ze zduplikowanymi wartościami dla kontrolki.</seg></tuv><tuv xml:lang="tr"><seg>Bir denetim için yinelenen değerlere sahip seçim girişleri bulundu.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Выберите записи с повторяющимися значениями, найденными для элемента управления.</seg></tuv><tuv xml:lang="he"><seg>נמצאו ערכי בחירה עם ערכים כפולים עבור פקד.</seg></tuv><tuv xml:lang="uk"><seg>Для елемента керування знайдено записи вибору з повторюваними значеннями.</seg></tuv><tuv xml:lang="lou"><seg>Choice entries épi duplicate values found pou yon control.</seg></tuv><tuv xml:lang="pl"><seg>Znaleziono wpisy wyboru ze zduplikowanymi wartościami dla kontrolki.</seg></tuv><tuv xml:lang="tr"><seg>Bir denetim için yinelenen değerlere sahip seçim girişleri bulundu.</seg></tuv><tuv xml:lang="te"><seg>నియంత్రణ కోసం డూప్లికేట్ విలువలతో ఎంపిక ఎంట్రీలు కనుగొనబడ్డాయి.</seg></tuv></tu>
     <tu tuid="1696">
       <tuv xml:lang="en-us"><seg>You are trying to update an older revision of this content item. You may have updated this content item in another open session. Please refresh your main content management screen before attempting to edit this content item.</seg></tuv>
       <tuv xml:lang="ar"><seg>أنت تحاول تحديث نسخة أقدم من عنصر المحتوى هذا. ربما قمت بتحديث عنصر المحتوى هذا في جلسة مفتوحة أخرى. يرجى تحديث شاشة إدارة المحتوى الرئيسية لديك قبل محاولة تحرير عنصر المحتوى هذا.</seg></tuv>
@@ -1366,7 +1366,7 @@
       <tuv xml:lang="nl"><seg>De applicatie {{0}} die is gebruikt om de verzamel-URL te bepalen, kan niet worden gevonden.</seg></tuv>
       <tuv xml:lang="pt"><seg>O aplicativo {{0}} usado para determinar o URL do assembly não foi encontrado.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>找不到用于确定程序集 URL 的应用程序 {{0}}。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Приложение {{0}}, использованное для определения URL-адреса сборки, не найдено.</seg></tuv><tuv xml:lang="he"><seg>היישום {{0}} המשמש לקביעת כתובת האתר של ההרכבה לא נמצא.</seg></tuv><tuv xml:lang="uk"><seg>Програму {{0}}, яка використовується для визначення URL-адреси складання, не знайдено.</seg></tuv><tuv xml:lang="lou"><seg>La application {{0}} used a determine la assembly URL could pa été found.</seg></tuv><tuv xml:lang="pl"><seg>Nie można znaleźć aplikacji {{0}} użytej do określenia adresu URL zestawu.</seg></tuv><tuv xml:lang="tr"><seg>Derleme URL'sini belirlemek için kullanılan {{0}} uygulaması bulunamadı.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Приложение {{0}}, использованное для определения URL-адреса сборки, не найдено.</seg></tuv><tuv xml:lang="he"><seg>היישום {{0}} המשמש לקביעת כתובת האתר של ההרכבה לא נמצא.</seg></tuv><tuv xml:lang="uk"><seg>Програму {{0}}, яка використовується для визначення URL-адреси складання, не знайдено.</seg></tuv><tuv xml:lang="lou"><seg>La application {{0}} used a determine la assembly URL could pa été found.</seg></tuv><tuv xml:lang="pl"><seg>Nie można znaleźć aplikacji {{0}} użytej do określenia adresu URL zestawu.</seg></tuv><tuv xml:lang="tr"><seg>Derleme URL'sini belirlemek için kullanılan {{0}} uygulaması bulunamadı.</seg></tuv><tuv xml:lang="te"><seg>అసెంబ్లీ URLని గుర్తించడానికి ఉపయోగించిన అప్లికేషన్ {{0}} కనుగొనబడలేదు.</seg></tuv></tu>
     <tu tuid="1702">
       <tuv xml:lang="en-us"><seg>The extension specified in the request URL to determine the assembly URL is not supported.</seg></tuv>
       <tuv xml:lang="ar"><seg>الامتداد المحدد في عنوان URL للطلب لتحديد عنوان URL للتجميع غير مدعوم.</seg></tuv>
@@ -1617,7 +1617,7 @@
       <tuv xml:lang="nl"><seg>De context voor Active Assembly Processor Proxy moet PSRequest of IPSRequestContext zijn om de afhankelijke personen te filteren op autorisatietype</seg></tuv>
       <tuv xml:lang="pt"><seg>O contexto para Active Assembly Processor Proxy deve ser PSRequest ou IPSRequestContext para filtrar os dependentes por tipo de autorização</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>Active Assembly Processor Proxy 的上下文必须是 PSRequest 或 IPSRequestContext 才能按授权类型筛选依赖项</seg></tuv>
-    <tuv xml:lang="ru"><seg>Контекст для активного прокси-сервера процессора сборки должен быть PSRequest или IPSRequestContext, чтобы фильтровать зависимые элементы по типу авторизации.</seg></tuv><tuv xml:lang="he"><seg>ההקשר ל-Active Assembly Processor Proxy חייב להיות PSRequest או IPSRequestContext כדי לסנן את התלויים לפי סוג הרשאה</seg></tuv><tuv xml:lang="uk"><seg>Контекст для Active Assembly Processor Proxy має бути PSRequest або IPSRequestContext для фільтрації залежних за типом авторизації</seg></tuv><tuv xml:lang="lou"><seg>La context pou Aktif Assembly Processor Proxy must été either PSRequest oswa IPSRequestContext a filter la dependents pa authorization tip</seg></tuv><tuv xml:lang="pl"><seg>Kontekst dla aktywnego serwera proxy procesora zestawu musi mieć wartość PSRequest lub IPSRequestContext, aby filtrować elementy zależne według typu autoryzacji</seg></tuv><tuv xml:lang="tr"><seg>Etkin Derleme İşlemcisi Proxy'sinin bağlamı, bağımlıları yetkilendirme türüne göre filtrelemek için PSRequest veya IPSRequestContext olmalıdır</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Контекст для активного прокси-сервера процессора сборки должен быть PSRequest или IPSRequestContext, чтобы фильтровать зависимые элементы по типу авторизации.</seg></tuv><tuv xml:lang="he"><seg>ההקשר ל-Active Assembly Processor Proxy חייב להיות PSRequest או IPSRequestContext כדי לסנן את התלויים לפי סוג הרשאה</seg></tuv><tuv xml:lang="uk"><seg>Контекст для Active Assembly Processor Proxy має бути PSRequest або IPSRequestContext для фільтрації залежних за типом авторизації</seg></tuv><tuv xml:lang="lou"><seg>La context pou Aktif Assembly Processor Proxy must été either PSRequest oswa IPSRequestContext a filter la dependents pa authorization tip</seg></tuv><tuv xml:lang="pl"><seg>Kontekst dla aktywnego serwera proxy procesora zestawu musi mieć wartość PSRequest lub IPSRequestContext, aby filtrować elementy zależne według typu autoryzacji</seg></tuv><tuv xml:lang="tr"><seg>Etkin Derleme İşlemcisi Proxy'sinin bağlamı, bağımlıları yetkilendirme türüne göre filtrelemek için PSRequest veya IPSRequestContext olmalıdır</seg></tuv><tuv xml:lang="te"><seg>యాక్టివ్ అసెంబ్లీ ప్రాసెసర్ ప్రాక్సీ యొక్క సందర్భం తప్పనిసరిగా PSRequest లేదా IPSRequestContext అయి ఉండాలి, ఆధారిత వ్యక్తులను అధికార రకం ద్వారా ఫిల్టర్ చేయాలి</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSSearchFieldOperators@NonNumericFieldValueException">
       <tuv xml:lang="en-us"><seg>A non-numeric value "{0}" was supplied for the search field "{1}".  Values supplied for this field must be numeric.</seg></tuv>
       <tuv xml:lang="ar"><seg>تم توفير قيمة غير رقمية "{0}" لحقل البحث "{1}".  يجب أن تكون القيم المقدمة لهذا الحقل رقمية.</seg></tuv>
@@ -1810,7 +1810,7 @@
       <tuv xml:lang="it"><seg>Il numero massimo di risultati deve essere un numero compreso tra 0 e &lt;{0}&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Maximale resultaten moeten een getal tussen 0 en &lt;{0}&gt; zijn</seg></tuv>
 
-    <tuv xml:lang="fr-ca"><seg>Les résultats maximum doivent être un nombre compris entre 0 et &lt;{0}&gt;</seg></tuv><tuv xml:lang="ru"><seg>Максимальное количество результатов должно быть числом от 0 до &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התוצאות המקסימליות חייבות להיות מספר בין 0 ל-&lt;{0}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Максимальна кількість результатів має бути числом від 0 до &lt;{0}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Maximum results must été yon number between 0 épi &lt;{0}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Maksymalne wyniki muszą być liczbą z zakresu od 0 do &lt;{0}&gt;</seg></tuv><tuv xml:lang="tr"><seg>Maksimum sonuçlar 0 ile &lt;{0}&gt; arasında bir sayı olmalıdır</seg></tuv></tu>
+    <tuv xml:lang="fr-ca"><seg>Les résultats maximum doivent être un nombre compris entre 0 et &lt;{0}&gt;</seg></tuv><tuv xml:lang="ru"><seg>Максимальное количество результатов должно быть числом от 0 до &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התוצאות המקסימליות חייבות להיות מספר בין 0 ל-&lt;{0}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Максимальна кількість результатів має бути числом від 0 до &lt;{0}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Maximum results must été yon number between 0 épi &lt;{0}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Maksymalne wyniki muszą być liczbą z zakresu od 0 do &lt;{0}&gt;</seg></tuv><tuv xml:lang="tr"><seg>Maksimum sonuçlar 0 ile &lt;{0}&gt; arasında bir sayı olmalıdır</seg></tuv><tuv xml:lang="bn"><seg>সর্বাধিক ফলাফল অবশ্যই 0 এবং &lt;{0}&gt; এর মধ্যে একটি সংখ্যা হতে হবে</seg></tuv><tuv xml:lang="te"><seg>గరిష్ట ఫలితాలు తప్పనిసరిగా 0 మరియు &lt;{0}&gt; మధ్య సంఖ్య అయి ఉండాలి</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSSearchSimplePanel@Case Sensitive:">
       <tuv xml:lang="en-us"><seg>Case Sensitive:</seg></tuv>
       <tuv xml:lang="ar"><seg>حساسية الموضوع:</seg></tuv>
@@ -1903,7 +1903,7 @@
       <tuv xml:lang="hi"><seg>उन्नत &gt;&gt;</seg></tuv>
       <tuv xml:lang="it"><seg>Avanzato &gt;&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Geavanceerd &gt;&gt;</seg></tuv>
-    <tuv xml:lang="ru"><seg>Расширенный &gt;&gt;</seg></tuv><tuv xml:lang="he"><seg>מתקדם &gt;&gt;</seg></tuv><tuv xml:lang="uk"><seg>Розширений &gt;&gt;</seg></tuv><tuv xml:lang="lou"><seg>Advanced &gt;&gt;</seg></tuv><tuv xml:lang="pl"><seg>Zaawansowane &gt;&gt;</seg></tuv><tuv xml:lang="tr"><seg>Gelişmiş &gt;&gt;</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Расширенный &gt;&gt;</seg></tuv><tuv xml:lang="he"><seg>מתקדם &gt;&gt;</seg></tuv><tuv xml:lang="uk"><seg>Розширений &gt;&gt;</seg></tuv><tuv xml:lang="lou"><seg>Advanced &gt;&gt;</seg></tuv><tuv xml:lang="pl"><seg>Zaawansowane &gt;&gt;</seg></tuv><tuv xml:lang="tr"><seg>Gelişmiş &gt;&gt;</seg></tuv><tuv xml:lang="bn"><seg>উন্নত &gt;&gt;</seg></tuv><tuv xml:lang="te"><seg>అధునాతన &gt;&gt;</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSSearchDialog@&lt;&lt; Simple">
       <tuv xml:lang="en-us"><seg>&lt;&lt; Simple</seg></tuv>
       <tuv xml:lang="ar"><seg>&lt;&lt; بسيط</seg></tuv>
@@ -1912,7 +1912,7 @@
       <tuv xml:lang="hi"><seg>&lt;&lt;सरल</seg></tuv>
       <tuv xml:lang="it"><seg>&lt;&lt;Semplice</seg></tuv>
       <tuv xml:lang="nl"><seg>&lt;&lt; Eenvoudig</seg></tuv>
-    <tuv xml:lang="ru"><seg>&lt;&lt; Простой</seg></tuv><tuv xml:lang="he"><seg>&lt;&lt; פשוט</seg></tuv><tuv xml:lang="uk"><seg>&lt;&lt; Простий</seg></tuv><tuv xml:lang="lou"><seg>&lt;&lt; Simple</seg></tuv><tuv xml:lang="pl"><seg>&lt;&lt; Proste</seg></tuv><tuv xml:lang="tr"><seg>&lt;&lt; Basit</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>&lt;&lt; Простой</seg></tuv><tuv xml:lang="he"><seg>&lt;&lt; פשוט</seg></tuv><tuv xml:lang="uk"><seg>&lt;&lt; Простий</seg></tuv><tuv xml:lang="lou"><seg>&lt;&lt; Simple</seg></tuv><tuv xml:lang="pl"><seg>&lt;&lt; Proste</seg></tuv><tuv xml:lang="tr"><seg>&lt;&lt; Basit</seg></tuv><tuv xml:lang="bn"><seg>&lt;&lt; সরল</seg></tuv><tuv xml:lang="te"><seg>&lt;&lt; సింపుల్</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSSearchDialog@The following characters are not allowed as the first character of a full text search query: *, ?">
       <tuv xml:lang="en-us"><seg>The following characters are not allowed as the first character of a full text search query: *, ?</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح باستخدام الأحرف التالية كحرف أول في استعلام البحث عن النص الكامل: *, ?</seg></tuv>
@@ -2009,7 +2009,7 @@
       <tuv xml:lang="nl"><seg>Serverbeheerderstoegang vereist</seg></tuv>
       <tuv xml:lang="pt"><seg>Acesso de administrador do servidor necessário</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>需要服务器管理员访问权限</seg></tuv>
-    <tuv xml:lang="ru"><seg>Требуется доступ администратора сервера</seg></tuv><tuv xml:lang="he"><seg>נדרשת גישת מנהל שרת</seg></tuv><tuv xml:lang="uk"><seg>Потрібен доступ адміністратора сервера</seg></tuv><tuv xml:lang="lou"><seg>Sèrvé Admin Access Obligatwa</seg></tuv><tuv xml:lang="pl"><seg>Wymagany dostęp administratora serwera</seg></tuv><tuv xml:lang="tr"><seg>Sunucu Yöneticisi Erişimi Gerekli</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Требуется доступ администратора сервера</seg></tuv><tuv xml:lang="he"><seg>נדרשת גישת מנהל שרת</seg></tuv><tuv xml:lang="uk"><seg>Потрібен доступ адміністратора сервера</seg></tuv><tuv xml:lang="lou"><seg>Sèrvé Admin Access Obligatwa</seg></tuv><tuv xml:lang="pl"><seg>Wymagany dostęp administratora serwera</seg></tuv><tuv xml:lang="tr"><seg>Sunucu Yöneticisi Erişimi Gerekli</seg></tuv><tuv xml:lang="te"><seg>సర్వర్ అడ్మిన్ యాక్సెస్ అవసరం</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSActionManager@ServerAdminAccessRequired">
       <tuv xml:lang="en-us"><seg>The current user must have server Admin access in order to perform the ''{0}'' action.</seg></tuv>
       <tuv xml:lang="ar"><seg>يجب أن يتمتع المستخدم الحالي بإمكانية وصول مسؤول الخادم حتى يتمكن من تنفيذ الإجراء ''{0}''.</seg></tuv>
@@ -2186,7 +2186,7 @@
       <tuv xml:lang="hi"><seg>{0} &lt;{1}&gt; को संसाधित किया जा रहा है</seg></tuv>
       <tuv xml:lang="it"><seg>Elaborazione di {0} &lt;{1}&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Verwerken van de {0} &lt;{1}&gt;</seg></tuv>
-    <tuv xml:lang="ru"><seg>Обработка {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="he"><seg>מעבד את ה-{0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Обробка {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Processing la {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Przetwarzanie {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="tr"><seg>{0} &lt;{1}&gt; işleniyor</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Обработка {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="he"><seg>מעבד את ה-{0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Обробка {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Processing la {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Przetwarzanie {0} &lt;{1}&gt;</seg></tuv><tuv xml:lang="tr"><seg>{0} &lt;{1}&gt; işleniyor</seg></tuv><tuv xml:lang="bn"><seg>{0} &lt;{1}&gt; প্রক্রিয়া করা হচ্ছে</seg></tuv><tuv xml:lang="te"><seg>{0} &lt;{1}&gt;ని ప్రాసెస్ చేస్తోంది</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSSaveSearchDialog@Save Search">
       <tuv xml:lang="en-us"><seg>Save Search</seg></tuv>
       <tuv xml:lang="ar"><seg>حفظ البحث</seg></tuv>
@@ -2311,7 +2311,7 @@
       <tuv xml:lang="nl"><seg>De zoeknaam moet worden ingevoerd om een nieuwe zoekopdracht op te slaan</seg></tuv>
       <tuv xml:lang="pt"><seg>O nome da pesquisa deve ser inserido para salvar a nova pesquisa</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>必须输入搜索名称才能保存新搜索</seg></tuv>
-    <tuv xml:lang="ru"><seg>Имя поиска необходимо ввести, чтобы сохранить новый поиск.</seg></tuv><tuv xml:lang="he"><seg>יש להזין את שם החיפוש כדי לשמור חיפוש חדש</seg></tuv><tuv xml:lang="uk"><seg>Потрібно ввести назву пошуку, щоб зберегти новий пошук</seg></tuv><tuv xml:lang="lou"><seg>La chèche non must été entered a sové nouvo chèche</seg></tuv><tuv xml:lang="pl"><seg>Aby zapisać nowe wyszukiwanie, należy wprowadzić nazwę wyszukiwania</seg></tuv><tuv xml:lang="tr"><seg>Yeni aramayı kaydetmek için arama adı girilmelidir</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Имя поиска необходимо ввести, чтобы сохранить новый поиск.</seg></tuv><tuv xml:lang="he"><seg>יש להזין את שם החיפוש כדי לשמור חיפוש חדש</seg></tuv><tuv xml:lang="uk"><seg>Потрібно ввести назву пошуку, щоб зберегти новий пошук</seg></tuv><tuv xml:lang="lou"><seg>La chèche non must été entered a sové nouvo chèche</seg></tuv><tuv xml:lang="pl"><seg>Aby zapisać nowe wyszukiwanie, należy wprowadzić nazwę wyszukiwania</seg></tuv><tuv xml:lang="tr"><seg>Yeni aramayı kaydetmek için arama adı girilmelidir</seg></tuv><tuv xml:lang="te"><seg>కొత్త శోధనను సేవ్ చేయడానికి శోధన పేరు తప్పనిసరిగా నమోదు చేయాలి</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSSaveSearchDialog@The search name must not exceed {0} characters.">
       <tuv xml:lang="en-us"><seg>The search name must not exceed {0} characters.</seg></tuv>
       <tuv xml:lang="ar"><seg>يجب ألا يتجاوز اسم البحث {0} حرفًا.</seg></tuv>
@@ -2338,7 +2338,7 @@
       <tuv xml:lang="nl"><seg>Weergaveopties</seg></tuv>
       <tuv xml:lang="pt"><seg>Opções de exibição</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>显示选项</seg></tuv>
-    <tuv xml:lang="ru"><seg>Параметры отображения</seg></tuv><tuv xml:lang="he"><seg>אפשרויות תצוגה</seg></tuv><tuv xml:lang="uk"><seg>Параметри відображення</seg></tuv><tuv xml:lang="lou"><seg>Display Opsyon-yé</seg></tuv><tuv xml:lang="pl"><seg>Opcje wyświetlania</seg></tuv><tuv xml:lang="tr"><seg>Ekran Seçenekleri</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Параметры отображения</seg></tuv><tuv xml:lang="he"><seg>אפשרויות תצוגה</seg></tuv><tuv xml:lang="uk"><seg>Параметри відображення</seg></tuv><tuv xml:lang="lou"><seg>Display Opsyon-yé</seg></tuv><tuv xml:lang="pl"><seg>Opcje wyświetlania</seg></tuv><tuv xml:lang="tr"><seg>Ekran Seçenekleri</seg></tuv><tuv xml:lang="te"><seg>ప్రదర్శన ఎంపికలు</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSDisplayOptionsDialog@Background color:">
       <tuv xml:lang="en-us"><seg>Background color:</seg></tuv>
       <tuv xml:lang="ar"><seg>لون الخلفية:</seg></tuv>
@@ -2407,7 +2407,7 @@
       <tuv xml:lang="nl"><seg>Gebruik OS-instellingen</seg></tuv>
       <tuv xml:lang="pt"><seg>Usar configurações do sistema operacional</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>使用操作系统设置</seg></tuv>
-    <tuv xml:lang="ru"><seg>Использовать настройки ОС</seg></tuv><tuv xml:lang="he"><seg>השתמש בהגדרות מערכת ההפעלה</seg></tuv><tuv xml:lang="uk"><seg>Використовуйте налаштування ОС</seg></tuv><tuv xml:lang="lou"><seg>Use OS Réglaj</seg></tuv><tuv xml:lang="pl"><seg>Użyj ustawień systemu operacyjnego</seg></tuv><tuv xml:lang="tr"><seg>İşletim Sistemi Ayarlarını Kullan</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Использовать настройки ОС</seg></tuv><tuv xml:lang="he"><seg>השתמש בהגדרות מערכת ההפעלה</seg></tuv><tuv xml:lang="uk"><seg>Використовуйте налаштування ОС</seg></tuv><tuv xml:lang="lou"><seg>Use OS Réglaj</seg></tuv><tuv xml:lang="pl"><seg>Użyj ustawień systemu operacyjnego</seg></tuv><tuv xml:lang="tr"><seg>İşletim Sistemi Ayarlarını Kullan</seg></tuv><tuv xml:lang="te"><seg>OS సెట్టింగ్u200cలను ఉపయోగించండి</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSDisplayOptionsDialog@Highlight color:">
       <tuv xml:lang="en-us"><seg>Highlight color:</seg></tuv>
       <tuv xml:lang="ar"><seg>تسليط الضوء على اللون:</seg></tuv>
@@ -2420,7 +2420,7 @@
       <tuv xml:lang="nl"><seg>Markeer kleur:</seg></tuv>
       <tuv xml:lang="pt"><seg>Cor de destaque:</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>突出显示颜色：</seg></tuv>
-    <tuv xml:lang="ru"><seg>Цвет выделения:</seg></tuv><tuv xml:lang="he"><seg>צבע הדגשה:</seg></tuv><tuv xml:lang="uk"><seg>Колір виділення:</seg></tuv><tuv xml:lang="lou"><seg>Highlight color:</seg></tuv><tuv xml:lang="pl"><seg>Kolor podświetlenia:</seg></tuv><tuv xml:lang="tr"><seg>Rengi vurgulayın:</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Цвет выделения:</seg></tuv><tuv xml:lang="he"><seg>צבע הדגשה:</seg></tuv><tuv xml:lang="uk"><seg>Колір виділення:</seg></tuv><tuv xml:lang="lou"><seg>Highlight color:</seg></tuv><tuv xml:lang="pl"><seg>Kolor podświetlenia:</seg></tuv><tuv xml:lang="tr"><seg>Rengi vurgulayın:</seg></tuv><tuv xml:lang="te"><seg>హైలైట్ రంగు:</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSDisplayOptionsDialog@Highlight text color:">
       <tuv xml:lang="en-us"><seg>Highlight text color:</seg></tuv>
       <tuv xml:lang="ar"><seg>تمييز لون النص:</seg></tuv>
@@ -2667,7 +2667,7 @@
       <tuv xml:lang="hi"><seg>फ़ोल्डर &lt;{0}&gt; को अनदेखा करना, क्योंकि उस नाम वाला फ़ोल्डर &lt;{1}&gt; फ़ोल्डर में पहले से मौजूद है</seg></tuv>
       <tuv xml:lang="it"><seg>Ignoriamo la cartella &lt;{0}&gt;, perché esiste già una cartella con quel nome nella cartella &lt;{1}&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Het negeren van de map &lt;{0}&gt;, omdat er al een map met die naam bestaat in de map &lt;{1}&gt;</seg></tuv>
-    <tuv xml:lang="ru"><seg>Игнорирование папки &lt;{0}&gt;, поскольку папка с таким именем уже существует в папке &lt;{1}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התעלמות מהתיקייה &lt;{0}&gt;, מכיוון שתיקיה בשם זה כבר קיימת בתיקייה &lt;{1}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Ігнорування папки &lt;{0}&gt;, оскільки папка з такою назвою вже існує в папці &lt;{1}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Ignoring la dòsyé &lt;{0}&gt;, because yon dòsyé épi sa non already exists nan la dòsyé &lt;{1}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Ignorowanie folderu &lt;{0}&gt;, ponieważ folder o tej nazwie już istnieje w folderze &lt;{1}&gt;</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; klasörü yoksayılıyor çünkü &lt;{1}&gt; klasöründe bu ada sahip bir klasör zaten mevcut</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Игнорирование папки &lt;{0}&gt;, поскольку папка с таким именем уже существует в папке &lt;{1}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התעלמות מהתיקייה &lt;{0}&gt;, מכיוון שתיקיה בשם זה כבר קיימת בתיקייה &lt;{1}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Ігнорування папки &lt;{0}&gt;, оскільки папка з такою назвою вже існує в папці &lt;{1}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Ignoring la dòsyé &lt;{0}&gt;, because yon dòsyé épi sa non already exists nan la dòsyé &lt;{1}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Ignorowanie folderu &lt;{0}&gt;, ponieważ folder o tej nazwie już istnieje w folderze &lt;{1}&gt;</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; klasörü yoksayılıyor çünkü &lt;{1}&gt; klasöründe bu ada sahip bir klasör zaten mevcut</seg></tuv><tuv xml:lang="bn"><seg>&lt;{0}&gt; ফোল্ডারটিকে উপেক্ষা করা হচ্ছে, কারণ সেই নামের একটি ফোল্ডার আগে থেকেই &lt;{1}&gt; ফোল্ডারে রয়েছে</seg></tuv><tuv xml:lang="te"><seg>&lt;{0}&gt; ఫోల్డర్u200cను విస్మరిస్తోంది, ఎందుకంటే ఆ పేరుతో ఫోల్డర్ ఇప్పటికే &lt;{1}&gt; ఫోల్డర్u200cలో ఉంది</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSSearchFieldEditor@Search Criteria">
       <tuv xml:lang="en-us"><seg>Search Criteria</seg></tuv>
       <tuv xml:lang="ar"><seg>معايير البحث</seg></tuv>
@@ -2694,7 +2694,7 @@
       <tuv xml:lang="nl"><seg>EN</seg></tuv>
       <tuv xml:lang="pt"><seg>E</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>和</seg></tuv>
-    <tuv xml:lang="ru"><seg>И</seg></tuv><tuv xml:lang="he"><seg>ו</seg></tuv><tuv xml:lang="uk"><seg>І</seg></tuv><tuv xml:lang="lou"><seg>ÉPI</seg></tuv><tuv xml:lang="pl"><seg>I</seg></tuv><tuv xml:lang="tr"><seg>VE</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>И</seg></tuv><tuv xml:lang="he"><seg>ו</seg></tuv><tuv xml:lang="uk"><seg>І</seg></tuv><tuv xml:lang="lou"><seg>ÉPI</seg></tuv><tuv xml:lang="pl"><seg>I</seg></tuv><tuv xml:lang="tr"><seg>VE</seg></tuv><tuv xml:lang="te"><seg>మరియు</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSSearchFieldEditor@Starts with">
       <tuv xml:lang="en-us"><seg>Starts with</seg></tuv>
       <tuv xml:lang="ar"><seg>يبدأ ب</seg></tuv>
@@ -2969,7 +2969,7 @@
       <tuv xml:lang="hi"><seg>डेटा प्रकार</seg></tuv>
       <tuv xml:lang="it"><seg>Tipo di dati</seg></tuv>
       <tuv xml:lang="nl"><seg>Gegevenstype</seg></tuv>
-    <tuv xml:lang="ru"><seg>Тип данных</seg></tuv><tuv xml:lang="he"><seg>סוג נתונים</seg></tuv><tuv xml:lang="uk"><seg>Тип даних</seg></tuv><tuv xml:lang="lou"><seg>Data Tip</seg></tuv><tuv xml:lang="pl"><seg>Typ danych</seg></tuv><tuv xml:lang="tr"><seg>Veri Türü</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Тип данных</seg></tuv><tuv xml:lang="he"><seg>סוג נתונים</seg></tuv><tuv xml:lang="uk"><seg>Тип даних</seg></tuv><tuv xml:lang="lou"><seg>Data Tip</seg></tuv><tuv xml:lang="pl"><seg>Typ danych</seg></tuv><tuv xml:lang="tr"><seg>Veri Türü</seg></tuv><tuv xml:lang="bn"><seg>ডেটা টাইপ</seg></tuv><tuv xml:lang="te"><seg>డేటా రకం</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSFieldSelectionEditorDialog@Select">
       <tuv xml:lang="en-us"><seg>Select</seg></tuv>
       <tuv xml:lang="ar"><seg>يختار</seg></tuv>
@@ -3108,7 +3108,7 @@
       <tuv xml:lang="nl"><seg>Gedeeld</seg></tuv>
       <tuv xml:lang="pt"><seg>Compartilhado</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>共享</seg></tuv>
-    <tuv xml:lang="ru"><seg>Общий</seg></tuv><tuv xml:lang="he"><seg>מְשׁוּתָף</seg></tuv><tuv xml:lang="uk"><seg>Спільний доступ</seg></tuv><tuv xml:lang="lou"><seg>Shared</seg></tuv><tuv xml:lang="pl"><seg>Wspólny</seg></tuv><tuv xml:lang="tr"><seg>Paylaşıldı</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Общий</seg></tuv><tuv xml:lang="he"><seg>מְשׁוּתָף</seg></tuv><tuv xml:lang="uk"><seg>Спільний доступ</seg></tuv><tuv xml:lang="lou"><seg>Shared</seg></tuv><tuv xml:lang="pl"><seg>Wspólny</seg></tuv><tuv xml:lang="tr"><seg>Paylaşıldı</seg></tuv><tuv xml:lang="te"><seg>భాగస్వామ్యం చేయబడింది</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSFieldSelectionEditorDialog@Local">
       <tuv xml:lang="en-us"><seg>Local</seg></tuv>
       <tuv xml:lang="ar"><seg>محلي</seg></tuv>
@@ -3611,7 +3611,7 @@
       <tuv xml:lang="nl"><seg>Nieuwe map</seg></tuv>
       <tuv xml:lang="pt"><seg>Nova pasta</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>新建文件夹</seg></tuv>
-    <tuv xml:lang="ru"><seg>Новая папка</seg></tuv><tuv xml:lang="he"><seg>תיקייה חדשה</seg></tuv><tuv xml:lang="uk"><seg>Нова папка</seg></tuv><tuv xml:lang="lou"><seg>Nouvo dòsyé</seg></tuv><tuv xml:lang="pl"><seg>Nowy folder</seg></tuv><tuv xml:lang="tr"><seg>Yeni klasör</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Новая папка</seg></tuv><tuv xml:lang="he"><seg>תיקייה חדשה</seg></tuv><tuv xml:lang="uk"><seg>Нова папка</seg></tuv><tuv xml:lang="lou"><seg>Nouvo dòsyé</seg></tuv><tuv xml:lang="pl"><seg>Nowy folder</seg></tuv><tuv xml:lang="tr"><seg>Yeni klasör</seg></tuv><tuv xml:lang="te"><seg>కొత్త ఫోల్డర్</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSFolderDialog@Error">
       <tuv xml:lang="en-us"><seg>Error</seg></tuv>
       <tuv xml:lang="ar"><seg>خطأ</seg></tuv>
@@ -3774,7 +3774,7 @@
       <tuv xml:lang="hi"><seg>&lt;{0}&gt; नाम वाला फ़ोल्डर पहले से मौजूद है। कृपया कोई अन्य नाम चुनें.</seg></tuv>
       <tuv xml:lang="it"><seg>La cartella con nome &lt;{0}&gt; esiste già. Scegli un altro nome.</seg></tuv>
       <tuv xml:lang="nl"><seg>De map met de naam &lt;{0}&gt; bestaat al. Kies een andere naam.</seg></tuv>
-    <tuv xml:lang="ru"><seg>Папка с именем &lt;{0}&gt; уже существует. Пожалуйста, выберите другое имя.</seg></tuv><tuv xml:lang="he"><seg>התיקיה עם השם &lt;{0}&gt; כבר קיימת. אנא בחר שם אחר.</seg></tuv><tuv xml:lang="uk"><seg>Папка з назвою &lt;{0}&gt; уже існує. Виберіть інше ім'я.</seg></tuv><tuv xml:lang="lou"><seg>La dòsyé épi non &lt;{0}&gt; already exists. Tanpri choose another name.</seg></tuv><tuv xml:lang="pl"><seg>Folder o nazwie &lt;{0}&gt; już istnieje. Proszę wybrać inną nazwę.</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; adlı klasör zaten mevcut. Lütfen başka bir isim seçin.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Папка с именем &lt;{0}&gt; уже существует. Пожалуйста, выберите другое имя.</seg></tuv><tuv xml:lang="he"><seg>התיקיה עם השם &lt;{0}&gt; כבר קיימת. אנא בחר שם אחר.</seg></tuv><tuv xml:lang="uk"><seg>Папка з назвою &lt;{0}&gt; уже існує. Виберіть інше ім'я.</seg></tuv><tuv xml:lang="lou"><seg>La dòsyé épi non &lt;{0}&gt; already exists. Tanpri choose another name.</seg></tuv><tuv xml:lang="pl"><seg>Folder o nazwie &lt;{0}&gt; już istnieje. Proszę wybrać inną nazwę.</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; adlı klasör zaten mevcut. Lütfen başka bir isim seçin.</seg></tuv><tuv xml:lang="bn"><seg>&lt;{0}&gt; নামের ফোল্ডারটি ইতিমধ্যেই বিদ্যমান। অন্য নাম চয়ন করুন.</seg></tuv><tuv xml:lang="te"><seg>&lt;{0}&gt; పేరుతో ఫోల్డర్ ఇప్పటికే ఉంది. దయచేసి మరొక పేరును ఎంచుకోండి.</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSFolderGeneralPanel@Error">
       <tuv xml:lang="en-us"><seg>Error</seg></tuv>
       <tuv xml:lang="ar"><seg>خطأ</seg></tuv>
@@ -4077,7 +4077,7 @@
       <tuv xml:lang="hi"><seg>जोड़ें &gt;&gt;</seg></tuv>
       <tuv xml:lang="it"><seg>Aggiungi &gt;&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Voeg &gt;&gt; toe</seg></tuv>
-    <tuv xml:lang="ru"><seg>Добавить &gt;&gt;</seg></tuv><tuv xml:lang="he"><seg>הוסף &gt;&gt;</seg></tuv><tuv xml:lang="uk"><seg>Додати &gt;&gt;</seg></tuv><tuv xml:lang="lou"><seg>Ajouté &gt;&gt;</seg></tuv><tuv xml:lang="pl"><seg>Dodaj &gt;&gt;</seg></tuv><tuv xml:lang="tr"><seg>Ekle &gt;&gt;</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Добавить &gt;&gt;</seg></tuv><tuv xml:lang="he"><seg>הוסף &gt;&gt;</seg></tuv><tuv xml:lang="uk"><seg>Додати &gt;&gt;</seg></tuv><tuv xml:lang="lou"><seg>Ajouté &gt;&gt;</seg></tuv><tuv xml:lang="pl"><seg>Dodaj &gt;&gt;</seg></tuv><tuv xml:lang="tr"><seg>Ekle &gt;&gt;</seg></tuv><tuv xml:lang="bn"><seg>যোগ করুন &gt;&gt;</seg></tuv><tuv xml:lang="te"><seg>&gt;&gt; జోడించండి</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSFolderAclEditorDialog@&lt;&lt; Remove">
       <tuv xml:lang="en-us"><seg>&lt;&lt; Remove</seg></tuv>
       <tuv xml:lang="ar"><seg>&lt;&lt; إزالة</seg></tuv>
@@ -4086,7 +4086,7 @@
       <tuv xml:lang="hi"><seg>&lt;&lt; हटाएं</seg></tuv>
       <tuv xml:lang="it"><seg>&lt;&lt;Rimuovi</seg></tuv>
       <tuv xml:lang="nl"><seg>&lt;&lt; Verwijderen</seg></tuv>
-    <tuv xml:lang="ru"><seg>&lt;&lt; Удалить</seg></tuv><tuv xml:lang="he"><seg>&lt;&lt; הסר</seg></tuv><tuv xml:lang="uk"><seg>&lt;&lt; Видалити</seg></tuv><tuv xml:lang="lou"><seg>&lt;&lt; Wété</seg></tuv><tuv xml:lang="pl"><seg>&lt;&lt; Usuń</seg></tuv><tuv xml:lang="tr"><seg>&lt;&lt; Kaldır</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>&lt;&lt; Удалить</seg></tuv><tuv xml:lang="he"><seg>&lt;&lt; הסר</seg></tuv><tuv xml:lang="uk"><seg>&lt;&lt; Видалити</seg></tuv><tuv xml:lang="lou"><seg>&lt;&lt; Wété</seg></tuv><tuv xml:lang="pl"><seg>&lt;&lt; Usuń</seg></tuv><tuv xml:lang="tr"><seg>&lt;&lt; Kaldır</seg></tuv><tuv xml:lang="bn"><seg>&lt;&lt; সরান</seg></tuv><tuv xml:lang="te"><seg>&lt;&lt; తొలగించు</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSFolderAclEditorDialog@New...">
       <tuv xml:lang="en-us"><seg>New...</seg></tuv>
       <tuv xml:lang="ar"><seg>جديد...</seg></tuv>
@@ -4445,7 +4445,7 @@
       <tuv xml:lang="hi"><seg>कार्रवाई निष्पादित करने में त्रुटि &lt;{0}&gt; : {1}</seg></tuv>
       <tuv xml:lang="it"><seg>Errore durante l'esecuzione dell'azione &lt;{0}&gt;: {1}</seg></tuv>
       <tuv xml:lang="nl"><seg>Fout bij uitvoeren van actie &lt;{0}&gt;: {1}</seg></tuv>
-    <tuv xml:lang="ru"><seg>Ошибка выполнения действия &lt;{0}&gt;: {1}</seg></tuv><tuv xml:lang="he"><seg>שגיאה בביצוע הפעולה &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="uk"><seg>Помилка виконання дії &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="lou"><seg>Erè executing action &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="pl"><seg>Błąd podczas wykonywania akcji &lt;{0}&gt;: {1}</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; eylemi yürütülürken hata oluştu: {1}</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Ошибка выполнения действия &lt;{0}&gt;: {1}</seg></tuv><tuv xml:lang="he"><seg>שגיאה בביצוע הפעולה &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="uk"><seg>Помилка виконання дії &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="lou"><seg>Erè executing action &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="pl"><seg>Błąd podczas wykonywania akcji &lt;{0}&gt;: {1}</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; eylemi yürütülürken hata oluştu: {1}</seg></tuv><tuv xml:lang="bn"><seg>কর্ম সম্পাদনে ত্রুটি &lt;{0}&gt; : {1}</seg></tuv><tuv xml:lang="te"><seg>చర్యను అమలు చేయడంలో లోపం &lt;{0}&gt; : {1}</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSActionManager@Popup Blocker Error Message">
       <tuv xml:lang="en-us"><seg>Rhythmyx was unable to display a necessary popup window. Display of the popup may have been blocked by your browser. If popups are blocked on your browser, change your settings to permit them.</seg></tuv>
       <tuv xml:lang="ar"><seg>لم يتمكن Rhythmyx من عرض النافذة المنبثقة الضرورية. ربما تم حظر عرض النافذة المنبثقة بواسطة متصفحك. إذا تم حظر النوافذ المنبثقة على متصفحك، فقم بتغيير إعداداتك للسماح بها.</seg></tuv>
@@ -4664,7 +4664,7 @@
       <tuv xml:lang="hi"><seg>वर्कफ़्लो ट्रांज़िशन &lt;{0}&gt; के लिए टिप्पणी दर्ज की जानी चाहिए</seg></tuv>
       <tuv xml:lang="it"><seg>È necessario inserire un commento per la transizione del flusso di lavoro &lt;{0}&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Er moet commentaar worden ingevoerd voor de workflowovergang &lt;{0}&gt;</seg></tuv>
-    <tuv xml:lang="ru"><seg>Для перехода рабочего процесса необходимо ввести комментарий &lt;{0}&gt;</seg></tuv><tuv xml:lang="he"><seg>יש להזין הערה עבור המעבר של זרימת העבודה &lt;{0}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Необхідно ввести коментар для переходу робочого процесу &lt;{0}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Kòmantè must été entered pou la workflow transition &lt;{0}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Aby przejść do przepływu pracy &lt;{0}&gt;, należy wprowadzić komentarz</seg></tuv><tuv xml:lang="tr"><seg>İş akışı geçişi için yorum girilmelidir &lt;{0}&gt;</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Для перехода рабочего процесса необходимо ввести комментарий &lt;{0}&gt;</seg></tuv><tuv xml:lang="he"><seg>יש להזין הערה עבור המעבר של זרימת העבודה &lt;{0}&gt;</seg></tuv><tuv xml:lang="uk"><seg>Необхідно ввести коментар для переходу робочого процесу &lt;{0}&gt;</seg></tuv><tuv xml:lang="lou"><seg>Kòmantè must été entered pou la workflow transition &lt;{0}&gt;</seg></tuv><tuv xml:lang="pl"><seg>Aby przejść do przepływu pracy &lt;{0}&gt;, należy wprowadzić komentarz</seg></tuv><tuv xml:lang="tr"><seg>İş akışı geçişi için yorum girilmelidir &lt;{0}&gt;</seg></tuv><tuv xml:lang="bn"><seg>ওয়ার্কফ্লো ট্রানজিশন &lt;{0}&gt; এর জন্য মন্তব্য অবশ্যই লিখতে হবে</seg></tuv><tuv xml:lang="te"><seg>వర్క్u200cఫ్లో ట్రాన్సిషన్ &lt;{0}&gt; కోసం తప్పనిసరిగా వ్యాఖ్యను నమోదు చేయాలి</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSActionManager@Selected Item Check-out users: &lt;{0}&gt;">
       <tuv xml:lang="en-us"><seg>The items are checked out by &lt;{0}&gt;. If you override the check-out, modifications to these items may be lost.</seg></tuv>
       <tuv xml:lang="ar"><seg>تم سحب العناصر بواسطة &lt;{0}&gt;. إذا قمت بتجاوز عملية السحب، فقد يتم فقدان التعديلات التي تم إجراؤها على هذه العناصر.</seg></tuv>
@@ -4673,7 +4673,7 @@
       <tuv xml:lang="hi"><seg>आइटम &lt;{0}&gt; द्वारा चेक आउट किए जाते हैं. यदि आप चेक-आउट को ओवरराइड करते हैं, तो इन आइटमों में संशोधन खो सकते हैं।</seg></tuv>
       <tuv xml:lang="it"><seg>Gli elementi sono stati estratti da &lt;{0}&gt;. Se ignori il check-out, le modifiche a questi elementi potrebbero andare perse.</seg></tuv>
       <tuv xml:lang="nl"><seg>De artikelen worden uitgecheckt door &lt;{0}&gt;. Als u het afrekenen overschrijft, kunnen wijzigingen aan deze artikelen verloren gaan.</seg></tuv>
-    <tuv xml:lang="ru"><seg>Элементы извлечены &lt;{0}&gt;. Если вы переопределите извлечение, изменения в этих элементах могут быть потеряны.</seg></tuv><tuv xml:lang="he"><seg>הפריטים נמכרים על ידי &lt;{0}&gt;. אם תעקוף את הצ'ק-אאוט, שינויים בפריטים אלה עלולים ללכת לאיבוד.</seg></tuv><tuv xml:lang="uk"><seg>Елементи перевіряє &lt;{0}&gt;. Якщо ви скасуєте перевірку, зміни в цих елементах можуть бути втрачені.</seg></tuv><tuv xml:lang="lou"><seg>La items sé checked out pa &lt;{0}&gt;. If to override la check-out, modifications a these items may été lost.</seg></tuv><tuv xml:lang="pl"><seg>Elementy są sprawdzane przez &lt;{0}&gt;. Jeśli zastąpisz wyewidencjonowanie, modyfikacje tych pozycji mogą zostać utracone.</seg></tuv><tuv xml:lang="tr"><seg>Öğeler &lt;{0}&gt; tarafından teslim alındı. Çıkış işlemini geçersiz kılarsanız bu öğelerde yapılan değişiklikler kaybolabilir.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Элементы извлечены &lt;{0}&gt;. Если вы переопределите извлечение, изменения в этих элементах могут быть потеряны.</seg></tuv><tuv xml:lang="he"><seg>הפריטים נמכרים על ידי &lt;{0}&gt;. אם תעקוף את הצ'ק-אאוט, שינויים בפריטים אלה עלולים ללכת לאיבוד.</seg></tuv><tuv xml:lang="uk"><seg>Елементи перевіряє &lt;{0}&gt;. Якщо ви скасуєте перевірку, зміни в цих елементах можуть бути втрачені.</seg></tuv><tuv xml:lang="lou"><seg>La items sé checked out pa &lt;{0}&gt;. If to override la check-out, modifications a these items may été lost.</seg></tuv><tuv xml:lang="pl"><seg>Elementy są sprawdzane przez &lt;{0}&gt;. Jeśli zastąpisz wyewidencjonowanie, modyfikacje tych pozycji mogą zostać utracone.</seg></tuv><tuv xml:lang="tr"><seg>Öğeler &lt;{0}&gt; tarafından teslim alındı. Çıkış işlemini geçersiz kılarsanız bu öğelerde yapılan değişiklikler kaybolabilir.</seg></tuv><tuv xml:lang="bn"><seg>আইটেমগুলি &lt;{0}&gt; দ্বারা চেক আউট করা হয়েছে৷ আপনি চেক-আউট ওভাররাইড করলে, এই আইটেমগুলির পরিবর্তনগুলি হারিয়ে যেতে পারে৷</seg></tuv><tuv xml:lang="te"><seg>అంశాలు &lt;{0}&gt; ద్వారా తనిఖీ చేయబడ్డాయి. మీరు చెక్-అవుట్u200cని ఓవర్u200cరైడ్ చేస్తే, ఈ ఐటెమ్u200cలకు సవరణలు కోల్పోవచ్చు.</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSActionManager@Force Check-in Warning">
       <tuv xml:lang="en-us"><seg>Click 'OK' to check-in these items. Click 'Cancel' to abort check-in.</seg></tuv>
       <tuv xml:lang="ar"><seg>انقر فوق "موافق" لتسجيل الوصول إلى هذه العناصر. انقر فوق "إلغاء" لإلغاء تسجيل الوصول.</seg></tuv>
@@ -4826,7 +4826,7 @@ Hata günlüğünü şimdi görüntülemek istiyor musunuz?</seg></tuv></tu>
       <tuv xml:lang="hi"><seg>डुप्लिकेट संपत्ति का नाम मिला: &lt;{0}&gt;.</seg></tuv>
       <tuv xml:lang="it"><seg>Trovato nome proprietà duplicato: &lt;{0}&gt;.</seg></tuv>
       <tuv xml:lang="nl"><seg>Dubbele eigenschapsnaam gevonden: &lt;{0}&gt;.</seg></tuv>
-    <tuv xml:lang="ru"><seg>Обнаружено повторяющееся имя свойства: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>נמצא שם מאפיין כפול: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="uk"><seg>Знайдено повторювану назву властивості: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="lou"><seg>Found duplicate property non: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="pl"><seg>Znaleziono zduplikowaną nazwę właściwości: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="tr"><seg>Yinelenen özellik adı bulundu: &lt;{0}&gt;.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Обнаружено повторяющееся имя свойства: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>נמצא שם מאפיין כפול: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="uk"><seg>Знайдено повторювану назву властивості: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="lou"><seg>Found duplicate property non: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="pl"><seg>Znaleziono zduplikowaną nazwę właściwości: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="tr"><seg>Yinelenen özellik adı bulundu: &lt;{0}&gt;.</seg></tuv><tuv xml:lang="bn"><seg>সদৃশ সম্পত্তির নাম পাওয়া গেছে: &lt;{0}&gt;।</seg></tuv><tuv xml:lang="te"><seg>నకిలీ ఆస్తి పేరు కనుగొనబడింది: &lt;{0}&gt;.</seg></tuv></tu>
     <tu tuid="com.percussion.guitools.UTPropertiesTablePanel@Property &lt;{0}&gt; must have a value.">
       <tuv xml:lang="en-us"><seg>Property &lt;{0}&gt; must have a value.</seg></tuv>
       <tuv xml:lang="ar"><seg>الخاصية &lt;{0}&gt; يجب أن تحتوي على قيمة.</seg></tuv>
@@ -4835,7 +4835,7 @@ Hata günlüğünü şimdi görüntülemek istiyor musunuz?</seg></tuv></tu>
       <tuv xml:lang="hi"><seg>संपत्ति &lt;{0}&gt; का एक मूल्य होना चाहिए.</seg></tuv>
       <tuv xml:lang="it"><seg>La proprietà &lt;{0}&gt; deve avere un valore.</seg></tuv>
       <tuv xml:lang="nl"><seg>Eigenschap &lt;{0}&gt; moet een waarde hebben.</seg></tuv>
-    <tuv xml:lang="ru"><seg>Свойство &lt;{0}&gt; должно иметь значение.</seg></tuv><tuv xml:lang="he"><seg>למאפיין &lt;{0}&gt; חייב להיות ערך.</seg></tuv><tuv xml:lang="uk"><seg>Властивість &lt;{0}&gt; повинна мати значення.</seg></tuv><tuv xml:lang="lou"><seg>Property &lt;{0}&gt; must have yon value.</seg></tuv><tuv xml:lang="pl"><seg>Właściwość &lt;{0}&gt; musi mieć wartość.</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; özelliğinin bir değeri olmalıdır.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Свойство &lt;{0}&gt; должно иметь значение.</seg></tuv><tuv xml:lang="he"><seg>למאפיין &lt;{0}&gt; חייב להיות ערך.</seg></tuv><tuv xml:lang="uk"><seg>Властивість &lt;{0}&gt; повинна мати значення.</seg></tuv><tuv xml:lang="lou"><seg>Property &lt;{0}&gt; must have yon value.</seg></tuv><tuv xml:lang="pl"><seg>Właściwość &lt;{0}&gt; musi mieć wartość.</seg></tuv><tuv xml:lang="tr"><seg>&lt;{0}&gt; özelliğinin bir değeri olmalıdır.</seg></tuv><tuv xml:lang="bn"><seg>সম্পত্তি &lt;{0}&gt; এর একটি মান থাকতে হবে।</seg></tuv><tuv xml:lang="te"><seg>ఆస్తి &lt;{0}&gt; తప్పనిసరిగా విలువను కలిగి ఉండాలి.</seg></tuv></tu>
     <tu tuid="com.percussion.guitools.UTPropertiesTablePanel@Property names cannot contain spaces.">
       <tuv xml:lang="en-us"><seg>Property names cannot contain spaces.</seg></tuv>
       <tuv xml:lang="ar"><seg>لا يمكن أن تحتوي أسماء الخصائص على مسافات.</seg></tuv>
@@ -6963,7 +6963,7 @@ aşağıdaki metnin yanında {2}</seg></tuv></tu>
       <tuv xml:lang="hi"><seg>&lt;वापस</seg></tuv>
       <tuv xml:lang="it"><seg>&lt; Indietro</seg></tuv>
       <tuv xml:lang="nl"><seg>&lt; Terug</seg></tuv>
-    <tuv xml:lang="ru"><seg>&lt; Назад</seg></tuv><tuv xml:lang="he"><seg>&lt; חזרה</seg></tuv><tuv xml:lang="uk"><seg>&lt; Назад</seg></tuv><tuv xml:lang="lou"><seg>&lt; An aryè</seg></tuv><tuv xml:lang="pl"><seg>&lt; Powrót</seg></tuv><tuv xml:lang="tr"><seg>&lt; Geri</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>&lt; Назад</seg></tuv><tuv xml:lang="he"><seg>&lt; חזרה</seg></tuv><tuv xml:lang="uk"><seg>&lt; Назад</seg></tuv><tuv xml:lang="lou"><seg>&lt; An aryè</seg></tuv><tuv xml:lang="pl"><seg>&lt; Powrót</seg></tuv><tuv xml:lang="tr"><seg>&lt; Geri</seg></tuv><tuv xml:lang="bn"><seg>&lt; পিছনে</seg></tuv><tuv xml:lang="te"><seg>&lt;వెనుకకు</seg></tuv></tu>
     <tu tuid="com.percussion.wizard.PSWizardCommandPanel@Next">
       <tuv xml:lang="en-us"><seg>Next &gt;</seg></tuv>
       <tuv xml:lang="ar"><seg>التالي &gt;</seg></tuv>
@@ -7930,7 +7930,7 @@ To have chwazi a kopi la source Sit Subfolder épi la following opsyon-yé:
       <tuv xml:lang="nl"><seg>Staat nog steeds in de rij nadat de time-out is verstreken. Zie de publicatie-runtime-interface voor meer informatie.</seg></tuv>
       <tuv xml:lang="pt"><seg>Ainda na fila após o tempo limite expirar. Consulte a interface do tempo de execução de publicação para obter detalhes.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>超时后仍在排队。有关详细信息，请参阅发布运行时接口。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Все еще в очереди после истечения времени ожидания. Подробности см. в интерфейсе среды выполнения публикации.</seg></tuv><tuv xml:lang="he"><seg>עדיין עומד בתור לאחר תום הזמן הקצוב. עיין בממשק זמן הריצה של הפרסום לפרטים.</seg></tuv><tuv xml:lang="uk"><seg>У черзі все ще після закінчення часу очікування. Докладніше дивіться в інтерфейсі середовища виконання публікації.</seg></tuv><tuv xml:lang="lou"><seg>Still queueing after timeout expired. See la publishing runtime interface pou details.</seg></tuv><tuv xml:lang="pl"><seg>Nadal w kolejce po upływie limitu czasu. Aby uzyskać szczegółowe informacje, zobacz interfejs środowiska uruchomieniowego publikowania.</seg></tuv><tuv xml:lang="tr"><seg>Zaman aşımı süresi dolduktan sonra hala sırada bekliyor. Ayrıntılar için yayınlama çalışma zamanı arayüzüne bakın.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Все еще в очереди после истечения времени ожидания. Подробности см. в интерфейсе среды выполнения публикации.</seg></tuv><tuv xml:lang="he"><seg>עדיין עומד בתור לאחר תום הזמן הקצוב. עיין בממשק זמן הריצה של הפרסום לפרטים.</seg></tuv><tuv xml:lang="uk"><seg>У черзі все ще після закінчення часу очікування. Докладніше дивіться в інтерфейсі середовища виконання публікації.</seg></tuv><tuv xml:lang="lou"><seg>Still queueing after timeout expired. See la publishing runtime interface pou details.</seg></tuv><tuv xml:lang="pl"><seg>Nadal w kolejce po upływie limitu czasu. Aby uzyskać szczegółowe informacje, zobacz interfejs środowiska uruchomieniowego publikowania.</seg></tuv><tuv xml:lang="tr"><seg>Zaman aşımı süresi dolduktan sonra hala sırada bekliyor. Ayrıntılar için yayınlama çalışma zamanı arayüzüne bakın.</seg></tuv><tuv xml:lang="te"><seg>గడువు ముగిసిన తర్వాత కూడా క్యూలో ఉన్నారు. వివరాల కోసం పబ్లిషింగ్ రన్u200cటైమ్ ఇంటర్u200cఫేస్u200cని చూడండి.</seg></tuv></tu>
     <tu tuid="jsp_actionpage@Action Panel">
       <tuv xml:lang="en-us"><seg>Action Panel</seg></tuv>
       <tuv xml:lang="ar"><seg>لوحة العمل</seg></tuv>
@@ -8416,7 +8416,7 @@ To have chwazi a kopi la source Sit Subfolder épi la following opsyon-yé:
       <tuv xml:lang="hi"><seg>लॉग आउट हो रहा है, कृपया प्रतीक्षा करें...</seg></tuv>
       <tuv xml:lang="it"><seg>Esci, attendi...</seg></tuv>
       <tuv xml:lang="nl"><seg>Uitloggen, even geduld a.u.b....</seg></tuv>
-    <tuv xml:lang="ru"><seg>Выход из системы, пожалуйста, подождите...</seg></tuv><tuv xml:lang="he"><seg>מתנתק, אנא המתן...</seg></tuv><tuv xml:lang="uk"><seg>Вихід, зачекайте...</seg></tuv><tuv xml:lang="lou"><seg>Logging out, Tanpri tann...</seg></tuv><tuv xml:lang="pl"><seg>Wylogowuję się, proszę czekać...</seg></tuv><tuv xml:lang="tr"><seg>Oturum kapatılıyor, lütfen bekleyin...</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Выход из системы, пожалуйста, подождите...</seg></tuv><tuv xml:lang="he"><seg>מתנתק, אנא המתן...</seg></tuv><tuv xml:lang="uk"><seg>Вихід, зачекайте...</seg></tuv><tuv xml:lang="lou"><seg>Logging out, Tanpri tann...</seg></tuv><tuv xml:lang="pl"><seg>Wylogowuję się, proszę czekać...</seg></tuv><tuv xml:lang="tr"><seg>Oturum kapatılıyor, lütfen bekleyin...</seg></tuv><tuv xml:lang="bn"><seg>লগ আউট হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</seg></tuv><tuv xml:lang="te"><seg>లాగ్ అవుట్ అవుతోంది, దయచేసి వేచి ఉండండి...</seg></tuv></tu>
     <tu tuid="jsp_auth@auth_fail_title">
       <tuv xml:lang="en-us"><seg>Authorization Failed</seg></tuv>
       <tuv xml:lang="ar"><seg>فشل التفويض</seg></tuv>

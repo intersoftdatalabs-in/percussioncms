@@ -46,6 +46,28 @@ The **Templates** tab lists assembly templates from `GET /services/templates`.
 | Empty | **No templates found.** Use **Create template**. |
 | Error | An operator-facing message. The rest of the Design shell stays usable. |
 
+## Baseline system templates (fresh 8.2)
+
+A new CMS install (including QA H2 via `perc-devctl qa-up`) loads `perc.Baseline` with seven
+system assembly templates. On **first assign** those templates keep the archive GUIDs:
+
+| Template | GUID (`stringValue`) |
+|----------|----------------------|
+| `perc.page` | `0-4-602` |
+| `perc.pageDatabase` | `0-4-604` |
+| `perc.pageDispatcher` | `0-4-606` |
+| `perc.pageXml` | `0-4-608` |
+| `perc.sys.resource` | `0-4-610` |
+| `perc.widget` | `0-4-612` |
+| `perc.widgetDispatcher` | `0-4-614` |
+
+**Existing databases are not remapped.** If an earlier install already assigned sequential type-4
+UUIDs (for example `0-4-1001` for `perc.page`), that row keeps its id. Package reinstall matches by
+template name. Do not rewrite GUIDs on customer or snapshot databases to force the table above.
+
+The Design catalog and `GET /services/templates` show the live id. On a fresh 8.2 host, `perc.page`
+is `0-4-602`.
+
 ## Create a template (no Widget XML)
 
 1. On the Templates library, choose **Create template**.

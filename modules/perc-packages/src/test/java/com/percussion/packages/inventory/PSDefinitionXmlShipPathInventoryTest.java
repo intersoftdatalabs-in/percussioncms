@@ -27,6 +27,7 @@ import com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory.Kind;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -38,6 +39,15 @@ import org.junit.jupiter.api.io.TempDir;
 class PSDefinitionXmlShipPathInventoryTest {
 
   @TempDir Path tempDir;
+
+  @Test
+  void waivedPackageSet_isEmptyAfterPercTestPageShipExit() {
+    assertEquals(Set.of(), PSDefinitionXmlShipPathInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSDefinitionXmlShipPathInventory.isWaivedPackage("perc.Test"));
+    assertFalse(PSDefinitionXmlShipPathInventory.isWaivedPackage("perc.baseTemplates"));
+    assertFalse(PSDefinitionXmlShipPathInventory.isWaivedPackage(null));
+    assertFalse(PSDefinitionXmlShipPathInventory.isWaivedPackage(""));
+  }
 
   @Test
   void productPackagesTree_pagesAndGadgets_areClean() throws Exception {

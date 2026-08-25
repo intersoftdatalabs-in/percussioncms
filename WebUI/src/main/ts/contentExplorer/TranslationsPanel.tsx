@@ -86,14 +86,29 @@ async function defaultCreateVariants(body: {
 }
 
 /**
- * Resolve Explorer row id to a legacy content id.
+ * Resolve Explorer row id to a legacy content id for create-variant POST
+ * ({@code itemIds: number[]}).
  *
- * <p>List rows are usually Percussion GUIDs ({@code 1-101-708}); {@link
+ * <p>List rows are usually Percussion GUIDs ({@code 16777215-101-551}); {@link
  * Number}({@code itemId}) is NaN for those and must not be used (#3545 /
  * parent #2649). Folders/sites with no content id still return null.
+ *
+ * <p>Do <strong>not</strong> use this stripped id for variants GET (#3703):
+ * {@code GET …/translations/551} 404s while the full GUID succeeds.
  */
 function resolveTranslationsContentId(itemId: string): number | null {
   return parseExplorerContentId(itemId);
+}
+
+/**
+ * Path key for {@code GET /rest/content-explorer/translations/{itemId}}.
+ *
+ * <p>REST accepts a hyphenated GUID or a bare numeric content id. Prefer the
+ * raw Explorer row id so GUID selections are not reduced to the last
+ * segment (#3703 / parent #2649).
+ */
+export function translationsVariantsItemKey(itemId: string): string {
+  return itemId.trim();
 }
 
 function roleLabel(role: string | null | undefined): string {
@@ -137,12 +152,10 @@ export function TranslationsPanel(
       setState({ kind: "auth" });
       return;
     }
-    const resolvedId = resolveTranslationsContentId(itemId);
-    // GUID last segment (1-101-708 → 708). Parse-null does not skip GET:
-    // loadVariants still receives the raw itemId (unit tests / direct mounts).
-    // The Explorer shell never mounts this panel for folders/sites.
-    const variantsKey =
-      resolvedId != null ? String(resolvedId) : itemId;
+    // GET uses the raw row id (full GUID or numeric). Do not strip the last
+    // GUID segment — that 404s (#3703). Parse-null still GETs the raw id
+    // (unit tests / direct mounts). Create-variant POST uses numeric ids.
+    const variantsKey = translationsVariantsItemKey(itemId);
     setState({ kind: "loading" });
     setCreateError(null);
     setCreateSuccess(null);

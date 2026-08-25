@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.sql.Connection;
@@ -91,7 +92,7 @@ public class PSJdbcTableSchemaHandler {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -104,7 +105,7 @@ public class PSJdbcTableSchemaHandler {
     String sTemp = sourceNode.getAttribute(TYPE_ATTR);
     if (sTemp == null || sTemp.trim().length() == 0) {
       Object[] args = {NODE_NAME, TYPE_ATTR, sTemp == null ? "null" : sTemp};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_type = getSchemaHandlerType(sTemp);
 
@@ -124,7 +125,7 @@ public class PSJdbcTableSchemaHandler {
             NODE_NAME, IPSJdbcTableDataHandler.CLASS_ATTR, sTemp == null ? "null" : sTemp
           };
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
         String className = sTemp;
 
@@ -136,13 +137,13 @@ public class PSJdbcTableSchemaHandler {
           dataHandler.fromXml(dataHandlerEl);
         } catch (ClassNotFoundException e) {
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.DATA_HANDLER_CLASS_NOT_FOUND, className);
+              TableFactoryErrorCodes.DATA_HANDLER_CLASS_NOT_FOUND, className);
         } catch (PSJdbcTableFactoryException e) {
           throw e;
         } catch (Exception e) {
           Object[] args = {NODE_NAME, IPSJdbcTableDataHandler.CLASS_ATTR, e.getLocalizedMessage()};
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+              TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
         }
 
         m_dataHandlers.add(dataHandler);

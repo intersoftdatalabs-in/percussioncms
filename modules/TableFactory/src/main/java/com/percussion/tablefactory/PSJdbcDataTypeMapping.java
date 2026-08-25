@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -93,18 +94,18 @@ public class PSJdbcDataTypeMapping {
     String rootName = sourceNode.getNodeName();
     if (!rootName.equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, rootName};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     String jdbc = sourceNode.getAttribute(JDBC_AT);
     if (nullOrEmpty(jdbc))
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, new Object[] {NODE_NAME, JDBC_AT, ""});
+          TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, new Object[] {NODE_NAME, JDBC_AT, ""});
 
     String nativeStr = sourceNode.getAttribute(NATIVE_AT);
     if (nullOrEmpty(nativeStr))
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, new Object[] {NODE_NAME, NATIVE_AT, ""});
+          TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, new Object[] {NODE_NAME, NATIVE_AT, ""});
 
     String size = sourceNode.getAttribute(SIZE_AT);
     if (0 == size.trim().length()) size = null;

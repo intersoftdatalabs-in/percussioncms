@@ -15,6 +15,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
@@ -467,13 +468,13 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
     if (m_dataSource != null) {
       conn = m_dataSource.getConnection();
       if (conn == null)
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CONNECTION_FAILED);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CONNECTION_FAILED);
     } else {
       try {
         Class.forName(getDriverClassName());
       } catch (ClassNotFoundException | LinkageError cls) {
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.SQL_CONNECTION_FAILED, cls.getLocalizedMessage(), cls);
+            TableFactoryErrorCodes.SQL_CONNECTION_FAILED, cls.getLocalizedMessage(), cls);
       }
 
       String connStr = PSSqlHelper.getJdbcUrl(getDriver(), getServer());
@@ -513,7 +514,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
         String message = connStr;
         if (sqe != null) message += (" - " + PSJdbcTableFactoryException.formatSqlException(sqe));
 
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CONNECTION_FAILED, message);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CONNECTION_FAILED, message);
       }
     }
     return conn;

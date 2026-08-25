@@ -17,7 +17,6 @@
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.data.PSIdGenerator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * A util class to interface msm with the Publisher service
@@ -77,7 +77,7 @@ public class PSPublisherServiceHelper {
         m_guidContentList.put(c.getGUID(), c);
       }
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e);
     }
   }
 
@@ -103,7 +103,7 @@ public class PSPublisherServiceHelper {
       refs = emgr.getExtensionNames(null, context, interfacename, name);
     } catch (PSExtensionException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not locate extension:" + name);
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not locate extension:" + name);
     }
     PSExtensionRef ref = null;
     while (refs.hasNext() && !found) {
@@ -192,7 +192,7 @@ public class PSPublisherServiceHelper {
       Collections.sort(names);
       return names;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e);
     }
   }
 

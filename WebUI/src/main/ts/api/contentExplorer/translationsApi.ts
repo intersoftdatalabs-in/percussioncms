@@ -105,7 +105,8 @@ function rethrowAuthOrWrap(err: unknown, fallback: string): never {
 /**
  * List current locale + translation-category dependents for a content item.
  *
- * @param itemId legacy content id or guid string
+ * @param itemId hyphenated host-type-uuid GUID or bare numeric content id.
+ *   Do not strip a GUID to its last segment before calling.
  */
 export async function listItemTranslationVariants(
   itemId: string,
