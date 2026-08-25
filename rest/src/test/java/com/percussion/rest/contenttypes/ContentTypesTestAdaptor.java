@@ -114,4 +114,15 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
       NamedObjectRef defaultWorkflow) {
     return null;
   }
+
+  @Override
+  public ContentTypeItemExits getItemExits(URI baseUri, String idOrName) {
+    return new ContentTypeItemExits();
+  }
+
+  @Override
+  public ContentTypeItemExits replaceItemExits(
+      URI baseUri, String idOrName, ContentTypeItemExits body) {
+    return body != null ? body : new ContentTypeItemExits();
+  }
 }

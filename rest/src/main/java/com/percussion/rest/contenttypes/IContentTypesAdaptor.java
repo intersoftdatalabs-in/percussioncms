@@ -142,4 +142,25 @@ public interface IContentTypesAdaptor {
       String idOrName,
       List<NamedObjectRef> allowedWorkflows,
       NamedObjectRef defaultWorkflow);
+
+  /**
+   * Load item-level pre/post exits, input/output translations, and validations (CD-09). No design
+   * lock is required. Empty lists mean none configured.
+   *
+   * @return envelope (lists may be empty), or {@code null} when the content type is not found
+   */
+  ContentTypeItemExits getItemExits(URI baseUri, String idOrName);
+
+  /**
+   * Replace item-level translations/validations (and optionally pipe pre/post exits). Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * {@code inputTranslations}, {@code outputTranslations}, and {@code validations} are full
+   * replace (empty clears). {@code preExits}/{@code postExits} null leaves pipe extensions
+   * unchanged. Apply-when conditions are not written.
+   *
+   * @return persisted envelope, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when a required list is missing or an extension FQN is invalid
+   */
+  ContentTypeItemExits replaceItemExits(URI baseUri, String idOrName, ContentTypeItemExits body);
 }

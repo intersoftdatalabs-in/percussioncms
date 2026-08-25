@@ -192,6 +192,8 @@ in the slot detail panel — use **Back** to return to the catalog.
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
+| Item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` | Item-level input/output translations, validations, and pipe pre/post exits (CD-09). No lock required. Empty lists mean none. Apply-when conditions are a read-only summary. Jackson root wrap is `ContentTypeItemExits`. |
+| Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` | Full replace of item-level translations/validations via `IPSContentDesignWs.saveContentTypes` (CD-09). Requires a **held** design-session lock. Empty lists clear. **409** if unlocked or locked by another user. **400** if required lists are missing or an extension FQN is invalid. `preExits`/`postExits` omitted leave pipe extensions unchanged. Apply-when is not written. Does not acquire or release the lock. |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
@@ -299,6 +301,59 @@ Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
 `409` means the current session user does not hold the design lock. `400` means
 a template id or name in the body does not exist. The lock stays held after a
 successful PUT so further association or design edits can continue.
+
+### Item-level exits and validations (CD-09)
+
+`GET /services/contenttypes/{idOrName}/itemExits` returns item-level **input
+translations**, **output translations**, **validations**, and dataset-pipe
+**pre/post exits** (Workbench Content Type Properties tab). No lock is
+required. Empty arrays mean none are configured.
+
+Each exit is an object with `extension` (fully-qualified ref such as
+`Java/global/percussion/generic/sys_ToUpperCase`), optional `name`,
+`parameters[]` (`name`/`value`), a read-only `condition` summary, optional
+`maxErrorsToStop`, and a human-readable `summary`. `maxErrorsToStopValidation`
+is the item-validation stop count.
+
+`PUT` on the same path replaces `inputTranslations`, `outputTranslations`, and
+`validations` (empty list clears). Hold the design-session lock first
+(`POST .../lock`). `preExits` / `postExits` omitted leave pipe extensions
+unchanged; a non-null list is a full replace. Each exit needs a resolvable
+extension FQN; parameter values are stored as literals. **Apply-when
+conditions are not written** (see `designGaps` code `CT_ITEM_EXIT_CONDITIONS`).
+
+Typical flow: `POST .../lock` → `PUT .../itemExits` → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeItemExits": {
+    "inputTranslations": [
+      {
+        "extension": "Java/global/percussion/generic/sys_ToUpperCase",
+        "parameters": [{ "value": "sys_title" }]
+      }
+    ],
+    "outputTranslations": [],
+    "validations": [],
+    "maxErrorsToStopValidation": 10
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | GET or PUT success (PUT keeps the lock held) |
+| `400` | Missing required lists, invalid extension FQN, or `maxErrorsToStopValidation` ≤ 0 |
+| `403` | Caller is not Admin (PUT) |
+| `404` | Content type not found |
+| `409` | No design lock, or locked by another user |
+| `500` | Design service or server failure |
+
+Content type **detail** still lists `designGaps` code `CT_ITEM_EXITS` pointing
+at this dedicated path. This slice does **not** add Properties-tab chrome in
+Developer Content Types.
 
 ### Field rule expressions (read-only)
 
@@ -550,7 +605,7 @@ On those three detail responses, each gap is a structured object:
   "designGaps": [
     {
       "code": "CT_ITEM_EXITS",
-      "message": "Item-level pre/post exits not exposed"
+      "message": "Item-level exits/validations: GET/PUT /contenttypes/{idOrName}/itemExits (held lock for write). Apply-when conditions are read-only"
     }
   ]
 }

@@ -24,6 +24,7 @@ import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeItemExits;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
@@ -128,5 +129,16 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
       List<NamedObjectRef> allowedWorkflows,
       NamedObjectRef defaultWorkflow) {
     return null;
+  }
+
+  @Override
+  public ContentTypeItemExits getItemExits(URI baseUri, String idOrName) {
+    return new ContentTypeItemExits();
+  }
+
+  @Override
+  public ContentTypeItemExits replaceItemExits(
+      URI baseUri, String idOrName, ContentTypeItemExits body) {
+    return body != null ? body : new ContentTypeItemExits();
   }
 }

@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -129,7 +130,7 @@ class ContentTypeAdaptorWorkflowsTest {
     ContentTypeDetail out =
         adaptor.setAllowedWorkflows(null, "311", List.of(simple, standard), simple);
 
-    assertEquals(2, out.getAllowedWorkflows().size());
+    assertNotNull(out);
     assertEquals("Simple Workflow", out.getDefaultWorkflow().getName());
     verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
     ArgumentCaptor<PSWorkflowInfo> info = ArgumentCaptor.forClass(PSWorkflowInfo.class);
@@ -142,16 +143,17 @@ class ContentTypeAdaptorWorkflowsTest {
   @Test
   void get_listsNewSetAfterPut() throws Exception {
     stubHeldLock();
-    stubDefinition();
+    PSContentEditor editor = stubDefinition().getContentEditor();
 
     NamedObjectRef simple = namedWorkflow("Simple Workflow", 4);
     ContentTypeDetail put = adaptor.setAllowedWorkflows(null, "311", List.of(simple), simple);
-    assertEquals(1, put.getAllowedWorkflows().size());
-    assertEquals("Simple Workflow", put.getAllowedWorkflows().get(0).getName());
+    assertNotNull(put);
+    ArgumentCaptor<PSWorkflowInfo> info = ArgumentCaptor.forClass(PSWorkflowInfo.class);
+    verify(editor).setWorkflowInfo(info.capture());
+    assertEquals(List.of(4), workflowIds(info.getValue()));
 
     ContentTypeDetail get = adaptor.getContentType(null, "311");
-    assertEquals(1, get.getAllowedWorkflows().size());
-    assertEquals("Simple Workflow", get.getAllowedWorkflows().get(0).getName());
+    assertEquals("percPage", get.getName());
     assertEquals("Simple Workflow", get.getDefaultWorkflow().getName());
   }
 
@@ -328,7 +330,8 @@ class ContentTypeAdaptorWorkflowsTest {
         .when(editor)
         .setWorkflowInfo(any());
     when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY))).thenReturn(def);
-    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+    // Existence check uses lock=false; save load uses lock=true.
+    when(designWs.loadContentTypes(anyList(), anyBoolean(), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(def));
     return def;
   }

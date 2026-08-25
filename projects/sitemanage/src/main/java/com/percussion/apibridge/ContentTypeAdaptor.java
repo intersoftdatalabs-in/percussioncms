@@ -20,23 +20,33 @@ package com.percussion.apibridge;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSConditional;
+import com.percussion.design.objectstore.PSConditionalExit;
+import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSExtensionCall;
 import com.percussion.design.objectstore.PSExtensionCallSet;
+import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSFieldValidationRules;
+import com.percussion.design.objectstore.PSInputTranslations;
+import com.percussion.design.objectstore.PSOutputTranslations;
 import com.percussion.design.objectstore.PSParam;
+import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSValidationRules;
 import com.percussion.design.objectstore.PSVisibilityRules;
 import com.percussion.design.objectstore.PSWorkflowInfo;
+import com.percussion.extension.PSExtensionRef;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
@@ -45,6 +55,9 @@ import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
+import com.percussion.rest.contenttypes.ContentTypeItemExit;
+import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
+import com.percussion.rest.contenttypes.ContentTypeItemExits;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -304,7 +317,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
               "CT_FIELD_RULE_EXPR",
               "Field rule expressions and control property names are read-only; rule write/save and"
                   + " full control property catalogs/values are not supported"));
-    gaps.add(DesignGap.of("CT_ITEM_EXITS", "Item-level pre/post exits not exposed"));
+    gaps.add(
+        DesignGap.of(
+            "CT_ITEM_EXITS",
+            "Item-level exits/validations: GET/PUT /contenttypes/{idOrName}/itemExits"
+                + " (held lock for write). Apply-when conditions are read-only"));
     gaps.add(
         DesignGap.of(
             "CT_CREATE_DELETE",
@@ -663,6 +680,92 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  @Override
+  public ContentTypeItemExits getItemExits(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      if (def == null) {
+        return null;
+      }
+      return toItemExits(def);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for item exits: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to load item exits for {}: {}", idOrName, e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to load item-level exits (" + e.getClass().getName() + "): " + e.getMessage(),
+          e);
+    }
+  }
+
+  @Override
+  public ContentTypeItemExits replaceItemExits(
+      URI baseUri, String idOrName, ContentTypeItemExits body) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null
+        || body.getInputTranslations() == null
+        || body.getOutputTranslations() == null
+        || body.getValidations() == null) {
+      throw new IllegalArgumentException(
+          "inputTranslations, outputTranslations, and validations are required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not update content type item-level exits");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      applyItemExits(def, body);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not update content type item-level exits");
+        }
+        log.error("Failed to save content type item-level exits {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type item-level exits", e);
+      }
+      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      return reloaded != null ? toItemExits(reloaded) : toItemExits(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for item-exit replace: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to replace item-level exits for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to replace content type item-level exits", e);
+    }
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
@@ -714,6 +817,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (ref.getGuid() != null) {
       int fromGuid = uuidFromRestGuid(ref.getGuid(), PSTypeEnum.WORKFLOW, field);
       if (fromGuid > 0) {
+        requireWorkflowExists(fromGuid, field);
         return fromGuid;
       }
     }
@@ -727,6 +831,15 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return found.get(0).getGUID().getUUID();
     }
     throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  private void requireWorkflowExists(int workflowUuid, String field) {
+    IPSWorkflowService wfSvc =
+        workflowService != null ? workflowService : PSWorkflowServiceLocator.getWorkflowService();
+    IPSGuid g = new PSGuid(PSTypeEnum.WORKFLOW, workflowUuid);
+    if (wfSvc.findWorkflow(g).isEmpty()) {
+      throw new IllegalArgumentException(field + " workflow not found: " + workflowUuid);
+    }
   }
 
   List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
@@ -1170,6 +1283,257 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     }
     return String.join("; ", calls);
+  }
+
+  /** Structured gaps for the item-exits envelope (apply-when write). Package-visible for tests. */
+  static List<DesignGap> itemExitDesignGaps() {
+    return List.of(
+        DesignGap.of(
+            "CT_ITEM_EXIT_CONDITIONS",
+            "Apply-when conditions on item-level exits are read-only; PUT replaces extension"
+                + " calls and literal parameters only"));
+  }
+
+  /** Package-visible for unit tests. Maps item def exits onto the CD-09 envelope. */
+  static ContentTypeItemExits toItemExits(PSItemDefinition def) {
+    ContentTypeItemExits out = new ContentTypeItemExits();
+    out.setDesignGaps(itemExitDesignGaps());
+    PSContentEditor editor = def != null ? def.getContentEditor() : null;
+    if (editor == null) {
+      out.setInputTranslations(List.of());
+      out.setOutputTranslations(List.of());
+      out.setValidations(List.of());
+      out.setPreExits(List.of());
+      out.setPostExits(List.of());
+      out.setMaxErrorsToStopValidation(10);
+      return out;
+    }
+    out.setInputTranslations(mapConditionalExits(editor.getInputTranslations()));
+    out.setOutputTranslations(mapConditionalExits(editor.getOutputTranslations()));
+    out.setValidations(mapConditionalExits(editor.getValidationRules()));
+    out.setMaxErrorsToStopValidation(editor.getMaxErrorsToStopValidation());
+    PSPipe pipe = editor.getPipe();
+    out.setPreExits(
+        pipe != null ? mapExtensionCalls(pipe.getInputDataExtensions()) : List.of());
+    out.setPostExits(
+        pipe != null ? mapExtensionCalls(pipe.getResultDataExtensions()) : List.of());
+    return out;
+  }
+
+  /** Package-visible for unit tests. One DTO per extension call in each conditional exit. */
+  static List<ContentTypeItemExit> mapConditionalExits(Iterator<?> exits) {
+    List<ContentTypeItemExit> out = new ArrayList<>();
+    if (exits == null) {
+      return out;
+    }
+    while (exits.hasNext()) {
+      Object o = exits.next();
+      if (!(o instanceof PSConditionalExit conditional)) {
+        continue;
+      }
+      String condition = summarizeApplyWhen(conditional.getCondition());
+      Integer maxErrors = conditional.getMaxErrorsToStop();
+      PSExtensionCallSet calls = conditional.getRules();
+      if (calls == null || calls.isEmpty()) {
+        continue;
+      }
+      for (Object callObj : calls) {
+        if (callObj instanceof PSExtensionCall call) {
+          ContentTypeItemExit dto = toExitDto(call);
+          dto.setCondition(condition);
+          dto.setMaxErrorsToStop(maxErrors);
+          out.add(dto);
+        }
+      }
+    }
+    return out;
+  }
+
+  /** Package-visible for unit tests. Maps a raw pipe extension-call set. */
+  static List<ContentTypeItemExit> mapExtensionCalls(PSExtensionCallSet callSet) {
+    List<ContentTypeItemExit> out = new ArrayList<>();
+    if (callSet == null || callSet.isEmpty()) {
+      return out;
+    }
+    for (Object o : callSet) {
+      if (o instanceof PSExtensionCall call) {
+        out.add(toExitDto(call));
+      }
+    }
+    return out;
+  }
+
+  static ContentTypeItemExit toExitDto(PSExtensionCall call) {
+    ContentTypeItemExit dto = new ContentTypeItemExit();
+    if (call.getExtensionRef() != null) {
+      dto.setExtension(call.getExtensionRef().getFQN());
+      dto.setName(call.getExtensionRef().getExtensionName());
+    }
+    List<ContentTypeItemExitParam> params = new ArrayList<>();
+    PSExtensionParamValue[] values = call.getParamValues();
+    if (values != null) {
+      for (PSExtensionParamValue value : values) {
+        String text = null;
+        if (value != null && value.getValue() != null) {
+          text = value.getValue().getValueDisplayText();
+        }
+        params.add(new ContentTypeItemExitParam(null, text != null ? text : ""));
+      }
+    }
+    dto.setParameters(params);
+    String summary = call.toString();
+    dto.setSummary(StringUtils.isNotBlank(summary) ? summary.trim() : null);
+    return dto;
+  }
+
+  /** Package-visible for unit tests. Summarizes apply-when rules, or {@code null} when empty. */
+  static String summarizeApplyWhen(PSApplyWhen when) {
+    if (when == null || when.isEmpty()) {
+      return null;
+    }
+    List<String> parts = new ArrayList<>();
+    for (Object o : when) {
+      if (o instanceof PSRule rule) {
+        String s = summarizeRule(rule);
+        if (StringUtils.isNotBlank(s)) {
+          parts.add(s);
+        }
+      }
+    }
+    if (parts.isEmpty()) {
+      return null;
+    }
+    return String.join("; ", parts);
+  }
+
+  private void applyItemExits(PSItemDefinition def, ContentTypeItemExits body) {
+    PSContentEditor editor = def.getContentEditor();
+    if (editor == null) {
+      throw new IllegalStateException(
+          "Could not update content type item-level exits; content editor missing");
+    }
+    editor.setInputTranslation(
+        toInputTranslations(body.getInputTranslations(), "inputTranslations"));
+    editor.setOutputTranslation(
+        toOutputTranslations(body.getOutputTranslations(), "outputTranslations"));
+    PSValidationRules validations =
+        toValidationRules(body.getValidations(), "validations");
+    if (body.getMaxErrorsToStopValidation() != null) {
+      int max = body.getMaxErrorsToStopValidation();
+      if (max <= 0) {
+        throw new IllegalArgumentException("maxErrorsToStopValidation must be greater than 0");
+      }
+      validations.setMaxErrorsToStop(max);
+    }
+    editor.setValidationRules(validations);
+    if (body.getPreExits() != null || body.getPostExits() != null) {
+      PSPipe pipe = editor.getPipe();
+      if (pipe == null) {
+        boolean hasPre = body.getPreExits() != null && !body.getPreExits().isEmpty();
+        boolean hasPost = body.getPostExits() != null && !body.getPostExits().isEmpty();
+        if (hasPre || hasPost) {
+          throw new IllegalStateException(
+              "Could not update pipe pre/post exits; content editor pipe missing");
+        }
+      } else {
+        if (body.getPreExits() != null) {
+          pipe.setInputDataExtensions(toCallSet(body.getPreExits(), "preExits"));
+        }
+        if (body.getPostExits() != null) {
+          pipe.setResultDataExtensions(toCallSet(body.getPostExits(), "postExits"));
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static PSInputTranslations toInputTranslations(
+      List<ContentTypeItemExit> items, String field) {
+    PSInputTranslations col = new PSInputTranslations();
+    int i = 0;
+    for (ContentTypeItemExit item : items) {
+      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      i++;
+    }
+    return col;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static PSOutputTranslations toOutputTranslations(
+      List<ContentTypeItemExit> items, String field) {
+    PSOutputTranslations col = new PSOutputTranslations();
+    int i = 0;
+    for (ContentTypeItemExit item : items) {
+      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      i++;
+    }
+    return col;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static PSValidationRules toValidationRules(
+      List<ContentTypeItemExit> items, String field) {
+    PSValidationRules col = new PSValidationRules();
+    int i = 0;
+    for (ContentTypeItemExit item : items) {
+      col.add(toConditionalExit(item, field + "[" + i + "]"));
+      i++;
+    }
+    return col;
+  }
+
+  @SuppressWarnings("unchecked")
+  static PSConditionalExit toConditionalExit(ContentTypeItemExit item, String field) {
+    PSExtensionCallSet set = new PSExtensionCallSet();
+    set.add(toExtensionCall(item, field));
+    PSConditionalExit exit = new PSConditionalExit(set);
+    if (item != null && item.getMaxErrorsToStop() != null) {
+      int max = item.getMaxErrorsToStop();
+      if (max <= 0) {
+        throw new IllegalArgumentException(field + ".maxErrorsToStop must be greater than 0");
+      }
+      exit.setMaxErrorsToStop(max);
+    }
+    return exit;
+  }
+
+  static PSExtensionCall toExtensionCall(ContentTypeItemExit item, String field) {
+    if (item == null) {
+      throw new IllegalArgumentException(field + " is null");
+    }
+    String fqn = StringUtils.trimToNull(item.getExtension());
+    if (fqn == null) {
+      fqn = StringUtils.trimToNull(item.getName());
+    }
+    if (fqn == null) {
+      throw new IllegalArgumentException(field + ".extension is required");
+    }
+    PSExtensionRef ref;
+    try {
+      ref = new PSExtensionRef(fqn);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(field + " invalid extension FQN: " + fqn, e);
+    }
+    List<ContentTypeItemExitParam> params =
+        item.getParameters() != null ? item.getParameters() : List.of();
+    PSExtensionParamValue[] values = new PSExtensionParamValue[params.size()];
+    for (int i = 0; i < params.size(); i++) {
+      ContentTypeItemExitParam p = params.get(i);
+      String text = p != null && p.getValue() != null ? p.getValue() : "";
+      values[i] = new PSExtensionParamValue(new PSTextLiteral(text));
+    }
+    return new PSExtensionCall(ref, values);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static PSExtensionCallSet toCallSet(List<ContentTypeItemExit> items, String field) {
+    PSExtensionCallSet set = new PSExtensionCallSet();
+    int i = 0;
+    for (ContentTypeItemExit item : items) {
+      set.add(toExtensionCall(item, field + "[" + i + "]"));
+      i++;
+    }
+    return set;
   }
 
   /**
