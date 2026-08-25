@@ -18,7 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 /**
- * Design-session lock conflict for content-type lock, unlock, or PUT save.
+ * Design-session lock conflict for content-type lock, unlock, enable/disable, or PUT save.
  *
  * <p>Mapped to HTTP 409 by {@code ContentTypesResource}. Distinct from generic {@link
  * IllegalStateException} so status is not inferred from message substrings (names such as {@code

@@ -428,6 +428,63 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     return Boolean.TRUE;
   }
 
+  @Override
+  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not enable/disable content type");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      def.setEnabled(enabled);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not enable/disable content type");
+        }
+        log.error("Failed to save content type enabled flag {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type enabled flag", e);
+      }
+      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for enable/disable: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to enable/disable content type", e);
+    }
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
@@ -1244,6 +1301,46 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     return false;
+  }
+
+  /** Map-keyed overload for {@code PSErrorsException} batched save errors. */
+  static boolean hasLockError(Map<IPSGuid, Object> errors) {
+    if (errors == null || errors.isEmpty()) {
+      return false;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private ContentTypeDesignLockException lockConflict(Exception cause, String prefix) {
+    String locker = firstLockLockerForMap(cause);
+    if (locker != null) {
+      return new ContentTypeDesignLockException(prefix + "; locked by " + locker, cause);
+    }
+    return new ContentTypeDesignLockException(prefix + "; design lock required", cause);
+  }
+
+  private static String firstLockLockerForMap(Exception e) {
+    Map<IPSGuid, Object> errors = null;
+    if (e instanceof PSErrorResultsException re && re.getErrors() != null) {
+      errors = re.getErrors();
+    } else if (e instanceof PSErrorsException se && se.getErrors() != null) {
+      errors = se.getErrors();
+    }
+    if (errors == null) {
+      return null;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof PSLockErrorException lockErr
+          && StringUtils.isNotBlank(lockErr.getLocker())) {
+        return lockErr.getLocker();
+      }
+    }
+    return null;
   }
 
   static String firstLockLocker(PSErrorResultsException e) {

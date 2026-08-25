@@ -190,9 +190,10 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Operation | Path | Notes |
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
-| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `designGaps` |
+| Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
 Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
@@ -201,19 +202,33 @@ Lock / save / unlock status codes:
 
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save succeeded (lock still held) |
+| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save / enable / disable succeeded (lock still held) |
 | `204` | Unlock success |
-| `400` | Invalid PUT body (unknown field name, bad workflow/template ref) |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag) |
 | `403` | Caller is not Admin |
 | `404` | Content type not found |
 | `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen) |
 | `500` | Design service or server failure |
 
-JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
-SPA unwrap that envelope and read `guid.stringValue` (or synthesize
-`hostId-type-uuid` when `stringValue` is omitted) before calling
-`GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
-fallback when detail omits Guid parts.
+### Enable or disable (CD-13)
+
+`PUT /services/contenttypes/{idOrName}/enabled` sets whether the content type is
+enabled for runtime use. This is a dedicated design action, not a read-only
+catalog field. Hold the design-session lock first; save keeps the lock so you
+can continue editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../enabled` → (optional further design
+writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeEnabled": {
+    "enabled": false
+  }
+}
+```
 
 `GET /services/contenttypes` (the catalog list) may be a JSON array or a Jackson
 root envelope (`ContentTypeList` and/or `ContentType`). The Developer **Content
