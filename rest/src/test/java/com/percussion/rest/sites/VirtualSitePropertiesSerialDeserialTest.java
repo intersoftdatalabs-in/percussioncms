@@ -203,6 +203,28 @@ public class VirtualSitePropertiesSerialDeserialTest {
   }
 
   @Test
+  public void productionMapperRoundTripsHttpJsonSourceKind() {
+    VirtualSiteProperties props = new VirtualSiteProperties();
+    props.setSourceKind("http-json");
+    props.setRootPath("http-docs");
+    props.setSiteKey("http-help");
+    props.setVirtual(true);
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(VirtualSiteProperties.class);
+    String json = mapper.writeValueAsString(props);
+    assertTrue(json.contains("\"VirtualSiteProperties\""), json);
+    assertTrue(json.contains("\"http-json\""), json);
+    assertFalse(json.toLowerCase().contains("password"), json);
+    assertFalse(json.toLowerCase().contains("authorization"), json);
+
+    VirtualSiteProperties roundTrip = mapper.readValue(json, VirtualSiteProperties.class);
+    assertEquals("http-json", roundTrip.getSourceKind());
+    assertEquals("http-docs", roundTrip.getRootPath());
+    assertEquals("http-help", roundTrip.getSiteKey());
+    assertEquals(Boolean.TRUE, roundTrip.getVirtual());
+  }
+
+  @Test
   public void jaxbRejectsBareSourceKindRoot() throws Exception {
     JAXBContext ctx = JAXBContext.newInstance(VirtualSiteProperties.class);
     Unmarshaller unmarshaller = ctx.createUnmarshaller();

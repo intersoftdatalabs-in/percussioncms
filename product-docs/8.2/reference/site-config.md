@@ -111,7 +111,7 @@ When a Percussion Site is configured as virtual (Phase 1 — no new `RXSITES` co
 
 | Property name | Required | Example | Meaning |
 |---------------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git/CSV/SQL. REST **Build** and **Publish** run git/CSV/SQL adapters. `http-json` is SPI/CLI (JSON catalog via `http.url` or `http.file` / default `pages.json`; SSRF fail-closed; no secrets). REST round-trip and Developer Sites chrome for `http-json` are follow-on. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values rejected by `PSVirtualSiteHelper.validate`. REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips git, CSV, SQL, and `http-json`. REST **Build** (`POST …/virtual/build`) and **Publish** (`POST …/virtual/publish`) run git/CSV/SQL adapters. `http-json` persist uses a portable-safe `rootPath` JSON fixture; catalog URL/file live in `_config.yaml` (`http.url` / `http.file`); `virtual.remoteUrl` is **400** (no secrets on the REST envelope). SPI/CLI assemble is installed; Developer Sites chrome for `http-json` is a follow-on. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; required query columns `id`, `title`, `body`; JDBC URL/user/query in `_config.yaml`, never passwords on the REST envelope). Developer Sites can select and save **SQL database**. `csv-filesystem` required columns: `id`, `title`, `body`; optional `_config.yaml`. |
 | `virtual.rootPath` | Yes when remote is blank | absolute or install-relative path to tree | Local filesystem source root when `virtual.remoteUrl` is blank. NIO `Path` normalize; no empty path / remaining `..`. When a remote is set, optional relative path inside the checkout. |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones/fetches into `{install}/tmp/virtual-site-checkouts/{siteKey}`. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. Fail-closed on `..`, `http`, option injection. Credentials are never logged. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. |
@@ -166,10 +166,13 @@ wrap and then GET-roundtrips so Build chrome appears without a full reload.
 `csv-filesystem` uses the same wrap (`"sourceKind": "csv-filesystem"`). PUT with a safe
 `rootPath` succeeds and GET returns that kind. `sql-database` uses the same wrap
 (`"sourceKind": "sql-database"`); JDBC URL/user/query stay in `_config.yaml` under
-`rootPath`. Paths with remaining `..` after NIO normalize, unknown kinds, and
-`remoteUrl` on CSV or SQL are **400**. In-product `POST …/virtual/build` and
-`POST …/virtual/publish` run the matching adapter for `git-filesystem`,
-`csv-filesystem`, and `sql-database`.
+`rootPath`. `http-json` uses the same wrap (`"sourceKind": "http-json"`); PUT with a
+portable-safe `rootPath` (JSON fixture directory) succeeds and GET returns that kind.
+Catalog HTTP URL / file path stay in `_config.yaml` (`http.url` / `http.file`); never
+send secrets on this envelope. Paths with remaining `..` after NIO normalize, unknown
+kinds, and `remoteUrl` on CSV, SQL, or `http-json` are **400**. In-product
+`POST …/virtual/build` and `POST …/virtual/publish` run the matching adapter for
+`git-filesystem`, `csv-filesystem`, and `sql-database`.
 
 Site detail (`GET /sites/{nameOrId}`) also returns a nested `virtual` object. Validation is
 enforced server-side (allow-listed source kinds, required local root path when virtual and

@@ -18,7 +18,8 @@ package com.percussion.services.virtualsite;
 
 /**
  * Registered Virtual Site adapter kinds. {@link #GIT_FILESYSTEM}, {@link #CSV_FILESYSTEM}, {@link
- * #SQL_DATABASE}, and {@link #HTTP_JSON} are wired through {@link PSVirtualSiteSourceFactory}.
+ * #SQL_DATABASE}, and {@link #HTTP_JSON} are wired through {@link PSVirtualSiteSourceFactory} and
+ * allow-listed for Site property validation (REST GET/PUT persist).
  */
 public enum VirtualSiteSourceType {
   GIT_FILESYSTEM("git-filesystem"),
@@ -31,8 +32,9 @@ public enum VirtualSiteSourceType {
   SQL_DATABASE("sql-database"),
   /**
    * HTTP GET of a JSON page catalog, or a local JSON file under the site root ({@code http-json}).
-   * Open JSON only (no Authorization / API keys). SSRF fail-closed: {@code http}/{@code https}, no
-   * userinfo, {@code URLValidation}, redirects off-loopback rejected.
+   * REST GET/PUT persist this kind. Open JSON only (no Authorization / API keys). SSRF fail-closed:
+   * {@code http}/{@code https}, no userinfo, {@code URLValidation}, redirects off-loopback rejected.
+   * Git {@code virtual.remoteUrl} is not accepted.
    */
   HTTP_JSON("http-json");
 

@@ -425,6 +425,110 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void updateVirtualSiteProperties_httpJsonRoundTripsOnGet() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("HttpHelp");
+    existing.setGUID(siteGuid);
+
+    PSSite modifiable = new PSSite();
+    modifiable.setName("HttpHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("HttpHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("http-json");
+    body.setRootPath("C:/http-docs");
+    body.setSiteKey("http-help");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("HttpHelp", body);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    assertEquals("http-json", out.getSourceKind());
+    assertEquals("C:/http-docs", out.getRootPath());
+    assertEquals("http-help", out.getSiteKey());
+    assertNull(out.getRemoteUrl());
+
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
+    assertEquals(
+        "http-json",
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SOURCE_KIND)
+            .orElse(null));
+
+    when(siteManager.findSite("HttpHelp")).thenReturn(persisted);
+    VirtualSiteProperties loaded = adaptor.getVirtualSiteProperties("HttpHelp");
+    assertEquals("http-json", loaded.getSourceKind());
+    assertEquals("C:/http-docs", loaded.getRootPath());
+    assertTrue(Boolean.TRUE.equals(loaded.getVirtual()));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_httpJsonRejectsParentRootPath() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("HttpHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("HttpHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("HttpHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("http-json");
+    body.setRootPath("../outside");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("HttpHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_httpJsonRejectsRemoteUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("HttpHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("HttpHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("HttpHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("http-json");
+    body.setRootPath("C:/http-docs");
+    body.setRemoteUrl("https://user:secret@git.example.com/org/docs.git");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("HttpHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void updateVirtualSiteProperties_rejectsUnknownSourceKind() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("Help");

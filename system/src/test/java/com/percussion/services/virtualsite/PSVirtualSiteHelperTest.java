@@ -207,6 +207,18 @@ class PSVirtualSiteHelperTest {
   }
 
   @Test
+  void validateRejectsPathTraversalForHttpJson() {
+    PSSite site =
+        siteWith(
+            prop(PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json"),
+            prop(PSVirtualSiteHelper.PROP_ROOT_PATH, "../outside"));
+    VirtualSiteException ex =
+        assertThrows(VirtualSiteException.class, () -> PSVirtualSiteHelper.validate(site));
+    assertTrue(ex.getMessage().contains(PSVirtualSiteHelper.PROP_ROOT_PATH));
+    assertTrue(ex.getMessage().contains(".."));
+  }
+
+  @Test
   void validateRejectsRemoteUrlForSqlDatabase() {
     PSSite site =
         siteWith(
