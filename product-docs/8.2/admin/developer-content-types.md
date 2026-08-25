@@ -54,3 +54,7 @@ The chrome calls:
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on
 the same detail panel: [Object ACL & default template](id:admin-object-acl).
+
+Field **control property values** and **choice catalogs** are not edited in this chrome.
+Integrators use `GET` / `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties`
+(hold the design-session lock before PUT). See [REST API — Content types](id:developer-rest).

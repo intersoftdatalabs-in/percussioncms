@@ -199,6 +199,8 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. POST `/lock` and PUT share the packed NODEDEF design-object id so a lock you hold is found on save. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
+| Field control properties | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | Control parameter **name/value** pairs and the choice catalog for one field (CD-07). No lock required. Empty `properties` means none. `choices` omitted when none. |
+| Replace field control properties | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` | **Admin** (CD-07). Requires a **held** design-session lock. Full replace of `properties` (empty clears). `choices` omitted leaves the catalog unchanged; `type: none` clears. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
 Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
@@ -367,11 +369,60 @@ human-readable **expression summaries**:
 | `hasInputTranslation` / `inputTranslationExpression` | Input transform present / extension call summary |
 | `hasOutputTranslation` / `outputTranslationExpression` | Output transform present / extension call summary |
 | `control` | Display control name |
-| `controlPropertyNames` | Control parameter **names** only (values and full choice catalogs not exposed) |
+| `controlPropertyNames` | Control parameter names (compat; prefer `controlProperties`) |
+| `controlProperties` | Control parameter **name and value** pairs |
 
-These expression fields are **null/omitted when empty** (`NON_NULL` JSON). They are **not**
-writable via `PUT` — rule write/save and full control property editors remain Workbench /
-future design APIs. `designGaps` on detail still calls out write and catalog gaps.
+These expression fields are **null/omitted when empty** (`NON_NULL` JSON). Field rule
+expressions are **not** writable via `PUT` detail. Control property **values** and choice
+catalogs use the dedicated CD-07 path below.
+
+### Control property values (CD-07)
+
+`GET /services/contenttypes/{idOrName}/fields/{fieldName}/controlProperties` returns the
+display-control parameter **values** (not names only) and the field's choice catalog.
+No design lock is required. `404` means the content type or field mapping was not found.
+
+`PUT` on the same path replaces property values. Hold the design-session lock first; save
+keeps the lock so you can continue editing, then unlock.
+
+Typical flow: `POST .../lock` → `PUT .../fields/{fieldName}/controlProperties` → (optional
+further design writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeFieldControlProperties": {
+    "fieldName": "sys_title",
+    "control": "sys_DropDownSingle",
+    "properties": [
+      { "name": "height", "value": "200" }
+    ],
+    "choices": {
+      "type": "local",
+      "sortOrder": "ascending",
+      "entries": [
+        { "value": "open", "label": "Open" }
+      ]
+    }
+  }
+}
+```
+
+`properties` is required on PUT (empty list clears parameters). `choices` omitted leaves
+the catalog unchanged. Choice `type` is `global` (keyword table id in `globalId`),
+`local` (inline `entries`), `lookup` / `internalLookup` (`lookupHref`), or `tableinfo`
+(`table` with `tableName` / `labelColumn` / `valueColumn`). `type: none` clears the
+catalog. Choice filters, null-entry, and default-selected are not written.
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | GET envelope, or PUT replaced (lock still held) |
+| `400` | Missing `properties`, invalid choice catalog, or field has no display control |
+| `403` | Caller is not Admin (PUT) |
+| `404` | Content type or field not found |
+| `409` | No design lock, or locked by another user |
+| `500` | Unexpected error |
 
 ## Templates (assembly catalog)
 

@@ -842,8 +842,10 @@ public class ContentTypesResource {
   @Operation(
       summary = "Get content type design summary",
       description =
-          "Content type detail including field catalog. Full rule expressions and control"
-              + " properties are not exposed (see designGaps).",
+          "Content type detail including field catalog. Field rows include control property"
+              + " names and values. Choice catalogs and property write use"
+              + " GET/PUT .../fields/{fieldName}/controlProperties. Field rule expressions remain"
+              + " read-only (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -885,7 +887,8 @@ public class ContentTypesResource {
               + " empty). Template associations are written after content-type save in a separate"
               + " design call — if that fails, meta/field/workflow changes may already be"
               + " committed (error message indicates partial success). Name/id and system field"
-              + " structure are not changed. Field rule expressions remain read-only; create/delete"
+              + " structure are not changed. Field rule expressions remain read-only. Control"
+              + " property values use PUT .../fields/{fieldName}/controlProperties. Create/delete"
               + " remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
@@ -1243,6 +1246,94 @@ public class ContentTypesResource {
     try {
       ContentTypeItemExits out =
           requireAdaptor().replaceItemExits(uriInfo.getBaseUri(), idOrName, body);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/fields/{fieldName}/controlProperties")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get field control property values and choice catalog",
+      description =
+          "CD-07 GET: control parameter name/value pairs and the choice catalog for one field."
+              + " No design lock is required. Empty properties means none. choices is omitted when"
+              + " none. Jackson root wrap is ContentTypeFieldControlProperties.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    schema = @Schema(implementation = ContentTypeFieldControlProperties.class))),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeFieldControlProperties getFieldControlProperties(
+      @PathParam("idOrName") String idOrName, @PathParam("fieldName") String fieldName) {
+    try {
+      ContentTypeFieldControlProperties out =
+          requireAdaptor()
+              .getFieldControlProperties(uriInfo.getBaseUri(), idOrName, fieldName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/fields/{fieldName}/controlProperties")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace field control property values and optional choice catalog",
+      description =
+          "CD-07 PUT: full replace of control parameter values via IPSContentDesignWs"
+              + " .saveContentTypes. Requires a held design-session lock (POST .../lock). Does not"
+              + " acquire or release the lock. Empty properties clears parameters. choices omitted"
+              + " leaves the catalog unchanged; type none clears. Jackson root wrap is"
+              + " ContentTypeFieldControlProperties.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (lock is still held)",
+            content =
+                @Content(
+                    schema = @Schema(implementation = ContentTypeFieldControlProperties.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing properties or invalid choice catalog"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeFieldControlProperties replaceFieldControlProperties(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("fieldName") String fieldName,
+      ContentTypeFieldControlProperties body) {
+    if (body == null || body.getProperties() == null) {
+      throw new WebApplicationException("properties is required", 400);
+    }
+    try {
+      ContentTypeFieldControlProperties out =
+          requireAdaptor()
+              .replaceFieldControlProperties(
+                  uriInfo.getBaseUri(), idOrName, fieldName, body);
       if (out == null) {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }

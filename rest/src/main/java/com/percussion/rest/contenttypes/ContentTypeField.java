@@ -92,9 +92,15 @@ public class ContentTypeField {
 
   @Schema(
       description =
-          "Control property / parameter names from the display mapping (cheap names only;"
-              + " values and full catalogs not exposed). Null or omitted when none. Not writable.")
+          "Control property / parameter names from the display mapping. Null or omitted when none."
+              + " Prefer controlProperties for name+value. Not writable via PUT detail.")
   private List<String> controlPropertyNames;
+
+  @Schema(
+      description =
+          "Control property name/value pairs from the display mapping. Null or omitted when none."
+              + " Writable via PUT .../fields/{fieldName}/controlProperties (held design lock).")
+  private List<ContentTypeControlProperty> controlProperties;
 
   @Schema(description = "Child field-set name when this field is nested; null for parent fields")
   private String fieldSet;
@@ -243,6 +249,14 @@ public class ContentTypeField {
 
   public void setControlPropertyNames(List<String> controlPropertyNames) {
     this.controlPropertyNames = controlPropertyNames;
+  }
+
+  public List<ContentTypeControlProperty> getControlProperties() {
+    return controlProperties;
+  }
+
+  public void setControlProperties(List<ContentTypeControlProperty> controlProperties) {
+    this.controlProperties = controlProperties;
   }
 
   public String getFieldSet() {

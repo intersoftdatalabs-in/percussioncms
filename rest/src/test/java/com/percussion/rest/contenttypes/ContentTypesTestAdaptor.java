@@ -125,4 +125,20 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
       URI baseUri, String idOrName, ContentTypeItemExits body) {
     return body != null ? body : new ContentTypeItemExits();
   }
+
+  @Override
+  public ContentTypeFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName) {
+    ContentTypeFieldControlProperties out = new ContentTypeFieldControlProperties();
+    out.setFieldName(fieldName);
+    out.setControl("sys_EditBox");
+    out.setProperties(List.of());
+    return out;
+  }
+
+  @Override
+  public ContentTypeFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body) {
+    return body;
+  }
 }
