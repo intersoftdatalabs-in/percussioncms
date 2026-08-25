@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * G4 CI/inventory gate: zero non-waived product Gadget definition XML under Packages (issue #3581 /
- * parent #2630). Explicit waiver: {@code perc.Test} only.
+ * G4 CI/inventory gate: zero product Gadget definition XML under Packages (issue #3581 / #3737 /
+ * parent #2630). Waiver set is empty after perc.Test page dual-ship exit (shared Page/Gadget list).
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -42,9 +42,9 @@ class PSGadgetDefinitionXmlInventoryTest {
   @TempDir Path tempDir;
 
   @Test
-  void waivedPackageSet_isExplicitlyPercTestOnly() {
-    assertEquals(Set.of("perc.Test"), PSGadgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
-    assertTrue(PSGadgetDefinitionXmlInventory.isWaivedPackage("perc.Test"));
+  void waivedPackageSet_isEmptyAfterPercTestPageShipExit() {
+    assertEquals(Set.of(), PSGadgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSGadgetDefinitionXmlInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSGadgetDefinitionXmlInventory.isWaivedPackage("perc.Baseline"));
     assertFalse(PSGadgetDefinitionXmlInventory.isWaivedPackage(null));
     assertFalse(PSGadgetDefinitionXmlInventory.isWaivedPackage(""));
@@ -65,13 +65,15 @@ class PSGadgetDefinitionXmlInventoryTest {
         () ->
             "G4: non-waived Gadget def XML must not reappear under product Packages; found: "
                 + report.nonWaived());
+    assertEquals(0, report.all().size(), "expected zero Gadget def XML including perc.Test");
+    assertEquals(0, report.waived().size());
     assertEquals(0, report.nonWaived().size());
 
     PSGadgetDefinitionXmlInventory.assertNoNonWaivedGadgetDefinitionXml(packagesRoot);
   }
 
   @Test
-  void tempTree_onlyWaivedXml_isClean() throws Exception {
+  void tempTree_percTestXml_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path gadgets =
         packages
@@ -83,15 +85,17 @@ class PSGadgetDefinitionXmlInventoryTest {
     Files.writeString(xmlFile, "<Module id=\"PSGadget_TestProperties\"/>", StandardCharsets.UTF_8);
 
     PSDefinitionXmlShipPathInventory.Report report = PSGadgetDefinitionXmlInventory.scan(packages);
+    assertFalse(report.isClean());
     assertEquals(1, report.all().size());
-    assertEquals(0, report.nonWaived().size());
-    assertEquals(1, report.waived().size());
-    assertTrue(report.isClean());
+    assertEquals(1, report.nonWaived().size());
+    assertEquals(0, report.waived().size());
     Path expectedAbs = xmlFile.toAbsolutePath().normalize();
-    assertEquals(expectedAbs, report.waived().get(0).xmlPath());
-    assertTrue(report.waived().get(0).xmlPath().isAbsolute());
-    assertTrue(report.waived().get(0).xmlPath().startsWith(gadgets.toAbsolutePath().normalize()));
-    PSGadgetDefinitionXmlInventory.assertNoNonWaivedGadgetDefinitionXml(packages);
+    assertEquals(expectedAbs, report.nonWaived().get(0).xmlPath());
+    assertTrue(report.nonWaived().get(0).xmlPath().isAbsolute());
+    assertTrue(report.nonWaived().get(0).xmlPath().startsWith(gadgets.toAbsolutePath().normalize()));
+    assertThrows(
+        IllegalStateException.class,
+        () -> PSGadgetDefinitionXmlInventory.assertNoNonWaivedGadgetDefinitionXml(packages));
   }
 
   @Test
@@ -175,16 +179,16 @@ class PSGadgetDefinitionXmlInventoryTest {
   }
 
   @Test
-  void tempTree_mixedWaivedAndNonWaived_reportsOnlyNonWaivedAsFailures() throws Exception {
+  void tempTree_percTestAndBaselineXml_bothFailAsNonWaived() throws Exception {
     Path packages = tempDir.resolve("Packages");
 
-    Path waived =
+    Path testGadgets =
         packages
             .resolve("perc.Test")
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Gadgets");
-    Files.createDirectories(waived);
-    Files.writeString(waived.resolve("PSGadget_TestProperties.xml"), "<Module/>", StandardCharsets.UTF_8);
+    Files.createDirectories(testGadgets);
+    Files.writeString(testGadgets.resolve("PSGadget_TestProperties.xml"), "<Module/>", StandardCharsets.UTF_8);
 
     Path bad =
         packages
@@ -196,9 +200,8 @@ class PSGadgetDefinitionXmlInventoryTest {
 
     PSDefinitionXmlShipPathInventory.Report report = PSGadgetDefinitionXmlInventory.scan(packages);
     assertEquals(2, report.all().size());
-    assertEquals(1, report.waived().size());
-    assertEquals(1, report.nonWaived().size());
-    assertEquals("perc.Baseline", report.nonWaived().get(0).packageDirName());
+    assertEquals(0, report.waived().size());
+    assertEquals(2, report.nonWaived().size());
     assertFalse(report.isClean());
   }
 

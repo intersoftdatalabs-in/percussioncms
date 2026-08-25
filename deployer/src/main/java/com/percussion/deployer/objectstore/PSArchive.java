@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.objectstore;
 
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSArchiveFiles;
@@ -153,7 +153,7 @@ public final class PSArchive {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_READ_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_READ_ERROR, args);
     }
 
     return m_archiveManifest;
@@ -236,7 +236,7 @@ public final class PSArchive {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_READ_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_READ_ERROR, args);
     }
 
     return result;
@@ -340,7 +340,7 @@ public final class PSArchive {
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_WRITE_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_WRITE_ERROR, args);
     }
   }
 
@@ -394,7 +394,7 @@ public final class PSArchive {
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_WRITE_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_WRITE_ERROR, args);
     }
   }
 
@@ -436,7 +436,7 @@ public final class PSArchive {
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_READ_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_READ_ERROR, args);
     }
   }
 
@@ -462,7 +462,7 @@ public final class PSArchive {
       Object args[] = {m_archiveFile.getPath(), e.getLocalizedMessage()};
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_READ_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.ARCHIVE_READ_ERROR, args);
     }
   }
 

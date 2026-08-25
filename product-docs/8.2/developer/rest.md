@@ -131,11 +131,11 @@ Explorer chrome does not probe the named preference. A blank list entry (or no e
 |-----------|------|--------|
 | List | `GET /services/sites` | All CMS Sites (traditional, page-based, Virtual). JSON is a Jackson root wrap `{ "SiteList": [ { "name", "description", "baseUrl", … } ] }` or a bare array — **not** `{ "empty": false }`. Each entry includes a plain string `name` when the Site has one. |
 | Detail | `GET /services/sites/{nameOrId}` | Site detail including `virtual.*` when configured |
-| Virtual properties | `GET` / `PUT /services/sites/{nameOrId}/virtual` | Virtual Site source bag. PUT JSON is `{ "VirtualSiteProperties": { "sourceKind", "rootPath", "remoteUrl", "branch", "configFile", "siteKey" } }` (Jackson/JAXB root wrap). Allow-listed `sourceKind`: `git-filesystem`, `csv-filesystem` (GET round-trips the kind after PUT). Unknown kinds and `csv-filesystem` + `remoteUrl` return **400**. A flat `{ "sourceKind": … }` body returns **400** unexpected element `sourceKind`. Optional `remoteUrl` + `branch` clone/fetch before Git Build; omit `remoteUrl` to keep a stored remote; send `""` to clear. |
-| Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; `git-filesystem` or `csv-filesystem`. Git fetches `remoteUrl` when set; CSV reads a local CSV tree (`rootPath`; optional `_config.yaml`). Same action as **Developer → Sites → Build Virtual Site**. Unknown `sourceKind` is **400**. |
-| Virtual preview status | `GET /services/sites/{nameOrId}/virtual/preview` | Admin-only; last-build availability for `git-filesystem` **and** `csv-filesystem` (not git-only). Missing build → `available=false` (HTTP 200). Repository / unknown `sourceKind` → 400. CLI assemble is previewable only at the default output root (no last-output pointer). |
-| Virtual preview file | `GET /services/sites/{nameOrId}/virtual/preview/{relPath}` | Admin-only; assembled file stream from last output. Traversal (`../`) or file over 20 MB → 400; missing file → 404 (not 500) |
-| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; `git-filesystem` or `csv-filesystem`. Builds then copies assembled files to the Site filesystem root (`IPSSite.root`). Same action as **Developer → Sites → Publish Virtual Site**. Repository / unknown kinds are **400**. |
+| Virtual properties | `GET` / `PUT /services/sites/{nameOrId}/virtual` | Virtual Site source bag. PUT JSON is `{ "VirtualSiteProperties": { "sourceKind", "rootPath", "remoteUrl", "branch", "configFile", "siteKey" } }` (Jackson/JAXB root wrap). Allow-listed `sourceKind`: `git-filesystem`, `csv-filesystem`, `sql-database` (GET round-trips the kind after PUT). JDBC URL/user/query for `sql-database` live in `_config.yaml` under `rootPath` (in-memory H2 `jdbc:h2:mem:` only; never send passwords on this envelope). Unknown kinds and `csv-filesystem` / `sql-database` + `remoteUrl` return **400**. A flat `{ "sourceKind": … }` body returns **400** unexpected element `sourceKind`. Optional `remoteUrl` + `branch` clone/fetch before Git Build; omit `remoteUrl` to keep a stored remote; send `""` to clear. |
+| Virtual build | `POST /services/sites/{nameOrId}/virtual/build` | Admin-only; `git-filesystem`, `csv-filesystem`, or `sql-database`. Git fetches `remoteUrl` when set; CSV reads a local CSV tree (`rootPath`; optional `_config.yaml`); SQL reads required `_config.yaml` `sql:` mapping (in-memory H2 `jdbc:h2:mem:` only; Oracle/MySQL/SQL Server URLs **400**). Same action as **Developer → Sites → Build Virtual Site** after save (Git, CSV, and SQL). Unknown `sourceKind` is **400**. |
+| Virtual preview status | `GET /services/sites/{nameOrId}/virtual/preview` | Admin-only; last-build availability for `git-filesystem`, `csv-filesystem`, and `sql-database` (not git-only). After a successful Build, `sql-database` returns `available=true` + `homePath`. Missing build → `available=false` (HTTP 200). Repository / unknown `sourceKind` → 400. CLI assemble is previewable only at the default output root (no last-output pointer). |
+| Virtual preview file | `GET /services/sites/{nameOrId}/virtual/preview/{relPath}` | Admin-only; assembled file stream from last output (`git-filesystem`, `csv-filesystem`, `sql-database`). Traversal (`../`) or file over 20 MB → 400; missing file → 404 (not 500) |
+| Virtual publish | `POST /services/sites/{nameOrId}/virtual/publish` | Admin-only; `git-filesystem`, `csv-filesystem`, or `sql-database`. Builds then copies assembled files to the Site filesystem root (`IPSSite.root`). Same action as **Developer → Sites → Publish Virtual Site**. Repository / unknown kinds are **400**. |
 
 An HTTP 200 list with Site entries must bind in **Developer → Sites**. Empty catalog chrome
 appears only when this list **and** the sitemanage `GET /sitemanage/site/` `SiteSummary` fallback
@@ -191,13 +191,24 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
-| Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | CD-13 design action. Admin only. Requires a held design-session lock (`POST .../lock` when that surface is available; same `IPSContentDesignWs` lock as Workbench). Does **not** acquire or release the lock. `GET` detail `enabled` reflects the new flag. |
+| Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
+| Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
+| Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-JSON may wrap a single item as `ContentTypeDetail`. Integrators and the Developer
-SPA unwrap that envelope and read `guid.stringValue` (or synthesize
-`hostId-type-uuid` when `stringValue` is omitted) before calling
-`GET /services/acls/object/{guid}` for **Object ACL**. The list `guid` is a
-fallback when detail omits Guid parts.
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
+
+Lock / save / unlock status codes:
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Lock acquired (body is `ObjectLockSummary`) or PUT save / enable / disable succeeded (lock still held) |
+| `204` | Unlock success |
+| `400` | Invalid PUT body (unknown field name, bad workflow/template ref, missing `enabled` flag) |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No lock held, or locked by another user/session (self-only; the lock is not stolen) |
+| `500` | Design service or server failure |
 
 ### Enable or disable (CD-13)
 
@@ -219,14 +230,21 @@ Jackson root wrap:
 }
 ```
 
-| Status | Typical meaning |
-|--------|-----------------|
-| `200` | Updated; response is `ContentTypeDetail` with the new `enabled` value; lock still held |
-| `400` | Missing `enabled` flag, invalid id, or wildcard name |
-| `403` | Caller is not Admin |
-| `404` | Content type not found |
-| `409` | No design lock held, or locked by another user |
-| `500` | Design service or server failure |
+`GET /services/contenttypes` (the catalog list) may be a JSON array or a Jackson
+root envelope (`ContentTypeList` and/or `ContentType`). The Developer **Content
+Types** catalog unwraps those shapes so the table loads (and the first row can
+open Object ACL). Clients must not assume a bare array or call `.map` on the
+raw object.
+
+List and detail JSON list fields (`fields`, `childFieldSets`, `allowedWorkflows`,
+`allowedTemplates`, `designGaps`) are arrays. Some Jackson/JAXB envelopes
+historically serialize a one-item list as a single object, a
+`{ NamedObjectRef: … }` / `{ ContentTypeField: … }` / `{ DesignGap: … }` wrapper,
+or an empty-collection bean (`{ "empty": false }`). **Developer → Content Types**
+detail treats those non-array shapes as an empty list or unwraps the single item.
+The content type form stays on screen (or shows an in-panel error). It does
+**not** replace the Content Types section with **Unable to load Content Types**.
+Capability gaps still render as the human-readable **message** (fallback **code**).
 
 ### Field rule expressions (read-only)
 
@@ -716,6 +734,23 @@ warning in the Server actions error region.
 | `GET` | `/services/sitemanage/publish/resource/{id}` | Publish Now for an asset |
 
 See [Content Explorer](id:admin-content-explorer) server actions.
+
+## Content Explorer translations
+
+Explorer **Translations** (View → Translations, or Translate on Server actions) lists locale
+variants and creates new ones through the public REST façade:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/rest/content-explorer/translations/{itemId}` | Current locale plus translation-category dependents |
+| `POST` | `/rest/content-explorer/translations` | Create locale variants (`itemIds` numeric content ids, optional `locales`) |
+
+`{itemId}` on GET may be a hyphenated Percussion GUID (`16777215-101-551`) **or** a bare numeric
+content id (`551`). Explorer list rows are usually GUID-shaped; clients must send that full GUID
+on GET. Stripping to the last segment (`GET …/translations/551`) can return **404 Item not found**
+while the GUID form returns **200**. Create-variant POST still uses numeric `itemIds`.
+
+See [Content Explorer](id:admin-content-explorer) → Translations.
 
 ## Testing tips
 

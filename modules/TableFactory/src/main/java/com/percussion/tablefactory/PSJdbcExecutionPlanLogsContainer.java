@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -137,7 +138,7 @@ public class PSJdbcExecutionPlanLogsContainer {
       writer = new FileWriter(logFile);
       PSXmlDocumentBuilder.write(doc, writer, "UTF-8");
     } catch (Exception e) {
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.LOG_FILE_WRITE_ERROR);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.LOG_FILE_WRITE_ERROR);
     } finally {
       try {
         if (writer != null) writer.close();

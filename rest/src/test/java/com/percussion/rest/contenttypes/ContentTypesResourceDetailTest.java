@@ -30,7 +30,9 @@ import static org.mockito.Mockito.when;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.JacksonContextResolver;
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
@@ -93,11 +95,8 @@ public class ContentTypesResourceDetailTest {
   public void getContentTypeReturnsDetail() {
     ContentTypeDetail d = new ContentTypeDetail();
     d.setName("percPage");
-    d.setEnabled(true);
     when(adaptor.getContentType(any(), eq("percPage"))).thenReturn(d);
-    ContentTypeDetail out = resource.getContentType("percPage");
-    assertEquals("percPage", out.getName());
-    assertEquals(Boolean.TRUE, out.getEnabled());
+    assertEquals("percPage", resource.getContentType("percPage").getName());
   }
 
   @Test
@@ -191,9 +190,10 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void updateContentTypeLockConflict() {
+  public void updateContentTypeLockConflictWhenLockNotHeld() {
     when(adaptor.updateContentType(any(), eq("percPage"), any()))
-        .thenThrow(new IllegalStateException("Could not acquire design lock for content type"));
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not save content type; design lock required"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
@@ -202,94 +202,112 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void setContentTypeEnabledSuccess() {
-    ContentTypeDetail updated = new ContentTypeDetail();
-    updated.setName("percPage");
-    updated.setEnabled(false);
-    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false))).thenReturn(updated);
-    ContentTypeDetail out =
-        resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false));
-    assertEquals(Boolean.FALSE, out.getEnabled());
-  }
-
-  @Test
-  public void setContentTypeEnabledRequiresFlag() {
-    WebApplicationException missingBody =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setContentTypeEnabled("percPage", null));
-    assertEquals(400, missingBody.getResponse().getStatus());
-    WebApplicationException missingFlag =
-        assertThrows(
-            WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled()));
-    assertEquals(400, missingFlag.getResponse().getStatus());
-  }
-
-  @Test
-  public void setContentTypeEnabledNotFound() {
-    when(adaptor.setContentTypeEnabled(any(), eq("missing"), eq(true))).thenReturn(null);
+  public void updateContentTypeLockConflictWhenLockedByOtherUser() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new ContentTypeDesignLockException("Could not save content type; locked by editor2"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("missing", new ContentTypeEnabled(true)));
-    assertEquals(404, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setContentTypeEnabledForbidden() {
-    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
-        .thenThrow(new WebApplicationException("Admin role required", 403));
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
-    assertEquals(403, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setContentTypeEnabledLockRequired() {
-    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
-        .thenThrow(
-            new ContentTypeDesignLockException(
-                "Could not enable/disable content type; design lock required"));
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
   }
 
   @Test
-  public void setContentTypeEnabledLockedByOtherUser() {
-    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
+  public void updateContentTypeGenericFailureWithBlockNameIs500Not409() {
+    when(adaptor.updateContentType(any(), eq("percBlockquote"), any()))
         .thenThrow(
-            new ContentTypeDesignLockException(
-                "Could not enable/disable content type; locked by editor2"));
+            new IllegalStateException(
+                "Failed to open content type design session: percBlockquote"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
-    assertEquals(409, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setContentTypeEnabledDoesNotTreatGenericStateAs409() {
-    when(adaptor.setContentTypeEnabled(any(), eq("percPage"), eq(false)))
-        .thenThrow(new IllegalStateException("Failed to save percBlockquote content type"));
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class,
-            () -> resource.setContentTypeEnabled("percPage", new ContentTypeEnabled(false)));
+            () -> resource.updateContentType("percBlockquote", new ContentTypeDetail()));
     assertEquals(500, ex.getResponse().getStatus());
   }
 
   @Test
-  public void contentTypeEnabledJsonUsesRootWrap() throws Exception {
-    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeEnabled.class);
-    String json = mapper.writeValueAsString(new ContentTypeEnabled(true));
-    assertTrue(json.contains("\"ContentTypeEnabled\""), json);
-    assertTrue(json.contains("\"enabled\""), json);
-    ContentTypeEnabled roundTrip = mapper.readValue(json, ContentTypeEnabled.class);
-    assertEquals(Boolean.TRUE, roundTrip.getEnabled());
+  public void updateContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeBadRequestForWildcardName() {
+    when(adaptor.lockContentType(any(), eq("perc*")))
+        .thenThrow(new IllegalArgumentException("Content type name must not contain wildcards"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("perc*"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeSuccess() {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setLocker("Admin");
+    summary.setSession("sess-1");
+    summary.setRemainingTime(30);
+    when(adaptor.lockContentType(any(), eq("percPage"))).thenReturn(summary);
+    ObjectLockSummary out = resource.lockContentType("percPage");
+    assertEquals("Admin", out.getLocker());
+    assertEquals("sess-1", out.getSession());
+    assertEquals(30, out.getRemainingTime());
+  }
+
+  @Test
+  public void lockContentTypeNotFound() {
+    when(adaptor.lockContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeConflictWhenLockedByOtherUser() {
+    when(adaptor.lockContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not acquire design lock for content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeForbidden() {
+    when(adaptor.lockContentType(any(), eq("percPage")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("percPage"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeSuccess() {
+    when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
+    Response response = resource.unlockContentType("percPage");
+    assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeNotFound() {
+    when(adaptor.unlockContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeConflictWhenLockedByOtherUser() {
+    when(adaptor.unlockContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not release design lock; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 }

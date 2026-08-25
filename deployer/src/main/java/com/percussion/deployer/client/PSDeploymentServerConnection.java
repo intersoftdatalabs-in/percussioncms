@@ -28,7 +28,7 @@ import com.percussion.conn.PSServerException;
 import com.percussion.deployer.objectstore.PSDbmsInfo;
 import com.percussion.deployer.objectstore.PSDeploymentServerConnectionInfo;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
 import com.percussion.error.PSLockedException;
@@ -199,7 +199,7 @@ public final class PSDeploymentServerConnection {
       m_conn.setTimeout(0); // no timeout
       m_conn.addBasicAuthorization("", m_uid, m_password);
     } catch (ProtocolNotSuppException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     m_isConnected = true;
@@ -216,7 +216,7 @@ public final class PSDeploymentServerConnection {
     } catch (NumberFormatException e) {
       m_isConnected = false;
       Object[] args = {"connect", "deployVersion", deployVersion};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
 
     // The client's deployment version must be greater than or equal to the
@@ -225,7 +225,7 @@ public final class PSDeploymentServerConnection {
     if (deployInterface > DEPLOYMENT_INTERFACE_VERSION) {
       m_isConnected = false;
       throw new PSDeployException(
-          IPSDeploymentErrors.SERVER_VERSION_INVALID, m_version.getVersionString());
+          DeploymentErrorCodes.SERVER_VERSION_INVALID, m_version.getVersionString());
     }
 
     String licensed = root.getAttribute("licensed");
@@ -237,13 +237,13 @@ public final class PSDeploymentServerConnection {
     if (versionEl == null) {
       m_isConnected = false;
       Object[] args = {"connect", PSFormatVersion.NODE_TYPE};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
     m_version = PSFormatVersion.createFromXml(versionEl);
     if (m_version == null) {
       m_isConnected = false;
       Object[] args = {"connect", PSFormatVersion.NODE_TYPE, "unknown"};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
     // This will have to be reworked once we allow remote install of the package manager for cougar.
     // It will need to know the difference of cougar and rhythmyx
@@ -252,7 +252,7 @@ public final class PSDeploymentServerConnection {
     if (m_version.getMajorVersion() < 6) {
       m_isConnected = false;
       throw new PSDeployException(
-          IPSDeploymentErrors.SERVER_VERSION_INVALID, m_version.getVersionString());
+          DeploymentErrorCodes.SERVER_VERSION_INVALID, m_version.getVersionString());
     }
 
     Element repositoryEl =
@@ -260,14 +260,14 @@ public final class PSDeploymentServerConnection {
     if (repositoryEl == null) {
       m_isConnected = false;
       Object[] args = {"connect", PSDbmsInfo.XML_NODE_NAME};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
     try {
       m_serverRepositoryInfo = new PSDbmsInfo(repositoryEl);
     } catch (PSUnknownNodeTypeException e) {
       m_isConnected = false;
       Object[] args = {"connect", PSDbmsInfo.XML_NODE_NAME, e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
 
     // locker thread tries to extend the lock 2 minutes before expiration.
@@ -311,7 +311,7 @@ public final class PSDeploymentServerConnection {
       doDisconnect();
     } catch (PSDeployException e) {
       Object[] args = {m_server + ":" + m_port, e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.LOCK_NOT_RELEASED, args);
+      throw new PSDeployException(DeploymentErrorCodes.LOCK_NOT_RELEASED, args);
     } finally {
       if (m_lockerThread != null) m_lockerThread.interrupt();
       m_isConnected = false;
@@ -424,7 +424,7 @@ public final class PSDeploymentServerConnection {
     if (req == null) throw new IllegalArgumentException("req may not be null");
 
     if (!m_isConnected) {
-      throw new PSDeployException(IPSDeploymentErrors.NOT_CONNECTED_ERROR, m_server);
+      throw new PSDeployException(DeploymentErrorCodes.NOT_CONNECTED_ERROR, m_server);
     }
     return execute(type, req, params, true);
   }
@@ -500,7 +500,7 @@ public final class PSDeploymentServerConnection {
             log.debug(uee.getMessage(), uee);
           }
         }
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -517,7 +517,7 @@ public final class PSDeploymentServerConnection {
         }
       }
 
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } finally {
       if (reqFile != null) reqFile.release();
     }
@@ -581,7 +581,7 @@ public final class PSDeploymentServerConnection {
     if (controller == null) throw new IllegalArgumentException("controller may not be null");
 
     if (!m_isConnected) {
-      throw new PSDeployException(IPSDeploymentErrors.NOT_CONNECTED_ERROR, m_server);
+      throw new PSDeployException(DeploymentErrorCodes.NOT_CONNECTED_ERROR, m_server);
     }
 
     return execute(type, params, body, controller, true, true);
@@ -663,12 +663,12 @@ public final class PSDeploymentServerConnection {
           log.error(ioe.getMessage());
           log.debug(ioe.getMessage(), ioe);
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
+              DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
         }
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     } catch (IOException e) {
       if (repost) {
@@ -678,7 +678,7 @@ public final class PSDeploymentServerConnection {
       } else {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
       }
     }
 
@@ -812,7 +812,7 @@ public final class PSDeploymentServerConnection {
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } finally {
       if (in != null)
         try {
@@ -1049,7 +1049,7 @@ public final class PSDeploymentServerConnection {
    * Multipart Content-Type forced on XML request document parts so the server {@code
    * PSFormContentParser} classifies the part as XML and calls {@code setInputDocument}. Relying
    * only on {@code URLConnection.guessContentTypeFromName} can omit or mis-classify the type on
-   * some JREs/platforms and surfaces as {@code IPSDeploymentErrors.NULL_INPUT_DOC}.
+   * some JREs/platforms and surfaces as {@code DeploymentErrorCodes.NULL_INPUT_DOC}.
    */
   public static final String XML_REQUEST_CONTENT_TYPE = "application/xml";
 
@@ -1196,13 +1196,13 @@ public final class PSDeploymentServerConnection {
 
     // handle case if server is still starting
     if (status == 503) {
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_NOT_AVAILABLE);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_NOT_AVAILABLE);
     }
 
     // make sure we got back some kind of response
     if (response == null || response.length == 0) {
       Object[] args = {type, String.valueOf(status)};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_EMPTY, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_EMPTY, args);
     }
 
     // try to parse the response as XML
@@ -1214,7 +1214,7 @@ public final class PSDeploymentServerConnection {
       if (status == 200) {
         // must have valid response for a 200 error.
         Object[] args = {type, e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_PARSE_ERROR, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_PARSE_ERROR, args);
       }
     }
 
@@ -1233,7 +1233,7 @@ public final class PSDeploymentServerConnection {
       }
 
       Object[] args = {type, String.valueOf(status), msg};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_ERROR_RESPONSE, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_ERROR_RESPONSE, args);
     }
 
     // We must have an error that we can handle in some way.
@@ -1248,7 +1248,7 @@ public final class PSDeploymentServerConnection {
       } catch (PSUnknownNodeTypeException e) {
         // malformed exception xml (should not happen)
         Object[] args = {type, PSDeployException.XML_NODE_NAME, e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       }
 
       className = de.getOriginalExceptionClass();
@@ -1260,11 +1260,11 @@ public final class PSDeploymentServerConnection {
       PSJobException je = null;
       try {
         je = new PSJobException(root);
-        de = new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, je.getLocalizedMessage());
+        de = new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, je.getLocalizedMessage());
       } catch (PSUnknownNodeTypeException e) {
         // malformed exception xml (should not happen)
         Object[] args = {type, PSDeployException.XML_NODE_NAME, e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       }
 
       className = je.getOriginalExceptionClass();
@@ -1274,7 +1274,7 @@ public final class PSDeploymentServerConnection {
       }
     } else {
       Object[] args = {type, String.valueOf(status), PSXmlDocumentBuilder.toString(respDoc)};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_ERROR_RESPONSE, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_ERROR_RESPONSE, args);
     }
 
     if (PSAuthenticationFailedException.class.getName().equals(className)) {

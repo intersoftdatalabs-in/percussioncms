@@ -89,6 +89,7 @@ import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Catalog DTOs must serialize names (and related fields) for Developer SPA tables. ContentType list
@@ -142,8 +143,15 @@ class JacksonContextResolverOptionalTest {
     assertTrue(json.contains("percPage"), json);
     assertTrue(json.contains("\"name\""), json);
     assertTrue(json.contains("\"label\""), json);
-    // List root wrap uses ContentType (XmlRootElement on ContentTypeList) or plain array
-    assertTrue(json.contains("ContentType") || json.startsWith("["), json);
+    // Production mapper WRAP_ROOT_VALUE uses class name ContentTypeList
+    // (@XmlRootElement is ignored without a JAXB introspector). Parse with a
+    // plain mapper — the production mapper also has UNWRAP_ROOT_VALUE.
+    // SPA unwrapContentTypeList must handle this envelope (#3706).
+    var tree = JsonMapper.builder().build().readTree(json);
+    assertTrue(tree.has("ContentTypeList") || tree.has("ContentType") || tree.isArray(), json);
+    if (tree.has("ContentTypeList")) {
+      assertTrue(tree.get("ContentTypeList").isArray(), json);
+    }
   }
 
   @Test

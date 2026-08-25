@@ -16,6 +16,7 @@
  */
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
@@ -24,7 +25,6 @@ import com.percussion.cms.objectstore.PSSaveResults;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
 import com.percussion.cms.objectstore.client.PSRemoteCataloger;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.cx.objectstore.PSProperties;
@@ -224,7 +224,7 @@ public class PSSearchViewActionManager {
       return search;
     } catch (PSException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
   }
 
@@ -454,10 +454,10 @@ public class PSSearchViewActionManager {
           searchEx.executeSearch(searchNode, includeFolders, true);
         } catch (IOException ioe) {
           throw new PSContentExplorerException(
-              IPSContentExplorerErrors.GENERAL_ERROR, ioe.getLocalizedMessage());
+              ContentExplorerErrorCodes.GENERAL_ERROR, ioe.getLocalizedMessage());
         } catch (SAXException sae) {
           throw new PSContentExplorerException(
-              IPSContentExplorerErrors.GENERAL_ERROR, sae.getLocalizedMessage());
+              ContentExplorerErrorCodes.GENERAL_ERROR, sae.getLocalizedMessage());
         }
       } else // If not initialized simply set empty children
       {
@@ -617,11 +617,11 @@ public class PSSearchViewActionManager {
     } catch (IOException ex) {
       ex.printStackTrace();
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     } catch (SAXException ex) {
       ex.printStackTrace();
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
 
     return ret;

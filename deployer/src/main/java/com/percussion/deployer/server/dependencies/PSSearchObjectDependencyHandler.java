@@ -43,7 +43,6 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSProperty;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -57,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Base class to handle packaging and deploying search objects. */
 public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDependencyHandler
@@ -90,7 +90,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     PSSearch search = loadSearch(proc, dep.getDependencyId());
     if (search == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     // get default display format
@@ -108,9 +108,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
         if (dfDep != null) childDeps.add(dfDep);
       }
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // get app
@@ -176,7 +176,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       }
       return deps.iterator();
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -225,7 +225,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       PSSearch search = new PSSearch();
       reserveNewId(dep, idMap, search);
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -312,9 +312,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       addTransactionLogEntry(dep, ctx, newSearch, action);
 
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -334,7 +334,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     PSSearch search = loadSearch(getComponentProcessor(tok), dep.getDependencyId());
     if (search == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     // convert to PSProperties so we can use an existing app transformer
@@ -468,9 +468,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
 
       return search;
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -585,7 +585,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       Object[] args = {
         search.getDisplayFormatId(), dfDepType, dep.getDependencyId(), dep.getObjectTypeName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.CHILD_DEP_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.CHILD_DEP_NOT_FOUND, args);
     }
 
     //    Second - determine if the Display Format is:

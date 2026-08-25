@@ -33,7 +33,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
@@ -48,6 +47,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a folder's relationships to its child content items. */
 public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyHandler {
@@ -201,7 +201,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
       PSComponentSummary tgtFolderSum = getFolderSummary(proc, path);
       if (tgtFolderSum == null) {
         Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-        throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+        throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
       }
       PSLocator tgtFolderLoc = tgtFolderSum.getCurrentLocator();
 
@@ -245,7 +245,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
               ctx.getCurrentIdMap().getSourceServer(),
               mapping.getTargetId()
             };
-            throw new PSDeployException(IPSDeploymentErrors.INVALID_ID_MAPPING_TARGET, args);
+            throw new PSDeployException(DeploymentErrorCodes.INVALID_ID_MAPPING_TARGET, args);
           }
         }
         adds.add(new PSLocator(childId, srcLoc.getRevision()));
@@ -262,9 +262,9 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
           PSTransactionSummary.ACTION_CREATED);
 
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

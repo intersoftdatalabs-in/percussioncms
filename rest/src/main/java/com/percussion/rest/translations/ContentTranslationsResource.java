@@ -137,8 +137,10 @@ public class ContentTranslationsResource {
   @Operation(
       summary = "List locale variants for a content item",
       description =
-          "Returns the item's current locale plus translation-category dependents. Does not include"
-              + " in-flight queue status or session content-locale context (product disposition).",
+          "Returns the item's current locale plus translation-category dependents. itemId may be a"
+              + " hyphenated host-type-uuid GUID (for example 16777215-101-551) or a bare numeric"
+              + " content id. Does not include in-flight queue status or session content-locale"
+              + " context (product disposition).",
       responses = {
         @ApiResponse(
             responseCode = "200",

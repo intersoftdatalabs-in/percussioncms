@@ -58,6 +58,7 @@ import {
   appendUniqueById,
   selectionItemFromSearchResult,
 } from "./selectionHelpers";
+import { passesFilters } from "./passesFilters";
 import {
   errorStateStyle,
   shellStyle,
@@ -132,26 +133,6 @@ function toSelectionItem(item: PSPathItem): SelectionItem {
     category: item.category,
     contentTypeIds: undefined,
   };
-}
-
-function passesFilters(
-  item: PSPathItem,
-  allowedTypes: ReadonlyArray<string> | null,
-  allowedCategories: ReadonlyArray<string> | null,
-): boolean {
-  if (allowedTypes && allowedTypes.length > 0) {
-    const t = (item.type ?? item.category ?? "").toLowerCase();
-    if (!allowedTypes.some((x) => x.toLowerCase() === t)) {
-      return false;
-    }
-  }
-  if (allowedCategories && allowedCategories.length > 0) {
-    const c = (item.category ?? item.type ?? "").toLowerCase();
-    if (!allowedCategories.some((x) => x.toLowerCase() === c)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {

@@ -11,6 +11,8 @@
 |-----------------------------------|-------------------------------------|------------------------------------------------|
 | Public REST list                  | Catalog name/label/description/guid | `GET /services/contenttypes`                   |
 | Public REST detail (**new P0.2**) | Read-only field catalog + meta      | `GET /services/contenttypes/{idOrName}`        |
+| Public REST lock/unlock           | Self-only design-session lock       | `POST /services/contenttypes/{idOrName}/lock` / `.../unlock` |
+| Public REST PUT save              | Held-lock save (label/description/…) | `PUT /services/contenttypes/{idOrName}`        |
 | Design SOAP (Workbench)           | Full load/save/lock/create/delete   | `IPSContentDesignWs` / `ContentDesignSOAPImpl` |
 | Item def manager                  | Runtime CE definition cache         | `PSItemDefManager.getItemDef`                  |
 
@@ -51,7 +53,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (held design lock; 409 without) |
 | Shared field file editing                            | CD-15        | Separate object                                   |
 | System def                                           | CD-16        | Separate object                                   |
-| Create / rename / delete / lock                      | CD-01, §5.2  | SOAP design only                                  |
+| Create / rename / delete                             | CD-01, §5.2  | SOAP design only; lock + PUT save via REST        |
 | Import/export CT                                     | CD-14        | Workbench wizards                                 |
 | ACL                                                  | CD-19, §5.4  | Existing ACL REST may help later                  |
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
@@ -60,7 +62,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 
 1. ~~Optional JSON projection of field rules (read-only)~~ **Done P0.2c (flags only)**
 2. ~~Read-only field rule expressions + control property names~~ **Done CD-05-07 read path (#2920)**
-3. Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`
+3. ~~Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`~~ **Lock** (#3742) + **PUT save requires held lock** (#3743)
 4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
 5. Control property value/choice catalogs + rule write/save
 6. Templates/slots design editors

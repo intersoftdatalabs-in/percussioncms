@@ -16,7 +16,7 @@
  */
 package com.percussion.cx;
 
-import com.percussion.cx.error.IPSContentExplorerErrors;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
 import java.util.Iterator;
@@ -77,7 +77,7 @@ public final class PSExpandedOption implements IPSClientObjects {
       }
     } catch (Exception e) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.MISC_PROCESSING_OPTIONS_ERROR, e.getLocalizedMessage());
+          ContentExplorerErrorCodes.MISC_PROCESSING_OPTIONS_ERROR, e.getLocalizedMessage());
     }
   }
 

@@ -37,7 +37,6 @@ import com.percussion.design.objectstore.PSConfigurationFactory;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.config.PSConfigManager;
@@ -53,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a Relationship defintion. */
 public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHandler
@@ -189,7 +189,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
           cfgName,
           dep.getDisplayName()
         };
-        throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+        throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
       }
 
       Document doc = null;
@@ -201,7 +201,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
           PSDependencyFile.TYPE_ENUM[file.getType()],
           PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_COMPONENT_XML]
         };
-        throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+        throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
       }
 
       Element root = doc.getDocumentElement();
@@ -234,9 +234,9 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
           exists ? PSTransactionSummary.ACTION_MODIFIED : PSTransactionSummary.ACTION_CREATED;
       addTransactionLogEntry(dep, ctx, cfgName, PSTransactionSummary.TYPE_CMS_OBJECT, action);
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSErrorException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -264,7 +264,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     PSRelationshipConfig cfg = cfgSet.getConfig(dep.getDependencyId());
     if (cfg == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     PSApplicationIDTypes idTypes = new PSApplicationIDTypes(dep);
@@ -373,7 +373,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
 
       return cfgSet;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

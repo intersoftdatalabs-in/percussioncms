@@ -20,7 +20,8 @@ From this module directory (standalone, preferred):
 
 Product packages must not reintroduce committed install definition XML under
 `sys__UserDependency--rxconfig/{Widgets,Pages,Gadgets}/` (or `rxconfig/{Pages,Gadgets}/`
-for Pages/Gadgets) except the explicit waiver **`perc.Test`**.
+for Pages/Gadgets). **Widget** waiver is empty after perc.Test ship-exit (#3736);
+**Pages/Gadgets** waiver is empty after perc.Test page dual-ship exit (#3737).
 
 | Piece | Class |
 |-------|--------|
@@ -41,7 +42,8 @@ See root `scripts/README.md` (definition XML inventory gates) and
 ## Dual-ship page templateDef inventory gate (#3675)
 
 Product packages with modern `pages/` must not re-introduce dual-ship root `*.templateDef`
-materialization except the explicit waiver **`perc.Test`**. Native packages
+materialization. Waiver is **empty** after perc.Test page dual-ship exit (#3737)
+(`perc.Test` never authored `pages/` / page `*.templateDef`). Native packages
 (`package-install.properties` `page.installMode=native`) are not dual-ship emitters.
 #3674 leftover widget binaries are **not** dual-ship-retained (empty retain list).
 
@@ -55,24 +57,26 @@ Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the
 
 ## Archive-manifest Widget XML paths (#3582)
 
-Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
+Product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
 `rxconfig/Widgets/*.xml` (or encoded `rxconfig_Widgets_`) when modern `widgets/` roots exist.
-Waiver is **`perc.Test` only**. Package build re-injects those user-dependencies on the staging
-copy via `PSWidgetXmlInstallEmitter` / `PSWidgetArchiveManifestInventory` so the built `.ppkg`
-still installs Widget XML.
+Widget waiver is **empty** after perc.Test ship-exit (#3736). Package build re-injects those
+user-dependencies on the staging copy via `PSWidgetXmlInstallEmitter` /
+`PSWidgetArchiveManifestInventory` so the built `.ppkg` still installs Widget XML.
 
 | Piece | Class |
 |-------|--------|
 | Inventory + strip + install inject | `com.percussion.packages.widgetxml.PSWidgetArchiveManifestInventory` |
 | Surefire assertion | `PSWidgetArchiveManifestInventoryTest` |
 
-## M2 product/H2 zero-legacy-selection evidence (#3583)
+## M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
 
-Non-waived product / H2 widget package roots must select modern-first
+Product / H2 widget package roots must select modern-first
 (`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
-`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **`perc.Test`**
-only. The runtime shim stays (#2852); this is **not** M2 PASS overall (M3 still
-FAIL).
+`LEGACY_*` on a product widget fails Surefire. Waiver: **empty after #3736
+(perc.Test ship-exit)**; until then, **`perc.Test` only** may remain legacy
+(`assertWidgetWaiverPolicy`). After #3736, perc.Test must be modern-first
+like other product packages. The runtime shim stays (#2852); this is
+**not** M2 PASS overall (M3 still FAIL).
 
 | Piece | Class |
 |-------|--------|

@@ -16,10 +16,10 @@
  */
 package com.percussion.cas;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
@@ -69,7 +69,7 @@ public class PSDefaultAssemblyLocation implements IPSAssemblyLocation {
       // check the number of parameters provided is correct
       if (params.length < EXPECTED_NUMBER_OF_PARAMS) {
         Object[] args = {"" + EXPECTED_NUMBER_OF_PARAMS, "" + params.length};
-        throw new PSExtensionException(IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH, args);
+        throw new PSExtensionException(ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, args);
       }
 
       String root = params[0].toString().replace('\\', '/');

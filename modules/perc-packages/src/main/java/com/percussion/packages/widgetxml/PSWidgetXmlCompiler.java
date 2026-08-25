@@ -42,10 +42,10 @@ import java.util.regex.Pattern;
  * lists, nav chrome, file, image — #2772), residual long-tail product packages (blog, calendar,
  * directory, social, forms, poll, login, rss, iframe — #2789), remaining product packages
  * (auto-lists, blog/list companions, comments/liked/cards, event/slider/cookie/jquery, login
- * variants, Result/Redirect, defaultLanguage — #2802), and the final {@code perc.Test} residual
- * ({@code PSWidget_TestProperties} — #2830): JEXL code + Velocity content + optional asset content
- * type + UserPref/CssPref + {@code <Resource>} CSS/JS refs. Product Widget XML remains dual-run
- * until Phase 5 exit; inventory:
+ * variants, Result/Redirect, defaultLanguage — #2802), and {@code perc.Test}
+ * ({@code PSWidget_TestProperties} — #2830 compile / #3736 ship-exit): JEXL code + Velocity content
+ * + optional asset content type + UserPref/CssPref + {@code <Resource>} CSS/JS refs. Product Widget
+ * XML is no longer committed under Packages; inventory:
  * {@code docs/ai-generated/tasks/template-assembler-normalization/widget-xml-inventory.md}.
  *
  * <p>Assembler mapping: {@code Content type="velocity"} → {@code velocityAssembler}; {@code html}

@@ -53,7 +53,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSWorkflowInfo;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
@@ -93,6 +92,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a content type definition. */
 public class PSContentTypeDependencyHandler extends PSContentEditorObjectDependencyHandler
@@ -241,7 +241,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         t = assemblySvc.loadTemplate(guid, false);
       } catch (PSAssemblyException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Unable to load template while catalogging ContentType "
                 + "dependencies\n"
                 + e.getLocalizedMessage());
@@ -276,7 +276,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
     var appName = PSDependencyUtils.getColumnAppName(((PSNodeDefinition) node).getNewRequest());
     if (appName == null || appName.isBlank()) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "App name was null");
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, "App name was null");
     }
     childDeps.addAll(getCEChildDependencies(tok, appName));
 
@@ -321,7 +321,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       PSXmlDocumentBuilder.replaceRoot(doc, elem);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Template:" + item.getName());
     }
     return new PSDependencyFile(PSDependencyFile.TYPE_ITEM_DEFINITION, createXmlFile(doc));
@@ -342,7 +342,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       str = node.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for NodeDefinition:" + node.getName());
     }
 
@@ -376,7 +376,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -475,7 +475,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         PSDependencyFile.TYPE_ENUM[depFile.getType()],
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_ITEM_DEFINITION]
       };
-      throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+      throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
     }
 
     try {
@@ -487,7 +487,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     } catch (PSUnknownNodeTypeException e) {
       String err = e.getLocalizedMessage();
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create template from file:"
               + depFile.getFile().getName()
               + " Error was:\n"
@@ -524,7 +524,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     } catch (Exception e) {
       String err = e.getLocalizedMessage();
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create NodeDefinition from file:" + f.getName() + " Error was:\n" + err);
     }
     return node;
@@ -556,7 +556,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       guidval = Integer.parseInt(clMapping.getTargetId());
     } catch (NumberFormatException ne) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, " was expecting an int value: ");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, " was expecting an int value: ");
     }
 
     item.setTypeId(guidval);
@@ -655,7 +655,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       mgr.saveNodeDefinitions(nodes);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not save or update the slot:" + s.getName() + "\n" + e1.getLocalizedMessage());
     }
   }
@@ -714,7 +714,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       tmpSet = aSvc.findAllTemplates();
     } catch (PSAssemblyException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "catalogging templates failed");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "catalogging templates failed");
     }
 
     for (IPSAssemblyTemplate tmp : tmpSet) tmpGuids.add(String.valueOf(tmp.getGUID().longValue()));
@@ -738,7 +738,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
     PSIdMap idMap = ctx.getCurrentIdMap();
     if (idMap == null)
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "PSIdMap cannot be null");
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, "PSIdMap cannot be null");
 
     IPSGuid nodeGuid = new PSGuid(PSTypeEnum.NODEDEF, id);
     Set<String> tmpGuids = catalogTemplates();
@@ -924,7 +924,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       throws PSDeployException {
     if (itemFile == null)
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "could not locate the item definition file in the archive");
 
     boolean isNew = curVer == -1;
@@ -1031,7 +1031,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       String detail = PSExceptionUtils.getMessageForLog(e);
       log.error("Error occurred while installing content type:{} — {}", appname, detail, e);
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Error occurred while installing content type:" + appname + "\n Error was: " + detail);
     }
 
@@ -1087,7 +1087,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       item = PSContentTypeHelper.loadItemDef(node.getGUID());
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Error occurred while cataloging this contenttype:"
               + node.getName()
               + "Error was: "
@@ -1127,7 +1127,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
       } catch (Exception e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Error occurred while cataloging this contenttype:"
                 + node.getName()
                 + "Error was: "
@@ -1324,7 +1324,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         }
       }
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
     return idTypes;
   }
@@ -1358,7 +1358,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       } catch (Exception e) {
         String msg = "\n Error was:" + e.getLocalizedMessage();
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Could not locate CE application:" + appName + msg);
       }
     return app;

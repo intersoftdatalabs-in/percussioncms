@@ -19,6 +19,12 @@ export interface SiteSummary {
   name: string;
   id?: string | number;
   siteId?: string | number;
+  /**
+   * Repository folder for the site ({@code //Sites/CorporateInvestments}).
+   * Sample FastForward sites use a folder leaf that is not the SITENAME
+   * ({@code Corporate_Investments}) — page create must post this path.
+   */
+  folderPath?: string;
 }
 
 export interface ContentListItem {

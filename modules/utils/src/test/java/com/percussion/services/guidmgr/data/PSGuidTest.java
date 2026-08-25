@@ -49,4 +49,17 @@ public class PSGuidTest {
     assertThrows(
         IllegalArgumentException.class, () -> new PSGuid(PSTypeEnum.TEMPLATE, typed.longValue()));
   }
+
+  @Test
+  public void bareNumericStringIsLegacyContentNotUndetermined() {
+    PSGuid guid = new PSGuid("594");
+    assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
+    assertEquals(594, guid.getUUID());
+    assertEquals(0L, guid.getHostId());
+  }
+
+  @Test
+  public void hyphenatedTwoComponentStillRequiresType() {
+    assertThrows(IllegalArgumentException.class, () -> new PSGuid("1-3"));
+  }
 }

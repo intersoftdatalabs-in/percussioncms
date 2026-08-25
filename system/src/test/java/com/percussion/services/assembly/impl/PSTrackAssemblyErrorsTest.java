@@ -17,6 +17,7 @@
 package com.percussion.services.assembly.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
@@ -77,6 +78,19 @@ public class PSTrackAssemblyErrorsTest {
     PSAssemblyWorkItem test = createItem();
     PSTrackAssemblyError.handleItem(test);
     checkResult(TEST1, "text/html;charset=utf8", test);
+  }
+
+  /** Preview context keeps assembled HTML even when problems were tracked (#3719). */
+  @Test
+  public void test40PreviewKeepsHtmlOnTrackedProblems() throws IOException {
+    PSTrackAssemblyError.init();
+    PSTrackAssemblyError.addProblem("Problem processing inline links");
+    PSAssemblyWorkItem test = createItem();
+    test.setStatus(com.percussion.services.assembly.IPSAssemblyResult.Status.SUCCESS);
+    test.setParameterValue(com.percussion.system.utils.IPSHtmlParameters.SYS_CONTEXT, "0");
+    PSTrackAssemblyError.handleItem(test);
+    checkResult(RESULT, "text/xhtml;charset=utf8", test);
+    assertTrue(test.isSuccess());
   }
 
   /** Test two problem case. */

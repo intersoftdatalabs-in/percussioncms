@@ -37,6 +37,7 @@ import com.percussion.share.async.IPSAsyncJobService;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.service.IPSDataItemSummaryService;
+import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.dao.IPSiteDao;
@@ -135,5 +136,38 @@ class PSItemWorkflowServiceNumericCheckInTest {
     var result = service.checkIn("594");
 
     assertEquals("checkIn", result.getOperation());
+  }
+
+  @Test
+  void checkInRestDoesNot500WhenFindReportsUndeterminedGuidType() throws Exception {
+    when(dataItemSummaryService.find("594"))
+        .thenThrow(
+            new DataServiceLoadException(
+                new IllegalArgumentException(
+                    "Type is undetermined, expecting \"type\" argument")));
+
+    var result = service.checkIn("594");
+
+    assertEquals("checkIn", result.getOperation());
+  }
+
+  @Test
+  void checkInRestDoesNot500WhenGuidAssembleThrowsUndeterminedType() throws Exception {
+    when(dataItemSummaryService.find("594"))
+        .thenThrow(
+            new IllegalArgumentException("Type is undetermined, expecting \"type\" argument"));
+
+    var result = service.checkIn("594");
+
+    assertEquals("checkIn", result.getOperation());
+  }
+
+  @Test
+  void isUndeterminedGuidTypeWalksCauseChain() {
+    var wrapped =
+        new DataServiceLoadException(
+            new IllegalArgumentException("Type is undetermined, expecting \"type\" argument"));
+    assertEquals(true, PSItemWorkflowService.isUndeterminedGuidType(wrapped));
+    assertEquals(false, PSItemWorkflowService.isUndeterminedGuidType(new IllegalArgumentException("other")));
   }
 }

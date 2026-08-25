@@ -16,7 +16,7 @@
  */
 package com.percussion.cx;
 
-import com.percussion.cx.error.IPSContentExplorerErrors;
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -69,7 +69,7 @@ public class PSOptionManager {
       setDefaultOptions(new PSUserOptions(doc.getDocumentElement()));
     } catch (Exception e) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.OPTIONS_LOAD_ERROR, e.getLocalizedMessage());
+          ContentExplorerErrorCodes.OPTIONS_LOAD_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -189,7 +189,7 @@ public class PSOptionManager {
       m_applet.getActionManager().postData(appPath, params);
     } catch (Exception e) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.OPTIONS_SAVE_ERROR, e.getLocalizedMessage());
+          ContentExplorerErrorCodes.OPTIONS_SAVE_ERROR, e.getLocalizedMessage());
     }
   }
 

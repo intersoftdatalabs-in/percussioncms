@@ -20,16 +20,19 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.Guid;
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import java.net.URI;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /** Test adaptor for ContentType API bridge (Spring MainTest companion stub). */
 @Component
+@Lazy
 public class TestContentTypeAdaptor implements IContentTypesAdaptor {
 
   public TestContentTypeAdaptor() {
@@ -92,7 +95,12 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
-  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+  public ObjectLockSummary lockContentType(URI baseUri, String idOrName) {
     return null;
+  }
+
+  @Override
+  public Boolean unlockContentType(URI baseUri, String idOrName) {
+    return Boolean.TRUE;
   }
 }

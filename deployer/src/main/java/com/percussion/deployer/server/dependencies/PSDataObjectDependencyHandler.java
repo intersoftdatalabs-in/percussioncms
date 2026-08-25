@@ -30,7 +30,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -56,6 +55,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * The parent class for all data object definition handlers. These are handlers for dependencies
@@ -574,7 +574,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     }
     if (mapping == null) {
       Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     if (mapping.isNewObject() && (mapping.getTargetId() == null)) {
@@ -583,7 +583,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
         PSIdMapping parentMapping = idMap.getMapping(dep.getParentId(), dep.getParentType());
         if (parentMapping == null) {
           Object[] args = {dep.getParentType(), dep.getParentId(), idMap.getSourceServer()};
-          throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+          throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
         }
 
         String tgtParentId = parentMapping.getTargetId();
@@ -727,7 +727,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
 
     if (isDataRequired && (data == null || !data.getRows().hasNext())) {
       throw new PSDeployException(
-          IPSDeploymentErrors.CANNOT_FIND_DATA, new Object[] {table, filter.toString()});
+          DeploymentErrorCodes.CANNOT_FIND_DATA, new Object[] {table, filter.toString()});
     }
 
     return data != null && data.getRows().hasNext() ? new PSDependencyData(schema, data) : null;
@@ -760,7 +760,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
         PSDependencyFile.TYPE_ENUM[file.getType()],
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_DBMS_DATA]
       };
-      throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+      throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
     }
 
     // convert docs to objects
@@ -769,7 +769,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     try {
       depData = new PSDependencyData(dataDoc.getDocumentElement(), typeMap);
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return depData;
@@ -916,7 +916,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
       tgtRowList.add(tgtRow);
     } else // no rows
     {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     PSJdbcTableData newData = new PSJdbcTableData(tableName, tgtRowList.iterator());
@@ -950,7 +950,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -1136,7 +1136,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     if (cdata == null) // the column not exist
     {
       Object[] args = {table, col, "null"};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
     if (cdata.getValue() != null && cdata.getValue().trim().length() == 0) return null;
     else return cdata.getValue();
@@ -1163,7 +1163,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     String val = getColumnValueNullable(table, col, row);
     if (val == null) {
       Object[] args = {table, col, "null"};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
 
     return val;
