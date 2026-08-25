@@ -33,10 +33,12 @@ chrome. Oracle, MySQL, and SQL Server URLs are rejected.
 An **HTTP JSON / Headless** adapter (`http-json`) discovers pages from an HTTP GET of a JSON
 catalog or from a local JSON fixture under `virtual.rootPath`. Required page field `id`;
 `title` + `body` assemble like CSV/SQL. Operators persist the kind with REST
-`PUT /sites/{nameOrId}/virtual` (`sourceKind=http-json` plus a safe `rootPath`). SPI/CLI
-assemble is `PSVirtualSiteBuildMain … http-json`. REST Build/preview/publish and Developer
-Sites chrome for `http-json` are follow-on. Open JSON only (no API keys). Remote URLs are
-SSRF fail-closed (`http`/`https`, no userinfo, no off-loopback redirects).
+`PUT /sites/{nameOrId}/virtual` and from **Developer → Sites** (`sourceKind=http-json`
+plus a safe `rootPath`; GET round-trips the kind). SPI/CLI assemble is
+`PSVirtualSiteBuildMain … http-json`. REST Build/preview/publish and Developer Sites
+Build/Preview/Publish chrome for `http-json` are a later phase. Open JSON only (no API
+keys). Remote URLs are SSRF fail-closed (`http`/`https`, no userinfo, no off-loopback
+redirects).
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -54,7 +56,8 @@ After the site folder is created, an optional Git root is saved with
   SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build
   and last-build Preview (`GET …/virtual/preview`). HTTP JSON (`http-json`) is implemented as
   an SPI (CLI assemble) and allow-listed on Site REST GET/PUT (`sourceKind=http-json` plus a
-  safe `rootPath`). Developer Sites chrome for that kind is a follow-on slice.
+  safe `rootPath`). Developer Sites can save/GET-roundtrip `sourceKind=http-json`.
+  Build/Preview/Publish chrome for HTTP JSON remain a later slice.
 
 ## Source tree contract
 
@@ -118,7 +121,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400**). |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). Developer Sites can also save **HTTP JSON** (`http-json`); Build/Preview/Publish chrome for that kind is a later phase. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -269,8 +272,10 @@ Git/CSV; repository stays hidden). Unknown kinds remain **400**.
 
 The `http-json` adapter discovers pages from a JSON catalog. `_config.yaml` is **required**
 (versions / site title). Git remotes are not used (`virtual.remoteUrl` is rejected for this
-kind). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sourceKind=http-json`. REST
-Build/preview/publish and Developer Sites chrome for `http-json` are follow-on slices.
+kind). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sourceKind=http-json`.
+Developer Sites can select **HTTP JSON**, save a safe `rootPath`, and GET-roundtrip the
+kind. Assemble remains CLI/SPI in this slice — REST Build/preview/publish and Developer
+Sites Build/Preview/Publish chrome for `http-json` are a later phase.
 
 Supply **one** of:
 
@@ -330,8 +335,9 @@ portable-safe `rootPath` (JSON fixture directory; no remaining `..` after NIO
 `Path.normalize()`). `virtual.remoteUrl` is **400** — Git remotes apply to
 `git-filesystem` only; catalog HTTP URL or file path stay in `_config.yaml`
 (`http.url` / `http.file` or default `pages.json`). Never send secrets, userinfo, or
-Authorization on this envelope. Unknown kinds remain **400**. In-product Build, preview,
-publish, and Developer Sites chrome for `http-json` are sibling slices.
+Authorization on this envelope. Unknown kinds remain **400**. Developer Sites can
+save and GET-roundtrip `http-json`. In-product Build, preview, and publish for that
+kind remain a later phase.
 
 ## CMS-integrated build (REST and WebUI)
 

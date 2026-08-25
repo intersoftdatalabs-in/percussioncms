@@ -29,12 +29,16 @@ export const SOURCE_KIND_CSV_FILESYSTEM = "csv-filesystem";
 /** Virtual Site adapter wire name for in-memory H2 SQL ({@code jdbc:h2:mem:}). */
 export const SOURCE_KIND_SQL_DATABASE = "sql-database";
 
+/** Virtual Site adapter wire name for HTTP JSON / local JSON catalog. */
+export const SOURCE_KIND_HTTP_JSON = "http-json";
+
 /** Form select values for source kind. */
 export type VirtualSourceKindOption =
   | typeof SOURCE_KIND_REPOSITORY
   | typeof SOURCE_KIND_GIT_FILESYSTEM
   | typeof SOURCE_KIND_CSV_FILESYSTEM
-  | typeof SOURCE_KIND_SQL_DATABASE;
+  | typeof SOURCE_KIND_SQL_DATABASE
+  | typeof SOURCE_KIND_HTTP_JSON;
 
 /** Editable form model for the Virtual Site source panel. */
 export interface VirtualSiteFormModel {
@@ -49,7 +53,7 @@ export interface VirtualSiteFormModel {
 /**
  * Normalize a wire/sourceKind string into a form select option.
  * Blank, missing, or {@code repository} → repository; git-filesystem,
- * csv-filesystem, and sql-database map to themselves; unknown kinds →
+ * csv-filesystem, sql-database, and http-json map to themselves; unknown kinds →
  * repository (safe default).
  */
 export function normalizeSourceKindOption(
@@ -67,6 +71,9 @@ export function normalizeSourceKindOption(
   }
   if (v === SOURCE_KIND_SQL_DATABASE) {
     return SOURCE_KIND_SQL_DATABASE;
+  }
+  if (v === SOURCE_KIND_HTTP_JSON) {
+    return SOURCE_KIND_HTTP_JSON;
   }
   // Unknown kinds: surface as repository so operators do not accidentally
   // re-save an unsupported adapter without changing the select.
@@ -92,6 +99,11 @@ export function isCsvFilesystemSourceKind(kind: string | null | undefined): bool
 /** True when source kind is the SQL database adapter (root path + {@code _config.yaml} JDBC). */
 export function isSqlDatabaseSourceKind(kind: string | null | undefined): boolean {
   return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_SQL_DATABASE;
+}
+
+/** True when source kind is the HTTP JSON adapter (root path + {@code _config.yaml} catalog). */
+export function isHttpJsonSourceKind(kind: string | null | undefined): boolean {
+  return (kind ?? "").trim().toLowerCase() === SOURCE_KIND_HTTP_JSON;
 }
 
 /**
@@ -140,6 +152,17 @@ export function formToVirtualProps(form: VirtualSiteFormModel): VirtualSitePrope
     // stay in _config.yaml under rootPath — never send a password on this envelope.
     return {
       sourceKind: SOURCE_KIND_SQL_DATABASE,
+      rootPath: form.rootPath.trim() || null,
+      remoteUrl: "",
+      branch: "",
+    };
+  }
+  if (kind === SOURCE_KIND_HTTP_JSON) {
+    // HTTP JSON rejects a non-blank virtual.remoteUrl (REST 400). Catalog URL or
+    // local fixture stay in _config.yaml (http.url / http.file) — never send
+    // Authorization or API keys on this envelope.
+    return {
+      sourceKind: SOURCE_KIND_HTTP_JSON,
       rootPath: form.rootPath.trim() || null,
       remoteUrl: "",
       branch: "",

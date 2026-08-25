@@ -48,12 +48,14 @@ import {
 import {
   SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
+  SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_REPOSITORY,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
   isCsvFilesystemSourceKind,
   isGitFilesystemSourceKind,
+  isHttpJsonSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   validateVirtualSiteForm,
@@ -146,7 +148,8 @@ function validationMessage(
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
  * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
- * for git-filesystem, csv-filesystem, and sql-database.
+ * for git-filesystem, csv-filesystem, and sql-database. http-json is
+ * source-kind save chrome only (Build/Preview/Publish is a later slice).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -334,7 +337,8 @@ export function VirtualSiteSourcePanel({
   const gitMode = isGitFilesystemSourceKind(form.sourceKind);
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
   const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql (never repository). */
+  const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
+  /** Build chrome: git/csv/sql (never repository or http-json this slice). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
   /** Preview chrome: same kinds as Build (last-output REST, not git-only). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
@@ -420,6 +424,9 @@ export function VirtualSiteSourcePanel({
               <option value={SOURCE_KIND_SQL_DATABASE}>
                 {DEV_MSG.SITE_VIRT_KIND_SQL_DATABASE}
               </option>
+              <option value={SOURCE_KIND_HTTP_JSON}>
+                {DEV_MSG.SITE_VIRT_KIND_HTTP_JSON}
+              </option>
             </select>
           </div>
 
@@ -453,6 +460,14 @@ export function VirtualSiteSourcePanel({
                   data-testid="developer-site-virtual-sql-hint"
                 >
                   {DEV_MSG.SITE_VIRT_SQL_HINT}
+                </p>
+              ) : null}
+              {httpJsonMode ? (
+                <p
+                  style={{ ...mutedHintText, margin: "0 0 10px" }}
+                  data-testid="developer-site-virtual-http-json-hint"
+                >
+                  {DEV_MSG.SITE_VIRT_HTTP_JSON_HINT}
                 </p>
               ) : null}
               {gitMode ? (

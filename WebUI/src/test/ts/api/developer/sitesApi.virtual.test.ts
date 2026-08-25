@@ -171,6 +171,19 @@ describe("sitesApi virtual properties", () => {
         siteKey: null,
       },
     });
+    expect(
+      toVirtualSitePropertiesEnvelope({
+        sourceKind: "http-json",
+        rootPath: "C:/http-json-docs",
+      }),
+    ).toEqual({
+      VirtualSiteProperties: {
+        sourceKind: "http-json",
+        rootPath: "C:/http-json-docs",
+        configFile: null,
+        siteKey: null,
+      },
+    });
   });
 
   it("updateVirtualSiteProperties PUTs VirtualSiteProperties envelope", async () => {
