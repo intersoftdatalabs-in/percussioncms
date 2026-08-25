@@ -84,6 +84,31 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void httpScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("http-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: HTTP Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        http: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "http-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("http"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
+  }
+
+  @Test
   void missingConfigFileFails() {
     assertThrows(
         VirtualSiteException.class,

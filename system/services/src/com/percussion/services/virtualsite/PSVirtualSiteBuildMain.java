@@ -24,7 +24,8 @@ import java.nio.file.Path;
  * <p>Usage: {@code PSVirtualSiteBuildMain <siteRoot> <outputRoot> [siteKey] [sourceKind]}
  *
  * <p>{@code sourceKind} defaults to {@code git-filesystem}. Pass {@code csv-filesystem} for a CSV
- * tree or {@code sql-database} for an in-memory H2 query (see product-docs Virtual Sites).
+ * tree, {@code sql-database} for an in-memory H2 query, or {@code http-json} for an HTTP/local
+ * JSON catalog (see product-docs Virtual Sites).
  */
 public final class PSVirtualSiteBuildMain {
 

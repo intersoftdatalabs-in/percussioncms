@@ -16,6 +16,7 @@
  */
 package com.percussion.services.virtualsite;
 
+import com.percussion.services.virtualsite.VirtualSiteConfig.HttpSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
@@ -213,12 +214,24 @@ public final class VirtualSiteConfigLoader {
         throw new VirtualSiteException("sql: must be a mapping in " + sourceLabel);
       }
       SqlSpec sql = parseSqlSpec(asMap(sqlObj));
-      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql);
+      Object httpObj = map.get("http");
+      if (httpObj != null && !(httpObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("http: must be a mapping in " + sourceLabel);
+      }
+      HttpSpec http = parseHttpSpec(asMap(httpObj));
+      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql, http);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
       throw new VirtualSiteException("Failed to parse config: " + sourceLabel, e);
     }
+  }
+
+  private static HttpSpec parseHttpSpec(Map<String, Object> http) {
+    if (http == null || http.isEmpty()) {
+      return null;
+    }
+    return new HttpSpec(stringVal(http.get("url")), stringVal(http.get("file")));
   }
 
   private static SqlSpec parseSqlSpec(Map<String, Object> sql) {
