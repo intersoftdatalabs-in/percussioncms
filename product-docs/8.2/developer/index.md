@@ -18,6 +18,8 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 - [Extensions & packages](id:developer-extensions)
 - [Build from source](id:developer-build-source)
 
+Operators using **Developer → Content types** lock/save chrome: [Developer Content Types](id:admin-developer-content-types).
+
 ## Architecture snapshot
 
 ```text

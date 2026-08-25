@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import static com.percussion.tablefactory.IPSLogger.LOG_CATEGORY;
 
 import com.percussion.security.error.PSExceptionUtils;
@@ -74,7 +75,7 @@ public class PSJdbcTableDataCollection extends PSCollection {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     clear();
@@ -89,7 +90,7 @@ public class PSJdbcTableDataCollection extends PSCollection {
 
     if (table == null) {
       Object[] args = {NODE_NAME, PSJdbcTableData.NODE_NAME, "null"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, args);
     }
 
     while (table != null) {

@@ -17,9 +17,9 @@
 
 package com.percussion.deployer.objectstore;
 
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -349,7 +349,7 @@ public final class PSIdMap implements IPSDeployComponent {
     PSIdMapping idMapping = getMapping(id, type, parentId, parentType);
     if (idMapping == null) {
       Object[] args = {type, id, getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     String newValue = idMapping.getTargetId();
@@ -357,7 +357,7 @@ public final class PSIdMap implements IPSDeployComponent {
       String errId = id;
       if (parentId != null) errId = id + ":" + parentId;
       Object[] args = {type, errId, getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.INCOMPLETE_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.INCOMPLETE_ID_MAPPING, args);
     }
 
     return newValue;
@@ -395,7 +395,7 @@ public final class PSIdMap implements IPSDeployComponent {
       return Integer.parseInt(strId);
     } catch (NumberFormatException e) {
       Object[] args = {type, id, getSourceServer(), strId};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_ID_MAPPING_TARGET, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_ID_MAPPING_TARGET, args);
     }
   }
 

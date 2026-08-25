@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Archive-manifest Widget XML dual-ship exit gate (issue #3582 / parent #2630). Product source
- * descriptors must not author {@code rxconfig/Widgets/*.xml} except waived {@code perc.Test}.
- * Install emitter re-injects those paths on staging copies.
+ * Archive-manifest Widget XML dual-ship exit gate (issue #3582 / #3736 / parent #2630). Product
+ * source descriptors must not author {@code rxconfig/Widgets/*.xml} (waiver empty after perc.Test
+ * ship-exit). Install emitter re-injects those paths on staging copies.
  *
  * <p>Cross-platform: {@link Path#resolve(String)} / {@link Files} only.
  */
@@ -43,9 +43,9 @@ class PSWidgetArchiveManifestInventoryTest {
   @TempDir Path tempDir;
 
   @Test
-  void waivedPackageSet_isExplicitlyPercTestOnly() {
-    assertEquals(Set.of("perc.Test"), PSWidgetArchiveManifestInventory.WAIVED_PACKAGE_DIRS);
-    assertTrue(PSWidgetArchiveManifestInventory.isWaivedPackage("perc.Test"));
+  void waivedPackageSet_isEmptyAfterPercTestShipExit() {
+    assertEquals(Set.of(), PSWidgetArchiveManifestInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSWidgetArchiveManifestInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSWidgetArchiveManifestInventory.isWaivedPackage("perc.baseWidgets"));
     assertFalse(PSWidgetArchiveManifestInventory.isWaivedPackage(null));
   }
@@ -62,16 +62,10 @@ class PSWidgetArchiveManifestInventoryTest {
     assertTrue(
         report.isClean(),
         () ->
-            "non-waived archive manifests must not author rxconfig/Widgets/*.xml; found: "
+            "archive manifests must not author rxconfig/Widgets/*.xml; found: "
                 + report.nonWaived());
-
-    assertFalse(
-        report.waived().isEmpty(),
-        "expected waived Widget XML archive paths under perc.Test");
-    for (PSWidgetArchiveManifestInventory.Finding f : report.waived()) {
-      assertEquals("perc.Test", f.packageDirName());
-      assertTrue(f.waived());
-    }
+    assertEquals(0, report.all().size(), "expected zero Widget XML archive paths including perc.Test");
+    assertEquals(0, report.waived().size());
 
     PSWidgetArchiveManifestInventory.assertNoNonWaivedWidgetXmlArchivePaths(packagesRoot);
   }
@@ -103,24 +97,25 @@ class PSWidgetArchiveManifestInventoryTest {
   }
 
   @Test
-  void tempTree_onlyWaivedArchivePaths_isClean() throws Exception {
+  void tempTree_percTestArchivePaths_failGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
-    Path waived = packages.resolve("perc.Test");
-    Files.createDirectories(waived);
+    Path testPkg = packages.resolve("perc.Test");
+    Files.createDirectories(testPkg);
     Files.writeString(
-        waived.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME),
+        testPkg.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME),
         archiveInfoFixture("rxconfig/Widgets/PSWidget_TestProperties.xml"),
         StandardCharsets.UTF_8);
     Files.writeString(
-        waived.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_MANIFEST_FILE_NAME),
+        testPkg.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_MANIFEST_FILE_NAME),
         archiveManifestFixture("PSWidget_TestProperties.xml"),
         StandardCharsets.UTF_8);
 
     PSWidgetArchiveManifestInventory.Report report =
         PSWidgetArchiveManifestInventory.scan(packages);
-    assertTrue(report.isClean());
-    assertEquals(0, report.nonWaived().size());
-    assertFalse(report.waived().isEmpty());
+    assertFalse(report.isClean());
+    assertEquals(0, report.waived().size());
+    assertFalse(report.nonWaived().isEmpty());
+    assertEquals("perc.Test", report.nonWaived().get(0).packageDirName());
   }
 
   @Test
@@ -139,15 +134,7 @@ class PSWidgetArchiveManifestInventoryTest {
   }
 
   @Test
-  void stripPackage_skipsWaivedAndRequiresModernRoots() throws Exception {
-    Path waived = tempDir.resolve("perc.Test");
-    Files.createDirectories(waived);
-    Path waivedInfo = waived.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME);
-    String original = archiveInfoFixture("rxconfig/Widgets/PSWidget_TestProperties.xml");
-    Files.writeString(waivedInfo, original, StandardCharsets.UTF_8);
-    assertEquals(0, PSWidgetArchiveManifestInventory.stripAuthoredWidgetXmlArchivePaths(waived));
-    assertEquals(original, Files.readString(waivedInfo, StandardCharsets.UTF_8));
-
+  void stripPackage_requiresModernRoots_evenForPercTest() throws Exception {
     Path noModern = tempDir.resolve("perc.orphan");
     Files.createDirectories(noModern);
     Path orphanInfo = noModern.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME);
@@ -157,6 +144,18 @@ class PSWidgetArchiveManifestInventoryTest {
     assertTrue(
         PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
             Files.readString(orphanInfo, StandardCharsets.UTF_8)));
+
+    Path percTest = tempDir.resolve("perc.Test");
+    writeMinimalModernWidget(percTest, "PSWidget_TestProperties");
+    Path testInfo = percTest.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME);
+    Files.writeString(
+        testInfo,
+        archiveInfoFixture("rxconfig/Widgets/PSWidget_TestProperties.xml"),
+        StandardCharsets.UTF_8);
+    assertEquals(1, PSWidgetArchiveManifestInventory.stripAuthoredWidgetXmlArchivePaths(percTest));
+    assertFalse(
+        PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
+            Files.readString(testInfo, StandardCharsets.UTF_8)));
   }
 
   @Test

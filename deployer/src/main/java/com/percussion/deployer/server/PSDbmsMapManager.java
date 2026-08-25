@@ -18,13 +18,13 @@
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.objectstore.PSDbmsMap;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * PSDbmsMapManager handles saving and retrieving <code>PSDbmsMap</code> objects from and to the
@@ -60,7 +60,7 @@ public class PSDbmsMapManager {
       var root = doc.getDocumentElement();
       return new PSDbmsMap(root);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -78,7 +78,7 @@ public class PSDbmsMapManager {
     try (var in = new FileInputStream(mapFile)) {
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -105,7 +105,7 @@ public class PSDbmsMapManager {
     try (var out = new FileOutputStream(mapFile)) {
       PSXmlDocumentBuilder.write(doc, out);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

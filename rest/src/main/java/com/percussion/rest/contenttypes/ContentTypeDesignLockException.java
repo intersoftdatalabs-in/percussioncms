@@ -18,10 +18,13 @@
 package com.percussion.rest.contenttypes;
 
 /**
- * Thrown when a content-type design write requires a held design-session lock that is missing or
- * owned by another user. Maps to HTTP 409.
+ * Design-session lock conflict for content-type lock, unlock, workflow associations, or PUT save.
+ *
+ * <p>Mapped to HTTP 409 by {@code ContentTypesResource}. Distinct from generic {@link
+ * IllegalStateException} so status is not inferred from message substrings (names such as {@code
+ * percBlockquote} must not become 409).
  */
-public class ContentTypeDesignLockException extends RuntimeException {
+public class ContentTypeDesignLockException extends IllegalStateException {
 
   private static final long serialVersionUID = 1L;
 

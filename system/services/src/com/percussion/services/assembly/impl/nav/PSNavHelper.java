@@ -87,7 +87,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.commons.lang3.Validate.notNull;
+
 
 
 
@@ -443,7 +443,7 @@ public class PSNavHelper
    public Node getRoot(Node self) throws ItemNotFoundException,
          AccessDeniedException, RepositoryException
    {
-      notNull(self);
+      requireNavonSelf(self);
 
       Node root = self;
       while (root.getParent() != null)
@@ -451,6 +451,21 @@ public class PSNavHelper
          root = root.getParent();
       }
       return root;
+   }
+
+   /**
+    * Reject a missing navon instead of Commons {@code Validate.notNull}'s
+    * {@code The validated object is null} (#3719).
+    *
+    * @param self navon node
+    * @throws RepositoryException when {@code self} is {@code null}
+    */
+   static void requireNavonSelf(Node self) throws RepositoryException
+   {
+      if (self == null)
+      {
+         throw new RepositoryException("Cannot resolve nav root: navon self is null");
+      }
    }
 
    /**

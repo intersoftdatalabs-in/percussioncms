@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -146,7 +147,7 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
 
     if (!sourceNode.getNodeName().equals(nodeName)) {
       Object[] args = {nodeName, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     List<String> names = new ArrayList<>();
@@ -160,13 +161,13 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
     // make sure we get at least one
     do {
       if (nameEl == null)
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, NAME_EL);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, NAME_EL);
 
       String name = PSXmlTreeWalker.getElementData(nameEl);
       if (name.trim().length() == 0) {
         Object[] args = {nodeName, NAME_EL, name};
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+            TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
       }
 
       names.add(name);
@@ -361,11 +362,11 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
       String colName = columnNames.next();
       if (colName == null || colName.trim().length() == 0)
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.INVALID_COLUMN_NAME, m_containerName);
+            TableFactoryErrorCodes.INVALID_COLUMN_NAME, m_containerName);
 
       if (newCols.contains(colName)) {
         Object[] args = {m_containerName, colName};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.DUPLICATE_COLUMN, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.DUPLICATE_COLUMN, args);
       }
       newCols.add(colName);
     }

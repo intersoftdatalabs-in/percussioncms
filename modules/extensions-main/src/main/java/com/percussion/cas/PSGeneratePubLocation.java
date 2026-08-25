@@ -27,8 +27,8 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtension;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSExtensionException;
@@ -245,7 +245,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       }
       if (filtername != null && authtype != null) {
         Object args[] = {"Both filter and authtype can not both be set."};
-        throw new PSConversionException(IPSExtensionErrors.EXT_PARAM_VALUE_INVALID, args);
+        throw new PSConversionException(ExtensionErrorCodes.EXT_PARAM_VALUE_INVALID, args);
       }
 
       authtype = authtype_from_filter;
@@ -524,7 +524,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       } catch (Exception sme) {
         Object args[] = new Object[] {variantid, ctid.longValue(), contextid};
         PSExtensionException extExc =
-            new PSExtensionException(IPSExtensionErrors.SCHEME_CANT_BE_FOUND, sme, args);
+            new PSExtensionException(ExtensionErrorCodes.SCHEME_CANT_BE_FOUND, sme, args);
 
         log.error(extExc.getLocalizedMessage(), sme);
 
@@ -544,7 +544,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       IPSExtension exit = exitMgr.prepareExtension(ref, null);
       if (!(exit instanceof IPSAssemblyLocation)) {
         Object[] args = {exit.getClass().getName(), IPSAssemblyLocation.class.getName()};
-        throw new PSConversionException(IPSExtensionErrors.UNEXPECTED_EXT_TYPE_EXCEPTION, args);
+        throw new PSConversionException(ExtensionErrorCodes.UNEXPECTED_EXT_TYPE_EXCEPTION, args);
       }
 
       String[] callParams = new String[exitParams.length];

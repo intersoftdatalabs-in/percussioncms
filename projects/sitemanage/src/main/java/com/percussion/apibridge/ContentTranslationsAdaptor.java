@@ -162,7 +162,9 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
 
     IPSGuid guid;
     try {
-      guid = guidResolver.apply(itemId.trim());
+      guid = resolveItemGuid(itemId.trim());
+    } catch (IllegalArgumentException e) {
+      throw e;
     } catch (RuntimeException e) {
       log.debug("Could not resolve item id {}: {}", itemId, e.getMessage());
       return null;
@@ -330,6 +332,57 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
     // Non-legacy guids: UUID is the best available numeric id for any type (item or
     // untyped). Callers still validate via loadComponentSummary (null → not found).
     return guid.getUUID();
+  }
+
+  /**
+   * Resolve {@code itemId} as either a hyphenated {@code host-type-uuid} GUID or a
+   * bare numeric content id.
+   *
+   * <p>Explorer Translations GET historically stripped GUIDs to the last segment
+   * ({@code 16777215-101-551} → {@code 551}). {@link
+   * com.percussion.share.service.IPSIdMapper#getGuid(String)} can throw on an
+   * untyped packed long, which the resource maps as HTTP 404. Bare numbers skip
+   * the mapper and become {@link PSLegacyGuid} content ids; GUID strings still
+   * go through {@code guidResolver}.
+   *
+   * @param itemId trimmed, non-blank key
+   * @return guid for summary load, never {@code null} on the numeric path
+   */
+  IPSGuid resolveItemGuid(String itemId) {
+    Long contentId = parseBareNumericContentId(itemId);
+    if (contentId != null) {
+      return new PSLegacyGuid(contentId.intValue(), -1);
+    }
+    return guidResolver.apply(itemId);
+  }
+
+  /**
+   * Bare decimal content id with no GUID type bits (Explorer last-segment or
+   * legacy numeric path). Hyphenated GUIDs return {@code null}.
+   */
+  static Long parseBareNumericContentId(String key) {
+    if (StringUtils.isBlank(key)) {
+      return null;
+    }
+    String trimmed = key.trim();
+    for (int i = 0; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (c < '0' || c > '9') {
+        return null;
+      }
+    }
+    try {
+      long raw = Long.parseLong(trimmed);
+      if (raw <= 0) {
+        return null;
+      }
+      if (raw > Integer.MAX_VALUE) {
+        throw new IllegalArgumentException("itemId content id out of range: " + key);
+      }
+      return raw;
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   /** Max path token length for content id / guid string (path-injection surface). */

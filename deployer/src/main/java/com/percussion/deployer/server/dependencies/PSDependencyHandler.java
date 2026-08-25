@@ -19,7 +19,6 @@ package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.objectstore.*;
 import com.percussion.deployer.server.*;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -37,6 +36,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Base class for all dependency handlers. A dependency handler is the runtime handler for an
@@ -111,12 +111,12 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
         | IllegalAccessException
         | NoSuchMethodException cnfe) {
       Object[] args = {className, cnfe.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT, args);
     } catch (InvocationTargetException ite) {
       Throwable origException = ite.getTargetException();
       String msg = origException.getLocalizedMessage();
       Object[] args = {className, origException.getClass().getName() + ": " + msg};
-      throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT, args);
     } catch (IllegalArgumentException iae) {
       // this should never happen because we checked ahead of time
       throw new RuntimeException("Ctor args failed validation: " + iae.getLocalizedMessage());
@@ -334,7 +334,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
     try {
       acl = (PSAclImpl) m_aclSvc.loadAclForObject(guid);
     } catch (com.percussion.services.security.PSServiceSecurityException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e);
     }
 
     if (acl != null) {
@@ -777,7 +777,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
         return xmlFile;
       }
     } catch (IOException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
   }
 
@@ -807,7 +807,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
         return xmlFile;
       }
     } catch (IOException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
   }
 
@@ -846,7 +846,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
       if (sourceIdentity != null && !sourceIdentity.isBlank()) {
         msg = msg + " [archive file: " + sourceIdentity + "]";
       }
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, msg);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, msg);
     } finally {
       try {
         in.close();
@@ -940,7 +940,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
       mapping = getIdMapping(map, id, type, parentId, parentType);
       if (mapping.getTargetId() == null) {
         Object[] args = {mapping.getObjectType(), mapping.getSourceId(), map.getSourceServer()};
-        throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+        throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
       }
     }
 
@@ -995,7 +995,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
     mapping = idMap.getMapping(id, type, parentId, parentType);
     if (mapping == null) {
       Object[] args = {type, id, idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     return mapping;
@@ -1044,10 +1044,10 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
     // that is acceptable, set the idMapping and continue.
     // Any other exception should be rethrown.
     catch (PSDeployException de) {
-      if (de.getErrorCode() == IPSDeploymentErrors.MISSING_ID_MAPPING) {
+      if (de.getErrorCode() == DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode()) {
         idMapping = null;
       } else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR);
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR);
       }
     } catch (PSNotFoundException e) {
       throw new PSDeployException(0);
@@ -1144,7 +1144,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
     if (childDep == null) {
       Object[] args = {childId, childObjType, dep.getDependencyId(), dep.getObjectType()};
 
-      throw new PSDeployException(IPSDeploymentErrors.CHILD_DEP_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.CHILD_DEP_NOT_FOUND, args);
     }
 
     return childDep;
@@ -1215,7 +1215,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
       PSDependency childDep = getChildDependency(dep, childId, childObjType);
       isIncluded = childDep.isIncluded();
     } catch (PSDeployException e) {
-      if (e.getErrorCode() != IPSDeploymentErrors.CHILD_DEP_NOT_FOUND) {
+      if (e.getErrorCode() != DeploymentErrorCodes.CHILD_DEP_NOT_FOUND.numericCode()) {
         throw e;
       }
     }
@@ -1321,7 +1321,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
       in = new FileInputStream(file);
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } finally {
       if (in != null)
         try {

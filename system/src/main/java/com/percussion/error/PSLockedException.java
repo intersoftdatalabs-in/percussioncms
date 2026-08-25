@@ -56,6 +56,36 @@ public class PSLockedException extends PSDeployException {
   }
 
   /**
+   * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code DeploymentErrorCodes}
+   * lock codes). Retains the typed code for {@link #getTypedErrorCode()} / {@link #isAuditable()}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSLockedException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSLockedException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSLockedException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
+  }
+
+  /**
    * This constructor is not supported by this exception class. Use the {@link
    * PSDeployException#PSDeployException(PSException) ctor} from the base class.
    *

@@ -25,7 +25,6 @@ import com.percussion.deployer.server.dependencies.PSAclDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSCustomDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSUserDependencyHandler;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
@@ -50,6 +49,7 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Manager class for all dependency handlers. The {@link PSDeploymentHandler} creates and holds an
@@ -117,7 +117,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
       m_depMap = config.getDependencyMap();
       createTypeMappings();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_MGR_INIT, e.toString());
+      throw new PSDeployException(DeploymentErrorCodes.DEPENDENCY_MGR_INIT, e.toString());
     }
   }
 
@@ -225,7 +225,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
           PSApplicationIDTypes idTypes = PSIdTypeManager.loadIdTypes(dependency.getKey());
           if (idTypes == null) {
             Object[] args = {dependency.getObjectTypeName(), dependency.getDependencyId()};
-            throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_TYPES, args);
+            throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_TYPES, args);
           }
 
           archiveHandler.addIdTypes(dependency, idTypes);
@@ -563,14 +563,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
             idTypes = archiveHandler.getIdTypes(dependency);
             if (idTypes == null) {
               Object[] args = {dependency.getObjectTypeName(), dependency.getDependencyId()};
-              throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_TYPES, args);
+              throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_TYPES, args);
             }
             ctx.setIdTypes(idTypes);
           }
           depHandler.installDependencyFiles(tok, archiveHandler, dependency, ctx);
           // Check for null pkgGuid
           if (ctx.getPkgGuid() == null) {
-            throw new PSDeployException(IPSDeploymentErrors.MISSING_PKG_GUID);
+            throw new PSDeployException(DeploymentErrorCodes.MISSING_PKG_GUID);
           }
 
           // Transform dependency id if necessary
@@ -937,7 +937,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
       var doc = PSXmlDocumentBuilder.createXmlDocument();
       PSXmlDocumentBuilder.write(dep.toXml(doc), out);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -1195,7 +1195,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
       if (targetId == null) {
         // must have id set
         Object[] args = {mapping.getObjectType(), mapping.getSourceId(), idMap.getSourceServer()};
-        throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+        throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
       }
 
       dep.setDependencyId(targetId);
@@ -1223,7 +1223,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
 
     PSDependencyDef def = m_depMap.getDependencyDef(type);
     if (def == null) {
-      throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_DEF_NOT_FOUND, type);
+      throw new PSDeployException(DeploymentErrorCodes.DEPENDENCY_DEF_NOT_FOUND, type);
     }
 
     return def;
@@ -1280,7 +1280,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
             if (!userDep.getPath().exists()) depFile.delete();
             else deps.add(userDep);
           } catch (Exception e) {
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+            throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
           }
         }
       }
@@ -1747,7 +1747,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
 
     List<String> depTypes = m_guidToDepTypeMap.get(type);
     if (depTypes == null) {
-      throw new PSDeployException(IPSDeploymentErrors.NO_TYPE_MAPPING_FOR_GUID, type);
+      throw new PSDeployException(DeploymentErrorCodes.NO_TYPE_MAPPING_FOR_GUID, type);
     }
 
     return depTypes;

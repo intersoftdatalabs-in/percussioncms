@@ -1494,9 +1494,11 @@ describe("ContentExplorerShell product composition (#2400)", () => {
   });
 
   it("GUID list row opens translations panel (not select-item hint) (#3545)", async () => {
+    const translationGets: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.includes("/content-explorer/translations/")) {
+        translationGets.push(url);
         return new Response(
           JSON.stringify({
             itemId: 708,
@@ -1561,6 +1563,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       "en-us",
     );
     expect(screen.getByTestId("translations-variant-row-708")).toBeTruthy();
+    expect(translationGets.some((u) => u.includes("/translations/1-101-708"))).toBe(
+      true,
+    );
+    expect(translationGets.some((u) => /\/translations\/708(?:\?|$)/.test(u))).toBe(
+      false,
+    );
   });
 
   it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {

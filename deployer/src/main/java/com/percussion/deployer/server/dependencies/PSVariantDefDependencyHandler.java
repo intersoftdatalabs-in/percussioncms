@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -41,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a variant definition. */
 public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler {
@@ -305,7 +305,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
       depSvc.deserializeAndSaveVariant(tok, archive, dep, depFile, ctx, this, tmp, ver);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing template: " + e.getLocalizedMessage());
     }
     // add transaction log

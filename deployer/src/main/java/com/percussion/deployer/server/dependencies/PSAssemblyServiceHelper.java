@@ -16,7 +16,6 @@
  */
 package com.percussion.deployer.server.dependencies;
 
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.security.error.PSExceptionUtils;
@@ -43,6 +42,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * A helper class for the new templates, slots, bindings, contentlists etc to use
@@ -115,7 +115,7 @@ public class PSAssemblyServiceHelper {
       templates = m_assemblySvc.findAllTemplates();
     } catch (PSAssemblyException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Assembly exception occurred while cataloging Templates");
     }
 

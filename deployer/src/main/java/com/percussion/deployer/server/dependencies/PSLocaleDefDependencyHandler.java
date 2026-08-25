@@ -26,7 +26,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSLocaleException;
@@ -56,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a Locale definintion. */
 @SuppressWarnings(value = {"unchecked"})
@@ -77,7 +77,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       m_localeMgr = PSLocaleManager.getInstance();
       initTmxTypes();
     } catch (PSLocaleException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -97,7 +97,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       loc = m_localeMgr.getLocale(lStr);
     } catch (PSLocaleException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "could not locate the specified locale, " + lStr + "\n" + e.getLocalizedMessage());
     }
     return loc;
@@ -134,7 +134,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     try {
       tmxDoc = PSTmxResourceBundle.getMasterResourceDoc(m_rxRoot);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     childDeps.addAll(getTmxDependencies(tok, tmxDoc));
@@ -171,7 +171,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
               deps.add(
                   createDependency(m_def, locale.getLanguageString(), locale.getDisplayName())));
     } catch (PSLocaleException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return deps.iterator();
@@ -268,7 +268,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
         files.add(new PSDependencyFile(PSDependencyFile.TYPE_DBMS_DATA, createXmlFile(keyDoc)));
       }
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return files.iterator();
@@ -312,7 +312,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
         dep.getDisplayName()
       };
 
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     // restore the objects
@@ -382,7 +382,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       // save the bundle
       PSTmxResourceBundle.getInstance().saveMasterResourceBundle(masterTmxDoc, true);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // check to see if overwriting
@@ -748,7 +748,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       try {
         ms_mergeConfig = PSXmlDocumentBuilder.createXmlDocument(in, false);
       } catch (Exception e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     }
 

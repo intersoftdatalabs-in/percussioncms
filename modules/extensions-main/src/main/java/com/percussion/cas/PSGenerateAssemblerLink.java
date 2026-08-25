@@ -17,8 +17,8 @@
 package com.percussion.cas;
 
 import com.icl.saxon.expr.XPathException;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSConversionException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSInternalRequest;
@@ -88,7 +88,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
     if (variantid == null) {
       Object[] args = {IPSHtmlParameters.SYS_VARIANTID, "VariantId is required"};
       throw new PSConversionException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
     }
     if ((contentid == null) ^ (revisionid == null)) {
       Object[] args = {
@@ -96,7 +96,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
         "Must provide both content id and revision id."
       };
       throw new PSConversionException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
     }
 
     // Obtain values from request context if not supplied explicitly
@@ -118,7 +118,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
         "Must provide both content id and revision id."
       };
       throw new PSConversionException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR, args);
     }
 
     // determine the base URL for the specified variant id
@@ -174,7 +174,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
           request);
     } catch (MalformedURLException mue) {
       Object[] args = {this.getClass().getName(), mue.getLocalizedMessage()};
-      throw new PSConversionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+      throw new PSConversionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     }
   }
 
@@ -195,7 +195,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
         this.getClass().getName(),
         "Could not find the variant lookup resource at " + VARIANT_LOOKUP_URL
       };
-      throw new PSConversionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+      throw new PSConversionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     }
     IPSRequestContext innerReqContext = ireq.getRequestContext();
     innerReqContext.setParameter(IPSHtmlParameters.SYS_VARIANTID, variantid);
@@ -209,20 +209,20 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
         Object[] args = {
           this.getClass().getName(), "Failed to extract the assembler URL from the variant lookup."
         };
-        throw new PSConversionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+        throw new PSConversionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
       }
     } catch (XPathException xpe) {
       Object[] args = {
         this.getClass().getName(),
         "Exception while evaluating the expression. " + xpe.getLocalizedMessage()
       };
-      throw new PSConversionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+      throw new PSConversionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     } catch (TransformerException te) {
       Object[] args = {
         this.getClass().getName(),
         "Could not instantiate a XPathEvalutor class. " + te.getLocalizedMessage()
       };
-      throw new PSConversionException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+      throw new PSConversionException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
     }
     return assemblyURL;
   }

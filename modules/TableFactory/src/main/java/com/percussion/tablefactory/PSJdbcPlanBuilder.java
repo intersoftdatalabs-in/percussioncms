@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.sql.Connection;
@@ -107,7 +108,7 @@ public class PSJdbcPlanBuilder {
       // if no table and alter, error
       if (tableSchema.isAlter()) {
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.ALTER_NO_TABLE, tableSchema.getName());
+            TableFactoryErrorCodes.ALTER_NO_TABLE, tableSchema.getName());
       } else if (!tableSchema.isCreate()) {
         // no table and don't create, return empty plan
         PSJdbcTableFactory.logMessage("Table doesn't exist and create=n, no action taken");
@@ -685,7 +686,7 @@ public class PSJdbcPlanBuilder {
       dataTypeMap = new PSJdbcDataTypeMap(dbmsDef.getBackEndDB(), dbmsDef.getDriver(), null);
     } catch (Exception e) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
+          TableFactoryErrorCodes.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
     }
     Iterator<?> childTables = row.getChildTables();
     while (childTables.hasNext()) {
@@ -981,13 +982,13 @@ public class PSJdbcPlanBuilder {
       if ((colFirst == null) || (colFirst.getValue() == null)) {
         Object[] args = {tableSchema.getName(), colName};
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.UPDATE_DATA_NO_KEY_VALUE_IN_DB, args);
+            TableFactoryErrorCodes.UPDATE_DATA_NO_KEY_VALUE_IN_DB, args);
       }
 
       colSecond = rowDataToCompare.getColumn(colName);
       if ((colSecond == null) || (colSecond.getValue() == null)) {
         Object[] args = {tableSchema.getName(), colName};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.UPDATE_DATA_NO_KEY_VALUE, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.UPDATE_DATA_NO_KEY_VALUE, args);
       }
 
       if (!colFirst.getValue().equals(colSecond.getValue())) return false;
@@ -1530,7 +1531,7 @@ public class PSJdbcPlanBuilder {
       return bakName;
     } catch (SQLException e) {
       Object[] args = {tablename, PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SCHEMA_PROCESS_ERROR, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SCHEMA_PROCESS_ERROR, args, e);
     }
   }
 

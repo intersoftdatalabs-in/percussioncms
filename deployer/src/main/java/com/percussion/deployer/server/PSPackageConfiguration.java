@@ -20,7 +20,6 @@ package com.percussion.deployer.server;
 
 import com.percussion.deployer.server.dependencies.PSCustomDependencyHandler;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.util.PSXMLDomUtil;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * The configuration of the package tool. It contains all supported dependency mapping and the
@@ -97,7 +97,7 @@ public class PSPackageConfiguration {
     if (ignoreEl != null) {
       parseUninstallIgnoreTypes(ignoreEl);
     } else {
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_NUM_CHILD_DEFS);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_NUM_CHILD_DEFS);
     }
   }
 
@@ -187,18 +187,18 @@ public class PSPackageConfiguration {
       // make sure all deployable elements are included.
       Set<String> deployableTyeps = getDeplyableDefTypes();
       if (mi_deployableEls.size() != deployableTyeps.size()) {
-        throw new PSDeployException(IPSDeploymentErrors.INCOMPLATE_ORDER_DEF);
+        throw new PSDeployException(DeploymentErrorCodes.INCOMPLATE_ORDER_DEF);
       }
 
       // make sure all child of "Custom" element are included.
       if (mi_nonDepEls.keySet().size() != 1) {
-        throw new PSDeployException(IPSDeploymentErrors.INVALID_NUM_PARENT_DEFS);
+        throw new PSDeployException(DeploymentErrorCodes.INVALID_NUM_PARENT_DEFS);
       }
 
       String parentType = mi_nonDepEls.keySet().iterator().next();
       if (!parentType.equals(PSCustomDependencyHandler.DEPENDENCY_TYPE)) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_PARENT_TYPE,
+            DeploymentErrorCodes.UNEXPECTED_PARENT_TYPE,
             new String[] {parentType, PSCustomDependencyHandler.DEPENDENCY_TYPE});
       }
 
@@ -208,7 +208,7 @@ public class PSPackageConfiguration {
                 .size())
           {
              throw new PSDeployException(
-                   IPSDeploymentErrors.INVALID_NUM_CHILD_DEFS,
+                   DeploymentErrorCodes.INVALID_NUM_CHILD_DEFS,
                    PSCustomDependencyHandler.DEPENDENCY_TYPE);
           }
       */
@@ -274,7 +274,7 @@ public class PSPackageConfiguration {
 
     var objDef = m_depMap.getDependencyDef(objType);
     if (objDef == null) {
-      throw new PSDeployException(IPSDeploymentErrors.CANNOT_FIND_DEP_DEF, objType);
+      throw new PSDeployException(DeploymentErrorCodes.CANNOT_FIND_DEP_DEF, objType);
     }
 
     if (objDef.isDeployableElement()) {
@@ -282,16 +282,16 @@ public class PSPackageConfiguration {
     }
 
     if (StringUtils.isBlank(parentType)) {
-      throw new PSDeployException(IPSDeploymentErrors.DEP_DEF_NOT_DEPLOYABLE, objType);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_DEF_NOT_DEPLOYABLE, objType);
     }
 
     var parentDef = m_depMap.getDependencyDef(parentType);
     if (parentDef == null) {
-      throw new PSDeployException(IPSDeploymentErrors.CANNOT_FIND_PARENT_DEP_DEF, parentType);
+      throw new PSDeployException(DeploymentErrorCodes.CANNOT_FIND_PARENT_DEP_DEF, parentType);
     }
 
     if (!parentDef.isDeployableElement()) {
-      throw new PSDeployException(IPSDeploymentErrors.PARENT_DEP_DEF_NOT_DEPLOYABLE, parentType);
+      throw new PSDeployException(DeploymentErrorCodes.PARENT_DEP_DEF_NOT_DEPLOYABLE, parentType);
     }
 
     return new String[] {objType, parentType};

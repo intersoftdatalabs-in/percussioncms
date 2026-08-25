@@ -44,6 +44,23 @@ falls back to templates allowed for the page content type. You cannot create
 the page until a template is selected. Then pick the destination folder,
 title, and file name.
 
+The destination folder is the site's **repository folder**, not only the
+site display name. Sample FastForward sites such as **Corporate_Investments**
+and **Enterprise_Investments** live under `/Sites/CorporateInvestments` and
+`/Sites/EnterpriseInvestments` (no underscore). An administrator can create
+a page at that site root, including with site-listed page templates such as
+**Page - Database Template**. After create, the React Content Editor opens
+(`spa.jsp?entry=editor`) — leftover `?view=editor` is not used. If you are
+not allowed to create in a folder, the wizard shows that error; a missing
+or mismatched folder is not treated as a successful create.
+
+FastForward sample sites (for example **Corporate_Investments**) may list
+assembly templates such as **Page - Database Template** (`perc.pageDatabase`).
+Create still saves the page under the site's repository folder
+(`/Sites/CorporateInvestments`) and opens the React Content Editor
+(`spa.jsp?entry=editor`). The finder SITENAME (`Corporate_Investments`) is
+not a separate create ACL; the server maps it to the repository folder.
+
 Rich file, image, and TinyMCE widget chrome in that editor is still a later
 slice — a new asset can still be created as a stub and opened on the field
 form.
@@ -89,6 +106,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Navigation & site structure](id:admin-architecture-navigation)
 - [Design templates](id:admin-design-templates)
 - [Users, roles & security](id:admin-users-roles) (includes Developer Object ACL for Sites and Display Formats)
+- [Developer Content Types](id:admin-developer-content-types)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
 - [Server operations](id:admin-server-ops)

@@ -17,7 +17,7 @@
 
 package com.percussion.deployer.client;
 
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -199,7 +199,7 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
             ResourceBundle.getBundle("com.percussion.deployer.client.PSDeployStringResources");
       }
     } catch (MissingResourceException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return ms_bundle;

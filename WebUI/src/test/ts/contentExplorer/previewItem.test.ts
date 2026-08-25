@@ -74,6 +74,22 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(buildSitePathPreviewUrl("")).toBe("");
   });
 
+  it("buildSitePathPreviewUrl percent-encodes spaces and query/hash in names", () => {
+    expect(
+      buildSitePathPreviewUrl(
+        "/Sites/Corporate Investments/Corporate Investments Home",
+      ),
+    ).toBe(
+      "/Sites/Corporate%20Investments/Corporate%20Investments%20Home?percmobilepreview=false",
+    );
+    expect(buildSitePathPreviewUrl("/Sites/Demo/Q?A")).toBe(
+      "/Sites/Demo/Q%3FA?percmobilepreview=false",
+    );
+    expect(buildSitePathPreviewUrl("/Sites/Demo/A#B")).toBe(
+      "/Sites/Demo/A%23B?percmobilepreview=false",
+    );
+  });
+
   it("buildPageRenderPreviewUrl and asset request path encode id", () => {
     expect(buildPageRenderPreviewUrl("a-b", "/services")).toBe(
       "/services/pagemanagement/render/page/a-b",
@@ -123,9 +139,11 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(isPreviewableItem(listed)).toBe(true);
     const target = resolvePreviewTarget(listed, "/services");
     expect(target.kind).toBe("page");
-    expect(target.url).toContain("entry=editor");
-    expect(target.url).toContain("contentId=9");
-    expect(target.url).toContain("mode=view");
+    expect(target.url).toBe(
+      "/services/pagemanagement/render/page/16777215-101-9",
+    );
+    expect(target.url).not.toContain("entry=editor");
+    expect(target.url).not.toContain("/cm/app/editor");
     expect(
       isPreviewableItem({
         name: "Home",
@@ -188,20 +206,22 @@ describe("previewItem pure helpers (#2733)", () => {
     ).toBe("");
   });
 
-  it("resolvePreviewTarget prefers editor-or-preview host when id is present (#3627)", () => {
+  it("resolvePreviewTarget prefers page render then site-path, not editor host (#3716)", () => {
     const t = resolvePreviewTarget(PAGE, "/services");
     expect(t.kind).toBe("page");
     expect(t.needsFetch).toBe(false);
-    expect(t.url).toContain("entry=editor");
-    expect(t.url).toContain("contentId=1");
-    expect(t.url).toContain("mode=view");
-    expect(t.url).not.toContain("/pagemanagement/render/page/");
+    expect(t.url).toBe(
+      "/services/pagemanagement/render/page/16777215-101-1",
+    );
+    expect(t.url).not.toContain("entry=editor");
+    expect(t.url).not.toContain("/cm/app/editor");
 
     const pathOnly = resolvePreviewTarget(
       { name: "Home", path: "/Sites/Demo/Home", type: "page" },
       "/services",
     );
     expect(pathOnly.url).toContain("/Sites/Demo/Home?");
+    expect(pathOnly.url).toContain("percmobilepreview=");
     expect(pathOnly.needsFetch).toBe(false);
 
     const guidPage = resolvePreviewTarget(
@@ -213,8 +233,11 @@ describe("previewItem pure helpers (#2733)", () => {
       },
       "/services",
     );
-    expect(guidPage.url).toContain("contentId=88");
-    expect(guidPage.url).toContain("mode=view");
+    expect(guidPage.url).toBe(
+      "/services/pagemanagement/render/page/16777215-101-88",
+    );
+    expect(guidPage.url).not.toContain("entry=editor");
+    expect(guidPage.url).not.toContain("/cm/app/editor");
 
     const assetT = resolvePreviewTarget(ASSET, "/services");
     expect(assetT.kind).toBe("asset");
@@ -222,7 +245,7 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(assetT.url).toContain("assetViewUrl");
   });
 
-  it("openPreviewItem opens editor view host without fetch (#3627)", async () => {
+  it("openPreviewItem opens page render without fetch when id is present (#3716)", async () => {
     const openWindow = vi.fn(() => null);
     const fetchText = vi.fn();
     await openPreviewItem(PAGE, {
@@ -233,9 +256,87 @@ describe("previewItem pure helpers (#2733)", () => {
     expect(fetchText).not.toHaveBeenCalled();
     expect(openWindow).toHaveBeenCalledTimes(1);
     const url = openWindow.mock.calls[0][0] as string;
-    expect(url).toContain("entry=editor");
-    expect(url).toContain("contentId=1");
-    expect(url).toContain("mode=view");
+    expect(url).toBe("/services/pagemanagement/render/page/16777215-101-1");
+    expect(url).not.toContain("entry=editor");
+    expect(url).not.toContain("/cm/app/editor");
+  });
+
+  it("openPreviewItem opens encoded site-path when there is no id (#3716)", async () => {
+    const openWindow = vi.fn(() => null);
+    const fetchText = vi.fn();
+    await openPreviewItem(
+      {
+        name: "Corporate Investments Home",
+        path: "/Sites/Corporate Investments/Corporate Investments Home",
+        type: "page",
+      },
+      {
+        servicesRoot: "/services",
+        openWindow,
+        fetchText,
+      },
+    );
+    expect(fetchText).not.toHaveBeenCalled();
+    expect(openWindow.mock.calls[0][0]).toBe(
+      "/Sites/Corporate%20Investments/Corporate%20Investments%20Home?percmobilepreview=false",
+    );
+  });
+
+  it("openPreviewItem prefixes /Rhythmyx on page URLs when the SPA is under that context", async () => {
+    const original = window.location.pathname;
+    window.history.replaceState({}, "", "/Rhythmyx/cm/app/explorer");
+    try {
+      const openWindow = vi.fn(() => null);
+      await openPreviewItem(
+        {
+          name: "Home",
+          path: "/Sites/Demo/Home",
+          type: "page",
+        },
+        {
+          servicesRoot: "/services",
+          openWindow,
+          fetchText: vi.fn(),
+        },
+      );
+      expect(openWindow.mock.calls[0][0]).toBe(
+        "/Rhythmyx/Sites/Demo/Home?percmobilepreview=false",
+      );
+
+      const renderOpen = vi.fn(() => null);
+      await openPreviewItem(PAGE, {
+        servicesRoot: "/services",
+        openWindow: renderOpen,
+        fetchText: vi.fn(),
+      });
+      expect(renderOpen.mock.calls[0][0]).toBe(
+        "/Rhythmyx/services/pagemanagement/render/page/16777215-101-1",
+      );
+    } finally {
+      window.history.replaceState({}, "", original || "/");
+    }
+  });
+
+  it("openPreviewItem opens page render when the item is not under Sites (#3716)", async () => {
+    const openWindow = vi.fn(() => null);
+    const fetchText = vi.fn();
+    await openPreviewItem(
+      {
+        id: "16777215-101-88",
+        name: "Home",
+        path: "/Other/Home",
+        type: "percPage",
+      },
+      {
+        servicesRoot: "/services",
+        openWindow,
+        fetchText,
+      },
+    );
+    expect(fetchText).not.toHaveBeenCalled();
+    expect(openWindow.mock.calls[0][0]).toBe(
+      "/services/pagemanagement/render/page/16777215-101-88",
+    );
   });
 
   it("openPreviewItem fetches asset view URL then opens body", async () => {

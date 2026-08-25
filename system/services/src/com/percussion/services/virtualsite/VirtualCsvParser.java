@@ -28,7 +28,8 @@ import java.util.Objects;
  * RFC 4180-style CSV reader for Virtual Site {@code csv-filesystem} sources.
  *
  * <p>Required header columns (case-insensitive): {@code id}, {@code title}, {@code body}. Optional:
- * {@code path}, {@code order}. Missing required columns fail closed.
+ * {@code path}, {@code order}. Missing required columns fail closed. Stateless: each {@link
+ * #parse} call works from the supplied text only (no instance or static row cache).
  */
 public final class VirtualCsvParser {
 

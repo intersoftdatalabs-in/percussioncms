@@ -31,7 +31,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSParam;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.security.PSSecurityToken;
@@ -58,6 +57,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a Slot definition the new way.
@@ -152,7 +152,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     IPSTemplateSlot slot = findSlotByDependencyID(dep.getDependencyId());
     if (slot == null)
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not find a slot with id: " + dep.getDependencyId());
     boolean isLegacy = isLegacySlot(slot);
 
@@ -195,7 +195,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
           t = m_assemblySvc.loadTemplate(String.valueOf(tmpList[i]), false);
         } catch (PSAssemblyException e) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              DeploymentErrorCodes.UNEXPECTED_ERROR,
               "Unable to load template while cataloging slot dependencies\n"
                   + e.getLocalizedMessage());
         }
@@ -246,7 +246,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
     if (slot == null)
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not find a slot with id: " + dep.getDependencyId());
 
     if (isLegacySlot(slot)) return idTypes;
@@ -323,7 +323,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
       str = slot.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Template:" + slot.getName());
     }
 
@@ -424,7 +424,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
       m_assemblySvc.saveSlot(s);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e1,
           "Could not save or update the slot:" + s.getName() + "\n" + e1.getLocalizedMessage());
     }
@@ -484,7 +484,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
                   String.valueOf(a.getTemplateId()),
                   PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
         } catch (PSDeployException dex) {
-          if (dex.getErrorCode() == IPSDeploymentErrors.MISSING_ID_MAPPING) {
+          if (dex.getErrorCode() == DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode()) {
             tmpMap =
                 getIdMapping(
                     ctx,
@@ -690,7 +690,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     } catch (Exception e) {
       m_log.error("Error ", e);
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create template from file:" + f.getName());
     }
     return slot;
@@ -722,7 +722,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }

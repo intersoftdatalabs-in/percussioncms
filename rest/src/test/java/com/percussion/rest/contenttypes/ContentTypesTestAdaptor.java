@@ -18,6 +18,7 @@
 package com.percussion.rest.contenttypes;
 
 import com.percussion.rest.Guid;
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 
@@ -80,6 +81,21 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ObjectLockSummary lockContentType(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockContentType(URI baseUri, String idOrName) {
+    return Boolean.TRUE;
+  }
+
+  @Override
+  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+    return null;
+  }
+
+  @Override
   public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
     return List.of();
   }
@@ -88,5 +104,14 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public List<NamedObjectRef> replaceAllowedTemplates(
       URI baseUri, String idOrName, List<NamedObjectRef> templates) {
     return templates != null ? templates : List.of();
+  }
+
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    return null;
   }
 }

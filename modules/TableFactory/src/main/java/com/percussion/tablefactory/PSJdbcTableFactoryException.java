@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.percussion.error.IPSErrorCode;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -109,6 +110,62 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSJdbcTableFactoryException(IPSErrorCode code) {
+    this(requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSJdbcTableFactoryException(IPSErrorCode code, Object singleArg) {
+    this(requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with a single message argument and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   * @param t the exception which this exception encapsulates, may be {@code null}
+   */
+  public PSJdbcTableFactoryException(IPSErrorCode code, Object singleArg, Throwable t) {
+    this(requireCode(code).numericCode(), singleArg, t);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSJdbcTableFactoryException(IPSErrorCode code, Object[] arrayArgs) {
+    this(requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with message arguments and a cause.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   * @param t the exception which this exception encapsulates, may be {@code null}
+   */
+  public PSJdbcTableFactoryException(IPSErrorCode code, Object[] arrayArgs, Throwable t) {
+    this(requireCode(code).numericCode(), arrayArgs, t);
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Prints this Throwable's backtrace to the standard error stream. This method prints a stack
    * trace for this Throwable object on the error output stream that is the value of the field
    * System.err.
@@ -198,6 +255,29 @@ public class PSJdbcTableFactoryException extends Exception {
    */
   public int getErrorCode() {
     return m_code;
+  }
+
+  /**
+   * Typed error code when constructed via {@link #PSJdbcTableFactoryException(IPSErrorCode)} (or
+   * overloads); otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedErrorCode;
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when
+   * present; legacy int construction returns {@code false}.
+   */
+  public boolean isAuditable() {
+    return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   /**
@@ -370,6 +450,12 @@ public class PSJdbcTableFactoryException extends Exception {
 
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
+
+  /**
+   * Typed error code when constructed via {@link #PSJdbcTableFactoryException(IPSErrorCode)} (or
+   * overloads); otherwise {@code null} for legacy int construction.
+   */
+  private transient IPSErrorCode m_typedErrorCode;
 
   /**
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null

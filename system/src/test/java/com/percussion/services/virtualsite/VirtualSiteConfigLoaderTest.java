@@ -17,6 +17,7 @@
 package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -55,6 +56,31 @@ class VirtualSiteConfigLoaderTest {
     VirtualSiteConfig config =
         VirtualSiteConfigLoader.load(sampleRoot, "  ", "k");
     assertEquals("Sample Docs", config.siteTitle());
+  }
+
+  @Test
+  void sqlScalarInsteadOfMappingFailsFast() throws Exception {
+    Path root = tempDir.resolve("sql-scalar");
+    Files.createDirectories(root);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql: "not-a-mapping"
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteException ex =
+        assertThrows(
+            VirtualSiteException.class,
+            () -> VirtualSiteConfigLoader.load(root, null, "sql-docs"));
+    assertTrue(ex.getMessage().toLowerCase().contains("sql"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("mapping"), ex.getMessage());
   }
 
   @Test
@@ -99,6 +125,42 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterConfigEditSeesCurrentTitleWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: First Config Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("First Config Title", first.siteTitle());
+
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: Second Config Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("Second Config Title", second.siteTitle());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,
@@ -118,6 +180,28 @@ class VirtualSiteConfigLoaderTest {
             VirtualSiteException.class,
             () -> VirtualSiteConfigLoader.load(root, "_config.yaml", "k"));
     assertTrue(ex.getMessage().toLowerCase().contains("version"), ex.getMessage());
+  }
+
+  @Test
+  void sqlSpecToStringOmitsPassword() {
+    VirtualSiteConfig.SqlSpec spec =
+        new VirtualSiteConfig.SqlSpec(
+            "jdbc:h2:mem:t",
+            "sa",
+            "super-secret",
+            "select 1",
+            "",
+            "id",
+            "title",
+            "body",
+            "path",
+            "order",
+            "version");
+    String text = spec.toString();
+    assertFalse(text.contains("super-secret"), text);
+    assertFalse(text.toLowerCase().contains("password"), text);
+    assertTrue(text.contains("jdbc:h2:mem:t"), text);
+    assertTrue(text.contains("sa"), text);
   }
 
   @Test

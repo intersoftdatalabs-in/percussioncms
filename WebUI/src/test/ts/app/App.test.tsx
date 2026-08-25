@@ -77,14 +77,21 @@ vi.mock("../../../main/ts/api/widgetbuilder/widgetBuilderApi", () => ({
   validateDefinition: vi.fn(),
 }));
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  listContentTypes: vi.fn().mockResolvedValue([]),
-  getContentTypeDetail: vi.fn().mockResolvedValue({
-    name: "x",
-    fields: [],
-    designGaps: [],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    listContentTypes: vi.fn().mockResolvedValue([]),
+    getContentTypeDetail: vi.fn().mockResolvedValue({
+      name: "x",
+      fields: [],
+      designGaps: [],
+    }),
+    lockContentType: vi.fn(),
+    unlockContentType: vi.fn(),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listTemplates: vi.fn().mockResolvedValue([]),
