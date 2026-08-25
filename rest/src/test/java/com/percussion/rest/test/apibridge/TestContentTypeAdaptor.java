@@ -22,7 +22,9 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
+import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExits;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
@@ -140,5 +142,21 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   public ContentTypeItemExits replaceItemExits(
       URI baseUri, String idOrName, ContentTypeItemExits body) {
     return body != null ? body : new ContentTypeItemExits();
+  }
+
+  @Override
+  public ContentTypeFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName) {
+    ContentTypeFieldControlProperties out = new ContentTypeFieldControlProperties();
+    out.setFieldName(fieldName);
+    out.setControl("sys_EditBox");
+    out.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    return out;
+  }
+
+  @Override
+  public ContentTypeFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body) {
+    return body;
   }
 }

@@ -66,7 +66,8 @@ public interface IContentTypesAdaptor {
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
    * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Field rule expressions and control property values are read-only.
+   * Field rule expressions remain read-only. Control property values use {@link
+   * #replaceFieldControlProperties}.
    *
    * @return updated detail, or {@code null} when not found
    * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
@@ -163,4 +164,26 @@ public interface IContentTypesAdaptor {
    * @throws IllegalArgumentException when a required list is missing or an extension FQN is invalid
    */
   ContentTypeItemExits replaceItemExits(URI baseUri, String idOrName, ContentTypeItemExits body);
+
+  /**
+   * Load control property values and the choice catalog for one field (CD-07). No design lock is
+   * required. Empty {@code properties} means none configured. {@code choices} is null when none.
+   *
+   * @return envelope, or {@code null} when the content type is not found
+   */
+  ContentTypeFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName);
+
+  /**
+   * Replace control property values (and optionally the choice catalog) for one field. Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * {@code properties} is a full replace (empty clears). {@code choices} null leaves the catalog
+   * unchanged.
+   *
+   * @return persisted envelope, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when properties is missing or a choice catalog is invalid
+   */
+  ContentTypeFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body);
 }

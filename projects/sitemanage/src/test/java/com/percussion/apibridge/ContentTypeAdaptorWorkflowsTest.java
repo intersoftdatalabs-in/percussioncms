@@ -333,6 +333,10 @@ class ContentTypeAdaptorWorkflowsTest {
     // Existence check uses lock=false; save load uses lock=true.
     when(designWs.loadContentTypes(anyList(), anyBoolean(), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(def));
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(def));
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(def));
     return def;
   }
 

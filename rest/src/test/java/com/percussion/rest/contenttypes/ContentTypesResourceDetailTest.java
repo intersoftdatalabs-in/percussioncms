@@ -138,6 +138,10 @@ public class ContentTypesResourceDetailTest {
     assertTrue(json.contains("sys_title <>"), json);
     assertTrue(json.contains("\"controlPropertyNames\""), json);
     assertTrue(json.contains("height"), json);
+    withRules.setControlProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    json = mapper.writeValueAsString(d);
+    assertTrue(json.contains("\"controlProperties\""), json);
+    assertTrue(json.contains("200"), json);
     // empty expression fields must not force empty-string noise for the second field
     assertTrue(json.contains("page_title"), json);
   }
@@ -497,6 +501,109 @@ public class ContentTypesResourceDetailTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.unlockContentType("missing"));
     assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesReturnsValues() {
+    ContentTypeFieldControlProperties envelope = new ContentTypeFieldControlProperties();
+    envelope.setFieldName("sys_title");
+    envelope.setControl("sys_EditBox");
+    envelope.setProperties(List.of(new ContentTypeControlProperty("height", "200")));
+    when(adaptor.getFieldControlProperties(any(), eq("percPage"), eq("sys_title")))
+        .thenReturn(envelope);
+    ContentTypeFieldControlProperties out =
+        resource.getFieldControlProperties("percPage", "sys_title");
+    assertEquals("sys_title", out.getFieldName());
+    assertEquals("200", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void getFieldControlPropertiesContentTypeNotFound() {
+    when(adaptor.getFieldControlProperties(any(), eq("missing"), eq("sys_title"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldControlProperties("missing", "sys_title"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldControlPropertiesFieldNotFound() {
+    when(adaptor.getFieldControlProperties(any(), eq("percPage"), eq("nope")))
+        .thenThrow(new WebApplicationException("Field not found: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFieldControlProperties("percPage", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesSuccess() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of(new ContentTypeControlProperty("width", "400")));
+    ContentTypeFieldControlProperties updated = new ContentTypeFieldControlProperties();
+    updated.setFieldName("sys_title");
+    updated.setProperties(body.getProperties());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenReturn(updated);
+    ContentTypeFieldControlProperties out =
+        resource.replaceFieldControlProperties("percPage", "sys_title", body);
+    assertEquals("400", out.getProperties().get(0).getValue());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesRequiresProperties() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.replaceFieldControlProperties(
+                    "percPage", "sys_title", new ContentTypeFieldControlProperties()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesRequiresLock() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save control properties; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("percPage", "sys_title", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesLockedByOtherUser() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save control properties; locked by editor"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("percPage", "sys_title", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceFieldControlPropertiesInvalidChoice() {
+    ContentTypeFieldControlProperties body = new ContentTypeFieldControlProperties();
+    body.setProperties(List.of());
+    when(adaptor.replaceFieldControlProperties(any(), eq("percPage"), eq("sys_title"), any()))
+        .thenThrow(new IllegalArgumentException("choices.globalId is required for type global"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceFieldControlProperties("percPage", "sys_title", body));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

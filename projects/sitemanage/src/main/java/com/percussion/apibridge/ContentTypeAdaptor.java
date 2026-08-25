@@ -21,6 +21,8 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSApplyWhen;
+import com.percussion.design.objectstore.PSChoiceTableInfo;
+import com.percussion.design.objectstore.PSChoices;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
@@ -28,6 +30,8 @@ import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
+import com.percussion.design.objectstore.PSDisplayText;
+import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSExtensionCall;
 import com.percussion.design.objectstore.PSExtensionCallSet;
 import com.percussion.design.objectstore.PSExtensionParamValue;
@@ -43,6 +47,7 @@ import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSValidationRules;
 import com.percussion.design.objectstore.PSVisibilityRules;
 import com.percussion.design.objectstore.PSWorkflowInfo;
@@ -51,9 +56,14 @@ import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
+import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
+import com.percussion.rest.contenttypes.ContentTypeChoiceTable;
+import com.percussion.rest.contenttypes.ContentTypeControlProperty;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
+import com.percussion.rest.contenttypes.ContentTypeFieldControlProperties;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.ContentTypeItemExit;
 import com.percussion.rest.contenttypes.ContentTypeItemExitParam;
@@ -80,6 +90,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
+import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
@@ -276,7 +287,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setGuid(ApiUtils.convertGuid(new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId())));
 
     Map<String, String> controlByField = new HashMap<>();
-    Map<String, List<String>> controlPropsByField = new HashMap<>();
+    Map<String, List<ContentTypeControlProperty>> controlPropsByField = new HashMap<>();
     boolean controlsResolved = mapControls(def, controlByField, controlPropsByField);
     List<ContentTypeField> fields = new ArrayList<>();
     List<String> childSets = new ArrayList<>();
@@ -297,7 +308,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
     int defaultWfId = def.getContentEditor() != null ? def.getContentEditor().getWorkflowId() : -1;
     // Always set non-null lists on GET so wire shape stays [] not omitted (NON_NULL include).
-    detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId));
+    detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId, def.getContentEditor()));
     if (defaultWfId > 0) {
       detail.setDefaultWorkflow(toWorkflowRef(defaultWfId, true));
     }
@@ -315,8 +326,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
               "CT_FIELD_RULE_EXPR",
-              "Field rule expressions and control property names are read-only; rule write/save and"
-                  + " full control property catalogs/values are not supported"));
+              "Field rule expressions are read-only; rule write/save is not supported. Control"
+                  + " property values and choice catalogs: GET/PUT"
+                  + " .../fields/{fieldName}/controlProperties"));
     gaps.add(
         DesignGap.of(
             "CT_ITEM_EXITS",
@@ -344,7 +356,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add(
         DesignGap.of(
             "CT_FIELD_LABELS_WRITE",
-            "Field display labels and control properties are not writable via this API"));
+            "Field display labels are not writable via PUT content type detail"));
     if (!controlsResolved) {
       gaps.add(
           DesignGap.of(
@@ -751,18 +763,95 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         log.error("Failed to save content type item-level exits {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type item-level exits", e);
       }
-      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toItemExits(reloaded) : toItemExits(def);
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {
       throw e;
-    } catch (PSInvalidContentTypeException e) {
-      log.debug("Content type not found for item-exit replace: {}", idOrName);
-      return null;
     } catch (Exception e) {
       log.error("Failed to replace item-level exits for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to replace content type item-level exits", e);
+    }
+  }
+
+  @Override
+  public ContentTypeFieldControlProperties getFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName) {
+    if (StringUtils.isBlank(idOrName) || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      if (def == null) {
+        return null;
+      }
+      return loadFieldControlProperties(def, fieldName.trim());
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for control properties: {}", idOrName);
+      return null;
+    }
+  }
+
+  @Override
+  public ContentTypeFieldControlProperties replaceFieldControlProperties(
+      URI baseUri, String idOrName, String fieldName, ContentTypeFieldControlProperties body) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    if (body == null || body.getProperties() == null) {
+      throw new IllegalArgumentException("properties is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String field = fieldName.trim();
+    String session = currentSession();
+    String user = currentUser();
+    requireSessionUserForLock();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not save control properties");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      PSDisplayMapping mapping = requireFieldMapping(def, field);
+      applyControlPropertyUpdates(mapping, body);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not save control properties");
+        }
+        log.error("Failed to save control properties for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save control properties", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      return loadFieldControlProperties(reloaded != null ? reloaded : def, field);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to replace control properties for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to replace control properties", e);
     }
   }
 
@@ -1017,7 +1106,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     };
   }
 
-  private List<NamedObjectRef> loadWorkflows(IPSGuid ctGuid, int defaultWfId) {
+  private List<NamedObjectRef> loadWorkflows(
+      IPSGuid ctGuid, int defaultWfId, PSContentEditor editor) {
     List<NamedObjectRef> out = new ArrayList<>();
     try {
       IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
@@ -1032,6 +1122,17 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     } catch (Exception e) {
       log.debug("Could not load workflows for content type {}: {}", ctGuid, e.getMessage());
+    }
+    if (out.isEmpty() && editor != null && editor.getWorkflowInfo() != null) {
+      Iterator<Integer> values = editor.getWorkflowInfo().getValues();
+      if (values != null) {
+        while (values.hasNext()) {
+          Integer id = values.next();
+          if (id != null && id > 0) {
+            out.add(toWorkflowRef(id, id == defaultWfId));
+          }
+        }
+      }
     }
     out.sort(
         Comparator.comparing(
@@ -1099,7 +1200,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       PSFieldSet fieldSet,
       String fieldSetName,
       Map<String, String> controlByField,
-      Map<String, List<String>> controlPropsByField,
+      Map<String, List<ContentTypeControlProperty>> controlPropsByField,
       List<ContentTypeField> out) {
     if (fieldSet == null) {
       return;
@@ -1139,9 +1240,16 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       f.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
       f.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
       f.setOutputTranslationExpression(summarizeTranslation(field.getOutputTranslation()));
-      List<String> propNames = controlPropsByField.get(field.getSubmitName());
-      if (propNames != null && !propNames.isEmpty()) {
-        f.setControlPropertyNames(List.copyOf(propNames));
+      List<ContentTypeControlProperty> props = controlPropsByField.get(field.getSubmitName());
+      if (props != null && !props.isEmpty()) {
+        f.setControlProperties(List.copyOf(props));
+        List<String> names = new ArrayList<>(props.size());
+        for (ContentTypeControlProperty p : props) {
+          if (p != null && StringUtils.isNotBlank(p.getName())) {
+            names.add(p.getName());
+          }
+        }
+        f.setControlPropertyNames(names);
       }
       out.add(f);
     }
@@ -1541,17 +1649,289 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    * ref.
    */
   static List<String> controlPropertyNames(PSControlRef control) {
+    List<String> names = new ArrayList<>();
+    for (ContentTypeControlProperty p : controlProperties(control)) {
+      names.add(p.getName());
+    }
+    return names;
+  }
+
+  /** Package-visible for unit tests. Collects control parameter name/value pairs. */
+  static List<ContentTypeControlProperty> controlProperties(PSControlRef control) {
     if (control == null) {
       return List.of();
     }
-    List<String> names = new ArrayList<>();
+    List<ContentTypeControlProperty> out = new ArrayList<>();
     for (Iterator<?> it = control.getParameters(); it.hasNext(); ) {
       Object o = it.next();
       if (o instanceof PSParam param && StringUtils.isNotBlank(param.getName())) {
-        names.add(param.getName());
+        String value = param.getValue() != null ? param.getValue().getValueText() : null;
+        out.add(new ContentTypeControlProperty(param.getName(), value));
       }
     }
-    return names;
+    return out;
+  }
+
+  static List<DesignGap> controlPropertyDesignGaps() {
+    return List.of(
+        DesignGap.of(
+            "CT_CHOICE_FILTER",
+            "Choice filters, null-entry, and default-selected are not writable"));
+  }
+
+  static String choiceTypeName(int type) {
+    return switch (type) {
+      case PSChoices.TYPE_GLOBAL -> "global";
+      case PSChoices.TYPE_LOCAL -> "local";
+      case PSChoices.TYPE_LOOKUP -> "lookup";
+      case PSChoices.TYPE_INTERNAL_LOOKUP -> "internalLookup";
+      case PSChoices.TYPE_TABLE_INFO -> "tableinfo";
+      default -> "unknown";
+    };
+  }
+
+  static String sortOrderName(int sortOrder) {
+    return switch (sortOrder) {
+      case PSChoices.SORT_ORDER_ASCENDING -> "ascending";
+      case PSChoices.SORT_ORDER_DESCENDING -> "descending";
+      case PSChoices.SORT_ORDER_USER -> "user";
+      default -> "ascending";
+    };
+  }
+
+  static int parseSortOrder(String sortOrder) {
+    if (StringUtils.isBlank(sortOrder) || "ascending".equalsIgnoreCase(sortOrder)) {
+      return PSChoices.SORT_ORDER_ASCENDING;
+    }
+    if ("descending".equalsIgnoreCase(sortOrder)) {
+      return PSChoices.SORT_ORDER_DESCENDING;
+    }
+    if ("user".equalsIgnoreCase(sortOrder)) {
+      return PSChoices.SORT_ORDER_USER;
+    }
+    throw new IllegalArgumentException("choices.sortOrder must be ascending, descending, or user");
+  }
+
+  static ContentTypeChoiceCatalog toChoiceCatalog(PSChoices choices) {
+    if (choices == null) {
+      return null;
+    }
+    ContentTypeChoiceCatalog cat = new ContentTypeChoiceCatalog();
+    cat.setType(choiceTypeName(choices.getType()));
+    cat.setSortOrder(sortOrderName(choices.getSortOrder()));
+    if (choices.getType() == PSChoices.TYPE_GLOBAL) {
+      if (choices.getGlobal() >= 0) {
+        cat.setGlobalId(choices.getGlobal());
+      }
+    } else if (choices.getType() == PSChoices.TYPE_LOCAL) {
+      List<ContentTypeChoiceEntry> entries = new ArrayList<>();
+      for (Iterator<?> it = choices.getLocal(); it.hasNext(); ) {
+        Object o = it.next();
+        if (o instanceof PSEntry e) {
+          String label = e.getLabel() != null ? e.getLabel().getText() : null;
+          entries.add(new ContentTypeChoiceEntry(e.getValue(), label));
+        }
+      }
+      cat.setEntries(entries);
+    } else if (choices.getType() == PSChoices.TYPE_LOOKUP
+        || choices.getType() == PSChoices.TYPE_INTERNAL_LOOKUP) {
+      if (choices.getLookup() != null) {
+        cat.setLookupHref(choices.getLookup().getHref());
+        cat.setLookupName(choices.getLookup().getName());
+      }
+    } else if (choices.getType() == PSChoices.TYPE_TABLE_INFO) {
+      PSChoiceTableInfo ti = choices.getTableInfo();
+      if (ti != null) {
+        ContentTypeChoiceTable table = new ContentTypeChoiceTable();
+        table.setDataSource(ti.getDataSource());
+        table.setTableName(ti.getTableName());
+        table.setLabelColumn(ti.getLableColumn());
+        table.setValueColumn(ti.getValueColumn());
+        cat.setTable(table);
+      }
+    }
+    return cat;
+  }
+
+  static PSChoices fromChoiceCatalog(ContentTypeChoiceCatalog catalog) {
+    if (catalog == null) {
+      return null;
+    }
+    String type = catalog.getType() == null ? "" : catalog.getType().trim();
+    if (type.isEmpty() || "none".equalsIgnoreCase(type)) {
+      return null;
+    }
+    PSChoices choices;
+    if ("global".equalsIgnoreCase(type)) {
+      if (catalog.getGlobalId() == null || catalog.getGlobalId() < 0) {
+        throw new IllegalArgumentException("choices.globalId is required for type global");
+      }
+      choices = new PSChoices(catalog.getGlobalId());
+    } else if ("local".equalsIgnoreCase(type)) {
+      List<ContentTypeChoiceEntry> entries = catalog.getEntries();
+      if (entries == null || entries.isEmpty()) {
+        throw new IllegalArgumentException("choices.entries is required for type local");
+      }
+      PSCollection<PSEntry> local = new PSCollection<>(PSEntry.class);
+      for (int i = 0; i < entries.size(); i++) {
+        ContentTypeChoiceEntry e = entries.get(i);
+        if (e == null || e.getValue() == null) {
+          throw new IllegalArgumentException("choices.entries[" + i + "] value is required");
+        }
+        String label = e.getLabel() != null ? e.getLabel() : e.getValue();
+        local.add(new PSEntry(e.getValue(), new PSDisplayText(label)));
+      }
+      choices = new PSChoices(local);
+    } else if ("lookup".equalsIgnoreCase(type) || "internalLookup".equalsIgnoreCase(type)) {
+      if (StringUtils.isBlank(catalog.getLookupHref())) {
+        throw new IllegalArgumentException("choices.lookupHref is required for type " + type);
+      }
+      int lookupType =
+          "internalLookup".equalsIgnoreCase(type)
+              ? PSChoices.TYPE_INTERNAL_LOOKUP
+              : PSChoices.TYPE_LOOKUP;
+      String lookupName =
+          StringUtils.isBlank(catalog.getLookupName()) ? null : catalog.getLookupName().trim();
+      choices =
+          new PSChoices(
+              new PSUrlRequest(
+                  lookupName, catalog.getLookupHref(), new PSCollection<>(PSParam.class)),
+              lookupType);
+    } else if ("tableinfo".equalsIgnoreCase(type)) {
+      ContentTypeChoiceTable table = catalog.getTable();
+      if (table == null
+          || StringUtils.isBlank(table.getTableName())
+          || StringUtils.isBlank(table.getLabelColumn())
+          || StringUtils.isBlank(table.getValueColumn())) {
+        throw new IllegalArgumentException(
+            "choices.table tableName, labelColumn, and valueColumn are required for type tableinfo");
+      }
+      String ds = table.getDataSource() != null ? table.getDataSource() : "";
+      choices =
+          new PSChoices(
+              new PSChoiceTableInfo(
+                  ds, table.getTableName(), table.getLabelColumn(), table.getValueColumn()));
+    } else {
+      throw new IllegalArgumentException(
+          "choices.type must be global, local, lookup, internalLookup, tableinfo, or none");
+    }
+    if (StringUtils.isNotBlank(catalog.getSortOrder())) {
+      choices.setSortOrder(parseSortOrder(catalog.getSortOrder()));
+    }
+    return choices;
+  }
+
+  static PSCollection<PSParam> toParamCollection(List<ContentTypeControlProperty> properties) {
+    PSCollection<PSParam> params = new PSCollection<>(PSParam.class);
+    if (properties == null) {
+      return params;
+    }
+    for (int i = 0; i < properties.size(); i++) {
+      ContentTypeControlProperty p = properties.get(i);
+      if (p == null || StringUtils.isBlank(p.getName())) {
+        throw new IllegalArgumentException("properties[" + i + "] name is required");
+      }
+      String value = p.getValue() != null ? p.getValue() : "";
+      params.add(new PSParam(p.getName().trim(), new PSTextLiteral(value)));
+    }
+    return params;
+  }
+
+  static PSDisplayMapping findDisplayMapping(PSDisplayMapper dmapper, String fieldName) {
+    if (dmapper == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    for (Iterator<?> it = dmapper.iterator(); it.hasNext(); ) {
+      Object o = it.next();
+      if (!(o instanceof PSDisplayMapping entry)) {
+        continue;
+      }
+      if (fieldName.equals(entry.getFieldRef())) {
+        return entry;
+      }
+      if (entry.getDisplayMapper() != null) {
+        PSDisplayMapping nested = findDisplayMapping(entry.getDisplayMapper(), fieldName);
+        if (nested != null) {
+          return nested;
+        }
+      }
+    }
+    return null;
+  }
+
+  private PSDisplayMapper displayMapperOf(PSItemDefinition def) {
+    try {
+      if (def == null || def.getContentEditor() == null) {
+        return null;
+      }
+      Object pipeObj = def.getContentEditor().getPipe();
+      if (!(pipeObj instanceof PSContentEditorPipe pipe)) {
+        return null;
+      }
+      if (pipe.getMapper() == null || pipe.getMapper().getUIDefinition() == null) {
+        return null;
+      }
+      return pipe.getMapper().getUIDefinition().getDisplayMapper();
+    } catch (Exception e) {
+      log.warn(
+          "Could not resolve display mapper for {}: {}",
+          def != null ? def.getName() : "?",
+          e.getMessage(),
+          e);
+      return null;
+    }
+  }
+
+  private ContentTypeFieldControlProperties loadFieldControlProperties(
+      PSItemDefinition def, String fieldName) {
+    PSDisplayMapping mapping = requireFieldMapping(def, fieldName);
+    return toFieldControlProperties(fieldName, mapping);
+  }
+
+  private PSDisplayMapping requireFieldMapping(PSItemDefinition def, String fieldName) {
+    PSDisplayMapping mapping = findDisplayMapping(displayMapperOf(def), fieldName);
+    if (mapping == null) {
+      throw new WebApplicationException("Field not found: " + fieldName, 404);
+    }
+    return mapping;
+  }
+
+  private static ContentTypeFieldControlProperties toFieldControlProperties(
+      String fieldName, PSDisplayMapping mapping) {
+    ContentTypeFieldControlProperties out = new ContentTypeFieldControlProperties();
+    out.setFieldName(fieldName);
+    PSUISet ui = mapping != null ? mapping.getUISet() : null;
+    PSControlRef control = ui != null ? ui.getControl() : null;
+    if (control != null && StringUtils.isNotBlank(control.getName())) {
+      out.setControl(control.getName());
+    }
+    out.setProperties(new ArrayList<>(controlProperties(control)));
+    if (ui != null) {
+      out.setChoices(toChoiceCatalog(ui.getChoices()));
+    }
+    out.setDesignGaps(new ArrayList<>(controlPropertyDesignGaps()));
+    return out;
+  }
+
+  private static void applyControlPropertyUpdates(
+      PSDisplayMapping mapping, ContentTypeFieldControlProperties body) {
+    PSUISet ui = mapping.getUISet();
+    if (ui == null) {
+      ui = new PSUISet();
+      mapping.setUISet(ui);
+    }
+    List<ContentTypeControlProperty> properties = body.getProperties();
+    PSControlRef control = ui.getControl();
+    if (control == null) {
+      if (!properties.isEmpty()) {
+        throw new IllegalArgumentException("field has no display control");
+      }
+    } else {
+      control.setParameters(toParamCollection(properties));
+    }
+    if (body.getChoices() != null) {
+      ui.setChoices(fromChoiceCatalog(body.getChoices()));
+    }
   }
 
   /**
@@ -1563,7 +1943,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private boolean mapControls(
       PSItemDefinition def,
       Map<String, String> map,
-      Map<String, List<String>> controlPropsByField) {
+      Map<String, List<ContentTypeControlProperty>> controlPropsByField) {
     try {
       if (def == null || def.getContentEditor() == null) {
         return false;
@@ -1584,7 +1964,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private void walkDisplayMapper(
       PSDisplayMapper dmapper,
       Map<String, String> map,
-      Map<String, List<String>> controlPropsByField) {
+      Map<String, List<ContentTypeControlProperty>> controlPropsByField) {
     if (dmapper == null) {
       return;
     }
@@ -1603,9 +1983,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           PSControlRef control = ui.getControl();
           if (control != null && StringUtils.isNotBlank(control.getName())) {
             map.put(fieldRef, control.getName());
-            List<String> propNames = controlPropertyNames(control);
-            if (!propNames.isEmpty()) {
-              controlPropsByField.put(fieldRef, propNames);
+            List<ContentTypeControlProperty> props = controlProperties(control);
+            if (!props.isEmpty()) {
+              controlPropsByField.put(fieldRef, props);
             }
           }
         }
