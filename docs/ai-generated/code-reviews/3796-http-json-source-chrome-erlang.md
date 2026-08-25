@@ -1,7 +1,7 @@
 # Erlang review — #3796 Developer Sites http-json source chrome
 
 **Branch:** `feat/issue-3796-http-json-source-chrome`  
-**Date:** 2026-08-25  
+**Date:** 2026-08-25 (re-review after rebase onto `origin/main`, HEAD `3391c510`)  
 **Recommendation:** approve  
 **Gate:** May commit/push: yes  
 **Memory patterns hit:** change-class companions (WebUI panel + Vitest + Playwright + product-docs); Playwright HARD GATE for screen work; omit-vs-empty remoteUrl keep/clear (#3568); consume REST/SPI siblings without re-implementing them.
@@ -52,3 +52,58 @@ None.
 | Product-docs 8.2 admin Sites | yes |
 | REST/SPI internals | consume SPI #3794 on main (not re-implemented); Build chrome out of scope |
 | Human QA assignment | not created |
+
+## Re-review (rebase onto main, PR #3800)
+
+**Date:** 2026-08-25  
+**HEAD:** `3391c510473468f2c8ef6fbe72e328d93466350d` (`rebase (finish)` onto `458f521a6b`)  
+**Base:** `origin/main` (primary checkout `refs/heads/main`)  
+**Conflicts:** product-docs only (`sites.md`, `rest.md`, `virtual-sites.md`, `site-config.md`)  
+**Smoke:** `scripts/ci-smoke-product-docs.bat` reported OK by author (not re-run in this pass)
+
+### Summary
+
+Rebase union keeps main's REST GET/PUT `http-json` persist contract (safe `rootPath`, `virtual.remoteUrl` **400**, catalog URL/file in `_config.yaml`, no secrets on the envelope) and this PR's Developer Sites save/GET-roundtrip chrome. Build/Preview/Publish for `http-json` remains a later phase in UI, REST tables, and Vitest/Playwright. No conflict markers. WebUI form/panel/build helpers and tests survived the rebase. One leftover sentence in `virtual-sites.md` still calls Developer Sites chrome a "sibling slice"; it does not undo the union elsewhere. No blocking bugs, missing behavioral tests, or non-portable path I/O.
+
+### Scope
+
+- Base: `origin/main` (primary tree `product-docs/` as main-side)
+- Head: `feat/issue-3796-http-json-source-chrome` worktree `night-issue-prs` @ `3391c510`
+- Files: 14 (WebUI src+tests, Playwright spec, 4 product-docs, this report)
+- Prior report: `docs/ai-generated/code-reviews/3796-http-json-source-chrome-erlang.md` (approve)
+- Memory patterns hit: change-class companions; product-docs must match shipped behavior; path examples as field values not OS joins
+
+### Recommendation
+
+approve
+
+### Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+### Issues
+
+#### Issue 1 -- Severity: nit
+- File: `product-docs/8.2/developer/virtual-sites.md:338-339`
+- Description: Union left main's REST-persist closer: "In-product Build, preview, publish, and Developer Sites chrome for `http-json` are sibling slices." Same page already documents Developer Sites save/GET-roundtrip (intro, Goals, property table, offline-build section). The leftover under-claims shipped save chrome; it does not drop REST persist details or claim Build chrome exists.
+- Suggestion: Align with the offline-build paragraph: REST persist is on main; Developer Sites can save/GET-roundtrip; Build/Preview/Publish chrome remains a later phase.
+- Status: open (optional; does not block)
+
+### Cross-platform path review
+
+Docs-only conflict resolution. Checklist applied to the unioned pages and unchanged WebUI/tests:
+
+- [x] No new `".../" +` or `"...\\" +` filesystem joins
+- [x] Operator examples remain portable field values (`C:/http-json-docs`, `C:/workspaces/product-docs`)
+- [x] REST still documents NIO `Path.normalize()` / remaining `..` rejection
+- [x] No line-ending assertions added
+
+### Union check (conflict files)
+
+| File | Main REST persist | PR save/GET-roundtrip chrome | Build chrome later |
+|------|-------------------|------------------------------|--------------------|
+| `product-docs/8.2/admin/sites.md` | kept | kept | kept |
+| `product-docs/8.2/developer/rest.md` | kept | kept (one sentence on GET/PUT row) | kept |
+| `product-docs/8.2/developer/virtual-sites.md` | kept | kept except REST-persist closer (nit) | kept |
+| `product-docs/8.2/reference/site-config.md` | kept | kept | kept |

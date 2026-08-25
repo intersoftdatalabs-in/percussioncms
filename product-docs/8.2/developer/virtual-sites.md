@@ -335,8 +335,9 @@ portable-safe `rootPath` (JSON fixture directory; no remaining `..` after NIO
 `Path.normalize()`). `virtual.remoteUrl` is **400** — Git remotes apply to
 `git-filesystem` only; catalog HTTP URL or file path stay in `_config.yaml`
 (`http.url` / `http.file` or default `pages.json`). Never send secrets, userinfo, or
-Authorization on this envelope. Unknown kinds remain **400**. In-product Build, preview,
-publish, and Developer Sites chrome for `http-json` are sibling slices.
+Authorization on this envelope. Unknown kinds remain **400**. Developer Sites can
+save and GET-roundtrip `http-json`. In-product Build, preview, and publish for that
+kind remain a later phase.
 
 ## CMS-integrated build (REST and WebUI)
 
