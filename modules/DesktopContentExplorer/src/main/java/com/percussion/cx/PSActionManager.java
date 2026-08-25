@@ -17,6 +17,7 @@
 
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSActionVisibilityChecker;
 import com.percussion.cms.PSActionVisibilityGlobalState;
@@ -42,7 +43,6 @@ import com.percussion.cx.catalogers.PSLocaleCataloger;
 import com.percussion.cx.catalogers.PSRoleCataloger;
 import com.percussion.cx.catalogers.PSSiteCataloger;
 import com.percussion.cx.catalogers.PSSubjectCataloger;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.cx.javafx.PSBrowserUtils;
 import com.percussion.cx.javafx.PSDesktopExplorerWindow;
@@ -288,7 +288,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       }
     } catch (Exception ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
   }
 
@@ -1113,7 +1113,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     try {
       if (StringUtils.isBlank(url)) {
         throw new PSContentExplorerException(
-            IPSContentExplorerErrors.ACTION_GET_CHILDREN,
+            ContentExplorerErrorCodes.ACTION_GET_CHILDREN,
             m_applet.getResourceString(getClass(), "No url specified"));
       }
 
@@ -1158,7 +1158,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           : resultChildList.iterator();
     } catch (Exception ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.ACTION_GET_CHILDREN, ex.toString());
+          ContentExplorerErrorCodes.ACTION_GET_CHILDREN, ex.toString());
     }
   }
 
@@ -4895,7 +4895,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       }
     } catch (Exception ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
     return fm;
   }

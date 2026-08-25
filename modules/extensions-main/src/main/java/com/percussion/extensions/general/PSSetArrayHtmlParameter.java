@@ -16,9 +16,9 @@
  */
 package com.percussion.extensions.general;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -82,7 +82,7 @@ public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
     } else if (request == null) {
       m_log.debug("Request context is null");
       throw new PSRequestValidationException(
-          IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, "Request context may not be null");
+          ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, "Request context may not be null");
     }
 
     String paramName = "";

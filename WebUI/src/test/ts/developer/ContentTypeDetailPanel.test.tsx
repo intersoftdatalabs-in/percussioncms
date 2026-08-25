@@ -13,6 +13,8 @@ import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDe
 vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   getContentTypeDetail: vi.fn(),
   updateContentTypeDetail: vi.fn(),
+  lockContentType: vi.fn(),
+  unlockContentType: vi.fn(),
 }));
 
 // ObjectAclSection loads ACL via separate API; stub so detail success path stays isolated.
@@ -34,6 +36,8 @@ const getContentTypeDetail = contentTypesApi.getContentTypeDetail as ReturnType<
 const updateContentTypeDetail = contentTypesApi.updateContentTypeDetail as ReturnType<
   typeof vi.fn
 >;
+const lockContentType = contentTypesApi.lockContentType as ReturnType<typeof vi.fn>;
+const unlockContentType = contentTypesApi.unlockContentType as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "percPage",
@@ -56,6 +60,14 @@ describe("ContentTypeDetailPanel", () => {
     };
     getContentTypeDetail.mockReset();
     updateContentTypeDetail.mockReset();
+    lockContentType.mockReset();
+    unlockContentType.mockReset();
+    lockContentType.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
+    unlockContentType.mockResolvedValue(undefined);
+    updateContentTypeDetail.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      ...body,
+    }));
   });
 
   it("loads detail on success and supports back", async () => {
@@ -235,5 +247,186 @@ describe("ContentTypeDetailPanel", () => {
     const coded = gaps.querySelector('[data-gap-code="CT_ITEM_EXITS"]');
     expect(coded).toBeTruthy();
     expect(coded?.textContent).toBe("Item-level pre/post exits not exposed");
+  });
+
+  it("unwraps singleton association objects and JAXB DesignGap envelope (#3712)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "percArchiveList",
+      label: "Archive",
+      fields: { empty: false },
+      childFieldSets: "rx_shared",
+      allowedWorkflows: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: {
+        NamedObjectRef: { name: "perc.page", label: "Page" },
+      },
+      designGaps: {
+        DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      },
+    });
+    render(<ContentTypeDetailPanel idOrName="percArchiveList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-title").textContent).toContain("Archive");
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-ct-child-sets").textContent).toContain("rx_shared");
+    expect(screen.getByTestId("developer-ct-gaps").textContent).toContain(
+      "Item-level pre/post exits not exposed",
+    );
+    expect(
+      screen.getByTestId("developer-ct-gaps").querySelector('[data-gap-code="CT_ITEM_EXITS"]'),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
+  it("does not crash when designGaps is a Jackson empty-collection bean (#3712)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: { empty: false },
+      allowedWorkflows: { empty: true },
+      allowedTemplates: { empty: true },
+      designGaps: { empty: true },
+    });
+    render(<ContentTypeDetailPanel idOrName="percArchiveList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-wf-empty")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-gaps")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
+  it("keeps description read-only and save disabled until lock (#3744)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-description")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-unlock") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect(screen.getByTestId("developer-ct-lock").getAttribute("aria-label")).toBe("Lock");
+    expect(screen.getByTestId("developer-ct-unlock").getAttribute("aria-label")).toBe("Unlock");
+    expect(screen.getByTestId("developer-ct-save").getAttribute("aria-label")).toBe(
+      "Save content type",
+    );
+  });
+
+  it("locks, saves a description, then unlocks without wrapping PUT (#3744)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(lockContentType).toHaveBeenCalledWith("percPage");
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+    fireEvent.change(screen.getByTestId("developer-ct-description"), {
+      target: { value: "Updated description" },
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith(
+      "percPage",
+      expect.objectContaining({ description: "Updated description" }),
+    );
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-unlock"));
+    await waitFor(() => {
+      expect(unlockContentType).toHaveBeenCalledWith("percPage");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    });
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("surfaces lock errors and does not enable save (#3744)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    lockContentType.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: null });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not lock content type.",
+      );
+    });
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+  });
+
+  it("clears the held lock when save returns 409 (#3744)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    updateContentTypeDetail.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-description"), {
+      target: { value: "Will fail" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain(
+        "Could not save content type.",
+      );
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("unlocks on back when the session holds the lock (#3744)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    const onBack = vi.fn();
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={onBack} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(lockContentType).toHaveBeenCalled();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-back"));
+    await waitFor(() => {
+      expect(unlockContentType).toHaveBeenCalledWith("percPage");
+    });
+    expect(onBack).toHaveBeenCalled();
   });
 });

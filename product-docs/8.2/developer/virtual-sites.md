@@ -26,8 +26,9 @@ Operators persist the kind with REST `PUT /sites/{nameOrId}/virtual` (`sourceKin
 plus a safe `rootPath`); JDBC URL/user/query stay in `_config.yaml`. REST Build, preview,
 and publish use the H2 adapter. Developer **Sites** can select **SQL database**, save
 `sourceKind=sql-database`, and show **Build Virtual Site**, **Preview assembled site**,
-and **Publish Virtual Site** after a successful Build (repository kind still hides that
-chrome). Oracle, MySQL, and SQL Server URLs are rejected.
+and **Publish Virtual Site** (like the Git / CSV filesystem chrome; the **Publish**
+control becomes useful after a successful Build). Repository kind still hides that
+chrome. Oracle, MySQL, and SQL Server URLs are rejected.
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.

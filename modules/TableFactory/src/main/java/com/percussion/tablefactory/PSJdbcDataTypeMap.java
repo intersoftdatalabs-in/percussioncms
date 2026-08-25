@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSStringOperation;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -87,13 +88,13 @@ public class PSJdbcDataTypeMap {
     String rootName = root.getNodeName();
     if (!rootName.equals(ROOT_EL)) {
       Object[] args = {ROOT_EL, rootName};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     // Walk the maps and select the first match we find
     Element map = tree.getNextElement(MAP_EL, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (map == null)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, MAP_EL);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, MAP_EL);
 
     boolean found = false;
     while (map != null) {
@@ -136,7 +137,7 @@ public class PSJdbcDataTypeMap {
     // did we find any match?
     if (!found) {
       Object[] args = {dbAlias, driver, os};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.DATA_TYPE_MAP_NOT_FOUND, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.DATA_TYPE_MAP_NOT_FOUND, args);
     }
     setMaxIndexColSize(map);
     setCreateForeignKeyIndexes(map);
@@ -147,7 +148,7 @@ public class PSJdbcDataTypeMap {
             PSJdbcDataTypeMapping.NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (mapping == null)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_NULL, PSJdbcDataTypeMapping.NODE_NAME);
+          TableFactoryErrorCodes.XML_ELEMENT_NULL, PSJdbcDataTypeMapping.NODE_NAME);
 
     while (mapping != null) {
       PSJdbcDataTypeMapping dataType = new PSJdbcDataTypeMapping(mapping);
@@ -177,7 +178,7 @@ public class PSJdbcDataTypeMap {
         m_maxIndexColSize = Long.parseLong(sTemp);
       } catch (Exception e) {
         Object[] args = {ROOT_EL, MAXINDEXCOLSIZE_EL, sTemp};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
   }
@@ -422,13 +423,13 @@ public class PSJdbcDataTypeMap {
   public int convertJdbcString(String jdbcString) throws PSJdbcTableFactoryException {
     if (jdbcString == null || jdbcString.trim().length() == 0)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.JDBC_INT_DATA_TYPE_CONVERSION,
+          TableFactoryErrorCodes.JDBC_INT_DATA_TYPE_CONVERSION,
           jdbcString == null ? "null" : jdbcString);
 
     Integer jdbcType = m_jdbcString2Int.get(jdbcString);
     if (jdbcType == null)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.JDBC_STRING_DATA_TYPE_CONVERSION, jdbcString);
+          TableFactoryErrorCodes.JDBC_STRING_DATA_TYPE_CONVERSION, jdbcString);
 
     return jdbcType;
   }
@@ -444,7 +445,7 @@ public class PSJdbcDataTypeMap {
     String jdbcString = m_jdbcInt2String.get(jdbcType);
     if (jdbcString == null)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.JDBC_INT_DATA_TYPE_CONVERSION, String.valueOf(jdbcType));
+          TableFactoryErrorCodes.JDBC_INT_DATA_TYPE_CONVERSION, String.valueOf(jdbcType));
 
     return jdbcString;
   }
@@ -518,7 +519,7 @@ public class PSJdbcDataTypeMap {
           jdbcType = Types.class.getField(jdbcStr).getInt(null);
         } catch (Exception e) {
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.INVALID_DATA_TYPE_MAPPING,
+              TableFactoryErrorCodes.INVALID_DATA_TYPE_MAPPING,
               new Object[] {jdbcStr, dataType.getNative()});
         }
         m_jdbcString2Int.put(jdbcStr, jdbcType);

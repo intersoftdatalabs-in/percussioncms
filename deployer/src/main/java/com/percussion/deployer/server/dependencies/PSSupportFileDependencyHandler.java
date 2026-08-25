@@ -24,7 +24,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a support file. */
 public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler {
@@ -240,7 +240,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
         dep.getDisplayName()
       };
 
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     saveAppFile(tok, archive, dep, ctx, depFile);

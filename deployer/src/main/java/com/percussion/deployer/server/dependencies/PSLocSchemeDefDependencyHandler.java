@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -44,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a location scheme definition. */
 public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -190,7 +190,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
     IPSLocationScheme scheme = findLocationScheme(dep.getDependencyId());
     if (scheme == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     files.add(getDepFileFromLocationScheme(scheme));
@@ -215,7 +215,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
       depSvc.installDependencyFiles(tok, archive, dep, ctx, this);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing context: " + e.getLocalizedMessage());
     }
   }
@@ -262,7 +262,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
       // Note: "transferIdsInLocationScheme" will try to map the ids for the
       // Location Scheme's Content Type and Template. If they are not
       // found on the target system an exception is thrown:
-      //     PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING).
+      //     PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING).
       // This is acceptable for these associations, and the exception
       // is caught below. This skips over the call to save the scheme below,
       // and the Location Scheme is not added to target.
@@ -279,7 +279,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
       PSDeployException psde = (PSDeployException) e;
       Object[] errorArgs = psde.getErrorArguments();
       String obType = (String) errorArgs[0];
-      if ((psde.getErrorCode() == IPSDeploymentErrors.MISSING_ID_MAPPING)
+      if ((psde.getErrorCode() == DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode())
           && ((obType.equals(PSTemplateDefDependencyHandler.DEPENDENCY_TYPE))
               || (obType.equals(PSVariantDefDependencyHandler.DEPENDENCY_TYPE))
               || (obType.equals(PSCEDependencyHandler.DEPENDENCY_TYPE)))) {
@@ -290,7 +290,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
         // if they are.
       } else {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             e,
             "error occurred while installing location scheme: " + e.getLocalizedMessage());
       }
@@ -397,7 +397,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
       str = ((PSLocationScheme) scheme).toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Location Scheme:" + scheme.getName());
     }
 

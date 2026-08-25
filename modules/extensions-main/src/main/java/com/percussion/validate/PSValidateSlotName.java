@@ -17,9 +17,9 @@
 
 package com.percussion.validate;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -99,7 +99,7 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
       // Check validity of slotname
       if (!isValid()) {
         Object[] args = new Object[0];
-        throw new PSExtensionException(IPSExtensionErrors.VALIDATE_SLOTNAME_NOT_UNIQUE, args);
+        throw new PSExtensionException(ExtensionErrorCodes.VALIDATE_SLOTNAME_NOT_UNIQUE, args);
       }
 
     } catch (PSException e) {

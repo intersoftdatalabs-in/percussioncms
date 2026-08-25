@@ -111,6 +111,85 @@ describe("PageWizard templates", () => {
     ).toBe("Article");
   });
 
+  it("creates at repository folderPath for FastForward SITENAME (#3726)", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sitemanage/site/")) {
+        return mockJsonResponse({
+          SiteSummary: [
+            {
+              name: "Enterprise_Investments",
+              folderPath: "//Sites/EnterpriseInvestments",
+            },
+            {
+              name: "Corporate_Investments",
+              folderPath: "//Sites/CorporateInvestments",
+            },
+          ],
+        });
+      }
+      if (url.includes("/sitetemplates/templates/")) {
+        return mockJsonResponse({
+          TemplateSummary: [
+            { id: "t-db", name: "Page - Database Template" },
+          ],
+        });
+      }
+      if (url.includes("/pathmanagement/path/item")) {
+        return mockJsonResponse({
+          PathItem: {
+            path: "/Sites/Corporate_Investments/",
+            folderPath: "//Sites/CorporateInvestments",
+            name: "Corporate_Investments",
+          },
+        });
+      }
+      if (url.includes("/pathmanagement/path/folder")) {
+        return mockJsonResponse([]);
+      }
+      if (url.includes("/pagemanagement/page") && init?.method === "POST") {
+        return mockJsonResponse({
+          Page: { id: "1-101-3726", name: "qa-create-3726.html" },
+        });
+      }
+      return mockJsonResponse([]);
+    });
+
+    const openCreated = vi.fn().mockResolvedValue(true);
+    render(<PageWizard onBack={() => undefined} openCreated={openCreated} />);
+    await waitFor(() => screen.getByTestId("page-wizard"));
+    fireEvent.change(screen.getByTestId("page-wizard-site"), {
+      target: { value: "Corporate_Investments" },
+    });
+    await waitFor(() => {
+      const folder = screen.getByTestId("page-wizard-folder") as HTMLSelectElement;
+      expect(folder.value).toBe("/Sites/CorporateInvestments");
+    });
+    fireEvent.change(screen.getByTestId("page-wizard-template"), {
+      target: { value: "t-db" },
+    });
+    fireEvent.change(document.getElementById("pw-title") as HTMLInputElement, {
+      target: { value: "Qa Create 3726" },
+    });
+    fireEvent.click(screen.getByTestId("page-wizard-submit"));
+    await waitFor(() => {
+      expect(openCreated).toHaveBeenCalled();
+    });
+    const postCall = fetchMock.mock.calls.find((c) => {
+      const url = String(c[0]);
+      const init = c[1] as RequestInit | undefined;
+      return url.includes("/pagemanagement/page") && init?.method === "POST";
+    });
+    expect(postCall).toBeTruthy();
+    const body = JSON.parse(String((postCall?.[1] as RequestInit).body));
+    expect(body.Page.folderPath).toBe("//Sites/CorporateInvestments");
+    expect(openCreated.mock.calls[0]?.[0]).toMatchObject({
+      id: "1-101-3726",
+    });
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("falls back to percPage allowedTemplates when the site catalog is an empty-bean", async () => {
     stubFetch({
       sites: {

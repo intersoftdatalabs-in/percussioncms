@@ -28,7 +28,6 @@ import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
-import com.percussion.server.job.IPSJobErrors;
 import com.percussion.server.job.PSJobException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -39,6 +38,7 @@ import java.util.*;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 
 /**
  * Job to validate all packages in an import descriptor. Results are saved on the server and may be
@@ -79,7 +79,7 @@ public class PSValidationJob extends PSDeployJob {
       }
       initDepCount(pkgList.iterator(), false);
     } catch (PSUnknownNodeTypeException | PSDeployException e) {
-      throw new PSJobException(IPSJobErrors.INVALID_JOB_DESCRIPTOR, e.getLocalizedMessage());
+      throw new PSJobException(JobErrorCodes.INVALID_JOB_DESCRIPTOR, e.getLocalizedMessage());
     }
   }
 

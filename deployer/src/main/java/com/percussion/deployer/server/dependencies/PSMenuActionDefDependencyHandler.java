@@ -35,7 +35,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a menu action definition. This includes menu items and
@@ -192,9 +192,9 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
         } else addTransactionLogEntry(txnDep, ctx, action, txnAction.intValue());
       }
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -239,7 +239,7 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
         dep.getDisplayName()
       };
 
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     // try to restore the current action from the db

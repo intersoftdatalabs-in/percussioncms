@@ -17,6 +17,7 @@
 
 package com.percussion.rest.contenttypes;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.net.URI;
 import java.util.List;
 
@@ -59,14 +60,86 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail getContentType(URI baseUri, String idOrName);
 
   /**
-   * Update content type design fields under a design-session lock.
+   * Update content type design fields. Requires a design-session lock already held by the current
+   * user/session ({@link #lockContentType}); does not acquire or release the lock.
    *
    * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
    * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
    * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
-   * Locks for the current request user, saves, and releases the lock.
+   * Field rule expressions and control property values are read-only.
    *
    * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
    */
   ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
+
+  /**
+   * Acquire a self-only design-session lock on the content type. Does not save.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return lock summary, or {@code null} when not found
+   */
+  ObjectLockSummary lockContentType(URI baseUri, String idOrName);
+
+  /**
+   * Release a design-session lock owned by the current user/session. Does not save.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return {@code Boolean.TRUE} when released; {@code null} when not found. Throws {@link
+   *     ContentTypeDesignLockException} when locked by another user.
+   */
+  Boolean unlockContentType(URI baseUri, String idOrName);
+
+  /**
+   * Enable or disable a content type for runtime use (CD-13). Requires a design-session lock
+   * already held by the current user (peer lock REST). Does not acquire or release the lock.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param enabled {@code true} to enable, {@code false} to disable
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
+
+  /**
+   * List allowed template associations for a content type (read-only; no lock required).
+   *
+   * @return association list (empty when none), or {@code null} when the content type is not found
+   */
+  List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName);
+
+  /**
+   * Replace allowed template associations. Requires a design-session lock already held by the
+   * current request user. Full-replace semantics: empty list clears associations. Does not release
+   * the lock.
+   *
+   * @param templates replacement set, never {@code null} (empty clears)
+   * @return the persisted set (empty when none), or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when a template id/name cannot be resolved
+   */
+  List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates);
+
+  /**
+   * Replace allowed-workflow associations for a content type (CD-08). Requires a design-session
+   * lock already held by the current user. Full-replace semantics: empty list clears associations.
+   * Does not release the lock.
+   *
+   * @param allowedWorkflows replacement set, never {@code null} (empty clears)
+   * @param defaultWorkflow optional default workflow id/name; may be {@code null}
+   * @return updated detail, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when a workflow id/name cannot be resolved
+   */
+  ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow);
 }

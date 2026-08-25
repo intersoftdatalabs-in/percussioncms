@@ -30,7 +30,6 @@ import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
@@ -38,6 +37,7 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Base class for handlers that deploy content editor objects. */
 public abstract class PSContentEditorObjectDependencyHandler extends PSAppObjectDependencyHandler {
@@ -192,7 +192,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
         String elementName = dep.getDisplayName();
         String controlName = ctrlDep.getDisplayName();
         Object[] args = {elementName, controlName};
-        throw new PSDeployException(IPSDeploymentErrors.CONTROL_NOT_PACKAGEABLE, args);
+        throw new PSDeployException(DeploymentErrorCodes.CONTROL_NOT_PACKAGEABLE, args);
       }
     }
   }
@@ -276,7 +276,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
       // result of shared def not loading, server will have already logged
       // an error for this.
       Object[] args = {"Cannot load shared def"};
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, args);
     }
     return sharedDef;
   }

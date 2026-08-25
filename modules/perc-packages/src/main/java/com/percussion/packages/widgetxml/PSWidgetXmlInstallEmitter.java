@@ -30,7 +30,7 @@ import java.util.Objects;
 
 /**
  * Install-side Widget definition XML emitter for modern-only product packages (ADR-004 / issues
- * #2883/#2884/#2885 batch A+B+C ship-exit, parent #2630).
+ * #2883/#2884/#2885 batch A+B+C ship-exit, #3736 perc.Test, parent #2630).
  *
  * <p><strong>Authoring truth:</strong> {@code widgets/&lt;stem&gt;/component-package.json} +
  * templates.
@@ -39,11 +39,11 @@ import java.util.Objects;
  * sys__UserDependency--rxconfig/Widgets/*.xml} from modern sources so deployer / {@code
  * PSWidgetDao} still receive legacy Widget XML. Product source trees for converted batches no
  * longer commit that XML, and no longer author {@code rxconfig/Widgets/*.xml} in archive
- * descriptors (#3582). This emitter re-injects those archive entries on the staging copy.
+ * descriptors (#3582 / #3736). This emitter re-injects those archive entries on the staging copy.
  *
  * <p>Policy: materialize only when modern widget packages are present <em>and</em> the package has
- * no committed install Widget XML (so perc.Test may still commit Widget XML \(waiver\)). Keep
- * {@code PSLegacyDefinitionXmlShim} and upgrade-input compilers.
+ * no committed install Widget XML. Keep {@code PSLegacyDefinitionXmlShim} and upgrade-input
+ * compilers.
  *
  * @see PSWidgetXmlDualShip
  * @see PSWidgetXmlPackageCompiler
@@ -94,7 +94,7 @@ public final class PSWidgetXmlInstallEmitter {
     if (!PSWidgetXmlDualShip.hasModernWidgetSources(packageDir)) {
       return 0;
     }
-    // Packages with committed install XML are left alone (e.g. waived perc.Test).
+    // Packages with committed install XML are left alone (upgrade-input / dual-run leftovers).
     if (hasCommittedWidgetXml(packageDir)) {
       return 0;
     }

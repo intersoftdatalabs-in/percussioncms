@@ -46,7 +46,7 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>Batches A/B/C product packages author modern {@code widgets/&lt;stem&gt;/} only (no committed
  * install Widget XML). Selection prefers modern when both exist; install materialization regenerates
- * Widget XML at package-build time for modern-only packages. {@code perc.Test} remains residual.
+ * Widget XML at package-build time for modern-only packages. {@code perc.Test} ship-exit is #3736.
  */
 class PSWidgetXmlDualShipTest {
 
@@ -485,6 +485,78 @@ class PSWidgetXmlDualShipTest {
         PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS.size(),
         installXmlWritten,
         "install materialize should write 19 Widget XML files across batch C staging");
+  }
+
+  @Test
+  void productPercTest_modernOnly_noCommittedXml_installMaterializeRoundTrip() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    if (packagesRoot == null) {
+      System.err.println("WARN: Packages root not found; skipping perc.Test ship-exit test");
+      return;
+    }
+
+    String pkgName = "perc.Test";
+    Path product = packagesRoot.resolve(pkgName);
+    assertTrue(Files.isDirectory(product), "perc.Test package must exist");
+    assertTrue(
+        PSWidgetXmlDualShip.hasModernWidgetSources(product),
+        "perc.Test must author modern widgets/ sources (#3736)");
+    assertFalse(
+        PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(product),
+        "perc.Test must not commit sys__UserDependency--rxconfig/Widgets/*.xml (#3736)");
+    assertNoAuthoredWidgetXmlArchivePaths(product, pkgName);
+
+    List<PSWidgetXmlCompileResult> fromModern = PSWidgetXmlDualShip.compileModernWidgets(product);
+    List<PSWidgetXmlCompileResult> fromPackage =
+        PSWidgetXmlPackageCompiler.compilePackage(product);
+    assertEquals(1, fromModern.size());
+    assertEquals(fromModern.size(), fromPackage.size());
+    assertEquals("PSWidget_TestProperties", fromModern.get(0).getManifest().getId());
+    PSComponentPackageManifestValidator.validate(fromModern.get(0).getManifest());
+
+    Path staging = tempDir.resolve("perc-test-stage");
+    copyTree(product, staging);
+    int written = PSWidgetXmlDualShip.materializeInstallWidgetXml(staging);
+    assertEquals(1, written);
+    assertTrue(PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(staging));
+    assertTrue(
+        PSWidgetArchiveManifestInventory.containsWidgetXmlArchivePath(
+            Files.readString(
+                staging.resolve(PSWidgetArchiveManifestInventory.ARCHIVE_INFO_FILE_NAME))),
+        "perc.Test staging archiveInfo must list Widget XML after install emit (#3582)");
+
+    List<PSWidgetXmlCompileResult> fromMaterialized =
+        PSWidgetXmlPackageCompiler.compilePackage(staging);
+    assertEquals(1, fromMaterialized.size());
+    assertEquals(
+        fromModern.get(0).getManifest().getId(), fromMaterialized.get(0).getManifest().getId());
+    assertEquals(
+        fromModern.get(0).getManifest().getName(),
+        fromMaterialized.get(0).getManifest().getName());
+
+    assertEquals(0, PSWidgetXmlDualShip.materializeInstallWidgetXml(staging));
+
+    PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
+    assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
+    assertFalse(
+        PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+        "perc.Test modern-only package should not require legacy shim");
+  }
+
+  @Test
+  void testPackageDirs_disjointFromBatchesABCAndSized() {
+    assertEquals(List.of("perc.Test"), PSWidgetXmlDualShip.TEST_PACKAGE_DIRS);
+    assertEquals(List.of("PSWidget_TestProperties"), PSWidgetXmlDualShip.TEST_WIDGET_STEMS);
+    assertEquals(
+        PSWidgetXmlDualShip.TEST_PACKAGE_DIRS,
+        PSWidgetXmlPackageCompiler.DUAL_SHIP_TEST_PACKAGE_DIRS);
+    assertEquals(
+        PSWidgetXmlDualShip.TEST_PACKAGE_DIRS,
+        PSWidgetXmlPackageCompiler.TEST_PRODUCT_PACKAGE_DIRS);
+    Set<String> earlier = new HashSet<>(PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS);
+    earlier.addAll(PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS);
+    earlier.addAll(PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS);
+    assertFalse(earlier.contains("perc.Test"));
   }
 
   @Test

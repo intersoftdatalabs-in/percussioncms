@@ -1146,6 +1146,7 @@ class SitesAdaptorTest {
         Files.readString(html, StandardCharsets.UTF_8));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
     assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
   }
 
   @Test

@@ -123,12 +123,12 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 
 | Action | What happens |
 |--------|----------------|
-| **Preview** (and per-template children) | Select a **page** or **asset** row first (folder rows stay Preview-disabled). Listed pages with a content id open the chrome-less editor in **view** mode (`spa.jsp?entry=editor&mode=view`) — a same-origin HTTP 200 host. Pages without an id use the Finder site-path URL (`/Sites/…?percmobilepreview=`). Assets open the asset view URL. Per-template children still use assembly preview (`GET /services/assembly/preview-location`). Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
+| **Preview** (and per-template children) | Select a **page** or **asset** row first (folder rows stay Preview-disabled). Listed pages with a content id open Page Management render (`GET /services/pagemanagement/render/page/{id}`). Pages under **Sites** with no id open the assembled Finder site-path preview (`/Sites/…?percmobilepreview=`, path segments percent-encoded). That site-path (and Page Management render) **assembles** the item: FastForward sample pages such as **Corporate Investments Home** (`rffHome`) use the site’s default page template, not the CM1 `percPage` dispatcher. The popup is assembled HTML (HTTP 200), not a null-pointer error body and not the React Content Editor (`spa.jsp?entry=editor` / `/cm/app/editor`). If assembly still fails, the product error page (`ui/assembly/error.jsp`) renders instead of a blank 500. Assets open the asset view URL. Per-template children still use assembly preview (`GET /services/assembly/preview-location`). Applies to listed pages and assets, including customer-defined content types (type names are not a closed list; FastForward names stay stable). New language: **template**, not variant. |
 | **New Item** | Select a **site or folder** first, then choose **New Item**. When the catalog lists types under **New**, pick a type from that menu. When **New Item** is a single action (no type children), Explorer opens **Choose a content type** — pick a type and **OK**, or **Cancel** to leave the folder unchanged. Explorer then creates the item in the current folder (`POST /services/itemmanagement/item/create`) and opens the React Content Editor. It does **not** show *Choose a content type from New Item* as an error toast instead of the picker, and it does not open leftover Content Editor HTML. **Pages** (`percPage`) need a page template. Explorer loads allowed templates for the type, then the site's templates when the type has none. One template is used automatically; more than one opens **Choose a page template**. Cancel leaves the folder unchanged. If no template is available, Explorer asks you to pick a site folder or use Home → Create. Home → Create **Asset** uses the same create + React editor host (not leftover `editAsset.jsp`). |
 | **Workflow** | Allowed transitions run through itemmanagement (`GET …/workflow/transitionWithComments/{id}/{trigger}`, not `wfactionset.html`). Clicking a listed trigger — including **Expire** when it is listed — returns HTTP 200 and does not show an error toast. |
 | **Purge** | Confirm, then permanently purge a **page** or **asset** (`pagemanagement` / `assetmanagement` purge). Other types stay unavailable. Distinct from **Delete** (remove from folder / recycle). |
 | **Edit / Quick Edit / View content** | Select a **page** or **asset** row first. Opens a new Content Editor window (`spa.jsp?entry=editor`) that checkouts the item (Edit) and shows content-type fields. Explorer **Open** on that same selected row lands the same React editor host (HTTP 200). **Folders** stay non-editable: Edit / Quick Edit / View content stay hidden, and Open on a folder browses into it instead of opening the editor. Text, rich text (TinyMCE), keyword, and community controls save through `PUT /services/itemmanagement/item/fields/{id}`. File and image controls upload through `PUT /services/itemmanagement/item/binary/{id}/{field}`. Does not open leftover Content Editor HTML (`?view=editor`, `editAsset.jsp`, `rx_ce`, `checkoutedit.xml`). |
-| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`1-101-708`); the panel uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
+| **Translate** | Opens the Explorer **Translations** panel for the **selected page or asset** (this item’s locale, related variants, and create-variant). List row ids may be GUID-shaped (`16777215-101-551`); the panel requests variants with that full GUID (`GET /rest/content-explorer/translations/{itemId}`) and uses the content-id segment only for create-variant. Folders and sites have no content id — Explorer shows a select-item hint. Does not open the legacy translate XSL wizard. |
 | **Impact Analysis** | Opens the Explorer **Dependencies** panel for the **selected page or asset**. List row ids may be GUID-shaped (`1-101-708`); the viewer uses the content-id segment. Folders and sites have no content id — Explorer shows a select-item hint. |
 | **Copy URL to Clipboard** | Copies the site-path preview URL (or CMS path) for the selected item. |
 | **Revisions** | Opens the Revisions panel; restore is available when the selected revision is restorable. **Promote revision** opens the same chrome-less editor host (`mode=promote`) and restores the chosen revision through `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`. |
@@ -289,6 +289,19 @@ page (including a quiet or missing search index). A 500 error panel after Submit
 is a product defect — the input, Submit button, and optional saved-search picker
 stay available either way.
 
+## Content Browser pickers
+
+Slot **Add**, the modern **asset picker**, and the **page picker** open **Content Browser**
+(tree, list, and the same Search panel). Browse to a page or asset, or search, then
+**Open** a result and **Confirm**.
+
+Search hits use CMS content-type names (for example **Image**, **File**, **percPage**,
+or FastForward types such as **rffImage**). Those names match the picker's page/asset
+filter — **Open** selects the hit, the selection summary updates, and **Confirm**
+enables. Folders and navigation nodes are not selectable in the asset or page picker.
+A type that the picker does not allow still shows *Selected item type is not allowed*
+and leaves Confirm disabled.
+
 ## Display format
 
 Use the **display format** selector next to the menu bar to choose list columns for the
@@ -391,9 +404,12 @@ Open **View → Translations** after selecting a **page or asset** in the list (
 The panel shows **this item’s current locale** and **related locale variants**, and lets
 an authorized user **Create variants** for catalog locales the item does not already
 have. Explorer list rows identify items with a Percussion content id. The id is often
-GUID-shaped (for example `1-101-708`); the panel uses the last segment (`708`) for
-both the variants request and create-variant. That GUID form must not fail with
-“Selected item does not have a numeric content id.”
+GUID-shaped (for example `16777215-101-551`). The panel sends that **full GUID** on
+`GET /rest/content-explorer/translations/{itemId}` (the REST façade also accepts a
+bare numeric content id such as `551`). Create-variant still posts the numeric
+content id. Stripping a GUID to its last segment for the GET (`…/translations/551`)
+fails with **Item not found**. That GUID form must not fail with “Selected item does
+not have a numeric content id.”
 
 **Folders and sites** have no content id. With Translations open and only a folder or
 site selected, Explorer shows a select-item hint instead of the live panel.

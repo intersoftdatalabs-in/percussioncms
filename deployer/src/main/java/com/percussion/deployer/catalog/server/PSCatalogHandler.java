@@ -29,8 +29,8 @@ import com.percussion.deployer.objectstore.PSLogSummary;
 import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.deployer.server.PSDeploymentHandler;
 import com.percussion.deployer.server.PSLogHandler;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -74,7 +74,7 @@ public class PSCatalogHandler {
     Document doc = request.getInputDocument();
     Element root = null;
     if (doc == null || (root = doc.getDocumentElement()) == null) {
-      throw new PSDeployException(IPSDeploymentErrors.NULL_INPUT_DOC);
+      throw new PSDeployException(DeploymentErrorCodes.NULL_INPUT_DOC);
     }
 
     /* verify this is the appropriate request type */
@@ -82,7 +82,7 @@ public class PSCatalogHandler {
     int length = PSCataloger.ROOT_PREFIX.length();
     if (!requestTag.startsWith(PSCataloger.ROOT_PREFIX)
         || !PSCataloger.ms_supportedReqTypes.contains(requestTag.substring(length))) {
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REQUEST_TYPE, root.getTagName());
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REQUEST_TYPE, root.getTagName());
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
@@ -306,7 +306,7 @@ public class PSCatalogHandler {
         }
       }
     } catch (PSUnknownNodeTypeException ex) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, ex.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, ex.getLocalizedMessage());
     }
     return descriptors;
   }
@@ -373,7 +373,7 @@ public class PSCatalogHandler {
     if (props == null
         || props.getProperty("type") == null
         || props.getProperty("type").trim().length() == 0)
-      throw new PSDeployException(IPSDeploymentErrors.CATALOG_REQD_PROP_NOT_SPECIFIED, "type");
+      throw new PSDeployException(DeploymentErrorCodes.CATALOG_REQD_PROP_NOT_SPECIFIED, "type");
 
     String type = props.getProperty("type");
     PSCatalogResultSet typeObjects = new PSCatalogResultSet();
@@ -496,7 +496,7 @@ public class PSCatalogHandler {
 
     if (!catalogDir.isDirectory() || !catalogDir.exists())
       throw new PSDeployException(
-          IPSDeploymentErrors.CATALOG_INVALID_DIRECTORY_SPECIFIED, new String[] {directory});
+          DeploymentErrorCodes.CATALOG_INVALID_DIRECTORY_SPECIFIED, new String[] {directory});
 
     PSCatalogResultSet resultSet = new PSCatalogResultSet();
     var dirFiles = Optional.ofNullable(catalogDir.listFiles()).orElse(new File[0]);

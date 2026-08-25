@@ -246,10 +246,14 @@ public class PSGuid extends Number implements IPSGuid {
           m_guid = Long.parseLong(tokens[0]);
           if (getType() == 0) {
             if (type == null) {
-              throw new IllegalArgumentException(
-                  "Type is undetermined, expecting \"type\" argument");
+              // Bare numeric content ids (Explorer Preview
+              // GET .../workflow/checkIn/594) have no type bits. Untyped
+              // makeGuid(String) used to throw here; treat them as legacy
+              // content so REST checkIn cannot HTTP 500 (#3722 / #3688).
+              setType(PSTypeEnum.LEGACY_CONTENT.getOrdinal());
+            } else {
+              setType(type.getOrdinal());
             }
-            setType(type.getOrdinal());
           } else if ((type != null) && (getType() != type.getOrdinal()) && !forceType) {
             throw new IllegalArgumentException("Type does not match");
           } else if (type != null && getType() != type.getOrdinal()) {

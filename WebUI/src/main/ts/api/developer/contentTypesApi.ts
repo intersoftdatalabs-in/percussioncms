@@ -16,15 +16,27 @@
  */
 
 import { normalizeDesignObjectGuid } from "../displayFormatGuid";
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
+import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
-  ContentTypeListEnvelope,
   ContentTypeSummary,
   NamedObjectRef,
 } from "./types";
+
+export {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "./contentTypeLists";
 
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeDetail}. */
 export const CONTENT_TYPE_DETAIL_ROOT = "ContentTypeDetail";
@@ -40,28 +52,108 @@ function normalizeContentTypeSummary(item: ContentTypeSummary): ContentTypeSumma
   return normalizeDesignObjectGuid(item);
 }
 
+/** Jackson WRAP_ROOT / JAXB / ArrayList envelopes for GET /services/contenttypes. */
+const CONTENT_TYPE_LIST_WRAP_KEYS = [
+  "ContentTypeList",
+  "contentTypeList",
+  "ContentType",
+  "contentType",
+  "contentTypes",
+  "ArrayList",
+  "arrayList",
+  "items",
+] as const;
+
+const MAX_CONTENT_TYPE_LIST_DEPTH = 6;
+
+function looksLikeContentTypeSummary(obj: Record<string, unknown>): boolean {
+  return (
+    obj.name != null ||
+    obj.label != null ||
+    obj.guid != null ||
+    obj.guidString != null ||
+    typeof obj.hideFromMenu === "boolean"
+  );
+}
+
+function isEmptyCollectionBean(obj: Record<string, unknown>): boolean {
+  if (!("empty" in obj) || typeof obj.empty !== "boolean") {
+    return false;
+  }
+  return Object.keys(obj).every((k) => k === "empty");
+}
+
 /**
- * Normalize list responses that may be a bare array or a JAXB envelope.
+ * Flatten Jackson list envelopes so the catalog never receives a non-array.
+ *
+ * <p>Live WRAP_ROOT_VALUE serializes {@code ContentTypeList} as
+ * {@code {"ContentTypeList":[…]}} (class name) or {@code {"ContentType":[…]}}
+ * ({@code @XmlRootElement}). A one-level {@code env.ContentType} read misses
+ * the class-name root and can leave a truthy object for {@code [...items]} /
+ * {@code .map} — DeveloperSectionErrorBoundary (#3706 / peer searches #3576).
+ * Also flattens nested wraps, empty-collection beans (`{ "empty": false }`),
+ * and singleton objects (#3712 catalog safety).
  */
-export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
-  if (payload == null) {
+function flattenContentTypeList(payload: unknown, depth = 0): unknown[] {
+  if (payload == null || depth > MAX_CONTENT_TYPE_LIST_DEPTH) {
     return [];
   }
   if (Array.isArray(payload)) {
-    return (payload as ContentTypeSummary[]).map(normalizeContentTypeSummary);
-  }
-  if (typeof payload === "object") {
-    const env = payload as ContentTypeListEnvelope & {
-      contentType?: ContentTypeSummary[] | ContentTypeSummary;
-    };
-    const raw = env.ContentType ?? env.contentType;
-    if (raw == null) {
-      return [];
+    const out: unknown[] = [];
+    for (const item of payload) {
+      if (item == null || typeof item !== "object") {
+        continue;
+      }
+      const rec = item as Record<string, unknown>;
+      const wrapped =
+        !looksLikeContentTypeSummary(rec) &&
+        CONTENT_TYPE_LIST_WRAP_KEYS.some((k) => rec[k] != null);
+      if (wrapped || !looksLikeContentTypeSummary(rec)) {
+        out.push(...flattenContentTypeList(item, depth + 1));
+      } else {
+        out.push(item);
+      }
     }
-    const list = Array.isArray(raw) ? raw : [raw];
-    return list.map(normalizeContentTypeSummary);
+    return out;
+  }
+  const obj = asRecord(payload);
+  if (!obj) {
+    return [];
+  }
+  if (isEmptyCollectionBean(obj)) {
+    return [];
+  }
+  for (const key of CONTENT_TYPE_LIST_WRAP_KEYS) {
+    if (obj[key] != null) {
+      return flattenContentTypeList(obj[key], depth + 1);
+    }
+  }
+  if (looksLikeContentTypeSummary(obj)) {
+    return [obj];
   }
   return [];
+}
+
+function normalizeContentTypeDetail(detail: ContentTypeDetail): ContentTypeDetail {
+  return {
+    ...detail,
+    fields: normalizeContentTypeFields(detail.fields),
+    childFieldSets: normalizeContentTypeStringList(detail.childFieldSets),
+    allowedWorkflows: normalizeNamedObjectRefs(detail.allowedWorkflows),
+    allowedTemplates: normalizeNamedObjectRefs(detail.allowedTemplates),
+    designGaps: normalizeContentTypeDesignGaps(detail.designGaps),
+  };
+}
+
+/**
+ * Normalize list responses: bare array, {@code ContentTypeList}/{@code ContentType}
+ * envelopes, nested wraps, singleton object, or empty-collection bean (#3706).
+ * Always returns an array.
+ */
+export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
+  return flattenContentTypeList(payload).map((item) =>
+    normalizeContentTypeSummary(item as ContentTypeSummary),
+  );
 }
 
 /**
@@ -91,7 +183,7 @@ export function unwrapContentTypeDetail(payload: unknown): ContentTypeDetail {
   } else {
     return {};
   }
-  return normalizeDesignObjectGuid(body);
+  return normalizeDesignObjectGuid(normalizeContentTypeDetail(body));
 }
 
 /**
@@ -131,17 +223,93 @@ export type ContentTypeUpdateBody = {
   allowedTemplates?: NamedObjectRef[];
 };
 
+/** Wire shape for {@code POST .../lock} ({@code ObjectLockSummary}). */
+export type ContentTypeLockSummary = {
+  session?: string;
+  locker?: string;
+  remainingTime?: number;
+  callerAccessTime?: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ObjectLockSummary}. */
+export const OBJECT_LOCK_SUMMARY_ROOT = "ObjectLockSummary";
+
 /**
- * PUT /services/contenttypes/{idOrName} — design lock + save + release.
+ * Normalize a lock POST response to a flat {@link ContentTypeLockSummary}.
+ */
+export function unwrapObjectLockSummary(payload: unknown): ContentTypeLockSummary {
+  const root = asRecord(payload);
+  if (!root) {
+    return {};
+  }
+  const nested = asRecord(root[OBJECT_LOCK_SUMMARY_ROOT] ?? root.objectLockSummary);
+  const body = nested ?? root;
+  const out: ContentTypeLockSummary = {};
+  if (typeof body.session === "string") {
+    out.session = body.session;
+  }
+  if (typeof body.locker === "string") {
+    out.locker = body.locker;
+  }
+  if (typeof body.remainingTime === "number") {
+    out.remainingTime = body.remainingTime;
+  }
+  if (typeof body.callerAccessTime === "string") {
+    out.callerAccessTime = body.callerAccessTime;
+  }
+  return out;
+}
+
+/**
+ * POST /services/contenttypes/{idOrName}/lock — self-only design-session lock.
+ */
+export async function lockContentType(
+  idOrName: string,
+): Promise<ContentTypeLockSummary> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.CONTENT_TYPES}/${key}/lock`);
+  return unwrapObjectLockSummary(payload);
+}
+
+/**
+ * POST /services/contenttypes/{idOrName}/unlock — release a held design-session lock.
+ */
+export async function unlockContentType(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await post(`${PATHS.CONTENT_TYPES}/${key}/unlock`);
+}
+
+/**
+ * Build the wire JSON body for ContentTypesResource PUT under
+ * {@link CONTENT_TYPE_DETAIL_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE
+ * (same class as TemplateDetail / UserPreference).
+ */
+export function wrapContentTypeDetailForWire(
+  body: ContentTypeUpdateBody,
+): Record<string, ContentTypeUpdateBody> {
+  return { [CONTENT_TYPE_DETAIL_ROOT]: body };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not release it.
  *
- * <p>Server locks for the current session user, applies mutable fields (meta, field flags,
- * optional workflow/template association full-replace), saves, and releases.
+ * <p>This client wraps lock → PUT → unlock so the Developer SPA save path keeps working until
+ * lock-button chrome (#3744) lands. The server PUT is 409 unless the current user already holds
+ * the lock.
  */
 export async function updateContentTypeDetail(
   idOrName: string,
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
-  const key = encodeURIComponent(idOrName);
-  const payload = await put<unknown>(`${PATHS.CONTENT_TYPES}/${key}`, body);
-  return unwrapContentTypeDetail(payload);
+  await lockContentType(idOrName);
+  try {
+    const key = encodeURIComponent(idOrName);
+    const payload = await put<unknown>(
+      `${PATHS.CONTENT_TYPES}/${key}`,
+      wrapContentTypeDetailForWire(body),
+    );
+    return unwrapContentTypeDetail(payload);
+  } finally {
+    await unlockContentType(idOrName).catch(() => undefined);
+  }
 }

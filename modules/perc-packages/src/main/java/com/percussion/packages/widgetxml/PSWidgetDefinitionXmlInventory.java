@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
  * {@code sys__UserDependency--rxconfig/Widgets/*.xml} (Phase 5 gate G4 / issue #3026, parent
  * #2630, ADR-004).
  *
- * <p><strong>Pass condition (M1 Widget portion / G4):</strong> zero <em>non-waived</em> product
- * Widget definition XML files under a {@code Packages/} tree. The only explicit waiver is {@code
- * perc.Test} (test-harness package residual).
+ * <p><strong>Pass condition (M1 Widget portion / G4):</strong> zero product Widget definition XML
+ * files under a {@code Packages/} tree, including {@code perc.Test} (issue #3736). The waiver set
+ * is empty — do not re-add package dirs without an ADR / residual issue.
  *
  * <p>Uses {@link Path#resolve(String)} / {@link Files} only — no hardcoded filesystem separators.
  *
@@ -49,10 +49,10 @@ public final class PSWidgetDefinitionXmlInventory {
 
   /**
    * Package directory names under {@code Packages/} allowed to still commit Widget definition XML.
-   * Explicit and minimal — do not expand without an ADR / residual issue.
+   * Empty after {@code perc.Test} ship-exit (#3736). Do not expand without an ADR / residual issue.
    */
   public static final Set<String> WAIVED_PACKAGE_DIRS =
-      Collections.unmodifiableSet(new LinkedHashSet<>(List.of("perc.Test")));
+      Collections.unmodifiableSet(new LinkedHashSet<>());
 
   private PSWidgetDefinitionXmlInventory() {
     // utility
@@ -145,7 +145,7 @@ public final class PSWidgetDefinitionXmlInventory {
   }
 
   /**
-   * Whether the package directory name is on the explicit waiver list ({@code perc.Test} only).
+   * Whether the package directory name is on the explicit waiver list (empty after #3736).
    *
    * @param packageDirName package folder name under Packages
    * @return true if waived
