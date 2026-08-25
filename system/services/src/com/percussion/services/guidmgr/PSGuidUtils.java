@@ -265,14 +265,48 @@ public final class PSGuidUtils {
     }
 
     /**
-     * Convert a list of GUIDs to a list of primitive long values for use in queries.
+     * Packed 64-bit GUID value including type (and host when present).
+     *
+     * <p>{@link IPSGuid#longValue()} returns only the UUID when host is 0. Design
+     * object locks persist {@link PSDesignGuid#getValue()} (type bits included), so
+     * lock queries must use this packed form or they miss the row. Example: NODEDEF
+     * typeId 1001 packs to {@code 8589935593}, not {@code 1001}.
+     *
+     * @param id guid, not {@code null}
+     * @return packed long matching {@code PSObjectLock} objectId / lock id columns
+     */
+    public static long toFullLong(IPSGuid id) {
+        Objects.requireNonNull(id, "id cannot be null");
+        try {
+            if (id instanceof PSDesignGuid designGuid) {
+                return designGuid.getValue();
+            }
+            if (id instanceof PSGuid) {
+                return new PSDesignGuid(id).getValue();
+            }
+            var type = PSTypeEnum.valueOf(id.getType());
+            if (type == null) {
+                return id.longValue();
+            }
+            return new PSDesignGuid(new PSGuid(id.getHostId(), type, id.getUUID())).getValue();
+        } catch (IllegalArgumentException e) {
+            // Type missing (0) — packed conversion is not possible
+            return id.longValue();
+        }
+    }
+
+    /**
+     * Convert a list of GUIDs to packed long values for use in queries.
+     *
+     * <p>Uses {@link #toFullLong(IPSGuid)}, not {@link IPSGuid#longValue()}, so
+     * host-0 design GUIDs keep their type bits (see object lock {@code objectId}).
      *
      * @param ids the ids to convert, not {@code null}
-     * @return a list of long values in the same order as the supplied GUIDs
+     * @return a list of packed long values in the same order as the supplied GUIDs
      */
     public static java.util.List<Long> toFullLongList(java.util.List<IPSGuid> ids) {
         java.util.Objects.requireNonNull(ids, "ids cannot be null");
-        return ids.stream().map(IPSGuid::longValue).toList();
+        return ids.stream().map(PSGuidUtils::toFullLong).toList();
     }
 
     /**

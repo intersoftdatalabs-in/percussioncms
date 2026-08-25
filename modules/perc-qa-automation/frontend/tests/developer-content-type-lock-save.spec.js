@@ -15,7 +15,7 @@
  */
 
 /**
- * Developer Content Type detail lock / save / unlock chrome (#3744 / parent #1690).
+ * Developer Content Type detail lock / save / unlock chrome (#3744 / #3772 / parent #1690).
  *
  * Admin locks a type, saves a description, then unlocks. Surface-filtered QA:
  * <pre>
@@ -42,7 +42,7 @@ function developerContentTypesUrl() {
   return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
 }
 
-test.describe("Developer content type lock/save chrome (#3744)", () => {
+test.describe("Developer content type lock/save chrome (#3744 / #3772)", () => {
   test("Admin can lock, save a description, and unlock", async ({ page }) => {
     test.setTimeout(120_000);
     const pageErrors = [];
