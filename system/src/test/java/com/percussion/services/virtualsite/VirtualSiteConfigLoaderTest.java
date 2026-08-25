@@ -161,6 +161,56 @@ class VirtualSiteConfigLoaderTest {
   }
 
   @Test
+  void secondLoadAfterSqlQueryAndQueryFileEditSeesCurrentSqlWithoutCache() throws Exception {
+    Path root = tempDir.resolve("live-sql-config");
+    Files.createDirectories(root);
+    Path yaml = root.resolve("_config.yaml");
+    Path queryFile = root.resolve("pages.sql");
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: SQL First
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sql:
+          jdbcUrl: "jdbc:h2:mem:vsql_cfg_first;DB_CLOSE_DELAY=-1"
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig first = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("SQL First", first.siteTitle());
+    assertEquals("jdbc:h2:mem:vsql_cfg_first;DB_CLOSE_DELAY=-1", first.sql().jdbcUrl());
+    assertTrue(first.sql().query().toLowerCase().contains("from pages"), first.sql().query());
+    assertTrue(first.sql().queryFile() == null || first.sql().queryFile().isBlank());
+
+    Files.writeString(queryFile, "SELECT id, title, body FROM catalog\n", StandardCharsets.UTF_8);
+    Files.writeString(
+        yaml,
+        """
+        site:
+          title: SQL Second
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        sql:
+          jdbcUrl: "jdbc:h2:mem:vsql_cfg_second;DB_CLOSE_DELAY=-1"
+          queryFile: pages.sql
+        """,
+        StandardCharsets.UTF_8);
+    VirtualSiteConfig second = VirtualSiteConfigLoader.load(root, null, "k");
+    assertEquals("SQL Second", second.siteTitle());
+    assertEquals("jdbc:h2:mem:vsql_cfg_second;DB_CLOSE_DELAY=-1", second.sql().jdbcUrl());
+    assertTrue(second.sql().query() == null || second.sql().query().isBlank());
+    assertEquals("pages.sql", second.sql().queryFile());
+  }
+
+  @Test
   void nullRootFails() {
     assertThrows(
         VirtualSiteException.class,

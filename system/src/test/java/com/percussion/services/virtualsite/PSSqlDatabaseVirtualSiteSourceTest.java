@@ -19,6 +19,7 @@ package com.percussion.services.virtualsite;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -243,6 +244,66 @@ class PSSqlDatabaseVirtualSiteSourceTest {
     assertEquals("Second", second.frontmatter().title());
     assertTrue(second.markdownBody().contains("token-BBB"));
     assertFalse(second.markdownBody().contains("token-AAA"));
+  }
+
+  @Test
+  void secondBuildAfterSqlConfigAndQueryFileEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    String jdbc = newMemUrl();
+    seedPages(
+        jdbc,
+        "INSERT INTO pages (id, title, body, path, sort_order) VALUES"
+            + " ('live-home', 'First Title', 'First body unique-token-AAA', 'index.md', 1)");
+    Path root = writeSite(tempDir.resolve("sql-rebuild"), jdbc, null, "pages.sql");
+    Path queryFile = root.resolve("pages.sql");
+    Files.writeString(
+        queryFile,
+        "SELECT id, title, body, path, sort_order AS \"order\" FROM pages\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    writeSqlYaml(root, jdbc, "First Site Title", "pages.sql");
+
+    Path out = tempDir.resolve("sql-rebuild-out");
+    PSSqlDatabaseVirtualSiteSource source = new PSSqlDatabaseVirtualSiteSource();
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
+    PSVirtualSiteBuildResult first = service.build(root, out, "sql-docs");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        queryFile,
+        "SELECT id, 'Second Title' AS title, 'Second body unique-token-BBB' AS body, path,"
+            + " sort_order AS \"order\" FROM pages\n",
+        StandardCharsets.UTF_8);
+    writeSqlYaml(root, jdbc, "Second Site Title", "pages.sql");
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "sql-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    assertEquals("Second Title", loaded.frontmatter().title());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+    assertFalse(loaded.markdownBody().contains("unique-token-AAA"), loaded.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(root, out, "sql-docs");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
   }
 
   @Test
@@ -524,6 +585,30 @@ class PSSqlDatabaseVirtualSiteSourceTest {
               + " sort_order INT)");
       st.execute(insertSql);
     }
+  }
+
+  private static void writeSqlYaml(Path root, String jdbc, String siteTitle, String queryFile)
+      throws Exception {
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: %s
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        sql:
+          jdbcUrl: "%s"
+          user: sa
+          password: ""
+          queryFile: %s
+        """
+            .formatted(siteTitle, jdbc, queryFile),
+        StandardCharsets.UTF_8);
   }
 
   private static Path writeSite(Path root, String jdbc, String query, String queryFile)

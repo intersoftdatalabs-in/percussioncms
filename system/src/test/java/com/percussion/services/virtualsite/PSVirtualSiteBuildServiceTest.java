@@ -26,6 +26,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -258,6 +261,106 @@ class PSVirtualSiteBuildServiceTest {
         StandardCharsets.UTF_8);
 
     PSVirtualSiteBuildResult second = service.build(siteRoot, out, "csv-live");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
+  }
+
+  @Test
+  void secondBuildAfterSqlConfigAndQueryFileEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    String jdbc = "jdbc:h2:mem:vsql_rebuild_" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+    Class.forName("org.h2.Driver");
+    try (Connection c = DriverManager.getConnection(jdbc, "sa", "");
+        Statement st = c.createStatement()) {
+      st.execute(
+          "CREATE TABLE pages ("
+              + "id VARCHAR(128), title VARCHAR(256), body CLOB, path VARCHAR(512),"
+              + " sort_order INT)");
+      st.execute(
+          "INSERT INTO pages (id, title, body, path, sort_order) VALUES"
+              + " ('live-home', 'First Title', 'First body unique-token-AAA', 'index.md', 1)");
+    }
+
+    Path siteRoot = tempDir.resolve("sql-live-site");
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    Path configYaml = siteRoot.resolve("_config.yaml");
+    Path queryFile = siteRoot.resolve("pages.sql");
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: First Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        sql:
+          jdbcUrl: "%s"
+          user: sa
+          password: ""
+          queryFile: pages.sql
+        """
+            .formatted(jdbc),
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        queryFile,
+        "SELECT id, title, body, path, sort_order AS \"order\" FROM pages\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("sql-live-out");
+    PSVirtualSiteBuildService service =
+        PSVirtualSiteBuildService.forSourceType(VirtualSiteSourceType.SQL_DATABASE);
+
+    PSVirtualSiteBuildResult first = service.build(siteRoot, out, "sql-live");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        queryFile,
+        "SELECT id, 'Second Title' AS title, 'Second body unique-token-BBB' AS body, path,"
+            + " sort_order AS \"order\" FROM pages\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        configYaml,
+        """
+        site:
+          title: Second Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        sql:
+          jdbcUrl: "%s"
+          user: sa
+          password: ""
+          queryFile: pages.sql
+        """
+            .formatted(jdbc),
+        StandardCharsets.UTF_8);
+
+    PSVirtualSiteBuildResult second = service.build(siteRoot, out, "sql-live");
     assertEquals(1, second.pageCount());
     String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(secondHtml.contains("Second Site Title"), secondHtml);

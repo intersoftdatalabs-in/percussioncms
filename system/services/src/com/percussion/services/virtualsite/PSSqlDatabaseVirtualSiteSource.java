@@ -48,8 +48,12 @@ import java.util.regex.Pattern;
  * <p>This slice does not open Oracle, MySQL, SQL Server, or remote H2 ({@code tcp}/{@code ssl}/file)
  * URLs. {@code INIT=}/{@code RUNSCRIPT} in the JDBC URL are rejected.
  *
- * <p>Stateless: {@link #discover} and {@link #load} always re-run the current SELECT. No row cache
- * is kept on the instance or in statics.
+ * <p>Stateless: {@link #discover} and {@link #load} always re-read {@code sql.queryFile} via
+ * {@link Files#readString} (or the current inline {@code sql.query} from config) and re-run
+ * the SELECT. No path/mtime parse cache or row cache is kept on the instance or in statics — a
+ * second build in the same JVM after a {@code _config.yaml} or query-file edit, or after H2
+ * row changes, must see the new bytes. {@code _config.yaml} is reloaded by {@link
+ * PSVirtualSiteBuildService}, not this source.
  *
  * <p>Optional {@code sql.queryFile} is resolved with portable NIO {@link Path} under the site root.
  */
