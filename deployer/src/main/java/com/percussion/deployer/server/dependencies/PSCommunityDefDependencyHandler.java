@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -57,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.naming.NamingException;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a community definition. */
 public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandler {
@@ -273,7 +273,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     } catch (Exception e) {
       Object[] args = {dep.getDisplayName()};
       throw new PSDeployException(
-          IPSDeploymentErrors.FAILED_TO_CREATE_COMPONENT_COMMUNITY_ASSNS, e, args);
+          DeploymentErrorCodes.FAILED_TO_CREATE_COMPONENT_COMMUNITY_ASSNS, e, args);
     }
   }
 
@@ -353,7 +353,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
     Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
@@ -418,7 +418,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
     Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {
@@ -489,7 +489,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();
     Iterator<PSJdbcRowData> rows = data.getRows();
     if (!rows.hasNext()) {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {

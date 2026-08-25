@@ -26,7 +26,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -36,6 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Defines the contract for classes that discover, package, and install a single type of dependency
@@ -70,12 +70,12 @@ public interface IPSDependencyHandler {
         | IllegalAccessException
         | NoSuchMethodException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT,
+          DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT,
           new Object[] {className, e.getLocalizedMessage()});
     } catch (InvocationTargetException e) {
       var origException = e.getTargetException();
       throw new PSDeployException(
-          IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT,
+          DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT,
           new Object[] {
             className,
             origException.getClass().getName() + ": " + origException.getLocalizedMessage()

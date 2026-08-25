@@ -17,6 +17,8 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
@@ -191,7 +193,7 @@ public class PSJdbcTableFactory {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.SQL_CATALOG_TABLE_FAILED, args, e);
+          TableFactoryErrorCodes.SQL_CATALOG_TABLE_FAILED, args, e);
     }
 
     return tableSchema;
@@ -243,7 +245,7 @@ public class PSJdbcTableFactory {
       processTable(conn, dbmsDef, tableSchema, logOut, logDebug);
     } catch (SQLException e) {
       Object[] args = {tableSchema.getName(), PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CONNECTION_FAILED, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CONNECTION_FAILED, args, e);
     } finally {
       if (conn != null)
         try {
@@ -331,7 +333,7 @@ public class PSJdbcTableFactory {
         // Schema changes for a view is not supported
         if (tableSchema.isView() || tmd.isView())
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.ALTER_VIEW_NOT_SUPPORTED, tableSchema.getName());
+              TableFactoryErrorCodes.ALTER_VIEW_NOT_SUPPORTED, tableSchema.getName());
 
         // Process schema changes
         PSJdbcExecutionPlan plan = new PSJdbcExecutionPlan();
@@ -401,10 +403,10 @@ public class PSJdbcTableFactory {
         processingData = false;
       }
     } catch (SQLException e) {
-      int errorCode =
+      IPSErrorCode errorCode =
           processingData
-              ? IPSTableFactoryErrors.DATA_PROCESS_ERROR
-              : IPSTableFactoryErrors.SCHEMA_PROCESS_ERROR;
+              ? TableFactoryErrorCodes.DATA_PROCESS_ERROR
+              : TableFactoryErrorCodes.SCHEMA_PROCESS_ERROR;
 
       Object[] args = {tableSchema.getName(), PSJdbcTableFactoryException.formatSqlException(e)};
       PSJdbcTableFactoryException ex = new PSJdbcTableFactoryException(errorCode, args, e);
@@ -760,7 +762,7 @@ public class PSJdbcTableFactory {
         dataTypeMapObj = new PSJdbcDataTypeMap(dbmsDef.getBackEndDB(), dbmsDef.getDriver(), null);
       } catch (Exception e) {
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
+            TableFactoryErrorCodes.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
       }
     } else {
       dataTypeMapObj =
@@ -797,7 +799,7 @@ public class PSJdbcTableFactory {
         }
       }
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.SCHEMA_COLL_PROCESS_ERROR,
+          TableFactoryErrorCodes.SCHEMA_COLL_PROCESS_ERROR,
           PSJdbcTableFactoryException.formatSqlException(e),
           e);
     } catch (PSJdbcTableFactoryException e1) {
@@ -1013,7 +1015,7 @@ public class PSJdbcTableFactory {
     File tableDefFile = new File(defDataFolder, "tableDef.xml");
     if (!tableDefFile.isFile()) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.SCHEMA_COLL_PROCESS_ERROR,
+          TableFactoryErrorCodes.SCHEMA_COLL_PROCESS_ERROR,
           "tableDef.xml not found under export storage: " + tableDefFile.getAbsolutePath());
     }
 
@@ -1062,7 +1064,7 @@ public class PSJdbcTableFactory {
             throw (PSJdbcTableFactoryException) e;
           }
           throw new PSJdbcTableFactoryException(
-              IPSTableFactoryErrors.DATA_PROCESS_ERROR,
+              TableFactoryErrorCodes.DATA_PROCESS_ERROR,
               new Object[] {tableName, e.getMessage()},
               e);
         }
@@ -1321,7 +1323,7 @@ public class PSJdbcTableFactory {
       return count > 0;
     } catch (SQLException e) {
       Object[] args = {tableSchema.getName(), PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.CHECK_EXISTING_DATA, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.CHECK_EXISTING_DATA, args, e);
     } finally {
       if (rsCount != null)
         try {
@@ -1406,7 +1408,7 @@ public class PSJdbcTableFactory {
       return new PSJdbcTableData(tableSchema.getName(), rowList.iterator());
     } catch (SQLException e) {
       Object[] args = {tableSchema.getName(), PSJdbcTableFactoryException.formatSqlException(e)};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CATALOG_DATA, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CATALOG_DATA, args, e);
     } finally {
       if (step != null) step.close();
     }
@@ -1761,7 +1763,7 @@ public class PSJdbcTableFactory {
     URL xslUrl = PSJdbcTableFactory.class.getResource(xslFileName);
     if (xslUrl == null)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.STYLESHEET_NOT_FOUND, xslFileName);
+          TableFactoryErrorCodes.STYLESHEET_NOT_FOUND, xslFileName);
 
     DOMResult result = new DOMResult();
     try {
@@ -1771,7 +1773,7 @@ public class PSJdbcTableFactory {
       transformer.transform(new DOMSource(doc), result);
     } catch (Throwable t) {
       Object[] args = {xslFileName, t.getMessage()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.TRANSFORMATION_ERROR, args, t);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.TRANSFORMATION_ERROR, args, t);
     }
 
     return (Document) result.getNode();

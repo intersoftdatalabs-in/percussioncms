@@ -34,7 +34,6 @@ import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
@@ -77,6 +76,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * A util class with ALL static methods to help in new GUID type create/install actions
@@ -110,7 +110,7 @@ public class PSDependencyUtils {
       guidval = Long.parseLong(depId);
     } catch (NumberFormatException ne) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           depTypeName + " was expecting a long value: " + depId);
     }
     return guidval;
@@ -170,7 +170,7 @@ public class PSDependencyUtils {
     }
     if (mapping == null) {
       Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     // this is a new mapping, but a target id was not chosen in the GUI
@@ -178,7 +178,7 @@ public class PSDependencyUtils {
       String nextId = PSDependencyUtils.getNextId(dep);
       if (nextId == null)
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "NextID generator returned null for " + dep.getDisplayName());
       mapping.setTarget(nextId, dep.getDisplayName());
     }
@@ -249,7 +249,7 @@ public class PSDependencyUtils {
       guidval = Long.parseLong(clMapping.getTargetId());
     } catch (NumberFormatException ne) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, " was expecting a long value: ");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, " was expecting a long value: ");
     }
 
     guid = new PSGuid(type, guidval);
@@ -273,7 +273,7 @@ public class PSDependencyUtils {
 
     if (appName == null || appName.trim().length() == 0) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not extract any application name");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not extract any application name");
     }
     return appName;
   }
@@ -336,7 +336,7 @@ public class PSDependencyUtils {
 
     } catch (IOException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Problem reading the dependency file: " + depFile.getArchiveLocation().getName());
     } finally {
       if (in != null) {
@@ -370,7 +370,7 @@ public class PSDependencyUtils {
     try {
       m = dep.getIdMapping(ctx, tmpId, PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
     } catch (PSDeployException dex) {
-      if (dex.getErrorCode() == IPSDeploymentErrors.MISSING_ID_MAPPING) {
+      if (dex.getErrorCode() == DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode()) {
         // try as a variant . . .
         m = dep.getIdMapping(ctx, tmpId, PSVariantDefDependencyHandler.DEPENDENCY_TYPE);
       }
@@ -474,7 +474,7 @@ public class PSDependencyUtils {
       // result of shared def not loading, server will have already logged
       // an error for this.
       Object[] args = {"Cannot load shared def"};
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, args);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, args);
     }
     return sharedDef;
   }

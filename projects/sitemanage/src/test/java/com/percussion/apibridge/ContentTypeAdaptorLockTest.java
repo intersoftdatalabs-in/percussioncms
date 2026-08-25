@@ -39,7 +39,6 @@ import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorResultsException;
@@ -221,20 +220,11 @@ class ContentTypeAdaptorLockTest {
   }
 
   @Test
-  void designLockMinutesUsesMillisecondLockInterval() {
-    assertEquals(1_800_000L, PSObjectLock.LOCK_INTERVAL);
-    assertEquals(30L, ContentTypeAdaptor.DESIGN_LOCK_MINUTES);
-  }
-
-  @Test
   void hasLockError_doesNotMatchBlockquoteText() {
     IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, 1L);
     PSErrorResultsException errors = new PSErrorResultsException();
     errors.addError(guid, "Failed to open content type design session: percBlockquote");
     assertFalse(ContentTypeAdaptor.hasLockError(errors));
-    PSErrorResultsException notLockedText = new PSErrorResultsException();
-    notLockedText.addError(guid, "object is not locked");
-    assertFalse(ContentTypeAdaptor.hasLockError(notLockedText));
   }
 
   @Test

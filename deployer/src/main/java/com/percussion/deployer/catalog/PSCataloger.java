@@ -17,10 +17,10 @@
 
 package com.percussion.deployer.catalog;
 
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.conn.PSServerException;
 import com.percussion.deployer.client.PSDeploymentServerConnection;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
@@ -163,7 +163,7 @@ public class PSCataloger {
     } catch (PSServerLockException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     PSCatalogResultSet set = null;
@@ -179,7 +179,7 @@ public class PSCataloger {
         respDoc.getDocumentElement().getTagName(),
         e.getLocalizedMessage()
       };
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
 
     return set;

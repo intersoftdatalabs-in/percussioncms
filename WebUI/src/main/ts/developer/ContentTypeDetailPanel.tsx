@@ -24,12 +24,23 @@ import {
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
+import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "../api/developer/contentTypeLists";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
   NamedObjectRef,
 } from "../api/developer/types";
-import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
+import {
+  designGapCode,
+  designGapKey,
+  formatDesignGap,
+  type DesignGapWire,
+} from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
 import { isApiError } from "../api/client";
 import { panelErrMsg } from "./errors";
@@ -64,9 +75,9 @@ function fieldKey(f: ContentTypeFieldSummary): string {
   return `${f.fieldSet || "parent"}:${f.name || ""}`;
 }
 
-function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string, FieldDraft> {
+function toDrafts(fields: unknown): Record<string, FieldDraft> {
   const out: Record<string, FieldDraft> = {};
-  for (const f of fields || []) {
+  for (const f of normalizeContentTypeFields(fields)) {
     if (!f.name) continue;
     out[fieldKey(f)] = {
       name: f.name,
@@ -77,13 +88,36 @@ function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string,
   return out;
 }
 
-function cloneRefs(list: NamedObjectRef[] | undefined): NamedObjectRef[] {
-  return (list || []).map((r) => ({
+function cloneRefs(list: unknown): NamedObjectRef[] {
+  return normalizeNamedObjectRefs(list).map((r) => ({
     name: r.name,
     label: r.label,
     isDefault: r.isDefault,
     guid: r.guid ? { ...r.guid } : undefined,
   }));
+}
+
+function contentTypeFields(detail: ContentTypeDetail | null | undefined): ContentTypeFieldSummary[] {
+  return normalizeContentTypeFields(detail?.fields);
+}
+
+function contentTypeChildSets(detail: ContentTypeDetail | null | undefined): string[] {
+  return normalizeContentTypeStringList(detail?.childFieldSets);
+}
+
+function contentTypeDesignGaps(detail: ContentTypeDetail | null | undefined): DesignGapWire[] {
+  return normalizeContentTypeDesignGaps(detail?.designGaps);
+}
+
+function normalizeDetailLists(d: ContentTypeDetail): ContentTypeDetail {
+  return {
+    ...d,
+    fields: normalizeContentTypeFields(d.fields),
+    childFieldSets: normalizeContentTypeStringList(d.childFieldSets),
+    allowedWorkflows: normalizeNamedObjectRefs(d.allowedWorkflows),
+    allowedTemplates: normalizeNamedObjectRefs(d.allowedTemplates),
+    designGaps: normalizeContentTypeDesignGaps(d.designGaps),
+  };
 }
 
 function refKey(r: NamedObjectRef, index: number): string {
@@ -109,7 +143,7 @@ function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
  * Align isDefault flags with server defaultWorkflow (or first row when missing).
  */
 function withDefaultFlags(
-  list: NamedObjectRef[] | undefined,
+  list: unknown,
   defaultWorkflow?: NamedObjectRef | null,
 ): NamedObjectRef[] {
   const wfs = cloneRefs(list);
@@ -188,13 +222,14 @@ export function ContentTypeDetailPanel({
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
-        setDetail(d);
-        setLabel(d.label || "");
-        setDescription(d.description || "");
-        setEnabled(d.enabled !== false);
-        setFieldDrafts(toDrafts(d.fields));
-        setWorkflows(withDefaultFlags(d.allowedWorkflows, d.defaultWorkflow));
-        setTemplates(cloneRefs(d.allowedTemplates));
+        const normalized = normalizeDetailLists(d);
+        setDetail(normalized);
+        setLabel(normalized.label || "");
+        setDescription(normalized.description || "");
+        setEnabled(normalized.enabled !== false);
+        setFieldDrafts(toDrafts(normalized.fields));
+        setWorkflows(withDefaultFlags(normalized.allowedWorkflows, normalized.defaultWorkflow));
+        setTemplates(cloneRefs(normalized.allowedTemplates));
         setNewWfName("");
         setNewTplName("");
       })
@@ -210,7 +245,7 @@ export function ContentTypeDetailPanel({
   const initialDrafts = toDrafts(detail?.fields);
   const fieldsDirty =
     detail != null &&
-    (detail.fields || []).some((f) => {
+    contentTypeFields(detail).some((f) => {
       if (!f.name) return false;
       const k = fieldKey(f);
       const d = fieldDrafts[k];
@@ -234,6 +269,9 @@ export function ContentTypeDetailPanel({
       templatesDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
+  const fieldRows = contentTypeFields(detail);
+  const childSets = contentTypeChildSets(detail);
+  const gapRows = contentTypeDesignGaps(detail);
   const canEdit = heldLock && !busy;
 
   function toggleField(key: string, prop: "searchable" | "required") {
@@ -378,10 +416,8 @@ export function ContentTypeDetailPanel({
         label,
         description,
         enabled,
+        fields: fieldPatches,
       };
-      if (fieldPatches.length > 0) {
-        body.fields = fieldPatches;
-      }
       if (workflowsDirty) {
         body.allowedWorkflows = toRefPayload(workflows);
         const def = workflows.find((w) => w.isDefault) || workflows[0];
@@ -393,7 +429,7 @@ export function ContentTypeDetailPanel({
         body.allowedTemplates = toRefPayload(templates);
       }
 
-      const saved = await updateContentTypeDetail(idOrName, body);
+      const saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
@@ -516,11 +552,11 @@ export function ContentTypeDetailPanel({
             </dl>
           </header>
 
-          {detail.childFieldSets && detail.childFieldSets.length > 0 ? (
+          {childSets.length > 0 ? (
             <section style={{ marginBottom: "16px" }}>
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_CHILD_SETS}</h3>
               <ul data-testid="developer-ct-child-sets">
-                {detail.childFieldSets.map((n) => (
+                {childSets.map((n) => (
                   <li key={n} style={{ fontFamily: "monospace" }}>
                     {n}
                   </li>
@@ -762,7 +798,7 @@ export function ContentTypeDetailPanel({
                   </tr>
                 </thead>
                 <tbody>
-                  {(detail.fields || []).map((f) => {
+                  {fieldRows.map((f) => {
                     const rules: string[] = [];
                     if (f.hasValidation) rules.push(DEV_MSG.CT_RULE_VALIDATION);
                     if (f.hasVisibilityRules) rules.push(DEV_MSG.CT_RULE_VISIBILITY);
@@ -936,11 +972,11 @@ export function ContentTypeDetailPanel({
             testIdPrefix="developer-ct-acl"
           />
 
-          {detail.designGaps && detail.designGaps.length > 0 ? (
+          {gapRows.length > 0 ? (
             <section data-testid="developer-ct-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {detail.designGaps.map((g, i) => (
+                {gapRows.map((g, i) => (
                   <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
                     {formatDesignGap(g)}
                   </li>

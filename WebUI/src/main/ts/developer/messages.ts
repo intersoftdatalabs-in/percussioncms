@@ -762,7 +762,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
-    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem or CSV filesystem). Blank/repository keeps traditional repository content.",
+    "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, or SQL database). Blank/repository keeps traditional repository content.",
   SITE_VIRT_LOADING: "perc.ui.developer@Loading Virtual Site source...",
   SITE_VIRT_ERROR: "perc.ui.developer@Could not load Virtual Site source.",
   SITE_VIRT_SAVE_ERROR: "perc.ui.developer@Could not save Virtual Site source.",
@@ -782,7 +782,10 @@ export const DEV_MSG_KEYS = {
   SITE_VIRT_KIND_GIT_FILESYSTEM: "perc.ui.developer@Git filesystem",
   SITE_VIRT_KIND_CSV_FILESYSTEM: "perc.ui.developer@CSV filesystem",
   SITE_VIRT_CSV_HINT:
-    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build or Publish Virtual Site.",
+    "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build.",
+  SITE_VIRT_KIND_SQL_DATABASE: "perc.ui.developer@SQL database",
+  SITE_VIRT_SQL_HINT:
+    "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build or Publish Virtual Site. Passwords are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -809,7 +812,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled documentation home in a new tab (same-origin preview of the build output). Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem or CSV filesystem). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",

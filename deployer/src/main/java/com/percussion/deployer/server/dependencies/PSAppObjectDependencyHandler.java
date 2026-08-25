@@ -37,7 +37,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSNotLockedException;
@@ -66,6 +65,7 @@ import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Base class for handlers that deploy application objects. */
 public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHandler {
@@ -98,10 +98,10 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
     } catch (PSNotFoundException e) {
       // rethrow an exception
       Object[] args = {appName};
-      throw new PSDeployException(IPSDeploymentErrors.APP_DEFINITION_DOESNOT_EXIST, args);
+      throw new PSDeployException(DeploymentErrorCodes.APP_DEFINITION_DOESNOT_EXIST, args);
     } catch (Exception e) {
       // all others are bad
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
     return app;
   }
@@ -153,7 +153,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       try {
         call = new PSExtensionCall(callEl, null, null);
       } catch (PSUnknownNodeTypeException e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
       var ref = call.getExtensionRef();
@@ -216,7 +216,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       try {
         urlReq = new PSUrlRequest(urlEl, null, null);
       } catch (PSUnknownNodeTypeException e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
       var href = urlReq.getHref();
@@ -260,7 +260,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
         lit = new PSTextLiteral(litEl, null, null);
       } catch (PSUnknownNodeTypeException e) {
         // unlikely
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
       String litVal = lit.getText();
@@ -312,7 +312,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       rxGlobals = new PSRxGlobals(null);
     } catch (IOException | org.xml.sax.SAXException e) {
       // wrap in deploy exception so caller handles
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
     boolean hasGlobals = false;
     for (Element sheetEl : sheetNodeList) {
@@ -480,7 +480,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
     if (appName == null) {
       // couldn't have gotten here in this case, but in case its a bug...
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Cannot get appname from path: " + dep.getDependencyId());
     }
 
@@ -501,7 +501,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
         | PSNotLockedException e) {
 
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Cannot save application from path: "
               + dep.getDependencyId()
               + "Error: "
@@ -511,7 +511,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
         os.releaseApplicationLock(lockId, appName + "-" + origFile.getName());
       } catch (PSServerException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Cannot release Application lock  "
                 + dep.getDependencyId()
                 + "Error: "
@@ -563,7 +563,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
 
       return appFiles.iterator();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -592,7 +592,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       return createXmlDocument(os.getApplicationFile(appName, appFile, tok));
     } catch (Exception e) {
       Object[] args = {appFile, appName, e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.APP_FILE_LOAD, args);
+      throw new PSDeployException(DeploymentErrorCodes.APP_FILE_LOAD, args);
     }
   }
 
@@ -622,7 +622,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       }
       return tmpFile;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

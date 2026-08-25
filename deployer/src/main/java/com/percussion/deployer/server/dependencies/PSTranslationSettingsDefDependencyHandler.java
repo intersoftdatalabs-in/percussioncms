@@ -27,7 +27,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSLocaleException;
@@ -49,6 +48,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying TranslationSettings definition for a particular locale.
@@ -112,7 +112,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
     List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(dep.getDependencyId());
     if (xlnList.isEmpty())
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "could not find a TranslationSettings for locale: " + dep.getDependencyId());
     // OK, we have the TranslationSettings, now package its dependencies..
     Set<PSDependency> childDeps = new HashSet<PSDependency>();
@@ -161,7 +161,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
       return deps.iterator();
     } catch (PSLocaleException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "could not retrieve locales");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "could not retrieve locales");
     }
   }
 
@@ -203,7 +203,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
           sb.append(at.toXML());
         } catch (IOException | SAXException e) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              DeploymentErrorCodes.UNEXPECTED_ERROR,
               "Unable to serialize auto translation: " + e.getLocalizedMessage());
         }
         sb.append(AUTOTRANSLATIONS_DELIM);
@@ -215,7 +215,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
           PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(sb.toString()));
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for translation settings");
     }
   }
@@ -261,7 +261,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
         m_svc.saveAutoTranslation(at);
       } catch (Exception e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "could not save or update the TranslationSettings:" + e.getLocalizedMessage());
       }
     }
@@ -361,12 +361,12 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
           PSDependencyFile.TYPE_ENUM[depFile.getType()],
           PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SERVICEGENERATED_XML]
         };
-        throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+        throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
       }
       xlnList = fromXML(xlnStr);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "could not deserialize translation settings");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "could not deserialize translation settings");
     }
     return xlnList;
   }
@@ -426,7 +426,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }

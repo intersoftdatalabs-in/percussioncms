@@ -48,6 +48,9 @@ export interface ContentTypeSummary {
 /** Jackson / JAXB list envelope sometimes used by legacy REST resources. */
 export interface ContentTypeListEnvelope {
   ContentType?: ContentTypeSummary[] | ContentTypeSummary;
+  contentType?: ContentTypeSummary[] | ContentTypeSummary;
+  ContentTypeList?: ContentTypeSummary[] | ContentTypeSummary | ContentTypeListEnvelope;
+  contentTypeList?: ContentTypeSummary[] | ContentTypeSummary | ContentTypeListEnvelope;
 }
 
 /** Field row from {@code GET /services/contenttypes/{idOrName}}. */
@@ -727,7 +730,7 @@ export interface SiteDef {
  *
  * <p>Blank / missing {@code sourceKind} (or value {@code repository}) means a
  * traditional repository Site. Allow-listed virtual adapters:
- * {@code git-filesystem}, {@code csv-filesystem}.
+ * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database}.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

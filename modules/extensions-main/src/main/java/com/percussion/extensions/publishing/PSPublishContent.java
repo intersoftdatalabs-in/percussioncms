@@ -17,8 +17,8 @@
 
 package com.percussion.extensions.publishing;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
 import com.percussion.extension.PSDefaultExtension;
@@ -155,7 +155,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
       throw pse;
     } catch (Exception ex) {
       throw new PSExtensionException(
-          IPSExtensionErrors.BAD_PUBLISH_CONTENT_INITIALIZATION_DATA, ex.getMessage());
+          ExtensionErrorCodes.BAD_PUBLISH_CONTENT_INITIALIZATION_DATA, ex.getMessage());
     }
   }
 
@@ -309,21 +309,21 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
         key.mi_workflowId = Integer.parseInt(PSXMLDomUtil.getElementData(workflow));
       } catch (Exception th) {
         throw new PSExtensionException(
-            IPSExtensionErrors.BAD_PUBLISH_CONTENT_FILE_DATA,
+            ExtensionErrorCodes.BAD_PUBLISH_CONTENT_FILE_DATA,
             "Error while parsing value for workflow id");
       }
       try {
         key.mi_transitionId = Integer.parseInt(PSXMLDomUtil.getElementData(transition));
       } catch (Exception th) {
         throw new PSExtensionException(
-            IPSExtensionErrors.BAD_PUBLISH_CONTENT_FILE_DATA,
+            ExtensionErrorCodes.BAD_PUBLISH_CONTENT_FILE_DATA,
             "Error while parsing value for workflow id");
       }
       try {
         editionId = Integer.valueOf(PSXMLDomUtil.getElementData(edition));
       } catch (Exception th) {
         throw new PSExtensionException(
-            IPSExtensionErrors.BAD_PUBLISH_CONTENT_FILE_DATA,
+            ExtensionErrorCodes.BAD_PUBLISH_CONTENT_FILE_DATA,
             "Error while parsing value for workflow id");
       }
 

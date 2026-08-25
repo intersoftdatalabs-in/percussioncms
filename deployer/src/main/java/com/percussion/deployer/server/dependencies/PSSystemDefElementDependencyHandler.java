@@ -35,7 +35,6 @@ import com.percussion.design.objectstore.PSComponent;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -49,6 +48,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a system def override from a shared def */
 public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDependencyHandler {
@@ -196,7 +196,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
             .orElseThrow(
                 () ->
                     new PSDeployException(
-                        IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+                        DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
                         new Object[] {
                           dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()
                         }));
@@ -244,7 +244,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     PSApplicationFlow appFlow = null;
@@ -275,7 +275,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
         // Content editor apps won't target with no shared def, and
         // should have been caught by loading shared def above
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR, "no target shared def file");
+            DeploymentErrorCodes.UNEXPECTED_ERROR, "no target shared def file");
       }
 
       // see if original file exists.  Also if find a file that already
@@ -314,7 +314,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
       addTransactionLogEntry(
           dep, ctx, tgtFile.getName(), PSTransactionSummary.TYPE_FILE, transAction);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -362,7 +362,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
       }
 
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return idTypes;
@@ -462,7 +462,7 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
         dep.getDisplayName(),
         e.getLocalizedMessage()
       };
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_DEPENDENCY_FILE, args);
     }
 
     return comp;

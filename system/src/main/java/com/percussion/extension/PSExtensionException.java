@@ -16,6 +16,7 @@
  */
 package com.percussion.extension;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import java.util.Objects;
 
@@ -89,6 +90,46 @@ public final class PSExtensionException extends PSException {
    */
   public PSExtensionException(int code, Object[] args) {
     super(code, args);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSExtensionException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arg the argument to use as the sole argument in the error message
+   */
+  public PSExtensionException(IPSErrorCode code, Object arg) {
+    super(code, arg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param args the array of arguments to use as the arguments in the error message
+   */
+  public PSExtensionException(IPSErrorCode code, Object[] args) {
+    super(code, args);
+  }
+
+  /**
+   * Typed construction with a cause and message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param cause the underlying cause, may be {@code null}
+   * @param args the arguments for the error message
+   */
+  public PSExtensionException(IPSErrorCode code, Throwable cause, Object... args) {
+    super(code, args, cause);
   }
 
   /**

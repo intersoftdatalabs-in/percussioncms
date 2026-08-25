@@ -16,9 +16,9 @@
  */
 package com.percussion.relationship;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSException;
 import com.percussion.error.PSSqlException;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -87,7 +87,7 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
         if (parameter.length() == 0) {
           Object[] args = {htmlParameters[i], "null or empty"};
           throw new PSExtensionProcessingException(
-              IPSExtensionErrors.EXT_MISSING_HTML_PARAMETER_ERROR, args);
+              ExtensionErrorCodes.EXT_MISSING_HTML_PARAMETER_ERROR, args);
         }
 
         parameters.put(htmlParameters[i], parameter);
@@ -98,7 +98,7 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
           parameters.get(IPSHtmlParameters.SYS_LANG),
           parameters.get(IPSHtmlParameters.SYS_CONTENTID)
         };
-        throw new PSRequestValidationException(IPSExtensionErrors.TRANSLATION_ALREADY_EXISTS, args);
+        throw new PSRequestValidationException(ExtensionErrorCodes.TRANSLATION_ALREADY_EXISTS, args);
       }
     } catch (PSException e) {
       if (e instanceof PSRequestValidationException) throw (PSRequestValidationException) e;

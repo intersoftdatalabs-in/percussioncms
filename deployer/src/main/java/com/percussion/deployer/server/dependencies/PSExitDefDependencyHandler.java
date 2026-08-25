@@ -26,7 +26,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionDef;
@@ -49,6 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying an exit defintion. */
 public class PSExitDefDependencyHandler extends PSDependencyHandler {
@@ -85,7 +85,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
     try {
       def = m_extMgr.getExtensionDef(new PSExtensionRef(dep.getDependencyId()));
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // Check for app deps
@@ -166,7 +166,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return fileList.iterator();
@@ -212,7 +212,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     try {
@@ -240,7 +240,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR, e, e.getLocalizedMessage());
+            DeploymentErrorCodes.UNEXPECTED_ERROR, e, e.getLocalizedMessage());
     }
   }
 
@@ -264,9 +264,9 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
       }
 
     } catch (PSNotFoundException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSExtensionException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return deps.iterator();
@@ -290,9 +290,9 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
       }
     } catch (PSNotFoundException e) {
       // should not happen if doesDependencyExist returns true
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSExtensionException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return dep;
@@ -318,7 +318,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
         }
       }
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -357,7 +357,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
     try {
       exists = m_extMgr.exists(new PSExtensionRef(id));
     } catch (PSExtensionException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return exists;

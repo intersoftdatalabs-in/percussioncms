@@ -17,7 +17,7 @@
 
 package com.percussion.cx;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummaries;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -356,7 +356,7 @@ public class PSItemRelationshipsManager {
         cid = "" + loc.getId();
       } catch (Exception e) {
         Object[] args = new Object[] {e.getLocalizedMessage()};
-        throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+        throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
       }
       if (cid != null && isAllowedRelationshipSlot(slotId, regSlots, inlineSlots)) {
         contentIds.add(cid);
@@ -394,7 +394,7 @@ public class PSItemRelationshipsManager {
       }
     } catch (Exception e) {
       Object[] args = new Object[] {e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
     }
     return regSlots;
   }
@@ -426,7 +426,7 @@ public class PSItemRelationshipsManager {
       }
     } catch (Exception e) {
       Object[] args = new Object[] {e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
     }
 
     return inlineSlots;
@@ -460,7 +460,7 @@ public class PSItemRelationshipsManager {
 
     } catch (Exception e) {
       Object[] args = new Object[] {e.getLocalizedMessage()};
-      throw new PSCmsException(IPSCmsErrors.UNEXPECTED_ERROR, args);
+      throw new PSCmsException(CmsErrorCodes.UNEXPECTED_ERROR, args);
     }
 
     return doc;

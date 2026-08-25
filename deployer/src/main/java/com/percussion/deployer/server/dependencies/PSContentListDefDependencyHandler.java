@@ -31,7 +31,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSParam;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.security.PSSecurityToken;
@@ -57,6 +56,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a ContentList definition.
@@ -244,7 +244,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
         if (ruleDep != null && !childDeps.contains(ruleDep)) childDeps.add(ruleDep);
       } catch (PSFilterException | PSNotFoundException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "While creating the Filter dependency, "
                 + "a FilterException occurred: "
                 + e.getLocalizedMessage());
@@ -318,7 +318,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       str = cList.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Template:" + cList.getName());
     }
 
@@ -342,7 +342,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       m_publisherSvc.saveContentLists(lists);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not save or update the content list:"
               + cList.getName()
               + "\n"
@@ -416,7 +416,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       cList.fromXML(tmpStr);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not deserialize the ContentList");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not deserialize the ContentList");
     }
     return cList;
   }
@@ -447,7 +447,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -529,7 +529,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     IPSContentList cList = findContentListByDependencyID(dep.getDependencyId());
     if (cList == null)
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not locate the content list for idTyping");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not locate the content list for idTyping");
     if (isLegacyContentList(cList)) return getIdTypesForLegacyContentList(tok, dep, cList);
 
     PSApplicationIDTypes idTypes = new PSApplicationIDTypes(dep);
@@ -589,7 +589,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
       }
     } catch (PSFilterException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "While processing id types for contentlist encountered a" + "a filter exception");
     }
 

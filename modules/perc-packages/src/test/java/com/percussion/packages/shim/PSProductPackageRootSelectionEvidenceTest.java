@@ -35,13 +35,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * M2 product / H2 zero-legacy-selection evidence harness (#3583 / parent #2630).
+ * M2 product / H2 zero-legacy-selection evidence harness (#3583 / #3738 / parent #2630).
  *
  * <p>Asserts product package roots and H2-style {@code Packages/Modern} trees select modern-first
  * ({@code wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}).
- * Fails on unexpected {@code LEGACY_*} for non-waived widgets. Waived {@code perc.Test} and
- * customer-only ids may still select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} — the shim
- * stays (#2852). This is not M2 PASS overall (M3 still FAIL).
+ * Fails on unexpected {@code LEGACY_*} for non-waived widgets. {@code perc.Test} may still select
+ * {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} while the Widget G4 waive list is {@code
+ * perc.Test} only; after that waiver is dropped (#3736) it must be modern-first. Customer-only ids
+ * may still select legacy — the shim stays (#2852). This is not M2 PASS overall (M3 still FAIL).
  *
  * <p>Cross-platform: {@link Path} / {@link Files} only.
  */
@@ -50,16 +51,40 @@ class PSProductPackageRootSelectionEvidenceTest {
   @TempDir Path tempDir;
 
   @Test
-  void knownProductWidgetStems_coverBatchesABC_andExcludePercTest() {
+  void widgetWaiverPolicy_isEmptyOrPercTestOnly() {
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy();
+    Set<String> waived = PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS;
+    assertTrue(
+        waived.isEmpty() || waived.equals(Set.of(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR)),
+        () -> "Widget waive list must be empty or perc.Test only; found: " + waived);
+    if (PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped()) {
+      assertTrue(PSProductPackageRootSelectionEvidence.currentWaivedDefinitionIds().isEmpty());
+    } else {
+      assertEquals(
+          Set.of(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM),
+          PSProductPackageRootSelectionEvidence.currentWaivedDefinitionIds());
+    }
+  }
+
+  @Test
+  void knownProductWidgetStems_coverBatchesABC_andPercTestMatchesWaiver() {
     List<String> stems = PSProductPackageRootSelectionEvidence.KNOWN_PRODUCT_WIDGET_STEMS;
-    assertEquals(47, stems.size(), "8 + 20 + 19 product widget stems");
+    assertTrue(stems.size() >= 47, "8 + 20 + 19 product widget stems (floor)");
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS));
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS));
     assertTrue(stems.containsAll(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS));
-    assertFalse(stems.contains("PSWidget_TestProperties"));
-    assertEquals(
-        PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS,
-        Set.of("perc.Test"));
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy();
+    if (PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped()) {
+      assertTrue(
+          stems.contains(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM),
+          "after #3736 perc.Test stem must be a known modern product widget");
+    } else {
+      assertEquals(47, stems.size(), "8 + 20 + 19 product widget stems while perc.Test is waived");
+      assertFalse(stems.contains(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM));
+      assertEquals(
+          Set.of(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR),
+          PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+    }
   }
 
   @Test
@@ -77,15 +102,18 @@ class PSProductPackageRootSelectionEvidenceTest {
         () ->
             "unexpected non-waived LEGACY_* on product widget roots: "
                 + report.unexpectedLegacyRoots());
+    boolean percTestWaiverDropped =
+        PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped();
+    long minModern = percTestWaiverDropped ? 39L : 38L;
     assertTrue(
-        report.modernRootCount() >= 38,
-        "expected at least batch A+B+C package dirs (5+14+19) to select MODERN; got "
+        report.modernRootCount() >= minModern,
+        "expected at least batch A+B+C"
+            + (percTestWaiverDropped ? "+perc.Test" : "")
+            + " package dirs to select MODERN; got "
             + report.modernRootCount()
             + " roots="
             + report.roots());
-    assertTrue(
-        report.waivedLegacyRootCount() >= 1,
-        "perc.Test waived residual must still select LEGACY_WIDGET_XML (shim kept)");
+    PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(report, true);
 
     Set<String> modernPackages = new HashSet<>();
     for (PSProductPackageRootSelectionEvidence.RootFinding f : report.roots()) {
@@ -94,9 +122,8 @@ class PSProductPackageRootSelectionEvidenceTest {
         modernPackages.add(f.packageDirName());
       }
       if (f.waived()) {
-        assertEquals("perc.Test", f.packageDirName());
-        assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, f.kind());
-        assertTrue(f.wouldUseLegacyShim());
+        assertEquals(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR, f.packageDirName());
+        assertFalse(percTestWaiverDropped, f.packageDirName());
       }
     }
     for (String pkg : PSWidgetXmlDualShip.BATCH_A_PACKAGE_DIRS) {
@@ -107,6 +134,11 @@ class PSProductPackageRootSelectionEvidenceTest {
     }
     for (String pkg : PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS) {
       assertTrue(modernPackages.contains(pkg), "batch C missing modern-first: " + pkg);
+    }
+    if (percTestWaiverDropped) {
+      assertTrue(
+          modernPackages.contains(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR),
+          "perc.Test missing modern-first after waiver drop");
     }
 
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
@@ -151,11 +183,16 @@ class PSProductPackageRootSelectionEvidenceTest {
         report.isClean(),
         () -> "H2 modern roots unexpected LEGACY_*: " + report.unexpectedLegacyRoots());
     assertEquals(0, report.unexpectedLegacyRoots().size());
-    assertTrue(report.modernRootCount() >= 38, "H2 modern root count=" + report.modernRootCount());
+    boolean percTestWaiverDropped =
+        PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped();
+    long minModern = percTestWaiverDropped ? 39L : 38L;
+    assertTrue(
+        report.modernRootCount() >= minModern, "H2 modern root count=" + report.modernRootCount());
     for (PSProductPackageRootSelectionEvidence.RootFinding f : report.roots()) {
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, f.kind(), f.packageDirName());
       assertFalse(f.wouldUseLegacyShim(), f.packageDirName());
     }
+    PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(report, false);
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnDiscoveredModernRoots(roots);
 
     List<String> ids = PSProductPackageRootSelectionEvidence.listModernWidgetDefinitionIds(roots);
@@ -217,32 +254,78 @@ class PSProductPackageRootSelectionEvidenceTest {
             () ->
                 PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
                     packages));
-    assertTrue(err.getMessage().contains("#3583"));
+    assertTrue(err.getMessage().contains("#3583") || err.getMessage().contains("#3738"));
     assertTrue(err.getMessage().contains("perc.baseWidgets"));
     assertTrue(err.getMessage().contains("LEGACY"));
   }
 
   @Test
-  void tempTree_waivedPercTestLegacy_isClean() throws Exception {
+  void tempTree_percTestLegacyOnly_matchesCurrentWaiver() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path widgets =
         packages
-            .resolve("perc.Test")
+            .resolve(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR)
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Widgets");
     Files.createDirectories(widgets);
     Files.writeString(
-        widgets.resolve("PSWidget_TestProperties.xml"), "<Widget/>", StandardCharsets.UTF_8);
+        widgets.resolve(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM + ".xml"),
+        "<Widget/>",
+        StandardCharsets.UTF_8);
+
+    PSProductPackageRootSelectionEvidence.Report report =
+        PSProductPackageRootSelectionEvidence.scanWidgetPackageRoots(packages);
+    assertEquals(1, report.roots().size());
+    assertEquals(
+        PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR,
+        report.roots().get(0).packageDirName());
+    assertTrue(report.roots().get(0).wouldUseLegacyShim());
+    if (PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped()) {
+      assertFalse(report.isClean());
+      assertFalse(report.roots().get(0).waived());
+      assertEquals(0, report.waivedLegacyRootCount());
+      assertThrows(
+          IllegalStateException.class,
+          () ->
+              PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
+                  packages));
+      assertThrows(
+          IllegalStateException.class,
+          () ->
+              PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(
+                  report, true));
+    } else {
+      assertTrue(report.isClean());
+      assertTrue(report.roots().get(0).waived());
+      assertEquals(1, report.waivedLegacyRootCount());
+      PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
+      PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(report, true);
+    }
+  }
+
+  @Test
+  void tempTree_percTestModernRoot_matchesCurrentWaiver() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Path modern =
+        packages
+            .resolve(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR)
+            .resolve("widgets")
+            .resolve(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM);
+    Files.createDirectories(modern);
+    Files.writeString(
+        modern.resolve(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME),
+        "{\"schemaVersion\":\"1.0\",\"id\":\"PSWidget_TestProperties\"}",
+        StandardCharsets.UTF_8);
 
     PSProductPackageRootSelectionEvidence.Report report =
         PSProductPackageRootSelectionEvidence.scanWidgetPackageRoots(packages);
     assertTrue(report.isClean());
-    assertEquals(1, report.roots().size());
-    assertEquals("perc.Test", report.roots().get(0).packageDirName());
-    assertTrue(report.roots().get(0).waived());
-    assertTrue(report.roots().get(0).wouldUseLegacyShim());
-    assertEquals(1, report.waivedLegacyRootCount());
+    assertEquals(1, report.modernRootCount());
+    assertEquals(
+        PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, report.roots().get(0).kind());
+    assertFalse(report.roots().get(0).wouldUseLegacyShim());
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
+    PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(report, true);
   }
 
   @Test
@@ -279,6 +362,31 @@ class PSProductPackageRootSelectionEvidenceTest {
   }
 
   @Test
+  void assertWidgetWaiverPolicy_rejectsUnknownPackage() {
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy();
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy(Set.of());
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy(
+        Set.of(PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR));
+    PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy(null);
+    IllegalStateException extra =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy(
+                    Set.of("perc.baseWidgets")));
+    assertTrue(extra.getMessage().contains("perc.baseWidgets"));
+    IllegalStateException mixed =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                PSProductPackageRootSelectionEvidence.assertWidgetWaiverPolicy(
+                    Set.of(
+                        PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR,
+                        "perc.baseWidgets")));
+    assertTrue(mixed.getMessage().contains("#3738"));
+  }
+
+  @Test
   void scanDefinitionSelection_waivedIdMayBeLegacy() {
     Path widgets = tempDir.resolve("Widgets");
     try {
@@ -297,6 +405,23 @@ class PSProductPackageRootSelectionEvidenceTest {
     assertTrue(report.isClean());
     assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, report.definitions().get(0).kind());
     assertFalse(report.definitions().get(0).isUnexpectedLegacy());
+  }
+
+  @Test
+  void assertPercTestSelectionMatchesWaiver_failsWhenRequiredRootMissing() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Files.createDirectories(packages.resolve("perc.workflow"));
+    PSProductPackageRootSelectionEvidence.Report report =
+        PSProductPackageRootSelectionEvidence.scanWidgetPackageRoots(packages);
+    assertTrue(report.roots().isEmpty());
+    IllegalStateException err =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(
+                    report, true));
+    assertTrue(err.getMessage().contains("perc.Test"));
+    assertTrue(err.getMessage().contains("#3738"));
   }
 
   @Test

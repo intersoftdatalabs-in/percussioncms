@@ -21,12 +21,12 @@ import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSTableRef;
 import com.percussion.design.objectstore.PSTableSet;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Iterator;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Encapsulates an item definition and Jdbc table data for a single table that is part of a content
@@ -56,7 +56,7 @@ public class PSItemData {
       var xmlDoc = PSXmlDocumentBuilder.createXmlDocument();
       m_tgtItemData = new PSJdbcTableData(itemData.toXml(xmlDoc));
     } catch (PSJdbcTableFactoryException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

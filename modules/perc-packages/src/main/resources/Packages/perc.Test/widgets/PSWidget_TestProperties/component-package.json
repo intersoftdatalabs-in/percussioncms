@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "1.0",
+  "id": "PSWidget_TestProperties",
+  "name": "Test Properties",
+  "version": "1.0.3",
+  "description": "Widget for testing",
+  "publisher": {
+    "name": "Percussion",
+    "url": "https://www.percussion.com"
+  },
+  "cmsVersion": {
+    "min": "1.0.0",
+    "max": "5.3.14"
+  },
+  "dependencies": [],
+  "catalog": {
+    "kind": "component",
+    "title": "Test Properties",
+    "description": "Widget for testing",
+    "thumbnail": "resources/widgetIconTestProperties.png",
+    "icon": "resources/widgetIconTestProperties.png",
+    "author": "Percussion Software Inc",
+    "paletteVisible": true
+  },
+  "contentTypes": [
+    {
+      "name": "PSWidget_TestProperties",
+      "ref": "contentTypes/PSWidget_TestProperties"
+    }
+  ],
+  "templates": [
+    {
+      "name": "PSWidget_TestPropertiesSnippet",
+      "type": "snippet",
+      "assembler": "velocityAssembler",
+      "sourceRef": "templates/PSWidget_TestPropertiesSnippet.vm",
+      "contentType": "PSWidget_TestProperties",
+      "bindings": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "PSWidget_TestPropertiesContent",
+      "allowedContentTypes": [
+        "PSWidget_TestProperties"
+      ],
+      "layout": {},
+      "styles": {}
+    }
+  ],
+  "resources": [
+    {
+      "path": "resources/widgetIconTestProperties.png",
+      "target": "rx_resources/widgets/PSWidget_TestProperties/images/widgetIconTestProperties.png",
+      "type": "image"
+    }
+  ],
+  "userPreferences": [
+    {
+      "name": "show_date",
+      "displayName": "Show Dates?",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "show_summ",
+      "displayName": "Show Summaries?",
+      "datatype": "bool",
+      "required": false,
+      "defaultValue": "true",
+      "enumValues": []
+    },
+    {
+      "name": "num_entries",
+      "displayName": "Number of Entries:",
+      "required": false,
+      "defaultValue": "5",
+      "enumValues": []
+    },
+    {
+      "name": "day_of_week",
+      "displayName": "Day of Week:",
+      "datatype": "enum",
+      "required": false,
+      "defaultValue": "monday",
+      "enumValues": [
+        {
+          "value": "monday",
+          "displayValue": "Monday"
+        },
+        {
+          "value": "tuesday",
+          "displayValue": "Tuesday"
+        },
+        {
+          "value": "wednesday",
+          "displayValue": "Wednesday"
+        },
+        {
+          "value": "thursday",
+          "displayValue": "Thursday"
+        },
+        {
+          "value": "friday",
+          "displayValue": "Friday"
+        }
+      ]
+    }
+  ],
+  "cssPreferences": []
+}

@@ -19,6 +19,7 @@ package com.percussion.server.job;
 
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -79,6 +80,40 @@ public class PSJobException extends Exception {
   }
 
   /**
+   * Typed construction from a catalogued {@link IPSErrorCode} (e.g. {@code JobErrorCodes}). Sets
+   * the legacy numeric code for message lookup and retains the typed code for {@link
+   * #getTypedErrorCode()} / {@link #isAuditable()}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSJobException(IPSErrorCode code) {
+    this(requireCode(code).numericCode());
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSJobException(IPSErrorCode code, Object singleArg) {
+    this(requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSJobException(IPSErrorCode code, Object[] arrayArgs) {
+    this(requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
+  }
+
+  /**
    * Construct an exception from a class derived from PSException. The name of the original
    * exception class is saved.
    *
@@ -88,6 +123,7 @@ public class PSJobException extends Exception {
   public PSJobException(PSException ex) {
     this(ex.getErrorCode(), ex.getErrorArguments());
     m_originalExceptionClass = ex.getClass().getName();
+    m_typedErrorCode = ex.getTypedErrorCode();
   }
 
   /**
@@ -203,6 +239,29 @@ public class PSJobException extends Exception {
    */
   public int getErrorCode() {
     return m_code;
+  }
+
+  /**
+   * Typed error code when this exception was constructed via {@link #PSJobException(IPSErrorCode)}
+   * (or overloads); otherwise {@code null} for legacy int construction.
+   */
+  public IPSErrorCode getTypedErrorCode() {
+    return m_typedErrorCode;
+  }
+
+  /**
+   * Whether dual-write should consider this exception auditable. Prefer the typed code when present;
+   * legacy int construction returns {@code false} (handlers resolve auditability via the registry).
+   */
+  public boolean isAuditable() {
+    return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
+  }
+
+  private static IPSErrorCode requireCode(IPSErrorCode code) {
+    if (code == null) {
+      throw new IllegalArgumentException("code may not be null");
+    }
+    return code;
   }
 
   /**
@@ -371,6 +430,12 @@ public class PSJobException extends Exception {
 
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
+
+  /**
+   * Typed catalog code when constructed via {@link IPSErrorCode} overloads; otherwise {@code null}
+   * for legacy int construction. Not serialized in XML.
+   */
+  private transient IPSErrorCode m_typedErrorCode;
 
   /**
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null

@@ -249,6 +249,56 @@ describe("ContentTypeDetailPanel", () => {
     expect(coded?.textContent).toBe("Item-level pre/post exits not exposed");
   });
 
+  it("unwraps singleton association objects and JAXB DesignGap envelope (#3712)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "percArchiveList",
+      label: "Archive",
+      fields: { empty: false },
+      childFieldSets: "rx_shared",
+      allowedWorkflows: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: {
+        NamedObjectRef: { name: "perc.page", label: "Page" },
+      },
+      designGaps: {
+        DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      },
+    });
+    render(<ContentTypeDetailPanel idOrName="percArchiveList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-detail-title").textContent).toContain("Archive");
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-ct-child-sets").textContent).toContain("rx_shared");
+    expect(screen.getByTestId("developer-ct-gaps").textContent).toContain(
+      "Item-level pre/post exits not exposed",
+    );
+    expect(
+      screen.getByTestId("developer-ct-gaps").querySelector('[data-gap-code="CT_ITEM_EXITS"]'),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
+  it("does not crash when designGaps is a Jackson empty-collection bean (#3712)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: { empty: false },
+      allowedWorkflows: { empty: true },
+      allowedTemplates: { empty: true },
+      designGaps: { empty: true },
+    });
+    render(<ContentTypeDetailPanel idOrName="percArchiveList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-title")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-wf-empty")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-tpl-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-ct-gaps")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+  });
+
   it("keeps description read-only and save disabled until lock (#3744)", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);

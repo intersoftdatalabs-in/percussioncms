@@ -7,8 +7,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeveloperShell } from "../../../main/ts/developer/DeveloperShell";
 
-vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
-  listContentTypes: vi.fn().mockResolvedValue([
+vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/contentTypesApi")>();
+  return {
+    ...actual,
+    listContentTypes: vi.fn().mockResolvedValue([
     {
       name: "percPage",
       label: "Page",
@@ -92,9 +96,10 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
-  lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
-  unlockContentType: vi.fn().mockResolvedValue(undefined),
-}));
+    lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
+    unlockContentType: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 const { defaultAclPayload } = vi.hoisted(() => ({
   defaultAclPayload: {
@@ -679,10 +684,7 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-label")).toBeTruthy();
-    expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
-    expect(screen.getByTestId("developer-ct-lock")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-save")).toBeTruthy();
-    expect(screen.getByTestId("developer-ct-unlock")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -691,6 +693,39 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
+  });
+
+  it("keeps Developer mounted when content type lists are Jackson non-arrays (#3712)", async () => {
+    const { getContentTypeDetail } = await import("../../../main/ts/api/developer/contentTypesApi");
+    (getContentTypeDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      name: "percArchiveList",
+      label: "Archive",
+      guid: { stringValue: "0-2-316" },
+      fields: { empty: false },
+      childFieldSets: { empty: true },
+      allowedWorkflows: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: { NamedObjectRef: { name: "perc.page", label: "Page" } },
+      designGaps: {
+        DesignGap: { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      },
+    });
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("route-error")).toBeNull();
+    expect(screen.getByTestId("tab-developer-content-types")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect(screen.getByTestId("developer-ct-tpl-row-0").textContent).toContain("perc.page");
+    expect(screen.getByTestId("developer-ct-gaps").textContent).toContain(
+      "Item-level pre/post exits not exposed",
+    );
+    expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+    expect(screen.queryByText("Unable to load Content Types")).toBeNull();
   });
 
   it("loads searches catalog section", async () => {

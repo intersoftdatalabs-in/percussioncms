@@ -17,10 +17,13 @@
 package com.percussion.deployer.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.deployer.catalog.server.PSCatalogHandler;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
@@ -44,6 +47,9 @@ public class PSNullInputDocHandlerTest {
     PSDeployException ex =
         assertThrows(PSDeployException.class, () -> PSCatalogHandler.processRequest(req));
     assertEquals(IPSDeploymentErrors.NULL_INPUT_DOC, ex.getErrorCode());
+    assertEquals(DeploymentErrorCodes.NULL_INPUT_DOC.numericCode(), ex.getErrorCode());
+    assertSame(DeploymentErrorCodes.NULL_INPUT_DOC, ex.getTypedErrorCode());
+    assertFalse(ex.isAuditable());
   }
 
   @Test

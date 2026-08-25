@@ -17,6 +17,7 @@
 
 package com.percussion.conn;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 import com.percussion.utils.exceptions.PSExceptionHelper;
 import java.lang.reflect.Constructor;
@@ -60,6 +61,35 @@ public class PSServerException extends PSException {
    */
   public PSServerException(int msgCode) {
     super(msgCode);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSServerException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg sole message argument; may be {@code null}
+   */
+  public PSServerException(IPSErrorCode code, Object singleArg) {
+    super(code, singleArg);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs message arguments; may be {@code null}
+   */
+  public PSServerException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   /**
