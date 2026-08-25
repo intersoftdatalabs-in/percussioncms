@@ -131,6 +131,7 @@ class ContentTypeAdaptorWorkflowsTest {
         adaptor.setAllowedWorkflows(null, "311", List.of(simple, standard), simple);
 
     assertNotNull(out);
+    assertEquals(2, out.getAllowedWorkflows().size());
     assertEquals("Simple Workflow", out.getDefaultWorkflow().getName());
     verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
     ArgumentCaptor<PSWorkflowInfo> info = ArgumentCaptor.forClass(PSWorkflowInfo.class);
@@ -148,12 +149,16 @@ class ContentTypeAdaptorWorkflowsTest {
     NamedObjectRef simple = namedWorkflow("Simple Workflow", 4);
     ContentTypeDetail put = adaptor.setAllowedWorkflows(null, "311", List.of(simple), simple);
     assertNotNull(put);
+    assertEquals(1, put.getAllowedWorkflows().size());
+    assertEquals("Simple Workflow", put.getAllowedWorkflows().get(0).getName());
     ArgumentCaptor<PSWorkflowInfo> info = ArgumentCaptor.forClass(PSWorkflowInfo.class);
     verify(editor).setWorkflowInfo(info.capture());
     assertEquals(List.of(4), workflowIds(info.getValue()));
 
     ContentTypeDetail get = adaptor.getContentType(null, "311");
     assertEquals("percPage", get.getName());
+    assertEquals(1, get.getAllowedWorkflows().size());
+    assertEquals("Simple Workflow", get.getAllowedWorkflows().get(0).getName());
     assertEquals("Simple Workflow", get.getDefaultWorkflow().getName());
   }
 
@@ -164,10 +169,29 @@ class ContentTypeAdaptorWorkflowsTest {
 
     ContentTypeDetail out = adaptor.setAllowedWorkflows(null, "311", List.of(), null);
 
+    assertNotNull(out);
     ArgumentCaptor<PSWorkflowInfo> info = ArgumentCaptor.forClass(PSWorkflowInfo.class);
     verify(editor).setWorkflowInfo(info.capture());
     assertTrue(workflowIds(info.getValue()).isEmpty());
     assertTrue(out.getAllowedWorkflows().isEmpty());
+  }
+
+  @Test
+  void put_cacheMissAfterSave_fallsBackToLockedDef() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    // Existence uses item-def; post-save reload may miss the cache (CD-07 peer).
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenReturn(def)
+        .thenThrow(new PSInvalidContentTypeException("not cached"));
+
+    NamedObjectRef simple = namedWorkflow("Simple Workflow", 4);
+    ContentTypeDetail out = adaptor.setAllowedWorkflows(null, "311", List.of(simple), simple);
+
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertNotNull(out);
+    assertEquals("Simple Workflow", out.getDefaultWorkflow().getName());
+    verify(def.getContentEditor()).setWorkflowId(4);
   }
 
   @Test
