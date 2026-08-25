@@ -147,9 +147,9 @@ function validationMessage(
 /**
  * Site detail section: view/edit Virtual Site source fields via public Site REST
  * ({@code GET|PUT /services/sites/{name}/virtual}) and trigger a CMS-integrated
- * build ({@code POST …/virtual/build}) or publish ({@code POST …/virtual/publish})
- * for git-filesystem, csv-filesystem, and sql-database. http-json is
- * source-kind save chrome only (Build/Preview/Publish is a later slice).
+ * build ({@code POST …/virtual/build}) for git-filesystem, csv-filesystem,
+ * sql-database, and http-json. Publish ({@code POST …/virtual/publish}) and
+ * Preview remain git/csv/sql in this slice (http-json Preview/Publish later).
  */
 export function VirtualSiteSourcePanel({
   siteName,
@@ -338,11 +338,11 @@ export function VirtualSiteSourcePanel({
   const csvMode = isCsvFilesystemSourceKind(form.sourceKind);
   const sqlMode = isSqlDatabaseSourceKind(form.sourceKind);
   const httpJsonMode = isHttpJsonSourceKind(form.sourceKind);
-  /** Build chrome: git/csv/sql (never repository or http-json this slice). */
+  /** Build chrome: git/csv/sql/http-json (never repository). */
   const showBuildChrome = shouldShowVirtualBuildChrome(form.sourceKind);
-  /** Preview chrome: same kinds as Build (last-output REST, not git-only). */
+  /** Preview chrome: git/csv/sql (http-json Preview is a later slice). */
   const showPreviewChrome = shouldShowVirtualPreviewChrome(form.sourceKind);
-  /** Publish chrome: git/csv/sql (never repository). */
+  /** Publish chrome: git/csv/sql (http-json Publish is a later slice). */
   const showPublishChrome = shouldShowVirtualPublishChrome(form.sourceKind);
   const busy = saving || building || publishing;
   const buildSummary = buildResult ? formatVirtualSiteBuildSummary(buildResult) : null;
