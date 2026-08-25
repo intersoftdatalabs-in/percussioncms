@@ -24,7 +24,7 @@ import com.percussion.deployer.objectstore.PSDeployableElement;
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.objectstore.PSIdMapping;
 import com.percussion.deployer.server.IPSJobHandle;
-import com.percussion.error.IPSDeploymentErrors;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 import com.percussion.error.PSDeployException;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Collections;
@@ -143,7 +143,7 @@ public class PSFolderContentsDescriptorBuilder {
             .orElseThrow(
                 () ->
                     new PSDeployException(
-                        IPSDeploymentErrors.UNEXPECTED_ERROR, "Failed to find top-level folder"));
+                        DeploymentErrorCodes.UNEXPECTED_ERROR, "Failed to find top-level folder"));
 
     var previousMaxDeps = System.getProperty(IPSDeployConstants.PROP_MAX_DEPS);
     System.setProperty(IPSDeployConstants.PROP_MAX_DEPS, String.valueOf(MAX_DEPS));
@@ -247,7 +247,7 @@ public class PSFolderContentsDescriptorBuilder {
         if (mappings.hasNext()) {
           PSApplicationIDTypeMapping mapping = mappings.next();
           throw new PSDeployException(
-              IPSDeploymentErrors.INCOMPLETE_ID_TYPE_MAPPING,
+              DeploymentErrorCodes.INCOMPLETE_ID_TYPE_MAPPING,
               new Object[] {
                 mapping.getType(),
                 dep.getDependencyId(),

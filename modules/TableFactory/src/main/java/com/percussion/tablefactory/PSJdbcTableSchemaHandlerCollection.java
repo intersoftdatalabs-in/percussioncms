@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
@@ -60,7 +61,7 @@ public class PSJdbcTableSchemaHandlerCollection extends PSCollection {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     clear();
@@ -75,7 +76,7 @@ public class PSJdbcTableSchemaHandlerCollection extends PSCollection {
 
     if (schemaHandler == null) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_NULL, PSJdbcTableSchemaHandler.NODE_NAME);
+          TableFactoryErrorCodes.XML_ELEMENT_NULL, PSJdbcTableSchemaHandler.NODE_NAME);
     }
 
     while (schemaHandler != null) {

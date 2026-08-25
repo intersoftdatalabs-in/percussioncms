@@ -16,9 +16,9 @@
  */
 package com.percussion.cx.wizards;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.objectstore.PSSite;
 import com.percussion.cx.PSContentExplorerApplet;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.guitools.PSPropertyPanel;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
@@ -94,7 +94,7 @@ public final class PSCopySiteNamePage extends PSWizardPanel {
 
     if (errors.length() > 0)
       throw new PSWizardValidationError(
-          IPSContentExplorerErrors.WIZARD_VALIDATION_ERROR, errors.toString());
+          ContentExplorerErrorCodes.WIZARD_VALIDATION_ERROR, errors.toString());
   }
 
   /* (non-Javadoc)

@@ -63,7 +63,6 @@ import com.percussion.design.objectstore.PSWhereClause;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
@@ -79,6 +78,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying an application. */
 public class PSApplicationDependencyHandler extends PSContentEditorObjectDependencyHandler
@@ -253,7 +253,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
       return files.iterator();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -300,7 +300,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
       return infoList;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
   }
 
@@ -342,7 +342,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
@@ -467,7 +467,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     } catch (PSDeployException e) {
       throw e;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     } finally {
       if (lockId != null) {
         try {
@@ -661,7 +661,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
         }
       }
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return idTypes;

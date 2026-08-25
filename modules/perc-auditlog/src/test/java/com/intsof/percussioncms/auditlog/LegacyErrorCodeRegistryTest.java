@@ -773,6 +773,32 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void htmlSearchMissingParameterIsRegisteredButNotAuditable() {
+    assertFalse(LegacyErrorCodeRegistry.isAuditable(16053));
+    assertSame(
+        SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER,
+        LegacyErrorCodeRegistry.find(16053).orElseThrow());
+    assertFalse(SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER.isAuditable());
+  }
+
+  @Test
+  void htmlSearchMissingParameterNonAuditableSkipsDualWrite() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    AuditLogId id =
+        LegacyErrorCodeRegistry.logIfAuditable(
+            svc,
+            SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER.numericCode(),
+            AuditContext.builder().actor("jdoe").build(),
+            "HTML",
+            "sys_searchid");
+
+    assertEquals(LegacyErrorCodeRegistry.SKIPPED, id);
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
   void luceneIndexCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(16311));
     assertSame(
@@ -1200,6 +1226,84 @@ class LegacyErrorCodeRegistryTest {
   }
 
   @Test
+  void deploymentCatalogClientLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    DeploymentErrorCodes[] leftovers = {
+      DeploymentErrorCodes.NULL_INPUT_DOC,
+      DeploymentErrorCodes.UNEXPECTED_ERROR,
+      DeploymentErrorCodes.INVALID_REQUEST_TYPE,
+      DeploymentErrorCodes.CATALOG_REQD_PROP_NOT_SPECIFIED,
+      DeploymentErrorCodes.CATALOG_INVALID_DIRECTORY_SPECIFIED,
+      DeploymentErrorCodes.ARCHIVE_READ_ERROR,
+      DeploymentErrorCodes.ARCHIVE_WRITE_ERROR,
+      DeploymentErrorCodes.MISSING_ID_MAPPING,
+      DeploymentErrorCodes.INCOMPLETE_ID_MAPPING,
+      DeploymentErrorCodes.INVALID_ID_MAPPING_TARGET,
+      DeploymentErrorCodes.INCOMPLETE_ID_TYPE_MAPPING,
+      DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING,
+      DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID,
+      DeploymentErrorCodes.NOT_CONNECTED_ERROR,
+      DeploymentErrorCodes.LOCK_NOT_RELEASED
+    };
+    for (DeploymentErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void deploymentServerHandlerLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    DeploymentErrorCodes[] leftovers = {
+      DeploymentErrorCodes.SERVER_REQUEST_MALFORMED,
+      DeploymentErrorCodes.SERVER_OBJECT_NOT_FOUND,
+      DeploymentErrorCodes.DEPENDENCY_HANDLER_INIT,
+      DeploymentErrorCodes.DEPENDENCY_MGR_INIT,
+      DeploymentErrorCodes.MISSING_DEPENDENCY_FILE,
+      DeploymentErrorCodes.INVALID_DEPENDENCY_FILE,
+      DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
+      DeploymentErrorCodes.NO_ROWS_TO_PROCESS,
+      DeploymentErrorCodes.INCOMPLATE_ORDER_DEF,
+      DeploymentErrorCodes.INVALID_NUM_CHILD_DEFS,
+      DeploymentErrorCodes.CANNOT_FIND_PARENT_DEP_DEF,
+      DeploymentErrorCodes.ARCHIVE_REF_FOUND,
+      DeploymentErrorCodes.MAX_DEP_COUNT_EXCEEDED,
+      DeploymentErrorCodes.MULTISERVER_MANAGER_DISABLED,
+      DeploymentErrorCodes.PACKAGE_CREATED_ON_SYSTEM
+    };
+    for (DeploymentErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
+  void jobLeftoverCodesSkipDualWriteViaEnum() {
+    CapturingAuditLogSink sink = new CapturingAuditLogSink("cap");
+    DefaultAuditLogService svc = DefaultAuditLogService.builder().addSink(sink).build();
+
+    JobErrorCodes[] leftovers = {
+      JobErrorCodes.INVALID_JOB_DESCRIPTOR,
+      JobErrorCodes.UNEXPECTED_ERROR,
+      JobErrorCodes.CONFIG_FILE_NOT_FOUND
+    };
+    for (JobErrorCodes code : leftovers) {
+      assertFalse(code.isAuditable(), code.name());
+      AuditLogId id = svc.log(code, AuditContext.empty());
+      assertEquals(LegacyErrorCodeRegistry.SKIPPED.value(), id.value(), code.name());
+    }
+    assertTrue(sink.records().isEmpty());
+  }
+
+  @Test
   void navigationCodesAreRegisteredButNotAuditable() {
     assertFalse(LegacyErrorCodeRegistry.isAuditable(18001));
     assertSame(
@@ -1316,6 +1420,7 @@ class LegacyErrorCodeRegistryTest {
     assertFalse(TableFactoryErrorCodes.XML_ELEMENT_NULL.isAuditable());
     assertEquals(1001, TableFactoryErrorCodes.XML_ELEMENT_NULL.numericCode());
     assertEquals(1310, TableFactoryErrorCodes.DATA_HANDLER_CLASS_NOT_FOUND.numericCode());
+    assertFalse(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE.isAuditable());
   }
 
   @Test

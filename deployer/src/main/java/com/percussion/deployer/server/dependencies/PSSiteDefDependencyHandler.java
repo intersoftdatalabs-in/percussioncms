@@ -30,7 +30,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -62,6 +61,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a site definition. */
 public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
@@ -118,7 +118,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       }
     } catch (SAXException | IOException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "could not parse serialized Site data, due to :" + e.getMessage());
     }
@@ -401,7 +401,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       str = ((PSSite) site).toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Site:" + site.getName());
     }
 
@@ -421,7 +421,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
     var site = findSiteByDependencyID(dep.getDependencyId());
     if (site == null) {
       throw new PSDeployException(
-          IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+          DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
           new Object[] {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
     }
 
@@ -476,7 +476,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       // tmpStr remains unchanged
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Error occurred while generating site:" + e.getLocalizedMessage());
     }
     // deserialize on the mapped template idss
@@ -502,7 +502,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       ((PSSite) site).fromXML(tmpStr);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not deserialize site");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not deserialize site");
     }
     return site;
   }
@@ -533,7 +533,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -558,7 +558,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
         site = m_siteMgr.loadSite(site.getGUID());
       } catch (PSNotFoundException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Site Not Found: " + site.toString() + e.getLocalizedMessage());
       }
       ver = ((PSSite) site).getVersion();
@@ -576,7 +576,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       depSvc.deserializeAndSaveSite(tok, archive, dep, depFile, ctx, this, site, ver);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing site: " + e.getLocalizedMessage());
     }
 
@@ -599,7 +599,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
       m_siteMgr.saveSite(s);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not save or update the site:" + s.getName() + "\n" + e1.getLocalizedMessage());
     }
   }
@@ -613,7 +613,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
    * @param ctx the import context never <code>null</code>
    * @param tmpId the template id never <code>null</code>
    * @return the mapping if it exists else <code>null</code>
-   * @throws PSDeployException (other than IPSDeploymentErrors.MISSING_ID_MAPPING, which is handled
+   * @throws PSDeployException (other than DeploymentErrorCodes.MISSING_ID_MAPPING, which is handled
    *     by a <code>null</code> return.)
    */
   private PSIdMapping getTemplateOrVariantMapping(
@@ -625,7 +625,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
         m = getIdMappingOfAssoc(tok, ctx, tmpId, PSVariantDefDependencyHandler.DEPENDENCY_TYPE);
       }
     } catch (PSDeployException dex) {
-      if (dex.getErrorCode() == IPSDeploymentErrors.MISSING_ID_MAPPING) {
+      if (dex.getErrorCode() == DeploymentErrorCodes.MISSING_ID_MAPPING.numericCode()) {
         // try a variant . . .
         m = getIdMapping(ctx, tmpId, PSVariantDefDependencyHandler.DEPENDENCY_TYPE);
       }

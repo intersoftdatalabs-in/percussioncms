@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.client;
 
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.conn.PSServerException;
 import com.percussion.deployer.catalog.PSCataloger;
 import com.percussion.deployer.objectstore.IPSDeployComponent;
@@ -38,11 +40,9 @@ import com.percussion.deployer.objectstore.PSLogSummary;
 import com.percussion.deployer.objectstore.PSUserDependency;
 import com.percussion.deployer.objectstore.PSValidationResults;
 import com.percussion.deployer.server.PSDeploymentHandler;
-import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSFeatureSet;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
 import com.percussion.security.PSAuthenticationFailedException;
@@ -122,7 +122,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -155,7 +155,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -214,7 +214,7 @@ public class PSDeploymentManager {
         | PSAuthenticationFailedException
         | PSAuthorizationException e) {
       log.error(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -259,7 +259,7 @@ public class PSDeploymentManager {
       return results.iterator();
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
-      else throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      else throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -300,7 +300,7 @@ public class PSDeploymentManager {
       return results.iterator();
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
-      else throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      else throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -320,7 +320,7 @@ public class PSDeploymentManager {
       return respDoc.getDocumentElement().getAttribute("longvalue");
 
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -357,10 +357,10 @@ public class PSDeploymentManager {
       return types;
     } catch (PSUnknownNodeTypeException e) {
       Object args[] = {reqType, searchEl, e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
-      else throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      else throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -438,7 +438,7 @@ public class PSDeploymentManager {
       Element childEl = tree.getNextElement(xmlNodeName, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (childEl == null) {
         Object args[] = {reqType, xmlNodeName};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
       }
 
       Constructor<? extends IPSDeployComponent> compCtor =
@@ -447,11 +447,11 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSUnknownNodeTypeException) {
         Object args[] = {reqType, xmlNodeName, e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       } else if (e instanceof PSDeployException) {
         throw (PSDeployException) e;
       } else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
 
@@ -602,7 +602,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
     return respDoc;
@@ -669,7 +669,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -703,7 +703,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -729,7 +729,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -755,7 +755,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -796,7 +796,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -833,7 +833,7 @@ public class PSDeploymentManager {
       if (errors.isEmpty()) return null;
       return errors;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
   }
 
@@ -898,7 +898,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
 
@@ -1245,7 +1245,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1306,7 +1306,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1395,7 +1395,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1458,7 +1458,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1478,7 +1478,7 @@ public class PSDeploymentManager {
       return runServerJob(desc, "export");
     } catch (PSServerLockException e) {
       // this is not expected, but helper method throws it
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -1501,7 +1501,7 @@ public class PSDeploymentManager {
           tree.getNextElement(PSFeatureSet.ms_nodeName, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
       if (childEl == null) {
         Object args[] = {reqType, PSFeatureSet.ms_nodeName};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
       }
 
       PSXmlDocumentBuilder.replaceRoot(respDoc, childEl);
@@ -1511,11 +1511,11 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSUnknownNodeTypeException || e instanceof PSUnknownDocTypeException) {
         Object args[] = {reqType, "PSXDeployGetFeatureSetRequest", e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       } else if (e instanceof PSDeployException) {
         throw (PSDeployException) e;
       } else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1560,7 +1560,7 @@ public class PSDeploymentManager {
       // this is not expected, but helper method throws it
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -1595,7 +1595,7 @@ public class PSDeploymentManager {
       if (results == null) {
         // this would be a bug, just throw unexpected exeption
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "Missing validation results for pkg: " + pkg.getPackage().getKey());
       }
       pkg.setValidationResults(results);
@@ -1654,7 +1654,7 @@ public class PSDeploymentManager {
             new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, respRoot.getTagName(), une.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       }
 
       String message = respRoot.getAttribute("message");
@@ -1664,7 +1664,7 @@ public class PSDeploymentManager {
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1702,14 +1702,14 @@ public class PSDeploymentManager {
             new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, respRoot.getTagName(), une.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       }
 
       return result;
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1749,7 +1749,7 @@ public class PSDeploymentManager {
     Element depEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (depEl == null) {
       Object args[] = {reqType, PSDependency.XML_NODE_NAME};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
 
     return getDependencyFromElement(reqType, depEl);
@@ -1775,12 +1775,12 @@ public class PSDeploymentManager {
       else if (PSUserDependency.XML_NODE_NAME.equals(elName)) dep = new PSUserDependency(depEl);
     } catch (PSUnknownNodeTypeException e) {
       Object args[] = {reqType, PSDependency.XML_NODE_NAME, e.getLocalizedMessage()};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
 
     if (dep == null) {
       Object args[] = {reqType, PSDependency.XML_NODE_NAME};
-      throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_MISSING, args);
+      throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
 
     return dep;
@@ -1833,7 +1833,7 @@ public class PSDeploymentManager {
             new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, msgArgs);
 
         Object args[] = {reqType, root.getTagName(), une.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.SERVER_RESPONSE_ELEMENT_INVALID, args);
+        throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
       }
 
       return new PSDeployServerJobControl(jobId, this);
@@ -1841,7 +1841,7 @@ public class PSDeploymentManager {
       if (e instanceof PSDeployException) throw (PSDeployException) e;
       else if (e instanceof PSServerLockException) throw (PSServerLockException) e;
       else {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }

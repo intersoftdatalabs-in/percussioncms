@@ -33,7 +33,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionRef;
@@ -63,6 +62,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a template definition.
@@ -273,7 +273,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       bindingsList = handleExitsInJexlExp(tok, tmp);
     } catch (PSExtensionException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not find an extension: ");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not find an extension: ");
     }
     if (bindingsList.size() > 0) {
       for (PSDependency dependency : bindingsList) {
@@ -360,7 +360,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
               + t.getDescription()
               + "==>\n "
               + e.getLocalizedMessage();
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, err);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, err);
     }
   }
 
@@ -443,7 +443,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       str = tmp.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Template:" + tmp.getName());
     }
 
@@ -508,7 +508,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       depSvc.deserializeAndSaveTemplate(tok, archive, dep, depFile, ctx, this, tmp, ver, bVer);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing template: " + e.getLocalizedMessage());
     }
 
@@ -541,7 +541,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       m_assemblySvc.saveTemplate(t);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not save or update the template:" + t.getName() + "\n" + e1.getLocalizedMessage());
     }
   }
@@ -598,7 +598,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       tmpStr = PSAssemblyTemplate.replaceSlotIdsFromTemplate(tmpStr, newGuids);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Error occurred while generating site:" + e.getLocalizedMessage());
     }
 
@@ -607,7 +607,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     } catch (Exception e) {
       String err = e.getLocalizedMessage();
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create template from file:" + f.getName() + " Error was:\n" + err);
     }
     return tmp;
@@ -639,7 +639,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -676,63 +676,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   // see base class
   @Override
   public void reserveNewId(PSDependency dep, PSIdMap idMap) throws PSDeployException {
-    if (dep == null) {
-      throw new IllegalArgumentException("dep may not be null");
-    }
-    if (idMap == null) {
-      throw new IllegalArgumentException("idMap may not be null");
-    }
-    if (!dep.getObjectType().equals(DEPENDENCY_TYPE)) {
-      throw new IllegalArgumentException(
-          "dep wrong type: expected " + DEPENDENCY_TYPE + " but got " + dep.getObjectType());
-    }
-
-    PSIdMapping mapping = idMap.getMapping(dep.getDependencyId(), dep.getObjectType());
-    if (mapping == null) {
-      Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
-    }
-
-    // First assign of an unused archive UUID (TemplateDef-602 → 602) keeps the
-    // product GUID. Existing customer rows are matched by name before this runs
-    // (isNewObject=false) and are not remapped (#3727).
-    if (mapping.isNewObject() && mapping.getTargetId() == null) {
-      boolean claimed =
-          PSTemplateDefInstallUtils.isUuidReservedAsTarget(
-                  idMap, dep.getDependencyId(), DEPENDENCY_TYPE)
-              || isTemplateUuidPresentOnTarget(dep.getDependencyId());
-      if (PSTemplateDefInstallUtils.tryKeepSourceUuid(mapping, claimed)) {
-        log.info(
-            "TemplateDef install keeping archive UUID {} ({}) on first assign",
-            mapping.getTargetId(),
-            dep.getDisplayName());
-        return;
-      }
-    }
     PSDependencyUtils.reserveNewId(dep, idMap, getType());
-  }
-
-  /**
-   * Whether a TemplateDef with this archive id already exists on the target.
-   *
-   * <p>Uses {@code findTemplate} (null if missing) so a fresh install does not log
-   * TEMPLATE_MISSING warnings for each unused archive UUID.
-   *
-   * @param sourceId archive dependency id, may be blank
-   * @return {@code true} when a template row is found, or the check cannot be completed
-   */
-  private boolean isTemplateUuidPresentOnTarget(String sourceId) {
-    if (sourceId == null || sourceId.isBlank()) {
-      return false;
-    }
-    init();
-    try {
-      IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, sourceId.trim());
-      return m_assemblySvc.findTemplate(guid) != null;
-    } catch (RuntimeException e) {
-      log.debug("TemplateDef UUID presence check failed for {}: {}", sourceId, e);
-      return true;
-    }
+    // guids dont need ids, they are unique ids
+    return;
   }
 
   /**

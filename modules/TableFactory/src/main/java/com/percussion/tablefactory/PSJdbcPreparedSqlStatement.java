@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
@@ -159,7 +160,7 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
         // convert to SQLException
         Object[] args = {value.getValue(), value.getType(), e.toString()};
         PSJdbcTableFactoryException fe =
-            new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_BIND_PARAMETER, args, e);
+            new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_BIND_PARAMETER, args, e);
         throw new SQLException(fe.getLocalizedMessage(), e);
       }
     }

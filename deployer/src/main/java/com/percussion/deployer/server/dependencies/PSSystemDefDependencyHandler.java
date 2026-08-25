@@ -40,7 +40,6 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
@@ -54,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a system def */
 public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependencyHandler {
@@ -220,7 +220,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     // restore the system def
@@ -228,7 +228,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     try {
       sysDef = new PSContentEditorSystemDef(doc);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // transform ids and dbms's in the def if necessary
@@ -245,7 +245,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
       addTransactionLogEntry(
           dep, ctx, dep.getDisplayName(), PSTransactionSummary.TYPE_FILE, transAction);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -360,7 +360,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
           resource, IPSDeployConstants.ID_TYPE_ELEMENT_INIT_PARAMS, mappings.iterator());
 
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     return idTypes;
@@ -494,7 +494,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     PSContentEditorSystemDef def = PSServer.getContentEditorSystemDef();
     if (def == null) {
       Object[] args = {m_def.getObjectType(), m_def.getObjectType(), m_def.getObjectTypeName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     return def;

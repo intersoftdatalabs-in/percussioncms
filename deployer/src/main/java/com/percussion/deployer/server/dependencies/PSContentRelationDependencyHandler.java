@@ -51,7 +51,6 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -79,6 +78,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a content relation definition. */
 public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandler
@@ -382,11 +382,11 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
         }
       }
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSInternalRequestCallException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -526,7 +526,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
 
           if (newId == null) {
             Object[] args = {PSFolderDefDependencyHandler.DEPENDENCY_TYPE, value};
-            throw new PSDeployException(IPSDeploymentErrors.SERVER_OBJECT_NOT_FOUND, args);
+            throw new PSDeployException(DeploymentErrorCodes.SERVER_OBJECT_NOT_FOUND, args);
           }
         } else {
           PSIdMapping mapping = getIdMapping(ctx, value, type);
@@ -590,7 +590,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
 
       return modifiedSet;
     } catch (PSInvalidContentTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -751,7 +751,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
       }
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e.fillInStackTrace();
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -781,7 +781,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
 
       return relSet.iterator();
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

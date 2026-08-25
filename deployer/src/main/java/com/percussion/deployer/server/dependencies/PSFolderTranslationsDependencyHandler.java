@@ -30,7 +30,6 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -38,6 +37,7 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a folder's translation. */
 public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDependencyHandler {
@@ -163,7 +163,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
           dep.getObjectTypeName(),
           parentFolderPath.substring(parentFolderPath.lastIndexOf(PATH_SEP) + 1)
         };
-        throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+        throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
       }
 
       // delete all current translations
@@ -207,7 +207,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
             dep.getObjectTypeName(),
             childFolderPath.substring(childFolderPath.lastIndexOf(PATH_SEP) + 1)
           };
-          throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+          throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
         }
         list.add(childFolder.getLocator());
       }
@@ -274,7 +274,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
 
     if (!isValid) {
       Object[] args = {depId};
-      throw new PSDeployException(IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, args);
+      throw new PSDeployException(DeploymentErrorCodes.WRONG_FORMAT_FOR_PAIRID_DEP_ID, args);
     }
 
     return new String[] {folderPath, relType};

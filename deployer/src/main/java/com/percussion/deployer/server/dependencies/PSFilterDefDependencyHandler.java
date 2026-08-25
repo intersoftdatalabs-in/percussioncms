@@ -33,7 +33,6 @@ import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
 import com.percussion.design.objectstore.PSParam;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.security.PSSecurityToken;
@@ -56,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a Filter definition.
@@ -161,7 +161,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
         }
       } catch (PSFilterException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            DeploymentErrorCodes.UNEXPECTED_ERROR,
             "While creating the Filter dependency, "
                 + "a FilterException occurred: "
                 + e.getLocalizedMessage());
@@ -234,7 +234,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
           PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(xmlContent));
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for filter: " + filter.getName());
     }
   }
@@ -251,12 +251,12 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
       depSvc.deserializeAndSaveFilter(tok, archive, dep, depFile, ctx, this);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "error occurred while installing filter: " + e.getLocalizedMessage());
     } catch (RuntimeException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, e, PSFilterInstallUtils.formatInstallError(e));
+          DeploymentErrorCodes.UNEXPECTED_ERROR, e, PSFilterInstallUtils.formatInstallError(e));
     }
 
     // add transaction log
@@ -293,7 +293,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
       m_filterSvc.saveFilter(f);
     } catch (Exception e1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e1,
           "Could not save or update the filter:" + f.getName() + "\n" + e1.getLocalizedMessage());
     }
@@ -348,7 +348,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
       for (IPSItemFilterRuleDef def : rules) ((PSItemFilterRuleDef) def).setVersion(null);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not deserialize the ItemFilter");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not deserialize the ItemFilter");
     }
     return filter;
   }
@@ -379,7 +379,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -452,7 +452,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
       }
     } catch (PSFilterException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "while looking for ID types, ruleDef did not provide a proper name");
     }
     return idTypes;

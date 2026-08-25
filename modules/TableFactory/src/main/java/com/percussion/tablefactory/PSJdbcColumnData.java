@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSStringOperation;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -214,13 +215,13 @@ public class PSJdbcColumnData {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
 
     m_name = PSJdbcTableComponent.getAttribute(tree, NAME_ATTR, true);
     if (m_name == null || m_name.trim().length() == 0)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.INVALID_COLUMN_NAME, NODE_NAME);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.INVALID_COLUMN_NAME, NODE_NAME);
 
     String externalAttr = PSJdbcTableComponent.getAttribute(tree, EXTERNAL_ATTR, false);
 
@@ -246,7 +247,7 @@ public class PSJdbcColumnData {
       } else if (!isEmptyNull.trim().equalsIgnoreCase(EMPTY_NULL_FALSE)) {
         // bad value for attribute
         Object[] args = {NODE_NAME, EMPTY_NULL_ATTR, isEmptyNull};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
   }
@@ -293,7 +294,7 @@ public class PSJdbcColumnData {
     File f = new File(external);
     if (!(f.exists() && f.canRead())) {
       Object[] args = {parentNodeName, EXTERNAL_ATTR, external};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
 
     return external;
