@@ -270,6 +270,125 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void itemExitsJsonSerializesListsAndGaps() throws Exception {
+    ContentTypeItemExits env = new ContentTypeItemExits();
+    ContentTypeItemExit exit = new ContentTypeItemExit();
+    exit.setExtension("Java/global/percussion/generic/sys_ToUpperCase");
+    exit.setName("sys_ToUpperCase");
+    env.setInputTranslations(List.of(exit));
+    env.setOutputTranslations(List.of());
+    env.setValidations(List.of());
+    env.setPreExits(List.of());
+    env.setPostExits(List.of());
+    env.setDesignGaps(
+        List.of(
+            DesignGap.of(
+                "CT_ITEM_EXIT_CONDITIONS", "Apply-when conditions on item-level exits are read-only")));
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
+    String json = mapper.writeValueAsString(env);
+    assertTrue(json.contains("inputTranslations"), json);
+    assertTrue(json.contains("sys_ToUpperCase"), json);
+    assertTrue(json.contains("CT_ITEM_EXIT_CONDITIONS"), json);
+    assertTrue(json.contains("\"code\""), json);
+  }
+
+  @Test
+  public void getItemExitsReturnsEnvelope() {
+    ContentTypeItemExits env = new ContentTypeItemExits();
+    ContentTypeItemExit exit = new ContentTypeItemExit();
+    exit.setExtension("Java/global/percussion/generic/sys_ToUpperCase");
+    env.setInputTranslations(List.of(exit));
+    when(adaptor.getItemExits(any(), eq("percPage"))).thenReturn(env);
+    ContentTypeItemExits out = resource.getItemExits("percPage");
+    assertEquals(1, out.getInputTranslations().size());
+    assertEquals(
+        "Java/global/percussion/generic/sys_ToUpperCase",
+        out.getInputTranslations().get(0).getExtension());
+  }
+
+  @Test
+  public void getItemExitsNotFound() {
+    when(adaptor.getItemExits(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getItemExits("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsSuccess() {
+    ContentTypeItemExits body = emptyItemExitsBody();
+    when(adaptor.replaceItemExits(any(), eq("percPage"), any())).thenReturn(body);
+    ContentTypeItemExits out = resource.replaceItemExits("percPage", body);
+    assertNotNull(out.getInputTranslations());
+    assertTrue(out.getInputTranslations().isEmpty());
+  }
+
+  @Test
+  public void replaceItemExitsNotFound() {
+    when(adaptor.replaceItemExits(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("missing", emptyItemExitsBody()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsRequiresLock() {
+    when(adaptor.replaceItemExits(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type item-level exits; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("percPage", emptyItemExitsBody()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsLockedByOtherUser() {
+    when(adaptor.replaceItemExits(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not update content type item-level exits; locked by editor"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("percPage", emptyItemExitsBody()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsMissingLists400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("percPage", new ContentTypeItemExits()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceItemExitsInvalidExtension400() {
+    when(adaptor.replaceItemExits(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("inputTranslations[0].extension is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceItemExits("percPage", emptyItemExitsBody()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  private static ContentTypeItemExits emptyItemExitsBody() {
+    ContentTypeItemExits body = new ContentTypeItemExits();
+    body.setInputTranslations(List.of());
+    body.setOutputTranslations(List.of());
+    body.setValidations(List.of());
+    return body;
+  }
+
+  @Test
   public void replaceAllowedTemplatesInvalidTemplate() {
     when(adaptor.replaceAllowedTemplates(any(), eq("percPage"), any()))
         .thenThrow(new IllegalArgumentException("allowedTemplates[0] template not found: nope"));

@@ -1171,6 +1171,89 @@ public class ContentTypesResource {
     }
   }
 
+  @GET
+  @Path("/{idOrName}/itemExits")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get item-level exits and validations for a content type",
+      description =
+          "CD-09 GET: item-level input/output translations, validations, and pipe pre/post"
+              + " exits. No design lock is required. Empty lists mean none. Apply-when conditions"
+              + " are summarized as read-only text (see designGaps). Jackson root wrap is"
+              + " ContentTypeItemExits.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ContentTypeItemExits.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeItemExits getItemExits(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeItemExits out = requireAdaptor().getItemExits(uriInfo.getBaseUri(), idOrName);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/itemExits")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace item-level exits and validations for a content type",
+      description =
+          "CD-09 PUT: full replace of item-level inputTranslations, outputTranslations, and"
+              + " validations via IPSContentDesignWs.saveContentTypes. Requires a held"
+              + " design-session lock (POST .../lock). Does not acquire or release the lock."
+              + " Empty lists clear. preExits/postExits omitted leave pipe extensions unchanged;"
+              + " empty list clears. Each exit needs a resolvable extension FQN. Apply-when"
+              + " conditions are not written. Jackson root wrap is ContentTypeItemExits.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeItemExits.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing required lists or invalid extension FQN"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeItemExits replaceItemExits(
+      @PathParam("idOrName") String idOrName, ContentTypeItemExits body) {
+    if (body == null
+        || body.getInputTranslations() == null
+        || body.getOutputTranslations() == null
+        || body.getValidations() == null) {
+      throw new WebApplicationException(
+          "inputTranslations, outputTranslations, and validations are required", 400);
+    }
+    try {
+      ContentTypeItemExits out =
+          requireAdaptor().replaceItemExits(uriInfo.getBaseUri(), idOrName, body);
+      if (out == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return out;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
   private static NamedObjectRefList asNamedObjectRefList(List<NamedObjectRef> items) {
     if (items instanceof NamedObjectRefList list) {
       return list;

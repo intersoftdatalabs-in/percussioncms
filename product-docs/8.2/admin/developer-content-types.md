@@ -16,6 +16,9 @@ type at once.
 
 This is **not** the full Workbench field-rule editor. Field validation /
 visibility / transform **expressions** stay read-only on the detail table.
+Item-level pre/post exits and validations (CD-09) are exposed on REST
+`GET`/`PUT /services/contenttypes/{idOrName}/itemExits` (held design lock for
+write). This page does **not** add Properties-tab chrome for those exits.
 
 ## Product path — lock, save, unlock
 

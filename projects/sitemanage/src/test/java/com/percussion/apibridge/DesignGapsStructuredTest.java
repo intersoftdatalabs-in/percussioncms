@@ -39,6 +39,7 @@ class DesignGapsStructuredTest {
     assertFalse(gaps.isEmpty());
     Set<String> codes = gaps.stream().map(DesignGap::getCode).collect(Collectors.toSet());
     assertTrue(codes.contains("CT_FIELD_RULE_EXPR"));
+    assertTrue(codes.contains("CT_ITEM_EXITS"));
     assertTrue(codes.contains("CT_CREATE_DELETE"));
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
     for (DesignGap g : gaps) {
