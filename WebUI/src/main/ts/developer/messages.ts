@@ -785,7 +785,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build.",
   SITE_VIRT_KIND_SQL_DATABASE: "perc.ui.developer@SQL database",
   SITE_VIRT_SQL_HINT:
-    "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build. Passwords are never sent on the REST envelope.",
+    "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build or Publish Virtual Site. Passwords are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:

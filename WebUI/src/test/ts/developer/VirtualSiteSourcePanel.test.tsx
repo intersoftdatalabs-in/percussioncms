@@ -410,9 +410,6 @@ describe("VirtualSiteSourcePanel", () => {
     expect(screen.getByTestId("developer-site-virtual-sql-hint").textContent).toBe(
       DEV_MSG.SITE_VIRT_SQL_HINT,
     );
-    expect(screen.getByTestId("developer-site-virtual-sql-hint").textContent).toContain(
-      "Preview assembled site",
-    );
     expect(screen.queryByTestId("developer-site-virtual-remote-url")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-branch")).toBeNull();
     expect(screen.queryByTestId("developer-site-virtual-config-file")).toBeNull();
@@ -930,9 +927,6 @@ describe("VirtualSiteSourcePanel", () => {
     });
     expect(screen.getByTestId("developer-site-virtual-sql-hint").textContent).toContain(
       DEV_MSG.SITE_VIRT_SQL_HINT,
-    );
-    expect(screen.getByTestId("developer-site-virtual-sql-hint").textContent).toContain(
-      "Preview assembled site",
     );
     expect(screen.getByTestId("developer-site-virtual-preview-hint").textContent).toContain(
       DEV_MSG.SITE_VIRT_PREVIEW_HINT,

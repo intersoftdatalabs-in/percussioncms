@@ -44,7 +44,9 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`
-  from optional `_redirects.yaml` are copied with the site.
+  from optional `_redirects.yaml` are copied with the site. `sql-database` Publish is
+  in-memory H2 only (`jdbc:h2:mem:`); Oracle / MySQL / SQL Server URLs return **400**.
+  The endpoint does not accept an `outputRoot` body (always the default staging root).
 
 ### Publish a Virtual Site to the Site filesystem target
 

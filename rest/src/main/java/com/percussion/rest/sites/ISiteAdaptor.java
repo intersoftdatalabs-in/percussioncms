@@ -150,8 +150,9 @@ public interface ISiteAdaptor {
    * and copies the static output to the Site filesystem publish root ({@code IPSSite.getRoot()}).
    *
    * <p>Publish-includes-build: operators get a published docs tree at the configured Site
-   * publishing location, not only {@code tmp/virtual-sites}. Failures are operator-facing 4xx (not
-   * a silent no-op). Requires Admin.
+   * publishing location, not only {@code tmp/virtual-sites}. {@code sql-database} uses in-memory
+   * H2 ({@code jdbc:h2:mem:}) only; Oracle / MySQL / SQL Server JDBC URLs fail closed (400).
+   * Failures are operator-facing 4xx (not a silent no-op). Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return publish summary (never null)

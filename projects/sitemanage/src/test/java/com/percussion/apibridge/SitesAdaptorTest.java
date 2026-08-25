@@ -1146,6 +1146,7 @@ class SitesAdaptorTest {
         Files.readString(html, StandardCharsets.UTF_8));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
     assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
   }
 
   @Test
@@ -1254,6 +1255,169 @@ class SitesAdaptorTest {
     assertTrue(body.contains("Hello from SQL"), body);
     assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
     assertFalse(Files.exists(publishTo.resolve("_meta")));
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseInjectedBuildRunnerCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-pub-src"));
+    Path staging = tempDir.resolve("sql-pub-staging");
+    Path publishTo = tempDir.resolve("sql-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    SitesAdaptor.BuildRunner runner =
+        (config, outputRoot) -> {
+          Files.createDirectories(outputRoot.resolve("8.2"));
+          Files.writeString(
+              outputRoot.resolve("8.2").resolve("index.html"),
+              "<html>SQL published</html>",
+              StandardCharsets.UTF_8);
+          Files.createDirectories(outputRoot.resolve("_meta"));
+          Files.writeString(
+              outputRoot.resolve("_meta").resolve("skip.txt"),
+              "not published",
+              StandardCharsets.UTF_8);
+          return new PSVirtualSiteBuildResult(
+              outputRoot, 1, List.of(), List.of("8.2/index.html"));
+        };
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, runner);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SqlHelp");
+    assertEquals("SqlHelp", result.getSiteName());
+    assertEquals("sql-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    assertTrue(
+        Files.readString(html, StandardCharsets.UTF_8).contains("SQL published"),
+        Files.readString(html, StandardCharsets.UTF_8));
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseQueryFileBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot =
+        createMinimalSqlTree(
+            tempDir.resolve("sql-qfile-pub-src"),
+            "SELECT id, title, body, path, sort_order AS \"order\" FROM pages",
+            Path.of("queries").resolve("pages.sql"));
+    Path staging = tempDir.resolve("sql-qfile-pub-staging");
+    Path publishTo = tempDir.resolve("sql-qfile-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SqlHelp");
+    assertEquals("SqlHelp", result.getSiteName());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+    assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseRejectsUnsafeSiteRoot() {
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(Path.of("a", "..", "..", "etc").toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("sql-src").toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SqlHelp"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseOracleAndMysqlUrl400() throws Exception {
+    Path siteRoot = tempDir.resolve("sql-oracle-pub");
+    Files.createDirectories(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql:
+          jdbcUrl: jdbc:oracle:thin:@localhost:1521:orcl
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    Path publishTo = tempDir.resolve("sql-oracle-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    WebApplicationException oracle =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SqlHelp"));
+    assertEquals(400, oracle.getResponse().getStatus());
+    String oracleMsg = String.valueOf(oracle.getMessage()).toLowerCase();
+    assertTrue(
+        oracleMsg.contains("h2")
+            || oracleMsg.contains("unsupported")
+            || oracleMsg.contains("not allowed")
+            || oracleMsg.contains("jdbc"),
+        String.valueOf(oracle.getMessage()));
+
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql:
+          jdbcUrl: jdbc:mysql://localhost:3306/cms
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    WebApplicationException mysql =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.publishVirtualSite("SqlHelp"));
+    assertEquals(400, mysql.getResponse().getStatus());
   }
 
   @Test

@@ -421,11 +421,12 @@ public class SitesResource {
       description =
           "Runs the Virtual Site static build (always using the default output root; unlike POST"
               + " …/virtual/build, this endpoint does not accept an outputRoot override) for"
-              + " git-filesystem, csv-filesystem, or sql-database, then copies assembled HTML/assets"
-              + " to the Site publishing filesystem location (IPSSite.root) using portable NIO Path"
-              + " I/O. Requires Admin. Traditional repository Sites, missing/unsafe Site root, or"
-              + " overlap with virtual.rootPath return 4xx with an operator-readable message"
-              + " (never a silent no-op).",
+              + " git-filesystem, csv-filesystem, or sql-database (in-memory H2 jdbc:h2:mem: only;"
+              + " Oracle, MySQL, and SQL Server JDBC URLs return 400), then copies assembled"
+              + " HTML/assets to the Site publishing filesystem location (IPSSite.root) using"
+              + " portable NIO Path I/O. Requires Admin. Traditional repository Sites,"
+              + " missing/unsafe Site root, or overlap with virtual.rootPath return 4xx with an"
+              + " operator-readable message (never a silent no-op).",
       responses = {
         @ApiResponse(
             responseCode = "200",
