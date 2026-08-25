@@ -46,10 +46,12 @@ public final class PSDefinitionXmlShipPathInventory {
 
   /**
    * Package directory names under {@code Packages/} allowed to still commit Page/Gadget definition
-   * XML. Explicit and minimal — do not expand without an ADR / residual issue.
+   * XML. Empty after perc.Test page dual-ship exit (#3737): {@code perc.Test} never authored {@code
+   * rxconfig/Pages} or {@code rxconfig/Gadgets} XML. Widget waiver is a separate list ({@code
+   * PSWidgetDefinitionXmlInventory}). Do not expand without an ADR / residual issue.
    */
   public static final Set<String> WAIVED_PACKAGE_DIRS =
-      Collections.unmodifiableSet(new LinkedHashSet<>(List.of("perc.Test")));
+      Collections.unmodifiableSet(new LinkedHashSet<>());
 
   /** Definition-XML kind under a Packages tree. */
   public enum Kind {
@@ -91,7 +93,7 @@ public final class PSDefinitionXmlShipPathInventory {
    * One committed definition XML file under a package ship path.
    *
    * @param kind Page or Gadget
-   * @param packageDirName immediate child name under the Packages root (e.g. {@code perc.Test})
+   * @param packageDirName immediate child name under the Packages root (e.g. {@code perc.baseTemplates})
    * @param xmlPath absolute normalized path to the {@code .xml} file
    * @param waived whether {@code packageDirName} is in {@link #WAIVED_PACKAGE_DIRS}
    */
@@ -172,7 +174,7 @@ public final class PSDefinitionXmlShipPathInventory {
   }
 
   /**
-   * Whether the package directory name is on the explicit waiver list ({@code perc.Test} only).
+   * Whether the package directory name is on the explicit waiver list (empty after #3737).
    *
    * @param packageDirName package folder name under Packages
    * @return true if waived

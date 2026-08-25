@@ -159,4 +159,126 @@ test.describe("Home React Content Editor", () => {
       ).toEqual([]);
     },
   );
+
+  test(
+    "Home Create Page as Admin opens React editor (assembly template save)",
+    { tag: ["@home", "@editor", "@page-wizard"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const blocked = [];
+      const consoleErrors = [];
+      page.on("request", (req) => {
+        if (/view=editor/.test(req.url())) {
+          blocked.push(req.url());
+        }
+      });
+      page.on("pageerror", (err) => {
+        consoleErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await page.goto(homeDeepLink(), { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId("home-shell")).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId("home-nav-create").click();
+      await expect(page.getByTestId("create-type-chooser")).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId("create-choose-page").click();
+      const empty = page.getByTestId("create-wizard-no-sites");
+      const wizard = page.getByTestId("page-wizard");
+      await expect(empty.or(wizard)).toBeVisible({ timeout: 20_000 });
+      if (await empty.isVisible()) {
+        test.skip(true, "No sites available for Home Create Page");
+        return;
+      }
+
+      const siteSelect = page.getByTestId("page-wizard-site");
+      if (await siteSelect.isVisible()) {
+        const preferred = siteSelect.locator(
+          'option[value="Corporate_Investments"]',
+        );
+        if ((await preferred.count()) > 0) {
+          await siteSelect.selectOption("Corporate_Investments");
+        } else {
+          const firstSite = siteSelect
+            .locator("option[value]:not([value=''])")
+            .first();
+          const siteValue = await firstSite.getAttribute("value");
+          if (!siteValue) {
+            test.skip(true, "No site options in Create Page wizard");
+            return;
+          }
+          await siteSelect.selectOption(siteValue);
+        }
+      }
+
+      const templateSelect = page.getByTestId("page-wizard-template");
+      await expect(templateSelect).toBeVisible({ timeout: 20_000 });
+      await expect
+        .poll(
+          async () =>
+            templateSelect.locator("option[value]:not([value=''])").count(),
+          { timeout: 25_000 },
+        )
+        .toBeGreaterThan(0);
+      const dbTemplate = templateSelect.locator(
+        "option[value]:not([value=''])",
+        { hasText: /Database Template/i },
+      );
+      if ((await dbTemplate.count()) > 0) {
+        const dbValue = await dbTemplate.first().getAttribute("value");
+        await templateSelect.selectOption(dbValue);
+      } else {
+        const firstTemplate = templateSelect
+          .locator("option[value]:not([value=''])")
+          .first();
+        const templateValue = await firstTemplate.getAttribute("value");
+        await templateSelect.selectOption(templateValue);
+      }
+
+      const title = `QaCreate3728 ${Date.now()}`;
+      await page.locator("#pw-title").fill(title);
+
+      const popupPromise = page
+        .waitForEvent("popup", { timeout: 30_000 })
+        .catch(() => null);
+      await page.getByTestId("page-wizard-submit").click();
+      const popup = await popupPromise;
+      const alert = page.getByRole("alert");
+      if (await alert.isVisible().catch(() => false)) {
+        const text = ((await alert.textContent()) || "").trim();
+        throw new Error(`Home Create Page failed: ${text || "(empty alert)"}`);
+      }
+      if (!popup) {
+        throw new Error(
+          "Home Create Page did not open the React editor after submit",
+        );
+      }
+      popup.on("request", (req) => {
+        if (/view=editor/.test(req.url())) {
+          blocked.push(req.url());
+        }
+      });
+      await expect(popup).not.toHaveURL(/^about:blank$/i, { timeout: 20_000 });
+      await expect(popup).toHaveURL(/entry=editor|\/editor/, { timeout: 20_000 });
+      await expect(popup).not.toHaveURL(/view=editor/);
+      expect(blocked, `leftover editor requested: ${blocked.join(" ")}`).toEqual(
+        [],
+      );
+      const unexpected = consoleErrors.filter(
+        (t) =>
+          !/favicon|404|net::ERR|Failed to load resource|ResizeObserver/i.test(t) &&
+          !/Download the React DevTools/i.test(t),
+      );
+      expect(
+        unexpected,
+        `JS console errors: ${unexpected.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
 });

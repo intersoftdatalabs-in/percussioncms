@@ -491,5 +491,13 @@ describe("homeApi", () => {
       };
       expect(formatApiError(err, notAuth)).toBe("Name is invalid");
     });
+
+    it("does not map empty-body 500 to CREATE_NOT_AUTHORIZED", () => {
+      const err: ApiError = { status: 500, statusText: "Server Error", body: "" };
+      expect(formatApiError(err, notAuth)).toBe("Server Error");
+      expect(
+        formatApiError({ status: 500, statusText: "OK", body: null }, notAuth),
+      ).toBe("Create failed");
+    });
   });
 });

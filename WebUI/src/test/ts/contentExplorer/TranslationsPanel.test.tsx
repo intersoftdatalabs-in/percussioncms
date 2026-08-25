@@ -17,7 +17,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { TranslationAuthError } from "../../../main/ts/api/contentExplorer/translationsApi";
-import { TranslationsPanel } from "../../../main/ts/contentExplorer/TranslationsPanel";
+import {
+  TranslationsPanel,
+  translationsVariantsItemKey,
+} from "../../../main/ts/contentExplorer/TranslationsPanel";
 import { renderA11yGate } from "./a11y";
 
 const SAMPLE_VARIANTS = {
@@ -90,11 +93,11 @@ describe("TranslationsPanel", () => {
     ).toBeNull();
   });
 
-  it("resolves GUID Explorer row ids for variants GET (#3545)", async () => {
+  it("GETs hyphenated GUID without stripping last segment (#3703)", async () => {
     const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
     render(
       <TranslationsPanel
-        itemId="1-101-708"
+        itemId="16777215-101-551"
         itemLabel="Home"
         loadVariants={loadVariants}
         loadLocaleCatalog={async () => CATALOG}
@@ -106,12 +109,31 @@ describe("TranslationsPanel", () => {
         "ok",
       ),
     );
-    expect(loadVariants).toHaveBeenCalledWith("708");
+    expect(loadVariants).toHaveBeenCalledWith("16777215-101-551");
+    expect(loadVariants).not.toHaveBeenCalledWith("551");
     expect(screen.getByTestId("translations-current-locale-value")).toHaveTextContent(
       "en-us",
     );
     expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
     expect(screen.getByTestId("translations-variant-row-900")).toBeTruthy();
+  });
+
+  it("GETs bare numeric content ids unchanged", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(loadVariants).toHaveBeenCalledWith("335");
   });
 
   it("create-variant POSTs selected locales via injection seam", async () => {
@@ -178,7 +200,7 @@ describe("TranslationsPanel", () => {
         screen.getByTestId("translations-locale-option-de-de"),
       ).toBeInTheDocument(),
     );
-    expect(loadVariants).toHaveBeenCalledWith("708");
+    expect(loadVariants).toHaveBeenCalledWith("1-101-708");
     fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
     await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
@@ -298,5 +320,15 @@ describe("TranslationsPanel", () => {
       ),
     );
     await renderA11yGate(container);
+  });
+});
+
+describe("translationsVariantsItemKey", () => {
+  it("keeps GUID and numeric paths distinct", () => {
+    expect(translationsVariantsItemKey("16777215-101-551")).toBe(
+      "16777215-101-551",
+    );
+    expect(translationsVariantsItemKey(" 551 ")).toBe("551");
+    expect(translationsVariantsItemKey("1-101-708")).toBe("1-101-708");
   });
 });

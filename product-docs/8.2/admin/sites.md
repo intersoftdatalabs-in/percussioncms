@@ -254,9 +254,14 @@ when the install root is unavailable). A custom CLI output directory is not prev
 until REST Build records it.
 
 1. Stay on **Developer → Sites → Site detail** for the Virtual Site (Admin).
-2. For **CSV filesystem**, confirm **Source kind** is **CSV filesystem**, the **Root path**
-   is saved, and **Build Virtual Site** completed. Then choose **Preview assembled site**.
-   Git filesystem uses the same Preview control after its Build.
+2. Confirm **Source kind** is saved and **Build Virtual Site** completed, then choose
+   **Preview assembled site**:
+   - **Git filesystem** — saved **Root path** (or remote) and a successful Git Build.
+   - **CSV filesystem** — saved **Root path** to a CSV tree and a successful CSV Build.
+   - **SQL database** — saved **Root path** to a tree whose `_config.yaml` has the
+     `sql:` mapping (in-memory H2), then a successful SQL Build. JDBC URL, user, and
+     query stay in `_config.yaml`; the REST envelope never carries a password.
+   Traditional **Repository** hides **Preview assembled site** (same as Build/Publish).
 3. The CMS opens the last build’s home (typically `8.2/index.html`, or root `index.html`
    when present) in a new tab. Navigation stays on the same-origin preview URL
    (`GET /services/sites/{name}/virtual/preview/{path}`).
@@ -265,9 +270,10 @@ until REST Build records it.
    does not return HTTP 500.
 
 The preview stream reads the last recorded `outputPath` from the build (default
-`{install}/tmp/virtual-sites/{siteKey}`). After a CSV assemble, `GET /services/sites/{name}/virtual/preview`
-reports `available` + `homePath`, and `GET …/virtual/preview/{path}` streams the HTML.
-It is **Admin-only**, path-traversal safe, and does not invent a second assembler.
+`{install}/tmp/virtual-sites/{siteKey}`). After a Git, CSV, or SQL assemble,
+`GET /services/sites/{name}/virtual/preview` reports `available` + `homePath`, and
+`GET …/virtual/preview/{path}` streams the HTML. It is **Admin-only**, path-traversal
+safe, and does not invent a second assembler.
 
 Integrators can call the same operations over REST:
 `POST /sites/{nameOrId}/virtual/build` (optional JSON body `outputRoot`), then

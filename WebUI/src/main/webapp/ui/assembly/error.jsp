@@ -1,5 +1,5 @@
 <%@page contentType="text/html; charset=utf-8"
-		import="org.apache.commons.lang3.StringEscapeUtils"
+		import="org.apache.commons.text.StringEscapeUtils"
 		import="com.percussion.server.PSServer"
 		import="java.util.Enumeration" %>
 
@@ -7,10 +7,12 @@
 <%
 	String id = (String) request.getAttribute("id");
 	String error = (String) request.getAttribute("error");
+	if (id == null) id = "";
+	if (error == null) error = "";
 %>
 <html>
 <head>
-	<title>Assembly error for item: <%= id %></title>
+	<title>Assembly error for item: <%= StringEscapeUtils.escapeHtml4(id) %></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" href="/sys_resources/css/rxcx.css" type="text/css" media="screen" />
 	<link href="/sys_resources/css/templates.css" rel="stylesheet" type="text/css">
@@ -36,13 +38,16 @@
 			{
 				String name = (String) e.nextElement();
 				String value = request.getParameter(name);
-				value = StringEscapeUtils.escapeHtml(value);
+				if (name == null) name = "";
+				if (value == null) value = "";
+				name = StringEscapeUtils.escapeHtml4(name);
+				value = StringEscapeUtils.escapeHtml4(value);
 		%><tr><td><%=name%></td><td><%=value%></td></tr><%
 		}
 	%>
 	</table>
 	<h3>Error reported</h3>
-	<p><%= error %></p>
+	<p><%= StringEscapeUtils.escapeHtml4(error) %></p>
 	<i>Please note: More information may be available on the console</i>
 </div>
 </body>

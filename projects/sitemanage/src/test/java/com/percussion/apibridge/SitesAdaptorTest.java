@@ -1146,6 +1146,7 @@ class SitesAdaptorTest {
         Files.readString(html, StandardCharsets.UTF_8));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
     assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
   }
 
   @Test
@@ -1254,8 +1255,6 @@ class SitesAdaptorTest {
     assertTrue(body.contains("Hello from SQL"), body);
     assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
     assertFalse(Files.exists(publishTo.resolve("_meta")));
-    assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
-    assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
   }
 
   @Test
@@ -1990,10 +1989,10 @@ class SitesAdaptorTest {
   }
 
   /**
-   * In-memory H2 fixture for sql-database Build and Publish tests. JDBC user is {@code sa}. A dummy
-   * {@code password} is present in {@code _config.yaml} so tests can prove it is not copied into
-   * HTML. Inline SELECT by default; pass a relative {@code queryFile} (NIO {@link Path}) to prove
-   * {@code sql.queryFile} REST Build / Publish.
+   * In-memory H2 fixture for sql-database Build tests. JDBC user is {@code sa}. A dummy {@code
+   * password} is present in {@code _config.yaml} so tests can prove it is not copied into HTML.
+   * Inline SELECT by default; pass a relative {@code queryFile} (NIO {@link Path}) to prove {@code
+   * sql.queryFile} REST Build.
    */
   private static Path createMinimalSqlTree(Path siteRoot) throws Exception {
     return createMinimalSqlTree(

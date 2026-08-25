@@ -26,7 +26,6 @@ import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.design.objectstore.PSControlParameter;
 import com.percussion.design.objectstore.PSFileDescriptor;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSCustomControlManager;
@@ -40,6 +39,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a content editor control. */
 public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
@@ -283,7 +283,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
 
       return controls;
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

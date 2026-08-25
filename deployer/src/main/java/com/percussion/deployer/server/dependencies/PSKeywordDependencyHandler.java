@@ -30,7 +30,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -47,6 +46,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a keyword definition. */
 public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
@@ -158,7 +158,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     PSKeyword keyword = findKeywordByDependencyID(keyId);
     if (keyword == null) {
       Object[] args = {keyId, dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     files.add(getDepFileFromKeyword(keyword));
@@ -187,13 +187,13 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
       depSvc.installDependencyFiles(tok, archive, dep, ctx, this);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "error occurred while installing keyword: " + e.getLocalizedMessage());
     } catch (RuntimeException e) {
       // UnexpectedRollbackException and similar often hide the real Hibernate failure
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, e, PSKeywordInstallUtils.formatInstallError(e));
+          DeploymentErrorCodes.UNEXPECTED_ERROR, e, PSKeywordInstallUtils.formatInstallError(e));
     }
   }
 
@@ -275,7 +275,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
       addTransactionLogEntryByGuidType(dep, ctx, PSTypeEnum.KEYWORD_DEF, isNew);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "error occurred while installing keyword: " + e.getLocalizedMessage());
     }
@@ -294,7 +294,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     PSIdMapping mapping = idMap.getMapping(dep.getDependencyId(), dep.getObjectType());
     if (mapping == null) {
       Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     if (mapping.isNewObject() && mapping.getTargetId() == null) {
@@ -470,7 +470,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
       str = keyword.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Keyword:" + keyword.getName());
     }
 

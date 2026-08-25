@@ -15,8 +15,8 @@
  */
 package com.percussion.tablefactory.tools;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.tablefactory.IPSTableFactoryErrors;
 import com.percussion.tablefactory.PSJdbcColumnDef;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
@@ -271,7 +271,7 @@ public class PSCatalogTableData {
     if (table == null) {
       // Do not System.exit — this path is used programmatically by migration (#548)
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.SCHEMA_COLL_PROCESS_ERROR,
+          TableFactoryErrorCodes.SCHEMA_COLL_PROCESS_ERROR,
           "No tables found to export (empty tables document)");
     }
 

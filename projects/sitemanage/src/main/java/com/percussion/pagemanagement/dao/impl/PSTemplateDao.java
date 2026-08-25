@@ -186,9 +186,17 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
       var t = new PSTemplate();
       try {
         loadTemplateFromBaseTemplate(assemblyTemplateGuid, t);
-      } catch (PSTemplateException e) {
-        throw new LoadException(e.getMessage(), e);
+      } catch (Exception e) {
+        // Never convert nested RuntimeException to checked after the DAO TX is
+        // already rollback-only — Home Create Page then surfaces
+        // UnexpectedRollbackException (#3728). Stub is enough for page save.
+        log.warn(
+            "Assembly template {} metadata incomplete; using stub for page save. Error: {}",
+            id,
+            PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
+      ensureAssemblyTemplateStub(assemblyTemplateGuid, t);
       return t;
     }
 
@@ -445,7 +453,7 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
     if (templateGuid != null) {
       template = new PSTemplate();
       loadTemplateFromBaseTemplate(templateGuid, template);
-      var imagePath = getThumbImgPath(asList(template.getName())).get(0);
+      var imagePath = firstThumbPath(getThumbImgPath(asList(template.getName())));
       template.setName(name);
       template.setImageThumbPath(imagePath);
       template.setReadOnly(false);
@@ -480,9 +488,19 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
 
     try {
       IPSAssemblyTemplate srcTpl = loadBaseTemplateById(srcId);
-      var imagePath = getThumbImgPath(asList(srcTpl.getName())).get(0);
-      IPSCatalogSummary sum = findAssemblyTemplate(srcTpl.getName()).get(0);
-      createReadOnlyTemplateSummary(templateName, sum, imagePath);
+      var imagePath = firstThumbPath(getThumbImgPath(asList(srcTpl.getName())));
+      var sum = firstCatalogSummary(findAssemblyTemplate(srcTpl.getName()));
+      if (sum != null) {
+        createReadOnlyTemplateSummary(templateName, sum, imagePath);
+      } else {
+        // Snippet / database assemblers (perc.pageDatabase) are not PAGE_ASSEMBLER.
+        templateName.setId(idMapper.getString(srcId));
+        templateName.setName(srcTpl.getName());
+        templateName.setLabel(srcTpl.getLabel());
+        templateName.setDescription(srcTpl.getDescription());
+        templateName.setImageThumbPath(imagePath);
+        templateName.setReadOnly(true);
+      }
       templateName.setSourceTemplateName(srcTpl.getName());
       var srcContent = srcTpl.getTemplate();
       if (StringUtils.isNotBlank(srcContent)) {
@@ -492,13 +510,68 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
       if (StringUtils.isNotBlank(cssRegion)) {
         templateName.setCssRegion(cssRegion);
       }
-      // set theme
+      applyDefaultTheme(templateName);
+    } catch (Exception e) {
+      log.warn(
+          "Failed to copy system template {}; using stub. Error: {}",
+          srcId,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      ensureAssemblyTemplateStub(srcId, templateName);
+    }
+  }
+
+  /**
+   * First non-blank thumbnail path. Assembly/snippet templates such as {@code perc.pageDatabase}
+   * may have no CM1 thumb — empty list must not fail page create (#3728).
+   */
+  static String firstThumbPath(List<String> thumbs) {
+    if (thumbs == null) {
+      return "";
+    }
+    for (String t : thumbs) {
+      if (t != null && !t.isBlank()) {
+        return t;
+      }
+    }
+    return "";
+  }
+
+  /**
+   * First catalog row, or {@code null} when the assembly catalog has no thumb/name match
+   * (FastForward snippet templates).
+   */
+  static IPSCatalogSummary firstCatalogSummary(List<IPSCatalogSummary> sums) {
+    if (sums == null || sums.isEmpty()) {
+      return null;
+    }
+    return sums.get(0);
+  }
+
+  private void applyDefaultTheme(PSTemplate templateName) {
+    try {
       List<PSThemeSummary> themes = themeService.findAll();
-      if (!themes.isEmpty()) {
+      if (themes != null && !themes.isEmpty() && themes.get(0) != null) {
         templateName.setTheme(themes.get(0).getName());
       }
     } catch (Exception e) {
-      throw new PSTemplateException("Failed to copy system template to PSCoreItem.", e);
+      log.debug(
+          "Theme lookup skipped for assembly template copy. Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  private void ensureAssemblyTemplateStub(IPSGuid srcId, PSTemplate template) {
+    if (template == null || srcId == null) {
+      return;
+    }
+    if (StringUtils.isBlank(template.getId())) {
+      template.setId(idMapper.getString(srcId));
+    }
+    template.setReadOnly(true);
+    if (StringUtils.isBlank(template.getContentMigrationVersion())
+        || !isNumeric(template.getContentMigrationVersion())) {
+      template.setContentMigrationVersion("0");
     }
   }
 
@@ -510,8 +583,11 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
    * @return the binding expression, may be blank if not defined.
    */
   private String getCssRegionBinding(IPSAssemblyTemplate srcTemplate) {
+    if (srcTemplate == null || srcTemplate.getBindings() == null) {
+      return null;
+    }
     for (IPSTemplateBinding binding : srcTemplate.getBindings()) {
-      if (CSS_REGION_VARIABLE.equalsIgnoreCase(binding.getVariable())) {
+      if (binding != null && CSS_REGION_VARIABLE.equalsIgnoreCase(binding.getVariable())) {
         return binding.getExpression();
       }
     }
@@ -600,8 +676,22 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
    */
   private List<String> getThumbImgPath(List<String> names) {
     List<String> imgs = new ArrayList<>();
-    for (String path : assemblyDesignWs.getTemplateThumbImages(names, ANY_SITE)) {
-      imgs.add(SERVLET_ROOT + path);
+    if (names == null || names.isEmpty()) {
+      return imgs;
+    }
+    try {
+      List<String> thumbs = assemblyDesignWs.getTemplateThumbImages(names, ANY_SITE);
+      if (thumbs == null) {
+        return imgs;
+      }
+      for (String path : thumbs) {
+        if (path != null) {
+          imgs.add(SERVLET_ROOT + path);
+        }
+      }
+    } catch (RuntimeException e) {
+      log.debug(
+          "Template thumb lookup failed. Error: {}", PSExceptionUtils.getMessageForLog(e));
     }
     return imgs;
   }

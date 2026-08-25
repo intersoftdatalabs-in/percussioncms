@@ -15,20 +15,34 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   getContentTypeDetail,
+  lockContentType,
+  unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
+import {
+  normalizeContentTypeDesignGaps,
+  normalizeContentTypeFields,
+  normalizeContentTypeStringList,
+  normalizeNamedObjectRefs,
+} from "../api/developer/contentTypeLists";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
   NamedObjectRef,
 } from "../api/developer/types";
-import { designGapCode, designGapKey, formatDesignGap } from "../api/developer/designGaps";
+import {
+  designGapCode,
+  designGapKey,
+  formatDesignGap,
+  type DesignGapWire,
+} from "../api/developer/designGaps";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { isApiError } from "../api/client";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -61,9 +75,9 @@ function fieldKey(f: ContentTypeFieldSummary): string {
   return `${f.fieldSet || "parent"}:${f.name || ""}`;
 }
 
-function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string, FieldDraft> {
+function toDrafts(fields: unknown): Record<string, FieldDraft> {
   const out: Record<string, FieldDraft> = {};
-  for (const f of fields || []) {
+  for (const f of normalizeContentTypeFields(fields)) {
     if (!f.name) continue;
     out[fieldKey(f)] = {
       name: f.name,
@@ -74,13 +88,36 @@ function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string,
   return out;
 }
 
-function cloneRefs(list: NamedObjectRef[] | undefined): NamedObjectRef[] {
-  return (list || []).map((r) => ({
+function cloneRefs(list: unknown): NamedObjectRef[] {
+  return normalizeNamedObjectRefs(list).map((r) => ({
     name: r.name,
     label: r.label,
     isDefault: r.isDefault,
     guid: r.guid ? { ...r.guid } : undefined,
   }));
+}
+
+function contentTypeFields(detail: ContentTypeDetail | null | undefined): ContentTypeFieldSummary[] {
+  return normalizeContentTypeFields(detail?.fields);
+}
+
+function contentTypeChildSets(detail: ContentTypeDetail | null | undefined): string[] {
+  return normalizeContentTypeStringList(detail?.childFieldSets);
+}
+
+function contentTypeDesignGaps(detail: ContentTypeDetail | null | undefined): DesignGapWire[] {
+  return normalizeContentTypeDesignGaps(detail?.designGaps);
+}
+
+function normalizeDetailLists(d: ContentTypeDetail): ContentTypeDetail {
+  return {
+    ...d,
+    fields: normalizeContentTypeFields(d.fields),
+    childFieldSets: normalizeContentTypeStringList(d.childFieldSets),
+    allowedWorkflows: normalizeNamedObjectRefs(d.allowedWorkflows),
+    allowedTemplates: normalizeNamedObjectRefs(d.allowedTemplates),
+    designGaps: normalizeContentTypeDesignGaps(d.designGaps),
+  };
 }
 
 function refKey(r: NamedObjectRef, index: number): string {
@@ -106,7 +143,7 @@ function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
  * Align isDefault flags with server defaultWorkflow (or first row when missing).
  */
 function withDefaultFlags(
-  list: NamedObjectRef[] | undefined,
+  list: unknown,
   defaultWorkflow?: NamedObjectRef | null,
 ): NamedObjectRef[] {
   const wfs = cloneRefs(list);
@@ -158,22 +195,41 @@ export function ContentTypeDetailPanel({
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
   const [newWfName, setNewWfName] = useState("");
   const [newTplName, setNewTplName] = useState("");
+  const [heldLock, setHeldLock] = useState(false);
+  const heldLockRef = useRef(false);
+
+  useEffect(() => {
+    heldLockRef.current = heldLock;
+  }, [heldLock]);
+
+  useEffect(() => {
+    const currentId = idOrName;
+    return () => {
+      if (heldLockRef.current) {
+        heldLockRef.current = false;
+        void unlockContentType(currentId).catch(() => undefined);
+      }
+    };
+  }, [idOrName]);
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
     setNotice(null);
+    setHeldLock(false);
+    heldLockRef.current = false;
     getContentTypeDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
-        setDetail(d);
-        setLabel(d.label || "");
-        setDescription(d.description || "");
-        setEnabled(d.enabled !== false);
-        setFieldDrafts(toDrafts(d.fields));
-        setWorkflows(withDefaultFlags(d.allowedWorkflows, d.defaultWorkflow));
-        setTemplates(cloneRefs(d.allowedTemplates));
+        const normalized = normalizeDetailLists(d);
+        setDetail(normalized);
+        setLabel(normalized.label || "");
+        setDescription(normalized.description || "");
+        setEnabled(normalized.enabled !== false);
+        setFieldDrafts(toDrafts(normalized.fields));
+        setWorkflows(withDefaultFlags(normalized.allowedWorkflows, normalized.defaultWorkflow));
+        setTemplates(cloneRefs(normalized.allowedTemplates));
         setNewWfName("");
         setNewTplName("");
       })
@@ -189,7 +245,7 @@ export function ContentTypeDetailPanel({
   const initialDrafts = toDrafts(detail?.fields);
   const fieldsDirty =
     detail != null &&
-    (detail.fields || []).some((f) => {
+    contentTypeFields(detail).some((f) => {
       if (!f.name) return false;
       const k = fieldKey(f);
       const d = fieldDrafts[k];
@@ -213,6 +269,10 @@ export function ContentTypeDetailPanel({
       templatesDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
+  const fieldRows = contentTypeFields(detail);
+  const childSets = contentTypeChildSets(detail);
+  const gapRows = contentTypeDesignGaps(detail);
+  const canEdit = heldLock && !busy;
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -281,7 +341,58 @@ export function ContentTypeDetailPanel({
     setNotice(null);
   }
 
+  async function handleLock() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await lockContentType(idOrName);
+      heldLockRef.current = true;
+      setHeldLock(true);
+      setNotice(DEV_MSG.CT_LOCKED);
+    } catch (err: unknown) {
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setError(panelErrMsg(err, DEV_MSG.CT_LOCK_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleUnlock() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await unlockContentType(idOrName);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      setNotice(DEV_MSG.CT_UNLOCKED_NOTICE);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.CT_UNLOCK_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleBack() {
+    if (heldLockRef.current) {
+      try {
+        await unlockContentType(idOrName);
+      } catch {
+        // Best-effort release so Back cannot trap the operator on a stale lock.
+      }
+      heldLockRef.current = false;
+      setHeldLock(false);
+    }
+    onBack();
+  }
+
   async function handleSave() {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -318,7 +429,7 @@ export function ContentTypeDetailPanel({
         body.allowedTemplates = toRefPayload(templates);
       }
 
-      const saved = await updateContentTypeDetail(idOrName, body);
+      const saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
@@ -328,6 +439,10 @@ export function ContentTypeDetailPanel({
       setTemplates(cloneRefs(saved.allowedTemplates));
       setNotice(DEV_MSG.CT_SAVED);
     } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
       setError(panelErrMsg(err, DEV_MSG.CT_SAVE_ERROR));
     } finally {
       setBusy(false);
@@ -338,7 +453,7 @@ export function ContentTypeDetailPanel({
     <div data-testid="developer-ct-detail">
       <button
         type="button"
-        onClick={onBack}
+        onClick={() => void handleBack()}
         data-testid="developer-ct-back"
         aria-label={DEV_MSG.CT_BACK}
         style={{
@@ -389,7 +504,7 @@ export function ContentTypeDetailPanel({
                 style={inputStyle}
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                disabled={busy}
+                disabled={!canEdit}
               />
             </div>
             <div style={{ marginTop: "12px" }}>
@@ -402,7 +517,7 @@ export function ContentTypeDetailPanel({
                 style={inputStyle}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                disabled={busy}
+                disabled={!canEdit}
               />
             </div>
             <div style={{ marginTop: "12px" }}>
@@ -412,7 +527,7 @@ export function ContentTypeDetailPanel({
                   data-testid="developer-ct-enabled"
                   checked={enabled}
                   onChange={() => setEnabled((v) => !v)}
-                  disabled={busy}
+                  disabled={!canEdit}
                 />
                 {DEV_MSG.CT_FORM_ENABLED}
               </label>
@@ -437,11 +552,11 @@ export function ContentTypeDetailPanel({
             </dl>
           </header>
 
-          {detail.childFieldSets && detail.childFieldSets.length > 0 ? (
+          {childSets.length > 0 ? (
             <section style={{ marginBottom: "16px" }}>
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_CHILD_SETS}</h3>
               <ul data-testid="developer-ct-child-sets">
-                {detail.childFieldSets.map((n) => (
+                {childSets.map((n) => (
                   <li key={n} style={{ fontFamily: "monospace" }}>
                     {n}
                   </li>
@@ -474,7 +589,7 @@ export function ContentTypeDetailPanel({
                         name="ct-default-wf"
                         data-testid={`developer-ct-wf-default-${i}`}
                         checked={!!w.isDefault}
-                        disabled={busy}
+                        disabled={!canEdit}
                         onChange={() => setDefaultWorkflow(i)}
                         aria-label={`${DEV_MSG.CT_SET_DEFAULT} ${w.label || w.name}`}
                       />
@@ -501,9 +616,13 @@ export function ContentTypeDetailPanel({
                       type="button"
                       data-testid={`developer-ct-wf-remove-${i}`}
                       aria-label={`Remove workflow ${w.name || w.label}`}
-                      disabled={busy}
+                      disabled={!canEdit}
                       onClick={() => removeWorkflow(i)}
-                      style={{ ...smallBtnStyle, marginLeft: "auto", cursor: busy ? "not-allowed" : "pointer" }}
+                      style={{
+                        ...smallBtnStyle,
+                        marginLeft: "auto",
+                        cursor: canEdit ? "pointer" : "not-allowed",
+                      }}
                     >
                       {DEV_MSG.CT_ASSOC_REMOVE}
                     </button>
@@ -531,7 +650,7 @@ export function ContentTypeDetailPanel({
                   placeholder={DEV_MSG.CT_WF_NAME_PLACEHOLDER}
                   value={newWfName}
                   onChange={(e) => setNewWfName(e.target.value)}
-                  disabled={busy}
+                  disabled={!canEdit}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -543,12 +662,12 @@ export function ContentTypeDetailPanel({
               <button
                 type="button"
                 data-testid="developer-ct-wf-add"
-                disabled={busy || !newWfName.trim()}
+                disabled={!canEdit || !newWfName.trim()}
                 onClick={addWorkflow}
                 style={{
                   ...smallBtnStyle,
                   padding: "8px 12px",
-                  cursor: busy || !newWfName.trim() ? "not-allowed" : "pointer",
+                  cursor: !canEdit || !newWfName.trim() ? "not-allowed" : "pointer",
                 }}
               >
                 {DEV_MSG.CT_ASSOC_ADD}
@@ -593,9 +712,13 @@ export function ContentTypeDetailPanel({
                       type="button"
                       data-testid={`developer-ct-tpl-remove-${i}`}
                       aria-label={`Remove template ${t.name || t.label}`}
-                      disabled={busy}
+                      disabled={!canEdit}
                       onClick={() => removeTemplate(i)}
-                      style={{ ...smallBtnStyle, marginLeft: "auto", cursor: busy ? "not-allowed" : "pointer" }}
+                      style={{
+                        ...smallBtnStyle,
+                        marginLeft: "auto",
+                        cursor: canEdit ? "pointer" : "not-allowed",
+                      }}
                     >
                       {DEV_MSG.CT_ASSOC_REMOVE}
                     </button>
@@ -623,7 +746,7 @@ export function ContentTypeDetailPanel({
                   placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
                   value={newTplName}
                   onChange={(e) => setNewTplName(e.target.value)}
-                  disabled={busy}
+                  disabled={!canEdit}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -635,12 +758,12 @@ export function ContentTypeDetailPanel({
               <button
                 type="button"
                 data-testid="developer-ct-tpl-add"
-                disabled={busy || !newTplName.trim()}
+                disabled={!canEdit || !newTplName.trim()}
                 onClick={addTemplate}
                 style={{
                   ...smallBtnStyle,
                   padding: "8px 12px",
-                  cursor: busy || !newTplName.trim() ? "not-allowed" : "pointer",
+                  cursor: !canEdit || !newTplName.trim() ? "not-allowed" : "pointer",
                 }}
               >
                 {DEV_MSG.CT_ASSOC_ADD}
@@ -675,7 +798,7 @@ export function ContentTypeDetailPanel({
                   </tr>
                 </thead>
                 <tbody>
-                  {(detail.fields || []).map((f) => {
+                  {fieldRows.map((f) => {
                     const rules: string[] = [];
                     if (f.hasValidation) rules.push(DEV_MSG.CT_RULE_VALIDATION);
                     if (f.hasVisibilityRules) rules.push(DEV_MSG.CT_RULE_VISIBILITY);
@@ -715,7 +838,7 @@ export function ContentTypeDetailPanel({
                               type="checkbox"
                               data-testid={`developer-ct-field-required-${f.name}`}
                               checked={draft.required}
-                              disabled={busy}
+                              disabled={!canEdit}
                               onChange={() => toggleField(k, "required")}
                               aria-label={`Required ${f.name}`}
                             />
@@ -746,7 +869,7 @@ export function ContentTypeDetailPanel({
                               type="checkbox"
                               data-testid={`developer-ct-field-search-${f.name}`}
                               checked={draft.searchable}
-                              disabled={busy}
+                              disabled={!canEdit}
                               onChange={() => toggleField(k, "searchable")}
                               aria-label={`Searchable ${f.name}`}
                             />
@@ -767,23 +890,79 @@ export function ContentTypeDetailPanel({
             </div>
           </section>
 
-          <div style={{ marginBottom: "16px" }}>
+          <div
+            role="toolbar"
+            aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
+            data-testid="developer-ct-lock-toolbar"
+            style={{
+              marginBottom: "16px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ margin: 0, width: "100%", color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.CT_LOCK_HINT}
+            </p>
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-ct-lock-status"
+              style={{ marginRight: "8px", fontSize: "0.9rem" }}
+            >
+              {heldLock ? DEV_MSG.CT_LOCKED : DEV_MSG.CT_UNLOCKED}
+            </div>
             <button
               type="button"
-              data-testid="developer-ct-save"
-              aria-label="Save content type"
-              disabled={busy || !dirty}
-              onClick={() => void handleSave()}
+              data-testid="developer-ct-lock"
+              aria-label={DEV_MSG.CT_LOCK}
+              disabled={busy || heldLock || detail == null}
+              onClick={() => void handleLock()}
               style={{
                 padding: "8px 16px",
-                background: dirty ? catalogColors.accent : catalogColors.disabled,
+                background: heldLock ? catalogColors.disabled : catalogColors.accent,
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
-                cursor: busy || !dirty ? "not-allowed" : "pointer",
+                cursor: busy || heldLock ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.CT_LOCK}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-ct-save"
+              aria-label={DEV_MSG.CT_SAVE}
+              disabled={busy || !heldLock || !dirty}
+              onClick={() => void handleSave()}
+              style={{
+                padding: "8px 16px",
+                background: heldLock && dirty ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !heldLock || !dirty ? "not-allowed" : "pointer",
               }}
             >
               {DEV_MSG.CT_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-ct-unlock"
+              aria-label={DEV_MSG.CT_UNLOCK}
+              disabled={busy || !heldLock}
+              onClick={() => void handleUnlock()}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: "inherit",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: busy || !heldLock ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.CT_UNLOCK}
             </button>
           </div>
 
@@ -793,11 +972,11 @@ export function ContentTypeDetailPanel({
             testIdPrefix="developer-ct-acl"
           />
 
-          {detail.designGaps && detail.designGaps.length > 0 ? (
+          {gapRows.length > 0 ? (
             <section data-testid="developer-ct-gaps">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_GAPS}</h3>
               <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                {detail.designGaps.map((g, i) => (
+                {gapRows.map((g, i) => (
                   <li key={designGapKey(g, i)} data-gap-code={designGapCode(g)}>
                     {formatDesignGap(g)}
                   </li>

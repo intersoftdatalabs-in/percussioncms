@@ -21,6 +21,10 @@ package com.percussion.sitemanage.servlet;
 import static com.percussion.pathmanagement.service.impl.PSPathUtils.SITES_FINDER_ROOT;
 
 import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.objectstore.PSInvalidContentTypeException;
+import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.pagemanagement.assembler.impl.PSFastForwardPreviewAssembly;
 import com.percussion.pagemanagement.data.PSInlineLinkRequest;
 import com.percussion.pagemanagement.data.PSInlineRenderLink;
 import com.percussion.pagemanagement.service.impl.PSRenderLinkService;
@@ -28,12 +32,21 @@ import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.webservices.PSServerFolderProcessor;
+import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.PSAssemblyException;
+import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.sitemgr.IPSSite;
+import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.dao.IPSiteDao;
+import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSMutableUrl;
 import com.percussion.utils.guid.IPSGuid;
@@ -44,7 +57,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +88,12 @@ public final class PSPreviewItemContent extends HttpServlet {
 
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response) {
-    var requestUri = request.getRequestURI();
+    var requestUri =
+        PSFastForwardPreviewAssembly.siteOrAssetPathFromRequest(
+            request.getRequestURI(),
+            request.getContextPath(),
+            request.getServletPath(),
+            request.getPathInfo());
     var revision = request.getParameter(IPSHtmlParameters.SYS_REVISION);
 
     try {
@@ -158,11 +178,124 @@ public final class PSPreviewItemContent extends HttpServlet {
     linkRequest.setTargetId(id.toString());
     PSInlineRenderLink renderLink;
     if (path.startsWith(SITES_FINDER_ROOT)) {
-      renderLink = linkService.renderPreviewPageLink(id.toString(), renderType);
+      if (isPercPageItem(id)) {
+        renderLink = linkService.renderPreviewPageLink(id.toString(), renderType);
+      } else {
+        // FastForward rffHome and other legacy types are not percPage.
+        // perc.base.plain NPEs on a missing template id (#3719).
+        try {
+          return createFastForwardAssemblyUrl(id, path, revision);
+        } catch (PSAssemblyException e) {
+          throw new PSNotFoundException(
+              "No default page template for FastForward preview of " + id); 
+        }
+      }
     } else {
       renderLink = linkService.renderPreviewResourceLink(linkRequest);
     }
+    if (renderLink == null || StringUtils.isBlank(renderLink.getUrl())) {
+      throw new PSNotFoundException("Cannot build preview URL for path = \"" + path + "\".");
+    }
     return renderLink.getUrl();
+  }
+
+  /**
+   * True when the item is a CM1 {@code percPage} (or page template) that should use {@code
+   * perc.base.plain}. FastForward types return {@code false}.
+   */
+  private boolean isPercPageItem(IPSGuid id) {
+    try {
+      var summary = PSCmsObjectMgrLocator.getObjectManager().loadComponentSummary(id.getUUID());
+      if (summary == null) {
+        return false;
+      }
+      String typeName =
+          PSItemDefManager.getInstance().contentTypeIdToName(summary.getContentTypeId());
+      return PSFastForwardPreviewAssembly.usesPercPageDispatcher(typeName);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type lookup failed for {}: {}", id, e.toString());
+      return false;
+    }
+  }
+
+  /**
+   * Assembler URL using the site default page template for a FastForward item.
+   *
+   * @param id item guid, never {@code null}
+   * @param path finder path, never blank
+   * @param revision optional revision
+   * @return {@code /assembler/render?...}
+   */
+  private String createFastForwardAssemblyUrl(IPSGuid id, String path, String revision)
+      throws PSNotFoundException, PSCmsException, PSAssemblyException {
+    var objMgr = PSCmsObjectMgrLocator.getObjectManager();
+    PSComponentSummary summary = objMgr.loadComponentSummary(id.getUUID());
+    if (summary == null) {
+      throw new PSNotFoundException("Cannot find item id = " + id);
+    }
+    int rev = -1;
+    if (!StringUtils.isBlank(revision)) {
+      rev = Integer.parseInt(revision);
+    } else if (summary.getCurrentLocator() != null) {
+      rev = summary.getCurrentLocator().getRevision();
+    }
+    Integer siteId = null;
+    Collection<?> siteTemplates = List.of();
+    String repoPath = PSPathUtils.getFolderPath(path);
+    try {
+      siteId =
+          PSFastForwardPreviewAssembly.siteIdForRepositoryPath(
+              repoPath, PSSiteManagerLocator.getSiteManager().findAllSites());
+    } catch (Exception e) {
+      log.warn("Site lookup via folder root failed for {}: {}", path, e.toString());
+    }
+    if (siteId == null && siteDao != null) {
+      try {
+        PSSiteSummary siteSum = siteDao.findByPath(repoPath);
+        if (siteSum != null) {
+          siteId = siteSum.getSiteId().map(Long::intValue).orElse(null);
+        }
+      } catch (Exception e) {
+        log.warn("Site lookup via path failed for {}: {}", path, e.toString());
+      }
+    }
+    if (siteId != null) {
+      try {
+        IPSSite site =
+            PSSiteManagerLocator.getSiteManager()
+                .loadUnmodifiableSite(new PSGuid(PSTypeEnum.SITE, siteId.longValue()));
+        if (site != null && site.getAssociatedTemplates() != null) {
+          siteTemplates = List.copyOf(site.getAssociatedTemplates());
+        }
+      } catch (Exception e) {
+        log.debug("Site template load failed for site {}: {}", siteId, e.toString());
+      }
+    }
+    if (siteId == null) {
+      log.warn("FastForward preview of {} has no sys_siteid; preview filter requires a site", id);
+    }
+
+    IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+    var ctype = new PSGuid(PSTypeEnum.NODEDEF, summary.getContentTypeId());
+    List<IPSAssemblyTemplate> byType = asm.findTemplatesByContentType(ctype);
+    IPSAssemblyTemplate def =
+        PSFastForwardPreviewAssembly.pickDefaultPageTemplate(byType, siteTemplates);
+    if (def == null || def.getGUID() == null) {
+      throw new PSNotFoundException(
+          "No default page template for FastForward item " + id.getUUID());
+    }
+
+    Integer folderId = null;
+    String parentPath = PSFastForwardPreviewAssembly.parentCmsPath(repoPath);
+    if (StringUtils.isNotBlank(parentPath)) {
+      int fid = PSServerFolderProcessor.getInstance().getIdByPath(parentPath);
+      if (fid > 0) {
+        folderId = fid;
+      }
+    }
+
+    return PSFastForwardPreviewAssembly.buildAssemblerRenderUrl(
+        id.getUUID(), rev, def.getGUID().getUUID(), siteId, folderId);
   }
 
   /**

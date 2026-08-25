@@ -902,7 +902,10 @@ class PSWidgetXmlCompilerTest {
     assertEquals(
         1,
         results.size(),
-        "perc.Test residual #2830 should compile PSWidget_TestProperties only");
+        "perc.Test (#3736) should compile PSWidget_TestProperties from modern widgets/");
+    assertFalse(
+        PSWidgetXmlInstallEmitter.hasCommittedWidgetXml(packagesRoot.resolve("perc.Test")),
+        "perc.Test must not commit install Widget XML");
 
     PSWidgetXmlCompileResult testProps = results.get(0);
     assertEquals("PSWidget_TestProperties", testProps.getManifest().getId());

@@ -48,6 +48,9 @@ export interface ContentTypeSummary {
 /** Jackson / JAXB list envelope sometimes used by legacy REST resources. */
 export interface ContentTypeListEnvelope {
   ContentType?: ContentTypeSummary[] | ContentTypeSummary;
+  contentType?: ContentTypeSummary[] | ContentTypeSummary;
+  ContentTypeList?: ContentTypeSummary[] | ContentTypeSummary | ContentTypeListEnvelope;
+  contentTypeList?: ContentTypeSummary[] | ContentTypeSummary | ContentTypeListEnvelope;
 }
 
 /** Field row from {@code GET /services/contenttypes/{idOrName}}. */

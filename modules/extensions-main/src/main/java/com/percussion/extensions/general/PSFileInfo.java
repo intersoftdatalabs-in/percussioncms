@@ -17,11 +17,11 @@
 
 package com.percussion.extensions.general;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.cms.objectstore.server.PSServerItem;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -282,7 +282,7 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
         }
       } catch (Exception e) {
         Object args = new Object[] {"sys_FileInfo", e.getMessage()};
-        throw new PSExtensionProcessingException(IPSExtensionErrors.EXT_PROCESSOR_EXCEPTION, args);
+        throw new PSExtensionProcessingException(ExtensionErrorCodes.EXT_PROCESSOR_EXCEPTION, args);
       }
     }
   }

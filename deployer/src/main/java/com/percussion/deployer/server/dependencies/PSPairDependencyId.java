@@ -16,8 +16,8 @@
  */
 package com.percussion.deployer.server.dependencies;
 
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Helper class to handle format the parent and child id combination for a dependency object, who
@@ -40,7 +40,7 @@ public class PSPairDependencyId {
     var sepPos = depId.indexOf(":");
     if (sepPos == -1 || sepPos == depId.length() - 1) {
       throw new PSDeployException(
-          IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[] {depId});
+          DeploymentErrorCodes.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[] {depId});
     }
 
     m_parentId = depId.substring(0, sepPos);
@@ -50,7 +50,7 @@ public class PSPairDependencyId {
       Integer.parseInt(m_parentId);
     } catch (NumberFormatException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[] {depId});
+          DeploymentErrorCodes.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[] {depId});
     }
   }
 

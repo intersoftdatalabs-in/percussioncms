@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.server.dependencies;
 
+import com.intsof.percussioncms.auditlog.codes.FilterServiceErrorCodes;
+
 /**
  * Pure helpers for item-filter package install. Free of Spring so unit tests run without a CMS
  * context. Public so {@code PSDeployService} can share the FILTER_MISSING policy without
@@ -74,7 +76,7 @@ public final class PSFilterInstallUtils {
    * @return {@code true} only for FILTER_MISSING
    */
   public static boolean isFilterMissingErrorCode(int errorCode) {
-    return errorCode == com.percussion.services.filter.IPSFilterServiceErrors.FILTER_MISSING;
+    return errorCode == FilterServiceErrorCodes.FILTER_MISSING.numericCode();
   }
 
   /**
