@@ -1,0 +1,11 @@
+{
+  "pages": [
+    {
+      "id": "home",
+      "path": "index.html",
+      "title": "HTTP JSON Home",
+      "body": "Hello from JSON.",
+      "order": 1
+    }
+  ]
+}

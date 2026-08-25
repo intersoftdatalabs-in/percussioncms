@@ -14,7 +14,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteBuild";
 
 describe("virtualSiteBuild helpers", () => {
-  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, and sql-database", () => {
+  it("shouldShowVirtualBuildChrome for git-filesystem, csv-filesystem, sql-database, and http-json", () => {
     expect(shouldShowVirtualBuildChrome(null)).toBe(false);
     expect(shouldShowVirtualBuildChrome("")).toBe(false);
     expect(shouldShowVirtualBuildChrome("repository")).toBe(false);
@@ -26,11 +26,12 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualBuildChrome("CSV-Filesystem")).toBe(true);
     expect(shouldShowVirtualBuildChrome("sql-database")).toBe(true);
     expect(shouldShowVirtualBuildChrome("SQL-Database")).toBe(true);
-    expect(shouldShowVirtualBuildChrome("http-json")).toBe(false);
-    expect(shouldShowVirtualBuildChrome("HTTP-JSON")).toBe(false);
+    expect(shouldShowVirtualBuildChrome("http-json")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("HTTP-JSON")).toBe(true);
+    expect(shouldShowVirtualBuildChrome("  http-json  ")).toBe(true);
   });
 
-  it("shouldShowVirtualPreviewChrome matches Build (git, csv, sql-database; never repository)", () => {
+  it("shouldShowVirtualPreviewChrome for git, csv, sql-database (not http-json or repository)", () => {
     expect(shouldShowVirtualPreviewChrome(null)).toBe(false);
     expect(shouldShowVirtualPreviewChrome("")).toBe(false);
     expect(shouldShowVirtualPreviewChrome("repository")).toBe(false);
@@ -41,6 +42,7 @@ describe("virtualSiteBuild helpers", () => {
     expect(shouldShowVirtualPreviewChrome("sql-database")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("SQL-Database")).toBe(true);
     expect(shouldShowVirtualPreviewChrome("http-json")).toBe(false);
+    expect(shouldShowVirtualPreviewChrome("HTTP-JSON")).toBe(false);
   });
 
   it("shouldShowVirtualPublishChrome for git-filesystem, csv-filesystem, and sql-database", () => {
