@@ -2102,6 +2102,101 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewHttpJson_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-preview-src"));
+    Path defaultOut = tempDir.resolve("http-preview-default");
+    Path built = tempDir.resolve("http-preview-built");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("HttpHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("HTTP Home"), html);
+    assertTrue(html.contains("Hello from JSON"), html);
+  }
+
+  @Test
+  void previewHttpJson_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("http-preview-default-empty");
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewHttpJson_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("http-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("http-preview-trav-default");
+    Path built = tempDir.resolve("http-preview-trav-built");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>HTTP Home</h1>Hello from JSON</body></html>");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("http-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewHttpJson_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("http-cli-src"));
+    Path built = tempDir.resolve("http-cli-default");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>HTTP Home</h1>Hello from JSON</body></html>");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("HTTP Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -2176,6 +2271,19 @@ class SitesAdaptorTest {
         PSVirtualSiteHelper.PROP_ROOT_PATH,
         csvRoot.toAbsolutePath().normalize().toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "csv-docs");
+    return site;
+  }
+
+  private PSSite virtualHttpJsonSite(Path httpRoot) {
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        httpRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
     return site;
   }
 
