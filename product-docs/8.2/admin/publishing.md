@@ -36,12 +36,14 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
 - Offline / CI builds use `scripts/build-cms-docs.bat` / `scripts/build-cms-docs.sh` to emit static HTML without a full CMS UI session. CSV trees can use `PSVirtualSiteBuildMain … csv-filesystem`. SQL trees use `PSVirtualSiteBuildMain … sql-database` (in-memory H2 only).
 - **Build** (`POST /sites/{nameOrId}/virtual/build`) writes a staging tree under
   `{install}/tmp/virtual-sites/{siteKey}` (or an optional `outputRoot`). Each build re-reads the
-  current Git/filesystem, CSV tree (`csv-filesystem`), or H2 `SELECT` (`sql-database`). After
+  current Git/filesystem, CSV tree (`csv-filesystem`), H2 `SELECT` (`sql-database`), or HTTP
+  JSON catalog (`http-json`: local fixture / loopback `http.url`). After
   `git pull`, a local Markdown edit, a CSV change, a `_config.yaml` change, a SQL
-  `queryFile` / `sql.query` change, or an H2 row change, run Build (or Publish) again — no
-  CMS restart. `sql-database` requires
+  `queryFile` / `sql.query` change, an H2 row change, or a JSON catalog edit, run Build
+  (or Publish) again — no CMS restart. `sql-database` requires
   `_config.yaml` with a `sql:` mapping (`jdbc:h2:mem:`; Oracle / MySQL / SQL Server URLs
-  return **400**).
+  return **400**). `http-json` requires `_config.yaml` (versions plus `http.url` or
+  `http.file`); `virtual.remoteUrl` is **400**.
 - **Publish** (`POST /sites/{nameOrId}/virtual/publish`) runs that build, then copies the
   assembled HTML/assets to the Site **filesystem publish location** (`IPSSite.root` / Site
   publishing root). Staging `_meta` files are not copied. Redirect HTML and `redirects.json`

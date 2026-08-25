@@ -35,10 +35,12 @@ catalog or from a local JSON fixture under `virtual.rootPath`. Required page fie
 `title` + `body` assemble like CSV/SQL. Operators persist the kind with REST
 `PUT /sites/{nameOrId}/virtual` and from **Developer → Sites** (`sourceKind=http-json`
 plus a safe `rootPath`; GET round-trips the kind). SPI/CLI assemble is
-`PSVirtualSiteBuildMain … http-json`. REST Build/preview/publish and Developer Sites
-Build/Preview/Publish chrome for `http-json` are a later phase. Open JSON only (no API
-keys). Remote URLs are SSRF fail-closed (`http`/`https`, no userinfo, no off-loopback
-redirects).
+`PSVirtualSiteBuildMain … http-json`. REST **Build** (`POST …/virtual/build`) runs the
+same adapter against a local JSON fixture or loopback catalog (`pagesWritten > 0`).
+Preview REST, Publish REST, and Developer Sites Build/Preview/Publish chrome for
+`http-json` are a later phase. Open JSON only (no API keys). Remote URLs are SSRF
+fail-closed (`http`/`https`, no userinfo, no off-loopback redirects).
+`virtual.remoteUrl` stays **400** (no secrets on the REST envelope).
 
 Operators can create a **Virtual** type from **Content Explorer → Create Site** or
 **Navigation → New Site**. That flow does not prompt for managed navigation or a page template.
@@ -55,8 +57,9 @@ After the site folder is created, an optional Git root is saved with
 - Leave the door open for additional adapters (object storage) without renaming Site → Channel.
   SQL / H2 (`sql-database`) is implemented as an SPI and exposed on Site REST GET/PUT/Build
   and last-build Preview (`GET …/virtual/preview`). HTTP JSON (`http-json`) is implemented as
-  an SPI (CLI assemble) and allow-listed on Site REST GET/PUT (`sourceKind=http-json` plus a
-  safe `rootPath`). Developer Sites can save/GET-roundtrip `sourceKind=http-json`.
+  an SPI (CLI assemble) and allow-listed on Site REST GET/PUT/Build (`sourceKind=http-json`
+  plus a safe `rootPath`; local JSON fixture / loopback). Developer Sites can
+  save/GET-roundtrip `sourceKind=http-json`. Preview/Publish REST and Developer Sites
   Build/Preview/Publish chrome for HTTP JSON remain a later slice.
 
 ## Source tree contract
@@ -107,7 +110,7 @@ HTML path in the **virtual participant registry** (`IPSVirtualParticipantService
 | **Process-scoped (default)** | Registrations live in memory until the process exits, or until `clear(siteKey)` / `clearAll()` is called (SPI reset API). Unit tests and one-shot builds use this mode when no store directory is supplied. |
 | **Path-backed (optional)** | Construct the registry with a portable `java.nio.file.Path` base (CLI uses `outputRoot/_meta`). Existing `participants-<siteKey>.jsonl` files are loaded on construct; `flush(siteKey)` rewrites that site’s file. Survives JVM restart when the same Path base is reused. |
 | **Full rebuild** | A complete site build **clears** that site key, then upserts every discovered page, then flushes. A second build therefore does not keep pages removed from the source tree, and does not lose current ids. |
-| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, and sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
+| **Current filesystem** | Each build reloads `_config.yaml` and re-reads every Markdown/frontmatter file, CSV row, sql-database `SELECT` (`sql.query` or current `sql.queryFile` bytes plus H2 rows), and http-json catalog (`http.url` / `http.file` or default `pages.json`). The CMS process does **not** keep a parsed-page cache across builds. After `git pull`, a CSV/`_config.yaml` edit, a SQL `_config.yaml`/`queryFile` or H2 row edit, a JSON catalog edit, or a local Markdown edit under `virtual.rootPath`, run **Build Virtual Site** (or the offline docs script) again — **no JVM / CMS restart** is required. File watchers are not used; the next explicit build is the refresh. |
 
 Operators can treat the JSONL under the build meta directory as a diagnostic dump of stable ids after
 an offline docs build. The registry is **not** a substitute for Git as the system of record.
@@ -121,7 +124,7 @@ treated as a safe Virtual Site source.
 
 | Property | Required | Example | Meaning |
 |----------|----------|---------|---------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, and SQL (H2) adapters. Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400`). Developer Sites can also save **HTTP JSON** (`http-json`); Build/Preview/Publish chrome for that kind is a later phase. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Adapter wire name. **Allow-list:** `git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`. Blank or `repository` ⇒ traditional repository Site. Unknown values are rejected. CMS **Build** REST (`POST …/virtual/build`) runs git, CSV, SQL (H2), and HTTP JSON adapters (local JSON fixture or loopback catalog). Preview REST streams last-build HTML for git, CSV, and SQL. Developer Sites can save and build Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips `http-json` (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400**). Developer Sites can also save **HTTP JSON** (`http-json`); Preview/Publish REST and Developer Sites Build chrome for that kind are a later phase. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` (or install-relative) | Local filesystem root when `virtual.remoteUrl` is blank. When a remote is set, optional **relative** path inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. When set, **Build** clones or fetches into a contained work directory, then reuses git-filesystem discover. Blank keeps local-path mode. Allowed: `https://`, `ssh://`, `file://`, or `git@host:path`. `http` and other schemes are rejected. |
 | `virtual.branch` | No | `main` | Branch to checkout when `remoteUrl` is set. Default `main`. Simple ref name only (no `..` or leading `-`). |
@@ -273,8 +276,9 @@ Git/CSV; repository stays hidden). Unknown kinds remain **400**.
 The `http-json` adapter discovers pages from a JSON catalog. `_config.yaml` is **required**
 (versions / site title). Git remotes are not used (`virtual.remoteUrl` is rejected for this
 kind). REST **GET/PUT** `/sites/{nameOrId}/virtual` round-trips `sourceKind=http-json`.
-Developer Sites can select **HTTP JSON**, save a safe `rootPath`, and GET-roundtrip the
-kind. Assemble remains CLI/SPI in this slice — REST Build/preview/publish and Developer
+REST **Build** (`POST …/virtual/build`) runs the adapter against a local JSON fixture or
+loopback `http.url` (`pagesWritten > 0`). Developer Sites can select **HTTP JSON**, save a
+safe `rootPath`, and GET-roundtrip the kind. Preview REST, Publish REST, and Developer
 Sites Build/Preview/Publish chrome for `http-json` are a later phase.
 
 Supply **one** of:
@@ -336,16 +340,19 @@ portable-safe `rootPath` (JSON fixture directory; no remaining `..` after NIO
 `git-filesystem` only; catalog HTTP URL or file path stay in `_config.yaml`
 (`http.url` / `http.file` or default `pages.json`). Never send secrets, userinfo, or
 Authorization on this envelope. Unknown kinds remain **400**. Developer Sites can
-save and GET-roundtrip `http-json`. In-product Build, preview, and publish for that
+save and GET-roundtrip `http-json`. REST **Build** (`POST …/virtual/build`) is available
+for `http-json`. Preview REST, Publish REST, and Developer Sites Build chrome for that
 kind remain a later phase.
 
 ## CMS-integrated build (REST and WebUI)
 
-When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`, or
-`sql-database`), an **Admin** can trigger the matching build path from the running server.
-`sql-database` discovers rows from the in-memory H2 `SELECT` in `_config.yaml` (required
-`sql:` mapping; `pagesWritten > 0` when the query returns rows) and writes HTML under
-the output root. Unknown `sourceKind` values stay **400**. Git and CSV builds are unchanged:
+When a CMS Site has Virtual properties configured (`git-filesystem`, `csv-filesystem`,
+`sql-database`, or `http-json`), an **Admin** can trigger the matching build path from
+the running server. `sql-database` discovers rows from the in-memory H2 `SELECT` in
+`_config.yaml` (required `sql:` mapping; `pagesWritten > 0` when the query returns rows)
+and writes HTML under the output root. `http-json` discovers pages from a local JSON
+fixture or loopback catalog (`http.url` / `http.file`; `pagesWritten > 0`). Unknown
+`sourceKind` values stay **400**. Git and CSV builds are unchanged:
 
 ```http
 POST /sites/{nameOrId}/virtual/build
@@ -396,8 +403,9 @@ the same way; JDBC settings stay in `_config.yaml` (H2 mem only). HTTP JSON tree
 `"sourceKind": "http-json"` with a portable-safe `rootPath` JSON fixture; catalog URL/file
 stay in `_config.yaml` (`http.url` / `http.file`). `virtual.remoteUrl` is **400** for
 `http-json` (no secrets on this envelope). In-product
-`POST …/virtual/build` and `POST …/virtual/publish` run for `git-filesystem`,
-`csv-filesystem`, and `sql-database`.
+`POST …/virtual/build` runs for `git-filesystem`, `csv-filesystem`, `sql-database`, and
+`http-json`. `POST …/virtual/publish` runs for `git-filesystem`, `csv-filesystem`, and
+`sql-database`.
 
 ### Git remote fetch before Build
 
@@ -433,16 +441,18 @@ local root from the panel until the remote is cleared.
 The CMS host must have `git` on `PATH`. Checkouts are server-managed; do not point `remoteUrl` at
 untrusted remotes.
 
-### Rebuild after git pull, a CSV/SQL edit, or a local edit (no CMS restart)
+### Rebuild after git pull, a CSV/SQL/JSON edit, or a local edit (no CMS restart)
 
-The Git/filesystem, CSV/filesystem, and SQL/database adapters always see the **current**
-source on the CMS host:
+The Git/filesystem, CSV/filesystem, SQL/database, and HTTP JSON adapters always see the
+**current** source on the CMS host:
 
 1. Update Markdown or frontmatter, a CSV file, `_config.yaml`, a SQL `queryFile` / inline
-   `sql.query`, or in-memory H2 rows under `virtual.rootPath` (`git pull`, copy, or an
-   editor), **or** change the remote branch and Build again so the server fetches (Git only).
+   `sql.query`, in-memory H2 rows, or an HTTP JSON catalog (`http.file` / `pages.json`) under
+   `virtual.rootPath` (`git pull`, copy, or an editor), **or** change the remote branch and
+   Build again so the server fetches (Git only).
 2. Run **Build Virtual Site** again (UI, `POST …/virtual/build`, `scripts/build-cms-docs.*`,
-   `PSVirtualSiteBuildMain … csv-filesystem`, or `PSVirtualSiteBuildMain … sql-database`).
+   `PSVirtualSiteBuildMain … csv-filesystem`, `PSVirtualSiteBuildMain … sql-database`, or
+   `PSVirtualSiteBuildMain … http-json`).
 3. Preview or publish the new output.
 
 You do **not** restart the CMS JVM for those file or H2 row changes to appear. A restart is
