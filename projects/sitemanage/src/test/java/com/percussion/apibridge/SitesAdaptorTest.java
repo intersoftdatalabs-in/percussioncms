@@ -1164,6 +1164,7 @@ class SitesAdaptorTest {
 
     VirtualSiteBuildResult result = adaptor.buildVirtualSite("HttpHelp", req);
     assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
     assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
     Path html = out.resolve("8.2").resolve("index.html");
     assertTrue(Files.isRegularFile(html), "missing " + html);
