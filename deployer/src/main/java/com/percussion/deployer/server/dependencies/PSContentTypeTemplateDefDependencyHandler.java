@@ -22,7 +22,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.jcr.RepositoryException;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to handle packaging and deploying a template definition. Adds relations to
@@ -83,7 +83,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
       nodeDefs = contentMgr.findAllItemNodeDefinitions();
     } catch (RepositoryException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "RepositoryException occurred");
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "RepositoryException occurred");
     }
 
     var def =
@@ -106,7 +106,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
       return new PSGuid(type, guidValue);
     } catch (NumberFormatException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, "Expected a long value: " + id);
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Expected a long value: " + id);
     }
   }
 
@@ -173,7 +173,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
       contentMgr.saveNodeDefinitions(List.of(nodeDef));
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Error installing dependency: " + e.getLocalizedMessage());
     }
   }
@@ -199,7 +199,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
       tmp.fromXML(tmpStr);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create template from file:" + f.getName());
     }
     return tmp;
@@ -231,7 +231,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }

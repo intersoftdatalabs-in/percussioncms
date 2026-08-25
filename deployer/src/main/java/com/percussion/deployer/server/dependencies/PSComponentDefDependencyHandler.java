@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -40,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a component definition. */
 public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandler {
@@ -238,7 +238,7 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
     List<PSJdbcRowData> rows = PSDeployComponentUtils.cloneList(srcData.getRows());
 
     if (rows.isEmpty()) // not expecting no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     int[] ids = PSDbmsHelper.getNextIdBlock(COMPPROP_NEXTNUMBER_ID, rows.size());
 

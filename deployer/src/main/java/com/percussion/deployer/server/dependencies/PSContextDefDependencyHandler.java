@@ -28,7 +28,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -43,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a context definition. */
 public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -153,7 +153,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     IPSPublishingContext context = findPublishingContext(depId);
     if (context == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     files.add(getDepFileFromContext(context));
@@ -216,7 +216,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
       depSvc.installDependencyFiles(tok, archive, dep, ctx, this);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing context: " + e.getLocalizedMessage());
     }
   }
@@ -271,7 +271,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
       addTransactionLogEntryByGuidType(dep, ctx, PSTypeEnum.CONTEXT, isNew);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "error occurred while installing context: " + e.getLocalizedMessage());
     }
@@ -291,7 +291,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     var context = findPublishingContext(dep.getDependencyId());
     if (context == null) {
       throw new PSDeployException(
-          IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+          DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
           new Object[] {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
     }
 
@@ -322,7 +322,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
       str = ((PSPublishingContext) context).toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Context:" + context.getName());
     }
 

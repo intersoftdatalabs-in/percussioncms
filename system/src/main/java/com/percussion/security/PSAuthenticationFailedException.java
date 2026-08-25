@@ -17,6 +17,7 @@
 
 package com.percussion.security;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -50,5 +51,16 @@ public class PSAuthenticationFailedException extends PSException {
    */
   public PSAuthenticationFailedException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction from a catalogued {@link IPSErrorCode}.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message; may be
+   *     {@code null}
+   */
+  public PSAuthenticationFailedException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 }

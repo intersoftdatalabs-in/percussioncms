@@ -323,11 +323,30 @@ public class PSRecentService implements IPSRecentService {
   @Override
   public void addRecentTemplate(String siteName, String value) {
     var user = PSWebserviceUtils.getUserName();
-    if (PSTypeEnum.LEGACY_CONTENT.getOrdinal() != idMapper.getGuid(value).getType()) {
-      throw new IllegalArgumentException("Value must be a template guid");
+    if (!isLegacyContentItemGuid(value, idMapper)) {
+      // Assembly TEMPLATE guids (perc.pageDatabase) are valid page templates but not
+      // percTemplate content items. Skipping avoids IllegalArgumentException marking
+      // the page-save TX rollback-only (#3728).
+      log.debug("Skipping recent template; not a percTemplate content item guid: {}", value);
+      return;
     }
     // Not actually checking template exists for performance, check and filter done on find.
     recentService.addRecent(user, siteName, RecentType.TEMPLATE, value);
+  }
+
+  /**
+   * Recent item/template rows store percTemplate / page <em>content item</em> guids ({@link
+   * PSTypeEnum#LEGACY_CONTENT}), not assembly TEMPLATE type ids.
+   */
+  static boolean isLegacyContentItemGuid(String value, IPSIdMapper mapper) {
+    if (value == null || value.isBlank() || mapper == null) {
+      return false;
+    }
+    try {
+      return PSTypeEnum.LEGACY_CONTENT.getOrdinal() == mapper.getGuid(value).getType();
+    } catch (RuntimeException e) {
+      return false;
+    }
   }
 
   /** Adds a recent site folder for the current user. */

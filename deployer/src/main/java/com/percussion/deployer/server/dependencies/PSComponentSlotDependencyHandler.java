@@ -27,7 +27,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -39,6 +38,7 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a component slot */
 public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler {
@@ -192,7 +192,7 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
     List<PSJdbcRowData> rows = PSDeployComponentUtils.cloneList(srcData.getRows());
 
     if (rows.isEmpty()) // not expecting no rows
-    throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+    throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
 
     // get the source row
     List<PSJdbcRowData> tgtRowList = new ArrayList<>();

@@ -56,6 +56,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -312,6 +315,110 @@ class SitesAdaptorTest {
         assertThrows(
             WebApplicationException.class,
             () -> adaptor.updateVirtualSiteProperties("CsvHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sqlDatabaseRoundTripsOnGet() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SqlHelp");
+    existing.setGUID(siteGuid);
+
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SqlHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SqlHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sql-database");
+    body.setRootPath("C:/sql-docs");
+    body.setSiteKey("sql-help");
+
+    VirtualSiteProperties out = adaptor.updateVirtualSiteProperties("SqlHelp", body);
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    assertEquals("sql-database", out.getSourceKind());
+    assertEquals("C:/sql-docs", out.getRootPath());
+    assertEquals("sql-help", out.getSiteKey());
+    assertNull(out.getRemoteUrl());
+
+    ArgumentCaptor<PSSite> saved = ArgumentCaptor.forClass(PSSite.class);
+    verify(siteManager).saveSite(saved.capture());
+    PSSite persisted = saved.getValue();
+    assertTrue(PSVirtualSiteHelper.isVirtual(persisted));
+    assertEquals(
+        "sql-database",
+        PSVirtualSiteHelper.findProperty(persisted, PSVirtualSiteHelper.PROP_SOURCE_KIND)
+            .orElse(null));
+
+    when(siteManager.findSite("SqlHelp")).thenReturn(persisted);
+    VirtualSiteProperties loaded = adaptor.getVirtualSiteProperties("SqlHelp");
+    assertEquals("sql-database", loaded.getSourceKind());
+    assertEquals("C:/sql-docs", loaded.getRootPath());
+    assertTrue(Boolean.TRUE.equals(loaded.getVirtual()));
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sqlRejectsParentRootPath() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SqlHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SqlHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SqlHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sql-database");
+    body.setRootPath("../outside");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SqlHelp", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("virtual.rootPath"));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void updateVirtualSiteProperties_sqlRejectsRemoteUrl() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("SqlHelp");
+    existing.setGUID(siteGuid);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("SqlHelp");
+    modifiable.setGUID(siteGuid);
+
+    when(siteManager.findSite("SqlHelp")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(modifiable);
+
+    IPSPublishingContext preview = mock(IPSPublishingContext.class);
+    when(preview.getGUID()).thenReturn(previewCtx);
+    when(siteManager.loadContext(SitesAdaptor.DEFAULT_PROPERTY_CONTEXT)).thenReturn(preview);
+
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("sql-database");
+    body.setRootPath("C:/sql-docs");
+    body.setRemoteUrl("https://git.example.com/org/docs.git");
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.updateVirtualSiteProperties("SqlHelp", body));
     assertEquals(400, ex.getResponse().getStatus());
     assertTrue(String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"));
     verify(siteManager, never()).saveSite(any());
@@ -764,6 +871,175 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_sqlDatabaseWritesHtml() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-src"));
+    Path out = tempDir.resolve("sql-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+    assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
+    assertFalse(body.toLowerCase().contains("password"), body);
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseQueryFileWritesHtml() throws Exception {
+    Path siteRoot =
+        createMinimalSqlTree(
+            tempDir.resolve("sql-qfile"),
+            "SELECT id, title, body, path, sort_order AS \"order\" FROM pages",
+            Path.of("queries").resolve("pages.sql"));
+    Path out = tempDir.resolve("sql-qfile-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseMissingColumn400() throws Exception {
+    Path siteRoot =
+        createMinimalSqlTree(tempDir.resolve("sql-missing-col"), "SELECT id, title FROM pages", null);
+    Path out = tempDir.resolve("sql-missing-col-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("body"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseOracleAndMysqlUrl400() throws Exception {
+    Path siteRoot = tempDir.resolve("sql-oracle");
+    Files.createDirectories(siteRoot);
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql:
+          jdbcUrl: jdbc:oracle:thin:@localhost:1521:orcl
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("sql-oracle-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException oracle =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, oracle.getResponse().getStatus());
+    String oracleMsg = String.valueOf(oracle.getMessage()).toLowerCase();
+    assertTrue(
+        oracleMsg.contains("unsupported") || oracleMsg.contains("not allowed"),
+        String.valueOf(oracle.getMessage()));
+
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        sql:
+          jdbcUrl: jdbc:mysql://localhost:3306/cms
+          user: cms
+          query: SELECT id, title, body FROM pages
+        """,
+        StandardCharsets.UTF_8);
+    WebApplicationException mysql =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, mysql.getResponse().getStatus());
+  }
+
+  @Test
+  void buildVirtualSite_sqlDatabaseMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("sql-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("sql-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("SqlHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -946,6 +1222,38 @@ class SitesAdaptorTest {
     assertTrue(Files.isRegularFile(staging.resolve("8.2").resolve("index.html")));
     assertFalse(Files.exists(publishTo.resolve("_meta")));
     assertTrue(result.getPublishPath() != null && !result.getPublishPath().isBlank());
+  }
+
+  @Test
+  void publishVirtualSite_sqlDatabaseBuildsThenCopiesToSiteRoot() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-real-pub-src"));
+    Path staging = tempDir.resolve("sql-real-pub-staging");
+    Path publishTo = tempDir.resolve("sql-real-pub-target");
+
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    site.setRoot(publishTo.toString());
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+
+    SitesAdaptor publishing =
+        new SitesAdaptor(siteManager, () -> true, key -> staging, null);
+
+    VirtualSitePublishResult result = publishing.publishVirtualSite("SqlHelp");
+    assertEquals("SqlHelp", result.getSiteName());
+    assertEquals("sql-docs", result.getSiteKey());
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertTrue(result.getFilesCopied() >= 1);
+    Path html = publishTo.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("SQL Home"), body);
+    assertTrue(body.contains("Hello from SQL"), body);
+    assertFalse(body.contains("secret-sql-password-should-not-leak"), body);
+    assertFalse(Files.exists(publishTo.resolve("_meta")));
   }
 
   @Test
@@ -1154,6 +1462,45 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewSqlDatabase_statusAvailableWithHomePath() throws Exception {
+    Path sqlRoot = Files.createDirectories(tempDir.resolve("sql-status-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default");
+    Path built = tempDir.resolve("sql-preview-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(sqlRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+  }
+
+  @Test
+  void previewSqlDatabase_streamsLastBuildHtml() throws Exception {
+    Path sqlRoot = Files.createDirectories(tempDir.resolve("sql-stream-src"));
+    Path defaultOut = tempDir.resolve("sql-stream-default");
+    Path built = tempDir.resolve("sql-stream-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(sqlRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+    assertTrue(html.contains("Hello from SQL"), html);
+  }
+
+  @Test
   void previewCsvFilesystem_rejectsTraversal() throws Exception {
     Path csvRoot = Files.createDirectories(tempDir.resolve("csv-trav-src"));
     Path defaultOut = tempDir.resolve("csv-trav-default");
@@ -1237,6 +1584,99 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewSqlDatabase_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-preview-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default");
+    Path built = tempDir.resolve("sql-preview-built");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("SqlHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+    assertTrue(html.contains("Hello from SQL"), html);
+  }
+
+  @Test
+  void previewSqlDatabase_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalSqlTree(tempDir.resolve("sql-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-default-empty");
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSqlDatabase_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sql-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("sql-preview-trav-default");
+    Path built = tempDir.resolve("sql-preview-trav-built");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("sql-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("SqlHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewSqlDatabase_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("sql-cli-src"));
+    Path built = tempDir.resolve("sql-cli-default");
+    writeAssembledPreviewTree(built, "<html><body><h1>SQL Home</h1>Hello from SQL</body></html>");
+
+    PSSite site = virtualSqlSite(siteRoot);
+    when(siteManager.findSite("SqlHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("SqlHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("SqlHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("SQL Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -1285,6 +1725,19 @@ class SitesAdaptorTest {
     put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "git-filesystem");
     put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, tempDir.resolve("virt-root").toString());
     put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "help-docs");
+    return site;
+  }
+
+  private PSSite virtualSqlSite(Path sqlRoot) {
+    PSSite site = new PSSite();
+    site.setName("SqlHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "sql-database");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        sqlRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "sql-docs");
     return site;
   }
 
@@ -1367,6 +1820,89 @@ class SitesAdaptorTest {
     Files.writeString(
         siteRoot.resolve("8.2").resolve("pages.csv"),
         "id,title,body,path,order\ncsv-home,CSV Home,Hello from CSV.,index.md,1\n",
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  /**
+   * In-memory H2 fixture for sql-database Build tests. JDBC user is {@code sa}. A dummy {@code
+   * password} is present in {@code _config.yaml} so tests can prove it is not copied into HTML.
+   * Inline SELECT by default; pass a relative {@code queryFile} (NIO {@link Path}) to prove {@code
+   * sql.queryFile} REST Build.
+   */
+  private static Path createMinimalSqlTree(Path siteRoot) throws Exception {
+    return createMinimalSqlTree(
+        siteRoot,
+        "SELECT id, title, body, path, sort_order AS \"order\" FROM pages",
+        null);
+  }
+
+  private static Path createMinimalSqlTree(Path siteRoot, String query, Path queryFile)
+      throws Exception {
+    String jdbc = "jdbc:h2:mem:vsql_rest_" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+    org.h2.Driver.load();
+    try (Connection c =
+        DriverManager.getConnection(jdbc, "sa", "secret-sql-password-should-not-leak");
+        Statement st = c.createStatement()) {
+      st.execute(
+          "CREATE TABLE pages ("
+              + "id VARCHAR(128), title VARCHAR(256), body CLOB, path VARCHAR(512),"
+              + " sort_order INT)");
+      st.execute(
+          "INSERT INTO pages (id, title, body, path, sort_order) VALUES"
+              + " ('sql-home', 'SQL Home', 'Hello from SQL.', 'index.md', 1)");
+    }
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    String sqlBlock;
+    if (queryFile != null) {
+      Path queryPath = siteRoot.resolve(queryFile);
+      Path parent = queryPath.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+      Files.writeString(queryPath, query + "\n", StandardCharsets.UTF_8);
+      String logical = queryFile.toString().replace('\\', '/');
+      sqlBlock =
+          """
+          sql:
+            jdbcUrl: "%s"
+            user: sa
+            password: "secret-sql-password-should-not-leak"
+            queryFile: %s
+          """
+              .formatted(jdbc, logical);
+    } else {
+      sqlBlock =
+          """
+          sql:
+            jdbcUrl: "%s"
+            user: sa
+            password: "secret-sql-password-should-not-leak"
+            query: |
+              %s
+          """
+              .formatted(jdbc, query);
+    }
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: SQL Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        %s
+        """
+            .formatted(sqlBlock),
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
         StandardCharsets.UTF_8);
     return siteRoot;
   }

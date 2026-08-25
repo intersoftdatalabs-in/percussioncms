@@ -27,7 +27,6 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSDeploymentHandler;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSAclEntry;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
@@ -51,6 +50,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying an ACL definition. */
 public class PSAclDefDependencyHandler extends PSDependencyHandler {
@@ -164,7 +164,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
       acl = findAclByDependencyID(id);
     } catch (PSDeployException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for ACLEntry:" + id);
     }
     if (acl != null) {
@@ -218,7 +218,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
       str = acl.toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for ACLEntry:" + acl.getName());
     }
 
@@ -270,7 +270,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
     return files;
   }
@@ -294,7 +294,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
     } catch (Exception e) {
       String err = e.getLocalizedMessage();
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Could not create acl from file:" + depFile.getFile().getName() + " Error was:\n" + err);
     }
     return tmp;
@@ -402,7 +402,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
       } catch (NotOwnerException | PSServiceSecurityException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not install the ACL: " + tmp.getName());
+            DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not install the ACL: " + tmp.getName());
       }
     }
   }

@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       PSJdbcColumnDef dupeCol = setColumn(column);
       if (dupeCol != null) {
         Object[] args = {m_name + " table", column.getName()};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.DUPLICATE_COLUMN, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.DUPLICATE_COLUMN, args);
       }
     }
   }
@@ -239,7 +240,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     int index = getColumnIndex(name);
     if (index > -1) {
       if (m_columns.size() == 1)
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.REMOVE_LAST_COLUMN);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.REMOVE_LAST_COLUMN);
 
       oldCol = m_columns.get(index);
       m_columns.remove(index);
@@ -542,7 +543,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker walker = new PSXmlTreeWalker(sourceNode);
@@ -555,7 +556,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     String sTemp = sourceNode.getAttribute(NAME_ATTR);
     if (sTemp.trim().length() == 0) {
       Object[] args = {NODE_NAME, NAME_ATTR, sTemp};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
     }
     m_name = sTemp;
 
@@ -587,12 +588,12 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     walker.setCurrent(sourceNode);
     Element row = walker.getNextElement(ROW_EL, firstFlags);
     if (row == null)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_NULL, ROW_EL);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_NULL, ROW_EL);
 
     Element column = walker.getNextElement(PSJdbcColumnDef.NODE_NAME, firstFlags);
     if (column == null) {
       throw new PSJdbcTableFactoryException(
-          IPSTableFactoryErrors.XML_ELEMENT_NULL, PSJdbcColumnDef.NODE_NAME);
+          TableFactoryErrorCodes.XML_ELEMENT_NULL, PSJdbcColumnDef.NODE_NAME);
     }
 
     while (column != null) {
@@ -659,7 +660,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       Element index = walker.getNextElement(PSJdbcIndex.NODE_NAME, firstFlags);
       if (index == null) {
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.XML_ELEMENT_NULL, PSJdbcIndex.NODE_NAME);
+            TableFactoryErrorCodes.XML_ELEMENT_NULL, PSJdbcIndex.NODE_NAME);
       }
       while (index != null) {
         PSJdbcIndex indexDef = new PSJdbcIndex(index);
@@ -883,7 +884,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   public void setAlter(boolean isAlter) throws PSJdbcTableFactoryException {
     // can't alter and have data
     if (isAlter && m_tableData != null)
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.ALTER_TABLE_SET_DATA, getName());
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.ALTER_TABLE_SET_DATA, getName());
 
     m_alter = isAlter;
   }
@@ -963,7 +964,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       // can't alter and have data
       if (isAlter())
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.ALTER_TABLE_SET_DATA, getName());
+            TableFactoryErrorCodes.ALTER_TABLE_SET_DATA, getName());
 
       validateTableData(tableData);
     }
@@ -982,7 +983,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       String badCols = checkColumns(m_primaryKey.getColumnNames());
       if (badCols != null) {
         Object[] args = {getName(), PSJdbcPrimaryKey.CONTAINER_NAME, badCols};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.MISSING_COLUMN, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.MISSING_COLUMN, args);
       }
     }
 
@@ -991,7 +992,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
         String badCols = checkColumns(foreignKey.getInternalColumns());
         if (badCols != null) {
           Object[] args = {getName(), PSJdbcForeignKey.CONTAINER_NAME, badCols};
-          throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.MISSING_COLUMN, args);
+          throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.MISSING_COLUMN, args);
         }
       }
     }
@@ -1000,7 +1001,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       String badCols = checkColumns(m_updateKey.getColumnNames());
       if (badCols != null) {
         Object[] args = {getName(), PSJdbcUpdateKey.CONTAINER_NAME, badCols};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.MISSING_COLUMN, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.MISSING_COLUMN, args);
       }
     }
 
@@ -1008,7 +1009,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       String badCols = checkColumns(index.getColumnNames());
       if (badCols != null) {
         Object[] args = {getName(), PSJdbcIndex.CONTAINER_NAME + ": " + index.getName(), badCols};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.MISSING_COLUMN, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.MISSING_COLUMN, args);
       }
     }
   }
@@ -1033,7 +1034,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
       if (columnDef == null
           || (columnDef.getAction() == PSJdbcTableComponent.ACTION_DELETE && isAlter())) {
         Object[] args = {tableData.getName(), columnName};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.COLUMN_NOT_FOUND, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.COLUMN_NOT_FOUND, args);
       }
     }
 
@@ -1043,7 +1044,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
      */
     if (tableData.hasUpdates()) {
       if (m_primaryKey == null && m_updateKey == null)
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.UPDATE_DATA_NO_KEYS, getName());
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.UPDATE_DATA_NO_KEYS, getName());
 
       // walk each update row and be sure there's a value for each key column
       List<String> keyCols = getKeyColumns();
@@ -1056,7 +1057,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
           if (colData == null || colData.getValue() == null) {
             Object[] args = {getName(), keyCol};
             throw new PSJdbcTableFactoryException(
-                IPSTableFactoryErrors.UPDATE_DATA_NO_KEY_VALUE, args);
+                TableFactoryErrorCodes.UPDATE_DATA_NO_KEY_VALUE, args);
           }
         }
       }

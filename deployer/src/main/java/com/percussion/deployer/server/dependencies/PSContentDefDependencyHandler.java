@@ -44,7 +44,6 @@ import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.search.PSSearchIndexEventQueue;
 import com.percussion.security.PSSecurityToken;
@@ -72,6 +71,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a content definition. */
 public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -330,7 +330,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
           new Object[] {
             "Any", PSCEDependencyHandler.DEPENDENCY_TYPE, dep.getDependencyId(), dep.getObjectType()
           };
-      throw new PSDeployException(IPSDeploymentErrors.CHILD_DEP_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.CHILD_DEP_NOT_FOUND, args);
     }
 
     // tranform content type id if required
@@ -344,7 +344,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
           PSItemDefManager.getInstance()
               .getItemDef(ctypeId, PSRequest.getContextForRequest().getSecurityToken());
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // install the table schema and data for all item tables
@@ -415,7 +415,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       String value = cacheData.get(CACHED_COLS[i]);
       if (value == null || value.trim().length() == 0) {
         String[] args = new String[] {newContentId, CACHED_COLS[i], CONTENT_TABLE};
-        throw new PSDeployException(IPSDeploymentErrors.MISSING_REQUIRED_CACHE_DATA, args);
+        throw new PSDeployException(DeploymentErrorCodes.MISSING_REQUIRED_CACHE_DATA, args);
       }
     }
 
@@ -461,7 +461,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       itemDef =
           PSItemDefManager.getInstance().getItemDef(new PSLocator(dep.getDependencyId()), adminTok);
     } catch (PSInvalidContentTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     // walk fields and check to ID type support, recurse into children
@@ -553,7 +553,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
 
       return tableData.iterator();
     } catch (PSInvalidContentTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -634,7 +634,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
       }
     } else // not expecting no rows
     {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     return new PSJdbcTableData(CONTENT_TABLE, tgtRowList.iterator());
@@ -656,7 +656,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     Iterator<PSJdbcRowData> rows = data.getRows();
 
     if (!rows.hasNext()) {
-      throw new PSDeployException(IPSDeploymentErrors.NO_ROWS_TO_PROCESS);
+      throw new PSDeployException(DeploymentErrorCodes.NO_ROWS_TO_PROCESS);
     }
 
     while (rows.hasNext()) {

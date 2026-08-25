@@ -1,0 +1,14 @@
+site:
+  title: SQL QA Docs
+versions:
+  - id: "8.2"
+    label: "8.2"
+    path: "8.2"
+    default: true
+theme:
+  layout: page.html
+sql:
+  jdbcUrl: "jdbc:h2:mem:vsql_qa3759;DB_CLOSE_DELAY=-1"
+  user: sa
+  query: |
+    SELECT 'sql-home' AS id, 'SQL Home' AS title, 'Hello from SQL.' AS body, 'index.md' AS path, 1 AS "order"

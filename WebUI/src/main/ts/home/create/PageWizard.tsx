@@ -22,6 +22,7 @@ import {
   fetchSites,
   fetchTemplatesForSite,
   formatApiError,
+  resolveSiteRootFolderPath,
 } from "../../api/home/homeApi";
 import type { SiteSummary, TemplateSummary } from "../../api/home/types";
 import { loadPageTemplates } from "../../editor/pageTemplates";
@@ -80,17 +81,23 @@ export function PageWizard({
       setTemplateId("");
       return;
     }
+    let cancelled = false;
     setBusy(true);
     setTemplateId("");
-    Promise.all([
-      fetchTemplatesForSite(site),
-      fetchFolderChildren(`/Sites/${site}`),
-    ])
-      .then(async ([tmpls, children]) => {
+    const selected = sites.find((s) => s.name === site);
+    resolveSiteRootFolderPath(selected ?? site)
+      .then(async (rootHint) => {
+        if (cancelled) {
+          return;
+        }
+        const [tmpls, children] = await Promise.all([
+          fetchTemplatesForSite(site),
+          fetchFolderChildren(rootHint),
+        ]);
         let resolved = tmpls;
         if (resolved.length === 0) {
           try {
-            const fallback = await loadPageTemplates(`/Sites/${site}`, "percPage");
+            const fallback = await loadPageTemplates(rootHint, "percPage");
             resolved = fallback
               .filter((t) => t.id)
               .map((t) => ({ id: t.id, name: t.name || t.id }));
@@ -101,6 +108,9 @@ export function PageWizard({
               err,
             );
           }
+        }
+        if (cancelled) {
+          return;
         }
         setTemplates(resolved);
         const folderPaths = children
@@ -113,16 +123,26 @@ export function PageWizard({
             if (c.path) {
               return String(c.path);
             }
-            return `/Sites/${site}/${c.name ?? ""}`;
+            return `${rootHint}/${c.name ?? ""}`;
           });
-        // Always allow site root as destination
-        const root = `/Sites/${site}`;
-        setFolders([root, ...folderPaths.filter((p) => p !== root)]);
-        setFolderPath(root);
+        // Site repository root (not /Sites/${SITENAME} for FastForward).
+        setFolders([rootHint, ...folderPaths.filter((p) => p !== rootHint)]);
+        setFolderPath(rootHint);
       })
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
-      .finally(() => setBusy(false));
-  }, [site]);
+      .catch(() => {
+        if (!cancelled) {
+          setError(message(MSG.ERROR_GENERIC));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setBusy(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [site, sites]);
 
   const onTitleChange = (v: string) => {
     setTitle(v);
@@ -231,6 +251,7 @@ export function PageWizard({
         <label htmlFor="pw-folder">{message(MSG.CREATE_FOLDER)}</label>
         <select
           id="pw-folder"
+          data-testid="page-wizard-folder"
           value={folderPath}
           onChange={(e) => setFolderPath(e.target.value)}
           required

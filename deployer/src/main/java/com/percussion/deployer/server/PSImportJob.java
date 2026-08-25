@@ -43,7 +43,6 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServerLockManager;
 import com.percussion.server.cache.PSCacheManager;
-import com.percussion.server.job.IPSJobErrors;
 import com.percussion.server.job.PSJobException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -73,6 +72,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
 
 /** Job to install objects from a deployment archive using an import descriptor. */
 public class PSImportJob extends PSDeployJob {
@@ -117,7 +117,7 @@ public class PSImportJob extends PSDeployJob {
       // init dependency count for status messages
       initDepCount();
     } catch (PSUnknownNodeTypeException | PSDeployException e) {
-      throw new PSJobException(IPSJobErrors.INVALID_JOB_DESCRIPTOR, e.getLocalizedMessage());
+      throw new PSJobException(JobErrorCodes.INVALID_JOB_DESCRIPTOR, e.getLocalizedMessage());
     }
   }
 
@@ -171,7 +171,7 @@ public class PSImportJob extends PSDeployJob {
     if (runException != null) {
       log.error("Install Archive error :", runException);
       PSJobException jobEx =
-          new PSJobException(IPSJobErrors.UNEXPECTED_ERROR, runException.getLocalizedMessage());
+          new PSJobException(JobErrorCodes.UNEXPECTED_ERROR, runException.getLocalizedMessage());
       runException = null;
       throw jobEx;
     }

@@ -17,8 +17,8 @@
 
 package com.percussion.cx.catalogers;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
@@ -66,7 +66,7 @@ public final class PSCommunityContentTypeMapperCataloger {
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       m_commCtMapper = parseMapper(doc.getDocumentElement());
     } catch (Exception e) {
-      throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
+      throw new PSCmsException(ContentExplorerErrorCodes.CATALOG_ERROR, e.getMessage());
     }
   }
 

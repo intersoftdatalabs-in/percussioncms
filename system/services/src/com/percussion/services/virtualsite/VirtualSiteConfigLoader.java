@@ -17,6 +17,7 @@
 package com.percussion.services.virtualsite;
 
 import com.percussion.services.virtualsite.VirtualSiteConfig.NavSpec;
+import com.percussion.services.virtualsite.VirtualSiteConfig.SqlSpec;
 import com.percussion.services.virtualsite.VirtualSiteConfig.VersionSpec;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,13 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-/** Loads {@code _config.yaml} from a Virtual Site root (optional fallback for CSV trees). */
+/**
+ * Loads {@code _config.yaml} from a Virtual Site root (optional fallback for CSV trees).
+ *
+ * <p>Stateless: each {@link #load} / {@link #loadOrDefault} reads the current file (or current
+ * child directories). No process-lifetime YAML cache — a second build after a config edit sees
+ * the new title/versions without a JVM restart.
+ */
 public final class VirtualSiteConfigLoader {
 
   public static final String DEFAULT_CONFIG_FILE = "_config.yaml";
@@ -201,12 +208,36 @@ public final class VirtualSiteConfigLoader {
         }
       }
 
-      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey);
+      Object sqlObj = map.get("sql");
+      if (sqlObj != null && !(sqlObj instanceof Map<?, ?>)) {
+        throw new VirtualSiteException("sql: must be a mapping in " + sourceLabel);
+      }
+      SqlSpec sql = parseSqlSpec(asMap(sqlObj));
+      return new VirtualSiteConfig(root, title, url, layout, versions, nav, siteKey, sql);
     } catch (VirtualSiteException e) {
       throw e;
     } catch (Exception e) {
       throw new VirtualSiteException("Failed to parse config: " + sourceLabel, e);
     }
+  }
+
+  private static SqlSpec parseSqlSpec(Map<String, Object> sql) {
+    if (sql == null || sql.isEmpty()) {
+      return null;
+    }
+    Map<String, Object> columns = asMap(sql.get("columns"));
+    return new SqlSpec(
+        stringVal(sql.get("jdbcUrl")),
+        stringVal(sql.get("user")),
+        stringVal(sql.get("password")),
+        stringVal(sql.get("query")),
+        stringVal(sql.get("queryFile")),
+        stringVal(columns.get("id")),
+        stringVal(columns.get("title")),
+        stringVal(columns.get("body")),
+        stringVal(columns.get("path")),
+        stringVal(columns.get("order")),
+        stringVal(columns.get("version")));
   }
 
   @SuppressWarnings("unchecked")

@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Attr;
@@ -238,7 +239,7 @@ public abstract class PSJdbcTableComponent {
     if (required && (null == data || data.getValue().trim().length() == 0)) {
       String parentName = tree.getCurrent().getNodeName();
       Object[] args = {parentName, attrName, "null"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
     return data == null ? null : data.getValue();
   }
@@ -289,7 +290,7 @@ public abstract class PSJdbcTableComponent {
       if (!found) {
         String parentName = tree.getCurrent().getNodeName();
         Object[] args = {parentName, attrName, data};
-        throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_ATTR, args);
+        throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
       }
     }
     return index;

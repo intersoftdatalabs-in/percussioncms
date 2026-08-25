@@ -33,7 +33,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -42,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a display format definition. */
 public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHandler {
@@ -69,7 +69,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
     var df = loadDisplayFormat(getComponentProcessor(tok), dep.getDependencyId());
     if (df == null) {
       throw new PSDeployException(
-          IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+          DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
           new Object[] {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
     }
 
@@ -199,7 +199,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
               : PSTransactionSummary.ACTION_MODIFIED;
       addTransactionLogEntry(dep, ctx, newDispFormat, action);
     } catch (PSCmsException | PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -229,9 +229,9 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
 
       return df;
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -283,7 +283,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   //      }
   //      catch (Exception e)
   //      {
-  //         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e
+  //         throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e
   //               .getLocalizedMessage());
   //      }
   //      return df;
@@ -322,7 +322,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
 
       return result.iterator();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -364,7 +364,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
       PSDisplayFormat df = new PSDisplayFormat();
       reserveNewId(dep, idMap, df);
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

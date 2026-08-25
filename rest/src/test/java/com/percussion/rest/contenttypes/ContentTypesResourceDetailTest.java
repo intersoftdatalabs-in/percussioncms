@@ -30,7 +30,9 @@ import static org.mockito.Mockito.when;
 import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.JacksonContextResolver;
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
@@ -188,9 +190,10 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void updateContentTypeLockConflict() {
+  public void updateContentTypeLockConflictWhenLockNotHeld() {
     when(adaptor.updateContentType(any(), eq("percPage"), any()))
-        .thenThrow(new IllegalStateException("Could not acquire design lock for content type"));
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not save content type; design lock required"));
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
@@ -199,127 +202,112 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
-  public void setAllowedWorkflowsSuccess() {
-    ContentTypeDetail updated = new ContentTypeDetail();
-    updated.setName("percPage");
-    NamedObjectRef wf = namedWorkflow("Simple Workflow", 4);
-    updated.setAllowedWorkflows(List.of(wf));
-    updated.setDefaultWorkflow(wf);
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any())).thenReturn(updated);
-
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of(wf));
-    body.setDefaultWorkflow(wf);
-    ContentTypeDetail out = resource.setAllowedWorkflows("percPage", body);
-    assertEquals(1, out.getAllowedWorkflows().size());
-    assertEquals("Simple Workflow", out.getAllowedWorkflows().get(0).getName());
-  }
-
-  @Test
-  public void setAllowedWorkflowsRequiresList() {
-    WebApplicationException missingBody =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", null));
-    assertEquals(400, missingBody.getResponse().getStatus());
-    WebApplicationException missingList =
+  public void updateContentTypeLockConflictWhenLockedByOtherUser() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new ContentTypeDesignLockException("Could not save content type; locked by editor2"));
+    WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.setAllowedWorkflows("percPage", new ContentTypeWorkflows()));
-    assertEquals(400, missingList.getResponse().getStatus());
-  }
-
-  @Test
-  public void setAllowedWorkflowsNotFound() {
-    when(adaptor.setAllowedWorkflows(any(), eq("missing"), any(), any())).thenReturn(null);
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of());
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("missing", body));
-    assertEquals(404, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setAllowedWorkflowsForbidden() {
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
-        .thenThrow(new WebApplicationException("Admin role required", 403));
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of());
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
-    assertEquals(403, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setAllowedWorkflowsLockRequired() {
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
-        .thenThrow(
-            new ContentTypeDesignLockException(
-                "Could not update content type workflow associations; design lock required"));
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of());
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
   }
 
   @Test
-  public void setAllowedWorkflowsLockedByOtherUser() {
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
+  public void updateContentTypeGenericFailureWithBlockNameIs500Not409() {
+    when(adaptor.updateContentType(any(), eq("percBlockquote"), any()))
         .thenThrow(
-            new ContentTypeDesignLockException(
-                "Could not update content type workflow associations; locked by editor2"));
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of());
+            new IllegalStateException(
+                "Failed to open content type design session: percBlockquote"));
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
-    assertEquals(409, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setAllowedWorkflowsInvalidWorkflowIsBadRequest() {
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
-        .thenThrow(new IllegalArgumentException("allowedWorkflows[0] workflow not found uuid=99"));
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of(namedWorkflow("missing", 99)));
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
-    assertEquals(400, ex.getResponse().getStatus());
-  }
-
-  @Test
-  public void setAllowedWorkflowsDoesNotTreatGenericStateAs409() {
-    when(adaptor.setAllowedWorkflows(any(), eq("percPage"), any(), any()))
-        .thenThrow(new IllegalStateException("Failed to save percBlockquote content type"));
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of());
-    WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.setAllowedWorkflows("percPage", body));
+            WebApplicationException.class,
+            () -> resource.updateContentType("percBlockquote", new ContentTypeDetail()));
     assertEquals(500, ex.getResponse().getStatus());
   }
 
   @Test
-  public void contentTypeWorkflowsJsonUsesRootWrap() throws Exception {
-    ContentTypeWorkflows body = new ContentTypeWorkflows();
-    body.setAllowedWorkflows(List.of(namedWorkflow("Simple Workflow", 4)));
-    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeWorkflows.class);
-    String json = mapper.writeValueAsString(body);
-    assertTrue(json.contains("\"ContentTypeWorkflows\""), json);
-    assertTrue(json.contains("\"allowedWorkflows\""), json);
-    ContentTypeWorkflows roundTrip = mapper.readValue(json, ContentTypeWorkflows.class);
-    assertEquals(1, roundTrip.getAllowedWorkflows().size());
-    assertEquals("Simple Workflow", roundTrip.getAllowedWorkflows().get(0).getName());
+  public void updateContentTypeForbiddenWhenNotAdmin() {
+    when(adaptor.updateContentType(any(), eq("percPage"), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateContentType("percPage", new ContentTypeDetail()));
+    assertEquals(403, ex.getResponse().getStatus());
   }
 
-  private static NamedObjectRef namedWorkflow(String name, int uuid) {
-    NamedObjectRef ref = new NamedObjectRef();
-    ref.setName(name);
-    ref.setGuid(new Guid("0-23-" + uuid));
-    return ref;
+  @Test
+  public void lockContentTypeBadRequestForWildcardName() {
+    when(adaptor.lockContentType(any(), eq("perc*")))
+        .thenThrow(new IllegalArgumentException("Content type name must not contain wildcards"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("perc*"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeSuccess() {
+    ObjectLockSummary summary = new ObjectLockSummary();
+    summary.setLocker("Admin");
+    summary.setSession("sess-1");
+    summary.setRemainingTime(30);
+    when(adaptor.lockContentType(any(), eq("percPage"))).thenReturn(summary);
+    ObjectLockSummary out = resource.lockContentType("percPage");
+    assertEquals("Admin", out.getLocker());
+    assertEquals("sess-1", out.getSession());
+    assertEquals(30, out.getRemainingTime());
+  }
+
+  @Test
+  public void lockContentTypeNotFound() {
+    when(adaptor.lockContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeConflictWhenLockedByOtherUser() {
+    when(adaptor.lockContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not acquire design lock for content type; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockContentTypeForbidden() {
+    when(adaptor.lockContentType(any(), eq("percPage")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockContentType("percPage"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeSuccess() {
+    when(adaptor.unlockContentType(any(), eq("percPage"))).thenReturn(Boolean.TRUE);
+    Response response = resource.unlockContentType("percPage");
+    assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeNotFound() {
+    when(adaptor.unlockContentType(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockContentType("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockContentTypeConflictWhenLockedByOtherUser() {
+    when(adaptor.unlockContentType(any(), eq("percPage")))
+        .thenThrow(
+            new ContentTypeDesignLockException("Could not release design lock; locked by editor2"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.unlockContentType("percPage"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 }

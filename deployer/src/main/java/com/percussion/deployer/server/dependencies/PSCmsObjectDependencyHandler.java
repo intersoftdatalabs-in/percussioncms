@@ -33,7 +33,6 @@ import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
@@ -48,6 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Base class to provide utility methods for all handlers deploying cms objects. */
 public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHandler {
@@ -100,7 +100,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
 
     if (id == null || id.trim().length() == 0) {
       Object[] args = {name, comp.getComponentType()};
-      throw new PSDeployException(IPSDeploymentErrors.EXTRACT_ID_FROM_KEY, args);
+      throw new PSDeployException(DeploymentErrorCodes.EXTRACT_ID_FROM_KEY, args);
     }
 
     return id;
@@ -134,7 +134,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
     }
     if (mapping == null) {
       Object[] args = {dep.getObjectType(), dep.getDependencyId(), idMap.getSourceServer()};
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
     }
 
     if (mapping.isNewObject() && (mapping.getTargetId() == null)) {
@@ -145,7 +145,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         proc.assignKey(new IPSDbComponent[] {comp}, null);
       } catch (PSCmsException e) {
         Object[] args = {dep.getDisplayName(), dep.getObjectTypeName(), e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.EXTRACT_ID_FROM_KEY, args);
+        throw new PSDeployException(DeploymentErrorCodes.EXTRACT_ID_FROM_KEY, args);
       }
 
       String id = getIdFromKey(comp, dep.getDisplayName());
@@ -155,7 +155,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         PSIdMapping parentMapping = idMap.getMapping(dep.getParentId(), dep.getParentType());
         if (parentMapping == null) {
           Object[] args = {dep.getParentType(), dep.getParentId(), idMap.getSourceServer()};
-          throw new PSDeployException(IPSDeploymentErrors.MISSING_ID_MAPPING, args);
+          throw new PSDeployException(DeploymentErrorCodes.MISSING_ID_MAPPING, args);
         }
 
         mapping.setTarget(
@@ -210,7 +210,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         dep.getDependencyId(),
         dep.getDisplayName()
       };
-      throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
     }
 
     return files;
@@ -241,7 +241,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         PSDependencyFile.TYPE_ENUM[file.getType()],
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_COMPONENT_XML]
       };
-      throw new PSDeployException(IPSDeploymentErrors.WRONG_DEPENDENCY_FILE_TYPE, args);
+      throw new PSDeployException(DeploymentErrorCodes.WRONG_DEPENDENCY_FILE_TYPE, args);
     }
 
     Element root = doc.getDocumentElement();
@@ -253,7 +253,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         dep.getDisplayName(),
         "Null document root"
       };
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_DEPENDENCY_FILE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_DEPENDENCY_FILE, args);
     }
 
     return root;
@@ -443,7 +443,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
         m_componentProcessor =
             new PSComponentProcessorProxy(PSComponentProcessorProxy.PROCTYPE_SERVERLOCAL, req);
       } catch (PSCmsException e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     } else {
       m_componentProcessor.setProcessorContext(req);

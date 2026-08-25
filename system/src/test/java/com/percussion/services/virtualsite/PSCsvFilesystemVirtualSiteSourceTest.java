@@ -18,6 +18,7 @@ package com.percussion.services.virtualsite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -304,6 +305,85 @@ class PSCsvFilesystemVirtualSiteSourceTest {
     String body = Files.readString(html, StandardCharsets.UTF_8);
     assertTrue(body.contains("CSV Home"), body);
     assertTrue(body.contains("Hello from CSV"), body);
+  }
+
+  @Test
+  void secondBuildAfterCsvAndConfigEditEmitsUpdatedHtmlWithoutRestart() throws Exception {
+    Path root = writeSite(tempDir.resolve("csv-rebuild"));
+    Files.writeString(
+        root.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${siteTitle}</h1><h2>${pageTitle}</h2>${content}</body></html>",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: First Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+    Path csv = root.resolve("8.2").resolve("pages.csv");
+    Files.writeString(
+        csv,
+        "id,title,body,path\nlive-home,First Title,unique-token-AAA,index.md\n",
+        StandardCharsets.UTF_8);
+
+    Path out = tempDir.resolve("csv-rebuild-out");
+    PSCsvFilesystemVirtualSiteSource source = new PSCsvFilesystemVirtualSiteSource();
+    PSVirtualSiteBuildService service =
+        new PSVirtualSiteBuildService(source, new PSInMemoryVirtualParticipantService());
+
+    PSVirtualSiteBuildResult first = service.build(root, out, "csv-docs");
+    assertEquals(1, first.pageCount());
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String firstHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(firstHtml.contains("First Site Title"), firstHtml);
+    assertTrue(firstHtml.contains("First Title"), firstHtml);
+    assertTrue(firstHtml.contains("unique-token-AAA"), firstHtml);
+
+    Files.writeString(
+        csv,
+        "id,title,body,path\nlive-home,Second Title,unique-token-BBB,index.md\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        root.resolve("_config.yaml"),
+        """
+        site:
+          title: Second Site Title
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: 8.2
+            default: true
+        theme:
+          layout: page.html
+        """,
+        StandardCharsets.UTF_8);
+
+    VirtualSiteConfig reloaded =
+        VirtualSiteConfigLoader.load(root, VirtualSiteConfigLoader.DEFAULT_CONFIG_FILE, "csv-docs");
+    assertEquals("Second Site Title", reloaded.siteTitle());
+    VirtualItem loaded = source.load(reloaded, source.discover(reloaded).get(0));
+    assertEquals("Second Title", loaded.frontmatter().title());
+    assertTrue(loaded.markdownBody().contains("unique-token-BBB"), loaded.markdownBody());
+
+    PSVirtualSiteBuildResult second = service.build(root, out, "csv-docs");
+    assertEquals(1, second.pageCount());
+    String secondHtml = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(secondHtml.contains("Second Site Title"), secondHtml);
+    assertTrue(secondHtml.contains("Second Title"), secondHtml);
+    assertTrue(secondHtml.contains("unique-token-BBB"), secondHtml);
+    assertFalse(secondHtml.contains("unique-token-AAA"), secondHtml);
+    assertFalse(secondHtml.contains("First Title"), secondHtml);
+    assertFalse(secondHtml.contains("First Site Title"), secondHtml);
+    assertNotEquals(firstHtml, secondHtml);
   }
 
   @Test

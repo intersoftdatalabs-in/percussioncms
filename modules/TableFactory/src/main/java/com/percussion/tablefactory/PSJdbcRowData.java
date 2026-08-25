@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -378,7 +379,7 @@ public class PSJdbcRowData {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
@@ -396,7 +397,7 @@ public class PSJdbcRowData {
         tree.getNextElement(PSJdbcColumnData.NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (colEl == null) {
       Object[] args = {NODE_NAME, PSJdbcColumnData.NODE_NAME, "null"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (colEl != null) {

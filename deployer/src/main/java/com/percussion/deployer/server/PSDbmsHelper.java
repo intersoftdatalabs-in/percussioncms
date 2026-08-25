@@ -25,7 +25,6 @@ import com.percussion.deployer.objectstore.PSDeployComponentUtils;
 import com.percussion.deployer.server.dependencies.PSDependencyUtils;
 import com.percussion.design.objectstore.PSLockedException;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSNotLockedException;
 import com.percussion.security.PSAuthorizationException;
@@ -78,6 +77,7 @@ import javax.naming.NamingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Singleton class to provide common database read/write functionality. */
 public class PSDbmsHelper {
@@ -142,12 +142,12 @@ public class PSDbmsHelper {
 
         if (id == null || id.getValue() == null || id.getValue().isBlank()) {
           throw new PSDeployException(
-              IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
+              DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE,
               new Object[] {table, idCol, id.getValue()});
         }
         if (name == null || name.getValue() == null || name.getValue().isBlank()) {
           throw new PSDeployException(
-              IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
+              DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE,
               new Object[] {table, nameCol, name.getValue()});
         }
 
@@ -169,7 +169,7 @@ public class PSDbmsHelper {
       DataSourceInfo ds = getDataSourceInfo();
       if (ds == null) {
         throw new PSDeployException(
-            IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not resolve datasource");
+            DeploymentErrorCodes.UNEXPECTED_ERROR, "Could not resolve datasource");
       }
 
       IPSJndiDatasource dsSource = ds.getDataSource();
@@ -245,7 +245,7 @@ public class PSDbmsHelper {
         | PSNotLockedException
         | PSServerException
         | PSAuthorizationException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
 
     if (jndiSrcList == null || jndiSrcList.isEmpty())
@@ -270,7 +270,7 @@ public class PSDbmsHelper {
         | PSNotLockedException
         | PSLockedException
         | PSAuthorizationException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
     return dsResolver;
   }
@@ -287,7 +287,7 @@ public class PSDbmsHelper {
       return PSConnectionHelper.getDbConnection(null);
     } catch (SQLException | NamingException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.REPOSITORY_CONNECTION_ERROR, e.getLocalizedMessage());
+          DeploymentErrorCodes.REPOSITORY_CONNECTION_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -311,7 +311,7 @@ public class PSDbmsHelper {
       if (includeData) schema.setTableData(catalogTableData(schema, null, null));
     } catch (PSJdbcTableFactoryException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, e.getLocalizedMessage());
+          DeploymentErrorCodes.REPOSITORY_READ_WRITE_ERROR, e.getLocalizedMessage());
     }
 
     return schema;
@@ -391,7 +391,7 @@ public class PSDbmsHelper {
       return PSJdbcTableFactory.catalogTableData(
           conn, dbmsDef, schema, columns, filter, PSJdbcRowData.ACTION_INSERT);
     } catch (SQLException | PSJdbcTableFactoryException e) {
-      throw new PSDeployException(IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.REPOSITORY_READ_WRITE_ERROR, e.getMessage());
     }
   }
 
@@ -408,7 +408,7 @@ public class PSDbmsHelper {
       var dbmsDef = getDbmsDef();
       PSJdbcTableFactory.processTable(conn, dbmsDef, schema, null, false);
     } catch (PSJdbcTableFactoryException | SQLException e) {
-      throw new PSDeployException(IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.REPOSITORY_READ_WRITE_ERROR, e.getMessage());
     }
   }
 
@@ -424,7 +424,7 @@ public class PSDbmsHelper {
     try {
       schema.setTableData(tableData);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
     processTable(schema);
   }
@@ -460,11 +460,11 @@ public class PSDbmsHelper {
         m_dbmsDef = new PSServerJdbcDbmsDef(info);
       } catch (SQLException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.REPOSITORY_CONNECTION_ERROR,
+            DeploymentErrorCodes.REPOSITORY_CONNECTION_ERROR,
             PSDeployException.formatSqlException(e));
       } catch (NamingException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.REPOSITORY_CONNECTION_ERROR, e.getLocalizedMessage());
+            DeploymentErrorCodes.REPOSITORY_CONNECTION_ERROR, e.getLocalizedMessage());
       }
     }
 
@@ -483,13 +483,13 @@ public class PSDbmsHelper {
       try {
         conn = PSConnectionHelper.getConnectionDetail();
       } catch (NamingException | SQLException nex) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, nex.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, nex.toString());
       }
 
       try {
         m_dataTypeMap = new PSJdbcDataTypeMap(null, conn.getDriver(), null);
       } catch (Exception e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     }
 
@@ -513,7 +513,7 @@ public class PSDbmsHelper {
       return PSIdGenerator.getNextId(tableName);
     } catch (SQLException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
+          DeploymentErrorCodes.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
     }
   }
 
@@ -535,7 +535,7 @@ public class PSDbmsHelper {
       return PSIdGenerator.getNextIdBlock(tableName, blockSize);
     } catch (SQLException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
+          DeploymentErrorCodes.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
     }
   }
 
@@ -560,7 +560,7 @@ public class PSDbmsHelper {
 
     if (cdata == null || cdata.getValue() == null || cdata.getValue().trim().length() == 0) {
       Object[] args = {table, column, cdata.getValue() == null ? "null" : cdata.getValue()};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
 
     return cdata.getValue();
@@ -589,7 +589,7 @@ public class PSDbmsHelper {
       dateTime = Timestamp.valueOf(sDate);
     } catch (IllegalArgumentException e) {
       Object[] args = {table, column, sDate};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
     return dateTime;
   }
@@ -616,7 +616,7 @@ public class PSDbmsHelper {
       number = Integer.parseInt(sNumber);
     } catch (NumberFormatException e) {
       Object[] args = {table, column, sNumber};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
     return number;
   }
@@ -648,7 +648,7 @@ public class PSDbmsHelper {
 
     if (appName == null || appName.trim().length() == 0) {
       Object[] args = {table, column, url};
-      throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REPOSITORY_COLUMN_VALUE, args);
     }
 
     return appName;
@@ -691,7 +691,7 @@ public class PSDbmsHelper {
       PSJdbcUpdateKey updKey = new PSJdbcUpdateKey(columns);
       schema.setUpdateKey(updKey);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -797,7 +797,7 @@ public class PSDbmsHelper {
       else iResult = rs.getInt(1) + 1;
     } catch (SQLException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
+          DeploymentErrorCodes.UNEXPECTED_ERROR, PSDeployException.formatSqlException(e));
     } finally {
       if (null != rs)
         try {
@@ -1003,7 +1003,7 @@ public class PSDbmsHelper {
           m_systemTables.add(schema.getName());
         }
       } catch (PSJdbcTableFactoryException e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1024,7 +1024,7 @@ public class PSDbmsHelper {
           m_tableTypes.put(key, Integer.valueOf(bundle.getString(key)));
         }
       } catch (NumberFormatException e) {
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
       }
     }
   }
@@ -1071,7 +1071,7 @@ public class PSDbmsHelper {
     try (var in = new FileInputStream(file)) {
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -1089,7 +1089,7 @@ public class PSDbmsHelper {
     if (schema == null) // table does not exist
     {
       Object[] args = {tableName};
-      throw new PSDeployException(IPSDeploymentErrors.UNABLE_FIND_TABLE, args);
+      throw new PSDeployException(DeploymentErrorCodes.UNABLE_FIND_TABLE, args);
     }
 
     return schema;
@@ -1130,7 +1130,7 @@ public class PSDbmsHelper {
         }
       } catch (PSJdbcTableFactoryException | SQLException e) {
         throw new PSDeployException(
-            IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, e.getLocalizedMessage());
+            DeploymentErrorCodes.REPOSITORY_READ_WRITE_ERROR, e.getLocalizedMessage());
       }
 
       if (canCache && schema != null) {

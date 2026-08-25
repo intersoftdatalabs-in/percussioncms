@@ -17,6 +17,8 @@
 
 package com.percussion.content.ui.search;
 
+import com.intsof.percussioncms.auditlog.codes.SearchErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.cms.objectstore.PSFolder;
@@ -30,7 +32,6 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.search.IPSExecutableSearch;
-import com.percussion.search.IPSSearchErrors;
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.PSExecutableSearchFactory;
 import com.percussion.search.PSSearchException;
@@ -40,7 +41,6 @@ import com.percussion.search.objectstore.PSWSSearchRequest;
 import com.percussion.search.ui.PSSearchAdvancedPanel;
 import com.percussion.search.ui.PSSearchSimplePanel;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.PSAssemblyException;
@@ -96,15 +96,15 @@ public class PSSearchResult {
 
     String locale = request.getUserLocale();
 
-    PSComponentProcessorProxy processor =
-        new PSComponentProcessorProxy(PSComponentProcessorProxy.PROCTYPE_SERVERLOCAL, request);
-
     String searchId = getParameter(IPSHtmlParameters.SYS_SEARCHID, null, parameters);
     if (searchId == null) {
       Object[] args = {"HTML", IPSHtmlParameters.SYS_SEARCHID};
 
-      throw new PSExtensionProcessingException(IPSSearchErrors.HTML_SEARCH_MISSING_PARAMETER, args);
+      throw new PSExtensionProcessingException(SearchErrorCodes.HTML_SEARCH_MISSING_PARAMETER, args);
     }
+
+    PSComponentProcessorProxy processor =
+        new PSComponentProcessorProxy(PSComponentProcessorProxy.PROCTYPE_SERVERLOCAL, request);
 
     PSSearch search = loadSearch(processor, searchId);
 
@@ -158,7 +158,7 @@ public class PSSearchResult {
         // validate length etc.
         String msg = PSSearchSimplePanel.validateFTSSearchQuery(fullTextQuery, null, locale);
         if (msg != null) {
-          throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, msg);
+          throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, msg);
         }
 
         search.setProperty(PSSearch.PROP_FULLTEXTQUERY, fullTextQuery);
@@ -195,7 +195,7 @@ public class PSSearchResult {
         field.setFieldValues(op, values);
         String msg = PSSearchFieldOperators.validateSearchFieldValue(field, null, locale);
         if (msg != null) {
-          throw new PSExtensionProcessingException(IPSServerErrors.RAW_DUMP, msg);
+          throw new PSExtensionProcessingException(ServerErrorCodes.RAW_DUMP, msg);
         }
       }
     }

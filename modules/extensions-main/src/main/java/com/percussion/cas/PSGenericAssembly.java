@@ -16,10 +16,10 @@
  */
 package com.percussion.cas;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.extension.IPSAssemblyLocation;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.security.error.PSExceptionUtils;
@@ -80,7 +80,7 @@ public class PSGenericAssembly extends PSDefaultExtension implements IPSAssembly
           || (params[0] == null)
           || (params[0].toString().trim().length() < 1)) {
         Object[] args = {"" + EXPECTED_NUMBER_OF_PARAMS, "" + params.length};
-        throw new PSExtensionException(IPSExtensionErrors.EXT_PARAM_VALUE_MISMATCH, args);
+        throw new PSExtensionException(ExtensionErrorCodes.EXT_PARAM_VALUE_MISMATCH, args);
       }
 
       String resource = params[0].toString().trim();

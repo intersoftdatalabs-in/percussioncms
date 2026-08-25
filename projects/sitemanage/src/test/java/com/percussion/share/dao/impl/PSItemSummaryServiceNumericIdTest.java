@@ -31,6 +31,7 @@ import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
+import com.percussion.share.service.IPSIdMapper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
@@ -67,5 +68,23 @@ class PSItemSummaryServiceNumericIdTest {
 
     verify(guidMgr).makeGuid(594L, PSTypeEnum.LEGACY_CONTENT);
     verify(guidMgr, never()).makeGuid(anyString());
+  }
+
+  @Test
+  void findRetriesLegacyContentWhenGetGuidThrowsUndeterminedType() throws DataServiceLoadException {
+    IPSIdMapper mapper = mock(IPSIdMapper.class);
+    when(mapper.getGuid("594"))
+        .thenThrow(
+            new IllegalArgumentException("Type is undetermined, expecting \"type\" argument"));
+    when(mapper.getGuidFromContentId(594L)).thenReturn(contentGuid);
+    when(contentWs.findItems(anyList(), anyBoolean())).thenReturn(Collections.emptyList());
+
+    var sut =
+        new PSItemSummaryService(
+            contentWs, mock(PSItemDefManager.class), mapper, mock(IPSManagedNavService.class));
+
+    assertNull(sut.find("594"));
+
+    verify(mapper).getGuidFromContentId(594L);
   }
 }

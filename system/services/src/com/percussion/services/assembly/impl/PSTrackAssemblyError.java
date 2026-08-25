@@ -208,11 +208,11 @@ public class PSTrackAssemblyError
    {
       if (hadProblems())
       {
-         item.setStatus(Status.FAILURE);
          int context = item.getContext();
          if (context != 0)
          {
-            // Non-preview, replace the results
+            // Non-preview: fail and replace the payload with the error table.
+            item.setStatus(Status.FAILURE);
             StringBuilder b = new StringBuilder(10000);
             b.append(HEADER);
             b.append(toHTMLTable());
@@ -224,6 +224,9 @@ public class PSTrackAssemblyError
             }
             item.setMimeType("text/html;charset=utf8");
          }
+         // Preview (sys_context=0): keep assembled HTML and SUCCESS. Tracked
+         // problems (inline-link jsoup warnings, etc.) are already logged.
+         // Marking FAILURE here made PSAssemblyServlet HTTP 500 the page (#3719).
       }
 
    }
