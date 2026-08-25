@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * G4 CI/inventory gate: zero non-waived product Widget definition XML under Packages (issue #3026 /
- * parent #2630). Explicit waiver: {@code perc.Test} only.
+ * G4 CI/inventory gate: zero product Widget definition XML under Packages (issue #3026 / #3736 /
+ * parent #2630). Waiver set is empty after perc.Test ship-exit.
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -41,9 +41,9 @@ class PSWidgetDefinitionXmlInventoryTest {
   @TempDir Path tempDir;
 
   @Test
-  void waivedPackageSet_isExplicitlyPercTestOnly() {
-    assertEquals(Set.of("perc.Test"), PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
-    assertTrue(PSWidgetDefinitionXmlInventory.isWaivedPackage("perc.Test"));
+  void waivedPackageSet_isEmptyAfterPercTestShipExit() {
+    assertEquals(Set.of(), PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
+    assertFalse(PSWidgetDefinitionXmlInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSWidgetDefinitionXmlInventory.isWaivedPackage("perc.baseWidgets"));
     assertFalse(PSWidgetDefinitionXmlInventory.isWaivedPackage("perc.widget.form"));
     assertFalse(PSWidgetDefinitionXmlInventory.isWaivedPackage(null));
@@ -63,25 +63,33 @@ class PSWidgetDefinitionXmlInventoryTest {
     assertTrue(
         report.isClean(),
         () ->
-            "G4: non-waived Widget def XML must not reappear under product Packages; found: "
+            "G4: Widget def XML must not reappear under product Packages; found: "
                 + report.nonWaived());
-
-    // Waived residual may still ship Widget XML (perc.Test / PSWidget_TestProperties).
-    assertFalse(
-        report.waived().isEmpty(),
-        "expected at least one waived Widget XML under perc.Test on the product tree");
-    for (PSWidgetDefinitionXmlInventory.Finding f : report.waived()) {
-      assertEquals("perc.Test", f.packageDirName());
-      assertTrue(f.waived());
-      assertTrue(Files.isRegularFile(f.xmlPath()));
-    }
+    assertEquals(0, report.all().size(), "expected zero Widget def XML including perc.Test");
+    assertEquals(0, report.waived().size());
+    assertEquals(0, report.nonWaived().size());
 
     // Fail-fast helper used by optional CLI must also pass on the live tree.
     PSWidgetDefinitionXmlInventory.assertNoNonWaivedWidgetDefinitionXml(packagesRoot);
   }
 
   @Test
-  void tempTree_onlyWaivedXml_isClean() throws Exception {
+  void tempTree_modernOnlyPackages_isClean() throws Exception {
+    Path packages = tempDir.resolve("Packages");
+    Files.createDirectories(packages.resolve("perc.Test").resolve("widgets"));
+    Files.createDirectories(packages.resolve("perc.baseWidgets").resolve("widgets"));
+
+    PSWidgetDefinitionXmlInventory.Report report =
+        PSWidgetDefinitionXmlInventory.scan(packages);
+    assertEquals(0, report.all().size());
+    assertEquals(0, report.nonWaived().size());
+    assertEquals(0, report.waived().size());
+    assertTrue(report.isClean());
+    PSWidgetDefinitionXmlInventory.assertNoNonWaivedWidgetDefinitionXml(packages);
+  }
+
+  @Test
+  void tempTree_percTestXml_failsGateAfterWaiverDrop() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path widgets =
         packages
@@ -89,27 +97,19 @@ class PSWidgetDefinitionXmlInventoryTest {
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Widgets");
     Files.createDirectories(widgets);
-    Path xmlFile =
-        widgets.resolve("PSWidget_TestProperties.xml");
+    Path xmlFile = widgets.resolve("PSWidget_TestProperties.xml");
     Files.writeString(
-        xmlFile,
-        "<Widget id=\"PSWidget_TestProperties\"/>",
-        StandardCharsets.UTF_8);
-
-    // Modern-only package with no Widgets XML must not pollute inventory.
-    Files.createDirectories(packages.resolve("perc.baseWidgets").resolve("widgets"));
+        xmlFile, "<Widget id=\"PSWidget_TestProperties\"/>", StandardCharsets.UTF_8);
 
     PSWidgetDefinitionXmlInventory.Report report =
         PSWidgetDefinitionXmlInventory.scan(packages);
-    assertEquals(1, report.all().size());
-    assertEquals(0, report.nonWaived().size());
-    assertEquals(1, report.waived().size());
-    assertTrue(report.isClean());
-    Path expectedAbs = xmlFile.toAbsolutePath().normalize();
-    assertEquals(expectedAbs, report.waived().get(0).xmlPath());
-    assertTrue(report.waived().get(0).xmlPath().isAbsolute());
-    assertTrue(report.waived().get(0).xmlPath().startsWith(widgets.toAbsolutePath().normalize()));
-    PSWidgetDefinitionXmlInventory.assertNoNonWaivedWidgetDefinitionXml(packages);
+    assertFalse(report.isClean());
+    assertEquals(1, report.nonWaived().size());
+    assertEquals("perc.Test", report.nonWaived().get(0).packageDirName());
+    assertEquals(xmlFile.toAbsolutePath().normalize(), report.nonWaived().get(0).xmlPath());
+    assertThrows(
+        IllegalStateException.class,
+        () -> PSWidgetDefinitionXmlInventory.assertNoNonWaivedWidgetDefinitionXml(packages));
   }
 
   /**
@@ -174,17 +174,17 @@ class PSWidgetDefinitionXmlInventoryTest {
   }
 
   @Test
-  void tempTree_mixedWaivedAndNonWaived_reportsOnlyNonWaivedAsFailures() throws Exception {
+  void tempTree_percTestAndFormXml_bothFailAsNonWaived() throws Exception {
     Path packages = tempDir.resolve("Packages");
 
-    Path waivedWidgets =
+    Path testWidgets =
         packages
             .resolve("perc.Test")
             .resolve("sys__UserDependency--rxconfig")
             .resolve("Widgets");
-    Files.createDirectories(waivedWidgets);
+    Files.createDirectories(testWidgets);
     Files.writeString(
-        waivedWidgets.resolve("PSWidget_TestProperties.xml"),
+        testWidgets.resolve("PSWidget_TestProperties.xml"),
         "<Widget/>",
         StandardCharsets.UTF_8);
 
@@ -199,9 +199,8 @@ class PSWidgetDefinitionXmlInventoryTest {
     PSWidgetDefinitionXmlInventory.Report report =
         PSWidgetDefinitionXmlInventory.scan(packages);
     assertEquals(2, report.all().size());
-    assertEquals(1, report.waived().size());
-    assertEquals(1, report.nonWaived().size());
-    assertEquals("perc.widget.form", report.nonWaived().get(0).packageDirName());
+    assertEquals(0, report.waived().size());
+    assertEquals(2, report.nonWaived().size());
     assertFalse(report.isClean());
   }
 

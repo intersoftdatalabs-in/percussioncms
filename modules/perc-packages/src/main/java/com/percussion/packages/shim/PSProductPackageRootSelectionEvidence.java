@@ -64,6 +64,7 @@ public final class PSProductPackageRootSelectionEvidence {
     stems.addAll(PSWidgetXmlDualShip.BATCH_A_WIDGET_STEMS);
     stems.addAll(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS);
     stems.addAll(PSWidgetXmlDualShip.BATCH_C_WIDGET_STEMS);
+    stems.addAll(PSWidgetXmlDualShip.TEST_WIDGET_STEMS);
     KNOWN_PRODUCT_WIDGET_STEMS = List.copyOf(stems);
   }
 

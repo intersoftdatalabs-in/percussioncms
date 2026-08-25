@@ -75,10 +75,10 @@ ship paths is enforced in Maven Surefire for `modules/perc-packages`:
 | Gadget | `sys__UserDependency--rxconfig/Gadgets/` and `rxconfig/Gadgets/` | `com.percussion.packages.gadgetxml.PSGadgetDefinitionXmlInventory` | `PSGadgetDefinitionXmlInventoryTest` |
 
 Shared Page/Gadget scanner: `com.percussion.packages.inventory.PSDefinitionXmlShipPathInventory`
-(combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy fixture XML is introduced under a
-package. **Pages/Gadgets** waiver is **empty** after perc.Test page dual-ship exit (#3737).
-**Widget** waiver remains **`perc.Test` only** (#3736). Cross-platform: `Path` / `Files`
-only (no hardcoded separators).
+(combined `PAGE|GADGET|ALL` CLI). Tests fail if dummy non-waived fixture XML is introduced
+under a non-waived package. **Widget** waiver is empty after perc.Test ship-exit (#3736);
+**Pages/Gadgets** waiver is empty after perc.Test page dual-ship exit (#3737).
+Cross-platform: `Path` / `Files` only (no hardcoded separators).
 
 ### Dual-ship page templateDef inventory gate (#3675)
 
@@ -143,8 +143,9 @@ enforced in Maven Surefire (`modules/perc-packages` + `projects/sitemanage`):
   `LEGACY_*`; waive list empty **or** `perc.Test` only)
 - DAO harness: `PSWidgetDaoProductH2ZeroLegacySelectionTest` (blank
   `widgetDao.modernPackageRoots` + `rxdeploydir` materialize)
-- Explicit waiver: **empty or `perc.Test` / `PSWidget_TestProperties` only**
-  (#3738 dual-mode; #3736 drops the residual)
+- Widget waiver: **empty after perc.Test ship-exit (#3736)** — until then, `perc.Test` /
+  `PSWidget_TestProperties` only (#3738 dual-mode); after #3736, the residual is dropped
+  and `PSWidget_TestProperties` must select modern-first.
 - **Keep** `PSLegacyDefinitionXmlShim` (#2852). Do **not** treat a green scan
   as M2 PASS / removal-ready (M3 still FAIL).
 

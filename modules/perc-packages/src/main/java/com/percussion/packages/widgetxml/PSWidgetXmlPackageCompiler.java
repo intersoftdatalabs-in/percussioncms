@@ -34,9 +34,9 @@ import java.util.Objects;
  * layout used by {@code modules/perc-packages}). When install Widget XML is absent but modern {@code
  * widgets/&lt;stem&gt;/} roots exist (batch A+B+C ship-exit #2883/#2884/#2885), compiles
  * from modern authoring sources instead. Covers baseWidgets, high-traffic product packages (#2772),
- * the residual long-tail batch (#2789), the remaining product residual batch (#2802), and the final
- * {@code perc.Test} residual (#2830). Dual-ship modern authoring roots live under {@code
- * widgets/&lt;stem&gt;/} ({@link PSWidgetXmlDualShip}, issues #2831 / #2832 / #2844).
+ * the residual long-tail batch (#2789), the remaining product residual batch (#2802), and {@code
+ * perc.Test} (#2830 compile / #3736 ship-exit). Dual-ship modern authoring roots live under {@code
+ * widgets/&lt;stem&gt;/} ({@link PSWidgetXmlDualShip}, issues #2831 / #2832 / #2844 / #3736).
  */
 public final class PSWidgetXmlPackageCompiler {
 
@@ -64,6 +64,13 @@ public final class PSWidgetXmlPackageCompiler {
    */
   public static final List<String> DUAL_SHIP_BATCH_C_PACKAGE_DIRS =
       PSWidgetXmlDualShip.BATCH_C_PACKAGE_DIRS;
+
+  /**
+   * Dual-ship Widget XML exit perc.Test package dirs (issue #3736). See {@link
+   * PSWidgetXmlDualShip#TEST_PACKAGE_DIRS}.
+   */
+  public static final List<String> DUAL_SHIP_TEST_PACKAGE_DIRS =
+      PSWidgetXmlDualShip.TEST_PACKAGE_DIRS;
 
   /**
    * Named high-traffic product package directory names under {@code Packages/} covered by the
@@ -134,11 +141,13 @@ public final class PSWidgetXmlPackageCompiler {
           "perc.defaultLanguage");
 
   /**
-   * Final product package residual under {@code Packages/} covered by issue #2830 ({@code
-   * perc.Test} / {@code PSWidget_TestProperties}). Beyond {@link #REMAINING_PRODUCT_PACKAGE_DIRS}.
-   * Dual-run: product Widget XML remains until install consumes modern packages (Phase 5 exit).
+   * Final product package residual under {@code Packages/} covered by issue #2830 compile and
+   * #3736 ship-exit ({@code perc.Test} / {@code PSWidget_TestProperties}). Beyond {@link
+   * #REMAINING_PRODUCT_PACKAGE_DIRS}. Authoring is modern {@code widgets/}; install Widget XML is
+   * materialized at package-build.
    */
-  public static final List<String> TEST_PRODUCT_PACKAGE_DIRS = List.of("perc.Test");
+  public static final List<String> TEST_PRODUCT_PACKAGE_DIRS =
+      PSWidgetXmlDualShip.TEST_PACKAGE_DIRS;
 
   private PSWidgetXmlPackageCompiler() {
     // utility
@@ -237,9 +246,9 @@ public final class PSWidgetXmlPackageCompiler {
   }
 
   /**
-   * Compile the final {@code perc.Test} product package residual under a {@code Packages/} root
-   * directory (issue #2830 — residual after #2802). Missing package directories are soft-skipped
-   * (same policy as prior batches).
+   * Compile the {@code perc.Test} product package under a {@code Packages/} root directory (issue
+   * #2830 compile / #3736 modern-only). Missing package directories are soft-skipped (same policy
+   * as prior batches).
    *
    * @param packagesRoot non-null directory containing package folders
    * @return compile results sorted by package then widget stem (may be empty if none present)

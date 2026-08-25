@@ -20,8 +20,8 @@ From this module directory (standalone, preferred):
 
 Product packages must not reintroduce committed install definition XML under
 `sys__UserDependency--rxconfig/{Widgets,Pages,Gadgets}/` (or `rxconfig/{Pages,Gadgets}/`
-for Pages/Gadgets). **Widget** waiver remains **`perc.Test` only** (widget ship-exit is
-#3736). **Pages/Gadgets** waiver is **empty** after perc.Test page dual-ship exit (#3737).
+for Pages/Gadgets). **Widget** waiver is empty after perc.Test ship-exit (#3736);
+**Pages/Gadgets** waiver is empty after perc.Test page dual-ship exit (#3737).
 
 | Piece | Class |
 |-------|--------|
@@ -57,11 +57,11 @@ Committed policy ignores JVM `perc.packages.page.installMode` so CI reflects the
 
 ## Archive-manifest Widget XML paths (#3582)
 
-Non-waived product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
+Product `psx_archiveInfo.xml` / `psx_archiveManifest.xml` must not author
 `rxconfig/Widgets/*.xml` (or encoded `rxconfig_Widgets_`) when modern `widgets/` roots exist.
-Waiver is **`perc.Test` only**. Package build re-injects those user-dependencies on the staging
-copy via `PSWidgetXmlInstallEmitter` / `PSWidgetArchiveManifestInventory` so the built `.ppkg`
-still installs Widget XML.
+Widget waiver is **empty** after perc.Test ship-exit (#3736). Package build re-injects those
+user-dependencies on the staging copy via `PSWidgetXmlInstallEmitter` /
+`PSWidgetArchiveManifestInventory` so the built `.ppkg` still installs Widget XML.
 
 | Piece | Class |
 |-------|--------|
@@ -70,13 +70,13 @@ still installs Widget XML.
 
 ## M2 product/H2 zero-legacy-selection evidence (#3583 / #3738)
 
-Non-waived product / H2 widget package roots must select modern-first
+Product / H2 widget package roots must select modern-first
 (`wouldUseLegacyShim == false` / `MODERN_COMPONENT_PACKAGE`). Unexpected
-`LEGACY_*` on a non-waived product widget fails Surefire. Waiver: **empty or
-`perc.Test` only** (`assertWidgetWaiverPolicy`). While `perc.Test` remains on
-the list it may still select `LEGACY_WIDGET_XML`; after #3736 it must be
-modern-first. The runtime shim stays (#2852); this is **not** M2 PASS overall
-(M3 still FAIL).
+`LEGACY_*` on a product widget fails Surefire. Waiver: **empty after #3736
+(perc.Test ship-exit)**; until then, **`perc.Test` only** may remain legacy
+(`assertWidgetWaiverPolicy`). After #3736, perc.Test must be modern-first
+like other product packages. The runtime shim stays (#2852); this is
+**not** M2 PASS overall (M3 still FAIL).
 
 | Piece | Class |
 |-------|--------|
