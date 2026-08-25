@@ -785,7 +785,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@CSV filesystem uses the root path only (no Git remote). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build.",
   SITE_VIRT_KIND_SQL_DATABASE: "perc.ui.developer@SQL database",
   SITE_VIRT_SQL_HINT:
-    "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build or Publish Virtual Site. Passwords are never sent on the REST envelope.",
+    "perc.ui.developer@SQL database uses the root path only (no Git remote). JDBC URL, user, and query stay in _config.yaml (in-memory H2). Save, then Build Virtual Site, then Preview assembled site. Publish is also available after a successful Build. Passwords are never sent on the REST envelope.",
   SITE_VIRT_STATUS_REPO: "perc.ui.developer@Mode: traditional repository Site",
   SITE_VIRT_STATUS_VIRTUAL: "perc.ui.developer@Mode: Virtual Site",
   SITE_VIRT_ERR_ROOT_REQUIRED:
@@ -812,7 +812,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Save Virtual Site source before building so the server uses the latest properties.",
   SITE_VIRT_PREVIEW: "perc.ui.developer@Preview assembled site",
   SITE_VIRT_PREVIEW_HINT:
-    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem or CSV filesystem). Same-origin preview of the build output. Requires Admin.",
+    "perc.ui.developer@Opens the last assembled home in a new tab after Build (Git filesystem, CSV filesystem, or SQL database). Same-origin preview of the build output. Requires Admin.",
   SITE_VIRT_PREVIEW_MISSING:
     "perc.ui.developer@No assembled site to preview. Run Build Virtual Site first.",
   SITE_VIRT_PREVIEW_ERROR: "perc.ui.developer@Could not open Virtual Site preview.",
