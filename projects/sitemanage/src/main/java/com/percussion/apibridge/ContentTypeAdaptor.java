@@ -377,7 +377,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         // Keep the held design lock after save; clients release via POST .../unlock.
         // Content-type save and template association save are sequential design writes
         // without a shared rollback — template failure after CT save is partial success.
-        // Lock objectId is packed NODEDEF+typeId (PSContentDesignWs / PSGuidUtils.toFullLong).
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
       } catch (PSErrorsException e) {
         log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
@@ -1258,8 +1257,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    *
    * <p>Session equality is not compared against {@code KEY_JSESSIONID}: lock session ids may be the
    * clientId. A foreign session is rejected by {@code loadContentTypes(..., lock=true,
-   * overrideLock=false)}. Packed NODEDEF objectIds (issue #3772) make {@code isLocked} find the
-   * lock created by POST {@code /lock}.
+   * overrideLock=false)}.
    *
    * @throws ContentTypeDesignLockException when unlocked or locked by another user (HTTP 409)
    */
@@ -1292,8 +1290,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       throw new ContentTypeDesignLockException("Could not save content type; design lock required");
     }
     String user = currentUser();
+    PSObjectLockSummary info = summary.getLocked();
     if (!summary.isLockedBy(user)) {
-      PSObjectLockSummary info = summary.getLocked();
       String locker = info != null ? info.getLocker() : null;
       throw new ContentTypeDesignLockException(
           locker != null
