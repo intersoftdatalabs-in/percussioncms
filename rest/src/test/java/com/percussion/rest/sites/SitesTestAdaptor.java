@@ -28,7 +28,8 @@ import org.springframework.stereotype.Component;
  * (including {@code sql-database} and {@code http-json} {@code sourceKind}); JDBC credentials
  * and HTTP secrets are never logged. REST Build for {@code http-json} uses the same adaptor
  * contract as git/CSV/SQL (local JSON fixture / loopback; {@code virtual.remoteUrl} stays 400).
- * Preview status is last-output based ({@code available=false} when no build).
+ * Preview status is last-output based ({@code available=false} when no build), including {@code
+ * http-json} last-build output.
  */
 @Component
 @Lazy
