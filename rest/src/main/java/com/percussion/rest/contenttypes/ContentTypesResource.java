@@ -1046,4 +1046,56 @@ public class ContentTypesResource {
     }
     return new WebApplicationException(e, 500);
   }
+
+  @PUT
+  @Path("/{idOrName}/allowedWorkflows")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace content type allowed-workflow associations",
+      description =
+          "CD-08 design action: full-replace of allowedWorkflows (and optional defaultWorkflow)."
+              + " Admin only. Requires a design-session lock already held by the current user"
+              + " (POST .../lock). Does not acquire or release the lock. Empty allowedWorkflows"
+              + " clears associations. Workflow ids are validated (name or guid of an existing"
+              + " workflow). GET .../{idOrName} reflects the new set. Jackson root wrap is"
+              + " ContentTypeWorkflows.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "allowedWorkflows is required, or a workflow id is invalid"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail setAllowedWorkflows(
+      @PathParam("idOrName") String idOrName, ContentTypeWorkflows body) {
+    if (body == null || body.getAllowedWorkflows() == null) {
+      throw new WebApplicationException("allowedWorkflows is required", 400);
+    }
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor()
+              .setAllowedWorkflows(
+                  uriInfo.getBaseUri(),
+                  idOrName,
+                  body.getAllowedWorkflows(),
+                  body.getDefaultWorkflow());
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
 }

@@ -485,6 +485,78 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (allowedWorkflows == null) {
+      throw new IllegalArgumentException("allowedWorkflows is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    requireSessionUserForLock();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not update content type workflow associations");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (def.getContentEditor() == null) {
+        throw new IllegalStateException(
+            "Could not update content type workflow associations; content editor missing");
+      }
+      ContentTypeDetail patch = new ContentTypeDetail();
+      patch.setAllowedWorkflows(allowedWorkflows);
+      patch.setDefaultWorkflow(defaultWorkflow);
+      applyWorkflowUpdates(def, patch);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not update content type workflow associations");
+        }
+        log.error(
+            "Failed to save content type workflow associations {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type workflow associations", e);
+      }
+      PSItemDefinition reloaded = resolveItemDef(trimmed);
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for workflow associations: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to update content type workflow associations {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type workflow associations", e);
+    }
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *

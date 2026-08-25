@@ -193,6 +193,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
+| Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
 | Enable/disable | `PUT /services/contenttypes/{idOrName}/enabled` | **Admin** (CD-13 design action). Requires a held design-session lock — `POST .../lock` first, then `PUT .../enabled`, then `POST .../unlock` when done. Does **not** acquire or release the lock. `200` + `ContentTypeDetail` with the new `enabled` value (lock still held). |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
@@ -245,6 +246,39 @@ detail treats those non-array shapes as an empty list or unwraps the single item
 The content type form stays on screen (or shows an in-panel error). It does
 **not** replace the Content Types section with **Unable to load Content Types**.
 Capability gaps still render as the human-readable **message** (fallback **code**).
+
+### Allowed workflows (CD-08)
+
+`PUT /services/contenttypes/{idOrName}/allowedWorkflows` replaces the content
+type's allowed-workflow associations. Hold the design-session lock first; save
+keeps the lock so you can continue editing, then unlock. This dedicated action
+does **not** auto lock-save-unlock (the generic `PUT /contenttypes/{idOrName}`
+still does that for mixed meta/field updates).
+
+Typical flow: `POST .../lock` → `PUT .../allowedWorkflows` → (optional further
+design writes) → `POST .../unlock`.
+
+Jackson root wrap:
+
+```json
+{
+  "ContentTypeWorkflows": {
+    "allowedWorkflows": [
+      { "name": "Simple Workflow", "guid": { "stringValue": "0-23-4" } }
+    ],
+    "defaultWorkflow": { "name": "Simple Workflow" }
+  }
+}
+```
+
+| Status | Typical meaning |
+|--------|-----------------|
+| `200` | Updated; response is `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow`; lock still held |
+| `400` | Missing `allowedWorkflows`, unknown workflow id/name, invalid id, or wildcard name |
+| `403` | Caller is not Admin |
+| `404` | Content type not found |
+| `409` | No design lock, or locked by another user |
+| `500` | Unexpected error (not inferred from names that happen to contain "lock") |
 
 ### Field rule expressions (read-only)
 
