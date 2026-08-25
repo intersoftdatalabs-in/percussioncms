@@ -733,6 +733,50 @@ describe("VirtualSiteSourcePanel", () => {
     );
   });
 
+  it("keeps Publish chrome after sql-database Build success and copies dest path (#3778)", async () => {
+    getVirtual.mockResolvedValue({
+      sourceKind: "sql-database",
+      rootPath: "C:/sql-docs",
+      virtual: true,
+    });
+    buildVirtual.mockResolvedValue({
+      siteName: "Help",
+      siteKey: "sql-docs",
+      outputPath: "C:/tmp/virtual-sites/sql-docs",
+      pagesWritten: 2,
+      linkProblemCount: 0,
+      hasLinkProblems: false,
+      linkProblems: [],
+    });
+    publishVirtual.mockResolvedValue({
+      siteName: "Help",
+      publishPath: "/opt/Percussion/fastforward/sql-help",
+      filesCopied: 4,
+      pagesWritten: 2,
+      hasLinkProblems: false,
+    });
+    render(<VirtualSiteSourcePanel siteName="Help" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-build"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-build-result")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-virtual-publish")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-site-virtual-publish"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-virtual-publish-result")).toBeTruthy();
+    });
+    expect(buildVirtual).toHaveBeenCalledWith("Help");
+    expect(publishVirtual).toHaveBeenCalledWith("Help");
+    expect(screen.getByTestId("developer-site-virtual-publish-files").textContent).toBe("4");
+    expect(screen.getByTestId("developer-site-virtual-publish-dest").textContent).toContain(
+      "sql-help",
+    );
+  });
+
   it("lists link problem details on HTTP 200 with hasLinkProblems", async () => {
     const copySpy = vi.spyOn(sourceViewer, "copyTextToClipboard").mockResolvedValue(true);
     getVirtual.mockResolvedValue({

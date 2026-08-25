@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,12 @@ const fs = require("node:fs");
 const path = require("node:path");
 const {
   SQL_VIRTUAL_QA_ROOT,
+  SQL_VIRTUAL_PUBLISHED_HTML,
+  SQL_VIRTUAL_PUBLISH_MARKER,
   sqlVirtualFixtureHostDir,
   qaCmsContainer,
+  normalizeQaPublishDestPath,
+  posixJoin,
 } = require("../helpers/sql-virtual-qa-fixture");
 
 describe("sql-virtual-qa-fixture", () => {
@@ -72,5 +76,31 @@ describe("sql-virtual-qa-fixture", () => {
     assert.doesNotMatch(config, /RUNSCRIPT/i);
     assert.doesNotMatch(config, /jdbc:oracle:/i);
     assert.ok(fs.existsSync(path.join(dir, "_theme", "page.html")));
+  });
+
+  it("normalizeQaPublishDestPath accepts Linux cell abs paths and rejects traversal", () => {
+    assert.equal(
+      normalizeQaPublishDestPath(" /opt/Percussion/fastforward/CI_Home "),
+      "/opt/Percussion/fastforward/CI_Home",
+    );
+    assert.equal(SQL_VIRTUAL_PUBLISHED_HTML, "8.2/index.html");
+    assert.equal(SQL_VIRTUAL_PUBLISH_MARKER, "Hello from SQL.");
+    assert.throws(() => normalizeQaPublishDestPath(""), /blank/);
+    assert.throws(() => normalizeQaPublishDestPath("tmp/out"), /not absolute/);
+    assert.throws(() => normalizeQaPublishDestPath("C:/inetpub/wwwroot"), /Linux QA cell/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/../etc"), /unsafe/);
+    assert.throws(() => normalizeQaPublishDestPath("/opt/Percussion/tmp/foo/.."), /unsafe/);
+  });
+
+  it("posixJoin appends published HTML with forward slashes only", () => {
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", "8.2", "index.html"),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.equal(
+      posixJoin("/opt/Percussion/pub", SQL_VIRTUAL_PUBLISHED_HTML),
+      "/opt/Percussion/pub/8.2/index.html",
+    );
+    assert.throws(() => posixJoin("/opt/Percussion/pub", "../etc/passwd"), /unsafe/);
   });
 });

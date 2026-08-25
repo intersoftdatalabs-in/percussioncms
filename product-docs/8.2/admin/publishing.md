@@ -57,8 +57,10 @@ For Git/filesystem, CSV/filesystem, or SQL/database Virtual Sites such as produc
    install directory. Do **not** point it at `virtual.rootPath` (the Markdown or CSV source tree).
 4. Confirm the source root exists on the host and that the publish directory is writable.
 5. From **Developer → Sites → Site detail**, choose **Publish Virtual Site** (visible for
-   **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for repository). The panel reports files copied and the destination path,
-   or a clear error. Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
+   **Git filesystem**, **CSV filesystem**, and **SQL database**; hidden for repository).
+   For **SQL database**, save the source, run **Build Virtual Site**, then **Publish Virtual
+   Site**. The panel reports files copied and the destination path, or a clear error.
+   Integrators can call `POST /services/sites/{nameOrId}/virtual/publish`
    instead. Run **Build Virtual Site** first if you only want staging output.
 6. On success, the result includes `publishPath`, `filesCopied`, `pagesWritten`, and any
    link problems (`hasLinkProblems` can be true with HTTP 200).
