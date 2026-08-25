@@ -444,6 +444,53 @@ describe("ArchitectureShell (#3095/#3096)", () => {
     });
   });
 
+  it("rename posts title without folderPermission and closes dialog (#3797)", async () => {
+    vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
+    vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);
+    vi.spyOn(sectionApi, "loadSectionProperties").mockResolvedValue({
+      id: "c1",
+      title: "About",
+      folderName: "About",
+      target: "_self",
+      folderPermission: { accessLevel: "WRITE" },
+    });
+    const updateSpy = vi
+      .spyOn(sectionApi, "updateSiteSection")
+      .mockResolvedValue({});
+
+    render(<ArchitectureShell embedded initialSite="Demo" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("nav-tree-item-c1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("nav-tree-item-c1"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("architecture-action-rename") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("architecture-action-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-rename-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("architecture-rename-title-input"), {
+      target: { value: "About Us" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-rename-submit"));
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "c1",
+          title: "About Us",
+          folderName: "About",
+        }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-rename-dialog")).toBeNull();
+    });
+  });
+
   it("opens external link create dialog from action bar (#3097)", async () => {
     vi.spyOn(homeApi, "fetchSites").mockResolvedValue([{ name: "Demo" }]);
     vi.spyOn(sectionApi, "loadSectionTree").mockResolvedValue(treeFixture);

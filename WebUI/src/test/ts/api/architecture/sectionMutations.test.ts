@@ -348,11 +348,27 @@ describe("sectionMutations (#3096)", () => {
     ).toBe("//Sites/Corporate_Investments");
 
     const props = applyTitleToProperties(
-      { id: "1", title: "Old", folderName: "old" },
+      {
+        id: "1",
+        title: "Old",
+        folderName: "old",
+        folderPermission: { accessLevel: "ADMIN" },
+      },
       " New Title ",
     );
     expect(props.title).toBe("New Title");
     expect(props.folderName).toBe("old");
+    expect(props.folderPermission).toEqual({ accessLevel: "ADMIN" });
+  });
+
+  it("title-only update body omits folderPermission (#3797)", () => {
+    const update = buildUpdateSiteSectionBody({
+      id: "guid-1",
+      title: "About Us",
+      folderName: "about",
+    });
+    expect(update.SiteSectionProperties.title).toBe("About Us");
+    expect(update.SiteSectionProperties.folderPermission).toBeUndefined();
   });
 
   it("applies section properties form without dropping folder ACL", () => {

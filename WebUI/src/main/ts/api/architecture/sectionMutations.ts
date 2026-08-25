@@ -427,14 +427,19 @@ export function buildCreateSiteSectionBody(
 export function buildUpdateSiteSectionBody(
   props: SiteSectionPropertiesWire,
 ): { SiteSectionProperties: SiteSectionPropertiesWire } {
+  const { folderPermission, ...rest } = props;
+  const body: SiteSectionPropertiesWire = {
+    ...rest,
+    id: props.id.trim(),
+    title: props.title.trim(),
+    folderName: props.folderName.trim(),
+    target: props.target ?? "_self",
+  };
+  if (folderPermission != null) {
+    body.folderPermission = folderPermission;
+  }
   return {
-    SiteSectionProperties: {
-      ...props,
-      id: props.id.trim(),
-      title: props.title.trim(),
-      folderName: props.folderName.trim(),
-      target: props.target ?? "_self",
-    },
+    SiteSectionProperties: body,
   };
 }
 

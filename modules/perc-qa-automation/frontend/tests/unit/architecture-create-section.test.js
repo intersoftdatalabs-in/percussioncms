@@ -30,6 +30,9 @@ const {
   sectionTreeUrl,
   sectionCreateUrl,
   isCreateSiteSectionRequest,
+  isSectionUpdateRequest,
+  isSectionMoveRequest,
+  sectionChildTitles,
   shouldRequireNavTree,
   firstSampleDemoSite,
   uniqueSectionTitle,
@@ -196,5 +199,52 @@ describe("architecture-create-section helpers (#3589)", () => {
     assert.equal(isKnownArchitectureConsoleNoise("TypeError: boom"), false);
     assert.match(missingNavTreeFailMessage(), /#3352/);
     assert.match(missingNavTreeFailMessage(), /Do not skip/);
+  });
+
+  it("matches POST /section/update and /section/move (#3797)", () => {
+    assert.equal(
+      isSectionUpdateRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/update",
+        "POST",
+      ),
+      true,
+    );
+    assert.equal(
+      isSectionUpdateRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/updateSectionLink",
+        "POST",
+      ),
+      false,
+    );
+    assert.equal(
+      isSectionMoveRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/move",
+        "POST",
+      ),
+      true,
+    );
+    assert.equal(
+      isSectionMoveRequest(
+        "http://127.0.0.1:9992/Rhythmyx/services/sitemanage/section/move",
+        "GET",
+      ),
+      false,
+    );
+  });
+
+  it("reads direct child titles from Jackson SectionNode (#3797)", () => {
+    assert.deepEqual(
+      sectionChildTitles({
+        SectionNode: {
+          title: "Home",
+          childNodes: [
+            { title: "QA3797A-1" },
+            { SectionNode: { title: "QA3797B-2" } },
+          ],
+        },
+      }),
+      ["QA3797A-1", "QA3797B-2"],
+    );
+    assert.deepEqual(sectionChildTitles(null), []);
   });
 });
