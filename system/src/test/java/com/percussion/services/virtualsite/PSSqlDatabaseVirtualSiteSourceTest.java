@@ -509,6 +509,7 @@ class PSSqlDatabaseVirtualSiteSourceTest {
             () -> PSVirtualSiteSourceFactory.createFromWireName("sql-api"));
     assertTrue(ex.getMessage().contains("sql-api"));
     assertTrue(ex.getMessage().contains("sql-database"));
+    assertTrue(ex.getMessage().contains("http-json"));
   }
 
   @Test

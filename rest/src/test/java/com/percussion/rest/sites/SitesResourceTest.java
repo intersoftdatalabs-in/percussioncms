@@ -220,6 +220,39 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void getVirtualPropertiesRoundTripsHttpJson() {
+    VirtualSiteProperties v = new VirtualSiteProperties();
+    v.setSourceKind("http-json");
+    v.setRootPath("C:/http-docs");
+    v.setVirtual(true);
+    when(adaptor.getVirtualSiteProperties("HttpHelp")).thenReturn(v);
+
+    VirtualSiteProperties out = resource.getVirtualProperties("HttpHelp");
+    assertEquals("http-json", out.getSourceKind());
+    assertEquals("C:/http-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).getVirtualSiteProperties("HttpHelp");
+  }
+
+  @Test
+  public void updateVirtualPropertiesRoundTripsHttpJson() {
+    VirtualSiteProperties body = new VirtualSiteProperties();
+    body.setSourceKind("http-json");
+    body.setRootPath("C:/http-docs");
+    VirtualSiteProperties saved = new VirtualSiteProperties();
+    saved.setSourceKind("http-json");
+    saved.setRootPath("C:/http-docs");
+    saved.setVirtual(true);
+    when(adaptor.updateVirtualSiteProperties(eq("HttpHelp"), same(body))).thenReturn(saved);
+
+    VirtualSiteProperties out = resource.updateVirtualProperties("HttpHelp", body);
+    assertEquals("http-json", out.getSourceKind());
+    assertEquals("C:/http-docs", out.getRootPath());
+    assertTrue(Boolean.TRUE.equals(out.getVirtual()));
+    verify(adaptor).updateVirtualSiteProperties("HttpHelp", body);
+  }
+
+  @Test
   public void updateVirtualPropertiesUnknownKindPropagates400() {
     VirtualSiteProperties body = new VirtualSiteProperties();
     body.setSourceKind("sql-adapter");
@@ -506,6 +539,10 @@ public class SitesResourceTest {
         text.contains(
             "return requireAdaptor().updateVirtualSiteProperties(nameOrId, props); // codeql[java/xss]"),
         "updateVirtualSiteProperties return sink must carry same-line codeql[java/xss]");
+    String putVirtualBlock = text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual\")"));
+    assertTrue(
+        putVirtualBlock.contains("http-json"),
+        "updateVirtualProperties OpenAPI description must mention http-json");
     assertTrue(
         text.contains(
             "return requireAdaptor().buildVirtualSite(nameOrId, request); // codeql[java/xss]"),
