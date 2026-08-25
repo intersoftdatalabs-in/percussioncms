@@ -29,7 +29,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.services.IPSDeployService;
 import com.percussion.deployer.services.PSDeployServiceException;
 import com.percussion.deployer.services.PSDeployServiceLocator;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -47,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /** Class to handle packaging and deploying a edition definition. */
 public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -208,7 +208,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
     IPSEdition edition = findEditionByDependencyID(edId);
     if (edition == null) {
       Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()};
-      throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+      throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
     }
 
     files.add(getDepFileFromEdition(edition));
@@ -226,7 +226,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
       }
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "Unable to generate an edition content list dependency file "
               + "for Edition: "
@@ -257,7 +257,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
       depSvc.installDependencyFiles(tok, archive, dep, ctx, this);
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "error occurred while installing edition: " + e.getLocalizedMessage());
     }
   }
@@ -332,7 +332,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
       addTransactionLogEntryByGuidType(dep, ctx, PSTypeEnum.EDITION, isNew);
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           e,
           "error occurred while installing edition: " + e.getLocalizedMessage());
     }
@@ -450,7 +450,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
       str = ((PSEdition) edition).toXML();
     } catch (Exception e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.UNEXPECTED_ERROR,
+          DeploymentErrorCodes.UNEXPECTED_ERROR,
           "Unable to generate a dependency file for Edition:" + edition.getName());
     }
 

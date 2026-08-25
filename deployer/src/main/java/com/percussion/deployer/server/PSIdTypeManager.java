@@ -24,7 +24,6 @@ import com.percussion.deployer.objectstore.idtypes.PSAppExtensionCallIdContext;
 import com.percussion.deployer.objectstore.idtypes.PSAppExtensionParamIdContext;
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIdContext;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionDef;
@@ -42,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Class to manage {@link PSApplicationIDTypes} maps for all applications. Handles saving and
@@ -72,7 +72,7 @@ public class PSIdTypeManager {
     try {
       return idTypeDoc != null ? new PSApplicationIDTypes(idTypeDoc.getDocumentElement()) : null;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -174,7 +174,7 @@ public class PSIdTypeManager {
         idTypes = new PSApplicationIDTypes(doc.getDocumentElement());
       } catch (PSUnknownNodeTypeException e) {
         Object[] args = {depKey, e.getLocalizedMessage()};
-        throw new PSDeployException(IPSDeploymentErrors.ID_TYPE_MAP_LOAD, args);
+        throw new PSDeployException(DeploymentErrorCodes.ID_TYPE_MAP_LOAD, args);
       }
     } else {
       // if new map, create
@@ -224,7 +224,7 @@ public class PSIdTypeManager {
     try (var out = new FileOutputStream(mapFile)) {
       PSXmlDocumentBuilder.write(doc, out);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -302,7 +302,7 @@ public class PSIdTypeManager {
     try (var in = new FileInputStream(mapFile)) {
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 

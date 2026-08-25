@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.util.PSSQLStatement;
 import java.io.IOException;
@@ -147,7 +148,7 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
       }
     } catch (IOException e) {
       Object[] args = {m_tableSchema.getName(), "Column : " + colName + " " + e.getMessage()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.SQL_CATALOG_DATA, args, e);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.SQL_CATALOG_DATA, args, e);
     }
     return new PSJdbcRowData(colDataList.iterator(), m_rowAction);
   }

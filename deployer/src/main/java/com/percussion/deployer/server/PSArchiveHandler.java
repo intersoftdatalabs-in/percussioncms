@@ -22,7 +22,6 @@ import com.percussion.deployer.objectstore.*;
 import com.percussion.deployer.server.dependencies.PSAclDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSContentTypeDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSSupportFileDependencyHandler;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Handling saving and retrieving IDTypes and dependencies to and from a <code>PSArchive</code>
@@ -194,7 +194,7 @@ public class PSArchiveHandler {
       if (hasDependencyFiles(dep)) m_archiveMan.addFiles(dep, dupFiles.iterator());
     } catch (RuntimeException e) {
       throw new PSDeployException(
-          IPSDeploymentErrors.ARCHIVE_WRITE_ERROR,
+          DeploymentErrorCodes.ARCHIVE_WRITE_ERROR,
           new Object[] {m_archive.getArchiveRef().getPath(), e.getLocalizedMessage()});
     } finally {
       tmpFiles.forEach(File::delete);

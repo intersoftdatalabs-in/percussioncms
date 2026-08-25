@@ -40,7 +40,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
@@ -51,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.w3c.dom.Element;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Base class for all dependency handlers dealing with <code>PSFolder</code> objects. Provides
@@ -121,7 +121,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         parentSum = getParentFolderSummary(relProc, path);
         if (parentSum == null) {
           throw new PSDeployException(
-              IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+              DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND,
               new Object[] {
                 path, dep.getObjectTypeName(), path.substring(0, path.lastIndexOf(PATH_SEP))
               });
@@ -144,7 +144,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
       addTransactionLogEntry(dep, ctx, newFolder, action);
     } catch (PSCmsException | PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -181,9 +181,9 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
       return path;
     } catch (PSCmsException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -451,7 +451,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
       return summaries.iterator();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
     }
   }
 
@@ -479,7 +479,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
       return summaries.iterator();
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -504,7 +504,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
       return folder;
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
   }
 
@@ -609,7 +609,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
               new PSKey[] {PSDisplayFormat.createKey(new String[] {formatId})});
       if (els.length > 0) df = new PSDisplayFormat(els[0]);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
     if (df != null) {
@@ -657,7 +657,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
             ctx.getSourceRepository(),
             strCommId
           };
-          throw new PSDeployException(IPSDeploymentErrors.INVALID_ID_MAPPING_TARGET, args);
+          throw new PSDeployException(DeploymentErrorCodes.INVALID_ID_MAPPING_TARGET, args);
         }
       }
     }
@@ -670,7 +670,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
       Iterator<PSDependency> deps = dep.getDependencies(dfType);
       if (!deps.hasNext()) {
         Object[] args = {oldDfId, dfType, dep.getDependencyId(), dep.getObjectTypeName()};
-        throw new PSDeployException(IPSDeploymentErrors.CHILD_DEP_NOT_FOUND, args);
+        throw new PSDeployException(DeploymentErrorCodes.CHILD_DEP_NOT_FOUND, args);
       }
 
       PSDependency dfDep = (PSDependency) deps.next();
@@ -682,7 +682,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         Object[] args = {
           dfDep.getDependencyId(), dfDep.getObjectTypeName(), dfDep.getDisplayName()
         };
-        throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+        throw new PSDeployException(DeploymentErrorCodes.DEP_OBJECT_NOT_FOUND, args);
       }
 
       String newDfId = getIdFromKey(df, df.getComponentType());

@@ -16,11 +16,11 @@
  */
 package com.percussion.cx;
 
+import com.intsof.percussioncms.auditlog.codes.ContentExplorerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSUserInfo;
-import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.guitools.ErrorDialogs;
@@ -104,10 +104,10 @@ public class PSDisplayFormatCatalog {
       }
     } catch (PSCmsException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     } catch (PSUnknownNodeTypeException ex) {
       throw new PSContentExplorerException(
-          IPSContentExplorerErrors.GENERAL_ERROR, ex.getLocalizedMessage());
+          ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }
 
     if (m_folderDisplayFormats.isEmpty()) {

@@ -16,6 +16,7 @@
  */
 package com.percussion.cx.error;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSStandaloneException;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import java.text.MessageFormat;
@@ -57,6 +58,35 @@ public class PSContentExplorerException extends PSStandaloneException {
    */
   public PSContentExplorerException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with no message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   */
+  public PSContentExplorerException(IPSErrorCode code) {
+    super(code);
+  }
+
+  /**
+   * Typed construction with a single message argument.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param singleMessage the sole argument to use as the arguments in the error message
+   */
+  public PSContentExplorerException(IPSErrorCode code, String singleMessage) {
+    super(code, singleMessage);
+  }
+
+  /**
+   * Typed construction with message arguments.
+   *
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSContentExplorerException(IPSErrorCode code, Object[] arrayArgs) {
+    super(code, arrayArgs);
   }
 
   /** See PSStandaloneException for details. */

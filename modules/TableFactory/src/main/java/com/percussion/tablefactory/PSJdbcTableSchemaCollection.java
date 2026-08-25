@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.intsof.percussioncms.auditlog.codes.TableFactoryErrorCodes;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -78,7 +79,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
       Object[] args = {NODE_NAME, sourceNode.getNodeName()};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_WRONG_TYPE, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_WRONG_TYPE, args);
     }
 
     clear();
@@ -92,7 +93,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     Element table = walker.getNextElement(PSJdbcTableSchema.NODE_NAME, firstFlags);
     if (table == null) {
       Object[] args = {NODE_NAME, PSJdbcTableSchema.NODE_NAME, "null"};
-      throw new PSJdbcTableFactoryException(IPSTableFactoryErrors.XML_ELEMENT_INVALID_CHILD, args);
+      throw new PSJdbcTableFactoryException(TableFactoryErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
 
     while (table != null) {
@@ -168,7 +169,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
       PSJdbcTableData tableData = (PSJdbcTableData) tables.next();
       if (!matchedTables.contains(tableData.getName())) {
         throw new PSJdbcTableFactoryException(
-            IPSTableFactoryErrors.TABLE_SCHEMA_NOT_FOUND, tableData.getName());
+            TableFactoryErrorCodes.TABLE_SCHEMA_NOT_FOUND, tableData.getName());
       }
     }
   }

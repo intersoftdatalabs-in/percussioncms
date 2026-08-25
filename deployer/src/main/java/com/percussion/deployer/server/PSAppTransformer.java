@@ -86,7 +86,6 @@ import com.percussion.design.objectstore.PSUIDefinition;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSVisibilityRules;
-import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.tablefactory.PSJdbcColumnData;
@@ -100,6 +99,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
  * Handles discovery and transformations of literal ids specified in application and other
@@ -2796,7 +2796,7 @@ public class PSAppTransformer {
         newValue = Integer.parseInt(mapping.getValue());
       } catch (NumberFormatException e) {
         // should never happen, would be a bug
-        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
     } else {
       newValue =
