@@ -71,7 +71,7 @@ and Markdown tooling, not the classic page editor.
 
 | Property | Required | Example | Notes |
 |----------|----------|---------|-------|
-| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, or SQL. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching Git/CSV/SQL adapter. **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). `http-json` assemble is SPI/CLI (HTTP or local JSON catalog; see [Virtual Sites](id:developer-virtual-sites)). Developer Sites chrome for `http-json` is a follow-on. `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
+| `virtual.sourceKind` | Yes (for Virtual) | `git-filesystem`, `csv-filesystem`, `sql-database`, or `http-json` | Allow-list: **`git-filesystem`**, **`csv-filesystem`**, **`sql-database`**, **`http-json`**. Blank or `repository` = traditional Site. Developer Sites can save Git, CSV, SQL, or **HTTP JSON**. **Build Virtual Site** and **Publish Virtual Site** (REST and Developer Sites) run the matching Git/CSV/SQL adapter. **Preview REST** (`GET …/virtual/preview`) streams last-build HTML for Git, CSV, and SQL. REST **GET/PUT** `/sites/{nameOrId}/virtual` also round-trips **`http-json`** (safe `rootPath` JSON fixture; `virtual.remoteUrl` is **400** — catalog URL/file stay in `_config.yaml`, no secrets on the REST envelope). Developer Sites can save/GET-roundtrip **HTTP JSON**; Build/Preview/Publish chrome for that kind is a later phase. `http-json` assemble is SPI/CLI (see [Virtual Sites](id:developer-virtual-sites)). `sql-database` is in-memory H2 (`jdbc:h2:mem:`; JDBC URL/user/query in `_config.yaml` — never passwords on the REST envelope). CSV trees may omit `_config.yaml`. Unknown kinds are rejected. |
 | `virtual.rootPath` | Yes when remote is blank | absolute path to `product-docs` | Local tree when `virtual.remoteUrl` is blank. Prefer absolute portable paths (Windows/Linux/macOS). Paths with `..` after normalize are rejected. When a remote is set, use a **relative** folder inside the checkout (for example `product-docs`). |
 | `virtual.remoteUrl` | No | `https://git.example.com/org/product-docs.git` | Optional Git remote. Build clones or fetches into a contained server work directory, then discovers Markdown as usual. Blank = local-path mode. Allowed: `https://`, `ssh://`, `file://`, `git@host:path`. |
 | `virtual.branch` | No | `main` | Branch to checkout when a remote is set. Default `main`. |
@@ -131,16 +131,18 @@ blank). Load failures show **Could not load sites** rather than the empty state.
 4. In the **Virtual Site source** section:
    - **Source kind** — leave **Repository (traditional)** for ordinary CMS Sites
      (blank/`repository` on the server). Choose **Git filesystem** for Git/Markdown
-     Virtual Sites, **CSV filesystem** for a CSV tree on disk, or **SQL database**
-     for an in-memory H2 JDBC source. Repository stays the default.
+     Virtual Sites, **CSV filesystem** for a CSV tree on disk, **SQL database**
+     for an in-memory H2 JDBC source, or **HTTP JSON** for a local JSON fixture or
+     loopback HTTP catalog. Repository stays the default.
    - **Root path** — absolute or install-relative path to the documentation, CSV,
-     or SQL `_config.yaml` tree (required when source kind is Virtual and no Git
-     remote is set). Do not use `..` path segments. Shared by Git, CSV, and SQL.
-     When a **Remote URL** is set (Git only), this may be a relative folder inside
-     the checkout.
+     SQL `_config.yaml`, or HTTP JSON catalog tree (required when source kind is
+     Virtual and no Git remote is set). Do not use `..` path segments. Shared by
+     Git, CSV, SQL, and HTTP JSON. When a **Remote URL** is set (Git only), this
+     may be a relative folder inside the checkout.
    - **Remote URL** (optional, **Git filesystem** only) — Git remote (`https://`,
-     `ssh://`, `file://`, or `git@host:path`). Hidden for **CSV filesystem** and
-     **SQL database** (the server rejects `virtual.remoteUrl` on those kinds).
+     `ssh://`, `file://`, or `git@host:path`). Hidden for **CSV filesystem**,
+     **SQL database**, and **HTTP JSON** (the server rejects `virtual.remoteUrl`
+     on those kinds).
      Leave blank to keep the local **Root path**. When set, **Build Virtual Site**
      clones or fetches on the CMS host (`git` must be on the server `PATH`). The
      panel does not re-implement checkout.
@@ -157,11 +159,16 @@ blank). Load failures show **Could not load sites** rather than the empty state.
    "sourceKind": "csv-filesystem", "rootPath": "…" } }` (no `remoteUrl`). For
    SQL it sends `{ "VirtualSiteProperties": { "sourceKind": "sql-database",
    "rootPath": "…" } }` (no `remoteUrl`, no password). JDBC URL, user, and
-   query stay in `_config.yaml` under the root. After a successful save the
-   panel reloads properties from GET so the kind and root persist without a
-   full page reload. **Build Virtual Site**, **Publish Virtual Site**, and
-   **Preview assembled site** appear for **Git filesystem**, **CSV filesystem**,
-   and **SQL database**. Traditional **Repository** hides that chrome.
+   query stay in `_config.yaml` under the root. For HTTP JSON it sends
+   `{ "VirtualSiteProperties": { "sourceKind": "http-json", "rootPath": "…" } }`
+   (no `remoteUrl`, no Authorization or API keys). Catalog URL (`http.url`) or
+   local fixture (`http.file` / default `pages.json`) stay in `_config.yaml`.
+   After a successful save the panel reloads properties from GET so the kind
+   and root persist without a full page reload. **Build Virtual Site**,
+   **Publish Virtual Site**, and **Preview assembled site** appear for **Git
+   filesystem**, **CSV filesystem**, and **SQL database**. **HTTP JSON** and
+   traditional **Repository** hide that chrome in this release (HTTP JSON
+   assemble remains CLI/SPI until a later slice).
 6. To return a Virtual Site to traditional repository mode, set source kind back to
    **Repository (traditional)** and save (clears `virtual.*` properties). Switching
    the select back to Repository hides virtual fields immediately; Save is still
@@ -174,8 +181,8 @@ and **Branch** on this panel (or `virtual.remoteUrl` / `virtual.branch` via
 a local Git checkout path.
 
 Validation matches the server helper (`PSVirtualSiteHelper`): allow-listed source kinds
-(`git-filesystem`, `csv-filesystem`, `sql-database`), required local root path when virtual and no remote,
-safe remote URLs/branches for Git only (`csv-filesystem` and `sql-database` reject `virtual.remoteUrl`), and
+(`git-filesystem`, `csv-filesystem`, `sql-database`, `http-json`), required local root path when virtual and no remote,
+safe remote URLs/branches for Git only (`csv-filesystem`, `sql-database`, and `http-json` reject `virtual.remoteUrl`), and
 safe path/config names (no remaining `..` after NIO normalize). After root, remote, or
 config changes, re-run the offline docs build, the in-product **Build Virtual Site**
 action (below), or the CMS publish path to verify links.
@@ -187,7 +194,10 @@ safe `rootPath` that holds `_config.yaml` with the `sql:` mapping (H2 mem JDBC U
 user; do not put passwords on the REST envelope). In-product REST **Build Virtual Site**
 runs for `git-filesystem`, `csv-filesystem`, and `sql-database` (`POST …/virtual/build`).
 CSV assemble does not require a Git remote; `_config.yaml` is optional for CSV and
-required for SQL.
+required for SQL. HTTP JSON trees use `"sourceKind": "http-json"` and a safe
+`rootPath`; `_config.yaml` is required (versions plus `http.url` or `http.file`).
+Developer Sites can save HTTP JSON the same way as SQL (GET round-trips
+`http-json`); Build/Preview/Publish for that kind is not on the panel yet.
 
 ### Build a Virtual Site from the product UI
 

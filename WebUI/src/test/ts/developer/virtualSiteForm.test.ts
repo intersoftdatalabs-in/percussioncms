@@ -6,12 +6,14 @@ import { describe, expect, it } from "vitest";
 import {
   SOURCE_KIND_CSV_FILESYSTEM,
   SOURCE_KIND_GIT_FILESYSTEM,
+  SOURCE_KIND_HTTP_JSON,
   SOURCE_KIND_REPOSITORY,
   SOURCE_KIND_SQL_DATABASE,
   emptyVirtualSiteForm,
   formToVirtualProps,
   isCsvFilesystemSourceKind,
   isGitFilesystemSourceKind,
+  isHttpJsonSourceKind,
   isSqlDatabaseSourceKind,
   isVirtualSourceKind,
   normalizeSourceKindOption,
@@ -20,7 +22,7 @@ import {
 } from "../../../main/ts/developer/virtualSiteForm";
 
 describe("virtualSiteForm helpers", () => {
-  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, and sql-database", () => {
+  it("normalizeSourceKindOption maps blank/repository, git-filesystem, csv-filesystem, sql-database, and http-json", () => {
     expect(normalizeSourceKindOption(undefined)).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("")).toBe(SOURCE_KIND_REPOSITORY);
     expect(normalizeSourceKindOption("  ")).toBe(SOURCE_KIND_REPOSITORY);
@@ -32,7 +34,10 @@ describe("virtualSiteForm helpers", () => {
     expect(normalizeSourceKindOption("CSV-Filesystem")).toBe(SOURCE_KIND_CSV_FILESYSTEM);
     expect(normalizeSourceKindOption("sql-database")).toBe(SOURCE_KIND_SQL_DATABASE);
     expect(normalizeSourceKindOption("SQL-Database")).toBe(SOURCE_KIND_SQL_DATABASE);
+    expect(normalizeSourceKindOption("http-json")).toBe(SOURCE_KIND_HTTP_JSON);
+    expect(normalizeSourceKindOption("HTTP-JSON")).toBe(SOURCE_KIND_HTTP_JSON);
     expect(normalizeSourceKindOption("future-adapter")).toBe(SOURCE_KIND_REPOSITORY);
+    expect(normalizeSourceKindOption("sql-api")).toBe(SOURCE_KIND_REPOSITORY);
   });
 
   it("isVirtualSourceKind treats blank/repository as traditional", () => {
@@ -42,16 +47,25 @@ describe("virtualSiteForm helpers", () => {
     expect(isVirtualSourceKind("git-filesystem")).toBe(true);
     expect(isVirtualSourceKind("csv-filesystem")).toBe(true);
     expect(isVirtualSourceKind("sql-database")).toBe(true);
+    expect(isVirtualSourceKind("http-json")).toBe(true);
     expect(isGitFilesystemSourceKind("git-filesystem")).toBe(true);
     expect(isGitFilesystemSourceKind("csv-filesystem")).toBe(false);
     expect(isGitFilesystemSourceKind("sql-database")).toBe(false);
+    expect(isGitFilesystemSourceKind("http-json")).toBe(false);
     expect(isCsvFilesystemSourceKind("csv-filesystem")).toBe(true);
     expect(isCsvFilesystemSourceKind("git-filesystem")).toBe(false);
     expect(isCsvFilesystemSourceKind("sql-database")).toBe(false);
+    expect(isCsvFilesystemSourceKind("http-json")).toBe(false);
     expect(isSqlDatabaseSourceKind("sql-database")).toBe(true);
     expect(isSqlDatabaseSourceKind("SQL-Database")).toBe(true);
     expect(isSqlDatabaseSourceKind("csv-filesystem")).toBe(false);
     expect(isSqlDatabaseSourceKind("git-filesystem")).toBe(false);
+    expect(isSqlDatabaseSourceKind("http-json")).toBe(false);
+    expect(isHttpJsonSourceKind("http-json")).toBe(true);
+    expect(isHttpJsonSourceKind("HTTP-JSON")).toBe(true);
+    expect(isHttpJsonSourceKind("sql-database")).toBe(false);
+    expect(isHttpJsonSourceKind("csv-filesystem")).toBe(false);
+    expect(isHttpJsonSourceKind("git-filesystem")).toBe(false);
   });
 
   it("virtualPropsToForm and formToVirtualProps round-trip repository clear", () => {
@@ -182,6 +196,41 @@ describe("virtualSiteForm helpers", () => {
       branch: "",
     });
     expect(body).not.toHaveProperty("password");
+  });
+
+  it("virtualPropsToForm maps http-json and PUT omits Git remotes", () => {
+    const form = virtualPropsToForm({
+      sourceKind: "http-json",
+      rootPath: "C:/http-json-docs",
+      virtual: true,
+    });
+    expect(form.sourceKind).toBe(SOURCE_KIND_HTTP_JSON);
+    expect(form.rootPath).toBe("C:/http-json-docs");
+    expect(formToVirtualProps(form)).toEqual({
+      sourceKind: SOURCE_KIND_HTTP_JSON,
+      rootPath: "C:/http-json-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+  });
+
+  it("formToVirtualProps for http-json clears leftover Git remote fields", () => {
+    const body = formToVirtualProps({
+      sourceKind: SOURCE_KIND_HTTP_JSON,
+      rootPath: "  C:/http-json-docs  ",
+      remoteUrl: "https://git.example.com/org/docs.git",
+      branch: "main",
+      configFile: "_config.yaml",
+      siteKey: "docs",
+    });
+    expect(body).toEqual({
+      sourceKind: SOURCE_KIND_HTTP_JSON,
+      rootPath: "C:/http-json-docs",
+      remoteUrl: "",
+      branch: "",
+    });
+    expect(body).not.toHaveProperty("password");
+    expect(JSON.stringify(body)).not.toMatch(/authorization|api[_-]?key/i);
   });
 
   it("formToVirtualProps trims and nulls empty optional fields", () => {
@@ -318,6 +367,39 @@ describe("virtualSiteForm helpers", () => {
       validateVirtualSiteForm({
         sourceKind: SOURCE_KIND_SQL_DATABASE,
         rootPath: "C:/sql-docs",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBeNull();
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_HTTP_JSON,
+        rootPath: "",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-required");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_HTTP_JSON,
+        rootPath: "../escape",
+        remoteUrl: "",
+        branch: "",
+        configFile: "",
+        siteKey: "",
+      }),
+    ).toBe("root-unsafe");
+
+    expect(
+      validateVirtualSiteForm({
+        sourceKind: SOURCE_KIND_HTTP_JSON,
+        rootPath: "C:/http-json-docs",
         remoteUrl: "",
         branch: "",
         configFile: "",

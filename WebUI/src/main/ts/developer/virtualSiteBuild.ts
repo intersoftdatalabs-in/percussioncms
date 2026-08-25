@@ -24,7 +24,8 @@ import type {
  * True when the Build Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, and sql-database Virtual Sites all run
  * POST /virtual/build (SQL after a saved sourceKind; JDBC stays in _config.yaml).
- * Repository / blank / unknown kinds must not display this chrome.
+ * Repository / blank / unknown kinds and http-json (source chrome only this slice)
+ * must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
