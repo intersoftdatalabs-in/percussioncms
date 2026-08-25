@@ -89,4 +89,29 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public Boolean unlockContentType(URI baseUri, String idOrName) {
     return Boolean.TRUE;
   }
+
+  @Override
+  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+    return null;
+  }
+
+  @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    return List.of();
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    return templates != null ? templates : List.of();
+  }
+
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    return null;
+  }
 }

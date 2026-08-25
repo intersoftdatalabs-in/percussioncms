@@ -1095,7 +1095,107 @@ public class ContentTypesResource {
     } catch (RuntimeException e) {
       throw mapMutationFailure(e);
     } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}/allowedTemplates")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List allowed templates for a content type",
+      description =
+          "Read-only list of templates associated with the content type (CD-12 GET). No design"
+              + " lock is required. Empty list means none. Same association set as"
+              + " ContentTypeDetail.allowedTemplates.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = NamedObjectRefList.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public NamedObjectRefList getAllowedTemplates(@PathParam("idOrName") String idOrName) {
+    try {
+      List<NamedObjectRef> items =
+          requireAdaptor().getAllowedTemplates(uriInfo.getBaseUri(), idOrName);
+      if (items == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return asNamedObjectRefList(items);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  @PUT
+  @Path("/{idOrName}/allowedTemplates")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace allowed templates for a content type",
+      description =
+          "Full-replace of allowed template associations (CD-12). Requires a design-session lock"
+              + " already held by the current user (POST .../lock when that slice is installed, or"
+              + " an equivalent design lock). Does not acquire or release the lock. Empty list"
+              + " clears associations. Template refs must include a resolvable name or guid."
+              + " After PUT, GET on this path (or GET content type detail) lists the new set.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Replaced",
+            content = @Content(schema = @Schema(implementation = NamedObjectRefList.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid template id/name or body"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public NamedObjectRefList replaceAllowedTemplates(
+      @PathParam("idOrName") String idOrName, NamedObjectRefList body) {
+    try {
+      List<NamedObjectRef> items =
+          requireAdaptor().replaceAllowedTemplates(uriInfo.getBaseUri(), idOrName, body);
+      if (items == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return asNamedObjectRefList(items);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  private static NamedObjectRefList asNamedObjectRefList(List<NamedObjectRef> items) {
+    if (items instanceof NamedObjectRefList list) {
+      return list;
+    }
+    return new NamedObjectRefList(items);
+  }
+
+  /**
+   * Map adaptor write failures to HTTP status. Lock conflicts are always 409, including {@link
+   * ContentTypeDesignLockException} and {@link IllegalStateException} whose message mentions lock.
+   */
+  static WebApplicationException mapWriteFailure(Exception e) {
+    if (e instanceof ContentTypeDesignLockException) {
+      return new WebApplicationException(e.getMessage(), 409);
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      if (msg.toLowerCase().contains("lock")) {
+        return new WebApplicationException(msg, 409);
+      }
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
   }
 }

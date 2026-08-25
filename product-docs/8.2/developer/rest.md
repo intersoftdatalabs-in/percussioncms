@@ -191,6 +191,8 @@ in the slot detail panel — use **Back** to return to the catalog.
 |-----------|------|--------|
 | List | `GET /services/contenttypes` | Name, label, description, guid |
 | Detail | `GET /services/contenttypes/{idOrName}` | Field catalog, associations, `enabled`, `designGaps` |
+| Allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` | Read-only list of associated templates (CD-12). No lock required. Empty list means none. Same set as `ContentTypeDetail.allowedTemplates`. |
+| Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` | Full replace of associated templates (CD-12). Requires a **held** design-session lock. Empty list clears associations. **409** if unlocked or locked by another user. **400** if a template name/guid cannot be resolved. Does not acquire or release the lock. |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` | **Admin.** Self-only design-session lock (`IPSContentDesignWs.loadContentTypes` with `lock=true`, `overrideLock=false`). Does **not** save. `200` + `ObjectLockSummary` (`session`, `locker`, `remainingTime` minutes from the lock service). Locks expire after **30 minutes** (`PSObjectLock.LOCK_INTERVAL`). Re-lock by the same session user extends the lock. |
 | Save | `PUT /services/contenttypes/{idOrName}` | **Admin.** Requires a lock already held by the current user. Saves label, description, enabled, per-field searchable/occurrence, workflows, and templates. Does **not** release the lock. The save load (`lock=true`) **extends** a still-valid lock; a PUT after expiry returns `409` and the client must re-lock. Field rule expressions stay read-only. |
 | Allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` | **Admin** (CD-08 design action). Requires a held design-session lock (`POST .../lock` first). Does **not** acquire or release the lock. Full replace of `allowedWorkflows` (empty list clears). Optional `defaultWorkflow`. Workflow name/guid must exist. `200` + `ContentTypeDetail` with the new `allowedWorkflows` / `defaultWorkflow` (lock still held). |
@@ -279,6 +281,24 @@ Jackson root wrap:
 | `404` | Content type not found |
 | `409` | No design lock, or locked by another user |
 | `500` | Unexpected error (not inferred from names that happen to contain "lock") |
+
+### Allowed templates (CD-12)
+
+`PUT /services/contenttypes/{idOrName}/allowedTemplates` replaces the content type's
+allowed template associations. Body is a JSON array of named refs (`name` and/or
+`guid`). Full-replace semantics: the supplied list becomes the new set; an empty
+array clears associations.
+
+Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
+
+1. Hold a design lock on the content type.
+2. `PUT /services/contenttypes/{idOrName}/allowedTemplates` with the new set.
+3. `GET` the same path (or `GET /services/contenttypes/{idOrName}`) to confirm.
+4. Release the design lock when editing is finished.
+
+`409` means the current session user does not hold the design lock. `400` means
+a template id or name in the body does not exist. The lock stays held after a
+successful PUT so further association or design edits can continue.
 
 ### Field rule expressions (read-only)
 

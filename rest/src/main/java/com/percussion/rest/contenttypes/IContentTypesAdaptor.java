@@ -105,4 +105,41 @@ public interface IContentTypesAdaptor {
    *     user
    */
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
+
+  /**
+   * List allowed template associations for a content type (read-only; no lock required).
+   *
+   * @return association list (empty when none), or {@code null} when the content type is not found
+   */
+  List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName);
+
+  /**
+   * Replace allowed template associations. Requires a design-session lock already held by the
+   * current request user. Full-replace semantics: empty list clears associations. Does not release
+   * the lock.
+   *
+   * @param templates replacement set, never {@code null} (empty clears)
+   * @return the persisted set (empty when none), or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when a template id/name cannot be resolved
+   */
+  List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates);
+
+  /**
+   * Replace allowed-workflow associations for a content type (CD-08). Requires a design-session
+   * lock already held by the current user. Full-replace semantics: empty list clears associations.
+   * Does not release the lock.
+   *
+   * @param allowedWorkflows replacement set, never {@code null} (empty clears)
+   * @param defaultWorkflow optional default workflow id/name; may be {@code null}
+   * @return updated detail, or {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when a workflow id/name cannot be resolved
+   */
+  ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow);
 }

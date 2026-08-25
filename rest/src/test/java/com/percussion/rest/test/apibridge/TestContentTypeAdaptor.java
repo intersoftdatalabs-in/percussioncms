@@ -25,6 +25,7 @@ import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
+import com.percussion.rest.contenttypes.NamedObjectRef;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -102,5 +103,30 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public Boolean unlockContentType(URI baseUri, String idOrName) {
     return Boolean.TRUE;
+  }
+
+  @Override
+  public ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled) {
+    return null;
+  }
+
+  @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    return List.of();
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    return templates != null ? templates : List.of();
+  }
+
+  @Override
+  public ContentTypeDetail setAllowedWorkflows(
+      URI baseUri,
+      String idOrName,
+      List<NamedObjectRef> allowedWorkflows,
+      NamedObjectRef defaultWorkflow) {
+    return null;
   }
 }

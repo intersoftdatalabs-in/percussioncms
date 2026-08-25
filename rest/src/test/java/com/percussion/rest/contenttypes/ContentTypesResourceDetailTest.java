@@ -31,6 +31,8 @@ import com.percussion.rest.DesignGap;
 import com.percussion.rest.Guid;
 import com.percussion.rest.JacksonContextResolver;
 import com.percussion.rest.ObjectLockSummary;
+import com.percussion.rest.contenttypes.NamedObjectRef;
+import com.percussion.rest.contenttypes.NamedObjectRefList;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -199,6 +201,83 @@ public class ContentTypesResourceDetailTest {
             WebApplicationException.class,
             () -> resource.updateContentType("percPage", new ContentTypeDetail()));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getAllowedTemplatesReturnsList() {
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("perc.page");
+    when(adaptor.getAllowedTemplates(any(), eq("percPage"))).thenReturn(List.of(ref));
+    NamedObjectRefList out = resource.getAllowedTemplates("percPage");
+    assertEquals(1, out.size());
+    assertEquals("perc.page", out.get(0).getName());
+  }
+
+  @Test
+  public void getAllowedTemplatesNotFound() {
+    when(adaptor.getAllowedTemplates(any(), eq("missing"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getAllowedTemplates("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceAllowedTemplatesSuccess() {
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("perc.page");
+    NamedObjectRefList body = new NamedObjectRefList(List.of(ref));
+    when(adaptor.replaceAllowedTemplates(any(), eq("percPage"), any())).thenReturn(body);
+    NamedObjectRefList out = resource.replaceAllowedTemplates("percPage", body);
+    assertEquals(1, out.size());
+    assertEquals("perc.page", out.get(0).getName());
+  }
+
+  @Test
+  public void replaceAllowedTemplatesNotFound() {
+    when(adaptor.replaceAllowedTemplates(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceAllowedTemplates("missing", new NamedObjectRefList()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceAllowedTemplatesRequiresLock() {
+    when(adaptor.replaceAllowedTemplates(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save template associations; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceAllowedTemplates("percPage", new NamedObjectRefList()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceAllowedTemplatesLockedByOtherUser() {
+    when(adaptor.replaceAllowedTemplates(any(), eq("percPage"), any()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not save template associations; locked by editor"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceAllowedTemplates("percPage", new NamedObjectRefList()));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void replaceAllowedTemplatesInvalidTemplate() {
+    when(adaptor.replaceAllowedTemplates(any(), eq("percPage"), any()))
+        .thenThrow(new IllegalArgumentException("allowedTemplates[0] template not found: nope"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.replaceAllowedTemplates("percPage", new NamedObjectRefList()));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

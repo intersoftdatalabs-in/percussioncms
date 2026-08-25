@@ -53,7 +53,7 @@ design locks + session user). Companion tests: `KeywordsResourceCrudTest`,
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763); templates still read-only (CD-12) |
 | Enable/disable as design action                      | CD-13        | Read `enabled` only                               |
 =======
-| Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); templates still read-only (CD-12) |
+| Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
 >>>>>>> origin/main
 | Shared field file editing                            | CD-15        | Separate object                                   |

@@ -69,6 +69,7 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
@@ -104,6 +105,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private final PSItemDefManager itemDefManager;
   private final IPSSystemDesignWs systemDesign;
   private final BooleanSupplier adminChecker;
+  private final IPSAssemblyService assemblyService;
+  private final IPSWorkflowService workflowService;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -114,6 +117,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         PSContentWsLocator.getContentDesignWebservice(),
         PSItemDefManager.getInstance(),
         PSSystemWsLocator.getSystemDesignWebservice(),
+        null,
+        null,
         null);
   }
 
@@ -123,10 +128,48 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       PSItemDefManager itemDefManager,
       IPSSystemDesignWs systemDesign,
       BooleanSupplier adminChecker) {
+    this(designSvc, itemDefManager, systemDesign, adminChecker, null, null);
+  }
+
+  /**
+   * Package-visible for unit tests that inject design web services and the assembly service (no
+   * Admin gate). Defaults to an always-allow Admin check so tests can focus on the lock / template
+   * save flow without wiring a user service.
+   */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      IPSAssemblyService assemblyService) {
+    this(designSvc, itemDefManager, systemDesign, () -> true, assemblyService, null);
+  }
+
+  /**
+   * Package-visible for unit tests that inject design web services, Admin gate, and a workflow
+   * service mock. Assembly service falls back to the locator.
+   */
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker,
+      IPSWorkflowService workflowService) {
+    this(designSvc, itemDefManager, systemDesign, adminChecker, null, workflowService);
+  }
+
+  ContentTypeAdaptor(
+      IPSContentDesignWs designSvc,
+      PSItemDefManager itemDefManager,
+      IPSSystemDesignWs systemDesign,
+      BooleanSupplier adminChecker,
+      IPSAssemblyService assemblyService,
+      IPSWorkflowService workflowService) {
     this.designSvc = designSvc;
     this.itemDefManager = itemDefManager;
     this.systemDesign = systemDesign;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.assemblyService = assemblyService;
+    this.workflowService = workflowService;
   }
 
   /***
@@ -486,6 +529,69 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public List<NamedObjectRef> getAllowedTemplates(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      if (def == null) {
+        return null;
+      }
+      return loadTemplates(new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId()));
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for allowed templates: {}", idOrName);
+      return null;
+    }
+  }
+
+  @Override
+  public List<NamedObjectRef> replaceAllowedTemplates(
+      URI baseUri, String idOrName, List<NamedObjectRef> templates) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (templates == null) {
+      throw new IllegalArgumentException("allowedTemplates body is required");
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(idOrName.trim());
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<IPSGuid> templateGuids = resolveTemplateGuids(templates);
+      try {
+        designSvc.saveAssociatedTemplates(ctGuid, templateGuids, false, session, user);
+      } catch (PSErrorsException e) {
+        if (isNotLockedError(e) || hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not save template associations");
+        }
+        log.error(
+            "Failed to save template associations for {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save template associations", e);
+      }
+      return loadTemplates(ctGuid);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for template association replace: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to replace template associations for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to replace template associations", e);
+    }
+  }
+
+  @Override
   public ContentTypeDetail setAllowedWorkflows(
       URI baseUri,
       String idOrName,
@@ -612,7 +718,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     if (StringUtils.isNotBlank(ref.getName())) {
-      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+      IPSWorkflowService wfSvc =
+          workflowService != null ? workflowService : PSWorkflowServiceLocator.getWorkflowService();
       List<PSWorkflow> found = wfSvc.findWorkflowsByName(ref.getName().trim());
       if (found == null || found.isEmpty()) {
         throw new IllegalArgumentException(field + " workflow not found: " + ref.getName());
@@ -639,7 +746,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private IPSGuid resolveTemplateGuid(NamedObjectRef ref, String field) {
-    IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+    IPSAssemblyService asm =
+        assemblyService != null
+            ? assemblyService
+            : PSAssemblyServiceLocator.getAssemblyService();
     if (ref.getGuid() != null) {
       String sv = ref.getGuid().getStringValue();
       if (StringUtils.isNotBlank(sv)) {
@@ -822,7 +932,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     ref.setGuid(ApiUtils.convertGuid(g));
     ref.setIsDefault(isDefault);
     try {
-      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+      IPSWorkflowService wfSvc =
+          workflowService != null ? workflowService : PSWorkflowServiceLocator.getWorkflowService();
       PSWorkflow wf = wfSvc.findWorkflow(g).orElse(null);
       if (wf != null) {
         ref.setName(wf.getName());
@@ -841,7 +952,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private List<NamedObjectRef> loadTemplates(IPSGuid ctGuid) {
     List<NamedObjectRef> out = new ArrayList<>();
     try {
-      IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+      IPSAssemblyService asm =
+          assemblyService != null
+              ? assemblyService
+              : PSAssemblyServiceLocator.getAssemblyService();
       List<IPSAssemblyTemplate> templates = asm.findTemplatesByContentType(ctGuid);
       if (templates != null) {
         for (IPSAssemblyTemplate t : templates) {
@@ -1215,6 +1329,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  private IPSAssemblyService requireAssemblyService() {
+    if (assemblyService == null) {
+      throw new IllegalStateException("Assembly service is not available");
+    }
+    return assemblyService;
+  }
+
   boolean isCurrentUserAdmin() {
     if (userService == null) {
       return false;
@@ -1383,6 +1504,30 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     for (Object err : errors.values()) {
       if (err instanceof PSLockErrorException) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Package-visible for unit tests. True when a batched save error reports the design lock as
+   * missing — typed {@link PSLockErrorException}, or a {@link PSErrorException} whose message
+   * contains "is not locked" (lowercase substring). Returns {@code false} for {@code null} or
+   * unparseable inputs.
+   */
+  static boolean isNotLockedError(PSErrorsException e) {
+    if (e == null || e.getErrors() == null) {
+      return false;
+    }
+    for (Object err : e.getErrors().values()) {
+      if (err instanceof PSLockErrorException) {
+        return true;
+      }
+      if (err instanceof PSErrorException pe) {
+        String msg = pe.getErrorMessage() != null ? pe.getErrorMessage() : pe.getMessage();
+        if (StringUtils.containsIgnoreCase(msg, "is not locked")) {
+          return true;
+        }
       }
     }
     return false;
