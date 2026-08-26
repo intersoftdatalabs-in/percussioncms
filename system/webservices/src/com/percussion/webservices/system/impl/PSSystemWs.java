@@ -28,7 +28,6 @@ import com.percussion.design.objectstore.PSRelationshipConfigSet;
 import com.percussion.i18n.PSLocale;
 import com.percussion.security.PSRoleEntry;
 import com.percussion.security.PSUserEntry;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
@@ -51,6 +50,7 @@ import com.percussion.system.utils.PSBaseBean;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
@@ -327,7 +327,11 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
       catch (PSServerException e)
       {
          // treat as contract violation
-         if (e.getErrorCode() == IPSServerErrors.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY)
+         if (e.getErrorCode()
+               == ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY
+                  .numericCode()
+            || ServerErrorCodes.COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY.equals(
+               e.getTypedErrorCode()))
          {
             var code = WebserviceErrorCodes.USER_NOT_MEMBER_COMMUNITY;
             throw new PSUserNotMemberOfCommunityException(code,
