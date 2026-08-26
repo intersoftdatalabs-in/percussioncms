@@ -181,7 +181,8 @@ export const DEV_MSG_KEYS = {
   CT_RULE_IN_XFORM: "perc.ui.developer@in-xform",
   CT_RULE_OUT_XFORM: "perc.ui.developer@out-xform",
   CT_WORKFLOWS: "perc.ui.developer@Allowed workflows",
-  CT_WORKFLOWS_HINT: "perc.ui.developer@Full replace on save when changed. Add by workflow name; set default with the radio.",
+  CT_WORKFLOWS_HINT:
+    "perc.ui.developer@Lock to edit. Add or remove workflows by name, set the default, then save. Save replaces the allowed-workflow set and does not unlock.",
   CT_DEFAULT_WF: "perc.ui.developer@Default workflow",
   CT_TEMPLATES: "perc.ui.developer@Allowed templates",
   CT_TEMPLATES_HINT: "perc.ui.developer@Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).",

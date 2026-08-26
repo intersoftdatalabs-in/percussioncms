@@ -61,6 +61,8 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
       "Field rule flags are exposed (validation/visibility/transforms present); full rule expressions and control properties are not",
     ],
   }),
+  replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
+  getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
   updateContentTypeDetail: vi.fn().mockImplementation(async (_id, body) => ({
     name: "percPage",
     label: body.label ?? "Page",
@@ -96,8 +98,51 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
+    setContentTypeEnabled: vi.fn().mockImplementation(async (_id, enabled: boolean) => ({
+      name: "percPage",
+      label: "Page",
+      description: "A page",
+      enabled,
+      guid: { stringValue: "0-2-301", uuid: 301 },
+      fields: [],
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+      designGaps: [],
+    })),
+    setContentTypeAllowedWorkflows: vi.fn().mockImplementation(async (_id, body) => ({
+      name: "percPage",
+      label: "Page",
+      description: "A page",
+      enabled: true,
+      guid: { stringValue: "0-2-301", uuid: 301 },
+      fields: [
+        {
+          name: "sys_title",
+          label: "Title",
+          fieldType: "system",
+          searchable: true,
+          required: true,
+          occurrence: "required",
+        },
+        {
+          name: "page_title",
+          label: "Page title",
+          fieldType: "local",
+          searchable: false,
+          required: false,
+          occurrence: "optional",
+        },
+      ],
+      allowedWorkflows: body.allowedWorkflows,
+      defaultWorkflow: body.defaultWorkflow ?? null,
+      allowedTemplates: [{ name: "perc.page", label: "Page" }],
+      designGaps: [],
+    })),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
+    getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([{ name: "perc.page", label: "Page" }]),
+    replaceContentTypeAllowedTemplates: vi.fn().mockImplementation(async (_id, templates) => templates),
   };
 });
 
@@ -750,9 +795,10 @@ it("loads views catalog section", async () => {
 
 
   it("edits content type field searchable and saves with design lock path", async () => {
-    const { updateContentTypeDetail } = await import(
+    const { updateContentTypeDetail, replaceContentTypeAllowedTemplates } = await import(
       "../../../main/ts/api/developer/contentTypesApi"
     );
+    (replaceContentTypeAllowedTemplates as ReturnType<typeof vi.fn>).mockClear();
     render(<DeveloperShell embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
@@ -781,9 +827,11 @@ it("loads views catalog section", async () => {
         expect.objectContaining({ name: "page_title", searchable: true }),
       ]),
     );
-    // Field-only save must not wipe associations
+    // Field-only save must not wipe associations or bulk-PUT enabled (CD-13)
     expect(body.allowedWorkflows).toBeUndefined();
     expect(body.allowedTemplates).toBeUndefined();
+    expect(body.enabled).toBeUndefined();
+    expect(replaceContentTypeAllowedTemplates).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });
@@ -873,11 +921,21 @@ it("loads views catalog section", async () => {
     expect(screen.getByTestId("developer-site-table").textContent).toContain("Corporate");
   });
 
-  it("edits content type workflow and template associations on save", async () => {
-    const { updateContentTypeDetail } = await import(
-      "../../../main/ts/api/developer/contentTypesApi"
-    );
+  it("edits content type workflow and template associations on dedicated PUTs", async () => {
+    const {
+      updateContentTypeDetail,
+      setContentTypeAllowedWorkflows,
+      replaceContentTypeAllowedTemplates,
+      getContentTypeAllowedTemplates,
+    } = await import("../../../main/ts/api/developer/contentTypesApi");
     (updateContentTypeDetail as ReturnType<typeof vi.fn>).mockClear();
+    (setContentTypeAllowedWorkflows as ReturnType<typeof vi.fn>).mockClear();
+    (replaceContentTypeAllowedTemplates as ReturnType<typeof vi.fn>).mockClear();
+    (getContentTypeAllowedTemplates as ReturnType<typeof vi.fn>).mockClear();
+    (getContentTypeAllowedTemplates as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+      { name: "perc.page" },
+      { name: "perc.page.summary", label: "perc.page.summary" },
+    ]);
     render(<DeveloperShell embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
@@ -908,24 +966,32 @@ it("loads views catalog section", async () => {
     });
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
-      expect(updateContentTypeDetail).toHaveBeenCalled();
+      expect(setContentTypeAllowedWorkflows).toHaveBeenCalled();
     });
-    const body = (updateContentTypeDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
-    expect(body.allowedWorkflows).toEqual(
+    const wfBody = (setContentTypeAllowedWorkflows as ReturnType<typeof vi.fn>).mock.calls.at(
+      -1,
+    )?.[1];
+    expect(wfBody.allowedWorkflows).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "Simple Workflow" }),
         expect.objectContaining({ name: "Standard Workflow" }),
       ]),
     );
-    expect(body.defaultWorkflow).toEqual(
+    expect(wfBody.defaultWorkflow).toEqual(
       expect.objectContaining({ name: "Simple Workflow" }),
     );
-    expect(body.allowedTemplates).toEqual(
+    await waitFor(() => {
+      expect(replaceContentTypeAllowedTemplates).toHaveBeenCalled();
+    });
+    expect(replaceContentTypeAllowedTemplates).toHaveBeenCalledWith(
+      "percPage",
       expect.arrayContaining([
         expect.objectContaining({ name: "perc.page" }),
         expect.objectContaining({ name: "perc.page.summary" }),
       ]),
     );
+    expect(getContentTypeAllowedTemplates).toHaveBeenCalledWith("percPage");
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });

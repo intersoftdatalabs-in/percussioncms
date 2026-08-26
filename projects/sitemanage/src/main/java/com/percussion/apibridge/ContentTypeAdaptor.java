@@ -27,6 +27,7 @@ import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentEditorPipe;
+import com.percussion.design.objectstore.PSContentTypeHelper;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
@@ -243,7 +244,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     }
     try {
-      PSItemDefinition def = resolveItemDef(idOrName.trim());
+      PSItemDefinition def = resolveItemDef(idOrName.trim(), true);
       if (def == null) {
         return null;
       }
@@ -259,24 +260,72 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   private PSItemDefinition resolveItemDef(String idOrName) throws PSInvalidContentTypeException {
-    // Prefer numeric uuid
-    if (StringUtils.isNumeric(idOrName)) {
-      long uuid = Long.parseLong(idOrName);
-      return itemDefManager.getItemDef(uuid, PSItemDefManager.COMMUNITY_ANY);
-    }
-    // Guid string forms: 0-2-301 or 0-301
-    if (idOrName.contains("-")) {
-      try {
-        PSGuid g = new PSGuid(idOrName);
-        if (g.getType() == 0) {
-          g = new PSGuid(PSTypeEnum.NODEDEF, g.getUUID());
-        }
-        return itemDefManager.getItemDef(g.getUUID(), PSItemDefManager.COMMUNITY_ANY);
-      } catch (Exception ignore) {
-        // fall through to name
+    return resolveItemDef(idOrName, false);
+  }
+
+  /**
+   * Resolve a content type from the running item-def cache.
+   *
+   * @param includeDisabledFromStore when {@code true}, a cache miss falls back to the
+   *     object store so disabled types (unregistered from the editor cache) still load.
+   *     Only GET detail and enable/disable (CD-13) pass {@code true}; other callers keep
+   *     the pre-CD-13 cache-only 404 for disabled types.
+   */
+  private PSItemDefinition resolveItemDef(String idOrName, boolean includeDisabledFromStore)
+      throws PSInvalidContentTypeException {
+    try {
+      // Prefer numeric uuid
+      if (StringUtils.isNumeric(idOrName)) {
+        long uuid = Long.parseLong(idOrName);
+        return itemDefManager.getItemDef(uuid, PSItemDefManager.COMMUNITY_ANY);
       }
+      // Guid string forms: 0-2-301 or 0-301
+      if (idOrName.contains("-")) {
+        try {
+          PSGuid g = new PSGuid(idOrName);
+          if (g.getType() == 0) {
+            g = new PSGuid(PSTypeEnum.NODEDEF, g.getUUID());
+          }
+          return itemDefManager.getItemDef(g.getUUID(), PSItemDefManager.COMMUNITY_ANY);
+        } catch (PSInvalidContentTypeException e) {
+          throw e;
+        } catch (Exception ignore) {
+          // fall through to name
+        }
+      }
+      return itemDefManager.getItemDef(idOrName, PSItemDefManager.COMMUNITY_ANY);
+    } catch (PSInvalidContentTypeException e) {
+      if (includeDisabledFromStore) {
+        PSItemDefinition fromStore = loadItemDefFromObjectStore(idOrName);
+        if (fromStore != null) {
+          return fromStore;
+        }
+      }
+      throw e;
     }
-    return itemDefManager.getItemDef(idOrName, PSItemDefManager.COMMUNITY_ANY);
+  }
+
+  /**
+   * Object-store load when the item-def cache no longer has a running editor
+   * (disabled content types unregister). Used so GET {@code enabled} still
+   * reflects the saved application flag (CD-13). Package-visible for tests.
+   */
+  PSItemDefinition loadItemDefFromObjectStore(String idOrName) {
+    try {
+      IPSGuid guid = resolveExistingContentTypeGuid(idOrName);
+      if (guid == null) {
+        return null;
+      }
+      return PSContentTypeHelper.loadItemDef(guid);
+    } catch (Exception e) {
+      log.debug(
+          "Object-store content type load after cache miss {}: {}: {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      return null;
+    }
   }
 
   private ContentTypeDetail toDetail(PSItemDefinition def) {
@@ -519,7 +568,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
-      PSItemDefinition current = resolveItemDef(trimmed);
+      PSItemDefinition current = resolveItemDef(trimmed, true);
       if (current == null) {
         return null;
       }
@@ -547,8 +596,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         log.error("Failed to save content type enabled flag {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type enabled flag", e);
       }
-      PSItemDefinition reloaded = resolveItemDef(trimmed);
-      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded != def) {
+        reloaded.setEnabled(enabled);
+        return toDetail(reloaded);
+      }
+      return toDetail(def);
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {
@@ -593,11 +646,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
-      PSItemDefinition current = resolveItemDef(idOrName.trim());
-      if (current == null) {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(idOrName.trim());
+      if (ctGuid == null) {
         return null;
       }
-      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
       requireHeldLock(ctGuid);
       List<IPSGuid> templateGuids = resolveTemplateGuids(templates);
       try {
@@ -615,9 +667,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         | IllegalArgumentException
         | WebApplicationException e) {
       throw e;
-    } catch (PSInvalidContentTypeException e) {
-      log.debug("Content type not found for template association replace: {}", idOrName);
-      return null;
     } catch (Exception e) {
       log.error(
           "Failed to replace template associations for {}: {}", idOrName, e.getMessage(), e);

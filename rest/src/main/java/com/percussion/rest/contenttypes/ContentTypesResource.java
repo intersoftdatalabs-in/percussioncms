@@ -1160,7 +1160,7 @@ public class ContentTypesResource {
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public NamedObjectRefList replaceAllowedTemplates(
-      @PathParam("idOrName") String idOrName, NamedObjectRefList body) {
+      @PathParam("idOrName") String idOrName, List<NamedObjectRef> body) {
     try {
       List<NamedObjectRef> items =
           requireAdaptor().replaceAllowedTemplates(uriInfo.getBaseUri(), idOrName, body);

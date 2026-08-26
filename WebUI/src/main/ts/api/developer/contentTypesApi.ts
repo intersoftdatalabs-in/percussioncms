@@ -216,11 +216,20 @@ export type ContentTypeUpdateBody = {
   description?: string;
   enabled?: boolean;
   fields?: Pick<ContentTypeFieldSummary, "name" | "searchable" | "required" | "occurrence">[];
-  /** Omit to leave unchanged; non-null list is a full replace. */
+  /** Omit to leave unchanged; non-null list is a full replace. Prefer CD-08 PUT. */
   allowedWorkflows?: NamedObjectRef[];
   defaultWorkflow?: NamedObjectRef | null;
-  /** Omit to leave unchanged; non-null list is a full replace. */
+  /**
+   * Omit to leave unchanged. Prefer {@link replaceContentTypeAllowedTemplates}
+   * (CD-12 dedicated PUT) instead of sending this on the bulk detail PUT.
+   */
   allowedTemplates?: NamedObjectRef[];
+};
+
+/** Wire body for {@code PUT .../allowedWorkflows} (Jackson root {@code ContentTypeWorkflows}). */
+export type ContentTypeWorkflowsBody = {
+  allowedWorkflows: NamedObjectRef[];
+  defaultWorkflow?: NamedObjectRef | null;
 };
 
 /** Wire shape for {@code POST .../lock} ({@code ObjectLockSummary}). */
@@ -291,25 +300,163 @@ export function wrapContentTypeDetailForWire(
 }
 
 /**
- * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not release it.
+ * PUT /services/contenttypes/{idOrName} — requires a held design lock; does not
+ * acquire or release it. Call {@link lockContentType} first. HTTP 409 when
+ * unlocked or locked by another user.
  *
- * <p>This client wraps lock → PUT → unlock so the Developer SPA save path keeps working until
- * lock-button chrome (#3744) lands. The server PUT is 409 unless the current user already holds
- * the lock.
+ * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
+ * Do not send {@code allowedWorkflows} here — use
+ * {@link setContentTypeAllowedWorkflows} (CD-08).
+ * Do not send {@code allowedTemplates} here — use
+ * {@link replaceContentTypeAllowedTemplates} (CD-12).
  */
 export async function updateContentTypeDetail(
   idOrName: string,
   body: ContentTypeUpdateBody,
 ): Promise<ContentTypeDetail> {
-  await lockContentType(idOrName);
-  try {
-    const key = encodeURIComponent(idOrName);
-    const payload = await put<unknown>(
-      `${PATHS.CONTENT_TYPES}/${key}`,
-      wrapContentTypeDetailForWire(body),
-    );
-    return unwrapContentTypeDetail(payload);
-  } finally {
-    await unlockContentType(idOrName).catch(() => undefined);
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}`,
+    wrapContentTypeDetailForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeEnabled}. */
+export const CONTENT_TYPE_ENABLED_ROOT = "ContentTypeEnabled";
+
+/**
+ * Build the wire JSON body for {@code PUT .../enabled} under
+ * {@link CONTENT_TYPE_ENABLED_ROOT}. A flat {@code { enabled }} body fails
+ * server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeEnabledForWire(
+  enabled: boolean,
+): Record<string, { enabled: boolean }> {
+  return { [CONTENT_TYPE_ENABLED_ROOT]: { enabled } };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/enabled — CD-13 dedicated enable/disable.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Response is {@code ContentTypeDetail}
+ * with the new {@code enabled} value (lock still held).
+ */
+export async function setContentTypeEnabled(
+  idOrName: string,
+  enabled: boolean,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/enabled`,
+    wrapContentTypeEnabledForWire(enabled),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeWorkflows}. */
+export const CONTENT_TYPE_WORKFLOWS_ROOT = "ContentTypeWorkflows";
+
+/**
+ * Build the wire JSON body for {@code PUT .../allowedWorkflows} under
+ * {@link CONTENT_TYPE_WORKFLOWS_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeWorkflowsForWire(
+  body: ContentTypeWorkflowsBody,
+): Record<string, ContentTypeWorkflowsBody> {
+  return { [CONTENT_TYPE_WORKFLOWS_ROOT]: body };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/allowedWorkflows — CD-08 dedicated replace.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Empty {@code allowedWorkflows}
+ * clears associations. Response is {@code ContentTypeDetail} with the new set
+ * (lock still held).
+ */
+export async function setContentTypeAllowedWorkflows(
+  idOrName: string,
+  body: ContentTypeWorkflowsBody,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/allowedWorkflows`,
+    wrapContentTypeWorkflowsForWire(body),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code NamedObjectRefList}. */
+export const NAMED_OBJECT_REF_LIST_ROOT = "NamedObjectRefList";
+
+/**
+ * Build the wire JSON body for {@code PUT .../allowedTemplates} under
+ * {@link NAMED_OBJECT_REF_LIST_ROOT}. A bare array fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapNamedObjectRefListForWire(
+  items: NamedObjectRef[],
+): Record<string, NamedObjectRef[]> {
+  return { [NAMED_OBJECT_REF_LIST_ROOT]: items };
+}
+
+/**
+ * Flatten GET/PUT {@code .../allowedTemplates} JSON to {@link NamedObjectRef}[].
+ *
+ * <p>Handles WRAP_ROOT {@code NamedObjectRefList}, JAXB {@code NamedObjectRef}
+ * envelope, bare array, singleton object, and empty-collection beans.
+ */
+export function unwrapNamedObjectRefList(payload: unknown): NamedObjectRef[] {
+  if (payload == null) {
+    return [];
   }
+  if (Array.isArray(payload)) {
+    return normalizeNamedObjectRefs(payload);
+  }
+  const root = asRecord(payload);
+  if (!root) {
+    return [];
+  }
+  if (root[NAMED_OBJECT_REF_LIST_ROOT] != null) {
+    return normalizeNamedObjectRefs(root[NAMED_OBJECT_REF_LIST_ROOT]);
+  }
+  if (root.namedObjectRefList != null) {
+    return normalizeNamedObjectRefs(root.namedObjectRefList);
+  }
+  return normalizeNamedObjectRefs(payload);
+}
+
+/**
+ * GET /services/contenttypes/{idOrName}/allowedTemplates — CD-12 read.
+ * No design lock required. Empty list means none.
+ */
+export async function getContentTypeAllowedTemplates(
+  idOrName: string,
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.CONTENT_TYPES}/${key}/allowedTemplates`);
+  return unwrapNamedObjectRefList(payload);
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/allowedTemplates — CD-12 full replace.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. HTTP 400 when a template name/guid
+ * cannot be resolved. Empty list clears associations.
+ */
+export async function replaceContentTypeAllowedTemplates(
+  idOrName: string,
+  templates: NamedObjectRef[],
+): Promise<NamedObjectRef[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/allowedTemplates`,
+    wrapNamedObjectRefListForWire(templates),
+  );
+  return unwrapNamedObjectRefList(payload);
 }

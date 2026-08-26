@@ -205,7 +205,7 @@ in the slot detail panel — use **Back** to return to the catalog.
 | Replace field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` | **Admin** (CD-05–07). Requires a **held** design-session lock. Full replace of `validation`, `visibility`, `inputTranslation`, and `outputTranslation` (empty lists clear). Unknown field names are **400**. **409** if unlocked or locked by another user. Does not acquire or release the lock. |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` | **Admin.** Releases a lock owned by the current session user (Workbench `releaseLocks`). Does **not** save. `204` on success. |
 
-Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types).
+Typical design-session flow: **lock → PUT save (repeatable) → unlock**. Existing PUT clients that previously lock-save-unlocked in a single request must now `POST .../lock` before PUT and `POST .../unlock` after. The Developer SPA **Content types** detail chrome exposes **Lock**, **Save**, and **Unlock** for that flow — see [Developer Content Types](id:admin-developer-content-types). Enable/disable from that chrome uses the dedicated `PUT .../enabled` after a held lock (not the bulk content-type PUT).
 
 Lock / save / unlock status codes:
 
@@ -260,8 +260,9 @@ Capability gaps still render as the human-readable **message** (fallback **code*
 `PUT /services/contenttypes/{idOrName}/allowedWorkflows` replaces the content
 type's allowed-workflow associations. Hold the design-session lock first; save
 keeps the lock so you can continue editing, then unlock. This dedicated action
-does **not** auto lock-save-unlock (the generic `PUT /contenttypes/{idOrName}`
-still does that for mixed meta/field updates).
+does **not** acquire or release the lock. The Developer SPA **Content types**
+detail chrome uses this PUT after **Lock** (not the generic content-type PUT)
+when the allowed-workflow set changes.
 
 Typical flow: `POST .../lock` → `PUT .../allowedWorkflows` → (optional further
 design writes) → `POST .../unlock`.
@@ -295,12 +296,17 @@ allowed template associations. Body is a JSON array of named refs (`name` and/or
 `guid`). Full-replace semantics: the supplied list becomes the new set; an empty
 array clears associations.
 
-Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
+Typical flow:
 
-1. Hold a design lock on the content type.
+1. Hold a design lock on the content type (`POST .../lock` from Developer, or SOAP/Workbench).
 2. `PUT /services/contenttypes/{idOrName}/allowedTemplates` with the new set.
 3. `GET` the same path (or `GET /services/contenttypes/{idOrName}`) to confirm.
 4. Release the design lock when editing is finished.
+
+**Developer → Content types** detail chrome follows that flow after **Lock**: add or
+remove existing template names/GUIDs, **Save content type** (dedicated PUT, then GET
+lists the new set), then **Unlock**. Save is disabled until the lock is held; the
+product does not steal another user's lock. See [Developer Content Types](id:admin-developer-content-types).
 
 `409` means the current session user does not hold the design lock. `400` means
 a template id or name in the body does not exist. The lock stays held after a

@@ -18,8 +18,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  getContentTypeAllowedTemplates,
   getContentTypeDetail,
   lockContentType,
+  replaceContentTypeAllowedTemplates,
+  setContentTypeAllowedWorkflows,
+  setContentTypeEnabled,
   unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
@@ -35,6 +39,13 @@ import type {
   ContentTypeFieldSummary,
   NamedObjectRef,
 } from "../api/developer/types";
+import {
+  buildAllowedWorkflowsReplaceBody,
+  cloneNamedObjectRefs,
+  namedObjectRefsEqual,
+  toNamedObjectRefPayload,
+  withDefaultWorkflowFlags,
+} from "./contentTypeWorkflows";
 import {
   designGapCode,
   designGapKey,
@@ -88,15 +99,6 @@ function toDrafts(fields: unknown): Record<string, FieldDraft> {
   return out;
 }
 
-function cloneRefs(list: unknown): NamedObjectRef[] {
-  return normalizeNamedObjectRefs(list).map((r) => ({
-    name: r.name,
-    label: r.label,
-    isDefault: r.isDefault,
-    guid: r.guid ? { ...r.guid } : undefined,
-  }));
-}
-
 function contentTypeFields(detail: ContentTypeDetail | null | undefined): ContentTypeFieldSummary[] {
   return normalizeContentTypeFields(detail?.fields);
 }
@@ -129,49 +131,6 @@ function refKey(r: NamedObjectRef, index: number): string {
 
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
-
-function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (refKey(a[i], i) !== refKey(b[i], i)) return false;
-    if (!!a[i].isDefault !== !!b[i].isDefault) return false;
-  }
-  return true;
-}
-
-/**
- * Align isDefault flags with server defaultWorkflow (or first row when missing).
- */
-function withDefaultFlags(
-  list: unknown,
-  defaultWorkflow?: NamedObjectRef | null,
-): NamedObjectRef[] {
-  const wfs = cloneRefs(list);
-  if (defaultWorkflow) {
-    const defKey = refKey(defaultWorkflow, -1);
-    for (const w of wfs) {
-      w.isDefault = refKey(w, -1) === defKey || w.name === defaultWorkflow.name;
-    }
-  }
-  if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
-    wfs[0] = { ...wfs[0], isDefault: true };
-  }
-  return wfs;
-}
-
-function toRefPayload(list: NamedObjectRef[]): NamedObjectRef[] {
-  return list.map((r) => {
-    const out: NamedObjectRef = {};
-    if (r.name) out.name = r.name;
-    if (r.guid?.stringValue || r.guid?.uuid != null) {
-      out.guid = {};
-      if (r.guid.stringValue) out.guid.stringValue = r.guid.stringValue;
-      if (r.guid.uuid != null) out.guid.uuid = r.guid.uuid;
-    }
-    if (r.isDefault) out.isDefault = true;
-    return out;
-  });
-}
 
 export function ContentTypeDetailPanel({
   idOrName,
@@ -228,8 +187,10 @@ export function ContentTypeDetailPanel({
         setDescription(normalized.description || "");
         setEnabled(normalized.enabled !== false);
         setFieldDrafts(toDrafts(normalized.fields));
-        setWorkflows(withDefaultFlags(normalized.allowedWorkflows, normalized.defaultWorkflow));
-        setTemplates(cloneRefs(normalized.allowedTemplates));
+        setWorkflows(
+          withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
+        );
+        setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
         setNewWfName("");
         setNewTplName("");
       })
@@ -254,10 +215,13 @@ export function ContentTypeDetailPanel({
       return d.searchable !== i.searchable || d.required !== i.required;
     });
 
-  const initialWorkflows = withDefaultFlags(detail?.allowedWorkflows, detail?.defaultWorkflow);
-  const initialTemplates = cloneRefs(detail?.allowedTemplates);
-  const workflowsDirty = detail != null && !refsEqual(workflows, initialWorkflows);
-  const templatesDirty = detail != null && !refsEqual(templates, initialTemplates);
+  const initialWorkflows = withDefaultWorkflowFlags(
+    detail?.allowedWorkflows,
+    detail?.defaultWorkflow,
+  );
+  const initialTemplates = cloneNamedObjectRefs(detail?.allowedTemplates);
+  const workflowsDirty = detail != null && !namedObjectRefsEqual(workflows, initialWorkflows);
+  const templatesDirty = detail != null && !namedObjectRefsEqual(templates, initialTemplates);
 
   const dirty =
     detail != null &&
@@ -393,6 +357,17 @@ export function ContentTypeDetailPanel({
       setError(DEV_MSG.CT_LOCK_REQUIRED);
       return;
     }
+    if (detail == null) {
+      return;
+    }
+    const enabledDirty = enabled !== (detail.enabled !== false);
+    const bulkNeeded =
+      label !== (detail.label || "") ||
+      description !== (detail.description || "") ||
+      fieldsDirty;
+    if (!enabledDirty && !workflowsDirty && !templatesDirty && !bulkNeeded) {
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -412,31 +387,93 @@ export function ContentTypeDetailPanel({
           required: d.required,
         }));
 
-      const body: ContentTypeUpdateBody = {
-        label,
-        description,
-        enabled,
-        fields: fieldPatches,
-      };
+      let saved: ContentTypeDetail | null = null;
+      let workflowSaved: ContentTypeDetail | undefined;
+      // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
+      // (CD-13 two-call save; no shared rollback).
+      if (enabledDirty) {
+        saved = normalizeDetailLists(await setContentTypeEnabled(idOrName, enabled));
+      }
       if (workflowsDirty) {
-        body.allowedWorkflows = toRefPayload(workflows);
-        const def = workflows.find((w) => w.isDefault) || workflows[0];
-        if (def) {
-          body.defaultWorkflow = toRefPayload([def])[0];
+        try {
+          workflowSaved = await setContentTypeAllowedWorkflows(
+            idOrName,
+            buildAllowedWorkflowsReplaceBody(workflows),
+          );
+          saved = saved
+            ? {
+                ...normalizeDetailLists(workflowSaved),
+                enabled: saved.enabled,
+              }
+            : normalizeDetailLists(workflowSaved);
+        } catch (wfErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+          }
+          throw wfErr;
+        }
+      }
+      if (bulkNeeded) {
+        const body: ContentTypeUpdateBody = {
+          label,
+          description,
+          fields: fieldPatches,
+        };
+        try {
+          const bulkSaved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
+          saved = {
+            ...bulkSaved,
+            enabled: saved?.enabled ?? bulkSaved.enabled,
+            allowedWorkflows: workflowSaved?.allowedWorkflows ?? bulkSaved.allowedWorkflows,
+            defaultWorkflow: workflowSaved?.defaultWorkflow ?? bulkSaved.defaultWorkflow,
+          };
+        } catch (bulkErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+            setWorkflows(
+              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+            );
+          }
+          throw bulkErr;
         }
       }
       if (templatesDirty) {
-        body.allowedTemplates = toRefPayload(templates);
+        try {
+          await replaceContentTypeAllowedTemplates(
+            idOrName,
+            toNamedObjectRefPayload(templates),
+          );
+          const listed = await getContentTypeAllowedTemplates(idOrName);
+          saved =
+            saved != null
+              ? { ...saved, allowedTemplates: listed }
+              : { ...normalizeDetailLists(detail), allowedTemplates: listed };
+        } catch (tplErr) {
+          if (saved != null) {
+            setDetail(saved);
+            setEnabled(saved.enabled !== false);
+            setWorkflows(
+              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
+            );
+          }
+          throw tplErr;
+        }
       }
-
-      const saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
-      setDetail(saved);
-      setLabel(saved.label || "");
-      setDescription(saved.description || "");
-      setEnabled(saved.enabled !== false);
-      setFieldDrafts(toDrafts(saved.fields));
-      setWorkflows(withDefaultFlags(saved.allowedWorkflows, saved.defaultWorkflow));
-      setTemplates(cloneRefs(saved.allowedTemplates));
+      if (saved == null) {
+        return;
+      }
+      const normalized = normalizeDetailLists(saved);
+      setDetail(normalized);
+      setLabel(normalized.label || "");
+      setDescription(normalized.description || "");
+      setEnabled(normalized.enabled !== false);
+      setFieldDrafts(toDrafts(normalized.fields));
+      setWorkflows(
+        withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
+      );
+      setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
       setNotice(DEV_MSG.CT_SAVED);
     } catch (err: unknown) {
       if (isApiError(err) && err.status === 409) {
@@ -490,7 +527,7 @@ export function ContentTypeDetailPanel({
               {label || detail.name || idOrName}
             </h2>
             <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              {detail.name}
+              <span data-testid="developer-ct-detail-name">{detail.name}</span>
               {" · "}
               <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
             </div>
@@ -525,6 +562,7 @@ export function ContentTypeDetailPanel({
                 <input
                   type="checkbox"
                   data-testid="developer-ct-enabled"
+                  aria-label={DEV_MSG.CT_FORM_ENABLED}
                   checked={enabled}
                   onChange={() => setEnabled((v) => !v)}
                   disabled={!canEdit}
