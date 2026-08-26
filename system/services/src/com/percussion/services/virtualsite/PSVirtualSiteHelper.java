@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -175,6 +176,8 @@ public final class PSVirtualSiteHelper {
    *   <li>use an allow-listed {@code virtual.sourceKind} (see {@link #allowedSourceKindWireNames()};
    *       {@code csv-filesystem}, {@code sql-database}, {@code http-json}, and {@code
    *       object-storage} do not accept {@code virtual.remoteUrl})
+   *   <li>{@code object-storage} requires a local filesystem {@code virtual.rootPath} (NIO {@link
+   *       Path}; no remaining {@code ..}); cloud URLs and credential properties are rejected
    *   <li>when {@code virtual.remoteUrl} is blank: provide a non-blank safe {@code virtual.rootPath}
    *   <li>when {@code virtual.remoteUrl} is set: a safe Git URL (https / ssh / file / {@code
    *       git@host:path}); optional {@code virtual.branch}; optional relative {@code
@@ -210,6 +213,10 @@ public final class PSVirtualSiteHelper {
               + " for traditional Sites).");
     }
 
+    if (type == VirtualSiteSourceType.OBJECT_STORAGE) {
+      rejectCredentialProperties(site);
+    }
+
     Optional<String> remoteRaw = remoteUrl(site);
     if (type != VirtualSiteSourceType.GIT_FILESYSTEM && remoteRaw.isPresent()) {
       throw new VirtualSiteException(
@@ -242,6 +249,10 @@ public final class PSVirtualSiteHelper {
                 + "' and "
                 + PROP_REMOTE_URL
                 + " is blank.");
+      }
+
+      if (type == VirtualSiteSourceType.OBJECT_STORAGE) {
+        rejectCloudOrRemoteRootPath(rootRaw.get());
       }
 
       Path root;
@@ -473,6 +484,95 @@ public final class PSVirtualSiteHelper {
     prop.setValue(value.trim());
     prop.setSite(site);
     site.addProperty(prop);
+  }
+
+  /**
+   * {@code object-storage} roots must be local filesystem paths. Cloud / remote URI schemes are
+   * fail-closed (no S3/GCS/Azure/HTTP object buckets, no credentials in the path).
+   *
+   * <p>Windows drive letters ({@code C:\…}) are not treated as URI schemes.
+   *
+   * @param raw {@link #PROP_ROOT_PATH} value, not blank
+   * @throws VirtualSiteException when the value looks like a remote/cloud URL
+   */
+  static void rejectCloudOrRemoteRootPath(String raw) throws VirtualSiteException {
+    if (StringUtils.isBlank(raw)) {
+      return;
+    }
+    String trimmed = raw.trim();
+    String lower = trimmed.toLowerCase(Locale.ROOT);
+    if (lower.contains("://")) {
+      throw new VirtualSiteException(
+          PROP_ROOT_PATH
+              + " for "
+              + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+              + " must be a local filesystem path (NIO Path). Cloud URLs are rejected.");
+    }
+    int colon = trimmed.indexOf(':');
+    // Drive letter "C:\" / "C:/" is index 1; schemes such as s3:bucket have a longer prefix.
+    if (colon > 1) {
+      String scheme = trimmed.substring(0, colon);
+      boolean uriScheme =
+          !scheme.isEmpty()
+              && scheme
+                  .chars()
+                  .allMatch(ch -> Character.isLetterOrDigit(ch) || ch == '+' || ch == '.' || ch == '-');
+      if (uriScheme) {
+        throw new VirtualSiteException(
+            PROP_ROOT_PATH
+                + " for "
+                + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+                + " must be a local filesystem path (NIO Path). Cloud URLs are rejected.");
+      }
+    }
+  }
+
+  /**
+   * Fail closed when extra Site properties look like cloud credentials (AWS/IAM, Azure keys,
+   * connection strings). Standard {@code virtual.*} keys are never treated as credentials.
+   *
+   * @param site may be null
+   * @throws VirtualSiteException when a credential-like property name is present
+   */
+  static void rejectCredentialProperties(IPSSite site) throws VirtualSiteException {
+    for (PSSiteProperty p : propertiesOf(site)) {
+      if (p == null || StringUtils.isBlank(p.getName())) {
+        continue;
+      }
+      String name = p.getName().trim();
+      if (isVirtualContractProperty(name)) {
+        continue;
+      }
+      if (isCredentialPropertyName(name)) {
+        throw new VirtualSiteException(
+            "Credential property is not allowed for "
+                + VirtualSiteSourceType.OBJECT_STORAGE.wireName()
+                + " (no AWS/IAM/secrets on this envelope).");
+      }
+    }
+  }
+
+  private static boolean isVirtualContractProperty(String name) {
+    return PROP_SOURCE_KIND.equals(name)
+        || PROP_ROOT_PATH.equals(name)
+        || PROP_CONFIG_FILE.equals(name)
+        || PROP_SITE_KEY.equals(name)
+        || PROP_REMOTE_URL.equals(name)
+        || PROP_BRANCH.equals(name);
+  }
+
+  private static boolean isCredentialPropertyName(String name) {
+    String n =
+        name.toLowerCase(Locale.ROOT).replace("_", "").replace("-", "").replace(".", "");
+    return n.contains("accesskey")
+        || n.contains("secretkey")
+        || n.contains("secretaccess")
+        || n.contains("sessiontoken")
+        || n.contains("accountkey")
+        || n.contains("connectionstring")
+        || n.contains("awssecret")
+        || n.contains("iamrole")
+        || n.equals("password");
   }
 
   private static void validateConfigFileName(String configFile) throws VirtualSiteException {

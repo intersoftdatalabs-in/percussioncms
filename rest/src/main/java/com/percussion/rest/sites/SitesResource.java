@@ -204,19 +204,19 @@ public class SitesResource {
       summary = "Update Virtual Site properties",
       description =
           "Persists virtual.* properties. Validation aligns with PSVirtualSiteHelper:"
-              + " sourceKind allow-list (git-filesystem, csv-filesystem, sql-database, http-json),"
-              + " required non-blank rootPath for sql-database and http-json; for other kinds when"
-              + " virtual and remoteUrl is blank, optional remoteUrl+branch"
-              + " for git-filesystem only (https/ssh/file/git@host:path; fail-closed on unsafe URLs"
-              + " / '..'; csv-filesystem, sql-database, and http-json reject remoteUrl — no"
-              + " secrets on this envelope), safe NIO path, simple"
-              + " configFile name. sql-database JDBC URL/user/query live in _config.yaml under"
-              + " rootPath (H2 mem"
-              + " only; never send passwords on this envelope). http-json catalog URL/file live in"
-              + " _config.yaml (http.url / http.file); REST persists a portable-safe rootPath JSON"
-              + " fixture. GET after PUT round-trips the"
-              + " stored sourceKind. Unknown kinds return 400. Blank/repository sourceKind clears"
-              + " virtual configuration.",
+              + " sourceKind allow-list (git-filesystem, csv-filesystem, sql-database, http-json,"
+              + " object-storage), required non-blank rootPath for sql-database, http-json, and"
+              + " object-storage; for other kinds when virtual and remoteUrl is blank, optional"
+              + " remoteUrl+branch for git-filesystem only (https/ssh/file/git@host:path;"
+              + " fail-closed on unsafe URLs / '..'; csv-filesystem, sql-database, http-json, and"
+              + " object-storage reject remoteUrl — no secrets on this envelope), safe NIO path,"
+              + " simple configFile name. sql-database JDBC URL/user/query live in _config.yaml"
+              + " under rootPath (H2 mem only; never send passwords on this envelope). http-json"
+              + " catalog URL/file live in _config.yaml (http.url / http.file); REST persists a"
+              + " portable-safe rootPath JSON fixture. object-storage persists a portable-safe"
+              + " local rootPath (no remaining '..'); cloud URLs and credential properties return"
+              + " 400. GET after PUT round-trips the stored sourceKind. Unknown kinds return 400."
+              + " Blank/repository sourceKind clears virtual configuration.",
       responses = {
         @ApiResponse(
             responseCode = "200",

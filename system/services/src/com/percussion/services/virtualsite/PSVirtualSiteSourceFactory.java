@@ -25,8 +25,8 @@ import java.util.stream.Stream;
  *
  * <p>Used by {@link PSVirtualSiteBuildService} (CLI and CMS REST {@code POST
  * /sites/{nameOrId}/virtual/build}) so git-filesystem, csv-filesystem, sql-database, http-json, and
- * object-storage share one assemble pipeline. REST GET/PUT persist {@code http-json}; object-storage
- * persist is a later slice.
+ * object-storage share one assemble pipeline. REST GET/PUT persist {@code http-json} and {@code
+ * object-storage}.
  */
 public final class PSVirtualSiteSourceFactory {
 
