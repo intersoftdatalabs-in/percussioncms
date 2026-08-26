@@ -23,12 +23,11 @@ REPO_ROOT = SCRIPT_DIR.parent
 SCRIPT = SCRIPT_DIR / "verify-no-bare-ipserrors.py"
 ALLOWLIST = SCRIPT_DIR / "ipserrors-residual-allowlist.txt"
 
-# Representative leftover from sibling #3847 (system/services) — must stay
-# exact-listed, not a directory prefix (a new file under that tree must fail).
-# Sitemanage production leftovers were converted in #3846.
-SYSTEM_SERVICES_RESIDUAL = (
-    "system/services/src/com/percussion/services/assembly/impl/"
-    "PSAssemblyService.java"
+# Representative leftover from #3739 (deployer) — must stay exact-listed, not a
+# directory prefix (a new file under that tree must fail). Sitemanage leftovers
+# converted in #3846; system/services leftovers in #3847; servlet/WebDAV in #3848.
+DEPLOYER_RESIDUAL = (
+    "deployer/src/main/java/com/percussion/deployer/jexl/PSDeployJexlUtils.java"
 )
 
 # Representative leftover from sibling #3585.
@@ -110,10 +109,10 @@ def test_list_allowlist_exits_zero() -> None:
     assert "IPS*Errors.java" in combined
     assert "ErrorCodes.java" in combined
     assert "IPSObjectStoreErrors" in combined
-    assert "#3847" in combined
+    assert "#3739" in combined
     assert "#3585" in combined
     combined_posix = combined.replace("\\", "/")
-    assert SYSTEM_SERVICES_RESIDUAL.replace("\\", "/") in combined_posix
+    assert DEPLOYER_RESIDUAL.replace("\\", "/") in combined_posix
     assert WEBSERVICE_RESIDUAL.replace("\\", "/") in combined_posix
     # Prefix freeze: printed residuals are files, not directory wildcards, and an
     # unlisted probe under the same tree is not advertised as covered.
@@ -382,7 +381,7 @@ def test_residual_allowlist_is_exact_paths_only() -> None:
         if ln.strip() and not ln.strip().startswith("#")
     ]
     assert len(entries) > 0
-    assert SYSTEM_SERVICES_RESIDUAL in entries
+    assert DEPLOYER_RESIDUAL in entries
     assert WEBSERVICE_RESIDUAL in entries
     for entry in entries:
         assert not entry.endswith("/"), entry
@@ -398,7 +397,7 @@ def test_empty_allowlist_fails_on_real_residuals(tmp_path: Path) -> None:
     assert result.returncode == 1, result.stdout + result.stderr
     combined = result.stdout + result.stderr
     assert "FAIL" in combined
-    assert "PSAssemblyService.java" in combined or "system/services" in combined
+    assert "PSDeployJexlUtils.java" in combined or "PSWebserviceUtils.java" in combined
 
 
 if __name__ == "__main__":
