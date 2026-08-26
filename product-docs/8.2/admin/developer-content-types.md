@@ -29,10 +29,11 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 2. Open **Developer → Content types**, or deep-link
    `spa.jsp?entry=developer&section=content-types`.
 3. Open a catalog row.
-4. The **detail toolbar at the top of the panel** shows **Lock**, **Save content
-   type**, **Unlock**, and the **Enabled** checkbox. The status line starts as
-   **Not locked**. Label, description, enabled, field flags, and association
-   editors stay **read-only** until you hold the lock. Enabled stays disabled
+4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
+   **Save content type**, **Unlock**, and the **Enabled** checkbox. The status
+   line starts as **Not locked**. Label, description, enabled, field flags, and
+   association editors stay **read-only** until you hold the lock. You do not
+   need to scroll past the fields table to lock or save. Enabled stays disabled
    until you hold the lock; a failed lock (**409**) does not steal another
    user's lock or enable the checkbox.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
@@ -54,8 +55,9 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 
 ### Allowed workflows (after lock)
 
-The **Allowed workflows** list is read-only until you hold the lock. After
-**Lock**:
+The **Allowed workflows** list is read-only until you hold the lock. Add,
+Remove, and the workflow-name field stay **disabled** while status is **Not
+locked**. After **Lock**:
 
 1. Add a workflow by its existing name (for example **Standard Workflow**) and
    click **Add**, or **Remove** a row. Use **Default** to choose the default

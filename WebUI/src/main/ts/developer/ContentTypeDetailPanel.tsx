@@ -248,6 +248,9 @@ export function ContentTypeDetailPanel({
   }
 
   function removeWorkflow(index: number) {
+    if (!heldLock) {
+      return;
+    }
     setWorkflows((prev) => {
       const next = prev.filter((_, i) => i !== index);
       if (next.length > 0 && !next.some((w) => w.isDefault)) {
@@ -259,6 +262,9 @@ export function ContentTypeDetailPanel({
   }
 
   function addWorkflow() {
+    if (!heldLock) {
+      return;
+    }
     const name = newWfName.trim();
     if (!name) return;
     if (workflows.some((w) => (w.name || "").toLowerCase() === name.toLowerCase())) {
@@ -274,6 +280,9 @@ export function ContentTypeDetailPanel({
   }
 
   function setDefaultWorkflow(index: number) {
+    if (!heldLock) {
+      return;
+    }
     setWorkflows((prev) => prev.map((w, i) => ({ ...w, isDefault: i === index })));
     setNotice(null);
   }
@@ -517,7 +526,8 @@ export function ContentTypeDetailPanel({
       ) : null}
 
       {/* Always mount lock/enabled chrome so Playwright and operators see it
-          before GET detail finishes and without scrolling past the fields table. */}
+          before GET detail finishes and without scrolling past the fields table
+          (#3834 #3835). */}
       <div
         role="toolbar"
         aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
@@ -773,9 +783,18 @@ export function ContentTypeDetailPanel({
                   style={inputStyle}
                   placeholder={DEV_MSG.CT_WF_NAME_PLACEHOLDER}
                   value={newWfName}
-                  onChange={(e) => setNewWfName(e.target.value)}
+                  onChange={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
+                    setNewWfName(e.target.value);
+                  }}
                   disabled={!canEdit}
+                  aria-disabled={!canEdit}
                   onKeyDown={(e) => {
+                    if (!canEdit) {
+                      return;
+                    }
                     if (e.key === "Enter") {
                       e.preventDefault();
                       addWorkflow();

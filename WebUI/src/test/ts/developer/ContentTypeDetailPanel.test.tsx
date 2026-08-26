@@ -97,6 +97,34 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeAllowedTemplates.mockImplementation(async () => []);
   });
 
+  it("renders lock toolbar while detail is loading so workflow lock is findable (#3835)", async () => {
+    let resolveDetail: (value: typeof sampleDetail) => void = () => undefined;
+    getContentTypeDetail.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveDetail = resolve;
+        }),
+    );
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
+    expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByTestId("developer-ct-wf-add-name")).toBeNull();
+    resolveDetail({
+      ...sampleDetail,
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", isDefault: true },
+    });
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    expect((screen.getByTestId("developer-ct-wf-add-name") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-wf-add") as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
+  });
+
   it("loads detail on success and supports back", async () => {
     getContentTypeDetail.mockResolvedValue(sampleDetail);
     const onBack = vi.fn();
@@ -774,6 +802,26 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Not locked");
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("ignores workflow add/remove while unlocked (#3835)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+      defaultWorkflow: { name: "Simple Workflow", isDefault: true },
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
+      target: { value: "Standard Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-wf-add"));
+    fireEvent.click(screen.getByTestId("developer-ct-wf-remove-0"));
+    expect(screen.queryByTestId("developer-ct-wf-row-1")).toBeNull();
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("keeps workflow editors disabled until lock (#3782)", async () => {
