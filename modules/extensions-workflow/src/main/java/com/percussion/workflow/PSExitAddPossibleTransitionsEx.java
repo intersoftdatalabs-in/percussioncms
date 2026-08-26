@@ -17,11 +17,11 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -230,13 +230,13 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         localParams.m_userName = params[0].toString();
 
         if (nParamCount < 2 || null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.STATUS_DOC_EMPTY);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.STATUS_DOC_EMPTY);
         }
         localParams.m_statusDocElementName = params[1].toString();
 
         if (nParamCount < 3 || null == params[2] || 0 == params[2].toString().trim().length()) {
           throw new PSInvalidParameterTypeException(
-              lang, IPSExtensionErrors.CONTENTID_NODENAME_EMPTY);
+              lang, ExtensionErrorCodes.CONTENTID_NODENAME_EMPTY);
         }
         localParams.m_contentIDNodeName = params[2].toString();
 
@@ -386,20 +386,20 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     } else {
       NodeList nodes = elemParent.getElementsByTagName(localParams.m_contentIDNodeName);
       if (null == nodes || nodes.getLength() < 1) {
-        throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING_EMPTY);
+        throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING_EMPTY);
       }
       Element elem = (Element) nodes.item(0);
       localParams.m_contentIDName = elem.getNodeName();
       sContentID = ((Text) (elem.getFirstChild())).getData();
       if (null != sContentID) sContentID = sContentID.trim();
       if (null == sContentID || sContentID.length() < 1) {
-        throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING_EMPTY);
+        throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING_EMPTY);
       }
       contentID = Integer.parseInt(sContentID);
     }
 
     if (contentID < 1)
-      throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING);
+      throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING);
 
     // Phase 4d-1a: CONTENTSTATUS read via Hibernate (Phase 4b loadComponentSummary).
     com.percussion.cms.objectstore.PSComponentSummary summary =

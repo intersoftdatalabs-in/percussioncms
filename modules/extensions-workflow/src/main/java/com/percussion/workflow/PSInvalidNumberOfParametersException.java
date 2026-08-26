@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -65,6 +66,19 @@ public class PSInvalidNumberOfParametersException extends PSException {
    */
   public PSInvalidNumberOfParametersException(String language, int msgCode, Object[] arrayArgs) {
     super(language, msgCode, arrayArgs);
+  }
+
+  /**
+   * Typed construction with locale and message arguments.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSInvalidNumberOfParametersException(
+      String language, IPSErrorCode code, Object[] arrayArgs) {
+    super(language, requireCode(code).numericCode(), arrayArgs);
+    m_typedErrorCode = code;
   }
 
   /**

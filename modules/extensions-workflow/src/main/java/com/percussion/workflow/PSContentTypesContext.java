@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
@@ -122,7 +122,7 @@ public final class PSContentTypesContext implements IPSContentTypesContext {
 
       if (false == rs.next()) {
         close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
 
       m_sContentTypeName = rs.getString("CONTENTTYPENAME");

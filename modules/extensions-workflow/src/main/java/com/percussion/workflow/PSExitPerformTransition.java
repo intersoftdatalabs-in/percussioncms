@@ -17,11 +17,11 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
@@ -312,7 +312,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           String[] exParams = {String.valueOf(ms_correctParamCount), String.valueOf(nParamCount)};
 
           throw new PSInvalidNumberOfParametersException(
-              lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
+              lang, ExtensionErrorCodes.INVALID_PARAM_NUM, exParams);
         }
 
         if (null == params[0] || 0 == params[0].toString().trim().length()) {
@@ -322,13 +322,13 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         }
         localParams.m_contentID = Integer.parseInt(params[0].toString());
         if (null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME1);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME1);
         }
 
         localParams.m_userName = params[1].toString();
 
         if (0 == localParams.m_userName.length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME2);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME2);
         }
 
         if (null == params[2] || 0 == params[2].toString().trim().length()) {
@@ -364,7 +364,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           && localParams.m_transitionComment.length() > 255) {
 
         throw new PSExtensionProcessingException(
-            lang, IPSExtensionErrors.WF_COMMENT_CANNOT_EXCEED_255);
+            lang, ExtensionErrorCodes.WF_COMMENT_CANNOT_EXCEED_255);
       }
 
       adhocUserList = (String) htmlParams.get(IPSHtmlParameters.SYS_WF_ADHOC_USERLIST);
@@ -379,7 +379,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         throw new PSExtensionProcessingException(
             lang,
             m_fullExtensionName,
-            new PSRoleException(lang, IPSExtensionErrors.ROLEINFO_OBJ_NULL));
+            new PSRoleException(lang, ExtensionErrorCodes.ROLEINFO_OBJ_NULL));
       }
       localParams.m_wfRoleInfo = wfRoleInfo;
 
@@ -512,7 +512,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
          * tried to checkin a doc what wasn't checked out, really
          * just a warning condition.
          */
-        if (IPSExtensionErrors.DOC_NOT_CHECKEDOUT != e.getErrorCode()) {
+        if (ExtensionErrorCodes.DOC_NOT_CHECKEDOUT.numericCode() != e.getErrorCode()) {
           except = e;
         }
       } catch (PSTransitionException e) {
@@ -699,7 +699,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           // Factory returns an empty context (matching the legacy constructor's
           // PSEntryNotFoundException
           // path) — surface it so the existing MISSING_TRANSITION handler runs.
-          throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+          throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
         }
       }
       // No JDBC resources to release — Hibernate-backed factory manages its own session.
@@ -710,7 +710,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         localParams.m_transitionFromStateID,
         localParams.m_actionTrigger
       };
-      throw new PSTransitionException(lang, IPSExtensionErrors.MISSING_TRANSITION, args);
+      throw new PSTransitionException(lang, ExtensionErrorCodes.MISSING_TRANSITION, args);
     }
 
     // The current stateid must match with from state id of the transition
@@ -722,12 +722,12 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         tc.getTransitionFromStateID(),
         localParams.m_actionTrigger
       };
-      throw new PSTransitionException(lang, IPSExtensionErrors.INVALID_TRANSITION, args);
+      throw new PSTransitionException(lang, ExtensionErrorCodes.INVALID_TRANSITION, args);
     }
 
     /* Only an admin can transition an item that is checked out */
     if (localParams.m_checkedOut && !localParams.m_isAdministrator) {
-      throw new PSTransitionException(lang, IPSExtensionErrors.ADMIN_CHECKOUT_ONLY);
+      throw new PSTransitionException(lang, ExtensionErrorCodes.ADMIN_CHECKOUT_ONLY);
     }
 
     localParams.m_transitionToStateID = tc.getTransitionToStateID();
@@ -755,7 +755,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       transitionRequiredRoles = tc.getTransitionRoles();
       if (null != transitionRequiredRoles && !transitionRequiredRoles.isEmpty()) {
         if (!PSWorkFlowUtils.compareRoleList(transitionRequiredRoles, userRoleList)) {
-          throw new PSTransitionException(lang, IPSExtensionErrors.INVALID_TRANSITION_ROLE);
+          throw new PSTransitionException(lang, ExtensionErrorCodes.INVALID_TRANSITION_ROLE);
         }
       }
     }
@@ -766,7 +766,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
      */
 
     if (tc.isTransitionCommentRequired() && null == localParams.m_transitionComment) {
-      throw new PSTransitionException(lang, IPSExtensionErrors.TRANSITION_COMMENT_NOT_SPECIFIED);
+      throw new PSTransitionException(lang, ExtensionErrorCodes.TRANSITION_COMMENT_NOT_SPECIFIED);
     }
 
     // Phase 4d-1c: Hibernate-backed read of STATEROLES for the to-state.
@@ -921,12 +921,12 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       // Make sure the user is eligible to check in the document
       if (!localParams.m_checkedOut) // It must be checked out
       {
-        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.DOC_NOT_CHECKEDOUT);
+        throw new PSCheckInCheckOutException(lang, ExtensionErrorCodes.DOC_NOT_CHECKEDOUT);
       }
 
       // It must have an edit revision
       else if (IPSConstants.NO_CORRESPONDING_REVISION_VALUE == editRevision) {
-        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.EDIT_REVISION_MISSING);
+        throw new PSCheckInCheckOutException(lang, ExtensionErrorCodes.EDIT_REVISION_MISSING);
       }
 
       /*
@@ -935,7 +935,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
        */
       else if (!localParams.m_isAdministrator
           && (PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER != localParams.m_checkoutStatus)) {
-        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKIN_NOT_ALLOWED);
+        throw new PSCheckInCheckOutException(lang, ExtensionErrorCodes.CHECKIN_NOT_ALLOWED);
       }
 
       /*
@@ -978,7 +978,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
               .map(IPSStatesContext::getIsValid)
               .orElse(false);
       if (isValidState)
-        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKOUT_FROM_PUBLIC_STATE);
+        throw new PSCheckInCheckOutException(lang, ExtensionErrorCodes.CHECKOUT_FROM_PUBLIC_STATE);
 
       // The default checkout revision is the tip revision
       int checkoutRequestRevision =
@@ -989,14 +989,14 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       if (localParams.m_checkedOut) {
         // It's an error if document is checked out by somebody else
         if (localParams.m_checkoutStatus != PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER) {
-          throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKOUT_NOT_ALLOWED);
+          throw new PSCheckInCheckOutException(lang, ExtensionErrorCodes.CHECKOUT_NOT_ALLOWED);
         }
 
         // You have checked it out, but it must be the edit revision
         else if (checkoutRequestRevision != editRevision) {
           throw new PSCheckInCheckOutException(
               lang,
-              IPSExtensionErrors.CHECKOUT_REVISION_MISMATCH,
+              ExtensionErrorCodes.CHECKOUT_REVISION_MISMATCH,
               new Object[] {
                 Integer.toString(checkoutRequestRevision), Integer.toString(editRevision)
               });
@@ -1021,7 +1021,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       else if (checkoutRequestRevision > tipRevision) {
         throw new PSCheckInCheckOutException(
             lang,
-            IPSExtensionErrors.CHECKOUT_REVISION_LIMIT,
+            ExtensionErrorCodes.CHECKOUT_REVISION_LIMIT,
             new Object[] {
               Integer.toString(checkoutRequestRevision), Integer.toString(tipRevision)
             });
@@ -1195,7 +1195,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       bHasActed = hasUserActed(stateApprovals, userName);
       if (bHasActed) {
         throw new PSDuplicateApprovalException(
-            lang, IPSExtensionErrors.TRANSITION_ATTEMPT, userName);
+            lang, ExtensionErrorCodes.TRANSITION_ATTEMPT, userName);
       }
 
       HashSet userRoles = new HashSet(workflowInfo.getUserActingRoleNames());
@@ -1207,7 +1207,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         // if the user contains no roles in specified role list toss them
         userRoles.retainAll(tc.getTransitionRoles());
         if (userRoles.isEmpty()) {
-          throw new PSEntryNotFoundException(lang, IPSExtensionErrors.INVALID_TRANSITION_ROLE);
+          throw new PSEntryNotFoundException(lang, ExtensionErrorCodes.INVALID_TRANSITION_ROLE);
         }
       }
 
@@ -1228,7 +1228,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       }
       if (keepRoles.isEmpty()) {
         throw new PSDuplicateApprovalException(
-            lang, IPSExtensionErrors.TRANSITION_ATTEMPT, userRoles + " Role(s)");
+            lang, ExtensionErrorCodes.TRANSITION_ATTEMPT, userRoles + " Role(s)");
       }
       // be sure to reset the userRoles set with only the ones that have
       // not been acted upon

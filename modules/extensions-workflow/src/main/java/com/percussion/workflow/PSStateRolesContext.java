@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSAssignedRole;
@@ -70,7 +70,7 @@ public class PSStateRolesContext implements IPSStateRolesContext {
     IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
     List<PSAssignedRole> rows = wfSvc.findStateRoles(workflowId, stateId, assignmentType);
     if (rows.isEmpty()) {
-      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+      throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
     }
 
     Set<Long> roleIds = new HashSet<>();
@@ -115,7 +115,7 @@ public class PSStateRolesContext implements IPSStateRolesContext {
       int assignmentType = row.getAssignmentType().getValue();
       String roleName = roleNameById.get(roleIdLong);
       if (roleName == null || roleName.isEmpty()) {
-        throw new PSRoleException(IPSExtensionErrors.STATEROLE_NULL_EMPTY_TRIM);
+        throw new PSRoleException(ExtensionErrorCodes.STATEROLE_NULL_EMPTY_TRIM);
       }
 
       m_nCount++;
@@ -136,7 +136,7 @@ public class PSStateRolesContext implements IPSStateRolesContext {
       } else if (adhocType == PSWorkFlowUtils.ADHOC_ANONYMOUS) {
         m_adhocAnonymousStateRoleIDs.add(roleID);
       } else {
-        throw new PSRoleException(IPSExtensionErrors.INVALID_ADHOC);
+        throw new PSRoleException(ExtensionErrorCodes.INVALID_ADHOC);
       }
     }
   }
@@ -168,7 +168,7 @@ public class PSStateRolesContext implements IPSStateRolesContext {
       rs = statement.executeQuery();
       while (moveNext()) {
         if (m_sStateRoleName.length() == 0) {
-          throw new PSRoleException(IPSExtensionErrors.STATEROLE_NULL_EMPTY_TRIM);
+          throw new PSRoleException(ExtensionErrorCodes.STATEROLE_NULL_EMPTY_TRIM);
         }
         m_nCount++;
         roleID = m_nStateRoleID;
@@ -190,11 +190,11 @@ public class PSStateRolesContext implements IPSStateRolesContext {
         } else if (m_nAdhocType == PSWorkFlowUtils.ADHOC_ANONYMOUS) {
           m_adhocAnonymousStateRoleIDs.add(roleID);
         } else {
-          throw new PSRoleException(IPSExtensionErrors.INVALID_ADHOC);
+          throw new PSRoleException(ExtensionErrorCodes.INVALID_ADHOC);
         }
       }
       if (0 == m_nCount) {
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
       }
     } finally {
       close();

@@ -16,10 +16,10 @@
  */
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.IPSWorkFlowContext;
@@ -144,7 +144,7 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
     // If the workflow action list is empty, it is an error
     if (workflowActions.isEmpty()) {
-      String key = Integer.toString(IPSExtensionErrors.WKFLOW_ACTIONLIST_EMPTY);
+      String key = Integer.toString(ExtensionErrorCodes.WKFLOW_ACTIONLIST_EMPTY.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       throw new PSExtensionProcessingException(lang, m_fullExtensionName, new Exception(msg));
     }
@@ -155,7 +155,7 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
     // If there is no workflow context it is an error
     if (null == wfContext) {
-      String key = Integer.toString(IPSExtensionErrors.WKFLOW_CONTEXT_NULL);
+      String key = Integer.toString(ExtensionErrorCodes.WKFLOW_CONTEXT_NULL.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       throw new PSExtensionProcessingException(m_fullExtensionName, new Exception(msg));
     }
@@ -177,7 +177,7 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
           IPSExtension ext = ms_extensionMgr.prepareExtension(ref, null);
           if (!(ext instanceof IPSWorkflowAction)) {
             // fix except type
-            String key = Integer.toString(IPSExtensionErrors.INVALID_WKFLOW_EXT);
+            String key = Integer.toString(ExtensionErrorCodes.INVALID_WKFLOW_EXT.numericCode());
             String msg = PSI18nUtils.getString(key, lang);
             throw new PSExtensionProcessingException(lang, m_fullExtensionName, new Exception(msg));
           }
@@ -211,7 +211,7 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
        * in the previous while loop.
        */
       if (null == wfActionExtension) {
-        String key = Integer.toString(IPSExtensionErrors.EXEC_EXT_NOTFOUND);
+        String key = Integer.toString(ExtensionErrorCodes.EXEC_EXT_NOTFOUND.numericCode());
         String msg = PSI18nUtils.getString(key, lang);
 
         throw new PSExtensionProcessingException(m_fullExtensionName, new Exception(msg));

@@ -85,6 +85,15 @@ class PSExceptionTypedErrorCodeTest {
   }
 
   @Test
+  void notFoundTypedCtorRetainsCode() {
+    Object[] args = {"sys_casSupport/casSupport_0", "No request handler found."};
+    PSNotFoundException ex = new PSNotFoundException(SAMPLE, args);
+    assertSame(SAMPLE, ex.getTypedErrorCode());
+    assertEquals(2011, ex.getErrorCode());
+    assertFalse(ex.isAuditable());
+  }
+
+  @Test
   void typedCtorRejectsNullCode() {
     assertThrows(IllegalArgumentException.class, () -> new PSException((IPSErrorCode) null));
   }

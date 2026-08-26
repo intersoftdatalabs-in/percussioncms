@@ -17,7 +17,9 @@
 
 package com.percussion.workflow;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
@@ -25,7 +27,6 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.PSExtensionException;
@@ -33,7 +34,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSServer;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
@@ -196,7 +196,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
         }
 
         if (null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME1);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME1);
         }
         userName = params[1].toString();
         userName = PSWorkFlowUtils.filterUserName(userName);
@@ -282,7 +282,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
           // by PSActionSet
           if (except instanceof SQLException) {
             Object args[] = new Object[] {"CONTENTSTATUSHISTORY"};
-            e.setArgs(IPSServerErrors.SQL_PROBLEM, args);
+            e.setArgs(ServerErrorCodes.SQL_PROBLEM, args);
           }
           throw e;
         }
@@ -465,7 +465,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
 
     /** If the internal request is <code>null</code> now, we did not find the resource. */
     if (ir == null)
-      throw new PSCmsException(IPSCmsErrors.REQUIRED_RESOURCE_MISSING, PUT_LASTPUBREV_RSC);
+      throw new PSCmsException(CmsErrorCodes.REQUIRED_RESOURCE_MISSING, PUT_LASTPUBREV_RSC);
 
     ir.performUpdate();
   }

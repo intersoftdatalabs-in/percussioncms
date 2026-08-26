@@ -16,8 +16,8 @@
  */
 package com.percussion.fastforward.calendar;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -80,7 +80,7 @@ public class PSMakeCalendar implements IPSResultDocumentProcessor {
     // get the calendar start date
     if (params[0] == null)
       throw new PSParameterMismatchException(
-          IPSExtensionErrors.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
+          ExtensionErrorCodes.EXT_MISSING_REQUIRED_PARAMETER_ERROR,
           new Object[] {"date", "is a required parameter"});
     Date date = PSDataTypeConverter.parseStringToDate(params[0].toString());
     if (date == null)

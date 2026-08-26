@@ -16,7 +16,8 @@
  */
 package com.percussion.fastforward.managednav;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.server.PSAuthTypes;
 import com.percussion.data.PSInternalRequestCallException;
@@ -28,7 +29,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
@@ -236,7 +236,7 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
     String resource = PSAuthTypes.getInstance().getResourceForAuthtype("" + authType);
     if (resource == null || resource.length() == 0) {
       String[] args = {"" + authType, PSAuthTypes.getInstance().getConfigFile().getAbsolutePath()};
-      throw new PSNavException(new PSCmsException(IPSCmsErrors.INVALID_AUTHTYPE, args));
+      throw new PSNavException(new PSCmsException(CmsErrorCodes.INVALID_AUTHTYPE, args));
     }
     Set<String> resultSet = new HashSet<>();
     Map<String, Object> params = new HashMap<>();
@@ -246,7 +246,7 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
     if (ir == null) {
       Object[] args = {resource, "No request handler found."};
       throw new PSNavException(
-          new PSNotFoundException(IPSServerErrors.MISSING_INTERNAL_REQUEST_RESOURCE, args));
+          new PSNotFoundException(ServerErrorCodes.MISSING_INTERNAL_REQUEST_RESOURCE, args));
     }
     try {
       Document doc = ir.getResultDoc();

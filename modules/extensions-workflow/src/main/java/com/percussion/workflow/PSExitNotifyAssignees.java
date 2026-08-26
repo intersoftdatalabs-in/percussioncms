@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
@@ -27,7 +28,6 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.PSExtensionException;
@@ -194,7 +194,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         if (ms_correctParamCount != nParamCount) {
           String[] exParams = {Integer.toString(ms_correctParamCount), String.valueOf(nParamCount)};
           throw new PSInvalidNumberOfParametersException(
-              lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
+              lang, ExtensionErrorCodes.INVALID_PARAM_NUM, exParams);
         }
 
         // Note: we could get content id from workflow context
@@ -222,7 +222,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         }
 
         if (null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME1);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME1);
         }
 
         userName = params[1].toString();
@@ -281,7 +281,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
 
       if (null == wfRoleInfo) {
         throw new PSExtensionProcessingException(
-            m_fullExtensionName, new PSRoleException(lang, IPSExtensionErrors.ROLEINFO_OBJ_NULL));
+            m_fullExtensionName, new PSRoleException(lang, ExtensionErrorCodes.ROLEINFO_OBJ_NULL));
       }
 
       try {
@@ -1186,21 +1186,21 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
 
         mailDomain = PSWorkFlowUtils.properties.getProperty("MAIL_DOMAIN", "");
         if (null == mailDomain) {
-          throw new PSMailException(IPSExtensionErrors.MAIL_DOMAIN_NULL);
+          throw new PSMailException(ExtensionErrorCodes.MAIL_DOMAIN_NULL);
         }
         mailDomain = mailDomain.trim();
         if (0 == mailDomain.length()) {
-          throw new PSMailException(IPSExtensionErrors.MAIL_DOMAIN_EMPTY);
+          throw new PSMailException(ExtensionErrorCodes.MAIL_DOMAIN_EMPTY);
         }
 
         smtpHost = PSWorkFlowUtils.properties.getProperty("SMTP_HOST", "");
         if (null == smtpHost) {
-          throw new PSMailException(IPSExtensionErrors.SMTP_HOST_NULL);
+          throw new PSMailException(ExtensionErrorCodes.SMTP_HOST_NULL);
         }
 
         smtpHost = smtpHost.trim();
         if (0 == smtpHost.length()) {
-          throw new PSMailException(IPSExtensionErrors.SMTP_HOST_EMPTY);
+          throw new PSMailException(ExtensionErrorCodes.SMTP_HOST_EMPTY);
         }
 
         smtpUsername = PSWorkFlowUtils.properties.getProperty("SMTP_USERNAME", "");

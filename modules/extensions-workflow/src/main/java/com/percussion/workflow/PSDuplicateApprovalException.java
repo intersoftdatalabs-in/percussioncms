@@ -16,6 +16,7 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
 /**
@@ -48,6 +49,18 @@ public class PSDuplicateApprovalException extends PSException {
    */
   public PSDuplicateApprovalException(String language, int msgCode, Object singleArg) {
     super(language, msgCode, singleArg);
+  }
+
+  /**
+   * Typed construction with locale and a single message argument.
+   *
+   * @param language language string to use while looking up the message text
+   * @param code catalogued error code, never {@code null}
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSDuplicateApprovalException(String language, IPSErrorCode code, Object singleArg) {
+    super(language, requireCode(code).numericCode(), singleArg);
+    m_typedErrorCode = code;
   }
 
   /**

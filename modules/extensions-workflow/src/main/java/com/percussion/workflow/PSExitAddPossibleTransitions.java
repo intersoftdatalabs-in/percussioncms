@@ -17,9 +17,9 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -97,7 +97,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         if (ms_correctParamCount != nParamCount) {
           String[] exParams = {Integer.toString(ms_correctParamCount), String.valueOf(nParamCount)};
           throw new PSInvalidNumberOfParametersException(
-              lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
+              lang, ExtensionErrorCodes.INVALID_PARAM_NUM, exParams);
         }
 
         if (null == params[0] || 0 == params[0].toString().trim().length()) {
@@ -115,13 +115,13 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         localParams.m_userName = PSWorkFlowUtils.filterUserName(localParams.m_userName);
 
         if (null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.STATUS_DOC_EMPTY);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.STATUS_DOC_EMPTY);
         }
         localParams.m_statusDocElementName = params[1].toString();
 
         if (null == params[2] || 0 == params[2].toString().trim().length()) {
           throw new PSInvalidParameterTypeException(
-              lang, IPSExtensionErrors.CONTENTID_NODENAME_EMPTY);
+              lang, ExtensionErrorCodes.CONTENTID_NODENAME_EMPTY);
         }
         localParams.m_contentIDNodeName = params[2].toString();
       } catch (PSInvalidNumberOfParametersException | PSInvalidParameterTypeException ne) {
@@ -175,24 +175,24 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
       sContentID = elemParent.getAttribute(localParams.m_contentIDName);
       if (null != sContentID) sContentID = sContentID.trim();
       if (null == sContentID || sContentID.length() < 1)
-        throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING_EMPTY);
+        throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING_EMPTY);
       contentID = Integer.parseInt(sContentID);
     } else {
       NodeList nodes = elemParent.getElementsByTagName(localParams.m_contentIDNodeName);
 
       if (null == nodes || nodes.getLength() < 1)
-        throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING_EMPTY);
+        throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING_EMPTY);
       Element elem = (Element) nodes.item(0);
       localParams.m_contentIDName = elem.getNodeName();
       sContentID = ((Text) (elem.getFirstChild())).getData();
       if (null != sContentID) sContentID = sContentID.trim();
       if (null == sContentID || sContentID.length() < 1)
-        throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING_EMPTY);
+        throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING_EMPTY);
       contentID = Integer.parseInt(sContentID);
     }
 
     if (contentID < 1)
-      throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING);
+      throw new PSXMLNodeMissingException(lang, ExtensionErrorCodes.CONTENTID_NODE_MISSING);
 
     sContentID = Integer.toString(contentID);
 

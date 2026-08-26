@@ -17,11 +17,11 @@
 
 package com.percussion.workflow;
 
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -85,7 +85,7 @@ public class PSExitNextNumber implements IPSRequestPreProcessor {
       throw new PSParameterMismatchException(lang, ms_correctParamCount, nParamCount);
 
     if (null == params[0] || 0 == params[0].toString().trim().length()) {
-      String key = Integer.toString(IPSExtensionErrors.HTML_PARAM_NULL1);
+      String key = Integer.toString(ExtensionErrorCodes.HTML_PARAM_NULL1.numericCode());
       String msg = PSI18nUtils.getString(key, lang);
       Object args[] = {ms_exitName, msg};
       throw new PSExtensionProcessingException(lang, IPSExtension.ERROR_INVALID_PARAMETER, args);

@@ -16,7 +16,7 @@
 
 package com.percussion.workflow.mail;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -56,7 +56,7 @@ public class PSJavaxMailProgram implements IPSMailProgram {
       Message msg = new MimeMessage(session);
       String mailDomain = messageContext.getMailDomain();
       if ((null == mailDomain) || mailDomain.length() == 0) {
-        throw new PSMailException(IPSExtensionErrors.MAIL_DOMAIN_EMPTY);
+        throw new PSMailException(ExtensionErrorCodes.MAIL_DOMAIN_EMPTY);
       }
       String mailCc = messageContext.getCc();
 

@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow.mail;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptProperties;
 import com.percussion.security.PSEncryptor;
@@ -94,7 +94,7 @@ public class PSSecureMailProgram implements IPSMailProgram {
     String smtpHost = messageContext.getSmtpHost();
 
     if (StringUtils.isEmpty(smtpHost)) {
-      throw new PSMailException(IPSExtensionErrors.SMTP_HOST_EMPTY);
+      throw new PSMailException(ExtensionErrorCodes.SMTP_HOST_EMPTY);
     }
   }
 

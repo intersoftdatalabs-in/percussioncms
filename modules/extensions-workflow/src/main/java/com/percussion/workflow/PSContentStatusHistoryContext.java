@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.extension.IPSExtensionErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.system.IPSSystemService;
@@ -66,7 +66,7 @@ public final class PSContentStatusHistoryContext implements IPSContentStatusHist
     m_rows = svc.findContentStatusHistory(id);
     if (m_rows == null || m_rows.isEmpty()) {
       m_nCount = 0;
-      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+      throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
     }
     m_nCount = m_rows.size();
     m_rowIndex = 0;

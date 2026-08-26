@@ -17,7 +17,8 @@
 
 package com.percussion.workflow;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.ExtensionErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.PathItemErrorCodes;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCmsObject;
@@ -130,7 +131,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
           String[] exParams = {String.valueOf(ms_correctParamCount), String.valueOf(nParamCount)};
 
           throw new PSInvalidNumberOfParametersException(
-              lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
+              lang, ExtensionErrorCodes.INVALID_PARAM_NUM, exParams);
         }
 
         // Get contentid
@@ -142,18 +143,18 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
 
         // Get username
         if (null == params[1] || 0 == params[1].toString().trim().length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME1);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME1);
         }
 
         localParams.m_userName = params[1].toString();
 
         if (0 == localParams.m_userName.length()) {
-          throw new PSInvalidParameterTypeException(lang, IPSExtensionErrors.EMPTY_USRNAME2);
+          throw new PSInvalidParameterTypeException(lang, ExtensionErrorCodes.EMPTY_USRNAME2);
         }
         // Get role list
         if (null == params[2] || 0 == params[2].toString().trim().length()) {
           throw new PSInvalidParameterTypeException(
-              lang, IPSExtensionErrors.EMPTY_ROLE_LIST, localParams.m_userName);
+              lang, ExtensionErrorCodes.EMPTY_ROLE_LIST, localParams.m_userName);
         }
         localParams.m_roleNameList = params[2].toString();
 
@@ -210,7 +211,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
             String language = PSI18nUtils.DEFAULT_LANG;
             log.error(PSExceptionUtils.getMessageForLog(e));
             throw new PSInvalidParameterTypeException(
-                language, IPSExtensionErrors.INVALID_WORKFLOWID, params[5].toString());
+                language, ExtensionErrorCodes.INVALID_WORKFLOWID, params[5].toString());
           }
         }
       } catch (PSInvalidNumberOfParametersException | PSInvalidParameterTypeException ne) {
@@ -312,7 +313,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     if (localParams.m_isNewItem) {
       // validate user is able to create doc in initial state
       if (!canUserCreate(localParams)) {
-        throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_CONTENTTYPE, null);
+        throw new PSAuthorizationException(lang, ExtensionErrorCodes.ILLEGAL_CONTENTTYPE, null);
       }
 
       // if a new item, we're all done
@@ -349,7 +350,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
       if (!PSFolderSecurityManager.verifyFolderPermissions(
           contentID, PSObjectPermissions.ACCESS_READ)) {
-        throw new PSAuthorizationException(IPSExtensionErrors.AUTHENTICATION_FAILED2, null);
+        throw new PSAuthorizationException(ExtensionErrorCodes.AUTHENTICATION_FAILED2, null);
       }
       return;
     }
@@ -382,7 +383,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
 
     // first check folder security
     if (!PSCms.canReadInFolders(contentID)) {
-      throw new PSAuthorizationException(lang, IPSExtensionErrors.AUTHENTICATION_FAILED2, null);
+      throw new PSAuthorizationException(lang, ExtensionErrorCodes.AUTHENTICATION_FAILED2, null);
     }
 
     // Check whether the user is Workflow admin
@@ -435,7 +436,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       // Someone else has it checked out
       if (checkInOutCondition.equalsIgnoreCase(PSWorkFlowUtils.CHECKINOUT_CONDITION_CHECKIN)
           && null != checkedOutUser) {
-        throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_IF_CHECKEDOUT, null);
+        throw new PSAuthorizationException(lang, ExtensionErrorCodes.ILLEGAL_IF_CHECKEDOUT, null);
       } else if (checkInOutCondition.equalsIgnoreCase(PSWorkFlowUtils.CHECKINOUT_CONDITION_CHECKOUT)
           && (!userName.equalsIgnoreCase(checkedOutUser))) {
         // Checkout overridden by administrator
@@ -443,11 +444,11 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
             && localParams.m_actionTrigger.equalsIgnoreCase(
                 PSWorkFlowUtils.properties.getProperty(PSWorkFlowUtils.TRIGGER_CHECK_IN))) {
           throw new PSAuthorizationException(
-              lang, IPSExtensionErrors.ILLEGAL_IF_CHECKEDOUT_OVERRIDE, null);
+              lang, ExtensionErrorCodes.ILLEGAL_IF_CHECKEDOUT_OVERRIDE, null);
         } else {
           // Not checked out, may have been overridden by administrator
           throw new PSAuthorizationException(
-              lang, IPSExtensionErrors.ILLEGAL_IFNOT_CHECKEDOUT, null);
+              lang, ExtensionErrorCodes.ILLEGAL_IFNOT_CHECKEDOUT, null);
         }
       }
     }
@@ -464,7 +465,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       if (language == null) language = PSI18nUtils.DEFAULT_LANG;
       throw new PSAuthorizationException(
           language,
-          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          ExtensionErrorCodes.ROLE_ERROR_STATEID_WORKFLOWID,
           new Object[] {
             Integer.toString(csc.getContentStateId()),
             Integer.toString(nWorkFlowAppID),
@@ -475,7 +476,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       if (language == null) language = PSI18nUtils.DEFAULT_LANG;
       throw new PSAuthorizationException(
           lang,
-          IPSExtensionErrors.ROLES_NOT_ASSIGNED,
+          ExtensionErrorCodes.ROLES_NOT_ASSIGNED,
           new Object[] {
             Integer.toString(requiredAccessLevel),
             Integer.toString(csc.getContentStateId()),
@@ -485,7 +486,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       log.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSAuthorizationException(
           lang,
-          IPSExtensionErrors.ROLES_NOT_ASSIGNED,
+          ExtensionErrorCodes.ROLES_NOT_ASSIGNED,
           new Object[] {
             Integer.toString(requiredAccessLevel),
             Integer.toString(csc.getContentStateId()),
@@ -498,7 +499,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
     if (null == actorRoles || actorRoles.isEmpty()) {
-      throw new PSAuthorizationException(lang, IPSExtensionErrors.AUTHENTICATION_FAILED1, null);
+      throw new PSAuthorizationException(lang, ExtensionErrorCodes.AUTHENTICATION_FAILED1, null);
     }
     assignmentType = PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoles);
 
@@ -509,7 +510,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
         PSWorkflowRoleInfo.WORKFLOW_ROLE_INFO_PRIVATE_OBJECT, wfRoleInfo);
 
     if (PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE == assignmentType) {
-      throw new PSAuthorizationException(lang, IPSExtensionErrors.AUTHENTICATION_FAILED2, null);
+      throw new PSAuthorizationException(lang, ExtensionErrorCodes.AUTHENTICATION_FAILED2, null);
     }
     localParams.m_assignmentType = assignmentType;
     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Exiting authenticateUser");
@@ -546,7 +547,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       log.debug("Checking if user {} can write to Folders...", localParams.m_userName);
       if (!PSCms.canWriteToFolders(localParams.m_request)) {
         // User must have write access
-        throw new PSAuthorizationException(IPSCmsErrors.FOLDER_PERMISSION_DENIED, new String[] {});
+        throw new PSAuthorizationException(PathItemErrorCodes.FOLDER_PERMISSION_DENIED, new String[] {});
       }
     }
 
@@ -583,7 +584,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       log.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSAuthorizationException(
           lang,
-          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          ExtensionErrorCodes.ROLE_ERROR_STATEID_WORKFLOWID,
           new Object[] {
             Integer.toString(wcxt.getWorkFlowInitialStateID()),
             Integer.toString(localParams.m_workflowAppID),
@@ -593,7 +594,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       log.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSAuthorizationException(
           lang,
-          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          ExtensionErrorCodes.ROLE_ERROR_STATEID_WORKFLOWID,
           new Object[] {
             Integer.toString(wcxt.getWorkFlowInitialStateID()),
             Integer.toString(localParams.m_workflowAppID),

@@ -16,7 +16,8 @@
  */
 package com.percussion.fastforward.sfp;
 
-import com.percussion.cms.IPSCmsErrors;
+import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
+import com.intsof.percussioncms.auditlog.codes.ServerErrorCodes;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.data.macro.PSMacroUtils;
@@ -30,7 +31,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.services.PSDatabasePool;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSSqlHelper;
 import java.sql.Date;
@@ -346,7 +346,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
     try {
       fixupItems = PSMacroUtils.getLastPublicRevisions(idList);
     } catch (PSException e) {
-      throw new PSCmsException(IPSServerErrors.EXCEPTION_NOT_CAUGHT, e.toString());
+      throw new PSCmsException(ServerErrorCodes.EXCEPTION_NOT_CAUGHT, e.toString());
     }
     for (Map.Entry<Integer, Integer> entry : fixupItems.entrySet()) {
       Integer contentid = entry.getKey();
@@ -401,7 +401,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
 
     if (ir == null)
       throw new PSExtensionProcessingException(
-          IPSCmsErrors.REQUIRED_RESOURCE_MISSING, m_contentResourceName);
+          CmsErrorCodes.REQUIRED_RESOURCE_MISSING, m_contentResourceName);
     try {
       ResultSet rs = ir.getResultSet();
 
@@ -473,7 +473,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
         }
       }
     } catch (Exception e) {
-      throw new PSCmsException(IPSServerErrors.EXCEPTION_NOT_CAUGHT, e.toString());
+      throw new PSCmsException(ServerErrorCodes.EXCEPTION_NOT_CAUGHT, e.toString());
     } finally {
       ir.cleanUp();
     }
