@@ -32,6 +32,7 @@ const {
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   isAssembledPreviewHtml,
+  isPsErrorsHtmlWriterFailure,
   listedPagePreviewCmsPath,
   cmsSitePathPreviewGetUrl,
   listedPageSiteNames,
@@ -353,6 +354,27 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
   });
 
+  it("isAssembledPreviewHtml rejects PSErrors HTML writer failure (#3809)", () => {
+    assert.equal(
+      isPsErrorsHtmlWriterFailure(
+        "No message body writer has been found for class com.percussion.share.validation.PSErrors, ContentType: text/html",
+      ),
+      true,
+    );
+    assert.equal(
+      isAssembledPreviewHtml(
+        "No message body writer has been found for class com.percussion.share.validation.PSErrors, ContentType: text/html",
+      ),
+      false,
+    );
+    assert.equal(
+      isAssembledPreviewHtml(
+        "<!DOCTYPE html><html><head><title>Preview error</title></head><body><p>Failed to preview page</p></body></html>",
+      ),
+      false,
+    );
+  });
+
   it("cmsSitePathPreviewGetUrl prefixes Rhythmyx and encodes spaces", () => {
     assert.equal(
       cmsSitePathPreviewGetUrl(
@@ -534,6 +556,15 @@ describe("explorer-preview-view helpers (#2733)", () => {
       src,
       /if\s*\(\s*!listed\s*\)\s*\{\s*test\.skip/,
     );
+  });
+
+  it("preview spec asserts pagemanagement render is not PSErrors writer (#3809)", () => {
+    const specPath = path.join(__dirname, "..", "explorer-preview-view.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /isPsErrorsHtmlWriterFailure/);
+    assert.match(src, /pageRenderPreviewPath/);
+    assert.match(src, /#3809/);
+    assert.match(src, /Accept:\s*["']text\/html["']/);
   });
 
   it("preview spec opens REST-listed site via tree-node then Pages (#3696)", () => {

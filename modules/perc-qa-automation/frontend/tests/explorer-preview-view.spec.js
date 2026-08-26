@@ -16,7 +16,7 @@
 
 /**
  * Playwright surface: #2733 / #3456 / #3463 / #3627 / #3688 / #3696 / #3716 /
- * #3719 / #3722 — Explorer preview for a listed page on
+ * #3719 / #3722 / #3809 — Explorer preview for a listed page on
  * {@code spa.jsp?entry=explorer}.
  *
  * <p>Verifies product shell chrome for Preview + Refresh, then opens
@@ -48,6 +48,8 @@ const {
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   isAssembledPreviewHtml,
+  isPsErrorsHtmlWriterFailure,
+  pageRenderPreviewPath,
   listedPagePreviewCmsPath,
   cmsSitePathPreviewGetUrl,
   listedPageSiteNames,
@@ -557,8 +559,12 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         )
       ) {
         expect(
+          isPsErrorsHtmlWriterFailure(previewBody),
+          `Preview must not be PSErrors text/html writer failure (#3809); body=${String(previewBody).slice(0, 240)}`,
+        ).toBe(false);
+        expect(
           isAssembledPreviewHtml(previewBody),
-          `Assembled preview must be HTML, not NPE/JSP error; body=${String(previewBody).slice(0, 240)}`,
+          `Assembled preview must be HTML, not NPE/JSP/PSErrors writer text; body=${String(previewBody).slice(0, 240)}`,
         ).toBe(true);
       }
 
@@ -626,6 +632,40 @@ test.describe("modern React Content Explorer — preview + view residual (#2733 
         checkInFailures,
         `checkIn must not 500 for listed page (#3688): ${checkInFailures.join(" | ")}`,
       ).toEqual([]);
+    },
+  );
+
+  test(
+    "pagemanagement render of listed page is assembled HTML not PSErrors writer (#3809)",
+    { tag: ["@explorer-preview-view", "@preview"] },
+    async ({ request }) => {
+      test.setTimeout(30_000);
+      const listed = await findListedPageViaRest(request);
+      const renderId =
+        (listed && listed.id) ||
+        "16777215-101-551";
+      const renderPath = pageRenderPreviewPath("/Rhythmyx/services", renderId);
+      expect(renderPath, "pagemanagement render path").toBeTruthy();
+      const renderUrl = `${BASE_URL}${renderPath}`;
+      const res = await request.get(renderUrl, {
+        headers: {
+          ...adminBasicAuthHeaders(),
+          Accept: "text/html",
+        },
+      });
+      const body = await res.text();
+      expect(
+        isPsErrorsHtmlWriterFailure(body),
+        `GET ${renderUrl} must not be PSErrors message-body-writer text; body=${body.slice(0, 240)}`,
+      ).toBe(false);
+      expect(
+        res.status(),
+        `GET ${renderUrl} should be HTTP 200 assembled HTML; body=${body.slice(0, 240)}`,
+      ).toBe(200);
+      expect(
+        isAssembledPreviewHtml(body),
+        `GET ${renderUrl} must be assembled HTML not PSErrors; body=${body.slice(0, 240)}`,
+      ).toBe(true);
     },
   );
 

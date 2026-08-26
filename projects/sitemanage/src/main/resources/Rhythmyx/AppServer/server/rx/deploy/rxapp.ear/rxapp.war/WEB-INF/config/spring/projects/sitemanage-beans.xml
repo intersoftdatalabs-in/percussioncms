@@ -430,6 +430,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="validationExceptionMapper"/>
             <ref bean="constraintsViolatedExceptionMapper"/>
             <ref bean="runtimeExceptionMapper"/>
+            <!-- Preview GET …/render/page/{id} Accept text/html (#3809) -->
+            <ref bean="psErrorsHtmlMessageBodyWriter"/>
             <ref bean="jacksonProvider"/>
             <ref bean="jacksonContextResolver"/>
 

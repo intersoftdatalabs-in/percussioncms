@@ -387,12 +387,28 @@ function isAssembledPreviewHtml(body) {
   if (lower.includes("stringescapeutils.escapehtml")) return false;
   if (lower.includes("org.apache.commons.lang3.stringescapeutils")) return false;
   if (lower.includes("unable to compile class for jsp")) return false;
+  if (isPsErrorsHtmlWriterFailure(text)) return false;
+  if (lower.includes("<title>preview error</title>")) return false;
   return (
     lower.includes("<html") ||
     lower.includes("<!doctype") ||
     lower.includes("<body") ||
     /corporate\s+investments/i.test(text)
   );
+}
+
+/**
+ * True when pagemanagement render failed to serialize {@code PSErrors} as
+ * {@code text/html} (#3809) instead of returning assembled page HTML.
+ * @param {string} body
+ * @returns {boolean}
+ */
+function isPsErrorsHtmlWriterFailure(body) {
+  const text = String(body || "");
+  const lower = text.toLowerCase();
+  if (lower.includes("no message body writer")) return true;
+  if (lower.includes("com.percussion.share.validation.pserrors")) return true;
+  return false;
 }
 
 /**
@@ -588,6 +604,7 @@ module.exports = {
   isEditorHostPreviewUrl,
   isProductPagePreviewUrl,
   isAssembledPreviewHtml,
+  isPsErrorsHtmlWriterFailure,
   listedPagePreviewCmsPath,
   cmsSitePathPreviewGetUrl,
   listedPageSiteNames,

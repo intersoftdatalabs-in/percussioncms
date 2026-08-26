@@ -48,6 +48,28 @@ public final class PSFastForwardPreviewAssembly {
    * @param contentTypeName internal type name, may be blank
    * @return {@code true} when perc.base.plain is the correct dispatcher
    */
+  /**
+   * Site associated templates without touching a lazy Hibernate collection that has no session
+   * (Page Management Preview {@code getItemSites} sites — #3809).
+   *
+   * @param site may be {@code null}
+   * @return never {@code null}; empty when the collection cannot be read
+   */
+  public static Collection<?> associatedTemplatesSafe(IPSSite site) {
+    if (site == null) {
+      return List.of();
+    }
+    try {
+      Collection<?> templates = site.getAssociatedTemplates();
+      if (templates == null || templates.isEmpty()) {
+        return List.of();
+      }
+      return List.copyOf(templates);
+    } catch (RuntimeException e) {
+      return List.of();
+    }
+  }
+
   public static boolean usesPercPageDispatcher(String contentTypeName) {
     if (StringUtils.isBlank(contentTypeName)) {
       return false;
