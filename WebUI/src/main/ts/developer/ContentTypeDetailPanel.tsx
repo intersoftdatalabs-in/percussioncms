@@ -18,8 +18,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
+  getContentTypeAllowedTemplates,
   getContentTypeDetail,
   lockContentType,
+  replaceContentTypeAllowedTemplates,
   unlockContentType,
   updateContentTypeDetail,
   type ContentTypeUpdateBody,
@@ -393,6 +395,18 @@ export function ContentTypeDetailPanel({
       setError(DEV_MSG.CT_LOCK_REQUIRED);
       return;
     }
+    if (detail == null) {
+      return;
+    }
+    const otherDirty =
+      label !== (detail.label || "") ||
+      description !== (detail.description || "") ||
+      enabled !== (detail.enabled !== false) ||
+      fieldsDirty ||
+      workflowsDirty;
+    if (!otherDirty && !templatesDirty) {
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -412,24 +426,29 @@ export function ContentTypeDetailPanel({
           required: d.required,
         }));
 
-      const body: ContentTypeUpdateBody = {
-        label,
-        description,
-        enabled,
-        fields: fieldPatches,
-      };
-      if (workflowsDirty) {
-        body.allowedWorkflows = toRefPayload(workflows);
-        const def = workflows.find((w) => w.isDefault) || workflows[0];
-        if (def) {
-          body.defaultWorkflow = toRefPayload([def])[0];
+      let saved: ContentTypeDetail = normalizeDetailLists(detail);
+      if (otherDirty) {
+        const body: ContentTypeUpdateBody = {
+          label,
+          description,
+          enabled,
+          fields: fieldPatches,
+        };
+        if (workflowsDirty) {
+          body.allowedWorkflows = toRefPayload(workflows);
+          const def = workflows.find((w) => w.isDefault) || workflows[0];
+          if (def) {
+            body.defaultWorkflow = toRefPayload([def])[0];
+          }
         }
+        saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
       }
       if (templatesDirty) {
-        body.allowedTemplates = toRefPayload(templates);
+        await replaceContentTypeAllowedTemplates(idOrName, toRefPayload(templates));
+        const listed = await getContentTypeAllowedTemplates(idOrName);
+        saved = { ...saved, allowedTemplates: listed };
       }
 
-      const saved = normalizeDetailLists(await updateContentTypeDetail(idOrName, body));
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
@@ -490,7 +509,7 @@ export function ContentTypeDetailPanel({
               {label || detail.name || idOrName}
             </h2>
             <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
-              {detail.name}
+              <span data-testid="developer-ct-detail-name">{detail.name}</span>
               {" · "}
               <span data-testid="developer-ct-detail-guid">{objectGuid || "—"}</span>
             </div>

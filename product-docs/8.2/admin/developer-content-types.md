@@ -38,7 +38,12 @@ use `GET`/`PUT /services/contenttypes/{idOrName}/itemExits`. This page does
 6. Change the **Description** (and any other unlocked fields), then click
    **Save content type**. Save writes while the lock is still held. It does
    **not** unlock.
-7. Click **Unlock** when you are done. Status returns to **Not locked** and the
+7. To change **Allowed templates**, lock the type, add or remove existing
+   template names or GUIDs (`type-host-uuid`, for example `0-10-347`), then
+   **Save content type**. Save replaces the whole allowed-template set. An empty
+   list clears associations. Unknown names return an error; the lock is not
+   stolen. This is not the full Workbench template picker.
+8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
 
 Locks expire after **30 minutes**. If Save fails because the lock expired,
@@ -51,7 +56,9 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
-| Save | `PUT /services/contenttypes/{idOrName}` (requires a held lock) |
+| Save (label, description, fields, workflows) | `PUT /services/contenttypes/{idOrName}` (requires a held lock) |
+| Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
+| Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

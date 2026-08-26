@@ -39,6 +39,7 @@ import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.data.PSAssemblyTemplate;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -87,6 +88,12 @@ class ContentTypeAdaptorAllowedTemplatesTest {
     percPage = mock(PSItemDefinition.class);
     when(percPage.getTypeId()).thenReturn(311);
     when(itemDefManager.getItemDef("percPage", PSItemDefManager.COMMUNITY_ANY)).thenReturn(percPage);
+    IPSCatalogSummary percPageSum = mock(IPSCatalogSummary.class);
+    IPSGuid percPageGuid = new PSGuid(PSTypeEnum.NODEDEF, 311L);
+    when(percPageSum.getGUID()).thenReturn(percPageGuid);
+    when(percPageSum.getName()).thenReturn("percPage");
+    when(percPageSum.getLabel()).thenReturn("Page");
+    when(designSvc.findContentTypes("percPage")).thenReturn(List.of(percPageSum));
   }
 
   @AfterEach
@@ -112,6 +119,12 @@ class ContentTypeAdaptorAllowedTemplatesTest {
     when(itemDefManager.getItemDef("missing", PSItemDefManager.COMMUNITY_ANY))
         .thenThrow(new com.percussion.cms.objectstore.PSInvalidContentTypeException("missing"));
     assertNull(adaptor.getAllowedTemplates(null, "missing"));
+  }
+
+  @Test
+  void replaceAllowedTemplates_missingType_returnsNull() {
+    when(designSvc.findContentTypes("missing")).thenReturn(List.of());
+    assertNull(adaptor.replaceAllowedTemplates(null, "missing", List.of()));
   }
 
   @Test

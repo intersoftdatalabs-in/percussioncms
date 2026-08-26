@@ -295,12 +295,17 @@ allowed template associations. Body is a JSON array of named refs (`name` and/or
 `guid`). Full-replace semantics: the supplied list becomes the new set; an empty
 array clears associations.
 
-Typical flow (lock REST is a peer slice; SOAP/Workbench can also hold the lock):
+Typical flow:
 
-1. Hold a design lock on the content type.
+1. Hold a design lock on the content type (`POST .../lock` from Developer, or SOAP/Workbench).
 2. `PUT /services/contenttypes/{idOrName}/allowedTemplates` with the new set.
 3. `GET` the same path (or `GET /services/contenttypes/{idOrName}`) to confirm.
 4. Release the design lock when editing is finished.
+
+**Developer → Content types** detail chrome follows that flow after **Lock**: add or
+remove existing template names/GUIDs, **Save content type** (dedicated PUT, then GET
+lists the new set), then **Unlock**. Save is disabled until the lock is held; the
+product does not steal another user's lock. See [Developer Content Types](id:admin-developer-content-types).
 
 `409` means the current session user does not hold the design lock. `400` means
 a template id or name in the body does not exist. The lock stays held after a
