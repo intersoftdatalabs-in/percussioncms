@@ -732,7 +732,7 @@ export interface SiteDef {
  * traditional repository Site. Allow-listed virtual adapters:
  * {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database},
  * {@code http-json}. Developer Sites save chrome includes http-json;
- * Build/Preview/Publish for that kind is a later slice.
+ * Build chrome is shown after save. Preview/Publish for that kind is a later slice.
  */
 export interface VirtualSiteProperties {
   sourceKind?: string | null;

@@ -99,14 +99,16 @@ public interface ISiteAdaptor {
 
   /**
    * Builds a Virtual Site from configured {@code virtual.*} properties ({@code git-filesystem},
-   * {@code csv-filesystem}, or {@code sql-database}).
+   * {@code csv-filesystem}, {@code sql-database}, or {@code http-json}).
    *
    * <p>Loads the site, validates via {@code PSVirtualSiteHelper}, optionally clones/fetches {@code
    * virtual.remoteUrl} into a contained work directory (git-filesystem only), runs {@code
    * PSVirtualSiteBuildService.forSourceType} with portable NIO {@code Path} I/O, and returns
    * pages-written plus link-problem summary. {@code sql-database} uses in-memory H2 ({@code
-   * jdbc:h2:mem:}) only; Oracle / MySQL / SQL Server URLs return 400. Unknown source kinds return
-   * 400. Requires Admin (or equivalent site-manage) authorization.
+   * jdbc:h2:mem:}) only; Oracle / MySQL / SQL Server URLs return 400. {@code http-json} discovers a
+   * local JSON fixture or loopback catalog from {@code _config.yaml} ({@code http.url} / {@code
+   * http.file}); {@code virtual.remoteUrl} is 400 (no secrets on this envelope). Unknown source
+   * kinds return 400. Requires Admin (or equivalent site-manage) authorization.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param request optional body (output root override); may be null
@@ -119,9 +121,10 @@ public interface ISiteAdaptor {
   /**
    * Reports whether the last Virtual Site static build can be previewed (assembled home exists).
    *
-   * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, and {@code sql-database}
-   * sites are previewable after a successful assemble. Missing output is {@code available=false}
-   * with a message (not a 500). Repository and unknown source kinds are 400. Requires Admin.
+   * <p>Last-output based: {@code git-filesystem}, {@code csv-filesystem}, {@code sql-database}, and
+   * {@code http-json} sites are previewable after a successful assemble. Missing output is {@code
+   * available=false} with a message (not a 500). Repository and unknown source kinds are 400.
+   * Requires Admin.
    *
    * @param nameOrId site name or GUID string, not blank
    * @return status (never null)
@@ -134,7 +137,7 @@ public interface ISiteAdaptor {
    * Streams one file from the last Virtual Site build output (path-traversal safe).
    *
    * <p>Same last-output contract as {@link #getVirtualSitePreviewStatus} for {@code git-filesystem},
-   * {@code csv-filesystem}, and {@code sql-database}.
+   * {@code csv-filesystem}, {@code sql-database}, and {@code http-json}.
    *
    * @param nameOrId site name or GUID string, not blank
    * @param relativePath path under the output root ({@code 8.2/index.html}); blank means assembled

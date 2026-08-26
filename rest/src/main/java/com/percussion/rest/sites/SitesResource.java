@@ -265,17 +265,20 @@ public class SitesResource {
       summary = "Build Virtual Site",
       description =
           "Runs the Virtual Site static build for a site configured with"
-              + " virtual.sourceKind=git-filesystem, csv-filesystem, or sql-database. git-filesystem:"
-              + " when virtual.remoteUrl is set, the server clones or fetches that branch into a"
-              + " contained work directory, then discovers Markdown. csv-filesystem: rootPath is a"
-              + " CSV tree (optional _config.yaml; required columns id, title, body; fail-closed on"
-              + " unsafe paths). sql-database: rootPath holds required _config.yaml sql: mapping"
-              + " (in-memory H2 jdbc:h2:mem: only; user/query in yaml, never logged passwords)."
-              + " Unknown source kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with"
-              + " portable NIO Path I/O. Requires Admin. Traditional repository Sites and invalid"
-              + " source kinds/paths return 4xx. Optional body may set outputRoot; otherwise the"
-              + " server writes under {install}/tmp/virtual-sites/{siteKey}. Link problems are"
-              + " reported in the result (HTTP 200) without failing the build.",
+              + " virtual.sourceKind=git-filesystem, csv-filesystem, sql-database, or http-json."
+              + " git-filesystem: when virtual.remoteUrl is set, the server clones or fetches that"
+              + " branch into a contained work directory, then discovers Markdown. csv-filesystem:"
+              + " rootPath is a CSV tree (optional _config.yaml; required columns id, title, body;"
+              + " fail-closed on unsafe paths). sql-database: rootPath holds required _config.yaml"
+              + " sql: mapping (in-memory H2 jdbc:h2:mem: only; user/query in yaml, never logged"
+              + " passwords). http-json: rootPath holds required _config.yaml (versions plus"
+              + " http.url or http.file / default pages.json); local JSON fixture or loopback"
+              + " catalog; virtual.remoteUrl is 400 (no secrets on this envelope). Unknown source"
+              + " kinds return 400. Uses PSVirtualSiteBuildService.forSourceType with portable NIO"
+              + " Path I/O. Requires Admin. Traditional repository Sites and invalid source"
+              + " kinds/paths return 4xx. Optional body may set outputRoot; otherwise the server"
+              + " writes under {install}/tmp/virtual-sites/{siteKey}. Link problems are reported in"
+              + " the result (HTTP 200) without failing the build.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -320,9 +323,10 @@ public class SitesResource {
       summary = "Virtual Site preview status",
       description =
           "Reports whether the last Admin Virtual Site build can be opened from the product UI."
-              + " Last-output based for git-filesystem, csv-filesystem, and sql-database (not"
-              + " git-only). Uses the last build output path (default"
-              + " {install}/tmp/virtual-sites/{siteKey}). Missing or failed builds return 200 with"
+              + " Last-output based for git-filesystem, csv-filesystem, sql-database, and http-json"
+              + " (not git-only). Uses the last build output path (default"
+              + " {install}/tmp/virtual-sites/{siteKey}). After a successful http-json Build,"
+              + " available=true plus homePath. Missing or failed builds return 200 with"
               + " available=false (not 500). Requires Admin. Traditional repository Sites and"
               + " unknown sourceKind values return 400.",
       responses = {
@@ -369,11 +373,11 @@ public class SitesResource {
       summary = "Preview Virtual Site file",
       description =
           "Streams a file from the last Virtual Site build output (git-filesystem,"
-              + " csv-filesystem, or sql-database). Paths are resolved with portable NIO Path under"
-              + " the last output root (no '..' after normalize). HTML root-relative href/src/url()"
-              + " values are rewritten to this preview prefix so navigation works. Requires Admin."
-              + " Missing files return 404 (not 500). Unsafe paths, unknown/repository sourceKind,"
-              + " and files larger than 20 MB return 400.",
+              + " csv-filesystem, sql-database, or http-json). Paths are resolved with portable NIO"
+              + " Path under the last output root (no '..' after normalize). HTML root-relative"
+              + " href/src/url() values are rewritten to this preview prefix so navigation works."
+              + " Requires Admin. Missing files return 404 (not 500). Unsafe paths,"
+              + " unknown/repository sourceKind, and files larger than 20 MB return 400.",
       responses = {
         @ApiResponse(responseCode = "200", description = "File bytes"),
         @ApiResponse(responseCode = "400", description = "Not virtual / unsafe path"),

@@ -365,6 +365,51 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void buildVirtualSiteHttpJsonFixtureDelegates() throws Exception {
+    Path httpRoot = tempDir.resolve("http-site");
+    Files.createDirectories(httpRoot);
+    Files.writeString(
+        httpRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: HTTP Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        http:
+          file: pages.json
+        """,
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        httpRoot.resolve("pages.json"),
+        """
+        {"pages":[{"id":"http-home","path":"index.html","title":"HTTP Home","body":"Hello from JSON."}]}
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("http-out");
+    Files.createDirectories(out);
+
+    VirtualSiteBuildResult built = new VirtualSiteBuildResult();
+    built.setSiteName("HttpHelp");
+    built.setPagesWritten(1);
+    built.setLinkProblemCount(0);
+    built.setHasLinkProblems(false);
+    built.setOutputPath(out.toAbsolutePath().toString());
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+    when(adaptor.buildVirtualSite(eq("HttpHelp"), same(req))).thenReturn(built);
+
+    VirtualSiteBuildResult result = resource.buildVirtualSite("HttpHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().toString(), result.getOutputPath());
+    assertTrue(Files.isRegularFile(httpRoot.resolve("pages.json")));
+    assertTrue(Files.isRegularFile(httpRoot.resolve("_config.yaml")));
+    verify(adaptor).buildVirtualSite("HttpHelp", req);
+  }
+
+  @Test
   public void buildVirtualSiteUnknownKindPropagates400() {
     when(adaptor.buildVirtualSite(eq("Help"), any()))
         .thenThrow(
@@ -475,6 +520,47 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void previewStatusDelegatesHttpJson() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(true);
+    status.setHomePath("8.2/index.html");
+    when(adaptor.getVirtualSitePreviewStatus("HttpHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.TRUE, out.getAvailable());
+    assertEquals("8.2/index.html", out.getHomePath());
+    verify(adaptor).getVirtualSitePreviewStatus("HttpHelp");
+  }
+
+  @Test
+  public void previewStatusHttpJsonMissingBuildIsUnavailable() {
+    VirtualSitePreviewStatus status = new VirtualSitePreviewStatus();
+    status.setAvailable(false);
+    status.setMessage("No assembled Virtual Site to preview. Run Build Virtual Site first.");
+    when(adaptor.getVirtualSitePreviewStatus("HttpHelp")).thenReturn(status);
+
+    VirtualSitePreviewStatus out = resource.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.FALSE, out.getAvailable());
+    assertTrue(out.getMessage() != null && out.getMessage().contains("No assembled"));
+    verify(adaptor).getVirtualSitePreviewStatus("HttpHelp");
+  }
+
+  @Test
+  public void previewFileDelegatesHttpJsonHtml() {
+    byte[] html = "<a href=\"/8.2/index.html\">HTTP Home</a>".getBytes(StandardCharsets.UTF_8);
+    when(adaptor.previewVirtualSiteFile(eq("HttpHelp"), eq("8.2/index.html")))
+        .thenReturn(new VirtualSitePreviewFile("text/html; charset=UTF-8", "8.2/index.html", html));
+
+    Response out = resource.previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+    assertEquals(200, out.getStatus());
+    byte[] body = (byte[]) out.getEntity();
+    String text = new String(body, StandardCharsets.UTF_8);
+    assertTrue(text.contains("/services/sites/HttpHelp/virtual/preview/8.2/index.html"), text);
+    assertTrue(text.contains("HTTP Home"), text);
+    verify(adaptor).previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+  }
+
+  @Test
   public void buildVirtualSiteBlankName400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.buildVirtualSite(" ", null));
@@ -555,6 +641,9 @@ public class SitesResourceTest {
         "buildVirtualSite OpenAPI description must mention sql-database");
     String buildBlock = text.substring(text.indexOf("@Path(\"/{nameOrId}/virtual/build\")"));
     assertTrue(
+        buildBlock.contains("http-json"),
+        "buildVirtualSite OpenAPI description must mention http-json");
+    assertTrue(
         buildBlock.contains("jdbc:h2:mem:"),
         "buildVirtualSite OpenAPI description must mention in-memory H2 jdbc:h2:mem:");
     String publishBlock =
@@ -583,11 +672,17 @@ public class SitesResourceTest {
         previewStatusBlock.contains("sql-database"),
         "getVirtualSitePreviewStatus OpenAPI description must mention sql-database");
     assertTrue(
+        previewStatusBlock.contains("http-json"),
+        "getVirtualSitePreviewStatus OpenAPI description must mention http-json");
+    assertTrue(
         previewFileBlock.contains("csv-filesystem"),
         "previewVirtualSiteFile OpenAPI description must mention csv-filesystem");
     assertTrue(
         previewFileBlock.contains("sql-database"),
         "previewVirtualSiteFile OpenAPI description must mention sql-database");
+    assertTrue(
+        previewFileBlock.contains("http-json"),
+        "previewVirtualSiteFile OpenAPI description must mention http-json");
     assertTrue(
         previewFileBlock.contains("20 MB"),
         "previewVirtualSiteFile OpenAPI description must mention the 20 MB size cap");

@@ -20,41 +20,52 @@ import type {
   VirtualSitePublishResult,
 } from "../api/developer/types";
 
+function normalizedSourceKind(sourceKind: string | null | undefined): string {
+  return (sourceKind ?? "").trim().toLowerCase();
+}
+
 /**
  * True when the Build Virtual Site control should be shown.
- * Git-filesystem, csv-filesystem, and sql-database Virtual Sites all run
- * POST /virtual/build (SQL after a saved sourceKind; JDBC stays in _config.yaml).
- * Repository / blank / unknown kinds and http-json (source chrome only this slice)
- * must not display this chrome.
+ * Git-filesystem, csv-filesystem, sql-database, and http-json Virtual Sites all
+ * run POST /virtual/build (SQL JDBC and HTTP JSON catalog stay in _config.yaml).
+ * Repository / blank / unknown kinds must not display this chrome.
  */
 export function shouldShowVirtualBuildChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  const v = (sourceKind ?? "").trim().toLowerCase();
-  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
+  const v = normalizedSourceKind(sourceKind);
+  return (
+    v === "git-filesystem" ||
+    v === "csv-filesystem" ||
+    v === "sql-database" ||
+    v === "http-json"
+  );
 }
 
 /**
  * True when Preview assembled site should be shown.
- * Same allow-list as Build: last-output preview for git-filesystem,
- * csv-filesystem, and sql-database. Repository / blank / unknown kinds
+ * Last-output preview for git-filesystem, csv-filesystem, and sql-database.
+ * http-json Preview is a later slice. Repository / blank / unknown kinds
  * stay hidden.
  */
 export function shouldShowVirtualPreviewChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  return shouldShowVirtualBuildChrome(sourceKind);
+  const v = normalizedSourceKind(sourceKind);
+  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
 }
 
 /**
  * True when the Publish Virtual Site control should be shown.
  * Git-filesystem, csv-filesystem, and sql-database all run POST /virtual/publish
- * (build then copy to IPSSite.root). Repository / blank / unknown kinds stay hidden.
+ * (build then copy to IPSSite.root). http-json Publish is a later slice.
+ * Repository / blank / unknown kinds stay hidden.
  */
 export function shouldShowVirtualPublishChrome(
   sourceKind: string | null | undefined,
 ): boolean {
-  return shouldShowVirtualBuildChrome(sourceKind);
+  const v = normalizedSourceKind(sourceKind);
+  return v === "git-filesystem" || v === "csv-filesystem" || v === "sql-database";
 }
 
 /**

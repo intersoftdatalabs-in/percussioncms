@@ -51,8 +51,11 @@ import com.percussion.services.virtualsite.PSManagedNavSiteHelper;
 import com.percussion.services.virtualsite.PSVirtualSiteHelper;
 import java.time.Duration;
 import com.percussion.utils.guid.IPSGuid;
+import com.sun.net.httpserver.HttpServer;
 import jakarta.ws.rs.WebApplicationException;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1144,6 +1147,158 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void buildVirtualSite_httpJsonWritesHtml() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-src"));
+    Path out = tempDir.resolve("http-out");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    VirtualSiteBuildResult result = adaptor.buildVirtualSite("HttpHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+    assertEquals(out.toAbsolutePath().normalize().toString(), result.getOutputPath());
+    assertFalse(Boolean.TRUE.equals(result.getHasLinkProblems()));
+    Path html = out.resolve("8.2").resolve("index.html");
+    assertTrue(Files.isRegularFile(html), "missing " + html);
+    String body = Files.readString(html, StandardCharsets.UTF_8);
+    assertTrue(body.contains("HTTP Home"), body);
+    assertTrue(body.contains("Hello from JSON"), body);
+  }
+
+  @Test
+  void buildVirtualSite_httpJsonLoopbackWritesHtml() throws Exception {
+    String catalog =
+        """
+        {"pages":[{"id":"loop-home","path":"index.html","title":"Loopback Home","body":"Hello from loopback.","order":1}]}
+        """;
+    HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+    try {
+      byte[] bytes = catalog.getBytes(StandardCharsets.UTF_8);
+      server.createContext(
+          "/pages.json",
+          exchange -> {
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+              os.write(bytes);
+            }
+          });
+      server.start();
+      String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/pages.json";
+      Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-loop"), url);
+      Path out = tempDir.resolve("http-loop-out");
+
+      PSSite site = new PSSite();
+      site.setName("HttpHelp");
+      site.setGUID(siteGuid);
+      put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+      put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+      put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+      when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+      VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+      req.setOutputRoot(out.toAbsolutePath().toString());
+
+      VirtualSiteBuildResult result = adaptor.buildVirtualSite("HttpHelp", req);
+      assertEquals(1, result.getPagesWritten().intValue());
+      Path html = out.resolve("8.2").resolve("index.html");
+      assertTrue(Files.isRegularFile(html), "missing " + html);
+      String body = Files.readString(html, StandardCharsets.UTF_8);
+      assertTrue(body.contains("Loopback Home"), body);
+      assertTrue(body.contains("Hello from loopback"), body);
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void buildVirtualSite_httpJsonMissingId400() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-missing-id"));
+    Files.writeString(
+        siteRoot.resolve("pages.json"),
+        """
+        {"pages":[{"id":"","title":"MissingId","body":"x"}]}
+        """,
+        StandardCharsets.UTF_8);
+    Path out = tempDir.resolve("http-missing-id-out");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("HttpHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(String.valueOf(ex.getMessage()).contains("id"), String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_httpJsonMissingConfig400() throws Exception {
+    Path siteRoot = tempDir.resolve("http-noconfig");
+    Files.createDirectories(siteRoot);
+    Path out = tempDir.resolve("http-noconfig-out");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("HttpHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    String missingMsg = String.valueOf(ex.getMessage()).toLowerCase();
+    assertTrue(
+        missingMsg.contains("config") && missingMsg.contains("_config.yaml"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
+  void buildVirtualSite_httpJsonRemoteUrl400() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-remote"));
+    Path out = tempDir.resolve("http-remote-out");
+
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(site, PSVirtualSiteHelper.PROP_ROOT_PATH, siteRoot.toAbsolutePath().toString());
+    put(site, PSVirtualSiteHelper.PROP_REMOTE_URL, "https://git.example.com/org/docs.git");
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(out.toAbsolutePath().toString());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.buildVirtualSite("HttpHelp", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        String.valueOf(ex.getMessage()).contains("virtual.remoteUrl"),
+        String.valueOf(ex.getMessage()));
+  }
+
+  @Test
   void buildVirtualSite_unknownSourceKind400() {
     Path siteRoot = tempDir.resolve("sql-root");
     PSSite site = new PSSite();
@@ -1947,6 +2102,101 @@ class SitesAdaptorTest {
   }
 
   @Test
+  void previewHttpJson_afterBuildAvailableWithHtml() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-preview-src"));
+    Path defaultOut = tempDir.resolve("http-preview-default");
+    Path built = tempDir.resolve("http-preview-built");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSiteBuildRequest req = new VirtualSiteBuildRequest();
+    req.setOutputRoot(built.toAbsolutePath().normalize().toString());
+    VirtualSiteBuildResult result = previewing.buildVirtualSite("HttpHelp", req);
+    assertEquals(1, result.getPagesWritten().intValue());
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+    assertTrue(file.isHtml());
+    assertEquals("8.2/index.html", file.getRelativePath());
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("HTTP Home"), html);
+    assertTrue(html.contains("Hello from JSON"), html);
+  }
+
+  @Test
+  void previewHttpJson_missingBuildIsUnavailableNot500() throws Exception {
+    Path siteRoot = createMinimalHttpJsonTree(tempDir.resolve("http-preview-empty-src"));
+    Path defaultOut = tempDir.resolve("http-preview-default-empty");
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.FALSE, status.getAvailable());
+    assertEquals(SitesAdaptor.MISSING_PREVIEW_MESSAGE, status.getMessage());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewHttpJson_rejectsTraversalAndMissingFile() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("http-preview-trav-src"));
+    Path defaultOut = tempDir.resolve("http-preview-trav-default");
+    Path built = tempDir.resolve("http-preview-trav-built");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>HTTP Home</h1>Hello from JSON</body></html>");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing =
+        new SitesAdaptor(siteManager, () -> true, key -> defaultOut, null);
+    previewing.recordLastOutputRoot("http-docs", built);
+
+    WebApplicationException traversal =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "../secret.txt"));
+    assertEquals(400, traversal.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () -> previewing.previewVirtualSiteFile("HttpHelp", "no-such.html"));
+    assertEquals(404, missing.getResponse().getStatus());
+  }
+
+  @Test
+  void previewHttpJson_defaultOutputFallbackWithoutPointer() throws Exception {
+    Path siteRoot = Files.createDirectories(tempDir.resolve("http-cli-src"));
+    Path built = tempDir.resolve("http-cli-default");
+    writeAssembledPreviewTree(
+        built, "<html><body><h1>HTTP Home</h1>Hello from JSON</body></html>");
+
+    PSSite site = virtualHttpJsonSite(siteRoot);
+    when(siteManager.findSite("HttpHelp")).thenReturn(site);
+    SitesAdaptor previewing = new SitesAdaptor(siteManager, () -> true, key -> built, null);
+
+    VirtualSitePreviewStatus status = previewing.getVirtualSitePreviewStatus("HttpHelp");
+    assertEquals(Boolean.TRUE, status.getAvailable());
+    assertEquals("8.2/index.html", status.getHomePath());
+
+    VirtualSitePreviewFile file = previewing.previewVirtualSiteFile("HttpHelp", "8.2/index.html");
+    String html = new String(file.getContent(), StandardCharsets.UTF_8);
+    assertTrue(html.contains("HTTP Home"), html);
+  }
+
+  @Test
   void requireSafeRelativePreviewPath_rejectsAbsoluteAndDotDot() {
     WebApplicationException dots =
         assertThrows(
@@ -2024,6 +2274,19 @@ class SitesAdaptorTest {
     return site;
   }
 
+  private PSSite virtualHttpJsonSite(Path httpRoot) {
+    PSSite site = new PSSite();
+    site.setName("HttpHelp");
+    site.setGUID(siteGuid);
+    put(site, PSVirtualSiteHelper.PROP_SOURCE_KIND, "http-json");
+    put(
+        site,
+        PSVirtualSiteHelper.PROP_ROOT_PATH,
+        httpRoot.toAbsolutePath().normalize().toString());
+    put(site, PSVirtualSiteHelper.PROP_SITE_KEY, "http-docs");
+    return site;
+  }
+
   private static Path createMinimalVirtualTree(Path siteRoot) throws Exception {
     Path versionDir = siteRoot.resolve("8.2");
     Files.createDirectories(versionDir);
@@ -2090,6 +2353,62 @@ class SitesAdaptorTest {
     Files.writeString(
         siteRoot.resolve("8.2").resolve("pages.csv"),
         "id,title,body,path,order\ncsv-home,CSV Home,Hello from CSV.,index.md,1\n",
+        StandardCharsets.UTF_8);
+    return siteRoot;
+  }
+
+  /**
+   * Local JSON fixture for http-json REST Build. Catalog URL/file live in {@code _config.yaml};
+   * pass a loopback {@code catalogUrl} to use {@code http.url} instead of {@code http.file}.
+   */
+  private static Path createMinimalHttpJsonTree(Path siteRoot) throws Exception {
+    return createMinimalHttpJsonTree(siteRoot, null);
+  }
+
+  private static Path createMinimalHttpJsonTree(Path siteRoot, String catalogUrl)
+      throws Exception {
+    Files.createDirectories(siteRoot.resolve("8.2"));
+    Files.createDirectories(siteRoot.resolve("_theme"));
+    String httpBlock;
+    if (catalogUrl != null && !catalogUrl.isBlank()) {
+      httpBlock =
+          """
+          http:
+            url: "%s"
+          """
+              .formatted(catalogUrl);
+    } else {
+      httpBlock =
+          """
+          http:
+            file: pages.json
+          """;
+      Files.writeString(
+          siteRoot.resolve("pages.json"),
+          """
+          {"pages":[{"id":"http-home","path":"index.html","title":"HTTP Home","body":"Hello from JSON.","order":1}]}
+          """,
+          StandardCharsets.UTF_8);
+    }
+    Files.writeString(
+        siteRoot.resolve("_config.yaml"),
+        """
+        site:
+          title: HTTP Docs
+        versions:
+          - id: "8.2"
+            label: "8.2"
+            path: "8.2"
+            default: true
+        theme:
+          layout: page.html
+        %s
+        """
+            .formatted(httpBlock),
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        siteRoot.resolve("_theme").resolve("page.html"),
+        "<html><body><h1>${pageTitle}</h1>${content}</body></html>",
         StandardCharsets.UTF_8);
     return siteRoot;
   }
